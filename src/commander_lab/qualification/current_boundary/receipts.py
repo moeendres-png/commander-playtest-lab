@@ -66,9 +66,7 @@ _EXECUTED_INPUT_GLOBS = (
     # The native suites that produce receipts ARE their test sources: a change to
     # a bound test class changes what a receipt proves, so it must change the
     # runner digest and stale every earlier receipt rather than being silently
-    # inherited. (The Forge suites execute in a separately bound workspace; their
-    # test sources live under forge-protocol2-bridge and are covered by the
-    # whole-module bridge/evidence tree comparison.)
+    # inherited.
     "engine-bridge/src/test/java/org/commanderlab/xmage/*.java",
 )
 
@@ -462,8 +460,8 @@ def verify_candidate_identity(
 ) -> None:
     """Fail closed when the recorded candidate identity is not the executing one.
 
-    The WSR22 evidence recorded ``ef958ee9`` as the Forge candidate while the
-    bound native suites actually execute at ``18bba95a``, a descendant of it. A
+    The WSR22 evidence recorded one candidate commit while the bound native
+    suites actually executed at a descendant of it. A
     receipt that named the recorded value would therefore attribute a suite's
     result to an engine head that never ran. This is the same class of defect as
     PB-09, in the Lab's own harness, and it is the reason candidate identity is
@@ -521,9 +519,9 @@ def observed_class_executions(
     A class's test cases are read from the ``<testcase classname=...>`` elements
     of every fresh report, matched by fully qualified or simple class name. That
     covers both surefire layouts: JUnit writes one ``TEST-<class>.xml`` per class,
-    TestNG (Forge) one ``TEST-TestSuite.xml`` holding every class. Reading only
-    per-class file names saw no fresh report at all for Forge's TestNG classes,
-    so 217 passing Forge tests were recorded as "0 tests" and AF10 as FAIL. A
+    TestNG one ``TEST-TestSuite.xml`` holding every class. Reading only per-class
+    file names once saw no fresh report at all for TestNG classes, so 217 passing
+    tests were recorded as "0 tests" and AF10 as FAIL. A
     test case listed twice keeps its worse outcome. A per-class report with suite
     totals but no test-case elements is read from those totals.
 
@@ -1047,16 +1045,11 @@ def environment_identity() -> dict[str, str]:
     if maven_opts is not None:
         out["MAVEN_OPTS.option_names"] = _jvm_option_names(maven_opts)
         out["MAVEN_OPTS.sha256_16"] = _short_digest(maven_opts)
-    for key in ("COMMANDER_LAB_XMAGE_BRIDGE_CMD", "COMMANDER_LAB_FORGE_BRIDGE_CMD"):
+    for key in ("COMMANDER_LAB_XMAGE_BRIDGE_CMD",):
         value = os.environ.get(key)
         if value is not None:
             out[f"{key}.shape"] = _command_shape(value)
             out[f"{key}.sha256_16"] = _short_digest(value)
-    forge_sha = os.environ.get("FORGE_ENGINE_SHA")
-    if forge_sha is not None:
-        out["FORGE_ENGINE_SHA"] = (
-            forge_sha if re.fullmatch(r"[0-9a-f]{40}", forge_sha) else "<invalid>"
-        )
     seed = os.environ.get("PYTHONHASHSEED")
     if seed is not None:
         out["PYTHONHASHSEED"] = seed if re.fullmatch(r"random|[0-9]{1,10}", seed) else "<invalid>"
@@ -1082,7 +1075,6 @@ __all__ = [
     "collect_positive_fixture_receipts",
     "collect_receipts",
     "document_digest",
-    "engine_tree_equivalence",
     "environment_identity",
     "load_native_receipt",
     "load_positive_fixture_receipt",
@@ -1092,264 +1084,12 @@ __all__ = [
     "positive_fixture_credit",
     "require_clean_runner",
     "verify_candidate_identity",
-    "verify_engine_identity",
-    "verify_pb05_provenance",
     "verify_runner_unchanged",
 ]
 
-
-# Forge module roots, split by what they decide.
-#
-# The Rules-Core modules are the ones that decide Magic legality, so a change in
-# any of them means a different engine ran. Those are what the engine-drift check
-# compares, and any difference fails closed.
-#
-# forge-protocol2-bridge is deliberately NOT in that set. It is the transport and
-# provenance surface, not the Rules Core, and it legitimately differs between the
-# recorded candidate and the executing commit: the PB-05 build-provenance repair
-# lives entirely there. Collapsing the bridge into the engine check would both
-# conflate two identities the project requires be bound separately and make the
-# check fail for a repair that changed no Rules-Core source at all.
-FORGE_RULES_CORE_MODULE_ROOTS: tuple[str, ...] = (
-    "forge-game",  # the Forge Rules Core: cards, abilities, zones, stack, combat, SBA
-    "forge-core",
-    "forge-ai",
-    "forge-gui",
-    "forge-gui-desktop",
-    "adventure-editor",
-)
-
-# The bridge/provider module. Tracked and bound as its own identity.
-FORGE_BRIDGE_MODULE_ROOTS: tuple[str, ...] = ("forge-protocol2-bridge",)
-
-# Retained for callers that predate the split; now Rules-Core only.
-FORGE_ENGINE_MODULE_ROOTS: tuple[str, ...] = FORGE_RULES_CORE_MODULE_ROOTS
-
-
-def engine_tree_equivalence(
-    repo: Path,
-    recorded_commit: str,
-    actual_commit: str,
-    module_roots: tuple[str, ...] = FORGE_RULES_CORE_MODULE_ROOTS,
-) -> dict[str, Any]:
-    """Compare the Forge Rules-Core main-source trees at two commits.
-
-    Identity of a commit is not the question when a suite has to execute at a
-    descendant of the recorded candidate. The real question is whether the Rules
-    Core that executed is the Rules Core the evidence is about.
-
-    For Forge the answer is measured, not assumed. Between the fork head
-    ``ef958ee9`` and the executing commit the Rules-Core modules
-    ``forge-game``/``forge-core``/``forge-ai``/``forge-gui``/
-    ``forge-gui-desktop``/``adventure-editor`` are byte-identical, so the
-    descendant executes the same Rules Core.
-
-    The comparison is scoped to the Rules-Core modules on purpose.
-    ``forge-protocol2-bridge`` is excluded and bound as its own identity: it is
-    transport and provenance, not Magic legality, and the PB-05 build-provenance
-    repair changed it while changing no Rules-Core source at all. Including it
-    would conflate two identities the project requires be bound separately, and
-    would fail this check for a repair that did not touch the engine.
-
-    Equivalence is a property that can rot, so it is re-proven on every run and
-    fails closed if any Rules-Core module differs or exists in only one commit.
-    """
-    import subprocess
-
-    def tree_at(commit: str, module: str) -> str:
-        # `--verify` is required: plain `git rev-parse` echoes an unknown ref
-        # back verbatim instead of failing, which would compare the same
-        # non-existent path in both commits and report the engine as identical.
-        completed = subprocess.run(
-            [
-                "git",
-                "rev-parse",
-                "--verify",
-                "--quiet",
-                f"{commit}:{module}/src/main/java",
-            ],
-            cwd=str(repo),
-            capture_output=True,
-            text=True,
-            check=False,
-            env=_clean_git_environment(),
-        )
-        value = completed.stdout.strip()
-        return value if len(value) == 40 and all(c in "0123456789abcdef" for c in value) else ""
-
-    modules: dict[str, dict[str, Any]] = {}
-    differing: list[str] = []
-    # A module present in one commit but not the other is a structural change to
-    # the engine's module layout, so it fails closed rather than being skipped.
-    one_sided: list[str] = []
-    for module in module_roots:
-        recorded_tree = tree_at(recorded_commit, module)
-        actual_tree = tree_at(actual_commit, module)
-        if recorded_tree and actual_tree:
-            equal = recorded_tree == actual_tree
-            modules[module] = {
-                "recorded_tree": recorded_tree,
-                "actual_tree": actual_tree,
-                "identical": equal,
-            }
-            if not equal:
-                differing.append(module)
-        elif recorded_tree != actual_tree:
-            one_sided.append(module)
-    # An empty comparison proves nothing, so it is never equivalent.
-    return {
-        "engine_equivalent": bool(modules) and not differing and not one_sided,
-        "compared_module_roots": list(module_roots),
-        "modules": modules,
-        "differing_modules": differing,
-        "one_sided_modules": one_sided,
-    }
-
-
-def verify_engine_identity(
-    repo: Path, recorded_commit: str, actual_commit: str, *, recorded_label: str
-) -> dict[str, Any]:
-    """Allow a commit difference only when the engine itself is provably identical.
-
-    A suite must execute at the descendant that actually contains its test classes,
-    so exact-commit equality is neither achievable nor the right requirement. What
-    must hold is that the engine is the same engine. This returns the proof, and
-    raises when the difference cannot be justified.
-    """
-    if recorded_commit == actual_commit:
-        return {
-            "engine_equivalent": True,
-            "justification": "EXACT_COMMIT",
-            "recorded_commit": recorded_commit,
-            "actual_commit": actual_commit,
-        }
-    equivalence = engine_tree_equivalence(repo, recorded_commit, actual_commit)
-    if not equivalence["engine_equivalent"]:
-        raise ReceiptError(
-            f"CANDIDATE_IDENTITY_DIVERGENCE: {recorded_label} records "
-            f"{recorded_commit[:12]} but executes at {actual_commit[:12]}, and the engine "
-            f"is not provably the same: differing={equivalence['differing_modules']} "
-            f"one_sided={equivalence['one_sided_modules']} "
-            f"compared={len(equivalence['modules'])}. No credit."
-        )
-    return {
-        **equivalence,
-        "justification": "RULES_CORE_MAIN_SOURCE_TREES_IDENTICAL",
-        "recorded_commit": recorded_commit,
-        "actual_commit": actual_commit,
-        "detail": "the commits differ only outside the Forge Rules-Core main sources, so "
-        "the Rules Core that executed is the Rules Core the evidence is about. The bridge "
-        "module is deliberately excluded and is bound as a separate identity.",
-    }
-
-
-# --------------------------------------------------------------------------- #
-# PB-05: consume provider build provenance fail-closed.
-# --------------------------------------------------------------------------- #
-#
-# A provider that merely CLAIMS a commit is not a verified build. PB-05 previously
-# accepted an operator-supplied environment variable as the commit-to-build
-# binding, which is not build-proven. Forge PR #5 (continuing the PR #4 repair)
-# records the build's own git commit, tree, dirty state and source, and fails
-# closed:
-# `git rev-parse HEAD` and `HEAD^{tree}` are admitted only on exit code 0,
-# `git status --porcelain` yields "unknown" rather than a false "clean" when it
-# fails, a malformed value is rejected rather than passed through, and
-# `engine_commit_verified` is true only when commit, tree and dirty state are all
-# present and match.
-#
-# The Lab side must not undo that by trusting a claim. These checks are therefore
-# independent of the provider's own self-assessment.
 
 _SHA = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _valid_sha(value: Any) -> bool:
     return isinstance(value, str) and bool(_SHA.match(value.strip()))
-
-
-def verify_pb05_provenance(
-    identity: dict[str, Any],
-    *,
-    expected_source_commit: str | None = None,
-    expected_rules_core: str | None = None,
-    expected_tree: str | None = None,
-) -> dict[str, Any]:
-    """Fail-closed consumption of the provider's build provenance.
-
-    AF00 and PB-05 credit require the build-derived commit/tree to equal the
-    exact source that was actually materialized, plus a clean build source and
-    ``engine_commit_verified`` true. For legacy callers,
-    ``expected_rules_core`` is accepted as an alias only when
-    ``expected_source_commit`` is omitted. R-1 dual-identity Forge callers
-    must pass the bridge/materialization source here and prove Rules-Core
-    equivalence separately.
-    """
-    legacy_rules_core_alias = expected_source_commit is None and bool(expected_rules_core)
-    expected_commit = expected_source_commit or expected_rules_core
-    expected_label = "Rules Core" if legacy_rules_core_alias else "source"
-    if not expected_commit:
-        return {
-            "pb05_credit": False,
-            "af00_credit": False,
-            "build_commit": None,
-            "build_tree": None,
-            "build_dirty": identity.get("engine_build_dirty"),
-            "build_source": identity.get("engine_build_source"),
-            "engine_commit_verified": identity.get("engine_commit_verified"),
-            "expected_source_commit": expected_commit,
-            "expected_tree": expected_tree,
-            "findings": ["no expected source commit was supplied"],
-            "rule": "no exact expected build source means no AF00 or PB-05 credit",
-        }
-    findings: list[str] = []
-
-    raw_commit = identity.get("engine_build_commit")
-    raw_tree = identity.get("engine_build_tree")
-    build_commit = raw_commit.strip() if isinstance(raw_commit, str) else None
-    build_tree = raw_tree.strip() if isinstance(raw_tree, str) else None
-    build_dirty = identity.get("engine_build_dirty")
-    build_source = identity.get("engine_build_source")
-    verified = identity.get("engine_commit_verified")
-
-    if not _valid_sha(build_commit):
-        findings.append(f"engine_build_commit is absent or malformed: {raw_commit!r}")
-    elif build_commit is None or build_commit != expected_commit:
-        findings.append(
-            f"build commit {(build_commit or '<none>')[:12]} is not the expected "
-            f"{expected_label} {expected_commit[:12]}"
-        )
-    if not _valid_sha(build_tree):
-        findings.append(f"engine_build_tree is absent or malformed: {raw_tree!r}")
-    elif expected_tree and (build_tree is None or build_tree != expected_tree):
-        findings.append(
-            f"build tree {(build_tree or '<none>')[:12]} is not the expected "
-            f"{expected_label} tree {expected_tree[:12]}"
-        )
-    if build_dirty is None:
-        findings.append("engine_build_dirty is absent")
-    elif str(build_dirty).lower() == "unknown":
-        # The provider could not determine dirtiness. That is not clean.
-        findings.append("engine_build_dirty is 'unknown', which is not clean")
-    elif str(build_dirty).lower() != "false":
-        findings.append(f"the build source is dirty: {build_dirty!r}")
-    if not build_source:
-        findings.append("engine_build_source is absent")
-    if verified is not True:
-        findings.append(f"engine_commit_verified is {verified!r}, not True")
-
-    return {
-        "pb05_credit": not findings,
-        "af00_credit": not findings,
-        "build_commit": build_commit,
-        "build_tree": build_tree,
-        "build_dirty": build_dirty,
-        "build_source": build_source,
-        "engine_commit_verified": verified,
-        "expected_source_commit": expected_commit,
-        "expected_rules_core": expected_commit if legacy_rules_core_alias else None,
-        "expected_tree": expected_tree,
-        "findings": findings,
-        "rule": "no verified build provenance means no AF00 or PB-05 credit; an unknown "
-        "or dirty build source is never treated as clean",
-    }

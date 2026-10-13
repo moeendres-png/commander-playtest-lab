@@ -560,18 +560,14 @@ def derive_decision_boundary(
     if isinstance(expected_runtime_identity, dict) and expected_runtime_identity:
         expected_commit = str(expected_runtime_identity.get("engine_candidate_commit") or "")
         check(
-            # Forge's AF01 reports the exact built bridge source, not the
-            # Rules-Core candidate; both are bound by the runtime identity.
-            reported_commit
-            in {
-                expected_commit,
-                str(expected_runtime_identity.get("bridge_source_commit") or ""),
-            },
+            # An absent report is unmeasured here (AF00 binds identity), not a
+            # contradiction.
+            not reported_commit or reported_commit == expected_commit,
             "CONTRADICTION",
             "-",
             "IDENTITY",
-            f"AF01 reports engine commit {reported_commit or 'nothing'!r}, which is neither the "
-            "candidate nor the bound bridge source of this assembly",
+            f"AF01 reports engine commit {reported_commit or 'nothing'!r}, which is not the "
+            "candidate of this assembly",
         )
 
     results_by_count = cardinality_document.get("results")
@@ -642,23 +638,6 @@ def derive_decision_boundary(
         "PASS" if not contradictions and not gaps else ("FAIL" if contradictions else "UNKNOWN")
     )
     limitations: list[Finding] = []
-    if verdict == "PASS" and candidate == "forge":
-        # Forge's decision responses do not echo the executed actor, so the
-        # actor binding rests on the frame-supplied actor/revision plus the
-        # engine's own stale-revision and wrong-actor rejection rather than on a
-        # response-side identity. Recorded as a non-blocking limitation so the
-        # PASS is not read as more than the evidence shows.
-        limitations.append(
-            Finding(
-                "NOTE",
-                "-",
-                "ACTOR_BINDING",
-                None,
-                "Forge responses carry no executed-actor field; the actor binding rests on the "
-                "frame-supplied actor/revision plus the engine's stale-revision and wrong-actor "
-                "rejection, not on a response-side identity",
-            )
-        )
     return _document(
         candidate, verdict, frame_proofs, contradictions, gaps, required_frame_counts, limitations
     )

@@ -41,9 +41,9 @@ EPOCH = EPOCHS[0]
 # --------------------------------------------------------------------------- #
 
 
-def _forge_scenario(count: int) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    """A Forge-shaped cardinality document for one player count."""
-    game_id = f"wsr22-forge-{count}p-test"
+def _starting_player_scenario(count: int) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """A cardinality document with an externally answered STARTING_PLAYER frame."""
+    game_id = f"wsr22-sp-{count}p-test"
     tape: list[dict[str, Any]] = []
     observations: list[dict[str, Any]] = []
     option_counter = 0
@@ -107,7 +107,7 @@ def _forge_scenario(count: int) -> tuple[dict[str, Any], dict[str, Any], dict[st
     )
     observations.append({"step": "priority_pass", "payload": {"decision": {"executed": True}}})
     results = {
-        "candidate": "forge",
+        "candidate": "xmage",
         "player_count": count,
         "game_id": game_id,
         "steps_completed": [
@@ -126,12 +126,11 @@ def _forge_scenario(count: int) -> tuple[dict[str, Any], dict[str, Any], dict[st
     runtime_identity = {
         "engine_candidate_commit": "b" * 40,
         "engine_candidate_tree": "c" * 40,
-        "bridge_source_commit": "e" * 40,
         "runner_commit": "d" * 40,
     }
     document = {
         "schema_version": "wsr22.player-cardinality/1.0.0",
-        "candidate": "forge",
+        "candidate": "xmage",
         "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
         "runtime_identity": runtime_identity,
         "required_counts": [2, 3, 4, 5],
@@ -139,7 +138,7 @@ def _forge_scenario(count: int) -> tuple[dict[str, Any], dict[str, Any], dict[st
         "results": {f"{count}P": results},
     }
     af01 = {
-        "engine_commit_reported": "e" * 40,
+        "engine_commit_reported": "b" * 40,
         "decision_identity_provenance": {"verified": True},
     }
     return document, af01, runtime_identity
@@ -237,7 +236,7 @@ def _multi(
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
     base: dict[str, Any] | None = None
     for count in counts:
-        document, af01, identity = _forge_scenario(count)
+        document, af01, identity = _starting_player_scenario(count)
         if base is None:
             base = document
         else:
@@ -249,7 +248,7 @@ def _multi(
 def _derive(
     document: dict[str, Any], af01: dict[str, Any], identity: dict[str, Any]
 ) -> dict[str, Any]:
-    return db.derive_decision_boundary("forge", document, af01, identity)
+    return db.derive_decision_boundary("xmage", document, af01, identity)
 
 
 def _first_frame(
@@ -272,7 +271,7 @@ def _synthetic(
 # --------------------------------------------------------------------------- #
 
 
-@pytest.mark.parametrize("candidate", ["forge", "xmage"])
+@pytest.mark.parametrize("candidate", ["xmage"])
 def test_real_epoch_decision_boundary_derives_pass(candidate: str) -> None:
     cardinality = json.loads(
         (EPOCH / f"PLAYER_CARDINALITY_{candidate.upper()}.json").read_text(encoding="utf-8")
@@ -285,33 +284,6 @@ def test_real_epoch_decision_boundary_derives_pass(candidate: str) -> None:
         document["contradictions"],
         document["gaps"],
     )
-    # The real Forge epoch exercises three classes beyond PRIORITY's predecessor
-    # limitation, and the assembler must see them.
-    if candidate == "forge":
-        assert {"STARTING_PLAYER", "MULLIGAN", "PRIORITY"}.issubset(
-            document["externally_answered_decision_classes"]
-        )
-
-
-def test_assembler_reads_the_real_forge_epoch_as_pass() -> None:
-    cardinality = json.loads((EPOCH / "PLAYER_CARDINALITY_FORGE.json").read_text(encoding="utf-8"))
-    af01 = json.loads((EPOCH / "AF01_FORGE.json").read_text(encoding="utf-8"))
-    sys_path = REPO / "scripts/assemble_current_boundary_evidence.py"
-    import importlib.util
-
-    spec = importlib.util.spec_from_file_location("assembler_af04", sys_path)
-    assert spec is not None and spec.loader is not None
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    gate = module.af04_gate("forge", af01, cardinality, cardinality["runtime_identity"])
-    assert gate["gate"] == "AF04"
-    assert gate["verdict"] == "PASS", gate["nonblocking_limitations"]
-    assert gate["owner_ruling"] == "R-2"
-
-
-# --------------------------------------------------------------------------- #
-# Contradictions: a recorded submission outside the offered domain is FAIL
-# --------------------------------------------------------------------------- #
 
 
 def test_a_cost_order_frame_is_measured_and_an_unanswered_one_fails_closed() -> None:
@@ -512,7 +484,7 @@ def test_a_foreign_candidate_artifact_cannot_derive_this_candidate() -> None:
     document["candidate"] = "some-other-engine"
     result = _derive(document, af01, identity)
     assert result["verdict"] == "FAIL"
-    assert any("not 'forge'" in item["detail"] for item in result["contradictions"])
+    assert any("not 'xmage'" in item["detail"] for item in result["contradictions"])
 
 
 def test_a_stale_engine_identity_is_fail() -> None:
@@ -572,7 +544,7 @@ def test_a_missing_runtime_identity_is_unknown() -> None:
 
 
 def test_an_absent_artifact_is_unknown() -> None:
-    result = db.derive_decision_boundary("forge", None, {}, {})
+    result = db.derive_decision_boundary("xmage", None, {}, {})
     assert result["verdict"] == "UNKNOWN"
 
 

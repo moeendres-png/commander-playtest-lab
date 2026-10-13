@@ -1175,25 +1175,15 @@ def scripted_pregame_row(
         # now projects the native callback as a structured london_bottom
         # decision (decision_kind + bottom_of_library_selection context) that
         # the driver answers from the record's multiset (see
-        # game_driver.SCRIPTED_LONDON_BOTTOM_POLICY). The pinned Forge bridge
-        # still offers no such surface, so its refusal names Forge's own
-        # missing channel, never a generic one.
+        # game_driver.SCRIPTED_LONDON_BOTTOM_POLICY).
         evidence["scripted_london_bottoms"] = [[seat, value] for seat, value in bottoms]
         if candidate != "xmage":
-            if candidate == "forge":
-                reason = (
-                    "the record scripts a London bottom selection "
-                    f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
-                    "Forge bridge never answers an owed tuck; the Lab never chooses the "
-                    "card for the player"
-                )
-            else:
-                reason = (
-                    "the record scripts a London bottom selection "
-                    f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
-                    f"{candidate} bridge offers no engine london_bottom decision; the Lab "
-                    "never chooses the card for the player"
-                )
+            reason = (
+                "the record scripts a London bottom selection "
+                f"({', '.join(seat.upper() for seat, _ in bottoms)}), and the pinned "
+                f"{candidate} bridge offers no engine london_bottom decision; the Lab "
+                "never chooses the card for the player"
+            )
             return RowResult(
                 fixture_id,
                 candidate,
