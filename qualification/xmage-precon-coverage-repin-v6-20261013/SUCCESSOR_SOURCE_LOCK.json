@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-precon-coverage-repin-v6-20261013",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the native maven.yml run on the exact pin is bound below; the Lab bridge suite against XMage built from this pin is PENDING and carries no result counts. NOT_RUN != PASS.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "native and Lab runtime qualification are bound to exact-commit runs below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -114,14 +114,28 @@
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "not run on this pin",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below; the local isolated m2 cross-check (engine-bridge mvn verify against the PR head jars, 1098 run, 0 failures) is supporting only",
+  "installed_artifacts_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 44975a5909bcd1bf37bae7ad720e6e9e9ecd6363593dc8177e5ae32a6b632253",
+   "org.mage:mage-sets:1.4.61": "sha256 a16409212f8a128141d17f52d6b72447c7fc28884d6faeba600f7826b1fe56df"
+  },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance workflow_dispatch on the repin branch head with XMAGE_COMMIT=38cb21a85c4074b00ab226e625200a4feaf3462f",
-   "status": "PENDING",
-   "not_claimed": "no engine-bridge run against XMage built from this pin exists yet, so no Lab runtime credit is claimed for it"
-  }
+   "command": "XMage Full Game Conformance workflow_dispatch on the repin branch head 7046fedd (XMAGE_COMMIT=38cb21a8): engine-bridge mvn verify against XMage built from exact 38cb21a8",
+   "run": 1099,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 38402457281,
+   "job": 115313353167,
+   "artifact": {
+    "id": 11817021926,
+    "zip_sha256": "c5c9a66fda32b4415b1a9f9aed9fe054780458f813e11ec85d4d2b9761a299ad"
+   },
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedEngineCarriesThePreconCoverageHooks checks the structural signature of this pin on the loaded classes (RequirementEffect.mustAttackDefenders, GameEvent.EventType.CONNIVED, CardRepository.findAllSetCodeAndCardNumberKeys, mage.cards.s.ShuriTheBlackPanther)."
  },
  "architecture_freeze_binding": {
   "status": "UNCHANGED_BY_THIS_REPIN",
