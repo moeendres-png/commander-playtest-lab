@@ -820,8 +820,10 @@ def test_af11_adjudication_covers_the_live_pin_and_keeps_the_prior_record() -> N
     assert prior["licence_topology"] == record["licence_topology"]
     assert record["forge"]["role"] == "REMOVED"
     assert record["forge"]["in_production_distribution"] is False
-    assert "FORGE_SEPARATE_PROCESS" in prior["decisions"]
-    assert record["decisions"] == [d for d in prior["decisions"] if d != "FORGE_SEPARATE_PROCESS"]
+    assert "FORGE_SEPARATE_PROCESS" in [d["id"] for d in prior["decisions"]]
+    assert record["decisions"] == [
+        d for d in prior["decisions"] if d["id"] != "FORGE_SEPARATE_PROCESS"
+    ]
     for key in ("adapter", "launch_main_class", "provider_classpath_manifest"):
         assert prior["integration_topology"][key] == record["integration_topology"][key]
 
