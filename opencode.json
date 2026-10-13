@@ -8,7 +8,8 @@
     "max_bytes": 51200
   },
   "enabled_providers": [
-    "opencode"
+    "opencode",
+    "opencode-go"
   ],
   "permission": {
     "read": {
@@ -235,6 +236,11 @@
         "action": "provider.use",
         "effect": "allow",
         "resource": "opencode"
+      },
+      {
+        "action": "provider.use",
+        "effect": "allow",
+        "resource": "opencode-go"
       }
     ]
   },
