@@ -1,0 +1,151 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-precon-coverage-repin-v6-20261013",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "native and Lab runtime qualification are bound to exact-commit runs below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+  "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
+  "role": "prior live XMage pin (repin v5: the deterministic commander-zone ask order, mage#57); stays historical and remains the engine of the current_qualification record until the requalification of this pin",
+  "successor_locks": [
+   "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+   "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120"
+  },
+  "scanner_merge": {
+   "commit": "e5030e84687d612744ea413b522870cfb00f2f07",
+   "tree": "6686f951173905ba52199c02d81fba70764076fd",
+   "parents": [
+    "3cbf7741d29a2fe820725456b90f305f9f793ad1",
+    "99b18b8f7281a1514ffab461d931a77bea7c7ba3"
+   ]
+  },
+  "donor_head": {
+   "commit": "6cc9016757a7d07229e03b96f1a8b8d410729b17",
+   "tree": "e6845ec795aeeae4ce5a229a9da6fb96bf51910a",
+   "carries": "e5030e84687d612744ea413b522870cfb00f2f07"
+  },
+  "final_integrated_candidate": {
+   "commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+   "tree": "e6845ec795aeeae4ce5a229a9da6fb96bf51910a",
+   "content": "v5 + the card-scanner bulk set-card lookup (mage#58) + the precon card coverage with its engine hooks (mage#59)"
+  },
+  "identity_rule": "each runtime receipt is bound to the commit it ran on. The donor head already merged the scanner merge, so it and the integrated merge commit share a tree: only the commit separates them."
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "tree": "e6845ec795aeeae4ce5a229a9da6fb96bf51910a",
+  "parents": [
+   "e5030e84687d612744ea413b522870cfb00f2f07",
+   "6cc9016757a7d07229e03b96f1a8b8d410729b17"
+  ],
+  "committed_at": "2026-10-13T14:42:06+02:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/38cb21a85c4074b00ab226e625200a4feaf3462f.tar.gz",
+  "fork_ref_verified": "git ls-remote https://github.com/moeendres-png/mage.git claude/xmage-mp-candidate-20260929 = 38cb21a85c4074b00ab226e625200a4feaf3462f"
+ },
+ "donors": [
+  {
+   "finding": "CARD-SCANNER-BULK-LOOKUP",
+   "pr": "moeendres-png/mage#58",
+   "head": "99b18b8f7281a1514ffab461d931a77bea7c7ba3",
+   "observation": "the card scanner tested every stored set card with its own repository query at start-up",
+   "fix": "one query returns every stored set-code/card-number key; the scanner tests membership in that set. Start-up only; no Rules behaviour and no card data change."
+  },
+  {
+   "finding": "PRECON-CARD-COVERAGE",
+   "pr": "moeendres-png/mage#59",
+   "head": "6cc9016757a7d07229e03b96f1a8b8d410729b17",
+   "observation": "cards of the Owner's precons and collection were missing from or disabled in the pinned XMage, so decks holding them could not be constructed or played as printed",
+   "fix": "62 cards added or enabled, each with its own Mage.Tests test, plus the engine hooks those cards need: RequirementEffect.mustAttackDefenders (must attack one of several defenders), a per-effect Combat.checkAttackRequirements (a requirement naming a defender who has left the game no longer cancels the other creatures' requirements, CR 800.4a), the CONNIVED game event with ConnivesCreatureYouControlTriggeredAbility, and one new MageIdentifier value",
+   "review": "independent fresh-context review of the engine hooks: PASS, P3 notes only"
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --stat 3cbf7741 38cb21a8 -- Mage/src; blob ids from git ls-tree 38cb21a8",
+  "engine_module_files": {
+   "Mage/src/main/java/mage/MageIdentifier.java": "ab7986a3f44c05497daa6c178064412657f3da1f",
+   "Mage/src/main/java/mage/abilities/common/ConnivesCreatureYouControlTriggeredAbility.java": "eb895d09f4ba7d57ead6f1c49b697842cd3619e6",
+   "Mage/src/main/java/mage/abilities/effects/RequirementEffect.java": "579cbf36a120e20663d96aabb75ea7d80979e6c7",
+   "Mage/src/main/java/mage/abilities/effects/keyword/ConniveSourceEffect.java": "28431824d162579f527fe324547f55fa90a36fe2",
+   "Mage/src/main/java/mage/cards/repository/CardRepository.java": "0ef8d972040769ae0656020f0ac7ade2c8ee5383",
+   "Mage/src/main/java/mage/cards/repository/CardScanner.java": "e4ad727915a40b1a3e2cf8cafb1e91dad60b4987",
+   "Mage/src/main/java/mage/game/combat/Combat.java": "8749fc931b99f74250904c8de9cc83a83606d1fc",
+   "Mage/src/main/java/mage/game/events/GameEvent.java": "03b7eafbcb3467b9ee9b726a06112a31d6803363"
+  },
+  "dependency_change": false,
+  "build_files_changed": [],
+  "build_files_note": "no pom.xml or other build file changes between the prior pin and this pin; the rest of the delta is Mage.Sets card and set classes, Mage.Tests tests and commander-lab/ notes outside the build"
+ },
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/xmage-mp-candidate-20260929",
+   "run_id": 38399272763,
+   "job": 115302393403,
+   "commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+   "run": 7189,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "COMPLETE",
+   "donor_regressions_in_run": "MustAttackLeftPlayerTest, KangDynastyMultiplayerTest, GalactusDevourerOfWorldsMultiplayerTest, SilverSurferGalactussHeraldMultiplayerTest, DurnanOfTheYawningPortalTest, ShuriTheBlackPantherTest appear in the Mage.Tests per-class listing of this run",
+   "source": "Mage Actions run 38399272763 (maven.yml workflow_dispatch, head 38cb21a8), job 115302393403, Mage.Tests module summary line 'Tests run: 7189, Failures: 0, Errors: 0, Skipped: 125'",
+   "baseline_at_prior_pin": "7042 run / 125 skipped at 3cbf7741 (run 38136235677); the donor adds new test classes"
+  },
+  "mage_verify": {
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest.test_checkMissingSetData:1230 'Found set errors: 3' and VerifyCardDataTest.test_verifyCards:361 'found 15 errors in 91085 cards verify'; the same two failure lines and the same 15 card errors (Dragon Engine / Traxos subtypes) appear in run 38369967979 on e5030e84 and in run 38136235677 on 3cbf7741. The donor's cards add no Verify error."
+  }
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below; the local isolated m2 cross-check (engine-bridge mvn verify against the PR head jars, 1098 run, 0 failures) is supporting only",
+  "installed_artifacts_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 44975a5909bcd1bf37bae7ad720e6e9e9ecd6363593dc8177e5ae32a6b632253",
+   "org.mage:mage-sets:1.4.61": "sha256 a16409212f8a128141d17f52d6b72447c7fc28884d6faeba600f7826b1fe56df"
+  },
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance workflow_dispatch on the repin branch head 7046fedd (XMAGE_COMMIT=38cb21a8): engine-bridge mvn verify against XMage built from exact 38cb21a8",
+   "run": 1099,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 38402457281,
+   "job": 115313353167,
+   "artifact": {
+    "id": 11817021926,
+    "zip_sha256": "c5c9a66fda32b4415b1a9f9aed9fe054780458f813e11ec85d4d2b9761a299ad"
+   },
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedEngineCarriesThePreconCoverageHooks checks the structural signature of this pin on the loaded classes (RequirementEffect.mustAttackDefenders, GameEvent.EventType.CONNIVED, CardRepository.findAllSetCodeAndCardNumberKeys, mage.cards.s.ShuriTheBlackPanther)."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on 3cbf7741 until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the freeze record is re-assembled."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, sealed as a new epoch. No current-boundary epoch exists for this pin yet, and none may be written by this repin. AF11 is UNKNOWN for this pin because the AF11 adjudication covers 3cbf7741 only; the pin delta adds no dependency and no jar, so the re-adjudication is expected to carry the same inventory, but it must be recorded, not assumed."
+ }
+}

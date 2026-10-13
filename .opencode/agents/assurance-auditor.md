@@ -1,8 +1,8 @@
 ---
-description: Read-only fresh-context adversarial auditor (Space Bunny MAX) for qualification, construction-proof, row, receipt, lock and contract diffs
+description: Read-only fresh-context adversarial auditor (Step 5 Preview HIGH) for qualification, construction-proof, row, receipt, lock and contract diffs
 mode: subagent
-model: opencode/space-bunny-free
-variant: max
+model: opencode/step-5-preview-free
+variant: high
 permission:
   edit: deny
   bash:
@@ -43,6 +43,6 @@ substantiate. If nothing survives, say so in one line.
 
 This audit is internal assurance for the run that dispatched you. It is not a verifiable
 cross-executor review receipt: the dispatching top-level lane is writable, and only the
-trusted read-only `/bunny-review` lane (`foundry-reviewer`) can produce review evidence
+trusted read-only `/ro-review` lane (`foundry-reviewer`) can produce review evidence
 admitted by `tools/foundry/review_gate.py`. Never present this audit as a gate PASS and
 never invent or copy repository/run identities.

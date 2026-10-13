@@ -37,9 +37,9 @@ def _export_fixture() -> dict:
             "id": "ses_test",
             "agent": "foundry-implementer",
             "model": {
-                "providerID": "opencode-go",
-                "id": "space-bunny",
-                "variant": "max",
+                "providerID": "opencode",
+                "id": "step-5-preview-free",
+                "variant": "high",
             },
             "version": "1.18.30",
             "cost": 0.13,
@@ -73,8 +73,8 @@ def test_session_stats_counts_only(tmp_path: Path) -> None:
     summary = session_stats_mod.summarize(str(path))
     assert summary["session_id"] == "ses_test"
     assert summary["agent"] == "foundry-implementer"
-    assert summary["model"] == "opencode-go/space-bunny"
-    assert summary["variant"] == "max"
+    assert summary["model"] == "opencode/step-5-preview-free"
+    assert summary["variant"] == "high"
     assert summary["model_turns"] == 1
     assert summary["tool_calls"] == 3
     assert summary["tool_calls_by_tool"] == {"bash": 2, "edit": 1}
@@ -111,9 +111,9 @@ def test_session_stats_aggregates_a_multi_turn_export(tmp_path: Path) -> None:
             "id": "ses_multiturn",
             "agent": "foundry-implementer",
             "model": {
-                "providerID": "opencode-go",
-                "id": "space-bunny",
-                "variant": "max",
+                "providerID": "opencode",
+                "id": "step-5-preview-free",
+                "variant": "high",
             },
             "version": "1.18.30",
             "tokens": {
@@ -138,8 +138,8 @@ def test_session_stats_aggregates_a_multi_turn_export(tmp_path: Path) -> None:
     path = tmp_path / "multiturn-export.json"
     path.write_text(json.dumps(export), encoding="utf-8")
     summary = session_stats_mod.summarize(str(path))
-    assert summary["model"] == "opencode-go/space-bunny"
-    assert summary["variant"] == "max"
+    assert summary["model"] == "opencode/step-5-preview-free"
+    assert summary["variant"] == "high"
     assert summary["model_turns"] == turns
     # Every turn issues one tool call, so tool calls are never below turns.
     assert summary["tool_calls"] == turns
@@ -173,9 +173,9 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
     entry = metrics_mod.record(
         str(metrics),
         repo_profile="mage",
-        model="opencode-go/space-bunny",
-        execution_profile="space-bunny",
-        native_variant="max",
+        model="opencode/step-5-preview-free",
+        execution_profile="step",
+        native_variant="high",
         started_utc="2026-09-10T00:00:00Z",
         ended_utc="2026-09-10T01:00:00Z",
         exit_status=0,
@@ -185,8 +185,8 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
         cost_usd=0.5,
     )
     assert entry["repo_profile"] == "mage"
-    assert entry["execution_profile"] == "space-bunny"
-    assert entry["native_variant"] == "max"
+    assert entry["execution_profile"] == "step"
+    assert entry["native_variant"] == "high"
     assert entry["push_result"] == "PUSHED"
     assert entry["exit_status"] == 0
 

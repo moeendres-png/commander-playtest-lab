@@ -37,15 +37,17 @@ HANDOFF instead of preserving one giant coordinator conversation.
    can answer the question without model judgement.
 2. Route implementation, debugging, test/fix loops, CI remediation, qualification execution,
    evidence production, multi-file edits and long autonomous engineering work to OpenCode
-   Foundry. Since 2026-10-10 the only executor is Space Bunny at native `max` on OpenCode Zen
-   (`opencode/space-bunny-free`; the Go id is retired) on every lane: `/oc` (implementer), `/bunny` (verifier),
-   `/bunny-review` (read-only reviewer) and the `opencode-subagent` MCP tools, which this
-   project's `.claude/settings.json` pins to Space Bunny via `OPENCODE_SUBAGENT_MODEL`.
-   Always pass `model: "opencode/space-bunny-free"` explicitly when calling those MCP tools.
+   Foundry. Since 2026-10-12 the only OpenCode model is Step 5 Preview on OpenCode Zen
+   (`opencode/step-5-preview-free`, native `high`, its highest catalog level; free Zen quota)
+   on every lane: `/oc` (implementer), `/assure` (verifier), `/ro-review` (read-only
+   reviewer). From a Claude session start it with the `opencode` CLI
+   (`opencode run -m opencode/step-5-preview-free --variant high`): the Zen free tier refuses
+   calls through the `opencode-subagent` MCP bridge. Never select any other OpenCode model.
+   A Zen rate limit or refusal is BLOCKED_SERVICE; run Step jobs one at a time.
 3. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it and
    do not re-enable it without a new direct Owner instruction.
    There is no automatic fallback to it or any other model for failure, quota or convenience.
-   Write every Space Bunny prompt per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
+   Write every Step 5 Preview prompt per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
 4. Use Claude subagents only for bounded read-only side work that would pollute the main context:
    `log-scanner` = Sonnet `low`; `ci-triage` = Sonnet `medium`; built-in `Explore` only for a
    scoped read-only repository lookup after deterministic search is insufficient. Do not use
@@ -71,7 +73,7 @@ do not micromanage the worker unless an authority/ownership gate appears, canoni
 changes, the packet was objectively incomplete, or the run terminates without resumable state.
 
 - `gh_ops.py brief` is the one-screen lane status; prefer it to raw API/check/comment dumps.
-- `oc_dispatch.py post` builds `/oc` or `/bunny` comments from the compact task skeletons;
+- `oc_dispatch.py post` builds `/oc` or `/assure` comments from the compact task skeletons;
   `oc_dispatch.py watch` consumes the compact result.
 - Every helper report is ≤40 lines; routine user status messages are ≤8 lines.
 - Test narrow while iterating; run the full required suite once at the integration boundary.
@@ -83,5 +85,5 @@ changes, the packet was objectively incomplete, or the run terminates without re
   Do not add a custom cache TTL without benchmark evidence; the short helpers use Claude Code's
   normal cache policy.
 
-The native-`max` requirement above applies to the OpenCode profiles only. It does not imply
+The native-variant requirement above applies to the OpenCode profiles only. It does not imply
 Claude `max` effort.

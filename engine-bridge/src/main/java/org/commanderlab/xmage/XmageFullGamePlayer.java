@@ -1509,6 +1509,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
                 .filter(manaAbility -> manaCostAffordable(manaAbility, available, game))
                 .filter(manaAbility -> !manaActivationInFlight(manaAbility))
+                .filter(manaAbility -> !needsSourceTapStillOwed(manaAbility, ability))
                 .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .toList();
 
@@ -1645,6 +1646,45 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     boolean manaActivationInFlight(Ability manaAbility) {
         return manaAbility != null && manaPaymentsInFlight.contains(activationKey(manaAbility));
+    }
+
+    /**
+     * #756: true when {@code manaAbility} would tap (or untap) the very
+     * permanent whose ability is being paid, while that ability still owes
+     * the same {T} (or {Q}) cost.
+     *
+     * <p>The pinned engine pays an activated ability's mana cost before its
+     * other costs. Tapping the source for mana first leaves its {T} cost
+     * unpayable: the activation fails and the game aborted with
+     * XMAGE_ACTION_EXECUTION_FAILED / "priority activation failed" (Grim
+     * Backwoods, Arcane Lighthouse, Desolate Lighthouse and others in the
+     * per-card smoke test). Read from the engine's own cost objects: an unpaid
+     * {@code TapSourceCost} / {@code UntapSourceCost} on the paying ability,
+     * the same kind of cost on the mana ability, and the same source object.
+     * The option can never complete this payment, so leaving it out removes
+     * no line of play.
+     */
+    static boolean needsSourceTapStillOwed(Ability manaAbility, Ability paying) {
+        if (manaAbility == null || paying == null || paying.getSourceId() == null
+                || !paying.getSourceId().equals(manaAbility.getSourceId())) {
+            return false;
+        }
+        return (owesUnpaid(paying, mage.abilities.costs.common.TapSourceCost.class)
+                        && owesUnpaid(manaAbility, mage.abilities.costs.common.TapSourceCost.class))
+                || (owesUnpaid(paying, mage.abilities.costs.common.UntapSourceCost.class)
+                        && owesUnpaid(manaAbility, mage.abilities.costs.common.UntapSourceCost.class));
+    }
+
+    private static boolean owesUnpaid(Ability ability, Class<? extends Cost> kind) {
+        if (ability.getCosts() == null) {
+            return false;
+        }
+        for (Cost cost : ability.getCosts()) {
+            if (kind.isInstance(cost) && !cost.isPaid()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     static String activationKey(Ability ability) {
@@ -1940,10 +1980,50 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     return true;
                 }
             }
-            return unpaid.testPay(probe);
+            return advancesUnpaid(unpaid, probe, manaType);
         } catch (RuntimeException ignored) {
             return true;
         }
+    }
+
+    /**
+     * #755: whether one mana of {@code manaType} pays part of {@code cost}.
+     *
+     * <p>A two-color hybrid component ({@code {B/R}}) is answered from its own
+     * colors. The pinned engine's {@code HybridManaCost.testPay} switches on
+     * the first color without {@code break} (HybridManaCost.java:62-88), so it
+     * falls through and accepts every colored mana: "Spend green mana" was
+     * reported as advancing {@code {B/R}}, the spend changed nothing, and the
+     * same frame came back until the pilot's no-progress guard cancelled the
+     * cast. {@code ColorlessHybridManaCost} ({@code {C/W}}) has the same
+     * fall-through. Every other component keeps the engine's {@code testPay}.
+     */
+    static boolean advancesUnpaid(ManaCost cost, mage.Mana probe, ManaType manaType) {
+        if (cost instanceof mage.abilities.costs.mana.ManaCosts<?> costs) {
+            for (ManaCost component : costs) {
+                if (!component.isPaid() && advancesUnpaid(component, probe, manaType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        mage.constants.ColoredManaSymbol symbol = switch (manaType) {
+            case WHITE -> mage.constants.ColoredManaSymbol.W;
+            case BLUE -> mage.constants.ColoredManaSymbol.U;
+            case BLACK -> mage.constants.ColoredManaSymbol.B;
+            case RED -> mage.constants.ColoredManaSymbol.R;
+            case GREEN -> mage.constants.ColoredManaSymbol.G;
+            default -> null;
+        };
+        if (cost instanceof mage.abilities.costs.mana.HybridManaCost hybrid) {
+            return symbol != null && hybrid.containsColor(symbol);
+        }
+        if (cost instanceof mage.abilities.costs.mana.ColorlessHybridManaCost colorlessHybrid) {
+            // Same fall-through in ColorlessHybridManaCost.testPay; {C/W} takes {C} or {W}.
+            return manaType == ManaType.COLORLESS
+                    || (symbol != null && colorlessHybrid.containsColor(symbol));
+        }
+        return cost.testPay(probe);
     }
 
     /**

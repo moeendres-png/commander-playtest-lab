@@ -120,15 +120,15 @@ requalification.
   reservations are defined in §8.
 - OpenCode Foundry: primary execution tier for implementation, repository edits, builds,
   tests, debugging, CI, qualification execution, evidence generation, deterministic tooling
-  and long autonomous workstreams. Since the Owner directive of 2026-10-10 the only
-  active executor is Space Bunny on OpenCode Zen: `opencode/space-bunny-free` at native `max`
-  (the OpenCode Go ids are retired, Owner directive 2026-10-10) for the main
-  model, small model, every lane (`/oc`, `/bunny`, `/bunny-review`), every project agent and
+  and long autonomous workstreams. Since the Owner directive of 2026-10-12 the only
+  active executor is Step 5 Preview on OpenCode Zen: `opencode/step-5-preview-free` at its
+  highest native variant `high` (free Zen quota; whenever the project uses OpenCode it uses
+  this model and nothing else) for the main model, small model, every lane (`/oc`, `/assure`, `/ro-review`), every project agent and
   every subagent. DeepSeek (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED: refused by the
   launcher, absent from `opencode.json`, never a fallback. No other OpenCode execution
   profile is authorized or reachable through the canonical launcher/config. The executor is
   recorded per run, never inferred from quota or failure, and never falls back silently.
-  Write prompts for it per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
+  Write prompts for it per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
 - Claude Opus 5.5: explicitly authorized direct engineering/campaign executor when the session prompt declares the campaign objective and writable ownership surface. Claude may execute large autonomous campaigns under the same Rules, evidence, privacy, ownership, Git and merge gates defined here. By owner delegation it also holds the Coordinator tier's decision authority (§8 "Claude Opus 5.5 Coordinator authority"); the Owner-only decisions listed there stay reserved.
 - ChatGPT Work / Astra: exceptional only, after `WORK_NECESSITY = PASS` (required
   capability identified; Sol High insufficient; OpenCode Foundry and any available
@@ -141,7 +141,8 @@ Technical autonomy within those tiers is defined in §8.
 
 Active OpenCode Foundry execution has exactly one allowed launcher identity:
 
-- Space Bunny: native `max` only. The default and only execution path for
+- Step 5 Preview: native `high` only (its highest catalog level). The default and only
+  execution path for
   implementation, debugging, qualification, integration, CI remediation, evidence,
   audits, reviews and long-running campaigns.
 - DeepSeek: SUSPENDED since 2026-10-10 (OpenCode Go monthly quota exhausted). Only a new
@@ -149,11 +150,11 @@ Active OpenCode Foundry execution has exactly one allowed launcher identity:
 
 No other OpenCode executor is selectable under current authority. Historical model references
 are provenance only, are not migration targets, and must not generate routing/governance work
-without a new direct user instruction. There is no active-work `high`, `medium`, `low`,
-`minimal`, `none`, or `off` native lane. The project-level
+without a new direct user instruction. There is no active-work lane below an executor's
+highest native level (`medium`, `low`, `minimal`, `none`, `off`). The project-level
 `--effort` field describes task and authority routing only and never lowers either
-executor below its native level. Do not relabel Space Bunny MAX (or historical DeepSeek MAX) as
-XHIGH; record the actual native identity.
+executor below its native level. Do not relabel Step 5 Preview HIGH (or historical DeepSeek MAX) as
+anything else; record the actual native identity.
 
 ## 8. Technical decision authority
 
@@ -167,9 +168,9 @@ can resolve it.
 
 Routing distinction:
 
-- Space Bunny MAX: default and only active OpenCode execution profile (Owner directive
-  2026-10-10). It is autonomous within the workstream contract and always runs at native
-  `max`. DeepSeek MAX is SUSPENDED and never selected.
+- Step 5 Preview HIGH: default and only active OpenCode execution profile (Owner directive
+  2026-10-12). It is autonomous within the workstream contract and always runs at native
+  `high`. DeepSeek MAX is SUSPENDED and never selected.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized by the session
   contract. It may own campaign-sized technical execution and continuous task selection
   inside declared ownership, but does not inherit Foundry-specific launcher permissions.

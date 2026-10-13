@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/space-bunny-free",
+  "model": "opencode/step-5-preview-free",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -184,12 +184,12 @@
   "provider": {
     "opencode": {
       "whitelist": [
-        "space-bunny-free"
+        "step-5-preview-free"
       ],
       "models": {
-        "space-bunny-free": {
+        "step-5-preview-free": {
           "options": {
-            "reasoningEffort": "max"
+            "reasoningEffort": "high"
           },
           "variants": {
             "none": {
@@ -207,13 +207,13 @@
             "medium": {
               "disabled": true
             },
-            "high": {
-              "disabled": true
-            },
+            "high": {},
             "xhigh": {
               "disabled": true
             },
-            "max": {}
+            "max": {
+              "disabled": true
+            }
           }
         }
       }
@@ -221,7 +221,7 @@
   },
   "agent": {
     "build": {
-      "variant": "max"
+      "variant": "high"
     }
   },
   "experimental": {
@@ -238,5 +238,5 @@
       }
     ]
   },
-  "small_model": "opencode/space-bunny-free"
+  "small_model": "opencode/step-5-preview-free"
 }
