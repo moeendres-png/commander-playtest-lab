@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01,
- * v4 2026-10-03, v5 2026-10-11, v6 2026-10-13): the bridge
+ * v4 2026-10-03, v5 2026-10-11): the bridge
  * declares the XMage multiplayer candidate as its engine commit, and the engine
  * classes actually loaded at runtime are that candidate's.
  *
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "38cb21a85c4074b00ab226e625200a4feaf3462f";
+    static final String CANDIDATE = "3cbf7741d29a2fe820725456b90f305f9f793ad1";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -99,30 +99,6 @@ class XmageCandidateEngineFingerprintTest {
         assertEquals(mage.game.permanent.Permanent.class, revalidate.getReturnType(),
                 "F-43: loaded engine is not the successor: "
                         + group.getProtectionDomain().getCodeSource().getLocation());
-    }
-
-    /**
-     * Successor v6 (2026-10-13): the loaded engine carries the hooks of the precon
-     * card coverage (mage#59): RequirementEffect.mustAttackDefenders and the
-     * CONNIVED game event, plus the bulk set-card lookup of the card scanner
-     * (mage#58). The precon cards themselves live in mage-sets; one of them must
-     * load from the same classpath.
-     */
-    @Test
-    void loadedEngineCarriesThePreconCoverageHooks() throws Exception {
-        Method defenders = mage.abilities.effects.RequirementEffect.class.getMethod(
-                "mustAttackDefenders", mage.abilities.Ability.class, Game.class);
-        assertEquals(java.util.Set.class, defenders.getReturnType(),
-                "mage#59: loaded engine is not the successor: "
-                        + Game.class.getProtectionDomain().getCodeSource().getLocation());
-        assertEquals("CONNIVED",
-                mage.game.events.GameEvent.EventType.valueOf("CONNIVED").name());
-        Method keys = mage.cards.repository.CardRepository.class
-                .getMethod("findAllSetCodeAndCardNumberKeys");
-        assertEquals(java.util.Set.class, keys.getReturnType(), "mage#58");
-        Class<?> shuri = Class.forName("mage.cards.s.ShuriTheBlackPanther");
-        assertTrue(mage.cards.Card.class.isAssignableFrom(shuri),
-                "mage#59: loaded card set is not the successor's");
     }
 
     /**

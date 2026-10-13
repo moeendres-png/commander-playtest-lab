@@ -60,7 +60,7 @@ do not micromanage the worker unless an authority/ownership gate appears, canoni
 changes, the packet was objectively incomplete, or the run terminates without resumable state.
 
 - `gh_ops.py brief` is the one-screen lane status; prefer it to raw API/check/comment dumps.
-- `oc_dispatch.py post` builds `/oc` or `/assure` comments from the compact task skeletons;
+- `oc_dispatch.py post` builds `/oc` or `/bunny` comments from the compact task skeletons;
   `oc_dispatch.py watch` consumes the compact result.
 - Every helper report is ≤40 lines; routine user status messages are ≤8 lines.
 - Test narrow while iterating; run the full required suite once at the integration boundary.
@@ -72,5 +72,5 @@ changes, the packet was objectively incomplete, or the run terminates without re
   Do not add a custom cache TTL without benchmark evidence; the short helpers use Claude Code's
   normal cache policy.
 
-The native-variant requirement above applies to the OpenCode profiles only. It does not imply
+The native-`max` requirement above applies to the OpenCode profiles only. It does not imply
 Claude `max` effort.

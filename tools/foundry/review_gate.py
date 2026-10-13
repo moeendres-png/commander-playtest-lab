@@ -2,19 +2,19 @@
 
 One machine-readable structure and one validator. A MATERIAL policy-enabled
 workstream may claim PR_READY/COMPLETE only when a fresh-context READ-ONLY
-Step 5 Preview HIGH reviewer reviewed the exact validated implementation SHA AND
+Space Bunny MAX reviewer reviewed the exact validated implementation SHA AND
 TREE and returned PASS.
 
 Fail-closed semantics:
 
 - DeepSeek implementation + DeepSeek review stays unsatisfied.
-- Step 5 Preview implementation + Step 5 Preview review is self-review and stays
-  unsatisfied, except while Step 5 Preview is the only ACTIVE registry profile
+- Space Bunny implementation + Space Bunny review is self-review and stays
+  unsatisfied, except while Space Bunny is the only ACTIVE registry profile
   (DeepSeek SUSPENDED; explicit Owner approval 2026-10-10);
 - a PASS record is only admitted with independently verified external evidence
   (``review_evidence``): a self-declared record the implementation executor
-  writes can never fabricate a Step 5 Preview run;
-- the review runtime must be one of the two admitted Step 5 Preview runtime ids;
+  writes can never fabricate a Space Bunny run;
+- the review runtime must be one of the two admitted Space Bunny runtime ids;
 - missing/blocked/unknown/partial/fail/stale review blocks completion;
 - an unknown or invalid materiality declaration is UNSATISFIED: only an exact
   NON_MATERIAL declaration can seek the Git-verified exemption, and every
@@ -52,8 +52,8 @@ REVIEW_MODE = "READ_ONLY_FRESH_CONTEXT"
 VERDICTS = ("PASS", "FAIL", "PARTIAL", "UNKNOWN", "BLOCKED", "STALE")
 PASS_VERDICT = "PASS"
 # Only the top-level agent of the trusted read-only direct lane can carry
-# verifiable review evidence. A writable top-level run (assurance-verifier) or a
-# subagent it dispatches (assurance-auditor) can never satisfy the gate.
+# verifiable review evidence. A writable top-level run (bunny-verifier) or a
+# subagent it dispatches (bunny-auditor) can never satisfy the gate.
 READ_ONLY_REVIEW_AGENTS = frozenset({"foundry-reviewer"})
 REQUIRED_FIELDS = (
     "schema_version",
@@ -117,10 +117,10 @@ def validate_review_record(
         errors.append("review required must be a bool")
     if record.get("materiality") not in (materiality_mod.MATERIAL, materiality_mod.NON_MATERIAL):
         errors.append("review materiality must be MATERIAL or NON_MATERIAL")
-    if record.get("logical_profile") != "step":
-        errors.append("review logical_profile must be step")
-    if record.get("review_executor") != "step":
-        errors.append("review_executor must be the logical step profile")
+    if record.get("logical_profile") != "space-bunny":
+        errors.append("review logical_profile must be space-bunny")
+    if record.get("review_executor") != "space-bunny":
+        errors.append("review_executor must be the logical space-bunny profile")
     implementation_executor = record.get("implementation_executor")
     reg = registry or executor_mod.load_registry()
     if implementation_executor not in reg.logical_profiles:
@@ -128,21 +128,20 @@ def validate_review_record(
             f"implementation_executor {implementation_executor!r} is not an admitted logical profile"
         )
     # Cross-model review is required whenever another executor is ACTIVE. While
-    # Step 5 Preview is the only ACTIVE profile (Owner directive 2026-10-12; DeepSeek
-    # SUSPENDED; the Owner approval of same-model review of 2026-10-10 for the
-    # single-executor case, applied to Step by the Coordinator) a Step 5 Preview
-    # implementation may be reviewed by Step 5 Preview; its independence then rests
-    # on the fresh context and the read-only /ro-review lane, which stay
+    # Space Bunny is the only ACTIVE profile (DeepSeek SUSPENDED; Owner directive
+    # and explicit Owner approval of same-model review, 2026-10-10) a Space Bunny
+    # implementation may be reviewed by Space Bunny; its independence then rests
+    # on the fresh context and the read-only /bunny-review lane, which stay
     # mandatory.
-    cross_model_available = any(name != "step" for name in reg.active_profiles)
-    if implementation_executor == "step" and cross_model_available:
+    cross_model_available = any(name != "space-bunny" for name in reg.active_profiles)
+    if implementation_executor == "space-bunny" and cross_model_available:
         errors.append("review_executor must differ from implementation_executor (self-review)")
     if record.get("resolved_provider") != reg.provider:
         errors.append(f"review resolved_provider must be {reg.provider!r}")
     runtime_id = str(record.get("resolved_model_id", ""))
     admitted = reg.admitted_runtime(runtime_id)
-    if admitted is None or admitted.logical_profile != "step":
-        errors.append(f"resolved_model_id {runtime_id!r} is not an admitted step runtime id")
+    if admitted is None or admitted.logical_profile != "space-bunny":
+        errors.append(f"resolved_model_id {runtime_id!r} is not an admitted space-bunny runtime id")
     else:
         alias_class = record.get("model_alias_class")
         if alias_class != admitted.alias_class:
@@ -152,9 +151,8 @@ def validate_review_record(
             )
     if record.get("model_alias_class") not in executor_mod.ALIAS_CLASSES:
         errors.append("model_alias_class must be CANONICAL or LEGACY_ALIAS")
-    review_variant = executor_mod.NATIVE_VARIANTS[executor_mod.DEFAULT_PROFILE]
-    if record.get("native_variant") != review_variant:
-        errors.append(f"review native_variant must be {review_variant!r}")
+    if record.get("native_variant") != executor_mod.NATIVE_VARIANT:
+        errors.append(f"review native_variant must be {executor_mod.NATIVE_VARIANT!r}")
     if record.get("review_mode") != REVIEW_MODE:
         errors.append(f"review_mode must be {REVIEW_MODE!r} (read-only fresh context)")
     if record.get("review_agent") not in READ_ONLY_REVIEW_AGENTS:
@@ -269,7 +267,7 @@ def evaluate_review_gate(
     verified against GitHub evidence by ``evidence_verifier`` (production
     default) or an injected verifier/transport (tests). The implementation
     executor cannot satisfy the gate by writing a record that merely declares
-    Step 5 Preview identity/verdict.
+    Space Bunny identity/verdict.
     """
     state_paths = _effective_state_paths(state_paths, state_path)
     reg = registry or executor_mod.load_registry()
@@ -453,7 +451,7 @@ def evaluate_review_gate(
             )
 
     # Authenticity: a PASS is only admitted when its external evidence is
-    # independently verified. A fabricated record with plausible Step 5 Preview
+    # independently verified. A fabricated record with plausible Space Bunny
     # fields fails here because the verifier reads the real GitHub evidence.
     if not problems and record.get("verdict") == PASS_VERDICT:
         try:
@@ -480,7 +478,7 @@ def evaluate_review_gate(
     return ReviewGateResult(
         status="SATISFIED",
         reasons=(
-            f"REVIEW_GATE_SATISFIED: step {record.get('resolved_model_id')} "
+            f"REVIEW_GATE_SATISFIED: space-bunny {record.get('resolved_model_id')} "
             f"({record.get('model_alias_class')}) PASS on "
             f"{validated_head[:12]}/{validated_tree[:12]}",
         ),

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "engine_version": "tactical-0.8.2",
+  "engine_version": "tactical-0.8.0",
   "cards": {
     "Academy Manufactor": {
       "oracle_name": "Academy Manufactor",
@@ -2144,7 +2144,7 @@
         "legal"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "commander_damage_not_combined": {
@@ -2168,7 +2168,7 @@
         "maximum_single_commander_damage"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "commander_damage_exactly_twenty_one": {
@@ -2192,7 +2192,7 @@
         "maximum_single_commander_damage"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "normal_damage_zero_life": {
@@ -2216,7 +2216,7 @@
         "loss_reason"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "kediss_damage_is_not_commander_damage": {
@@ -2243,7 +2243,7 @@
         "additional_commander_damage"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "jeska_triples_commander_combat_damage": {
@@ -2264,7 +2264,7 @@
         "commander_damage"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "double_strike_counts_both_hits": {
@@ -2291,7 +2291,7 @@
         "commander_damage"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "kaervek_trigger_survives_counter": {
@@ -2315,7 +2315,7 @@
         "trigger_remains_on_stack"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "silence_blocks_spells_not_abilities": {
@@ -2339,7 +2339,7 @@
         "can_play_land"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "indestructible_survives_destroy": {
@@ -2360,7 +2360,7 @@
         "destination"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "indestructible_fails_minus_toughness": {
@@ -2381,7 +2381,7 @@
         "destination"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "indestructible_fails_exile": {
@@ -2402,7 +2402,7 @@
         "destination"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "boros_charm_protects_from_destroy_wipe": {
@@ -2426,7 +2426,7 @@
         "creatures_destroyed"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "toxic_deluge_ignores_indestructible": {
@@ -2457,7 +2457,7 @@
         "indestructible_relevant"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "fire_covenant_pays_total_life": {
@@ -2478,7 +2478,7 @@
         "creatures_died"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "massacre_wurm_counts_opponent_deaths": {
@@ -2499,7 +2499,7 @@
         "controller_life_loss"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "culling_ritual_mana_per_destroyed_permanent": {
@@ -2520,7 +2520,7 @@
         "mana_generated"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "farewell_selected_modes_exile": {
@@ -2550,7 +2550,7 @@
         "indestructible_relevant"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "vandalblast_overload_has_no_targets": {
@@ -2574,7 +2574,7 @@
         "uses_targets"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "wear_tear_fuse_from_hand": {
@@ -2601,7 +2601,7 @@
         "spells_cast"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "countered_commander_can_return_to_command": {
@@ -2613,13 +2613,13 @@
         "spell_countered": true,
         "graveyard_entry": true,
         "final_zone": "command",
-        "commander_tax_increments": true
+        "commander_tax_increments": false
       },
       "observed": {
         "spell_countered": true,
         "graveyard_entry": true,
         "final_zone": "command",
-        "commander_tax_increments": true
+        "commander_tax_increments": false
       },
       "comparison_keys": [
         "spell_countered",
@@ -2628,7 +2628,7 @@
         "commander_tax_increments"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "commander_dies_before_command_move": {
@@ -2652,7 +2652,7 @@
         "command_move_method"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "commander_bounce_uses_replacement": {
@@ -2676,7 +2676,7 @@
         "command_move_method"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "korvold_etb_sacrifice_generates_value": {
@@ -2703,7 +2703,7 @@
         "trigger_fizzles"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "korvold_no_other_permanent": {
@@ -2730,7 +2730,7 @@
         "trigger_fizzles"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "zuran_orb_sacrifice_is_cost": {
@@ -2757,7 +2757,7 @@
         "can_prevent_cost_with_response"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "academy_manufactor_replaces_each_token": {
@@ -2781,7 +2781,7 @@
         "treasures"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "killer_service_scales_with_opponents": {
@@ -2808,7 +2808,7 @@
         "total_tokens"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "killer_service_with_manufactor": {
@@ -2835,7 +2835,7 @@
         "total_tokens"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "ophiomancer_creates_snake_when_none": {
@@ -2853,7 +2853,7 @@
         "snakes_created"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "ophiomancer_does_not_duplicate_snake": {
@@ -2871,7 +2871,7 @@
         "snakes_created"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "idol_requires_token_this_turn": {
@@ -2892,7 +2892,7 @@
         "cards_drawn"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "titania_land_death_creates_elemental": {
@@ -2919,7 +2919,7 @@
         "elemental_toughness"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "ramunap_uses_land_play": {
@@ -2940,7 +2940,7 @@
         "uses_land_play"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "splendid_reclamation_returns_tapped": {
@@ -2961,7 +2961,7 @@
         "enter_tapped"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "aftermath_analyst_sacrifices_and_returns_lands": {
@@ -2985,7 +2985,7 @@
         "enter_tapped"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "tireless_provisioner_treasure_choice": {
@@ -3006,7 +3006,7 @@
         "treasures"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "tireless_tracker_clue_and_counter": {
@@ -3030,7 +3030,7 @@
         "cards_drawn"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "mirkwood_bats_counts_created_and_sacrificed_tokens": {
@@ -3054,7 +3054,7 @@
         "total_life_loss"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "mayhem_devil_triggers_for_any_player": {
@@ -3075,7 +3075,7 @@
         "damage_available"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "mazirek_counters_all_your_creatures": {
@@ -3099,7 +3099,7 @@
         "total_counters"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "braids_draws_for_each_decline": {
@@ -3123,7 +3123,7 @@
         "cards_drawn"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "bontu_draws_per_sacrifice": {
@@ -3144,7 +3144,7 @@
         "cards_drawn"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "pitiless_plunderer_ignores_tokens_and_self": {
@@ -3162,7 +3162,7 @@
         "treasures_created"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "goblin_bombardment_sacrifices_as_cost": {
@@ -3186,7 +3186,7 @@
         "targets"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "rakdos_charm_creature_mode": {
@@ -3210,7 +3210,7 @@
         "creature_damage_to_controller"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "rakdos_charm_graveyard_mode": {
@@ -3234,7 +3234,7 @@
         "creature_damage_to_controller"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "soul_guide_lantern_mass_exile": {
@@ -3261,7 +3261,7 @@
         "lantern_sacrificed"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "bojuka_bog_exiles_target_graveyard": {
@@ -3282,7 +3282,7 @@
         "graveyard_cards_exiled"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "combat_research_draw_trigger": {
@@ -3303,7 +3303,7 @@
         "life_gained"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "staggering_insight_draw_and_lifelink": {
@@ -3324,7 +3324,7 @@
         "life_gained"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "ishai_only_opponent_spells_trigger": {
@@ -3345,7 +3345,7 @@
         "own_spells_trigger"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "veyran_repeats_magecraft_trigger": {
@@ -3363,7 +3363,7 @@
         "total_triggers"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "guttersnipe_hits_each_opponent": {
@@ -3384,7 +3384,7 @@
         "total_damage"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "kykar_creates_and_sacrifices_spirits": {
@@ -3405,7 +3405,7 @@
         "red_mana_generated"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "storm_kiln_artist_counts_casts_and_copies": {
@@ -3423,7 +3423,7 @@
         "treasures_created"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "archmage_emeritus_counts_casts_and_copies": {
@@ -3441,7 +3441,7 @@
         "cards_drawn"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "whirlwind_triggers_on_cast_not_copy": {
@@ -3462,7 +3462,7 @@
         "copies_trigger"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "narset_limits_opponent_draws": {
@@ -3483,7 +3483,7 @@
         "additional_draws_prevented"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "esior_taxes_opponent_targeting": {
@@ -3504,7 +3504,7 @@
         "legal_if_paid"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "slip_out_avoids_wipe": {
@@ -3528,7 +3528,7 @@
         "attachments_phase_out"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "lofty_denial_tax_with_flyer": {
@@ -3549,7 +3549,7 @@
         "spell_countered"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "wash_away_uncleaved_counters_commander": {
@@ -3570,7 +3570,7 @@
         "spell_countered"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "offer_counters_noncreature_and_gives_treasures": {
@@ -3591,7 +3591,7 @@
         "treasures_created_for_controller"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "dovins_veto_cannot_be_countered": {
@@ -3615,7 +3615,7 @@
         "veto_can_be_countered"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "winds_of_rath_preserves_enchanted_creatures": {
@@ -3636,7 +3636,7 @@
         "unenchanted_destroyed"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "lorans_escape_protection_package": {
@@ -3663,7 +3663,7 @@
         "counter_added"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "lightning_greaves_shroud_blocks_own_target": {
@@ -3687,7 +3687,7 @@
         "equip_cost"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "swiftfoot_boots_hexproof_allows_own_target": {
@@ -3711,7 +3711,7 @@
         "equip_cost"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "apnap_trigger_order_four_player": {
@@ -3746,7 +3746,7 @@
         "resolves_first"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "stack_resolves_last_in_first_out": {
@@ -3772,7 +3772,7 @@
         "resolution_order"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "zero_toughness_is_not_destroy": {
@@ -3796,7 +3796,7 @@
         "indestructible_relevant"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     },
     "token_ceases_after_zone_change": {
@@ -3817,7 +3817,7 @@
         "ceases_to_exist_next_sba"
       ],
       "mismatches": [],
-      "backend_version": "tactical-0.8.2",
+      "backend_version": "tactical-0.8.0",
       "evidence_path": null
     }
   },
@@ -3825,7 +3825,6 @@
   "tactical_passed": 73,
   "rules_engine_cases": 0,
   "rules_engine_passed": 0,
-  "external_outcomes": [],
   "notes": [
     "tactical_oracle is a bounded local model status, not a complete MTG rules proof",
     "external_rules_engine requires a matching XMage or Forge bridge observation"

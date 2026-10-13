@@ -85,13 +85,13 @@ def test_trailer_names_the_dispatching_session_or_nothing(capsys, tmp_path, monk
         oc_dispatch.cmd_post(bad)
 
 
-def test_assure_post_is_read_only_and_does_not_duplicate_the_prefix(capsys, tmp_path):
+def test_bunny_post_is_read_only_and_does_not_duplicate_the_prefix(capsys, tmp_path):
     task = tmp_path / "task.md"
-    task.write_text("/assure Audit the branch read-only.\n", encoding="utf-8")
-    oc_dispatch.cmd_post(post_args(task, lane="assure", branch="hardening/x-20261006"))
+    task.write_text("/bunny Audit the branch read-only.\n", encoding="utf-8")
+    oc_dispatch.cmd_post(post_args(task, lane="bunny", branch="hardening/x-20261006"))
     out = capsys.readouterr().out
-    assert out.startswith("/assure Audit the branch read-only.")
-    assert out.count("/assure") == 1
+    assert out.startswith("/bunny Audit the branch read-only.")
+    assert out.count("/bunny") == 1
     assert "Read-only" in out
     assert "No force-push" in out
     assert "UNKNOWN != PASS" in out
@@ -176,9 +176,7 @@ def test_watch_says_plainly_when_the_run_posted_nothing(monkeypatch, capsys):
             return STARTED
         if path.endswith("/jobs?per_page=50"):
             return {
-                "jobs": [
-                    {"name": "opencode-assure", "status": "completed", "conclusion": "failure"}
-                ]
+                "jobs": [{"name": "opencode-bunny", "status": "completed", "conclusion": "failure"}]
             }
         if "issues/comments" in path:
             return []
@@ -187,7 +185,7 @@ def test_watch_says_plainly_when_the_run_posted_nothing(monkeypatch, capsys):
     monkeypatch.setattr(oc_dispatch, "api", no_comment_api)
     oc_dispatch.cmd_watch(argparse.Namespace(run=42, issue=None, repo=LAB, interval=60, timeout=10))
     out = capsys.readouterr().out
-    assert "run 42 assure success (job failure)" in out
+    assert "run 42 bunny success (job failure)" in out
     assert "no report comment" in out
     assert len(out.splitlines()) <= 15
 
@@ -219,7 +217,7 @@ def test_rescue_downloads_only_rescue_artifacts_and_pushes_nothing(monkeypatch, 
     artifacts = [
         {"name": "opencode-rescue-opencode-7", "expired": False},
         {"name": "pb03-packet", "expired": False},
-        {"name": "opencode-rescue-opencode-assure-7", "expired": True},
+        {"name": "opencode-rescue-opencode-bunny-7", "expired": True},
     ]
     monkeypatch.setattr(oc_dispatch, "api", lambda path, body=None: {"artifacts": artifacts})
     calls: list[list[str]] = []

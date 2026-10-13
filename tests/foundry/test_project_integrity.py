@@ -48,13 +48,13 @@ def test_config_ci_agents_and_durable_state_agree():
 
 def test_launcher_exposes_exactly_the_two_routed_executors():
     """No retired executor may be reachable through the canonical launcher."""
-    assert launcher.EXECUTION_PROFILES == ("step", "deepseek")
-    assert launcher.ACTIVE_EXECUTION_PROFILES == ("step",)
-    assert launcher.DEFAULT_EXECUTION_PROFILE == "step"
-    assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/step-5-preview-free",)
+    assert launcher.EXECUTION_PROFILES == ("space-bunny", "deepseek")
+    assert launcher.ACTIVE_EXECUTION_PROFILES == ("space-bunny",)
+    assert launcher.DEFAULT_EXECUTION_PROFILE == "space-bunny"
+    assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/space-bunny-free",)
     assert launcher.PROFILE_MODELS == {
         "deepseek": "opencode-go/deepseek-v4.1-flash",
-        "step": "opencode/step-5-preview-free",
+        "space-bunny": "opencode/space-bunny-free",
     }
     assert not hasattr(launcher, "ZEN_MODEL"), "retired provider override must stay removed"
     for retired in ("glm", "openai", "other"):
@@ -93,15 +93,15 @@ def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
 
 def test_documented_native_pairs_match_policy_not_runtime_claims():
     doc = (ROOT / "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md").read_text()
-    pairs = re.findall(r"--execution-profile (deepseek|step) --effort (\w+)", doc)
+    pairs = re.findall(r"--execution-profile (deepseek|space-bunny) --effort (\w+)", doc)
     # Only the ACTIVE profile has a documented launch pair; DeepSeek is SUSPENDED.
-    assert set(pairs) == {("step", "high")}
+    assert set(pairs) == {("space-bunny", "high")}
     assert "`--execution-profile deepseek` is refused" in doc
     for profile, effort in pairs:
         model = launcher.PROFILE_MODELS[profile]
         # The documented --effort is project/authority routing, NOT the native variant.
         assert effort in launcher.ALLOWED_EFFORTS, (profile, effort)
-        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == "high"
+        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == "max"
     # The doc must not present a project effort as if it were a native variant.
     assert "--effort max" not in doc
     for profile, model in launcher.PROFILE_MODELS.items():
@@ -113,18 +113,18 @@ def test_documented_native_pairs_match_policy_not_runtime_claims():
         assert "Primary long-running worker (HIGH)" not in text
     authority = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
     assert "DeepSeek v4.1 Flash MAX** (SUSPENDED)" in authority
-    assert "Step 5 Preview HIGH" in authority
+    assert "Space Bunny MAX" in authority
     assert "requires a new direct user instruction" in authority
 
 
 def test_current_executor_authority_is_exactly_two_profiles():
-    """Canonical active docs must expose only the authorized DeepSeek/Step 5 Preview pair."""
+    """Canonical active docs must expose only the authorized DeepSeek/Space Bunny pair."""
     agents = (ROOT / "AGENTS.md").read_text()
     current = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
     routing = (ROOT / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text()
     routing_flat = " ".join(routing.split())
     assert "opencode-go/deepseek-v4.1-flash" in agents
-    assert "opencode/step-5-preview-free" in agents
+    assert "opencode/space-bunny-free" in agents
     assert "No other OpenCode executor is selectable" in agents
     assert "No other OpenCode model/profile is currently authorized" in current
     assert "CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER" in agents
@@ -138,7 +138,7 @@ def test_current_executor_authority_is_exactly_two_profiles():
     assert "must not generate a" in routing
     assert "routing/governance issue by themselves" in routing
     index = (ROOT / "docs/foundry-execution/README.md").read_text()
-    assert "Step 5 Preview HIGH only" in index, "Foundry index omits the current only executor"
+    assert "Space Bunny MAX only" in index, "Foundry index omits the current only executor"
     assert "DeepSeek SUSPENDED" in index, "Foundry index omits the DeepSeek suspension"
     assert "DeepSeek MAX default" not in index, "Foundry index still names a suspended default"
 

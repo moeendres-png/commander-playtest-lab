@@ -39,7 +39,7 @@ REAL_IMPLEMENTER_RECORD = """\
 """
 
 
-def _record(agent: str, *, small: str = "false", model: str = "step-5-preview-free") -> str:
+def _record(agent: str, *, small: str = "false", model: str = "space-bunny-free") -> str:
     return (
         "[13:23:08.884] INFO (#8297): stream {\n"
         '  providerID: "opencode",\n'
@@ -177,8 +177,8 @@ def _resolved_reviewer() -> dict:
     return {
         "name": "foundry-reviewer",
         "mode": "all",
-        "model": {"providerID": "opencode", "modelID": "step-5-preview-free"},
-        "variant": "high",
+        "model": {"providerID": "opencode", "modelID": "space-bunny-free"},
+        "variant": "max",
         "permission": rules,
         "tools": {"read": True, "edit": False, "write": False, "task": False},
     }
@@ -320,7 +320,7 @@ def test_review_job_selects_and_checks_the_reviewer() -> None:
     workflow = yaml.safe_load(
         (REPO_ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8")
     )
-    job = workflow["jobs"]["opencode-ro-review"]
+    job = workflow["jobs"]["opencode-bunny-review"]
     assert json.loads(job["env"]["OPENCODE_CONFIG_CONTENT"]) == rid.REVIEW_CONFIG_OVERRIDE
     names = [step["name"] for step in job["steps"]]
     assert names.index("Preflight reviewer runtime identity") < names.index("Run opencode")
@@ -340,8 +340,8 @@ def test_every_named_lane_agent_is_selected_through_the_config() -> None:
         lanes[name] = (run["env"]["AGENT"], json.loads(content) if content else None)
     assert lanes == {
         "opencode": ("", None),
-        "opencode-assure": ("assurance-verifier", {"default_agent": "assurance-verifier"}),
-        "opencode-ro-review": ("foundry-reviewer", {"default_agent": "foundry-reviewer"}),
+        "opencode-bunny": ("bunny-verifier", {"default_agent": "bunny-verifier"}),
+        "opencode-bunny-review": ("foundry-reviewer", {"default_agent": "foundry-reviewer"}),
     }
-    verifier = _frontmatter("assurance-verifier.md")
+    verifier = _frontmatter("bunny-verifier.md")
     assert verifier["mode"] == "primary" and not verifier.get("hidden")

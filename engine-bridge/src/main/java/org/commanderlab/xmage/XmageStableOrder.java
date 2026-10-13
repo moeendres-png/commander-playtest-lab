@@ -3,18 +3,14 @@ package org.commanderlab.xmage;
 import mage.abilities.Ability;
 import mage.cards.Card;
 import mage.constants.Zone;
-import mage.counters.Counter;
 import mage.game.Game;
 import mage.game.permanent.Permanent;
 import mage.game.stack.StackObject;
 import mage.players.Player;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 /**
  * Twin-stable ordering shared by the XMage lanes (WS92-D5, F-36): decision frames are
@@ -34,9 +30,7 @@ final class XmageStableOrder {
      * Only objects indistinguishable by that content fall back to the UUID.
      */
     static Comparator<UUID> objects(Game game) {
-        return Comparator.comparing((UUID id) -> objectKey(id, game))
-                .thenComparing(id -> contentKey(id, game))
-                .thenComparing(UUID::toString);
+        return Comparator.comparing((UUID id) -> objectKey(id, game)).thenComparing(UUID::toString);
     }
 
     static String objectKey(UUID id, Game game) {
@@ -77,38 +71,6 @@ final class XmageStableOrder {
         return "9|";
     }
 
-    /**
-     * #735: what still tells apart two permanents that {@link #objectKey} cannot (same name,
-     * controller, zone-change counter, P/T, tapped state and damage; typically tokens): their
-     * timestamp order, counters, rule texts and battlefield order. Without it such permanents
-     * fell back to the native UUID, so "the first Spirit Token" was a different token in each
-     * replay. It is compared only after the existing key (and, for abilities, after the rule
-     * text), so it orders only ties that were random before. Non-permanents get "".
-     */
-    static String contentKey(UUID id, Game game) {
-        Permanent permanent = game.getPermanent(id);
-        return permanent == null ? "" : permanentContent(permanent, game);
-    }
-
-    static String permanentContent(Permanent permanent, Game game) {
-        List<String> counters = new ArrayList<>();
-        for (Counter counter : permanent.getCounters(game).values()) {
-            counters.add(counter.getName() + "=" + counter.getCount());
-        }
-        Collections.sort(counters);
-        List<String> rules = new ArrayList<>();
-        for (String rule : permanent.getRules(game)) {
-            // Hints may name objects by getIdName ("Name [1a2]"): native-id fragments.
-            rules.add(ID_TAG.matcher(rule).replaceAll(""));
-        }
-        Collections.sort(rules);
-        int position = new ArrayList<>(game.getBattlefield().getAllPermanents()).indexOf(permanent);
-        return padded(permanent.getCreateOrder()) + "|" + String.join(",", counters)
-                + "|" + String.join("\n", rules) + "|" + padded(position);
-    }
-
-    private static final Pattern ID_TAG = Pattern.compile("\\s*\\[[0-9a-f]{3}\\]");
-
     private static String padded(int value) {
         return String.format("%08d", value + 10_000_000);
     }
@@ -117,7 +79,6 @@ final class XmageStableOrder {
     static Comparator<Ability> abilities(Game game) {
         return Comparator.comparing((Ability ability) -> (ability.getSourceId() == null ? ""
                 : objectKey(ability.getSourceId(), game)) + "#" + ability.getRule() + "#"
-                + (ability.getSourceId() == null ? "" : contentKey(ability.getSourceId(), game)) + "#"
                 + ability.getSourceId() + ":" + ability.getOriginalId());
     }
 }

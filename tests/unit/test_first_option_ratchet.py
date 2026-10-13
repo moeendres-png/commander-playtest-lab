@@ -52,7 +52,7 @@ BASELINE: dict[str, int] = {
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmagePb03Tier1RowsTest.java": 2,
     "engine-bridge/src/test/java/org/commanderlab/xmage/XmageVariablePlayerLifecycleTest.java": 1,
     "src/commander_lab/engine/action_validation.py": 1,
-    "src/commander_lab/engine/rules/full_game_pilot/payment.py": 1,
+    "src/commander_lab/engine/rules/full_game.py": 1,
     "src/commander_lab/engine/structural/simulator.py": 3,
     "src/commander_lab/qualification/current_boundary/game_driver.py": 1,
     "src/commander_lab/qualification/current_boundary/shortcut_campaign.py": 1,

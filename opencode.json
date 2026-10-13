@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/step-5-preview-free",
+  "model": "opencode/space-bunny-free",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -8,7 +8,8 @@
     "max_bytes": 51200
   },
   "enabled_providers": [
-    "opencode"
+    "opencode",
+    "opencode-go"
   ],
   "permission": {
     "read": {
@@ -184,12 +185,12 @@
   "provider": {
     "opencode": {
       "whitelist": [
-        "step-5-preview-free"
+        "space-bunny-free"
       ],
       "models": {
-        "step-5-preview-free": {
+        "space-bunny-free": {
           "options": {
-            "reasoningEffort": "high"
+            "reasoningEffort": "max"
           },
           "variants": {
             "none": {
@@ -207,13 +208,13 @@
             "medium": {
               "disabled": true
             },
-            "high": {},
+            "high": {
+              "disabled": true
+            },
             "xhigh": {
               "disabled": true
             },
-            "max": {
-              "disabled": true
-            }
+            "max": {}
           }
         }
       }
@@ -221,7 +222,7 @@
   },
   "agent": {
     "build": {
-      "variant": "high"
+      "variant": "max"
     }
   },
   "experimental": {
@@ -235,8 +236,13 @@
         "action": "provider.use",
         "effect": "allow",
         "resource": "opencode"
+      },
+      {
+        "action": "provider.use",
+        "effect": "allow",
+        "resource": "opencode-go"
       }
     ]
   },
-  "small_model": "opencode/step-5-preview-free"
+  "small_model": "opencode/space-bunny-free"
 }

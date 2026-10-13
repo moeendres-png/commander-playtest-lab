@@ -10,22 +10,22 @@ change GitHub state. Run them from the Lab worktree root.
 
 | Need | Command |
 |---|---|
-| One screen (≤25 lines), every lane: open PRs in Lab/mage/forge, /oc and /assure runs with branch/PR + final-comment link, PB-03 runs, newest sealed epoch | `scripts/gh_ops.py brief` |
+| One screen (≤25 lines), every lane: open PRs in Lab/mage/forge, /oc and /bunny runs with branch/PR + final-comment link, PB-03 runs, newest sealed epoch | `scripts/gh_ops.py brief` |
 | PR head, merge state, red/pending checks, open threads | `scripts/gh_ops.py status 544 537` |
 | Every open PR in Lab, mage and forge, one line each | `scripts/gh_ops.py queue` |
 | Unresolved review threads (comment id to reply to) | `scripts/gh_ops.py threads 544` |
 | Why a job is red (failure lines with context) | `scripts/gh_ops.py errors JOB_ID` |
 | Re-run only jobs that died on infrastructure (runner never acquired, operation canceled; no failed step) | `scripts/gh_ops.py rerun-cancelled [--dry-run] 559 552` |
 | Wait for CI on PRs / for one workflow run | `scripts/gh_ops.py wait 544` · `scripts/gh_ops.py run RUN_ID` (background) |
-| Dispatch a `/oc` or `/assure` task from a skeleton (fixed footer: trailers, evidence rules, no force-push, open PR never merge) and watch the outcome in ≤15 lines | `scripts/oc_dispatch.py post --issue N --lane oc --task .claude/skills/lab-ops/oc_tasks/<template>.md [--branch B]` · `scripts/oc_dispatch.py watch RUN` (background) |
-| Recover the work of a failed or cancelled `/oc`/`/assure` run (its action token expires after an hour; the run then uploads an `opencode-rescue-*` bundle) | `scripts/oc_dispatch.py rescue RUN [--out DIR]`, then the printed `git fetch …/work.bundle` |
+| Dispatch a `/oc` or `/bunny` task from a skeleton (fixed footer: trailers, evidence rules, no force-push, open PR never merge) and watch the outcome in ≤15 lines | `scripts/oc_dispatch.py post --issue N --lane oc --task .claude/skills/lab-ops/oc_tasks/<template>.md [--branch B]` · `scripts/oc_dispatch.py watch RUN` (background) |
+| Recover the work of a failed or cancelled `/oc`/`/bunny` run (its action token expires after an hour; the run then uploads an `opencode-rescue-*` bundle) | `scripts/oc_dispatch.py rescue RUN [--out DIR]`, then the printed `git fetch …/work.bundle` |
 | Cold-start index for a fresh session (baton owners, heads per repo, dirty/unpushed worktrees, open decisions) | `python3 scripts/claude_handoff.py` → `docs/claude/state/HANDOFF.md` |
 | PB-03 packet: identity, sha256 check, AF00-AF11 per candidate | `scripts/pb03_packet.py RUN_ID OUT [--into .]` |
 | Seal an epoch (packet + manifests + the required secret scan, before any push) | `scripts/seal.py RUN_ID [--replace OLD_EPOCH]` on a fresh branch from main |
 | Real-engine rows | `scripts/real_rows.py build` then `midgame FIX…`, `cardinality CAND`, `pregame CAND`, `af04 CAND PKG` (Forge: `--forge PATH`, `xvfb-run -a`) |
 
-Every lane runs Step 5 Preview HIGH (`opencode/step-5-preview-free` on OpenCode Zen), the only OpenCode model (Owner directive 2026-10-12; DeepSeek SUSPENDED); write the task per
-`docs/foundry-execution/EXECUTOR_PROMPTING.md`. Dispatch task skeletons live in `oc_tasks/`: `implement-batch.md`, `fix-review-findings.md`,
+Every lane runs Space Bunny MAX (DeepSeek SUSPENDED 2026-10-10); write the task per
+`docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`. Dispatch task skeletons live in `oc_tasks/`: `implement-batch.md`, `fix-review-findings.md`,
 `ci-fix.md`, `tooling.md`. Fill only the 5–10 task-specific lines; `oc_dispatch.py` appends
 the rules footer. Its commit trailer names the dispatching Claude session (`--session-url`,
 `CLAUDE_SESSION_URL` or the cloud session id); a non-Claude dispatcher passes `--trailer none`.
@@ -66,7 +66,7 @@ The output of each command decides the next step, so read it all; just don't pul
 
 - **One screen first.** `gh_ops.py brief` covers every lane before any `status` call; a fresh session starts from `docs/claude/state/HANDOFF.md`.
 - **Status over dumps.** Prefer `gh_ops.py status` / `threads` / `errors` to the MCP `get_check_runs`, `get_review_comments` and `get_job_logs` calls. Those return 5–15k tokens where one line answers the question. Use MCP for writes: replies, resolves, merges, PRs.
-- **Dispatch, don't hand-write.** Implementation, mechanical fixes and CI repairs go to `/oc`; read-only audits go to `/assure`; both through `oc_dispatch.py post` with a task skeleton, then `watch` in the background. The main session keeps adjudication and merge decisions.
+- **Dispatch, don't hand-write.** Implementation, mechanical fixes and CI repairs go to `/oc`; read-only audits go to `/bunny`; both through `oc_dispatch.py post` with a task skeleton, then `watch` in the background. The main session keeps adjudication and merge decisions.
 - **Wait in the background.** Run `gh_ops.py wait` / `run` or long suites with `run_in_background`, then continue other work. Never poll in the foreground and never use bare `sleep`.
 - **Test narrow first, then wide, once.**
   - While iterating: the changed module's tests and `ruff`/`mypy` on the changed files.

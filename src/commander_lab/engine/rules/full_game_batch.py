@@ -1,21 +1,11 @@
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
-import multiprocessing
 import time
-from collections.abc import Iterator
-from concurrent.futures import (
-    Executor,
-    Future,
-    ProcessPoolExecutor,
-    ThreadPoolExecutor,
-    as_completed,
-)
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -136,157 +126,6 @@ class FullGameBatchReport(_StrictModel):
         return self
 
 
-class _GameRunner(Protocol):
-    def run(
-        self,
-        *,
-        scenario: FutureXmageScenario,
-        decks: tuple[RulesDeckInput, ...],
-        pilots: tuple[FullGamePilotBinding, ...],
-    ) -> FullGameConformanceResult: ...
-
-
-BatchParallelism = Literal["thread", "process"]
-
-
-def execution_identity_of(runner: Any) -> dict[str, Any]:
-    """What executes a case beyond its own inputs (D2).
-
-    A completed record may be reused only by a run that would execute the
-    same bytes: the decision protocol, the result schema and the SHA-256 of
-    every bridge artifact file named by the runner's command. A rebuilt
-    bridge jar therefore invalidates earlier completed records instead of
-    silently lending them to a different build. Recomputed at each lookup
-    and checked again before a newly executed result may be completed.
-
-    Command and cwd are digested, never copied into public records. Artifact
-    keys are command positions so equal basenames cannot overwrite each
-    other. This binds explicit .jar/.py tokens, not an arbitrary JVM's whole
-    environment or transitive classpath. Executed artifacts must stay stable
-    throughout a game; before/after checks detect persistent drift, not a
-    malicious change-and-restore between checks.
-    """
-    artifacts: dict[str, str] = {}
-    identity_unavailable = False
-    configuration = b""
-    try:
-        cwd = Path(resolve_engine_working_directory(getattr(runner, "cwd", None)) or ".").resolve()
-        command = tuple(getattr(runner, "command", None) or ())
-        for position, token in enumerate(command):
-            path = Path(token)
-            if path.suffix in {".jar", ".py"}:
-                if not path.is_absolute():
-                    path = cwd / path
-                digest = hashlib.sha256()
-                with path.open("rb") as handle:
-                    for chunk in iter(lambda: handle.read(1 << 20), b""):
-                        digest.update(chunk)
-                artifacts[str(position)] = digest.hexdigest()
-        configuration = json.dumps(
-            {
-                "command": command,
-                "cwd": str(cwd),
-                "max_decisions": getattr(runner, "max_decisions", None),
-                "request_timeout_seconds": getattr(runner, "request_timeout_seconds", None),
-            },
-            sort_keys=True,
-            separators=(",", ":"),
-            ensure_ascii=True,
-        ).encode()
-    except (OSError, ValueError, TypeError, RuntimeError):
-        identity_unavailable = True
-    if identity_unavailable:
-        # Raise outside the handler: even implicit exception context must
-        # not retain an engine-local path, diagnostic, notes or traceback.
-        raise ValueError("full-game batch execution identity unavailable")
-    return {
-        "execution_identity_version": 2,
-        "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
-        "result_schema_version": FullGameConformanceResult.model_fields["schema_version"].default,
-        "runner_configuration_sha256": hashlib.sha256(configuration).hexdigest(),
-        "bridge_artifacts": artifacts,
-    }
-
-
-def execute_batch_case(
-    runner: _GameRunner,
-    case: FullGameBatchCase,
-    run_key: str,
-    execution: dict[str, Any],
-) -> FullGameBatchRecord:
-    """Play one case in its own bridge process and classify the outcome.
-
-    Module-level so a process worker can run it: every argument is plain data
-    or a picklable runner. Only the four documented failure families become a
-    failed record; anything else is a defect of the Lab and propagates.
-    """
-    started = time.monotonic()
-    try:
-        result = _run_with_startup_retry(runner, case)
-        if execution_identity_of(runner) != execution:
-            raise ValueError("full-game batch execution identity changed during game")
-        return FullGameBatchRecord(
-            case_id=case.case_id,
-            run_key=run_key,
-            status="completed",
-            elapsed_seconds=time.monotonic() - started,
-            result=result,
-        )
-    except FullGameProtocolError as exc:
-        return _failed_record(case, run_key, started, FullGameFailureClass.PROTOCOL, exc)
-    except FullGameConformanceError as exc:
-        return _failed_record(case, run_key, started, FullGameFailureClass.CONFORMANCE, exc)
-    except (OSError, ValueError) as exc:
-        return _failed_record(case, run_key, started, FullGameFailureClass.CONFIGURATION, exc)
-    except RuntimeError as exc:
-        return _failed_record(case, run_key, started, FullGameFailureClass.ENGINE, exc)
-
-
-# XMage's card repository is an on-disk database every bridge JVM scans at
-# startup. JVMs starting at the same moment can collide on it and fail deck
-# import before any game exists (#731: 1-2 of 6 games at 4-6 workers). That
-# failure says nothing about the game, so the case is started again; any
-# other failure, and this one after the last attempt, stays a failed record.
-_STARTUP_RETRY_CODES = frozenset({"XMAGE_CARD_REPOSITORY_INIT_FAILED"})
-_STARTUP_ATTEMPTS = 4
-_STARTUP_BACKOFF_SECONDS = 3.0
-
-
-def _is_startup_collision(exc: FullGameProtocolError) -> bool:
-    diagnostics = getattr(exc, "diagnostics", ()) or ()
-    return any(str(item) in _STARTUP_RETRY_CODES for item in diagnostics)
-
-
-def _run_with_startup_retry(
-    runner: _GameRunner, case: FullGameBatchCase
-) -> FullGameConformanceResult:
-    for attempt in range(1, _STARTUP_ATTEMPTS + 1):
-        try:
-            return runner.run(scenario=case.scenario, decks=case.decks, pilots=case.pilots)
-        except FullGameProtocolError as exc:
-            if attempt == _STARTUP_ATTEMPTS or not _is_startup_collision(exc):
-                raise
-            time.sleep(_STARTUP_BACKOFF_SECONDS * attempt)
-    raise AssertionError("unreachable")  # pragma: no cover
-
-
-def _failed_record(
-    case: FullGameBatchCase,
-    run_key: str,
-    started: float,
-    failure_class: FullGameFailureClass,
-    exc: Exception,
-) -> FullGameBatchRecord:
-    return FullGameBatchRecord(
-        case_id=case.case_id,
-        run_key=run_key,
-        status="failed",
-        elapsed_seconds=time.monotonic() - started,
-        failure_class=failure_class,
-        failure_message=redacted_exception_message(exc),
-    )
-
-
 class XmageFullGameBatchRunner:
     """Correctness-first batch layer around the one-process/one-game runner.
 
@@ -295,17 +134,6 @@ class XmageFullGameBatchRunner:
     Re-running the same batch therefore reuses only byte-compatible completed work.
     Failed records are not silently treated as complete and are retried only when
     explicitly requested.
-
-    ``workers`` > 1 plays that many games at once (#731). Every game still gets
-    its own fresh bridge JVM; only the number of JVMs alive at the same time
-    changes. The parent is the single writer of records, writes each one as
-    soon as its game ends (so an interrupted batch resumes from there) and
-    returns the report in case order, whatever order games finish in.
-    ``parallelism="thread"`` drives the bridge processes from threads of this
-    process: a JVM that dies (for example out of memory) fails only its own
-    case. ``"process"`` also moves the Python pilot work into worker
-    processes, for hosts where the pilot rather than the JVM is the limit;
-    the runner must then be picklable.
     """
 
     def __init__(self, runner: XmageFullGameRunner, output_directory: str | Path) -> None:
@@ -313,7 +141,68 @@ class XmageFullGameBatchRunner:
         self.output_directory = Path(output_directory)
 
     def execution_identity(self) -> dict[str, Any]:
-        return execution_identity_of(self.runner)
+        """What executes a case beyond its own inputs (D2).
+
+        A completed record may be reused only by a run that would execute the
+        same bytes: the decision protocol, the result schema and the SHA-256 of
+        every bridge artifact file named by the runner's command. A rebuilt
+        bridge jar therefore invalidates earlier completed records instead of
+        silently lending them to a different build. Recomputed at each lookup
+        and checked again before a newly executed result may be completed.
+
+        Command and cwd are digested, never copied into public records. Artifact
+        keys are command positions so equal basenames cannot overwrite each
+        other. This binds explicit .jar/.py tokens, not an arbitrary JVM's whole
+        environment or transitive classpath. Executed artifacts must stay stable
+        throughout a game; before/after checks detect persistent drift, not a
+        malicious change-and-restore between checks.
+        """
+        artifacts: dict[str, str] = {}
+        identity_unavailable = False
+        configuration = b""
+        try:
+            cwd = Path(
+                resolve_engine_working_directory(getattr(self.runner, "cwd", None)) or "."
+            ).resolve()
+            command = tuple(getattr(self.runner, "command", None) or ())
+            for position, token in enumerate(command):
+                path = Path(token)
+                if path.suffix in {".jar", ".py"}:
+                    if not path.is_absolute():
+                        path = cwd / path
+                    digest = hashlib.sha256()
+                    with path.open("rb") as handle:
+                        for chunk in iter(lambda: handle.read(1 << 20), b""):
+                            digest.update(chunk)
+                    artifacts[str(position)] = digest.hexdigest()
+            configuration = json.dumps(
+                {
+                    "command": command,
+                    "cwd": str(cwd),
+                    "max_decisions": getattr(self.runner, "max_decisions", None),
+                    "request_timeout_seconds": getattr(
+                        self.runner, "request_timeout_seconds", None
+                    ),
+                },
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=True,
+            ).encode()
+        except (OSError, ValueError, TypeError, RuntimeError):
+            identity_unavailable = True
+        if identity_unavailable:
+            # Raise outside the handler: even implicit exception context must
+            # not retain an engine-local path, diagnostic, notes or traceback.
+            raise ValueError("full-game batch execution identity unavailable")
+        return {
+            "execution_identity_version": 2,
+            "decision_protocol_version": FULL_GAME_DECISION_PROTOCOL_VERSION,
+            "result_schema_version": FullGameConformanceResult.model_fields[
+                "schema_version"
+            ].default,
+            "runner_configuration_sha256": hashlib.sha256(configuration).hexdigest(),
+            "bridge_artifacts": artifacts,
+        }
 
     def run(
         self,
@@ -321,130 +210,84 @@ class XmageFullGameBatchRunner:
         *,
         resume: bool = True,
         retry_failed: bool = False,
-        workers: int = 1,
-        parallelism: BatchParallelism = "thread",
     ) -> FullGameBatchReport:
-        if workers < 1:
-            raise ValueError("workers must be positive")
-        if parallelism not in ("thread", "process"):
-            raise ValueError("parallelism must be 'thread' or 'process'")
         self.output_directory.mkdir(parents=True, exist_ok=True)
-        records: list[FullGameBatchRecord | None] = [None] * len(cases)
-        pending: list[tuple[int, FullGameBatchCase, str, dict[str, Any], Path]] = []
-        for index, case in enumerate(cases):
+        records: list[FullGameBatchRecord] = []
+        for case in cases:
             execution = self.execution_identity()
             run_key = self._run_key(case, execution)
             path = self.output_directory / f"{run_key}.json"
-            reused = self._reusable_record(case, run_key, path, resume, retry_failed)
-            if reused is not None:
-                records[index] = reused
-                continue
-            if workers == 1:
-                # Sequential path: identical to the historical behaviour,
-                # including a later duplicate case reusing an earlier one.
-                record = execute_batch_case(self.runner, case, run_key, execution)
-                self._write_record(path, record)
-                records[index] = record
-                continue
-            pending.append((index, case, run_key, execution, path))
+            existing = self._read_record(path) if resume and path.exists() else None
+            if (
+                existing is not None
+                and existing.case_id == case.case_id
+                and existing.run_key == run_key
+            ):
+                if existing.status == "completed" and (
+                    existing.result is not None
+                    and existing.result.scenario == case.scenario
+                    and existing.result.terminal is True
+                    and existing.result.result_payload.get("terminal") is True
+                    and type(existing.result.result_payload.get("seed")) is int
+                    and existing.result.result_payload.get("seed") == case.scenario.seed
+                ):
+                    records.append(
+                        existing.model_copy(update={"resumed_from_completed_record": True})
+                    )
+                    continue
+                if existing.status == "failed" and not retry_failed:
+                    records.append(existing)
+                    continue
 
-        if pending:
-            keys = [item[2] for item in pending]
-            if len(set(keys)) != len(keys):
-                raise ValueError("parallel full-game batch cases must have distinct run keys")
-            for index, record, path in self._run_parallel(pending, workers, parallelism):
-                self._write_record(path, record)
-                records[index] = record
+            started = time.monotonic()
+            try:
+                result = self.runner.run(
+                    scenario=case.scenario,
+                    decks=case.decks,
+                    pilots=case.pilots,
+                )
+                if self.execution_identity() != execution:
+                    raise ValueError("full-game batch execution identity changed during game")
+                record = FullGameBatchRecord(
+                    case_id=case.case_id,
+                    run_key=run_key,
+                    status="completed",
+                    elapsed_seconds=time.monotonic() - started,
+                    result=result,
+                )
+            except FullGameProtocolError as exc:
+                record = self._failed(case, run_key, started, FullGameFailureClass.PROTOCOL, exc)
+            except FullGameConformanceError as exc:
+                record = self._failed(
+                    case,
+                    run_key,
+                    started,
+                    FullGameFailureClass.CONFORMANCE,
+                    exc,
+                )
+            except (OSError, ValueError) as exc:
+                record = self._failed(
+                    case,
+                    run_key,
+                    started,
+                    FullGameFailureClass.CONFIGURATION,
+                    exc,
+                )
+            except RuntimeError as exc:
+                record = self._failed(case, run_key, started, FullGameFailureClass.ENGINE, exc)
+            self._write_record(path, record)
+            records.append(record)
 
-        final = tuple(record for record in records if record is not None)
-        if len(final) != len(cases):  # pragma: no cover - every branch fills its slot
-            raise RuntimeError("full-game batch lost a case record")
-        completed = sum(record.status == "completed" for record in final)
-        failed = sum(record.status == "failed" for record in final)
-        resumed = sum(record.resumed_from_completed_record for record in final)
+        completed = sum(record.status == "completed" for record in records)
+        failed = sum(record.status == "failed" for record in records)
+        resumed = sum(record.resumed_from_completed_record for record in records)
         return FullGameBatchReport(
-            total_cases=len(final),
+            total_cases=len(records),
             completed_cases=completed,
             failed_cases=failed,
             resumed_cases=resumed,
-            records=final,
+            records=tuple(records),
         )
-
-    def _reusable_record(
-        self,
-        case: FullGameBatchCase,
-        run_key: str,
-        path: Path,
-        resume: bool,
-        retry_failed: bool,
-    ) -> FullGameBatchRecord | None:
-        existing = self._read_record(path) if resume and path.exists() else None
-        if existing is None or existing.case_id != case.case_id or existing.run_key != run_key:
-            return None
-        if existing.status == "completed" and (
-            existing.result is not None
-            and existing.result.scenario == case.scenario
-            and existing.result.terminal is True
-            and existing.result.result_payload.get("terminal") is True
-            and type(existing.result.result_payload.get("seed")) is int
-            and existing.result.result_payload.get("seed") == case.scenario.seed
-        ):
-            return existing.model_copy(update={"resumed_from_completed_record": True})
-        if existing.status == "failed" and not retry_failed:
-            return existing
-        return None
-
-    def _parallel_runner(self) -> Any:
-        """A per-game runner copy whose bridge JVM gets its own card repository.
-
-        #739: JVMs that start together in one directory collide on XMage's
-        on-disk card repository, so a parallel game copies it into a private
-        directory. The flag is not part of the execution identity: it changes
-        where the repository file lives, never what the game plays.
-        """
-        runner = copy.copy(self.runner)
-        if hasattr(runner, "private_card_repository"):
-            runner.private_card_repository = True
-        return runner
-
-    def _run_parallel(
-        self,
-        pending: list[tuple[int, FullGameBatchCase, str, dict[str, Any], Path]],
-        workers: int,
-        parallelism: BatchParallelism,
-    ) -> Iterator[tuple[int, FullGameBatchRecord, Path]]:
-        executor: Executor
-        if parallelism == "process":
-            executor = ProcessPoolExecutor(
-                max_workers=min(workers, len(pending)),
-                mp_context=multiprocessing.get_context("spawn"),
-            )
-        else:
-            executor = ThreadPoolExecutor(
-                max_workers=min(workers, len(pending)),
-                thread_name_prefix="full-game-batch",
-            )
-        with executor:
-            futures: dict[Future[FullGameBatchRecord], tuple[int, Path]] = {
-                # Each game gets its own shallow runner copy: the runner keeps
-                # per-game state (the hidden-information audit) on itself, and
-                # threads sharing one runner would mix or drop those audits.
-                executor.submit(
-                    execute_batch_case, self._parallel_runner(), case, run_key, execution
-                ): (
-                    index,
-                    path,
-                )
-                for index, case, run_key, execution, path in pending
-            }
-            try:
-                for future in as_completed(futures):
-                    index, path = futures[future]
-                    yield index, future.result(), path
-            except BaseException:
-                for future in futures:
-                    future.cancel()
-                raise
 
     def run_key(self, case: FullGameBatchCase) -> str:
         return self._run_key(case, self.execution_identity())
@@ -467,7 +310,14 @@ class XmageFullGameBatchRunner:
         failure_class: FullGameFailureClass,
         exc: Exception,
     ) -> FullGameBatchRecord:
-        return _failed_record(case, run_key, started, failure_class, exc)
+        return FullGameBatchRecord(
+            case_id=case.case_id,
+            run_key=run_key,
+            status="failed",
+            elapsed_seconds=time.monotonic() - started,
+            failure_class=failure_class,
+            failure_message=redacted_exception_message(exc),
+        )
 
     @staticmethod
     def _read_record(path: Path) -> FullGameBatchRecord | None:
@@ -487,12 +337,9 @@ class XmageFullGameBatchRunner:
 
 
 __all__ = [
-    "BatchParallelism",
     "FullGameBatchCase",
     "FullGameBatchRecord",
     "FullGameBatchReport",
     "FullGameFailureClass",
     "XmageFullGameBatchRunner",
-    "execute_batch_case",
-    "execution_identity_of",
 ]

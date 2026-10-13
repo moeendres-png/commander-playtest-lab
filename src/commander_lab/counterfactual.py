@@ -437,18 +437,17 @@ class CounterfactualReplayLab:
             def tactical_score(value: dict[str, Any]) -> float:
                 score = 0.0
                 for key, item in value.items():
-                    # A cost-like observation (commander_tax_increments) is bad
-                    # when it happens, boolean or numeric alike.
-                    direction = (
-                        -1.0
-                        if any(
-                            token in key for token in ("cost", "tax", "damage_taken", "cards_lost")
-                        )
-                        else 1.0
-                    )
                     if isinstance(item, bool):
-                        score += direction * (1.0 if item else -1.0)
+                        score += 1.0 if item else -1.0
                     elif isinstance(item, (int, float)):
+                        direction = (
+                            -1.0
+                            if any(
+                                token in key
+                                for token in ("cost", "tax", "damage_taken", "cards_lost")
+                            )
+                            else 1.0
+                        )
                         score += direction * float(item) * 0.1
                 return score
 

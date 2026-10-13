@@ -1,7 +1,7 @@
 """Wrong-reason / regression controls for the cross-executor review gate.
 
 Policy: MATERIAL implementation workstreams cannot claim PR_READY/COMPLETE
-without a fresh-context READ-ONLY Step 5 Preview PASS on the exact validated
+without a fresh-context READ-ONLY Space Bunny PASS on the exact validated
 implementation SHA and TREE. DeepSeek review, self-review, unauthorized runtime
 ids, missing/blocked/unknown/partial/fail/stale review, and any later material
 delta all fail closed.
@@ -52,8 +52,8 @@ def _satisfied() -> _StaticVerifier:
     return _StaticVerifier()
 
 
-STEP = "opencode/step-5-preview-free"
-STEP_GO = "opencode-go/retired"
+BUNNY = "opencode/space-bunny-free"
+BUNNY_GO = "opencode-go/space-bunny"
 DEEPSEEK = "opencode-go/deepseek-v4.1-flash"
 
 
@@ -134,10 +134,10 @@ def _state_doc(base: str, impl: str, root: Path, state_path: Path, **over) -> di
         "materiality": "MATERIAL",
         "cross_executor_review": {
             "required": True,
-            "logical_profile": "step",
+            "logical_profile": "space-bunny",
             "implementation_executor": "deepseek",
-            "review_executor": "step",
-            "resolved_model_id": STEP,
+            "review_executor": "space-bunny",
+            "resolved_model_id": BUNNY,
             "model_alias_class": "CANONICAL",
             "reviewed_sha": None,
             "reviewed_tree": None,
@@ -157,11 +157,11 @@ def _record(repo: dict, *, reviewed_sha: str | None = None, verdict: str = "PASS
         "record_type": "cross_executor_review",
         "required": True,
         "materiality": "MATERIAL",
-        "logical_profile": "step",
+        "logical_profile": "space-bunny",
         "resolved_provider": "opencode",
-        "resolved_model_id": STEP,
+        "resolved_model_id": BUNNY,
         "model_alias_class": "CANONICAL",
-        "native_variant": "high",
+        "native_variant": "max",
         "review_mode": "READ_ONLY_FRESH_CONTEXT",
         "review_agent": "foundry-reviewer",
         "reviewed_sha": impl,
@@ -169,7 +169,7 @@ def _record(repo: dict, *, reviewed_sha: str | None = None, verdict: str = "PASS
         "verdict": verdict,
         "findings": {"P1": [], "P2": [], "P3": []},
         "implementation_executor": "deepseek",
-        "review_executor": "step",
+        "review_executor": "space-bunny",
         "review_evidence": {
             "schema_version": "1.0",
             "carrier": evidence_mod.CARRIER_DIRECT,
@@ -179,7 +179,7 @@ def _record(repo: dict, *, reviewed_sha: str | None = None, verdict: str = "PASS
             "result_comment_id": 2,
             "workflow_run_id": 3,
             "workflow_job_id": 4,
-            "workflow_job_name": "opencode-ro-review",
+            "workflow_job_name": "opencode-bunny-review",
             "workflow_head_sha": "a" * 40,
             "workflow_path": ".github/workflows/opencode.yml",
             "marker": evidence_mod.MARKER_DIRECT,
@@ -199,7 +199,7 @@ def _write_record(repo: dict, record: dict, name: str = "review.json") -> Path:
 def _mirror_passed(repo: dict, record: dict, record_path: Path) -> dict:
     return {
         "required": True,
-        "logical_profile": "step",
+        "logical_profile": "space-bunny",
         "implementation_executor": record["implementation_executor"],
         "review_executor": record["review_executor"],
         "resolved_model_id": record["resolved_model_id"],
@@ -214,7 +214,7 @@ def _mirror_passed(repo: dict, record: dict, record_path: Path) -> dict:
 # --- record structure -------------------------------------------------------
 
 
-def test_well_formed_step_pass_record_validates(repo: dict) -> None:
+def test_well_formed_bunny_pass_record_validates(repo: dict) -> None:
     record = _record(repo)
     assert review_mod.validate_review_record(record) == []
 
@@ -226,17 +226,17 @@ def test_deepseek_review_is_never_admitted_and_self_review_only_without_cross_mo
     record["resolved_model_id"] = DEEPSEEK
     record["model_alias_class"] = "CANONICAL"
     errors = review_mod.validate_review_record(record)
-    assert any("not an admitted step runtime id" in error for error in errors)
+    assert any("not an admitted space-bunny runtime id" in error for error in errors)
 
     record = _record(repo)
     record["review_executor"] = "deepseek"
     errors = review_mod.validate_review_record(record)
-    assert any("review_executor must be the logical step" in error for error in errors)
+    assert any("review_executor must be the logical space-bunny" in error for error in errors)
 
-    # Owner approval 2026-10-10: while DeepSeek is SUSPENDED (Step 5 Preview the only
-    # ACTIVE profile) a Step 5 Preview implementation may be reviewed by Step 5 Preview.
+    # Owner approval 2026-10-10: while DeepSeek is SUSPENDED (Space Bunny the only
+    # ACTIVE profile) a Space Bunny implementation may be reviewed by Space Bunny.
     record = _record(repo)
-    record["implementation_executor"] = "step"
+    record["implementation_executor"] = "space-bunny"
     assert review_mod.validate_review_record(record) == []
 
     # As soon as another executor is ACTIVE again, self-review is refused.
@@ -252,11 +252,11 @@ def test_deepseek_review_is_never_admitted_and_self_review_only_without_cross_mo
 
 def test_writable_or_unknown_review_agents_are_rejected(repo: dict) -> None:
     for agent in (
-        "assurance-verifier",
+        "bunny-verifier",
         "foundry-implementer",
         "",
-        "assurance-auditor",
-        "assurance-auditor ",
+        "bunny-auditor",
+        "bunny-auditor ",
     ):
         record = _record(repo)
         record["review_agent"] = agent
@@ -272,14 +272,14 @@ def test_pass_verdict_cannot_carry_blocking_findings(repo: dict) -> None:
         assert any("blocking findings" in error for error in errors), key
 
 
-def test_go_step_review_is_no_longer_admitted(repo: dict) -> None:
+def test_go_bunny_review_is_no_longer_admitted(repo: dict) -> None:
     """A review recorded on the retired Go id needs a fresh Zen re-review."""
     record = _record(repo)
     record["resolved_provider"] = "opencode-go"
-    record["resolved_model_id"] = STEP_GO
+    record["resolved_model_id"] = BUNNY_GO
     errors = review_mod.validate_review_record(record)
     assert any("resolved_provider" in error for error in errors)
-    assert any("not an admitted step runtime id" in error for error in errors)
+    assert any("not an admitted space-bunny runtime id" in error for error in errors)
     record["model_alias_class"] = "LEGACY_ALIAS"
     assert review_mod.validate_review_record(record) != []
 
@@ -320,7 +320,7 @@ def test_deepseek_implementation_plus_deepseek_review_stays_unsatisfied(repo: di
     assert any("REVIEW_RECORD_INVALID" in reason for reason in result.reasons)
 
 
-def test_deepseek_implementation_plus_step_exact_sha_tree_pass_is_satisfied(repo: dict) -> None:
+def test_deepseek_implementation_plus_bunny_exact_sha_tree_pass_is_satisfied(repo: dict) -> None:
     record = _record(repo)
     path = _write_record(repo, record)
     doc = _state_doc(
@@ -346,7 +346,7 @@ def test_deepseek_implementation_plus_step_exact_sha_tree_pass_is_satisfied(repo
 
 
 def test_self_asserted_pass_without_verifiable_evidence_is_not_satisfied(repo: dict) -> None:
-    """A fabricated record with plausible Step fields still fails closed."""
+    """A fabricated record with plausible Bunny fields still fails closed."""
     import json as _json
 
     record = _record(repo)
@@ -359,7 +359,7 @@ def test_self_asserted_pass_without_verifiable_evidence_is_not_satisfied(repo: d
         "result_comment_id": 222,
         "workflow_run_id": 333,
         "workflow_job_id": 444,
-        "workflow_job_name": "opencode-ro-review",
+        "workflow_job_name": "opencode-bunny-review",
         "workflow_head_sha": "b" * 40,
         "workflow_path": ".github/workflows/opencode.yml",
         "marker": evidence_mod.MARKER_DIRECT,
@@ -475,7 +475,7 @@ def test_mirror_mismatch_is_unsatisfied(repo: dict) -> None:
     record = _record(repo)
     path = _write_record(repo, record)
     mirror = _mirror_passed(repo, record, path)
-    mirror["resolved_model_id"] = STEP_GO
+    mirror["resolved_model_id"] = BUNNY_GO
     doc = _state_doc(
         repo["base"],
         repo["impl"],
@@ -604,7 +604,7 @@ def test_historical_state_without_policy_fields_is_exempt(repo: dict) -> None:
     assert result.ok
 
 
-def test_step_unavailable_and_no_review_blocks_completion_claim(repo: dict) -> None:
+def test_bunny_unavailable_and_no_review_blocks_completion_claim(repo: dict) -> None:
     doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
     result = review_mod.evaluate_completion_claim(
         doc,
@@ -673,17 +673,17 @@ def _frontmatter(path: Path) -> dict:
     return yaml.safe_load(text.split("---", 2)[1])
 
 
-def test_step_reviewer_agents_are_structurally_mutation_denied() -> None:
+def test_bunny_reviewer_agents_are_structurally_mutation_denied() -> None:
     reviewer = _frontmatter(REPO_ROOT / ".opencode" / "agents" / "foundry-reviewer.md")
-    assert reviewer["model"] == STEP
-    assert reviewer["variant"] == "high"
+    assert reviewer["model"] == BUNNY
+    assert reviewer["variant"] == "max"
     assert reviewer["mode"] == "all"
     assert reviewer["permission"]["edit"] == "deny"
     assert reviewer["permission"]["bash"]["*"] == "deny"
     assert reviewer["permission"]["task"] == "deny"
 
-    auditor = _frontmatter(REPO_ROOT / ".opencode" / "agents" / "assurance-auditor.md")
-    assert auditor["model"] == STEP
+    auditor = _frontmatter(REPO_ROOT / ".opencode" / "agents" / "bunny-auditor.md")
+    assert auditor["model"] == BUNNY
     assert auditor["permission"]["edit"] == "deny"
     assert auditor["permission"]["bash"]["*"] == "deny"
     assert auditor["permission"]["task"] == "deny"
@@ -723,8 +723,8 @@ def test_step_reviewer_agents_are_structurally_mutation_denied() -> None:
 
     registry = executor_mod.load_registry()
     assert set(registry.review_policy["review_agents"]) == {"foundry-reviewer"}
-    assert "assurance-verifier" not in registry.review_policy["review_agents"]
-    assert "assurance-auditor" not in registry.review_policy["review_agents"]
+    assert "bunny-verifier" not in registry.review_policy["review_agents"]
+    assert "bunny-auditor" not in registry.review_policy["review_agents"]
 
 
 # --- state CLI wiring -------------------------------------------------------
@@ -780,14 +780,14 @@ def test_state_cli_review_gate_fails_closed_then_passes(
 def test_material_checkpoint_persists_sha_tree_evidence_next_action(repo: dict) -> None:
     """A material milestone state keeps the exact identities it claims."""
     doc = _state_doc(repo["base"], repo["impl"], repo["root"], repo["state"])
-    doc["evidence"] = ["REVIEW_GATE_SATISFIED: pending canonical step record"]
+    doc["evidence"] = ["REVIEW_GATE_SATISFIED: pending canonical bunny record"]
     doc["remote_checkpoint"] = {
         "remote": "origin",
         "branch": "project/test",
         "sha": repo["checkpoint"],
         "tree": _tree(repo["root"], repo["checkpoint"]),
     }
-    doc["exact_next_action"] = "dispatch independent Step 5 Preview exact-SHA/TREE review"
+    doc["exact_next_action"] = "dispatch independent Space Bunny exact-SHA/TREE review"
     path = repo["root"] / ".foundry" / "POLICY_STATE.yaml"
     state_mod.write_state(str(path), doc, workdir=str(repo["root"]))
     reloaded = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -798,7 +798,7 @@ def test_material_checkpoint_persists_sha_tree_evidence_next_action(repo: dict) 
     assert reloaded["remote_checkpoint"]["tree"] == _tree(repo["root"], repo["checkpoint"])
     assert reloaded["evidence"]
     assert reloaded["exact_next_action"] == (
-        "dispatch independent Step 5 Preview exact-SHA/TREE review"
+        "dispatch independent Space Bunny exact-SHA/TREE review"
     )
 
 
@@ -812,12 +812,12 @@ def test_historical_state_without_policy_fields_stays_valid(repo: dict) -> None:
     assert result.status == "EXEMPT_HISTORICAL"
 
 
-def test_step_review_workflow_pins_the_read_only_lane() -> None:
-    """The direct carrier must pin Step 5 Preview HIGH + the read-only agent."""
+def test_bunny_review_workflow_pins_the_read_only_lane() -> None:
+    """The direct carrier must pin Space Bunny MAX + the read-only agent."""
     workflow = yaml.safe_load(
         (REPO_ROOT / ".github" / "workflows" / "opencode.yml").read_text(encoding="utf-8")
     )
-    job = workflow["jobs"]["opencode-ro-review"]
+    job = workflow["jobs"]["opencode-bunny-review"]
     env_steps = [
         step
         for step in job["steps"]
@@ -825,8 +825,8 @@ def test_step_review_workflow_pins_the_read_only_lane() -> None:
     ]
     assert len(env_steps) == 1
     env = env_steps[0]["env"]
-    assert env["MODEL"] == STEP
-    assert env["VARIANT"] == "high"
+    assert env["MODEL"] == BUNNY
+    assert env["VARIANT"] == "max"
     assert env["AGENT"] == "foundry-reviewer"
     assert job["steps"][0]["name"] == "Refuse fork pull requests as agent targets"
     assert "--jq '.head.repo.full_name'" in job["steps"][0]["run"]

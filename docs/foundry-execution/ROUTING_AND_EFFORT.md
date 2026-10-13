@@ -14,14 +14,15 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 
 1. Normal ChatGPT with GPT-5.6 Sol High — Coordinator and adjudication tier.
 2. OpenCode Foundry — primary execution tier with one executor per run. Since the Owner
-   directive of 2026-10-12 that executor is always `step` =
-   `opencode/step-5-preview-free` on OpenCode Zen at its highest native variant `high`
-   (every lane, agent and subagent; free Zen quota; no other OpenCode model is used). `deepseek` =
+   directives of 2026-10-10 that executor is always `space-bunny` =
+   `opencode/space-bunny-free` on OpenCode Zen at native `max` (every lane, agent and
+   subagent). `deepseek` =
    `opencode-go/deepseek-v4.1-flash` is SUSPENDED (OpenCode Go monthly quota exhausted) and
    refused by the launcher.
-   Logical `step` resolves only after live pinned-CLI catalog inspection
-   (`opencode models opencode`): the Zen id `opencode/step-5-preview-free` must be listed,
-   else fail closed. No retired executor, DeepSeek or other
+   Logical `space-bunny` resolves only after live pinned-CLI catalog inspection
+   (`opencode models opencode`): the Zen id `opencode/space-bunny-free` must be listed,
+   else fail closed. The OpenCode Go Space Bunny ids share the exhausted Go monthly quota
+   and are not admitted. No Longcat, DeepSeek or other
    provider/model may substitute, and there is no third logical executor. A runtime,
    auth, quota or catalog failure after selection is a blocked run, never a re-resolution.
    No other OpenCode executor is selectable under current authority.
@@ -34,7 +35,7 @@ in `AGENTS.md`; this document remains the canonical detailed routing reference.
 4. ChatGPT Work / Astra — exceptional only, after `WORK_NECESSITY = PASS`.
 
 Executor choice is explicit and auditable. The launcher never changes model because of
-quota, credentials, catalog availability, child failure, or retry. A Step 5 Preview failure is
+quota, credentials, catalog availability, child failure, or retry. A Space Bunny failure is
 fail-closed and never falls back to the suspended DeepSeek profile.
 A completed/terminated writer releases the existing writer lock, after which the other
 profile may resume the same workstream from the same branch + explicit state + evidence.
@@ -50,7 +51,7 @@ DeepSeek, requires a new direct user instruction. See `EXECUTION_PROVIDER_OVERRI
 
 Active OpenCode Foundry work has exactly one supported launcher execution identity:
 
-- `step` → `opencode/step-5-preview-free` → native `high` (its highest catalog level).
+- `space-bunny` → `opencode/space-bunny-free` → native `max`.
   The default and only executor for implementation, debugging, qualification,
   integration, CI remediation, evidence generation, audits, reviews and long campaigns.
 - `deepseek` → `opencode-go/deepseek-v4.1-flash` → native `max` stays in the registry as
@@ -58,29 +59,29 @@ Active OpenCode Foundry work has exactly one supported launcher execution identi
 
 The launcher rejects any profile outside the ACTIVE set, and rejects every provider override,
 so no mismatched or retired pair is reachable. There is no active-work native lane below
-the executor's highest native level; the project-level `--effort` field describes task/authority routing only and never
+`max`; the project-level `--effort` field describes task/authority routing only and never
 lowers the executor's native level.
 
-This highest-native-level rule binds the OpenCode profiles only. A Claude Opus 5.5 campaign runs
+This native-`max` rule binds the OpenCode profiles only. A Claude Opus 5.5 campaign runs
 at `medium` or `high` effort, and its read-only helpers use the effort pinned in their own
 frontmatter (`log-scanner` Sonnet `low`, `ci-triage` Sonnet `medium`, `evidence-reviewer`
 Opus `high`); never Haiku. Those subagents are read-only helpers inside the campaign, not
 Foundry executors, and hold no write, adjudication or merge authority.
 
 Root `opencode.json` enables only the Zen provider `opencode` and whitelists only
-`step-5-preview-free` at native `high` for `model` and `small_model`. All three GitHub OpenCode lanes pin `MODEL=opencode/step-5-preview-free`
-and `VARIANT=high`; they differ by agent: `/oc` and `/opencode` run `foundry-implementer`, `/assure`
-runs `assurance-verifier`, `/ro-review` runs the read-only `foundry-reviewer`. Claude sessions start Step through the
-`opencode` CLI; the Zen free tier refuses calls through the `opencode-subagent` MCP bridge.
-How to write prompts for this model: `EXECUTOR_PROMPTING.md`.
+`space-bunny-free` at native `max` for `model` and `small_model`. All three GitHub OpenCode lanes pin `MODEL=opencode/space-bunny-free`
+and `VARIANT=max`; they differ by agent: `/oc` and `/opencode` run `foundry-implementer`, `/bunny`
+runs `bunny-verifier`, `/bunny-review` runs the read-only `foundry-reviewer`. The Claude-side
+`opencode-subagent` MCP is pinned through `OPENCODE_SUBAGENT_MODEL` in `.claude/settings.json`.
+How to write prompts for this model: `SPACE_BUNNY_PROMPTING.md`.
 
-Lane postures (all Step 5 Preview at native `high`):
+Lane postures (all Space Bunny at native `max`):
 - `/oc` (`foundry-implementer`) spends reasoning freely but economises input: capsule first, the
   shared `lab-ops` scripts for status and logs, bounded reads, narrow validation while iterating
   and the full required suites once before a push.
-- `/assure` (`assurance-verifier`) spends tokens on assurance: every reported claim is established by two
+- `/bunny` (`bunny-verifier`) spends tokens on assurance: every reported claim is established by two
   independent routes with a wrong-reason control, the complete affected validation runs, and a
-  fresh-context `assurance-auditor` reviews the diff. It saves wall-clock time by running long checks
+  fresh-context `bunny-auditor` reviews the diff. It saves wall-clock time by running long checks
   first and independent checks in parallel subagents. No executor
 fallback occurs on quota, auth, catalog or child failure.
 
@@ -96,21 +97,21 @@ production-provider evidence or Architecture Freeze.
 - Canonical structure and validator: `tools/foundry/review_gate.py`; canonical review
   records live under `.foundry/reviews/`.
 - The only admissible reviewer is the top-level `foundry-reviewer` agent of the
-  `/ro-review` lane: Step 5 Preview HIGH, structurally read-only (`mode: all`,
+  `/bunny-review` lane: Space Bunny MAX, structurally read-only (`mode: all`,
   `edit: deny`, bash default-deny, `task: deny`). While DeepSeek is SUSPENDED it may
-  review Step 5 Preview implementation work (same-model review; the Owner approval of
-  2026-10-10 for the single-executor case, applied to Step from 2026-10-12); its independence then rests on the fresh context and the read-only lane.
+  review Space Bunny implementation work (same-model review, explicit Owner approval
+  2026-10-10); its independence then rests on the fresh context and the read-only lane.
   As soon as another profile is ACTIVE again that counts as self-review. A DeepSeek review, a writable
-  top-level verifier (`assurance-verifier`), a subagent attestation (`assurance-auditor`),
+  top-level verifier (`bunny-verifier`), a subagent attestation (`bunny-auditor`),
   a self-review, or an unknown/blocked/partial/fail/stale verdict never satisfies the
   gate.
 - A PASS record is only admissible with independently verifiable GitHub evidence
   (`tools/foundry/review_evidence.py`): a trusted trigger comment, the successful
-  trusted `/ro-review` workflow run and expected job, the workflow file fetched at
-  the run's exact `head_sha` pinning canonical Step 5 Preview HIGH and the
+  trusted `/bunny-review` workflow run and expected job, the workflow file fetched at
+  the run's exact `head_sha` pinning canonical Space Bunny MAX and the
   `foundry-reviewer` agent, the structurally read-only reviewer agent file, and the
   OpenCode bot result comment carrying the machine-parseable
-  `DIRECT_READ_ONLY_REVIEW` receipt with the exact reviewed SHA/TREE/verdict.
+  `BUNNY_DIRECT_READ_ONLY_REVIEW` receipt with the exact reviewed SHA/TREE/verdict.
   The receipt is bound to its run: the result comment must fall inside the run's
   `run_started_at..updated_at` window, the trigger comment must be the newest issue
   comment created before the run started, and the comment's own run footer link must
@@ -122,9 +123,9 @@ production-provider evidence or Architecture Freeze.
   The independently observed facts are the run/job identity and conclusions, the
   workflow and agent files fetched at the run's `head_sha`, and the comment/run
   binding. The workflow pin verified at `head_sha` must be canonical
-  `opencode/step-5-preview-free`, so a review recorded on another id (including the retired
+  `opencode/space-bunny-free`, so a review recorded on another id (including the retired
   OpenCode Go ids) cannot satisfy the evidence gate.
-- Issue-comment lanes are evaluated from the default branch, so the `/ro-review`
+- Issue-comment lanes are evaluated from the default branch, so the `/bunny-review`
   lane is only reachable after it is merged to main.
 - Any MATERIAL change after the review (including an evidenced P1/P2 repair) makes the
   prior review STALE and requires exact new-SHA/TREE re-review. A generated-state-only
@@ -147,9 +148,9 @@ production-provider evidence or Architecture Freeze.
 Authoritative model:
 `docs/CURRENT_EXECUTION_AUTHORITY.md`. Summary:
 
-- Step 5 Preview HIGH: the only active OpenCode execution profile. Autonomous implementation,
+- Space Bunny MAX: the only active OpenCode execution profile. Autonomous implementation,
   debugging, qualification, evidence generation, tool use and technical decisions within
-  the bounded workstream contract. Native reasoning remains `high`.
+  the bounded workstream contract. Native reasoning remains `max`.
 - DeepSeek MAX: SUSPENDED since 2026-10-10; no work is routed to it.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized. It may challenge
   technical assumptions, take adjacent high-value work inside the same objective and

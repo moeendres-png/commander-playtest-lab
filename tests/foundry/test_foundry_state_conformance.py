@@ -52,22 +52,6 @@ FOUNDRY_DIR = REPO_ROOT / ".foundry"
 # workstream's to rewrite. Every entry must still exist AND still fail; see the
 # module docstring.
 EXEMPTIONS: dict[str, tuple[str, str]] = {
-    ".foundry/issue689-s1-native-return-witness-20261010.yaml": (
-        "Coordinator (executor switch 2026-10-12)",
-        "closed or historical state recorded under the retired executor profile; that executor identity is provenance of its own runs, and rewriting it to the current profile would relabel history (Owner directive 2026-10-12 removed the profile)",
-    ),
-    ".foundry/oc-foundry-cross-executor-policy-20261006.yaml": (
-        "Coordinator (executor switch 2026-10-12)",
-        "closed or historical state recorded under the retired executor profile; that executor identity is provenance of its own runs, and rewriting it to the current profile would relabel history (Owner directive 2026-10-12 removed the profile)",
-    ),
-    ".foundry/pb03-check-efficiency-20261009.json": (
-        "Coordinator (executor switch 2026-10-12)",
-        "closed or historical state recorded under the retired executor profile; that executor identity is provenance of its own runs, and rewriting it to the current profile would relabel history (Owner directive 2026-10-12 removed the profile)",
-    ),
-    ".foundry/phase86-check-efficiency-20261009.json": (
-        "Coordinator (executor switch 2026-10-12)",
-        "closed or historical state recorded under the retired executor profile; that executor identity is provenance of its own runs, and rewriting it to the current profile would relabel history (Owner directive 2026-10-12 removed the profile)",
-    ),
     ".foundry/pb03-304-terminal-hardening-20260929.yaml": (
         "PB-03 workstream",
         "active foreign surface (PR #316 open, sol/pb03-current-main-runtime-v2-20260929 "

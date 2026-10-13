@@ -8,19 +8,25 @@ to the launcher; there is no implicit active repository-root state).
 
 ## 1. Mission and scope
 
-Build a practical Magic: The Gathering Commander simulator that helps with real
-deck-building decisions: it plays real 100-card Commander decks rules-correctly, so
-that simulated games stand in for real games and we can learn from them (deck and card
-choices, matchups, pilot improvement, deck optimization). Governing mission policy is
-`docs/PROJECT_MISSION.md`.
+Build and qualify the best realistically achievable full-rules Magic: The Gathering
+Commander simulator. Rules Correctness outranks performance and convenience.
+Governing mission policy is `docs/PROJECT_MISSION.md` (established on the PR #173
+line): outcome-first, player-count neutral. Its player-count and architecture
+direction governs over any summary here, so merging this file must never reintroduce
+a fixed 4-player architecture restriction.
 
-- Rules-correct play is required, but maximal rules correctness is not the top
-  doctrine. Where full correctness for a rare interaction is unreachable or would mean
-  chasing defects without end, record the gap visibly and move on.
-- Simulate as many effects, abilities and cards as possible, including cards the base
-  XMage engine does not cover, so real decks can be played as they are.
-- Four players (one own deck, three opponents) is the usual game; other player counts
-  are supported where useful.
+- Four players (one own deck, three opponents) is the primary benchmark and decision
+  mode. It is not an architecture anchor, a fixed-size data-model requirement, or a
+  reason to exclude otherwise better candidates or research.
+- Technical Rules-Core conformance for 2–5 players is mandatory. Record evidence for
+  each count; a 4P result does not establish another count's correctness.
+- Prefer 6+ or generally variable-player solutions when they improve Rules Correctness,
+  simplicity, reuse, testability, or research/implementation. This preference must not
+  weaken Rules Correctness or the required 2–5P conformance.
+- A target player-count capability is not runtime evidence. Unsupported paths remain
+  fail closed until qualified.
+- The simulator must support real Commander decks for deck decisions, matchup analysis,
+  reproducible simulations, later pilot improvement, and later deckbuilding optimization.
 
 `ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:
 `docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md`).
@@ -124,8 +130,7 @@ Technical autonomy within those tiers is defined in §8.
 
 Active OpenCode Foundry execution has exactly one allowed launcher identity:
 
-- Step 5 Preview: native `high` only (its highest catalog level). The default and only
-  execution path for
+- Space Bunny: native `max` only. The default and only execution path for
   implementation, debugging, qualification, integration, CI remediation, evidence,
   audits, reviews and long-running campaigns.
 - DeepSeek: SUSPENDED since 2026-10-10 (OpenCode Go monthly quota exhausted). Only a new
@@ -133,11 +138,11 @@ Active OpenCode Foundry execution has exactly one allowed launcher identity:
 
 No other OpenCode executor is selectable under current authority. Historical model references
 are provenance only, are not migration targets, and must not generate routing/governance work
-without a new direct user instruction. There is no active-work lane below an executor's
-highest native level (`medium`, `low`, `minimal`, `none`, `off`). The project-level
+without a new direct user instruction. There is no active-work `high`, `medium`, `low`,
+`minimal`, `none`, or `off` native lane. The project-level
 `--effort` field describes task and authority routing only and never lowers either
-executor below its native level. Do not relabel Step 5 Preview HIGH (or historical DeepSeek MAX) as
-anything else; record the actual native identity.
+executor below its native level. Do not relabel Space Bunny MAX (or historical DeepSeek MAX) as
+XHIGH; record the actual native identity.
 
 ## 8. Technical decision authority
 
@@ -151,9 +156,9 @@ can resolve it.
 
 Routing distinction:
 
-- Step 5 Preview HIGH: default and only active OpenCode execution profile (Owner directive
-  2026-10-12). It is autonomous within the workstream contract and always runs at native
-  `high`. DeepSeek MAX is SUSPENDED and never selected.
+- Space Bunny MAX: default and only active OpenCode execution profile (Owner directive
+  2026-10-10). It is autonomous within the workstream contract and always runs at native
+  `max`. DeepSeek MAX is SUSPENDED and never selected.
 - Claude Opus 5.5: direct campaign executor when explicitly authorized by the session
   contract. It may own campaign-sized technical execution and continuous task selection
   inside declared ownership, but does not inherit Foundry-specific launcher permissions.

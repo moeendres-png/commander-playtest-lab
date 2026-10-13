@@ -57,12 +57,12 @@
     },
     "engine_pins": {
       "config_file": "config/rules_engines.json",
-      "config_sha256": "4de85b7b2c9c2fa5b0ad83ddb425ea238af7d718d40d42b57cb437fe612858e6",
+      "config_sha256": "ce99269d6a5151530533d306acc38641db3e7e49408d71cac757ca4d608a27a2",
       "xmage": {
-        "commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+        "commit": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
         "pin_source": "config/rules_engines.json#primary_engine.commit",
-        "tree": "e6845ec795aeeae4ce5a229a9da6fb96bf51910a",
-        "tree_source": "qualification/xmage-precon-coverage-repin-v6-20261013/SUCCESSOR_SOURCE_LOCK.json#lineage.final_integrated_candidate.tree"
+        "tree": "94a9f78331cbb619fe1443ccf43088f7f193e120",
+        "tree_source": "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json#lineage.final_integrated_candidate.tree"
       },
       "forge_rules_core": {
         "commit": "bb0a740d2bef725194798383c2452213ecdd0b37",
@@ -91,7 +91,7 @@
     "drift_records": [
       {
         "subject": "xmage engine commit",
-        "pin": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+        "pin": "3cbf7741d29a2fe820725456b90f305f9f793ad1",
         "sealed_evidence": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
         "verdict": "DIFFERS",
         "pin_source": "config#primary_engine.commit",
@@ -9866,7 +9866,7 @@
       "qualification/current-boundary-epochs/c124150d77ab-d303b2ca5f32/PB03_RUNTIME_EXECUTION.json",
       "config/rules_engines.json",
       "qualification/CURRENT_PRE_FREEZE_CONTRACT.json",
-      "qualification/xmage-precon-coverage-repin-v6-20261013/SUCCESSOR_SOURCE_LOCK.json"
+      "qualification/xmage-commander-zone-order-repin-v5-20261011/SUCCESSOR_SOURCE_LOCK.json"
     ]
   }
 }

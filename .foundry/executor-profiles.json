@@ -1,7 +1,7 @@
 {
-  "schema_version": "1.5",
+  "schema_version": "1.4",
   "status": "ACTIVE",
-  "authority_date": "2026-10-12",
+  "authority_date": "2026-10-10",
   "provider": "opencode",
   "policy": {
     "highest_supported_effort_only": true,
@@ -12,11 +12,11 @@
     "repository_prescribes_task_routing": false,
     "live_catalog_reverification_required_at_activation": true
   },
-  "current_runtime_default": "step",
+  "current_runtime_default": "space-bunny",
   "profiles": {
-    "step": {
-      "model": "opencode/step-5-preview-free",
-      "native_variant": "high",
+    "space-bunny": {
+      "model": "opencode/space-bunny-free",
+      "native_variant": "max",
       "runtime_status": "ACTIVE"
     },
     "deepseek": {
@@ -25,49 +25,49 @@
       "runtime_status": "SUSPENDED",
       "suspension": {
         "since": "2026-10-10",
-        "reason": "Owner directive after the OpenCode Go monthly quota was exhausted (HTTP 429 GoUsageLimitError, limitName=monthly).",
-        "authority": "Direct Owner instruction 2026-10-10; confirmed by the Owner directive 2026-10-12 (Step 5 Preview only).",
+        "reason": "Owner directive after the OpenCode Go monthly quota was exhausted (HTTP 429 GoUsageLimitError, limitName=monthly). Observed 2026-10-10 (opencode workflow run 38049493597): opencode-go/space-bunny calls are refused by the same monthly limit, so this suspension does not restore OpenCode capacity by itself.",
+        "authority": "Direct Owner instruction 2026-10-10: use only Space Bunny MAX in OpenCode, subagents included.",
         "reactivation": "Only a new direct Owner instruction sets runtime_status back to ACTIVE; quota recovery alone does not."
       }
     }
   },
   "routing_policy": {
-    "note": "Owner directive 2026-10-12: Step 5 Preview (opencode/step-5-preview-free on OpenCode Zen) is the default and only active OpenCode executor for every lane (/oc, /assure, /ro-review, the launcher, the opencode-subagent MCP and every OpenCode subagent), at its highest native variant high (the Zen catalog lists low/medium/high only, no max). DeepSeek v4.1 Flash is SUSPENDED and never selected, not even as a fallback. Every earlier executor is retired and removed from this registry; its history stays in Git and in the dated records.",
-    "primary": "step",
+    "note": "Owner directives 2026-10-10: Space Bunny MAX is the default and only active OpenCode executor for every lane (/oc, /bunny, /bunny-review, the launcher, the opencode-subagent MCP and every OpenCode subagent), served by OpenCode Zen as opencode/space-bunny-free. DeepSeek v4.1 Flash MAX is SUSPENDED and never selected, not even as a fallback. OpenCode Go ids are not admitted. Historical references to DeepSeek or opencode-go/space-bunny are provenance only.",
+    "primary": "space-bunny",
     "suspended": [
       "deepseek"
     ],
     "automatic_fallback": false,
-    "selection_authority": "Every run resolves the step profile. Re-activating DeepSeek needs a new direct Owner instruction recorded in this registry."
+    "selection_authority": "Every run resolves the space-bunny profile. Re-activating DeepSeek needs a new direct Owner instruction recorded in this registry."
   },
   "runtime_identity": {
     "opencode-go/deepseek-v4.1-flash": {
       "logical_profile": "deepseek",
       "alias_class": "CANONICAL"
     },
-    "opencode/step-5-preview-free": {
-      "logical_profile": "step",
+    "opencode/space-bunny-free": {
+      "logical_profile": "space-bunny",
       "alias_class": "CANONICAL"
     }
   },
   "resolution_policy": {
-    "note": "Exactly two logical executor profiles. All runtime model IDs below map to one of them; there is no third logical executor and no cross-family substitute. Step resolves only after live pinned-CLI catalog inspection of the Zen provider: its single admitted id must be listed, otherwise fail closed.",
+    "note": "Exactly two logical executor profiles. All runtime model IDs below map to one of them; there is no third logical executor and no non-Bunny or cross-family substitute. Space Bunny resolves only after live pinned-CLI catalog inspection of the Zen provider: its single admitted id must be listed, otherwise fail closed. OpenCode Go Space Bunny ids are not admitted.",
     "catalog_mechanism": "opencode models opencode",
     "logical_profiles": [
       "deepseek",
-      "step"
+      "space-bunny"
     ],
-    "step_preference": [
-      "opencode/step-5-preview-free"
+    "space_bunny_preference": [
+      "opencode/space-bunny-free"
     ],
     "post_selection_failure": "FAIL_CLOSED_NO_RE_RESOLUTION",
     "automatic_fallback": false
   },
   "cross_executor_review_policy": {
-    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Step 5 Preview review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /ro-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is SUSPENDED the implementation executor is also Step, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence). A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
+    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Space Bunny MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /bunny-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is SUSPENDED the implementation executor is also Space Bunny, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence). A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
     "required_for_material": true,
-    "implementation_executor": "step",
-    "review_executor": "step",
+    "implementation_executor": "space-bunny",
+    "review_executor": "space-bunny",
     "review_mode": "READ_ONLY_FRESH_CONTEXT",
     "review_agents": [
       "foundry-reviewer"
@@ -106,7 +106,7 @@
     ],
     "blocker": "RESOLVED 2026-09-29: the 2026-09-28 foreign-ownership deferral on tools/foundry/launcher.py and tests/foundry/test_launcher.py was superseded by direct newest-user authority for this migration; see docs/project_integrity_20260928/OWNERSHIP_DEFERRALS_RESOLUTION_20260929.json.",
     "required_validation": [
-      "exact two-profile routing allowlist (active then suspended) and one highest native variant per model",
+      "exact two-profile routing allowlist (primary then secondary) and one highest native variant per model",
       "explicit profile selection and child --model pin",
       "no automatic fallback on quota/auth/catalog/tool/child failure",
       "telemetry/context/state provenance for selected profile/model/native variant",
@@ -142,17 +142,6 @@
       "authenticated_runtime_smoke": "RUNTIME_VERIFIED 2026-10-10: trusted /bunny run 38053801098 on main c0f9e35e30c2c4d8f6bd32c7a2073be0928b8253 (issue #684) completed with the existing OPENCODE_API_KEY; the agent read its own OpenCode session store and reported providerID=opencode modelID=space-bunny-free variant=max on all 14 assistant messages (result comment 6097737983). The provider/model identity is agent self-report from the session store (CODE_DERIVED for this receipt); the configured pins and job success are DIRECTLY_VERIFIED.",
       "runtime_status": "ACTIVE",
       "observed_agent_note": "The same run reported agent=foundry-implementer although the /bunny lane pins AGENT=bunny-verifier; tracked in issue #685; it does not change the model identity."
-    },
-    "retired_history_note": "activation_evidence_2026_09_29, _2026_10_06 and _2026_10_10 are kept verbatim as dated provenance. They describe the executor retired on 2026-10-12 (Owner directive) and the suspended DeepSeek profile; they authorize nothing and their runtime_status values are historical.",
-    "activation_evidence_2026_10_12": {
-      "current_model_identity": "opencode/step-5-preview-free",
-      "reason": "Owner directive 2026-10-12: the previous Zen executor is no longer free; use only OpenCode Zen Step 5 Preview for the whole project and remove the previous executor from the project.",
-      "authority": "Direct Owner instructions 2026-10-12.",
-      "live_catalog_identity": "DIRECTLY_VERIFIED 2026-10-12: `opencode models opencode` lists opencode/step-5-preview-free; `--verbose` shows status active, cost 0, variants low/medium/high (no max).",
-      "native_variant_choice": "The Owner asked for max; the catalog offers no max variant for this model, so the registry pins its highest native variant high (policy highest_supported_effort_only). If the catalog later lists max, a registry change moves the pin.",
-      "authenticated_runtime_smoke": "NOT_RUN: the first trusted lane run after merge is the runtime observation for the Zen identity and key. A local unauthenticated `opencode run -m opencode/step-5-preview-free` on 2026-10-12 was refused with 'Rate limit exceeded' (free-tier limit), so no local smoke counts.",
-      "runtime_status": "ACTIVE",
-      "activation_without_smoke": "Coordinator reading of the Owner instructions of 2026-10-12, which direct that only Step 5 Preview on OpenCode Zen be used whenever OpenCode is used: Step is activated before the authenticated smoke that required_validation asks for, because no other executor may run and the smoke itself needs an active lane. The Owner did not separately waive the smoke; it stays owed and is the first trusted lane run."
     }
   }
 }

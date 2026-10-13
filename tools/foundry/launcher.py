@@ -78,17 +78,17 @@ import writer_lock as writer_lock_mod
 
 CANONICAL_PROVIDER = executor_mod.CANONICAL_PROVIDER
 # Operator authority (2026-09-29), durable cross-executor policy (2026-10-06)
-# and Owner directives (2026-10-10, 2026-10-12): the registry holds exactly two LOGICAL
+# and Owner directive (2026-10-10): the registry holds exactly two LOGICAL
 # executors, each pinned to one native reasoning level, but only ACTIVE ones are
-# reachable. Step 5 Preview HIGH is the default and only ACTIVE executor and the
+# reachable. Space Bunny MAX is the default and only ACTIVE executor and the
 # mandatory fresh-context read-only reviewer for MATERIAL implementation
 # workstreams; DeepSeek MAX is SUSPENDED (OpenCode Go monthly quota exhausted)
-# and is refused at resolution. The logical `step` profile admits exactly
+# and is refused at resolution. The logical `space-bunny` profile admits exactly
 # its OpenCode Zen runtime id (see .foundry/executor-profiles.json); the Go ids
 # are retired and no third executor exists. A
 # runtime/quota/auth/catalog failure after selection is fail-closed and never
 # re-resolves to another executor family.
-STEP_PROFILE = "step"
+SPACE_BUNNY_PROFILE = "space-bunny"
 DEEPSEEK_PROFILE = "deepseek"
 # Single generic profile->canonical-runtime table, loaded from the validated
 # registry so code and durable policy cannot drift.
@@ -101,10 +101,10 @@ PROFILE_MODELS = {
     name: spec.canonical_runtime_id for name, spec in EXECUTOR_REGISTRY.profiles.items()
 }
 DEEPSEEK_MODEL = PROFILE_MODELS[DEEPSEEK_PROFILE]
-STEP_MODEL = PROFILE_MODELS[STEP_PROFILE]
+SPACE_BUNNY_MODEL = PROFILE_MODELS[SPACE_BUNNY_PROFILE]
 CANONICAL_MODEL = PROFILE_MODELS[PRIMARY_EXECUTION_PROFILE]
-# The admitted Step 5 Preview runtime ids (only the Zen id since 2026-10-10).
-ADMITTED_STEP_MODELS = EXECUTOR_REGISTRY.profiles[STEP_PROFILE].admitted_runtime_ids
+# The admitted Space Bunny runtime ids (only the Zen id since 2026-10-10).
+ADMITTED_BUNNY_MODELS = EXECUTOR_REGISTRY.profiles[SPACE_BUNNY_PROFILE].admitted_runtime_ids
 # Only ACTIVE profiles' runtime ids are reachable; the root opencode.json
 # whitelist must match exactly this set, so a SUSPENDED model is not even
 # selectable by a plain `opencode` invocation.
@@ -132,7 +132,7 @@ def execution_identity(
 ) -> dict:
     """Resolve one explicit executor; never infer/fallback from quota or failures.
 
-    Step 5 Preview resolution requires live pinned-CLI catalog inspection (or an
+    Space Bunny resolution requires live pinned-CLI catalog inspection (or an
     explicit ``catalog`` supplied by hermetic callers/tests); the canonical
     runtime id wins, the admitted legacy alias is second, and an empty
     admission fails closed. A post-selection failure never re-resolves.
@@ -165,7 +165,7 @@ def execution_identity(
         "provider": resolved.resolved_provider,
         "model": resolved.resolved_model_id,
         "requested_effort": effort,
-        "variant_resolution": f"native_{resolved.native_variant}",
+        "variant_resolution": "native_max",
         "native_variant": resolved.native_variant,
         **resolved.to_provenance(),
     }
@@ -614,7 +614,7 @@ def build_content_bundle(
     # NOTE: provider.models is keyed by SHORT model name (verified against the
     # resolved config); the provider/model pair lives in top-level "model".
     # The whitelist admits exactly the ACTIVE runtime identities: the Zen Space
-    # Step id. A SUSPENDED profile (DeepSeek), the retired Go ids and any third
+    # Bunny id. A SUSPENDED profile (DeepSeek), the retired Go ids and any third
     # executor are not admitted.
     try:
         models = config["provider"][CANONICAL_PROVIDER]["models"]
@@ -676,10 +676,9 @@ def build_content_bundle(
     # Narrow the bundle to the RESOLVED profile/model, never the raw flag. An
     # omitted flag resolves to the registry default, so branching on the flag
     # would let a default launch fall through to the wrong executor block.
-    # For Step 5 Preview the model is the resolved Zen runtime identity, already
+    # For Space Bunny the model is the resolved Zen runtime identity, already
     # provenance-recorded in `execution`.
     selected_model = execution["model"]
-    native = execution["native_variant"]
     short = selected_model.split("/", 1)[1]
     bundle["model"] = selected_model
     bundle["small_model"] = selected_model
@@ -689,8 +688,8 @@ def build_content_bundle(
             "whitelist": [short],
             "models": {
                 short: {
-                    "options": {"reasoningEffort": native},
-                    "variants": {native: {}},
+                    "options": {"reasoningEffort": "max"},
+                    "variants": {"max": {}},
                 }
             },
         }
@@ -701,7 +700,7 @@ def build_content_bundle(
     names = {"build", "plan", "general", "explore", "compaction", "title", "summary"}
     names.update(config.get("agent", {}))
     names.update(p.stem for p in (Path(canonical_root) / ".opencode" / "agents").glob("*.md"))
-    bundle["agent"] = {name: {"model": selected_model, "variant": native} for name in sorted(names)}
+    bundle["agent"] = {name: {"model": selected_model, "variant": "max"} for name in sorted(names)}
     return bundle
 
 
@@ -952,8 +951,8 @@ def init(
     effective_catalog = model_catalog
     catalog_source: str | None = None
     active_profile = execution_profile or DEFAULT_EXECUTION_PROFILE
-    if effective_catalog is None and active_profile == STEP_PROFILE:
-        # Step 5 Preview resolution must inspect the live pinned-CLI catalog
+    if effective_catalog is None and active_profile == SPACE_BUNNY_PROFILE:
+        # Space Bunny resolution must inspect the live pinned-CLI catalog
         # before selection. Load it once here and pass the exact snapshot to
         # every internal resolver call so no second, possibly different,
         # inspection can occur.
@@ -1497,7 +1496,7 @@ def main(argv: list[str] | None = None) -> int:
         choices=ACTIVE_EXECUTION_PROFILES,
         default=None,
         help=(
-            "Explicit OpenCode Go executor profile. Omitted selects the Step 5 Preview HIGH "
+            "Explicit OpenCode Go executor profile. Omitted selects the Space Bunny MAX "
             "default, the only ACTIVE profile; 'deepseek' is SUSPENDED (Owner directive "
             "2026-10-10) and refused. Any other execution profile is unauthorized."
         ),

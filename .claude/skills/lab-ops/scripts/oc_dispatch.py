@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Dispatch and watch `/oc` and `/assure` work without hand-written walls of text.
+"""Dispatch and watch `/oc` and `/bunny` work without hand-written walls of text.
 
-    oc_dispatch.py post --issue N --lane oc|assure --task FILE [--branch B] [--dry-run]
+    oc_dispatch.py post --issue N --lane oc|bunny --task FILE [--branch B] [--dry-run]
     oc_dispatch.py watch RUN | --issue N [--interval 60] [--timeout 7200]
     oc_dispatch.py rescue RUN [--out DIR]
 
@@ -121,7 +121,7 @@ def footer(lane: str, trailer: str | None = CO_AUTHOR) -> str:
 def build_comment(
     lane: str, task_text: str, branch: str | None, trailer: str | None = CO_AUTHOR
 ) -> str:
-    prefix = "/oc" if lane == "oc" else "/assure"
+    prefix = "/oc" if lane == "oc" else "/bunny"
     text = re.sub(rf"^/{lane}\b\s*", "", task_text.strip()).strip()
     parts = [f"{prefix} {text}"]
     if branch:
@@ -273,7 +273,7 @@ def cmd_watch(a: argparse.Namespace) -> None:
     lane_jobs = [
         j for j in jobs if not (j.get("status") == "completed" and j.get("conclusion") == "skipped")
     ]
-    lane = "assure" if any("assure" in j["name"] for j in lane_jobs) else "oc"
+    lane = "bunny" if any("bunny" in j["name"] for j in lane_jobs) else "oc"
     job_state = next((j.get("conclusion") or j.get("status") for j in lane_jobs), "no job")
 
     report, link, branch, pr_number = "", run["html_url"], None, None
@@ -354,11 +354,11 @@ def main() -> None:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     sub = parser.add_subparsers(dest="command", required=True)
-    post = sub.add_parser("post", help="create a /oc or /assure dispatch comment")
+    post = sub.add_parser("post", help="create a /oc or /bunny dispatch comment")
     post.add_argument("--issue", type=int, required=True)
-    post.add_argument("--lane", choices=["oc", "assure"], required=True)
+    post.add_argument("--lane", choices=["oc", "bunny"], required=True)
     post.add_argument("--task", type=Path, required=True, help="task skeleton to fill in")
-    post.add_argument("--branch", help="branch to work on (oc) or audit (assure)")
+    post.add_argument("--branch", help="branch to work on (oc) or audit (bunny)")
     post.add_argument("--repo", default=DEFAULT_REPO)
     post.add_argument("--dry-run", action="store_true", help="print the comment, post nothing")
     post.add_argument(

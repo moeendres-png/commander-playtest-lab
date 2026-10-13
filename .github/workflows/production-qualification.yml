@@ -38,7 +38,23 @@ jobs:
         run: |
           python -m pip install --require-hashes -r requirements/lock.txt
           python -m pip install --no-deps --no-build-isolation -e .
+      - name: Materialize the pinned Forge reference for PB09 identity tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          # B6 (#487): commit history only (trees and blobs are fetched on demand),
+          # then every commit the PB09 identity tests compare must be present.
+          git clone --quiet --filter=tree:0 --no-checkout \
+            https://github.com/moeendres-png/forge "$RUNNER_TEMP/forge-reference"
+          for sha in ef958ee91ac6c9ce0152189f2654bf6e05abf273 \
+                     18bba95a4528f6ab5910633f1f87f603b8c4ddf8 \
+                     e15f37d6b2b5c0ad682948f86f037e07b6aaded5; do
+            git -C "$RUNNER_TEMP/forge-reference" cat-file -e "$sha^{commit}"
+          done
       - name: Validate WS-17 qualification infrastructure
+        env:
+          FORGE_SOURCE_DIR: ${{ runner.temp }}/forge-reference
+          PB09_REQUIRE_FORGE_REFERENCE: "1"
         run: pytest -q tests/qualification
       - name: Validate canonical fixture manifest
         run: python qualification/harness.py validate qualification/manifests/COMMON_FIXTURE_MANIFEST_v1.json qualification/protocol/ws10r/candidate_fixture_manifest_v1.schema.json

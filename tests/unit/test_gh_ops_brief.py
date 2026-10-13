@@ -64,7 +64,7 @@ RUNS = [
 JOBS = {
     111: [{"name": "opencode", "status": "in_progress", "conclusion": None}],
     222: [
-        {"name": "opencode-assure", "status": "completed", "conclusion": "success"},
+        {"name": "opencode-bunny", "status": "completed", "conclusion": "success"},
         {"name": "opencode", "status": "completed", "conclusion": "skipped"},
     ],
 }

@@ -2,7 +2,7 @@
 """Compact GitHub views for agent sessions: one line per fact, never raw JSON dumps.
 
     gh_ops.py brief                         one screen (<=25 lines): open PRs in Lab, mage and
-                                            forge, running/recent /oc and /assure runs with the
+                                            forge, running/recent /oc and /bunny runs with the
                                             branch or PR and final-comment link, PB-03 runs, and
                                             the newest sealed epoch
     gh_ops.py status  [--repo O/R] PR...    head, merge state, red/pending checks, open threads
@@ -274,13 +274,13 @@ def _run_jobs(repo: str, run_id: int) -> list[dict[str, Any]]:
 
 
 def run_lane(repo: str, run: dict[str, Any]) -> str:
-    """`oc` or `assure` by which job of the opencode workflow actually ran."""
+    """`oc` or `bunny` by which job of the opencode workflow actually ran."""
     names = [
         j["name"]
         for j in _run_jobs(repo, run["id"])
         if not (j.get("status") == "completed" and j.get("conclusion") == "skipped")
     ]
-    return "assure" if any("assure" in name for name in names) else "oc"
+    return "bunny" if any("bunny" in name for name in names) else "oc"
 
 
 def _comment_for_run(comments: list[dict[str, Any]], run_id: int) -> dict[str, Any] | None:

@@ -2,23 +2,27 @@
 
 ## Outcome
 
-Build a practical Magic: The Gathering Commander simulator that helps with real
-deck-building decisions. It plays real 100-card Commander decks rules-correctly, so
-that simulated games stand in for real games, and it lets us learn from gameplay and
-matchup evidence: deck and card choices, matchups, pilot improvement and deck
-optimization.
+Research, qualify, implement and harden the best realistically achievable full-rules
+Magic: The Gathering Commander simulator, maximizing Rules Correctness. Its end-to-end
+purpose is reproducible simulation of real Commander decks, learning from gameplay and
+matchup evidence, pilot improvement, and better deck construction and optimization.
+Learning and deck optimization are explicit product outcomes; they never justify rules
+shortcuts or promote an unqualified simulator into decision authority. Perfect play or
+perfect prediction is not assumed or claimed.
 
-- Rules-correct play is required, but it is a means to realistic games, not a goal
-  in its own right. Maximal rules correctness is not the top doctrine. Where full
-  correctness for a rare interaction is unreachable or would mean chasing defects
-  without end, record the gap, keep it visible, and move on.
-- Coverage matters: simulate as many effects, abilities and therefore cards as
-  possible, including cards the base XMage engine does not cover, so that real decks
-  can be played as they are.
-- Four players (one own deck, three opponents) is the usual game. Other player
-  counts are supported where useful; there is no separate per-count conformance
-  mandate.
-- Perfect play or perfect prediction is not assumed or claimed.
+## Player-count policy
+
+- Four players (one own deck, three opponents) is the primary benchmark and decision
+  mode. It is not an architecture anchor, a fixed-size data-model requirement, or a
+  reason to exclude otherwise better candidates or research.
+- Technical conformance for 2–5 players is mandatory. Record evidence for each count;
+  a 4P result does not establish another count's correctness.
+- Prefer 6+ or generally variable-player solutions when they improve Rules Correctness,
+  simplicity, reuse, testability, or research/implementation. This preference must not
+  weaken Rules Correctness or the required 2–5P conformance.
+- A target player-count capability is not runtime evidence. Unsupported paths remain
+  fail closed until qualified. Existing Structural decision contracts and bounded
+  lanes retain their implemented limits until separately changed and validated.
 
 ## Outcome-first architecture and research
 
@@ -34,10 +38,11 @@ when evidence shows a better path to the end goal. Do not build a new general Ru
 Core when a qualifiable existing solution is objectively better; do not retain an
 engine or planned work merely because effort has already been invested.
 
-Compare candidates on real card behavior and coverage, rules correctness, multiplayer
-behavior, hidden-information isolation, determinism/replay, authoritative legal actions
-and pilot/rules separation, testability, implementation simplicity, reuse and practical
-costs. Document evidence, unknowns, displaced workstreams, remaining gaps and the
+Compare candidates first on Rules Correctness, real card behavior and coverage,
+multiplayer correctness, hidden-information isolation, determinism/replay, authoritative
+legal actions and pilot/rules separation; then on testability, implementation simplicity,
+reuse and practical costs. Performance and pilot strength cannot compensate for rules
+defects. Document evidence, unknowns, displaced workstreams, remaining gaps and the
 proposed integration order. Workstream replacement requires explicit Coordinator
 adjudication and ownership reconciliation before implementation; research alone does
 not authorize conflicting writes, cancellation, deletion or broader implementation.
@@ -62,7 +67,9 @@ project instructions are coordination mirrors; historical filenames and workstre
 numbers do not establish authority. Fresh source locks take precedence over stale
 reports. Keep existing push/merge and cross-workstream ownership gates.
 
-Architecture Freeze and production-provider status are recorded in `AGENTS.md` §1.
+`ARCHITECTURE_FREEZE = NOT CLAIMED`
+
+`PRODUCTION_PROVIDER = NOT SELECTED`
 
 Architecture Freeze requires Candidate Qualification and explicit Coordinator
 adjudication. Do not create a new Production Repository before Freeze. Research,

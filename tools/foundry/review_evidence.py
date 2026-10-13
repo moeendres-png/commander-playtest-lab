@@ -1,11 +1,11 @@
-"""Trusted external evidence for a cross-executor Step 5 Preview review record.
+"""Trusted external evidence for a cross-executor Space Bunny review record.
 
 A review record is authored by the implementation executor, so a PASS verdict
 inside it proves nothing by itself. This module binds a PASS record to
 independently verifiable GitHub evidence produced by the single trusted
 read-only OpenCode workflow lane: a trusted issue comment selected the
-``/ro-review`` lane, the workflow run and its expected job succeeded, the
-workflow file at the run's exact ``head_sha`` pins Step 5 Preview HIGH and the
+``/bunny-review`` lane, the workflow run and its expected job succeeded, the
+workflow file at the run's exact ``head_sha`` pins Space Bunny MAX and the
 structurally read-only ``foundry-reviewer`` agent, and the OpenCode bot's
 result comment carries the machine-parseable marker and the exact reviewed
 identifiers/verdict.
@@ -26,8 +26,8 @@ the trusted ``review_runtime_identity.py`` preflight and post-run audit, and the
 committed config merged with the reviewer's rules leaves no write-capable
 permission allowed.
 
-Only ``DIRECT_REVIEW_LANE`` (``opencode-ro-review`` / ``foundry-reviewer``)
-is admitted. The former writable ``opencode-assure``/``assurance-verifier``
+Only ``DIRECT_REVIEW_LANE`` (``opencode-bunny-review`` / ``foundry-reviewer``)
+is admitted. The former writable ``opencode-bunny``/``bunny-verifier``
 attestation carrier is removed: a review that can write is not review evidence.
 
 The verifier performs read-only GitHub REST reads through a dependency-injected
@@ -66,17 +66,17 @@ EVIDENCE_SCHEMA_VERSION = "1.0"
 CARRIER_DIRECT = "DIRECT_REVIEW_LANE"
 CARRIERS = (CARRIER_DIRECT,)
 
-MARKER_DIRECT = "DIRECT_READ_ONLY_REVIEW"
+MARKER_DIRECT = "BUNNY_DIRECT_READ_ONLY_REVIEW"
 CARRIER_MARKERS = {CARRIER_DIRECT: MARKER_DIRECT}
 
-DIRECT_JOB_NAME = "opencode-ro-review"
+DIRECT_JOB_NAME = "opencode-bunny-review"
 CARRIER_JOB_NAMES = {CARRIER_DIRECT: DIRECT_JOB_NAME}
 # Top-level agent pinned by the trusted workflow lane.
 CARRIER_TOP_LEVEL_AGENTS = {CARRIER_DIRECT: ("foundry-reviewer",)}
 # Agent attested by the result comment: the fresh-context read-only reviewer.
 CARRIER_REVIEW_AGENTS = {CARRIER_DIRECT: "foundry-reviewer"}
 # Lanes that must NOT be the successful lane for the carrier to count.
-INCOMPATIBLE_LANE_JOBS = ("opencode", "opencode-assure")
+INCOMPATIBLE_LANE_JOBS = ("opencode", "opencode-bunny")
 READ_ONLY_AGENT_FILES = {"foundry-reviewer": ".opencode/agents/foundry-reviewer.md"}
 PROJECT_CONFIG_PATH = "opencode.json"
 # Run log the watchdog copies for the runtime audit (review_runtime_identity.py).
@@ -109,8 +109,8 @@ AUDIT_SCRIPT = (
 TRUSTED_ASSOCIATIONS = frozenset({"OWNER", "MEMBER", "COLLABORATOR"})
 OPENCODE_BOT_LOGINS = frozenset({"opencode-agent[bot]", "opencode-agent"})
 TRUSTED_WORKFLOW_PATH = ".github/workflows/opencode.yml"
-TRUSTED_MODEL_ID = "opencode/step-5-preview-free"
-NATIVE_VARIANT = "high"
+TRUSTED_MODEL_ID = "opencode/space-bunny-free"
+NATIVE_VARIANT = "max"
 PASS_VERDICT = "PASS"
 
 REQUIRED_EVIDENCE_FIELDS = (
@@ -412,10 +412,10 @@ class _Verifier:
                 f"trigger comment association {comment.get('author_association')!r}",
             )
         body = str(comment.get("body") or "")
-        if not _selects(body, "/ro-review"):
+        if not _selects(body, "/bunny-review"):
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_TRIGGER_CARRIER_MISMATCH",
-                "trigger comment does not select the /ro-review carrier",
+                "trigger comment does not select the /bunny-review carrier",
             )
         self.trigger_comment = comment
         self.checks.append(
@@ -666,7 +666,7 @@ class _Verifier:
                     "REVIEW_EVIDENCE_IMPLEMENTATION_LANE_RAN",
                     f"lane {lane!r} succeeded; an implementation lane is not review evidence",
                 )
-        self.checks.append("jobs:opencode-ro-review:success:implementation_lanes:absent")
+        self.checks.append("jobs:opencode-bunny-review:success:implementation_lanes:absent")
 
     def verify_workflow_pin(self) -> None:
         head_sha = str(self.evidence["workflow_head_sha"])
@@ -727,12 +727,12 @@ class _Verifier:
         if model != TRUSTED_MODEL_ID:
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_WORKFLOW_MODEL_MISMATCH",
-                f"workflow pins MODEL={model!r} (expected Step 5 Preview canonical)",
+                f"workflow pins MODEL={model!r} (expected Space Bunny canonical)",
             )
         if variant != NATIVE_VARIANT:
             raise _EvidenceFailure(
                 "REVIEW_EVIDENCE_WORKFLOW_VARIANT_MISMATCH",
-                f"workflow pins VARIANT={variant!r} (expected native high)",
+                f"workflow pins VARIANT={variant!r} (expected native max)",
             )
         allowed_agents = CARRIER_TOP_LEVEL_AGENTS[self.carrier]
         if agent not in allowed_agents:

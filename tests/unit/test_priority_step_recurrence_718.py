@@ -322,9 +322,6 @@ def test_a_stack_that_changes_between_frames_is_a_different_window() -> None:
     three times, so the bound never trips and the seat keeps acting.
     """
     policy = _policy()
-    # Nine activations in one turn: lift the pilot's per-turn action cap
-    # (#732) so this test sees the recurrence bound alone.
-    policy._TURN_ABILITY_CAP = 100
     stacks = (
         _WINDOW_A_STACK,
         _WINDOW_B_STACK,

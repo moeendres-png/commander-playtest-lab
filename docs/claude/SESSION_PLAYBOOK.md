@@ -14,7 +14,7 @@ engine forks (`moeendres-png/mage`, `moeendres-png/forge`). It is tooling guidan
    `python3 scripts/claude_handoff.py`; regenerate it when the heads or batons look stale, and
    start a new session from it instead of compacting a long conversation.
 2. Run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief` for the one-screen state of
-   every lane (PRs, `/oc` and `/assure` runs, PB-03, newest sealed epoch).
+   every lane (PRs, `/oc` and `/bunny` runs, PB-03, newest sealed epoch).
 3. The SessionStart hook has built `~/.cache/commander-lab-venv` (CI's hash-pinned lock plus an
    editable install) and put it first on `PATH`.
    - In a git worktree, run tests with `PYTHONPATH=$PWD/src` so the worktree's sources win.
@@ -85,12 +85,12 @@ Use this decision order for each new unit of work:
 
 1. **Deterministic first.** Prefer `lab-ops`, focused grep/git queries, packet readers and exact
    test commands when they can answer the question without model judgement.
-2. **Execution → Step 5 Preview HIGH.** Implementation, bugfixes, debugging, CI repair, test/fix
+2. **Execution → Space Bunny MAX.** Implementation, bugfixes, debugging, CI repair, test/fix
    loops, qualification execution, evidence production, deterministic tooling, multi-file
-   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs Step 5 Preview
-   (`opencode/step-5-preview-free`, native `high`) since 2026-10-12. `/assure` (verifier) and
-   `/ro-review` (read-only reviewer) run the same model with other agents. Write each
-   dispatch per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
+   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs Space Bunny
+   (`opencode/space-bunny-free`, native `max`) since 2026-10-10. `/bunny` (verifier) and
+   `/bunny-review` (read-only reviewer) run the same model with other agents. Write each
+   dispatch per `docs/foundry-execution/SPACE_BUNNY_PROMPTING.md`.
 3. **DeepSeek is SUSPENDED.** Its OpenCode Go monthly quota is exhausted. Never select it, never
    fall back to it, and do not re-enable it without a new direct Owner instruction.
 4. **Read-only helper.** Use `log-scanner` (Sonnet `low`) for mechanical extraction and

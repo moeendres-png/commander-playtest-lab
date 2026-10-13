@@ -13,13 +13,10 @@ import mage.abilities.PlayLandAbility;
 import mage.abilities.SpellAbility;
 import mage.abilities.TriggeredAbility;
 import mage.abilities.costs.Cost;
-import mage.abilities.costs.Costs;
-import mage.abilities.costs.common.DiscardTargetCost;
 import mage.abilities.costs.common.SacrificeSourceCost;
 import mage.abilities.costs.common.TapSourceCost;
 import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
-import mage.abilities.costs.mana.ManaCosts;
 import mage.abilities.mana.ManaOptions;
 import mage.cards.Card;
 import mage.cards.Cards;
@@ -138,26 +135,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private boolean targetChoiceRequested;
 
     /**
-     * #749: the ability instance the ENGINE passed to this player's target
-     * callbacks during the current priority action, and the exact
-     * {@code Target} objects it asked about (identity, not equality). Both are
-     * engine-held: they are the arguments XMage handed to
-     * {@link #chooseTargetInternal} and {@link #chooseTargetAmount}. Read only by
-     * {@link #reversedDependentRequiredTarget}. Reset on every priority entry.
-     */
-    private Ability targetCallbackSource;
-
-    /**
-     * #752: activation keys of every ability whose cost a {@link #playMana}
-     * frame on the current call stack is paying. Pushed on entry, popped on
-     * exit, so it always mirrors the nested payments in progress.
-     */
-    private final java.util.Deque<String> manaPaymentsInFlight = new java.util.ArrayDeque<>();
-
-    private final Set<Target> offeredTargetObjects =
-            java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
-
-    /**
      * #715: set when the engine raised a NON-target choice ({@code
      * choose(Outcome, Target, Ability, Game)}) whose legal set came back
      * EMPTY during the current priority action, so the player was asked for
@@ -219,31 +196,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private boolean emptyNonTargetChoice;
 
     /**
-     * #740: the ability instance XMage handed to {@link #playMana} for a SPELL
-     * during the current priority action, i.e. the very instance the engine
-     * paid CR 601.2f on.
-     *
-     * <p>{@code AbilityImpl.activate} pays the mana cost with
-     * {@code getManaCostsToPay().pay(this, game, this, controllerId, false,
-     * null)} (pinned XMage 1.4.61, AbilityImpl.java:464) and
-     * {@code ManaCostsImpl.pay} calls {@code player.playMana(ability, unpaid,
-     * promptText, game)} (:150) with that same {@code this}. So the ability the
-     * engine records here is the cast copy {@code PlayerImpl.cast} pushed on
-     * the stack ({@code PlayerImpl.java}: {@code ability = originalAbility.copy();
-     * ... card.cast(game, fromZone, ability, playerId)}), and it is the object
-     * whose {@code getCosts()} the engine then paid under CR 601.2g
-     * (AbilityImpl.java:469).
-     *
-     * <p>Only the FIRST spell of an action is recorded and only when it is a
-     * {@link SpellAbility}: a land tapped to fund the payment calls back into
-     * {@code playMana} through {@code PlayerImpl.playManaAbility}, and that
-     * ability is never the cast being decided. Reset at the top of
-     * {@link #priority(Game)} with the other action-scoped flags, so it can
-     * never outlive the action that produced it.
-     */
-    private Ability paidSpellAbility;
-
-    /**
      * #715: the ability the engine passed to the bridge's NON-target choice
      * callback when {@link #emptyNonTargetChoice} was recorded, i.e. the
      * instance the engine used at that moment. Read back by
@@ -301,47 +253,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
     @Override
     public XmageFullGamePlayer copy() {
         return new XmageFullGamePlayer(this);
-    }
-
-    /*
-     * Performance (#731): getPlayable starts by computing this player's available mana in a
-     * playable-calculation copy of the game, and the decision frames needed the same value
-     * again right after it, which copied the whole game a second time per decision. The
-     * value computed inside getPlayable is captured and reused instead. The game state does
-     * not change in between, so the offered options are the same; only one copy is saved.
-     * Not copied with the player: a simulation copy computes its own mana.
-     */
-    private record PlayableWithMana(List<ActivatedAbility> playable, ManaOptions available) {
-    }
-
-    private transient boolean captureManaAvailable;
-    private transient ManaOptions capturedManaAvailable;
-
-    @Override
-    public ManaOptions getManaAvailable(Game game) {
-        boolean capture = captureManaAvailable;
-        captureManaAvailable = false;
-        ManaOptions available = super.getManaAvailable(game);
-        if (capture) {
-            capturedManaAvailable = available.copy();
-        }
-        return available;
-    }
-
-    private PlayableWithMana playableWithManaAvailable(Game game) {
-        captureManaAvailable = true;
-        capturedManaAvailable = null;
-        try {
-            List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false, Zone.ALL, false));
-            // getPlayable returns early (without computing mana) in silent steps.
-            ManaOptions available = capturedManaAvailable != null
-                    ? capturedManaAvailable
-                    : getManaAvailable(game);
-            return new PlayableWithMana(playable, available);
-        } finally {
-            captureManaAvailable = false;
-            capturedManaAvailable = null;
-        }
     }
 
     /*
@@ -594,10 +505,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         noViableMode = false;
         concessionInterruptedAction = false;
         xAnnouncedAbility = null;
-        paidSpellAbility = null;
         targetChoiceRequested = false;
-        targetCallbackSource = null;
-        offeredTargetObjects.clear();
         emptyNonTargetChoice = false;
         emptyNonTargetChoiceSource = null;
         JsonArray options = new JsonArray();
@@ -615,9 +523,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // variant, which drops activated abilities of different permanents whose rule text
         // is equal (hash-keyed), so e.g. a second copy of a creature or one of two {U}
         // lands was never offered, and which one survived depended on hash order (F-30).
-        PlayableWithMana offered = playableWithManaAvailable(game);
-        List<ActivatedAbility> playable = offered.playable();
-        ManaOptions available = offered.available();
+        List<ActivatedAbility> playable = new ArrayList<>(getPlayable(game, false, Zone.ALL, false));
+        ManaOptions available = getManaAvailable(game);
         playable.removeIf(candidate -> !manaCostAffordable(candidate, available, game));
         playable.sort(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)));
         for (ActivatedAbility ability : playable) {
@@ -665,9 +572,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || noViableMode
                         || concessionInterruptedAction
                         || leftMidAction()
-                        || reversedRequiredXTarget(game)
-                        || reversedUnpayableDiscardCost(ability, game)
-                        || reversedDependentRequiredTarget(ability, game)) {
+                        || reversedRequiredXTarget(game)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
                     // the engine's priority loop asks the same player again
@@ -689,24 +594,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // it is not the engine reversing the proposal. The term is
                     // kept in the activation branch, where
                     // CrewCost.pay returning false is a genuine reversal.
-                    //
-                    // #740's reversedUnpayableDiscardCost DOES apply here and
-                    // is the same shape: the engine paid the mana, could not pay
-                    // a mandatory additional discard cost (CR 118.3, paid under
-                    // CR 601.2h), returned false at AbilityImpl.activate's
-                    // CR 601.2g check and let PlayerImpl.cast restore the
-                    // bookmark. It carries its own four engine-held facts (see
-                    // the predicate), so it can only ever narrow this branch
-                    // towards accepting that one reversal; anything unproven
-                    // still fails closed below.
-                    //
-                    // #749's reversedDependentRequiredTarget is the
-                    // complement of #703: the pilot WAS asked for an earlier
-                    // target, chose legally, and that choice left a LATER
-                    // required target with no legal option (Searing Blaze:
-                    // "target creature that player controls"). The engine
-                    // skips the later target without asking (Targets.java:105)
-                    // and reverses the cast under CR 601.2c / 601.2e.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -903,198 +790,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
         emptyNonTargetChoiceSource = source;
     }
 
-    /**
-     * #749: true only when the engine reversed {@code casting} because a
-     * target choice the pilot DID make left a later REQUIRED target of the
-     * same spell with no legal option.
-     *
-     * <p>All facts are engine-held, read after the attempt:
-     * <ol>
-     *   <li>the ability the engine passed to this action's target callbacks
-     *       ({@link #targetCallbackSource}) belongs to the card being cast;</li>
-     *   <li>that ability's targets are not all chosen, so
-     *       {@code Targets.isChosen(game)} is false: this is why
-     *       {@code AbilityImpl.activate} returned false at its
-     *       {@code chooseTargets} check (CR 601.2c);</li>
-     *   <li>every target the engine actually asked the bridge about is chosen,
-     *       so the pilot declined nothing; and</li>
-     *   <li>a target with a minimum above zero, which the engine NEVER asked
-     *       about, has nothing chosen. {@code Targets.makeChoice} skips a target
-     *       only when it is already chosen or its {@code canChoose} is false
-     *       (Targets.java:105), so this is the engine's own statement that the
-     *       earlier choice left it without a legal option.</li>
-     * </ol>
-     *
-     * <p>CR 601.2c lets a target's legality depend on an earlier choice
-     * ("target creature that player controls"). When the chosen player
-     * controls no such creature the announcement cannot be completed, and
-     * CR 601.2e's handling of illegal actions reverses it. That is what
-     * {@code PlayerImpl.cast}'s bookmark restore does, so the same player
-     * receives priority again.
-     *
-     * <p>No legality is recomputed and no filter is re-evaluated. A failure
-     * without this evidence (a declined target, a target on another card, or
-     * every required target chosen) still fails closed with
-     * XMAGE_ACTION_EXECUTION_FAILED.
-     */
-    boolean reversedDependentRequiredTarget(Ability casting, Game game) {
-        Ability source = targetCallbackSource;
-        if (source == null || casting == null || game == null || offeredTargetObjects.isEmpty()) {
-            return false;
-        }
-        if (source.getSourceId() == null || !source.getSourceId().equals(casting.getSourceId())) {
-            return false;
-        }
-        Targets targets = source.getTargets();
-        if (targets == null || targets.isEmpty() || targets.isChosen(game)) {
-            return false;
-        }
-        boolean skippedRequired = false;
-        for (Target target : targets) {
-            if (offeredTargetObjects.contains(target)) {
-                if (!target.isChosen(game)) {
-                    return false;
-                }
-            } else if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
-                skippedRequired = true;
-            }
-        }
-        return skippedRequired;
-    }
-
-    /**
-     * #749 boundary tests only: package-private, no production caller. Mirrors
-     * exactly what {@link #chooseTargetInternal} records on entry.
-     */
-    void recordTargetCallbackForBoundaryTest(Ability source, Target target) {
-        recordTargetCallback(source, target);
-    }
-
-    /**
-     * #749: records the engine's arguments to a target callback, for
-     * {@link #chooseTargetInternal} and {@link #chooseTargetAmount} alike, so
-     * every target the engine asked about is known to
-     * {@link #reversedDependentRequiredTarget}. Entries from another ability
-     * can never match: Target objects belong to one ability instance and the
-     * predicate only reads the casting ability's own targets.
-     */
-    private void recordTargetCallback(Ability source, Target target) {
-        targetCallbackSource = source;
-        offeredTargetObjects.add(target);
-    }
-
-    /**
-     * #740: true only when the engine itself reversed {@code casting} because a
-     * MANDATORY additional discard cost could not be paid.
-     *
-     * <p>The card is the issue's own: Big Score, "{@code As an additional cost
-     * to cast this spell, discard a card.}" — in XMage a
-     * {@code DiscardCardCost}, a {@code DiscardTargetCost} over a
-     * {@code TargetCardInHand} (pinned 1.4.61:
-     * {@code Mage.Sets/src/mage/cards/b/BigScore.java}: {@code
-     * getSpellAbility().addCost(new DiscardCardCost(false))}). With nothing else
-     * in hand the cost has no legal choice, CR 118.3 says a cost that cannot be
-     * paid is not paid, and {@code AbilityImpl.activate} returns false at its
-     * CR 601.2g {@code getCosts().pay(...)} check; {@code PlayerImpl.cast} then
-     * runs {@code restoreState(bookmark, ...)}, the CR 601.2e / 727 rewind.
-     *
-     * <p>All four halves are engine-held facts, read after the attempt:
-     * <ol>
-     *   <li>the engine asked this bridge to pay mana for a SPELL in this action
-     *       ({@link #paidSpellAbility}), which is only reached from
-     *       {@code AbilityImpl.activate}'s CR 601.2f step — after the spell was
-     *       put on the stack by {@code PlayerImpl.cast};</li>
-     *   <li>that same instance's mana costs are fully paid, so CR 601.2g was
-     *       actually reached. A cancelled or abandoned payment (the pilot
-     *       pressed Cancel, or the caster left) returns from CR 601.2f with the
-     *       non-mana costs untouched, and an UNPAID discard cost would then
-     *       prove nothing at all;</li>
-     *   <li>the FIRST cost of that instance that is still unpaid is a
-     *       {@code DiscardTargetCost} whose required target has nothing chosen.
-     *       {@code CostsImpl.pay} walks {@code getFirstUnpaid()} and returns
-     *       false at the first cost whose {@code pay} fails, so with every
-     *       earlier cost paid this is the engine's own record of WHICH cost it
-     *       could not pay — no filter is re-evaluated and no cost is re-derived
-     *       here; and</li>
-     *   <li>the spell card is back in the caster's hand, i.e. it left the stack
-     *       and the bookmark restore undid the proposal. A card cannot be in
-     *       hand and on the stack at once, and (1) proves it had left.</li>
-     * </ol>
-     *
-     * <p>The anti-masking discriminator is (1)+(4) together: the payment must
-     * belong to the very card that is failing now, and that card must be back
-     * where the cast started. An unrelated failure in the same action, a cast
-     * that never reached payment, and a cast whose non-mana costs were never
-     * touched all keep failing closed with XMAGE_ACTION_EXECUTION_FAILED.
-     *
-     * <p>Recorded narrowness, not repaired: the same cost can also fail with
-     * its target CHOSEN (a replacement effect that stops the discard). That is
-     * the same engine reversal, but the engine leaves no distinct trace of it,
-     * so it stays a fail-closed case rather than a guess. A cost with no mana
-     * at all is excluded for the same reason — {@code ManaCostsImpl.pay}
-     * short-circuits on an empty mana cost and never calls the bridge, so there
-     * is no payment to attribute the failure to.
-     */
-    boolean reversedUnpayableDiscardCost(Ability casting, Game game) {
-        Ability paid = paidSpellAbility;
-        // targetChoiceRequested: the engine skipped the discard target without
-        // ever asking the bridge (Targets.makeChoice), so no target frame ran.
-        if (paid == null || casting == null || game == null || targetChoiceRequested) {
-            return false;
-        }
-        // The payment belongs to the card this cast is casting.
-        if (paid.getSourceId() == null || !paid.getSourceId().equals(casting.getSourceId())) {
-            return false;
-        }
-        // CR 601.2f completed: otherwise CR 601.2g never ran.
-        ManaCosts<ManaCost> manaCostsToPay = paid.getManaCostsToPay();
-        if (manaCostsToPay == null || !manaCostsToPay.isPaid()) {
-            return false;
-        }
-        // CR 601.2g stopped at this cost: CostsImpl.pay returns false at the
-        // first cost whose pay() fails, and every earlier cost is paid.
-        Costs<Cost> costs = paid.getCosts();
-        if (costs == null || costs.isEmpty()) {
-            return false;
-        }
-        Cost unpaid = null;
-        for (Cost cost : costs) {
-            if (!cost.isPaid()) {
-                unpaid = cost;
-                break;
-            }
-        }
-        if (!(unpaid instanceof DiscardTargetCost discardCost)) {
-            return false;
-        }
-        // The engine had no legal choice for it and chose nothing
-        // (Targets.makeChoice skips a target whose canChoose is false,
-        // Targets.java:105), which is what left the cost unpaid.
-        boolean unchosenRequiredTarget = false;
-        for (Target target : discardCost.getTargets()) {
-            if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
-                unchosenRequiredTarget = true;
-                break;
-            }
-        }
-        if (!unchosenRequiredTarget) {
-            return false;
-        }
-        // The rewind itself: the card the engine moved onto the stack is back in
-        // the caster's hand.
-        Card spellCard = game.getCard(paid.getSourceId());
-        return spellCard != null
-                && Zone.HAND.match(game.getState().getZone(spellCard.getMainCard().getId()));
-    }
-
-    /**
-     * #740 boundary tests only: package-private, no production behaviour change
-     * and no production caller. Mirrors exactly what {@link #playMana} records.
-     */
-    void recordPaidSpellAbilityForBoundaryTest(Ability ability) {
-        paidSpellAbility = ability;
-    }
-
     @Override
     public boolean choose(Outcome outcome, Target target, Ability source, Game game) {
         return chooseTargetInternal(outcome, false, target, source, game, null, null);
@@ -1166,9 +861,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
             Game game
     ) {
         witness("target_amount", target, source);
-        recordTargetCallback(source, target);
         target.prepareAmount(source, game);
-        Set<UUID> possible = offeredTargets(target, source, game, null);
+        Set<UUID> possible = target.possibleTargets(getId(), source, game);
         List<UUID> sorted = possible.stream()
                 .sorted(XmageStableOrder.objects(game))
                 .toList();
@@ -1462,54 +1156,23 @@ final class XmageFullGamePlayer extends PlayerImpl {
             String promptText,
             Game game
     ) {
-        String inFlight = ability == null ? null : activationKey(ability);
-        if (inFlight != null) {
-            manaPaymentsInFlight.push(inFlight);
-        }
-        try {
-            return playManaFrame(ability, unpaid, promptText, game);
-        } finally {
-            if (inFlight != null) {
-                manaPaymentsInFlight.pop();
-            }
-        }
-    }
-
-    private boolean playManaFrame(
-            Ability ability,
-            ManaCost unpaid,
-            String promptText,
-            Game game
-    ) {
         witness("mana_payment", ability, unpaid);
-        // #740: this is the ability instance the engine is paying CR 601.2f on,
-        // i.e. the cast copy it put on the stack. Keeping it lets
-        // reversedUnpayableDiscardCost read the engine's OWN post-payment cost
-        // state instead of re-deriving legality from the pre-cast object the
-        // bridge holds. Only the first spell of the action is kept: the lands
-        // tapped to fund it call back in here with their own mana abilities.
-        if (paidSpellAbility == null && ability instanceof SpellAbility) {
-            paidSpellAbility = ability;
-        }
         // getPlayable is a UI "playable" list and returns nothing while declare attackers
         // is in its pre-step part (PlayerImpl.SILENT_PHASES_STEPS) - exactly when attack
         // costs such as Ghostly Prison's are paid (CR 508.1h/i). Add the engine's own
         // per-object usable mana abilities of the player's permanents, as XMage's human
         // player uses while paying (getUseableManaAbilities: canActivate + canUse checks).
         Map<UUID, ActivatedAbility> usableManaAbilities = new LinkedHashMap<>();
-        PlayableWithMana offered = playableWithManaAvailable(game);
-        offered.playable().stream()
+        getPlayable(game, false, Zone.ALL, false).stream()
                 .filter(Ability::isManaAbility)
                 .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         for (Permanent permanent : game.getBattlefield().getAllActivePermanents(getId())) {
             getUseableManaAbilities(permanent, Zone.BATTLEFIELD, game).values()
                     .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));
         }
-        ManaOptions available = offered.available();
+        ManaOptions available = getManaAvailable(game);
         List<ActivatedAbility> manaAbilities = usableManaAbilities.values().stream()
                 .filter(manaAbility -> manaCostAffordable(manaAbility, available, game))
-                .filter(manaAbility -> !manaActivationInFlight(manaAbility))
-                .filter(manaAbility -> !needsSourceTapStillOwed(manaAbility, ability))
                 .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
                 .toList();
 
@@ -1620,80 +1283,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
             fail("XMAGE_ACTION_EXECUTION_FAILED", "mana activation failed: " + selected);
         }
         return true;
-    }
-
-    /**
-     * #752: true when {@code manaAbility} is an ability whose own activation is
-     * still being paid somewhere up the current payment chain (same source
-     * object and same original ability, the engine's own key for activation
-     * limits, ActivatedAbilityImpl.java:283-298).
-     *
-     * <p>The engine counts an activation only once its costs are paid
-     * ({@code ActivatedAbilityImpl.activate}), so an ability in the middle of
-     * its own payment still reads as activatable and is offered again. Taking
-     * it nests one more payment for the same cost, directly (Three Tree Mascot
-     * paying itself) or through another such ability (two Mascots paying each
-     * other), without bound. With "Activate only once each turn" the engine later
-     * refuses the stale offer, and a real 6P coverage game (seed 303, turn 30)
-     * aborted with XMAGE_ACTION_EXECUTION_FAILED / "mana activation failed".
-     *
-     * <p>The set is the bridge's own record of the payments it is inside
-     * ({@link #playMana} pushes on entry and pops on exit), not a re-derivation
-     * of legality. A different ability of the same permanent, or the same card
-     * on another permanent that is not mid-activation, stays offered. Activating
-     * an in-flight ability again after its payment completes stays possible from
-     * the pool, so no mana is lost to the player.
-     */
-    boolean manaActivationInFlight(Ability manaAbility) {
-        return manaAbility != null && manaPaymentsInFlight.contains(activationKey(manaAbility));
-    }
-
-    /**
-     * #756: true when {@code manaAbility} would tap (or untap) the very
-     * permanent whose ability is being paid, while that ability still owes
-     * the same {T} (or {Q}) cost.
-     *
-     * <p>The pinned engine pays an activated ability's mana cost before its
-     * other costs. Tapping the source for mana first leaves its {T} cost
-     * unpayable: the activation fails and the game aborted with
-     * XMAGE_ACTION_EXECUTION_FAILED / "priority activation failed" (Grim
-     * Backwoods, Arcane Lighthouse, Desolate Lighthouse and others in the
-     * per-card smoke test). Read from the engine's own cost objects: an unpaid
-     * {@code TapSourceCost} / {@code UntapSourceCost} on the paying ability,
-     * the same kind of cost on the mana ability, and the same source object.
-     * The option can never complete this payment, so leaving it out removes
-     * no line of play.
-     */
-    static boolean needsSourceTapStillOwed(Ability manaAbility, Ability paying) {
-        if (manaAbility == null || paying == null || paying.getSourceId() == null
-                || !paying.getSourceId().equals(manaAbility.getSourceId())) {
-            return false;
-        }
-        return (owesUnpaid(paying, mage.abilities.costs.common.TapSourceCost.class)
-                        && owesUnpaid(manaAbility, mage.abilities.costs.common.TapSourceCost.class))
-                || (owesUnpaid(paying, mage.abilities.costs.common.UntapSourceCost.class)
-                        && owesUnpaid(manaAbility, mage.abilities.costs.common.UntapSourceCost.class));
-    }
-
-    private static boolean owesUnpaid(Ability ability, Class<? extends Cost> kind) {
-        if (ability.getCosts() == null) {
-            return false;
-        }
-        for (Cost cost : ability.getCosts()) {
-            if (kind.isInstance(cost) && !cost.isPaid()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    static String activationKey(Ability ability) {
-        return ability.getOriginalId() + "@" + ability.getSourceId();
-    }
-
-    /** #752 boundary tests only: mirrors what {@link #playMana} pushes on entry. */
-    void recordManaPaymentInFlightForBoundaryTest(Ability paying) {
-        manaPaymentsInFlight.add(activationKey(paying));
     }
 
     @Override
@@ -1980,50 +1569,10 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     return true;
                 }
             }
-            return advancesUnpaid(unpaid, probe, manaType);
+            return unpaid.testPay(probe);
         } catch (RuntimeException ignored) {
             return true;
         }
-    }
-
-    /**
-     * #755: whether one mana of {@code manaType} pays part of {@code cost}.
-     *
-     * <p>A two-color hybrid component ({@code {B/R}}) is answered from its own
-     * colors. The pinned engine's {@code HybridManaCost.testPay} switches on
-     * the first color without {@code break} (HybridManaCost.java:62-88), so it
-     * falls through and accepts every colored mana: "Spend green mana" was
-     * reported as advancing {@code {B/R}}, the spend changed nothing, and the
-     * same frame came back until the pilot's no-progress guard cancelled the
-     * cast. {@code ColorlessHybridManaCost} ({@code {C/W}}) has the same
-     * fall-through. Every other component keeps the engine's {@code testPay}.
-     */
-    static boolean advancesUnpaid(ManaCost cost, mage.Mana probe, ManaType manaType) {
-        if (cost instanceof mage.abilities.costs.mana.ManaCosts<?> costs) {
-            for (ManaCost component : costs) {
-                if (!component.isPaid() && advancesUnpaid(component, probe, manaType)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        mage.constants.ColoredManaSymbol symbol = switch (manaType) {
-            case WHITE -> mage.constants.ColoredManaSymbol.W;
-            case BLUE -> mage.constants.ColoredManaSymbol.U;
-            case BLACK -> mage.constants.ColoredManaSymbol.B;
-            case RED -> mage.constants.ColoredManaSymbol.R;
-            case GREEN -> mage.constants.ColoredManaSymbol.G;
-            default -> null;
-        };
-        if (cost instanceof mage.abilities.costs.mana.HybridManaCost hybrid) {
-            return symbol != null && hybrid.containsColor(symbol);
-        }
-        if (cost instanceof mage.abilities.costs.mana.ColorlessHybridManaCost colorlessHybrid) {
-            // Same fall-through in ColorlessHybridManaCost.testPay; {C/W} takes {C} or {W}.
-            return manaType == ManaType.COLORLESS
-                    || (symbol != null && colorlessHybrid.containsColor(symbol));
-        }
-        return cost.testPay(probe);
     }
 
     /**
@@ -2054,13 +1603,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     private boolean modeTargetsChoosable(Targets targets, Ability source, Game game) {
-        // As HumanPlayer's mode filter: the ability's controller decides whether
-        // a mode's targets can be chosen, also when an opponent picks the mode
-        // (CR 700.2d).
-        UUID controllerId = source != null && source.getControllerId() != null
-                ? source.getControllerId() : getId();
         for (Target target : targets) {
-            if (target.getMinNumberOfTargets() > 0 && !target.canChoose(controllerId, source, game)) {
+            if (target.getMinNumberOfTargets() > 0 && !target.canChoose(getId(), source, game)) {
                 return false;
             }
         }
@@ -2297,9 +1841,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 .thenComparingInt(permanent -> permanent.getPower().getValue())
                 .thenComparingInt(permanent -> permanent.getToughness().getValue())
                 .thenComparing(permanent -> permanent.isTapped())
-                .thenComparingInt(Permanent::getDamage)
-                // #735: timestamp order, counters and rules tell otherwise equal tokens apart.
-                .thenComparing(permanent -> XmageStableOrder.permanentContent(permanent, game));
+                .thenComparingInt(Permanent::getDamage);
     }
 
     @Override
@@ -2548,24 +2090,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
         fail("OUT_OF_SCOPE_DECISION", "draft is not part of Commander full-game conformance");
     }
 
-    /**
-     * #736: the candidates offered for {@code target}, computed for the
-     * ability's controller exactly as XMage's {@code HumanPlayer} does
-     * ({@code target.getAffectedAbilityControllerId(getId())}). When another
-     * player chooses a target for someone else's ability (Bolt Bend changing the
-     * target of Mistveil Plains), "your graveyard" means the ability
-     * controller's graveyard, not the chooser's. Offering the chooser's own cards
-     * made {@code StackObjectImpl.chooseNewTarget} reject every pick and ask
-     * again forever.
-     */
-    Set<UUID> offeredTargets(Target target, Ability source, Game game, Set<UUID> restrictedIds) {
-        UUID abilityControllerId = target.getAffectedAbilityControllerId(getId());
-        if (restrictedIds == null) {
-            return target.possibleTargets(abilityControllerId, source, game);
-        }
-        return target.possibleTargets(abilityControllerId, source, game, restrictedIds);
-    }
-
     private boolean chooseTargetInternal(
             Outcome outcome,
             boolean targeted,
@@ -2576,16 +2100,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
             JsonObject suppliedContext
     ) {
         targetChoiceRequested = true;
-        recordTargetCallback(source, target);
         witness("target", target, source, restrictedCards);
         Set<UUID> possible;
         if (restrictedCards == null) {
-            possible = offeredTargets(target, source, game, null);
+            possible = target.possibleTargets(getId(), source, game);
         } else {
             Set<UUID> cardIds = restrictedCards.getCards(game).stream()
                     .map(MageItem::getId)
                     .collect(java.util.stream.Collectors.toSet());
-            possible = offeredTargets(target, source, game, cardIds);
+            possible = target.possibleTargets(getId(), source, game, cardIds);
         }
         List<UUID> sorted = possible.stream()
                 .sorted(XmageStableOrder.objects(game))
@@ -3076,9 +2599,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     /** Twin-stable ability order (F-36): source object's stable key, then rule text, then ids. */
     private static String abilitySortKey(Ability ability, Game game) {
         return (ability.getSourceId() == null ? "" : XmageStableOrder.objectKey(ability.getSourceId(), game))
-                + "#" + ability.getRule() + "#"
-                + (ability.getSourceId() == null ? "" : XmageStableOrder.contentKey(ability.getSourceId(), game))
-                + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
+                + "#" + ability.getRule() + "#" + ability.getSourceId() + ":" + ability.getOriginalId();
     }
 
     private String objectLabel(UUID id, Game game) {
