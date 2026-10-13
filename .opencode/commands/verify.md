@@ -1,5 +1,5 @@
 ---
-description: Maximum-assurance verification of the current branch or a named PR (DeepSeek MAX)
+description: Maximum-assurance verification of the current branch or a named PR (Step 5 Preview HIGH)
 agent: assurance-verifier
 subtask: false
 ---

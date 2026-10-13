@@ -117,13 +117,13 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/deepseek-v4.1-flash
+          MODEL: opencode/step-5-preview-free
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
           MENTIONS: ''
-          VARIANT: max
+          VARIANT: high
           OIDC_BASE_URL: ''
 
       # A run that outlives the action's GitHub token (minted once, valid for one
@@ -175,10 +175,10 @@ jobs:
           if-no-files-found: ignore
 
   opencode-assure:
-    # DeepSeek MAX maximum-assurance lane (assurance-verifier agent), started only
-    # by an explicit `/assure` comment. Since the Owner directive of 2026-10-13
-    # every lane, `/oc` above included, runs DeepSeek V4.1 Flash MAX on OpenCode Go;
-    # Step 5 Preview (Zen) is SUSPENDED. Same trust gate and hardening as the job above.
+    # Step 5 Preview HIGH maximum-assurance lane (assurance-verifier agent), started only
+    # by an explicit `/assure` comment. Since the Owner directive of 2026-10-12
+    # every lane, `/oc` above included, runs Step 5 Preview HIGH; DeepSeek is
+    # SUSPENDED. Same trust gate and hardening as the job above.
     # The repository is public: only principals with write-level association
     # may start an agent run that holds OPENCODE_API_KEY and an OIDC token.
     # A comment's text is its prompt, so an unrestricted trigger would let any
@@ -291,7 +291,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/deepseek-v4.1-flash
+          MODEL: opencode/step-5-preview-free
           # Not read by the pinned CLI (#685); the job env selects assurance-verifier.
           AGENT: assurance-verifier
           SHARE: 'false'
@@ -300,7 +300,7 @@ jobs:
           # `opencode github run` accepts a comment only when it mentions one of these
           # phrases (default /opencode,/oc). This lane is started by /assure.
           MENTIONS: '/assure'
-          VARIANT: max
+          VARIANT: high
           OIDC_BASE_URL: ''
 
       # A run that outlives the action's GitHub token (minted once, valid for one
@@ -353,7 +353,7 @@ jobs:
 
   opencode-ro-review:
     # Mandatory cross-executor review lane (ROUTING_AND_EFFORT.md,
-    # tools/foundry/review_gate.py): a fresh-context READ-ONLY DeepSeek MAX
+    # tools/foundry/review_gate.py): a fresh-context READ-ONLY Step 5 Preview HIGH
     # reviewer bound to the exact validated implementation SHA and TREE. Started
     # only by an explicit `/ro-review` comment, separated from the writable
     # `/assure` secondary-execution lane above. Same trust gate and hardening as
@@ -403,7 +403,7 @@ jobs:
           persist-credentials: false
 
       # Hardened OpenCode CLI execution lane (same pin/verification as the
-      # two DeepSeek MAX execution jobs above).
+      # two Step 5 Preview execution jobs above).
       - name: Install pinned OpenCode CLI v1.18.30
         env:
           VERSION: 1.18.30
@@ -497,7 +497,7 @@ jobs:
           python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode-go/deepseek-v4.1-flash
+          MODEL: opencode/step-5-preview-free
           # Not read by the pinned CLI (#654); kept as the declared lane agent.
           AGENT: foundry-reviewer
           SHARE: 'false'
@@ -506,11 +506,11 @@ jobs:
           # `opencode github run` accepts a comment only when it mentions one of these
           # phrases (default /opencode,/oc). This lane is started by /ro-review.
           MENTIONS: '/ro-review'
-          VARIANT: max
+          VARIANT: high
           OIDC_BASE_URL: ''
 
-      # The run's own model-call records must all name the reviewer on DeepSeek
-      # MAX; none recorded means UNKNOWN and fails the job. The preflight is
+      # The run's own model-call records must all name the reviewer on Step 5
+      # Preview; none recorded means UNKNOWN and fails the job. The preflight is
       # repeated on the reviewed tree the run checked out. The checker is copied
       # again from the triggering commit, never reused from a path the agent saw.
       - name: Audit reviewer runtime identity

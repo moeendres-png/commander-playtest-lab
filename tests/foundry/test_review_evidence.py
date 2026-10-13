@@ -75,8 +75,8 @@ class ExplodingTransport:
 
 def _workflow_yaml(
     *,
-    model: str = "opencode-go/deepseek-v4.1-flash",
-    variant: str = "max",
+    model: str = "opencode/step-5-preview-free",
+    variant: str = "high",
     agent: str | None = None,
     trust_gate: bool = True,
 ) -> str:
@@ -130,8 +130,8 @@ def _agent_markdown(*, read_only: bool = True) -> str:
     else:
         permission = {"edit": "allow", "bash": {"*": "allow"}, "task": "allow"}
     frontmatter = {
-        "model": "opencode-go/deepseek-v4.1-flash",
-        "variant": "max",
+        "model": "opencode/step-5-preview-free",
+        "variant": "high",
         "permission": permission,
     }
     return "---\n" + yaml.safe_dump(frontmatter) + "---\n\nReview read-only.\n"
@@ -155,8 +155,8 @@ def _result_body(
     **overrides: str,
 ) -> str:
     fields = {
-        "REVIEWER_MODEL": "opencode-go/deepseek-v4.1-flash",
-        "REVIEWER_VARIANT": "max",
+        "REVIEWER_MODEL": "opencode/step-5-preview-free",
+        "REVIEWER_VARIANT": "high",
         "REVIEW_AGENT": "foundry-reviewer",
         "REVIEWED_SHA": IMPL,
         "REVIEWED_TREE": IMPL_TREE,
@@ -168,7 +168,7 @@ def _result_body(
     lines = [
         evidence_mod.MARKER_DIRECT,
         "",
-        "Read-only fresh-context DeepSeek review of the exact SHA/TREE.",
+        "Read-only fresh-context Step 5 Preview review of the exact SHA/TREE.",
         "",
         *(f"{key}: {value}" for key, value in fields.items()),
         "",
@@ -325,11 +325,11 @@ def _record(**overrides: object) -> dict:
         "record_type": "cross_executor_review",
         "required": True,
         "materiality": "MATERIAL",
-        "logical_profile": "deepseek",
-        "resolved_provider": "opencode-go",
-        "resolved_model_id": "opencode-go/deepseek-v4.1-flash",
+        "logical_profile": "step",
+        "resolved_provider": "opencode",
+        "resolved_model_id": "opencode/step-5-preview-free",
         "model_alias_class": "CANONICAL",
-        "native_variant": "max",
+        "native_variant": "high",
         "review_mode": "READ_ONLY_FRESH_CONTEXT",
         "review_agent": "foundry-reviewer",
         "reviewed_sha": IMPL,
@@ -337,7 +337,7 @@ def _record(**overrides: object) -> dict:
         "verdict": "PASS",
         "findings": {"P1": [], "P2": [], "P3": []},
         "implementation_executor": "deepseek",
-        "review_executor": "deepseek",
+        "review_executor": "step",
         "review_evidence": {
             "schema_version": "1.0",
             "carrier": evidence_mod.CARRIER_DIRECT,
@@ -368,9 +368,9 @@ def _state_doc(**overrides: object) -> dict:
         "materiality": "MATERIAL",
         "cross_executor_review": {
             "required": True,
-            "logical_profile": "deepseek",
+            "logical_profile": "step",
             "implementation_executor": "deepseek",
-            "review_executor": "deepseek",
+            "review_executor": "step",
             "reviewed_sha": IMPL,
             "reviewed_tree": IMPL_TREE,
             "verdict": "PASS",
@@ -417,7 +417,7 @@ def test_self_asserted_record_without_evidence_never_satisfies_gate() -> None:
 
 
 def test_fabricated_record_with_unverifiable_evidence_never_satisfies_gate() -> None:
-    """A record with correct-looking DeepSeek fields but fake IDs fails closed."""
+    """A record with correct-looking Step fields but fake IDs fails closed."""
     result = review_mod.evaluate_review_gate(
         _state_doc(), review_record=_record(), evidence_transport=FakeGitHub()
     )
@@ -578,15 +578,15 @@ def test_nonexistent_run_comment_or_job_fails() -> None:
     assert "REVIEW_EVIDENCE_JOB_MISSING" in result.reasons[0]
 
 
-def test_step_workflow_evidence_fails() -> None:
-    """The workflow at the run head must pin DeepSeek, not the suspended Step 5 Preview."""
-    fake = _graph(workflow_yaml=_workflow_yaml(model="opencode/step-5-preview-free"))
+def test_deepseek_workflow_evidence_fails() -> None:
+    """The workflow at the run head must pin Step 5 Preview, not DeepSeek."""
+    fake = _graph(workflow_yaml=_workflow_yaml(model="opencode-go/deepseek-v4.1-flash"))
     result = _verify(_record(), fake)
     assert not result.ok
     assert "REVIEW_EVIDENCE_WORKFLOW_MODEL_MISMATCH" in result.reasons[0]
 
 
-def test_deepseek_job_failed_or_skipped_fails() -> None:
+def test_step_job_failed_or_skipped_fails() -> None:
     for conclusion in ("failure", "skipped"):
         fake = _graph(job_conclusion=conclusion)
         result = _verify(_record(), fake)
@@ -661,7 +661,7 @@ def test_result_read_only_false_fails() -> None:
 
 
 def test_workflow_variant_or_agent_mismatch_fails() -> None:
-    fake = _graph(workflow_yaml=_workflow_yaml(variant="high"))
+    fake = _graph(workflow_yaml=_workflow_yaml(variant="max"))
     result = _verify(_record(), fake)
     assert not result.ok
     assert "REVIEW_EVIDENCE_WORKFLOW_VARIANT_MISMATCH" in result.reasons[0]
@@ -761,9 +761,9 @@ def test_network_failure_is_unverifiable_never_satisfied() -> None:
     assert not result.ok
 
 
-def test_gate_rejects_record_pointing_at_step_run_evidence() -> None:
-    """Even a structurally valid record cannot satisfy a suspended Step 5 Preview run."""
-    fake = _graph(workflow_yaml=_workflow_yaml(model="opencode/step-5-preview-free"))
+def test_gate_rejects_record_pointing_at_deepseek_run_evidence() -> None:
+    """Even a structurally valid record cannot satisfy a DeepSeek run."""
+    fake = _graph(workflow_yaml=_workflow_yaml(model="opencode-go/deepseek-v4.1-flash"))
     result = review_mod.evaluate_review_gate(
         _state_doc(), review_record=_record(), evidence_transport=fake
     )
@@ -921,7 +921,7 @@ def test_reviewer_rules_merged_with_project_config_must_stay_read_only() -> None
         + yaml.safe_dump(
             {
                 "model": evidence_mod.TRUSTED_MODEL_ID,
-                "variant": "max",
+                "variant": "high",
                 "permission": {
                     "edit": "deny",
                     "bash": {"*": "deny", "git diff*": "allow", "git push*": "allow"},

@@ -6,18 +6,18 @@ invents a model identity and never falls back across executor families.
 Logical profiles
 ----------------
 
-- ``deepseek``: the default and only ACTIVE executor (Owner directive
-  2026-10-13), served by OpenCode Go as ``opencode-go/deepseek-v4.1-flash`` at
-  its native variant ``max``. When a catalog is inspected it is the pinned CLI
-  catalog of the Go provider (``opencode models opencode-go``).
-- ``step``: ``opencode/step-5-preview-free`` on OpenCode Zen at native
-  ``high``; kept in the registry with ``runtime_status: SUSPENDED`` (Owner
-  directive 2026-10-13). A suspended profile never resolves; only a new direct
-  Owner instruction flips it back to ACTIVE, after which it resolves only
-  after live catalog inspection of the Zen provider (``opencode models opencode``).
+- ``step``: the default and only ACTIVE executor (Owner directive
+  2026-10-12), served by OpenCode Zen as ``opencode/step-5-preview-free`` at
+  its highest native variant ``high`` (the Zen catalog lists no ``max`` for
+  it), resolved only after live catalog inspection of the pinned OpenCode CLI
+  (``opencode models opencode``).
+- ``deepseek``: ``opencode-go/deepseek-v4.1-flash`` at native ``max``; kept in
+  the registry with ``runtime_status: SUSPENDED`` (its OpenCode Go monthly
+  quota is exhausted). A suspended profile never resolves; only a new direct
+  Owner instruction flips it back to ACTIVE.
 
-DeepSeek runtime selection pins the canonical Go id; if a catalog is supplied
-or inspected, the id must be listed, else resolution fails closed.
+Step runtime selection is deterministic: the canonical Zen id must be present
+in the inspected catalog, else resolution fails closed.
 
 No other provider/model (another family, a retired id, or the first available
 catalog row) may ever substitute. A runtime/auth/quota/API/tool failure AFTER
@@ -37,15 +37,14 @@ from pathlib import Path
 
 DEFAULT_REGISTRY_PATH = Path(__file__).resolve().parents[2] / ".foundry" / "executor-profiles.json"
 
-CANONICAL_PROVIDER = "opencode-go"
-ZEN_PROVIDER = "opencode"
-# Providers a registry runtime id may name: Go (active DeepSeek) and Zen (the
-# suspended Step record only).
-ADMITTED_PROVIDERS = (CANONICAL_PROVIDER, ZEN_PROVIDER)
+CANONICAL_PROVIDER = "opencode"
+# Providers a registry runtime id may name: Zen (active Step) and Go (the
+# suspended DeepSeek record only).
+ADMITTED_PROVIDERS = (CANONICAL_PROVIDER, "opencode-go")
 STEP_RUNTIME_ID = "opencode/step-5-preview-free"
 DEEPSEEK_RUNTIME_ID = "opencode-go/deepseek-v4.1-flash"
 LOGICAL_PROFILES = ("deepseek", "step")
-DEFAULT_PROFILE = "deepseek"
+DEFAULT_PROFILE = "step"
 # Profiles served by OpenCode Zen: resolution needs live catalog inspection.
 ZEN_PROFILES = ("step",)
 CANONICAL_RUNTIME_IDS = {
@@ -53,8 +52,7 @@ CANONICAL_RUNTIME_IDS = {
     "step": STEP_RUNTIME_ID,
 }
 # Each profile's single highest native variant as listed by its provider
-# catalog. DeepSeek lists max; Step 5 Preview lists low/medium/high only, so
-# `high` is its highest.
+# catalog. Step 5 Preview lists low/medium/high only, so `high` is its highest.
 NATIVE_VARIANTS = {"deepseek": "max", "step": "high"}
 CANONICAL_ALIAS_CLASS = "CANONICAL"
 LEGACY_ALIAS_CLASS = "LEGACY_ALIAS"
@@ -63,7 +61,6 @@ ACTIVE = "ACTIVE"
 SUSPENDED = "SUSPENDED"
 RUNTIME_STATUSES = (ACTIVE, SUSPENDED)
 CATALOG_COMMAND = ("opencode", "models", CANONICAL_PROVIDER)
-ZEN_CATALOG_COMMAND = ("opencode", "models", ZEN_PROVIDER)
 CATALOG_TIMEOUT_SECONDS = 60
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
 
@@ -255,19 +252,10 @@ def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
             errors.append(
                 f"runtime_identity[{runtime_id!r}] provider is not one of {list(ADMITTED_PROVIDERS)}"
             )
-        elif profile_name in ZEN_PROFILES and provider != ZEN_PROVIDER:
+        elif profile_name in ZEN_PROFILES and provider != CANONICAL_PROVIDER:
             errors.append(
                 f"runtime_identity[{runtime_id!r}] {profile_name} runtime ids must use "
-                f"{ZEN_PROVIDER!r} (Zen)"
-            )
-        elif (
-            profile_name in LOGICAL_PROFILES
-            and profile_name not in ZEN_PROFILES
-            and (provider != CANONICAL_PROVIDER)
-        ):
-            errors.append(
-                f"runtime_identity[{runtime_id!r}] {profile_name} runtime ids must use "
-                f"{CANONICAL_PROVIDER!r} (Go)"
+                f"{CANONICAL_PROVIDER!r} (Zen)"
             )
     for name, spec in profiles.items():
         if not isinstance(spec, dict):
@@ -374,17 +362,14 @@ def load_live_catalog(
     opencode_bin: str | None = None,
     *,
     runner: Callable[..., subprocess.CompletedProcess] | None = None,
-    provider: str = CANONICAL_PROVIDER,
 ) -> tuple[tuple[str, ...], str]:
-    """Inspect the pinned CLI catalog of ``provider`` (default OpenCode Go).
-
-    Returns (model_ids, catalog_source).
+    """Inspect the pinned CLI catalog. Returns (model_ids, catalog_source).
 
     Any launch/catalog failure raises ``ExecutorResolutionError``: an
     uninspectable catalog can never be replaced by a guessed or historical id.
     """
     binary = opencode_bin or os.environ.get(OPENCODE_BIN_ENV, CATALOG_COMMAND[0])
-    command = [binary, "models", provider]
+    command = [binary, "models", CANONICAL_PROVIDER]
     run = runner or subprocess.run
     try:
         proc = run(
@@ -398,10 +383,12 @@ def load_live_catalog(
         raise ExecutorResolutionError(
             f"live catalog inspection failed (exit {proc.returncode}); fail closed"
         )
-    models = parse_catalog_output(proc.stdout or "", provider)
+    models = parse_catalog_output(proc.stdout or "")
     if not models:
-        raise ExecutorResolutionError(f"live catalog listed no {provider} models; fail closed")
-    return models, f"cli:{provider}"
+        raise ExecutorResolutionError(
+            f"live catalog listed no {CANONICAL_PROVIDER} models; fail closed"
+        )
+    return models, f"cli:{CANONICAL_PROVIDER}"
 
 
 def resolve_executor(
@@ -417,9 +404,8 @@ def resolve_executor(
 
     A SUSPENDED profile is refused before anything else. DeepSeek (when ACTIVE)
     uses the pinned canonical identity; when a catalog is supplied its
-    presence is still verified. The Zen profile (Step, SUSPENDED since
-    2026-10-13) would require catalog inspection and select its admitted Zen
-    id, else fail closed.
+    presence is still verified. The Zen profile (Step) requires
+    catalog inspection and selects its admitted Zen id, else fails closed.
     """
     reg = registry or load_registry()
     if logical_profile not in reg.profiles:
@@ -430,8 +416,7 @@ def resolve_executor(
     if not spec.active:
         raise ExecutorResolutionError(
             f"execution profile {logical_profile!r} is {spec.runtime_status} "
-            "(Owner directive 2026-10-13: DeepSeek V4.1 Flash on OpenCode Go is the only active "
-            "OpenCode executor); fail closed, no fallback"
+            "(Owner directive 2026-10-12: Step 5 Preview only); fail closed, no fallback"
         )
     catalog_checked = False
     source = "not_inspected"
@@ -444,7 +429,7 @@ def resolve_executor(
         listed, source = catalog_loader()
         catalog_checked = True
     elif logical_profile in ZEN_PROFILES:
-        listed, source = load_live_catalog(opencode_bin, provider=ZEN_PROVIDER)
+        listed, source = load_live_catalog(opencode_bin)
         catalog_checked = True
 
     if logical_profile == "deepseek":

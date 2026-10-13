@@ -1,16 +1,14 @@
-# Writing prompts for DeepSeek MAX
+# Writing prompts for Step 5 Preview HIGH
 
-Status: CANONICAL guidance (Owner directive 2026-10-13). DeepSeek V4.1 Flash MAX
-(`opencode-go/deepseek-v4.1-flash` on OpenCode Go, native `max`, its highest catalog level) is the
-only active OpenCode model this project uses. It runs every lane: `/oc`
+Status: CANONICAL guidance (Owner directive 2026-10-12). Step 5 Preview HIGH
+(`opencode/step-5-preview-free` on OpenCode Zen, native `high`, its highest catalog level) is the
+only OpenCode model this project uses (free Zen quota). It runs every lane: `/oc`
 (`foundry-implementer`), `/assure` (`assurance-verifier`), `/ro-review` (read-only
 `foundry-reviewer`), the Foundry launcher and Claude-side runs through the `opencode` CLI
-(`opencode run -m opencode-go/deepseek-v4.1-flash --variant max`) or the `opencode-subagent`
-MCP bridge. Quota recovery after the 2026-10-10 monthly-quota exhaustion is assumed by the Owner,
-not verified: a quota or auth refusal (HTTP 429 `GoUsageLimitError`) is `BLOCKED_SERVICE`, never a
-reason to reroute.
-Step 5 Preview on OpenCode Zen is SUSPENDED; never name it as a target, a fallback or a "free" option.
-Claude Sonnet 5.5 is a separate authorized worker tier, not an OpenCode profile.
+(`opencode run -m opencode/step-5-preview-free --variant high`; the Zen free tier refuses the
+`opencode-subagent` MCP bridge). Zen rate-limits parallel free runs: start Step jobs one at a time
+and treat a hung run as `BLOCKED_SERVICE`.
+DeepSeek is SUSPENDED; never name it as a target, a fallback or a "cheaper" option.
 
 This guide is derived from this repository's lane contracts, its evidence rules and the run
 failures it has recorded (step timeouts, token expiry, hung CLIs, quota refusals). It is not
@@ -33,7 +31,7 @@ run to "also review itself": the review gate only accepts the separate `/ro-revi
 
 Start from `.claude/skills/lab-ops/oc_tasks/<template>.md` and post with
 `python3 .claude/skills/lab-ops/scripts/oc_dispatch.py post`. The skeleton fields are the
-contract DeepSeek MAX works best with, because each one removes a guess:
+contract Step 5 Preview works best with, because each one removes a guess:
 
 - **Objective**: one sentence, one outcome. Two outcomes are two dispatches.
 - **Source lock / ownership**: repo, 40-hex SHA, branch, owner. The model re-checks it before
@@ -71,8 +69,8 @@ it again; repeated policy dilutes the task delta.
 
 ## 4. Review prompts (`/ro-review`) while one model does both jobs
 
-With Step suspended the reviewer is the same model as the implementer (Owner approval of
-2026-10-10 for the single-executor case, applied to DeepSeek from 2026-10-13). The only independence left is a fresh context, so protect it:
+With DeepSeek suspended the reviewer is the same model as the implementer (Owner approval of
+2026-10-10 for the single-executor case, applied to Step from 2026-10-12). The only independence left is a fresh context, so protect it:
 
 - Give the reviewer the exact SHA, TREE, PR link and the acceptance claim. Do not paste the
   implementer's reasoning, handoff narrative or "why this is correct".
@@ -85,8 +83,8 @@ With Step suspended the reviewer is the same model as the implementer (Owner app
 
 ## 5. `opencode-subagent` MCP calls from Claude
 
-`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode-go/deepseek-v4.1-flash`, the plugin
-default. Still pass `model: "opencode-go/deepseek-v4.1-flash"` on every `agent` call so a stale plugin
+`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode/step-5-preview-free`, the plugin
+default. Still pass `model: "opencode/step-5-preview-free"` on every `agent` call so a stale plugin
 default can never select another model. Brief it like a dispatch: objective, files, exact
 validation command, stop condition, and "do not call `mcp__hearthbot__` tools".
 
