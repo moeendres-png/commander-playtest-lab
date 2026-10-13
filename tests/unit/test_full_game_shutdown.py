@@ -264,3 +264,58 @@ def test_the_result_model_has_no_shutdown_default() -> None:
 
 if __name__ == "__main__":
     raise SystemExit(pytest.main([__file__]))
+
+
+class _RecordingWaitProcess(_FakeProcess):
+    def __init__(self, poll_script: list) -> None:
+        super().__init__(poll_script)
+        self.wait_timeouts: list[object] = []
+
+    def wait(self, timeout=None):  # type: ignore[no-untyped-def]
+        self.wait_timeouts.append(timeout)
+        return None
+
+
+def test_close_waits_the_default_five_seconds_for_an_acked_shutdown() -> None:
+    process = _RecordingWaitProcess([None, None, 0])
+    client = _client_with(process, request_ok=True)
+    assert client.close() == FULL_GAME_SHUTDOWN_GRACEFUL
+    assert process.wait_timeouts == [5.0]
+
+
+def test_close_waits_the_configured_shutdown_grace() -> None:
+    process = _RecordingWaitProcess([None, None, 0])
+    client = _client_with(process, request_ok=True)
+    client.shutdown_grace_seconds = 300.0
+    assert client.close() == FULL_GAME_SHUTDOWN_GRACEFUL
+    assert process.wait_timeouts == [300.0]
+
+
+def test_shutdown_grace_must_be_positive() -> None:
+    with pytest.raises(ValueError, match="shutdown_grace_seconds"):
+        _RawFullGameClient(
+            command=("java", "-jar", "bridge.jar", "full-game"), shutdown_grace_seconds=0
+        )
+
+
+def test_runner_hands_its_shutdown_grace_to_the_client(monkeypatch: pytest.MonkeyPatch) -> None:
+    import commander_lab.engine.rules.full_game as full_game
+
+    seen: list[float] = []
+
+    class _StopClient:
+        def __init__(self, *args, **kwargs) -> None:  # type: ignore[no-untyped-def]
+            seen.append(kwargs["shutdown_grace_seconds"])
+            raise RuntimeError("stop after construction")
+
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _StopClient)
+    monkeypatch.setattr(XmageFullGameRunner, "_validated_policy", lambda *args: None)
+    runner = XmageFullGameRunner(
+        ("java", "-jar", "bridge.jar", "full-game"), shutdown_grace_seconds=42.0
+    )
+    # Public errors are redacted, so the recorded constructor argument is the evidence.
+    with pytest.raises(Exception):  # noqa: B017
+        runner.run_smoke(scenario=None, decks=(), pilots=())  # type: ignore[arg-type]
+    with pytest.raises(Exception):  # noqa: B017
+        runner.run(scenario=None, decks=(), pilots=())  # type: ignore[arg-type]
+    assert seen == [42.0, 42.0]
