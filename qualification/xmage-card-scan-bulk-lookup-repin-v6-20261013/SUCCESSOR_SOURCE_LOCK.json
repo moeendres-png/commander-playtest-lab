@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-card-scan-bulk-lookup-repin-v6-20261013",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "EVIDENCE_PENDING",
- "status_note": "native qualification is bound to the exact-commit maven.yml run below; the Lab bridge suite against XMage built from exactly e5030e84 is bound once it has run (PENDING until then, no result counts). NOT_RUN != PASS. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "native and Lab runtime qualification are bound to exact-commit runs below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin",
  "owner_decision": "Owner instruction 2026-10-13 (session chat): 'mach den repin für den kartenscan'; the Owner merged moeendres-png/mage#58 into the candidate branch the same day",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
@@ -92,10 +92,29 @@
  "lab_runtime_qualification": {
   "installed_artifacts_commit": "e5030e84687d612744ea413b522870cfb00f2f07",
   "bridge_suite": {
-   "status": "PENDING",
-   "command": "XMage Full Game Conformance on the repin branch (XMAGE_COMMIT=e5030e84): engine-bridge mvn verify against XMage built from exact e5030e84"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head a85efe11 (Lab #764, merge ref 2e20ab52, XMAGE_COMMIT=e5030e84): engine-bridge mvn verify against XMage built from exact e5030e84",
+   "run": 1099,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 38406298533,
+   "job": 115326747778,
+   "artifact": {
+    "id": 11820985002,
+    "zip_sha256": "ce741ddbd3aed20d901f02fe9782a744360a71951fa9beeed94998098a3fb7a3"
+   },
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "includes": "XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheBulkCardScan (the v6 structural signature)",
+   "baseline_at_prior_pin": "1067 run / 1 skipped at 3cbf7741 (run 38142486874); the bridge suite has grown since, so counts are not comparable across pins"
   },
-  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, plus a structural signature: XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheBulkCardScan fails on an engine artifact built before mage#58 (CardRepository.findAllSetCodeAndCardNumberKeys absent)."
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, plus a structural signature: XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheBulkCardScan fails on an engine artifact built before mage#58 (CardRepository.findAllSetCodeAndCardNumberKeys absent).",
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below; a local cross-check (engine-bridge mvn verify against XMage installed from exactly e5030e84: 1097 run, 0 failures, 0 errors, 1 skipped, including loadedEngineCarriesTheBulkCardScan) is local observation only, not CI credit",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 c1e48ae1592cd792feb54a82b9f8eaa83819db356461df38474234bcca647410",
+   "org.mage:mage-sets:1.4.61": "sha256 e02bf0d3e282185fde5caac52c0438de3c9fbc91d225c42d032f73ab3eadca57"
+  },
+  "installed_artifacts_note": "the conformance job checks out XMage at exactly e5030e84 (git rev-parse HEAD == XMAGE_COMMIT gate, cache-hit=false) and installs org.mage:mage / mage-sets 1.4.61 built from it into the runner's m2; the digests above are the sha256 lines that job 115326747778 printed after the install"
  },
  "architecture_freeze_binding": {
   "status": "UNCHANGED_BY_THIS_REPIN",

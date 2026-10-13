@@ -136,7 +136,13 @@ def test_lab_bridge_suite_binds_the_exact_pin() -> None:
         return
     assert suite["status"] == "COMPLETE"
     assert suite["failures"] == 0 and suite["errors"] == 0
-    assert isinstance(suite["actions_run"], int)
+    assert (suite["run"], suite["skipped"]) == (1099, 1)
+    assert suite["actions_run"] == 38406298533
+    assert suite["job"] == 115326747778
+    assert len(suite["artifact"]["zip_sha256"]) == 64
+    assert set(lab["installed_artifacts"]) == {"org.mage:mage:1.4.61", "org.mage:mage-sets:1.4.61"}
+    for digest in lab["installed_artifacts"].values():
+        assert len(digest.removeprefix("sha256 ")) == 64
 
 
 def test_engine_identity_has_a_structural_signature() -> None:
