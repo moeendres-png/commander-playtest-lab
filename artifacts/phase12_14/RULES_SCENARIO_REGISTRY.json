@@ -15,7 +15,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -33,7 +32,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -52,7 +50,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -74,7 +71,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -92,7 +88,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -108,7 +103,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": []
@@ -124,7 +118,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -142,7 +135,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -160,7 +152,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -178,7 +169,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -198,7 +188,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -218,7 +207,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -236,7 +224,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -255,7 +242,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": [
@@ -274,7 +260,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -290,7 +275,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": []
@@ -306,7 +290,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -324,7 +307,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -340,7 +322,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": []
@@ -356,7 +337,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -374,7 +354,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -393,7 +372,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -412,7 +390,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -430,7 +407,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -449,7 +425,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -465,7 +440,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": []
@@ -483,7 +457,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -500,7 +473,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -519,7 +491,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": [
@@ -538,7 +509,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -558,7 +528,6 @@
       "structural_support": true,
       "tactical_oracle_support": true,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "tactical_only",
       "evidence_files": [
@@ -572,7 +541,6 @@
       "structural_support": false,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "unsupported",
       "evidence_files": []
@@ -586,7 +554,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": []
@@ -598,7 +565,6 @@
       "structural_support": false,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "unsupported",
       "evidence_files": []
@@ -610,7 +576,6 @@
       "structural_support": false,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "unsupported",
       "evidence_files": []
@@ -624,7 +589,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": []
@@ -638,7 +602,6 @@
       "structural_support": true,
       "tactical_oracle_support": false,
       "xmage_verified": false,
-      "forge_verified": false,
       "external_replay_verified": false,
       "coverage_status": "structural_only",
       "evidence_files": []

@@ -46,7 +46,6 @@
           "default": "unknown",
           "enum": [
             "xmage",
-            "forge",
             "tactical",
             "unknown"
           ],
