@@ -60,6 +60,7 @@ def _copy_context_inputs(destination: Path) -> None:
         "data/decks/rogshai_current.json",
         "data/canonical_import/2026-08-07/inventory_snapshot.json",
         "data/collections/current_deck_allocations.json",
+        "data/cards/xmage_card_facts.json",
     ):
         source = ROOT / relative
         target = destination / relative
@@ -202,3 +203,15 @@ def test_context_hash_ignores_checkout_only_line_ending_changes(tmp_path: Path) 
     crlf_hash = load_project_context(tmp_path).snapshot_hash
 
     assert lf_hash == crlf_hash
+
+
+def test_context_hash_changes_if_xmage_card_facts_change(tmp_path: Path) -> None:
+    # Structural profiles read these facts, so a cached Structural result keyed on the
+    # context must not survive a change to them (#733).
+    _copy_context_inputs(tmp_path)
+    before = load_project_context(tmp_path).snapshot_hash
+    path = tmp_path / "data/cards/xmage_card_facts.json"
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload["fixture_context_hash_change"] = True
+    path.write_text(json.dumps(payload), encoding="utf-8")
+    assert load_project_context(tmp_path).snapshot_hash != before

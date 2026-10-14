@@ -334,6 +334,9 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "feature_projection_manifest": root_path
         / "data/collections/current/rogshai_feature_projection/manifest.json",
         "protected_cards": root_path / "config/protected_cards.json",
+        # Structural profiles take power and finishers from these XMage facts (#733),
+        # so a cached Structural result must not outlive a change to them.
+        "xmage_card_facts": root_path / "data/cards/xmage_card_facts.json",
     }
     source_hash_dict = {name: _sha256_file(path) for name, path in paths.items()}
     feature_manifest = _load_json(paths["feature_projection_manifest"])
