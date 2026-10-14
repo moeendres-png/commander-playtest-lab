@@ -69,7 +69,7 @@ def test_active_claude_routing_has_only_current_executor_policy():
     assert "no automatic fallback" in joined.lower()
     assert "muse-spark" not in joined.lower()
     assert "glm-5.3" not in joined.lower()
-    # Since 2026-10-13 Step 5 Preview (OpenCode Zen, opencode/step-5-preview-free) is SUSPENDED;
+    # Step 5 Preview (OpenCode Zen, opencode/step-5-preview-free) is the active executor;
     # wherever an active surface names it, it names the Zen provider or the id.
     # The OpenCode Go ids may appear only where explicitly labeled as retired,
     # never as a selectable executor.
@@ -117,12 +117,15 @@ def test_claude_policy_allows_sonnet_workers_but_forbids_agent_trees_and_duplica
     assert "Do not create agent teams or recursive coordinator/worker trees" in flat
     # Delegation discipline: no duplicate reads of worker output.
     assert "Do not automatically re-read" in text
-    # Owner directive 2026-10-13: DeepSeek on OpenCode Go is the only active OpenCode model,
-    # Step 5 Preview on OpenCode Zen is SUSPENDED.
-    assert "DeepSeek is the only active OpenCode model" in flat
-    assert "Step 5 Preview on OpenCode Zen is SUSPENDED" in flat
-    assert "opencode-go/deepseek-v4.1-flash" in flat
-    assert "DeepSeek V4.1 Flash is SUSPENDED" not in flat
+    # Owner directive 2026-10-12, reconfirmed 2026-10-13: Step 5 Preview on OpenCode Zen is the
+    # only active OpenCode model, DeepSeek V4.1 Flash on OpenCode Go is SUSPENDED.
+    assert "Step 5 Preview is the only active OpenCode model" in flat
+    assert "opencode/step-5-preview-free" in flat
+    assert (
+        "DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED"
+        in flat
+    )
+    assert "DeepSeek is the only active OpenCode model" not in flat
 
 
 def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():

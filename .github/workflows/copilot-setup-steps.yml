@@ -1,0 +1,63 @@
+name: Copilot Setup Steps
+
+# Environment for the GitHub Copilot coding agent. Copilot runs the single job
+# named `copilot-setup-steps` from the default branch before the agent starts,
+# while the network is still open; the agent then works behind its firewall.
+# It installs what a contributor needs for the Lab's own checks (ruff, mypy,
+# pytest) from the hash-locked requirements, plus the JDK the bridge builds with.
+# The XMage engine jar is not built here: it needs the pinned fork checkout and
+# a Maven download of several hundred MB. Engine-backed rows stay with CI.
+# Running it by hand (workflow_dispatch) or on a change to this file validates it.
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  # A newer push to the same PR supersedes its obsolete run; every other run keys on its SHA.
+  group: copilot-setup-steps-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0 immutable revision
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "17"
+      - name: Install locked Python dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Smoke the toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          ruff --version
+          python -m pytest --version
+          java -version

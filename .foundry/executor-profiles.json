@@ -1,8 +1,8 @@
 {
   "schema_version": "1.5",
   "status": "ACTIVE",
-  "authority_date": "2026-10-13",
-  "provider": "opencode-go",
+  "authority_date": "2026-10-12",
+  "provider": "opencode",
   "policy": {
     "highest_supported_effort_only": true,
     "explicit_profile_per_run": true,
@@ -12,45 +12,33 @@
     "repository_prescribes_task_routing": false,
     "live_catalog_reverification_required_at_activation": true
   },
-  "current_runtime_default": "deepseek",
+  "current_runtime_default": "step",
   "profiles": {
-    "deepseek": {
-      "model": "opencode-go/deepseek-v4.1-flash",
-      "native_variant": "max",
-      "runtime_status": "ACTIVE",
-      "activation": {
-        "since": "2026-10-13",
-        "authority": "Direct Owner instruction 2026-10-13 in a Claude Code session: \"OpenCode soll wieder OpenCode Go über die aktuelle API im GitHub laufen\"; DeepSeek V4.1 Flash on OpenCode Go for all lanes.",
-        "quota_recovery": "Assumed by the Owner, not verified by the Coordinator. The 2026-10-10 suspension was caused by the OpenCode Go monthly quota (HTTP 429 GoUsageLimitError); no quota check has been run.",
-        "reverification": "The live pinned-CLI catalog check (`opencode models opencode-go`) and the first trusted CI lane run after merge are the reverification; a quota or auth refusal there is BLOCKED_SERVICE with no fallback.",
-        "previous_suspension": {
-          "since": "2026-10-10",
-          "reason": "Owner directive after the OpenCode Go monthly quota was exhausted (HTTP 429 GoUsageLimitError, limitName=monthly).",
-          "authority": "Direct Owner instruction 2026-10-10; confirmed by the Owner directive 2026-10-12 (Step 5 Preview only).",
-          "reactivation": "Only a new direct Owner instruction sets runtime_status back to ACTIVE; quota recovery alone does not."
-        }
-      }
-    },
     "step": {
       "model": "opencode/step-5-preview-free",
       "native_variant": "high",
+      "runtime_status": "ACTIVE"
+    },
+    "deepseek": {
+      "model": "opencode-go/deepseek-v4.1-flash",
+      "native_variant": "max",
       "runtime_status": "SUSPENDED",
       "suspension": {
-        "since": "2026-10-13",
-        "reason": "Owner directive 2026-10-13: OpenCode runs on DeepSeek V4.1 Flash on OpenCode Go again; Step 5 Preview on OpenCode Zen is no longer an active executor.",
-        "authority": "Direct Owner instruction 2026-10-13 in a Claude Code session: \"OpenCode soll wieder OpenCode Go über die aktuelle API im GitHub laufen\".",
-        "reactivation": "Only a new direct Owner instruction sets runtime_status back to ACTIVE."
+        "since": "2026-10-10",
+        "reason": "Owner directive after the OpenCode Go monthly quota was exhausted (HTTP 429 GoUsageLimitError, limitName=monthly).",
+        "authority": "Direct Owner instruction 2026-10-10; confirmed by the Owner directive 2026-10-12 (Step 5 Preview only).",
+        "reactivation": "Only a new direct Owner instruction sets runtime_status back to ACTIVE; quota recovery alone does not."
       }
     }
   },
   "routing_policy": {
-    "note": "Owner directive 2026-10-13: DeepSeek V4.1 Flash on OpenCode Go (opencode-go/deepseek-v4.1-flash) at its native variant max is the default and only active OpenCode executor for every lane (/oc, /assure, /ro-review, the launcher, the opencode-subagent MCP and every OpenCode subagent). Step 5 Preview on OpenCode Zen is SUSPENDED and never selected, not even as a fallback. Claude Sonnet 5.5 is a separate authorized Claude-side executor tier and is not an OpenCode profile. Every earlier executor stays retired; its history stays in Git and in the dated records.",
-    "primary": "deepseek",
+    "note": "Owner directive 2026-10-12: Step 5 Preview (opencode/step-5-preview-free on OpenCode Zen) is the default and only active OpenCode executor for every lane (/oc, /assure, /ro-review, the launcher, the opencode-subagent MCP and every OpenCode subagent), at its highest native variant high (the Zen catalog lists low/medium/high only, no max). DeepSeek v4.1 Flash is SUSPENDED and never selected, not even as a fallback. Every earlier executor is retired and removed from this registry; its history stays in Git and in the dated records.",
+    "primary": "step",
     "suspended": [
-      "step"
+      "deepseek"
     ],
     "automatic_fallback": false,
-    "selection_authority": "Every run resolves the deepseek profile. Re-activating Step needs a new direct Owner instruction recorded in this registry."
+    "selection_authority": "Every run resolves the step profile. Re-activating DeepSeek needs a new direct Owner instruction recorded in this registry."
   },
   "runtime_identity": {
     "opencode-go/deepseek-v4.1-flash": {
@@ -63,8 +51,8 @@
     }
   },
   "resolution_policy": {
-    "note": "Exactly two logical executor profiles. All runtime model IDs below map to one of them; there is no third logical executor and no cross-family substitute. DeepSeek resolves to its pinned Go id; when the live pinned-CLI catalog of the Go provider is inspected the id must be listed, otherwise fail closed. The suspended Step profile is refused before resolution.",
-    "catalog_mechanism": "opencode models opencode-go",
+    "note": "Exactly two logical executor profiles. All runtime model IDs below map to one of them; there is no third logical executor and no cross-family substitute. Step resolves only after live pinned-CLI catalog inspection of the Zen provider: its single admitted id must be listed, otherwise fail closed.",
+    "catalog_mechanism": "opencode models opencode",
     "logical_profiles": [
       "deepseek",
       "step"
@@ -76,10 +64,10 @@
     "automatic_fallback": false
   },
   "cross_executor_review_policy": {
-    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY DeepSeek MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /ro-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While Step is SUSPENDED the implementation executor is also DeepSeek, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence). A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
+    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Step 5 Preview review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /ro-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is SUSPENDED the implementation executor is also Step, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence). A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
     "required_for_material": true,
-    "implementation_executor": "deepseek",
-    "review_executor": "deepseek",
+    "implementation_executor": "step",
+    "review_executor": "step",
     "review_mode": "READ_ONLY_FRESH_CONTEXT",
     "review_agents": [
       "foundry-reviewer"
@@ -100,7 +88,7 @@
       "REVIEWED_IDENTITY_MISMATCH"
     ],
     "unsatisfied_executors": [
-      "step"
+      "deepseek"
     ],
     "non_material_closeout": "GENERATED_STATE_ONLY",
     "remote_resumability": "REQUIRES_REMOTE_CHECKPOINT_EQUALITY",
@@ -155,7 +143,7 @@
       "runtime_status": "ACTIVE",
       "observed_agent_note": "The same run reported agent=foundry-implementer although the /bunny lane pins AGENT=bunny-verifier; tracked in issue #685; it does not change the model identity."
     },
-    "retired_history_note": "activation_evidence_2026_09_29, _2026_10_06 and _2026_10_10 are kept verbatim as dated provenance. They describe the executor retired on 2026-10-12 (Owner directive); they authorize nothing and their runtime_status values are historical.",
+    "retired_history_note": "activation_evidence_2026_09_29, _2026_10_06 and _2026_10_10 are kept verbatim as dated provenance. They describe the executor retired on 2026-10-12 (Owner directive) and the suspended DeepSeek profile; they authorize nothing and their runtime_status values are historical.",
     "activation_evidence_2026_10_12": {
       "current_model_identity": "opencode/step-5-preview-free",
       "reason": "Owner directive 2026-10-12: the previous Zen executor is no longer free; use only OpenCode Zen Step 5 Preview for the whole project and remove the previous executor from the project.",
@@ -164,20 +152,7 @@
       "native_variant_choice": "The Owner asked for max; the catalog offers no max variant for this model, so the registry pins its highest native variant high (policy highest_supported_effort_only). If the catalog later lists max, a registry change moves the pin.",
       "authenticated_runtime_smoke": "NOT_RUN: the first trusted lane run after merge is the runtime observation for the Zen identity and key. A local unauthenticated `opencode run -m opencode/step-5-preview-free` on 2026-10-12 was refused with 'Rate limit exceeded' (free-tier limit), so no local smoke counts.",
       "runtime_status": "ACTIVE",
-      "activation_without_smoke": "Coordinator reading of the Owner instructions of 2026-10-12, which direct that only Step 5 Preview on OpenCode Zen be used whenever OpenCode is used: Step is activated before the authenticated smoke that required_validation asks for, because no other executor may run and the smoke itself needs an active lane. The Owner did not separately waive the smoke; it stays owed and is the first trusted lane run.",
-      "historical_scope_2026_10_13": "Provenance for the Step 5 Preview activation of 2026-10-12. Superseded on 2026-10-13: Step is SUSPENDED and DeepSeek on OpenCode Go is the active executor (activation_evidence_2026_10_13). Its runtime_status value is historical."
-    },
-    "activation_evidence_2026_10_13": {
-      "current_model_identity": "opencode-go/deepseek-v4.1-flash",
-      "previous_model_identity": "opencode/step-5-preview-free",
-      "reason": "Owner directive 2026-10-13: OpenCode runs on OpenCode Go (DeepSeek V4.1 Flash) again through the current API in GitHub.",
-      "authority": "Direct Owner instruction 2026-10-13 in a Claude Code session: \"OpenCode soll wieder OpenCode Go über die aktuelle API im GitHub laufen\".",
-      "live_catalog_identity": "NOT_RUN: no live `opencode models opencode-go` check was run for this change; resolution/launcher inspection of the pinned CLI catalog and the first trusted CI lane run are the reverification.",
-      "native_variant_choice": "max, DeepSeek's highest native variant (policy highest_supported_effort_only); opencode.json and the launcher bundle enable only the max variant.",
-      "authenticated_runtime_smoke": "NOT_RUN: no authenticated smoke has been run for the 2026-10-13 reactivation; the activation_evidence_2026_09_29 smoke is historical provenance for the same model id. The first trusted lane run after merge is the runtime observation.",
-      "quota": "Quota recovery after the 2026-10-10 monthly-quota exhaustion is assumed by the Owner and not verified here. A quota or auth refusal is BLOCKED_SERVICE with no automatic fallback.",
-      "runtime_status": "ACTIVE",
-      "activation_without_smoke": "Coordinator reading of the Owner instruction of 2026-10-13, which directs that OpenCode run on OpenCode Go again: DeepSeek is activated before a fresh authenticated smoke because no other OpenCode executor may run and the smoke itself needs an active lane. The Owner did not separately waive the smoke; it stays owed and is the first trusted lane run."
+      "activation_without_smoke": "Coordinator reading of the Owner instructions of 2026-10-12, which direct that only Step 5 Preview on OpenCode Zen be used whenever OpenCode is used: Step is activated before the authenticated smoke that required_validation asks for, because no other executor may run and the smoke itself needs an active lane. The Owner did not separately waive the smoke; it stays owed and is the first trusted lane run."
     }
   }
 }

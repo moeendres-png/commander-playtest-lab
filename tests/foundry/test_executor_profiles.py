@@ -60,23 +60,19 @@ def test_registry_does_not_prescribe_task_routing_or_model_preference() -> None:
 def test_prepared_profiles_do_not_falsely_claim_runtime_activation() -> None:
     doc = _registry()
     assert doc["status"] == "ACTIVE"
-    # Owner directive 2026-10-13: DeepSeek MAX on OpenCode Go only; Step is SUSPENDED.
-    assert doc["authority_date"] == "2026-10-13"
-    assert doc["provider"] == "opencode-go"
-    assert doc["current_runtime_default"] == "deepseek"
-    assert doc["profiles"]["step"]["runtime_status"] == "SUSPENDED"
-    assert doc["profiles"]["step"]["suspension"]["since"] == "2026-10-13"
-    assert "new direct Owner instruction" in doc["profiles"]["step"]["suspension"]["reactivation"]
-    assert doc["profiles"]["deepseek"]["runtime_status"] == "ACTIVE"
-    assert doc["profiles"]["deepseek"]["activation"]["since"] == "2026-10-13"
+    # Owner directive 2026-10-10: Step 5 Preview HIGH only; DeepSeek is SUSPENDED.
+    assert doc["current_runtime_default"] == "step"
+    assert doc["profiles"]["deepseek"]["runtime_status"] == "SUSPENDED"
+    assert doc["profiles"]["deepseek"]["suspension"]["since"] == "2026-10-10"
+    assert doc["profiles"]["step"]["runtime_status"] == "ACTIVE"
     assert set(doc["profiles"]) == {"deepseek", "step"}
 
 
 def test_routing_policy_is_stable_and_fallback_free() -> None:
     doc = _registry()
     routing = doc["routing_policy"]
-    assert routing["primary"] == "deepseek"
-    assert routing["suspended"] == ["step"]
+    assert routing["primary"] == "step"
+    assert routing["suspended"] == ["deepseek"]
     assert "secondary" not in routing
     assert "inactive" not in routing
     assert routing["automatic_fallback"] is False
@@ -99,8 +95,6 @@ def test_routing_policy_is_stable_and_fallback_free() -> None:
         keys = {"model", "native_variant", "runtime_status"}
         if profile["runtime_status"] == "SUSPENDED":
             keys.add("suspension")  # durable reason and Owner authority, no quota data
-        else:
-            keys.add("activation")  # durable Owner authority and reverification, no quota data
         assert set(profile) == keys, profile
 
 
@@ -109,7 +103,7 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     doc = _registry()
     gate = doc["activation_gate"]
     historical = gate["activation_evidence_2026_09_29"]
-    current = gate["activation_evidence_2026_10_13"]
+    current = gate["activation_evidence_2026_10_12"]
 
     # The DeepSeek evidence block keeps its meaning: an authenticated smoke that
     # ran, and a no-fallback claim that is spelled out term by term.
@@ -119,27 +113,22 @@ def test_activation_evidence_records_authenticated_runtime_verification() -> Non
     assert "provider switch" in no_fallback.lower()
     assert "profile change" in no_fallback.lower()
 
-    active = doc["profiles"]["deepseek"]
-    assert active["model"] == "opencode-go/deepseek-v4.1-flash"
+    active = doc["profiles"]["step"]
+    assert active["model"] == "opencode/step-5-preview-free"
     assert active["runtime_status"] == "ACTIVE"
-    # The 2026-10-13 block is the activation evidence for the Go identity.
+    # The 2026-10-12 block is the activation evidence for the Zen identity.
     assert current["current_model_identity"] == active["model"]
     assert current["runtime_status"] == active["runtime_status"]
-    assert current["live_catalog_identity"].startswith("NOT_RUN")
-    assert "max" in current["native_variant_choice"]
-    assert active["native_variant"] == "max"
-    # The superseded Step block keeps its history but no longer claims ACTIVE standing.
-    step_block = gate["activation_evidence_2026_10_12"]
-    assert step_block["current_model_identity"] == doc["profiles"]["step"]["model"]
-    assert doc["profiles"]["step"]["runtime_status"] == "SUSPENDED"
-    assert "Superseded" in step_block["historical_scope_2026_10_13"]
+    assert "step-5-preview-free" in current["live_catalog_identity"]
+    assert "high" in current["native_variant_choice"]
+    # The Zen catalog lists no max variant for this model, so the pin is `high`.
+    assert active["native_variant"] == "high"
     # The activation gate asks for an authenticated smoke before ACTIVE. Every ACTIVE
     # profile is matched to its own activation block, which carries either that smoke
     # or an explicit, recorded activation-without-smoke reason that keeps it owed.
-    # Blocks are matched by identity; the newest dated block wins for a re-activated id.
     blocks = {
         block["current_model_identity"]: block
-        for name, block in sorted(gate.items())
+        for name, block in gate.items()
         if name.startswith("activation_evidence_") and block.get("runtime_status") == "ACTIVE"
     }
     for name, spec in doc["profiles"].items():
@@ -232,8 +221,8 @@ def test_activation_receipt_is_not_a_workstream_state_record() -> None:
     assert "workstream" not in receipt
 
 
-def test_runtime_identity_admits_only_the_two_canonical_ids() -> None:
-    """Each profile admits exactly its canonical id; no legacy alias or third id."""
+def test_runtime_identity_admits_only_the_zen_step_id() -> None:
+    """Step 5 Preview admits exactly its Zen id; no Go id or legacy alias."""
     doc = _registry()
     identity = doc["runtime_identity"]
     assert identity["opencode-go/deepseek-v4.1-flash"] == {
@@ -260,45 +249,37 @@ def test_cross_executor_review_policy_is_declared_and_strict() -> None:
     """Durable registry declares the mandatory read-only cross-executor gate."""
     policy = _registry()["cross_executor_review_policy"]
     assert policy["required_for_material"] is True
-    # While Step is SUSPENDED DeepSeek implements and reviews (Owner directive
-    # 2026-10-13); the review stays fresh-context and read-only.
-    assert policy["implementation_executor"] == "deepseek"
+    # While DeepSeek is SUSPENDED Step 5 Preview implements and reviews (Owner
+    # approval 2026-10-10); the review stays fresh-context and read-only.
+    assert policy["implementation_executor"] == "step"
     assert policy["review_independence"] == (
         "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_OTHER_PROFILE_IS_ACTIVE"
     )
-    assert policy["review_executor"] == "deepseek"
+    assert policy["review_executor"] == "step"
     assert policy["review_mode"] == "READ_ONLY_FRESH_CONTEXT"
     assert set(policy["review_agents"]) == {"foundry-reviewer"}
     assert policy["pass_verdict"] == "PASS"
     assert "MATERIAL_DELTA_AFTER_REVIEW" in policy["re_review_on"]
     assert "P1_REPAIR" in policy["re_review_on"]
     assert "P2_REPAIR" in policy["re_review_on"]
-    assert policy["unsatisfied_executors"] == ["step"]
+    assert policy["unsatisfied_executors"] == ["deepseek"]
     assert policy["remote_resumability"] == "REQUIRES_REMOTE_CHECKPOINT_EQUALITY"
 
 
 def test_unperformed_smoke_cannot_pass_for_runtime_verification() -> None:
     """An activation block must not present an unperformed smoke as proof.
 
-    The 2026-10-13 DeepSeek reactivation names the observation that still has
-    to happen; no run id or marker echo may read as a PASS, and the 2026-10-12
-    Step block keeps its historical NOT_RUN smoke.
+    The 2026-10-12 Step activation names the observation that still has to
+    happen; a marker echo or a locally refused run must never read as a PASS.
     """
     doc = _registry()
-    gate = doc["activation_gate"]
-    current = gate["activation_evidence_2026_10_13"]
+    current = doc["activation_gate"]["activation_evidence_2026_10_12"]
     smoke = current["authenticated_runtime_smoke"]
 
     assert smoke.startswith("NOT_RUN")
     assert "RUNTIME_VERIFIED" not in smoke
     assert "exit 0" not in smoke
-    assert "first trusted lane run" in smoke
-    assert current["live_catalog_identity"].startswith("NOT_RUN")
-    assert "not verified" in current["quota"]
-    assert (
-        "Rate limit exceeded"
-        in gate["activation_evidence_2026_10_12"]["authenticated_runtime_smoke"]
-    )
+    assert "Rate limit exceeded" in smoke
 
 
 def test_activation_evidence_is_not_a_workstream_state_record() -> None:

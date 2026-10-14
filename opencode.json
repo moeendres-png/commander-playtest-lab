@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode-go/deepseek-v4.1-flash",
+  "model": "opencode/step-5-preview-free",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -8,7 +8,7 @@
     "max_bytes": 51200
   },
   "enabled_providers": [
-    "opencode-go"
+    "opencode"
   ],
   "permission": {
     "read": {
@@ -182,14 +182,14 @@
     }
   },
   "provider": {
-    "opencode-go": {
+    "opencode": {
       "whitelist": [
-        "deepseek-v4.1-flash"
+        "step-5-preview-free"
       ],
       "models": {
-        "deepseek-v4.1-flash": {
+        "step-5-preview-free": {
           "options": {
-            "reasoningEffort": "max"
+            "reasoningEffort": "high"
           },
           "variants": {
             "none": {
@@ -207,13 +207,13 @@
             "medium": {
               "disabled": true
             },
-            "high": {
-              "disabled": true
-            },
+            "high": {},
             "xhigh": {
               "disabled": true
             },
-            "max": {}
+            "max": {
+              "disabled": true
+            }
           }
         }
       }
@@ -221,7 +221,7 @@
   },
   "agent": {
     "build": {
-      "variant": "max"
+      "variant": "high"
     }
   },
   "experimental": {
@@ -234,9 +234,9 @@
       {
         "action": "provider.use",
         "effect": "allow",
-        "resource": "opencode-go"
+        "resource": "opencode"
       }
     ]
   },
-  "small_model": "opencode-go/deepseek-v4.1-flash"
+  "small_model": "opencode/step-5-preview-free"
 }

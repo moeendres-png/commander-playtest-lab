@@ -85,15 +85,14 @@ Use this decision order for each new unit of work:
 
 1. **Deterministic first.** Prefer `lab-ops`, focused grep/git queries, packet readers and exact
    test commands when they can answer the question without model judgement.
-2. **Execution → DeepSeek MAX.** Implementation, bugfixes, debugging, CI repair, test/fix
+2. **Execution → Step 5 Preview HIGH.** Implementation, bugfixes, debugging, CI repair, test/fix
    loops, qualification execution, evidence production, deterministic tooling, multi-file
-   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs DeepSeek V4.1 Flash on
-   OpenCode Go (`opencode-go/deepseek-v4.1-flash`, native `max`) since 2026-10-13. `/assure`
-   (verifier) and `/ro-review` (read-only reviewer) run the same model with other agents.
-   Claude Sonnet 5.5 is an equally authorized worker tier. Write each dispatch per
-   `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
-3. **Step 5 Preview on OpenCode Zen is SUSPENDED** (Owner directive 2026-10-13). Never select it, never fall
-   back to it, and do not re-enable it without a new direct Owner instruction.
+   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs Step 5 Preview
+   (`opencode/step-5-preview-free`, native `high`) since 2026-10-12. `/assure` (verifier) and
+   `/ro-review` (read-only reviewer) run the same model with other agents. Write each
+   dispatch per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
+3. **DeepSeek is SUSPENDED.** Its OpenCode Go monthly quota is exhausted. Never select it, never
+   fall back to it, and do not re-enable it without a new direct Owner instruction.
 4. **Read-only helper.** Use `log-scanner` (Sonnet `low`) for mechanical extraction and
    `ci-triage` (Sonnet `medium`) for one red-check classification. Use built-in `Explore` only
    for a scoped read-only lookup when deterministic search is insufficient. Never use

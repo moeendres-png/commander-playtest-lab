@@ -2,7 +2,7 @@
 
 Status: **CANONICAL / CURRENT**
 
-Effective date: **2026-10-13** (DeepSeek V4.1 Flash on OpenCode Go only; previous revision 2026-10-12, Step 5 Preview only)
+Effective date: **2026-10-12** (Step 5 Preview only; previous revision 2026-10-10)
 
 This file is the stable current routing authority for OpenCode/Foundry execution and the Claude Opus 5.5 delegation pointer.
 It supersedes older model-routing instructions in dated handoffs, research packets,
@@ -10,40 +10,36 @@ historical workstream state, donor reports, chats and superseded governance reco
 
 ## Authorized OpenCode executors
 
-By direct Owner instruction of **2026-10-13** ("OpenCode soll wieder OpenCode Go über die
-aktuelle API im GitHub laufen"), whenever this project uses OpenCode it uses exactly one
-model: **DeepSeek V4.1 Flash on OpenCode Go** (provider `opencode-go`). Nothing else. This
-holds for every lane (`/oc`, `/assure`, `/ro-review`), the Foundry launcher, Claude-side
-OpenCode calls and every OpenCode subagent. This reverses the Step-only routing of
-2026-10-12.
+By direct Owner instructions of **2026-10-12**, whenever this project uses OpenCode it uses
+exactly one model: **Step 5 Preview on OpenCode Zen** (provider `opencode`), because its Zen
+quota is free. Nothing else. This holds for every lane (`/oc`, `/assure`, `/ro-review`), the
+Foundry launcher, Claude-side OpenCode calls and every OpenCode subagent.
 
-1. **DeepSeek v4.1 Flash MAX** (ACTIVE, default, only executor)
+1. **Step 5 Preview HIGH** (ACTIVE, default, only executor)
+   - profile: `step`
+   - model: `opencode/step-5-preview-free`
+   - native variant: `high`. The Owner asked for `max`; the live Zen catalog
+     (`opencode models opencode --verbose`, 2026-10-12) lists only `low`, `medium` and `high`
+     for this model, so `high` is its highest native level and the only one enabled.
+   - resolves only after live pinned-CLI catalog inspection (`opencode models opencode`);
+     the Zen id absent => fail closed. A Zen refusal (rate limit, quota, auth) is
+     `BLOCKED_SERVICE`, never a fallback to another model or provider.
+   - Claude sessions start it through the `opencode` CLI
+     (`opencode run -m opencode/step-5-preview-free --variant high`). The Zen free tier
+     refuses calls that do not come from the OpenCode client itself ("free tier can only be
+     used from within OpenCode", observed 2026-10-12 through the opencode-subagent MCP).
+
+2. **DeepSeek v4.1 Flash MAX** (SUSPENDED)
    - profile: `deepseek`
    - model: `opencode-go/deepseek-v4.1-flash`
-   - native variant: `max` (its highest catalog level; the only variant enabled).
-   - the OpenCode Go monthly quota was exhausted on 2026-10-10 (HTTP 429
-     `GoUsageLimitError`). Its recovery is **assumed by the Owner and not verified**; the live
-     pinned-CLI catalog (`opencode models opencode-go`) and the first trusted CI lane run are the
-     reverification. A Go refusal (quota, auth, catalog) is `BLOCKED_SERVICE`, never a fallback
-     to another model or provider.
-   - Claude sessions may start it through the `opencode` CLI
-     (`opencode run -m opencode-go/deepseek-v4.1-flash --variant max`) or the
-     `opencode-subagent` MCP bridge.
+   - native variant: `max`
+   - suspended by Owner directive after the OpenCode Go monthly quota was exhausted. The
+     launcher refuses the profile, it is absent from
+     `opencode.json`, and no lane pins it. Only a new direct Owner instruction sets it
+     back to ACTIVE in `.foundry/executor-profiles.json`; quota recovery alone does not.
 
-2. **Step 5 Preview HIGH** (SUSPENDED)
-   - profile: `step`
-   - model: `opencode/step-5-preview-free` (OpenCode Zen)
-   - native variant: `high`
-   - suspended by the Owner directive of 2026-10-13. The launcher refuses the profile, it is
-     absent from `opencode.json`, and no lane pins it. Only a new direct Owner instruction sets
-     it back to ACTIVE in `.foundry/executor-profiles.json`.
-
-Claude Sonnet 5.5 is an additionally authorized executor/worker tier next to OpenCode (Owner
-decision). It is not an OpenCode profile, is not a Foundry launcher profile, and works under the
-same ownership, evidence and Git gates.
-
-Every earlier OpenCode executor is retired and removed from the active configuration;
-its history stays in Git and in dated records only.
+Every earlier OpenCode executor is retired and removed from the active configuration
+(Owner directive 2026-10-12); its history stays in Git and in dated records only.
 No other OpenCode model/profile is currently authorized or a planned migration target.
 Prompting guidance for the active model: `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
 
@@ -52,18 +48,18 @@ Prompting guidance for the active model: `docs/foundry-execution/EXECUTOR_PROMPT
 This is a Foundry tooling gate, not a change to Rules, evidence semantics,
 qualification credit or provider/freeze authority. `tools/foundry/review_gate.py`
 refuses to certify a `PR_READY` or `COMPLETE` claim for a MATERIAL implementation
-workstream unless the record carries a fresh-context READ-ONLY DeepSeek MAX PASS on
-the exact validated implementation SHA and TREE. Step 5 Preview implementation or review does
-not satisfy the gate (suspended). While Step 5 Preview is SUSPENDED and DeepSeek is the only
-ACTIVE profile, a DeepSeek implementation reviewed by DeepSeek is admitted (explicit
-Owner approval of 2026-10-10 for the single-executor case; the Coordinator applies it to DeepSeek
-from 2026-10-13, the same situation): its independence then rests only on the fresh context and the
+workstream unless the record carries a fresh-context READ-ONLY Step 5 Preview PASS on
+the exact validated implementation SHA and TREE. DeepSeek implementation plus DeepSeek
+review does not satisfy the gate. While DeepSeek is SUSPENDED and Step 5 Preview is the only
+ACTIVE profile, a Step 5 Preview implementation reviewed by Step 5 Preview is admitted (explicit
+Owner approval of 2026-10-10 for the single-executor case; the Coordinator applies it to Step
+from 2026-10-12, the same situation): its independence then rests only on the fresh context and the
 read-only `/ro-review` lane, not on a second model, and it is recorded as same-model
 review. As soon as another profile is ACTIVE again, self-review is refused; a missing, blocked, unknown, partial, failed or stale
 review blocks the tooling claim, and any MATERIAL change after the review requires exact
 new-SHA/TREE re-review. A PASS record is only admissible with independently verifiable
 GitHub evidence of the trusted `/ro-review` run (trusted trigger comment, expected
-job, canonical DeepSeek workflow pin and structurally read-only
+job, canonical Step 5 Preview workflow pin and structurally read-only
 `foundry-reviewer` agent file at the run's exact `head_sha`, the OpenCode bot's
 machine-parseable receipt, and the comment/run time and footer-link binding);
 self-declared record fields can never fabricate a review. `REVIEWER_MODEL`,
@@ -76,17 +72,17 @@ checkpoints are verified through `tools/foundry/safe_push.py` and
 
 ## Routing
 
-DeepSeek MAX runs all OpenCode engineering work: implementation, debugging, CI repair,
+Step 5 Preview runs all OpenCode engineering work: implementation, debugging, CI repair,
 qualification execution, evidence production, audits and reviews. The lanes differ by
 agent and permissions (`foundry-implementer` on `/oc`, `assurance-verifier` on `/assure`,
 read-only `foundry-reviewer` on `/ro-review`), not by model.
 
 There is **no automatic fallback**. Runtime, quota, auth, catalog, tool or child failure
-ends the selected run; it never re-resolves to Step 5 Preview or any other executor.
+ends the selected run; it never re-resolves to DeepSeek or any other executor.
 
 The project-level `--effort high|xhigh` field describes task/authority routing only.
-It does not lower the executor's provider-native compute: DeepSeek stays pinned to
-its highest native level, `max`.
+It does not lower the executor's provider-native compute: Step 5 Preview stays pinned to
+its highest native level, `high`.
 
 ## Historical executor references
 
@@ -97,7 +93,7 @@ must not by themselves generate a governance/routing issue.
 Do **not** open or revive a model-migration issue merely because historical evidence
 mentions another executor. Expanding or replacing the active two-profile allowlist
 requires a new direct user instruction that explicitly changes this authority.
-Re-activating the suspended Step 5 Preview profile likewise requires a new direct user instruction.
+Re-activating the suspended DeepSeek profile likewise requires a new direct user instruction.
 
 Historical evidence must remain readable; do not rewrite old evidence to pretend it was
 generated by the current executor pair.

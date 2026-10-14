@@ -1,8 +1,8 @@
 ---
-description: Read-only fresh-context adversarial auditor (DeepSeek MAX) for qualification, construction-proof, row, receipt, lock and contract diffs
+description: Read-only fresh-context adversarial auditor (Step 5 Preview HIGH) for qualification, construction-proof, row, receipt, lock and contract diffs
 mode: subagent
-model: opencode-go/deepseek-v4.1-flash
-variant: max
+model: opencode/step-5-preview-free
+variant: high
 permission:
   edit: deny
   bash:

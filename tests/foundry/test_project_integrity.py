@@ -22,7 +22,7 @@ def test_config_ci_agents_and_durable_state_agree():
     models = config["provider"][launcher.CANONICAL_PROVIDER]["models"]
     schema = json.loads((ROOT / ".foundry/WORKSTREAM_STATE.schema.json").read_text())
     # A SUSPENDED profile's model is absent from opencode.json by design.
-    assert "step-5-preview-free" not in models
+    assert "deepseek-v4.1-flash" not in models
     for model in launcher.ADMITTED_RUNTIME_MODELS:
         short = model.split("/", 1)[1]
         native = models[short]["options"]["reasoningEffort"]
@@ -48,10 +48,10 @@ def test_config_ci_agents_and_durable_state_agree():
 
 def test_launcher_exposes_exactly_the_two_routed_executors():
     """No retired executor may be reachable through the canonical launcher."""
-    assert launcher.EXECUTION_PROFILES == ("deepseek", "step")
-    assert launcher.ACTIVE_EXECUTION_PROFILES == ("deepseek",)
-    assert launcher.DEFAULT_EXECUTION_PROFILE == "deepseek"
-    assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode-go/deepseek-v4.1-flash",)
+    assert launcher.EXECUTION_PROFILES == ("step", "deepseek")
+    assert launcher.ACTIVE_EXECUTION_PROFILES == ("step",)
+    assert launcher.DEFAULT_EXECUTION_PROFILE == "step"
+    assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/step-5-preview-free",)
     assert launcher.PROFILE_MODELS == {
         "deepseek": "opencode-go/deepseek-v4.1-flash",
         "step": "opencode/step-5-preview-free",
@@ -63,7 +63,7 @@ def test_launcher_exposes_exactly_the_two_routed_executors():
     with pytest.raises(ValueError, match="retired"):
         launcher.execution_identity("zen", "high")
     with pytest.raises(ValueError, match="SUSPENDED"):
-        launcher.execution_identity(None, "high", "step")
+        launcher.execution_identity(None, "high", "deepseek")
 
 
 def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
@@ -94,14 +94,14 @@ def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
 def test_documented_native_pairs_match_policy_not_runtime_claims():
     doc = (ROOT / "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md").read_text()
     pairs = re.findall(r"--execution-profile (deepseek|step) --effort (\w+)", doc)
-    # Only the ACTIVE profile has a documented launch pair; Step is SUSPENDED.
-    assert set(pairs) == {("deepseek", "high")}
-    assert "`--execution-profile step` is refused" in doc
+    # Only the ACTIVE profile has a documented launch pair; DeepSeek is SUSPENDED.
+    assert set(pairs) == {("step", "high")}
+    assert "`--execution-profile deepseek` is refused" in doc
     for profile, effort in pairs:
         model = launcher.PROFILE_MODELS[profile]
         # The documented --effort is project/authority routing, NOT the native variant.
         assert effort in launcher.ALLOWED_EFFORTS, (profile, effort)
-        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == "max"
+        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == "high"
     # The doc must not present a project effort as if it were a native variant.
     assert "--effort max" not in doc
     for profile, model in launcher.PROFILE_MODELS.items():
@@ -112,13 +112,13 @@ def test_documented_native_pairs_match_policy_not_runtime_claims():
         text = (ROOT / "docs/foundry-execution" / name).read_text()
         assert "Primary long-running worker (HIGH)" not in text
     authority = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
-    assert "Step 5 Preview HIGH** (SUSPENDED)" in authority
-    assert "DeepSeek v4.1 Flash MAX** (ACTIVE" in authority
+    assert "DeepSeek v4.1 Flash MAX** (SUSPENDED)" in authority
+    assert "Step 5 Preview HIGH" in authority
     assert "requires a new direct user instruction" in authority
 
 
 def test_current_executor_authority_is_exactly_two_profiles():
-    """Canonical active docs must expose only the authorized DeepSeek (ACTIVE)/Step 5 Preview (SUSPENDED) pair."""
+    """Canonical active docs must expose only the authorized DeepSeek/Step 5 Preview pair."""
     agents = (ROOT / "AGENTS.md").read_text()
     current = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
     routing = (ROOT / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text()
@@ -138,11 +138,9 @@ def test_current_executor_authority_is_exactly_two_profiles():
     assert "must not generate a" in routing
     assert "routing/governance issue by themselves" in routing
     index = (ROOT / "docs/foundry-execution/README.md").read_text()
-    assert "DeepSeek MAX on OpenCode Go only" in index, (
-        "Foundry index omits the current only executor"
-    )
-    assert "Step 5 Preview SUSPENDED" in index, "Foundry index omits the Step suspension"
-    assert "Step 5 Preview HIGH only" not in index, "Foundry index still names a suspended default"
+    assert "Step 5 Preview HIGH only" in index, "Foundry index omits the current only executor"
+    assert "DeepSeek SUSPENDED" in index, "Foundry index omits the DeepSeek suspension"
+    assert "DeepSeek MAX default" not in index, "Foundry index still names a suspended default"
 
 
 def test_external_content_boundary_survives_policy_edits():
