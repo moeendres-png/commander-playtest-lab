@@ -1179,7 +1179,15 @@ final class XmageFullGamePlayer extends PlayerImpl {
         JsonArray options = objectOptions(sorted, game, "target_amount");
         int remaining = target.getAmountRemaining();
         JsonObject context = new JsonObject();
-        context.addProperty("numeric_min", 1);
+        // CR 601.2d: the whole amount is divided among the chosen targets. When
+        // this is the last target that can still be chosen (one target left on
+        // offer, or the target count reaches its maximum with this one), it must
+        // receive the rest: a smaller share would leave an amount no target can
+        // take, and the engine refuses the cast (#747, Fire Covenant).
+        int maxTargets = target.getMaxNumberOfTargets();
+        boolean lastTarget = sorted.size() == 1
+                || (maxTargets > 0 && maxTargets - target.getSize() == 1);
+        context.addProperty("numeric_min", lastTarget ? Math.max(1, remaining) : 1);
         context.addProperty("numeric_max", Math.max(1, remaining));
         context.addProperty("amount_remaining", remaining);
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
@@ -1724,7 +1732,12 @@ final class XmageFullGamePlayer extends PlayerImpl {
     ) {
         witness("replacement_effect", effectsMap, objectsMap);
         if (effectsMap == null || effectsMap.isEmpty()) {
-            fail("BRIDGE_PROTOCOL_ERROR", "replacement effect choice had no options");
+            // ContinuousEffects.replaceEvent asks even when its only applicable
+            // effect has no source ability (an AuraReplacementEffect), so the
+            // map it builds is empty. There is nothing to choose: XMage's own
+            // HumanPlayer answers 0 without asking whenever the map has at most
+            // one entry, and index 0 is the only effect (#747).
+            return 0;
         }
         JsonArray options = new JsonArray();
         Map<String, Integer> indexByOption = new LinkedHashMap<>();

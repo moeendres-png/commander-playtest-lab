@@ -1204,9 +1204,13 @@ class XmageFullGameDecisionClassMatrixTest {
                     assertEquals(max, decision.get("maximum_selections").getAsInt(), "max");
                 } else {
                     JsonObject context = decision.getAsJsonObject("context");
-                    assertEquals(1, context.get("numeric_min").getAsInt());
-                    assertEquals(Math.max(1, ((mage.target.TargetAmount) target).getAmountRemaining()),
-                            context.get("numeric_max").getAsInt());
+                    int remaining = Math.max(1, ((mage.target.TargetAmount) target).getAmountRemaining());
+                    // #747: the last target that can still be chosen takes the rest.
+                    int maxTargets = target.getMaxNumberOfTargets();
+                    boolean lastTarget = possible.size() == 1
+                            || (maxTargets > 0 && maxTargets - target.getSize() == 1);
+                    assertEquals(lastTarget ? remaining : 1, context.get("numeric_min").getAsInt());
+                    assertEquals(remaining, context.get("numeric_max").getAsInt());
                 }
             }
             case "mode" -> {
