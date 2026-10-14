@@ -394,8 +394,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 noMana
         );
         if (castable.isEmpty()) {
-            fail("NO_LEGAL_ACTION", "XMage supplied no castable spell ability for " + card.getIdName());
-            return null;
+            // XMage's own HumanPlayer.chooseAbilityForCast falls back to the card's
+            // spell ability when it finds none to choose from (#747: Wear // Tear), and
+            // the engine then decides whether that cast is legal. Mirror it with a
+            // logged forced move instead of ending the game.
+            decisionController.recordForcedMove(
+                    "choice",
+                    "Choose how to cast " + card.getName(),
+                    "no castable spell ability listed; XMage default spell ability"
+            );
+            return card.getSpellAbility();
         }
         List<SpellAbility> legal = castable.values().stream()
                 .sorted(Comparator.comparing((Ability candidate) -> abilitySortKey(candidate, game)))
@@ -1724,7 +1732,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
     ) {
         witness("replacement_effect", effectsMap, objectsMap);
         if (effectsMap == null || effectsMap.isEmpty()) {
-            fail("BRIDGE_PROTOCOL_ERROR", "replacement effect choice had no options");
+            // XMage lists no option when every competing replacement effect lacks a
+            // source ability (an Aura replacement, for one); its own HumanPlayer then
+            // answers 0 and the engine applies its first effect (#747). Mirror it with a
+            // logged forced move instead of ending the game.
+            decisionController.recordForcedMove(
+                    "replacement_effect",
+                    "Choose replacement effect",
+                    "no choosable replacement effect listed; XMage applies its first"
+            );
+            return 0;
         }
         JsonArray options = new JsonArray();
         Map<String, Integer> indexByOption = new LinkedHashMap<>();
