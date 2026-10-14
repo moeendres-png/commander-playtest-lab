@@ -276,8 +276,6 @@ def main() -> int:
                 "tactical_oracle_support": tactical,
                 "xmage_recognized": False,
                 "xmage_rules_verified": False,
-                "forge_recognized": False,
-                "forge_rules_verified": False,
                 "external_rules_engine_evidence": False,
                 "coverage_status": status,
                 "fallback_policy": (
@@ -352,7 +350,7 @@ def main() -> int:
         "schema_version": 3,
         "status": "not_run",
         "provider_comparisons": [],
-        "reason": "Rules coverage construction does not execute XMage or Forge.",
+        "reason": "Rules coverage construction does not execute XMage.",
     }
 
     outputs = {

@@ -29,7 +29,8 @@ def leaky_env(monkeypatch: pytest.MonkeyPatch) -> None:
         "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
         f"java -Dauth={SECRET} -jar {HOME}/lab/engine-bridge/target/bridge.jar full-game",
     )
-    monkeypatch.setenv("COMMANDER_LAB_FORGE_BRIDGE_CMD", f"'{HOME}/forge run' --token {SECRET}")
+    # Variables of the removed Forge lane are not read at all any more.
+    monkeypatch.setenv("COMMANDER_LAB_FORGE_BRIDGE_CMD", f"'{HOME}/other run' --token {SECRET}")
     monkeypatch.setenv("FORGE_ENGINE_SHA", "ef958ee91ac6c9ce0152189f2654bf6e05abf273")
     monkeypatch.setenv("PYTHONHASHSEED", "0")
 
@@ -51,13 +52,12 @@ def test_structure_that_matters_is_kept() -> None:
     assert (
         identity["COMMANDER_LAB_XMAGE_BRIDGE_CMD.shape"] == "java -Dauth -jar bridge.jar full-game"
     )
-    assert identity["FORGE_ENGINE_SHA"] == "ef958ee91ac6c9ce0152189f2654bf6e05abf273"
+    assert not any(key.startswith(("FORGE_", "COMMANDER_LAB_FORGE_")) for key in identity)
     assert identity["PYTHONHASHSEED"] == "0"
     for key in (
         "JAVA_HOME.sha256_16",
         "MAVEN_OPTS.sha256_16",
         "COMMANDER_LAB_XMAGE_BRIDGE_CMD.sha256_16",
-        "COMMANDER_LAB_FORGE_BRIDGE_CMD.sha256_16",
     ):
         assert len(identity[key]) == 16
 
@@ -74,10 +74,8 @@ def test_digest_distinguishes_values_without_revealing_them(
 
 
 def test_malformed_scalars_are_not_echoed(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("FORGE_ENGINE_SHA", f"main {SECRET}")
     monkeypatch.setenv("PYTHONHASHSEED", SECRET)
     identity = receipts.environment_identity()
-    assert identity["FORGE_ENGINE_SHA"] == "<invalid>"
     assert identity["PYTHONHASHSEED"] == "<invalid>"
 
 
@@ -86,8 +84,6 @@ def test_unset_variables_are_absent(monkeypatch: pytest.MonkeyPatch) -> None:
         "JAVA_HOME",
         "MAVEN_OPTS",
         "COMMANDER_LAB_XMAGE_BRIDGE_CMD",
-        "COMMANDER_LAB_FORGE_BRIDGE_CMD",
-        "FORGE_ENGINE_SHA",
         "PYTHONHASHSEED",
     ):
         monkeypatch.delenv(key, raising=False)

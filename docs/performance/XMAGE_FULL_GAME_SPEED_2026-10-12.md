@@ -34,7 +34,7 @@ coverage decks (5 pods, seeds 1-2; about 1,250 distinct cards).
 |---|---|---:|---:|---:|---|
 | Reuse the mana `getPlayable` already computed (#759) | bridge | 4/4 real pods | -18.2 % | -11.4 % | **this PR** |
 | ... plus AppCDS class archive (`scripts/build_xmage_cds_archive.py`) | launch flags | **14/14** | **-19.3 %** | **-18.6 %** | **this PR** |
-| ... plus card scanner with one query for all stored cards | XMage fork | 14/14 | -23 to -25 % | -22 to -26 % | needs a repin (Owner) |
+| ... plus card scanner with one query for all stored cards | XMage fork | 14/14 | -23 to -25 % | -22 to -26 % | in the live pin (mage#58, contained in `38cb21a8`, #763) |
 | `getManaAvailable` without its second copy | XMage fork | **13/14** | about -24 % more | | **rejected** |
 | Memo per mana source in `manaCostAffordable` | bridge | 4/4 | 0 % | 0 % | dropped (no gain) |
 
@@ -98,11 +98,16 @@ for batches: throughput scales about linearly with workers.
 
 ## 4. Next levers, in order
 
-1. Repin to a fork commit with the bulk card scan (-2 s start-up per game, -3 to -6 % wall; one
-   fork commit, `CardRepository` / `CardScanner`, saved as
-   `xmage-card-scan-bulk-lookup.patch` next to this file; it applies to `3cbf7741`).
-   Needs an Owner repin decision and the usual requalification.
+1. ~~Repin to a fork commit with the bulk card scan.~~ Done: mage#58 is an ancestor of the
+   live pin `38cb21a8` (#763), so every game on main already starts with the bulk scan.
 2. Cheaper copies, for example sharing immutable card data between copies instead of
    deep-copying it. This is the only lever that addresses the 69 %, and it is deep
    engine work. Every step has to pass the identical-transcript bar above.
+   Measured 2026-10-13 with a lazy card copy for playable calculations (fork branch
+   `perf/lazy-card-copy`, a card is copied on first read): every game identical (14/14), but
+   wall -16 % (4 real games) / -6.5 % (10 coverage games) at CPU +0.0 % / +4.7 %. Parallel
+   batches are CPU-bound, so they gain nothing. Why the copy share did not turn into a CPU
+   saving is not profiled yet (a `getCards()` call or the leave-game sweep forcing the full
+   copy would explain it). Not proposed for a repin: a copy lever has to lower CPU, not only
+   wall time, to be worth the requalification.
 3. Bridge JSON (about 5 %): avoid deep copies and re-serialisation of unchanged frames.

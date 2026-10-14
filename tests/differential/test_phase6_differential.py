@@ -36,7 +36,7 @@ output_path.write_text(json.dumps({
     )
     observation = run_external_case(
         case,
-        backend="forge",
+        backend="xmage",
         command_template=(sys.executable, str(script), "{input}", "{output}"),
     )
     result = compare_observation(case, observation)
@@ -44,18 +44,17 @@ output_path.write_text(json.dumps({
 
 
 def test_external_differential_gate_is_explicitly_unavailable_without_configuration() -> None:
-    if configured_backend_command("forge") or configured_backend_command("xmage"):
+    if configured_backend_command("xmage"):
         pytest.skip("real external backend configured in this environment")
-    assert os.getenv("COMMANDER_LAB_FORGE_DIFFERENTIAL_CMD") is None
     assert os.getenv("COMMANDER_LAB_XMAGE_DIFFERENTIAL_CMD") is None
 
 
 @pytest.mark.external
 @pytest.mark.skipif(
-    not (configured_backend_command("forge") or configured_backend_command("xmage")),
-    reason="requires configured XMage or Forge differential command",
+    not configured_backend_command("xmage"),
+    reason="requires a configured XMage differential command",
 )
-def test_real_xmage_or_forge_differential_cases(repo_root: Path) -> None:
+def test_real_xmage_differential_cases(repo_root: Path) -> None:
     from commander_lab.evals import run_configured_differential_cases
 
     cases = load_differential_cases(repo_root / "data/evals/differential/rules_cases.json")

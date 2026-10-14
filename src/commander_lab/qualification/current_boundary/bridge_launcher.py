@@ -28,7 +28,7 @@ from commander_lab.engine.rules.base import resolve_engine_working_directory
 
 from .source_lock import CURRENT_TRANSPORT_PROTOCOL, repo_root
 
-CandidateId = Literal["xmage", "forge"]
+CandidateId = Literal["xmage"]
 
 DEFAULT_TIMEOUT_S = 180.0
 
@@ -79,82 +79,6 @@ def _rules_engine_manifest() -> dict[str, Any]:
     if not isinstance(manifest, dict):
         raise BridgeLaunchError("current engine authority must be a JSON object")
     return manifest
-
-
-def canonical_forge_authority() -> dict[str, str]:
-    """Return the live R-1 Forge Rules-Core plus bridge/materialization identities.
-
-    R-1 admits the maintained-fork Rules Core at secondary_engine.commit.
-    R-3's AF01 repair is a separately bound bridge-only descendant recorded in
-    secondary_engine.bridge_source. Historical WSR22 source-lock constants are
-    intentionally excluded from this live resolver.
-    """
-    manifest = _rules_engine_manifest()
-    section = manifest.get("secondary_engine")
-    if not isinstance(section, dict) or section.get("provider") != "forge":
-        raise BridgeLaunchError("current Forge authority is missing or cross-wired")
-    rules_commit = section.get("commit")
-    repository = section.get("repository")
-    bridge = section.get("bridge_source")
-    identity = section.get("engine_identity_pb09")
-    if not isinstance(bridge, dict) or not isinstance(identity, dict):
-        raise BridgeLaunchError("current Forge bridge/PB-09 authority is missing")
-    bridge_commit = bridge.get("commit")
-    bridge_repository = bridge.get("repository")
-    bridge_base = bridge.get("rules_core_base_commit")
-    current_candidate = identity.get("current_candidate")
-    bridge_identity = identity.get("bridge_source")
-    if not isinstance(current_candidate, dict) or not isinstance(bridge_identity, dict):
-        raise BridgeLaunchError("current Forge PB-09 role identities are malformed")
-    rules_tree = current_candidate.get("tree")
-    bridge_tree = bridge_identity.get("tree")
-    for label, value in (
-        ("rules_commit", rules_commit),
-        ("bridge_commit", bridge_commit),
-        ("bridge_base", bridge_base),
-        ("rules_tree", rules_tree),
-        ("bridge_tree", bridge_tree),
-    ):
-        if not isinstance(value, str) or _SHA40.fullmatch(value) is None:
-            raise BridgeLaunchError(f"current Forge {label} is missing or malformed: {value!r}")
-    if repository != "https://github.com/moeendres-png/forge.git":
-        raise BridgeLaunchError(
-            f"current Forge repository is not the maintained fork: {repository!r}"
-        )
-    if bridge_repository != repository:
-        raise BridgeLaunchError(
-            "current Forge bridge repository does not equal the maintained-fork repository"
-        )
-    if bridge_base != rules_commit:
-        raise BridgeLaunchError(
-            "current Forge bridge rules_core_base_commit does not match secondary_engine.commit"
-        )
-    if current_candidate.get("commit") != rules_commit:
-        raise BridgeLaunchError(
-            "current Forge PB-09 candidate commit disagrees with manifest commit"
-        )
-    if bridge_identity.get("commit") != bridge_commit:
-        raise BridgeLaunchError("current Forge PB-09 bridge commit disagrees with bridge_source")
-    if bridge_identity.get("rules_core_base_commit") != rules_commit:
-        raise BridgeLaunchError(
-            "current Forge PB-09 bridge base disagrees with Rules-Core candidate"
-        )
-    return {
-        "repository": repository,
-        "rules_core_commit": rules_commit,
-        "rules_core_tree": rules_tree,
-        "bridge_repository": bridge_repository,
-        "bridge_commit": bridge_commit,
-        "bridge_tree": bridge_tree,
-    }
-
-
-def canonical_forge_rules_core_pin() -> str:
-    return canonical_forge_authority()["rules_core_commit"]
-
-
-def canonical_forge_bridge_source_pin() -> str:
-    return canonical_forge_authority()["bridge_commit"]
 
 
 def canonical_xmage_engine_pin() -> str:
@@ -623,13 +547,11 @@ def build_launch_plan(
     *,
     lane: str | None = None,
     xmage_workspace: Path | None = None,
-    forge_workspace: Path | None = None,
 ) -> LaunchPlan:
     """Build the exact launch recipe for a candidate.
 
     ``xmage_workspace`` is the Lab ``engine-bridge`` module (Lab-owned build
-    output). ``forge_workspace`` is a read-only reference Forge checkout that
-    is *built and executed* but never edited.
+    output). XMage is the only candidate (Forge removed, Owner decision 2026-10-13).
     """
     if candidate == "xmage":
         workspace = xmage_workspace or (repo_root() / "engine-bridge")
@@ -671,48 +593,6 @@ def build_launch_plan(
                 "maven_coordinates": "org.mage:mage:1.4.61",
             },
             workspace=str(workspace),
-        )
-
-    if candidate == "forge":
-        if forge_workspace is None:
-            raise BridgeLaunchError(
-                "a read-only Forge reference workspace is required to launch the Forge candidate"
-            )
-        module = forge_workspace / "forge-protocol2-bridge"
-        classpath = _read_classpath(module, "target/cp-wsr22.txt")
-        argv = (
-            "java",
-            "-Djava.awt.headless=true",
-            "-cp",
-            f"{module / 'target' / 'classes'}:{classpath}",
-            "forge.bridge.BridgeMain",
-        )
-        authority = canonical_forge_authority()
-        return LaunchPlan(
-            candidate=candidate,
-            lane="protocol2-jsonl",
-            argv=argv,
-            cwd=_candidate_runtime_cwd("forge"),
-            env_overrides={
-                # The provider's version/provenance payload identifies the exact
-                # clean source that was built. Under R-1/R-3 that is the #13
-                # bridge/materialization descendant. Rules-Core identity remains
-                # a separate role, proven against #11/#12 by module-tree
-                # equivalence in resolve_forge_workspace().
-                "FORGE_ENGINE_SHA": authority["bridge_commit"],
-                "FORGE_ASSETS_DIR": str(forge_workspace / "forge-gui"),
-            },
-            expected_engine_commit=authority["bridge_commit"],
-            build_identity={
-                "module": "forge-protocol2-bridge",
-                "classes": str(module / "target" / "classes"),
-                "classpath_manifest": str(module / "target" / "cp-wsr22.txt"),
-                "rules_core_candidate_commit": authority["rules_core_commit"],
-                "bridge_source_commit": authority["bridge_commit"],
-                "engine_commit_provenance": "env:FORGE_ENGINE_SHA (exact built source; Rules-Core candidate bound separately by tree equivalence)",
-            },
-            workspace=str(forge_workspace),
-            mutates_reference_repository=False,
         )
 
     raise BridgeLaunchError(f"unknown candidate: {candidate!r}")

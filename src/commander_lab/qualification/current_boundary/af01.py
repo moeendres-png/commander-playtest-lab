@@ -437,7 +437,7 @@ def run_af01(
         "get_provider_version_payload": version_payload,
     }
 
-    expected_provider = "xmage" if candidate == "xmage" else "forge"
+    expected_provider = "xmage"
     if reported_provider == expected_provider:
         add(
             "provider_identity_exact",
@@ -663,10 +663,7 @@ def run_af01(
 
         stale_identity = dict(identity)
         field_name = DECISION_IDENTITY_SHAPES[candidate]["field"]
-        if DECISION_IDENTITY_SHAPES[candidate]["type"] == "monotonic_long":
-            stale_identity[field_name] = int(identity[field_name]) + 1_000_000
-        else:
-            stale_identity[field_name] = "0" * 64
+        stale_identity[field_name] = "0" * 64
         if pass_ids:
             stale = _submit(
                 stale_identity,

@@ -36,26 +36,19 @@ HANDOFF instead of preserving one giant coordinator conversation.
 1. Prefer deterministic scripts (`lab-ops`, grep, focused test runners, packet readers) when they
    can answer the question without model judgement.
 2. Route implementation, debugging, test/fix loops, CI remediation, qualification execution,
-   evidence production, multi-file edits and long autonomous engineering work to OpenCode
-   Foundry. Since 2026-10-12 the only OpenCode model is Step 5 Preview on OpenCode Zen
-   (`opencode/step-5-preview-free`, native `high`, its highest catalog level; free Zen quota)
-   on every lane: `/oc` (implementer), `/assure` (verifier), `/ro-review` (read-only
-   reviewer). From a Claude session start it with the `opencode` CLI
-   (`opencode run -m opencode/step-5-preview-free --variant high`): the Zen free tier refuses
-   calls through the `opencode-subagent` MCP bridge. Never select any other OpenCode model.
-   A Zen rate limit or refusal is BLOCKED_SERVICE; run Step jobs one at a time.
-3. DeepSeek V4.1 Flash is SUSPENDED (OpenCode Go monthly quota exhausted). Never select it and
-   do not re-enable it without a new direct Owner instruction.
-   There is no automatic fallback to it or any other model for failure, quota or convenience.
-   Write every Step 5 Preview prompt per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
-4. Use Claude subagents only for bounded read-only side work that would pollute the main context:
-   `log-scanner` = Sonnet `low`; `ci-triage` = Sonnet `medium`; built-in `Explore` only for a
-   scoped read-only repository lookup after deterministic search is insufficient. Do not use
-   `general-purpose` or any Claude subagent as an implementation/debug/test worker.
-5. Keep the Opus 5.5 main session as coordinator/adjudicator. Project default effort is `medium`;
-   raise to `high` for Rules/CR reasoning, qualification or evidence promotion, architecture or
-   cross-workstream arbitration, difficult containment/security decisions, and final high-risk
-   integration judgement. `evidence-reviewer` is explicitly Opus `high`.
+   evidence production, multi-file edits and long autonomous engineering work to Step 5 Preview on OpenCode Zen
+   (`opencode/step-5-preview-free`, native `high`; GitHub lanes `/oc` implementer, `/assure` verifier,
+   `/ro-review` read-only reviewer) or to a Claude Sonnet 5.5 worker in the session.
+   Step 5 Preview is the only active OpenCode model; DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED. Never select any other OpenCode model.
+   From a Claude session start it with `opencode run -m opencode/step-5-preview-free --variant high`: the Zen free tier refuses
+   the `opencode-subagent` MCP bridge. A Zen rate limit or refusal is BLOCKED_SERVICE; run OpenCode jobs one at a time.
+   Write every OpenCode prompt per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
+3. Keep the Opus 5.5 main session as coordinator/planner/adjudicator. Project default effort is `medium`;
+   raise to `high` for complex Rules/CR reasoning, qualification, architecture arbitration, or gate decisions.
+4. There is no automatic fallback between models for failure, quota or convenience; reactivating DeepSeek needs a new direct Owner instruction.
+5. Use Claude subagents for bounded side work that would pollute the main context:
+   `log-scanner` = Sonnet `low`; `ci-triage` = Sonnet `medium`; built-in `Explore` for scoped read-only lookups.
+   Claude Sonnet 5.5 may also be an implementation worker (Owner decision); the evidence-producing and review rules still apply to it.
 
 Custom Claude helpers are flat: their tool allowlists contain no `Agent` tool, so they must not
 spawn children. Do not create agent teams or recursive coordinator/worker trees for normal work.

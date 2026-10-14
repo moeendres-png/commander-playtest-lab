@@ -5,14 +5,13 @@ Run from the Lab worktree root with its venv active (PYTHONPATH=src is set here)
 
     real_rows.py build                         package engine-bridge (offline) + classpath manifest
     real_rows.py midgame FIXTURE...            XMage mid-game lane rows (midgame_rows.execute_and_persist)
-    real_rows.py cardinality CAND [--forge P]  PLAYER_COUNT_2P..5P on a keyed and an unkeyed launch
-    real_rows.py pregame CAND [--forge P]      the scripted pregame rows, keyed and unkeyed
-    real_rows.py af04 CAND PKG [--forge P]     fresh keyed 2P..6P cardinality + AF04 derivation
+    real_rows.py cardinality xmage             PLAYER_COUNT_2P..5P on a keyed and an unkeyed launch
+    real_rows.py pregame xmage                 the scripted pregame rows, keyed and unkeyed
+    real_rows.py af04 xmage PKG                fresh keyed 2P..6P cardinality + AF04 derivation
                                                against a PB-03 packet's AF01/identity (PKG dir)
 
-CAND is xmage or forge; Forge needs --forge (a forge checkout at the pinned bridge
-source) and an X display (wrap the call in ``xvfb-run -a``). LOCAL_OBSERVED only:
-nothing here is credit; PB-03 on an exact head plus a sealed epoch is.
+XMage is the only rules engine. LOCAL_OBSERVED only: nothing here is credit; PB-03
+on an exact head plus a sealed epoch is.
 """
 
 from __future__ import annotations
@@ -37,14 +36,13 @@ def _records() -> dict[str, dict]:
     return {r["fixture_id"]: r for r in load_effective_materialization(ROOT).denominator_records()}
 
 
-def _plan(cand: str, forge: str | None):
+def _plan(cand: str):
     from commander_lab.qualification.current_boundary import bridge_launcher as bl
 
+    if cand != "xmage":
+        raise SystemExit(f"unknown candidate {cand!r}: XMage is the only rules engine")
     return bl.build_launch_plan(
-        cand,
-        lane="compat",
-        xmage_workspace=(ROOT / "engine-bridge").resolve(),
-        forge_workspace=Path(forge).resolve() if forge else None,
+        cand, lane="compat", xmage_workspace=(ROOT / "engine-bridge").resolve()
     )
 
 
@@ -80,10 +78,10 @@ def cmd_midgame(a: argparse.Namespace) -> None:
         )
 
 
-def _keyed_and_unkeyed(cand: str, forge: str | None):
+def _keyed_and_unkeyed(cand: str):
     from commander_lab.qualification.current_boundary import bridge_launcher as bl
 
-    plan = _plan(cand, forge)
+    plan = _plan(cand)
     return (("keyed", bl.orchestration_plan(plan)), ("unkeyed", plan))
 
 
@@ -92,7 +90,7 @@ def cmd_cardinality(a: argparse.Namespace) -> None:
     from commander_lab.qualification.current_boundary import full107
 
     by_id = _records()
-    for label, plan in _keyed_and_unkeyed(a.args[0], a.forge):
+    for label, plan in _keyed_and_unkeyed(a.args[0]):
         with bl.launch(plan, timeout_s=300.0) as proc:
             for n in (2, 3, 4, 5):
                 fixture = f"PLAYER_COUNT_{n}P"
@@ -114,7 +112,7 @@ def cmd_pregame(a: argparse.Namespace) -> None:
     from commander_lab.qualification.current_boundary import full107
 
     by_id = _records()
-    for label, plan in _keyed_and_unkeyed(a.args[0], a.forge):
+    for label, plan in _keyed_and_unkeyed(a.args[0]):
         with bl.launch(plan, timeout_s=300.0) as proc:
             for fixture in full107.SCRIPTED_PREGAME_ROWS:
                 row = full107.scripted_pregame_row(
@@ -137,7 +135,7 @@ def cmd_af04(a: argparse.Namespace) -> None:
     old = json.loads((pkg / f"PLAYER_CARDINALITY_{cand.upper()}.json").read_text())
     af01 = json.loads((pkg / f"AF01_{cand.upper()}.json").read_text())
     identity, by_id, results = old["runtime_identity"], _records(), {}
-    with bl.launch(bl.orchestration_plan(_plan(cand, a.forge)), timeout_s=300.0) as keyed:
+    with bl.launch(bl.orchestration_plan(_plan(cand)), timeout_s=300.0) as keyed:
         for n in (2, 3, 4, 5, 6):
             res = full107.run_cardinality(
                 keyed,
@@ -161,7 +159,6 @@ def main() -> None:
     )
     parser.add_argument("command", choices=["build", "midgame", "cardinality", "pregame", "af04"])
     parser.add_argument("args", nargs="*")
-    parser.add_argument("--forge", help="Forge checkout at the pinned bridge source")
     parser.add_argument("--out", help="midgame: output directory")
     parser.add_argument(
         "--commit",

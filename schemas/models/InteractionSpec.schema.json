@@ -46,7 +46,6 @@
       "default": "either",
       "enum": [
         "xmage",
-        "forge",
         "either"
       ],
       "title": "Preferred Backend",

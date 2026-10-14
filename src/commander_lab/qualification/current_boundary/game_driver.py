@@ -99,10 +99,9 @@ class GameObservation:
     payload: dict[str, Any]
 
 
-# Decision-identity divergence observed under current-boundary runtime
-# execution on the shared Protocol-2 surface. Recorded, not normalized away.
+# Decision identity on the Protocol-2 surface, recorded as the provider
+# publishes it:
 #   XMage generic lane: decision_id (sha256 hex) + action_id (pass) / proposal
-#   Forge protocol2   : revision (monotonic long) + actor_id (pass) / proposal
 def _declares_capability(proc: BridgeProcess, capability: str) -> bool:
     """Whether the provider declares ``capability`` true; absent or unreadable is False."""
     try:
@@ -163,8 +162,7 @@ def _create_request(
     The starting seat is never assumed. When the authoritative record declares
     one, XMage's create channel receives it explicitly; when it does not, the
     field is omitted and the provider fails closed (the Lab never supplies a
-    p1/seat-0 default). Forge publishes the choice as its own decision frame,
-    so its create request carries no seat at all.
+    p1/seat-0 default).
     """
     request: dict[str, Any] = {
         "game_id": game_id,
@@ -209,12 +207,6 @@ DECISION_IDENTITY_SHAPES: dict[str, dict[str, Any]] = {
         "type": "sha256_hex",
         "pass_extra": ("actor_id", "action_id"),
         "requires_external_control": True,
-    },
-    "forge": {
-        "field": "revision",
-        "type": "monotonic_long",
-        "pass_extra": ("actor_id",),
-        "requires_external_control": False,
     },
 }
 

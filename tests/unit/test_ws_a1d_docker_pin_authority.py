@@ -31,7 +31,6 @@ STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 # (mage#57), the card-scanner bulk lookup (mage#58) and the precon card coverage
 # (mage#59), repin v6.
 CANONICAL_XMAGE_PIN = "38cb21a85c4074b00ab226e625200a4feaf3462f"
-CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 _MANIFEST_REL = "config/rules_engines.json"
@@ -82,31 +81,10 @@ def test_xmage_resolves_canonical_fork_identity(repo_root: Path) -> None:
     assert "forge" not in pin.repository.lower()
 
 
-def test_forge_resolves_canonical_identity(repo_root: Path) -> None:
-    module = _resolver(repo_root)
-    manifest = _manifest(repo_root)
-    pin = module.resolve("forge", manifest)
-    assert pin.provider == "forge"
-    assert pin.repository == manifest["secondary_engine"]["repository"]
-    assert pin.commit == manifest["secondary_engine"]["commit"] == CANONICAL_FORGE_PIN
-    assert pin.protocol_version == manifest["protocol_version"]
-    assert "forge" in pin.repository.lower()
-    assert "mage" not in pin.repository.lower()
-
-
-def test_providers_resolve_distinct_identities(repo_root: Path) -> None:
-    module = _resolver(repo_root)
-    manifest = _manifest(repo_root)
-    xmage = module.resolve("xmage", manifest)
-    forge = module.resolve("forge", manifest)
-    assert xmage.repository != forge.repository
-    assert xmage.commit != forge.commit
-
-
 def test_unknown_provider_fails_closed(repo_root: Path) -> None:
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
-    for bad in ("upstream", "XMAGE", "", "tactical", "primary_engine"):
+    for bad in ("upstream", "XMAGE", "forge", "", "tactical", "primary_engine"):
         try:
             module.resolve(bad, manifest)
         except module.PinResolutionError:
@@ -117,15 +95,13 @@ def test_unknown_provider_fails_closed(repo_root: Path) -> None:
 def test_missing_section_fails_closed(repo_root: Path) -> None:
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
-    for key in ("primary_engine", "secondary_engine"):
-        mutated = copy.deepcopy(manifest)
-        del mutated[key]
-        provider = "xmage" if key == "primary_engine" else "forge"
-        try:
-            module.resolve(provider, mutated)
-        except module.PinResolutionError:
-            continue
-        raise AssertionError(f"missing {key} did not fail closed")
+    mutated = copy.deepcopy(manifest)
+    del mutated["primary_engine"]
+    try:
+        module.resolve("xmage", mutated)
+    except module.PinResolutionError:
+        return
+    raise AssertionError("missing primary_engine did not fail closed")
 
 
 def test_malformed_commit_fails_closed(repo_root: Path) -> None:
@@ -164,16 +140,12 @@ def test_cross_wired_repository_fails_closed(repo_root: Path) -> None:
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
     mutated = copy.deepcopy(manifest)
-    mutated["primary_engine"]["repository"], mutated["secondary_engine"]["repository"] = (
-        mutated["secondary_engine"]["repository"],
-        mutated["primary_engine"]["repository"],
-    )
-    for provider in ("xmage", "forge"):
-        try:
-            module.resolve(provider, mutated)
-        except module.PinResolutionError:
-            continue
-        raise AssertionError(f"cross-wired {provider} repository did not fail closed")
+    mutated["primary_engine"]["repository"] = "https://github.com/moeendres-png/other-engine.git"
+    try:
+        module.resolve("xmage", mutated)
+    except module.PinResolutionError:
+        return
+    raise AssertionError("cross-wired xmage repository did not fail closed")
 
 
 def test_missing_protocol_fails_closed(repo_root: Path) -> None:
@@ -190,29 +162,21 @@ def test_missing_protocol_fails_closed(repo_root: Path) -> None:
 
 def test_cli_shell_output_resolves_without_stale_defaults(repo_root: Path) -> None:
     script = repo_root / "scripts/docker_resolve_engine_pin.py"
-    for provider, prefix in (("xmage", "XMAGE"), ("forge", "FORGE")):
-        completed = subprocess.run(
-            [sys.executable, str(script), "--provider", provider],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        assert completed.returncode == 0, completed.stderr
-        values = dict(
-            line.split("=", 1) for line in completed.stdout.strip().splitlines() if "=" in line
-        )
-        assert (
-            values[f"{prefix}_ENGINE_COMMIT"]
-            == _manifest(repo_root)[
-                "primary_engine" if provider == "xmage" else "secondary_engine"
-            ]["commit"]
-        )
-        assert values[f"{prefix}_ENGINE_REPOSITORY"].endswith(".git")
-        assert (
-            values[f"{prefix}_ENGINE_PROTOCOL_VERSION"] == _manifest(repo_root)["protocol_version"]
-        )
-        assert STALE_XMAGE_PIN not in completed.stdout
-        assert STALE_FORGE_PIN not in completed.stdout
+    completed = subprocess.run(
+        [sys.executable, str(script), "--provider", "xmage"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert completed.returncode == 0, completed.stderr
+    values = dict(
+        line.split("=", 1) for line in completed.stdout.strip().splitlines() if "=" in line
+    )
+    assert values["XMAGE_ENGINE_COMMIT"] == _manifest(repo_root)["primary_engine"]["commit"]
+    assert values["XMAGE_ENGINE_REPOSITORY"].endswith(".git")
+    assert values["XMAGE_ENGINE_PROTOCOL_VERSION"] == _manifest(repo_root)["protocol_version"]
+    assert STALE_XMAGE_PIN not in completed.stdout
+    assert STALE_FORGE_PIN not in completed.stdout
 
 
 def test_cli_failures_are_nonzero_without_stdout_identity(repo_root: Path) -> None:
@@ -233,44 +197,35 @@ def test_cli_failures_are_nonzero_without_stdout_identity(repo_root: Path) -> No
 
 
 def test_dockerfiles_declare_required_args_without_pin_defaults(repo_root: Path) -> None:
-    for rel in ("docker/xmage/Dockerfile", "docker/forge/Dockerfile"):
-        text = (repo_root / rel).read_text(encoding="utf-8")
-        assert _HEX40.search(_without_base_image_digests(text)) is None, rel
-        for arg in ("ARG ENGINE_REPOSITORY", "ARG ENGINE_COMMIT", "ARG ENGINE_PROTOCOL_VERSION"):
-            matches = [line for line in text.splitlines() if line.startswith(arg)]
-            assert len(matches) == 1, (rel, arg)
-            assert "=" not in matches[0], (rel, arg)
-        assert "engine-provenance.json" in text, rel
-        assert "git clone" in text, rel
+    rel = "docker/xmage/Dockerfile"
+    text = (repo_root / rel).read_text(encoding="utf-8")
+    assert _HEX40.search(_without_base_image_digests(text)) is None, rel
+    for arg in ("ARG ENGINE_REPOSITORY", "ARG ENGINE_COMMIT", "ARG ENGINE_PROTOCOL_VERSION"):
+        matches = [line for line in text.splitlines() if line.startswith(arg)]
+        assert len(matches) == 1, (rel, arg)
+        assert "=" not in matches[0], (rel, arg)
+    assert "engine-provenance.json" in text, rel
+    assert "git clone" in text, rel
 
 
-def test_dockerfiles_refuse_cross_provider_repositories(repo_root: Path) -> None:
-    xmage_text = (repo_root / "docker/xmage/Dockerfile").read_text(encoding="utf-8")
-    forge_text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
-    assert "magefree/mage" not in xmage_text
-    assert "forge" in xmage_text.lower()
-    assert "mage" in forge_text.lower()
+def test_xmage_dockerfile_requires_the_xmage_repository(repo_root: Path) -> None:
+    text = (repo_root / "docker/xmage/Dockerfile").read_text(encoding="utf-8")
+    assert "magefree/mage" not in text
+    assert "xmage image requires an xmage repository" in text
 
 
 def test_compose_resolves_build_identity_from_wrapper(repo_root: Path) -> None:
     text = (repo_root / "docker-compose.engine.yml").read_text(encoding="utf-8")
     assert _HEX40.search(text) is None
     assert "1.0.0" not in text
-    xmage_dockerfile = text.index("docker/xmage/Dockerfile")
-    forge_dockerfile = text.index("docker/forge/Dockerfile")
-    xmage_args = text.index("XMAGE_ENGINE_REPOSITORY")
-    forge_args = text.index("FORGE_ENGINE_REPOSITORY")
-    assert xmage_dockerfile < xmage_args < forge_dockerfile < forge_args
+    assert text.index("docker/xmage/Dockerfile") < text.index("XMAGE_ENGINE_REPOSITORY")
     for var in (
         "XMAGE_ENGINE_REPOSITORY",
         "XMAGE_ENGINE_COMMIT",
         "XMAGE_ENGINE_PROTOCOL_VERSION",
-        "FORGE_ENGINE_REPOSITORY",
-        "FORGE_ENGINE_COMMIT",
-        "FORGE_ENGINE_PROTOCOL_VERSION",
     ):
         assert "${" + var + ":?" in text, var
-    assert text.count('ENGINE_PROTOCOL_VERSION: "2.0.0"') == 2
+    assert text.count('ENGINE_PROTOCOL_VERSION: "2.0.0"') == 1
 
 
 def test_compose_protocol_matches_manifest(repo_root: Path) -> None:
@@ -278,6 +233,13 @@ def test_compose_protocol_matches_manifest(repo_root: Path) -> None:
     protocol = _manifest(repo_root)["protocol_version"]
     assert protocol == "2.0.0"
     assert f'ENGINE_PROTOCOL_VERSION: "{protocol}"' in text
+
+
+def test_compose_carries_no_bridge_identity_for_xmage(repo_root: Path) -> None:
+    text = (repo_root / "docker-compose.engine.yml").read_text(encoding="utf-8")
+    assert _HEX40.search(text) is None
+    assert "XMAGE_BRIDGE_REPOSITORY" not in text
+    assert "XMAGE_BRIDGE_COMMIT" not in text
 
 
 def test_devcontainer_and_env_example_match_manifest_protocol(repo_root: Path) -> None:
@@ -293,7 +255,6 @@ def test_docs_establish_no_competing_pin_authority(repo_root: Path) -> None:
     for rel in (
         "docs/engine_setup.md",
         "integrations/xmage/README.md",
-        "integrations/forge/README.md",
     ):
         text = (repo_root / rel).read_text(encoding="utf-8")
         assert _HEX40.search(text) is None, rel
@@ -303,8 +264,6 @@ def test_docs_establish_no_competing_pin_authority(repo_root: Path) -> None:
 def test_stale_pins_survive_only_as_historical_provenance(repo_root: Path) -> None:
     live_surfaces = [
         "docker/xmage/Dockerfile",
-        "docker/forge/Dockerfile",
-        "docker/forge/forge-bridge.sh",
         "docker-compose.engine.yml",
         ".devcontainer/devcontainer.json",
         "scripts/docker_resolve_engine_pin.py",
@@ -313,7 +272,6 @@ def test_stale_pins_survive_only_as_historical_provenance(repo_root: Path) -> No
         "scripts/engine_container_entrypoint.sh",
         "docs/engine_setup.md",
         "integrations/xmage/README.md",
-        "integrations/forge/README.md",
     ]
     for rel in live_surfaces:
         text = (repo_root / rel).read_text(encoding="utf-8")
@@ -323,7 +281,6 @@ def test_stale_pins_survive_only_as_historical_provenance(repo_root: Path) -> No
         encoding="utf-8"
     )
     assert STALE_XMAGE_PIN in provenance
-    assert STALE_FORGE_PIN in provenance
     assert '"executed": False' in provenance
 
 
@@ -334,153 +291,10 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
     assert "set -euo pipefail" in text
 
 
-def test_operator_bootstraps_resolve_current_forge_roles_from_manifest(repo_root: Path) -> None:
-    old_upstream = "a37a865a53280dd8ad6fad3384d69611e8c5a42f"
-    linux = (repo_root / "scripts/bootstrap_engine_linux.sh").read_text(encoding="utf-8")
-    windows = (repo_root / "scripts/bootstrap_engine_windows.ps1").read_text(encoding="utf-8")
-
-    for rel, text in (
-        ("scripts/bootstrap_engine_linux.sh", linux),
-        ("scripts/bootstrap_engine_windows.ps1", windows),
-    ):
-        assert "docker_resolve_engine_pin.py" in text, rel
-        assert old_upstream not in text, rel
-        assert CANONICAL_FORGE_PIN not in text, rel
-        assert CANONICAL_FORGE_BRIDGE_COMMIT not in text, rel
-        assert "bridge_commit" in text, rel
-        assert "source_commit" in text, rel
-        assert "status" in text and "--porcelain" in text, rel
-        assert "merge-base" in text and "--is-ancestor" in text, rel
-        assert "diff" in text and "--name-only" in text, rel
-        assert "forge-protocol2-bridge/" in text, rel
-        assert "dirty" in text.lower(), rel
-
-    assert '"commit":"$COMMIT"' in linux
-    assert '"source_commit":"$COMMIT"' in linux
-    assert '"rules_core_commit":"$RULES_COMMIT"' in linux
-    assert "commit=$Commit" in windows
-    assert "source_commit=$Commit" in windows
-    assert "rules_core_commit=$RulesCommit" in windows
-    assert "remote get-url origin" in windows
-    assert "Unexpected source remote" in windows
-
-
-def test_live_forge_integration_binds_current_rules_and_bridge_roles(repo_root: Path) -> None:
-    text = (repo_root / "tests/integration/test_forge_bridge_h4f_live.py").read_text(
-        encoding="utf-8"
-    )
-    assert "config/rules_engines.json" in text
-    assert "FORGE_RULES_COMMIT" in text
-    assert "FORGE_BRIDGE_COMMIT" in text
-    assert "FORGE_BRIDGE_BASE_COMMIT" in text
-    assert "merge-base" in text and "--is-ancestor" in text
-    assert "diff" in text and "--name-only" in text
-    assert 'path.startswith("forge-protocol2-bridge/")' in text
-    assert 'os.environ["FORGE_ENGINE_SHA"] = FORGE_BRIDGE_COMMIT' in text
-    assert 'provider.get("engine_commit_verified") is True' in text
-    assert "status" in text and "--porcelain" in text
-    assert "a37a865a53280dd8ad6fad3384d69611e8c5a42f" not in text
-    assert CANONICAL_FORGE_PIN not in text
-    assert CANONICAL_FORGE_BRIDGE_COMMIT not in text
-
-
-def test_forge_dockerfile_declares_bridge_args_and_linkage(repo_root: Path) -> None:
-    text = (repo_root / "docker/forge/Dockerfile").read_text(encoding="utf-8")
-    assert _HEX40.search(_without_base_image_digests(text)) is None
-    for arg in ("ARG BRIDGE_REPOSITORY", "ARG BRIDGE_COMMIT"):
-        matches = [line for line in text.splitlines() if line.startswith(arg)]
-        assert len(matches) == 1, (arg, matches)
-        assert "=" not in matches[0], arg
-    assert "merge-base --is-ancestor" in text
-    assert "forge-protocol2-bridge/" in text
-    assert "/opt/forge-bridge/cp.txt" in text
-    assert "bridge_repository" in text
-    assert "bridge_commit" in text
-    assert "rules_core_base_commit" in text
-
-
-def test_forge_launcher_is_bounded_and_literal_free(repo_root: Path) -> None:
-    path = repo_root / "docker/forge/forge-bridge.sh"
-    assert path.is_file(), "image bridge launcher must be a checked-in file"
-    assert path.stat().st_mode & 0o111, "launcher must be executable"
-    text = path.read_text(encoding="utf-8")
-    assert "forge.bridge.BridgeMain" in text
-    assert "-Djava.awt.headless=true" in text
-    assert "FORGE_ENGINE_SHA" in text
-    assert "FORGE_ASSETS_DIR" in text
-    assert "/opt/engine-provenance.json" in text
-    assert _HEX40.search(text) is None, "launcher must not hardcode a commit SHA"
-    assert "mage.git" not in text
-    assert "magefree" not in text.lower()
-
-
-def test_compose_forge_resolves_bridge_identity_from_wrapper(repo_root: Path) -> None:
-    text = (repo_root / "docker-compose.engine.yml").read_text(encoding="utf-8")
-    assert _HEX40.search(text) is None
-    for var in ("FORGE_BRIDGE_REPOSITORY", "FORGE_BRIDGE_COMMIT"):
-        assert "${" + var + ":?" in text, var
-    assert "XMAGE_BRIDGE_REPOSITORY" not in text
-    assert "XMAGE_BRIDGE_COMMIT" not in text
-
-
-def _forge_gate_fixture(tmp_path: Path, repo_root: Path):
-    manifest = _manifest(repo_root)
-    manifest_path = tmp_path / "rules_engines.json"
-    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    bridge = manifest["secondary_engine"]["bridge_source"]
-    provenance = {
-        "provider": "forge",
-        "repository": manifest["secondary_engine"]["repository"],
-        "commit": manifest["secondary_engine"]["commit"],
-        "protocol_version": manifest["protocol_version"],
-        "bridge_repository": bridge["repository"],
-        "bridge_commit": bridge["commit"],
-        "rules_core_base_commit": bridge["rules_core_base_commit"],
-    }
-    provenance_path = tmp_path / "forge-provenance.json"
-    provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
-    return provenance_path, manifest_path
-
-
-def test_provenance_gate_accepts_canonical_forge_dual_identity(
-    tmp_path: Path, repo_root: Path
-) -> None:
-    module = _gate_module(repo_root)
-    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
-    assert module.check("forge", provenance_path, manifest_path) == 0
-
-
-def test_provenance_gate_rejects_tampered_bridge_commit(tmp_path: Path, repo_root: Path) -> None:
-    module = _gate_module(repo_root)
-    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
-    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
-    provenance["bridge_commit"] = "f" * 40
-    provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
-    assert module.check("forge", provenance_path, manifest_path) == 3
-
-
-def test_provenance_gate_rejects_missing_bridge_source(tmp_path: Path, repo_root: Path) -> None:
-    module = _gate_module(repo_root)
-    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    del manifest["secondary_engine"]["bridge_source"]
-    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    assert module.check("forge", provenance_path, manifest_path) == 3
-
-
-def test_provenance_gate_rejects_cross_wired_bridge_base(tmp_path: Path, repo_root: Path) -> None:
-    module = _gate_module(repo_root)
-    provenance_path, manifest_path = _forge_gate_fixture(tmp_path, repo_root)
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    manifest["secondary_engine"]["bridge_source"]["rules_core_base_commit"] = "f" * 40
-    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
-    assert module.check("forge", provenance_path, manifest_path) == 3
-
-
 def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> None:
     config = _manifest(repo_root)
     assert config["primary_engine"]["commit"] == CANONICAL_XMAGE_PIN
-    assert config["secondary_engine"]["commit"] == CANONICAL_FORGE_PIN
+    assert "secondary_engine" not in config
     assert config["protocol_version"] == "2.0.0"
     # Selection follows the Owner-signed Freeze and the D5 runtime switch.
     assert config["provider_decision"] == "XMAGE_SELECTED"
@@ -488,94 +302,17 @@ def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> Non
     assert config["current_runtime"]["production_provider"] == "xmage"
 
 
-CANONICAL_FORGE_BRIDGE_REPO = "https://github.com/moeendres-png/forge.git"
-CANONICAL_FORGE_BRIDGE_COMMIT = "31cbae12640e6066499aa7f17c9bf2dba6a30da6"
-
-
-def test_forge_bridge_source_resolves_dual_identity(repo_root: Path) -> None:
-    module = _resolver(repo_root)
-    manifest = _manifest(repo_root)
-    pin = module.resolve("forge", manifest)
-    # Rules-Core authority is unchanged and distinct from materialization.
-    assert pin.commit == CANONICAL_FORGE_PIN
-    assert pin.repository == manifest["secondary_engine"]["repository"]
-    assert pin.bridge_repository == CANONICAL_FORGE_BRIDGE_REPO
-    assert pin.bridge_commit == CANONICAL_FORGE_BRIDGE_COMMIT
-    assert pin.bridge_base_commit == pin.commit
-    assert pin.bridge_commit != pin.commit
-    assert "forge" in pin.bridge_repository.lower()
-    assert "mage" not in pin.bridge_repository.lower()
-
-
-def test_xmage_has_no_bridge_identity(repo_root: Path) -> None:
+def test_xmage_resolution_carries_no_bridge_identity(repo_root: Path) -> None:
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
     pin = module.resolve("xmage", manifest)
-    assert pin.bridge_repository is None
-    assert pin.bridge_commit is None
-    assert pin.bridge_base_commit is None
-
-
-def test_forge_missing_bridge_source_fails_closed(repo_root: Path) -> None:
-    module = _resolver(repo_root)
-    manifest = _manifest(repo_root)
-    mutated = copy.deepcopy(manifest)
-    del mutated["secondary_engine"]["bridge_source"]
-    try:
-        module.resolve("forge", mutated)
-    except module.PinResolutionError:
-        return
-    raise AssertionError("missing bridge_source did not fail closed")
-
-
-def test_forge_stale_bridge_commit_fails_closed(repo_root: Path) -> None:
-    # Shape-invalid bridge commits and a bridge source identical to the Rules pin
-    # fail closed at resolve time. A shape-valid but foreign SHA is not stale by
-    # shape; it fails downstream at the provenance gate and handshake commit
-    # attestation (proven by the tampered-manifest negatives and handshake tests).
-    module = _resolver(repo_root)
-    manifest = _manifest(repo_root)
-    for bad in (CANONICAL_FORGE_PIN, "short", "F" * 40, ""):
-        mutated = copy.deepcopy(manifest)
-        mutated["secondary_engine"]["bridge_source"]["commit"] = bad
-        try:
-            module.resolve("forge", mutated)
-        except module.PinResolutionError:
-            continue
-        raise AssertionError(f"bridge commit {bad!r} did not fail closed")
-
-
-def test_forge_bridge_rules_base_must_equal_rules_pin(repo_root: Path) -> None:
-    # Rules pin and materialization source cannot be cross-wired at the base
-    # level: the base must equal the Rules-Core pin. (A globally shape-consistent
-    # lie, e.g. swapping both commits, is indistinguishable by shape alone; it
-    # fails closed later at materialization time because the bridge module is
-    # absent there and the handshake cannot attest the Rules pin.)
-    module = _resolver(repo_root)
-    manifest = _manifest(repo_root)
-    mutated = copy.deepcopy(manifest)
-    mutated["secondary_engine"]["bridge_source"]["rules_core_base_commit"] = "f" * 40
-    try:
-        module.resolve("forge", mutated)
-    except module.PinResolutionError:
-        return
-    raise AssertionError("divergent bridge base did not fail closed")
-
-
-def test_forge_bridge_repository_rejects_foreign_token(repo_root: Path) -> None:
-    module = _resolver(repo_root)
-    manifest = _manifest(repo_root)
-    for bad in (
-        "https://github.com/moeendres-png/mage.git",
-        "https://github.com/Card-Forge/forge-mage.git",
-    ):
-        mutated = copy.deepcopy(manifest)
-        mutated["secondary_engine"]["bridge_source"]["repository"] = bad
-        try:
-            module.resolve("forge", mutated)
-        except module.PinResolutionError:
-            continue
-        raise AssertionError(f"bridge repository {bad!r} did not fail closed")
+    assert set(vars(pin)) == {
+        "provider",
+        "repository",
+        "commit",
+        "release",
+        "protocol_version",
+    }
 
 
 def _gate_module(repo_root: Path):
@@ -619,7 +356,7 @@ def test_provenance_gate_rejects_cross_wired_repository(tmp_path: Path, repo_roo
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
-    provenance["repository"] = _manifest(repo_root)["secondary_engine"]["repository"]
+    provenance["repository"] = "https://github.com/moeendres-png/other-engine.git"
     provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
     assert module.check("xmage", provenance_path, manifest_path) == 3
 
@@ -681,16 +418,13 @@ def test_resolver_requires_manifest_provider_field(repo_root: Path) -> None:
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
     assert module.resolve("xmage", manifest).provider == "xmage"
-    assert module.resolve("forge", manifest).provider == "forge"
     swapped = copy.deepcopy(manifest)
-    swapped["primary_engine"]["provider"] = "forge"
-    swapped["secondary_engine"]["provider"] = "xmage"
-    for provider in ("xmage", "forge"):
-        try:
-            module.resolve(provider, swapped)
-        except module.PinResolutionError:
-            continue
-        raise AssertionError(f"swapped provider field accepted for {provider!r}")
+    swapped["primary_engine"]["provider"] = "other"
+    try:
+        module.resolve("xmage", swapped)
+    except module.PinResolutionError:
+        return
+    raise AssertionError("swapped provider field accepted for 'xmage'")
 
 
 def test_resolver_rejects_missing_or_malformed_provider_field(repo_root: Path) -> None:
@@ -705,9 +439,9 @@ def test_resolver_rejects_missing_or_malformed_provider_field(repo_root: Path) -
             continue
         raise AssertionError(f"provider field {bad!r} did not fail closed")
     mutated = copy.deepcopy(manifest)
-    del mutated["secondary_engine"]["provider"]
+    del mutated["primary_engine"]["provider"]
     try:
-        module.resolve("forge", mutated)
+        module.resolve("xmage", mutated)
     except module.PinResolutionError:
         return
     raise AssertionError("missing provider field did not fail closed")
@@ -718,115 +452,6 @@ def _gnu_bash() -> str:
     if executable is None:
         pytest.skip("bash is unavailable on this runner")
     return executable
-
-
-def _forge_bootstrap_env(tmp_path: Path, repo_root: Path) -> tuple[dict, Path]:
-    fakebin = tmp_path / "bootstrap-fakebin"
-    fakebin.mkdir()
-    java = fakebin / "java"
-    javac = fakebin / "javac"
-    java.write_text(
-        "#!/usr/bin/env bash\necho 'openjdk version \"17.0.0\"' >&2\n",
-        encoding="utf-8",
-    )
-    javac.write_text("#!/usr/bin/env bash\nexit 0\n", encoding="utf-8")
-    java.chmod(0o755)
-    javac.chmod(0o755)
-
-    binary = tmp_path / "forge-binary"
-    binary.mkdir()
-    env = dict(os.environ)
-    env.update(
-        {
-            "PATH": str(fakebin) + os.pathsep + os.environ.get("PATH", ""),
-            "ENGINE_PROVIDER": "forge",
-            "ENGINE_START_COMMAND": "true",
-            "ENGINE_BINARY_PATH": str(binary),
-            "ENGINE_SOURCE_PATH": str(tmp_path / "unused-forge-source"),
-        }
-    )
-    return env, binary
-
-
-def test_linux_bootstrap_reuses_only_current_forge_dual_identity(
-    tmp_path: Path, repo_root: Path
-) -> None:
-    manifest = _manifest(repo_root)
-    secondary = manifest["secondary_engine"]
-    bridge = secondary["bridge_source"]
-    env, binary = _forge_bootstrap_env(tmp_path, repo_root)
-    identity = binary / "installation-identity.json"
-    identity.write_text(
-        json.dumps(
-            {
-                "provider": "forge",
-                "commit": bridge["commit"],
-                "source_commit": bridge["commit"],
-                "rules_core_commit": secondary["commit"],
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    completed = subprocess.run(
-        [_gnu_bash(), str(repo_root / "scripts/bootstrap_engine_linux.sh")],
-        capture_output=True,
-        text=True,
-        check=False,
-        cwd=str(repo_root),
-        env=env,
-    )
-    assert completed.returncode == 0, completed.stderr
-    assert "matches current authority" in completed.stdout
-
-
-def test_linux_bootstrap_rejects_stale_or_cross_wired_forge_reuse(
-    tmp_path: Path, repo_root: Path
-) -> None:
-    manifest = _manifest(repo_root)
-    secondary = manifest["secondary_engine"]
-    bridge = secondary["bridge_source"]
-    env, binary = _forge_bootstrap_env(tmp_path, repo_root)
-    identity = binary / "installation-identity.json"
-
-    stale_cases = {
-        "rules": {
-            "provider": "forge",
-            "commit": bridge["commit"],
-            "source_commit": bridge["commit"],
-            "rules_core_commit": "a37a865a53280dd8ad6fad3384d69611e8c5a42f",
-        },
-        "built-source": {
-            "provider": "forge",
-            "commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
-            "source_commit": bridge["commit"],
-            "rules_core_commit": secondary["commit"],
-        },
-        "source": {
-            "provider": "forge",
-            "commit": bridge["commit"],
-            "source_commit": "4753bb7c72ea60d653121e0bab989077b4009f9c",
-            "rules_core_commit": secondary["commit"],
-        },
-        "provider": {
-            "provider": "xmage",
-            "commit": bridge["commit"],
-            "source_commit": bridge["commit"],
-            "rules_core_commit": secondary["commit"],
-        },
-    }
-    for name, payload in stale_cases.items():
-        identity.write_text(json.dumps(payload), encoding="utf-8")
-        completed = subprocess.run(
-            [_gnu_bash(), str(repo_root / "scripts/bootstrap_engine_linux.sh")],
-            capture_output=True,
-            text=True,
-            check=False,
-            cwd=str(repo_root),
-            env=env,
-        )
-        assert completed.returncode != 0, name
-        assert "ERROR:" in completed.stderr, name
 
 
 def _run_entrypoint(
@@ -965,18 +590,11 @@ def _assert_complete_wrapper_environment(repo_root: Path, env: dict) -> None:
     assert env["XMAGE_ENGINE_REPOSITORY"] == manifest["primary_engine"]["repository"]
     assert env["XMAGE_ENGINE_COMMIT"] == manifest["primary_engine"]["commit"]
     assert env["XMAGE_ENGINE_PROTOCOL_VERSION"] == manifest["protocol_version"]
-    assert env["FORGE_ENGINE_REPOSITORY"] == manifest["secondary_engine"]["repository"]
-    assert env["FORGE_ENGINE_COMMIT"] == manifest["secondary_engine"]["commit"]
-    assert env["FORGE_ENGINE_PROTOCOL_VERSION"] == manifest["protocol_version"]
-    bridge = manifest["secondary_engine"]["bridge_source"]
-    assert env["FORGE_BRIDGE_REPOSITORY"] == bridge["repository"]
-    assert env["FORGE_BRIDGE_COMMIT"] == bridge["commit"]
-    assert env["FORGE_BRIDGE_BASE_COMMIT"] == bridge["rules_core_base_commit"]
     assert "XMAGE_BRIDGE_REPOSITORY" not in env
     assert "XMAGE_BRIDGE_COMMIT" not in env
 
 
-def test_wrapper_exports_both_identities_for_xmage(
+def test_wrapper_exports_the_xmage_identity_for_xmage(
     tmp_path: Path, repo_root: Path, monkeypatch
 ) -> None:
     argv_log, env_log = _install_fake_docker(tmp_path, monkeypatch)
@@ -994,9 +612,7 @@ def test_wrapper_exports_both_identities_for_xmage(
     assert argv[argv.index("--profile") + 1] == "xmage"
 
 
-def test_wrapper_exports_both_identities_for_forge(
-    tmp_path: Path, repo_root: Path, monkeypatch
-) -> None:
+def test_wrapper_rejects_any_other_provider(tmp_path: Path, repo_root: Path, monkeypatch) -> None:
     argv_log, env_log = _install_fake_docker(tmp_path, monkeypatch)
     completed = subprocess.run(
         [_gnu_bash(), str(repo_root / "scripts/docker_build_engine.sh"), "forge", "build"],
@@ -1005,11 +621,9 @@ def test_wrapper_exports_both_identities_for_forge(
         check=False,
         cwd=str(repo_root),
     )
-    assert completed.returncode == 0, completed.stderr
-    _assert_complete_wrapper_environment(repo_root, _fake_docker_env(env_log))
-    argv = argv_log.read_text(encoding="utf-8").split()
-    assert "--profile" in argv
-    assert argv[argv.index("--profile") + 1] == "forge"
+    assert completed.returncode == 2, completed.stderr
+    assert not argv_log.exists()
+    assert not env_log.exists()
 
 
 def test_wrapper_never_invokes_docker_without_authority(
@@ -1020,7 +634,7 @@ def test_wrapper_never_invokes_docker_without_authority(
     malformed.write_text("{not json", encoding="utf-8")
     missing_section = tmp_path / "missing-section.json"
     mutated = copy.deepcopy(_manifest(repo_root))
-    del mutated["secondary_engine"]
+    del mutated["primary_engine"]
     missing_section.write_text(json.dumps(mutated), encoding="utf-8")
     cases = [
         (["bogus"], dict()),
@@ -1029,7 +643,7 @@ def test_wrapper_never_invokes_docker_without_authority(
             {"PIN_MANIFEST_PATH": str(malformed)},
         ),
         (
-            ["forge", "build"],
+            ["xmage", "build"],
             {"PIN_MANIFEST_PATH": str(tmp_path / "absent-manifest.json")},
         ),
         (

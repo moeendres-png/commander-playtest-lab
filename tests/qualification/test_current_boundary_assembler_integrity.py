@@ -90,11 +90,10 @@ def test_native_suite_executor_is_on_the_execution_path() -> None:
     # And it must refuse to run against a dirty runner.
     assert "require_clean_runner" in source
     assert "verify_runner_unchanged" in source
-    # And it must check the recorded candidate against the executing one.
-    # The gate must PROVE the engine is the same engine, not merely assert the
-    # commit matches, because the suite has to execute at a descendant that
-    # contains its test classes.
-    assert "verify_engine_identity" in source
+    # And it must record the engine identity it executed against. The checkout
+    # proof (verify_engine_identity) served the removed Forge workspace; XMage's
+    # engine identity is the provider's own reported commit, verified fail-closed
+    # at handshake by AF00, and the receipt records it as engine_identity_proof.
     assert "engine_identity_proof" in source
     assert "executed_commit" in source
 
@@ -108,7 +107,7 @@ def test_fullgame_lane_auxiliary_is_optional_in_a_runtime_epoch(tmp_path: Path) 
     recording that no auxiliary is present.
     """
     asm = _assembler_module()
-    assert asm._load_fullgame_lane_auxiliary("forge") is None
+    assert asm._load_fullgame_lane_auxiliary("other") is None
     import json
 
     original = asm.OUT
@@ -226,12 +225,11 @@ def test_carried_gates_are_demoted_before_the_matrix_and_readiness_are_written()
     assert annotate < matrix_write < readiness
 
 
-def test_a_carried_side_is_never_compared() -> None:
+def test_no_cross_candidate_comparison_remains() -> None:
+    """Forge is removed (Owner decision 2026-10-13): there is no second column to compare."""
     source = _assemble_source()
-    carried = source.index("if 'historical_exit_state' in xr or 'historical_exit_state' in fr:")
-    semantic = source.index("semantic_mod.compare_semantics(xr, fr)")
-    current_failure = source.index("a current-boundary failure requires")
-    assert carried < semantic < current_failure
+    assert "compare_semantics" not in source
+    assert "semantic_mod" not in source
 
 
 def test_carried_column_rows_are_never_promoted() -> None:
@@ -247,15 +245,9 @@ def test_carried_column_rows_are_never_promoted() -> None:
 
 
 def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> None:
-    """A Forge-only run must not regenerate XMage native receipts."""
+    """Only the bound XMage suites run; a removed candidate has no suites at all."""
     import importlib.util
 
-    # Importing the runner resolves each native suite's root from the
-    # environment and reads that root's tree at module level. Point the Forge
-    # root at this repository so the import works on a machine that does not
-    # have the historical reference checkout; the test only exercises candidate
-    # scoping, and the patched executor never runs a suite.
-    monkeypatch.setenv("FORGE_WORKSPACE", str(REPO))
     spec = importlib.util.spec_from_file_location("wsr_runner_mod", RUNNER)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -268,9 +260,12 @@ def test_native_suites_are_scoped_to_the_selected_candidates(monkeypatch) -> Non
         return {}
 
     monkeypatch.setattr(module, "run_native_suite", _fake)
-    module.run_all_native_suites(object(), ("forge",))
-    assert executed, "the forge native suites must still be executed"
-    assert {candidate for candidate, _ in executed} == {"forge"}
+    module.run_all_native_suites(object(), ("xmage",))
+    assert executed, "the xmage native suites must still be executed"
+    assert {candidate for candidate, _ in executed} == {"xmage"}
+    # Forge is removed (Owner decision 2026-10-13): it has no binding to run.
+    with pytest.raises(KeyError):
+        module.run_all_native_suites(object(), ("forge",))
 
 
 def test_seed_is_not_recorded_as_engine_owned_without_acknowledgement() -> None:
@@ -387,9 +382,9 @@ def _af11_identities(**overrides: object) -> dict:
                 )["primary_engine"]["commit"],
             }
         },
-        "forge": {
+        "other": {
             "results_runtime_identity": {
-                "adapter": "forge-protocol2-bridge (read-only reference checkout)",
+                "adapter": "other-provider-bridge (hypothetical second candidate)",
                 "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
             }
         },
@@ -430,7 +425,7 @@ def test_af11_fails_when_adapters_are_not_distinct() -> None:
         "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
         "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
     }
-    per_candidate = _af11_identities(xmage=shared, forge=shared)
+    per_candidate = _af11_identities(xmage=shared, other=shared)
     measured = asm._af11_measure(per_candidate, "xmage", per_candidate["xmage"])
     assert measured["verdict"] == "FAIL"
 
@@ -555,7 +550,7 @@ def test_af11_adjudication_never_decides_another_candidate(tmp_path: Path) -> No
     asm = _assembler_module()
     per_candidate = _af11_identities()
     measured = asm._af11_measure(
-        per_candidate, "forge", per_candidate["forge"], _af11_root(tmp_path)
+        per_candidate, "other", per_candidate["other"], _af11_root(tmp_path)
     )
     assert measured["verdict"] == "UNKNOWN"
     assert any("not the provider" in line for line in measured["limitations"])
@@ -647,11 +642,8 @@ def _mutations(asm) -> dict:
     def malformed(root: Path) -> None:
         _af11_edit(root, record, lambda d: d.update(decisions=["x"]))
 
-    def forge_port(root: Path) -> None:
-        _af11_edit(root, record, lambda d: d["forge"].update(code_port="PERMITTED"))
-
-    def d17(root: Path) -> None:
-        _af11_edit(root, record, lambda d: d["forge"].update(d17_in_jvm_residual_risk="ACCEPTED"))
+    def forge_role(root: Path) -> None:
+        _af11_edit(root, record, lambda d: d.update(forge={"role": "BOUNDED_REFERENCE"}))
 
     def engine_pin(root: Path) -> None:
         _af11_edit(root, record, lambda d: d["integration_topology"].update(engine_commit="0" * 40))
@@ -713,10 +705,9 @@ def _mutations(asm) -> dict:
         "config_licence": (config_licence, "provider licence does not match"),
         "copyleft": (copyleft, "outside the adjudicated set"),
         "unlisted_licence": (unlisted_licence, "EUPL-1.2"),
-        "decision": (decision, "FORGE_SEPARATE_PROCESS"),
+        "decision": (decision, "PROVIDER_LICENCE_COMPATIBILITY"),
         "malformed": (malformed, "cannot be validated"),
-        "forge_port": (forge_port, "separate-process reference"),
-        "d17": (d17, "separate-process reference"),
+        "forge_role": (forge_role, "still records a Forge role"),
         "engine_pin": (engine_pin, "engine pin does not match"),
         "entry_point": (entry_point, "entry point"),
         "manifest_elsewhere": (manifest_elsewhere, "not the one the launch reads"),
@@ -738,8 +729,7 @@ _AF11_MUTATIONS = (
     "unlisted_licence",
     "decision",
     "malformed",
-    "forge_port",
-    "d17",
+    "forge_role",
     "engine_pin",
     "entry_point",
     "manifest_elsewhere",
@@ -783,7 +773,7 @@ def test_af11_red_control_a_stale_or_invalid_adjudication_is_unknown(
 
 
 def test_af11_the_recorded_adjudication_matches_the_source_lock() -> None:
-    """The committed record itself: XMage selected, MIT, Forge a reference only."""
+    """The committed record itself: XMage selected, MIT, Forge removed."""
     asm = _assembler_module()
     record = json.loads((REPO / asm.AF11_ADJUDICATION).read_text(encoding="utf-8"))
     config = json.loads((REPO / "config/rules_engines.json").read_text(encoding="utf-8"))
@@ -825,10 +815,15 @@ def test_af11_adjudication_covers_the_live_pin_and_keeps_the_prior_record() -> N
     prior = json.loads((REPO / prior_path).read_text(encoding="utf-8"))
     assert prior["integration_topology"]["engine_commit"] == record["supersedes"]["engine_commit"]
     assert prior["integration_topology"]["engine_commit"] != live_pin
-    # Only the pin and its effective epoch moved; licences and topology are unchanged.
+    # The pin and its effective epoch moved and Forge was removed (Owner decision
+    # 2026-10-13); licences and the XMage topology are unchanged.
     assert prior["licence_topology"] == record["licence_topology"]
-    assert prior["forge"] == record["forge"]
-    assert prior["decisions"] == record["decisions"]
+    assert record["forge"]["role"] == "REMOVED"
+    assert record["forge"]["in_production_distribution"] is False
+    assert "FORGE_SEPARATE_PROCESS" in [d["id"] for d in prior["decisions"]]
+    assert record["decisions"] == [
+        d for d in prior["decisions"] if d["id"] != "FORGE_SEPARATE_PROCESS"
+    ]
     for key in ("adapter", "launch_main_class", "provider_classpath_manifest"):
         assert prior["integration_topology"][key] == record["integration_topology"][key]
 
@@ -873,7 +868,7 @@ def test_af09_seed_acknowledgement_is_not_a_tape() -> None:
         "acknowledged_seed": 424242,
     }
     asm = _assembler_module()
-    described = asm._describe_replay_evidence(doc, "forge")
+    described = asm._describe_replay_evidence(doc, "other")
     joined = " ".join(described["evidence"])
     assert "ACKNOWLEDGED_ENGINE_SEED" in joined
     assert "not a demonstrated Rules RNG tape" in joined
@@ -1005,7 +1000,7 @@ def _fresh_column(commit: str = "c" * 40) -> dict:
     ("candidate", "column", "overrides", "bound"),
     [
         ("xmage", _fresh_column(), {}, True),
-        ("forge", _fresh_column(), {"candidate": "forge"}, False),
+        ("other", _fresh_column(), {"candidate": "other"}, False),
         (
             "xmage",
             {**_fresh_column(), "column_provenance": {"class": "CARRIED_FORWARD"}},

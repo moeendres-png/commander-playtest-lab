@@ -147,13 +147,6 @@ def test_the_positive_readback_observes_both_partners_in_the_command_zone() -> N
         ]
 
 
-def test_the_obligation_kind_is_the_shared_forge_lane_kind() -> None:
-    from commander_lab.qualification.current_boundary import forge_scenario_lane as fsl
-
-    record = _effective_record()
-    assert fsl._obligation_kind(fsl.model_requested_state(record)) == "game_start_command_zone"
-
-
 # --------------------------------------------------------------------------- #
 # Wrong-reason red controls
 # --------------------------------------------------------------------------- #
@@ -326,7 +319,6 @@ def test_the_verdict_comes_from_the_engine_rows_not_the_declared_relation(
 
 
 def _runner(monkeypatch: pytest.MonkeyPatch) -> types.ModuleType:
-    monkeypatch.delenv("FORGE_WORKSPACE", raising=False)
     path = REPO_ROOT / "scripts" / "run_current_boundary_qualification.py"
     spec = importlib.util.spec_from_file_location("partner_zone_runner_under_test", path)
     assert spec is not None and spec.loader is not None
@@ -351,14 +343,3 @@ def test_the_runner_declares_the_partner_zone_row_receivable(
     assert row.outcome == "UNKNOWN"
     assert "MIDGAME_ROW_EXECUTIONS.json" in row.reason
     assert "no current-boundary execution path" not in row.reason
-    # The XMage mid-game lane is not a Forge route: the Forge column keeps its
-    # own residual classification and outcome.
-    forge_rows = runner.classify_remaining(
-        materialization,
-        set(),
-        candidate="forge",
-        identity={"starting_state_injection_supported": True},
-    )
-    forge_row = next(item for item in forge_rows if item.fixture_id == FIXTURE_ID)
-    assert forge_row.outcome == "UNKNOWN"
-    assert "Forge" in forge_row.reason

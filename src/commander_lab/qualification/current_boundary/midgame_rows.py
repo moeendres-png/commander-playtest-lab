@@ -56,10 +56,9 @@ REQUESTED_COMBAT_FACT = (
 
 #: The receipt assertion class a causal-elimination row carries when its only
 #: non-exact construction disposition is the declared open life substitution.
-#: It is the same class the Forge scenario lane carries for that disposition
-#: (``forge_scenario_lane._receipt_assertion_class``): the variance is declared
-#: by the Lab's shared causal route, never by the engine's own compare or the
-#: fixture, so a receipt that relabelled it ``BEHAVIOUR_OBSERVED`` would hide it.
+#: The variance is declared by the Lab's shared causal route, never by the
+#: engine's own compare or the fixture, so a receipt that relabelled it
+#: ``BEHAVIOUR_OBSERVED`` would hide it.
 ASSERTION_LAB_DECLARED_CAUSAL_SUBSTITUTION = "BEHAVIOUR_OBSERVED_LAB_DECLARED_CAUSAL_SUBSTITUTION"
 
 #: The variance source named for that substitution. The recorded life is the

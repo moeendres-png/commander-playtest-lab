@@ -318,7 +318,7 @@ TOOL_DEFINITIONS: tuple[ToolDefinition, ...] = (
     ),
     ToolDefinition(
         "run_engine_backed_matchup",
-        "Run a real XMage or Forge matchup only when a provider process is available; otherwise return blocked evidence.",
+        "Run a real XMage matchup only when a provider process is available; otherwise return blocked evidence.",
         RunEngineBackedMatchupInput,
         "run_engine_backed_matchup",
     ),

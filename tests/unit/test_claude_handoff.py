@@ -89,12 +89,12 @@ def fake_api(url: str):
     if url.endswith("/pulls?state=open&per_page=20"):
         return (
             []
-            if "mage" in url or "forge" in url
+            if "mage" in url
             else [{"number": 574, "head": {"ref": "opencode/x", "sha": "f" * 40}}]
         )
     if url.endswith("/commits/main"):
         return {"sha": "d" * 40}
-    if url.endswith(LAB) or url.endswith("mage") or url.endswith("forge"):
+    if url.endswith(LAB) or url.endswith("mage"):
         return {"default_branch": "main"}
     raise AssertionError(f"unexpected api url: {url}")
 
@@ -172,7 +172,7 @@ def test_an_unreachable_engine_fork_is_reported_not_fatal(tmp_path, monkeypatch,
     monkeypatch.setattr(handoff, "api", scoped_api)
     lines = handoff.repo_head_lines(tmp_path)
     assert "mage unavailable (no GitHub access from this session)" in lines
-    assert any(line.startswith("forge ") and "unavailable" not in line for line in lines)
+    assert not any(line.startswith("forge ") for line in lines)
 
 
 def test_an_unreachable_lab_still_aborts(tmp_path, monkeypatch, fake_env):

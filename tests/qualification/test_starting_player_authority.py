@@ -30,6 +30,27 @@ from commander_lab.qualification.current_boundary.starting_player import (
     record_starting_seat,
 )
 
+# A test-only provider that publishes its starting-player choice as its own
+# decision frame and identifies decisions by a monotonic revision. It exercises
+# the driver's generic engine-frame path; no production provider is named.
+FRAME_PROVIDER = "frame-provider"
+
+
+@pytest.fixture(autouse=True)
+def _frame_provider_shape(monkeypatch: pytest.MonkeyPatch) -> None:
+    from commander_lab.qualification.current_boundary import game_driver as _gd
+
+    monkeypatch.setitem(
+        _gd.DECISION_IDENTITY_SHAPES,
+        FRAME_PROVIDER,
+        {
+            "field": "revision",
+            "type": "monotonic_long",
+            "pass_extra": ("actor_id",),
+            "requires_external_control": False,
+        },
+    )
+
 
 def _starting_frame(offered: list[str | None], *, actor: str = "p1") -> dict[str, Any]:
     return {
@@ -93,12 +114,12 @@ def test_a_missing_declaration_never_answers_a_starting_player_frame(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """#572: the old p1 default submitted an option here; now nothing is sent."""
-    proc = _StartingFrameProcess(candidate="forge", offered_seats=["p1", "p2"])
+    proc = _StartingFrameProcess(candidate=FRAME_PROVIDER, offered_seats=["p1", "p2"])
     result = _drive(
         monkeypatch,
         proc,
         [_starting_frame(["p1", "p2"]), _priority_frame()],
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         starting_seat=None,
         source=None,
     )
@@ -111,12 +132,12 @@ def test_a_missing_declaration_never_answers_a_starting_player_frame(
 def test_a_declared_seat_is_taken_from_the_engine_offered_frame(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    proc = _StartingFrameProcess(candidate="forge", offered_seats=["p1", "p2"])
+    proc = _StartingFrameProcess(candidate=FRAME_PROVIDER, offered_seats=["p1", "p2"])
     result = _drive(
         monkeypatch,
         proc,
         [_starting_frame(["p1", "p2"]), _priority_frame()],
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         starting_seat="p2",
         source="TEST_DECLARATION",
     )
@@ -137,18 +158,18 @@ def test_a_declared_seat_without_an_answered_engine_frame_is_never_a_channel(
 ) -> None:
     """#572 review P2-2 (mutant M10): the channel needs an answered frame.
 
-    Forge declared p1 but published no STARTING_PLAYER frame in this run: the
+    The provider declared p1 but published no STARTING_PLAYER frame in this run: the
     declaration alone must not be labelled ENGINE_FRAME_FROM_RECORD_DECLARATION.
     The construction proof then keeps the temporal active/priority checks
     UNSUPPORTED for this channel (proved end to end in
     ``test_generic_construction_proof``).
     """
-    proc = _StartingFrameProcess(candidate="forge", offered_seats=None)
+    proc = _StartingFrameProcess(candidate=FRAME_PROVIDER, offered_seats=None)
     result = _drive(
         monkeypatch,
         proc,
         [_priority_frame()],
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         starting_seat="p1",
         source="TEST_DECLARATION",
     )
@@ -171,12 +192,12 @@ def test_a_declared_seat_without_an_answered_engine_frame_is_never_a_channel(
 def test_a_foreign_or_ambiguous_starting_option_identity_fails(
     monkeypatch: pytest.MonkeyPatch, offered: list[str | None]
 ) -> None:
-    proc = _StartingFrameProcess(candidate="forge", offered_seats=offered)
+    proc = _StartingFrameProcess(candidate=FRAME_PROVIDER, offered_seats=offered)
     result = _drive(
         monkeypatch,
         proc,
         [_starting_frame(offered), _priority_frame()],
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         starting_seat="p1",
         source="TEST_DECLARATION",
     )
@@ -189,7 +210,7 @@ def test_a_refused_starting_player_submission_is_never_retried(
 ) -> None:
     """A stale/foreign revision refusal is terminal; no fallback option is tried."""
     proc = _StartingFrameProcess(
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         offered_seats=["p1", "p2"],
         submit_error={
             "success": False,
@@ -200,7 +221,7 @@ def test_a_refused_starting_player_submission_is_never_retried(
         monkeypatch,
         proc,
         [_starting_frame(["p1", "p2"]), _priority_frame()],
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         starting_seat="p1",
         source="TEST_DECLARATION",
     )
@@ -445,7 +466,7 @@ def test_a_declaration_outside_the_pod_is_row_scoped_fail_closed() -> None:
 
     result = game_driver.drive_commander_game(
         _Never(),  # type: ignore[arg-type]
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         player_count=2,
         seed=1,
         scripted_starting_seat="p4",
@@ -456,7 +477,7 @@ def test_a_declaration_outside_the_pod_is_row_scoped_fail_closed() -> None:
     with pytest.raises(ValueError, match="declared together"):
         game_driver.drive_commander_game(
             _Never(),  # type: ignore[arg-type]
-            candidate="forge",
+            candidate=FRAME_PROVIDER,
             player_count=2,
             seed=1,
             scripted_starting_seat="p1",

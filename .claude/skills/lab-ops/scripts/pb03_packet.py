@@ -3,7 +3,7 @@
 
     pb03_packet.py RUN_ID OUT_DIR [--repo O/R] [--into LAB_ROOT]
 
-Downloads the run's ``current-boundary-two-candidate-*`` artifact to OUT_DIR,
+Downloads the run's ``current-boundary-*`` packet artifact to OUT_DIR,
 prints the epoch identity, verifies CURRENT_BOUNDARY_SHA256SUMS against the
 packet, and prints the FULL107 counts and every AF00-AF11 gate verdict per
 candidate with its blocking rows. With --into, the packet is also copied to
@@ -42,7 +42,13 @@ def main() -> None:
     a = p.parse_args()
 
     artifacts = json.loads(gh(f"repos/{a.repo}/actions/runs/{a.run_id}/artifacts"))["artifacts"]
-    packet = [x for x in artifacts if x["name"].startswith("current-boundary-two-candidate-")]
+    # current-boundary-xmage-* since the Forge removal; older runs uploaded
+    # current-boundary-two-candidate-*, and their packets stay readable.
+    packet = [
+        x
+        for x in artifacts
+        if x["name"].startswith(("current-boundary-xmage-", "current-boundary-two-candidate-"))
+    ]
     if len(packet) != 1:
         raise SystemExit(
             f"expected one current-boundary packet, found {[x['name'] for x in artifacts]}"
@@ -70,7 +76,7 @@ def main() -> None:
             bad += 1
     print(f"sha256sums: {len(sums) - bad}/{len(sums)} verified")
 
-    for cand in ("XMAGE", "FORGE"):
+    for cand in ("XMAGE",):
         path = a.out_dir / f"AF00_AF11_{cand}.json"
         if not path.is_file():
             print(f"{cand}: no AF matrix")

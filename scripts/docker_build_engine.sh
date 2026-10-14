@@ -5,22 +5,14 @@
 # pin authority (config/rules_engines.json) via
 # scripts/docker_resolve_engine_pin.py, exports them for
 # docker-compose.engine.yml build-arg interpolation, then execs
-# `docker compose` for the requested provider profile.
-#
-# Canonical identity is resolved for BOTH known providers before invoking
-# `docker compose`, because docker-compose.engine.yml requires build-arg
-# interpolation for both services and required-value syntax fails on unset
-# variables. `--profile <provider>` still selects the requested service
-# operation. Either resolution failure stops the build path (fail closed)
-# before Docker is invoked.
+# `docker compose` for the xmage profile.
 #
 # Usage:
-#   ./scripts/docker_build_engine.sh <xmage|forge> [compose args...]
+#   ./scripts/docker_build_engine.sh xmage [compose args...]
 #
 # With no compose args, runs `build`. Examples:
 #   ./scripts/docker_build_engine.sh xmage
 #   ./scripts/docker_build_engine.sh xmage build --no-cache
-#   ./scripts/docker_build_engine.sh forge up --build
 #
 # PIN_MANIFEST_PATH may override the manifest location (tests, unusual
 # layouts). Any authority resolution failure stops the build path (fail
@@ -29,8 +21,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROVIDER="${1:-}"
-if [[ "$PROVIDER" != "xmage" && "$PROVIDER" != "forge" ]]; then
-  echo "usage: $0 <xmage|forge> [compose args...]" >&2
+if [[ "$PROVIDER" != "xmage" ]]; then
+  echo "usage: $0 xmage [compose args...]" >&2
   exit 2
 fi
 shift
@@ -43,12 +35,11 @@ MANIFEST_ARGS=()
 if [[ -n "${PIN_MANIFEST_PATH:-}" ]]; then
   MANIFEST_ARGS=(--manifest "$PIN_MANIFEST_PATH")
 fi
-RESOLVED_XMAGE="$(python3 "$ROOT/scripts/docker_resolve_engine_pin.py" --provider xmage "${MANIFEST_ARGS[@]}")" || exit "$?"
-RESOLVED_FORGE="$(python3 "$ROOT/scripts/docker_resolve_engine_pin.py" --provider forge "${MANIFEST_ARGS[@]}")" || exit "$?"
+RESOLVED="$(python3 "$ROOT/scripts/docker_resolve_engine_pin.py" --provider xmage "${MANIFEST_ARGS[@]}")" || exit "$?"
 while IFS='=' read -r key value; do
   [[ -z "$key" && -z "$value" ]] && continue
   [[ -n "$key" && -n "$value" ]] || { echo "ERROR: malformed authority resolution" >&2; exit 3; }
   export "$key=$value"
-done <<< "$RESOLVED_XMAGE"$'\n'"$RESOLVED_FORGE"
+done <<< "$RESOLVED"
 
 exec docker compose -f "$ROOT/docker-compose.engine.yml" --profile "$PROVIDER" "$@"

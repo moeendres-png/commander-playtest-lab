@@ -35,7 +35,6 @@ class _Completed:
 
 
 def _runner_module(monkeypatch: pytest.MonkeyPatch):
-    monkeypatch.setenv("FORGE_WORKSPACE", str(REPO))
     spec = importlib.util.spec_from_file_location("cb_native_receipt_runner", RUNNER)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
@@ -191,7 +190,7 @@ def test_binding_declares_build_identity_that_the_runner_can_consume(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     module = _runner_module(monkeypatch)
-    for candidate in ("xmage", "forge"):
+    for candidate in ("xmage",):
         declared = module.NATIVE_SUITE_BINDING[candidate].get("build_identity")
         assert isinstance(declared, str)
         json.loads(declared)  # a JSON object, as the receipt contract requires
@@ -202,7 +201,7 @@ def test_native_suite_argv_is_a_list_not_a_shell_string(
 ) -> None:
     """No shell/string behaviour may silently change which tests run."""
     module = _runner_module(monkeypatch)
-    for candidate in ("xmage", "forge"):
+    for candidate in ("xmage",):
         argv = module.NATIVE_SUITE_BINDING[candidate]["argv"]
         assert isinstance(argv, list)
         assert all(isinstance(part, str) for part in argv)

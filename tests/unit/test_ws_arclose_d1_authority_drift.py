@@ -23,7 +23,6 @@ import yaml
 # (mage#57), the card-scanner bulk lookup (mage#58) and the precon card coverage
 # (mage#59), repin v6.
 CANONICAL_XMAGE_PIN = "38cb21a85c4074b00ab226e625200a4feaf3462f"
-CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 
@@ -53,7 +52,7 @@ def _manifest(repo_root: Path) -> dict:
 def test_manifest_pins_protocol_capabilities_untouched(repo_root: Path) -> None:
     manifest = _manifest(repo_root)
     assert manifest["primary_engine"]["commit"] == CANONICAL_XMAGE_PIN
-    assert manifest["secondary_engine"]["commit"] == CANONICAL_FORGE_PIN
+    assert "secondary_engine" not in manifest
     assert manifest["protocol_version"] == "2.0.0"
     # Selection follows the Owner-signed Freeze and the D5 runtime switch.
     assert manifest["provider_decision"] == "XMAGE_SELECTED"
@@ -71,7 +70,7 @@ def test_manifest_records_ws88_successor_pin_authority(repo_root: Path) -> None:
 
 
 def test_dockerfiles_carry_no_stale_default_pins(repo_root: Path) -> None:
-    for rel in ("docker/xmage/Dockerfile", "docker/forge/Dockerfile"):
+    for rel in ("docker/xmage/Dockerfile",):
         text = _flat((repo_root / rel).read_text(encoding="utf-8"))
         assert STALE_XMAGE_PIN not in text, rel
         assert STALE_FORGE_PIN not in text, rel

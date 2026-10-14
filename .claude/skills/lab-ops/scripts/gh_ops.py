@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """Compact GitHub views for agent sessions: one line per fact, never raw JSON dumps.
 
-    gh_ops.py brief                         one screen (<=25 lines): open PRs in Lab, mage and
-                                            forge, running/recent /oc and /assure runs with the
+    gh_ops.py brief                         one screen (<=25 lines): open PRs in Lab and mage,
+                                            running/recent /oc and /assure runs with the
                                             branch or PR and final-comment link, PB-03 runs, and
                                             the newest sealed epoch
     gh_ops.py status  [--repo O/R] PR...    head, merge state, red/pending checks, open threads
-    gh_ops.py queue                         one status line per open PR in Lab, mage and forge
+    gh_ops.py queue                         one status line per open PR in Lab and mage
     gh_ops.py threads [--repo O/R] PR       every unresolved thread: comment id, path:line, excerpt
     gh_ops.py wait    [--repo O/R] PR...    block until no check on any head is pending, then status
     gh_ops.py run     [--repo O/R] RUN_ID   block until a workflow run completes; print its jobs
@@ -113,12 +113,11 @@ def cmd_status(a: argparse.Namespace) -> None:
 QUEUE_REPOS = (
     "moeendres-png/commander-playtest-lab",
     "moeendres-png/mage",
-    "moeendres-png/forge",
 )
 
 
 def cmd_queue(a: argparse.Namespace) -> None:
-    """One status line per open PR across the Lab and both engine forks."""
+    """One status line per open PR across the Lab and the XMage fork."""
     for repo in QUEUE_REPOS:
         for p in api(f"repos/{repo}/pulls?state=open&per_page=50"):
             line = status_line(repo, p["number"])[0]

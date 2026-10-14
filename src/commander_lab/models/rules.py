@@ -20,7 +20,6 @@ class ValidationLevel(StrEnum):
 
 class RulesBackend(StrEnum):
     TACTICAL = "tactical"
-    FORGE = "forge"
     XMAGE = "xmage"
 
 
@@ -237,7 +236,7 @@ class InteractionSpec(FrozenModel):
     expected_normalized: dict[str, Any]
     comparison_keys: tuple[str, ...]
     critical: bool = True
-    preferred_backend: Literal["xmage", "forge", "either"] = "either"
+    preferred_backend: Literal["xmage", "either"] = "either"
     source_notes: tuple[str, ...] = ()
 
 

@@ -1,0 +1,49 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_DECLARE_BLOCKER",
+  "obligation_exercised": {
+    "obligation_digest": "eaf53dc295cbd63c9aaf7509d922cb87231be4f4c6de4f6eb238fa76eeefc7be",
+    "requested_state_digest": "d65db3b589f0c8cc6bc36d1b75bb3ac3d84b45c179d66dd6fde17cdc19d050d8",
+    "required_events": [
+      "declare_blocker_frame:P2",
+      "blocker_declared:obj:p2-bears->obj:p1-bears"
+    ],
+    "terminal_checks": [
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "Block assignment exists only between the defending player P2 blocker and attacker attacking P2."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "blocker_declared:obj:p2-bears->obj:p1-bears": {
+        "events": [
+          8
+        ]
+      },
+      "declare_blocker_frame:P2": {
+        "decision_frames": [
+          1
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "f04aba97107106ddcb17f9fb78ad9ab584cddf9cea5a70aa09c5462ada7077f6",
+  "runner_digest": "01d52fbacb54c72de2f107fb1de4d86fa2ce0b59de7e9febe611504aeabb4f53",
+  "runtime_receipt_digest": "05486520f515557dea1586eff6d41c5b7f0d6c3520c43e3f84155d38bfb9d9b1",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_DECLARE_BLOCKER",
+  "variance_source": null
+}

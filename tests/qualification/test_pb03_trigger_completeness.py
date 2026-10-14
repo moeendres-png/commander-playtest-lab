@@ -73,7 +73,7 @@ materialization = load_effective_materialization(root)
 materialization.receipt()
 list(materialization.denominator_records())
 gate_derivations.actual_card_corpus(root)
-bridge_launcher.canonical_forge_authority()
+bridge_launcher.canonical_xmage_engine_pin()
 # Every input the runner digests into its identity is an input of the evidence.
 from commander_lab.qualification.current_boundary import receipts
 touched.update(receipts.capture_runner_identity(root).input_digests)
@@ -341,7 +341,6 @@ def test_the_workflow_streams_runner_output() -> None:
 def test_runner_phases_report_their_duration_on_stdout_only(monkeypatch, capsys, tmp_path) -> None:
     import importlib.util
 
-    monkeypatch.delenv("FORGE_WORKSPACE", raising=False)
     path = REPO / "scripts" / "run_current_boundary_qualification.py"
     spec = importlib.util.spec_from_file_location("b12_runner_under_test", path)
     assert spec is not None and spec.loader is not None
@@ -364,7 +363,7 @@ def test_runner_phases_report_their_duration_on_stdout_only(monkeypatch, capsys,
     # Timing never reaches an evidence artifact.
     assert not (tmp_path / "out").exists()
     source = path.read_text(encoding="utf-8")
-    assert source.count('phase("') + source.count('phase(f"') >= 9
+    assert source.count('phase("') + source.count('phase(f"') >= 8
 
 
 @cache
@@ -504,4 +503,3 @@ def test_the_registry_preflight_runs_before_the_engine_builds() -> None:
         if "tests/qualification/test_lane_registry_declarations.py" in (step.get("run") or "")
     )
     assert preflight < names.index("Build pinned XMage")
-    assert preflight < names.index("Build and warm admitted Forge exact source")

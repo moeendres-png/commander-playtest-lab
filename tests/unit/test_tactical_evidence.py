@@ -26,7 +26,7 @@ def test_external_pass_fails_closed_without_complete_provider_binding() -> None:
         TacticalEvidenceResult(
             question_id="fixture",
             execution_status=TacticalEvidenceExecutionStatus.PASS,
-            provider="forge",
+            provider="xmage",
         )
 
 
