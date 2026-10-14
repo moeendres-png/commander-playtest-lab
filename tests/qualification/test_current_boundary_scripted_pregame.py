@@ -450,22 +450,21 @@ class _Untouched:
         raise AssertionError("nothing may be sent for an unanswerable bottom selection")
 
 
-def test_a_scripted_forge_london_bottom_keeps_the_forge_refusal() -> None:
-    # MULL-2 owes one card after a non-free two-player mulligan. The pinned
-    # Forge bridge never answers an owed tuck, so nothing is executed: the row
-    # is UNKNOWN before any request, never a Lab-chosen card.
+def test_a_scripted_london_bottom_without_an_engine_decision_is_refused() -> None:
+    # MULL-2 owes one card after a non-free two-player mulligan. A provider lane
+    # that offers no engine london_bottom decision executes nothing: the row is
+    # UNKNOWN before any request, never a Lab-chosen card.
     record = _mull_record("WS05-CMD-MULL-2")
     assert full107.scripted_london_bottoms(record) == [("p1", {"Mountain": 1})]
     assert full107.scripted_pregame_plan(record) == (("p1", False), ("p2", True), ("p1", True))
     row = full107.scripted_pregame_row(
         record,
         _Untouched(),  # type: ignore[arg-type]
-        candidate="forge",
+        candidate="other",
         runtime_identity={},
     )
     assert row.outcome == "UNKNOWN"
-    assert "Forge bridge never answers an owed tuck" in row.reason
-    assert "XMage" not in row.reason
+    assert "other bridge offers no engine london_bottom decision" in row.reason
     assert row.evidence["scripted_london_bottoms"] == [["p1", {"Mountain": 1}]]
 
 

@@ -700,14 +700,8 @@ def _af11_adjudication_checks(candidate: str, root: Path, data: dict[str, Any]) 
 
     # Source lock: provider licence and pin, Lab licence.
     cfg = load(root / "config" / "rules_engines.json")
-    engine = next(
-        (
-            cfg[key]
-            for key in ("primary_engine", "secondary_engine")
-            if cfg[key].get("provider") == candidate
-        ),
-        None,
-    )
+    primary = cfg["primary_engine"]
+    engine = primary if primary.get("provider") == candidate else None
     licences = record["licence_topology"]
     if engine is None or licences.get("provider") != engine.get("license"):
         issues.append("the adjudicated provider licence does not match config/rules_engines.json")

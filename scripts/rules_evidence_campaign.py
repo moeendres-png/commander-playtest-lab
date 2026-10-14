@@ -300,7 +300,6 @@ def main() -> None:
         "tactical_runtime_before": "tactical-0.8.0",
         "external_runtime": {
             "xmage": "unavailable",
-            "forge": "unavailable",
             "real_external_engine_executions": 0,
         },
         "historical_candidate_count": ledger["candidate_count"],
@@ -451,7 +450,7 @@ def main() -> None:
         },
     )
 
-    priority_md = f"""# Rules Capability Priority Report\n\n## Result\n\nThe frontier-weighted minimum is `{BASIC_INSTANT_TIMING_CAPABILITY}` at the Tactical layer.\n\n- Current v3 replay: {dict(sorted(route_counts.items()))}\n- Historical Decision-Elite `Preordain -> Opt` is now Tactical-only and blocked solely by default instant timing.\n- Two additional one-slot candidates (`Preordain -> Jace's Ingenuity`, `Sol Ring -> Opt`) share the same bounded timing gap.\n- The nearest External candidate still has 12 blocked changed cards across multiple independent card-specific rules shapes. No bounded 1-3 External package is justified as a complete unlock without overclaiming.\n- XMage/Forge remain unavailable; therefore zero External scenario classes may be called externally validated.\n\n## Decision\n\nImplement one Tactical package only. Defer External expansion until a future frontier candidate is fully unlockable by a small validated scenario set.\n"""
+    priority_md = f"""# Rules Capability Priority Report\n\n## Result\n\nThe frontier-weighted minimum is `{BASIC_INSTANT_TIMING_CAPABILITY}` at the Tactical layer.\n\n- Current v3 replay: {dict(sorted(route_counts.items()))}\n- Historical Decision-Elite `Preordain -> Opt` is now Tactical-only and blocked solely by default instant timing.\n- Two additional one-slot candidates (`Preordain -> Jace's Ingenuity`, `Sol Ring -> Opt`) share the same bounded timing gap.\n- The nearest External candidate still has 12 blocked changed cards across multiple independent card-specific rules shapes. No bounded 1-3 External package is justified as a complete unlock without overclaiming.\n- XMage remains unavailable; therefore zero External scenario classes may be called externally validated.\n\n## Decision\n\nImplement one Tactical package only. Defer External expansion until a future frontier candidate is fully unlockable by a small validated scenario set.\n"""
     (out / "RULES_CAPABILITY_PRIORITY_REPORT.md").write_text(priority_md)
 
     tactical_rows = [r for r in reclassified if r["tactical_evaluable_after_patch"]]

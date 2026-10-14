@@ -195,9 +195,8 @@ def test_capture_runner_identity_is_not_redirected_by_inherited_git_environment(
 ) -> None:
     """The AUTHORITATIVE identity path must read this checkout, not a decoy.
 
-    ``capture_runner_identity`` is what binds every receipt, and
-    ``engine_tree_equivalence`` is what proves a Forge Rules Core is the same
-    engine. Both ran Git with the inherited environment, so an exported
+    ``capture_runner_identity`` is what binds every receipt. It ran Git with
+    the inherited environment, so an exported
     GIT_DIR/GIT_WORK_TREE could bind a receipt to another repository's commit
     while the evidence named this one.
     """
@@ -213,19 +212,3 @@ def test_capture_runner_identity_is_not_redirected_by_inherited_git_environment(
     identity = R.capture_runner_identity(REPO)
     assert identity.commit == live_commit
     assert identity.tree == live_tree
-
-
-def test_engine_tree_equivalence_ignores_inherited_git_environment(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    from commander_lab.qualification.current_boundary import receipts as R
-
-    decoy = tmp_path / "decoy"
-    init_repo(decoy)
-    head = live_git("rev-parse", "HEAD", cwd=REPO)
-    monkeypatch.setenv("GIT_DIR", str(decoy / ".git"))
-    monkeypatch.setenv("GIT_WORK_TREE", str(decoy))
-    proof = R.engine_tree_equivalence(
-        REPO, recorded_commit=head, actual_commit=head, module_roots=("engine-bridge",)
-    )
-    assert proof["engine_equivalent"] is True, proof

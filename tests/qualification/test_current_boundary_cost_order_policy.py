@@ -10,6 +10,27 @@ from commander_lab.qualification.current_boundary.game_driver import (
     select_cost_order_action,
 )
 
+# A test-only provider that publishes its starting-player choice as its own
+# decision frame and identifies decisions by a monotonic revision. It exercises
+# the driver's generic engine-frame path; no production provider is named.
+FRAME_PROVIDER = "frame-provider"
+
+
+@pytest.fixture(autouse=True)
+def _frame_provider_shape(monkeypatch: pytest.MonkeyPatch) -> None:
+    from commander_lab.qualification.current_boundary import game_driver as _gd
+
+    monkeypatch.setitem(
+        _gd.DECISION_IDENTITY_SHAPES,
+        FRAME_PROVIDER,
+        {
+            "field": "revision",
+            "type": "monotonic_long",
+            "pass_extra": ("actor_id",),
+            "requires_external_control": False,
+        },
+    )
+
 
 def _action(
     action_id: str | None,
@@ -204,7 +225,7 @@ def test_game_driver_submits_declared_cost_order_policy(
 
     result = game_driver.drive_commander_game(
         proc,  # type: ignore[arg-type]
-        candidate="forge",
+        candidate=FRAME_PROVIDER,
         player_count=2,
         seed=7,
         drive_to="priority",

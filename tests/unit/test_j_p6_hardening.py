@@ -66,7 +66,7 @@ def test_release_truth_includes_real_p3_feasibility_evidence() -> None:
     assert "docs/J_P3_PROVIDER_DECISION.json" in workflow
     assert "external_engine_provider_decision" in workflow
     assert "xmage_real_execution" in workflow
-    assert "forge_real_execution" in workflow
+    assert '"forge_real_execution"' not in workflow
     assert "structural_tactical_and_real_external_feasibility_evidence" in workflow
     # D5: readiness is reported from the guarded config record, never hard-coded.
     assert 'external_engine_production_ready": production_ready' in workflow

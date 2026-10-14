@@ -31,7 +31,6 @@ STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 # (mage#57), the card-scanner bulk lookup (mage#58) and the precon card coverage
 # (mage#59), repin v6.
 CANONICAL_XMAGE_PIN = "38cb21a85c4074b00ab226e625200a4feaf3462f"
-CANONICAL_FORGE_PIN = "bb0a740d2bef725194798383c2452213ecdd0b37"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 _MANIFEST_REL = "config/rules_engines.json"
@@ -141,10 +140,7 @@ def test_cross_wired_repository_fails_closed(repo_root: Path) -> None:
     module = _resolver(repo_root)
     manifest = _manifest(repo_root)
     mutated = copy.deepcopy(manifest)
-    mutated["primary_engine"]["repository"], mutated["secondary_engine"]["repository"] = (
-        mutated["secondary_engine"]["repository"],
-        mutated["primary_engine"]["repository"],
-    )
+    mutated["primary_engine"]["repository"] = "https://github.com/moeendres-png/other-engine.git"
     try:
         module.resolve("xmage", mutated)
     except module.PinResolutionError:
@@ -285,7 +281,6 @@ def test_stale_pins_survive_only_as_historical_provenance(repo_root: Path) -> No
         encoding="utf-8"
     )
     assert STALE_XMAGE_PIN in provenance
-    assert STALE_FORGE_PIN in provenance
     assert '"executed": False' in provenance
 
 
@@ -299,7 +294,7 @@ def test_build_wrapper_uses_manifest_resolver(repo_root: Path) -> None:
 def test_manifest_authority_and_provider_truth_preserved(repo_root: Path) -> None:
     config = _manifest(repo_root)
     assert config["primary_engine"]["commit"] == CANONICAL_XMAGE_PIN
-    assert config["secondary_engine"]["commit"] == CANONICAL_FORGE_PIN
+    assert "secondary_engine" not in config
     assert config["protocol_version"] == "2.0.0"
     # Selection follows the Owner-signed Freeze and the D5 runtime switch.
     assert config["provider_decision"] == "XMAGE_SELECTED"
@@ -361,7 +356,7 @@ def test_provenance_gate_rejects_cross_wired_repository(tmp_path: Path, repo_roo
     module = _gate_module(repo_root)
     provenance_path, manifest_path = _gate_fixture(tmp_path, repo_root)
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
-    provenance["repository"] = _manifest(repo_root)["secondary_engine"]["repository"]
+    provenance["repository"] = "https://github.com/moeendres-png/other-engine.git"
     provenance_path.write_text(json.dumps(provenance), encoding="utf-8")
     assert module.check("xmage", provenance_path, manifest_path) == 3
 
@@ -424,8 +419,7 @@ def test_resolver_requires_manifest_provider_field(repo_root: Path) -> None:
     manifest = _manifest(repo_root)
     assert module.resolve("xmage", manifest).provider == "xmage"
     swapped = copy.deepcopy(manifest)
-    swapped["primary_engine"]["provider"] = "forge"
-    swapped["secondary_engine"]["provider"] = "xmage"
+    swapped["primary_engine"]["provider"] = "other"
     try:
         module.resolve("xmage", swapped)
     except module.PinResolutionError:

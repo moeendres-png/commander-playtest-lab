@@ -89,7 +89,7 @@ set, and continue. Tool permission gates remain binding and must never be bypass
   mutation, are authorized when they stay inside the active campaign and ownership rules.
 - External repository work follows the active campaign's declared ownership. A reference
   explicitly declared read-only stays read-only; when the campaign creates or owns an
-  isolated Forge/XMage/Lab worktree, it may modify, commit, push and integrate that surface.
+  isolated XMage/Lab worktree, it may modify, commit, push and integrate that surface.
 - Do not mutate another genuinely active writer's overlapping surface. If overlap exists,
   create/use an isolated campaign-owned worktree or serialize the integration.
 - `doom_loop` is `deny` by canonical policy: under `--auto`, an `ask`

@@ -113,12 +113,11 @@ jobs:
               raise SystemExit(f"active own decks are not valid: {invalid}")
 
           primary = rules["primary_engine"]
-          secondary = rules["secondary_engine"]
           runtime = rules["current_runtime"]
           freeze = rules.get("architecture_freeze") or {}
           missing_required = runtime.get("required_missing_capabilities", [])
-          if secondary.get("production_ready"):
-              raise SystemExit("release refuses a production-ready claim for the reference engine")
+          if "secondary_engine" in rules:
+              raise SystemExit("release refuses a secondary engine: XMage is the only rules engine")
           if rules["provider_decision"] == "NO_PROVIDER_READY":
               if primary.get("production_ready") or runtime.get("provider_selected"):
                   raise SystemExit("release refuses production-ready provider claim while NO_PROVIDER_READY")
@@ -169,7 +168,6 @@ jobs:
               "current_external_engine_status": rules["current_runtime"]["status"],
               "current_external_engine_validation_level": validation_level,
               "xmage_real_execution": bool(primary.get("real_execution")),
-              "forge_real_execution": bool(secondary.get("real_execution")),
               "xmage_missing_required_capabilities": missing_required,
               "historical_p3_provider_decision": p3["decision"],
               "historical_p3_validation_level": "structural_tactical_and_real_external_feasibility_evidence",

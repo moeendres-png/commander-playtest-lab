@@ -26,7 +26,7 @@ from typing import Any
 import yaml
 
 LAB = "moeendres-png/commander-playtest-lab"
-REPOS = (LAB, "moeendres-png/mage", "moeendres-png/forge")
+REPOS = (LAB, "moeendres-png/mage")
 # Fallback only: the lanes are the repository's open issues (see lane_issues).
 LANE_ISSUES = (441, 592, 634)
 MAX_LANES = 8
