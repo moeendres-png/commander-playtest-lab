@@ -124,6 +124,25 @@ class XmageFullGameCoverageAbortTest {
                 .noneMatch(p -> "Hill Giant".equals(p.getName())), "3 damage destroyed the 3/3");
     }
 
+    @Test
+    void aCardWithNoCastableAbilityIsNotCastAndNotAnAbort() {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Wear // Tear", 0, Zone.HAND));
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
+                "issue747-wear-tear", 2, "P1", objects);
+        Game game = s.session.restorationGame();
+        mage.cards.Card card = game.getPlayer(s.seats.get("P1").getId()).getHand().getCards(game).stream()
+                .filter(c -> "Wear // Tear".equals(c.getName()))
+                .findFirst().orElseThrow();
+        // No artifact and no enchantment: neither half has a legal target.
+        assertTrue(mage.players.PlayerImpl.getCastableSpellAbilities(
+                game, s.seats.get("P1").getId(), card, Zone.HAND, true).isEmpty());
+        assertNull(s.seats.get("P1").chooseAbilityForCast(card, game, true),
+                "nothing is castable, so nothing is cast");
+        assertTrue(s.session.pendingDecisionPayload().get("failure").isJsonNull(),
+                "the game goes on");
+    }
+
     /** One target by engine id plus its share, as one response. */
     private static void submitTargetAmount(XmageMultiplayerScenario s, String tag, String objectId, int amount) {
         JsonObject pending = s.session.pendingDecisionPayload().getAsJsonObject("decision");

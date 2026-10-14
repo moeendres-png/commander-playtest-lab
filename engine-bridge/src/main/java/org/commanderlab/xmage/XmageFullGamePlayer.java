@@ -15,6 +15,8 @@ import mage.abilities.TriggeredAbility;
 import mage.abilities.costs.Cost;
 import mage.abilities.costs.Costs;
 import mage.abilities.costs.common.DiscardTargetCost;
+import mage.abilities.costs.common.PayLifeCost;
+import mage.abilities.costs.common.PayVariableLifeCost;
 import mage.abilities.costs.common.SacrificeSourceCost;
 import mage.abilities.costs.common.TapSourceCost;
 import mage.abilities.costs.common.UntapSourceCost;
@@ -244,6 +246,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private Ability paidSpellAbility;
 
     /**
+     * #747: the caster's life after the last mana step of
+     * {@link #paidSpellAbility}, read by {@link #reversedUnpayableLifeCost}.
+     * Reset on every priority entry.
+     */
+    private Integer lifeAfterSpellManaPayment;
+
+    /**
      * #715: the ability the engine passed to the bridge's NON-target choice
      * callback when {@link #emptyNonTargetChoice} was recorded, i.e. the
      * instance the engine used at that moment. Read back by
@@ -394,7 +403,18 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 noMana
         );
         if (castable.isEmpty()) {
-            fail("NO_LEGAL_ACTION", "XMage supplied no castable spell ability for " + card.getIdName());
+            // An effect offers to cast this card (cascade, "you may cast it"),
+            // but the engine itself lists no castable spell ability: no half of
+            // a split card has a legal target, for example (#747, Wear // Tear
+            // with no artifact or enchantment on the battlefield). The player
+            // has no choice to make and the spell cannot be cast; every engine
+            // caller treats null as "not cast". Recorded as a forced move so the
+            // transcript shows it instead of hiding it.
+            decisionController.recordForcedMove(
+                    "choice",
+                    "Choose how to cast " + card.getName(),
+                    "no castable spell ability: not cast"
+            );
             return null;
         }
         List<SpellAbility> legal = castable.values().stream()
@@ -595,6 +615,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         concessionInterruptedAction = false;
         xAnnouncedAbility = null;
         paidSpellAbility = null;
+        lifeAfterSpellManaPayment = null;
         targetChoiceRequested = false;
         targetCallbackSource = null;
         offeredTargetObjects.clear();
@@ -656,6 +677,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // modes, choices, shortfall payments) surfaces as further engine
         // decisions, which the caller must handle or fail closed on.
         if (ability instanceof SpellAbility) {
+            // #747: the engine-held facts reversedBeforeAnyChoice compares
+            // after a failed cast, taken before the engine starts on it.
+            Card castCard = game.getCard(ability.getSourceId());
+            Zone castOrigin = castCard == null ? null
+                    : game.getState().getZone(castCard.getMainCard().getId());
+            int stackBefore = game.getStack().size();
+            long decisionsBefore = decisionController.decisionCount();
             boolean cast = cast(
                     (SpellAbility) ability, game, false,
                     new mage.ApprovingObject(ability, game));
@@ -667,6 +695,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || leftMidAction()
                         || reversedRequiredXTarget(game)
                         || reversedUnpayableDiscardCost(ability, game)
+                        || reversedUnpayableLifeCost(ability, game)
+                        || reversedBeforeAnyChoice(ability, game, castOrigin, stackBefore, decisionsBefore)
                         || reversedDependentRequiredTarget(ability, game)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
@@ -707,6 +737,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // "target creature that player controls"). The engine
                     // skips the later target without asking (Targets.java:105)
                     // and reverses the cast under CR 601.2c / 601.2e.
+                    //
+                    // #747 adds two more engine-held reversals:
+                    // reversedUnpayableLifeCost (X life announced, then a
+                    // painland in the mana step left less life than X, CR 119.4)
+                    // and reversedBeforeAnyChoice (the engine refused the spell
+                    // before asking anything, e.g. no legal target for the spell
+                    // on the stack, CR 601.2c).
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -1085,6 +1122,160 @@ final class XmageFullGamePlayer extends PlayerImpl {
         Card spellCard = game.getCard(paid.getSourceId());
         return spellCard != null
                 && Zone.HAND.match(game.getState().getZone(spellCard.getMainCard().getId()));
+    }
+
+    /**
+     * #747: true only when the engine itself reversed {@code casting} because a
+     * life payment fixed during the cast could no longer be paid.
+     *
+     * <p>Fire Covenant: "As an additional cost to cast this spell, pay X life."
+     * X is announced in CR 601.2b, up to the caster's life total
+     * ({@code PayVariableLifeCost.getMaxValue}), and
+     * {@code AbilityImpl.handleOtherXCosts} inserts a fixed {@code PayLifeCost}
+     * of X. If a mana ability used in CR 601.2g's mana step costs life (a
+     * painland: "deals 1 damage to you"), the life total can fall below X
+     * before the life is paid. CR 119.4 lets a player pay life only up to
+     * their life total, so the cost is not paid (CR 118.3),
+     * {@code AbilityImpl.activate} returns false ("activate failed - non mana
+     * costs") and {@code PlayerImpl.cast} restores its bookmark: the CR 601.2e
+     * rewind.
+     *
+     * <p>Engine-held facts, read after the attempt, as in
+     * {@link #reversedUnpayableDiscardCost}:
+     * <ol>
+     *   <li>the engine asked this bridge to pay mana for this very card
+     *       ({@link #paidSpellAbility}), and that instance's mana costs are
+     *       fully paid, so the non-mana step was reached;</li>
+     *   <li>the FIRST unpaid cost of that instance is a {@code PayLifeCost}
+     *       ({@code CostsImpl.pay} stops at the first cost whose pay fails);</li>
+     *   <li>the announced X of the paid {@code PayVariableLifeCost} it was
+     *       fixed from exceeds the caster's life recorded once the spell's
+     *       mana was paid ({@link #lifeAfterSpellManaPayment}); the restore has
+     *       already given that life back, so it is recorded at payment time;
+     *       and</li>
+     *   <li>the card is back in the caster's hand, i.e. the rewind happened.</li>
+     * </ol>
+     */
+    boolean reversedUnpayableLifeCost(Ability casting, Game game) {
+        Ability paid = paidSpellAbility;
+        if (paid == null || casting == null || game == null) {
+            return false;
+        }
+        if (paid.getSourceId() == null || !paid.getSourceId().equals(casting.getSourceId())) {
+            return false;
+        }
+        ManaCosts<ManaCost> manaCostsToPay = paid.getManaCostsToPay();
+        if (manaCostsToPay == null || !manaCostsToPay.isPaid()) {
+            return false;
+        }
+        Costs<Cost> costs = paid.getCosts();
+        if (costs == null || costs.isEmpty()) {
+            return false;
+        }
+        Cost unpaid = null;
+        for (Cost cost : costs) {
+            if (!cost.isPaid()) {
+                unpaid = cost;
+                break;
+            }
+        }
+        if (!(unpaid instanceof PayLifeCost lifeCost) || lifeAfterSpellManaPayment == null) {
+            return false;
+        }
+        // CR 119.4: more life than the caster had once the mana was paid. The
+        // engine's own canPay cannot be asked here: the restore already gave the
+        // life back.
+        // The announced X of the paid PayVariableLifeCost is the amount of the
+        // PayLifeCost handleOtherXCosts fixed from it, placed just before it.
+        Integer announced = null;
+        for (Cost cost : costs) {
+            if (cost instanceof PayVariableLifeCost variable && cost.isPaid()) {
+                announced = variable.getAmount();
+                break;
+            }
+        }
+        if (announced == null || announced <= lifeAfterSpellManaPayment) {
+            return false;
+        }
+        Card spellCard = game.getCard(paid.getSourceId());
+        return spellCard != null
+                && Zone.HAND.match(game.getState().getZone(spellCard.getMainCard().getId()));
+    }
+
+    /**
+     * #747: true only when the engine refused to cast {@code casting} before
+     * it asked the player anything at all.
+     *
+     * <p>Resculpt ("Exile target artifact or creature") after an opponent's
+     * "creatures you control can't be the targets of blue or black spells this
+     * turn": XMage's playable check reads the card in hand, which is not yet a
+     * blue spell, so it offers the cast; on the stack the spell has no legal
+     * target. {@code Targets.chooseTargets} skips a target whose
+     * {@code canChoose} is false without asking (Targets.java:105),
+     * {@code AbilityImpl.activate} returns false at its CR 601.2c check and
+     * {@code PlayerImpl.cast} restores its bookmark. XMage's own human player
+     * sees the same: the cast does nothing and priority returns.
+     *
+     * <p>Engine-held facts, taken around the attempt:
+     * <ol>
+     *   <li>the engine handed the pilot no decision during the attempt (the
+     *       controller's decision count is unchanged), and no bridge callback
+     *       left any trace: no target was requested, no mana was asked for, no
+     *       X was announced, no mode or cost choice came back empty;</li>
+     *   <li>the spell has a target with a minimum above zero, and nothing was
+     *       chosen for it; and</li>
+     *   <li>the card is back in the zone the cast started from and the stack
+     *       holds exactly what it held before: the rewind happened.</li>
+     * </ol>
+     * A failure after any choice, or one that leaves the card or the stack
+     * changed, still fails closed with XMAGE_ACTION_EXECUTION_FAILED.
+     */
+    boolean reversedBeforeAnyChoice(
+            Ability casting,
+            Game game,
+            Zone origin,
+            int stackBefore,
+            long decisionsBefore
+    ) {
+        if (casting == null || game == null || origin == null) {
+            return false;
+        }
+        if (decisionController.decisionCount() != decisionsBefore
+                || targetChoiceRequested
+                || paidSpellAbility != null
+                || xAnnouncedAbility != null
+                || emptyNonTargetChoice
+                || noViableMode
+                || paymentCancelled) {
+            return false;
+        }
+        boolean unchosenRequiredTarget = false;
+        for (Target target : casting.getTargets()) {
+            if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
+                unchosenRequiredTarget = true;
+                break;
+            }
+        }
+        if (!unchosenRequiredTarget) {
+            return false;
+        }
+        Card card = game.getCard(casting.getSourceId());
+        return card != null
+                && origin == game.getState().getZone(card.getMainCard().getId())
+                && game.getStack().size() == stackBefore;
+    }
+
+    /**
+     * #747 boundary tests only: package-private, no production caller. Mirrors
+     * exactly what {@link #playMana} records once a mana step of the spell ends.
+     */
+    void recordLifeAfterSpellManaPaymentForBoundaryTest(Integer life) {
+        lifeAfterSpellManaPayment = life;
+    }
+
+    /** #747 boundary tests only: the controller's decision count, read-only. */
+    long decisionCountForBoundaryTest() {
+        return decisionController.decisionCount();
     }
 
     /**
@@ -1479,6 +1670,13 @@ final class XmageFullGamePlayer extends PlayerImpl {
         } finally {
             if (inFlight != null) {
                 manaPaymentsInFlight.pop();
+            }
+            // #747: the caster's life once this mana step of the spell is done.
+            // A mana ability that costs life (a painland) has already resolved
+            // here; the bookmark restore after a failed cast gives the life
+            // back, so reversedUnpayableLifeCost cannot read it afterwards.
+            if (ability != null && ability == paidSpellAbility) {
+                lifeAfterSpellManaPayment = getLife();
             }
         }
     }
