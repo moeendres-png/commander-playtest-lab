@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib
 import json
 import os
 from pathlib import Path
@@ -12,7 +13,6 @@ from commander_lab.engine.structural import (
     load_project_structural_decks,
 )
 from commander_lab.models import CardIdentity
-from commander_lab.tools.service import CommanderToolService
 
 
 def pytest_configure(config: pytest.Config) -> None:
@@ -61,8 +61,12 @@ def clean_tracked_worktree(request: pytest.FixtureRequest, monkeypatch: pytest.M
     ``@pytest.mark.real_worktree_state``.
     """
     if request.node.get_closest_marker("real_worktree_state") is None:
+        # Imported at run time: a module-level import here would put the whole
+        # tool-service import graph into every test-running workflow's gates
+        # (scripts/audit_workflow_impact.py follows conftest imports).
+        service = importlib.import_module("commander_lab.tools.service")
         monkeypatch.setattr(
-            CommanderToolService, "tracked_worktree_dirty", property(lambda _self: False)
+            service.CommanderToolService, "tracked_worktree_dirty", property(lambda _self: False)
         )
 
 
