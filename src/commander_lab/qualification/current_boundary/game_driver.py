@@ -353,7 +353,8 @@ def build_deck(deck_id: str) -> dict[str, Any]:
         "Aerial Assault",
     ]
     mainboard = vanillas + ["Plains"] * (99 - len(vanillas))
-    assert len(mainboard) == 99
+    if not (len(mainboard) == 99):
+        raise RuntimeError("invariant violated: len(mainboard) == 99")
     deck_id_digest = hashlib.sha256(
         ("|".join(["Isamaru, Hound of Konda", *mainboard])).encode("utf-8")
     ).hexdigest()

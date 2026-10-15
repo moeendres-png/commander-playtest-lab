@@ -42,9 +42,11 @@ def run_whole_deck(service: Any, request: Any) -> dict[str, Any]:
             ),
         )
         primary = campaign_bundle["primary"]
-        assert isinstance(primary, dict)
+        if not (isinstance(primary, dict)):
+            raise RuntimeError("invariant violated: isinstance(primary, dict)")
         campaign = primary["campaign"]
-        assert isinstance(campaign, dict)
+        if not (isinstance(campaign, dict)):
+            raise RuntimeError("invariant violated: isinstance(campaign, dict)")
         five_player_sensitivity: dict[str, object] | None = None
         multiplayer_response: dict[str, object] | None = None
         if request.whole_deck_five_player_sensitivity_iterations:
@@ -59,7 +61,8 @@ def run_whole_deck(service: Any, request: Any) -> dict[str, Any]:
                 ),
             )
             five_campaign = five_player_sensitivity["campaign"]
-            assert isinstance(five_campaign, dict)
+            if not (isinstance(five_campaign, dict)):
+                raise RuntimeError("invariant violated: isinstance(five_campaign, dict)")
             multiplayer_response = multiplayer_pod_response(
                 campaign,
                 five_campaign,

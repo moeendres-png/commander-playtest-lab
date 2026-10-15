@@ -4706,7 +4706,8 @@ def execute_row(
         # A combat checkpoint: the record's requested combat is declared on
         # the engine's own frames before it. A declaration the record's own
         # script makes is not the requested combat's to answer.
-        assert combat is not None
+        if combat is None:
+            raise RuntimeError("invariant violated: combat is not None")
         if decision_class == "declare_attacker" and _scripts_family(record, "declare_attacker"):
             return False
         if decision_class == "declare_blocker" and (
@@ -4849,7 +4850,8 @@ def execute_row(
                     "elimination": None,
                 },
             )
-        assert reconstruction is not None
+        if reconstruction is None:
+            raise RuntimeError("invariant violated: reconstruction is not None")
         reconstruction["permanents"] = permanents
         if not permanents.get("causal_match") or permanents.get("mismatches"):
             return row_execution(
@@ -5198,7 +5200,8 @@ def execute_row(
             if (decision_class == "declare_attacker" and answers_attacks) or (
                 decision_class == "declare_blocker" and answers_blocks
             ):
-                assert combat is not None
+                if combat is None:
+                    raise RuntimeError("invariant violated: combat is not None")
                 trace[-1] = answer_requested_combat(
                     client,
                     record,

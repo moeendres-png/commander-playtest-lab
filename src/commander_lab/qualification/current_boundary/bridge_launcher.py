@@ -401,8 +401,10 @@ class BridgeProcess:
         line = json.dumps(envelope, ensure_ascii=False, sort_keys=True)
         self.transcript.append({"direction": "request", "sent": envelope})
         try:
-            assert self.popen.stdin is not None
-            assert self.popen.stdout is not None
+            if self.popen.stdin is None:
+                raise RuntimeError("invariant violated: self.popen.stdin is not None")
+            if self.popen.stdout is None:
+                raise RuntimeError("invariant violated: self.popen.stdout is not None")
             self.popen.stdin.write(line + "\n")
             self.popen.stdin.flush()
         except (BrokenPipeError, ValueError) as exc:  # pragma: no cover - transport failure
@@ -446,7 +448,8 @@ class BridgeProcess:
         because the stream is a buffered ``TextIOWrapper``, whose fd-level
         readiness does not imply a complete line is available.
         """
-        assert self.popen.stdout is not None
+        if self.popen.stdout is None:
+            raise RuntimeError("invariant violated: self.popen.stdout is not None")
         self._last_timeout_s = timeout_s
         result: list[str] = []
         finished = threading.Event()
@@ -636,7 +639,8 @@ def launch(plan: LaunchPlan, *, timeout_s: float = 60.0) -> BridgeProcess:
 
 def iter_responses(proc: BridgeProcess) -> Iterator[dict[str, Any]]:  # pragma: no cover
     """Yield responses from a live bridge (diagnostic helper)."""
-    assert proc.popen.stdout is not None
+    if proc.popen.stdout is None:
+        raise RuntimeError("invariant violated: proc.popen.stdout is not None")
     for line in proc.popen.stdout:
         if line.strip():
             yield json.loads(line)

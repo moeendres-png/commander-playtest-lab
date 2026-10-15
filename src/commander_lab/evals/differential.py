@@ -144,7 +144,8 @@ def run_configured_differential_cases(
             )
             continue
         backend, command = selected
-        assert command is not None
+        if command is None:
+            raise RuntimeError("invariant violated: command is not None")
         try:
             observation = run_external_case(case, backend=backend, command_template=command)
             results.append(compare_observation(case, observation))

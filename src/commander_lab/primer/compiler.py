@@ -226,7 +226,8 @@ def evaluate_condition(
             deck_hash=deck_hash,
         )
 
-    assert condition.field is not None
+    if condition.field is None:
+        raise RuntimeError("invariant violated: condition.field is not None")
     actual = _resolve_field(
         condition.field,
         state=state,
