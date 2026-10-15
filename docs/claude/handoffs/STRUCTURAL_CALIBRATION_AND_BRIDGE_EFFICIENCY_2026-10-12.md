@@ -56,11 +56,11 @@ but the absolute win probabilities are still worse than a uniform guess.
 
 ## 4. Open work (in priority order)
 
-1. **Run the fit** (above, `--fit`). A local run was started but its result was not
-   persisted. Then apply the agreed decision rule on the held-out half:
+1. ~~**Run the fit**~~ **Done 2026-10-14, rule NOT met** (section 6). The agreed decision rule
+   on the held-out half was:
    Structural stays an evaluator only if held-out log-loss is clearly below uniform AND
    Spearman >= 0.5. Otherwise demote it to a cheap prefilter and let XMage full games rank.
-2. If the fit cannot pull Kaervek down, scale or drop its card-specific cast trigger
+2. ~~If the fit cannot pull Kaervek down~~ The fit sets `cast_trigger_damage` to 0. If the fit cannot pull Kaervek down, scale or drop its card-specific cast trigger
    (`_resolve_cast_triggers`, now driven by `StructuralTuning.cast_trigger_damage`).
 3. The other 7 opponents with placeholder cards need exact lists (as done for Hosts and
    Lorehold) or should be excluded from the 15-deck screening ensemble.
@@ -86,3 +86,40 @@ but the absolute win probabilities are still worse than a uniform guess.
   could be served after it.
 - Baseline reproduced with facts profiles and 3 seeds per pod: Spearman 0.371 over 22 decks,
   log-loss 1.900 against 1.386 for a uniform guess.
+
+## 6. Fit result and decision (2026-10-14)
+
+Command: `calibrate_structural_vs_xmage.py --seeds-per-pod 16 --profiles facts --fit
+--fit-seeds 8 --fit-rounds 2` over the 159 committed reference pods. The full output is in
+`data/calibration/structural_fit_2026-10-14.json`.
+
+| Half | Tuning | Log-loss (uniform 1.386) | Spearman over 22 decks |
+|---|---|---:|---:|
+| fit half (79 pods) | fitted | 1.307 | 0.193 |
+| held-out half (80 pods) | default | 1.390 | n/a |
+| held-out half (80 pods) | fitted | **1.265** | **0.289** |
+| all 159 pods | fitted | 1.286 | 0.379 |
+
+The fitted tuning:
+- creature_attack 0.93 (default 0.62)
+- token_attack 0.35
+- creature_blocking 0.70 (default 0.35)
+- token_blocking 0.375
+- payoff_damage 0.675
+- cast_trigger_damage **0.0** (default 1.0)
+- token_creation 1.6
+- finisher_damage 1.0
+
+The fit makes Structural's win probabilities better than a uniform guess on held-out pods
+(1.265 against 1.386). It does not make its deck ranking track XMage: Spearman stays at 0.29
+on the held-out half, below the required 0.5.
+
+**Decision by the agreed rule:** Structural is **not** an evaluator. It stays a cheap prefilter,
+and XMage full games rank candidates. `DEFAULT_TUNING` is left unchanged, so every existing
+Structural result stays reproducible. The fitted values are recorded above and in the JSON for
+whoever wires the prefilter.
+
+Open follow-ups:
+- Wire optimizer-v2 so XMage full games, not Structural scores, rank the candidates that survive
+  the Structural prefilter.
+- Item 3 (placeholder opponents) still applies to the prefilter.
