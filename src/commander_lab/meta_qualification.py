@@ -220,7 +220,8 @@ def run_live_consumer_mutations(
             results.append({**row, "status": "NOT_RUN"})
             continue
         mutated, index = _mutate_real_tape(tape, spec.mutation_id)
-        assert index is not None
+        if index is None:
+            raise RuntimeError("invariant violated: index is not None")
         expected_step = index + 1 if index < len(tape["steps"]) else None
         row["expected_step"] = expected_step
         path = workdir / f"{spec.mutation_id}.tape.json"
