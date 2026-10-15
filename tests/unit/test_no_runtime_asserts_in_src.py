@@ -7,11 +7,8 @@ from pathlib import Path
 
 SRC = Path(__file__).resolve().parents[2] / "src" / "commander_lab"
 
-# Files still pending cleanup by another change; the coordinator empties this after merge.
-ALLOWLIST = {
-    "engine/rules/full_game.py",
-    "engine/rules/full_game_comparison.py",
-}
+# Paths relative to src/commander_lab that may still use assert (none today).
+ALLOWLIST: set[str] = set()
 
 
 def test_no_runtime_asserts_in_src() -> None:
