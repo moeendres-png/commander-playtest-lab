@@ -157,7 +157,7 @@ src/commander_lab/engine/structural/simulator_fidelity.py
 
 ## Setup and validation
 
-Requirements: Python 3.12, and for real games JDK 21 and Maven 3.9.
+Requirements: Python 3.12, and for real games a JDK (CI builds with Temurin 17; 21 also works) and Maven 3.9.
 
 ### Python suite (the way CI runs it)
 
