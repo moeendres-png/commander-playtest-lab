@@ -126,10 +126,17 @@ def card_facts(name: str | None, path: Path | None = None) -> CardFacts | None:
 
 _REMOVAL = re.compile(
     r"(destroy|exile) (up to (one|two|three) )?(another )?target"
+    r"|(destroy|exile) (two|three|x) target"
     r"|deals? (\d+|x) damage to (any target|target creature|target (creature or )?planeswalker)"
-    r"|target creature gets -\d+/-\d+"
+    r"|deals? damage equal to [^.]* to (any target|target creature)"
+    r"|target creature (an opponent controls )?gets -(\d+|x)/-(\d+|x)"
     r"|return target (nonland )?(creature|permanent|artifact|enchantment)[^.]* to its owner's hand"
+    r"|put target (nonland )?(creature|permanent)[^.]* on (the )?(top|bottom) of its owner's library"
     r"|gain control of target"
+    r"|fights? (target|another target|up to one target) creature"
+    r"|enchanted creature can't attack or block|enchanted creature doesn't untap"
+    r"|enchanted creature gets -"
+    r"|target (player|opponent) sacrifices"
 )
 _WIPE = re.compile(
     r"(destroy|exile) (all|each) (other )?(nonland )?(creatures?|permanents?|artifacts?|nontoken)"
@@ -137,7 +144,9 @@ _WIPE = re.compile(
     r"|all creatures get -"
     r"|each player sacrifices"
 )
-_DRAW = re.compile(r"draws? (a|two|three|four|x|that many) cards?|draw cards equal")
+_DRAW = re.compile(
+    r"draws? (a|an additional|two|three|four|five|seven|x|that many) cards?|draw cards equal"
+)
 _SELECTION = re.compile(
     r"\bscry\b|\bsurveil\b|look at the top|discard a card, then draw|then discard"
 )
@@ -152,7 +161,10 @@ _PROTECTION = re.compile(
 )
 _RECURSION = re.compile(r"return [^.]* from your graveyard|from your graveyard (to|onto)")
 _GRAVE_HATE = re.compile(r"exile (all cards from )?(target player's|each opponent's|all) graveyard")
-_TOKENS = re.compile(r"create (a|an|one|two|three|x|that many|\d+) ")
+_TOKENS = re.compile(
+    r"create (a|an|one|two|three|four|five|six|seven|eight|nine|ten|x|that many|\d+) "
+)
+_ANTHEM = re.compile(r"(enchanted|equipped) creature gets \+|creatures you control get \+")
 _TABLE = re.compile(r"each opponent (loses|deals?|sacrifices)|deals? \d+ damage to each opponent")
 
 
@@ -240,6 +252,8 @@ def card_roles(facts: CardFacts) -> dict[CardRole, float]:
         add(CardRole.TOKEN_SOURCE, 0.7)
     if _TABLE.search(text):
         add(CardRole.PAYOFF, 0.8)
+    if _ANTHEM.search(text):
+        add(CardRole.COMBAT_PAYOFF, 0.5)
     if "whenever" in text or "at the beginning of" in text:
         add(CardRole.ENGINE, 0.7)
     power = facts.power or 0

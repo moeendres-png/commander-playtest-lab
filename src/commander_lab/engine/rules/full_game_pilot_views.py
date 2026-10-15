@@ -122,6 +122,123 @@ def board_summary(player: Mapping[str, Any]) -> dict[str, float]:
     return {"creature_power": power, "nonland_permanents": nonland, "lands": float(lands)}
 
 
+def _alive(player: Mapping[str, Any]) -> bool:
+    life = player.get("life")
+    return (
+        player.get("has_lost") is not True
+        and player.get("in_game") is not False
+        and (not isinstance(life, int | float) or life > 0)
+    )
+
+
+def player_threat(player: Mapping[str, Any], state: Mapping[str, Any]) -> float:
+    """How dangerous one player is to the rest of the table right now.
+
+    What a Commander player looks at when deciding who the archenemy is: the
+    value of the permanents on the board (a commander, engines, big creatures
+    and planeswalkers count most, lands little), the creature power that can
+    attack next turn, the cards still in hand, and the mana to cast them. A
+    player close to death threatens less, because the table can finish them.
+    """
+    if not _alive(player):
+        return 0.0
+    board_value = 0.0
+    lands = 0
+    for item in _items(player.get("battlefield")):
+        if is_land_entry(item):
+            lands += 1
+            continue
+        board_value += min(12.0, entry_value(item, state))
+    power = board_summary(player)["creature_power"]
+    hand = player.get("hand_count")
+    hand_count = (
+        hand
+        if isinstance(hand, int) and not isinstance(hand, bool)
+        else len(_items(player.get("hand")))
+    )
+    life = player.get("life")
+    life_value = float(life) if isinstance(life, int | float) else 40.0
+    threat = board_value * 0.35 + power * 0.25 + lands * 0.15 + hand_count * 0.3
+    return threat * (0.6 + 0.4 * min(1.0, max(0.0, life_value) / 40.0))
+
+
+def table_threats(state: Mapping[str, Any]) -> dict[str, float]:
+    """``player_threat`` of every player still in the game, the actor included."""
+    return {
+        str(player.get("player_id", "")): player_threat(player, state)
+        for player in players(state)
+        if _alive(player)
+    }
+
+
+def archenemy(state: Mapping[str, Any]) -> str | None:
+    """The player the table should be working against, when one clearly leads.
+
+    Clearly means a threat at least a quarter above the next player's; an even
+    table has no archenemy (ties are broken by nothing, so no engine order
+    leaks in).
+    """
+    ranked = sorted(table_threats(state).items(), key=lambda item: item[1], reverse=True)
+    if not ranked or ranked[0][1] < 4.0:
+        return None
+    if len(ranked) > 1 and ranked[0][1] < ranked[1][1] * 1.25:
+        return None
+    return ranked[0][0]
+
+
+def boardwipe_risk(state: Mapping[str, Any]) -> float:
+    """Chance-like 0..1 pressure that the actor's board is the one a wipe answers.
+
+    Hidden hands make this an estimate: the further the actor's board is ahead
+    of the average opponent's, and the more cards opponents still hold, the
+    likelier someone answers it with a wipe.
+    """
+    actor_id = str(state.get("actor_id", ""))
+    own = 0.0
+    others: list[float] = []
+    hands: list[int] = []
+    for player in players(state):
+        if not _alive(player):
+            continue
+        value = sum(
+            min(12.0, entry_value(item, state))
+            for item in _items(player.get("battlefield"))
+            if not is_land_entry(item)
+        )
+        if str(player.get("player_id", "")) == actor_id:
+            own = value
+        else:
+            others.append(value)
+            hand = player.get("hand_count")
+            hands.append(hand if isinstance(hand, int) and not isinstance(hand, bool) else 0)
+    if not others or own <= 0.0:
+        return 0.0
+    lead = (own - sum(others) / len(others)) / (own + 4.0)
+    cards = min(1.0, (sum(hands) / len(hands)) / 4.0)
+    return max(0.0, min(1.0, lead * cards))
+
+
+def stack_pressure(state: Mapping[str, Any], own_stack_names: frozenset[str]) -> float:
+    """0..1: how much the opponents' objects on the stack call for an answer now."""
+    total = 0.0
+    for item in _items(state.get("stack")):
+        name = str(item.get("name") or "")
+        if name.casefold() in own_stack_names:
+            continue
+        facts = card_facts(name)
+        total += facts.mana_value if facts is not None else 2.0
+    return min(1.0, total / 8.0)
+
+
+def creature_board_value(player: Mapping[str, Any], state: Mapping[str, Any]) -> float:
+    """Summed value of one player's creatures: what a creature wipe destroys."""
+    return sum(
+        min(12.0, entry_value(item, state))
+        for item in _items(player.get("battlefield"))
+        if is_creature_entry(item)
+    )
+
+
 def hand_role_counts(names: Iterable[str]) -> dict[CardRole, int]:
     counts: Counter[CardRole] = Counter()
     for name in names:
@@ -268,19 +385,22 @@ def priority_view_fields(
             fields["immediate_impact"] = min(2.0, float(fields["immediate_impact"]) + curve)
             extra["curve_bonus"] = round(curve, 3)
         withhold = _spell_withhold_reason(facts, roles, state, actor_id, own_stack_names)
-        if CardRole.WIPE in roles:
-            own = next((p for p in players(state) if str(p.get("player_id")) == actor_id), {})
-            mine = board_summary(own)["creature_power"]
-            theirs = max(
-                (
-                    board_summary(p)["creature_power"]
-                    for p in players(state)
-                    if str(p.get("player_id")) != actor_id
-                ),
-                default=0.0,
-            )
-            if mine >= theirs:
-                withhold = withhold or "wipe_hurts_own_board_most"
+        if CardRole.WIPE in roles and withhold is None:
+            withhold = _wipe_withhold_reason(facts, state, actor_id)
+        if CardRole.COUNTER in roles and withhold is None:
+            worth = counter_target_worth(state, own_stack_names)
+            if worth is not None:
+                # What a counterspell is worth is the spell it answers.
+                fields["threat_score"] = worth
+        if CardRole.REMOVAL in roles and withhold is None:
+            best = best_removal_target_value(facts, state, actor_id)
+            if best is not None:
+                # Removal is worth what it removes: a commander or an engine
+                # is a far better use than a token.
+                extra["best_target_value"] = round(best, 3)
+                fields["immediate_impact"] = min(
+                    2.0, float(fields["immediate_impact"]) + min(1.0, best / 8.0)
+                )
         return {**fields, "metadata": extra}, withhold
 
     if option_type in {"activated_ability"} and ability_type != "spell":
@@ -323,6 +443,10 @@ def _spell_withhold_reason(
         }
         if stack_names and stack_names <= own_stack_names:
             return "counter_only_own_stack"
+    if CardRole.COUNTER in roles and "counter target" in text:
+        worth = counter_target_worth(state, own_stack_names)
+        if worth is not None and worth < _COUNTER_WORTH:
+            return "counter_target_not_worth_it"
     other = set(roles) - {CardRole.REMOVAL}
     only_removal = CardRole.REMOVAL in roles and not other
     if (
@@ -337,6 +461,86 @@ def _spell_withhold_reason(
         and not _opponent_has(state, actor_id, lambda item: not is_land_entry(item))
     ):
         return "no_opponent_permanent_to_remove"
+    if only_removal:
+        best = best_removal_target_value(facts, state, actor_id)
+        if best is not None and best < _REMOVAL_WORTH:
+            # Players keep spot removal for a real threat instead of
+            # spending it on a token or a mana creature.
+            return "no_worthy_removal_target"
+    return None
+
+
+# A permanent below this value (about a vanilla two-drop) is not worth a removal
+# spell; a spell below this mana value (with no wipe, removal or finisher role)
+# is not worth a counterspell.
+_REMOVAL_WORTH = 3.0
+_COUNTER_WORTH = 3.0
+
+
+def best_removal_target_value(
+    facts: CardFacts, state: Mapping[str, Any], actor_id: str
+) -> float | None:
+    """Value of the best opposing permanent this removal could hit, or None if unknown."""
+    text = facts.oracle_text.casefold()
+    if "target creature" in text:
+        wanted = is_creature_entry
+    elif re.search(r"target (nonland )?(artifact|enchantment|permanent|planeswalker)", text):
+
+        def wanted(item: Mapping[str, Any]) -> bool:
+            return not is_land_entry(item)
+
+    else:
+        return None
+    values = [
+        entry_value(item, state)
+        for player in players(state)
+        if str(player.get("player_id")) != actor_id and _alive(player)
+        for item in _items(player.get("battlefield"))
+        if wanted(item)
+    ]
+    return max(values, default=0.0)
+
+
+def counter_target_worth(state: Mapping[str, Any], own_stack_names: frozenset[str]) -> float | None:
+    """Worth of the opponents' top spell on the stack, or None when unknown."""
+    commanders = commander_names(state)
+    for item in reversed(_items(state.get("stack"))):
+        name = str(item.get("name") or "")
+        if name.casefold() in own_stack_names:
+            continue
+        if name.casefold() in commanders:
+            return 10.0
+        facts = card_facts(name)
+        if facts is None:
+            return None
+        roles = card_roles(facts)
+        if roles.keys() & {CardRole.WIPE, CardRole.FINISHER, CardRole.REMOVAL}:
+            return max(_COUNTER_WORTH, facts.mana_value)
+        return facts.mana_value
+    return None
+
+
+def _wipe_withhold_reason(facts: CardFacts, state: Mapping[str, Any], actor_id: str) -> str | None:
+    """A wipe is for when the table is ahead of the actor, not the other way round."""
+    text = facts.oracle_text.casefold()
+    one_sided = "you don't control" in text or "your opponents control" in text
+    mine = 0.0
+    theirs: list[float] = []
+    for player in players(state):
+        if not _alive(player):
+            continue
+        value = creature_board_value(player, state)
+        if str(player.get("player_id")) == actor_id:
+            mine = value
+        else:
+            theirs.append(value)
+    total = sum(theirs)
+    if total < 6.0:
+        return "wipe_nothing_worth_wiping"
+    if one_sided:
+        return None
+    if max(theirs, default=0.0) <= mine * 1.25 + 2.0 and total <= mine * 2.5 + 6.0:
+        return "wipe_hurts_own_board_most"
     return None
 
 
@@ -382,17 +586,23 @@ def _blockers_of(player: Mapping[str, Any]) -> list[dict[str, Any]]:
 
 
 def focus_defender(state: Mapping[str, Any]) -> str | None:
-    """The opponent to concentrate attacks on: lowest life, then biggest board."""
+    """The opponent to concentrate attacks on.
+
+    Commander players pressure the archenemy (the biggest threat at the table)
+    and finish off a player they can actually remove; spreading damage evenly
+    lets everyone survive. So: threat, plus a bonus that grows as a player's
+    life gets low. Ties fall to the lower life, then the player id (stable,
+    Rules-visible order).
+    """
     actor_id = str(state.get("actor_id", ""))
     candidates: list[tuple[float, float, str]] = []
     for player in players(state):
         player_id = str(player.get("player_id", ""))
         life = player.get("life")
-        if player_id == actor_id or not isinstance(life, int | float) or life <= 0:
+        if player_id == actor_id or not isinstance(life, int | float) or not _alive(player):
             continue
-        if player.get("has_lost") is True or player.get("in_game") is False:
-            continue
-        candidates.append((float(life), -board_summary(player)["creature_power"], player_id))
+        finish = max(0.0, 40.0 - float(life)) * 0.12 + max(0.0, 20.0 - float(life)) * 0.25
+        candidates.append((-(player_threat(player, state) + finish), float(life), player_id))
     return min(candidates)[2] if candidates else None
 
 
@@ -605,12 +815,17 @@ def named_choice_rank(
 
 
 __all__ = [
+    "archenemy",
     "attack_score",
+    "best_removal_target_value",
     "block_score",
     "board_summary",
+    "boardwipe_risk",
     "card_view_fields",
     "color_choice_rank",
     "commander_names",
+    "counter_target_worth",
+    "creature_board_value",
     "entry_value",
     "focus_defender",
     "hand_role_counts",
@@ -619,7 +834,10 @@ __all__ = [
     "named_choice_rank",
     "needed_colors",
     "permanent_owner",
+    "player_threat",
     "priority_view_fields",
+    "stack_pressure",
+    "table_threats",
     "target_object_bonus",
     "untapped_mana_estimate",
 ]

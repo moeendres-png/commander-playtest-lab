@@ -11,6 +11,7 @@ never a rules authority: XMage alone decides what is legal and what happens.
 
     python scripts/build_pilot_card_knowledge.py            # the real-deck pod
     python scripts/build_pilot_card_knowledge.py deck.json  # add more decks
+    python scripts/build_pilot_card_knowledge.py --names-file names.txt  # one name per line
 """
 
 from __future__ import annotations
@@ -46,6 +47,16 @@ def deck_card_names(paths: Iterable[Path]) -> list[str]:
         names.update(deck.mainboard)
         names.update(deck.commander_names)
     return sorted(names)
+
+
+def listed_names(path: Path) -> list[str]:
+    """Card names of a plain list file; blank lines and '#' comments are skipped."""
+    text = (path if path.is_absolute() else ROOT / path).read_text(encoding="utf-8")
+    return [
+        line.strip()
+        for line in text.splitlines()
+        if line.strip() and not line.lstrip().startswith("#")
+    ]
 
 
 def _int_or_none(value: Any) -> int | None:
@@ -132,11 +143,21 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("decks", nargs="*", type=Path)
     parser.add_argument("--output", type=Path, default=OUTPUT)
+    parser.add_argument(
+        "--names-file",
+        type=Path,
+        action="append",
+        default=[],
+        help="plain card list, one name per line (e.g. the owner collection)",
+    )
     args = parser.parse_args(argv)
     existing: dict[str, Any] = {}
     if args.output.exists():
         existing = json.loads(args.output.read_text(encoding="utf-8")).get("cards", {})
-    names = deck_card_names((*DEFAULT_DECKS, *args.decks))
+    names = sorted(
+        set(deck_card_names((*DEFAULT_DECKS, *args.decks)))
+        | {name for path in args.names_file for name in listed_names(path)}
+    )
     wanted = [name for name in names if name not in existing]
     fetched, missing = fetch_cards(wanted) if wanted else ({}, [])
     cards = {**existing, **fetched}
