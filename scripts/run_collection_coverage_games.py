@@ -142,7 +142,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--jvm-option", action="append", default=[])
     args = parser.parse_args(argv)
 
-    command = ("java", *args.jvm_option, "-jar", str(args.jar), "full-game")
+    # The bridge runs in a private working directory (private card repository), so a
+    # relative jar path would not resolve there (as in #776).
+    command = ("java", *args.jvm_option, "-jar", str(args.jar.resolve()), "full-game")
     decks = _load_decks()
     jobs = [
         (tuple(decks[index] for index in pod), seed)
