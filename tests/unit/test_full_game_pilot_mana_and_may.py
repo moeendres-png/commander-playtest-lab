@@ -369,8 +369,12 @@ def test_payment_spends_the_scarce_color_from_the_dual_land() -> None:
     # whole cast was cancelled (three times per turn in real games).
     options = [
         _option("cancel", "cancel_mana_payment", "Cancel mana payment"),
-        _option("stream-w", "mana_ability", "Prairie Stream — {T}: Add {W}.", source_object_id="ps"),
-        _option("stream-u", "mana_ability", "Prairie Stream — {T}: Add {U}.", source_object_id="ps"),
+        _option(
+            "stream-w", "mana_ability", "Prairie Stream — {T}: Add {W}.", source_object_id="ps"
+        ),
+        _option(
+            "stream-u", "mana_ability", "Prairie Stream — {T}: Add {U}.", source_object_id="ps"
+        ),
         _option("plains-1", "mana_ability", "Plains — {T}: Add {W}.", source_object_id="p1"),
         _option("plains-2", "mana_ability", "Plains — {T}: Add {W}.", source_object_id="p2"),
     ]
@@ -386,8 +390,18 @@ def test_payment_keeps_flexible_sources_for_later_colors() -> None:
         _request(
             "mana_payment",
             [
-                _option("stream-w", "mana_ability", "Prairie Stream — {T}: Add {W}.", source_object_id="ps"),
-                _option("stream-u", "mana_ability", "Prairie Stream — {T}: Add {U}.", source_object_id="ps"),
+                _option(
+                    "stream-w",
+                    "mana_ability",
+                    "Prairie Stream — {T}: Add {W}.",
+                    source_object_id="ps",
+                ),
+                _option(
+                    "stream-u",
+                    "mana_ability",
+                    "Prairie Stream — {T}: Add {U}.",
+                    source_object_id="ps",
+                ),
                 _option("plains", "mana_ability", "Plains — {T}: Add {W}.", source_object_id="p1"),
                 _option("island", "mana_ability", "Island — {T}: Add {U}.", source_object_id="i1"),
             ],

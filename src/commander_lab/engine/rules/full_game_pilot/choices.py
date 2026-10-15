@@ -248,7 +248,9 @@ class _ChoiceDecisions(_PaymentDecisions):
         # pilot's own choice.
         candidates = viable or options
         actor_id = str(state.get("actor_id") or "")
-        nets = [sweep_mode_net(str(option.get("label", "")), state, actor_id) for option in candidates]
+        nets = [
+            sweep_mode_net(str(option.get("label", "")), state, actor_id) for option in candidates
+        ]
         if candidates and all(net is not None for net in nets):
             ranked = sorted(
                 zip(nets, candidates, strict=True),
