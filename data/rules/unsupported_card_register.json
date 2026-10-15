@@ -7618,7 +7618,7 @@
       ]
     },
     {
-      "oracle_name": "Cornus Enforcer (unklar, Cornus-Eintreiberin)",
+      "oracle_name": "Azorius Arrester",
       "oracle_id": null,
       "deck_versions": [],
       "roles": [],
@@ -7642,7 +7642,7 @@
         "box_or_location": "Leons Box 1×",
         "current_deck_use": "keine",
         "commander_legality": "unknown",
-        "color_identity": "C"
+        "color_identity": "W"
       },
       "source_status": [
         "verified_from_canonical_source_2026-08-07"
