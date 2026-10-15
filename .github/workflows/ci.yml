@@ -70,7 +70,7 @@ jobs:
         # artifact) are reporting only; they never change collection or outcome.
         # Coverage (pytest-cov, hash-locked) is measured in the same run, report only: no
         # --cov-fail-under threshold, XML in the same artifact.
-        run: pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit.xml --ignore=tests/qualification --cov=commander_lab --cov-report=xml:artifacts/quality/coverage.xml
+        run: pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit.xml --cov=commander_lab --cov-report=xml:artifacts/quality/coverage.xml --ignore=tests/qualification
       - name: Compile
         if: ${{ success() || failure() }}
         run: python -m compileall -q src tests
