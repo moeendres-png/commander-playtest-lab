@@ -394,6 +394,12 @@ class FullGameReplayGate(_StrictModel):
 PRIVATE_ENGINE_DIRECTORY = "private"
 XMAGE_CARD_REPOSITORY_FILE = "cards.h2.mv.db"
 
+# Bridge stderr kept in memory for diagnostics. Only the last 80 lines are
+# ever reported (``stderr_tail``); the pump trims to this bound so a chatty
+# JVM cannot grow the Lab process over a long game.
+_STDERR_BUFFER_LINES = 1_000
+_STDERR_TAIL_LINES = 80
+
 
 class _RawFullGameClient:
     """One-process client for the dedicated XMage full-game lane."""
@@ -427,16 +433,28 @@ class _RawFullGameClient:
         self._stderr_lines: list[str] = []
         self._stdout_thread: threading.Thread | None = None
         self._stderr_thread: threading.Thread | None = None
+        # Set once the request/reply pairing is lost (timeout, closed or broken
+        # pipe, unparsable or unpaired reply). A late reply could still arrive
+        # and be read as the answer to the next request, so the channel takes
+        # no further requests, and close() skips the shutdown handshake that
+        # would only wait out another full request timeout.
+        self._transport_failure: str | None = None
         self.shutdown_disposition: str | None = None
         self.private_card_repository = private_card_repository
         self._private_directory: Path | None = None
 
     @property
     def stderr_tail(self) -> tuple[str, ...]:
-        return tuple(self._stderr_lines[-80:])
+        return tuple(self._stderr_lines[-_STDERR_TAIL_LINES:])
+
+    @property
+    def transport_failure(self) -> str | None:
+        """The code that made this channel unusable, or None while it is usable."""
+        return self._transport_failure
 
     def _transport_error(self, code: str, message: str) -> FullGameProtocolError:
         """A transport failure whose stderr stays in memory only (C4)."""
+        self._transport_failure = self._transport_failure or code
         tail = self.stderr_tail
         return FullGameProtocolError(
             f"{message}: " + redacted_summary(code, tail),
@@ -489,6 +507,11 @@ class _RawFullGameClient:
         self.start()
         process = self._process
         assert process is not None
+        if self._transport_failure is not None:
+            raise FullGameProtocolError(
+                f"full-game bridge channel is unusable after {self._transport_failure}",
+                code="BRIDGE_UNUSABLE",
+            )
         if process.poll() is not None or process.stdin is None:
             raise self._transport_error("BRIDGE_NOT_WRITABLE", "full-game bridge is not writable")
         request_id = str(uuid.uuid4())
@@ -502,8 +525,14 @@ class _RawFullGameClient:
             "payload": body,
             "params": body,
         }
-        process.stdin.write(json.dumps(request, sort_keys=True) + "\n")
-        process.stdin.flush()
+        try:
+            process.stdin.write(json.dumps(request, sort_keys=True) + "\n")
+            process.stdin.flush()
+        except OSError:
+            # The JVM exited between poll() and write (BrokenPipeError).
+            raise self._transport_error(
+                "BRIDGE_NOT_WRITABLE", "full-game bridge is not writable"
+            ) from None
         try:
             line = self._stdout_queue.get(timeout=self.request_timeout_seconds)
         except queue.Empty:
@@ -517,6 +546,7 @@ class _RawFullGameClient:
         try:
             response = EngineProtocolResponse.from_wire(json.loads(line))
         except Exception:
+            self._transport_failure = "INVALID_RESPONSE"
             raise FullGameProtocolError(
                 f"invalid full-game bridge response for {message_type!r}: "
                 + redacted_summary("INVALID_RESPONSE", (line,)),
@@ -530,6 +560,7 @@ class _RawFullGameClient:
                 code="PROTOCOL_MISMATCH",
             )
         if response.request_id != request_id:
+            self._transport_failure = "REQUEST_ID_MISMATCH"
             raise FullGameProtocolError(
                 "full-game bridge response request_id mismatch", code="REQUEST_ID_MISMATCH"
             )
@@ -618,11 +649,12 @@ class _RawFullGameClient:
         try:
             if process.poll() is not None:
                 return FULL_GAME_SHUTDOWN_ALREADY_EXITED
-            shutdown_acked = True
-            try:
-                self.request("shutdown_engine")
-            except Exception:
-                shutdown_acked = False
+            shutdown_acked = self._transport_failure is None
+            if shutdown_acked:
+                try:
+                    self.request("shutdown_engine")
+                except Exception:
+                    shutdown_acked = False
             if process.poll() is None:
                 with contextlib.suppress(subprocess.TimeoutExpired):
                     process.wait(timeout=self.shutdown_grace_seconds)
@@ -651,8 +683,12 @@ class _RawFullGameClient:
             self._stdout_queue.put(None)
 
     def _pump_stderr(self, stream: Any) -> None:
+        lines = self._stderr_lines
         for line in iter(stream.readline, ""):
-            self._stderr_lines.append(line.rstrip("\n"))
+            lines.append(line.rstrip("\n"))
+            if len(lines) > _STDERR_BUFFER_LINES:
+                # The pump is the only writer; readers only slice the tail.
+                del lines[:-_STDERR_TAIL_LINES]
 
     def __enter__(self) -> _RawFullGameClient:
         self.start()
