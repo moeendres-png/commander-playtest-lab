@@ -150,7 +150,8 @@ def plan_comparison_cases(spec: DeckComparisonSpec) -> tuple[FullGameBatchCase, 
         for seat in spec.tested_seats:
             for contender in spec.contenders:
                 decks = pod_decks(contender, spec.opponents, seat)
-                assert contender.deck_hash is not None
+                if contender.deck_hash is None:
+                    raise ValueError("full-game comparison contender has no deck hash")
                 scenario = FutureXmageScenario(
                     candidate_id=contender.deck_id,
                     deck_hash=contender.deck_hash,
