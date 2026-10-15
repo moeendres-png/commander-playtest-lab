@@ -17,7 +17,7 @@ from concurrent.futures import (
 )
 from enum import StrEnum
 from pathlib import Path
-from typing import Any, Literal, Protocol
+from typing import Any, Literal, Protocol, TypedDict
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -152,6 +152,16 @@ class _GameRunner(Protocol):
 BatchParallelism = Literal["thread", "process"]
 
 
+class ExecutionIdentity(TypedDict):
+    """JSON shape of :func:`execution_identity_of`; it enters every run key."""
+
+    execution_identity_version: int
+    decision_protocol_version: str
+    result_schema_version: str
+    runner_configuration_sha256: str
+    bridge_artifacts: dict[str, str]
+
+
 # SHA-256 of a bridge artifact by (resolved path, size, mtime_ns): the ~79 MB
 # jar is read once per batch rather than once per case lookup. A file whose
 # size or modification time changed is hashed again.
@@ -179,7 +189,7 @@ def _artifact_sha256(path: Path) -> str:
     return result
 
 
-def execution_identity_of(runner: Any) -> dict[str, Any]:
+def execution_identity_of(runner: Any) -> ExecutionIdentity:
     """What executes a case beyond its own inputs (D2).
 
     A completed record may be reused only by a run that would execute the
@@ -238,7 +248,7 @@ def execute_batch_case(
     runner: _GameRunner,
     case: FullGameBatchCase,
     run_key: str,
-    execution: dict[str, Any],
+    execution: ExecutionIdentity,
 ) -> FullGameBatchRecord:
     """Play one case in its own bridge process and classify the outcome.
 
@@ -338,7 +348,7 @@ class XmageFullGameBatchRunner:
         self.runner = runner
         self.output_directory = Path(output_directory)
 
-    def execution_identity(self) -> dict[str, Any]:
+    def execution_identity(self) -> ExecutionIdentity:
         return execution_identity_of(self.runner)
 
     def run(
@@ -356,7 +366,7 @@ class XmageFullGameBatchRunner:
             raise ValueError("parallelism must be 'thread' or 'process'")
         self.output_directory.mkdir(parents=True, exist_ok=True)
         records: list[FullGameBatchRecord | None] = [None] * len(cases)
-        pending: list[tuple[int, FullGameBatchCase, str, dict[str, Any], Path]] = []
+        pending: list[tuple[int, FullGameBatchCase, str, ExecutionIdentity, Path]] = []
         for index, case in enumerate(cases):
             execution = self.execution_identity()
             run_key = self._run_key(case, execution)
@@ -420,7 +430,7 @@ class XmageFullGameBatchRunner:
             return existing
         return None
 
-    def _parallel_runner(self) -> Any:
+    def _parallel_runner(self) -> XmageFullGameRunner:
         """A per-game runner copy whose bridge JVM gets its own card repository.
 
         #739: JVMs that start together in one directory collide on XMage's
@@ -435,7 +445,7 @@ class XmageFullGameBatchRunner:
 
     def _run_parallel(
         self,
-        pending: list[tuple[int, FullGameBatchCase, str, dict[str, Any], Path]],
+        pending: list[tuple[int, FullGameBatchCase, str, ExecutionIdentity, Path]],
         workers: int,
         parallelism: BatchParallelism,
     ) -> Iterator[tuple[int, FullGameBatchRecord, Path]]:
@@ -482,7 +492,7 @@ class XmageFullGameBatchRunner:
         return self._run_key(case, self.execution_identity())
 
     @staticmethod
-    def _run_key(case: FullGameBatchCase, execution: dict[str, Any]) -> str:
+    def _run_key(case: FullGameBatchCase, execution: ExecutionIdentity) -> str:
         payload = json.dumps(
             {"case": case.model_dump(mode="json"), "execution": execution},
             sort_keys=True,
@@ -520,6 +530,7 @@ class XmageFullGameBatchRunner:
 
 __all__ = [
     "BatchParallelism",
+    "ExecutionIdentity",
     "FullGameBatchCase",
     "FullGameBatchRecord",
     "FullGameBatchReport",

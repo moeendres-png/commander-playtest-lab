@@ -16,7 +16,7 @@ import time
 import uuid
 import weakref
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, TextIO
 
 from pydantic import Field, model_validator
 
@@ -780,14 +780,14 @@ class _RawFullGameClient:
             with _LIVE_CLIENTS_LOCK:
                 _LIVE_CLIENTS.discard(self)
 
-    def _pump_stdout(self, stream: Any) -> None:
+    def _pump_stdout(self, stream: TextIO) -> None:
         try:
             for line in iter(stream.readline, ""):
                 self._stdout_queue.put(line)
         finally:
             self._stdout_queue.put(None)
 
-    def _pump_stderr(self, stream: Any) -> None:
+    def _pump_stderr(self, stream: TextIO) -> None:
         lines = self._stderr_lines
         for line in iter(stream.readline, ""):
             lines.append(line.rstrip("\n"))
