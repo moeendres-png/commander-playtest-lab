@@ -134,7 +134,10 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
             # Measured where the cast was chosen: a cancelled payment leaves
             # its sources tapped in the cancel's own state view.
-            self._last_priority_visible_mana[seat] = self._available_mana(self._actor(pilot_state))
+            if seat in self._last_priority_label:
+                self._last_priority_visible_mana[seat] = self._available_mana(
+                    self._actor(pilot_state)
+                )
         elif (
             decision_class == "choose_object"
             and self._special_mana_pending.pop(seat, False)
