@@ -12,21 +12,28 @@ from statistics import fmean
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
 from commander_lab import __version__
+from commander_lab.analysis import DeckValidator, validate_collection_quantities
+from commander_lab.cards.catalog import CardCatalog
 from commander_lab.engine.structural import (
     ENGINE_VERSION,
     load_project_structural_decks,
 )
+from commander_lab.meta import MetaKnowledgeBase
 from commander_lab.models import (
     CandidateProfile,
     CardRole,
+    Collection,
     CostLimits,
+    Deck,
     OptimizationConstraints,
     OptimizationVariant,
+    PairedVariantInput,
     PilotConfig,
     StructuralDeckProfile,
     ToolExecutionMetadata,
     ToolResponse,
     ToolStatus,
+    ValidateDeckInput,
 )
 from commander_lab.models.run_identity import CanonicalInputStatus, IdentityStatus, RunIdentity
 from commander_lab.opponent_ensembles import OpponentEnsembleStore
@@ -37,9 +44,13 @@ from commander_lab.optimization import (
     load_candidate_inventory,
     objective_vector,
     run_paired_structural_comparison,
+    variant_deck,
 )
+from commander_lab.packages import ArchetypePackageExtractor
 from commander_lab.provenance import ProvenanceStore
 from commander_lab.storage import (
+    atomic_write_json,
+    load_model,
     sha256_value,
 )
 from commander_lab.storage.run_identity import normalize_run_paths, sha256_run_value
@@ -1154,8 +1165,108 @@ class ServiceCore:
             status=status, metadata=metadata, result=result, warnings=warnings, errors=errors
         )
 
+    def _validate_deck_payload(self, request: ValidateDeckInput) -> dict[str, Any]:
+        spec = self.manifest["decks"].get(request.deck_id)
+        if spec is None:
+            raise ToolExecutionError(
+                f"validation is available only for local current decks: {request.deck_id}"
+            )
+        filename = spec["normalized_file"]
+        deck = load_model(self.root / "data/decks" / filename, Deck)
+        catalog = CardCatalog.from_json(self.root / "data/cards/oracle_subset.json")
+        overlay_path = (self.root / "data/decks" / filename).with_name(
+            f"{Path(filename).stem}_card_catalog_overrides.json"
+        )
+        if overlay_path.is_file():
+            for card in CardCatalog.from_json(overlay_path).cards:
+                catalog.add(card)
+        report = DeckValidator(catalog).validate(deck)
+        allocation = None
+        if request.include_physical_allocation:
+            collection = Collection.model_validate_json(
+                (self.root / "data/collections/current_deck_allocations.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+            allocation = validate_collection_quantities(collection, [deck]).model_dump(mode="json")
+        return {
+            "deck_id": request.deck_id,
+            "deck_hash": deck.deck_hash,
+            "validation": report.model_dump(mode="json"),
+            "physical_allocation": allocation,
+        }
+
+    def _build_variant(
+        self, request: PairedVariantInput
+    ) -> tuple[StructuralDeckProfile, StructuralDeckProfile, list[dict[str, Any]]]:
+        self._require_active_optimization_target(request.deck_id)
+        baseline = self._deck(request.deck_id)
+        additions = []
+        removals = []
+        swap_rows = []
+        for swap in request.swaps:
+            candidate = self._candidate(swap.add_candidate_id, request.deck_id)
+            self._validate_swap_policy(request.deck_id, swap.remove, candidate.card)
+            removals.append(swap.remove)
+            additions.append(candidate.card)
+            swap_rows.append(
+                {
+                    "remove": swap.remove,
+                    "add": candidate.card.oracle_name,
+                    "candidate_id": candidate.candidate_id,
+                    "physical_status": candidate.physical_status,
+                }
+            )
+        variant = variant_deck(
+            baseline,
+            variant_id=f"{request.deck_id}/variant/{sha256_value(swap_rows)[:12]}",
+            removals=removals,
+            additions=additions,
+        )
+        return baseline, variant, swap_rows
+
+    def _meta_kb(self) -> MetaKnowledgeBase:
+        return MetaKnowledgeBase(self.root)
+
+    def _package_extractor(self) -> ArchetypePackageExtractor:
+        return ArchetypePackageExtractor(self.root)
+
+    def _stage_meta_record(self, filename: str, payload: dict[str, Any]) -> Path:
+        target = self.root / "data/meta/provenance" / filename
+        existing = []
+        if target.exists():
+            try:
+                existing = json.loads(target.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                existing = []
+        if not isinstance(existing, list):
+            existing = [existing]
+        existing.append(payload)
+        atomic_write_json(target, existing)
+        return target
+
     def _project_path(self, relative: str) -> Path:
         path = (self.root / relative).resolve()
         if self.root not in path.parents and path != self.root:
             raise ToolExecutionError("path escapes project root")
         return path
+
+    def _require_active_optimization_target(self, deck_id: str) -> None:
+        if deck_id in self.FROZEN_OPPONENT_ONLY_DECK_IDS:
+            raise ToolExecutionError(
+                f"{deck_id} is frozen opponent-only and cannot be used as an optimization target"
+            )
+        if deck_id not in self.ACTIVE_OWN_DECK_IDS:
+            raise ToolExecutionError(f"{deck_id} is not an active own-deck optimization target")
+
+    def _coverage_version_prefixes(self, deck_id: str) -> tuple[str, ...]:
+        prefixes = self.COVERAGE_VERSION_PREFIXES.get(deck_id)
+        if prefixes is not None:
+            return prefixes
+        return (f"{deck_id}/", f"{deck_id}-")
+
+    def _read_optional_json(self, relative: str, default: Any) -> Any:
+        path = self.root / relative
+        if not path.exists():
+            return default
+        return json.loads(path.read_text(encoding="utf-8"))
