@@ -1,0 +1,15 @@
+{
+  "authority": "operational evidence identity, not a qualification verdict: it names which source produced the bytes in this epoch",
+  "created_utc": "2026-10-15T09:40:51+00:00",
+  "epoch_id": "b6ee5195527c-c6a5305ddd8f",
+  "epoch_root": "qualification/current-boundary-epochs/b6ee5195527c-c6a5305ddd8f",
+  "predecessor_epoch": "qualification/final-current-boundary-20260927",
+  "predecessor_is_read_only": true,
+  "producing_source": {
+    "branch": "main",
+    "commit": "b6ee5195527c0dec060f4143d03feb111c977d3d",
+    "repository": "https://github.com/moeendres-png/commander-playtest-lab",
+    "tree": "c6a5305ddd8fcb4b6e3353392f1e88fbb6d93ee5"
+  },
+  "schema_version": "commander-lab.current-boundary-epoch-identity/1.0.0"
+}

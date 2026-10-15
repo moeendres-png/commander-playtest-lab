@@ -1,0 +1,75 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_10",
+  "obligation_exercised": {
+    "obligation_digest": "015b4d57a02a636688bc68c0755bd10c35270abf3ce89e69bca38414e707bf75",
+    "requested_state_digest": "7949fde6bc0c81931d4866787cbe4e39b30eaedf16438789ce65fbb50d873a0b",
+    "required_events": [
+      "commander_spell_targeted",
+      "Wash_Away_resolves",
+      "spell_countered"
+    ],
+    "terminal_checks": [
+      "exactly 1 COUNTERED event(s) with player_player=P2, source_object=obj:card_10-subject",
+      "exactly 1 ZONE_CHANGE event(s) with target_name=Rograkh, Son of Rohgahh, player_player=P2, from=STACK"
+    ],
+    "terminal_postconditions": [
+      "P2 commander spell is countered."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "c7af809262ab7bb464b14d36897f9691ba321fbb17ebd6dfad65b8bb088bdf1c",
+      "size": 7110494
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 ZONE_CHANGE event(s) with target_name=Rograkh, Son of Rohgahh, player_player=P2, from=STACK"
+        ],
+        "check": "exactly 1 COUNTERED event(s) with player_player=P2, source_object=obj:card_10-subject",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 commander spell is countered."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 COUNTERED event(s) with player_player=P2, source_object=obj:card_10-subject": true,
+      "exactly 1 ZONE_CHANGE event(s) with target_name=Rograkh, Son of Rohgahh, player_player=P2, from=STACK": true
+    },
+    "token_evidence": {
+      "Wash_Away_resolves": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card_10-subject, from=STACK, to=GRAVEYARD",
+        "events": [
+          13
+        ]
+      },
+      "commander_spell_targeted": {
+        "binding": "a scripted target frame selected an engine offer naming 'Rograkh, Son of Rohgahh'",
+        "decision_frames": [
+          4
+        ]
+      },
+      "spell_countered": {
+        "binding": "exactly 1 COUNTERED event(s) with source_object=obj:card_10-subject",
+        "events": [
+          11
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "65d26ebde9105d50ecf5f119039e267ff4428dac1869b369aef5cff62927c342",
+  "runner_digest": "708eda53def45b050949e19115d19ffcb0319785564f2c0fb664572760bf4747",
+  "runtime_receipt_digest": "2846f3145cb4aefd7ee2a88475bdc6d7db114416f1390c0aae866a4802275e0e",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_10"
+}

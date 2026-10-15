@@ -1,0 +1,79 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "cb8f14a07e18ca540d083261ee338a7bea5c1fc1be5488cc528b62a0ee4c3e47",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "PILOT_CHOICE-causal-obj:utopia-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "ef80fad51ca8723b190c45dfcca26bc9b549d93a50f52e95fda9f145676dfa95",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "PILOT_CHOICE-causal-obj:utopia-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:utopia"
+    ],
+    "fuel": [
+      "obj:fuel-forest-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:utopia"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_CHOICE",
+  "obligation_exercised": {
+    "obligation_digest": "4c6ab40eb9b2ffc2e47d1ba3858d136cf76bddb356558d6a87b1d0601e9a2baa",
+    "requested_state_digest": "ef1df9ac28c80dc6c13d1d8922967a9078c52a9085aa9f03a219931be2944108",
+    "required_events": [
+      "choice_frame:P1",
+      "choice:RED"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "RED was selected from provider-offered color choices."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "choice:RED": {
+        "decision_frames": [
+          4
+        ]
+      },
+      "choice_frame:P1": {
+        "decision_frames": [
+          4
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "3b2fa2c2a454a3d263b09e8404dae3bfb3b70c8ca805b8ad3bf4299687e91f8c",
+  "runner_digest": "708eda53def45b050949e19115d19ffcb0319785564f2c0fb664572760bf4747",
+  "runtime_receipt_digest": "5ae0ccab0213dd40481d8c859f13d9f94edcf2428735557b49b5ae5ad69c2d7d",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_CHOICE",
+  "variance_source": null
+}
