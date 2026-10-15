@@ -691,6 +691,11 @@ def test_a_blocker_stays_home_when_the_crack_back_is_dangerous() -> None:
     response = _policy().decide(
         _request("declare_attacker", _attack_options("drake", "Loyal Drake"), state)
     )
+    assert response["selected_option_ids"] == ["attack-1"]  # 15 - 6 leaves 9: keep attacking
+    state["players"][0]["life"] = 10
+    response = _policy().decide(
+        _request("declare_attacker", _attack_options("drake", "Loyal Drake"), state)
+    )
     assert response["selected_option_ids"] == ["hold"]
 
 

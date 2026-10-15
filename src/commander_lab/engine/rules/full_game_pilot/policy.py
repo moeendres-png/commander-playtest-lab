@@ -98,6 +98,8 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                 "",
             )
             self._special_mana_pending[seat] = chosen_type == "special_mana_action"
+            if chosen_type == "cancel_mana_payment":
+                self._remember_failed_payment(seat, pilot_state)
         elif decision_class == "choose_use":
             selected = [
                 self._decide_boolean(
@@ -119,15 +121,20 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         elif decision_class in {"replacement_effect", "trigger_order"}:
             selected = [self._decide_semantic_option(runtime, pilot_state, options, rng)]
         elif decision_class == "mode":
-            selected = [self._decide_mode(runtime, pilot_state, options, rng)]
+            mode = self._decide_mode(runtime, pilot_state, options, rng, min_selections)
+            selected = [] if mode is None else [mode]
         elif decision_class == "priority":
             # #700: this seat's remembered cost describes the action it chose
             # last time, and the next priority decision of this seat is a
             # different action, so it is dropped before a new one is picked.
             self._priority_cost_facts.pop(seat, None)
+            self._last_priority_label.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected)
             self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
+            # Measured where the cast was chosen: a cancelled payment leaves
+            # its sources tapped in the cancel's own state view.
+            self._last_priority_visible_mana[seat] = self._available_mana(self._actor(pilot_state))
         elif (
             decision_class == "choose_object"
             and self._special_mana_pending.pop(seat, False)

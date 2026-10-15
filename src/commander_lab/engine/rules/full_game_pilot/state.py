@@ -139,6 +139,11 @@ class _PolicyState:
         self._own_cast_names: dict[int, list[str]] = {}
         self._last_unpaid_mana: dict[int, str] = {}
         self._turn_actions: dict[int, tuple[object, Counter[str]]] = {}
+        # A cast whose payment this seat cancelled is not retried in the same
+        # turn until more mana is visible: label -> mana visible at the cancel.
+        self._last_priority_label: dict[int, str] = {}
+        self._last_priority_visible_mana: dict[int, int] = {}
+        self._failed_payments: dict[int, tuple[object, dict[str, int]]] = {}
         self._last_block_proposal: dict[int, tuple[object, int]] = {}
 
     def _turn_action_cap(self, option: dict[str, Any]) -> int:
@@ -163,6 +168,7 @@ class _PolicyState:
             if str(option.get("option_id")) not in chosen:
                 continue
             if str(option.get("option_type")) not in {"pass_priority", "mana_ability"}:
+                self._last_priority_label[seat] = str(option.get("label", ""))
                 tried = self._turn_actions.get(seat)
                 if tried is None or tried[0] != turn:
                     tried = (turn, Counter())

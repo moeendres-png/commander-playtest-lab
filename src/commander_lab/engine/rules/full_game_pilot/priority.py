@@ -209,6 +209,19 @@ class _PriorityDecisions(_CombatDecisions):
                 affordable = [o for o in affordable if id(o) not in capped_ids]
                 needs_mana_first = [o for o in needs_mana_first if id(o) not in capped_ids]
                 self_defeating += len(capped)
+        failed = self._failed_payments.get(seat)
+        if failed is not None and failed[0] == turn and failed[1]:
+            visible = self._available_mana(self._actor(state))
+            unpaid = [
+                option
+                for option in (*affordable, *needs_mana_first)
+                if visible <= failed[1].get(str(option.get("label", "")), -1)
+            ]
+            if unpaid:
+                unpaid_ids = {id(option) for option in unpaid}
+                affordable = [o for o in affordable if id(o) not in unpaid_ids]
+                needs_mana_first = [o for o in needs_mana_first if id(o) not in unpaid_ids]
+                self_defeating += len(unpaid)
         if self_defeating:
             _LOG.info("withheld %d self-defeating priority action(s)", self_defeating)
         if needs_mana_first:

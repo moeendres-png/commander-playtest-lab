@@ -13,6 +13,7 @@ from commander_lab.models import (
 from ..full_game_pilot_views import (
     color_choice_rank,
     named_choice_rank,
+    sweep_mode_net,
     target_object_bonus,
 )
 from .common import (
@@ -219,7 +220,8 @@ class _ChoiceDecisions(_PaymentDecisions):
         state: dict[str, Any],
         options: list[dict[str, Any]],
         rng: random.Random,
-    ) -> str:
+        min_selections: int = 1,
+    ) -> str | None:
         """Modal choice with native target-availability ranking.
 
         The bridge projects per-mode ``mode_targets_available`` from the
@@ -239,7 +241,24 @@ class _ChoiceDecisions(_PaymentDecisions):
             if not isinstance(option.get("metadata"), dict)
             or option["metadata"].get("mode_targets_available") is not False
         ]
-        return self._decide_semantic_option(runtime, state, viable or options, rng)
+        # A "choose one or more" sweep (Farewell) is chosen mode by mode, the
+        # way a player reads it: take the sweeps that cost the table more than
+        # the actor and stop (an empty answer, offered once the minimum is
+        # met) when none is left. Any mode that is not such a sweep keeps the
+        # pilot's own choice.
+        candidates = viable or options
+        actor_id = str(state.get("actor_id") or "")
+        nets = [sweep_mode_net(str(option.get("label", "")), state, actor_id) for option in candidates]
+        if candidates and all(net is not None for net in nets):
+            ranked = sorted(
+                zip(nets, candidates, strict=True),
+                key=lambda pair: (-float(pair[0] or 0.0), str(pair[1].get("label", "")).casefold()),
+            )
+            best_net, best = ranked[0]
+            if min_selections == 0 and float(best_net or 0.0) <= 0.0:
+                return None
+            return self._required_text(best, "option_id")
+        return self._decide_semantic_option(runtime, state, candidates, rng)
 
     def _decide_boolean(
         self,

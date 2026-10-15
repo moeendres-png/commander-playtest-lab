@@ -225,6 +225,36 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     return 1 if generic else 0
 
 
+def mana_produced_letters(label: str) -> frozenset[str] | None:
+    """Mana letters an engine mana-ability label says it adds, or None if unreadable.
+
+    "Any color"/"any type" reads as all five colors. Same text source as
+    ``mana_payment_fit``: the engine's own ability text.
+    """
+    produced_text = label.casefold().partition(": add ")[2]
+    if not produced_text:
+        return None
+    if "any color" in produced_text or "any type" in produced_text:
+        return frozenset("wubrg")
+    produced = frozenset(
+        letter
+        for symbol in _MANA_SYMBOL.findall(produced_text)
+        for letter in symbol
+        if letter in _COLOR_LETTERS
+    )
+    return produced or None
+
+
+def mana_needed_letters(unpaid_mana: str) -> frozenset[str]:
+    """Colored mana letters an unpaid cost still names (hybrid halves included)."""
+    return frozenset(
+        part
+        for symbol in _MANA_SYMBOL.findall(unpaid_mana.casefold())
+        for part in symbol.split("/")
+        if part in _COLOR_LETTERS
+    )
+
+
 class _MultikickerOffer(NamedTuple):
     """One "Pay N times" offer, as the pinned engine phrased it.
 

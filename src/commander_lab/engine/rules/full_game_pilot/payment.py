@@ -17,7 +17,9 @@ from .common import (
     _mana_cost_text,
     _option_non_x_mana_value,
     _RuntimePilot,
+    mana_needed_letters,
     mana_payment_fit,
+    mana_produced_letters,
     mana_x_prompt_symbols,
     offers_mana_ability,
 )
@@ -450,6 +452,10 @@ class _PaymentDecisions(_PolicyState):
             )
         options = selectable
 
+        planned = self._planned_mana_source(options, str(context.get("unpaid_mana", "")))
+        if planned is not None:
+            return planned
+
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[tuple[str, str], int] = {}
@@ -485,6 +491,84 @@ class _PaymentDecisions(_PolicyState):
             return raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable mana action") from None
+
+    def _remember_failed_payment(self, seat: int, state: dict[str, Any]) -> None:
+        """Note that this seat gave up paying for its last chosen action.
+
+        A player who could not pay for a spell does not try the same spell
+        again that turn unless more mana shows up; retrying the identical
+        payment only replays the same cancel (up to the turn cap, three times
+        per spell in real games).
+        """
+        label = self._last_priority_label.get(seat)
+        if not label:
+            return
+        turn = state.get("turn_number")
+        failed = self._failed_payments.get(seat)
+        if failed is None or failed[0] != turn:
+            failed = (turn, {})
+            self._failed_payments[seat] = failed
+        failed[1][label] = self._last_priority_visible_mana.get(
+            seat, self._available_mana(self._actor(state))
+        )
+
+    def _planned_mana_source(self, options: list[dict[str, Any]], unpaid_mana: str) -> str | None:
+        """Pay the way a player taps lands: scarcest color first, flexible sources last.
+
+        Paying mana is mechanics, not judgement, so when the offer holds only
+        mana abilities (and the engine's cancel) the source is picked here
+        instead of through the pilot's sampled choice, which let weaker
+        profiles tap a Plains for {U} or spend a Prairie Stream's {W} while a
+        Plains was untapped and then cancel the whole cast. Order:
+
+        1. a source that pays a needed color, the color with the fewest
+           sources on offer first (Prairie Stream's {U} before any {W});
+        2. among those, the source able to make the fewest needed colors;
+        3. then generic payers, the least flexible first;
+
+        Ties fall back to the label, so twins stay identical. Anything else on
+        offer (Delve, Convoke, pool spends) returns None and keeps the
+        pilot-chosen path.
+        """
+        abilities: list[dict[str, Any]] = []
+        for option in options:
+            option_type = self._required_text(option, "option_type")
+            if option_type == "mana_ability":
+                abilities.append(option)
+            elif option_type != "cancel_mana_payment":
+                return None
+        if not abilities:
+            return None
+        needed = mana_needed_letters(unpaid_mana)
+
+        def source_key(option: dict[str, Any]) -> str:
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            label = str(option.get("label", ""))
+            return str(meta.get("source_object_id") or label.partition(" — ")[0])
+
+        produced_by_source: dict[str, set[str]] = {}
+        for option in abilities:
+            letters = mana_produced_letters(str(option.get("label", ""))) or frozenset()
+            produced_by_source.setdefault(source_key(option), set()).update(letters)
+        supply = {
+            color: sum(1 for letters in produced_by_source.values() if color in letters)
+            for color in needed
+        }
+
+        def rank(option: dict[str, Any]) -> tuple[int, int, int, str]:
+            label = str(option.get("label", ""))
+            fit = mana_payment_fit(label, unpaid_mana)
+            produced = mana_produced_letters(label) or frozenset()
+            paying = produced & needed
+            scarcity = min((supply[color] for color in paying), default=99)
+            flexibility = len(produced_by_source.get(source_key(option), set()) & needed)
+            return (-fit, scarcity, flexibility, label.casefold())
+
+        # A source whose text fits nothing is still tapped rather than the
+        # Lab inventing a cancel: "spend mana as though any color" effects
+        # make the engine, not the label, the judge of what pays.
+        return self._required_text(min(abilities, key=rank), "option_id")
 
     @staticmethod
     def _required_bound(mapping: dict[str, Any], key: str) -> int:

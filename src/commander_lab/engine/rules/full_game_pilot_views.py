@@ -608,6 +608,56 @@ def _wipe_withhold_reason(facts: CardFacts, state: Mapping[str, Any], actor_id: 
     return None
 
 
+_SWEEP_MODE = re.compile(
+    r"\b(?:destroy|exile)\s+all\s+"
+    r"(creatures|artifacts|enchantments|planeswalkers|graveyards|nonland permanents)\b"
+)
+
+
+def _sweep_matches(item: Mapping[str, Any], category: str) -> bool:
+    if category == "creatures":
+        return is_creature_entry(item)
+    if category == "nonland permanents":
+        return not is_land_entry(item)
+    facts = card_facts(str(item.get("name") or ""))
+    if facts is None:
+        return False
+    return category.removesuffix("s") in facts.types
+
+
+def sweep_mode_net(label: str, state: Mapping[str, Any], actor_id: str) -> float | None:
+    """What one "destroy/exile all X" mode takes from the table minus what it costs the actor.
+
+    None when the mode is not a symmetric sweep. The actor's own losses
+    count one and a half times: the table shares the hit three ways, the
+    actor alone pays for the card. Farewell's four modes are each judged on
+    their own, so the pilot exiles creatures without exiling its own
+    artifacts with them.
+    """
+    match = _SWEEP_MODE.search(label.casefold())
+    if match is None:
+        return None
+    category = match.group(1)
+    mine = 0.0
+    theirs = 0.0
+    for player in players(state):
+        if not _alive(player):
+            continue
+        if category == "graveyards":
+            value = 0.4 * float(player.get("graveyard_count", 0) or 0)
+        else:
+            value = sum(
+                min(12.0, entry_value(item, state))
+                for item in _items(player.get("battlefield"))
+                if _sweep_matches(item, category)
+            )
+        if str(player.get("player_id")) == actor_id:
+            mine = value
+        else:
+            theirs += value
+    return theirs - 1.5 * mine
+
+
 def target_object_bonus(
     option: Mapping[str, Any],
     state: Mapping[str, Any],
@@ -736,9 +786,11 @@ def attack_score(
     if lethal:
         score += 3.0  # lethal through an empty or evaded board
     elif "vigilance" not in keywords and _crack_back_danger(state) and toughness >= 2:
-        # Crack-back: when one opponent's creatures could take the actor low on
-        # their next turn, a creature that can block stays home unless this
-        # attack wins something outright.
+        # Crack-back: when one opponent's creatures could all but kill the
+        # actor on their next turn, a creature that can block stays home
+        # unless this attack wins something outright. Merely being lower on
+        # life is no reason to stop attacking: holding everything back at
+        # every life total made games longer, not safer.
         score -= 1.2
     score += max(0.0, 20.0 - life_value) * 0.03
     if score > 0.0 and defender_id == focus_defender(state):
@@ -749,7 +801,7 @@ def attack_score(
 
 
 def _crack_back_danger(state: Mapping[str, Any]) -> bool:
-    """True when one opponent's creatures could bring the actor to 10 life or less."""
+    """True when one opponent's creatures could bring the actor to 5 life or less."""
     actor_id = str(state.get("actor_id", ""))
     actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
     if actor is None:
@@ -764,7 +816,7 @@ def _crack_back_danger(state: Mapping[str, Any]) -> bool:
         ),
         default=0.0,
     )
-    return danger > 0.0 and life_value - danger <= 10.0
+    return danger > 0.0 and life_value - danger <= 5.0
 
 
 def block_score(
