@@ -96,8 +96,18 @@ def _play(
     return row
 
 
+def bridge_command(jar: Path, jvm_options: list[str]) -> tuple[str, ...]:
+    """The bridge launch command, with the jar as an absolute path.
+
+    ``--private-card-repository`` starts each bridge JVM in its own scratch
+    directory, so a relative jar path would no longer resolve and every game would
+    end at once with BRIDGE_EXITED.
+    """
+    return ("java", *jvm_options, "-jar", str(jar.resolve()), "full-game")
+
+
 def run(args: argparse.Namespace) -> int:
-    command = ("java", *args.jvm_option, "-jar", str(args.jar), "full-game")
+    command = bridge_command(args.jar, args.jvm_option)
     setups = {pod: _setup(paths) for pod, paths in _pods(args.coverage_pods)}
     jobs = [(pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds]
     started = time.monotonic()
