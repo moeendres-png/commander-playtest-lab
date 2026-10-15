@@ -64,16 +64,25 @@ but the absolute win probabilities are still worse than a uniform guess.
    (`_resolve_cast_triggers`, now driven by `StructuralTuning.cast_trigger_damage`).
 3. The other 7 opponents with placeholder cards need exact lists (as done for Hosts and
    Lorehold) or should be excluded from the 15-deck screening ensemble.
-4. Bridge mana-cache: open as a PR, let CI run the bridge tests. A/B on real 4P seeds 1-3
-   gave identical `semantic_transcript_sha256`, winners, turns and decision counts;
-   Java CPU -13 %, wall -16 %. It changes the bridge jar, so after merge the Engineering
-   Lead thread owns requalification (PB-03 -> seal -> freeze record); notify it, do not
-   touch freeze/ADR/qualification documents here.
+4. ~~Bridge mana-cache~~ **Done:** merged in #761 (`playableWithManaAvailable`) and part of
+   every later pin's bridge.
 5. 15 of 160 ground-truth XMage games ended `ENGINE_FAILURE / XMAGE_ACTION_EXECUTION_FAILED`
-   (gitrog, ramos, omnath, selvala among others). Not investigated; bridge owner.
-6. Further XMage speed levers, not done: AppCDS via a training run
-   (`-XX:+AutoCreateSharedArchive` broke graceful shutdown), JVM reuse across games
-   (weakens isolation), a per-source memo in `manaCostAffordable` (small). XMage is
-   CPU-bound and scales about linearly with cores (4 workers on 4 cores ~ 55 games/h).
-   Profile: ~73 % of bridge CPU is `createSimulationForPlayableCalc`, JVM start + card
-   scan ~13 %, Python pilot ~6 %.
+   (gitrog, ramos, omnath, selvala among others) on pin `3cbf7741`. Superseded by the #747
+   coverage run on pin `38cb21a8` (72 twin games over all 18 decks in 4/5/6P pods). It found two
+   reproducible bridge failures, `NO_LEGAL_ACTION` on Wear // Tear and an empty
+   replacement-effect choice; both are fixed in #777.
+6. ~~Further XMage speed levers~~ **Settled** (see `docs/performance/XMAGE_FULL_GAME_SPEED_2026-10-12.md`):
+   - AppCDS is merged in #761 (`scripts/build_xmage_cds_archive.py`).
+   - The bulk card scan is in the live pin `38cb21a8`.
+   - The per-source memo was dropped: no gain.
+   - The lazy card copy was not proposed for a repin: wall time fell, CPU did not.
+   - JVM reuse across games stays an Owner decision (D17 isolation).
+
+## 5. Takeover by the Coordinator (2026-10-14)
+
+- `main` merged: Forge removal, pin `38cb21a8`.
+- Fix: the project context, and with it the exact result cache key, now hashes
+  `data/cards/xmage_card_facts.json`. Before, a Structural result cached before a facts change
+  could be served after it.
+- Baseline reproduced with facts profiles and 3 seeds per pod: Spearman 0.371 over 22 decks,
+  log-loss 1.900 against 1.386 for a uniform guess.
