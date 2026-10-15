@@ -537,8 +537,10 @@ class _RawFullGameClient:
                 code="BRIDGE_START_FAILED",
                 diagnostics=(str(exc),),
             ) from None
-        assert self._process.stdout is not None
-        assert self._process.stderr is not None
+        if self._process.stdout is None or self._process.stderr is None:
+            raise FullGameProtocolError(
+                "full-game bridge pipes unavailable", code="BRIDGE_START_FAILED"
+            )
         self._stdout_thread = threading.Thread(
             target=self._pump_stdout,
             args=(self._process.stdout,),
@@ -558,7 +560,10 @@ class _RawFullGameClient:
     def request(self, message_type: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         self.start()
         process = self._process
-        assert process is not None
+        if process is None:
+            raise FullGameProtocolError(
+                "full-game bridge did not start", code="BRIDGE_START_FAILED"
+            )
         if self._transport_failure is not None:
             raise FullGameProtocolError(
                 f"full-game bridge channel is unusable after {self._transport_failure}",
@@ -861,7 +866,8 @@ class XmageFullGameRunner:
                 _decision_count, _, terminal = self._drive(client, policy, stop_after=None)
             finally:
                 self._hidden_audit = None
-            assert terminal is True
+            if terminal is not True:
+                raise FullGameConformanceError("full game ended without a terminal state")
             result = client.request("get_full_game_result")
         # The same lifecycle gate as the bounded smoke: a game-over result rests
         # on an observed graceful shutdown, never on a suppressed kill/timeout.
