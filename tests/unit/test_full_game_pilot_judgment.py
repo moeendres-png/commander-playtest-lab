@@ -705,3 +705,28 @@ def test_instant_removal_waits_for_an_opponents_end_step() -> None:
     assert priority_view_fields(swords, their_end)[0]["metadata"]["instant_timing"] == 0.6
     claim = _cast("claim", "Claim Jumper", white=1, generic=2)
     assert "instant_timing" not in priority_view_fields(claim, own_main)[0]["metadata"]
+
+
+def test_engine_player_ids_resolve_to_the_seat_tokens_of_the_pilot_view() -> None:
+    # Real games: the state names opponents "op-<seat>", while attack options
+    # carry the engine's player id. The seat in the label joins them; before,
+    # every real attack was scored as an unknown defender.
+    from commander_lab.engine.rules.full_game_pilot_views import attack_score, resolve_player
+
+    state = _opponent_state(
+        {1: [_card("wall", "Orcish Siegemaster", 0, 5)], 2: [_card("titan", "Grave Titan", 6, 6)]},
+        actor_board=[_card("myr", "Iron Myr", 1, 1)],
+    )
+    for index, player in enumerate(state["players"][1:], start=1):
+        player["player_id"] = f"op-{index}"
+    option = {
+        "option_id": "attack-real",
+        "label": "Iron Myr attacks Full Game Seat 3",
+        "option_type": "declare_attacker",
+        "metadata": {"object_id": "myr", "name": "Iron Myr", "defender_id": "9f1c-engine-uuid"},
+    }
+    found = resolve_player("9f1c-engine-uuid", option["label"], state)
+    assert found is not None and found["player_id"] == "op-2"
+    score, facts = attack_score(option, state)
+    assert "combat_unknown" not in facts
+    assert score < 0.0  # Grave Titan blocks and kills the Myr

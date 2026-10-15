@@ -51,6 +51,29 @@ def commander_names(state: Mapping[str, Any]) -> frozenset[str]:
     )
 
 
+_SEAT_LABEL = re.compile(r"Full Game Seat (\d+)")
+
+
+def resolve_player(
+    raw_id: str | None, label: str, state: Mapping[str, Any]
+) -> dict[str, Any] | None:
+    """The pilot-view player an engine option refers to.
+
+    The actor-scoped state names every other player by a seat token ("op-N"),
+    while option metadata (defenders, player targets) carries the engine's own
+    player id. Those never match, so a player is also found by the seat in the
+    option's Rules-visible label ("Full Game Seat N" is seat N-1).
+    """
+    for player in players(state):
+        if raw_id and str(player.get("player_id", "")) == raw_id:
+            return player
+    found = _SEAT_LABEL.findall(label or "")
+    if not found:
+        return None
+    seat = int(found[-1]) - 1
+    return next((p for p in players(state) if p.get("seat") == seat), None)
+
+
 def permanent_owner(object_id: str, state: Mapping[str, Any]) -> tuple[str, dict[str, Any]] | None:
     """(controller player id, battlefield entry) for a permanent id."""
     for player in players(state):
@@ -660,9 +683,11 @@ def attack_score(
     meta_raw = option.get("metadata")
     meta: Mapping[str, Any] = meta_raw if isinstance(meta_raw, dict) else {}
     attacker_id = str(meta.get("object_id") or "")
-    defender_id = str(meta.get("defender_id") or "")
     found = permanent_owner(attacker_id, state)
-    defender = next((p for p in players(state) if str(p.get("player_id")) == defender_id), None)
+    defender = resolve_player(
+        str(meta.get("defender_id") or ""), str(option.get("label") or ""), state
+    )
+    defender_id = str(defender.get("player_id", "")) if defender is not None else ""
     if found is None or defender is None:
         return 0.2, {"combat_unknown": True}
     _controller, attacker = found
@@ -902,6 +927,7 @@ __all__ = [
     "permanent_owner",
     "player_threat",
     "priority_view_fields",
+    "resolve_player",
     "stack_pressure",
     "table_threats",
     "target_object_bonus",

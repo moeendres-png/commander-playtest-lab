@@ -25,6 +25,7 @@ from ..full_game_pilot_views import (
     hand_role_counts,
     player_threat,
     priority_view_fields,
+    resolve_player,
     stack_pressure,
 )
 from .common import (
@@ -339,6 +340,11 @@ class _PolicyState:
     ) -> PilotActionView:
         option_id = self._required_text(option, "option_id")
         owner_id = self._object_owner(option_id, state)
+        if owner_id is None:
+            # A player target: the option carries the engine's player id, the
+            # state the seat token; the seat in the label joins them.
+            player = resolve_player(option_id, str(option.get("label", "")), state)
+            owner_id = str(player.get("player_id")) if player is not None else None
         actor_id = self._required_text(state, "actor_id")
         target_threat = self._player_threat(owner_id, state)
         beneficial = outcome in {"benefit", "benefit_to_controller"}
@@ -361,6 +367,9 @@ class _PolicyState:
         metadata = option.get("metadata")
         meta = metadata if isinstance(metadata, dict) else {}
         target_id = str(meta.get("defender_id") or meta.get("attacker_id") or "") or None
+        player = resolve_player(target_id, str(option.get("label", "")), state)
+        if player is not None:
+            target_id = str(player.get("player_id"))
         target_threat = self._player_threat(target_id, state)
         return PilotActionView(
             action_id=self._required_text(option, "option_id"),
