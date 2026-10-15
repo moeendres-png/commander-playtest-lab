@@ -1,0 +1,1160 @@
+{
+ "result_class": "TECHNICAL_CARD_COVERAGE",
+ "xmage_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+ "jar": "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar (pin 38cb21a8 + this PR)",
+ "decks_covered": 18,
+ "pods": 36,
+ "games": 72,
+ "games_ok": 72,
+ "twins_identical": 36,
+ "twins_diverged": 0,
+ "total_wall_s": 3281.13,
+ "results": [
+  {
+   "size": 4,
+   "seed": 1,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "ad2f362884fcf91824786a607eb0828e18bc3a06cb0dec83593ba46261c9e599",
+     "decisions": 2865,
+     "winners": [
+      2
+     ],
+     "wall_s": 83.87
+    },
+    {
+     "status": "ok",
+     "semantic": "ad2f362884fcf91824786a607eb0828e18bc3a06cb0dec83593ba46261c9e599",
+     "decisions": 2865,
+     "winners": [
+      2
+     ],
+     "wall_s": 48.14
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 2,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "ec2357f3e87f57ce546d242ce626efee210e7a85f4311cd5b807a27c9319963b",
+     "decisions": 6923,
+     "winners": [
+      1
+     ],
+     "wall_s": 131.46
+    },
+    {
+     "status": "ok",
+     "semantic": "ec2357f3e87f57ce546d242ce626efee210e7a85f4311cd5b807a27c9319963b",
+     "decisions": 6923,
+     "winners": [
+      1
+     ],
+     "wall_s": 104.24
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 3,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "c1ea7a75fee8cd9cd894a3717fc25926ee6087c7ee46c7d460373bdc4b9e9726",
+     "decisions": 3128,
+     "winners": [
+      2
+     ],
+     "wall_s": 56.99
+    },
+    {
+     "status": "ok",
+     "semantic": "c1ea7a75fee8cd9cd894a3717fc25926ee6087c7ee46c7d460373bdc4b9e9726",
+     "decisions": 3128,
+     "winners": [
+      2
+     ],
+     "wall_s": 50.31
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 1,
+   "deck_ids": [
+    "collection/chulane",
+    "collection/gitrog",
+    "collection/juri",
+    "collection/korvold"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "5d90e1ff3b9d0da31ab6c3e902112a48c0532d2a71ac69b4cfe5bab09b310f0e",
+     "decisions": 2613,
+     "winners": [
+      2
+     ],
+     "wall_s": 64.08
+    },
+    {
+     "status": "ok",
+     "semantic": "5d90e1ff3b9d0da31ab6c3e902112a48c0532d2a71ac69b4cfe5bab09b310f0e",
+     "decisions": 2613,
+     "winners": [
+      2
+     ],
+     "wall_s": 60.72
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 2,
+   "deck_ids": [
+    "collection/chulane",
+    "collection/gitrog",
+    "collection/juri",
+    "collection/korvold"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "b382846007da1c8ff592acf2f5e968d079b6b915b1c2cb043038cfb2a41e1854",
+     "decisions": 3170,
+     "winners": [
+      2
+     ],
+     "wall_s": 75.35
+    },
+    {
+     "status": "ok",
+     "semantic": "b382846007da1c8ff592acf2f5e968d079b6b915b1c2cb043038cfb2a41e1854",
+     "decisions": 3170,
+     "winners": [
+      2
+     ],
+     "wall_s": 70.55
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 3,
+   "deck_ids": [
+    "collection/chulane",
+    "collection/gitrog",
+    "collection/juri",
+    "collection/korvold"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "23782406dd37caad127ab3d868fdd85a3f69c080f0c209a28dc4d52dff6130a1",
+     "decisions": 2874,
+     "winners": [
+      2
+     ],
+     "wall_s": 64.24
+    },
+    {
+     "status": "ok",
+     "semantic": "23782406dd37caad127ab3d868fdd85a3f69c080f0c209a28dc4d52dff6130a1",
+     "decisions": 2874,
+     "winners": [
+      2
+     ],
+     "wall_s": 65.14
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 1,
+   "deck_ids": [
+    "collection/kykar",
+    "collection/lathliss",
+    "collection/lavinia",
+    "collection/lyra"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "c14bb70b5fd925f9b91e40f2f109eeb3ce4b2259e847d503e87d155717a5daa2",
+     "decisions": 2652,
+     "winners": [
+      2
+     ],
+     "wall_s": 59.25
+    },
+    {
+     "status": "ok",
+     "semantic": "c14bb70b5fd925f9b91e40f2f109eeb3ce4b2259e847d503e87d155717a5daa2",
+     "decisions": 2652,
+     "winners": [
+      2
+     ],
+     "wall_s": 61.43
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 2,
+   "deck_ids": [
+    "collection/kykar",
+    "collection/lathliss",
+    "collection/lavinia",
+    "collection/lyra"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "9962f26fa5ad134d273552f6658a2b67969a1515df9877b9c88cb58f5a5c2394",
+     "decisions": 2089,
+     "winners": [
+      1
+     ],
+     "wall_s": 52.97
+    },
+    {
+     "status": "ok",
+     "semantic": "9962f26fa5ad134d273552f6658a2b67969a1515df9877b9c88cb58f5a5c2394",
+     "decisions": 2089,
+     "winners": [
+      1
+     ],
+     "wall_s": 55.2
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 3,
+   "deck_ids": [
+    "collection/kykar",
+    "collection/lathliss",
+    "collection/lavinia",
+    "collection/lyra"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "d55211e3be8d724df269f7594e6fa7040263d7353bf412da639ec2af852c28e1",
+     "decisions": 3174,
+     "winners": [
+      2
+     ],
+     "wall_s": 64.97
+    },
+    {
+     "status": "ok",
+     "semantic": "d55211e3be8d724df269f7594e6fa7040263d7353bf412da639ec2af852c28e1",
+     "decisions": 3174,
+     "winners": [
+      2
+     ],
+     "wall_s": 65.78
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 1,
+   "deck_ids": [
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala",
+    "collection/titania"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "41301038dfe3b2ed6df37ef86ef9b4486bd0ac504e53ad0fafebedb8a5e0bb53",
+     "decisions": 2276,
+     "winners": [
+      2
+     ],
+     "wall_s": 55.75
+    },
+    {
+     "status": "ok",
+     "semantic": "41301038dfe3b2ed6df37ef86ef9b4486bd0ac504e53ad0fafebedb8a5e0bb53",
+     "decisions": 2276,
+     "winners": [
+      2
+     ],
+     "wall_s": 55.69
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 2,
+   "deck_ids": [
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala",
+    "collection/titania"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "bafa0924cd6889b0c8199eae297a322c1f5464ea1c91a01b274f029757985d7d",
+     "decisions": 2993,
+     "winners": [
+      4
+     ],
+     "wall_s": 65.18
+    },
+    {
+     "status": "ok",
+     "semantic": "bafa0924cd6889b0c8199eae297a322c1f5464ea1c91a01b274f029757985d7d",
+     "decisions": 2993,
+     "winners": [
+      4
+     ],
+     "wall_s": 68.84
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 3,
+   "deck_ids": [
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala",
+    "collection/titania"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "915f57d0293a23e39b04cb41490ac42341371774dfe5a41983f2a005b684450b",
+     "decisions": 1805,
+     "winners": [
+      1
+     ],
+     "wall_s": 49.34
+    },
+    {
+     "status": "ok",
+     "semantic": "915f57d0293a23e39b04cb41490ac42341371774dfe5a41983f2a005b684450b",
+     "decisions": 1805,
+     "winners": [
+      1
+     ],
+     "wall_s": 50.4
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 1,
+   "deck_ids": [
+    "collection/veyran",
+    "collection/zegana",
+    "collection/agrus",
+    "collection/arcanis"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "e6a73642b0403872fc7dd711a96aa1e7a6f7b17cb55fe178115f3a1ab65d22fc",
+     "decisions": 2140,
+     "winners": [
+      2
+     ],
+     "wall_s": 60.01
+    },
+    {
+     "status": "ok",
+     "semantic": "e6a73642b0403872fc7dd711a96aa1e7a6f7b17cb55fe178115f3a1ab65d22fc",
+     "decisions": 2140,
+     "winners": [
+      2
+     ],
+     "wall_s": 57.58
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 2,
+   "deck_ids": [
+    "collection/veyran",
+    "collection/zegana",
+    "collection/agrus",
+    "collection/arcanis"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "54d9f980cf1bc58e2f1681969934e5fd5dcec70f758e4d4c83425585b068387a",
+     "decisions": 3980,
+     "winners": [
+      2
+     ],
+     "wall_s": 122.01
+    },
+    {
+     "status": "ok",
+     "semantic": "54d9f980cf1bc58e2f1681969934e5fd5dcec70f758e4d4c83425585b068387a",
+     "decisions": 3980,
+     "winners": [
+      2
+     ],
+     "wall_s": 126.25
+    }
+   ]
+  },
+  {
+   "size": 4,
+   "seed": 3,
+   "deck_ids": [
+    "collection/veyran",
+    "collection/zegana",
+    "collection/agrus",
+    "collection/arcanis"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "082e62a1cc2a2e61bc0175a23a1b38334c78f683b8dbae6d5f58551946663771",
+     "decisions": 2471,
+     "winners": [
+      1
+     ],
+     "wall_s": 63.58
+    },
+    {
+     "status": "ok",
+     "semantic": "082e62a1cc2a2e61bc0175a23a1b38334c78f683b8dbae6d5f58551946663771",
+     "decisions": 2471,
+     "winners": [
+      1
+     ],
+     "wall_s": 59.16
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 1,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids",
+    "collection/chulane"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "17c4bc8f8eaca66907ac5ab7c86de82d57a7e18507b01581c569f8b1d450f8cc",
+     "decisions": 6221,
+     "winners": [
+      2
+     ],
+     "wall_s": 119.67
+    },
+    {
+     "status": "ok",
+     "semantic": "17c4bc8f8eaca66907ac5ab7c86de82d57a7e18507b01581c569f8b1d450f8cc",
+     "decisions": 6221,
+     "winners": [
+      2
+     ],
+     "wall_s": 113.53
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 2,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids",
+    "collection/chulane"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "82163df191dcf2cdd117f64d34d64f643aac5eed9cfcc82fbb15c9e08993e726",
+     "decisions": 5400,
+     "winners": [
+      2
+     ],
+     "wall_s": 94.64
+    },
+    {
+     "status": "ok",
+     "semantic": "82163df191dcf2cdd117f64d34d64f643aac5eed9cfcc82fbb15c9e08993e726",
+     "decisions": 5400,
+     "winners": [
+      2
+     ],
+     "wall_s": 87.52
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 3,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids",
+    "collection/chulane"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "3a1ddab49b781fe0779f9fa12a159e8b90dd31b474d143df75badd1776a7a0a2",
+     "decisions": 3079,
+     "winners": [
+      4
+     ],
+     "wall_s": 68.46
+    },
+    {
+     "status": "ok",
+     "semantic": "3a1ddab49b781fe0779f9fa12a159e8b90dd31b474d143df75badd1776a7a0a2",
+     "decisions": 3079,
+     "winners": [
+      4
+     ],
+     "wall_s": 61.17
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 1,
+   "deck_ids": [
+    "collection/gitrog",
+    "collection/juri",
+    "collection/korvold",
+    "collection/kykar",
+    "collection/lathliss"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "ca645a3db1e011fd48c77429eb910f5ceca38de8701f1972c942b1447cfddb79",
+     "decisions": 4778,
+     "winners": [
+      1
+     ],
+     "wall_s": 116.11
+    },
+    {
+     "status": "ok",
+     "semantic": "ca645a3db1e011fd48c77429eb910f5ceca38de8701f1972c942b1447cfddb79",
+     "decisions": 4778,
+     "winners": [
+      1
+     ],
+     "wall_s": 118.08
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 2,
+   "deck_ids": [
+    "collection/gitrog",
+    "collection/juri",
+    "collection/korvold",
+    "collection/kykar",
+    "collection/lathliss"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "2d40a0ac77bc012cedfc924b947b31f58f760a16a72430590ab8eb44846de9c6",
+     "decisions": 3803,
+     "winners": [
+      1
+     ],
+     "wall_s": 87.73
+    },
+    {
+     "status": "ok",
+     "semantic": "2d40a0ac77bc012cedfc924b947b31f58f760a16a72430590ab8eb44846de9c6",
+     "decisions": 3803,
+     "winners": [
+      1
+     ],
+     "wall_s": 85.67
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 3,
+   "deck_ids": [
+    "collection/gitrog",
+    "collection/juri",
+    "collection/korvold",
+    "collection/kykar",
+    "collection/lathliss"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "927c8125274b4d7ff3034afe820ea284192123f2349159966e63244e3208a978",
+     "decisions": 3984,
+     "winners": [
+      1
+     ],
+     "wall_s": 88.91
+    },
+    {
+     "status": "ok",
+     "semantic": "927c8125274b4d7ff3034afe820ea284192123f2349159966e63244e3208a978",
+     "decisions": 3984,
+     "winners": [
+      1
+     ],
+     "wall_s": 82.83
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 1,
+   "deck_ids": [
+    "collection/lavinia",
+    "collection/lyra",
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "5c05f57dee582938ac330ed052916a74d3fc0ed8a6d1d4deffc5abb3824dea54",
+     "decisions": 5709,
+     "winners": [
+      1
+     ],
+     "wall_s": 106.17
+    },
+    {
+     "status": "ok",
+     "semantic": "5c05f57dee582938ac330ed052916a74d3fc0ed8a6d1d4deffc5abb3824dea54",
+     "decisions": 5709,
+     "winners": [
+      1
+     ],
+     "wall_s": 104.61
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 2,
+   "deck_ids": [
+    "collection/lavinia",
+    "collection/lyra",
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "ba8b3d75ead8d24c8d847a79f159eb07173b083ac6018e8f032000a956db2dce",
+     "decisions": 5104,
+     "winners": [
+      4
+     ],
+     "wall_s": 112.9
+    },
+    {
+     "status": "ok",
+     "semantic": "ba8b3d75ead8d24c8d847a79f159eb07173b083ac6018e8f032000a956db2dce",
+     "decisions": 5104,
+     "winners": [
+      4
+     ],
+     "wall_s": 112.94
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 3,
+   "deck_ids": [
+    "collection/lavinia",
+    "collection/lyra",
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "84de5bb9e5056cfe9fcdc14fa237ebfb3b1a8134399bfd1f4efb4732e9c14c72",
+     "decisions": 3282,
+     "winners": [
+      2
+     ],
+     "wall_s": 76.5
+    },
+    {
+     "status": "ok",
+     "semantic": "84de5bb9e5056cfe9fcdc14fa237ebfb3b1a8134399bfd1f4efb4732e9c14c72",
+     "decisions": 3282,
+     "winners": [
+      2
+     ],
+     "wall_s": 77.16
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 1,
+   "deck_ids": [
+    "collection/titania",
+    "collection/veyran",
+    "collection/zegana",
+    "collection/agrus",
+    "collection/arcanis"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "57313fbde97c2afa69a5485b16246c1be8dc9ea6ddacf77a050471ea4d088d3a",
+     "decisions": 3488,
+     "winners": [
+      2
+     ],
+     "wall_s": 89.06
+    },
+    {
+     "status": "ok",
+     "semantic": "57313fbde97c2afa69a5485b16246c1be8dc9ea6ddacf77a050471ea4d088d3a",
+     "decisions": 3488,
+     "winners": [
+      2
+     ],
+     "wall_s": 87.32
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 2,
+   "deck_ids": [
+    "collection/titania",
+    "collection/veyran",
+    "collection/zegana",
+    "collection/agrus",
+    "collection/arcanis"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "8008f283357fc4b8bf221acc089ddd23b43303a4cfec0e410a92ca911901f958",
+     "decisions": 3887,
+     "winners": [
+      3
+     ],
+     "wall_s": 93.07
+    },
+    {
+     "status": "ok",
+     "semantic": "8008f283357fc4b8bf221acc089ddd23b43303a4cfec0e410a92ca911901f958",
+     "decisions": 3887,
+     "winners": [
+      3
+     ],
+     "wall_s": 90.16
+    }
+   ]
+  },
+  {
+   "size": 5,
+   "seed": 3,
+   "deck_ids": [
+    "collection/titania",
+    "collection/veyran",
+    "collection/zegana",
+    "collection/agrus",
+    "collection/arcanis"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "463f85de7204845a65fd38a605a831cb9ec8dee423726dd820c22de145000ae1",
+     "decisions": 4658,
+     "winners": [
+      1
+     ],
+     "wall_s": 101.63
+    },
+    {
+     "status": "ok",
+     "semantic": "463f85de7204845a65fd38a605a831cb9ec8dee423726dd820c22de145000ae1",
+     "decisions": 4658,
+     "winners": [
+      1
+     ],
+     "wall_s": 89.81
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 1,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids",
+    "collection/chulane",
+    "collection/gitrog"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "e99f51014abe6de8618f3c3d6fceeaea50f32cdd8509ff54fc628010ef2e1a53",
+     "decisions": 8889,
+     "winners": [
+      4
+     ],
+     "wall_s": 151.48
+    },
+    {
+     "status": "ok",
+     "semantic": "e99f51014abe6de8618f3c3d6fceeaea50f32cdd8509ff54fc628010ef2e1a53",
+     "decisions": 8889,
+     "winners": [
+      4
+     ],
+     "wall_s": 150.06
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 2,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids",
+    "collection/chulane",
+    "collection/gitrog"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "1e5d759e03216661742cfa49a9695f14c57bd09b2879e83f9534e1c16da71c19",
+     "decisions": 8906,
+     "winners": [
+      1
+     ],
+     "wall_s": 149.51
+    },
+    {
+     "status": "ok",
+     "semantic": "1e5d759e03216661742cfa49a9695f14c57bd09b2879e83f9534e1c16da71c19",
+     "decisions": 8906,
+     "winners": [
+      1
+     ],
+     "wall_s": 140.59
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 3,
+   "deck_ids": [
+    "collection/agrus",
+    "collection/arcanis",
+    "collection/ayli",
+    "collection/braids",
+    "collection/chulane",
+    "collection/gitrog"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "b2dc2b11b2a8326ec0ecbf4ce677e87229ba35f988a7a0e5e68e94eafe5369d8",
+     "decisions": 8538,
+     "winners": [
+      1
+     ],
+     "wall_s": 151.79
+    },
+    {
+     "status": "ok",
+     "semantic": "b2dc2b11b2a8326ec0ecbf4ce677e87229ba35f988a7a0e5e68e94eafe5369d8",
+     "decisions": 8538,
+     "winners": [
+      1
+     ],
+     "wall_s": 140.98
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 1,
+   "deck_ids": [
+    "collection/juri",
+    "collection/korvold",
+    "collection/kykar",
+    "collection/lathliss",
+    "collection/lavinia",
+    "collection/lyra"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "8f6fac04a2c1a9eadfcad5ec3e9986a5700a438fda001d1d275c07b343306277",
+     "decisions": 11254,
+     "winners": [
+      2
+     ],
+     "wall_s": 166.12
+    },
+    {
+     "status": "ok",
+     "semantic": "8f6fac04a2c1a9eadfcad5ec3e9986a5700a438fda001d1d275c07b343306277",
+     "decisions": 11254,
+     "winners": [
+      2
+     ],
+     "wall_s": 152.86
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 2,
+   "deck_ids": [
+    "collection/juri",
+    "collection/korvold",
+    "collection/kykar",
+    "collection/lathliss",
+    "collection/lavinia",
+    "collection/lyra"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "4e3400e4225f5681cab52df926819ceeeb9cf934792d2d33528520a222f5e9ce",
+     "decisions": 6502,
+     "winners": [
+      2
+     ],
+     "wall_s": 123.08
+    },
+    {
+     "status": "ok",
+     "semantic": "4e3400e4225f5681cab52df926819ceeeb9cf934792d2d33528520a222f5e9ce",
+     "decisions": 6502,
+     "winners": [
+      2
+     ],
+     "wall_s": 97.52
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 3,
+   "deck_ids": [
+    "collection/juri",
+    "collection/korvold",
+    "collection/kykar",
+    "collection/lathliss",
+    "collection/lavinia",
+    "collection/lyra"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "f05586474ea708ee7a54c1261c6d01aaf3fa3495a41269e1b8a1ef2c9ba60ee7",
+     "decisions": 7460,
+     "winners": [
+      1
+     ],
+     "wall_s": 113.54
+    },
+    {
+     "status": "ok",
+     "semantic": "f05586474ea708ee7a54c1261c6d01aaf3fa3495a41269e1b8a1ef2c9ba60ee7",
+     "decisions": 7460,
+     "winners": [
+      1
+     ],
+     "wall_s": 122.62
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 1,
+   "deck_ids": [
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala",
+    "collection/titania",
+    "collection/veyran",
+    "collection/zegana"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "a168b17e42ba3495d876e2a653f36165ca83c92b32824a35f942d6c403396eb3",
+     "decisions": 5805,
+     "winners": [
+      2
+     ],
+     "wall_s": 91.09
+    },
+    {
+     "status": "ok",
+     "semantic": "a168b17e42ba3495d876e2a653f36165ca83c92b32824a35f942d6c403396eb3",
+     "decisions": 5805,
+     "winners": [
+      2
+     ],
+     "wall_s": 92.63
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 2,
+   "deck_ids": [
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala",
+    "collection/titania",
+    "collection/veyran",
+    "collection/zegana"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "5a4e731efc4f7441fe57e4163f7625348f022f53769397d2ef536ba83612e647",
+     "decisions": 5885,
+     "winners": [
+      1
+     ],
+     "wall_s": 98.76
+    },
+    {
+     "status": "ok",
+     "semantic": "5a4e731efc4f7441fe57e4163f7625348f022f53769397d2ef536ba83612e647",
+     "decisions": 5885,
+     "winners": [
+      1
+     ],
+     "wall_s": 93.21
+    }
+   ]
+  },
+  {
+   "size": 6,
+   "seed": 3,
+   "deck_ids": [
+    "collection/omnath",
+    "collection/ramos",
+    "collection/selvala",
+    "collection/titania",
+    "collection/veyran",
+    "collection/zegana"
+   ],
+   "twin": "identical",
+   "runs": [
+    {
+     "status": "ok",
+     "semantic": "84321dd1d95409e1d06d7c76d6d78970b2a36951714684efeb6a6b62605d76a6",
+     "decisions": 5784,
+     "winners": [
+      1
+     ],
+     "wall_s": 93.08
+    },
+    {
+     "status": "ok",
+     "semantic": "84321dd1d95409e1d06d7c76d6d78970b2a36951714684efeb6a6b62605d76a6",
+     "decisions": 5784,
+     "winners": [
+      1
+     ],
+     "wall_s": 89.43
+    }
+   ]
+  }
+ ]
+}
