@@ -9,9 +9,15 @@ spawns its JVM in its own directory with a copy of the shared repository.
 from __future__ import annotations
 
 import json
+import os
 import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import pytest
+
+from commander_lab.engine.rules import full_game
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_SHUTDOWN_FORCED_KILL,
     FULL_GAME_SHUTDOWN_GRACEFUL,
@@ -55,7 +61,7 @@ def _spawn(shared: Path, out: Path, *, private: bool) -> dict[str, object]:
     return seen
 
 
-def test_parallel_clients_run_in_distinct_private_copies(tmp_path: Path) -> None:
+def test_sequential_clients_reuse_one_private_slot(tmp_path: Path) -> None:
     shared = _shared(tmp_path, built=True)
     first = _spawn(shared, tmp_path / "a.json", private=True)
     second = _spawn(shared, tmp_path / "b.json", private=True)
@@ -64,8 +70,8 @@ def test_parallel_clients_run_in_distinct_private_copies(tmp_path: Path) -> None
         cwd = Path(str(seen["cwd"]))
         assert cwd.parent == (shared / PRIVATE_ENGINE_DIRECTORY).resolve()
         assert seen["repository"] is True, "the shared repository was copied in"
-        assert not cwd.exists(), "the private directory is removed after the game"
-    assert first["cwd"] != second["cwd"]
+        assert cwd.name == "slot-0", "a finished game frees its slot for the next one"
+    assert first["cwd"] == second["cwd"]
     assert (shared / "db" / XMAGE_CARD_REPOSITORY_FILE).read_bytes() == b"shared-repository"
 
 
@@ -93,7 +99,7 @@ def test_a_gracefully_built_private_repository_becomes_the_shared_one(tmp_path: 
     client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
 
     assert (shared / "db" / XMAGE_CARD_REPOSITORY_FILE).read_bytes() == b"built"
-    assert not private.exists()
+    assert not (private / "db").exists(), "the promoted repository left the slot"
 
 
 def test_a_killed_jvms_repository_is_never_promoted(tmp_path: Path) -> None:
@@ -105,7 +111,7 @@ def test_a_killed_jvms_repository_is_never_promoted(tmp_path: Path) -> None:
     client._release_private_directory(FULL_GAME_SHUTDOWN_FORCED_KILL)
 
     assert not (shared / "db" / XMAGE_CARD_REPOSITORY_FILE).exists()
-    assert not private.exists()
+    assert not (private / "db").exists(), "a killed JVM's files are dropped"
 
 
 def test_an_existing_shared_repository_is_never_replaced(tmp_path: Path) -> None:
@@ -116,7 +122,6 @@ def test_an_existing_shared_repository_is_never_replaced(tmp_path: Path) -> None
     client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
 
     assert (shared / "db" / XMAGE_CARD_REPOSITORY_FILE).read_bytes() == b"shared-repository"
-    assert not private.exists()
 
 
 def test_parallel_batch_games_use_private_repositories_without_new_identity(
@@ -134,3 +139,94 @@ def test_parallel_batch_games_use_private_repositories_without_new_identity(
     stand_in = XmageFullGameRunner(("java", "full-game"), cwd=tmp_path)
     copy = XmageFullGameRunner(("java", "full-game"), cwd=tmp_path, private_card_repository=True)
     assert execution_identity_of(stand_in) == execution_identity_of(copy)
+
+
+def _slot_client(shared: Path) -> _RawFullGameClient:
+    return _RawFullGameClient(
+        ("java", "-jar", "bridge.jar", "full-game"), cwd=shared, private_card_repository=True
+    )
+
+
+def test_six_games_on_two_workers_copy_the_repository_twice(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    shared = _shared(tmp_path, built=True)
+    copies: list[Path] = []
+    real_copy = full_game._copy_card_repository
+
+    def spy(source: Path, destination: Path) -> None:
+        copies.append(destination)
+        real_copy(source, destination)
+
+    monkeypatch.setattr(full_game, "_copy_card_repository", spy)
+    barrier = threading.Barrier(2)
+
+    def worker(_: int) -> list[str]:
+        slots = []
+        for game in range(3):
+            client = _slot_client(shared)
+            slots.append(Path(str(client._prepare_private_directory())).name)
+            if game == 0:
+                barrier.wait(timeout=30)  # both workers hold a slot at once
+            client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+        return slots
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(worker, range(2)))
+
+    assert len(copies) == 2 and len(set(copies)) == 2
+    assert {slot for slots in results for slot in slots} == {"slot-0", "slot-1"}
+
+
+def test_a_slot_with_a_missing_or_resized_repository_is_copied_again(tmp_path: Path) -> None:
+    shared = _shared(tmp_path, built=True)
+    client = _slot_client(shared)
+    slot = Path(str(client._prepare_private_directory()))
+    slot_file = slot / "db" / XMAGE_CARD_REPOSITORY_FILE
+    client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+    slot_file.write_bytes(b"x")
+
+    client = _slot_client(shared)
+    client._prepare_private_directory()
+    assert slot_file.read_bytes() == b"shared-repository"
+    client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+    slot_file.unlink()
+
+    client = _slot_client(shared)
+    client._prepare_private_directory()
+    assert slot_file.read_bytes() == b"shared-repository"
+    client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+
+
+def test_orphans_older_than_a_day_are_removed_and_slots_and_young_ones_kept(
+    tmp_path: Path,
+) -> None:
+    shared = _shared(tmp_path, built=True)
+    root = shared / PRIVATE_ENGINE_DIRECTORY
+    old, young, slot, other = (root / name for name in ("a" * 32, "b" * 32, "slot-7", "keep-me"))
+    for directory in (old, young, slot, other):
+        (directory / "db").mkdir(parents=True)
+    two_days_ago = os.stat(old).st_mtime - 2 * 24 * 3600
+    for directory in (old, slot, other):
+        os.utime(directory, (two_days_ago, two_days_ago))
+
+    client = _slot_client(shared)
+    client._prepare_private_directory()
+    client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+
+    assert not old.exists()
+    assert young.exists() and slot.exists() and other.exists()
+
+
+def test_concurrent_holders_get_different_slots_until_released(tmp_path: Path) -> None:
+    shared = _shared(tmp_path, built=True)
+    first, second = _slot_client(shared), _slot_client(shared)
+    one = Path(str(first._prepare_private_directory()))
+    two = Path(str(second._prepare_private_directory()))
+    assert one != two
+
+    first._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+    third = _slot_client(shared)
+    assert Path(str(third._prepare_private_directory())) == one, "the freed slot is reused"
+    second._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+    third._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)

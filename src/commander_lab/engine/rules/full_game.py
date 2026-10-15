@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import contextlib
+import fcntl
 import hashlib
 import json
 import math
@@ -11,6 +12,7 @@ import shlex
 import shutil
 import subprocess
 import threading
+import time
 import uuid
 import weakref
 from pathlib import Path
@@ -394,6 +396,10 @@ class FullGameReplayGate(_StrictModel):
 # working directory, each with a copy of XMage's card repository.
 PRIVATE_ENGINE_DIRECTORY = "private"
 XMAGE_CARD_REPOSITORY_FILE = "cards.h2.mv.db"
+# Old layout: one ``private/<uuid32>`` directory per game. Orphans of it
+# (a crashed Lab never removed them) are swept once they are this old.
+_ORPHAN_PRIVATE_DIRECTORY = re.compile(r"[0-9a-f]{32}")
+_ORPHAN_PRIVATE_DIRECTORY_AGE_SECONDS = 24 * 3600
 
 # Bridge stderr kept in memory for diagnostics. Only the last 80 lines are
 # ever reported (``stderr_tail``); the pump trims to this bound so a chatty
@@ -426,6 +432,22 @@ def kill_live_bridge_processes() -> int:
             process.kill()
             killed += 1
     return killed
+
+
+def _copy_card_repository(source: Path, destination: Path) -> None:
+    shutil.copytree(source, destination)
+
+
+def _remove_orphan_private_directories(root: Path) -> None:
+    """Remove old-style ``private/<uuid32>`` directories older than 24 hours."""
+    cutoff = time.time() - _ORPHAN_PRIVATE_DIRECTORY_AGE_SECONDS
+    with contextlib.suppress(OSError):
+        for entry in root.iterdir():
+            if not _ORPHAN_PRIVATE_DIRECTORY.fullmatch(entry.name):
+                continue
+            with contextlib.suppress(OSError):
+                if entry.is_dir() and not entry.is_symlink() and entry.stat().st_mtime < cutoff:
+                    shutil.rmtree(entry, ignore_errors=True)
 
 
 class _RawFullGameClient:
@@ -469,6 +491,7 @@ class _RawFullGameClient:
         self.shutdown_disposition: str | None = None
         self.private_card_repository = private_card_repository
         self._private_directory: Path | None = None
+        self._slot_lock: int | None = None
 
     @property
     def stderr_tail(self) -> tuple[str, ...]:
@@ -613,25 +636,66 @@ class _RawFullGameClient:
         parallel game runs in its own directory with a copy of the shared,
         already-built repository. With no shared repository yet the JVM builds
         a private one, which :meth:`_release_private_directory` may promote.
+
+        The directory is a worker slot, ``private/slot-<n>``: the first slot
+        whose ``slot-<n>.lock`` this client can lock exclusively (``flock``,
+        so other threads, batches and processes skip it). The repository is
+        copied into a slot once and reused by the games that follow, and
+        copied again when the slot's file is missing or differs in size.
         """
         if not self.private_card_repository:
             return None
         shared = Path(self.cwd or ".")
-        private = shared / PRIVATE_ENGINE_DIRECTORY / uuid.uuid4().hex
-        private.mkdir(parents=True)
-        self._private_directory = private
-        source = shared / "db"
-        if (source / XMAGE_CARD_REPOSITORY_FILE).is_file():
-            shutil.copytree(source, private / "db")
+        root = shared / PRIVATE_ENGINE_DIRECTORY
+        root.mkdir(parents=True, exist_ok=True)
+        _remove_orphan_private_directories(root)
+        slot = 0
+        while True:
+            descriptor = os.open(root / f"slot-{slot}.lock", os.O_RDWR | os.O_CREAT, 0o600)
+            try:
+                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                os.close(descriptor)
+                slot += 1
+                continue
+            break
+        self._slot_lock = descriptor
+        try:
+            private = root / f"slot-{slot}"
+            private.mkdir(exist_ok=True)
+            self._private_directory = private
+            source_file = shared / "db" / XMAGE_CARD_REPOSITORY_FILE
+            slot_file = private / "db" / XMAGE_CARD_REPOSITORY_FILE
+            if source_file.is_file() and not (
+                slot_file.is_file() and slot_file.stat().st_size == source_file.stat().st_size
+            ):
+                shutil.rmtree(private / "db", ignore_errors=True)
+                _copy_card_repository(shared / "db", private / "db")
+        except BaseException:
+            self._release_slot_lock()
+            self._private_directory = None
+            raise
         return str(private)
 
-    def _release_private_directory(self, disposition: str) -> None:
-        """Remove the private directory; promote a freshly built repository.
+    def _release_slot_lock(self) -> None:
+        descriptor = self._slot_lock
+        self._slot_lock = None
+        if descriptor is not None:
+            with contextlib.suppress(OSError):
+                fcntl.flock(descriptor, fcntl.LOCK_UN)
+            with contextlib.suppress(OSError):
+                os.close(descriptor)
 
-        Only a gracefully shut down JVM has closed its H2 files, so only then
-        does a repository it built become the shared one, and only when no
-        shared repository appeared meanwhile (``os.rename`` refuses a
-        non-empty target, so concurrent promotions cannot mix files).
+    def _release_private_directory(self, disposition: str) -> None:
+        """Free the worker slot; promote a freshly built repository.
+
+        The slot directory stays for the next game. Only a gracefully shut
+        down JVM has closed its H2 files, so only then does a repository it
+        built become the shared one, and only when no shared repository
+        appeared meanwhile (``os.rename`` refuses a non-empty target, so
+        concurrent promotions cannot mix files). A promoted or killed JVM's
+        repository leaves the slot empty or is dropped, so the next game
+        starts from a clean copy.
         """
         private = self._private_directory
         if private is None:
@@ -639,14 +703,19 @@ class _RawFullGameClient:
         self._private_directory = None
         shared = private.parent.parent / "db"
         built = private / "db"
-        if (
-            disposition == FULL_GAME_SHUTDOWN_GRACEFUL
-            and (built / XMAGE_CARD_REPOSITORY_FILE).is_file()
-            and not (shared / XMAGE_CARD_REPOSITORY_FILE).is_file()
-        ):
-            with contextlib.suppress(OSError):
-                os.rename(built, shared)
-        shutil.rmtree(private, ignore_errors=True)
+        try:
+            if (
+                disposition == FULL_GAME_SHUTDOWN_GRACEFUL
+                and (built / XMAGE_CARD_REPOSITORY_FILE).is_file()
+                and not (shared / XMAGE_CARD_REPOSITORY_FILE).is_file()
+            ):
+                with contextlib.suppress(OSError):
+                    os.rename(built, shared)
+            if disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+                # A killed JVM may have left half-written H2 files.
+                shutil.rmtree(built, ignore_errors=True)
+        finally:
+            self._release_slot_lock()
 
     def close(self) -> str:
         """Shut the bridge process down and release a private directory."""
