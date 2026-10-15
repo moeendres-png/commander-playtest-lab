@@ -18,6 +18,13 @@ EXPECTED_IDS = {
     "opponent/avengers-assemble-precon",
     "opponent/doom-prevails-precon",
 }
+# Current opponents that are unchanged official precons with an exact packaged list; Blight
+# Curse also carries an observed commander preference, so it is not a pure benchmark.
+EXACT_LIST_IDS = EXPECTED_IDS | {
+    "opponent/blight-curse-precon",
+    "opponent/dance-elements-precon",
+    "opponent/wakanda-forever-precon",
+}
 
 
 def test_official_precon_benchmarks_are_exact_known_100_card_lists() -> None:
@@ -25,7 +32,7 @@ def test_official_precon_benchmarks_are_exact_known_100_card_lists() -> None:
         ROOT / "data/opponents/official_precon_profiles.json"
     )
 
-    assert {profile.profile_id for profile in profiles} == EXPECTED_IDS
+    assert {profile.profile_id for profile in profiles} == EXACT_LIST_IDS
     for profile in profiles:
         assert profile.list_status.value == "official_precon"
         assert profile.deck is not None
@@ -45,7 +52,7 @@ def test_structural_runtime_preserves_every_official_card_identity_and_quantity(
     }
     structural = load_project_structural_decks(ROOT, include_current_opponents=True)
 
-    for deck_id in EXPECTED_IDS:
+    for deck_id in EXACT_LIST_IDS:
         exact = profiles[deck_id].deck
         assert exact is not None
         expected = exact.quantities()
