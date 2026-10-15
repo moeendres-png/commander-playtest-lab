@@ -30,6 +30,31 @@ from commander_lab.storage import atomic_write_text, canonical_json_bytes
 ENGINE_VERSION = "structural-0.6.1"
 
 
+@dataclass(frozen=True)
+class StructuralTuning:
+    """Global damage scales of the Structural model (#733).
+
+    The defaults are the model's long-standing constants. They exist as one object so the
+    model can be measured and fitted against XMage full games
+    (``engine/structural/xmage_calibration.py``) instead of being edited by guesswork.
+    """
+
+    creature_attack: float = 0.62
+    token_attack: float = 0.35
+    creature_blocking: float = 0.35
+    token_blocking: float = 0.25
+    finisher_damage: float = 1.0
+    payoff_damage: float = 0.45
+    cast_trigger_damage: float = 1.0
+    token_creation: float = 0.8
+
+    def as_dict(self) -> dict[str, float]:
+        return {name: float(getattr(self, name)) for name in self.__dataclass_fields__}
+
+
+DEFAULT_TUNING = StructuralTuning()
+
+
 def commander_cast_cost(base_cost: float, prior_casts: int) -> int:
     """Return structural commander cost including two generic mana per prior cast."""
     if base_cost < 0 or prior_casts < 0:
@@ -180,8 +205,14 @@ class StructuralSimulator:
     Every returned result is labelled ``structural_model_estimates``.
     """
 
-    def __init__(self, decks: dict[str, StructuralDeckProfile]) -> None:
+    def __init__(
+        self,
+        decks: dict[str, StructuralDeckProfile],
+        *,
+        tuning: StructuralTuning = DEFAULT_TUNING,
+    ) -> None:
         self.decks = decks
+        self.tuning = tuning
 
     def simulate(
         self,
@@ -623,7 +654,7 @@ class StructuralSimulator:
             card.strength(CardRole.PAYOFF) * card.multiplayer_scaling for card in player.battlefield
         )
         if payoff > 0.4:
-            damage = payoff * 0.45
+            damage = payoff * self.tuning.payoff_damage
             for opponent in players:
                 if opponent.alive and opponent.player_id != player.player_id:
                     opponent.life -= damage
@@ -1066,13 +1097,13 @@ class StructuralSimulator:
                 )
         return pending
 
-    @staticmethod
     def _resolve_cast_triggers(
-        pending: list[tuple[_Player, _Player, float]], recorder: _EventRecorder
+        self, pending: list[tuple[_Player, _Player, float]], recorder: _EventRecorder
     ) -> None:
-        for source, target, damage in pending:
+        for source, target, mana_value in pending:
             if not source.alive or not target.alive:
                 continue
+            damage = mana_value * self.tuning.cast_trigger_damage
             target.life -= damage
             source.normal_damage_dealt += damage
             recorder.emit(
@@ -1229,7 +1260,7 @@ class StructuralSimulator:
                     1.0 - card.turn_cycle_risk * 0.25
                 )
             if CardRole.TOKEN_SOURCE in card.roles:
-                tokens = card.strength(CardRole.TOKEN_SOURCE) * 0.8
+                tokens = card.strength(CardRole.TOKEN_SOURCE) * self.tuning.token_creation
                 player.tokens += tokens
                 player.board_power += tokens
             if CardRole.PROTECTION in card.roles:
@@ -1661,8 +1692,10 @@ class StructuralSimulator:
             )
             return
         damage = (
-            3.0 + max(0.0, player.mana_spent - card.mana_value) * 0.7 + player.resources * 0.2
-        ) * strength
+            (3.0 + max(0.0, player.mana_spent - card.mana_value) * 0.7 + player.resources * 0.2)
+            * strength
+            * self.tuning.finisher_damage
+        )
         damage *= 1.0 + card.multiplayer_scaling * 0.1 * max(0, len(opponents) - 1)
         for opponent in opponents:
             opponent.life -= damage
@@ -1765,7 +1798,10 @@ class StructuralSimulator:
             combat_multiplier *= 1.75
         if any(card.oracle_name == "Jeska, Thrice Reborn" for card in player.battlefield):
             combat_multiplier *= 3.0
-        attack = max(0.0, player.board_power * 0.62 + player.tokens * 0.35)
+        tuning = self.tuning
+        attack = max(
+            0.0, player.board_power * tuning.creature_attack + player.tokens * tuning.token_attack
+        )
         commander_attack = sum(commander.power for commander in commander_attackers)
         total_attack = (attack + commander_attack) * combat_multiplier
         if total_attack <= 0.1:
@@ -1824,7 +1860,8 @@ class StructuralSimulator:
                     metadata={
                         "target_life": opponent.life,
                         "commander_damage_pressure": commander_pressure,
-                        "blockers": opponent.board_power * 0.35 + opponent.tokens * 0.25,
+                        "blockers": opponent.board_power * tuning.creature_blocking
+                        + opponent.tokens * tuning.token_blocking,
                     },
                 )
             )
@@ -1833,7 +1870,9 @@ class StructuralSimulator:
         self._record_pilot_decision(player, decision, recorder, phase="combat")
         target = target_mapping.get(decision.selected_action_id or "", targets[0])
         target.hostile_target_events += 1
-        blockers = target.board_power * 0.35 + target.tokens * 0.25
+        blockers = (
+            target.board_power * tuning.creature_blocking + target.tokens * tuning.token_blocking
+        )
         damage = max(0.0, total_attack - blockers)
         target.life -= damage
         player.normal_damage_dealt += max(0.0, damage - commander_attack * combat_multiplier)

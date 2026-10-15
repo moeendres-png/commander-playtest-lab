@@ -336,6 +336,13 @@ def load_project_context(root: str | Path) -> ProjectContextSnapshot:
         "protected_cards": root_path / "config/protected_cards.json",
     }
     source_hash_dict = {name: _sha256_file(path) for name, path in paths.items()}
+    # Structural profiles take power and finishers from these XMage facts when the file
+    # exists (#733), so a cached Structural result must not outlive a change to them.
+    # The facts are optional, as in load_card_facts; their absence is part of the identity.
+    card_facts = root_path / "data/cards/xmage_card_facts.json"
+    source_hash_dict["xmage_card_facts"] = (
+        _sha256_file(card_facts) if card_facts.is_file() else "absent"
+    )
     feature_manifest = _load_json(paths["feature_projection_manifest"])
     source_hash_dict.update(_feature_source_hashes(root_path, feature_manifest))
 

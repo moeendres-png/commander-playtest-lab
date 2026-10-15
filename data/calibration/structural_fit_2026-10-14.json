@@ -1,0 +1,480 @@
+{
+ "facts": {
+  "decided_pods": 159,
+  "decks": [
+   {
+    "deck_id": "collection/agrus",
+    "games": 28,
+    "structural_win_share": 0.13169642857142858,
+    "xmage_win_share": 0.2857142857142857
+   },
+   {
+    "deck_id": "collection/arcanis",
+    "games": 32,
+    "structural_win_share": 0.181640625,
+    "xmage_win_share": 0.3125
+   },
+   {
+    "deck_id": "collection/ayli",
+    "games": 25,
+    "structural_win_share": 0.2075,
+    "xmage_win_share": 0.04
+   },
+   {
+    "deck_id": "collection/braids",
+    "games": 27,
+    "structural_win_share": 0.22685185185185186,
+    "xmage_win_share": 0.18518518518518517
+   },
+   {
+    "deck_id": "collection/chulane",
+    "games": 31,
+    "structural_win_share": 0.125,
+    "xmage_win_share": 0.06451612903225806
+   },
+   {
+    "deck_id": "collection/gitrog",
+    "games": 24,
+    "structural_win_share": 0.2578125,
+    "xmage_win_share": 0.25
+   },
+   {
+    "deck_id": "collection/juri",
+    "games": 23,
+    "structural_win_share": 0.21739130434782608,
+    "xmage_win_share": 0.043478260869565216
+   },
+   {
+    "deck_id": "collection/korvold",
+    "games": 20,
+    "structural_win_share": 0.390625,
+    "xmage_win_share": 0.3
+   },
+   {
+    "deck_id": "collection/kykar",
+    "games": 24,
+    "structural_win_share": 0.12760416666666666,
+    "xmage_win_share": 0.0
+   },
+   {
+    "deck_id": "collection/lathliss",
+    "games": 24,
+    "structural_win_share": 0.2526041666666667,
+    "xmage_win_share": 0.3333333333333333
+   },
+   {
+    "deck_id": "collection/lavinia",
+    "games": 28,
+    "structural_win_share": 0.14285714285714285,
+    "xmage_win_share": 0.21428571428571427
+   },
+   {
+    "deck_id": "collection/lyra",
+    "games": 18,
+    "structural_win_share": 0.18055555555555555,
+    "xmage_win_share": 0.05555555555555555
+   },
+   {
+    "deck_id": "collection/omnath",
+    "games": 25,
+    "structural_win_share": 0.175,
+    "xmage_win_share": 0.2
+   },
+   {
+    "deck_id": "collection/ramos",
+    "games": 34,
+    "structural_win_share": 0.22794117647058823,
+    "xmage_win_share": 0.23529411764705882
+   },
+   {
+    "deck_id": "collection/selvala",
+    "games": 28,
+    "structural_win_share": 0.15178571428571427,
+    "xmage_win_share": 0.39285714285714285
+   },
+   {
+    "deck_id": "collection/titania",
+    "games": 33,
+    "structural_win_share": 0.2784090909090909,
+    "xmage_win_share": 0.3939393939393939
+   },
+   {
+    "deck_id": "collection/veyran",
+    "games": 22,
+    "structural_win_share": 0.19318181818181818,
+    "xmage_win_share": 0.18181818181818182
+   },
+   {
+    "deck_id": "collection/zegana",
+    "games": 18,
+    "structural_win_share": 0.20833333333333334,
+    "xmage_win_share": 0.3333333333333333
+   },
+   {
+    "deck_id": "kaervek/current",
+    "games": 41,
+    "structural_win_share": 0.524390243902439,
+    "xmage_win_share": 0.14634146341463414
+   },
+   {
+    "deck_id": "opponent/hosts-of-mordor-precon",
+    "games": 47,
+    "structural_win_share": 0.38430851063829785,
+    "xmage_win_share": 0.3829787234042553
+   },
+   {
+    "deck_id": "opponent/lorehold-spirit-precon",
+    "games": 38,
+    "structural_win_share": 0.34539473684210525,
+    "xmage_win_share": 0.47368421052631576
+   },
+   {
+    "deck_id": "rogshai/current",
+    "games": 46,
+    "structural_win_share": 0.2758152173913043,
+    "xmage_win_share": 0.34782608695652173
+   }
+  ],
+  "decks_ranked": 22,
+  "halves": [
+   {
+    "decided_pods": 79,
+    "decks_ranked": 22,
+    "log_loss": 1.5393333507168285,
+    "log_loss_uniform": 1.3862943611198906,
+    "pods": 79,
+    "spearman_deck_strength": 0.1855732068323053,
+    "structural_mean_rounds": 14.483386075949367,
+    "xmage_mean_rounds": 13.208860759493671
+   },
+   {
+    "decided_pods": 80,
+    "decks_ranked": 22,
+    "log_loss": 1.3904247499240163,
+    "log_loss_uniform": 1.3862943611198906,
+    "pods": 80,
+    "spearman_deck_strength": 0.2751496621467575,
+    "structural_mean_rounds": 14.29375,
+    "xmage_mean_rounds": 13.365625
+   }
+  ],
+  "log_loss": 1.4644107842801937,
+  "log_loss_uniform": 1.3862943611198906,
+  "pods": 159,
+  "spearman_deck_strength": 0.4343405990765938,
+  "structural_abort_rate": 0.0,
+  "structural_mean_rounds": 14.387971698113208,
+  "xmage_mean_rounds": 13.287735849056604
+ },
+ "facts_fitted": {
+  "decided_pods": 159,
+  "decks": [
+   {
+    "deck_id": "collection/agrus",
+    "games": 28,
+    "structural_win_share": 0.12723214285714285,
+    "xmage_win_share": 0.2857142857142857
+   },
+   {
+    "deck_id": "collection/arcanis",
+    "games": 32,
+    "structural_win_share": 0.197265625,
+    "xmage_win_share": 0.3125
+   },
+   {
+    "deck_id": "collection/ayli",
+    "games": 25,
+    "structural_win_share": 0.2325,
+    "xmage_win_share": 0.04
+   },
+   {
+    "deck_id": "collection/braids",
+    "games": 27,
+    "structural_win_share": 0.26851851851851855,
+    "xmage_win_share": 0.18518518518518517
+   },
+   {
+    "deck_id": "collection/chulane",
+    "games": 31,
+    "structural_win_share": 0.14919354838709678,
+    "xmage_win_share": 0.06451612903225806
+   },
+   {
+    "deck_id": "collection/gitrog",
+    "games": 24,
+    "structural_win_share": 0.2604166666666667,
+    "xmage_win_share": 0.25
+   },
+   {
+    "deck_id": "collection/juri",
+    "games": 23,
+    "structural_win_share": 0.25271739130434784,
+    "xmage_win_share": 0.043478260869565216
+   },
+   {
+    "deck_id": "collection/korvold",
+    "games": 20,
+    "structural_win_share": 0.428125,
+    "xmage_win_share": 0.3
+   },
+   {
+    "deck_id": "collection/kykar",
+    "games": 24,
+    "structural_win_share": 0.15885416666666666,
+    "xmage_win_share": 0.0
+   },
+   {
+    "deck_id": "collection/lathliss",
+    "games": 24,
+    "structural_win_share": 0.22916666666666666,
+    "xmage_win_share": 0.3333333333333333
+   },
+   {
+    "deck_id": "collection/lavinia",
+    "games": 28,
+    "structural_win_share": 0.125,
+    "xmage_win_share": 0.21428571428571427
+   },
+   {
+    "deck_id": "collection/lyra",
+    "games": 18,
+    "structural_win_share": 0.14930555555555555,
+    "xmage_win_share": 0.05555555555555555
+   },
+   {
+    "deck_id": "collection/omnath",
+    "games": 25,
+    "structural_win_share": 0.1725,
+    "xmage_win_share": 0.2
+   },
+   {
+    "deck_id": "collection/ramos",
+    "games": 34,
+    "structural_win_share": 0.22058823529411764,
+    "xmage_win_share": 0.23529411764705882
+   },
+   {
+    "deck_id": "collection/selvala",
+    "games": 28,
+    "structural_win_share": 0.16071428571428573,
+    "xmage_win_share": 0.39285714285714285
+   },
+   {
+    "deck_id": "collection/titania",
+    "games": 33,
+    "structural_win_share": 0.2765151515151515,
+    "xmage_win_share": 0.3939393939393939
+   },
+   {
+    "deck_id": "collection/veyran",
+    "games": 22,
+    "structural_win_share": 0.19886363636363635,
+    "xmage_win_share": 0.18181818181818182
+   },
+   {
+    "deck_id": "collection/zegana",
+    "games": 18,
+    "structural_win_share": 0.1909722222222222,
+    "xmage_win_share": 0.3333333333333333
+   },
+   {
+    "deck_id": "kaervek/current",
+    "games": 41,
+    "structural_win_share": 0.27896341463414637,
+    "xmage_win_share": 0.14634146341463414
+   },
+   {
+    "deck_id": "opponent/hosts-of-mordor-precon",
+    "games": 47,
+    "structural_win_share": 0.4401595744680851,
+    "xmage_win_share": 0.3829787234042553
+   },
+   {
+    "deck_id": "opponent/lorehold-spirit-precon",
+    "games": 38,
+    "structural_win_share": 0.45230263157894735,
+    "xmage_win_share": 0.47368421052631576
+   },
+   {
+    "deck_id": "rogshai/current",
+    "games": 46,
+    "structural_win_share": 0.27717391304347827,
+    "xmage_win_share": 0.34782608695652173
+   }
+  ],
+  "decks_ranked": 22,
+  "halves": [
+   {
+    "decided_pods": 79,
+    "decks_ranked": 22,
+    "log_loss": 1.30733490227268,
+    "log_loss_uniform": 1.3862943611198906,
+    "pods": 79,
+    "spearman_deck_strength": 0.19349401444100126,
+    "structural_mean_rounds": 13.88370253164557,
+    "xmage_mean_rounds": 13.208860759493671
+   },
+   {
+    "decided_pods": 80,
+    "decks_ranked": 22,
+    "log_loss": 1.2652156574606328,
+    "log_loss_uniform": 1.3862943611198906,
+    "pods": 80,
+    "spearman_deck_strength": 0.28866971354514,
+    "structural_mean_rounds": 13.66953125,
+    "xmage_mean_rounds": 13.365625
+   }
+  ],
+  "log_loss": 1.2861428294112727,
+  "log_loss_uniform": 1.3862943611198906,
+  "pods": 159,
+  "spearman_deck_strength": 0.3789890012748952,
+  "structural_abort_rate": 0.0,
+  "structural_mean_rounds": 13.775943396226415,
+  "xmage_mean_rounds": 13.287735849056604
+ },
+ "fitted_tuning": {
+  "cast_trigger_damage": 0.0,
+  "creature_attack": 0.9299999999999999,
+  "creature_blocking": 0.7,
+  "finisher_damage": 1.0,
+  "payoff_damage": 0.675,
+  "token_attack": 0.35,
+  "token_blocking": 0.375,
+  "token_creation": 1.6
+ },
+ "profile_reports": [
+  {
+   "curated": 100,
+   "deck_id": "rogshai/current",
+   "inferred_from_facts": 0,
+   "without_facts": []
+  },
+  {
+   "curated": 100,
+   "deck_id": "kaervek/current",
+   "inferred_from_facts": 0,
+   "without_facts": []
+  },
+  {
+   "curated": 100,
+   "deck_id": "opponent/hosts-of-mordor-precon",
+   "inferred_from_facts": 0,
+   "without_facts": []
+  },
+  {
+   "curated": 100,
+   "deck_id": "opponent/lorehold-spirit-precon",
+   "inferred_from_facts": 0,
+   "without_facts": []
+  },
+  {
+   "curated": 77,
+   "deck_id": "collection/agrus",
+   "inferred_from_facts": 23,
+   "without_facts": []
+  },
+  {
+   "curated": 72,
+   "deck_id": "collection/arcanis",
+   "inferred_from_facts": 28,
+   "without_facts": []
+  },
+  {
+   "curated": 52,
+   "deck_id": "collection/ayli",
+   "inferred_from_facts": 48,
+   "without_facts": []
+  },
+  {
+   "curated": 44,
+   "deck_id": "collection/braids",
+   "inferred_from_facts": 56,
+   "without_facts": []
+  },
+  {
+   "curated": 63,
+   "deck_id": "collection/chulane",
+   "inferred_from_facts": 37,
+   "without_facts": []
+  },
+  {
+   "curated": 38,
+   "deck_id": "collection/gitrog",
+   "inferred_from_facts": 62,
+   "without_facts": []
+  },
+  {
+   "curated": 61,
+   "deck_id": "collection/juri",
+   "inferred_from_facts": 39,
+   "without_facts": []
+  },
+  {
+   "curated": 45,
+   "deck_id": "collection/korvold",
+   "inferred_from_facts": 55,
+   "without_facts": []
+  },
+  {
+   "curated": 79,
+   "deck_id": "collection/kykar",
+   "inferred_from_facts": 21,
+   "without_facts": []
+  },
+  {
+   "curated": 76,
+   "deck_id": "collection/lathliss",
+   "inferred_from_facts": 24,
+   "without_facts": []
+  },
+  {
+   "curated": 76,
+   "deck_id": "collection/lavinia",
+   "inferred_from_facts": 24,
+   "without_facts": []
+  },
+  {
+   "curated": 73,
+   "deck_id": "collection/lyra",
+   "inferred_from_facts": 27,
+   "without_facts": []
+  },
+  {
+   "curated": 56,
+   "deck_id": "collection/omnath",
+   "inferred_from_facts": 44,
+   "without_facts": []
+  },
+  {
+   "curated": 38,
+   "deck_id": "collection/ramos",
+   "inferred_from_facts": 62,
+   "without_facts": []
+  },
+  {
+   "curated": 50,
+   "deck_id": "collection/selvala",
+   "inferred_from_facts": 50,
+   "without_facts": []
+  },
+  {
+   "curated": 40,
+   "deck_id": "collection/titania",
+   "inferred_from_facts": 60,
+   "without_facts": []
+  },
+  {
+   "curated": 78,
+   "deck_id": "collection/veyran",
+   "inferred_from_facts": 22,
+   "without_facts": []
+  },
+  {
+   "curated": 57,
+   "deck_id": "collection/zegana",
+   "inferred_from_facts": 43,
+   "without_facts": []
+  }
+ ]
+}

@@ -8,6 +8,7 @@ from commander_lab.models import Deck, StructuralCardProfile, StructuralDeckProf
 from commander_lab.models.structural import validate_commander_deck_profile
 from commander_lab.storage import load_model
 
+from .card_facts import apply_facts_to_deck, fact_profiles, load_card_facts
 from .fixtures import build_current_opponent_profiles, build_synthetic_deck_profile
 from .profiles import StructuralProfileCatalog, build_structural_deck_profile
 
@@ -58,8 +59,16 @@ def load_project_structural_decks(
     root_path = Path(root)
     manifest = json.loads((root_path / "data/decks/manifest.json").read_text(encoding="utf-8"))
     snapshot_hash = str(manifest["data_snapshot_hash"])
-    profiles = StructuralProfileCatalog.from_json(
-        root_path / "data/cards/structural_role_profiles.json"
+    # Curated profiles win; every other card with pinned XMage facts gets an inferred one
+    # instead of being unresolvable (#733).
+    card_facts = load_card_facts(root_path.resolve())
+    profiles = StructuralProfileCatalog(
+        (
+            *fact_profiles(card_facts),
+            *StructuralProfileCatalog.from_json(
+                root_path / "data/cards/structural_role_profiles.json"
+            ).profiles,
+        )
     )
     overlay_paths = (
         root_path / "data/decks/rogshai_current_structural_overrides.json",
@@ -137,7 +146,10 @@ def load_project_structural_decks(
                     opponent_profiles,
                     source=opponent_path,
                 )
-    return decks
+    return {
+        deck_id: validate_commander_deck_profile(apply_facts_to_deck(profile, card_facts))
+        for deck_id, profile in decks.items()
+    }
 
 
 def _version_key(version: str) -> tuple[int, int, int]:

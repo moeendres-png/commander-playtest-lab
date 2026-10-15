@@ -6,6 +6,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
+from commander_lab.engine.structural.card_facts import apply_card_facts, load_card_facts
 from commander_lab.engine.structural.fact_fidelity import apply_current_card_facts
 from commander_lab.engine.structural.profiles import build_default_profile
 from commander_lab.fresh_rebuild import (
@@ -72,6 +73,7 @@ class WholeDeckSearchContext:
             candidate.card.oracle_name: candidate.card for candidate in universe.candidates.values()
         }
         identities = dict(universe.review_required)
+        card_facts = load_card_facts(project)
         cards: dict[str, SearchCard] = {}
         for name in sorted(universe.candidate_names):
             profile = explicit.get(name)
@@ -133,6 +135,11 @@ class WholeDeckSearchContext:
                 profile,
                 universe.candidate_facts_by_name.get(name),
             )
+            # Pinned XMage facts give creatures their power; a card whose semantics stay
+            # unknown gains no inferred role from its text (#733).
+            engine_facts = card_facts.get(name) if card_facts is not None else None
+            if engine_facts is not None:
+                profile = apply_card_facts(profile, engine_facts, infer_roles=semantic_known)
             color_identity = (
                 frozenset(color.value for color in identity.color_identity)
                 if identity is not None
