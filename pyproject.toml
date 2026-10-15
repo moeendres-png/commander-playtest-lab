@@ -56,7 +56,6 @@ markers = [
   "differential: comparisons against external or normalized rule backends",
   "agent_eval: agent trajectory and report evaluation tests",
   "external: requires a configured XMage or Forge backend",
-  "real_worktree_state: reads the real git worktree state instead of a clean checkout",
 ]
 
 [tool.ruff]

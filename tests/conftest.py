@@ -15,6 +15,13 @@ from commander_lab.models import CardIdentity
 from commander_lab.tools.service import CommanderToolService
 
 
+def pytest_configure(config: pytest.Config) -> None:
+    config.addinivalue_line(
+        "markers",
+        "real_worktree_state: reads the real git worktree state instead of a clean checkout",
+    )
+
+
 @pytest.fixture(scope="session")
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
