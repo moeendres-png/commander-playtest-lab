@@ -19,6 +19,11 @@ final class XmageFullGameJsonlBridge {
 
     private final XmageDeckImporter deckImporter = new XmageDeckImporter();
     private XmageFullGameSession session;
+    // Owner decision 2026-10-15: batch runs may opt in to several games per JVM.
+    // The default stays one game per process; evidence lanes never set the property.
+    static final String GAMES_PER_JVM_PROPERTY = "commanderlab.fullGame.gamesPerJvm";
+    private final int gamesPerJvm = Math.max(1, Integer.getInteger(GAMES_PER_JVM_PROPERTY, 1));
+    private int gamesCreated;
 
     record Result(String json, boolean shutdown) {
     }
@@ -144,11 +149,16 @@ final class XmageFullGameJsonlBridge {
 
     private Result createFullGame(String requestId, JsonObject request) {
         try {
+            if (session != null && session.isShutDown() && gamesCreated < gamesPerJvm) {
+                // Batch opt-in: the previous game was shut down, so the next may start.
+                session = null;
+            }
             if (session != null) {
                 return error(
                         requestId,
                         "full_game_process_already_used",
-                        "Full-game lane permits exactly one game per JVM process",
+                        "Full-game lane permits " + gamesPerJvm
+                                + " game(s) per JVM process, each after the previous shutdown_game",
                         false
                 );
             }
@@ -198,6 +208,7 @@ final class XmageFullGameJsonlBridge {
             int startingPlayerSeat = requiredInt(payload, "starting_player_seat");
             int startingLife = optionalInt(payload, "starting_life", 40);
 
+            gamesCreated++;
             session = new XmageFullGameSession(
                     gameId,
                     new ArrayList<>(deckHandles),
