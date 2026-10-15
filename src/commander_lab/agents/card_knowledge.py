@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
 
 from commander_lab.models import CardRole
@@ -45,7 +45,9 @@ class CardFacts:
     color_identity: frozenset[str]
     produced_mana: frozenset[str]
 
-    @property
+    # Pilots ask these for every permanent on every decision; the facts are
+    # immutable, so each is computed once per card.
+    @cached_property
     def types(self) -> str:
         return self.type_line.split("—", 1)[0].casefold()
 
@@ -55,15 +57,15 @@ class CardFacts:
             return ()
         return tuple(self.type_line.split("—", 1)[1].split("//")[0].split())
 
-    @property
+    @cached_property
     def is_land(self) -> bool:
         return "land" in self.types and "//" not in self.type_line.split("—", 1)[0]
 
-    @property
+    @cached_property
     def is_creature(self) -> bool:
         return "creature" in self.types
 
-    @property
+    @cached_property
     def is_planeswalker(self) -> bool:
         return "planeswalker" in self.types
 
@@ -119,7 +121,12 @@ def card_facts(name: str | None, path: Path | None = None) -> CardFacts | None:
     """Printed facts for a card name, or None when the catalog does not know it."""
     if not name:
         return None
-    catalog = _catalog(str(path or _DEFAULT_PATH))
+    return _lookup(name, str(path or _DEFAULT_PATH))
+
+
+@lru_cache(maxsize=8192)
+def _lookup(name: str, path: str) -> CardFacts | None:
+    catalog = _catalog(path)
     key = name.strip().casefold()
     return catalog.get(key) or catalog.get(key.split(" // ")[0])
 
@@ -215,6 +222,11 @@ def _curated_roles(name: str) -> dict[CardRole, float] | None:
 
 def card_roles(facts: CardFacts) -> dict[CardRole, float]:
     """Strategic roles: curated profile first, else printed text and types."""
+    return dict(_card_roles(facts))
+
+
+@lru_cache(maxsize=8192)
+def _card_roles(facts: CardFacts) -> dict[CardRole, float]:
     curated = _curated_roles(facts.name)
     if curated is not None:
         return curated

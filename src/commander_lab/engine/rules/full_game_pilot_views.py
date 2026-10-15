@@ -16,6 +16,7 @@ from __future__ import annotations
 import re
 from collections import Counter
 from collections.abc import Iterable, Mapping
+from functools import lru_cache
 from typing import Any
 
 from commander_lab.agents.card_knowledge import (
@@ -97,13 +98,20 @@ def creature_toughness_left(item: Mapping[str, Any]) -> int:
 
 def entry_value(item: Mapping[str, Any], state: Mapping[str, Any]) -> float:
     name = str(item.get("name") or "")
-    power = item.get("power") if isinstance(item.get("power"), int) else None
-    toughness = item.get("toughness") if isinstance(item.get("toughness"), int) else None
+    creature = is_creature_entry(item)
+    power = item.get("power") if creature and isinstance(item.get("power"), int) else None
+    toughness = (
+        item.get("toughness") if creature and isinstance(item.get("toughness"), int) else None
+    )
+    return _entry_value(name, power, toughness, name.casefold() in commander_names(state))
+
+
+@lru_cache(maxsize=16384)
+def _entry_value(name: str, power: int | None, toughness: int | None, is_commander: bool) -> float:
+    # A pure function of printed facts and board P/T, asked for every permanent
+    # on every decision: computed once per distinct permanent shape.
     return permanent_value(
-        card_facts(name),
-        power=power if is_creature_entry(item) else None,
-        toughness=toughness if is_creature_entry(item) else None,
-        is_commander=name.casefold() in commander_names(state),
+        card_facts(name), power=power, toughness=toughness, is_commander=is_commander
     )
 
 
