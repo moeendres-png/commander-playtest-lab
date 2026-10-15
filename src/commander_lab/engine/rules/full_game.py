@@ -12,6 +12,7 @@ import shutil
 import subprocess
 import threading
 import uuid
+import weakref
 from pathlib import Path
 from typing import Any, Literal
 
@@ -400,6 +401,32 @@ XMAGE_CARD_REPOSITORY_FILE = "cards.h2.mv.db"
 _STDERR_BUFFER_LINES = 1_000
 _STDERR_TAIL_LINES = 80
 
+# Bridge clients whose JVM is running, so an interrupted batch can stop them at
+# once instead of waiting for every game in flight to finish.
+_LIVE_CLIENTS: weakref.WeakSet[_RawFullGameClient] = weakref.WeakSet()
+_LIVE_CLIENTS_LOCK = threading.Lock()
+
+
+def kill_live_bridge_processes() -> int:
+    """Kill every running full-game bridge JVM of this process; returns how many.
+
+    Each killed client's channel is marked unusable, so its game thread fails
+    fast (``BRIDGE_CLOSED``) and its ``close()`` skips the shutdown handshake.
+    Used when a batch is interrupted; a killed game never becomes a record.
+    """
+    with _LIVE_CLIENTS_LOCK:
+        clients = list(_LIVE_CLIENTS)
+    killed = 0
+    for client in clients:
+        process = client._process
+        if process is None or process.poll() is not None:
+            continue
+        client._transport_failure = client._transport_failure or "BRIDGE_ABORTED"
+        with contextlib.suppress(OSError):
+            process.kill()
+            killed += 1
+    return killed
+
 
 class _RawFullGameClient:
     """One-process client for the dedicated XMage full-game lane."""
@@ -501,6 +528,8 @@ class _RawFullGameClient:
         )
         self._stdout_thread.start()
         self._stderr_thread.start()
+        with _LIVE_CLIENTS_LOCK:
+            _LIVE_CLIENTS.add(self)
 
     @public_full_game_errors
     def request(self, message_type: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -674,6 +703,8 @@ class _RawFullGameClient:
                 if thread is not None:
                     thread.join(timeout=2)
             self._process = None
+            with _LIVE_CLIENTS_LOCK:
+                _LIVE_CLIENTS.discard(self)
 
     def _pump_stdout(self, stream: Any) -> None:
         try:

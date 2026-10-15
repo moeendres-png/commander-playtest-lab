@@ -32,6 +32,7 @@ from .full_game import (
     FullGamePilotBinding,
     FullGameProtocolError,
     XmageFullGameRunner,
+    kill_live_bridge_processes,
 )
 
 
@@ -442,8 +443,14 @@ class XmageFullGameBatchRunner:
                     index, path = futures[future]
                     yield index, future.result(), path
             except BaseException:
-                for future in futures:
-                    future.cancel()
+                # Interrupted (Ctrl-C) or failed: drop queued games and stop the
+                # bridge JVMs of games in flight, so leaving the executor does
+                # not wait for them to finish. Thread workers share this
+                # process's clients; process workers' JVMs get the same signal
+                # from the terminal. Nothing in flight becomes a record.
+                executor.shutdown(wait=False, cancel_futures=True)
+                if parallelism == "thread":
+                    kill_live_bridge_processes()
                 raise
 
     def run_key(self, case: FullGameBatchCase) -> str:
