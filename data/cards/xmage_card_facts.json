@@ -1,5 +1,5 @@
 {
- "card_count": 1885,
+ "card_count": 2097,
  "cards": {
   "Abbey Griffin": {
    "engine_name": "Abbey Griffin",
@@ -18,6 +18,22 @@
    "toughness": 2.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Aberrant Return": {
+   "engine_name": "Aberrant Return",
+   "loyalty": null,
+   "mana_cost": "{4}{B}{B}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "Put one, two, or three target creature cards from graveyards onto the battlefield under your control. Each of them enters with an additional -1/-1 counter on it."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
    ]
   },
   "Abolish": {
@@ -91,6 +107,44 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Abundant Countryside": {
+   "engine_name": "Abundant Countryside",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{T}: Add {C}.",
+    "{T}: Add one mana of any color. Spend this mana only to cast a creature spell.",
+    "{6}, {T}: Create a 1/1 colorless Shapeshifter creature token with changeling."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
+  "Abundant Growth": {
+   "engine_name": "Abundant Growth",
+   "loyalty": null,
+   "mana_cost": "{G}",
+   "mana_value": 1.0,
+   "power": null,
+   "rules": [
+    "Enchant land",
+    "When {this} enters, draw a card.",
+    "Enchanted land has \"{T}: Add one mana of any color.\""
+   ],
+   "subtypes": [
+    "Aura"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
    ]
   },
   "Academy Manufactor": {
@@ -750,6 +804,23 @@
     "SORCERY"
    ]
   },
+  "Ancestral Communion": {
+   "engine_name": "Ancestral Communion",
+   "loyalty": null,
+   "mana_cost": "{1}{G}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "When you cast this spell while you control your commander, copy this spell. You may choose a new target for the copy.",
+    "Return target permanent card from your graveyard to your hand."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Ancient Den": {
    "engine_name": "Ancient Den",
    "loyalty": null,
@@ -782,6 +853,22 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Ancient Ziggurat": {
+   "engine_name": "Ancient Ziggurat",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{T}: Add one mana of any color. Spend this mana only to cast a creature spell."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Angel of Finality": {
@@ -1393,6 +1480,26 @@
     "ARTIFACT"
    ]
   },
+  "Archfiend of Ifnir": {
+   "engine_name": "Archfiend of Ifnir",
+   "loyalty": null,
+   "mana_cost": "{3}{B}{B}",
+   "mana_value": 5.0,
+   "power": 5.0,
+   "rules": [
+    "Flying",
+    "Whenever you cycle or discard another card, put a -1/-1 counter on each creature your opponents control.",
+    "Cycling {2} <i>({2}, Discard this card: Draw a card.)</i>"
+   ],
+   "subtypes": [
+    "Demon"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Archmage Emeritus": {
    "engine_name": "Archmage Emeritus",
    "loyalty": null,
@@ -1410,6 +1517,26 @@
    "toughness": 2.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Archnemesis": {
+   "engine_name": "Archnemesis",
+   "loyalty": null,
+   "mana_cost": "{1}{U}{B}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Enchant opponent",
+    "Whenever you attack enchanted player, that player loses 2 life. You draw a card and you gain 2 life.",
+    "Whenever a player attacks you, you may attach this Aura to that player."
+   ],
+   "subtypes": [
+    "Aura"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
    ]
   },
   "Archon of Sun's Grace": {
@@ -1653,6 +1780,28 @@
     "LAND"
    ]
   },
+  "Ashling, the Limitless": {
+   "engine_name": "Ashling, the Limitless",
+   "loyalty": null,
+   "mana_cost": "{2}{R}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Elemental permanent spells you cast from your hand gain evoke {4} as you cast them.",
+    "Whenever you sacrifice a nontoken Elemental, create a token that's a copy of it. The token gains haste until end of turn. At the beginning of your next end step, sacrifice it unless you pay {W}{U}{B}{R}{G}."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Sorcerer"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Ashmouth Hound": {
    "engine_name": "Ashmouth Hound",
    "loyalty": null,
@@ -1830,6 +1979,28 @@
     "CREATURE"
    ]
   },
+  "Auntie Ool, Cursewretch": {
+   "engine_name": "Auntie Ool, Cursewretch",
+   "loyalty": null,
+   "mana_cost": "{1}{B}{R}{G}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "Ward&mdash;Blight 2.",
+    "Whenever one or more -1/-1 counters are put on a creature, draw a card if you control that creature. If you don't control it, its controller loses 1 life."
+   ],
+   "subtypes": [
+    "Goblin",
+    "Warlock"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Auramancer": {
    "engine_name": "Auramancer",
    "loyalty": null,
@@ -1995,6 +2166,62 @@
    "toughness": 3.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Avenge": {
+   "engine_name": "Avenge",
+   "loyalty": null,
+   "mana_cost": "{4}{W}{W}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "This spell costs {2} less to cast if a player attacked you during their last turn.",
+    "Destroy all creatures. You gain 1 life for each creature destroyed this way."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
+  "Avenger of Zendikar": {
+   "engine_name": "Avenger of Zendikar",
+   "loyalty": null,
+   "mana_cost": "{5}{G}{G}",
+   "mana_value": 7.0,
+   "power": 5.0,
+   "rules": [
+    "When {this} enters, create a 0/1 green Plant creature token for each land you control.",
+    "<i>Landfall</i> &mdash; Whenever a land you control enters, you may put a +1/+1 counter on each Plant creature you control."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Avengers Quinjet": {
+   "engine_name": "Avengers Quinjet",
+   "loyalty": null,
+   "mana_cost": "{5}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "Flying",
+    "Whenever {this} enters or attacks, choose one &mdash;<br>&bull You may put a Hero creature card from your hand onto the battlefield.<br>&bull Return target Hero creature card from your graveyard to your hand.<br>",
+    "Crew 3 <i>(Tap any number of creatures you control with total power 3 or more: This Vehicle becomes an artifact creature until end of turn.)</i>"
+   ],
+   "subtypes": [
+    "Vehicle"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Avengers Tower": {
@@ -2299,6 +2526,24 @@
     "CREATURE"
    ]
   },
+  "Bane of Progress": {
+   "engine_name": "Bane of Progress",
+   "loyalty": null,
+   "mana_cost": "{4}{G}{G}",
+   "mana_value": 6.0,
+   "power": 2.0,
+   "rules": [
+    "When {this} enters, destroy all artifacts and enchantments. Put a +1/+1 counter on {this} for each permanent destroyed this way."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Banishing Betrayal": {
    "engine_name": "Banishing Betrayal",
    "loyalty": null,
@@ -2481,6 +2726,31 @@
     "ARTIFACT"
    ]
   },
+  "Bast, Panther Goddess": {
+   "engine_name": "Bast, Panther Goddess",
+   "loyalty": null,
+   "mana_cost": "{2}{G}{W}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "Reach",
+    "Trample",
+    "Indestructible",
+    "{this} can't attack or block unless you control three or more creatures.",
+    "Whenever you attack, target attacking creature gets +X/+X until end of turn, where X is the number of creatures you control."
+   ],
+   "subtypes": [
+    "Cat",
+    "God"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Bastion Protector": {
    "engine_name": "Bastion Protector",
    "loyalty": null,
@@ -2515,6 +2785,29 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Batroc the Leaper": {
+   "engine_name": "Batroc the Leaper",
+   "loyalty": null,
+   "mana_cost": "{1}{R}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Multikicker {2} <i>(You may pay an additional {2} any number of times as you cast this spell.)</i>",
+    "Batroc enters with a +1/+1 counter on him for each time he was kicked.",
+    "When {this} enters, he deals damage equal to his power to each of up to X targets, where X is the number of times he was kicked."
+   ],
+   "subtypes": [
+    "Human",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Battle Hurda": {
@@ -2718,6 +3011,26 @@
     "INSTANT"
    ]
   },
+  "Belonging": {
+   "engine_name": "Belonging",
+   "loyalty": null,
+   "mana_cost": "{5}{W}",
+   "mana_value": 6.0,
+   "power": 6.0,
+   "rules": [
+    "When {this} enters, create three 1/1 colorless Shapeshifter creature tokens with changeling.",
+    "Encore {6}{W}{W} <i>({6}{W}{W}, Exile this card from your graveyard: For each opponent, create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice them at the beginning of the next end step. Activate only as a sorcery)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Incarnation"
+   ],
+   "supertypes": [],
+   "toughness": 6.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Bennie Bracks, Zoologist": {
    "engine_name": "Bennie Bracks, Zoologist",
    "loyalty": null,
@@ -2856,6 +3169,25 @@
     "CREATURE"
    ]
   },
+  "Birds of Paradise": {
+   "engine_name": "Birds of Paradise",
+   "loyalty": null,
+   "mana_cost": "{G}",
+   "mana_value": 1.0,
+   "power": 0.0,
+   "rules": [
+    "Flying",
+    "{T}: Add one mana of any color."
+   ],
+   "subtypes": [
+    "Bird"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Bitter Downfall": {
    "engine_name": "Bitter Downfall",
    "loyalty": null,
@@ -2913,6 +3245,30 @@
     "INSTANT"
    ]
   },
+  "Black Bolt, Inhuman King": {
+   "engine_name": "Black Bolt, Inhuman King",
+   "loyalty": null,
+   "mana_cost": "{2}{W}{U}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "Flying",
+    "Whenever you cast a noncreature spell, {this} gets +2/+2 until end of turn.",
+    "<i>Lethal Voice</i> &mdash; Whenever {this} becomes the target of a spell or ability an opponent controls, destroy target nonland permanent that player controls."
+   ],
+   "subtypes": [
+    "Inhuman",
+    "Noble",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Black Market Connections": {
    "engine_name": "Black Market Connections",
    "loyalty": null,
@@ -2927,6 +3283,22 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Black Sun's Zenith": {
+   "engine_name": "Black Sun's Zenith",
+   "loyalty": null,
+   "mana_cost": "{X}{B}{B}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Put X -1/-1 counters on each creature. Shuffle {this} into its owner's library."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
    ]
   },
   "Black Widow, Agile Avenger": {
@@ -3334,6 +3706,22 @@
     "LAND"
    ]
   },
+  "Blowfly Infestation": {
+   "engine_name": "Blowfly Infestation",
+   "loyalty": null,
+   "mana_cost": "{2}{B}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Whenever a creature dies, if it had a -1/-1 counter on it, put a -1/-1 counter on target creature."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Blue Mage's Cane": {
    "engine_name": "Blue Mage's Cane",
    "loyalty": null,
@@ -3669,6 +4057,24 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Bountiful Promenade": {
+   "engine_name": "Bountiful Promenade",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped unless you have two or more opponents.",
+    "{T}: Add {G}.",
+    "{T}: Add {W}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Bovine Intervention": {
@@ -4092,6 +4498,23 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Burning Curiosity": {
+   "engine_name": "Burning Curiosity",
+   "loyalty": null,
+   "mana_cost": "{2}{R}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "As an additional cost to cast this spell, you may blight 1. <i>(You may put a -1/-1 counteron a creature you control.)</i>",
+    "Exile the top two cards of your library. If this spell's additional cost was paid, exile the top three cards instead. Until the end of your next turn, you may play those cards."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
    ]
   },
   "Burning Oil": {
@@ -4583,6 +5006,39 @@
     "CREATURE"
    ]
   },
+  "Cathartic Pyre": {
+   "engine_name": "Cathartic Pyre",
+   "loyalty": null,
+   "mana_cost": "{1}{R}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Choose one &mdash;<br>&bull {this} deals 3 damage to target creature or planeswalker.<br>&bull Discard up to two cards, then draw that many cards.<br>"
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
+   ]
+  },
+  "Cathartic Reunion": {
+   "engine_name": "Cathartic Reunion",
+   "loyalty": null,
+   "mana_cost": "{1}{R}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "As an additional cost to cast this spell, discard two cards.<br>",
+    "Draw three cards."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Caustic Crawler": {
    "engine_name": "Caustic Crawler",
    "loyalty": null,
@@ -4616,6 +5072,27 @@
    ],
    "supertypes": [],
    "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Cavalier of Thorns": {
+   "engine_name": "Cavalier of Thorns",
+   "loyalty": null,
+   "mana_cost": "{2}{G}{G}{G}",
+   "mana_value": 5.0,
+   "power": 5.0,
+   "rules": [
+    "Reach",
+    "When {this} enters, reveal the top five cards of your library. Put a land card from among them onto the battlefield and the rest into your graveyard.",
+    "When {this} dies, you may exile it. If you do, put another target card from your graveyard on top of your library."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Knight"
+   ],
+   "supertypes": [],
+   "toughness": 6.0,
    "types": [
     "CREATURE"
    ]
@@ -4971,6 +5448,26 @@
     "ENCHANTMENT"
    ]
   },
+  "Channeler Initiate": {
+   "engine_name": "Channeler Initiate",
+   "loyalty": null,
+   "mana_cost": "{1}{G}",
+   "mana_value": 2.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, put three -1/-1 counters on target creature you control.",
+    "{T}, Remove a -1/-1 counter from {this}: Add one mana of any color."
+   ],
+   "subtypes": [
+    "Human",
+    "Druid"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Chaos Warp": {
    "engine_name": "Chaos Warp",
    "loyalty": null,
@@ -5054,6 +5551,25 @@
    "toughness": 1.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Chimil, the Inner Sun": {
+   "engine_name": "Chimil, the Inner Sun",
+   "loyalty": null,
+   "mana_cost": "{6}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "Spells you control can't be countered.",
+    "At the beginning of your end step, discover 5. <i>(Exile cards from the top of your library until you exile a nonland card with mana value 5 or less. Cast it without paying its mana cost or put it into your hand. Put the rest on the bottom in a random order.)</i>"
+   ],
+   "subtypes": [],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Choked Estuary": {
@@ -5757,6 +6273,23 @@
     "INSTANT"
    ]
   },
+  "Conduit of Worlds": {
+   "engine_name": "Conduit of Worlds",
+   "loyalty": null,
+   "mana_cost": "{2}{G}{G}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "You may play lands from your graveyard.",
+    "{T}: Choose target nonland permanent card in your graveyard. If you haven't cast a spell this turn, you may cast that card. If you do, you can't cast additional spells this turn. Activate only as a sorcery."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Cone of Flame": {
    "engine_name": "Cone of Flame",
    "loyalty": null,
@@ -5878,6 +6411,23 @@
    "toughness": 0.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Contagion Clasp": {
+   "engine_name": "Contagion Clasp",
+   "loyalty": null,
+   "mana_cost": "{2}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "When {this} enters, put a -1/-1 counter on target creature.",
+    "{4}, {T}: Proliferate. <i>(Choose any number of permanents and/or players, then give each another counter of each kind already there.)</i>"
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Containment Construct": {
@@ -6181,6 +6731,23 @@
     "CREATURE"
    ]
   },
+  "Cosmic Crucible": {
+   "engine_name": "Cosmic Crucible",
+   "loyalty": null,
+   "mana_cost": "{4}{G}{U}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "At the beginning of your first main phase, add four mana in any combination of colors.",
+    "Whenever you cast a noncreature spell, you may copy it. You may choose new targets for the copy. Do this only once each turn."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Cost of Brilliance": {
    "engine_name": "Cost of Brilliance",
    "loyalty": null,
@@ -6195,6 +6762,29 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Council of Reeds": {
+   "engine_name": "Council of Reeds",
+   "loyalty": null,
+   "mana_cost": "{2}{U}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "The \"legend rule\" doesn't apply to creatures you control.",
+    "At the beginning of combat on your turn, if you've cast a noncreature spell this turn, create a token that's a copy of {this}."
+   ],
+   "subtypes": [
+    "Human",
+    "Scientist",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Counterspell": {
@@ -6296,6 +6886,22 @@
     "LAND"
    ]
   },
+  "Cream of the Crop": {
+   "engine_name": "Cream of the Crop",
+   "loyalty": null,
+   "mana_cost": "{1}{G}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Whenever a creature you control enters, you may look at the top X cards of your library, where X is that creature's power. If you do, put one of those cards on top of your library and the rest on the bottom of your library in any order."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Creative Technique": {
    "engine_name": "Creative Technique",
    "loyalty": null,
@@ -6311,6 +6917,26 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Crib Swap": {
+   "engine_name": "Crib Swap",
+   "loyalty": null,
+   "mana_cost": "{2}{W}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Exile target creature. Its controller creates a 1/1 colorless Shapeshifter creature token with changeling.",
+    "Changeling <i>(This card is every creature type.)</i>"
+   ],
+   "subtypes": [
+    "Shapeshifter"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "KINDRED",
+    "INSTANT"
    ]
   },
   "Crop Rotation": {
@@ -6842,6 +7468,29 @@
     "LAND"
    ]
   },
+  "Damocles Base, Sword of Kang": {
+   "engine_name": "Damocles Base, Sword of Kang",
+   "loyalty": null,
+   "mana_cost": "{4}{B}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "Flying",
+    "Deathtouch",
+    "Whenever {this} deals combat damage to a player, that player faces a villainous choice &mdash; That player sacrifices a nontoken creature of their choice, or that player loses 2 life and you draw two cards.",
+    "Crew 3 <i>(Tap any number of creatures you control with total power 3 or more: This Vehicle becomes an artifact creature until end of turn.)</i>"
+   ],
+   "subtypes": [
+    "Vehicle"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Dance with Calamity": {
    "engine_name": "Dance with Calamity",
    "loyalty": null,
@@ -7217,6 +7866,26 @@
     "CREATURE"
    ]
   },
+  "Defacing Duskmage // Vandal's Edit": {
+   "engine_name": "Defacing Duskmage",
+   "loyalty": null,
+   "mana_cost": "{W}{B}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Deathtouch",
+    "Whenever an opponent draws their second card each turn, {this} becomes prepared."
+   ],
+   "subtypes": [
+    "Dog",
+    "Warlock"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Dehydration": {
    "engine_name": "Dehydration",
    "loyalty": null,
@@ -7361,6 +8030,22 @@
     "CREATURE"
    ]
   },
+  "Descendants' Fury": {
+   "engine_name": "Descendants' Fury",
+   "loyalty": null,
+   "mana_cost": "{3}{R}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Whenever one or more creatures you control deal combat damage to a player, you may sacrifice one of them. If you do, reveal cards from the top of your library until you reveal a creature card that shares a creature type with the sacrificed creature. Put that card onto the battlefield and the rest on the bottom of your library in a random order."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Desecration Demon": {
    "engine_name": "Desecration Demon",
    "loyalty": null,
@@ -7483,6 +8168,26 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Devoted Druid": {
+   "engine_name": "Devoted Druid",
+   "loyalty": null,
+   "mana_cost": "{1}{G}",
+   "mana_value": 2.0,
+   "power": 0.0,
+   "rules": [
+    "{T}: Add {G}.",
+    "Put a -1/-1 counter on {this}: Untap {this}."
+   ],
+   "subtypes": [
+    "Elf",
+    "Druid"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Devouring Swarm": {
@@ -7609,6 +8314,28 @@
     "INSTANT"
    ]
   },
+  "Dimension X Pizzasaur": {
+   "engine_name": "Dimension X Pizzasaur",
+   "loyalty": null,
+   "mana_cost": "{3}{B}",
+   "mana_value": 4.0,
+   "power": 2.0,
+   "rules": [
+    "When {this} enters, put two +1/+1 counters on target creature. When you do, destroy up to one target creature with mana value less than or equal to the number of counters among permanents you control.",
+    "{2}, {T}, Sacrifice {this}: You gain 3 life and each opponent loses 3 life."
+   ],
+   "subtypes": [
+    "Food",
+    "Alien",
+    "Mutant"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
+   ]
+  },
   "Dimir Cutpurse": {
    "engine_name": "Dimir Cutpurse",
    "loyalty": null,
@@ -7684,6 +8411,26 @@
    ],
    "supertypes": [],
    "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Dirgur Focusmage // Braingeyser": {
+   "engine_name": "Dirgur Focusmage",
+   "loyalty": null,
+   "mana_cost": "{2}{U}",
+   "mana_value": 3.0,
+   "power": 1.0,
+   "rules": [
+    "Instant and sorcery spells you cast cost {1} less to cast.",
+    "Whenever you cast an instant or sorcery spell with mana value 5 or greater from your hand, {this} becomes prepared."
+   ],
+   "subtypes": [
+    "Djinn",
+    "Monk"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
    "types": [
     "CREATURE"
    ]
@@ -7837,6 +8584,22 @@
     "INSTANT"
    ]
   },
+  "Distant Melody": {
+   "engine_name": "Distant Melody",
+   "loyalty": null,
+   "mana_cost": "{3}{U}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Choose a creature type. Draw a card for each permanent you control of that type."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Distant Memories": {
    "engine_name": "Distant Memories",
    "loyalty": null,
@@ -7954,6 +8717,22 @@
     "INSTANT"
    ]
   },
+  "Divine Visitation": {
+   "engine_name": "Divine Visitation",
+   "loyalty": null,
+   "mana_cost": "{3}{W}{W}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "If one or more creature tokens would be created under your control, that many 4/4 white Angel creature tokens with flying and vigilance are created instead."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Doctor Doom, King of Latveria": {
    "engine_name": "Doctor Doom, King of Latveria",
    "loyalty": null,
@@ -8016,6 +8795,22 @@
     "INSTANT"
    ]
   },
+  "Doom's Time Platform": {
+   "engine_name": "Doom's Time Platform",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Whenever you attack, exile target nonland card from your graveyard with two time counters on it. If it doesn't have suspend, it gains suspend."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Doomwake Giant": {
    "engine_name": "Doomwake Giant",
    "loyalty": null,
@@ -8051,6 +8846,27 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Dora Milaje Elite": {
+   "engine_name": "Dora Milaje Elite",
+   "loyalty": null,
+   "mana_cost": "{1}{W}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "First strike",
+    "When {this} enters, if an opponent controls more lands than you, create a tapped Vibranium token.",
+    "Sacrifice {this}: Legendary permanents you control gain indestructible until end of turn."
+   ],
+   "subtypes": [
+    "Human",
+    "Warrior"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Double Jump // Flying Kick": {
@@ -8122,6 +8938,30 @@
    "supertypes": [],
    "toughness": 5.0,
    "types": [
+    "CREATURE"
+   ]
+  },
+  "Dragon Man, Reformed Robot": {
+   "engine_name": "Dragon Man, Reformed Robot",
+   "loyalty": null,
+   "mana_cost": "{2}{W}{U}",
+   "mana_value": 4.0,
+   "power": 0.0,
+   "rules": [
+    "Flying",
+    "{this}'s power is equal to the number of the greatest mana value among noncreature permanents you control and noncreature cards in your graveyard.",
+    "You may cast this card from your graveyard by discarding a card in addition to paying its other costs."
+   ],
+   "subtypes": [
+    "Dragon",
+    "Robot"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "ARTIFACT",
     "CREATURE"
    ]
   },
@@ -8232,6 +9072,26 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Dread Tiller": {
+   "engine_name": "Dread Tiller",
+   "loyalty": null,
+   "mana_cost": "{1}{B}{G}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "When {this} enters, put a -1/-1 counter on target creature.",
+    "Whenever a creature with a -1/-1 counter on it dies, you may put a land card from your hand or graveyard onto the battlefield tapped."
+   ],
+   "subtypes": [
+    "Scarecrow"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
    ]
   },
   "Dreadwing Scavenger": {
@@ -8511,6 +9371,25 @@
     "SORCERY"
    ]
   },
+  "Dusk Urchins": {
+   "engine_name": "Dusk Urchins",
+   "loyalty": null,
+   "mana_cost": "{2}{B}",
+   "mana_value": 3.0,
+   "power": 4.0,
+   "rules": [
+    "Whenever {this} attacks or blocks, put a -1/-1 counter on it.",
+    "When {this} dies, draw a card for each -1/-1 counter on it."
+   ],
+   "subtypes": [
+    "Ouphe"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Dwynen's Elite": {
    "engine_name": "Dwynen's Elite",
    "loyalty": null,
@@ -8526,6 +9405,25 @@
    ],
    "supertypes": [],
    "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Eclipsed Flamekin": {
+   "engine_name": "Eclipsed Flamekin",
+   "loyalty": null,
+   "mana_cost": "{1}{U/R}{U/R}",
+   "mana_value": 3.0,
+   "power": 1.0,
+   "rules": [
+    "When {this} enters, look at the top four cards of your library. You may reveal an Elemental, Island, or Mountain card from among them and put it into your hand. Put the rest on the bottom of your library in a random order."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Scout"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
    "types": [
     "CREATURE"
    ]
@@ -8568,6 +9466,26 @@
    "toughness": 0.0,
    "types": [
     "ENCHANTMENT",
+    "CREATURE"
+   ]
+  },
+  "Eiganjo Dynastorian // Replenish": {
+   "engine_name": "Eiganjo Dynastorian",
+   "loyalty": null,
+   "mana_cost": "{2}{W}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Vigilance",
+    "Whenever you attack with two or more creatures, {this} becomes prepared."
+   ],
+   "subtypes": [
+    "Fox",
+    "Advisor"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
     "CREATURE"
    ]
   },
@@ -8672,6 +9590,22 @@
    "toughness": 4.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Elemental Spectacle": {
+   "engine_name": "Elemental Spectacle",
+   "loyalty": null,
+   "mana_cost": "{5}{G}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "<i>Vivid</i> &mdash; Create a number of 5/5 red and green Elemental creature tokens equal to the number of colors among permanents you control. Then you gain life equal to the number of creatures you control."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
    ]
   },
   "Elixir of Immortality": {
@@ -8916,6 +9850,28 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Endurance": {
+   "engine_name": "Endurance",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{G}",
+   "mana_value": 3.0,
+   "power": 3.0,
+   "rules": [
+    "Flash",
+    "Reach",
+    "When {this} enters, up to one target player puts all the cards from their graveyard on the bottom of their library in a random order.",
+    "Evoke&mdash;Exile a green card from your hand. <i>(You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters the battlefield.)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Incarnation"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Enigma Drake": {
@@ -9328,6 +10284,44 @@
     "CREATURE"
    ]
   },
+  "Eventide's Shadow": {
+   "engine_name": "Eventide's Shadow",
+   "loyalty": null,
+   "mana_cost": "{4}{B}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "Remove any number of counters from among permanents on the battlefield. You draw cards and lose life equal to the number of counters removed this way."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
+  "Everett K. Ross, Hapless Attaché": {
+   "engine_name": "Everett K. Ross, Hapless Attache",
+   "loyalty": null,
+   "mana_cost": "{2}{W}",
+   "mana_value": 3.0,
+   "power": 1.0,
+   "rules": [
+    "Commander creatures you control get +1/+1 and have lifelink.",
+    "Whenever an opponent attacks you with two or more creatures, draw a card."
+   ],
+   "subtypes": [
+    "Human",
+    "Advisor"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Everflowing Chalice": {
    "engine_name": "Everflowing Chalice",
    "loyalty": null,
@@ -9344,6 +10338,24 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Everlasting Torment": {
+   "engine_name": "Everlasting Torment",
+   "loyalty": null,
+   "mana_cost": "{2}{B/R}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Players can't gain life.",
+    "Damage can't be prevented.",
+    "All damage is dealt as though its source had wither."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
    ]
   },
   "Everything Pizza": {
@@ -9363,6 +10375,25 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Evolution Sage": {
+   "engine_name": "Evolution Sage",
+   "loyalty": null,
+   "mana_cost": "{2}{G}",
+   "mana_value": 3.0,
+   "power": 3.0,
+   "rules": [
+    "<i>Landfall</i> &mdash; Whenever a land you control enters, proliferate. <i>(Choose any number of permanents and/or players, then give each another counter of each kind already there.)</i>"
+   ],
+   "subtypes": [
+    "Elf",
+    "Druid"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Evolving Wilds": {
@@ -9585,6 +10616,22 @@
     "SORCERY"
    ]
   },
+  "Extract Power": {
+   "engine_name": "Extract Power",
+   "loyalty": null,
+   "mana_cost": "{5}{U}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "Look at the top card of each player's library, then exile those cards face down. You may play them without paying their mana costs for as long as they remain exiled."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Extract from Darkness": {
    "engine_name": "Extract from Darkness",
    "loyalty": null,
@@ -9689,6 +10736,27 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Faeburrow Elder": {
+   "engine_name": "Faeburrow Elder",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{W}",
+   "mana_value": 3.0,
+   "power": 0.0,
+   "rules": [
+    "Vigilance",
+    "{this} gets +1/+1 for each color among permanents you control.",
+    "{T}: For each color among permanents you control, add one mana of that color."
+   ],
+   "subtypes": [
+    "Treefolk",
+    "Druid"
+   ],
+   "supertypes": [],
+   "toughness": 0.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Faerie Mastermind": {
@@ -10107,6 +11175,28 @@
     "SORCERY"
    ]
   },
+  "Ferrafor, Young Yew": {
+   "engine_name": "Ferrafor, Young Yew",
+   "loyalty": null,
+   "mana_cost": "{6}{G}",
+   "mana_value": 7.0,
+   "power": 4.0,
+   "rules": [
+    "When {this} enters, create a number of 1/1 green Saproling creature tokens equal to the number of counters among creatures target player controls.",
+    "{T}: Double the number of each kind of counter on target creature."
+   ],
+   "subtypes": [
+    "Treefolk",
+    "Druid"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 7.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Ferrous Lake": {
    "engine_name": "Ferrous Lake",
    "loyalty": null,
@@ -10351,6 +11441,22 @@
     "ENCHANTMENT"
    ]
   },
+  "Fight for the Throne": {
+   "engine_name": "Fight for the Throne",
+   "loyalty": null,
+   "mana_cost": "{1}{G}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Put a +1/+1 counter on target creature you control. When the creature an opponent controls dies this turn, if you control your commander, you become the monarch. Then it fights target creature an opponent controls."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
+   ]
+  },
   "Final Judgment": {
    "engine_name": "Final Judgment",
    "loyalty": null,
@@ -10556,6 +11662,22 @@
     "ARTIFACT"
    ]
   },
+  "First Family": {
+   "engine_name": "First Family",
+   "loyalty": null,
+   "mana_cost": "{2}{G}{U}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "You draw X cards and gain X life, where X is the number of colors among permanents you control and spells you've cast this turn."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
+   ]
+  },
   "Flame On!": {
    "engine_name": "Flame On!",
    "loyalty": null,
@@ -10627,6 +11749,43 @@
     "CREATURE"
    ]
   },
+  "Flamebraider": {
+   "engine_name": "Flamebraider",
+   "loyalty": null,
+   "mana_cost": "{1}{R}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "{T}: Add two mana in any combination of colors. Spend this mana only to cast Elemental spells or activate abilities of Elemental sources."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Bard"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Flamekin Village": {
+   "engine_name": "Flamekin Village",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "As {this} enters, you may reveal an Elemental card from your hand. If you don't, {this} enters tapped.",
+    "{T}: Add {R}.",
+    "{R}, {T}: Target creature gains haste until end of turn."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Flare of Duplication": {
    "engine_name": "Flare of Duplication",
    "loyalty": null,
@@ -10694,6 +11853,25 @@
    ],
    "supertypes": [],
    "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Fleecemane Lion": {
+   "engine_name": "Fleecemane Lion",
+   "loyalty": null,
+   "mana_cost": "{G}{W}",
+   "mana_value": 2.0,
+   "power": 3.0,
+   "rules": [
+    "{3}{G}{W}: Monstrosity 1. <i>(If this creature isn't monstrous, put one +1/+1 counters on it and it becomes monstrous.)</i>",
+    "As long as {this} is monstrous, it has hexproof and indestructible."
+   ],
+   "subtypes": [
+    "Cat"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
    "types": [
     "CREATURE"
    ]
@@ -10810,6 +11988,22 @@
     "INSTANT"
    ]
   },
+  "Flourishing Defenses": {
+   "engine_name": "Flourishing Defenses",
+   "loyalty": null,
+   "mana_cost": "{4}{G}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "Whenever a -1/-1 counter is put on a creature, you may create a 1/1 green Elf Warrior creature token."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Flow State": {
    "engine_name": "Flow State",
    "loyalty": null,
@@ -10898,6 +12092,27 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Foot Chopper": {
+   "engine_name": "Foot Chopper",
+   "loyalty": null,
+   "mana_cost": "{1}{B}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "When {this} enters, create a 1/1 black Ninja creature token and attach {this} to it.",
+    "Equipped creature has flying.",
+    "Whenever equipped creature deals combat damage to a player, you may sacrifice it. If you do, draw cards equal to its power.",
+    "Equip {2}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Foratog": {
@@ -11010,6 +12225,24 @@
     "SORCERY"
    ]
   },
+  "Fortified Village": {
+   "engine_name": "Fortified Village",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "As {this} enters, you may reveal a Forest or Plains card from your hand. If you don't, {this} enters tapped.",
+    "{T}: Add {G}.",
+    "{T}: Add {W}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Forum Filibuster": {
    "engine_name": "Forum Filibuster",
    "loyalty": null,
@@ -11043,6 +12276,25 @@
    "toughness": null,
    "types": [
     "LAND"
+   ]
+  },
+  "Foundation Breaker": {
+   "engine_name": "Foundation Breaker",
+   "loyalty": null,
+   "mana_cost": "{3}{G}",
+   "mana_value": 4.0,
+   "power": 2.0,
+   "rules": [
+    "When {this} enters, you may destroy target artifact or enchantment.",
+    "Evoke {1}{G} <i>(You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters the battlefield.)</i>"
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Fracture": {
@@ -11096,6 +12348,25 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Frontier Bivouac": {
+   "engine_name": "Frontier Bivouac",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {G}.",
+    "{T}: Add {U}.",
+    "{T}: Add {R}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Frost Breath": {
@@ -11219,6 +12490,27 @@
     "ENCHANTMENT"
    ]
   },
+  "Fury": {
+   "engine_name": "Fury",
+   "loyalty": null,
+   "mana_cost": "{3}{R}{R}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "Double strike",
+    "When {this} enters, it deals 4 damage divided as you choose among any number of target creatures and/or planeswalkers.",
+    "Evoke&mdash;Exile a red card from your hand. <i>(You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters the battlefield.)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Incarnation"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Furycalm Snarl": {
    "engine_name": "Furycalm Snarl",
    "loyalty": null,
@@ -11294,6 +12586,31 @@
     "LEGENDARY"
    ],
    "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Galactus, Devourer of Worlds": {
+   "engine_name": "Galactus, Devourer of Worlds",
+   "loyalty": null,
+   "mana_cost": "{10}",
+   "mana_value": 10.0,
+   "power": 12.0,
+   "rules": [
+    "Flying",
+    "Trample",
+    "Indestructible",
+    "When {this} enters, exile target permanent.",
+    "<i>Insatiable Hunger</i> &mdash; {this} attacks an opponent with the most life among your opponents each combat if able unless you control a creature named Silver Surfer, Galactus's Herald."
+   ],
+   "subtypes": [
+    "Elder",
+    "Alien"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 12.0,
    "types": [
     "CREATURE"
    ]
@@ -11542,6 +12859,22 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Generous Gift": {
+   "engine_name": "Generous Gift",
+   "loyalty": null,
+   "mana_cost": "{2}{W}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Destroy target permanent. Its controller creates a 3/3 green Elephant creature token."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
    ]
   },
   "Genesis Ultimatum": {
@@ -11872,6 +13205,30 @@
     "CREATURE"
    ]
   },
+  "Glissa Sunslayer": {
+   "engine_name": "Glissa Sunslayer",
+   "loyalty": null,
+   "mana_cost": "{1}{B}{G}",
+   "mana_value": 3.0,
+   "power": 3.0,
+   "rules": [
+    "First strike",
+    "Deathtouch",
+    "Whenever {this} deals combat damage to a player, choose one &mdash;<br>&bull You draw a card and lose 1 life.<br>&bull Destroy target enchantment.<br>&bull Remove up to three counters from target permanent.<br>"
+   ],
+   "subtypes": [
+    "Phyrexian",
+    "Zombie",
+    "Elf"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Glissa's Courier": {
    "engine_name": "Glissa's Courier",
    "loyalty": null,
@@ -11927,6 +13284,25 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Glorious Purpose": {
+   "engine_name": "Glorious Purpose",
+   "loyalty": null,
+   "mana_cost": "{1}{U}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Whenever a creature you control connives, put a +1/+1 counter on that creature and put a plan counter on {this}.",
+    "When the sixth plan counter is put on {this}, sacrifice it. If you do, exile the top four cards of your library. You may cast any number of spells from among them without paying their mana costs. Put the rest into your hand."
+   ],
+   "subtypes": [
+    "Plan"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
    ]
   },
   "Glory Seeker": {
@@ -12508,6 +13884,24 @@
     "LAND"
    ]
   },
+  "Golgari Rot Farm": {
+   "engine_name": "Golgari Rot Farm",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "When {this} enters, return a land you control to its owner's hand.",
+    "{T}: Add {B}{G}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Gorehorn Minotaurs": {
    "engine_name": "Gorehorn Minotaurs",
    "loyalty": null,
@@ -12649,6 +14043,24 @@
     "CREATURE"
    ]
   },
+  "Grave Venerations": {
+   "engine_name": "Grave Venerations",
+   "loyalty": null,
+   "mana_cost": "{3}{B}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "When {this} enters, you become the monarch.",
+    "At the beginning of your end step, if you're the monarch, return up to one target creature card from your graveyard to your hand.",
+    "Whenever a creature you control dies, each opponent loses 1 life and you gain 1 life."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Gravedigger": {
    "engine_name": "Gravedigger",
    "loyalty": null,
@@ -12735,6 +14147,41 @@
    ],
    "supertypes": [],
    "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Greater Good": {
+   "engine_name": "Greater Good",
+   "loyalty": null,
+   "mana_cost": "{2}{G}{G}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Sacrifice a creature: Draw cards equal to the sacrificed creature's power, then discard three cards."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
+  "Greenwarden of Murasa": {
+   "engine_name": "Greenwarden of Murasa",
+   "loyalty": null,
+   "mana_cost": "{4}{G}{G}",
+   "mana_value": 6.0,
+   "power": 5.0,
+   "rules": [
+    "When {this} enters, you may return target card from your graveyard to your hand.",
+    "When {this} dies, you may exile it. If you do, return target card from your graveyard to your hand."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
    "types": [
     "CREATURE"
    ]
@@ -12847,6 +14294,26 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Grim Poppet": {
+   "engine_name": "Grim Poppet",
+   "loyalty": null,
+   "mana_cost": "{7}",
+   "mana_value": 7.0,
+   "power": 4.0,
+   "rules": [
+    "{this} enters with three -1/-1 counters on it.",
+    "Remove a -1/-1 counter from {this}: Put a -1/-1 counter on another target creature."
+   ],
+   "subtypes": [
+    "Scarecrow"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
    ]
   },
   "Grishnákh, Brash Instigator": {
@@ -13121,6 +14588,24 @@
     "LAND"
    ]
   },
+  "Gruul Turf": {
+   "engine_name": "Gruul Turf",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "When {this} enters, return a land you control to its owner's hand.",
+    "{T}: Add {R}{G}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Gríma, Saruman's Footman": {
    "engine_name": "Grima, Saruman's Footman",
    "loyalty": null,
@@ -13262,6 +14747,31 @@
     "CREATURE"
    ]
   },
+  "H.E.R.B.I.E., Lovable Robot": {
+   "engine_name": "H.E.R.B.I.E., Lovable Robot",
+   "loyalty": null,
+   "mana_cost": "{2}",
+   "mana_value": 2.0,
+   "power": 1.0,
+   "rules": [
+    "Flying",
+    "At the beginning of combat on your turn, if you've cast a noncreature spell this turn, surveil 1. <i>(Look at the top card of your library. You may put that card into your graveyard.)</i>",
+    "{T}: Add {C}.",
+    "{1}, {T}: Add one mana of any color."
+   ],
+   "subtypes": [
+    "Robot",
+    "Scout"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 1.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
+   ]
+  },
   "Hada Freeblade": {
    "engine_name": "Hada Freeblade",
    "loyalty": null,
@@ -13363,6 +14873,28 @@
     "CREATURE"
    ]
   },
+  "Hammer of Nazahn": {
+   "engine_name": "Hammer of Nazahn",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Whenever {this} or another Equipment you control enters, you may attach that Equipment to target creature you control.",
+    "Equipped creature gets +2/+0 and has indestructible.",
+    "Equip {4}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Hammer of Purphoros": {
    "engine_name": "Hammer of Purphoros",
    "loyalty": null,
@@ -13401,6 +14933,28 @@
    "toughness": 0.0,
    "types": [
     "ARTIFACT",
+    "CREATURE"
+   ]
+  },
+  "Hapatra, Vizier of Poisons": {
+   "engine_name": "Hapatra, Vizier of Poisons",
+   "loyalty": null,
+   "mana_cost": "{B}{G}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Whenever {this} deals combat damage to a player, you may put a -1/-1 counter on target creature.",
+    "Whenever you put one or more -1/-1 counters on a creature, create a 1/1 green Snake creature token with deathtouch."
+   ],
+   "subtypes": [
+    "Human",
+    "Cleric"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
     "CREATURE"
    ]
   },
@@ -13551,6 +15105,44 @@
     "CREATURE"
    ]
   },
+  "Hatut Zeraze Strike Force": {
+   "engine_name": "Hatut Zeraze Strike Force",
+   "loyalty": null,
+   "mana_cost": "{3}{W}",
+   "mana_value": 4.0,
+   "power": 2.0,
+   "rules": [
+    "When you cast this spell, copy it for each time you've cast your commander from the command zone this game.",
+    "When {this} enters, destroy up to one target artifact or enchantment."
+   ],
+   "subtypes": [
+    "Human",
+    "Spy",
+    "Warrior"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Haunting Voyage": {
+   "engine_name": "Haunting Voyage",
+   "loyalty": null,
+   "mana_cost": "{4}{B}{B}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "Choose a creature type. Return up to two creature cards of that type from your graveyard to the battlefield. If this spell was foretold, return all creature cards of that type from your graveyard to the battlefield instead.",
+    "Foretell {5}{B}{B} <i>(During your turn, you may pay {2} and exile this card from your hand face down. Cast it on a later turn for its foretell cost.)</i>"
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Havengul Skaab": {
    "engine_name": "Havengul Skaab",
    "loyalty": null,
@@ -13570,6 +15162,30 @@
     "CREATURE"
    ]
   },
+  "Hawkeye, Avenging Archer": {
+   "engine_name": "Hawkeye, Avenging Archer",
+   "loyalty": null,
+   "mana_cost": "{2}{U}{R}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "Reach",
+    "Whenever a creature an opponent controls dies, if {this} dealt damage to it this turn, draw a card.",
+    "{T}: {this} deals 1 damage to any target."
+   ],
+   "subtypes": [
+    "Human",
+    "Archer",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Healing Salve": {
    "engine_name": "Healing Salve",
    "loyalty": null,
@@ -13584,6 +15200,23 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Heart-Shaped Herb": {
+   "engine_name": "Heart-Shaped Herb",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "If a source an opponent controls would deal damage to you, prevent 1 of that damage.",
+    "{2}, {T}, Sacrifice {this}: You may sacrifice a creature. If you do, return that card to the battlefield under its owner's control with three +1/+1 counters on it and you become the monarch."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Hearthhull, the Worldseed": {
@@ -13722,6 +15355,49 @@
     "CREATURE"
    ]
   },
+  "Helm of the Host": {
+   "engine_name": "Helm of the Host",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "At the beginning of combat on your turn, create a token that's a copy of equipped creature, except the token isn't legendary. That token gains haste.",
+    "Equip {5}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
+  "Helmut Zemo, Mastermind": {
+   "engine_name": "Helmut Zemo, Mastermind",
+   "loyalty": null,
+   "mana_cost": "{2}{U}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Whenever {this} attacks, you may cast target instant or sorcery card with mana value less than or equal to his power from your graveyard. If that spell would be put into your graveyard, exile it instead. If you cast a spell this way, put a +1/+1 counter on {this}."
+   ],
+   "subtypes": [
+    "Human",
+    "Noble",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Helpful Hunter": {
    "engine_name": "Helpful Hunter",
    "loyalty": null,
@@ -13794,6 +15470,29 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Hercules, Olympian Hero": {
+   "engine_name": "Hercules, Olympian Hero",
+   "loyalty": null,
+   "mana_cost": "{3}{W}{W}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "Whenever {this} attacks, put a +1/+1 counter on him. He gains indestructible until end of turn.",
+    "Whenever {this} is dealt damage for the first time each turn, put that many +1/+1 counters on him. This ability triggers only once each turn."
+   ],
+   "subtypes": [
+    "Demigod",
+    "Warrior",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Here Comes a New Hero!": {
@@ -13913,6 +15612,39 @@
    "toughness": 0.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Heroic Return": {
+   "engine_name": "Heroic Return",
+   "loyalty": null,
+   "mana_cost": "{5}{W}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "This spell costs {2} less to cast if a creature is attacking you.",
+    "Return target creature card from your graveyard to the battlefield. If a Hero enters this way, it enters with two additional +1/+1 counters on it."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
+   ]
+  },
+  "Heroic Sacrifice": {
+   "engine_name": "Heroic Sacrifice",
+   "loyalty": null,
+   "mana_cost": "{1}{W}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Choose target creature you control. Until end of turn, all damage that would be dealt to you and creatures you control is dealt to the chosen creature instead (if it's still on the battlefield). When that creature dies this turn, put its counters on up to one target creature you control and draw a card."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
    ]
   },
   "Hidden Hideout": {
@@ -14078,6 +15810,22 @@
     "CREATURE"
    ]
   },
+  "Hoarder's Greed": {
+   "engine_name": "Hoarder's Greed",
+   "loyalty": null,
+   "mana_cost": "{3}{B}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "You lose 2 life and draw two cards, then clash with an opponent. If you win, repeat this process."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Hoarding Dragon": {
    "engine_name": "Hoarding Dragon",
    "loyalty": null,
@@ -14137,6 +15885,49 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Hoofprints of the Stag": {
+   "engine_name": "Hoofprints of the Stag",
+   "loyalty": null,
+   "mana_cost": "{1}{W}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Whenever you draw a card, you may put a hoofprint counter on {this}.",
+    "{2}{W}, Remove four hoofprint counters from {this}: Create a 4/4 white Elemental creature token with flying. Activate only during your turn."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "KINDRED",
+    "ENCHANTMENT"
+   ]
+  },
+  "Horde of Notions": {
+   "engine_name": "Horde of Notions",
+   "loyalty": null,
+   "mana_cost": "{W}{U}{B}{R}{G}",
+   "mana_value": 5.0,
+   "power": 5.0,
+   "rules": [
+    "Vigilance",
+    "Trample",
+    "Haste",
+    "{W}{U}{B}{R}{G}: You may play target Elemental card from your graveyard without paying its mana cost."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Horizon Drake": {
@@ -14555,6 +16346,26 @@
     "LAND"
    ]
   },
+  "Ifnir Deadlands": {
+   "engine_name": "Ifnir Deadlands",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{T}: Add {C}.",
+    "{T}, Pay 1 life: Add {B}.",
+    "{2}{B}{B}, {T}, Sacrifice a Desert: Put two -1/-1 counters on target creature an opponent controls. Activate only as a sorcery."
+   ],
+   "subtypes": [
+    "Desert"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Igneous Pouncer": {
    "engine_name": "Igneous Pouncer",
    "loyalty": null,
@@ -14697,6 +16508,26 @@
     "ENCHANTMENT"
    ]
   },
+  "Impulsivity": {
+   "engine_name": "Impulsivity",
+   "loyalty": null,
+   "mana_cost": "{6}{R}",
+   "mana_value": 7.0,
+   "power": 7.0,
+   "rules": [
+    "When {this} enters, you may cast target instant or sorcery card from a graveyard without paying its mana cost. If that spell would be put into a graveyard, exile it instead.",
+    "Encore {7}{R}{R} <i>({7}{R}{R}, Exile this card from your graveyard: For each opponent, create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice them at the beginning of the next end step. Activate only as a sorcery)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Incarnation"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "In the Darkness Bind Them": {
    "engine_name": "In the Darkness Bind Them",
    "loyalty": null,
@@ -14715,6 +16546,26 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Incandescent Soulstoke": {
+   "engine_name": "Incandescent Soulstoke",
+   "loyalty": null,
+   "mana_cost": "{2}{R}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Other Elemental creatures you control get +1/+1.",
+    "{1}{R}, {T}: You may put an Elemental creature card from your hand onto the battlefield. That creature gains haste until end of turn. Sacrifice it at the beginning of the next end step."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Shaman"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Incinerating Blast": {
@@ -14896,6 +16747,45 @@
     "CREATURE"
    ]
   },
+  "Ingenious Smith": {
+   "engine_name": "Ingenious Smith",
+   "loyalty": null,
+   "mana_cost": "{1}{W}",
+   "mana_value": 2.0,
+   "power": 1.0,
+   "rules": [
+    "When {this} enters, look at the top four cards of your library. You may reveal an artifact card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
+    "Whenever one or more artifacts you control enter, put a +1/+1 counter on {this}. This ability triggers only once each turn."
+   ],
+   "subtypes": [
+    "Human",
+    "Artificer"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Ingot Chewer": {
+   "engine_name": "Ingot Chewer",
+   "loyalty": null,
+   "mana_cost": "{4}{R}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, destroy target artifact.",
+    "Evoke {R} <i>(You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters the battlefield.)</i>"
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Inkshield": {
    "engine_name": "Inkshield",
    "loyalty": null,
@@ -14946,6 +16836,26 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Inspired Skypainter // Maestro's Gift": {
+   "engine_name": "Inspired Skypainter",
+   "loyalty": null,
+   "mana_cost": "{U}{R}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Flying",
+    "When this creature enters and whenever one or more creature tokens you control deal combat damage to a player, {this} becomes prepared."
+   ],
+   "subtypes": [
+    "Lizard",
+    "Wizard"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Inspiring Call": {
@@ -15245,6 +17155,29 @@
     "CREATURE"
    ]
   },
+  "Iron Monger, Sadistic Tycoon": {
+   "engine_name": "Iron Monger, Sadistic Tycoon",
+   "loyalty": null,
+   "mana_cost": "{2}{B}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Flying",
+    "Whenever a creature you control connives, put a +1/+1 counter on each Villain you control."
+   ],
+   "subtypes": [
+    "Human",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
+   ]
+  },
   "Iron Myr": {
    "engine_name": "Iron Myr",
    "loyalty": null,
@@ -15512,6 +17445,28 @@
     "CREATURE"
    ]
   },
+  "Jegantha, the Wellspring": {
+   "engine_name": "Jegantha, the Wellspring",
+   "loyalty": null,
+   "mana_cost": "{4}{R/G}",
+   "mana_value": 5.0,
+   "power": 5.0,
+   "rules": [
+    "Companion &mdash; No card in your starting deck has more than one of the same mana symbol in its mana cost.",
+    "{T}: Add {W}{U}{B}{R}{G}. This mana can't be spent to pay generic mana costs."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Elk"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Jeska, Thrice Reborn": {
    "engine_name": "Jeska, Thrice Reborn",
    "loyalty": 0.0,
@@ -15692,6 +17647,26 @@
     "INSTANT"
    ]
   },
+  "Jubilation": {
+   "engine_name": "Jubilation",
+   "loyalty": null,
+   "mana_cost": "{5}{G}",
+   "mana_value": 6.0,
+   "power": 5.0,
+   "rules": [
+    "When {this} enters, creatures you control get +2/+2 and gain trample until end of turn.",
+    "Encore {7}{G}{G} <i>({7}{G}{G}, Exile this card from your graveyard: For each opponent, create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice them at the beginning of the next end step. Activate only as a sorcery)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Incarnation"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Judge's Familiar": {
    "engine_name": "Judge's Familiar",
    "loyalty": null,
@@ -15759,6 +17734,25 @@
     "When {this} enters, you gain 1 life.",
     "{T}: Add {B}.",
     "{T}: Add {G}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
+  "Jungle Shrine": {
+   "engine_name": "Jungle Shrine",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {R}.",
+    "{T}: Add {G}.",
+    "{T}: Add {W}."
    ],
    "subtypes": [],
    "supertypes": [],
@@ -15942,6 +17936,26 @@
    "toughness": 3.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Kang Dynasty": {
+   "engine_name": "Kang Dynasty",
+   "loyalty": null,
+   "mana_cost": "{3}{U}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "<i>(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)</i> ",
+    "I, II - For each opponent, tap up to one target creature that player controls. Goad those creatures. Until your next turn, whenever any of those creatures deals combat damage to a player, draw a card.",
+    "III - Target creature you control gets +1/+1 until end of turn for each card in your hand and can't be blocked this turn."
+   ],
+   "subtypes": [
+    "Saga"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
    ]
   },
   "Kang Prime": {
@@ -16367,6 +18381,22 @@
     "CREATURE"
    ]
   },
+  "Kimoyo Beads": {
+   "engine_name": "Kimoyo Beads",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "At the beginning of your end step, choose one that hasn't been chosen &mdash;<br>&bull <i>AV Bead</i> &mdash; Draw a card.<br>&bull <i>Communication Bead</i> &mdash; Create two 1/1 white Soldier creature tokens.<br>&bull <i>Prime Bead</i> &mdash; You gain 3 life. Exile this artifact, then return it to the battlefield under its owner's control.<br>"
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Kindercatch": {
    "engine_name": "Kindercatch",
    "loyalty": null,
@@ -16414,6 +18444,42 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Kindred Summons": {
+   "engine_name": "Kindred Summons",
+   "loyalty": null,
+   "mana_cost": "{5}{G}{G}",
+   "mana_value": 7.0,
+   "power": null,
+   "rules": [
+    "Choose a creature type. Reveal cards from the top of your library until you reveal X creature cards of the chosen type, where X is the number of creatures you control of that type. Put those cards onto the battlefield, then shuffle the rest of the revealed cards into your library."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
+   ]
+  },
+  "King Solomon's Frogs": {
+   "engine_name": "King Solomon's Frogs",
+   "loyalty": null,
+   "mana_cost": "{3}{W}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Flash",
+    "When {this} enters, if you cast it, for each opponent, exile up to one target permanent that player controls with mana value 3 or greater. For each permanent exiled this way, its controller draws a card.",
+    "{3}, {T}, Exile {this}: You become the monarch."
+   ],
+   "subtypes": [],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Kirol, History Buff": {
@@ -16475,6 +18541,30 @@
     "CREATURE"
    ]
   },
+  "Klaw, Master of Sound": {
+   "engine_name": "Klaw, Master of Sound",
+   "loyalty": null,
+   "mana_cost": "{2}{B}",
+   "mana_value": 3.0,
+   "power": 3.0,
+   "rules": [
+    "Deathtouch",
+    "Whenever you play a card from exile, {this} gains indestructible until end of turn.",
+    "Whenever {this} deals combat damage to a player, look at the top card of that player's library, then exile it face down. You may play it for as long as it remains exiled. Mana of any type can be spent to cast a spell this way."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Rogue",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Knight of Malice": {
    "engine_name": "Knight of Malice",
    "loyalty": null,
@@ -16529,6 +18619,24 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Kodama's Reach": {
+   "engine_name": "Kodama's Reach",
+   "loyalty": null,
+   "mana_cost": "{2}{G}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Search your library for up to two basic land cards, reveal those cards, put one onto the battlefield tapped and the other into your hand, then shuffle."
+   ],
+   "subtypes": [
+    "Arcane"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
    ]
   },
   "Koma, Cosmos Serpent": {
@@ -16813,6 +18921,27 @@
     "CREATURE"
    ]
   },
+  "Kulrath Knight": {
+   "engine_name": "Kulrath Knight",
+   "loyalty": null,
+   "mana_cost": "{3}{B/R}{B/R}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "Flying",
+    "Wither <i>(This deals damage to creatures in the form of -1/-1 counters.)</i>",
+    "Creatures your opponents control with counters on them can't attack or block."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Knight"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Kykar, Wind's Fury": {
    "engine_name": "Kykar, Wind's Fury",
    "loyalty": null,
@@ -16836,6 +18965,28 @@
     "CREATURE"
    ]
   },
+  "Lady Loki, Agent of Chaos": {
+   "engine_name": "Lady Loki, Agent of Chaos",
+   "loyalty": null,
+   "mana_cost": "{5}{R}",
+   "mana_value": 6.0,
+   "power": 5.0,
+   "rules": [
+    "Whenever you cast your first instant, sorcery, or Villain spell each turn, exile it, then exile cards from the top of your library until you exile a nonland card. {this} deals damage to each opponent equal to the difference between that spell's mana value and that nonland card's mana value. You may cast that card without paying its mana cost."
+   ],
+   "subtypes": [
+    "God",
+    "Sorcerer",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Laelia, the Blade Reforged": {
    "engine_name": "Laelia, the Blade Reforged",
    "loyalty": null,
@@ -16855,6 +19006,26 @@
     "LEGENDARY"
    ],
    "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Lamentation": {
+   "engine_name": "Lamentation",
+   "loyalty": null,
+   "mana_cost": "{5}{B}",
+   "mana_value": 6.0,
+   "power": 5.0,
+   "rules": [
+    "When {this} enters, destroy target creature an opponent controls. You gain 3 life.",
+    "Encore {6}{B}{B} <i>({6}{B}{B}, Exile this card from your graveyard: For each opponent, create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice them at the beginning of the next end step. Activate only as a sorcery)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Incarnation"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
    "types": [
     "CREATURE"
    ]
@@ -16905,6 +19076,22 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Lasting Tarfire": {
+   "engine_name": "Lasting Tarfire",
+   "loyalty": null,
+   "mana_cost": "{1}{R}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "At the beginning of each end step, if you put a counter on a creature this turn, {this} deals 2 damage to each opponent."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
    ]
   },
   "Lathliss, Dragon Queen": {
@@ -17286,6 +19473,28 @@
     "ARTIFACT"
    ]
   },
+  "Liliana, Death Wielder": {
+   "engine_name": "Liliana, Death Wielder",
+   "loyalty": 5.0,
+   "mana_cost": "{5}{B}{B}",
+   "mana_value": 7.0,
+   "power": null,
+   "rules": [
+    "+2: Put a -1/-1 counter on up to one target creature.",
+    "-3: Destroy target creature with a -1/-1 counter on it.",
+    "-10: Return all creature cards from your graveyard to the battlefield."
+   ],
+   "subtypes": [
+    "Liliana"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "PLANESWALKER"
+   ]
+  },
   "Linden, the Steadfast Queen": {
    "engine_name": "Linden, the Steadfast Queen",
    "loyalty": null,
@@ -17379,6 +19588,28 @@
     "SORCERY"
    ]
   },
+  "Living Laser": {
+   "engine_name": "Living Laser",
+   "loyalty": null,
+   "mana_cost": "{4}{R}",
+   "mana_value": 5.0,
+   "power": 4.0,
+   "rules": [
+    "Haste",
+    "Whenever {this} attacks, for each card you've discarded this turn, create a token that's a copy of {this}, except the token isn't legendary. The tokens enter tapped and attacking. Exile the tokens at the beginning of the next end step."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Llanowar Elves": {
    "engine_name": "Llanowar Elves",
    "loyalty": null,
@@ -17453,6 +19684,29 @@
     "CREATURE"
    ]
   },
+  "Lockjaw, Slobbering Teleporter": {
+   "engine_name": "Lockjaw, Slobbering Teleporter",
+   "loyalty": null,
+   "mana_cost": "{1}{U}",
+   "mana_value": 2.0,
+   "power": 1.0,
+   "rules": [
+    "Vigilance",
+    "At the beginning of combat on your turn, if you've cast a noncreature spell this turn, put a +1/+1 counter on {this}. When you do, {this} and up to one other target creature you control can't be blocked this turn."
+   ],
+   "subtypes": [
+    "Inhuman",
+    "Dog",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 1.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Lofty Denial": {
    "engine_name": "Lofty Denial",
    "loyalty": null,
@@ -17486,6 +19740,29 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Loki, the Deceiver": {
+   "engine_name": "Loki, the Deceiver",
+   "loyalty": null,
+   "mana_cost": "{1}{U}{B}{R}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "Whenever {this} attacks, create a tapped and attacking token that's a copy of another target Villain you control, except it isn't legendary and it's an Illusion in addition to its other types. Sacrifice that token at the beginning of the next end step.",
+    "Whenever one or more Villains you control deal combat damage to a player, draw a card."
+   ],
+   "subtypes": [
+    "God",
+    "Sorcerer",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Lonely Sandbar": {
@@ -17738,6 +20015,22 @@
     "INSTANT"
    ]
   },
+  "Love on the Battlefield": {
+   "engine_name": "Love on the Battlefield",
+   "loyalty": null,
+   "mana_cost": "{1}{U}{R}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Whenever you attack with exactly two creatures, those creatures gain first strike until end of turn, then draw a card. Whenever either of those creatures deals combat damage to a player this combat, put a +1/+1 counter on it."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Loxodon Partisan": {
    "engine_name": "Loxodon Partisan",
    "loyalty": null,
@@ -17772,6 +20065,44 @@
    ],
    "supertypes": [],
    "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Loyal Guardian": {
+   "engine_name": "Loyal Guardian",
+   "loyalty": null,
+   "mana_cost": "{4}{G}",
+   "mana_value": 5.0,
+   "power": 4.0,
+   "rules": [
+    "Trample",
+    "<i>Lieutenant</i> &mdash; At the beginning of combat on your turn, if you control your commander, put a +1/+1 counter on each creature you control."
+   ],
+   "subtypes": [
+    "Rhino"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Loyal Retainers": {
+   "engine_name": "Loyal Retainers",
+   "loyalty": null,
+   "mana_cost": "{2}{W}",
+   "mana_value": 3.0,
+   "power": 1.0,
+   "rules": [
+    "Sacrifice {this}: Return target legendary creature card from your graveyard to the battlefield. Activate only during your turn, before attackers are declared."
+   ],
+   "subtypes": [
+    "Human",
+    "Advisor"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
    "types": [
     "CREATURE"
    ]
@@ -17932,6 +20263,29 @@
     "CREATURE"
    ]
   },
+  "M'Baku, Jabari Chieftain": {
+   "engine_name": "M'Baku, Jabari Chieftain",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{G}",
+   "mana_value": 3.0,
+   "power": 4.0,
+   "rules": [
+    "At the beginning of your end step, if there is no monarch, target opponent becomes the monarch.",
+    "Whenever a creature attacks one of your opponents, if that player is the monarch, that creature gets +1/+1 and gains trample until end of turn."
+   ],
+   "subtypes": [
+    "Human",
+    "Noble",
+    "Warrior"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Madame Hydra": {
    "engine_name": "Madame Hydra",
    "loyalty": null,
@@ -17967,6 +20321,28 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Maelstrom Wanderer": {
+   "engine_name": "Maelstrom Wanderer",
+   "loyalty": null,
+   "mana_cost": "{5}{G}{U}{R}",
+   "mana_value": 8.0,
+   "power": 7.0,
+   "rules": [
+    "Creatures you control have haste.",
+    "Cascade",
+    "Cascade <i>(When you cast this spell, exile cards from the top of your library until you exile a nonland card that costs less. You may cast it without paying its mana cost. Put the exiled cards on the bottom of your library in a random order.)</i>"
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Maestros Theater": {
@@ -18323,6 +20699,22 @@
     "CREATURE"
    ]
   },
+  "Martial Coup": {
+   "engine_name": "Martial Coup",
+   "loyalty": null,
+   "mana_cost": "{X}{W}{W}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Create X 1/1 white Soldier creature tokens. If X is 5 or more, destroy all other creatures."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Martial Impetus": {
    "engine_name": "Martial Impetus",
    "loyalty": null,
@@ -18361,6 +20753,52 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Mass of Mysteries": {
+   "engine_name": "Mass of Mysteries",
+   "loyalty": null,
+   "mana_cost": "{W}{U}{B}{R}{G}",
+   "mana_value": 5.0,
+   "power": 5.0,
+   "rules": [
+    "First strike",
+    "Vigilance",
+    "Trample",
+    "At the beginning of combat on your turn, another target Elemental you control gains myriad until end of turn."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Massacre Girl, Known Killer": {
+   "engine_name": "Massacre Girl, Known Killer",
+   "loyalty": null,
+   "mana_cost": "{2}{B}{B}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "Menace",
+    "Creatures you control have wither.",
+    "Whenever a creature an opponent controls dies, if its toughness was less than 1, draw a card."
+   ],
+   "subtypes": [
+    "Human",
+    "Assassin"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Massacre Wurm": {
@@ -18675,6 +21113,26 @@
     "CREATURE"
    ]
   },
+  "Metalwork Colossus": {
+   "engine_name": "Metalwork Colossus",
+   "loyalty": null,
+   "mana_cost": "{11}",
+   "mana_value": 11.0,
+   "power": 10.0,
+   "rules": [
+    "This spell costs {X} less to cast, where X is the total mana value of noncreature artifacts you control.",
+    "Sacrifice two artifacts: Return this card from your graveyard to your hand."
+   ],
+   "subtypes": [
+    "Construct"
+   ],
+   "supertypes": [],
+   "toughness": 10.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
+   ]
+  },
   "Meteor Golem": {
    "engine_name": "Meteor Golem",
    "loyalty": null,
@@ -18771,6 +21229,45 @@
    ],
    "supertypes": [],
    "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Midnight Angel Armor": {
+   "engine_name": "Midnight Angel Armor",
+   "loyalty": null,
+   "mana_cost": "{3}{W}{W}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "When {this} enters, create a 1/1 white Soldier creature token, then attach {this} to it.",
+    "Equipped creature gets +3/+3 and has flying and vigilance.",
+    "Equip {3}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
+  "Midnight Banshee": {
+   "engine_name": "Midnight Banshee",
+   "loyalty": null,
+   "mana_cost": "{3}{B}{B}{B}",
+   "mana_value": 6.0,
+   "power": 5.0,
+   "rules": [
+    "Wither <i>(This deals damage to creatures in the form of -1/-1 counters.)</i>",
+    "At the beginning of your upkeep, put a -1/-1 counter on each nonblack creature."
+   ],
+   "subtypes": [
+    "Spirit"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
    "types": [
     "CREATURE"
    ]
@@ -18964,6 +21461,22 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Mind's Eye": {
+   "engine_name": "Mind's Eye",
+   "loyalty": null,
+   "mana_cost": "{5}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "Whenever an opponent draws a card, you may pay {1}. If you do, draw a card."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Mindful Biomancer": {
@@ -19331,6 +21844,27 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Molecule Man": {
+   "engine_name": "Molecule Man",
+   "loyalty": null,
+   "mana_cost": "{6}",
+   "mana_value": 6.0,
+   "power": 5.0,
+   "rules": [
+    "Nonland cards in your hand have miracle {0}. <i>(You may cast a card for its miracle cost when you draw it if it's the first card you drew this turn.)</i>"
+   ],
+   "subtypes": [
+    "Human",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Molten Tributary": {
@@ -19808,6 +22342,47 @@
     "CREATURE"
    ]
   },
+  "Muldrotha, the Gravetide": {
+   "engine_name": "Muldrotha, the Gravetide",
+   "loyalty": null,
+   "mana_cost": "{3}{B}{G}{U}",
+   "mana_value": 6.0,
+   "power": 6.0,
+   "rules": [
+    "During each of your turns, you may play a land and cast a permanent spell of each permanent type from your graveyard. <i>(If a card has multiple permanent types, choose one as you play it.)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Avatar"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 6.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Mulldrifter": {
+   "engine_name": "Mulldrifter",
+   "loyalty": null,
+   "mana_cost": "{4}{U}",
+   "mana_value": 5.0,
+   "power": 2.0,
+   "rules": [
+    "Flying",
+    "When {this} enters, draw two cards.",
+    "Evoke {2}{U} <i>(You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters the battlefield.)</i>"
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Multani, Yavimaya's Avatar": {
    "engine_name": "Multani, Yavimaya's Avatar",
    "loyalty": null,
@@ -19985,6 +22560,28 @@
     "INSTANT"
    ]
   },
+  "N'Yami-Class Mother Ship": {
+   "engine_name": "N'Yami-Class Mother Ship",
+   "loyalty": null,
+   "mana_cost": "{6}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "Flying",
+    "Vigilance",
+    "Haste",
+    "Whenever {this} deals combat damage to a player, look at the top card of your library. If it's a permanent card, you may put it onto the battlefield. If you don't put it onto the battlefield, put it into your hand.",
+    "Crew 3 <i>(Tap any number of creatures you control with total power 3 or more: This Vehicle becomes an artifact creature until end of turn.)</i>"
+   ],
+   "subtypes": [
+    "Vehicle"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Nacatl Hunt-Pride": {
    "engine_name": "Nacatl Hunt-Pride",
    "loyalty": null,
@@ -20038,6 +22635,30 @@
     "Kraken"
    ],
    "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Nakia, Wakandan Operative": {
+   "engine_name": "Nakia, Wakandan Operative",
+   "loyalty": null,
+   "mana_cost": "{2}{G}",
+   "mana_value": 3.0,
+   "power": 3.0,
+   "rules": [
+    "Reach",
+    "Whenever your commander enters, you become the monarch.",
+    "{2}, {T}: Put two +1/+1 counters on target creature or Vehicle. Activate only as a sorcery."
+   ],
+   "subtypes": [
+    "Human",
+    "Warrior",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
    "toughness": 3.0,
    "types": [
     "CREATURE"
@@ -20278,6 +22899,25 @@
     "ENCHANTMENT"
    ]
   },
+  "Necroskitter": {
+   "engine_name": "Necroskitter",
+   "loyalty": null,
+   "mana_cost": "{1}{B}{B}",
+   "mana_value": 3.0,
+   "power": 1.0,
+   "rules": [
+    "Wither <i>(This deals damage to creatures in the form of -1/-1 counters.)</i>",
+    "Whenever a creature an opponent controls with a -1/-1 counter on it dies, you may return that card to the battlefield under your control."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Needleshot Gourna": {
    "engine_name": "Needleshot Gourna",
    "loyalty": null,
@@ -20310,6 +22950,23 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Negative Zone Portal": {
+   "engine_name": "Negative Zone Portal",
+   "loyalty": null,
+   "mana_cost": "{2}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "{2}, {T}: Exile target card from an opponent's graveyard. If it's a creature card, draw a card.",
+    "At the beginning of your upkeep, if there are four or more creature cards exiled with {this}, flip a coin. If you lose the flip, sacrifice this artifact and return a card exiled with it at random to its owner's hand."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Nemesis Trap": {
@@ -20349,6 +23006,23 @@
    "toughness": 2.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Nesting Grounds": {
+   "engine_name": "Nesting Grounds",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{T}: Add {C}.",
+    "{1}, {T}: Move a counter from target permanent you control onto a second target permanent. Activate only as a sorcery."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Nettle Swine": {
@@ -20745,6 +23419,25 @@
     "ENCHANTMENT"
    ]
   },
+  "Oft-Nabbed Goat": {
+   "engine_name": "Oft-Nabbed Goat",
+   "loyalty": null,
+   "mana_cost": "{1}{B}",
+   "mana_value": 2.0,
+   "power": 0.0,
+   "rules": [
+    "{1}: Draw a card. Gain control of this creature and put a -1/-1 counter on it. Only your opponents may activate this ability and only as a sorcery.",
+    "When {this} dies, if it had one or more -1/-1 counters on it, its owner draws that many cards and each other player loses that much life."
+   ],
+   "subtypes": [
+    "Goat"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Ogre Resister": {
    "engine_name": "Ogre Resister",
    "loyalty": null,
@@ -20780,6 +23473,29 @@
     "CREATURE"
    ]
   },
+  "Okoye, Mighty and Adored": {
+   "engine_name": "Okoye, Mighty and Adored",
+   "loyalty": null,
+   "mana_cost": "{2}{G}{W}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, you become the monarch.",
+    "At the beginning of combat on your turn, put a +1/+1 counter on target creature. Whenever that creature attacks the monarch this turn, it gains double strike and trample until end of turn."
+   ],
+   "subtypes": [
+    "Human",
+    "Warrior",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Omnath, Locus of Rage": {
    "engine_name": "Omnath, Locus of Rage",
    "loyalty": null,
@@ -20797,6 +23513,27 @@
     "LEGENDARY"
    ],
    "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Omnath, Locus of the Roil": {
+   "engine_name": "Omnath, Locus of the Roil",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{U}{R}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, it deals damage to any target equal to the number of Elementals you control.",
+    "<i>Landfall</i> &mdash; Whenever a land you control enters, put a +1/+1 counter on target Elemental you control. If you control eight or more lands, draw a card."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
    "types": [
     "CREATURE"
    ]
@@ -20919,6 +23656,25 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Opulent Palace": {
+   "engine_name": "Opulent Palace",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {B}.",
+    "{T}: Add {G}.",
+    "{T}: Add {U}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Oracle of Mul Daya": {
@@ -21146,6 +23902,22 @@
     "SORCERY"
    ]
   },
+  "Overwhelming Stampede": {
+   "engine_name": "Overwhelming Stampede",
+   "loyalty": null,
+   "mana_cost": "{3}{G}{G}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "Until end of turn, creatures you control gain trample and get +X/+X, where X is the greatest power among creatures you control."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Ovika, Enigma Goliath": {
    "engine_name": "Ovika, Enigma Goliath",
    "loyalty": null,
@@ -21206,6 +23978,22 @@
     "ENCHANTMENT"
    ]
   },
+  "Painful Truths": {
+   "engine_name": "Painful Truths",
+   "loyalty": null,
+   "mana_cost": "{2}{B}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "<i>Converge</i> &mdash; You draw X cards and lose X life, where X is the number of colors of mana spent to cast this spell."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Painsmith": {
    "engine_name": "Painsmith",
    "loyalty": null,
@@ -21240,6 +24028,26 @@
    ],
    "supertypes": [],
    "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Palace Jailer": {
+   "engine_name": "Palace Jailer",
+   "loyalty": null,
+   "mana_cost": "{2}{W}{W}",
+   "mana_value": 4.0,
+   "power": 2.0,
+   "rules": [
+    "When {this} enters, you become the monarch.",
+    "When {this} enters, exile target creature an opponent controls until an opponent becomes the monarch. <i>(That creature returns under its owner's control.)</i>"
+   ],
+   "subtypes": [
+    "Human",
+    "Soldier"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
    "types": [
     "CREATURE"
    ]
@@ -21294,6 +24102,47 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Panther Habit": {
+   "engine_name": "Panther Habit",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "If equipped creature would be dealt damage, prevent that damage and put that many +1/+1 counters on it.",
+    "Equip {2}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
+  "Panther Robot": {
+   "engine_name": "Panther Robot",
+   "loyalty": null,
+   "mana_cost": "{10}",
+   "mana_value": 10.0,
+   "power": 8.0,
+   "rules": [
+    "Affinity for artifacts <i>(This spell costs {1} less to cast for each artifact you control.)</i>",
+    "Reach",
+    "Trample"
+   ],
+   "subtypes": [
+    "Cat",
+    "Robot"
+   ],
+   "supertypes": [],
+   "toughness": 8.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
    ]
   },
   "Papalymo Totolymo": {
@@ -21621,6 +24470,22 @@
     "ARTIFACT"
    ]
   },
+  "Persist": {
+   "engine_name": "Persist",
+   "loyalty": null,
+   "mana_cost": "{1}{B}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Return target nonlegendary creature card from your graveyard to the battlefield with a -1/-1 counter on it."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Pest Infestation": {
    "engine_name": "Pest Infestation",
    "loyalty": null,
@@ -21672,6 +24537,28 @@
    ],
    "supertypes": [],
    "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Photon, Mighty Marvel": {
+   "engine_name": "Photon, Mighty Marvel",
+   "loyalty": null,
+   "mana_cost": "{3}{R}",
+   "mana_value": 4.0,
+   "power": 2.0,
+   "rules": [
+    "Flying",
+    "Whenever {this} deals combat damage to a player, add that much mana of any one color. Until end of turn, you don't lose this mana as steps and phases end."
+   ],
+   "subtypes": [
+    "Human",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
    "types": [
     "CREATURE"
    ]
@@ -22073,6 +24960,31 @@
     "ARTIFACT"
    ]
   },
+  "Power Pack": {
+   "engine_name": "Power Pack",
+   "loyalty": null,
+   "mana_cost": "{1}{R}{G}{W}{U}",
+   "mana_value": 5.0,
+   "power": 4.0,
+   "rules": [
+    "Flying",
+    "Vigilance",
+    "Trample",
+    "Haste",
+    "Whenever {this} deals combat damage to a player, exile target instant or sorcery card from your graveyard chosen at random. At the beginning of your next upkeep, you may cast that card without paying its mana cost. If that spell would be put into your graveyard, exile it instead."
+   ],
+   "subtypes": [
+    "Human",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Prairie Stream": {
    "engine_name": "Prairie Stream",
    "loyalty": null,
@@ -22244,6 +25156,24 @@
    "toughness": 4.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Primal Beyond": {
+   "engine_name": "Primal Beyond",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "As {this} enters, you may reveal an Elemental card from your hand. If you don't, {this} enters tapped.",
+    "{T}: Add {C}.",
+    "{T}: Add one mana of any color. Spend this mana only to cast an Elemental spell or activate an ability of an Elemental."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Primal Might": {
@@ -22631,6 +25561,22 @@
     "INSTANT"
    ]
   },
+  "Puca's Covenant": {
+   "engine_name": "Puca's Covenant",
+   "loyalty": null,
+   "mana_cost": "{2}{G}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Whenever a creature you control with a counter on it dies, you may return another target permanent card with mana value less than or equal to the number of counters on that creature from your graveyard to your hand. Do this only once each turn."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
+   ]
+  },
   "Pull from Tomorrow": {
    "engine_name": "Pull from Tomorrow",
    "loyalty": null,
@@ -22700,6 +25646,50 @@
    "toughness": 2.0,
    "types": [
     "ARTIFACT",
+    "CREATURE"
+   ]
+  },
+  "Puppet Master, String Puller": {
+   "engine_name": "Puppet Master, String Puller",
+   "loyalty": null,
+   "mana_cost": "{2}{R}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Whenever you attack, goad target creature an opponent controls. <i>(Until your next turn, that creature attacks each combat if able and attacks a player other than you if able.)</i> It can't block this turn.",
+    "Whenever one or more goaded creatures deal combat damage to one of your opponents, create a Treasure token."
+   ],
+   "subtypes": [
+    "Human",
+    "Artificer",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Puppeteer Clique": {
+   "engine_name": "Puppeteer Clique",
+   "loyalty": null,
+   "mana_cost": "{3}{B}{B}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "Flying",
+    "When {this} enters, put target creature card from an opponent's graveyard onto the battlefield under your control. It gains haste. At the beginning of your next end step, exile it.",
+    "Persist <i>(When this creature dies, if it had no -1/-1 counters on it, return it to the battlefield under its owner's control with a -1/-1 counter on it.)</i>"
+   ],
+   "subtypes": [
+    "Faerie",
+    "Wizard"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
     "CREATURE"
    ]
   },
@@ -22835,6 +25825,28 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Queen Mother Ramonda": {
+   "engine_name": "Queen Mother Ramonda",
+   "loyalty": null,
+   "mana_cost": "{3}{W}{W}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, you become the monarch.",
+    "As long as you're the monarch, creatures with power 2 or less can't attack you."
+   ],
+   "subtypes": [
+    "Human",
+    "Noble"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Quest for the Goblin Lord": {
@@ -23069,6 +26081,25 @@
    "toughness": null,
    "types": [
     "ENCHANTMENT"
+   ]
+  },
+  "Raging Ravine": {
+   "engine_name": "Raging Ravine",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {G}.",
+    "{T}: Add {R}.",
+    "{2}{R}{G}: Until end of turn, {this} becomes a 3/3 red and green Elemental creature with \"Whenever this creature attacks, put a +1/+1 counter on it.\" It's still a land."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Rain-Slicked Copse": {
@@ -23547,6 +26578,24 @@
     "LAND"
    ]
   },
+  "Razorverge Thicket": {
+   "engine_name": "Razorverge Thicket",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped unless you control two or fewer other lands.",
+    "{T}: Add {G}.",
+    "{T}: Add {W}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Reality Shift": {
    "engine_name": "Reality Shift",
    "loyalty": null,
@@ -23561,6 +26610,27 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Realmwalker": {
+   "engine_name": "Realmwalker",
+   "loyalty": null,
+   "mana_cost": "{2}{G}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Changeling <i>(This card is every creature type.)</i>",
+    "As {this} enters, choose a creature type.",
+    "You may look at the top card of your library any time.",
+    "You may cast creature spells of the chosen type from the top of your library."
+   ],
+   "subtypes": [
+    "Shapeshifter"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Reanimate": {
@@ -24151,6 +27221,22 @@
     "LAND"
    ]
   },
+  "Return of the Wildspeaker": {
+   "engine_name": "Return of the Wildspeaker",
+   "loyalty": null,
+   "mana_cost": "{4}{G}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "Choose one &mdash;<br>&bull Draw cards equal to the greatest power among non-Human creatures you control.<br>&bull Non-Human creatures you control get +3/+3 until end of turn.<br>"
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
+   ]
+  },
   "Revenge of Ravens": {
    "engine_name": "Revenge of Ravens",
    "loyalty": null,
@@ -24340,6 +27426,24 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Risen Reef": {
+   "engine_name": "Risen Reef",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{U}",
+   "mana_value": 3.0,
+   "power": 1.0,
+   "rules": [
+    "Whenever {this} or another Elemental you control enters, look at the top card of your library. If it's a land card, you may put it onto the battlefield tapped. If you don't put the card onto the battlefield, put it into your hand."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Rite of Replication": {
@@ -24691,6 +27795,27 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Royal Talon Fighter Jet": {
+   "engine_name": "Royal Talon Fighter Jet",
+   "loyalty": null,
+   "mana_cost": "{X}{W}{W}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Flying",
+    "{this} enters with X +1/+1 counters on it.",
+    "Whenever {this} enters or attacks, create a number of 1/1 white Soldier creature tokens equal to the number of +1/+1 counters on it.",
+    "Crew 2 <i>(Tap any number of creatures you control with total power 2 or more: This Vehicle becomes an artifact creature until end of turn.)</i>"
+   ],
+   "subtypes": [
+    "Vehicle"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Rubble Rouser": {
@@ -25177,6 +28302,25 @@
     "CREATURE"
    ]
   },
+  "Sandsteppe Citadel": {
+   "engine_name": "Sandsteppe Citadel",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {W}.",
+    "{T}: Add {B}.",
+    "{T}: Add {G}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Sanguine Indulgence": {
    "engine_name": "Sanguine Indulgence",
    "loyalty": null,
@@ -25277,6 +28421,25 @@
     "CREATURE"
    ]
   },
+  "Savage Lands": {
+   "engine_name": "Savage Lands",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {R}.",
+    "{T}: Add {G}.",
+    "{T}: Add {B}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Savage Ventmaw": {
    "engine_name": "Savage Ventmaw",
    "loyalty": null,
@@ -25328,6 +28491,29 @@
    ],
    "supertypes": [],
    "toughness": 1.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Scarlet Witch, Chaotic Avenger": {
+   "engine_name": "Scarlet Witch, Chaotic Avenger",
+   "loyalty": null,
+   "mana_cost": "{2}{U}{R}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "Flying",
+    "Whenever {this} deals combat damage to a player, look at the top two cards of your library, then exile them face down. Then you may cast a Hero or noncreature spell from among cards exiled with {this} without paying its mana cost."
+   ],
+   "subtypes": [
+    "Mutant",
+    "Warlock",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
    "types": [
     "CREATURE"
    ]
@@ -25499,6 +28685,22 @@
    "toughness": 5.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Scourglass": {
+   "engine_name": "Scourglass",
+   "loyalty": null,
+   "mana_cost": "{3}{W}{W}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "{T}, Sacrifice {this}: Destroy all permanents except for artifacts and lands. Activate only during your upkeep."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Scouring Swarm": {
@@ -25965,6 +29167,28 @@
     "CREATURE"
    ]
   },
+  "Selvala, Heart of the Wilds": {
+   "engine_name": "Selvala, Heart of the Wilds",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{G}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Whenever another creature enters, its controller may draw a card if its power is greater than each other creature's power.",
+    "{G}, {T}: Add X mana in any combination of colors, where X is the greatest power among creatures you control."
+   ],
+   "subtypes": [
+    "Elf",
+    "Scout"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Send in the Pest": {
    "engine_name": "Send in the Pest",
    "loyalty": null,
@@ -26192,6 +29416,22 @@
     "INSTANT"
    ]
   },
+  "Shatter the Sky": {
+   "engine_name": "Shatter the Sky",
+   "loyalty": null,
+   "mana_cost": "{2}{W}{W}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Each player who controls a creature with power 4 or greater draws a card. Then destroy all creatures."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Shattered Acolyte": {
    "engine_name": "Shattered Acolyte",
    "loyalty": null,
@@ -26352,6 +29592,25 @@
    ],
    "supertypes": [],
    "toughness": 6.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Shimmercreep": {
+   "engine_name": "Shimmercreep",
+   "loyalty": null,
+   "mana_cost": "{4}{B}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "Menace <i>(This creature can't be blocked except by two or more creatures.)</i>",
+    "<i>Vivid</i> &mdash; When {this} enters, each opponent loses X life and you gain X life, where X is the number of colors among permanents you control."
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
    "types": [
     "CREATURE"
    ]
@@ -26604,6 +29863,46 @@
     "CREATURE"
    ]
   },
+  "Shuri's Fabricator": {
+   "engine_name": "Shuri's Fabricator",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "When {this} enters, create two tapped Vibranium tokens.",
+    "{6}, {T}: Return target artifact card from your graveyard to the battlefield with a finality counter on it. Activate only as a sorcery."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
+  "Shuri, the Black Panther": {
+   "engine_name": "Shuri, the Black Panther",
+   "loyalty": null,
+   "mana_cost": "{G}{W}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Lifelink",
+    "Whenever {this} attacks, draw a card if you control three or more artifacts. Then if you control six or more artifacts, creatures you control get +2/+2 until end of turn."
+   ],
+   "subtypes": [
+    "Human",
+    "Noble",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Siege Mastodon": {
    "engine_name": "Siege Mastodon",
    "loyalty": null,
@@ -26707,6 +30006,29 @@
    "toughness": 1.0,
    "types": [
     "ARTIFACT",
+    "CREATURE"
+   ]
+  },
+  "Silver Surfer, Galactus's Herald": {
+   "engine_name": "Silver Surfer, Galactus's Herald",
+   "loyalty": null,
+   "mana_cost": "{5}",
+   "mana_value": 5.0,
+   "power": 4.0,
+   "rules": [
+    "Flying",
+    "When {this} enters, you may search your library for a card named Galactus, Devourer of Worlds, reveal it, put it into your hand, then shuffle.",
+    "Whenever {this} deals combat damage to a player, until the end of your next turn, target creature attacks that player each combat if able."
+   ],
+   "subtypes": [
+    "Alien",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
     "CREATURE"
    ]
   },
@@ -26872,6 +30194,25 @@
    ],
    "supertypes": [],
    "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Sinister Gnarlbark": {
+   "engine_name": "Sinister Gnarlbark",
+   "loyalty": null,
+   "mana_cost": "{2}{B}",
+   "mana_value": 3.0,
+   "power": 0.0,
+   "rules": [
+    "At the beginning of your end step, draw a card and blight 1."
+   ],
+   "subtypes": [
+    "Treefolk",
+    "Warlock"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
    "types": [
     "CREATURE"
    ]
@@ -27177,6 +30518,44 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Slithermuse": {
+   "engine_name": "Slithermuse",
+   "loyalty": null,
+   "mana_cost": "{2}{U}{U}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} leaves the battlefield, choose an opponent. If that player has more cards in hand than you, draw cards equal to the difference.",
+    "Evoke {3}{U} <i>(You may cast this spell for its evoke cost. If you do, it's sacrificed when it enters the battlefield.)</i>"
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Smokebraider": {
+   "engine_name": "Smokebraider",
+   "loyalty": null,
+   "mana_cost": "{1}{R}",
+   "mana_value": 2.0,
+   "power": 1.0,
+   "rules": [
+    "{T}: Add two mana in any combination of colors. Spend this mana only to cast Elemental spells or activate abilities of Elementals."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Shaman"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Smoldering Marsh": {
@@ -27624,6 +31003,25 @@
    ],
    "subtypes": [
     "Spirit"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Soul Snuffers": {
+   "engine_name": "Soul Snuffers",
+   "loyalty": null,
+   "mana_cost": "{2}{B}{B}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, put a -1/-1 counter on each creature."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Shaman"
    ],
    "supertypes": [],
    "toughness": 3.0,
@@ -28148,6 +31546,23 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Springleaf Parade": {
+   "engine_name": "Springleaf Parade",
+   "loyalty": null,
+   "mana_cost": "{X}{G}{G}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "When {this} enters, create X 1/1 colorless Shapeshifter creature tokens with changeling.",
+    "Creature tokens you control have \"{T}: Add one mana of any color.\""
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ENCHANTMENT"
    ]
   },
   "Sprouting Goblin": {
@@ -28719,6 +32134,30 @@
     "CREATURE"
    ]
   },
+  "Storm, Queen of Wakanda": {
+   "engine_name": "Storm, Queen of Wakanda",
+   "loyalty": null,
+   "mana_cost": "{3}{G}{W}",
+   "mana_value": 5.0,
+   "power": 4.0,
+   "rules": [
+    "Flying",
+    "Whenever {this} attacks, until end of turn, another target attacking creature gains flying and gets +X/+0, where X is {this}'s power.",
+    "Whenever a creature with flying attacks you, {this} deals damage equal to her power to that creature."
+   ],
+   "subtypes": [
+    "Mutant",
+    "Noble",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Storm-Kiln Artist": {
    "engine_name": "Storm-Kiln Artist",
    "loyalty": null,
@@ -29069,6 +32508,26 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Subterfuge": {
+   "engine_name": "Subterfuge",
+   "loyalty": null,
+   "mana_cost": "{4}{U}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, target creature gains flying and \"Whenever this creature deals combat damage to a player, draw that many cards\" until end of turn.",
+    "Encore {7}{U}{U} <i>({7}{U}{U}, Exile this card from your graveyard: For each opponent, create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice them at the beginning of the next end step. Activate only as a sorcery)</i>"
+   ],
+   "subtypes": [
+    "Elemental",
+    "Incarnation"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Sudden Impact": {
@@ -29623,6 +33082,28 @@
     "LAND"
    ]
   },
+  "Sword of the Animist": {
+   "engine_name": "Sword of the Animist",
+   "loyalty": null,
+   "mana_cost": "{2}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Equipped creature gets +1/+1.",
+    "Whenever equipped creature attacks, you may search your library for a basic land card, put it onto the battlefield tapped, then shuffle.",
+    "Equip {2}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Swords to Plowshares": {
    "engine_name": "Swords to Plowshares",
    "loyalty": null,
@@ -29791,6 +33272,52 @@
     "LEGENDARY"
    ],
    "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "T'Chaka, Venerable King": {
+   "engine_name": "T'Chaka, Venerable King",
+   "loyalty": null,
+   "mana_cost": "{G}{W}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "When {this} enters, mill three cards. You may put an artifact or land card from among the milled cards into your hand.",
+    "{3}, Exile this card from your graveyard: You become the monarch. Activate only if you control your commander."
+   ],
+   "subtypes": [
+    "Human",
+    "Noble",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "T'Challa, the Black Panther": {
+   "engine_name": "T'Challa, the Black Panther",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{W}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Whenever {this} enters or attacks, create a tapped Vibranium token.",
+    "Whenever you cast an artifact spell with mana value 4 or greater, put two +1/+1 counters on {this}."
+   ],
+   "subtypes": [
+    "Human",
+    "Noble",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
    "types": [
     "CREATURE"
    ]
@@ -30803,6 +34330,27 @@
     "ARTIFACT"
    ]
   },
+  "The Frightful Four": {
+   "engine_name": "The Frightful Four",
+   "loyalty": null,
+   "mana_cost": "{3}{B}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "Menace",
+    "Whenever an opponent casts their first noncreature spell each turn, that player loses life equal to that spell's mana value."
+   ],
+   "subtypes": [
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "The Gitrog Monster": {
    "engine_name": "The Gitrog Monster",
    "loyalty": null,
@@ -30825,6 +34373,24 @@
    "toughness": 6.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "The Great Mound": {
+   "engine_name": "The Great Mound",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{T}: Add {C}.",
+    "{3}, {T}: Create a tapped Vibranium token.",
+    "{6}, {T}: Draw a card."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "The Mouth of Sauron": {
@@ -30868,6 +34434,28 @@
     "LAND"
    ]
   },
+  "The Reaper, King No More": {
+   "engine_name": "The Reaper, King No More",
+   "loyalty": null,
+   "mana_cost": "{2/B}{2/R}{2/G}",
+   "mana_value": 6.0,
+   "power": 3.0,
+   "rules": [
+    "When {this} enters, put a -1/-1 counter on each of up to two target creatures.",
+    "Whenever a creature an opponent controls with a -1/-1 counter on it dies, you may put that card onto the battlefield under your control. Do this only once each turn."
+   ],
+   "subtypes": [
+    "Scarecrow"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
+   ]
+  },
   "The Royal Scions": {
    "engine_name": "The Royal Scions",
    "loyalty": 5.0,
@@ -30889,6 +34477,51 @@
    "toughness": null,
    "types": [
     "PLANESWALKER"
+   ]
+  },
+  "The Scorpion God": {
+   "engine_name": "The Scorpion God",
+   "loyalty": null,
+   "mana_cost": "{3}{B}{R}",
+   "mana_value": 5.0,
+   "power": 6.0,
+   "rules": [
+    "Whenever a creature with a -1/-1 counter on it dies, draw a card.",
+    "{1}{B}{R}: Put a -1/-1 counter on another target creature.",
+    "When {this} dies, return it to its owner's hand at the beginning of the next end step."
+   ],
+   "subtypes": [
+    "God"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "The Spear of Bashenga": {
+   "engine_name": "The Spear of Bashenga",
+   "loyalty": null,
+   "mana_cost": "{4}{W}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "When {this} enters, if there is no monarch, you become the monarch.",
+    "Equipped creature gets +2/+2 and has vigilance.",
+    "Whenever equipped creature attacks the monarch, destroy target tapped nonland permanent that player controls.",
+    "Equip {2}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "The Squadron Sinister": {
@@ -31014,6 +34647,29 @@
     "INSTANT"
    ]
   },
+  "Thor, Asgard's Avenger": {
+   "engine_name": "Thor, Asgard's Avenger",
+   "loyalty": null,
+   "mana_cost": "{2}{R}{R}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "Flying",
+    "If another source you control would deal damage to an opponent or a permanent an opponent controls, it deals that much damage plus 1 instead."
+   ],
+   "subtypes": [
+    "God",
+    "Warrior",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Thorn-Thrash Viashino": {
    "engine_name": "Thorn-Thrash Viashino",
    "loyalty": null,
@@ -31131,6 +34787,22 @@
     "CREATURE"
    ]
   },
+  "Thran Dynamo": {
+   "engine_name": "Thran Dynamo",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "{T}: Add {C}{C}{C}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Thran Golem": {
    "engine_name": "Thran Golem",
    "loyalty": null,
@@ -31224,6 +34896,24 @@
     "INSTANT"
    ]
   },
+  "Thriving Bluff": {
+   "engine_name": "Thriving Bluff",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {R}.",
+    "{T}: Add one mana of the chosen color."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Thriving Grove": {
    "engine_name": "Thriving Grove",
    "loyalty": null,
@@ -31233,6 +34923,24 @@
    "rules": [
     "{this} enters tapped.",
     "{T}: Add {G}.",
+    "{T}: Add one mana of the chosen color."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
+  "Thriving Heath": {
+   "engine_name": "Thriving Heath",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {W}.",
     "{T}: Add one mana of the chosen color."
    ],
    "subtypes": [],
@@ -31309,6 +35017,23 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Throne of the High City": {
+   "engine_name": "Throne of the High City",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{T}: Add {C}.",
+    "{4}, {T}, Sacrifice {this}: You become the monarch."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
    ]
   },
   "Thrummingbird": {
@@ -31406,6 +35131,25 @@
    "toughness": null,
    "types": [
     "INSTANT"
+   ]
+  },
+  "Timeless Lotus": {
+   "engine_name": "Timeless Lotus",
+   "loyalty": null,
+   "mana_cost": "{5}",
+   "mana_value": 5.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped.",
+    "{T}: Add {W}{U}{B}{R}{G}."
+   ],
+   "subtypes": [],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Timely Reinforcements": {
@@ -31519,6 +35263,26 @@
    "toughness": null,
    "types": [
     "ARTIFACT"
+   ]
+  },
+  "Titan of Industry": {
+   "engine_name": "Titan of Industry",
+   "loyalty": null,
+   "mana_cost": "{4}{G}{G}{G}",
+   "mana_value": 7.0,
+   "power": 7.0,
+   "rules": [
+    "Reach",
+    "Trample",
+    "When {this} enters, choose two &mdash;<br>&bull Destroy target artifact or enchantment.<br>&bull Target player gains 5 life.<br>&bull Create a 4/4 green Rhino Warrior creature token.<br>&bull Put a shield counter on a creature you control.<br>"
+   ],
+   "subtypes": [
+    "Elemental"
+   ],
+   "supertypes": [],
+   "toughness": 7.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Titan of Littjara": {
@@ -31921,6 +35685,25 @@
     "SORCERY"
    ]
   },
+  "Trading Post": {
+   "engine_name": "Trading Post",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "{1}, {T}, Discard a card: You gain 4 life.",
+    "{1}, {T}, Pay 1 life: Create a 0/1 white Goat creature token.",
+    "{1}, {T}, Sacrifice a creature: Return target artifact card from your graveyard to your hand.",
+    "{1}, {T}, Sacrifice an artifact: Draw a card."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "Tragic Arrogance": {
    "engine_name": "Tragic Arrogance",
    "loyalty": null,
@@ -32126,6 +35909,25 @@
    ],
    "supertypes": [],
    "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Tree of Perdition": {
+   "engine_name": "Tree of Perdition",
+   "loyalty": null,
+   "mana_cost": "{3}{B}",
+   "mana_value": 4.0,
+   "power": 0.0,
+   "rules": [
+    "Defender",
+    "{T}: Exchange target opponent's life total with {this}'s toughness."
+   ],
+   "subtypes": [
+    "Plant"
+   ],
+   "supertypes": [],
+   "toughness": 13.0,
    "types": [
     "CREATURE"
    ]
@@ -32596,6 +36398,27 @@
     "INSTANT"
    ]
   },
+  "Typhoid Mary, Fractured": {
+   "engine_name": "Typhoid Mary, Fractured",
+   "loyalty": null,
+   "mana_cost": "{1}{B}{R}",
+   "mana_value": 3.0,
+   "power": 3.0,
+   "rules": [
+    "Whenever {this} attacks, choose one at random. If you discarded a card this turn, you choose one instead.<br>&bull; Mary — Create a Treasure token.<br>&bull; Typhoid Mary — Draw a card.<br>&bull; Bloody Mary — Each opponent loses 2 life and you gain 2 life."
+   ],
+   "subtypes": [
+    "Mutant",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Tyvar's Stand": {
    "engine_name": "Tyvar's Stand",
    "loyalty": null,
@@ -32627,6 +36450,30 @@
    "toughness": null,
    "types": [
     "SORCERY"
+   ]
+  },
+  "Ultron, Unlimited": {
+   "engine_name": "Ultron, Unlimited",
+   "loyalty": null,
+   "mana_cost": "{1}{U}{B}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "Flying",
+    "Whenever {this} attacks, it connives. <i>(Draw a card, then discard a card. If you discarded a nonland card, put a +1/+1 counter on this creature.)</i>",
+    "Whenever a creature you control connives, you may pay {1}. If you do, create a 2/2 colorless Robot Villain artifact creature token."
+   ],
+   "subtypes": [
+    "Robot",
+    "Villain"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
+    "ARTIFACT",
+    "CREATURE"
    ]
   },
   "Ulvenwald Mysteries": {
@@ -33095,6 +36942,22 @@
     "CREATURE"
    ]
   },
+  "Valorous Stance": {
+   "engine_name": "Valorous Stance",
+   "loyalty": null,
+   "mana_cost": "{1}{W}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Choose one &mdash;<br>&bull Target creature gains indestructible until end of turn.<br>&bull Destroy target creature with toughness 4 or greater.<br>"
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "INSTANT"
+   ]
+  },
   "Vampire Aristocrat": {
    "engine_name": "Vampire Aristocrat",
    "loyalty": null,
@@ -33473,6 +37336,25 @@
     "LAND"
    ]
   },
+  "Vernal Sovereign": {
+   "engine_name": "Vernal Sovereign",
+   "loyalty": null,
+   "mana_cost": "{4}{G}{W}",
+   "mana_value": 6.0,
+   "power": 4.0,
+   "rules": [
+    "Whenever {this} enters or attacks, create a green and white Elemental creature token with \"This token's power and toughness are each equal to the number of creatures you control.\""
+   ],
+   "subtypes": [
+    "Elemental",
+    "Elk"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Veteran's Reflexes": {
    "engine_name": "Veteran's Reflexes",
    "loyalty": null,
@@ -33528,6 +37410,48 @@
    "toughness": 1.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Vibranium Mining Mech": {
+   "engine_name": "Vibranium Mining Mech",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Trample",
+    "Whenever {this} enters or attacks, create a tapped Vibranium token.",
+    "{2}: {this} gets +1/+0 until end of turn.",
+    "Crew 2 <i>(Tap any number of creatures you control with total power 2 or more: This Vehicle becomes an artifact creature until end of turn.)</i>"
+   ],
+   "subtypes": [
+    "Vehicle"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
+  "Vibranium Strike Gauntlets": {
+   "engine_name": "Vibranium Strike Gauntlets",
+   "loyalty": null,
+   "mana_cost": "{4}",
+   "mana_value": 4.0,
+   "power": null,
+   "rules": [
+    "Flash",
+    "When {this} enters, attach it to target creature you control.",
+    "Equipped creature gets +3/+0 and has trample and \"Whenever this creature deals combat damage to a player, draw a card.\"",
+    "Equip {3}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Vibrant Cityscape": {
@@ -33655,6 +37579,27 @@
    ],
    "supertypes": [],
    "toughness": 1.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Village Pillagers": {
+   "engine_name": "Village Pillagers",
+   "loyalty": null,
+   "mana_cost": "{3}{R}{R}",
+   "mana_value": 5.0,
+   "power": 5.0,
+   "rules": [
+    "Wither <i>(This deals damage to creatures in the form of -1/-1 counters.)</i>",
+    "When {this} enters, it deals 1 damage to each creature your opponents control.",
+    "Whenever a creature an opponent controls with a counter on it dies, you create a tapped Treasure token."
+   ],
+   "subtypes": [
+    "Goblin",
+    "Warrior"
+   ],
+   "supertypes": [],
+   "toughness": 5.0,
    "types": [
     "CREATURE"
    ]
@@ -34009,6 +37954,29 @@
     "CREATURE"
    ]
   },
+  "Vraska, Betrayal's Sting": {
+   "engine_name": "Vraska, Betrayal's Sting",
+   "loyalty": 6.0,
+   "mana_cost": "{4}{B}{B/P}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "Compleated",
+    "0: You draw a card and lose 1 life. Proliferate.",
+    "-2: Target creature becomes a Treasure artifact with \"{T}, Sacrifice this artifact: Add one mana of any color\" and loses all other card types and abilities.",
+    "-9: If target player has fewer than nine poison counters, they get a number of poison counters equal to the difference."
+   ],
+   "subtypes": [
+    "Vraska"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": null,
+   "types": [
+    "PLANESWALKER"
+   ]
+  },
   "Vulshok Heartstoker": {
    "engine_name": "Vulshok Heartstoker",
    "loyalty": null,
@@ -34045,6 +38013,45 @@
    "types": [
     "ARTIFACT",
     "CREATURE"
+   ]
+  },
+  "W'Kabi, Shield of the Nation": {
+   "engine_name": "W'Kabi, Shield of the Nation",
+   "loyalty": null,
+   "mana_cost": "{1}{G}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Vigilance",
+    "Whenever you attack with one or more your commander, if an artifact with mana value 4 or greater, create a 4/4 green Rhino creature token with trample."
+   ],
+   "subtypes": [
+    "Human",
+    "Warrior",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Wakanda Forever!": {
+   "engine_name": "Wakanda Forever!",
+   "loyalty": null,
+   "mana_cost": "{4}{G}{G}",
+   "mana_value": 6.0,
+   "power": null,
+   "rules": [
+    "Reveal the top six cards of your library. You may put a permanent card from among them onto the battlefield with an indestructible counter on it. You may put a permanent card from among them into your hand. Put the rest into your graveyard."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
    ]
   },
   "Wake the Dragon": {
@@ -34422,6 +38429,22 @@
     "CREATURE"
    ]
   },
+  "West Coast Expansion": {
+   "engine_name": "West Coast Expansion",
+   "loyalty": null,
+   "mana_cost": "{X}{U}{U}",
+   "mana_value": 2.0,
+   "power": null,
+   "rules": [
+    "Draw X cards. If X is 5 or more, you may cast a Hero spell from your hand without paying its mana cost."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "SORCERY"
+   ]
+  },
   "Whirler Rogue": {
    "engine_name": "Whirler Rogue",
    "loyalty": null,
@@ -34475,6 +38498,25 @@
     "ENCHANTMENT"
    ]
   },
+  "Whispersilk Cloak": {
+   "engine_name": "Whispersilk Cloak",
+   "loyalty": null,
+   "mana_cost": "{3}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Equipped creature can't be blocked and has shroud.",
+    "Equip {2}"
+   ],
+   "subtypes": [
+    "Equipment"
+   ],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
+   ]
+  },
   "White Auracite": {
    "engine_name": "White Auracite",
    "loyalty": null,
@@ -34511,6 +38553,44 @@
    "toughness": 2.0,
    "types": [
     "CREATURE"
+   ]
+  },
+  "Wickerbough Elder": {
+   "engine_name": "Wickerbough Elder",
+   "loyalty": null,
+   "mana_cost": "{3}{G}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "{this} enters with a -1/-1 counter on it.",
+    "{G}, Remove a -1/-1 counter from {this}: Destroy target artifact or enchantment."
+   ],
+   "subtypes": [
+    "Treefolk",
+    "Shaman"
+   ],
+   "supertypes": [],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Wickersmith's Tools": {
+   "engine_name": "Wickersmith's Tools",
+   "loyalty": null,
+   "mana_cost": "{3}",
+   "mana_value": 3.0,
+   "power": null,
+   "rules": [
+    "Whenever one or more -1/-1 counters are put on a creature, put a charge counter on {this}.",
+    "{T}: Add one mana of any color.",
+    "{5}, {T}, Sacrifice {this}: Create X tapped 2/2 colorless Scarecrow artifact creature tokens, where X is the number of charge counters on {this}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "ARTIFACT"
    ]
   },
   "Wild Nacatl": {
@@ -34603,6 +38683,28 @@
    ],
    "supertypes": [],
    "toughness": 0.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Willie Lumpkin, Postman": {
+   "engine_name": "Willie Lumpkin, Postman",
+   "loyalty": null,
+   "mana_cost": "{W}{U}",
+   "mana_value": 2.0,
+   "power": 1.0,
+   "rules": [
+    "{this} can't be blocked.",
+    "Whenever {this} deals combat damage to an opponent, you draw a card and that player may draw a card. If they do, that player can't attack you or permanents you control during their next turn."
+   ],
+   "subtypes": [
+    "Human",
+    "Citizen"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 3.0,
    "types": [
     "CREATURE"
    ]
@@ -34866,6 +38968,24 @@
     "CREATURE"
    ]
   },
+  "Woodland Cemetery": {
+   "engine_name": "Woodland Cemetery",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "power": null,
+   "rules": [
+    "{this} enters tapped unless you control a Swamp or a Forest.",
+    "{T}: Add {B}.",
+    "{T}: Add {G}."
+   ],
+   "subtypes": [],
+   "supertypes": [],
+   "toughness": null,
+   "types": [
+    "LAND"
+   ]
+  },
   "Woolly Thoctar": {
    "engine_name": "Woolly Thoctar",
    "loyalty": null,
@@ -35007,6 +39127,29 @@
     "CREATURE"
    ]
   },
+  "Yarok, the Desecrated": {
+   "engine_name": "Yarok, the Desecrated",
+   "loyalty": null,
+   "mana_cost": "{2}{B}{G}{U}",
+   "mana_value": 5.0,
+   "power": 3.0,
+   "rules": [
+    "Deathtouch",
+    "Lifelink",
+    "If a permanent entering causes a triggered ability of a permanent you control to trigger, that ability triggers an additional time."
+   ],
+   "subtypes": [
+    "Elemental",
+    "Horror"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 5.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Yoked Plowbeast": {
    "engine_name": "Yoked Plowbeast",
    "loyalty": null,
@@ -35130,63 +39273,39 @@
    "types": [
     "ARTIFACT"
    ]
+  },
+  "Zuri, Warrior of Wakanda": {
+   "engine_name": "Zuri, Warrior of Wakanda",
+   "loyalty": null,
+   "mana_cost": "{1}{G}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Trample",
+    "Whenever you cast an artifact spell with mana value 4 or greater, put a +1/+1 counter on each creature you control."
+   ],
+   "subtypes": [
+    "Human",
+    "Warrior",
+    "Hero"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
   }
  },
  "missing": [
-  "Archnemesis",
-  "Avenge",
-  "Avengers Quinjet",
-  "Batroc the Leaper",
-  "Black Bolt, Inhuman King",
   "Blazing Firesinger",
   "Cheerful Osteomancer",
-  "Cosmic Crucible",
-  "Council of Reeds",
-  "Damocles Base, Sword of Kang",
-  "Defacing Duskmage // Vandal's Edit",
-  "Dimension X Pizzasaur",
-  "Dirgur Focusmage // Braingeyser",
-  "Doom's Time Platform",
-  "Dragon Man, Reformed Robot",
-  "Eiganjo Dynastorian // Replenish",
-  "Extract Power",
-  "First Family",
-  "Foot Chopper",
-  "Galactus, Devourer of Worlds",
-  "Glorious Purpose",
   "Goblin Glasswright",
-  "H.E.R.B.I.E., Lovable Robot",
-  "Hawkeye, Avenging Archer",
-  "Helmut Zemo, Mastermind",
-  "Hercules, Olympian Hero",
-  "Heroic Return",
-  "Heroic Sacrifice",
-  "Inspired Skypainter // Maestro's Gift",
-  "Iron Monger, Sadistic Tycoon",
-  "Kang Dynasty",
-  "Klaw, Master of Sound",
-  "Lady Loki, Agent of Chaos",
-  "Living Laser",
-  "Lockjaw, Slobbering Teleporter",
-  "Loki, the Deceiver",
-  "Love on the Battlefield",
-  "Molecule Man",
-  "Negative Zone Portal",
-  "Photon, Mighty Marvel",
-  "Power Pack",
-  "Puppet Master, String Puller",
   "Sanar, Unfinished Genius",
-  "Scarlet Witch, Chaotic Avenger",
-  "Silver Surfer, Galactus's Herald",
   "Spellbook Seeker",
   "Studious First-Year",
-  "Tam, Observant Sequencer",
-  "The Frightful Four",
-  "Thor, Asgard's Avenger",
-  "Typhoid Mary, Fractured",
-  "Ultron, Unlimited",
-  "West Coast Expansion",
-  "Willie Lumpkin, Postman"
+  "Tam, Observant Sequencer"
  ],
  "schema_version": "xmage-card-facts-1.0.0",
  "source": "pinned XMage card repository (engine bridge cards.h2)"

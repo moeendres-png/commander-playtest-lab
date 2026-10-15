@@ -456,7 +456,9 @@
       "evidence_kinds": [
         "official_precon",
         "directly_observed"
-      ]
+      ],
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/blight-curse-precon"
     },
     {
       "deck_id": "kaervek/current",
@@ -812,7 +814,9 @@
       ],
       "evidence_kinds": [
         "official_precon"
-      ]
+      ],
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/dance-elements-precon"
     },
     {
       "deck_id": "opponent/wakanda-forever-precon",
@@ -1007,7 +1011,9 @@
       ],
       "evidence_kinds": [
         "official_precon"
-      ]
+      ],
+      "exact_profile_path": "data/opponents/official_precon_profiles.json",
+      "exact_profile_id": "opponent/wakanda-forever-precon"
     }
   ],
   "primary_four_player_pods": [
