@@ -5,6 +5,8 @@ branch: opencode/issue781-20261015170716
 audit_base_sha: 78b6eb32c7d2c5796e4603f1f0e121127747fc68
 audit_base_tree: b766e4a618bb5f27b8c04b1f0d33efe7f54ef60b
 state_written_against_head: 78b6eb32c7d2c5796e4603f1f0e121127747fc68
+validated_head: 1af3095984501c494d6197cf281d0688b5ca785a
+validated_tree: a2366d318d3b40df8aa55f379745215cc984c396
 materiality: MATERIAL
 objective: >-
   Add an on-demand GitHub Actions workflow that runs scripts/run_collection_coverage_games.py
@@ -62,13 +64,30 @@ forbidden_shortcuts:
 - Adding .github/workflows/collection-coverage.yml to test_current_pin_fanout_ratchet.py's ALLOWED_LITERAL_CONSUMERS.
 - Skipping, xfailing or narrowing any workflow assertion to accommodate the new file.
 - First-option, random-option, engine-internal-AI or harness-side legality shortcuts in any path.
-validated_gates: []
+validated_gates:
+- >-
+  The seven listed test files pass on 1af3095984501c494d6197cf281d0688b5ca785a: 244 passed
+  (baseline on 78b6eb32 before the change was 237 passed).
+- >-
+  ruff check . and ruff format --check . both exit 0 on the same head.
+- >-
+  scripts/audit_workflow_impact.py --workflow .github/workflows/collection-coverage.yml prints
+  nothing and exits 0.
+- >-
+  tests/unit/test_current_pin_fanout_ratchet.py passes with the new file tracked: git grep over the
+  active roots still finds the live pin only in ALLOWED_LITERAL_CONSUMERS, so the new workflow adds
+  no literal copy.
+- >-
+  The whole required quality suite (pytest -q --ignore=tests/qualification) passes on 1af3095984:
+  3189 passed, 5 skipped. The 52 failures + 8 errors seen on the uncommitted tree were all
+  "stale canonical inputs rejected: tracked software worktree differs from recorded git tree" and
+  vanish on the committed head, so they were the uncommitted-index state, not the change.
 failed_gates: []
 invalidated_gates: []
 do_not_rerun:
 - >-
-  Nothing in this workstream is expensive enough to memoize: the listed suites run in about 8s and
-  ruff in seconds.
+  The full pytest -q --ignore=tests/qualification pass (458s) on 1af3095984: it is green and the
+  change is a single new workflow file plus this state file, so a rerun has nothing left to prove.
 current_failure: none
 failure_class: NONE
 current_hypothesis: >-
@@ -120,6 +139,7 @@ technical_decisions:
   engine checkout, the cache-miss engine build and the bridge package.
 files_modified:
 - .github/workflows/collection-coverage.yml
+- .foundry/issue781-collection-coverage-workflow-20261015.yaml
 tests_run:
 - >-
   PYTHONPATH=$PWD/src python3 -m pytest -q -p no:cacheprovider
@@ -127,11 +147,20 @@ tests_run:
   tests/unit/test_ws223_environment_identity.py tests/unit/test_workflow_impact.py
   tests/unit/test_workflow_jobs_mapping.py tests/unit/test_collection_coverage_games.py
   tests/unit/test_repository_tree_guard.py
+  EXECUTION NOTE: no interpreter on this runner image has pytest (system python3 3.12.3 and every
+  /opt/hostedtoolcache/Python 3.10-3.14 report "No module named pytest"), so the identical command
+  line, flags and PYTHONPATH were run with the locked environment's interpreter
+  (/tmp/opencode/venv-lab/bin/python, built from requirements/lock.txt plus
+  pip install --no-deps --no-build-isolation -e .).
 - >-
-  PYTHONPATH=$PWD/src python3 -m pytest -q -p no:cacheprovider tests/unit/test_workflow_security.py
-  ... --collect-only, to prove the new file is actually parametrized into the workflow guards.
+  PYTHONPATH=$PWD/src ... --collect-only, to prove the new file is actually parametrized into the
+  workflow guards (6 new parametrized nodes, listed by id).
 - scripts/audit_workflow_impact.py --workflow .github/workflows/collection-coverage.yml
 - ruff check . and ruff format --check .
+- >-
+  PYTHONPATH=src:scripts sanity check of the sweep's own sizing: coverage_pods(18, {4,5,6}) gives
+  5 + 4 + 3 = 12 pods, _seeds("1-3") gives [1, 2, 3], _load_decks() gives 18 decks, so the default
+  inputs are 12 pods x 3 seeds x 2 runs = 72 games, matching the issue's stated runtime shape.
 evidence:
 - >-
   Baseline on 78b6eb32 before the change: 237 passed for the seven listed test files; after adding
