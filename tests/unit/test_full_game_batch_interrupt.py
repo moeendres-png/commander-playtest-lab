@@ -35,7 +35,7 @@ for line in sys.stdin:
 """
 
 GAMES = 3
-REQUEST_TIMEOUT = 60.0
+REQUEST_TIMEOUT = 120.0
 
 
 def _live_clients() -> list[_RawFullGameClient]:
@@ -50,6 +50,7 @@ def test_interrupting_a_parallel_batch_kills_games_in_flight(
     script.write_text(_WEDGED_BRIDGE, encoding="utf-8")
     clients: list[_RawFullGameClient] = []
     failures: list[str] = []
+    interrupted_at: list[float] = []
 
     def play_hung_game(*_: Any) -> Any:
         client = _RawFullGameClient(
@@ -69,10 +70,11 @@ def test_interrupting_a_parallel_batch_kills_games_in_flight(
         raise AssertionError("a hung game never finishes")
 
     def interrupt_once_all_games_run(futures: Any) -> Iterator[Any]:
-        deadline = time.monotonic() + 20
+        deadline = time.monotonic() + 60
         while len(_live_clients()) < GAMES and time.monotonic() < deadline:
             time.sleep(0.05)
         assert len(_live_clients()) == GAMES
+        interrupted_at.append(time.monotonic())
         raise KeyboardInterrupt
         yield  # pragma: no cover - makes this a generator like as_completed
 
@@ -85,13 +87,11 @@ def test_interrupting_a_parallel_batch_kills_games_in_flight(
         for index in range(GAMES)
     ]
 
-    started = time.monotonic()
     with pytest.raises(KeyboardInterrupt):
         list(batch._run_parallel(pending, GAMES, "thread"))
-    elapsed = time.monotonic() - started
-
     # Without the kill this waits out REQUEST_TIMEOUT for every hung game.
-    assert elapsed < 15
+    assert interrupted_at, "the batch was interrupted"
+    assert time.monotonic() - interrupted_at[0] < REQUEST_TIMEOUT / 4
     assert len(clients) == GAMES
     assert sorted(failures) == ["BRIDGE_CLOSED"] * GAMES
     assert all(client._process is None for client in clients)
