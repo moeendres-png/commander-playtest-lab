@@ -4,6 +4,8 @@ import copy
 import hashlib
 import json
 import multiprocessing
+import os
+import threading
 import time
 from collections.abc import Iterator
 from concurrent.futures import (
@@ -150,6 +152,33 @@ class _GameRunner(Protocol):
 BatchParallelism = Literal["thread", "process"]
 
 
+# SHA-256 of a bridge artifact by (resolved path, size, mtime_ns): the ~79 MB
+# jar is read once per batch rather than once per case lookup. A file whose
+# size or modification time changed is hashed again.
+_ARTIFACT_DIGESTS: dict[tuple[str, int, int], str] = {}
+_ARTIFACT_DIGESTS_LOCK = threading.Lock()
+
+
+def _artifact_sha256(path: Path) -> str:
+    resolved = path.resolve()
+    with resolved.open("rb") as handle:
+        stat = os.fstat(handle.fileno())
+        key = (str(resolved), stat.st_size, stat.st_mtime_ns)
+        with _ARTIFACT_DIGESTS_LOCK:
+            cached = _ARTIFACT_DIGESTS.get(key)
+        if cached is not None:
+            return cached
+        digest = hashlib.sha256()
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    result = digest.hexdigest()
+    with _ARTIFACT_DIGESTS_LOCK:
+        for stale in [k for k in _ARTIFACT_DIGESTS if k[0] == key[0]]:
+            del _ARTIFACT_DIGESTS[stale]
+        _ARTIFACT_DIGESTS[key] = result
+    return result
+
+
 def execution_identity_of(runner: Any) -> dict[str, Any]:
     """What executes a case beyond its own inputs (D2).
 
@@ -178,11 +207,7 @@ def execution_identity_of(runner: Any) -> dict[str, Any]:
             if path.suffix in {".jar", ".py"}:
                 if not path.is_absolute():
                     path = cwd / path
-                digest = hashlib.sha256()
-                with path.open("rb") as handle:
-                    for chunk in iter(lambda: handle.read(1 << 20), b""):
-                        digest.update(chunk)
-                artifacts[str(position)] = digest.hexdigest()
+                artifacts[str(position)] = _artifact_sha256(path)
         configuration = json.dumps(
             {
                 "command": command,
