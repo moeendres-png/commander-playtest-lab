@@ -12,6 +12,7 @@ from commander_lab.engine.structural import (
     load_project_structural_decks,
 )
 from commander_lab.models import CardIdentity
+from commander_lab.tools.service import CommanderToolService
 
 
 @pytest.fixture(scope="session")
@@ -40,6 +41,22 @@ def subprocess_env() -> dict[str, str]:
     existing = environment.get("PYTHONPATH")
     environment["PYTHONPATH"] = f"{src}{os.pathsep}{existing}" if existing else src
     return environment
+
+
+@pytest.fixture(autouse=True)
+def clean_tracked_worktree(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Run the tool service as if the checkout had no uncommitted tracked edits.
+
+    ``CommanderToolService`` marks canonical runs stale while ``git status`` shows a
+    modified tracked file, which is right for recorded evidence but made 33 unit tests
+    fail for any developer with an uncommitted edit anywhere in the repository (even
+    ``CHANGELOG.md``). Tests that exercise that gate itself opt out with
+    ``@pytest.mark.real_worktree_state``.
+    """
+    if request.node.get_closest_marker("real_worktree_state") is None:
+        monkeypatch.setattr(
+            CommanderToolService, "tracked_worktree_dirty", property(lambda _self: False)
+        )
 
 
 @pytest.fixture(autouse=True)
