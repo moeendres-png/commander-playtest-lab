@@ -1,0 +1,134 @@
+name: Collection Coverage Sweep
+
+# On-demand only (issue #781). The collection coverage sweep
+# (scripts/run_collection_coverage_games.py, #777/#747) plays the 18
+# owner-collection decks in 4P/5P/6P pods twice per seed and reports games ok,
+# twins identical/diverged and a per-pod row. Those pods are the best remaining
+# source of rare bridge aborts, and 72 games take about 35 minutes on 4 cores,
+# so the sweep belongs on a runner rather than on a laptop.
+#
+# This workflow is deliberately never a gate: it is not triggered by a pull
+# request or a push, it is not a required check, and it writes no evidence file.
+# Its result class is technical (cards run in the engine), never deck strength
+# and never qualification credit.
+
+on:
+  workflow_dispatch:
+    inputs:
+      sizes:
+        description: Comma-separated pod sizes to sweep (subset of 4, 5, 6)
+        required: false
+        default: "4,5,6"
+      seeds:
+        description: Seed or seed range, e.g. 1-3 (comma-separated ranges allowed)
+        required: false
+        default: "1-3"
+      workers:
+        description: Pods played in parallel (one bridge JVM per game)
+        required: false
+        default: "2"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Dispatch-only, so every run is keyed on the commit it plays: two dispatches
+  # of one head never cancel or displace each other and each keeps its own
+  # artifact instead of being superseded by the next.
+  group: collection-coverage-${{ github.sha }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+  COVERAGE_SIZES: ${{ inputs.sizes }}
+  COVERAGE_SEEDS: ${{ inputs.seeds }}
+  COVERAGE_WORKERS: ${{ inputs.workers }}
+
+jobs:
+  collection-coverage:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+
+      - name: Resolve the current XMage identity
+        run: |
+          set -euo pipefail
+          # config/rules_engines.json is the sole machine-readable authority for
+          # the engine pin; a second literal copy of it here would drift.
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json
+          config = json.load(open("config/rules_engines.json"))
+          values = {"XMAGE_COMMIT": config["primary_engine"]["commit"]}
+          for env_name, commit in values.items():
+              assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
+              print(f"{env_name}={commit}")
+          PY
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+
+      - name: Verify immutable XMage pin
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
+
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+
+      - name: Package XMage bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp -DskipTests package
+
+      - name: Run the collection coverage sweep
+        # The JVM options are the runner's log hygiene: XMage logs every
+        # handshake line at info level, and each game is its own JVM. Only
+        # warnings and errors reach the step log.
+        run: |
+          set -euo pipefail
+          python scripts/run_collection_coverage_games.py \
+            --jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
+            --out coverage.json \
+            --sizes "$COVERAGE_SIZES" \
+            --seeds "$COVERAGE_SEEDS" \
+            --workers "$COVERAGE_WORKERS" \
+            --jvm-option=-Xlog:disable \
+            --jvm-option=-Xlog:all=warning:stderr
+
+      - name: Upload the coverage report
+        # A failed game or a diverged twin is a finding, not a crashed workflow:
+        # the sweep step already fails the job on those, so the report is still
+        # published for the run that produced it.
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: collection-coverage-${{ github.run_id }}
+          path: coverage.json
+          if-no-files-found: warn
