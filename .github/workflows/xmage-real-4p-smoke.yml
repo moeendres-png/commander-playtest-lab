@@ -10,6 +10,13 @@ on:
       - "src/commander_lab/engine/rules/failure_privacy.py"
       - "tests/unit/test_full_game_failure_privacy.py"
       - "tests/unit/test_failure_privacy_trust_boundary.py"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/freeze_readiness.py"
+      - "src/commander_lab/qualification/**"
+      - "tests/conftest.py"
       # full_game.py fingerprints responses with semantic_replay helpers.
       - "src/commander_lab/semantic_replay/**"
       - "src/commander_lab/agents/**"

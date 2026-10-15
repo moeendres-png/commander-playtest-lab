@@ -23,6 +23,15 @@ on:
       - "scripts/run_external_full_game_conformance.py"
       - "scripts/seal_xmage_full_game_artifacts.py"
       - ".github/workflows/xmage-full-game-conformance.yml"
+      - "src/commander_lab/__init__.py"
+      - "src/commander_lab/candidates/**"
+      - "src/commander_lab/cards/**"
+      - "src/commander_lab/engine/**"
+      - "src/commander_lab/freeze_readiness.py"
+      - "src/commander_lab/models/**"
+      - "src/commander_lab/qualification/**"
+      - "src/commander_lab/storage/**"
+      - "tests/conftest.py"
   workflow_dispatch:
 
 permissions:
