@@ -400,6 +400,8 @@ XMAGE_CARD_REPOSITORY_FILE = "cards.h2.mv.db"
 # (a crashed Lab never removed them) are swept once they are this old.
 _ORPHAN_PRIVATE_DIRECTORY = re.compile(r"[0-9a-f]{32}")
 _ORPHAN_PRIVATE_DIRECTORY_AGE_SECONDS = 24 * 3600
+# In a slot: the size and mtime of the shared repository the slot copied.
+_SLOT_SOURCE_MARKER = "db.source"
 
 # Bridge stderr kept in memory for diagnostics. Only the last 80 lines are
 # ever reported (``stderr_tail``); the pump trims to this bound so a chatty
@@ -646,7 +648,7 @@ class _RawFullGameClient:
         whose ``slot-<n>.lock`` this client can lock exclusively (``flock``,
         so other threads, batches and processes skip it). The repository is
         copied into a slot once and reused by the games that follow, and
-        copied again when the slot's file is missing or differs in size.
+        copied again when the slot's file is missing or the shared one changed.
         """
         if not self.private_card_repository:
             return None
@@ -671,11 +673,23 @@ class _RawFullGameClient:
             self._private_directory = private
             source_file = shared / "db" / XMAGE_CARD_REPOSITORY_FILE
             slot_file = private / "db" / XMAGE_CARD_REPOSITORY_FILE
-            if source_file.is_file() and not (
-                slot_file.is_file() and slot_file.stat().st_size == source_file.stat().st_size
-            ):
-                shutil.rmtree(private / "db", ignore_errors=True)
-                _copy_card_repository(shared / "db", private / "db")
+            if source_file.is_file():
+                # H2 rewrites its file when a game closes it, so the slot's
+                # own size says nothing; a marker records which source
+                # version the slot copied.
+                source_stat = source_file.stat()
+                version = f"{source_stat.st_size}:{source_stat.st_mtime_ns}"
+                marker = private / _SLOT_SOURCE_MARKER
+                current = (
+                    slot_file.is_file()
+                    and marker.is_file()
+                    and marker.read_text(encoding="utf-8") == version
+                )
+                if not current:
+                    marker.unlink(missing_ok=True)
+                    shutil.rmtree(private / "db", ignore_errors=True)
+                    _copy_card_repository(shared / "db", private / "db")
+                    marker.write_text(version, encoding="utf-8")
         except BaseException:
             self._release_slot_lock()
             self._private_directory = None

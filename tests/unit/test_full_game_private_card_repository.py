@@ -178,23 +178,33 @@ def test_six_games_on_two_workers_copy_the_repository_twice(
     assert {slot for slots in results for slot in slots} == {"slot-0", "slot-1"}
 
 
-def test_a_slot_with_a_missing_or_resized_repository_is_copied_again(tmp_path: Path) -> None:
+def test_a_slot_is_copied_again_only_when_missing_or_the_shared_repository_changed(
+    tmp_path: Path,
+) -> None:
     shared = _shared(tmp_path, built=True)
     client = _slot_client(shared)
     slot = Path(str(client._prepare_private_directory()))
     slot_file = slot / "db" / XMAGE_CARD_REPOSITORY_FILE
     client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
-    slot_file.write_bytes(b"x")
 
+    # H2 rewrites its file when the game closes it: the slot stays in use.
+    slot_file.write_bytes(b"closed by the engine")
     client = _slot_client(shared)
     client._prepare_private_directory()
-    assert slot_file.read_bytes() == b"shared-repository"
+    assert slot_file.read_bytes() == b"closed by the engine"
     client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
-    slot_file.unlink()
 
+    # A new shared repository replaces the slot's copy.
+    (shared / "db" / XMAGE_CARD_REPOSITORY_FILE).write_bytes(b"rebuilt-repository")
     client = _slot_client(shared)
     client._prepare_private_directory()
-    assert slot_file.read_bytes() == b"shared-repository"
+    assert slot_file.read_bytes() == b"rebuilt-repository"
+    client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
+
+    slot_file.unlink()
+    client = _slot_client(shared)
+    client._prepare_private_directory()
+    assert slot_file.read_bytes() == b"rebuilt-repository"
     client._release_private_directory(FULL_GAME_SHUTDOWN_GRACEFUL)
 
 
