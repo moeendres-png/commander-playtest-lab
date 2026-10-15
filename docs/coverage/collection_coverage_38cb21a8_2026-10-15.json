@@ -1,14 +1,14 @@
 {
  "result_class": "TECHNICAL_CARD_COVERAGE",
  "xmage_commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
- "jar": "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar (pin 38cb21a8 + this PR)",
+ "jar": "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar (pin 38cb21a8, bridge of main 8bdf7f08 with #778)",
  "decks_covered": 18,
  "pods": 36,
  "games": 72,
  "games_ok": 72,
  "twins_identical": 36,
  "twins_diverged": 0,
- "total_wall_s": 3281.13,
+ "total_wall_s": 2034.02,
  "results": [
   {
    "size": 4,
@@ -28,7 +28,7 @@
      "winners": [
       2
      ],
-     "wall_s": 83.87
+     "wall_s": 71.46
     },
     {
      "status": "ok",
@@ -37,7 +37,7 @@
      "winners": [
       2
      ],
-     "wall_s": 48.14
+     "wall_s": 70.21
     }
    ]
   },
@@ -59,7 +59,7 @@
      "winners": [
       1
      ],
-     "wall_s": 131.46
+     "wall_s": 135.38
     },
     {
      "status": "ok",
@@ -68,7 +68,7 @@
      "winners": [
       1
      ],
-     "wall_s": 104.24
+     "wall_s": 141.58
     }
    ]
   },
@@ -90,7 +90,7 @@
      "winners": [
       2
      ],
-     "wall_s": 56.99
+     "wall_s": 72.34
     },
     {
      "status": "ok",
@@ -99,7 +99,7 @@
      "winners": [
       2
      ],
-     "wall_s": 50.31
+     "wall_s": 65.43
     }
    ]
   },
@@ -121,7 +121,7 @@
      "winners": [
       2
      ],
-     "wall_s": 64.08
+     "wall_s": 73.65
     },
     {
      "status": "ok",
@@ -130,7 +130,7 @@
      "winners": [
       2
      ],
-     "wall_s": 60.72
+     "wall_s": 72.84
     }
    ]
   },
@@ -152,7 +152,7 @@
      "winners": [
       2
      ],
-     "wall_s": 75.35
+     "wall_s": 89.22
     },
     {
      "status": "ok",
@@ -161,7 +161,7 @@
      "winners": [
       2
      ],
-     "wall_s": 70.55
+     "wall_s": 90.18
     }
    ]
   },
@@ -183,7 +183,7 @@
      "winners": [
       2
      ],
-     "wall_s": 64.24
+     "wall_s": 82.24
     },
     {
      "status": "ok",
@@ -192,7 +192,7 @@
      "winners": [
       2
      ],
-     "wall_s": 65.14
+     "wall_s": 79.44
     }
    ]
   },
@@ -214,7 +214,7 @@
      "winners": [
       2
      ],
-     "wall_s": 59.25
+     "wall_s": 69.32
     },
     {
      "status": "ok",
@@ -223,7 +223,7 @@
      "winners": [
       2
      ],
-     "wall_s": 61.43
+     "wall_s": 70.27
     }
    ]
   },
@@ -245,7 +245,7 @@
      "winners": [
       1
      ],
-     "wall_s": 52.97
+     "wall_s": 62.63
     },
     {
      "status": "ok",
@@ -254,7 +254,7 @@
      "winners": [
       1
      ],
-     "wall_s": 55.2
+     "wall_s": 70.6
     }
    ]
   },
@@ -276,7 +276,7 @@
      "winners": [
       2
      ],
-     "wall_s": 64.97
+     "wall_s": 80.0
     },
     {
      "status": "ok",
@@ -285,7 +285,7 @@
      "winners": [
       2
      ],
-     "wall_s": 65.78
+     "wall_s": 81.58
     }
    ]
   },
@@ -307,7 +307,7 @@
      "winners": [
       2
      ],
-     "wall_s": 55.75
+     "wall_s": 66.53
     },
     {
      "status": "ok",
@@ -316,7 +316,7 @@
      "winners": [
       2
      ],
-     "wall_s": 55.69
+     "wall_s": 71.56
     }
    ]
   },
@@ -338,7 +338,7 @@
      "winners": [
       4
      ],
-     "wall_s": 65.18
+     "wall_s": 79.7
     },
     {
      "status": "ok",
@@ -347,7 +347,7 @@
      "winners": [
       4
      ],
-     "wall_s": 68.84
+     "wall_s": 79.88
     }
    ]
   },
@@ -369,7 +369,7 @@
      "winners": [
       1
      ],
-     "wall_s": 49.34
+     "wall_s": 57.89
     },
     {
      "status": "ok",
@@ -378,7 +378,7 @@
      "winners": [
       1
      ],
-     "wall_s": 50.4
+     "wall_s": 57.02
     }
    ]
   },
@@ -400,7 +400,7 @@
      "winners": [
       2
      ],
-     "wall_s": 60.01
+     "wall_s": 67.21
     },
     {
      "status": "ok",
@@ -409,7 +409,7 @@
      "winners": [
       2
      ],
-     "wall_s": 57.58
+     "wall_s": 70.16
     }
    ]
   },
@@ -431,7 +431,7 @@
      "winners": [
       2
      ],
-     "wall_s": 122.01
+     "wall_s": 151.44
     },
     {
      "status": "ok",
@@ -440,7 +440,7 @@
      "winners": [
       2
      ],
-     "wall_s": 126.25
+     "wall_s": 143.83
     }
    ]
   },
@@ -457,21 +457,21 @@
    "runs": [
     {
      "status": "ok",
-     "semantic": "082e62a1cc2a2e61bc0175a23a1b38334c78f683b8dbae6d5f58551946663771",
+     "semantic": "25a48ab647cb4324b0e91b5e95445e04b85182a1d32459c3265a6ff376d0f422",
      "decisions": 2471,
      "winners": [
       1
      ],
-     "wall_s": 63.58
+     "wall_s": 68.68
     },
     {
      "status": "ok",
-     "semantic": "082e62a1cc2a2e61bc0175a23a1b38334c78f683b8dbae6d5f58551946663771",
+     "semantic": "25a48ab647cb4324b0e91b5e95445e04b85182a1d32459c3265a6ff376d0f422",
      "decisions": 2471,
      "winners": [
       1
      ],
-     "wall_s": 59.16
+     "wall_s": 70.39
     }
    ]
   },
@@ -494,7 +494,7 @@
      "winners": [
       2
      ],
-     "wall_s": 119.67
+     "wall_s": 155.89
     },
     {
      "status": "ok",
@@ -503,7 +503,7 @@
      "winners": [
       2
      ],
-     "wall_s": 113.53
+     "wall_s": 144.0
     }
    ]
   },
@@ -526,7 +526,7 @@
      "winners": [
       2
      ],
-     "wall_s": 94.64
+     "wall_s": 120.71
     },
     {
      "status": "ok",
@@ -535,7 +535,7 @@
      "winners": [
       2
      ],
-     "wall_s": 87.52
+     "wall_s": 114.08
     }
    ]
   },
@@ -558,7 +558,7 @@
      "winners": [
       4
      ],
-     "wall_s": 68.46
+     "wall_s": 73.23
     },
     {
      "status": "ok",
@@ -567,7 +567,7 @@
      "winners": [
       4
      ],
-     "wall_s": 61.17
+     "wall_s": 80.96
     }
    ]
   },
@@ -590,7 +590,7 @@
      "winners": [
       1
      ],
-     "wall_s": 116.11
+     "wall_s": 126.74
     },
     {
      "status": "ok",
@@ -599,7 +599,7 @@
      "winners": [
       1
      ],
-     "wall_s": 118.08
+     "wall_s": 125.36
     }
    ]
   },
@@ -622,7 +622,7 @@
      "winners": [
       1
      ],
-     "wall_s": 87.73
+     "wall_s": 92.64
     },
     {
      "status": "ok",
@@ -631,7 +631,7 @@
      "winners": [
       1
      ],
-     "wall_s": 85.67
+     "wall_s": 95.13
     }
    ]
   },
@@ -654,7 +654,7 @@
      "winners": [
       1
      ],
-     "wall_s": 88.91
+     "wall_s": 100.01
     },
     {
      "status": "ok",
@@ -663,7 +663,7 @@
      "winners": [
       1
      ],
-     "wall_s": 82.83
+     "wall_s": 98.04
     }
    ]
   },
@@ -686,7 +686,7 @@
      "winners": [
       1
      ],
-     "wall_s": 106.17
+     "wall_s": 121.55
     },
     {
      "status": "ok",
@@ -695,7 +695,7 @@
      "winners": [
       1
      ],
-     "wall_s": 104.61
+     "wall_s": 119.42
     }
    ]
   },
@@ -718,7 +718,7 @@
      "winners": [
       4
      ],
-     "wall_s": 112.9
+     "wall_s": 130.29
     },
     {
      "status": "ok",
@@ -727,7 +727,7 @@
      "winners": [
       4
      ],
-     "wall_s": 112.94
+     "wall_s": 134.54
     }
    ]
   },
@@ -750,7 +750,7 @@
      "winners": [
       2
      ],
-     "wall_s": 76.5
+     "wall_s": 82.56
     },
     {
      "status": "ok",
@@ -759,7 +759,7 @@
      "winners": [
       2
      ],
-     "wall_s": 77.16
+     "wall_s": 86.39
     }
    ]
   },
@@ -782,7 +782,7 @@
      "winners": [
       2
      ],
-     "wall_s": 89.06
+     "wall_s": 87.1
     },
     {
      "status": "ok",
@@ -791,7 +791,7 @@
      "winners": [
       2
      ],
-     "wall_s": 87.32
+     "wall_s": 88.0
     }
    ]
   },
@@ -814,7 +814,7 @@
      "winners": [
       3
      ],
-     "wall_s": 93.07
+     "wall_s": 94.86
     },
     {
      "status": "ok",
@@ -823,7 +823,7 @@
      "winners": [
       3
      ],
-     "wall_s": 90.16
+     "wall_s": 95.06
     }
    ]
   },
@@ -841,21 +841,21 @@
    "runs": [
     {
      "status": "ok",
-     "semantic": "463f85de7204845a65fd38a605a831cb9ec8dee423726dd820c22de145000ae1",
+     "semantic": "07b3f9b0d7277c22469bfdf0b970b14671472cf8d4a5ae5c1cb5d2d44334d4d2",
      "decisions": 4658,
      "winners": [
       1
      ],
-     "wall_s": 101.63
+     "wall_s": 117.66
     },
     {
      "status": "ok",
-     "semantic": "463f85de7204845a65fd38a605a831cb9ec8dee423726dd820c22de145000ae1",
+     "semantic": "07b3f9b0d7277c22469bfdf0b970b14671472cf8d4a5ae5c1cb5d2d44334d4d2",
      "decisions": 4658,
      "winners": [
       1
      ],
-     "wall_s": 89.81
+     "wall_s": 104.4
     }
    ]
   },
@@ -879,7 +879,7 @@
      "winners": [
       4
      ],
-     "wall_s": 151.48
+     "wall_s": 175.29
     },
     {
      "status": "ok",
@@ -888,7 +888,7 @@
      "winners": [
       4
      ],
-     "wall_s": 150.06
+     "wall_s": 169.11
     }
    ]
   },
@@ -912,7 +912,7 @@
      "winners": [
       1
      ],
-     "wall_s": 149.51
+     "wall_s": 175.12
     },
     {
      "status": "ok",
@@ -921,7 +921,7 @@
      "winners": [
       1
      ],
-     "wall_s": 140.59
+     "wall_s": 167.23
     }
    ]
   },
@@ -945,7 +945,7 @@
      "winners": [
       1
      ],
-     "wall_s": 151.79
+     "wall_s": 181.04
     },
     {
      "status": "ok",
@@ -954,7 +954,7 @@
      "winners": [
       1
      ],
-     "wall_s": 140.98
+     "wall_s": 178.46
     }
    ]
   },
@@ -978,7 +978,7 @@
      "winners": [
       2
      ],
-     "wall_s": 166.12
+     "wall_s": 206.28
     },
     {
      "status": "ok",
@@ -987,7 +987,7 @@
      "winners": [
       2
      ],
-     "wall_s": 152.86
+     "wall_s": 206.67
     }
    ]
   },
@@ -1011,7 +1011,7 @@
      "winners": [
       2
      ],
-     "wall_s": 123.08
+     "wall_s": 150.81
     },
     {
      "status": "ok",
@@ -1020,7 +1020,7 @@
      "winners": [
       2
      ],
-     "wall_s": 97.52
+     "wall_s": 152.18
     }
    ]
   },
@@ -1044,7 +1044,7 @@
      "winners": [
       1
      ],
-     "wall_s": 113.54
+     "wall_s": 173.54
     },
     {
      "status": "ok",
@@ -1053,7 +1053,7 @@
      "winners": [
       1
      ],
-     "wall_s": 122.62
+     "wall_s": 170.55
     }
    ]
   },
@@ -1077,7 +1077,7 @@
      "winners": [
       2
      ],
-     "wall_s": 91.09
+     "wall_s": 128.89
     },
     {
      "status": "ok",
@@ -1086,7 +1086,7 @@
      "winners": [
       2
      ],
-     "wall_s": 92.63
+     "wall_s": 136.18
     }
    ]
   },
@@ -1110,7 +1110,7 @@
      "winners": [
       1
      ],
-     "wall_s": 98.76
+     "wall_s": 128.98
     },
     {
      "status": "ok",
@@ -1119,7 +1119,7 @@
      "winners": [
       1
      ],
-     "wall_s": 93.21
+     "wall_s": 99.03
     }
    ]
   },
@@ -1143,7 +1143,7 @@
      "winners": [
       1
      ],
-     "wall_s": 93.08
+     "wall_s": 109.79
     },
     {
      "status": "ok",
@@ -1152,7 +1152,7 @@
      "winners": [
       1
      ],
-     "wall_s": 89.43
+     "wall_s": 89.99
     }
    ]
   }
