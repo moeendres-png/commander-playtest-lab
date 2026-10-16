@@ -144,10 +144,17 @@ class XmageFullGameCoverageAbortTest {
     }
 
     @Test
-    void anOverAnnouncedXSpellReversesInsteadOfAborting() {
+    void anOverAnnouncedXSpellThePilotCancelsAtPaymentReturnsPriorityInsteadOfAborting() {
         // #815: Blue Sun's Zenith with X announced higher than the pilot can
-        // pay. The engine reverses the cast (CR 601.2e); priority returns
-        // instead of XMAGE_ACTION_EXECUTION_FAILED.
+        // pay. With the Islands spent the bridge offers only "Cancel mana
+        // payment"; the pilot cancels, the engine reverses the cast (CR 601.2e)
+        // and priority returns instead of XMAGE_ACTION_EXECUTION_FAILED.
+        //
+        // End-to-end guarantee only: a pilot cancel sets paymentCancelled, the
+        // pre-existing path, so this scenario does NOT reach reversedOverAnnouncedX.
+        // That predicate is pinned by XmageFullGameEngineReversalTest
+        // #anOverAnnouncedXCastIsReversedOnlyWithAllItsFacts; no scenario that
+        // reaches it without a cancel is known.
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Blue Sun's Zenith", 0, Zone.HAND));
         // Three Islands: X=0 ({U}{U}{U}) is payable, X=1 ({1}{U}{U}{U}) is not.
@@ -171,7 +178,7 @@ class XmageFullGameCoverageAbortTest {
             switch (cls) {
                 case "priority" -> {
                     if (!castAttempted) {
-                        JsonObject cast = s.action("cast", "Blue Sun's Zenith");
+                        JsonObject cast = s.action("activate_ability", "Cast Blue Sun's Zenith");
                         assertNotNull(cast, "zenith must be offered: " + s.labels());
                         s.submit(cast);
                         castAttempted = true;
@@ -182,26 +189,33 @@ class XmageFullGameCoverageAbortTest {
                     }
                 }
                 case "announce_x" -> {
-                    // Announce X=1, which the three Islands cannot pay.
-                    JsonObject announce = s.action("announce_x", "Announce");
-                    assertNotNull(announce, "announce_x must be offered");
-                    JsonObject proposal = new JsonObject();
-                    proposal.addProperty("proposal_id", "issue815-x1");
-                    JsonObject decisionObj = pending.getAsJsonObject("decision");
-                    proposal.addProperty("decision_id", decisionObj.get("decision_id").getAsString());
-                    proposal.addProperty("numeric_choice", 1);
-                    s.submit(proposal);
+                    // Announce X=1, which the three Islands cannot pay. X is a
+                    // structural numeric decision answered with numeric_choice.
+                    JsonObject legal = s.session.legalActionsPayload();
+                    JsonObject announce = legal.getAsJsonArray("actions").get(0).getAsJsonObject();
+                    assertEquals("structural_decision", announce.get("action_type").getAsString());
+                    JsonObject proposal = FullGameTestPilot.proposal(legal, announce);
+                    proposal.getAsJsonObject("choices").addProperty("numeric_choice", 1);
+                    s.session.submitAction(proposal);
                 }
-                case "choose_targets" -> {
-                    // Target P2 (a player).
-                    JsonObject target = s.action("choose_targets", "P2");
+                case "target" -> {
+                    // Target the opponent seat (a player).
+                    JsonObject target = s.action("choose_targets", "Full Game Seat 2");
                     assertNotNull(target, "target must be offered: " + s.labels());
                     s.submit(target);
                 }
                 case "mana_payment" -> {
                     // Pay with all three Islands; the 4th mana is missing.
-                    JsonObject pay = s.action("pay_cost", "Island");
-                    assertNotNull(pay, "island must pay: " + s.labels());
+                    JsonObject pay = s.action("pay_cost", "Spend ");
+                    if (pay == null) {
+                        pay = s.action("pay_cost", "Island");
+                    }
+                    if (pay == null) {
+                        // Every Island is spent and the 4th mana is still owed: the
+                        // bridge offers only the cancel, so the pilot takes it.
+                        pay = s.action("pay_cost", "Cancel mana payment");
+                    }
+                    assertNotNull(pay, "mana still owed and nothing to pay with: " + s.labels());
                     s.submit(pay);
                 }
                 default -> fail("unexpected " + cls + " for " + s.actor() + " " + s.labels());
