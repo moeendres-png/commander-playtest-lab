@@ -143,6 +143,79 @@ class XmageFullGameCoverageAbortTest {
                 "the game goes on");
     }
 
+    @Test
+    void anOverAnnouncedXSpellReversesInsteadOfAborting() {
+        // #815: Blue Sun's Zenith with X announced higher than the pilot can
+        // pay. The engine reverses the cast (CR 601.2e); priority returns
+        // instead of XMAGE_ACTION_EXECUTION_FAILED.
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Blue Sun's Zenith", 0, Zone.HAND));
+        // Three Islands: X=0 ({U}{U}{U}) is payable, X=1 ({1}{U}{U}{U}) is not.
+        objects.add(XmageMultiplayerScenario.obj("P1", "Island", 0, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj("P1", "Island", 1, Zone.BATTLEFIELD));
+        objects.add(XmageMultiplayerScenario.obj("P1", "Island", 2, Zone.BATTLEFIELD));
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
+                "issue815-zenith", 2, "P1", objects);
+        boolean castAttempted = false;
+        boolean reversed = false;
+        for (int i = 0; i < 40; i++) {
+            JsonObject pending = s.session.pendingDecisionPayload();
+            if (!pending.get("failure").isJsonNull()) {
+                fail("no failure expected, got: " + pending.get("failure"));
+            }
+            JsonObject decision = pending.getAsJsonObject("decision");
+            if (decision == null || decision.isJsonNull()) {
+                break;
+            }
+            String cls = decision.get("decision_class").getAsString();
+            switch (cls) {
+                case "priority" -> {
+                    if (!castAttempted) {
+                        JsonObject cast = s.action("cast", "Blue Sun's Zenith");
+                        assertNotNull(cast, "zenith must be offered: " + s.labels());
+                        s.submit(cast);
+                        castAttempted = true;
+                    } else {
+                        // After the reversal, priority returns to the same player.
+                        reversed = true;
+                        s.submit(s.action("pass_priority", "Pass"));
+                    }
+                }
+                case "announce_x" -> {
+                    // Announce X=1, which the three Islands cannot pay.
+                    JsonObject announce = s.action("announce_x", "Announce");
+                    assertNotNull(announce, "announce_x must be offered");
+                    JsonObject proposal = new JsonObject();
+                    proposal.addProperty("proposal_id", "issue815-x1");
+                    JsonObject decisionObj = pending.getAsJsonObject("decision");
+                    proposal.addProperty("decision_id", decisionObj.get("decision_id").getAsString());
+                    proposal.addProperty("numeric_choice", 1);
+                    s.submit(proposal);
+                }
+                case "choose_targets" -> {
+                    // Target P2 (a player).
+                    JsonObject target = s.action("choose_targets", "P2");
+                    assertNotNull(target, "target must be offered: " + s.labels());
+                    s.submit(target);
+                }
+                case "mana_payment" -> {
+                    // Pay with all three Islands; the 4th mana is missing.
+                    JsonObject pay = s.action("pay_cost", "Island");
+                    assertNotNull(pay, "island must pay: " + s.labels());
+                    s.submit(pay);
+                }
+                default -> fail("unexpected " + cls + " for " + s.actor() + " " + s.labels());
+            }
+            if (reversed) {
+                break;
+            }
+        }
+        assertTrue(castAttempted, "the cast was attempted");
+        assertTrue(reversed, "priority returned after the reversal");
+        assertTrue(s.session.pendingDecisionPayload().get("failure").isJsonNull(),
+                "the game goes on after an over-announced X");
+    }
+
     /** One target by engine id plus its share, as one response. */
     private static void submitTargetAmount(XmageMultiplayerScenario s, String tag, String objectId, int amount) {
         JsonObject pending = s.session.pendingDecisionPayload().getAsJsonObject("decision");

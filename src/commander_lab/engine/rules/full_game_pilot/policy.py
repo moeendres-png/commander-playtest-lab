@@ -137,7 +137,10 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # #700: this seat's remembered cost describes the action it chose
             # last time, and the next priority decision of this seat is a
             # different action, so it is dropped before a new one is picked.
+            # #815: same for failed X announcements — a new priority action
+            # starts with a clean retry slate.
             self._priority_cost_facts.pop(seat, None)
+            self._failed_x_announcements.pop(seat, None)
             self._last_priority_label.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected)
