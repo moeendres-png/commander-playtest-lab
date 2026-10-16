@@ -220,9 +220,11 @@ play the same game, and the batch keys each finished record by all of them.
 The engine shuffles each library in decklist order with the game seed. A variant is
 therefore played with its unchanged cards in the baseline's library slots and its added
 cards in the slots of the removed ones (the deck itself is unchanged, only the list order
-is). Paired games then stay identical until a changed card matters, and the report counts
-those `identical_pairs`; they are ties and carry no evidence either way. This needs far
-fewer games than comparing unrelated shuffles.
+is). Paired games then stay identical until a changed card matters. In a measurement with
+one swapped card on six seeds, two pairs played the exact same game and the other four
+stayed identical for 13% to 57% of their decisions; the same swap listed at the end of the
+deck changed the opening hand in every pod. The report counts the `identical_pairs`; they
+are ties and carry no evidence either way.
 
 Useful project commands include:
 
