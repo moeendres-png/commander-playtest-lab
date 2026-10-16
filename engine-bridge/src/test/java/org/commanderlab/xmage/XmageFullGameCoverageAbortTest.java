@@ -171,7 +171,7 @@ class XmageFullGameCoverageAbortTest {
             switch (cls) {
                 case "priority" -> {
                     if (!castAttempted) {
-                        JsonObject cast = s.action("cast", "Blue Sun's Zenith");
+                        JsonObject cast = s.action("activate_ability", "Cast Blue Sun's Zenith");
                         assertNotNull(cast, "zenith must be offered: " + s.labels());
                         s.submit(cast);
                         castAttempted = true;
@@ -182,26 +182,34 @@ class XmageFullGameCoverageAbortTest {
                     }
                 }
                 case "announce_x" -> {
-                    // Announce X=1, which the three Islands cannot pay.
-                    JsonObject announce = s.action("announce_x", "Announce");
-                    assertNotNull(announce, "announce_x must be offered");
-                    JsonObject proposal = new JsonObject();
-                    proposal.addProperty("proposal_id", "issue815-x1");
-                    JsonObject decisionObj = pending.getAsJsonObject("decision");
-                    proposal.addProperty("decision_id", decisionObj.get("decision_id").getAsString());
-                    proposal.addProperty("numeric_choice", 1);
-                    s.submit(proposal);
+                    // Announce X=1, which the three Islands cannot pay. X is a
+                    // structural numeric decision answered with numeric_choice.
+                    JsonObject legal = s.session.legalActionsPayload();
+                    JsonObject announce = legal.getAsJsonArray("actions").get(0).getAsJsonObject();
+                    assertEquals("structural_decision", announce.get("action_type").getAsString());
+                    JsonObject proposal = FullGameTestPilot.proposal(legal, announce);
+                    proposal.getAsJsonObject("choices").addProperty("numeric_choice", 1);
+                    s.session.submitAction(proposal);
                 }
-                case "choose_targets" -> {
-                    // Target P2 (a player).
-                    JsonObject target = s.action("choose_targets", "P2");
+                case "target" -> {
+                    // Target the opponent seat (a player).
+                    JsonObject target = s.action("choose_targets", "Full Game Seat 2");
                     assertNotNull(target, "target must be offered: " + s.labels());
                     s.submit(target);
                 }
                 case "mana_payment" -> {
                     // Pay with all three Islands; the 4th mana is missing.
-                    JsonObject pay = s.action("pay_cost", "Island");
-                    assertNotNull(pay, "island must pay: " + s.labels());
+                    JsonObject pay = s.action("pay_cost", "Spend ");
+                    if (pay == null) {
+                        pay = s.action("pay_cost", "Island");
+                    }
+                    // Open question for #815: once every Island is spent the bridge
+                    // offers only "Cancel mana payment" instead of failing the payment
+                    // itself. A pilot cancel sets paymentCancelled, which
+                    // reversedOverAnnouncedX excludes, so this scenario does not reach
+                    // that predicate. Do not "fix" this by cancelling here: the test
+                    // would then pass through the pre-existing cancel path.
+                    assertNotNull(pay, "mana still owed and no source left, offered: " + s.labels());
                     s.submit(pay);
                 }
                 default -> fail("unexpected " + cls + " for " + s.actor() + " " + s.labels());
