@@ -25,6 +25,11 @@ final class XmageFullGameJsonlBridge {
     private final int gamesPerJvm = Math.max(1, Integer.getInteger(GAMES_PER_JVM_PROPERTY, 1));
     private int gamesCreated;
 
+    /** Engine game id of the current session, or null; for tests. */
+    String currentEngineGameId() {
+        return session == null ? null : session.engineGameId();
+    }
+
     record Result(String json, boolean shutdown) {
     }
 
@@ -151,6 +156,9 @@ final class XmageFullGameJsonlBridge {
         try {
             if (session != null && session.isShutDown() && gamesCreated < gamesPerJvm) {
                 // Batch opt-in: the previous game was shut down, so the next may start.
+                // Its records in the bridge's static, game-keyed maps go with it;
+                // a long-lived JVM would otherwise keep every finished game's.
+                session.releaseStaticGameRecords();
                 session = null;
             }
             if (session != null) {

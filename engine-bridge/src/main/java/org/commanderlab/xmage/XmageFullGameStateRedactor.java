@@ -106,6 +106,32 @@ final class XmageFullGameStateRedactor {
         }
     }
 
+    /**
+     * Drops every per-game observation record of one engine game. The maps
+     * above are static and keyed by game id; a JVM that plays more than one
+     * game (a reused full-game JVM) would otherwise keep
+     * every finished game's records until it exits.
+     */
+    static void forgetGame(String engineGameId) {
+        if (engineGameId == null) {
+            return;
+        }
+        ZONE_FULL_LOOK.remove(engineGameId);
+        ZONE_LOOK_CARDS.remove(engineGameId);
+        RESTORED_FACE_DOWN_IDENTITIES.remove(engineGameId);
+        OBSERVED_CARDS.remove(engineGameId);
+        LIBRARY_SHUFFLE_EPOCHS.remove(engineGameId);
+    }
+
+    /** Whether any per-game map still holds records of this engine game; for tests. */
+    static boolean holdsRecordsFor(String engineGameId) {
+        return ZONE_FULL_LOOK.containsKey(engineGameId)
+                || ZONE_LOOK_CARDS.containsKey(engineGameId)
+                || RESTORED_FACE_DOWN_IDENTITIES.containsKey(engineGameId)
+                || OBSERVED_CARDS.containsKey(engineGameId)
+                || LIBRARY_SHUFFLE_EPOCHS.containsKey(engineGameId);
+    }
+
     static void recordLibraryShuffle(Game game, UUID libraryOwnerId) {
         if (game == null || libraryOwnerId == null || game.isSimulation()) {
             return;

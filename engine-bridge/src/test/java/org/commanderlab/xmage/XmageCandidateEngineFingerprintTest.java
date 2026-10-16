@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.nio.file.Files;
@@ -21,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01,
- * v4 2026-10-03, v5 2026-10-11, v6 2026-10-13): the bridge
+ * v4 2026-10-03, v5 2026-10-11, v6 2026-10-13, v7 2026-10-16): the bridge
  * declares the XMage multiplayer candidate as its engine commit, and the engine
  * classes actually loaded at runtime are that candidate's.
  *
@@ -33,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "38cb21a85c4074b00ab226e625200a4feaf3462f";
+    static final String CANDIDATE = "16e57239e0738925369b704fd7fdd083b7d5024b";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -123,6 +124,24 @@ class XmageCandidateEngineFingerprintTest {
         Class<?> shuri = Class.forName("mage.cards.s.ShuriTheBlackPanther");
         assertTrue(mage.cards.Card.class.isAssignableFrom(shuri),
                 "mage#59: loaded card set is not the successor's");
+    }
+
+    /**
+     * Successor v7 (2026-10-16): the loaded engine carries the lazy card copy of the
+     * playable calculation (mage#60): GameImpl keeps the ids of cards a playable
+     * calculation copy still shares with its parent and copies a card on first read.
+     */
+    @Test
+    void loadedEngineCarriesTheLazyPlayableCopy() throws Exception {
+        Field shared = mage.game.GameImpl.class.getDeclaredField("sharedGameCards");
+        assertEquals(java.util.Set.class, shared.getType(),
+                "mage#60: loaded engine is not the successor: "
+                        + Game.class.getProtectionDomain().getCodeSource().getLocation());
+        Method lazy = mage.game.GameImpl.class.getDeclaredMethod(
+                "copyCardsLazily", mage.game.GameImpl.class);
+        assertEquals(void.class, lazy.getReturnType(), "mage#60");
+        Method own = mage.game.GameImpl.class.getDeclaredMethod("ownGameCard", java.util.UUID.class);
+        assertEquals(mage.cards.Card.class, own.getReturnType(), "mage#60");
     }
 
     /**
