@@ -1,15 +1,20 @@
 #!/usr/bin/env python3
-"""Write the <=80-line cold-start index for a fresh Claude session.
+"""Write the <=60-line cold-start index for a fresh Claude session.
 
     scripts/claude_handoff.py [--repo-dir .] [--out docs/claude/state/HANDOFF.md]
                               [--repo O/R] [--now 2026-10-06T00:00Z] [--dry-run]
 
 The file is assembled from local git (HEAD, worktrees, dirty/unpushed state),
-the GitHub API (`gh api`: open PRs per repo, lane-issue baton comments) and the
-`.foundry/*.yaml|*.json` workstream states. It is an operational index, not
-Source Authority: Git, tests and GitHub stay canonical, and a fresh session
+the GitHub API (`gh api`: open issues and PRs, lane baton comments) and the
+`.foundry/*.yaml|*.json` workstream decision ledger. It is an operational index,
+not Source Authority: Git, tests and GitHub stay canonical, and a fresh session
 starts here instead of re-reading a compacted conversation. Only the one output
 file is written.
+
+Only live state is shown: lanes are open issues, and a ledger decision is
+rendered only while it is not terminal (STALE/SUPERSEDED/COMPLETE, closed out)
+and every pull/issue it references is still open. Closed issues, merged or
+closed PRs and resolved/superseded decisions never appear.
 """
 
 from __future__ import annotations
@@ -28,7 +33,10 @@ import yaml
 LAB = "moeendres-png/commander-playtest-lab"
 REPOS = (LAB, "moeendres-png/mage")
 MAX_LANES = 8
-MAX_LINES = 80
+MAX_LINES = 60
+LIVE_STATUSES = ("ACTIVE", "WAITING", "BLOCKED")
+PULL_REF = re.compile(r"/pulls?/(\d+)")
+ISSUE_REF = re.compile(r"/issues/(\d+)")
 BATON_MARKER = re.compile(r"(?i)\b(baton|ownership|owner|owns|handoff)\b")
 OWNER_LINE = re.compile(
     r"(?im)^\s*(?:[-*]\s*)?#*\s*\*{0,2}(?:owner|ownership|baton)\*{0,2}\s*[:.\u2014-]\s*(.+)$"
@@ -164,6 +172,8 @@ def lane_lines(repo_dir: Path, states: list[dict[str, Any]], numbers: tuple[int,
     lines: list[str] = []
     for number in numbers:
         issue = api(f"repos/{LAB}/issues/{number}")
+        if not isinstance(issue, dict) or issue.get("state") != "open":
+            continue  # an issue closed since the open list was read is not a lane
         comments = api(f"repos/{LAB}/issues/{number}/comments?per_page=100") or []
         markers = [c for c in comments if BATON_MARKER.search(c.get("body") or "")]
         owner, next_action = "?", ""
@@ -203,11 +213,75 @@ def lane_lines(repo_dir: Path, states: list[dict[str, Any]], numbers: tuple[int,
 BOILERPLATE_GATE = re.compile(r"(?i)remain(s)? reserved|freeze decisions? remain|reserved$")
 
 
+def _first_int(value: Any) -> int | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    match = re.search(r"\d+", str(value))
+    return int(match.group()) if match else None
+
+
+def decision_refs(state: dict[str, Any]) -> list[tuple[str, int]]:
+    """The (kind, number) pull/issue references a ledger decision is tied to.
+
+    A decision is only live while everything it waits on is still open, so these
+    are the numbers the liveness filter must re-check against GitHub. ``pr_url``,
+    ``pull_request_url``, ``pr``, ``issue_url`` and ``issue`` all appear in the
+    ledger historically, as URLs, ints or ``#N`` strings.
+    """
+    refs: list[tuple[str, int]] = []
+    for key, kind, pattern in (
+        ("pr_url", "pull", PULL_REF),
+        ("pull_request_url", "pull", PULL_REF),
+        ("pr", "pull", PULL_REF),
+        ("issue_url", "issue", ISSUE_REF),
+        ("issue", "issue", ISSUE_REF),
+    ):
+        if key not in state:
+            continue
+        match = pattern.search(str(state[key]))
+        number = int(match.group(1)) if match else _first_int(state[key])
+        if number is not None:
+            refs.append((kind, number))
+    return list(dict.fromkeys(refs))  # de-dup, keep order
+
+
+def _reference_is_open(ref: tuple[str, int]) -> bool:
+    """Whether the referenced PR/issue is still open (not merged or closed).
+
+    A reference that cannot be read is not proven live, so it fails closed and
+    drops the decision rather than risk showing a merged or closed one.
+    """
+    kind, number = ref
+    try:
+        if kind == "pull":
+            data = api(f"repos/{LAB}/pulls/{number}")
+            return bool(data) and data.get("state") == "open" and not data.get("merged_at")
+        data = api(f"repos/{LAB}/issues/{number}")
+        return bool(data) and data.get("state") == "open"
+    except ApiUnavailable:
+        return False
+
+
+def _decision_is_live(state: dict[str, Any], open_refs: dict[tuple[str, int], bool]) -> bool:
+    """A ledger entry is live only if it is not terminal and every ref is open."""
+    if state.get("status") not in LIVE_STATUSES or state.get("closed_out"):
+        return False
+    for ref in decision_refs(state):
+        if ref not in open_refs:
+            open_refs[ref] = _reference_is_open(ref)
+        if not open_refs[ref]:
+            return False
+    return True
+
+
 def decision_lines(repo_dir: Path, states: list[dict[str, Any]]) -> list[str]:
+    open_refs: dict[tuple[str, int], bool] = {}
     relevant = [
         s
         for s in states
-        if s.get("status") in ("ACTIVE", "WAITING", "BLOCKED")
+        if _decision_is_live(s, open_refs)
         and (s.get("authority_gates") or s.get("status") in ("WAITING", "BLOCKED"))
     ]
     relevant.sort(
