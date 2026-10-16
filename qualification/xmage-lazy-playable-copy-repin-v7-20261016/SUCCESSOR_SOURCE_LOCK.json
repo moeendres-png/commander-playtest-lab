@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-lazy-playable-copy-repin-v7-20261016",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head commit of moeendres-png/mage#60. The native maven.yml run on the exact commit and the Lab bridge suite against XMage built from this pin are PENDING and carry no result counts. NOT_RUN != PASS.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head commit of moeendres-png/mage#60. The native maven.yml run on the exact commit and a local Lab bridge suite run against XMage built from it are bound below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin. The bridge suite is a local run (no Actions run or artifact is bound).",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -66,24 +66,40 @@
  },
  "native_qualification": {
   "full_mage_tests": {
-   "command": "maven.yml workflow_dispatch on the exact pin commit (pull request head branch claude/pilot-intelligence-o25mmi of moeendres-png/mage)",
+   "command": "maven.yml workflow_dispatch on branch claude/pilot-intelligence-o25mmi of moeendres-png/mage (pull request head of mage#60)",
+   "run_id": 38852980732,
+   "job": 116818100617,
    "commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
-   "status": "PENDING",
-   "not_claimed": "the run is dispatched but has no recorded result yet, so no native credit is claimed for this pin"
+   "run": 7189,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "COMPLETE",
+   "source": "Mage Actions run 38852980732 (maven.yml workflow_dispatch, head 16e57239), job 116818100617, Mage.Tests module summary line 'Tests run: 7189, Failures: 0, Errors: 0, Skipped: 125'",
+   "baseline_at_prior_pin": "7189 run / 125 skipped at 38cb21a8 (run 38399272763); the pin adds no test class"
   },
   "mage_verify": {
-   "result": "PENDING",
-   "not_claimed": "no Mage.Verify result on this pin is bound yet; the baseline at 38cb21a8 is 15 card errors and 3 set errors (v6 lock)"
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest.test_checkMissingSetData:1230 'Found set errors: 3' (SLZ, FRA, MBC) and VerifyCardDataTest.test_verifyCards:361 'found 15 errors in 91165 cards verify'; the same two failure lines and the same 15 card errors (Dragon Engine / Traxos subtypes) and 3 set errors as the v6 lock records at 38cb21a8. The pin changes no card and no set."
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "not bound on this pin",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "isolated_maven_repository": "the local ~/.m2 was built from exactly 16e57239 (mvn install of Mage.Deck.Constructed, Mage.Game.CommanderFreeForAll and Mage.Game.CommanderDuel with -am) for the bridge run below",
+  "installed_artifacts_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 439c7e949ab3fc5b55166127ca3271a2d9e6a6da5dfb04547194269efc6b6d8b",
+   "org.mage:mage-sets:1.4.61": "sha256 ca9def8ce47a30dea5913fd138c1dd48b24534e9b27ce6e664b23c52d73e25d5"
+  },
   "bridge_suite": {
-   "command": "engine-bridge mvn verify against XMage built from exact 16e57239e0738925369b704fd7fdd083b7d5024b",
-   "status": "PENDING",
-   "not_claimed": "no recorded bridge suite run against XMage built from this pin is bound yet, so no Lab runtime credit is claimed for it"
+   "command": "local: mvn -B -ntp clean verify in engine-bridge against XMage built from exact 16e57239e0738925369b704fd7fdd083b7d5024b (Lab branch repin-v7-lazy-copy)",
+   "run": 1109,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 7/7, including loadedEngineCarriesTheLazyPlayableCopy",
+   "not_claimed": "no Actions run or artifact digest is bound for the bridge suite; an XMage Full Game Conformance run on the Lab repin head would add one"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheLazyPlayableCopy checks the structural signature of this pin on the loaded classes (GameImpl.sharedGameCards, GameImpl.copyCardsLazily, GameImpl.ownGameCard); the v6 hooks stay checked by loadedEngineCarriesThePreconCoverageHooks."
  },
