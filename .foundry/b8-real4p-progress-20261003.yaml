@@ -16,7 +16,8 @@ objective: >-
   technical_conformance_only.
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 ownership: B8-REAL4P-PROGRESS-20261003 (Claude, sole executor)
 in_scope:
   - src/commander_lab/engine/rules/full_game.py (progress trace, stop_at_turn, smoke_progress_contract)

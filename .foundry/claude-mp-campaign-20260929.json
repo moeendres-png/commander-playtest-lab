@@ -111,7 +111,8 @@
     "Successor repin v2 to 3c0fe388 after the integration decision; enable F-28/F-29 Lab regressions",
     "CombatGroup.checkBlockRestrictions possibleBlockers also ignores 802.4a (low impact: only decides whether a discarded illegal block was avoidable)"
   ],
-  "status": "ACTIVE",
+  "status": "SUPERSEDED",
+  "closed_out": "2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.",
   "technical_decision_authority": "AUTONOMOUS_WITHIN_CONTRACT",
   "hypotheses_rejected": [
     "APNAP mis-ordering: engine turn order is counterclockwise (PlayerList built by prepending); APNAP, priority and turns are consistent",

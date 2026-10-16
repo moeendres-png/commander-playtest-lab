@@ -25,7 +25,8 @@
     "Every other branch and issue"
   ],
   "ownership": "OpenCode Foundry Space Bunny MAX (opencode/space-bunny-free, native max) implementing issue #700 under the Claude autonomous-engineering thread. Single owned writable surface: branch fix/700-affordable-x.",
-  "status": "WAITING",
+  "status": "SUPERSEDED",
+  "closed_out": "2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.",
   "execution_profile": "space-bunny",
   "executor_model": "Space Bunny MAX (opencode/space-bunny-free) at native max",
   "native_variant": "max",

@@ -158,9 +158,10 @@ def test_lanes_are_the_open_issues_without_pull_requests(fake_env):
     assert handoff.lane_issues() == (479, 441)
 
 
-def test_lanes_fall_back_when_the_api_answers_nothing(monkeypatch):
+def test_no_open_issue_means_no_lane_not_a_stale_fallback(tmp_path, monkeypatch):
     monkeypatch.setattr(handoff, "api", lambda url: None)
-    assert handoff.lane_issues() == handoff.LANE_ISSUES
+    assert handoff.lane_issues() == ()
+    assert handoff.lane_lines(tmp_path, [], ()) == ["(no open issues)"]
 
 
 def test_an_unreachable_engine_fork_is_reported_not_fatal(tmp_path, monkeypatch, fake_env):

@@ -38,7 +38,8 @@ ownership: >-
   Step 5 Preview HIGH (opencode/step-5-preview-free, native high); writer lock
   OC759-STRUCTURAL-QUALITY-20261013 held for /home/moeen/work/lab. Branch
   claude/oracle-optimizer-pilots-batch-e1y485 is PR 759's own head and has no live writer.
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 executor_identity:

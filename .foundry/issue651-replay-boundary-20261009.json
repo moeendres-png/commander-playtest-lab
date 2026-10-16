@@ -26,7 +26,8 @@
     "natural-game replay redesign, Provider selection, Architecture Freeze"
   ],
   "ownership": "Codex sole direct implementation/integration writer under explicit Owner exception 2026-10-09 15:00 Europe/Berlin, recorded issue651 comment6081415363. Fresh read-only investigators/reviewers hold no writer lease.",
-  "status": "ACTIVE",
+  "status": "SUPERSEDED",
+  "closed_out": "2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.",
   "execution_profile": null,
   "executor_model": "Codex direct Owner-authorized ChatGPT Work session; not DeepSeek or Space Bunny implementation",
   "native_variant": null,
