@@ -1,8 +1,10 @@
 # Commander Simulator Next — Claude entrypoint
 
-Read and follow the repository-root `AGENTS.md` first. It is the only policy source; this
-file adds Claude-specific operating notes and governs nothing on its own. If they seem to
-disagree, `AGENTS.md` governs. Also read the active workstream contract or checkpoint.
+Read and follow the repository-root `AGENTS.md` first: it is the canonical durable agent
+policy. This file adds Claude-specific operating notes and is not an independent policy
+source; if they seem to disagree, `AGENTS.md` governs. Also read the active workstream
+contract or checkpoint. When the Owner delegation applies, follow `AGENTS.md` §8 and
+`docs/CURRENT_EXECUTION_AUTHORITY.md`.
 
 An explicitly authorized Claude Opus engineering session applies the campaign and
 Coordinator authority of `AGENTS.md` §8: challenge assumptions, use fresh repository

@@ -111,22 +111,26 @@ def test_documented_native_pairs_match_policy_not_runtime_claims():
     for name in ("README.md", "EXECUTION_PROVIDER_OVERRIDE.md"):
         text = (ROOT / "docs/foundry-execution" / name).read_text()
         assert "Primary long-running worker (HIGH)" not in text
+    # The current authority names no models (Owner 2026-10-16); the profile set the
+    # launcher enforces lives in machine configuration, checked above.
     authority = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
-    assert "DeepSeek v4.1 Flash MAX** (SUSPENDED)" in authority
-    assert "Step 5 Preview HIGH" in authority
-    assert "requires a new direct user instruction" in authority
+    assert ".foundry/executor-profiles.json" in authority
+    assert "no automatic fallback" in authority
 
 
 def test_current_executor_authority_is_exactly_two_profiles():
-    """Canonical active docs must expose only the authorized DeepSeek/Step 5 Preview pair."""
+    """Always-read policy names no models; Owner gates and routing boundaries stay stated."""
     agents = (ROOT / "AGENTS.md").read_text()
     current = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
     routing = (ROOT / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text()
     routing_flat = " ".join(routing.split())
-    assert "opencode-go/deepseek-v4.1-flash" in agents
-    assert "opencode/step-5-preview-free" in agents
-    assert "No other OpenCode executor is selectable" in agents
-    assert "No other OpenCode model/profile is currently authorized" in current
+    # Owner 2026-10-16: models are selected manually; the always-read policy files carry
+    # no model allowlist, so a stale model list cannot drift from the launcher config.
+    for model_id in ("opencode-go/deepseek-v4.1-flash", "opencode/step-5-preview-free"):
+        assert model_id not in agents
+        assert model_id not in current
+    assert "The Owner selects the tool and model for each session manually" in agents
+    assert "there is no automatic fallback between executors" in agents
     assert "CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER" in agents
     owner_gate_wording = (
         "Production Provider selection and Architecture Freeze remain "
