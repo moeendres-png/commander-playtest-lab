@@ -41,7 +41,11 @@ class _PolicyState:
     # activations (sacrifice outlets, pingers) legitimately go further.
     _TURN_SPELL_CAP = 3
     _TURN_ABILITY_CAP = 8
-    _BLOCK_REPEAT_LIMIT = 2
+    # #802: distinct block declarations one engine frame (this blocker, these
+    # attackers) is answered with before the pilot fails closed. See
+    # ``_decide_blocks``: 1 = declare what pays, 2 = declare every block the
+    # frame offers, 3 = declare nothing.
+    _BLOCK_DECLARATION_ASK_LIMIT = 3
 
     # Most distinct priority windows remembered per seat per step for the
     # #718 recurrence bound. Bounded so the guard cannot itself grow without
@@ -144,7 +148,12 @@ class _PolicyState:
         self._last_priority_label: dict[int, str] = {}
         self._last_priority_visible_mana: dict[int, int] = {}
         self._failed_payments: dict[int, tuple[object, dict[str, int]]] = {}
-        self._last_block_proposal: dict[int, tuple[object, int]] = {}
+        # #802: per seat, the turn it belongs to and how often the engine asked
+        # each block frame (blocker -> offered attackers) within that turn. The
+        # engine re-asks the whole declaration when its own check rejects the
+        # configuration, so the count is what lets the pilot answer with a
+        # different legal declaration instead of repeating a rejected one.
+        self._block_frame_asks: dict[int, tuple[object, dict[tuple[str, ...], int]]] = {}
 
     def _turn_action_cap(self, option: dict[str, Any]) -> int:
         metadata = option.get("metadata")

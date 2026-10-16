@@ -110,18 +110,60 @@ class _CombatDecisions(_ChoiceDecisions):
         # a chump block prevents lethal or near-lethal damage); the old rule
         # always blocked at least once, which threw creatures away.
         worthwhile = sum(1 for score, _stable_id in ranked if score > 0.0)
-        take = max(min_selections, min(max_selections, worthwhile))
-        # The engine re-asks when a declared block is illegal as a whole
-        # (menace, block requirements). The same block proposed again and
-        # again is that loop; stop proposing it when blocking is optional.
-        seat = runtime.binding.seat
-        proposal = (
-            state.get("turn_number"),
-            tuple(stable_id for _score, stable_id in ranked[:take]),
-        )
-        last, repeats = self._last_block_proposal.get(seat, (None, 0))
-        repeats = repeats + 1 if last == proposal else 1
-        self._last_block_proposal[seat] = (proposal, repeats)
-        if repeats > self._BLOCK_REPEAT_LIMIT and min_selections == 0:
+        judged = max(min_selections, min(max_selections, worthwhile))
+        # #802: the engine re-asks the whole declaration whenever its own check
+        # rejects the configuration as a whole - an unmet "blocks this turn if
+        # able", a menace minimum, a restriction that discards the declared
+        # blockers. It only leaves that retry loop for a computer-controlled
+        # player, so the pilot must answer a re-ask with a *different* legal
+        # declaration: repeating one (including the empty one, which cannot
+        # satisfy a block requirement) spins until the decision cap and ends
+        # the game in ENGINE_FAILURE. The frame counter gives a bounded ladder,
+        # and a frame the engine still rejects after the pilot's last legal
+        # declaration fails closed instead of looping.
+        asks = self._count_block_frame_ask(runtime.binding.seat, state, options)
+        if asks > self._BLOCK_DECLARATION_ASK_LIMIT or (
+            asks == self._BLOCK_DECLARATION_ASK_LIMIT and min_selections > 0
+        ):
+            raise FullGameProtocolError(
+                "engine rejected every block declaration the pilot can make: "
+                f"seat={runtime.binding.seat} turn={state.get('turn_number')} "
+                f"frames={len(options)}"
+            )
+        if asks == self._BLOCK_DECLARATION_ASK_LIMIT:
+            # Declaring nothing is the one configuration no restriction can
+            # reject; it is the last legal answer the pilot has.
             return []
+        take = judged if asks == 1 else max(min_selections, min(max_selections, len(options)))
         return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
+
+    @staticmethod
+    def _block_frame_key(options: list[dict[str, Any]]) -> tuple[str, ...]:
+        """Identify the engine's ask: the blocker and the attackers it offered.
+
+        The engine's own object ids come from the option metadata, so two
+        same-named blockers stay distinct frames.
+        """
+        parts: list[str] = []
+        for option in options:
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            parts.append(f"{meta.get('blocker_id')}>{meta.get('attacker_id')}")
+        return tuple(sorted(parts))
+
+    def _count_block_frame_ask(
+        self, seat: int, state: dict[str, Any], options: list[dict[str, Any]]
+    ) -> int:
+        """How often the engine has asked this block frame this turn (1 = first).
+
+        Bounded by the frame count of one declaration round, and reset by the
+        turn, so it cannot grow with the length of a game.
+        """
+        turn = state.get("turn_number")
+        stored = self._block_frame_asks.get(seat)
+        counts = dict(stored[1]) if stored is not None and stored[0] == turn else {}
+        key = self._block_frame_key(options)
+        asks = counts.get(key, 0) + 1
+        counts[key] = asks
+        self._block_frame_asks[seat] = (turn, counts)
+        return asks

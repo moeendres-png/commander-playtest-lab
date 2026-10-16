@@ -47,6 +47,7 @@ if hasattr(os, "register_at_fork"):
 # New unregistered bridge failures still fail closed, retaining their digest.
 PUBLIC_FAILURE_CODES = frozenset(
     {
+        "BLOCK_DECLARATION_REJECTED",
         "BRIDGE_CLOSED",
         "BRIDGE_ERROR",
         "BRIDGE_EXITED",
@@ -89,6 +90,7 @@ _PUBLIC_CONFIGURATION_ERRORS = frozenset(
 # Preserve useful public error classes without trusting a caller's message.
 _FULL_GAME_SITES = (
     "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD is required for the semantic tape replay",
+    "engine rejected every block declaration",
     "unsupported discretionary decision class",
     "full game shutdown not graceful",
     "full-game shutdown not graceful",
