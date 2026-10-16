@@ -198,6 +198,7 @@ def test_lab_bridge_suite_binds_the_exact_pin() -> None:
         assert len(digest.removeprefix("sha256 ")) == 64
 
 
+@superseded_by_later_repin
 def test_signed_freeze_and_current_qualification_do_not_move_with_the_pin() -> None:
     freeze = _manifest()["architecture_freeze"]
     assert freeze["status"] == "CLAIMED"

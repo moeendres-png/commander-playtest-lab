@@ -874,7 +874,7 @@ def test_token_harbor_implementation_is_cross_provider_reviewed_by_zen_deepseek(
     errors = review_mod.validate_review_record(record)
     assert any("review_executor must be the logical deepseek" in error for error in errors)
     record = _record(repo)
-    record["resolved_model_id"] = "tokenharbor/deepseek-v4.1-flash"
+    record["resolved_model_id"] = "tokenharbor/deepseek-v4.1-flash:free"
     record["resolved_provider"] = "tokenharbor"
     errors = review_mod.validate_review_record(record)
     assert any("review resolved_provider" in error for error in errors)

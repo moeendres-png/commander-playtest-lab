@@ -55,8 +55,9 @@ Active OpenCode Foundry work has exactly one supported launcher execution identi
 
 A second ACTIVE profile exists for the Token Harbor lane (`/oc-th`, Owner instruction 2026-10-16):
 
-- `deepseek-th` -> `tokenharbor/deepseek-v4.1-flash` -> provider default. Same model, served by
-  Token Harbor (OpenAI-compatible, key only via `{env:TOKENHARBOR_API_KEY}`). The provider
+- `deepseek-th` -> `tokenharbor/deepseek-v4.1-flash:free` -> provider default. Same model, served
+  by Token Harbor's free route (OpenAI-compatible, key only via `{env:TOKENHARBOR_API_KEY}`); only
+  the `:free` id is called and the paid base id is never used. The provider
   exposes no reasoning-effort control, so `max`/`high` cannot be pinned and no variant is faked.
   Free routes may be logged and used for improvement: no Owner data, credentials or private
   collection data in an `/oc-th` task.

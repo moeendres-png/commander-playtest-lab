@@ -58,8 +58,9 @@ user instruction.
 
 ## Token Harbor profile (`/oc-th`, second active)
 
-An explicit `--execution-profile deepseek-th` pins `tokenharbor/deepseek-v4.1-flash` (the same
-model served by Token Harbor; key only via `{env:TOKENHARBOR_API_KEY}`). The provider exposes no
+An explicit `--execution-profile deepseek-th` pins `tokenharbor/deepseek-v4.1-flash:free` (the
+same model served by Token Harbor's free route; key only via `{env:TOKENHARBOR_API_KEY}`); the
+paid base id is never called. The provider exposes no
 reasoning-effort control, so the run uses the provider default and no variant is injected.
 The profile is never a fallback for `deepseek` and vice versa. The free route may be logged and
 used for improvement: no Owner data, credentials or private collection data in such a run.

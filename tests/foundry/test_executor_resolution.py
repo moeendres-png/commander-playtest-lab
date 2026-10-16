@@ -21,6 +21,9 @@ sys.path.insert(0, str(REPO_ROOT / "tools"))
 from foundry import executor_profiles as ep  # noqa: E402
 
 DEEPSEEK = "opencode/deepseek-v4.1-flash-free"
+# Token Harbor's free route (the only admitted Token Harbor id) and its paid base.
+DEEPSEEK_TH = "tokenharbor/deepseek-v4.1-flash:free"
+DEEPSEEK_TH_PAID_BASE = "tokenharbor/deepseek-v4.1-flash"
 # Retired ids: the OpenCode Go DeepSeek record and Step 5 Preview (left the catalog).
 DEEPSEEK_GO = "opencode-go/deepseek-v4.1-flash"
 RETIRED_STEP = "opencode/step-5-preview-free"
@@ -36,7 +39,7 @@ def test_deepseek_is_the_one_default_active_profile() -> None:
     assert registry.default_profile == "deepseek"
     assert registry.logical_profiles == ("deepseek", "deepseek-th")
     assert registry.active_profiles == ("deepseek", "deepseek-th")
-    assert registry.active_runtime_ids == (DEEPSEEK, "tokenharbor/deepseek-v4.1-flash")
+    assert registry.active_runtime_ids == (DEEPSEEK, DEEPSEEK_TH)
     resolved = ep.resolve_executor(
         "deepseek", registry=registry, catalog=[RETIRED_STEP, DEEPSEEK_GO, DEEPSEEK]
     )
@@ -91,6 +94,23 @@ def test_zen_id_selected_even_when_retired_ids_are_listed_first() -> None:
     assert resolved.logical_executor_profile == "deepseek"
     assert resolved.resolved_provider == "opencode"
     assert resolved.native_variant == "max"
+
+
+def test_paid_token_harbor_base_route_is_not_admitted() -> None:
+    """deepseek-th admits exactly the :free route; the paid base id never resolves."""
+    with pytest.raises(ep.ExecutorResolutionError, match="no admitted deepseek-th"):
+        ep.resolve_executor(
+            "deepseek-th",
+            registry=_registry(),
+            catalog=[DEEPSEEK_TH_PAID_BASE],
+        )
+    resolved = ep.resolve_executor(
+        "deepseek-th", registry=_registry(), catalog=[DEEPSEEK_TH_PAID_BASE, DEEPSEEK_TH]
+    )
+    assert resolved.resolved_model_id == DEEPSEEK_TH
+    assert resolved.resolved_provider == "tokenharbor"
+    assert resolved.native_variant == "provider_default"
+    assert resolved.catalog_checked is True
 
 
 def test_only_retired_ids_present_fails_closed() -> None:

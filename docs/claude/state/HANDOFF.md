@@ -1,34 +1,26 @@
-# Claude handoff — 2026-10-10T10:57Z
+# Claude handoff — 2026-10-16T11:33Z
 
 Fresh session: start here instead of a compacted conversation. Operational index, not
 Source Authority; regenerate with `python3 scripts/claude_handoff.py`. Git wins.
 
-## Lanes and owners (open issues; baton comments: #671, #669, #668, #662, #654, #634, #441, #255)
-- #671 Foundry runs: stop at once on a provider qu… [open] owner=? next=-
-- #669 Real-deck usability gate: canonical replay… [open] owner=moeendres-png next=Owner restores admission for the already selected OC service (no alternate prov…
-- #668 Full-game batch resume: bind cached results… [open] owner=moeendres-png next=Owner restores admission for the already selected OC service (no alternate prov…
-- #662 XMage freeze eligibility: truthful required… [open] owner=moeendres-png next=Read SLOT06_RULING.md §(b), `src/commander_lab/freeze_readiness.py`, the v2 sch…
-- #654 Native independent review lane: pinned CLI… [open] owner=requested independent execution att… next=-
-- #634 Credited midgame path: undeclared priority… [open] owner=Claude Coordinator session (sole Cl… next=`grep -n` the six helpers and their callers. Map every caller to its RowSpec/re…
-- #441 Final pre-Freeze evidence closure: AF04/AF0… [open] owner=the parallel Claude session takes o… next=Complete #507 fail-before/fix/after/control evidence and review, then Coordinat…
-- #255 Final pre-Freeze critical path: XMage vs Fo… [open] owner=PASS HANDOFF: Claude sole writer (s… next=active owner addresses the review alongside its already launched continuation;…
+## Lanes and owners (open issues; baton comments: #821, #820, #818, #817, #816, #815, #814, #812)
+- #821 Seal PB-03 epoch e0030ecde3b9-0b4846c7d090… [open] owner=moeendres-png next=`git switch -c seal-e0030ecd e99800fa5ca5771eeb3ed5135d0c202b8535679b && python…
+- #820 Review findings on #804: block re-ask count… [open] owner=moeendres-png next=Merge origin/main into the branch, then read the files above in one batch.
+- #818 Coverage sweep: 6P seed 2 aborts with max_d… [open] owner=? next=-
+- #817 Coverage sweep: 4P seed 10 aborts with DECI… [open] owner=? next=-
+- #816 Coverage sweep: 4P seed 8 aborts with java.… [open] owner=? next=-
+- #815 Coverage sweep: 4P seed 7 aborts with XMAGE… [open] owner=moeendres-png next=Build the bridge, then run the seed-7 pod once and capture the raw failure dict.
+- #814 OpenCode lane triggers match the command an… [open] owner=? next=-
+- #812 Handoff generator lists closed lanes and st… [open] owner=moeendres-png next=Read the files above in one batch and identify where closed/stale entries enter.
 
 ## Branches and heads
-- lab HEAD claude/project-thread-glif3x@fcbf7411 (dirty) origin/main=fcbf7411
-- commander-playtest-lab main@fcbf7411
-- commander-playtest-lab PR #675 feat/662-a1-decision-class-matrix -> 3c4e3fab
-- commander-playtest-lab PR #674 fix/real-deck-gate-contract-20261010 -> 8a65743f
-- commander-playtest-lab PR #673 fix/batch-resume-source-20261010 -> ed0de7a3
+- lab HEAD opencode/issue812-20261016112600@2d8da7c2 (clean) origin/main=77f62db4
+- commander-playtest-lab main@77f62db4
+- commander-playtest-lab PR #804 cline/802-coverage-6p-engine-failure -> 12000d70
 - mage unavailable (no GitHub access from this session)
-- forge unavailable (no GitHub access from this session)
 
 ## Local worktrees (dirty or unpushed only)
-- /home/user/commander-playtest-lab [claude/project-thread-glif3x] dirty=2 unpushed=1
+- /home/runner/work/commander-playtest-lab/commander-playtest-lab [opencode/issue812-20261016112600] dirty=0 unpushed=no-remote
 
 ## Open Coordinator decisions
-- PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003 (WAITING): Read new exact-head CI and independent review. Verify artifact bytes/source lock, adjudicate CI02 h…
-- CLAUDE-CAMPAIGN-TAKEOVER-20261003 (WAITING): Push repaired exact head; consume fresh required CI/PB03 and independent review before merge, then…
-- PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003 (WAITING): Verify new exact-head required CI and PB03, independent review and CI02 adjudication, then normal m…
-- PRE-FREEZE-CAMPAIGN-SINGLE-COORDINATOR-20261003 (WAITING): Inspect fresh exact-head CI and independent review after integrating main50e8; adjudicate CI02 hone…
-- CLAUDE-MP-CAMPAIGN-20260929 (Claude Opus 5.5, sole writer o…: Forge #11: Coordinator to accept #9 (Find // Finality Oracle correction) inclusion or require pure…
-- CLAUDE-MP-CAMPAIGN-20260929 (Claude Opus 5.5, sole writer o…: Successor current-boundary (FULL107) run on the new XMage pin before any current-boundary credit
+- (none recorded in .foundry state)

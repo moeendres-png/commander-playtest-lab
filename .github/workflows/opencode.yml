@@ -195,6 +195,11 @@ jobs:
       contents: read
       pull-requests: read
       issues: read
+    # opencode.json's small_model (session titles) is on the Zen provider; this
+    # job holds no OPENCODE_API_KEY, so a Zen quota limit aborted /oc-th runs.
+    # OPENCODE_CONFIG_CONTENT is merged last, so titles use Token Harbor too.
+    env:
+      OPENCODE_CONFIG_CONTENT: '{"small_model":"tokenharbor/deepseek-v4.1-flash:free"}'
     steps:
       # The agent reads the target issue/PR text and, on a PR, its head. The
       # target's author must be trusted (job `if:`) and a PR head must live in
@@ -286,7 +291,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           TOKENHARBOR_API_KEY: ${{ secrets.TOKENHARBOR_API_KEY }}
-          MODEL: tokenharbor/deepseek-v4.1-flash
+          MODEL: tokenharbor/deepseek-v4.1-flash:free
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''

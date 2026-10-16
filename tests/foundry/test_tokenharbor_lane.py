@@ -17,7 +17,10 @@ sys.path.insert(0, str(ROOT / "tests" / "unit"))
 import executor_profiles as executor_mod  # noqa: E402
 import launcher  # noqa: E402
 
-TH_MODEL = "tokenharbor/deepseek-v4.1-flash"
+TH_MODEL = "tokenharbor/deepseek-v4.1-flash:free"
+# The paid base route: callable at Token Harbor but never admitted to this lane.
+PAID_TH_BASE = "tokenharbor/deepseek-v4.1-flash"
+TH_MODEL_SHORT = "deepseek-v4.1-flash:free"
 ZEN_MODEL = "opencode/deepseek-v4.1-flash-free"
 
 
@@ -36,6 +39,8 @@ def test_registry_has_two_active_profiles_and_zen_default() -> None:
     assert doc["profiles"]["deepseek-th"]["effort_control"] == "NONE_EXPOSED"
     assert doc["policy"]["automatic_fallback"] is False
     evidence = doc["activation_gate"]["activation_evidence_2026_10_16_tokenharbor"]
+    assert evidence["current_model_identity"] == TH_MODEL
+    assert evidence["free_route_rebind_2026_10_16"].startswith("DIRECTLY_VERIFIED")
     assert evidence["authenticated_runtime_smoke"].startswith("NOT_RUN")
     assert "logged" in evidence["data_note"]
     reg = executor_mod.load_registry()
@@ -70,9 +75,57 @@ def test_opencode_json_key_only_via_env_and_default_stays_zen() -> None:
     th = config["provider"]["tokenharbor"]
     assert th["options"]["apiKey"] == "{env:TOKENHARBOR_API_KEY}"
     assert th["options"]["baseURL"] == "https://tokenharbor.ai/v1"
-    assert list(th["models"]) == ["deepseek-v4.1-flash"]
-    assert "variants" not in th["models"]["deepseek-v4.1-flash"]
+    assert list(th["models"]) == [TH_MODEL_SHORT]
+    assert "variants" not in th["models"][TH_MODEL_SHORT]
     assert not re.search(r"thk_[A-Za-z0-9]", raw)
+
+
+def test_free_route_id_is_the_only_token_harbor_id_in_active_config() -> None:
+    """Active config admits exactly the :free Token Harbor id, never the paid base.
+
+    The paid base id is a prefix of the free id, so every check below is an exact
+    equality or a boundary-aware regex: a plain substring test could pass for the
+    wrong reason.
+    """
+    doc = _json(".foundry/executor-profiles.json")
+    assert doc["profiles"]["deepseek-th"]["model"] == TH_MODEL
+    assert set(doc["runtime_identity"]) == {ZEN_MODEL, TH_MODEL}
+    assert doc["resolution_policy"]["deepseek_th_preference"] == [TH_MODEL]
+    active = json.dumps({k: v for k, v in doc.items() if k != "activation_gate"})
+    assert re.findall(r"tokenharbor/deepseek-v4\.1-flash(?!:free)", active) == []
+    config = _json("opencode.json")
+    assert set(config["provider"]["tokenharbor"]["models"]) == {TH_MODEL_SHORT}
+    assert list(config["provider"]["opencode"]["models"]) == ["deepseek-v4.1-flash-free"]
+    workflow = (ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8")
+    assert f"MODEL: {TH_MODEL}" in workflow
+    assert re.findall(r"MODEL: tokenharbor/deepseek-v4\.1-flash(?!:free)", workflow) == []
+    assert launcher.PROFILE_MODELS["deepseek-th"] == TH_MODEL
+    assert launcher.execution_identity(None, "high", "deepseek-th")["model"] == TH_MODEL
+
+
+def test_paid_token_harbor_base_id_is_refused_for_deepseek_th() -> None:
+    """The paid base id is never admitted, even if the provider were to list it."""
+    with pytest.raises(executor_mod.ExecutorResolutionError, match="no admitted deepseek-th"):
+        executor_mod.resolve_executor("deepseek-th", catalog=[PAID_TH_BASE])
+    resolved = executor_mod.resolve_executor("deepseek-th")
+    assert (resolved.resolved_provider, resolved.resolved_model_id) == ("tokenharbor", TH_MODEL)
+    # A registry that pinned the paid base id no longer validates.
+    doc = _json(".foundry/executor-profiles.json")
+    doc["profiles"]["deepseek-th"]["model"] = PAID_TH_BASE
+    doc["runtime_identity"][PAID_TH_BASE] = doc["runtime_identity"].pop(TH_MODEL)
+    errors = executor_mod.validate_registry(doc)
+    assert any("deepseek-th canonical runtime id must be" in error for error in errors), errors
+
+
+def test_colon_in_the_free_id_survives_the_provider_model_split() -> None:
+    """The `:free` suffix survives the provider/model split and every launcher pin."""
+    assert executor_mod._split_provider(TH_MODEL) == ("tokenharbor", TH_MODEL_SHORT)
+    identity = launcher.execution_identity(None, "high", "deepseek-th")
+    assert (identity["provider"], identity["model"]) == ("tokenharbor", TH_MODEL)
+    bundle = launcher.build_content_bundle(str(ROOT), [], None, "deepseek-th")
+    assert bundle["model"] == bundle["small_model"] == TH_MODEL
+    assert set(bundle["provider"]["tokenharbor"]["models"]) == {TH_MODEL_SHORT}
+    assert all(agent == {"model": TH_MODEL} for agent in bundle["agent"].values())
 
 
 def test_launcher_pins_exactly_one_provider_per_run() -> None:

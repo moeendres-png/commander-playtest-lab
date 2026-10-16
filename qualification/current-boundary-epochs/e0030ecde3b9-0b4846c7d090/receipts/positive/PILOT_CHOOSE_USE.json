@@ -1,0 +1,59 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_CHOOSE_USE",
+  "obligation_exercised": {
+    "obligation_digest": "ac856be71e982097a4df88c035e239b2b0dc47110b36260ed8692a4ba1c9b33a",
+    "requested_state_digest": "c8baf0c0679bb93426ad71a2150e7e0828986089f6ff46f7d599c100fe896124",
+    "required_events": [
+      "choose_use_frame:P1",
+      "scry_choice:keep_top"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Known top card remains on top after the provider-offered scry choice."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "choose_use_frame:P1": {
+        "binding": "the engine asked P1 a target frame whose prompt names '(scry)', and the record's script answered it",
+        "decision_frames": [
+          9
+        ]
+      },
+      "scry_choice:keep_top": {
+        "binding": [
+          "the record's script answered P1's target frame with 'false'",
+          "exactly 0 ZONE_CHANGE event(s) with target_object=obj:top-known"
+        ],
+        "parts": [
+          {
+            "binding": "the record's script answered P1's target frame with 'false'",
+            "decision_frames": [
+              9
+            ]
+          },
+          {
+            "binding": "exactly 0 ZONE_CHANGE event(s) with target_object=obj:top-known",
+            "events": []
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "a4b9c18704af311b1bc8c951208577f4d3328536bac8ccd9f258d9cd81a775e9",
+  "runner_digest": "2dc0d5ead18adea3e6797ec02167aae352ab458d7bad5878e9b7910d490e8dec",
+  "runtime_receipt_digest": "612ff9ced7538427f0ea2a268f87950fb4a5e5f5fd4a450a785338a40b5de23f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_CHOOSE_USE",
+  "variance_source": null
+}

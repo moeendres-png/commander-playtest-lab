@@ -13,7 +13,8 @@ Logical profile
   Preview left the Zen catalog and was retired on 2026-10-16.
 
 - ``deepseek-th``: the second ACTIVE executor (Owner instruction 2026-10-16),
-  the same model served by Token Harbor as ``tokenharbor/deepseek-v4.1-flash``
+  the same model served by Token Harbor's free route as
+  ``tokenharbor/deepseek-v4.1-flash:free``
   (OpenAI-compatible, key only via ``{env:TOKENHARBOR_API_KEY}``). The
   provider documents no reasoning-effort control, so no variant is pinned or
   faked (native_variant ``provider_default``). Every run pins exactly one
@@ -41,12 +42,12 @@ from pathlib import Path
 DEFAULT_REGISTRY_PATH = Path(__file__).resolve().parents[2] / ".foundry" / "executor-profiles.json"
 
 CANONICAL_PROVIDER = "opencode"
-# Providers a registry runtime id may name: OpenCode Zen only (the OpenCode Go
-# provider is retired).
+# Providers a registry runtime id may name: OpenCode Zen and the Token Harbor
+# profile provider (the OpenCode Go provider is retired).
 TOKENHARBOR_PROVIDER = "tokenharbor"
 ADMITTED_PROVIDERS = (CANONICAL_PROVIDER, TOKENHARBOR_PROVIDER)
 DEEPSEEK_RUNTIME_ID = "opencode/deepseek-v4.1-flash-free"
-DEEPSEEK_TH_RUNTIME_ID = "tokenharbor/deepseek-v4.1-flash"
+DEEPSEEK_TH_RUNTIME_ID = "tokenharbor/deepseek-v4.1-flash:free"
 LOGICAL_PROFILES = ("deepseek", "deepseek-th")
 DEFAULT_PROFILE = "deepseek"
 # Profiles served by OpenCode Zen: resolution needs live catalog inspection.
