@@ -14,7 +14,7 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 | What are the durable rules for every session? | `AGENTS.md` (repository root) |
 | What is the project trying to build? | `PROJECT_MISSION.md` |
 | What are the current engine pins? | `../config/rules_engines.json` — sole machine-readable pin authority |
-| Who may execute what, and at which effort? | `AGENTS.md` §6–§7 and `COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` |
+| Who may execute what, and at which effort? | `AGENTS.md` §6–§7 and `CURRENT_EXECUTION_AUTHORITY.md` |
 | How is a Foundry workstream started? | `../.opencode/skills/workstream-bootstrap/SKILL.md` |
 | How do I resume an interrupted one? | `../.opencode/skills/continuation/SKILL.md` |
 | Which PRs / issues / branches are live? | `REPOSITORY_TRIAGE_INDEX.md` |
@@ -23,7 +23,7 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 ## Governing documents in this directory
 
 - `PROJECT_MISSION.md` — governing mission policy. Outranks any summary elsewhere.
-- `COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` — current execution authority.
+- `CURRENT_EXECUTION_AUTHORITY.md` — current execution authority.
 - `EVIDENCE_INDEX_REQUIREMENTS.md` — evidence index schema; companion to
   `RETENTION_AND_LIFECYCLE_POLICY.md`.
 - `ARCHITECTURE_FREEZE = NOT CLAIMED` / `PRODUCTION_PROVIDER = NOT SELECTED` is the
@@ -36,7 +36,7 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 |---|---|
 | `foundry-execution/` | **Canonical** Foundry execution system. Start at its `README.md`. |
 | `architecture/` | Architecture decision records and design direction. |
-| `archive/legacy_phase_artifacts/` | Archived Phase 2–9 reports. Historical provenance only. |
+| `archive/` | **Historical provenance only** (not current instruction): dated workstream packets, `J_P*` phase records, `NEXT_STEP_HANDOFF_*`, `PROJECT_UPDATE_*`. See `archive/README.md`. Includes `archive/legacy_phase_artifacts/` (Phase 2–9 reports). |
 | `project_integrity_20260928/` | Repository/PR/branch/ownership integrity records and dispositions. |
 | `project_integration_hygiene_20260927/` | Prior integration/hygiene workstream packets. Dated. |
 | `architecture_freeze_readiness_20260927/` | Freeze-readiness packets. Readiness evidence, not a freeze claim. |

@@ -114,7 +114,11 @@ Current / governing (start here):
 - `docs/architecture_freeze_20261010/`, `docs/owner_decision_20261013_forge_removal/`,
   `docs/engine_strategy_20261009/` - latest owner/architecture decisions (newest dated dirs).
 
-Historical provenance (kept for audit; do not treat as instructions):
+Historical provenance (kept for audit; do not treat as instructions). Entries that no code,
+manifest or governing document references are physically moved to `docs/archive/` (same relative
+subpaths; see `docs/archive/README.md`; selection is reproducible with `scripts/classify_docs.py`).
+The table below names the groups; a group member still directly under `docs/` is referenced by
+code or a sealed manifest and stays in place:
 
 | Group | Where |
 |---|---|
@@ -123,7 +127,7 @@ Historical provenance (kept for audit; do not treat as instructions):
 | AF-lane and erratum records | `docs/af0*`, `docs/af456_*`, `docs/*_erratum_*`, `docs/forge_*`, `docs/xmage_*` |
 | CI/PR-specific records | `docs/ci479_*`, `docs/pr*`, `docs/b8_takeover_*`, `docs/oc572_*` |
 | Integrity/hygiene sweeps | `docs/project_integrity_*`, `docs/project_hygiene_*`, `docs/project_integration_hygiene_*`, `docs/test_signal_integrity_*` |
-| Superseded authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`, the 2026-09-10 coordinator authority file (superseded by `CURRENT_EXECUTION_AUTHORITY.md`; note `docs/README.md` still points at the former - **guess**: stale) |
+| Superseded authority | `docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`, the 2026-09-10 coordinator authority file (superseded by `CURRENT_EXECUTION_AUTHORITY.md`; `docs/README.md` now points at `CURRENT_EXECUTION_AUTHORITY.md`) |
 | PROJECT_UPDATE_* | `docs/PROJECT_UPDATE_*.md` (Aug 2026 scope snapshots) |
 
 Dated directories are the freshest *work*, not necessarily the current *policy*; the 2026-09 to
