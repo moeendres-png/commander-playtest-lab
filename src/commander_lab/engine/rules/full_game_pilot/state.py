@@ -41,12 +41,7 @@ class _PolicyState:
     # activations (sacrifice outlets, pingers) legitimately go further.
     _TURN_SPELL_CAP = 3
     _TURN_ABILITY_CAP = 8
-    # #802: distinct block declarations one engine frame (this blocker, these
-    # attackers) is answered with before the pilot fails closed. See
-    # ``_decide_blocks``: 1 = declare what pays, 2 = declare every block the
-    # frame offers, 3 = declare nothing. An accepted declaration ends the
-    # round (see ``_block_frame_asks``), so the ladder restarts per combat.
-    _BLOCK_DECLARATION_ASK_LIMIT = 3
+    _BLOCK_REPEAT_LIMIT = 2
 
     # Most distinct priority windows remembered per seat per step for the
     # #718 recurrence bound. Bounded so the guard cannot itself grow without
@@ -138,6 +133,13 @@ class _PolicyState:
         # that follows carries no cost at all, so this is where that cost
         # survives the hop. It is consumed by the announce it was kept for.
         self._priority_cost_facts: dict[int, dict[str, int]] = {}
+        # #815: X values this seat announced that the engine then refused to
+        # let it pay (reversed over-announced X). Keyed by seat and the
+        # announce frame's ``source_object_id``; the next announce for the
+        # same source caps its band below the failed X, so the pilot cannot
+        # re-announce the same unpayable value forever. Cleared on the seat's
+        # next priority decision (a different action) like _priority_cost_facts.
+        self._failed_x_announcements: dict[int, dict[str, int]] = {}
         # #732: names of the spells each seat itself cast recently, so the
         # pilot does not counter or target its own stack objects, and the
         # mana this seat's current payment still needs (for colour picks).
@@ -149,17 +151,7 @@ class _PolicyState:
         self._last_priority_label: dict[int, str] = {}
         self._last_priority_visible_mana: dict[int, int] = {}
         self._failed_payments: dict[int, tuple[object, dict[str, int]]] = {}
-        # #802: per seat, the turn it belongs to and how often the engine asked
-        # each block frame (blocker -> offered attackers) within that turn. The
-        # engine re-asks the whole declaration when its own check rejects the
-        # configuration, so the count is what lets the pilot answer with a
-        # different legal declaration instead of repeating a rejected one. The
-        # bridge exposes no per-combat id (step and turn repeat across extra
-        # combat phases), so the entry is cleared by the seat's next decision
-        # of any other class -- the priority window that follows an ACCEPTED
-        # declaration -- and by every new turn, or extra combats would read as
-        # rejections (review P1).
-        self._block_frame_asks: dict[int, tuple[object, dict[tuple[str, ...], int]]] = {}
+        self._last_block_proposal: dict[int, tuple[object, int]] = {}
 
     def _turn_action_cap(self, option: dict[str, Any]) -> int:
         metadata = option.get("metadata")
