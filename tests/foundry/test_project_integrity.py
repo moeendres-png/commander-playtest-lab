@@ -55,7 +55,7 @@ def test_launcher_exposes_exactly_the_one_routed_executor():
     assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/deepseek-v4.1-flash-free",)
     assert launcher.PROFILE_MODELS == {
         "deepseek": "opencode/deepseek-v4.1-flash-free",
-        "deepseek-th": "tokenharbor/deepseek-v4.1-flash",
+        "deepseek-th": "tokenharbor/deepseek-v4.1-flash:free",
     }
     assert not hasattr(launcher, "ZEN_MODEL"), "retired provider override must stay removed"
     for retired in ("step", "glm", "openai", "other"):

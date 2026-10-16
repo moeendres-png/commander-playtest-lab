@@ -190,7 +190,7 @@
         "apiKey": "{env:TOKENHARBOR_API_KEY}"
       },
       "models": {
-        "deepseek-v4.1-flash": {
+        "deepseek-v4.1-flash:free": {
           "name": "DeepSeek V4.1 Flash"
         }
       }

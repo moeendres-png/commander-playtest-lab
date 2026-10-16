@@ -286,7 +286,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           TOKENHARBOR_API_KEY: ${{ secrets.TOKENHARBOR_API_KEY }}
-          MODEL: tokenharbor/deepseek-v4.1-flash
+          MODEL: tokenharbor/deepseek-v4.1-flash:free
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''

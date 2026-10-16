@@ -323,12 +323,12 @@ def test_only_authorized_executors_present_in_canonical_config() -> None:
     assert set(provider["models"]) == {model.split("/", 1)[1] for model in admitted}
     assert set(registry.runtime_identity) == {
         "opencode/deepseek-v4.1-flash-free",
-        "tokenharbor/deepseek-v4.1-flash",
+        "tokenharbor/deepseek-v4.1-flash:free",
     }
     profiles_for_aliases = {spec.logical_profile for spec in registry.runtime_identity.values()}
     assert profiles_for_aliases == {"deepseek", "deepseek-th"}
     th = config["provider"]["tokenharbor"]
-    assert set(th["models"]) == {"deepseek-v4.1-flash"}
+    assert set(th["models"]) == {"deepseek-v4.1-flash:free"}
 
 
 def _agent_frontmatter(name: str) -> dict:
