@@ -1,0 +1,278 @@
+"""Deck-variant prefilter: screen variants against a baseline before real games (#852).
+
+Compares each variant deck against the baseline (card diff, readiness, mana,
+commander castability) and prints a go/no-go verdict per variant. Afterwards it
+prints the planned game count and a time range at 22-56 games/hour.
+
+The verdict is a filter (cheap screening), not a ranking of variants.
+
+Exit codes: 0 when every variant is PASS_TO_GAMES or WARN, 1 when any variant
+is BLOCKED, 2 when a deck file cannot be loaded.
+
+Example:
+
+    PYTHONPATH=src python scripts/deck_variant_prefilter.py \\
+        --baseline data/decks/rogshai_current.json \\
+        --variant /tmp/variant_a.json --variant /tmp/variant_b.json \\
+        --trials 20000 --seeds 1-25 --players 4
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+from commander_lab.deck_profile import load_deck
+from commander_lab.deck_variant import (
+    PREFILTER_TURNS,
+    VERDICT_BLOCKED,
+    FilterVerdict,
+    VariantComparison,
+    compare_variant,
+    comparison_to_dict,
+)
+from commander_lab.mana_analysis import DEFAULT_CASTABILITY_SEED
+from commander_lab.models import RulesDeckInput
+
+#: Full games per hour the time estimate assumes (slowest .. fastest).
+GAMES_PER_HOUR_SLOW = 22
+GAMES_PER_HOUR_FAST = 56
+
+
+def _parse_seeds(raw: str) -> int:
+    """Parse --seeds: either a count ("25") or an inclusive range ("1-25")."""
+    text = raw.strip()
+    if "-" in text:
+        start_raw, end_raw = text.split("-", 1)
+        try:
+            start, end = int(start_raw), int(end_raw)
+        except ValueError:
+            raise argparse.ArgumentTypeError(
+                f"invalid --seeds range {raw!r}: expected 'START-END'"
+            ) from None
+        if start < 1 or end < start:
+            raise argparse.ArgumentTypeError(
+                f"invalid --seeds range {raw!r}: need 1 <= START <= END"
+            )
+        return end - start + 1
+    try:
+        count = int(text)
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            f"invalid --seeds {raw!r}: expected a count or 'START-END'"
+        ) from None
+    if count < 1:
+        raise argparse.ArgumentTypeError("--seeds must be positive")
+    return count
+
+
+def _load_deck_or_none(path: Path) -> RulesDeckInput | None:
+    resolved = path if path.is_absolute() else Path.cwd() / path
+    try:
+        return load_deck(resolved)
+    except (OSError, ValueError) as exc:
+        print(f"cannot load deck {path}: {exc}", file=sys.stderr)
+        return None
+
+
+def _format_delta_line(label: str, deltas: dict[str, int], *, signed: bool = True) -> str:
+    if not deltas:
+        return f"  {label}: (no change)"
+    parts = " ".join(
+        f"{color}: {delta:+d}" if signed else f"{color}: {delta}" for color, delta in deltas.items()
+    )
+    return f"  {label}: {parts}"
+
+
+def _format_variant(comparison: VariantComparison, index: int, total: int) -> str:
+    lines = [
+        f"=== Variant {index}/{total}: {comparison.variant_deck_id} ===",
+        "Card diff (variant vs baseline):",
+    ]
+    if not comparison.added and not comparison.removed:
+        lines.append("  (no card changes)")
+    for name, count in comparison.added:
+        lines.append(f"  + {count}x {name}")
+    for name, count in comparison.removed:
+        lines.append(f"  - {count}x {name}")
+    baseline_state = "READY" if comparison.baseline_ready else "NOT READY"
+    variant_state = "READY" if comparison.variant_ready else "NOT READY"
+    lines.append(f"Readiness: baseline {baseline_state}, variant {variant_state}")
+    if comparison.variant_not_ready_cards:
+        lines.append("  variant unknown cards: " + ", ".join(comparison.variant_not_ready_cards))
+    lines.append("Mana deltas (variant - baseline):")
+    lines.append(f"  lands: {comparison.land_count_delta:+d}")
+    lines.append(_format_delta_line("colored sources", comparison.colored_source_delta))
+    lines.append(f"  flexible sources: {comparison.flexible_source_delta:+d}")
+    lines.append(f"  definitely tapped lands: {comparison.definitely_tapped_land_delta:+d}")
+    lines.append(f"  conditionally tapped lands: {comparison.conditionally_tapped_land_delta:+d}")
+    lines.append(_format_delta_line("T1 untapped sources", comparison.t1_untapped_source_delta))
+    turns = ", ".join(f"T{t}" for t in PREFILTER_TURNS)
+    lines.append(f"Commander castability, turns {turns} (baseline -> variant, Δ):")
+    for cmd in comparison.castability:
+        lines.append(f"  {cmd.name}")
+        for mode in ("play", "draw"):
+            cells = "  ".join(
+                f"T{turn} {cmd.baseline_probability[mode][turn]:.3f}"
+                f" -> {cmd.variant_probability[mode][turn]:.3f}"
+                f" ({cmd.probability_delta[mode][turn]:+.3f})"
+                for turn in PREFILTER_TURNS
+            )
+            lines.append(f"    {mode}: {cells}")
+        expected = "  ".join(
+            f"{mode} "
+            + (
+                "never by T10"
+                if cmd.baseline_expected_turn[mode] is None
+                or cmd.variant_expected_turn[mode] is None
+                else f"{cmd.baseline_expected_turn[mode]:.2f}"
+                f" -> {cmd.variant_expected_turn[mode]:.2f}"
+                f" ({cmd.expected_turn_delta[mode]:+.2f})"
+            )
+            for mode in ("play", "draw")
+        )
+        lines.append(f"    expected turn: {expected}")
+    lines.append(f"Verdict: {comparison.verdict} — {comparison.verdict_reason}")
+    return "\n".join(lines)
+
+
+def _plan_summary(
+    *,
+    variant_count: int,
+    seeds: int,
+    players: int,
+    rotate: bool,
+) -> tuple[str, int, float, float]:
+    games = (1 + variant_count) * seeds * (players if rotate else 1)
+    hours_low = games / GAMES_PER_HOUR_FAST
+    hours_high = games / GAMES_PER_HOUR_SLOW
+    seats = f"{players} players" if rotate else "no rotation"
+    text = (
+        f"Planned games: {games} "
+        f"((1 baseline + {variant_count} variant(s)) x {seeds} seed(s) x {seats})\n"
+        f"Time estimate at {GAMES_PER_HOUR_SLOW}-{GAMES_PER_HOUR_FAST} games/hour: "
+        f"{hours_low:.1f}-{hours_high:.1f} h"
+    )
+    return text, games, hours_low, hours_high
+
+
+def _json_payload(
+    baseline: RulesDeckInput,
+    comparisons: list[VariantComparison],
+    *,
+    trials: int,
+    seed: int,
+    seed_count: int,
+    players: int,
+    rotate: bool,
+    games: int,
+    hours_low: float,
+    hours_high: float,
+) -> dict[str, Any]:
+    return {
+        "baseline": {"deck_id": baseline.deck_id, "name": baseline.name},
+        "trials": trials,
+        "seed": seed,
+        "seed_count": seed_count,
+        "players": players,
+        "rotate": rotate,
+        "variants": [comparison_to_dict(item) for item in comparisons],
+        "planned_games": games,
+        "time_hours": {"low": round(hours_low, 1), "high": round(hours_high, 1)},
+    }
+
+
+def _worst_verdict(comparisons: list[VariantComparison]) -> FilterVerdict:
+    if any(item.verdict == VERDICT_BLOCKED for item in comparisons):
+        return VERDICT_BLOCKED
+    return "WARN" if any(item.verdict == "WARN" for item in comparisons) else "PASS_TO_GAMES"
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    parser.add_argument("--baseline", type=Path, required=True, help="baseline deck JSON")
+    parser.add_argument(
+        "--variant",
+        dest="variants",
+        type=Path,
+        action="append",
+        required=True,
+        help="variant deck JSON (repeatable)",
+    )
+    parser.add_argument(
+        "--trials",
+        type=int,
+        default=20_000,
+        help="Monte Carlo trials for commander castability (default: 20000)",
+    )
+    parser.add_argument(
+        "--seeds",
+        default="1-1",
+        type=_parse_seeds,
+        help="planned game seeds: a count ('25') or inclusive range ('1-25')",
+    )
+    parser.add_argument("--players", type=int, default=4, help="players per game for planning")
+    parser.add_argument(
+        "--no-rotate",
+        action="store_true",
+        help="plan without seat rotation (one seat per seed instead of --players)",
+    )
+    parser.add_argument("--json", action="store_true", help="machine-readable output")
+    args = parser.parse_args(argv)
+    if args.trials < 1:
+        parser.error("--trials must be positive")
+    if args.players < 1:
+        parser.error("--players must be positive")
+    seed_count: int = args.seeds
+
+    baseline = _load_deck_or_none(args.baseline)
+    loaded_variants = [_load_deck_or_none(path) for path in args.variants]
+    if baseline is None or any(deck is None for deck in loaded_variants):
+        return 2
+    variant_decks: list[RulesDeckInput] = [deck for deck in loaded_variants if deck is not None]
+
+    comparisons = [
+        compare_variant(baseline, variant, trials=args.trials, seed=DEFAULT_CASTABILITY_SEED)
+        for variant in variant_decks
+    ]
+
+    rotate = not args.no_rotate
+    plan_text, games, hours_low, hours_high = _plan_summary(
+        variant_count=len(comparisons),
+        seeds=seed_count,
+        players=args.players,
+        rotate=rotate,
+    )
+
+    if args.json:
+        payload = _json_payload(
+            baseline,
+            comparisons,
+            trials=args.trials,
+            seed=DEFAULT_CASTABILITY_SEED,
+            seed_count=seed_count,
+            players=args.players,
+            rotate=rotate,
+            games=games,
+            hours_low=hours_low,
+            hours_high=hours_high,
+        )
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("Deck-variant prefilter (screening before real games — not a ranking)")
+        print(f"Baseline: {baseline.deck_id} — {baseline.name}")
+        print(f"Trials: {args.trials}, seed: {DEFAULT_CASTABILITY_SEED}")
+        print()
+        for index, comparison in enumerate(comparisons, start=1):
+            print(_format_variant(comparison, index, len(comparisons)))
+            print()
+        print(plan_text)
+
+    return 1 if _worst_verdict(comparisons) == VERDICT_BLOCKED else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
