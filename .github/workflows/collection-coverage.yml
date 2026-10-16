@@ -32,11 +32,13 @@ permissions:
   contents: read
 
 concurrency:
-  # Dispatch-only, so every run is keyed on the commit it plays: two dispatches
-  # of one head never cancel or displace each other and each keeps its own
-  # artifact instead of being superseded by the next.
-  group: collection-coverage-${{ github.sha }}
-  cancel-in-progress: true
+  # Dispatch-only, and each dispatch is its own run: two sweeps of one head
+  # (for example disjoint seed ranges started side by side) must never cancel
+  # or displace each other, and each keeps its own artifact. The run id after
+  # the commit makes every group unique; a group keyed on the commit alone made
+  # the second dispatch of a head cancel the first.
+  group: collection-coverage-${{ github.sha }}-${{ github.run_id }}
+  cancel-in-progress: false
 
 env:
   PYTHONHASHSEED: "0"

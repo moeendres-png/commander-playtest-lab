@@ -20,6 +20,7 @@ not Structural confirmatory evidence, and nothing here mutates a deck.
 from __future__ import annotations
 
 import math
+from collections import Counter
 from collections.abc import Sequence
 from typing import Literal
 
@@ -135,6 +136,77 @@ def pod_decks(
     return tuple(order[(index - shift) % count] for index in range(count))
 
 
+class SlotAlignment(_StrictModel):
+    """How a variant's library order was lined up with the baseline's."""
+
+    deck_id: str
+    swapped_slots: int = Field(ge=0)
+    appended: int = Field(ge=0)
+    dropped: int = Field(ge=0)
+
+
+def align_to_baseline_slots(
+    baseline: RulesDeckInput, variant: RulesDeckInput
+) -> tuple[RulesDeckInput, SlotAlignment]:
+    """Seat the variant's changed cards in the baseline's library slots.
+
+    The engine builds the library in decklist order and shuffles it with the
+    game seed, so two decks that list the same cards in the same slots deal the
+    same hands and draws until a changed card is reached. A variant whose list
+    is merely sorted differently, or which puts a new card in another place,
+    shifts every later slot and makes the paired games unrelated from the first
+    shuffle on. This keeps every unchanged card in its baseline slot, moves the
+    variant's added cards into the slots of the removed cards (in list order)
+    and appends any surplus. The multiset of cards is exactly the variant's, so
+    the deck is the same deck; only its list order changes.
+    """
+    baseline_cards = list(baseline.mainboard)
+    removed = Counter(baseline_cards) - Counter(variant.mainboard)
+    added_budget = Counter(variant.mainboard) - Counter(baseline_cards)
+    added: list[str] = []
+    for card in variant.mainboard:
+        if added_budget[card] > 0:
+            added_budget[card] -= 1
+            added.append(card)
+    queue = iter(added)
+    pending = next(queue, None)
+    placed: list[str] = []
+    swapped = dropped = 0
+    for card in baseline_cards:
+        if removed[card] > 0:
+            removed[card] -= 1
+            if pending is not None:
+                placed.append(pending)
+                pending = next(queue, None)
+                swapped += 1
+            else:
+                dropped += 1
+        else:
+            placed.append(card)
+    surplus: list[str] = [] if pending is None else [pending, *queue]
+    placed.extend(surplus)
+    if Counter(placed) != Counter(variant.mainboard):
+        raise ValueError("slot alignment changed the variant's cards")
+    aligned = variant.model_copy(update={"mainboard": tuple(placed)})
+    return aligned, SlotAlignment(
+        deck_id=variant.deck_id, swapped_slots=swapped, appended=len(surplus), dropped=dropped
+    )
+
+
+def aligned_contenders(
+    spec: DeckComparisonSpec,
+) -> tuple[tuple[RulesDeckInput, ...], tuple[SlotAlignment, ...]]:
+    """The contenders as they are played: variants slot-aligned to the baseline."""
+    baseline = spec.contenders[0]
+    played = [baseline]
+    alignments: list[SlotAlignment] = []
+    for variant in spec.contenders[1:]:
+        aligned, alignment = align_to_baseline_slots(baseline, variant)
+        played.append(aligned)
+        alignments.append(alignment)
+    return tuple(played), tuple(alignments)
+
+
 def case_id(contender_id: str, seed: int, tested_seat: int) -> str:
     return f"{contender_id}|seed={seed}|seat={tested_seat}"
 
@@ -143,12 +215,15 @@ def plan_comparison_cases(spec: DeckComparisonSpec) -> tuple[FullGameBatchCase, 
     """Every (contender, seed, tested seat) game, grouped pod by pod.
 
     Grouping by pod (seed, seat) with all contenders next to each other means a
-    partly finished batch already holds complete pairs.
+    partly finished batch already holds complete pairs. Variants are played with
+    their cards in the baseline's library slots (:func:`align_to_baseline_slots`),
+    so paired games stay identical until a changed card matters.
     """
     cases: list[FullGameBatchCase] = []
+    played, _ = aligned_contenders(spec)
     for seed in spec.seeds:
         for seat in spec.tested_seats:
-            for contender in spec.contenders:
+            for contender in played:
                 decks = pod_decks(contender, spec.opponents, seat)
                 if contender.deck_hash is None:
                     raise ValueError("full-game comparison contender has no deck hash")
@@ -272,6 +347,10 @@ class PairedVariantResult(_StrictModel):
     win_share_difference: float | None
     variant_only_wins: int = Field(ge=0)
     baseline_only_wins: int = Field(ge=0)
+    # Completed pairs whose two games have the same semantic transcript: the
+    # changed cards never mattered there. They are ties, so they carry no
+    # information for the verdict; this count shows how often the change was felt.
+    identical_pairs: int = Field(default=0, ge=0)
     sign_test_p_value: float = Field(ge=0.0, le=1.0)
     verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER", "NO_CLEAR_DIFFERENCE", "INSUFFICIENT"]
 
@@ -284,6 +363,7 @@ class DeckComparisonReport(_StrictModel):
     tested_seats: tuple[int, ...]
     contenders: tuple[ContenderSummary, ...]
     paired: tuple[PairedVariantResult, ...]
+    slot_alignment: tuple[SlotAlignment, ...] = ()
     significance_level: float
     evidence_class: Literal["exploratory_xmage_full_game"] = COMPARISON_EVIDENCE_CLASS
     rules_authority: Literal["xmage"] = "xmage"
@@ -322,6 +402,7 @@ def aggregate_comparison(
     by_case = {record.case_id: record for record in report.records}
     # outcome[(contender, seed, seat)] = win share in that game, or None if censored.
     outcome: dict[tuple[str, int, int], float | None] = {}
+    transcript_of: dict[tuple[str, int, int], str] = {}
     summaries: list[ContenderSummary] = []
     for contender in spec.contenders:
         planned = completed = failed = no_winner = 0
@@ -346,6 +427,7 @@ def aggregate_comparison(
                 no_winner += int(without_winner)
                 wins += share
                 outcome[key] = share
+                transcript_of[key] = record.result.semantic_transcript_sha256
                 turn = record.result.result_payload.get("turn_number")
                 if isinstance(turn, int) and not isinstance(turn, bool):
                     turns.append(turn)
@@ -370,7 +452,7 @@ def aggregate_comparison(
     paired: list[PairedVariantResult] = []
     for variant in spec.contenders[1:]:
         pairs: list[tuple[float, float]] = []
-        censored = 0
+        censored = identical = 0
         for seed in spec.seeds:
             for seat in spec.tested_seats:
                 left = outcome[(baseline, seed, seat)]
@@ -379,6 +461,10 @@ def aggregate_comparison(
                     censored += 1
                     continue
                 pairs.append((left, right))
+                identical += int(
+                    transcript_of[(baseline, seed, seat)]
+                    == transcript_of[(variant.deck_id, seed, seat)]
+                )
         variant_only = sum(1 for left, right in pairs if right > left)
         baseline_only = sum(1 for left, right in pairs if left > right)
         p_value = sign_test_p_value(variant_only, baseline_only)
@@ -412,6 +498,7 @@ def aggregate_comparison(
                 win_share_difference=difference,
                 variant_only_wins=variant_only,
                 baseline_only_wins=baseline_only,
+                identical_pairs=identical,
                 sign_test_p_value=p_value,
                 verdict=verdict,
             )
@@ -424,6 +511,7 @@ def aggregate_comparison(
         tested_seats=spec.tested_seats,
         contenders=tuple(summaries),
         paired=tuple(paired),
+        slot_alignment=aligned_contenders(spec)[1],
         significance_level=significance_level,
     )
 
@@ -434,8 +522,11 @@ __all__ = [
     "DeckComparisonReport",
     "DeckComparisonSpec",
     "PairedVariantResult",
+    "SlotAlignment",
     "WinInterval",
     "aggregate_comparison",
+    "align_to_baseline_slots",
+    "aligned_contenders",
     "case_id",
     "plan_comparison_cases",
     "pod_decks",
