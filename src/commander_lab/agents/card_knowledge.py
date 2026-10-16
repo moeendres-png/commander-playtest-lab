@@ -17,7 +17,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
-from functools import lru_cache
+from functools import cached_property, lru_cache
 from pathlib import Path
 
 from commander_lab.models import CardRole
@@ -45,7 +45,9 @@ class CardFacts:
     color_identity: frozenset[str]
     produced_mana: frozenset[str]
 
-    @property
+    # Pilots ask these for every permanent on every decision; the facts are
+    # immutable, so each is computed once per card.
+    @cached_property
     def types(self) -> str:
         return self.type_line.split("—", 1)[0].casefold()
 
@@ -55,15 +57,15 @@ class CardFacts:
             return ()
         return tuple(self.type_line.split("—", 1)[1].split("//")[0].split())
 
-    @property
+    @cached_property
     def is_land(self) -> bool:
         return "land" in self.types and "//" not in self.type_line.split("—", 1)[0]
 
-    @property
+    @cached_property
     def is_creature(self) -> bool:
         return "creature" in self.types
 
-    @property
+    @cached_property
     def is_planeswalker(self) -> bool:
         return "planeswalker" in self.types
 
@@ -119,17 +121,29 @@ def card_facts(name: str | None, path: Path | None = None) -> CardFacts | None:
     """Printed facts for a card name, or None when the catalog does not know it."""
     if not name:
         return None
-    catalog = _catalog(str(path or _DEFAULT_PATH))
+    return _lookup(name, str(path or _DEFAULT_PATH))
+
+
+@lru_cache(maxsize=8192)
+def _lookup(name: str, path: str) -> CardFacts | None:
+    catalog = _catalog(path)
     key = name.strip().casefold()
     return catalog.get(key) or catalog.get(key.split(" // ")[0])
 
 
 _REMOVAL = re.compile(
     r"(destroy|exile) (up to (one|two|three) )?(another )?target"
+    r"|(destroy|exile) (two|three|x) target"
     r"|deals? (\d+|x) damage to (any target|target creature|target (creature or )?planeswalker)"
-    r"|target creature gets -\d+/-\d+"
+    r"|deals? damage equal to [^.]* to (any target|target creature)"
+    r"|target creature (an opponent controls )?gets -(\d+|x)/-(\d+|x)"
     r"|return target (nonland )?(creature|permanent|artifact|enchantment)[^.]* to its owner's hand"
+    r"|put target (nonland )?(creature|permanent)[^.]* on (the )?(top|bottom) of its owner's library"
     r"|gain control of target"
+    r"|fights? (target|another target|up to one target) creature"
+    r"|enchanted creature can't attack or block|enchanted creature doesn't untap"
+    r"|enchanted creature gets -"
+    r"|target (player|opponent) sacrifices"
 )
 _WIPE = re.compile(
     r"(destroy|exile) (all|each) (other )?(nonland )?(creatures?|permanents?|artifacts?|nontoken)"
@@ -137,7 +151,9 @@ _WIPE = re.compile(
     r"|all creatures get -"
     r"|each player sacrifices"
 )
-_DRAW = re.compile(r"draws? (a|two|three|four|x|that many) cards?|draw cards equal")
+_DRAW = re.compile(
+    r"draws? (a|an additional|two|three|four|five|seven|x|that many) cards?|draw cards equal"
+)
 _SELECTION = re.compile(
     r"\bscry\b|\bsurveil\b|look at the top|discard a card, then draw|then discard"
 )
@@ -152,7 +168,10 @@ _PROTECTION = re.compile(
 )
 _RECURSION = re.compile(r"return [^.]* from your graveyard|from your graveyard (to|onto)")
 _GRAVE_HATE = re.compile(r"exile (all cards from )?(target player's|each opponent's|all) graveyard")
-_TOKENS = re.compile(r"create (a|an|one|two|three|x|that many|\d+) ")
+_TOKENS = re.compile(
+    r"create (a|an|one|two|three|four|five|six|seven|eight|nine|ten|x|that many|\d+) "
+)
+_ANTHEM = re.compile(r"(enchanted|equipped) creature gets \+|creatures you control get \+")
 _TABLE = re.compile(r"each opponent (loses|deals?|sacrifices)|deals? \d+ damage to each opponent")
 
 
@@ -203,6 +222,11 @@ def _curated_roles(name: str) -> dict[CardRole, float] | None:
 
 def card_roles(facts: CardFacts) -> dict[CardRole, float]:
     """Strategic roles: curated profile first, else printed text and types."""
+    return dict(_card_roles(facts))
+
+
+@lru_cache(maxsize=8192)
+def _card_roles(facts: CardFacts) -> dict[CardRole, float]:
     curated = _curated_roles(facts.name)
     if curated is not None:
         return curated
@@ -240,6 +264,8 @@ def card_roles(facts: CardFacts) -> dict[CardRole, float]:
         add(CardRole.TOKEN_SOURCE, 0.7)
     if _TABLE.search(text):
         add(CardRole.PAYOFF, 0.8)
+    if _ANTHEM.search(text):
+        add(CardRole.COMBAT_PAYOFF, 0.5)
     if "whenever" in text or "at the beginning of" in text:
         add(CardRole.ENGINE, 0.7)
     power = facts.power or 0

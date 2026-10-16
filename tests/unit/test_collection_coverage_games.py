@@ -23,3 +23,25 @@ def test_the_collection_has_eighteen_loadable_decks() -> None:
     assert len(decks) == 18
     assert len({deck.deck_id for deck in decks}) == 18
     assert all(deck.deck_hash for deck in decks)
+
+
+def test_batched_twins_play_in_two_processes_in_reverse_order(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    batches: list[list[int]] = []
+
+    def fake_batch(_command: object, jobs: list[tuple[object, int]], _max: int) -> list[dict]:
+        batches.append([seed for _, seed in jobs])
+        return [{"status": "ok", "semantic": f"s{seed}", "wall_s": 0.0} for _, seed in jobs]
+
+    monkeypatch.setattr(coverage, "_play_batch", fake_batch)
+    decks = tuple(coverage._load_decks()[:4])
+    pods = coverage.play_pods_batched(("java",), [(decks, 1), (decks, 2), (decks, 3)], 10)
+    assert batches == [[1, 2, 3], [3, 2, 1]]
+    assert [pod["seed"] for pod in pods] == [1, 2, 3]
+    assert all(pod["twin"] == "identical" for pod in pods)
+
+
+def test_games_per_jvm_must_be_positive() -> None:
+    with pytest.raises(SystemExit):
+        coverage.main(["--jar", "x.jar", "--out", "x.json", "--games-per-jvm", "0"])

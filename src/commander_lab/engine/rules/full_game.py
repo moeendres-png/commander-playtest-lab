@@ -15,6 +15,7 @@ import threading
 import time
 import uuid
 import weakref
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Literal, TextIO
 
@@ -817,6 +818,20 @@ class _RawFullGameClient:
         self.shutdown_disposition = self.close()
 
 
+def _public_error(exc: Exception) -> Exception:
+    """The exception a public :class:`XmageFullGameRunner` method would raise for ``exc``."""
+
+    @public_full_game_errors
+    def reraise() -> None:
+        raise exc
+
+    try:
+        reraise()
+    except Exception as public:
+        return public
+    raise AssertionError("unreachable")
+
+
 class XmageFullGameRunner:
     """Run one isolated 2..6-player XMage Commander game with Commander Lab pilot policy."""
 
@@ -891,6 +906,77 @@ class XmageFullGameRunner:
         return self._build_result(
             scenario, provider, result, shutdown_disposition=disposition, hidden_audit=audit
         )
+
+    def run_batch(
+        self,
+        games: Sequence[
+            tuple[
+                FutureXmageScenario,
+                tuple[RulesDeckInput, ...],
+                tuple[FullGamePilotBinding, ...],
+            ]
+        ],
+    ) -> list[FullGameConformanceResult | Exception]:
+        """Play several games in one bridge process (Owner decision 2026-10-15).
+
+        Opt-in for batch measurement runs only; evidence lanes keep :meth:`run`, one
+        game per process. The bridge must be started with
+        ``-Dcommanderlab.fullGame.gamesPerJvm=N`` for at least ``len(games)``. Each game
+        is shut down before the next one starts. After a failed game the process is
+        discarded and the remaining games start in a fresh one. Every result rests on
+        the graceful shutdown of the process that played it.
+        """
+        command = self.command
+        if command is None:
+            raise FullGameConformanceError(
+                f"full-game bridge is not configured; set {XMAGE_FULL_GAME_COMMAND_ENV}"
+            )
+        outcomes: list[FullGameConformanceResult | Exception] = []
+        pending = list(games)
+        while pending:
+            played: list[tuple[int, Any, dict[str, Any], dict[str, Any], Any]] = []
+            client = _RawFullGameClient(
+                command,
+                cwd=self.cwd,
+                request_timeout_seconds=self.request_timeout_seconds,
+                private_card_repository=self.private_card_repository,
+                shutdown_grace_seconds=self.shutdown_grace_seconds,
+            )
+            with client:
+                while pending:
+                    scenario, decks, pilots = pending.pop(0)
+                    index = len(outcomes)
+                    outcomes.append(FullGameConformanceError("game not finished"))
+                    try:
+                        policy = self._validated_policy(scenario, decks, pilots)
+                        audit = FullGameHiddenInformationAudit()
+                        self._hidden_audit = audit
+                        try:
+                            provider = self._open_game(client, scenario, decks)
+                            _count, _, terminal = self._drive(client, policy, stop_after=None)
+                        finally:
+                            self._hidden_audit = None
+                        if terminal is not True:
+                            raise FullGameConformanceError("full game ended without game over")
+                        result = client.request("get_full_game_result")
+                        client.request("shutdown_game")
+                    except Exception as exc:  # the process is suspect; start a fresh one
+                        outcomes[index] = _public_error(exc)
+                        break
+                    played.append((index, scenario, provider, result, audit))
+            disposition = getattr(client, "shutdown_disposition", None)
+            for index, scenario, provider, result, audit in played:
+                try:
+                    outcomes[index] = self._build_result(
+                        scenario,
+                        provider,
+                        result,
+                        shutdown_disposition=disposition,
+                        hidden_audit=audit,
+                    )
+                except Exception as exc:
+                    outcomes[index] = _public_error(exc)
+        return outcomes
 
     @public_full_game_errors
     def run_smoke(

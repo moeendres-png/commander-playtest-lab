@@ -533,3 +533,145 @@ def test_mana_repeat_guard_sees_through_re_minted_option_ids() -> None:
         )
         picks.append(response["selected_option_ids"][0])
     assert picks[-1] == "cancel"
+
+
+# Commander judgment (pilot intelligence workstream): who the archenemy is, what
+# spot removal, wipes and counterspells are worth spending on.
+
+
+def _opponent_state(
+    boards: dict[int, list[dict[str, Any]]],
+    *,
+    actor_board: list[dict[str, Any]] | None = None,
+    hand: list[str] | None = None,
+    stack: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    state = _state(actor_board=actor_board, hand=hand, stack=stack)
+    for index, player in enumerate(state["players"][1:], start=1):
+        player["battlefield"] = list(boards.get(index, []))
+    return state
+
+
+def test_archenemy_is_the_player_with_the_clearly_strongest_board() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import archenemy, table_threats
+
+    even = _opponent_state({})
+    assert archenemy(even) is None
+    state = _opponent_state(
+        {
+            2: [
+                _card("titan", "Grave Titan", 6, 6),
+                _card("kaervek", "Kaervek the Merciless", 5, 4),
+                _card("ring", "Sol Ring"),
+            ]
+        }
+    )
+    threats = table_threats(state)
+    assert max(threats, key=threats.__getitem__) == "opponent-2"
+    assert archenemy(state) == "opponent-2"
+    view = _policy()._pilot_state(_policy()._pilots[1], state)
+    assert view.archenemy_player_id == "opponent-2"
+    assert max(view.opponents, key=lambda o: o.threat).player_id == "opponent-2"
+
+
+def test_attacks_go_to_the_archenemy_over_an_empty_board() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import focus_defender
+
+    state = _opponent_state(
+        {
+            2: [
+                _card("titan", "Grave Titan", 6, 6, tapped=True),
+                _card("kaervek", "Kaervek the Merciless", 5, 4, tapped=True),
+            ]
+        }
+    )
+    assert focus_defender(state) == "opponent-2"
+    # An attack that removes a player still beats hitting the leader.
+    state["players"][0]["battlefield"].append(_card("jumper", "Claim Jumper", 3, 3))
+    state["players"][1]["life"] = 3
+    options = [
+        *_attack_options("jumper", "Claim Jumper"),
+        {
+            "option_id": "attack-2",
+            "label": "Claim Jumper attacks Seat 3",
+            "option_type": "declare_attacker",
+            "metadata": {
+                "object_id": "jumper",
+                "name": "Claim Jumper",
+                "defender_id": "opponent-2",
+            },
+        },
+    ]
+    response = _policy().decide(_request("declare_attacker", options, state))
+    assert response["selected_option_ids"] == ["attack-1"]
+    state["players"][1]["life"] = 40
+    response = _policy().decide(_request("declare_attacker", options, state))
+    assert response["selected_option_ids"] == ["attack-2"]
+
+
+def test_spot_removal_is_kept_for_a_real_threat() -> None:
+    swords = _cast("swords", "Swords to Plowshares", white=1)
+    token_only = _opponent_state(
+        {1: [_card("token", "Soldier Token", 1, 1)]}, hand=["Swords to Plowshares"]
+    )
+    response = _policy().decide(_request("priority", [_PASS, swords], token_only))
+    assert response["selected_option_ids"] == ["pass"]
+    threat = _opponent_state(
+        {1: [_card("titan", "Grave Titan", 6, 6)]}, hand=["Swords to Plowshares"]
+    )
+    response = _policy().decide(_request("priority", [_PASS, swords], threat))
+    assert response["selected_option_ids"] == ["swords"]
+
+
+def test_wipe_waits_until_the_table_is_ahead() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import priority_view_fields
+
+    deluge = _cast("deluge", "Toxic Deluge", black=1, generic=2)
+    small = _opponent_state(
+        {1: [_card("elf", "Llanowar Elves", 1, 1)]},
+        actor_board=[_card("jumper", "Claim Jumper", 3, 3)],
+    )
+    assert priority_view_fields(deluge, small)[1] == "wipe_nothing_worth_wiping"
+    behind = _opponent_state(
+        {
+            1: [_card("titan", "Grave Titan", 6, 6)],
+            2: [_card("kaervek", "Kaervek the Merciless", 5, 4)],
+        },
+        actor_board=[_card("jumper", "Claim Jumper", 3, 3)],
+    )
+    assert priority_view_fields(deluge, behind)[1] is None
+    ahead = _opponent_state(
+        {1: [_card("jumper-2", "Claim Jumper", 3, 3), _card("elf", "Llanowar Elves", 1, 1)]},
+        actor_board=[_card("titan", "Grave Titan", 6, 6)],
+    )
+    assert priority_view_fields(deluge, ahead)[1] == "wipe_hurts_own_board_most"
+
+
+def test_counterspell_is_kept_for_a_spell_worth_countering() -> None:
+    counter = _cast("counter", "Counterspell", blue=2)
+    cheap = _state(hand=["Counterspell"], stack=[{"object_id": "s", "name": "Llanowar Elves"}])
+    response = _policy().decide(_request("priority", [_PASS, counter], cheap))
+    assert response["selected_option_ids"] == ["pass"]
+    bomb = _state(hand=["Counterspell"], stack=[{"object_id": "s", "name": "Grave Titan"}])
+    response = _policy().decide(_request("priority", [_PASS, counter], bomb))
+    assert response["selected_option_ids"] == ["counter"]
+
+
+def test_card_knowledge_covers_every_owner_coverage_deck() -> None:
+    import json
+    from pathlib import Path
+
+    root = Path(__file__).resolve().parents[2]
+    missing = sorted(
+        str(card["oracle_name"])
+        for path in sorted((root / "data/coverage_decks/collection").glob("*.json"))
+        for card in json.loads(path.read_text(encoding="utf-8"))["cards"]
+        if card_facts(str(card["oracle_name"])) is None
+    )
+    assert missing == []
+
+
+def test_aura_and_edict_removal_are_recognised() -> None:
+    for name in ("Arrest", "Dehydration", "Gatekeeper of Malakir", "Swords to Plowshares"):
+        facts = card_facts(name)
+        assert facts is not None and CardRole.REMOVAL in card_roles(facts), name

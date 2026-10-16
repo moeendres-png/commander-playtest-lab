@@ -17,11 +17,15 @@ from commander_lab.models import (
 )
 
 from ..full_game_pilot_views import (
+    archenemy,
     board_summary,
+    boardwipe_risk,
     card_view_fields,
     creature_power,
     hand_role_counts,
+    player_threat,
     priority_view_fields,
+    stack_pressure,
 )
 from .common import (
     FullGameProtocolError,
@@ -184,18 +188,13 @@ class _PolicyState:
         for raw in players:
             if not isinstance(raw, dict) or raw.get("player_id") == actor_id:
                 continue
-            # #732: threat from what the board does (creature power, non-land
-            # permanents), not from how many lands an opponent has.
+            # Threat assessment the way a Commander player does it: board
+            # value (commanders, engines, big creatures), attacking power,
+            # cards in hand and mana, discounted for a player near death.
             summary = board_summary(raw)
             graveyard_count = int(raw.get("graveyard_count", 0))
             life = float(raw.get("life", 40))
-            threat = (
-                summary["creature_power"] * 0.5
-                + summary["nonland_permanents"] * 0.6
-                + summary["lands"] * 0.1
-                + graveyard_count * 0.08
-                + max(0.0, 40.0 - life) * 0.04
-            )
+            threat = player_threat(raw, state)
             opponents.append(
                 PilotOpponentView(
                     player_id=self._required_text(raw, "player_id"),
@@ -288,6 +287,9 @@ class _PolicyState:
             opponent_intent_uncertainty=1.0,
             unknown_opponent_fraction=1.0,
             opponents_to_act_before_next_turn=self._player_count - 1,
+            archenemy_player_id=archenemy(state),
+            boardwipe_risk=boardwipe_risk(state),
+            stack_pressure=stack_pressure(state, self._own_stack_names(runtime.binding.seat)),
         )
 
     def _priority_action(self, option: dict[str, Any], state: dict[str, Any]) -> PilotActionView:
@@ -448,16 +450,7 @@ class _PolicyState:
         if player_id is None:
             return 0.0
         player = self._player(player_id, state)
-        if player is None:
-            return 0.0
-        battlefield = player.get("battlefield")
-        board_size = len(battlefield) if isinstance(battlefield, list) else 0
-        return max(
-            0.0,
-            board_size * 0.8
-            + int(player.get("graveyard_count", 0)) * 0.08
-            + max(0.0, 40.0 - float(player.get("life", 40))) * 0.04,
-        )
+        return 0.0 if player is None else player_threat(player, state)
 
     def _player_life(self, player_id: str | None, state: dict[str, Any]) -> float:
         if player_id is None:

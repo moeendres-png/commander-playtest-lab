@@ -7,6 +7,13 @@ game that aborts or a twin pair that diverges is a finding to file, not a flake.
     python scripts/run_collection_coverage_games.py --jar <bridge.jar> --out coverage.json
     python scripts/run_collection_coverage_games.py --jar <bridge.jar> --out c.json \\
         --sizes 4 --seeds 1-2 --workers 2
+    python scripts/run_collection_coverage_games.py --jar <bridge.jar> --out c.json \\
+        --games-per-jvm 5
+
+With ``--games-per-jvm N`` (N > 1) a worker plays up to N games in one bridge process
+(Owner decision 2026-10-15, batch runs only). The two twin runs of a pod then play in
+different processes and in reverse order, so state left over from an earlier game would
+show up as a diverged twin.
 
 The result class is technical: these games test that the cards run in the engine, never
 which deck is stronger. Local runs are measurements, not qualification evidence.
@@ -28,12 +35,16 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import run_real_4p_full_game_smoke as smoke  # noqa: E402
 
 from commander_lab.candidates.models import FutureXmageScenario  # noqa: E402
-from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
+from commander_lab.engine.rules.full_game import (  # noqa: E402
+    FullGameConformanceResult,
+    XmageFullGameRunner,
+)
 from commander_lab.engine.rules.project import load_rules_deck_snapshot  # noqa: E402
 from commander_lab.models import RulesDeckInput  # noqa: E402
 
 COVERAGE_DIR = ROOT / "data/coverage_decks/collection"
 SCENARIO_ID = "collection-coverage-technical-v1"
+GAMES_PER_JVM_PROPERTY = "commanderlab.fullGame.gamesPerJvm"
 
 
 def coverage_pods(deck_count: int, size: int) -> list[tuple[int, ...]]:
@@ -79,24 +90,50 @@ def _scenario(decks: tuple[RulesDeckInput, ...], seed: int) -> FutureXmageScenar
     )
 
 
+def _row(outcome: FullGameConformanceResult | Exception) -> dict[str, Any]:
+    if isinstance(outcome, Exception):  # a failed game is a finding, not a crash of the campaign
+        return {"status": "failed", "error": f"{type(outcome).__name__}: {outcome}"[:600]}
+    return {
+        "status": "ok",
+        "semantic": outcome.semantic_transcript_sha256,
+        "decisions": outcome.decision_count,
+        "winners": list(outcome.winner_seats),
+    }
+
+
+def _game(decks: tuple[RulesDeckInput, ...], seed: int) -> tuple[Any, ...]:
+    pilots = tuple(smoke._binding(seat, deck) for seat, deck in enumerate(decks, start=1))
+    return (_scenario(decks, seed), decks, pilots)
+
+
 def _play_once(
     command: tuple[str, ...], decks: tuple[RulesDeckInput, ...], seed: int, max_decisions: int
 ) -> dict[str, Any]:
-    pilots = tuple(smoke._binding(seat, deck) for seat, deck in enumerate(decks, start=1))
+    scenario, _, pilots = _game(decks, seed)
     runner = XmageFullGameRunner(command, private_card_repository=True, max_decisions=max_decisions)
     started = time.monotonic()
     try:
-        result = runner.run(scenario=_scenario(decks, seed), decks=decks, pilots=pilots)
-        row: dict[str, Any] = {
-            "status": "ok",
-            "semantic": result.semantic_transcript_sha256,
-            "decisions": result.decision_count,
-            "winners": list(result.winner_seats),
-        }
-    except Exception as exc:  # a failed game is a finding, not a crash of the campaign
-        row = {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:600]}
+        row = _row(runner.run(scenario=scenario, decks=decks, pilots=pilots))
+    except Exception as exc:
+        row = _row(exc)
     row["wall_s"] = round(time.monotonic() - started, 2)
     return row
+
+
+def _play_batch(
+    command: tuple[str, ...],
+    jobs: list[tuple[tuple[RulesDeckInput, ...], int]],
+    max_decisions: int,
+) -> list[dict[str, Any]]:
+    """Play ``jobs`` in one bridge process; the wall time is the batch average."""
+    runner = XmageFullGameRunner(command, private_card_repository=True, max_decisions=max_decisions)
+    started = time.monotonic()
+    try:
+        outcomes = runner.run_batch([_game(decks, seed) for decks, seed in jobs])
+    except Exception as exc:
+        outcomes = [exc] * len(jobs)
+    wall = round((time.monotonic() - started) / max(1, len(jobs)), 2)
+    return [_row(outcome) | {"wall_s": wall} for outcome in outcomes]
 
 
 def play_pod(
@@ -107,6 +144,29 @@ def play_pod(
 ) -> dict[str, Any]:
     first = _play_once(command, decks, seed, max_decisions)
     second = _play_once(command, decks, seed, max_decisions)
+    return _pod_row(decks, seed, first, second)
+
+
+def play_pods_batched(
+    command: tuple[str, ...],
+    jobs: list[tuple[tuple[RulesDeckInput, ...], int]],
+    max_decisions: int,
+) -> list[dict[str, Any]]:
+    """Twin runs in two processes, the second in reverse order."""
+    firsts = _play_batch(command, jobs, max_decisions)
+    seconds = _play_batch(command, jobs[::-1], max_decisions)[::-1]
+    return [
+        _pod_row(decks, seed, first, second)
+        for (decks, seed), first, second in zip(jobs, firsts, seconds, strict=True)
+    ]
+
+
+def _pod_row(
+    decks: tuple[RulesDeckInput, ...],
+    seed: int,
+    first: dict[str, Any],
+    second: dict[str, Any],
+) -> dict[str, Any]:
     if first["status"] == "ok" and second["status"] == "ok":
         twin = "identical" if first["semantic"] == second["semantic"] else "DIVERGED"
     else:
@@ -140,7 +200,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--max-decisions", type=int, default=50_000)
     parser.add_argument("--jvm-option", action="append", default=[])
+    parser.add_argument("--games-per-jvm", type=int, default=1)
     args = parser.parse_args(argv)
+    if args.games_per_jvm < 1:
+        parser.error("--games-per-jvm must be positive")
+    if args.games_per_jvm > 1:
+        args.jvm_option.append(f"-D{GAMES_PER_JVM_PROPERTY}={args.games_per_jvm}")
 
     # The bridge runs in a private working directory (private card repository), so a
     # relative jar path would not resolve there (as in #776).
@@ -154,15 +219,27 @@ def main(argv: list[str] | None = None) -> int:
     ]
     started = time.monotonic()
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        pods = list(
-            pool.map(lambda job: play_pod(command, job[0], job[1], args.max_decisions), jobs)
-        )
+        if args.games_per_jvm == 1:
+            pods = list(
+                pool.map(lambda job: play_pod(command, job[0], job[1], args.max_decisions), jobs)
+            )
+        else:
+            size = args.games_per_jvm
+            chunks = [jobs[start : start + size] for start in range(0, len(jobs), size)]
+            pods = [
+                pod
+                for chunk in pool.map(
+                    lambda chunk: play_pods_batched(command, chunk, args.max_decisions), chunks
+                )
+                for pod in chunk
+            ]
     games = [run for pod in pods for run in pod["runs"]]
     covered = sorted({deck_id for pod in pods for deck_id in pod["deck_ids"]})
     report = {
         "result_class": "TECHNICAL_CARD_COVERAGE",
         "xmage_commit": smoke.XMAGE_COMMIT,
         "jar": str(args.jar),
+        "games_per_jvm": args.games_per_jvm,
         "decks_covered": len(covered),
         "pods": len(pods),
         "games": len(games),
