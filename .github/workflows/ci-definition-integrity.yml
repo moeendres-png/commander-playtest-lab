@@ -67,7 +67,7 @@ jobs:
           echo "exit_code=$rc" >> "$GITHUB_OUTPUT"
       - name: Upload informational shadow report
         if: always()
-        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ci-definition-integrity-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}
           path: artifacts/ci-definition-integrity/CI_DEFINITION_INTEGRITY.json

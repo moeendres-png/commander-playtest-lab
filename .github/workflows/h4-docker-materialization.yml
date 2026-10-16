@@ -416,7 +416,7 @@ jobs:
         if: always()
         shell: bash
         run: docker compose -f docker-compose.engine.yml --profile xmage down --remove-orphans || true
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0 immutable revision
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6.0.0 immutable revision
         if: always()
         with:
           name: h4-evidence-xmage-${{ github.sha }}

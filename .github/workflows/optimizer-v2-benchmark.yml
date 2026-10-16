@@ -102,7 +102,7 @@ jobs:
       - name: Hash benchmark artifacts
         run: |
           sha256sum artifacts/optimizer-v2-ab/*.json | sort > artifacts/optimizer-v2-ab/SHA256SUMS.txt
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         if: always()
         with:
           name: optimizer-v2-technical-ab

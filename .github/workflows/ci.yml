@@ -135,7 +135,7 @@ jobs:
             --repo . \
             --wheel-dir dist \
             --evidence artifacts/quality/PACKAGING_SMOKE.json
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0 immutable revision
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6.0.0 immutable revision
         if: always()
         with:
           name: ci-evidence
@@ -231,7 +231,7 @@ jobs:
         # secrets. Independent of the audit steps above; the quality job's
         # Secret-pattern scan stays a separate project sentinel.
         run: python scripts/run_broad_secret_scan.py --install-dir "${{ runner.temp }}/gitleaks"
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0 immutable revision
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v6.0.0 immutable revision
         if: always()
         with:
           name: security-evidence
