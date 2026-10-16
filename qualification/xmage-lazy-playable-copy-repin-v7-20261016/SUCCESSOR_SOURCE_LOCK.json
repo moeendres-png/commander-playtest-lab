@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-lazy-playable-copy-repin-v7-20261016",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head commit of moeendres-png/mage#60. The native maven.yml run on the exact commit is bound below. The Lab bridge suite has only a LOCAL_OBSERVED run (no Actions run, job or artifact digest), which carries no CI-level credit: the CI-level bridge suite is PENDING until an XMage Full Game Conformance run on the Lab repin head is bound. NOT_RUN or PENDING never counts as PASS. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head commit of moeendres-png/mage#60. The native maven.yml run on the exact commit and the Lab bridge suite (XMage Full Game Conformance run 38857871937 against XMage built from exactly 16e57239) are bound below. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -84,19 +84,27 @@
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "local ~/.m2 only: org.mage:mage was built and installed from exactly 16e57239 (mvn install of Mage.Deck.Constructed, Mage.Game.CommanderFreeForAll and Mage.Game.CommanderDuel with -am); mage-sets was installed earlier from identical sources (the pin changes only GameImpl.java), not from an exact-commit build of mage-sets. The ~/.m2 jars have since been overwritten, so the digests below can no longer be re-derived from that repository.",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 16e57239 inside that job); the earlier local run (1109 run, 0 failures, 1 skipped, local_observed_artifacts) is supporting only",
+  "installed_artifacts_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 d4e39a55f3759189ab9af48b1c993b8e5c90fec42aafcb73386a18d351c017c9",
+   "org.mage:mage-sets:1.4.61": "sha256 928ce4cb0399206cf8969b263b2549d986b531286d745436cd290f81ff58fb4a"
+  },
   "bridge_suite": {
-   "command": "local: mvn -B -ntp clean verify in engine-bridge with org.mage:mage built from exact 16e57239e0738925369b704fd7fdd083b7d5024b (see isolated_maven_repository for mage-sets)",
-   "run": 1109,
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head 9af352cf, merge ref 5a0b2e64 with main af08f20e (XMAGE_COMMIT=16e57239, checked by git rev-parse in the job): engine-bridge mvn verify against XMage built from exact 16e57239",
+   "run": 1110,
    "failures": 0,
    "errors": 0,
    "skipped": 1,
-   "status": "LOCAL_OBSERVED",
+   "status": "COMPLETE",
+   "actions_run": 38857871937,
+   "job": 116833341986,
+   "artifact": {
+    "id": 12028845323,
+    "zip_sha256": "addfc8e0abc5c01e68845be54053de293efa503c01b49637d26c16364012dced"
+   },
    "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
-   "fingerprint": "XmageCandidateEngineFingerprintTest 7/7, including loadedEngineCarriesTheLazyPlayableCopy",
-   "not_claimed": "LOCAL_OBSERVED is not COMPLETE: no Actions run, job or artifact digest is bound, so no CI-level Lab runtime credit is claimed. An XMage Full Game Conformance run on the Lab repin head turns this into COMPLETE."
+   "fingerprint": "XmageCandidateEngineFingerprintTest 7/7, including loadedEngineCarriesTheLazyPlayableCopy"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheLazyPlayableCopy checks the structural signature of this pin on the loaded classes (GameImpl.sharedGameCards, GameImpl.copyCardsLazily, GameImpl.ownGameCard); the v6 hooks stay checked by loadedEngineCarriesThePreconCoverageHooks.",
   "local_observed_artifacts": {
