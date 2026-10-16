@@ -217,6 +217,20 @@ python scripts/run_full_game_deck_comparison.py \
 Runs are reproducible per seed: the same seed, decks, pilot policy, bridge jar and pin
 play the same game, and the batch keys each finished record by all of them.
 
+The engine shuffles each library in decklist order with the game seed. A variant is
+therefore played with its unchanged cards in the baseline's library slots and its added
+cards in the slots of the removed ones (the deck itself is unchanged, only the list order
+is). Paired games then stay identical until a changed card matters. In one local
+measurement (one swapped card, six seeds, not a CI result), two pairs played the exact
+same game (equal decision transcript) and the other four stayed identical for 13% to 57%
+of their decisions; the same swap listed at the end of the deck changed the opening hand
+in every pod. Which added card takes which freed slot depends only on the two card lists
+(added cards in name order), not on how the variant file lists them. The report counts the
+`identical_pairs`, which are ties and carry no evidence either way, and records the
+alignment (`slot_alignment`, with the hash of the list that was actually played). Variant
+games started before this alignment have other batch keys and are played again; baseline
+games are reused.
+
 Useful project commands include:
 
 ```bash
