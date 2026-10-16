@@ -58,7 +58,7 @@
     "optimization_allowed": false
   },
   "location_policy": {
-    "example": "Midnight Reaper is owned/available while stored in Alens Box",
+    "example": "Midnight Reaper is owned/available while it is in the collection",
     "storage_location_does_not_define_ownership": true
   },
   "manual_real_game_logging": "disabled_by_user_policy",

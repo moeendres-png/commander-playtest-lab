@@ -491,3 +491,92 @@ def test_reversed_free_cast_is_not_retried_forever() -> None:
     # Continuing would only re-offer the refused card: the chain ends here.
     assert answer(cont, 4) == "no"
     assert answer(other, 5) == "yes"
+_FILTER_FACTS: dict[str, Any] = {
+    "mana_cost_white": 0,
+    "mana_cost_blue": 0,
+    "mana_cost_black": 0,
+    "mana_cost_red": 0,
+    "mana_cost_green": 0,
+    "mana_cost_colorless": 0,
+}
+
+
+def _filter_land(pool_covers: bool) -> dict[str, Any]:
+    # Sunscorched Divide, as the bridge reported it in a real game (r4_v5).
+    return _option(
+        "divide",
+        "mana_ability",
+        "Sunscorched Divide — {1}, {T}: Add {R}{W}.",
+        **_FILTER_FACTS,
+        mana_cost_generic=1,
+        pool_covers_mana_cost=pool_covers,
+        requires_tap_source=True,
+        source_object_id="divide-object",
+        source_tapped=False,
+    )
+
+
+def _pool_white() -> dict[str, Any]:
+    return _option(
+        "pool-white",
+        "mana_pool",
+        "Spend white mana from pool",
+        mana_type="white",
+        mana_available=1,
+        advances_payment=True,
+    )
+
+
+def test_payment_feeds_the_pool_into_a_filter_land_when_plain_sources_cannot_finish() -> None:
+    # Real game: Millikin ({2}) with Command Tower and Sunscorched Divide. The
+    # pilot tapped Tower, spent its {W} on the spell, and the Divide it could
+    # no longer fund left a payment only cancel could end, three times a turn.
+    response = _policy().decide(
+        _request(
+            "mana_payment",
+            [
+                _option("cancel", "cancel_mana_payment", "Cancel mana payment"),
+                _pool_white(),
+                _filter_land(True),
+            ],
+            context={"unpaid_mana": "{2}"},
+        )
+    )
+    assert response["selected_option_ids"] == ["divide"]
+
+
+def test_payment_still_spends_a_lone_pool_candidate_when_plain_sources_suffice() -> None:
+    plain = _option(
+        "plains",
+        "mana_ability",
+        "Plains — {T}: Add {W}.",
+        **_FILTER_FACTS,
+        mana_cost_generic=0,
+        source_object_id="plains-object",
+    )
+    response = _policy().decide(
+        _request(
+            "mana_payment",
+            [
+                _option("cancel", "cancel_mana_payment", "Cancel mana payment"),
+                _pool_white(),
+                plain,
+                _filter_land(True),
+            ],
+            context={"unpaid_mana": "{2}"},
+        )
+    )
+    assert response["selected_option_ids"] == ["pool-white"]
+    # A filter land the pool cannot fund is never chosen either.
+    response = _policy().decide(
+        _request(
+            "mana_payment",
+            [
+                _option("cancel", "cancel_mana_payment", "Cancel mana payment"),
+                _pool_white(),
+                _filter_land(False),
+            ],
+            context={"unpaid_mana": "{2}"},
+        )
+    )
+    assert response["selected_option_ids"] == ["pool-white"]

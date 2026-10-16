@@ -21,52 +21,35 @@
       "model_family": "deepseek-v4.1-flash",
       "provider": "opencode",
       "data_note": "OpenCode Zen: zero-retention, no training on the data."
-    },
-    "deepseek-th": {
-      "model": "tokenharbor/deepseek-v4.1-flash:free",
-      "native_variant": "provider_default",
-      "runtime_status": "ACTIVE",
-      "model_family": "deepseek-v4.1-flash",
-      "provider": "tokenharbor",
-      "effort_control": "NONE_EXPOSED",
-      "data_note": "Token Harbor free plan: free routes may be logged and used for improvement. Never put Owner data, credentials or private collection data in an /oc-th task. Free limits 60 req/min, 1800 req/h; allowance resets on a rolling 7-day period; free models must be opted in in the dashboard."
     }
   },
   "routing_policy": {
-    "note": "Owner instruction 2026-10-16: Step 5 Preview left the live Zen catalog. DeepSeek V4.1 Flash (opencode/deepseek-v4.1-flash-free on OpenCode Zen) at native variant max is the default and only active OpenCode executor for every lane (/oc, /assure, /ro-review, the launcher, the opencode-subagent MCP and every OpenCode subagent). No variant below high is ever configured; max is the pin. Every earlier executor is retired and removed from this registry; its history stays in Git and in the dated records. Second ACTIVE profile deepseek-th (Token Harbor, same model, lane /oc-th) added by Owner instruction 2026-10-16; /oc stays on Zen.",
+    "note": "Owner instruction 2026-10-16: Step 5 Preview left the live Zen catalog. DeepSeek V4.1 Flash (opencode/deepseek-v4.1-flash-free on OpenCode Zen) at native variant max is the default and only active OpenCode executor for every lane (/oc, /assure, /ro-review, the launcher, the opencode-subagent MCP and every OpenCode subagent). No variant below high is ever configured; max is the pin. Every earlier executor is retired and removed from this registry; its history stays in Git and in the dated records. The Token Harbor profile deepseek-th (lane /oc-th) was retired 2026-10-16 by Owner instruction (balance exhausted, no top-up); /oc stays on Zen.",
     "primary": "deepseek",
     "suspended": [],
     "automatic_fallback": false,
-    "selection_authority": "Every run pins exactly one profile explicitly: deepseek (Zen, default; /oc, /assure, /ro-review) or deepseek-th (Token Harbor; /oc-th). There is no automatic fallback between them."
+    "selection_authority": "Every run pins the deepseek profile explicitly (Zen, default; /oc, /assure, /ro-review). There is no second profile and no automatic fallback."
   },
   "runtime_identity": {
     "opencode/deepseek-v4.1-flash-free": {
       "logical_profile": "deepseek",
       "alias_class": "CANONICAL"
-    },
-    "tokenharbor/deepseek-v4.1-flash:free": {
-      "logical_profile": "deepseek-th",
-      "alias_class": "CANONICAL"
     }
   },
   "resolution_policy": {
-    "note": "Two logical executor profiles of the same model (DeepSeek V4.1 Flash), one per provider. deepseek resolves only after live pinned-CLI catalog inspection of Zen (single admitted id must be listed, else fail closed). deepseek-th resolves from the registry-pinned Token Harbor id declared in opencode.json (no catalog exists to inspect). No cross-family substitute, no fallback between providers.",
+    "note": "One logical executor profile (DeepSeek V4.1 Flash). deepseek resolves only after live pinned-CLI catalog inspection of Zen (single admitted id must be listed, else fail closed). No cross-family substitute, no fallback between providers.",
     "catalog_mechanism": "opencode models opencode",
     "logical_profiles": [
-      "deepseek",
-      "deepseek-th"
+      "deepseek"
     ],
     "deepseek_preference": [
       "opencode/deepseek-v4.1-flash-free"
     ],
     "post_selection_failure": "FAIL_CLOSED_NO_RE_RESOLUTION",
-    "automatic_fallback": false,
-    "deepseek_th_preference": [
-      "tokenharbor/deepseek-v4.1-flash:free"
-    ]
+    "automatic_fallback": false
   },
   "cross_executor_review_policy": {
-    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY DeepSeek V4.1 Flash MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /ro-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is the only ACTIVE profile the implementation executor is also DeepSeek, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence); if a second profile is ever ACTIVE, same-model self-review is refused. A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed. Since 2026-10-16 a second ACTIVE profile exists (deepseek-th), but it is the same model family, so it adds provider independence only: the reviewer stays Zen deepseek via /ro-review; a deepseek-th implementation reviewed by Zen deepseek is cross-provider review, and a Zen implementation keeps the Owner-approved fresh-context same-model review. Self-review is refused only when an ACTIVE profile of a different model_family exists.",
+    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY DeepSeek V4.1 Flash MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /ro-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is the only ACTIVE profile the implementation executor is also DeepSeek, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence); if a second profile is ever ACTIVE, same-model self-review is refused. A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed. Self-review is refused only when an ACTIVE profile of a different model_family exists.",
     "required_for_material": true,
     "implementation_executor": "deepseek",
     "review_executor": "deepseek",
@@ -92,10 +75,9 @@
     "unsatisfied_executors": [],
     "non_material_closeout": "GENERATED_STATE_ONLY",
     "remote_resumability": "REQUIRES_REMOTE_CHECKPOINT_EQUALITY",
-    "review_independence": "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_DIFFERENT_MODEL_FAMILY_IS_ACTIVE; CROSS_PROVIDER_WHEN_IMPLEMENTATION_IS_DEEPSEEK_TH",
+    "review_independence": "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_DIFFERENT_MODEL_FAMILY_IS_ACTIVE",
     "implementation_executors": [
-      "deepseek",
-      "deepseek-th"
+      "deepseek"
     ]
   },
   "activation_gate": {
@@ -147,7 +129,7 @@
       "runtime_status": "ACTIVE",
       "observed_agent_note": "The same run reported agent=foundry-implementer although the /bunny lane pins AGENT=bunny-verifier; tracked in issue #685; it does not change the model identity."
     },
-    "retired_history_note": "activation_evidence_2026_09_29, _2026_10_06, _2026_10_10 and _2026_10_12 are kept verbatim as dated provenance. They describe executors retired before 2026-10-16 (Space Bunny, Step 5 Preview, the OpenCode Go DeepSeek record); they authorize nothing and their runtime_status values are historical.",
+    "retired_history_note": "activation_evidence_2026_09_29, _2026_10_06, _2026_10_10, _2026_10_12 and _2026_10_16_tokenharbor are kept verbatim as dated provenance. They describe retired executors (Space Bunny, Step 5 Preview, the OpenCode Go DeepSeek record, and the Token Harbor deepseek-th profile retired 2026-10-16 by Owner instruction: balance exhausted, no top-up); they authorize nothing and their runtime_status values are historical.",
     "activation_evidence_2026_10_12": {
       "current_model_identity": "opencode/step-5-preview-free",
       "reason": "Owner directive 2026-10-12: the previous Zen executor is no longer free; use only OpenCode Zen Step 5 Preview for the whole project and remove the previous executor from the project.",
