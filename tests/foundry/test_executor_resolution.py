@@ -21,10 +21,8 @@ sys.path.insert(0, str(REPO_ROOT / "tools"))
 from foundry import executor_profiles as ep  # noqa: E402
 
 DEEPSEEK = "opencode/deepseek-v4.1-flash-free"
-# Token Harbor's free route (the only admitted Token Harbor id) and its paid base.
-DEEPSEEK_TH = "tokenharbor/deepseek-v4.1-flash:free"
-DEEPSEEK_TH_PAID_BASE = "tokenharbor/deepseek-v4.1-flash"
-# Retired ids: the OpenCode Go DeepSeek record and Step 5 Preview (left the catalog).
+# Retired ids: the OpenCode Go DeepSeek record, Step 5 Preview (left the catalog),
+# and the Token Harbor free route (retired 2026-10-16, Owner instruction).
 DEEPSEEK_GO = "opencode-go/deepseek-v4.1-flash"
 RETIRED_STEP = "opencode/step-5-preview-free"
 DEEPSEEK_GO_FREE = "opencode-go/retired-free"
@@ -37,9 +35,9 @@ def _registry() -> ep.ExecutorRegistry:
 def test_deepseek_is_the_one_default_active_profile() -> None:
     registry = _registry()
     assert registry.default_profile == "deepseek"
-    assert registry.logical_profiles == ("deepseek", "deepseek-th")
-    assert registry.active_profiles == ("deepseek", "deepseek-th")
-    assert registry.active_runtime_ids == (DEEPSEEK, DEEPSEEK_TH)
+    assert registry.logical_profiles == ("deepseek",)
+    assert registry.active_profiles == ("deepseek",)
+    assert registry.active_runtime_ids == (DEEPSEEK,)
     resolved = ep.resolve_executor(
         "deepseek", registry=registry, catalog=[RETIRED_STEP, DEEPSEEK_GO, DEEPSEEK]
     )
@@ -64,7 +62,7 @@ def test_suspended_default_or_unknown_status_fails_closed() -> None:
 def test_profile_is_pinned_to_its_native_variant_never_below_high() -> None:
     """One highest native variant per profile, exactly as its provider lists."""
     registry = _registry()
-    expected = {"deepseek": "max", "deepseek-th": "provider_default"}
+    expected = {"deepseek": "max"}
     for name in registry.logical_profiles:
         spec = registry.profiles[name]
         assert spec.native_variant == expected[name], name
@@ -96,21 +94,10 @@ def test_zen_id_selected_even_when_retired_ids_are_listed_first() -> None:
     assert resolved.native_variant == "max"
 
 
-def test_paid_token_harbor_base_route_is_not_admitted() -> None:
-    """deepseek-th admits exactly the :free route; the paid base id never resolves."""
-    with pytest.raises(ep.ExecutorResolutionError, match="no admitted deepseek-th"):
-        ep.resolve_executor(
-            "deepseek-th",
-            registry=_registry(),
-            catalog=[DEEPSEEK_TH_PAID_BASE],
-        )
-    resolved = ep.resolve_executor(
-        "deepseek-th", registry=_registry(), catalog=[DEEPSEEK_TH_PAID_BASE, DEEPSEEK_TH]
-    )
-    assert resolved.resolved_model_id == DEEPSEEK_TH
-    assert resolved.resolved_provider == "tokenharbor"
-    assert resolved.native_variant == "provider_default"
-    assert resolved.catalog_checked is True
+def test_retired_token_harbor_profile_is_unknown() -> None:
+    """deepseek-th was retired 2026-10-16: it no longer resolves at all."""
+    with pytest.raises(ep.ExecutorResolutionError, match="unknown execution profile"):
+        ep.resolve_executor("deepseek-th", registry=_registry(), catalog=[DEEPSEEK])
 
 
 def test_only_retired_ids_present_fails_closed() -> None:
@@ -286,7 +273,7 @@ def test_registry_rejects_alias_drift_and_canonical_reclassification() -> None:
     }
     errors = ep.validate_registry(doc)
     # The OpenCode Go provider is retired: its ids are not even admitted providers.
-    assert any("provider is not one of ['opencode', 'tokenharbor']" in error for error in errors)
+    assert any("provider is not one of ['opencode']" in error for error in errors)
 
     doc = _drifted_registry_doc()
     doc["runtime_identity"][DEEPSEEK]["alias_class"] = "LEGACY_ALIAS"

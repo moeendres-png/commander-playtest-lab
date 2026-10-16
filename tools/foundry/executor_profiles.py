@@ -6,19 +6,13 @@ invents a model identity and never falls back across executor families.
 Logical profile
 ---------------
 
-- ``deepseek``: the default ACTIVE executor (Owner instruction
-  2026-10-16), served by OpenCode Zen as ``opencode/deepseek-v4.1-flash-free``
-  at its highest native variant ``max``, resolved only after live catalog
-  inspection of the pinned OpenCode CLI (``opencode models opencode``). Step 5
-  Preview left the Zen catalog and was retired on 2026-10-16.
-
-- ``deepseek-th``: the second ACTIVE executor (Owner instruction 2026-10-16),
-  the same model served by Token Harbor's free route as
-  ``tokenharbor/deepseek-v4.1-flash:free``
-  (OpenAI-compatible, key only via ``{env:TOKENHARBOR_API_KEY}``). The
-  provider documents no reasoning-effort control, so no variant is pinned or
-  faked (native_variant ``provider_default``). Every run pins exactly one
-  profile; there is no fallback between the two.
+- ``deepseek``: the ACTIVE executor (Owner instruction 2026-10-16), served by
+  OpenCode Zen as ``opencode/deepseek-v4.1-flash-free`` at its highest native
+  variant ``max``, resolved only after live catalog inspection of the pinned
+  OpenCode CLI (``opencode models opencode``). Step 5 Preview left the Zen
+  catalog and was retired on 2026-10-16; the Token Harbor profile
+  ``deepseek-th`` (lane ``/oc-th``) was retired on 2026-10-16 by Owner
+  instruction (balance exhausted, no top-up).
 
 Runtime selection is deterministic: the canonical Zen id must be present in
 the inspected catalog, else resolution fails closed.
@@ -42,30 +36,21 @@ from pathlib import Path
 DEFAULT_REGISTRY_PATH = Path(__file__).resolve().parents[2] / ".foundry" / "executor-profiles.json"
 
 CANONICAL_PROVIDER = "opencode"
-# Providers a registry runtime id may name: OpenCode Zen and the Token Harbor
-# profile provider (the OpenCode Go provider is retired).
-TOKENHARBOR_PROVIDER = "tokenharbor"
-ADMITTED_PROVIDERS = (CANONICAL_PROVIDER, TOKENHARBOR_PROVIDER)
+# Providers a registry runtime id may name: only OpenCode Zen. Token Harbor
+# (and the OpenCode Go provider before it) is retired.
+ADMITTED_PROVIDERS = (CANONICAL_PROVIDER,)
 DEEPSEEK_RUNTIME_ID = "opencode/deepseek-v4.1-flash-free"
-DEEPSEEK_TH_RUNTIME_ID = "tokenharbor/deepseek-v4.1-flash:free"
-LOGICAL_PROFILES = ("deepseek", "deepseek-th")
+LOGICAL_PROFILES = ("deepseek",)
 DEFAULT_PROFILE = "deepseek"
 # Profiles served by OpenCode Zen: resolution needs live catalog inspection.
 ZEN_PROFILES = ("deepseek",)
-# Profiles served by a registry-pinned OpenAI-compatible provider whose models
-# come from the committed opencode.json (no Zen catalog to inspect).
-CONFIG_PINNED_PROFILES = ("deepseek-th",)
-PROFILE_PROVIDERS = {"deepseek": CANONICAL_PROVIDER, "deepseek-th": TOKENHARBOR_PROVIDER}
+PROFILE_PROVIDERS = {"deepseek": CANONICAL_PROVIDER}
 CANONICAL_RUNTIME_IDS = {
     "deepseek": DEEPSEEK_RUNTIME_ID,
-    "deepseek-th": DEEPSEEK_TH_RUNTIME_ID,
 }
-# The variant label of a provider that exposes no effort control: the model
-# runs at the provider default and neither max nor high can be pinned or faked.
-PROVIDER_DEFAULT_VARIANT = "provider_default"
 # Each profile's single highest native variant as listed by its provider
 # catalog (models.dev lists low/high/max for DeepSeek V4.1 Flash). Never lower.
-NATIVE_VARIANTS = {"deepseek": "max", "deepseek-th": PROVIDER_DEFAULT_VARIANT}
+NATIVE_VARIANTS = {"deepseek": "max"}
 CANONICAL_ALIAS_CLASS = "CANONICAL"
 LEGACY_ALIAS_CLASS = "LEGACY_ALIAS"
 ALIAS_CLASSES = (CANONICAL_ALIAS_CLASS, LEGACY_ALIAS_CLASS)
@@ -447,10 +432,6 @@ def resolve_executor(
     elif logical_profile in ZEN_PROFILES:
         listed, source = load_live_catalog(opencode_bin)
         catalog_checked = True
-    elif logical_profile in CONFIG_PINNED_PROFILES:
-        # No Zen catalog applies: the pinned id comes from the registry only.
-        listed = tuple(spec.admitted_runtime_ids)
-        source = "registry_pinned"
 
     if listed is None:
         raise ExecutorResolutionError(
