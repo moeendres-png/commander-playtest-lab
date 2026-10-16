@@ -1,13 +1,15 @@
 """Typed shapes of the evidence JSON files the tool service reads.
 
 ``json.loads`` of these files is cast to the shape at the reader boundary
-(``CommanderToolServiceCore._read_optional_json_as``). Nothing here validates at
+(``read_optional_json_as``). Nothing here validates at
 runtime; every key is optional because an absent or older file reads as ``{}``.
 """
 
 from __future__ import annotations
 
-from typing import TypedDict
+import json
+from pathlib import Path
+from typing import TypedDict, cast
 
 
 class CardRulesCoverageFile(TypedDict, total=False):
@@ -47,3 +49,11 @@ class CanonicalDeckListsFile(TypedDict, total=False):
     source_workbook: str
     source_drive_file_id: str
     source_drive_id: str
+
+
+def read_optional_json_as[Shape](root: Path, relative: str, shape: type[Shape]) -> Shape:
+    """Read ``root/relative`` as ``shape`` (a TypedDict); an absent file reads as ``{}``."""
+    path = root / relative
+    if not path.exists():
+        return cast(Shape, {})
+    return cast(Shape, json.loads(path.read_text(encoding="utf-8")))

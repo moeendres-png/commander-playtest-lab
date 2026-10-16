@@ -49,6 +49,7 @@ from .evidence_types import (
     CardRulesCoverageFile,
     Phase1213ResultFile,
     PilotPoliticsRegistryFile,
+    read_optional_json_as,
 )
 from .service_core import (
     ToolExecutionError,
@@ -196,17 +197,21 @@ class ServiceOptimizerMixin(ServiceSearchMixin, ServiceMulliganMixin):
                 )
             available = [deck_id for deck_id in requested if deck_id in self.decks]
             unavailable = [deck_id for deck_id in requested if deck_id not in self.decks]
-            coverage = self._read_optional_json_as(
-                "data/rules/card_rules_coverage.json", CardRulesCoverageFile
+            coverage = read_optional_json_as(
+                self.root, "data/rules/card_rules_coverage.json", CardRulesCoverageFile
             )
-            robustness = self._read_optional_json_as(
-                "data/robustness/pilot_and_politics_registry.json", PilotPoliticsRegistryFile
+            robustness = read_optional_json_as(
+                self.root,
+                "data/robustness/pilot_and_politics_registry.json",
+                PilotPoliticsRegistryFile,
             )
-            engine = self._read_optional_json_as(
-                "artifacts/phase12_13/PHASE12_13_RESULT.json", Phase1213ResultFile
+            engine = read_optional_json_as(
+                self.root, "artifacts/phase12_13/PHASE12_13_RESULT.json", Phase1213ResultFile
             )
-            canonical = self._read_optional_json_as(
-                "data/canonical_import/2026-08-07/deck_lists.json", CanonicalDeckListsFile
+            canonical = read_optional_json_as(
+                self.root,
+                "data/canonical_import/2026-08-07/deck_lists.json",
+                CanonicalDeckListsFile,
             )
             return {
                 "execution_status": "passed_with_limitations" if unavailable else "passed",
