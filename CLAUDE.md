@@ -44,6 +44,10 @@ expected handoff, next action. Do not micromanage a complete dispatch unless an
 authority/ownership gate appears, canonical source changes, the packet was incomplete, or
 the run ends without resumable state.
 
+**Merging.** Merge your own merge-ready PRs yourself (`AGENTS.md` §10, "Owner-delegated
+self-merge") and report the merge in one line with the PR link. Fork pushes, repins and
+changes to signed or sealed qualification records wait for the Owner's explicit go.
+
 **Habits.**
 - `gh_ops.py brief` is the one-screen lane status; `oc_dispatch.py post`/`watch` build and
   read `/oc`/`/assure` dispatches.
