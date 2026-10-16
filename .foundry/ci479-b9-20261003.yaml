@@ -37,7 +37,8 @@ authority_gates:
 - Provider selection and Architecture Freeze remain reserved
 state_written_against_head: 310e72671df5b196650ee39ba2ce9c06e8b16185
 validated_head: null
-status: WAITING
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 execution_profile: null
 exact_next_action: Read new exact-head CI and independent review. Verify artifact
   bytes/source lock, adjudicate CI02 honestly, then merge only reviewed head.

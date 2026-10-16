@@ -24,7 +24,8 @@ out_of_scope:
 - 'issue #192 destructive cleanup'
 ownership: CSN-POST-AUDIT-HARDENING-2026-09-30 (Claude Opus 5.5); continued by the claude/optimistic-bohr-6asye6
   session after the handoff of 2026-09-30 evening (single writer)
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 exact_next_action: 'Merge #438 (C1, R1 record, E1 launcher fixes) when exact-head CI is green. R1 fix awaits the
   repin lane (mage#34); E1 owner decisions recorded in RESULTS.md.'
 authority_gates:

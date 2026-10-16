@@ -84,7 +84,8 @@ validation:
     actual fresh independent early gate169passed26.32s and state conformance45passed1.67s
     with no engines; earlier local 1c4f14ac measurements169passed22.41s/45passed1.25s
     are superseded provenance. No final hosted runtime credit.'
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 pending:
 - fresh exact-final-head required CI and complete PB03 on the native-published generated
   checkpoint

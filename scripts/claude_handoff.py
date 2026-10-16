@@ -27,8 +27,6 @@ import yaml
 
 LAB = "moeendres-png/commander-playtest-lab"
 REPOS = (LAB, "moeendres-png/mage")
-# Fallback only: the lanes are the repository's open issues (see lane_issues).
-LANE_ISSUES = (441, 592, 634)
 MAX_LANES = 8
 MAX_LINES = 80
 BATON_MARKER = re.compile(r"(?i)\b(baton|ownership|owner|owns|handoff)\b")
@@ -151,7 +149,7 @@ def lane_issues() -> tuple[int, ...]:
     """The open issues (pull requests excluded), newest first, capped at MAX_LANES.
 
     A hard-coded list went stale as lanes closed; the open issue set is the live
-    lane index. Falls back to LANE_ISSUES only when the API answers nothing.
+    lane index. No open issue means no lane: closed issues are never listed.
     """
     issues = api(f"repos/{LAB}/issues?state=open&per_page=50") or []
     numbers = [
@@ -159,12 +157,10 @@ def lane_issues() -> tuple[int, ...]:
         for i in issues
         if isinstance(i, dict) and "number" in i and "pull_request" not in i
     ]
-    return tuple(sorted(numbers, reverse=True)[:MAX_LANES]) or LANE_ISSUES
+    return tuple(sorted(numbers, reverse=True)[:MAX_LANES])
 
 
-def lane_lines(
-    repo_dir: Path, states: list[dict[str, Any]], numbers: tuple[int, ...] = LANE_ISSUES
-) -> list[str]:
+def lane_lines(repo_dir: Path, states: list[dict[str, Any]], numbers: tuple[int, ...]) -> list[str]:
     lines: list[str] = []
     for number in numbers:
         issue = api(f"repos/{LAB}/issues/{number}")
@@ -201,7 +197,7 @@ def lane_lines(
             f"#{number} {clip(issue.get('title', ''), 44)} [{issue.get('state')}] "
             f"owner={owner} next={next_action or '-'}"
         )
-    return lines
+    return lines or ["(no open issues)"]
 
 
 BOILERPLATE_GATE = re.compile(r"(?i)remain(s)? reserved|freeze decisions? remain|reserved$")
@@ -247,8 +243,8 @@ def render(repo_dir: Path, now: str) -> str:
     lanes = lane_issues()
     sections = [
         (
-            "Lanes and owners (open issues; baton comments: "
-            + ", ".join(f"#{n}" for n in lanes)
+            "Lanes and owners (open issues"
+            + ("; baton comments: " + ", ".join(f"#{n}" for n in lanes) if lanes else "")
             + ")",
             lane_lines(repo_dir, states, lanes),
         ),

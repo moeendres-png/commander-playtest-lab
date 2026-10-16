@@ -32,7 +32,8 @@ ownership: >-
   ISSUE781-COLLECTION-COVERAGE-WORKFLOW-20261015. Branch opencode/issue781-20261015170716 is this
   run's own branch created from main at 78b6eb32; no other writer owns it. Owner of record:
   Coordinator (issue #781).
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 executor_identity:
