@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import sys
 import time
 from collections import Counter, defaultdict
@@ -294,7 +295,7 @@ def _play(
     runner = XmageFullGameRunner(command, private_card_repository=private)
     records: list[dict[str, Any]] = []
     started = time.monotonic()
-    row: dict[str, Any] = {"pod": pod, "seed": seed}
+    row: dict[str, Any] = {"pod": pod, "seed": seed, "players": len(decks)}
     try:
         with recording(records):
             result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
@@ -345,9 +346,12 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
         out["mean_rounds"] = round(sum(g["rounds"] for g in games) / len(games), 2)
         out["mean_wall_s"] = round(out["wall_s"] / len(games), 1)
         out["mean_decisions"] = round(out["decisions"] / len(games), 0)
-        rounds = sum(g["rounds"] for g in games)
-        players = 4
-        out["spells_per_player_round"] = round(out["spells_cast"] / players / rounds, 2)
+        # Per-game player count; reports written before ``players`` was stored
+        # fall back to the old 4-player assumption.
+        player_rounds = sum(float(g.get("players", 4)) * g["rounds"] for g in games)
+        out["spells_per_player_round"] = (
+            round(out["spells_cast"] / player_rounds, 2) if player_rounds else 0.0
+        )
     return out
 
 
@@ -370,12 +374,191 @@ def run(args: argparse.Namespace) -> int:
     return 0 if all(row["status"] == "ok" for row in rows) else 1
 
 
+# ---------------------------------------------------------------------------
+# compare: paired seed-noise analysis.
+#
+# Games are paired by (pod, seed) across the two reports; per metric the mean
+# per-game delta is reported with a 95% paired bootstrap interval (fixed seed,
+# 2000 resamples, stdlib only). A metric is CHANGED only when the interval
+# excludes 0, so seed noise and a real shift do not look the same.
+# ---------------------------------------------------------------------------
+
+_BOOTSTRAP_SEED = 20261016
+_BOOTSTRAP_RESAMPLES = 2000
+_MIN_PAIRED_SEEDS_PER_POD = 10
+
+_COMPARE_METRICS = (*_TOTALS, "spells_per_player_round")
+
+
+def _game_key(game: dict[str, Any]) -> tuple[Any, Any]:
+    return (game.get("pod"), game.get("seed"))
+
+
+def pair_games(
+    report_a: dict[str, Any], report_b: dict[str, Any]
+) -> tuple[list[tuple[tuple[Any, Any], dict[str, Any], dict[str, Any]]], list[dict[str, Any]]]:
+    """Pair the ok games of two reports by (pod, seed).
+
+    Returns the paired games and the unpaired/failed games with their reasons;
+    nothing is silently dropped.
+    """
+
+    def index(
+        report: dict[str, Any],
+    ) -> tuple[dict[tuple[Any, Any], dict[str, Any]], list[tuple[tuple[Any, Any], str]]]:
+        ok: dict[tuple[Any, Any], dict[str, Any]] = {}
+        problems: list[tuple[tuple[Any, Any], str]] = []
+        for game in report.get("games", []):
+            key = _game_key(game)
+            if game.get("status") != "ok":
+                problems.append((key, f"status={game.get('status')}"))
+            elif key in ok:
+                problems.append((key, "duplicate (pod, seed)"))
+            else:
+                ok[key] = game
+        return ok, problems
+
+    a_ok, a_problems = index(report_a)
+    b_ok, b_problems = index(report_b)
+    a_bad_keys = {key for key, _ in a_problems}
+    b_bad_keys = {key for key, _ in b_problems}
+    paired = sorted(
+        ((key, a_ok[key], b_ok[key]) for key in a_ok.keys() & b_ok.keys()),
+        key=lambda item: repr(item[0]),
+    )
+    unpaired = [
+        {"report": side, "pod": key[0], "seed": key[1], "reason": reason}
+        for side, problems in (("a", a_problems), ("b", b_problems))
+        for key, reason in problems
+    ]
+    for key in sorted(a_ok.keys() - b_ok.keys() - b_bad_keys, key=repr):
+        unpaired.append({"report": "a", "pod": key[0], "seed": key[1], "reason": "no match in b"})
+    for key in sorted(b_ok.keys() - a_ok.keys() - a_bad_keys, key=repr):
+        unpaired.append({"report": "b", "pod": key[0], "seed": key[1], "reason": "no match in a"})
+    unpaired.sort(key=lambda game: repr((game["report"], game["pod"], game["seed"])))
+    return paired, unpaired
+
+
+def bootstrap_mean_ci(
+    deltas: list[float],
+    *,
+    seed: int = _BOOTSTRAP_SEED,
+    resamples: int = _BOOTSTRAP_RESAMPLES,
+) -> tuple[float, float]:
+    """95% percentile bootstrap confidence interval for the mean (stdlib only).
+
+    Resamples the paired per-game deltas with replacement under a fixed seed, so
+    the same two reports always yield the same interval.
+    """
+    rng = random.Random(seed)
+    n = len(deltas)
+    means = sorted(sum(deltas[rng.randrange(n)] for _ in range(n)) / n for _ in range(resamples))
+    return means[int(0.025 * resamples)], means[int(0.975 * resamples) - 1]
+
+
+def compare_reports(report_a: dict[str, Any], report_b: dict[str, Any]) -> dict[str, Any]:
+    """Compare two pilot reports on their paired (pod, seed) games.
+
+    Per metric: mean per-game delta with a 95% paired bootstrap interval; the
+    metric is marked CHANGED only when the interval excludes 0. Pods with fewer
+    than 10 paired seeds get a noise warning.
+    """
+    paired, unpaired = pair_games(report_a, report_b)
+    metrics: dict[str, dict[str, Any]] = {}
+    for key in _COMPARE_METRICS:
+        deltas = [
+            float(game_b.get(key, 0)) - float(game_a.get(key, 0)) for _, game_a, game_b in paired
+        ]
+        if not deltas:
+            continue
+        before = sum(float(game_a.get(key, 0)) for _, game_a, _ in paired) / len(paired)
+        after = sum(float(game_b.get(key, 0)) for _, _, game_b in paired) / len(paired)
+        mean_delta = sum(deltas) / len(deltas)
+        ci_lo, ci_hi = bootstrap_mean_ci(deltas)
+        metrics[key] = {
+            "paired_games": len(deltas),
+            "before_mean": before,
+            "after_mean": after,
+            "mean_delta": mean_delta,
+            "ci95": [ci_lo, ci_hi],
+            "changed": bool(ci_lo > 0 or ci_hi < 0),
+        }
+    seeds_per_pod: dict[str, int] = {}
+    for (pod, _seed), _, _ in paired:
+        seeds_per_pod[str(pod)] = seeds_per_pod.get(str(pod), 0) + 1
+    warnings = [
+        f"WARNING: pod {pod} has only {count} paired seeds "
+        f"(fewer than {_MIN_PAIRED_SEEDS_PER_POD}); treat differences as noise"
+        for pod, count in sorted(seeds_per_pod.items())
+        if count < _MIN_PAIRED_SEEDS_PER_POD
+    ]
+    return {
+        "paired_games": len(paired),
+        "paired_seeds_per_pod": seeds_per_pod,
+        "metrics": metrics,
+        "unpaired_games": unpaired,
+        "warnings": warnings,
+    }
+
+
+def format_comparison(result: dict[str, Any]) -> list[str]:
+    """Human-readable lines for a ``compare_reports`` result."""
+    lines = [f"paired games: {result['paired_games']}"]
+    for key in _COMPARE_METRICS:
+        metric = result["metrics"].get(key)
+        if metric is None:
+            lines.append(f"{key:40s} no paired games")
+            continue
+        lo, hi = metric["ci95"]
+        flag = "CHANGED" if metric["changed"] else "same"
+        lines.append(
+            f"{key:40s} {metric['before_mean']:>10.2f} -> {metric['after_mean']:<10.2f} "
+            f"delta {metric['mean_delta']:+.2f}  95% CI [{lo:+.2f}, {hi:+.2f}]  {flag}"
+        )
+    for game in result["unpaired_games"]:
+        lines.append(
+            f"unpaired: report={game['report']} pod={game['pod']} "
+            f"seed={game['seed']} reason={game['reason']}"
+        )
+    lines.extend(result["warnings"])
+    return lines
+
+
+def comparison_payload(result: dict[str, Any], path_a: Path, path_b: Path) -> dict[str, Any]:
+    """JSON-serializable comparison payload for ``--json`` (consumed by later reports)."""
+    metrics = {
+        key: {
+            "paired_games": metric["paired_games"],
+            "before_mean": round(metric["before_mean"], 4),
+            "after_mean": round(metric["after_mean"], 4),
+            "mean_delta": round(metric["mean_delta"], 4),
+            "ci95": [round(metric["ci95"][0], 4), round(metric["ci95"][1], 4)],
+            "changed": metric["changed"],
+        }
+        for key, metric in result["metrics"].items()
+    }
+    return {
+        "report_a": str(path_a),
+        "report_b": str(path_b),
+        "paired_games": result["paired_games"],
+        "paired_seeds_per_pod": result["paired_seeds_per_pod"],
+        "metrics": metrics,
+        "unpaired_games": result["unpaired_games"],
+        "warnings": result["warnings"],
+    }
+
+
 def compare(args: argparse.Namespace) -> int:
-    a, b = (totals(json.loads(path.read_text(encoding="utf-8"))) for path in (args.a, args.b))
-    for key in sorted(a.keys() | b.keys()):
-        before, after = a.get(key, 0.0), b.get(key, 0.0)
-        change = f"{100 * (after / before - 1):+.0f} %" if before else ""
-        print(f"{key:40s} {before:>10} -> {after:<10} {change}")
+    report_a = json.loads(args.a.read_text(encoding="utf-8"))
+    report_b = json.loads(args.b.read_text(encoding="utf-8"))
+    result = compare_reports(report_a, report_b)
+    for line in format_comparison(result):
+        print(line)
+    if args.json is not None:
+        args.json.write_text(
+            json.dumps(comparison_payload(result, args.a, args.b), indent=1) + "\n",
+            encoding="utf-8",
+        )
     return 0
 
 
@@ -393,6 +576,7 @@ def main(argv: list[str] | None = None) -> int:
     diff = sub.add_parser("compare")
     diff.add_argument("a", type=Path)
     diff.add_argument("b", type=Path)
+    diff.add_argument("--json", type=Path, default=None, help="write the comparison as JSON")
     diff.set_defaults(func=compare)
     args = parser.parse_args(argv)
     return int(args.func(args))

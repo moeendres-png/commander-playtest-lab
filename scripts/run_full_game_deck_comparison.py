@@ -38,6 +38,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+from commander_lab.deck_readiness import check_deck, format_deck_report
 from commander_lab.engine.rules.full_game import XmageFullGameRunner
 from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
@@ -136,6 +137,28 @@ def distinct_contenders(decks: list[RulesDeckInput]) -> tuple[RulesDeckInput, ..
     return tuple(result)
 
 
+# Deck readiness (#834): warn about cards the simulator cannot play well before
+# spending hours of full games on a deck.
+
+
+def print_readiness_summary(
+    contenders: tuple[RulesDeckInput, ...], opponents: tuple[RulesDeckInput, ...]
+) -> bool:
+    """Print the readiness report of every contender and opponent.
+
+    Returns True only when every deck is ready.
+    """
+    ready = True
+    for label, deck in (
+        *[("contender", deck) for deck in contenders],
+        *[("opponent", deck) for deck in opponents],
+    ):
+        report = check_deck(deck)
+        print(format_deck_report(f"{label} {deck.deck_id}", report))
+        ready = ready and report.ready
+    return ready
+
+
 def _summary_lines(report_json: dict[str, Any]) -> list[str]:
     lines: list[str] = []
     for row in report_json["contenders"]:
@@ -231,6 +254,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--request-timeout", type=float, default=120.0)
     parser.add_argument("--plan-only", action="store_true", help="print the plan and stop")
     parser.add_argument(
+        "--require-ready",
+        action="store_true",
+        help="refuse to run unless every contender and opponent deck is ready",
+    )
+    parser.add_argument(
         "--stop-when-decided",
         action="store_true",
         help="play seeds in blocks of --look-every and stop early once every "
@@ -249,6 +277,13 @@ def main(argv: list[str] | None = None) -> int:
         [load_deck(args.baseline), *(load_deck(path) for path in args.variant)]
     )
     opponents = tuple(load_deck(path) for path in args.opponent)
+    decks_ready = print_readiness_summary(contenders, opponents)
+    if args.require_ready and not decks_ready:
+        print(
+            "--require-ready: refusing to run because a deck is not ready",
+            file=sys.stderr,
+        )
+        return 1
     spec = DeckComparisonSpec(
         comparison_id=args.comparison_id or f"deck-comparison:{contenders[0].deck_id}",
         contenders=contenders,
