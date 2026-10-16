@@ -57,6 +57,16 @@ class XmageFullGameGamesPerJvmTest {
         assertTrue(XmageFullGameStateRedactor.holdsRecordsFor(bridge.currentEngineGameId()));
     }
 
+    @Test
+    void forgetGameRemovesTheRngTapePreShuffleAndResultsEntries() {
+        String id = "tape-forget-test";
+        XmageRulesRngResultTape.seedRecordsForTest(id);
+        assertTrue(XmageRulesRngResultTape.holdsRecordsFor(id));
+        XmageRulesRngResultTape.forgetGame(id);
+        assertFalse(XmageRulesRngResultTape.holdsRecordsFor(id),
+                "forgetGame must remove both the PRE_SHUFFLE and the RESULTS entry");
+    }
+
     private static void playAndShutDown(XmageFullGameJsonlBridge bridge, String gameId) {
         JsonObject created = create(bridge, gameId);
         assertTrue(created.get("success").getAsBoolean(), created.toString());

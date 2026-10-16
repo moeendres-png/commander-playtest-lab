@@ -95,6 +95,17 @@ final class XmageRulesRngResultTape {
         RESULTS.remove(engineGameId);
     }
 
+    /** Whether either per-game map still holds records of this engine game; for tests. */
+    static boolean holdsRecordsFor(String engineGameId) {
+        return PRE_SHUFFLE.containsKey(engineGameId) || RESULTS.containsKey(engineGameId);
+    }
+
+    /** Seeds empty records of one engine game in both maps; for tests. */
+    static void seedRecordsForTest(String engineGameId) {
+        PRE_SHUFFLE.put(engineGameId, new ConcurrentHashMap<>());
+        RESULTS.put(engineGameId, new ArrayList<>());
+    }
+
     /** Called before the engine shuffles {@code playerId}'s library. */
     static void beforeShuffle(Game game, UUID playerId, List<UUID> order) {
         if (!enabled() || game == null || playerId == null || game.isSimulation()) {

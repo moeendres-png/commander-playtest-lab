@@ -109,7 +109,7 @@ final class XmageFullGameStateRedactor {
     /**
      * Drops every per-game observation record of one engine game. The maps
      * above are static and keyed by game id; a JVM that plays more than one
-     * game (the mid-game lane, a reused full-game JVM) would otherwise keep
+     * game (a reused full-game JVM) would otherwise keep
      * every finished game's records until it exits.
      */
     static void forgetGame(String engineGameId) {
