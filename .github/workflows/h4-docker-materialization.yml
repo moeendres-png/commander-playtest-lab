@@ -47,7 +47,7 @@ jobs:
       xmage: ${{ steps.scope.outputs.xmage }}
     steps:
       - name: Checkout lab
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The PR merge commit and its base parent, for the provider scope below.
           fetch-depth: 2
@@ -222,7 +222,7 @@ jobs:
       COMPOSE_PROJECT_NAME: h4-xmage-${{ github.run_id }}
     steps:
       - name: Checkout lab
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0 immutable revision
         with:
           python-version: "3.12"
@@ -248,7 +248,7 @@ jobs:
           python3 -c "import json; print(json.load(open('h4-evidence-xmage/xmage-pin.json'))['commit'])" > h4-evidence-xmage/xmage-commit.txt
           echo "XMAGE_COMMIT=$(cat h4-evidence-xmage/xmage-commit.txt)" >> "$GITHUB_ENV"
       - name: Checkout pinned XMage (canonical repository + commit only)
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: moeendres-png/mage
           ref: ${{ env.XMAGE_COMMIT }}
