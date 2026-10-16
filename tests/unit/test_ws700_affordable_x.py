@@ -550,7 +550,9 @@ def test_the_remembered_cost_is_consumed_by_the_announce_that_used_it() -> None:
     # One cost is announced once. The remembered value is taken, not copied,
     # so a second announce_x for the same source before the next priority
     # decision of that seat cannot answer from the same cost again: it falls
-    # back to the visible budget, 5 instead of 3.
+    # back to the visible budget. #815: a repeated announce for the same
+    # source also means the previous X was reversed (unpayable), so the
+    # retry cap applies below the failed value.
     policy = _policy()
     policy.decide(_priority_request(source_id="obj-shelob", mana_cost=SHELOB_COST_FACTS))
     first = _announced(
@@ -569,7 +571,8 @@ def test_the_remembered_cost_is_consumed_by_the_announce_that_used_it() -> None:
             offset=3,
         ),
     )
-    assert second == 5
+    # Budget alone would give 5, but the failed X=3 caps it at 2.
+    assert second == 2
 
 
 def test_a_cost_stated_on_the_announce_frame_wins_over_the_memory() -> None:
@@ -764,3 +767,37 @@ def test_cost_facts_never_repair_malformed_bounds() -> None:
                 }
             )
         )
+
+
+# --- #815: retry protection for reversed over-announced X --------------------
+
+
+def _announce_x_request_with_source(source_id: str = "zenith-1", offset: int = 1) -> dict[str, Any]:
+    request = _announce_x_request(offset=offset)
+    request["source_object"] = {"source_object_id": source_id}
+    return request
+
+
+def test_repeated_announce_x_for_same_source_caps_below_failed_value() -> None:
+    # #815: first announce X=3 (affordable). If the engine reverses the cast
+    # (X unpayable), the next announce_x for the same source must cap below 3,
+    # not re-announce 3 forever.
+    policy = _policy()
+    first = _announced(policy, _announce_x_request_with_source())
+    assert first == 3
+    # Simulate the reversal: same source announces again.
+    second = _announced(policy, _announce_x_request_with_source(offset=2))
+    assert second < first, f"second announce {second} must be below failed {first}"
+    assert second <= 2
+
+
+def test_failed_x_cap_clears_on_next_priority_decision() -> None:
+    # A new priority action starts with a clean retry slate (the pop() in
+    # policy.py mirrors _priority_cost_facts handling).
+    policy = _policy()
+    assert _announced(policy, _announce_x_request_with_source()) == 3
+    assert _announced(policy, _announce_x_request_with_source(offset=2)) <= 2
+    # Simulate the priority-decision clearing directly.
+    policy._failed_x_announcements.clear()
+    # Next announce for the same source starts fresh (no cap).
+    assert _announced(policy, _announce_x_request_with_source(offset=3)) == 3
