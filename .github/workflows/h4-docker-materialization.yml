@@ -47,7 +47,7 @@ jobs:
       xmage: ${{ steps.scope.outputs.xmage }}
     steps:
       - name: Checkout lab
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # The PR merge commit and its base parent, for the provider scope below.
           fetch-depth: 2
@@ -157,7 +157,7 @@ jobs:
           fi
           echo "xmage=$xmage" >> "$GITHUB_OUTPUT"
           echo "H4 provider scope: xmage=$xmage"
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0 immutable revision
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 immutable revision
         with:
           python-version: "3.12"
           cache: pip
@@ -222,15 +222,15 @@ jobs:
       COMPOSE_PROJECT_NAME: h4-xmage-${{ github.run_id }}
     steps:
       - name: Checkout lab
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0 immutable revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0 immutable revision
         with:
           python-version: "3.12"
           # No pip cache in Docker-heavy jobs: post-job cache save must not
           # traverse mutable Docker-overlay state created/removed by this job.
           # CI hygiene only.
       - name: Set up JDK 17
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5 immutable revision
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1 immutable revision
         with:
           distribution: temurin
           java-version: "17"
@@ -248,7 +248,7 @@ jobs:
           python3 -c "import json; print(json.load(open('h4-evidence-xmage/xmage-pin.json'))['commit'])" > h4-evidence-xmage/xmage-commit.txt
           echo "XMAGE_COMMIT=$(cat h4-evidence-xmage/xmage-commit.txt)" >> "$GITHUB_ENV"
       - name: Checkout pinned XMage (canonical repository + commit only)
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: moeendres-png/mage
           ref: ${{ env.XMAGE_COMMIT }}
@@ -416,7 +416,7 @@ jobs:
         if: always()
         shell: bash
         run: docker compose -f docker-compose.engine.yml --profile xmage down --remove-orphans || true
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0 immutable revision
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2 immutable revision
         if: always()
         with:
           name: h4-evidence-xmage-${{ github.sha }}
