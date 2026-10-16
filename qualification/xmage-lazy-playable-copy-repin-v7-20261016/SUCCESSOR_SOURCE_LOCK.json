@@ -84,14 +84,14 @@
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 16e57239 inside that job); the earlier local run (1109 run, 0 failures, 1 skipped, local_observed_artifacts) is supporting only",
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 16e57239 inside that job); the earlier local run (1109 run, 0 failures, 1 skipped, local_observed_artifacts) is supporting only; the CI run has one test more because 7215c6819 added a static-record release test to XmageFullGameGamesPerJvmTest after the local run",
   "installed_artifacts_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
   "installed_artifacts": {
    "org.mage:mage:1.4.61": "sha256 d4e39a55f3759189ab9af48b1c993b8e5c90fec42aafcb73386a18d351c017c9",
    "org.mage:mage-sets:1.4.61": "sha256 928ce4cb0399206cf8969b263b2549d986b531286d745436cd290f81ff58fb4a"
   },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance pull_request run on the repin branch head 9af352cf, merge ref 5a0b2e64 with main af08f20e (XMAGE_COMMIT=16e57239, checked by git rev-parse in the job): engine-bridge mvn verify against XMage built from exact 16e57239",
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head 9af352cfc3116bb1aeb50263599008df3b52ab6a, merge ref 5a0b2e64e9d565184109d72d79510133577ab812 with main af08f20ea1b5488d6d04dc48b9c0cd2d7d58e303, an ancestor of the head, so the merge ref has the head's tree (XMAGE_COMMIT=16e57239, checked by git rev-parse in the job); engine-bridge is unchanged from 9af352cf to the commit that binds this run: engine-bridge mvn verify against XMage built from exact 16e57239",
    "run": 1110,
    "failures": 0,
    "errors": 0,
