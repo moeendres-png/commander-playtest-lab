@@ -23,7 +23,7 @@
       "data_note": "OpenCode Zen: zero-retention, no training on the data."
     },
     "deepseek-th": {
-      "model": "tokenharbor/deepseek-v4.1-flash",
+      "model": "tokenharbor/deepseek-v4.1-flash:free",
       "native_variant": "provider_default",
       "runtime_status": "ACTIVE",
       "model_family": "deepseek-v4.1-flash",
@@ -44,7 +44,7 @@
       "logical_profile": "deepseek",
       "alias_class": "CANONICAL"
     },
-    "tokenharbor/deepseek-v4.1-flash": {
+    "tokenharbor/deepseek-v4.1-flash:free": {
       "logical_profile": "deepseek-th",
       "alias_class": "CANONICAL"
     }
@@ -62,7 +62,7 @@
     "post_selection_failure": "FAIL_CLOSED_NO_RE_RESOLUTION",
     "automatic_fallback": false,
     "deepseek_th_preference": [
-      "tokenharbor/deepseek-v4.1-flash"
+      "tokenharbor/deepseek-v4.1-flash:free"
     ]
   },
   "cross_executor_review_policy": {
@@ -170,14 +170,15 @@
       "activation_without_smoke": "Coordinator reading of the Owner instruction of 2026-10-16, which directs that DeepSeek V4.1 Flash MAX on OpenCode Zen be the one active OpenCode executor: it is activated before the authenticated smoke that required_validation asks for, because Step left the catalog, no other executor may run, and the smoke itself needs an active lane. The Owner did not separately waive the smoke; it stays owed and is the first trusted lane run."
     },
     "activation_evidence_2026_10_16_tokenharbor": {
-      "current_model_identity": "tokenharbor/deepseek-v4.1-flash",
+      "current_model_identity": "tokenharbor/deepseek-v4.1-flash:free",
+      "free_route_rebind_2026_10_16": "DIRECTLY_VERIFIED by Owner readback 2026-10-16: the live GET https://tokenharbor.ai/v1/models with the project key lists both deepseek-v4.1-flash:free and deepseek-v4.1-flash, and the Token Harbor docs state 'Free routes never charge your balance; the base model IDs remain paid routes.' The paid base route had refused /oc-th runs on an exhausted Token Harbor balance (issue #812), so the registry, launcher, opencode.json and the /oc-th lane call only the :free id; the paid base id is not admitted for deepseek-th. The authenticated smoke stays NOT_RUN.",
       "reason": "Second ACTIVE OpenCode profile and GitHub lane /oc-th, so the Coordinator can dispatch to Zen (/oc, default) or Token Harbor (/oc-th). Token Harbor is OpenAI-compatible at https://tokenharbor.ai/v1 with bearer auth; opencode provider npm @ai-sdk/openai-compatible.",
       "authority": "Direct Owner instruction 2026-10-16.",
       "secret": "The Owner created the repository secret TOKENHARBOR_API_KEY; the key is referenced only as {env:TOKENHARBOR_API_KEY} and passed only to the /oc-th job. No literal key exists in the repository.",
       "docs_read": "tokenharbor.ai/docs, /docs/integrations/opencode, /pricing, /terms read 2026-10-16.",
       "native_variant_choice": "The documented opencode integration exposes no reasoning-effort control or variants, so the model runs at the provider default; max/high cannot be pinned and no variant is faked (native_variant provider_default).",
       "data_note": "Free routes may be logged and used for improvement: no Owner data, credentials or private collection data in an /oc-th task. Free limits 60 req/min, 1800 req/h, rolling 7-day allowance; free models must be opted in in the dashboard.",
-      "authenticated_runtime_smoke": "NOT_RUN: the first trusted /oc-th run after merge is the runtime observation for the Token Harbor identity and key.",
+      "authenticated_runtime_smoke": "NOT_RUN: the first trusted /oc-th run after this free-route rebind and merge is the runtime observation for the Token Harbor free identity and key.",
       "runtime_status": "ACTIVE",
       "activation_without_smoke": "Coordinator reading of the Owner instruction of 2026-10-16; the smoke itself needs an active lane and stays owed. The Owner did not separately waive it."
     }

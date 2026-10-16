@@ -33,7 +33,8 @@ Same model, same `foundry-implementer` agent, same trust gate; the Coordinator p
 provider per dispatch and never falls back from one to the other.
 
 - `/oc` (default): Zen, zero-retention, no training; capped by the daily Zen request limit.
-- `/oc-th`: Token Harbor free plan (`tokenharbor/deepseek-v4.1-flash`), 60 req/min and
+- `/oc-th`: Token Harbor free plan (`tokenharbor/deepseek-v4.1-flash:free`; the paid base id is
+  never called), 60 req/min and
   1800 req/h, a rolling 7-day allowance. The provider documents no reasoning-effort control, so
   the model runs at its provider default (`max` cannot be pinned). Free routes may be logged and
   used for improvement: never put Owner data, credentials or private collection data in an

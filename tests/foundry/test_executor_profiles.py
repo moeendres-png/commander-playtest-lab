@@ -25,7 +25,7 @@ def test_selected_profiles_and_highest_native_efforts_are_exact() -> None:
     expected = {
         "deepseek": ("opencode/deepseek-v4.1-flash-free", "max"),
         # Token Harbor exposes no effort control: provider default, nothing faked.
-        "deepseek-th": ("tokenharbor/deepseek-v4.1-flash", "provider_default"),
+        "deepseek-th": ("tokenharbor/deepseek-v4.1-flash:free", "provider_default"),
     }
     actual = {
         name: (spec["model"], spec["native_variant"]) for name, spec in doc["profiles"].items()
@@ -243,7 +243,7 @@ def test_runtime_identity_admits_only_the_zen_deepseek_id() -> None:
             "logical_profile": "deepseek",
             "alias_class": "CANONICAL",
         },
-        "tokenharbor/deepseek-v4.1-flash": {
+        "tokenharbor/deepseek-v4.1-flash:free": {
             "logical_profile": "deepseek-th",
             "alias_class": "CANONICAL",
         },
@@ -255,7 +255,7 @@ def test_runtime_identity_admits_only_the_zen_deepseek_id() -> None:
         assert retired not in blob, retired
     policy = doc["resolution_policy"]
     assert policy["logical_profiles"] == ["deepseek", "deepseek-th"]
-    assert policy["deepseek_th_preference"] == ["tokenharbor/deepseek-v4.1-flash"]
+    assert policy["deepseek_th_preference"] == ["tokenharbor/deepseek-v4.1-flash:free"]
     assert policy["deepseek_preference"] == ["opencode/deepseek-v4.1-flash-free"]
     assert "step_preference" not in policy
     assert policy["automatic_fallback"] is False
