@@ -28,6 +28,7 @@ from commander_lab.engine.structural.xmage_calibration import (
 )
 from commander_lab.mana_analysis import (
     DEFAULT_CASTABILITY_SEED,
+    CommanderCastability,
     ManaAnalyzer,
 )
 from commander_lab.models import RulesDeckInput, StructuralDeckProfile
@@ -79,6 +80,35 @@ def structural_profile(deck: RulesDeckInput) -> tuple[StructuralDeckProfile, str
     return profile, source
 
 
+def _json_payload(
+    deck: RulesDeckInput,
+    profile: StructuralDeckProfile,
+    source: str,
+    result: CommanderCastability,
+    *,
+    trials: int,
+) -> dict[str, object]:
+    """One JSON document with the same numbers the text tables print (#844)."""
+    return {
+        "deck_id": deck.deck_id,
+        "name": deck.name,
+        "structural_profile_source": source,
+        "trials": trials,
+        "seed": DEFAULT_CASTABILITY_SEED,
+        "probability": {
+            name: {
+                mode: {str(turn): result.probability[name][mode][turn] for turn in range(2, 11)}
+                for mode in ("play", "draw")
+            }
+            for name in profile.commander_names
+        },
+        "expected_turn": {
+            name: {mode: result.expected_turn[name][mode] for mode in ("play", "draw")}
+            for name in profile.commander_names
+        },
+    }
+
+
 def _commander_line(profile: StructuralDeckProfile, name: str) -> str:
     card = next(card for card in profile.cards if card.oracle_name == name)
     pips = ", ".join(
@@ -97,6 +127,7 @@ def main(argv: list[str] | None = None) -> int:
         default=20_000,
         help="Monte Carlo trials (default: 20000)",
     )
+    parser.add_argument("--json", action="store_true", help="machine-readable JSON output")
     args = parser.parse_args(argv)
     if args.trials < 1:
         parser.error("--trials must be positive")
@@ -106,6 +137,11 @@ def main(argv: list[str] | None = None) -> int:
     profile, source = structural_profile(deck)
     analyzer = ManaAnalyzer(ROOT)
     result = analyzer.commander_castability(profile, trials=args.trials)
+
+    if args.json:
+        payload = _json_payload(deck, profile, source, result, trials=args.trials)
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
 
     print(f"Deck: {deck.deck_id} — {deck.name}")
     print(f"Structural profile: {source}")
