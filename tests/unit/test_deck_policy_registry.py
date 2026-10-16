@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.candidate_screening import CandidateScreener
+from commander_lab.candidate_workflow.screening import CandidateScreener
 from commander_lab.canonical_features import (
     CanonicalFeatureError,
     load_canonical_feature_annotations,

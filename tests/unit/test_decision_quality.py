@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import pytest
 
-from commander_lab.decision_information import (
+from commander_lab.decision.information import (
     DecisionInformationStatus,
     build_decision_information_state,
 )
-from commander_lab.decision_quality import (
+from commander_lab.decision.quality import (
     ClosureSignal,
     DecisionStage,
     DomainInputValidityStatus,

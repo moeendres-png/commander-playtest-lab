@@ -64,6 +64,26 @@ def _load_sdk() -> dict[str, Any]:
     }
 
 
+def _has_free_form_object(node: Any) -> bool:
+    """True when a JSON schema contains an object the SDK strict mode cannot express."""
+
+    if isinstance(node, dict):
+        if node.get("type") == "object" and (
+            node.get("additionalProperties") not in (None, False) or "properties" not in node
+        ):
+            return True
+        return any(_has_free_form_object(value) for value in node.values())
+    if isinstance(node, list):
+        return any(_has_free_form_object(value) for value in node)
+    return False
+
+
+def tool_strict_mode(input_model: type[Any]) -> bool:
+    """Strict function-tool schemas are only valid without free-form (dict) fields."""
+
+    return not _has_free_form_object(input_model.model_json_schema())
+
+
 def _sdk_tools(registry: ToolRegistry, function_tool: Any) -> list[Any]:
     tools: list[Any] = []
     for definition in registry.definitions:
@@ -89,7 +109,7 @@ def _sdk_tools(registry: ToolRegistry, function_tool: Any) -> list[Any]:
                 tool_callable,
                 name_override=tool_name,
                 description_override=description,
-                strict_mode=True,
+                strict_mode=tool_strict_mode(input_model),
             )
         )
     return tools

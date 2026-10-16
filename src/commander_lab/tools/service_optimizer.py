@@ -3,7 +3,10 @@ from __future__ import annotations
 from statistics import fmean
 from typing import TYPE_CHECKING, Any
 
-from commander_lab.cut_frontier import build_static_swap_rows, select_diverse_swap_frontier
+from commander_lab.candidate_workflow.cut_frontier import (
+    build_static_swap_rows,
+    select_diverse_swap_frontier,
+)
 from commander_lab.engine.rules import (
     RulesEngineManager,
     TacticalRuleOracle,
@@ -41,6 +44,13 @@ from commander_lab.robustness import POLITICS_REGIMES, pilot_config_for
 if TYPE_CHECKING:
     pass
 
+from .evidence_types import (
+    CanonicalDeckListsFile,
+    CardRulesCoverageFile,
+    Phase1213ResultFile,
+    PilotPoliticsRegistryFile,
+    read_optional_json_as,
+)
 from .service_core import (
     ToolExecutionError,
 )
@@ -187,13 +197,21 @@ class ServiceOptimizerMixin(ServiceSearchMixin, ServiceMulliganMixin):
                 )
             available = [deck_id for deck_id in requested if deck_id in self.decks]
             unavailable = [deck_id for deck_id in requested if deck_id not in self.decks]
-            coverage = self._read_optional_json("data/rules/card_rules_coverage.json", {})
-            robustness = self._read_optional_json(
-                "data/robustness/pilot_and_politics_registry.json", {}
+            coverage = read_optional_json_as(
+                self.root, "data/rules/card_rules_coverage.json", CardRulesCoverageFile
             )
-            engine = self._read_optional_json("artifacts/phase12_13/PHASE12_13_RESULT.json", {})
-            canonical = self._read_optional_json(
-                "data/canonical_import/2026-08-07/deck_lists.json", {}
+            robustness = read_optional_json_as(
+                self.root,
+                "data/robustness/pilot_and_politics_registry.json",
+                PilotPoliticsRegistryFile,
+            )
+            engine = read_optional_json_as(
+                self.root, "artifacts/phase12_13/PHASE12_13_RESULT.json", Phase1213ResultFile
+            )
+            canonical = read_optional_json_as(
+                self.root,
+                "data/canonical_import/2026-08-07/deck_lists.json",
+                CanonicalDeckListsFile,
             )
             return {
                 "execution_status": "passed_with_limitations" if unavailable else "passed",
@@ -255,7 +273,7 @@ class ServiceOptimizerMixin(ServiceSearchMixin, ServiceMulliganMixin):
     def generate_candidate_swaps(self, request: GenerateCandidateSwapsInput) -> ToolResponse:
         def work() -> dict[str, Any]:
             self._require_active_optimization_target(request.deck_id)
-            from commander_lab.candidate_screening import RogShaiCandidateScreener
+            from commander_lab.candidate_workflow.screening import RogShaiCandidateScreener
 
             deck = self._deck(request.deck_id)
             semantic_screen = RogShaiCandidateScreener(self.root, service=self).screen_pool(

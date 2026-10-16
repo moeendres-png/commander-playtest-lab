@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any
+from collections.abc import Callable, Mapping
 
 from pydantic import BaseModel
 
@@ -23,6 +22,7 @@ from .registry import (
 from .registry import (
     TOOL_DEFINITIONS,
     ToolDefinition,
+    ToolSchema,
 )
 from .service_v120 import CommanderToolService
 
@@ -84,7 +84,7 @@ class ToolRegistry:
         self.definitions = tuple(definitions)
         self._definitions = {definition.name: definition for definition in self.definitions}
 
-    def list_schemas(self) -> list[dict[str, Any]]:
+    def list_schemas(self) -> list[ToolSchema]:
         return [definition.schema() for definition in self.definitions]
 
     def input_model(self, name: str) -> type[BaseModel]:
@@ -93,11 +93,13 @@ class ToolRegistry:
         except KeyError as exc:
             raise KeyError(f"unknown tool: {name}") from exc
 
-    def invoke(self, name: str, payload: dict[str, Any]) -> ToolResponse:
+    def invoke(self, name: str, payload: Mapping[str, object]) -> ToolResponse:
         try:
             definition = self._definitions[name]
         except KeyError as exc:
             raise KeyError(f"unknown tool: {name}") from exc
         request = definition.input_model.model_validate(payload)
-        handler: Callable[[Any], ToolResponse] = getattr(self.service, definition.handler_name)
+        handler: Callable[[BaseModel], ToolResponse] = getattr(
+            self.service, definition.handler_name
+        )
         return handler(request)

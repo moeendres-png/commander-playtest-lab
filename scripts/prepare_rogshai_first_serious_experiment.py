@@ -7,16 +7,6 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from commander_lab.first_run_preparation import (
-    DECK_ID,
-    EXPECTED_DECK_HASH,
-    PRELIMINARY_RUN,
-    SEED_ROOTS,
-    SENSITIVITY_PODS,
-    VARIANTS,
-    build_official_run_spec,
-    child_seed,
-)
 from commander_lab.models import (
     CommanderDenialInput,
     HoldoutInput,
@@ -28,6 +18,16 @@ from commander_lab.models import (
 )
 from commander_lab.priority_workflows import PriorityWorkflowFacade
 from commander_lab.project_context import load_project_context
+from commander_lab.rogshai.first_run_preparation import (
+    DECK_ID,
+    EXPECTED_DECK_HASH,
+    PRELIMINARY_RUN,
+    SEED_ROOTS,
+    SENSITIVITY_PODS,
+    VARIANTS,
+    build_official_run_spec,
+    child_seed,
+)
 from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[1]

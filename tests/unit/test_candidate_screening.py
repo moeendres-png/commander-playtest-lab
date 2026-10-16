@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from commander_lab.candidate_screening import CandidateScreener, RogShaiCandidateScreener
+from commander_lab.candidate_workflow.screening import CandidateScreener, RogShaiCandidateScreener
 from commander_lab.tools.service import CommanderToolService
 
 ROOT = Path(__file__).resolve().parents[2]

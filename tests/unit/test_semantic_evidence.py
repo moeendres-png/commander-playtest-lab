@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from commander_lab.candidate_screening import RogShaiCandidateScreener
+from commander_lab.candidate_workflow.screening import RogShaiCandidateScreener
 from commander_lab.semantic_evidence import SemanticEvidenceType
 from commander_lab.tools.service import CommanderToolService
 

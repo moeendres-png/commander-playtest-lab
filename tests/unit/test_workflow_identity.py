@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.project_context import load_project_context
-from commander_lab.workflow_identity import (
+from commander_lab.identity.workflow import (
     WorkflowIdentityError,
     build_priority_comparison_identity,
 )
+from commander_lab.project_context import load_project_context
 
 ROOT = Path(__file__).resolve().parents[2]
 

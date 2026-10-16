@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from commander_lab.advancement import LEGACY_ADVANCEMENT_REASON, decide_advancement
+from commander_lab.candidate_workflow.advancement import (
+    LEGACY_ADVANCEMENT_REASON,
+    decide_advancement,
+)
 
 
 def _comparison() -> dict[str, object]:

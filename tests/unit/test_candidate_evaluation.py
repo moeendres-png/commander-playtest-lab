@@ -3,8 +3,8 @@ from __future__ import annotations
 import hashlib
 from pathlib import Path
 
-from commander_lab.candidate_evaluation import build_candidate_evaluation_plan
-from commander_lab.decision_context import TestCandidateSpec as ExplicitTestCandidateSpec
+from commander_lab.candidate_workflow.evaluation import build_candidate_evaluation_plan
+from commander_lab.decision.context import TestCandidateSpec as ExplicitTestCandidateSpec
 from commander_lab.models import CandidateProfile
 from commander_lab.tools.service import CommanderToolService
 

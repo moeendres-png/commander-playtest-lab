@@ -6,7 +6,7 @@ from collections import Counter
 from pathlib import Path
 from typing import Any
 
-from commander_lab.candidate_evaluation import build_candidate_evaluation_plan
+from commander_lab.candidate_workflow.evaluation import build_candidate_evaluation_plan
 from commander_lab.deck_registry import load_deck_policy_registry
 from commander_lab.priority_workflows import PriorityWorkflowFacade
 from commander_lab.storage.run_identity import sha256_run_value
