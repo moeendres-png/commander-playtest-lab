@@ -491,6 +491,8 @@ def test_reversed_free_cast_is_not_retried_forever() -> None:
     # Continuing would only re-offer the refused card: the chain ends here.
     assert answer(cont, 4) == "no"
     assert answer(other, 5) == "yes"
+
+
 _FILTER_FACTS: dict[str, Any] = {
     "mana_cost_white": 0,
     "mana_cost_blue": 0,
