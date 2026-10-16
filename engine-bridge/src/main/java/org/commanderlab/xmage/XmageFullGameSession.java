@@ -6,6 +6,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.cards.decks.Deck;
 import mage.constants.RangeOfInfluence;
+import mage.game.Game;
 import mage.game.GameCommanderImpl;
 import mage.game.GameOptions;
 import mage.game.events.TableEvent;
@@ -1107,6 +1108,14 @@ final class XmageFullGameSession {
     static final Duration SETTLE_TIMEOUT = Duration.ofSeconds(75);
 
     /**
+     * #845: the silent-engine timeout message carries the engine thread name
+     * plus its top 12 stack frames on one line, so a CI log alone names what
+     * the engine was doing when it went silent. The whole message stays within
+     * this many characters.
+     */
+    private static final int ENGINE_SILENCE_MESSAGE_LIMIT = 1000;
+
+    /**
      * Test seam: runs on the engine thread right after the controller is marked
      * terminal, i.e. inside the window {@link #awaitSettled} closes. A no-op in
      * production.
@@ -1129,10 +1138,17 @@ final class XmageFullGameSession {
             XmageFullGameDecisionController controller, Thread engineThread, Duration timeout) {
         long deadline = System.nanoTime() + timeout.toNanos();
         if (!controller.awaitPendingOrTerminal(timeout)) {
-            throw new XmageFullGameDecisionController.DecisionException(
-                    "DECISION_ADVANCE_TIMEOUT: engine neither offered a decision nor ended within "
-                            + timeout.toSeconds() + "s"
-            );
+            // #845: name what the engine was doing when it went silent: the
+            // thread name plus its top 12 stack frames, on one line. The
+            // thread name leads, so truncation keeps it even when the frames
+            // do not fit. The other two DECISION_ADVANCE_TIMEOUT paths are
+            // unchanged.
+            String message = "DECISION_ADVANCE_TIMEOUT: engine neither offered a decision nor ended within "
+                    + timeout.toSeconds() + "s | " + engineSilenceContext(engineThread);
+            if (message.length() > ENGINE_SILENCE_MESSAGE_LIMIT) {
+                message = message.substring(0, ENGINE_SILENCE_MESSAGE_LIMIT);
+            }
+            throw new XmageFullGameDecisionController.DecisionException(message);
         }
         if (controller.pendingDecision() != null || !controller.terminalMarked()
                 || engineThread == null) {
@@ -1154,6 +1170,57 @@ final class XmageFullGameSession {
         }
     }
 
+    /**
+     * #845: names the engine thread and its top 12 stack frames for a
+     * silent-engine timeout, on one line. Null-safe: a missing thread is
+     * reported as {@code engine=null}. Never throws; the array allocation and
+     * reads are guarded by a RuntimeException catch so a diagnostic can never
+     * mask the failure it describes.
+     */
+    static String engineSilenceContext(Thread engineThread) {
+        try {
+            StringBuilder detail = new StringBuilder("engine=");
+            if (engineThread == null) {
+                detail.append("null");
+            } else {
+                detail.append(engineThread.getName()).append(" frames=");
+                StackTraceElement[] trace = engineThread.getStackTrace();
+                int frames = Math.min(12, trace.length);
+                for (int index = 0; index < frames; index++) {
+                    if (index > 0) {
+                        detail.append(" <- ");
+                    }
+                    detail.append(trace[index].getClassName())
+                            .append('.')
+                            .append(trace[index].getMethodName());
+                }
+            }
+            return detail.toString().replaceAll("\\s+", " ");
+        } catch (RuntimeException exc) {
+            return "engine=context-unavailable";
+        }
+    }
+
+    /**
+     * #845: compact game-state context for an OutOfMemoryError: turn number,
+     * stack size, total battlefield permanents, controller decision count.
+     * Called only for OutOfMemoryError, never for any other Throwable. Cannot
+     * throw: only RuntimeExceptions are caught, and only a short string is
+     * allocated, which matters because the heap is exhausted when this runs.
+     * {@code getAllPermanents()} returns a live view, so the count allocates
+     * nothing.
+     */
+    static String engineHeapContext(Game game, XmageFullGameDecisionController controller) {
+        try {
+            return "turn=" + game.getTurnNum()
+                    + " stack=" + game.getStack().size()
+                    + " battlefield=" + game.getBattlefield().getAllPermanents().size()
+                    + " decisions=" + controller.decisionCount();
+        } catch (RuntimeException exc) {
+            return "context-unavailable";
+        }
+    }
+
     private void runEngine(UUID startingPlayerId) {
         try {
             game.start(startingPlayerId);
@@ -1171,10 +1238,13 @@ final class XmageFullGameSession {
                 shutdownUnwind.compareAndSet(null, exc.getClass().getSimpleName() + ": " + safeMessage(exc));
             } else {
                 engineFailure.compareAndSet(null, exc);
-                controller.failClosed(
-                        "XMAGE_FULL_GAME_FAILED",
-                        exc.getClass().getSimpleName() + ": " + safeMessage(exc)
-                );
+                String failureDetail = exc.getClass().getSimpleName() + ": " + safeMessage(exc);
+                if (exc instanceof OutOfMemoryError) {
+                    // #845: name what the engine was doing when the heap ran
+                    // out; the helper cannot throw and runs on this path only.
+                    failureDetail = failureDetail + " | heap " + engineHeapContext(game, controller);
+                }
+                controller.failClosed("XMAGE_FULL_GAME_FAILED", failureDetail);
             }
         } finally {
             controller.markTerminal();
