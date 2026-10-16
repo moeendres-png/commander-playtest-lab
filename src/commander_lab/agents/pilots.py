@@ -327,22 +327,28 @@ class BasePilot:
             for card in card_list
             if card.mana_cost <= 2
         )
-        early_interaction = sum(
-            card.strength(CardRole.REMOVAL)
-            + card.strength(CardRole.COUNTER)
-            + card.strength(CardRole.PROTECTION)
-            for card in card_list
-            if card.mana_cost <= 2
-        )
         expensive = sum(card.mana_cost >= 5 for card in card_list)
-        land_score = 2.4 - abs(3 - lands) * 1.1
+        # #850: land term recentered on 3.5 (Commander wants 3-4 lands, not
+        # exactly 3). The falloff is gentler above 3.5 than below: a 5-land
+        # hand is mana-rich and will draw into action, while a 2-land hand
+        # risks missing land drops -- and the spell bonus below
+        # systematically favors the 2-land hand (more spells), so the land
+        # term compensates in the other direction.
+        land_score = 3.5 - (3.5 - lands) * 0.85 if lands <= 3 else 3.5 - (lands - 3.5) * 0.55
         if lands < 2 or lands > 5:
             land_score -= 2.5
         score = land_score
         score += min(2.0, early_ramp * 0.8)
         score += min(1.5, early_velocity * 0.55)
-        score += min(1.2, early_interaction * 0.35)
-        score -= expensive * 0.45
+        # #850: no cheap-interaction bonus here. The mulligan decision is
+        # about mana development -- whether the hand can hit its land drops.
+        # Cheap ramp and card draw answer that; removal/counters/protection
+        # do not fix a mana-poor hand. (The per-pilot specialist bonuses
+        # below still value interaction where the archetype wants it.)
+        # The expensive-card penalty is lowered (was 0.45): Commander decks
+        # run many 5+ drops, and the old penalty mulliganed good 4-land
+        # hands for holding a single 5-drop.
+        score -= expensive * 0.15
         score += self.opening_hand_specialist_bonus(card_list, commander_names)
         return score
 
@@ -364,11 +370,14 @@ class BasePilot:
         rng: random.Random,
     ) -> tuple[bool, float]:
         score = self.opening_hand_score(cards, commander_names=commander_names)
+        # #850: recalibrated for the recentered land term. Selectivity order
+        # is unchanged (WEAK keeps the most, NEAR_OPTIMAL_HEURISTIC the
+        # fewest); every strength keeps a realistic share of openers.
         thresholds = {
-            PilotStrength.WEAK: 1.6,
-            PilotStrength.AVERAGE: 2.3,
-            PilotStrength.STRONG: 2.8,
-            PilotStrength.NEAR_OPTIMAL_HEURISTIC: 3.1,
+            PilotStrength.WEAK: 2.35,
+            PilotStrength.AVERAGE: 2.55,
+            PilotStrength.STRONG: 2.65,
+            PilotStrength.NEAR_OPTIMAL_HEURISTIC: 2.75,
         }
         threshold = thresholds[self.config.strength]
         effective_mulligans = max(0, mulligans - (1 if free_first and mulligans > 0 else 0))
