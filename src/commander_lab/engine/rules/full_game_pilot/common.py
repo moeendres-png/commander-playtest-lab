@@ -27,6 +27,10 @@ FULL_GAME_DECISION_PROTOCOL_VERSION = "xmage-external-decision-protocol-1.0.0"
 FULL_GAME_LANE = "xmage_full_game_external_pilots"
 FULL_GAME_EVIDENCE_CLASS: Literal["technical_conformance_only"] = "technical_conformance_only"
 XMAGE_FULL_GAME_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
+# Optional extra JVM flags spliced right after the java launcher of the bridge
+# command (diagnostics only, e.g. -XX:+HeapDumpOnOutOfMemoryError
+# -XX:HeapDumpPath=... for #816). Ignored for non-java launchers.
+XMAGE_JVM_FLAGS_ENV = "COMMANDER_LAB_XMAGE_JVM_FLAGS"
 
 # Bridge-process shutdown dispositions observed by close(). Only
 # graceful_shutdown may back a clean-shutdown evidence claim; every other

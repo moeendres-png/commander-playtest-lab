@@ -15,6 +15,7 @@ import threading
 import time
 import uuid
 import weakref
+from collections import deque
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Literal, TextIO, cast
@@ -47,6 +48,7 @@ from .full_game_pilot.common import (
     FULL_GAME_SHUTDOWN_GRACEFUL,
     FULL_GAME_SHUTDOWN_UNACKED_EXIT,
     XMAGE_FULL_GAME_COMMAND_ENV,
+    XMAGE_JVM_FLAGS_ENV,
     FullGameConformanceError,
     FullGamePilotBinding,
     FullGameProtocolError,
@@ -509,7 +511,8 @@ class _RawFullGameClient:
             raise ValueError(
                 "full-game bridge command must explicitly include the full-game subcommand"
             )
-        self.command = command
+        # #816: opt-in JVM diagnostics (e.g. heap dump flags) for the bridge.
+        self.command = _with_jvm_flags(command)
         self.cwd = resolve_engine_working_directory(cwd)
         self.request_timeout_seconds = request_timeout_seconds
         # How long an acked shutdown may take before the process is killed.
@@ -854,6 +857,64 @@ class _RawFullGameClient:
         self.shutdown_disposition = self.close()
 
 
+# #818: bounded trailing window of answered decisions kept for max_decisions
+# post-mortem diagnosis (tight loop vs. calibration). Compact records only.
+_RECENT_DECISIONS_MAXLEN = 500
+_RECENT_DECISIONS_TAIL = 8
+
+
+def _summarize_recent_decisions(recent: Sequence[dict[str, Any]]) -> str:
+    """Compact, privacy-safe post-mortem of the trailing decision window.
+
+    Reports only counts, decision classes, turns and seats -- no prompt or
+    option text, so no engine-derived strings reach the error surface (C4).
+    Deterministic: ties break on class/turn/seat text.
+    """
+    total = len(recent)
+    if total == 0:
+        return "recent=none"
+    class_counts: dict[str, int] = {}
+    triple_counts: dict[tuple[str, str, str], int] = {}
+    for record in recent:
+        cls = record.get("class")
+        key_cls = cls if isinstance(cls, str) else "?"
+        class_counts[key_cls] = class_counts.get(key_cls, 0) + 1
+        triple = (key_cls, str(record.get("turn")), str(record.get("seat")))
+        triple_counts[triple] = triple_counts.get(triple, 0) + 1
+    classes = ",".join(
+        f"{cls}={count}"
+        for cls, count in sorted(class_counts.items(), key=lambda kv: (-kv[1], kv[0]))
+    )
+    top = sorted(triple_counts.items(), key=lambda kv: (-kv[1], kv[0][0], kv[0][1], kv[0][2]))[:5]
+    top_str = ",".join(f"{cls}@turn={turn}/seat={seat}:{count}" for (cls, turn, seat), count in top)
+    tail = ",".join(
+        f"{record.get('n')}:{record.get('class')}"
+        f"@turn={record.get('turn')}/seat={record.get('seat')}"
+        f"/opts={record.get('options')}"
+        for record in list(recent)[-_RECENT_DECISIONS_TAIL:]
+    )
+    return f"recent=total:{total} classes={{{classes}}} top=[{top_str}] tail=[{tail}]"
+
+
+def _with_jvm_flags(command: tuple[str, ...]) -> tuple[str, ...]:
+    """Splice COMMANDER_LAB_XMAGE_JVM_FLAGS into a java launcher command.
+
+    Opt-in diagnostics for the bridge JVM (e.g. -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=... for #816). Only applies when the command actually
+    launches java; any other launcher is left untouched.
+    """
+    raw = os.getenv(XMAGE_JVM_FLAGS_ENV)
+    if not raw or not raw.strip():
+        return command
+    extra = tuple(shlex.split(raw))
+    if not extra or not command:
+        return command
+    launcher = os.path.basename(command[0]).lower()
+    if launcher not in ("java", "javaw", "java.exe"):
+        return command
+    return (command[0], *extra, *command[1:])
+
+
 def _public_error(exc: Exception) -> Exception:
     """The exception a public :class:`XmageFullGameRunner` method would raise for ``exc``."""
 
@@ -1189,6 +1250,8 @@ class XmageFullGameRunner:
         status = client.request("start_full_game")
         decision_count = 0
         observed: list[str] = []
+        # #818: trailing decision window for max_decisions post-mortem.
+        recent: deque[dict[str, Any]] = deque(maxlen=_RECENT_DECISIONS_MAXLEN)
         while True:
             failure = status.get("failure")
             if isinstance(failure, dict):
@@ -1214,9 +1277,25 @@ class XmageFullGameRunner:
                     return decision_count, observed, False
                 decision_count += 1
                 if decision_count > self.max_decisions:
-                    raise FullGameConformanceError(
-                        f"full-game exceeded max_decisions={self.max_decisions}"
+                    # #818: the trailing decision window rides the architected
+                    # in-memory diagnostics channel (FullGameProtocolError
+                    # .diagnostics survives the public boundary; the persisted
+                    # message stays redacted by design).
+                    raise FullGameProtocolError(
+                        f"full-game exceeded max_decisions={self.max_decisions}",
+                        code="ENGINE_FAILURE",
+                        diagnostics=(_summarize_recent_decisions(recent),),
                     )
+                legal_options = decision.get("legal_options")
+                recent.append(
+                    {
+                        "n": decision_count,
+                        "class": decision_class if isinstance(decision_class, str) else "?",
+                        "turn": turn if type(turn) is int else None,
+                        "seat": decision.get("seat") if type(decision.get("seat")) is int else None,
+                        "options": len(legal_options) if isinstance(legal_options, list) else None,
+                    }
+                )
                 if isinstance(decision_class, str) and decision_class not in observed:
                     observed.append(decision_class)
                 audit = self._hidden_audit
