@@ -713,7 +713,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || reversedUnpayableLifeCost(ability, game)
                         || reversedBeforeAnyChoice(ability, game, castOrigin, stackBefore, decisionsBefore)
                         || reversedUnsatisfiableModeCount(ability, game, castOrigin, stackBefore)
-                        || reversedOverAnnouncedX(ability, game, castOrigin, stackBefore)
                         || reversedDependentRequiredTarget(ability, game)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
@@ -766,12 +765,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // forces every mode, one of which has no legal target, so
                     // the engine cannot select the required number of modes
                     // (CR 700.2b) and reverses the cast.
-                    //
-                    // #815 adds reversedOverAnnouncedX: X was announced (e.g.
-                    // Blue Sun's Zenith), then CR 601.2f's mana payment failed
-                    // because the announced X exceeds what the pilot can pay.
-                    // The engine reversed via its bookmark; priority returns
-                    // instead of aborting.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -1383,77 +1376,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 && game.getStack().size() == stackBefore;
     }
 
-    /**
-     * #815: true only when the engine reversed a cast after X was announced
-     * because the mana payment failed.
-     *
-     * <p>Blue Sun's Zenith ("{X}{U}{U}{U}"): the priority offer checks only
-     * X=0 via {@code canPayMinimumManaCost}, the pilot announces X via
-     * {@code announce_x} (bounded by the affordable_max heuristic), targets
-     * are chosen, then CR 601.2f's {@code getManaCostsToPay().pay()} fails
-     * because the announced X exceeds what the pilot can actually pay.
-     * {@code AbilityImpl.activate} returns false and {@code PlayerImpl.cast}
-     * restores its bookmark: the CR 601.2e rewind.
-     *
-     * <p>Engine-held facts, read after the attempt, as in
-     * {@link #reversedUnpayableDiscardCost}:
-     * <ol>
-     *   <li>X was announced for this action ({@link #xAnnouncedAbility}) —
-     *       the key distinguisher from {@link #reversedBeforeAnyChoice},
-     *       which explicitly excludes announced X;</li>
-     *   <li>the engine asked this bridge to pay mana for this very card
-     *       ({@link #paidSpellAbility}), i.e. CR 601.2f was reached;</li>
-     *   <li>that instance's mana costs are NOT paid — the payment failed at
-     *       601.2f, unlike {@link #reversedUnpayableDiscardCost} and
-     *       {@link #reversedUnpayableLifeCost} where mana was paid and a
-     *       non-mana cost failed at 601.2g;</li>
-     *   <li>the pilot did not cancel ({@code !paymentCancelled}); and</li>
-     *   <li>the card is back in the zone the cast started from and the stack
-     *       holds exactly what it held before: the rewind happened.</li>
-     * </ol>
-     *
-     * <p>A failure without announced X, without attempted payment, with paid
-     * mana, or that leaves the card or stack changed still fails closed with
-     * XMAGE_ACTION_EXECUTION_FAILED. The pilot's affordable_max heuristic is
-     * sharpened separately to announce a payable X; this predicate only
-     * ensures a failed announcement returns priority instead of aborting,
-     * and the pilot's retry guard prevents an endless re-announcement loop.
-     */
-    boolean reversedOverAnnouncedX(
-            Ability casting,
-            Game game,
-            Zone origin,
-            int stackBefore
-    ) {
-        if (casting == null || game == null || origin == null) {
-            return false;
-        }
-        // X was announced: the distinguisher from reversedBeforeAnyChoice.
-        if (xAnnouncedAbility == null) {
-            return false;
-        }
-        // Payment was attempted for this very card (CR 601.2f reached).
-        Ability paid = paidSpellAbility;
-        if (paid == null || paid.getSourceId() == null
-                || !paid.getSourceId().equals(casting.getSourceId())) {
-            return false;
-        }
-        // Mana payment failed (not completed like in the discard/life cases).
-        ManaCosts<ManaCost> manaCostsToPay = paid.getManaCostsToPay();
-        if (manaCostsToPay == null || manaCostsToPay.isPaid()) {
-            return false;
-        }
-        // Not a pilot cancellation.
-        if (paymentCancelled) {
-            return false;
-        }
-        // The rewind itself: card back in origin zone, stack unchanged.
-        Card card = game.getCard(casting.getSourceId());
-        return card != null
-                && origin == game.getState().getZone(card.getMainCard().getId())
-                && game.getStack().size() == stackBefore;
-    }
-
     /** #815 boundary tests only: mirrors what {@link #chooseBoolean} records on Yes. */
     void recordAcceptedOptionalCostForBoundaryTest(Ability source) {
         acceptedOptionalCostSource = source;
@@ -1483,14 +1405,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     void recordPaidSpellAbilityForBoundaryTest(Ability ability) {
         paidSpellAbility = ability;
-    }
-
-    /**
-     * #815 boundary tests only: package-private, no production caller. Mirrors
-     * the flag {@link #playMana} sets when the pilot cancels a mana payment.
-     */
-    void recordPaymentCancelledForBoundaryTest(boolean cancelled) {
-        paymentCancelled = cancelled;
     }
 
     @Override
