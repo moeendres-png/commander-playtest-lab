@@ -15,7 +15,7 @@ from __future__ import annotations
 from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 from commander_lab.deck_profile import structural_profile
 from commander_lab.deck_readiness import CardReadinessStatus, check_deck
@@ -283,10 +283,10 @@ def compare_variant(
     )
 
 
-def comparison_to_dict(comparison: VariantComparison) -> dict[str, Any]:
+def comparison_to_dict(comparison: VariantComparison) -> dict[str, object]:
     """JSON-safe dict for one VariantComparison (stable key order via sort_keys)."""
 
-    def _castability(cmd: CommanderCastabilityDelta) -> dict[str, Any]:
+    def _castability(cmd: CommanderCastabilityDelta) -> dict[str, object]:
         return {
             "name": cmd.name,
             "baseline_probability": {

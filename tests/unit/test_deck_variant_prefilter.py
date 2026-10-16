@@ -184,6 +184,27 @@ def test_cli_exit_code_2_for_unloadable_deck(
     assert code == 2
 
 
+@pytest.mark.parametrize("bad_seeds", ["abc", "0", "5-2", "x-3"])
+def test_cli_bad_seeds_is_an_argparse_error_not_a_traceback(
+    bad_seeds: str, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """Exit 1 means BLOCKED; an unparsable --seeds must be argparse's exit 2."""
+    cli = _cli()
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(
+            [
+                "--baseline",
+                str(BASELINE_PATH),
+                "--variant",
+                str(BASELINE_PATH),
+                "--seeds",
+                bad_seeds,
+            ]
+        )
+    assert excinfo.value.code == 2
+    assert "--seeds" in capsys.readouterr().err
+
+
 def test_cli_planned_games_and_time_range(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

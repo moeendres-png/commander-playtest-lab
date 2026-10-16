@@ -211,6 +211,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--seeds",
         default="1-1",
+        type=_parse_seeds,
         help="planned game seeds: a count ('25') or inclusive range ('1-25')",
     )
     parser.add_argument("--players", type=int, default=4, help="players per game for planning")
@@ -225,7 +226,7 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--trials must be positive")
     if args.players < 1:
         parser.error("--players must be positive")
-    seed_count = _parse_seeds(args.seeds)
+    seed_count: int = args.seeds
 
     baseline = _load_deck_or_none(args.baseline)
     loaded_variants = [_load_deck_or_none(path) for path in args.variants]
