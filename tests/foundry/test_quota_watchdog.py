@@ -1,9 +1,17 @@
 """The OpenCode quota watchdog stops a quota-refused run instead of letting it hang.
 
-The fixture is the provider error section of real run 38012694554 (job
+The Go fixture is the provider error section of real run 38012694554 (job
 114096050934), timestamps stripped and workspace/session ids redacted. After it
 the pinned CLI printed nothing for two minutes until the run was cancelled by
 hand; the fake child below reproduces that by sleeping after replaying it.
+
+The Zen fixture is synthetic: no lane has captured a Zen free-tier refusal yet.
+Its shape comes from the pinned CLI 1.18.30 (its ``retryable()`` matches
+``responseBody.includes("FreeUsageLimitError")``) and the Zen v1 console handler
+(anomalyco/opencode@47f33329, ``packages/console/app/src/routes/zen/util/handler.ts``:
+HTTP 429 ``{"type":"error","error":{"type":"FreeUsageLimitError",...}}``, optional
+``retry-after``), with the body message from public reports (#42029, #42074,
+#42977). The same sleeps-after-replay child proves the watchdog stops it early.
 """
 
 from __future__ import annotations
@@ -21,6 +29,7 @@ from tools.foundry import quota_watchdog as qw
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURE = Path(__file__).parent / "fixtures" / "opencode_go_quota_429_run38012694554.log"
+ZEN_FIXTURE = Path(__file__).parent / "fixtures" / "opencode_zen_free_usage_429.log"
 WORKFLOW = ROOT / ".github/workflows/opencode.yml"
 HANG_SECONDS = 45
 
@@ -85,6 +94,21 @@ def test_old_bare_command_hangs_on_the_same_log(tmp_path):
     assert hung
 
 
+def test_zen_free_tier_log_stops_the_hung_cli_at_once(tmp_path, capsys):
+    """The Zen free-tier FreeUsageLimitError ends the run at the refusal record."""
+    lines = ZEN_FIXTURE.read_text(encoding="utf-8").splitlines()
+    code, copied, elapsed = _run(_child(tmp_path, lines, then=f"time.sleep({HANG_SECONDS})"))
+    assert code == qw.EXIT_BLOCKED_SERVICE
+    assert elapsed < 30, elapsed
+    first_body = next(i for i, line in enumerate(lines) if "responseBody" in line)
+    assert copied.splitlines()[: first_body + 1] == lines[: first_body + 1]
+    annotation = capsys.readouterr().out
+    assert annotation.startswith("::error title=BLOCKED_SERVICE::")
+    assert "OpenCode Zen" in annotation
+    assert "FreeUsageLimitError" in annotation
+    assert "not PASS" in annotation
+
+
 def test_step_summary_records_blocked_service(tmp_path, monkeypatch, capsys):
     summary = tmp_path / "summary.md"
     monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
@@ -114,6 +138,26 @@ def test_prose_and_other_errors_never_stop_the_run(tmp_path):
     code, copied, _ = _run(_child(tmp_path, PROSE, then="sys.exit(0)"))
     assert code == 0
     assert copied.splitlines() == PROSE
+
+
+def test_marker_without_provider_429_and_other_429s_pass_through(tmp_path):
+    """Controls for the Zen detection: a quoted free-tier marker with no provider
+    429 record, a tool's own 429 text, a normal log line, and a provider 429
+    whose typed error stays retryable (RateLimitError) never stop the run."""
+    lines = [
+        # Quoted prose (an issue, a prompt) is not the provider's own record.
+        ' responseBody: "{\\"type\\":\\"error\\",\\"error\\":{\\"type\\":\\"FreeUsageLimitError\\"}}",',
+        "tool: upstream answered statusCode: 429 Too Many Requests",
+        "waiting for the tool to back off",
+        # A real provider 429 record, but the typed error is the transient
+        # gateway rate limit, which the CLI may still retry through.
+        " statusCode: 429,",
+        " responseHeaders: [Object ...],",
+        ' responseBody: "{\\"type\\":\\"error\\",\\"error\\":{\\"type\\":\\"RateLimitError\\",\\"message\\":\\"Rate limit exceeded\\"}}",',
+    ]
+    code, copied, _ = _run(_child(tmp_path, lines, then="sys.exit(0)"))
+    assert code == 0
+    assert copied.splitlines() == lines
 
 
 def _refusal(limit: str) -> list[str]:

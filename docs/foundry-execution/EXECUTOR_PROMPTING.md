@@ -107,6 +107,9 @@ Spend requests like money:
 - One job at a time: never run parallel free runs and never fan out subagents.
 - A quota refusal or a hung run is `BLOCKED_SERVICE`: write a checkpoint (state, branch, next action),
   stop, and resume the next day. Do not retry in a loop and do not switch model or provider.
+- The lane watchdog detects both the Go `GoUsageLimitError` and the Zen free-tier
+  `FreeUsageLimitError` (HTTP 429 from the `opencode` provider) and stops the run as
+  `BLOCKED_SERVICE` instead of waiting out the CLI's retries.
 
 ## 5. Review prompts (`/ro-review`)
 
