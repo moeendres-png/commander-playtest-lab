@@ -524,8 +524,8 @@ class _PaymentDecisions(_PolicyState):
 
     def _pool_funded_mana_ability(
         self,
-        options: list[dict[str, Any]],
-        pool_options: list[dict[str, Any]],
+        options: list[dict[str, object]],
+        pool_options: list[dict[str, object]],
         unpaid_mana: str,
     ) -> str | None:
         """A costed mana ability to fund from the pool, when nothing else can finish.
@@ -547,7 +547,7 @@ class _PaymentDecisions(_PolicyState):
             available = meta.get("mana_available")
             pooled += available if isinstance(available, int) and available > 0 else 1
         free_sources: set[str] = set()
-        funded: list[dict[str, Any]] = []
+        funded: list[dict[str, object]] = []
         for option in options:
             if self._required_text(option, "option_type") != "mana_ability":
                 continue
