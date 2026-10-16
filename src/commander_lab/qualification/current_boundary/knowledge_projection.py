@@ -688,7 +688,8 @@ def _library_objects_offers(
         return None
     offers: list[dict[str, Any]] = []
     for obj in requested:
-        assert obj is not None  # checked above
+        if obj is None:
+            raise RuntimeError("invariant violated: obj is not None")
         single = {
             "selection": {"selector_kind": "semantic_object", "semantic_value": obj["semantic_id"]}
         }

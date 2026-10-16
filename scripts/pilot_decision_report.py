@@ -16,6 +16,10 @@ Commander player would look at:
     python scripts/pilot_decision_report.py run --jar bridge.jar --out before.json --seeds 1-4
     python scripts/pilot_decision_report.py compare before.json after.json
 
+``--workers N`` plays N games at once, each in its own Python process (the recording
+patches the policy class, so games must not share a process) and with a private card
+database per bridge JVM.
+
 The figures are measurements of local games for pilot work, not qualification
 evidence. Lower is better for every "bad_*" counter.
 """
@@ -28,6 +32,7 @@ import sys
 import time
 from collections import Counter, defaultdict
 from collections.abc import Callable, Iterator
+from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
@@ -259,11 +264,15 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
 
 
 def _play(
-    command: tuple[str, ...], pod: str, setup: tuple[Any, Any, Any], seed: int
+    command: tuple[str, ...],
+    pod: str,
+    setup: tuple[Any, Any, Any],
+    seed: int,
+    private: bool = False,
 ) -> dict[str, Any]:
     scenario, decks, pilots = setup
     scenario = scenario.model_copy(update={"seed": seed})
-    runner = XmageFullGameRunner(command)
+    runner = XmageFullGameRunner(command, private_card_repository=private)
     records: list[dict[str, Any]] = []
     started = time.monotonic()
     row: dict[str, Any] = {"pod": pod, "seed": seed}
@@ -326,10 +335,16 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
 def run(args: argparse.Namespace) -> int:
     command = bench.bridge_command(args.jar, args.jvm_option)
     setups = {pod: bench._setup(paths) for pod, paths in bench._pods(args.coverage_pods)}
-    rows = [
-        _play(command, pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds
-    ]
-    report = {"jar": str(args.jar), "games": rows}
+    jobs = [(pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds]
+    if args.workers <= 1:
+        rows = [_play(command, pod, setup, seed) for pod, setup, seed in jobs]
+    else:
+        with ProcessPoolExecutor(max_workers=args.workers) as pool:
+            futures = [
+                pool.submit(_play, command, pod, setup, seed, True) for pod, setup, seed in jobs
+            ]
+            rows = [future.result() for future in futures]
+    report: dict[str, Any] = {"jar": str(args.jar), "games": rows}
     report["totals"] = totals(report)
     args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
     print(json.dumps(report["totals"], indent=1))
@@ -354,6 +369,7 @@ def main(argv: list[str] | None = None) -> int:
     play.add_argument("--seeds", type=bench._seeds, default=bench._seeds("1-4"))
     play.add_argument("--coverage-pods", action="store_true")
     play.add_argument("--jvm-option", action="append", default=[])
+    play.add_argument("--workers", type=int, default=1)
     play.set_defaults(func=run)
     diff = sub.add_parser("compare")
     diff.add_argument("a", type=Path)

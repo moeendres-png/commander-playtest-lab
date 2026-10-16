@@ -23,7 +23,8 @@ out_of_scope:
 ownership: Codex sole integration writer; generated receipt scope and canonical checkpoint
   worktree explicitly transferred in issue638 comment6072294809; no active delegated
   writer.
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 files_modified:
 - tests/unit/test_audit_e_runtime_hygiene.py
 tests_run:

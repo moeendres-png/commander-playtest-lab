@@ -551,7 +551,10 @@ class MulliganLab:
                 selected = hand
                 mulligans = index
                 break
-        assert selected is not None and evaluation is not None
+        if selected is None:
+            raise RuntimeError("invariant violated: selected is not None")
+        if evaluation is None:
+            raise RuntimeError("invariant violated: evaluation is not None")
         bottom_count = max(0, mulligans - (1 if multiplayer_free and mulligans > 0 else 0))
         ranked = sorted(
             enumerate(selected),

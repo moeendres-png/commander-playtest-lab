@@ -20,7 +20,8 @@ candidates:
   forge_bridge: 20e3e1f7ff8e6195b95ed0dc14e0d4c87f1bcf4c
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 ownership: FORGE-AF05-HIDDEN-INFORMATION-CAMPAIGN-20261003 (Claude, sole executor)
 in_scope:
   - src/commander_lab/qualification/current_boundary/forge_hidden_information.py

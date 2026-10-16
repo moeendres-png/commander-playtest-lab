@@ -121,7 +121,8 @@ out_of_scope:
 
 ownership: AF07-ACTUAL-CARD-CAMPAIGN-20261001
 
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 
 execution_profile: deepseek
 executor_model: opencode-go/deepseek-v4.1-flash

@@ -132,7 +132,10 @@ class TapeReplayStep(_Strict):
         if self.numeric_choice is not None and not bounds:
             raise ValueError("numeric_choice without authoritative bounds")
         if bounds and self.numeric_choice is not None:
-            assert self.numeric_min is not None and self.numeric_max is not None
+            if self.numeric_min is None:
+                raise ValueError("invariant violated: self.numeric_min is not None")
+            if self.numeric_max is None:
+                raise ValueError("invariant violated: self.numeric_max is not None")
             if not self.numeric_min <= self.numeric_choice <= self.numeric_max:
                 raise ValueError("recorded numeric_choice outside recorded bounds")
         vector_fields = (
@@ -148,11 +151,16 @@ class TapeReplayStep(_Strict):
         if vector_present and self.numeric_choice is not None:
             raise ValueError("a step carries either a scalar or a joint numeric choice")
         if vector_present:
-            assert self.numeric_choices is not None
-            assert self.numeric_legs_min is not None
-            assert self.numeric_legs_max is not None
-            assert self.numeric_total_min is not None
-            assert self.numeric_total_max is not None
+            if self.numeric_choices is None:
+                raise ValueError("invariant violated: self.numeric_choices is not None")
+            if self.numeric_legs_min is None:
+                raise ValueError("invariant violated: self.numeric_legs_min is not None")
+            if self.numeric_legs_max is None:
+                raise ValueError("invariant violated: self.numeric_legs_max is not None")
+            if self.numeric_total_min is None:
+                raise ValueError("invariant violated: self.numeric_total_min is not None")
+            if self.numeric_total_max is None:
+                raise ValueError("invariant violated: self.numeric_total_max is not None")
             if len(self.numeric_choices) != len(self.numeric_legs_min) or len(
                 self.numeric_choices
             ) != len(self.numeric_legs_max):

@@ -31,7 +31,8 @@
     "Native aggregate counters may include extra reactor tests; no false requirement that selected per-class sums equal reactor totals",
     "Epoch repository URLs are compared byte-exactly. Actions checkout and ordinary clone can emit different .git suffixes; a cross-mechanism pair requires identity adjudication. Per-receipt engine identities remain upstream runtime binding responsibility."
   ],
-  "status": "ACTIVE",
+  "status": "SUPERSEDED",
+  "closed_out": "2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.",
   "pending": [
     "exact-head required CI",
     "strict fresh read-only review",

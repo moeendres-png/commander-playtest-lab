@@ -78,23 +78,23 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Checkout exact lab head
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
       - name: Checkout pinned XMage
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: moeendres-png/mage
           ref: ${{ env.XMAGE_COMMIT }}
           path: vendor/engine-source/xmage
           fetch-depth: 1
       - name: Set up JDK 17
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5.7.0
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           distribution: temurin
           java-version: "17"
           cache: maven
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
           cache: pip
@@ -190,7 +190,7 @@ jobs:
           git rev-parse HEAD^{tree} > artifacts/meta-verification/LAB_TREE.txt
           printf '%s\n' "$XMAGE_COMMIT" > artifacts/meta-verification/XMAGE_COMMIT.txt
           sha256sum             qualification/protocol/meta_verification_v1/meta_verification_contract_v1.json             qualification/protocol/meta_verification_v1/rules_mutation_catalog_v1.json             qualification/protocol/meta_verification_v1/meta_verification_result_v1.schema.json             qualification/pre-freeze-successor/CURRENT_RULES_AUTHORITY.json             qualification/SHA256SUMS             qualification/ws218-semantic-replay-tape-v1/tapes/ws218-tape-4p.json             engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameHiddenInformationTest.java             > artifacts/meta-verification/SHA256SUMS
-      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: meta-verification-${{ github.event.pull_request.head.sha || github.sha }}
           path: artifacts/meta-verification/

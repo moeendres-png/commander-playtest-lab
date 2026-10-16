@@ -54,7 +54,8 @@ failure_class: "NONE"
 root_cause_class: "NONE"
 current_hypothesis: "The bridge can compute the loaded engine artifact digest at handshake time; binding it into the PB-03 evidence closes the declared-constant residual without changing Rules semantics."
 
-status: "ACTIVE"
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 technical_decision_authority: "AUTONOMOUS_WITHIN_CONTRACT"
 current_reasoning_tier: "max"
 authority_gates: []

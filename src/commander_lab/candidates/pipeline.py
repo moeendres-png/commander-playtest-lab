@@ -19,7 +19,8 @@ def build_simulation_queue(
         if result.hard_validity != "PASS" or result.duplicate_identical_deck:
             continue
         candidate = by_id[result.candidate_id]
-        assert candidate.deck_hash is not None
+        if candidate.deck_hash is None:
+            raise RuntimeError("invariant violated: candidate.deck_hash is not None")
         queue_entries.append(
             SimulationCandidateQueueEntry(
                 candidate_id=candidate.candidate_id,

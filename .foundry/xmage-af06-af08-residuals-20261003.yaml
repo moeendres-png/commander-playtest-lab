@@ -20,7 +20,8 @@ candidates:
 contract: commander-lab.full107/1.0.20-successor
 production_provider: NOT_SELECTED
 architecture_freeze: NOT_CLAIMED
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 ownership: XMAGE-AF06-AF08-RESIDUALS-20261003 (Claude, sole executor)
 in_scope:
   - XMage AF06 and AF08 residual rows of the 107-row denominator
