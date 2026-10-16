@@ -649,7 +649,7 @@ class _PaymentDecisions(_PolicyState):
             self._remember_announced_x(runtime.binding.seat, source_object, chosen)
         return chosen
 
-    def _remember_announced_x(self, seat: int, source_object: Any, chosen: int) -> None:
+    def _remember_announced_x(self, seat: int, source_object: object, chosen: int) -> None:
         """Keep the X this seat announced for this source.
 
         Keyed by the announce frame's ``source_object_id`` like
