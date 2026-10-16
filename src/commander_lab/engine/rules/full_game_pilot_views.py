@@ -478,6 +478,24 @@ def priority_view_fields(
         if "draw a card" in label or "cycling" in label:
             fields["roles"] = frozenset({CardRole.DRAW})
             fields["role_strengths"] = {CardRole.DRAW: 0.6}
+        if _SELF_DOUBLING_COUNTERS.search(label):
+            # #817: "Put X +1/+1 counters on this, where X is its power"
+            # doubles the permanent on every activation. Past lethal damage
+            # for a whole Commander table another doubling changes nothing,
+            # yet the engine adds the counters (and logs an event) one by one,
+            # so a handful of further activations exhaust the bridge heap.
+            power = max(
+                (
+                    creature_power(item)
+                    for player in players(state)
+                    if str(player.get("player_id")) == actor_id
+                    for item in _items(player.get("battlefield"))
+                    if str(item.get("name") or "").casefold() == source_name.casefold()
+                ),
+                default=0.0,
+            )
+            if power >= _SELF_DOUBLING_POWER_CAP:
+                return {**fields, "metadata": extra}, "self_doubling_counters_saturated"
         return {**fields, "metadata": extra}, None
 
     return {**fields, "metadata": extra}, None
@@ -533,6 +551,13 @@ def _spell_withhold_reason(
             return "no_worthy_removal_target"
     return None
 
+
+# A self-doubling counter ability is not offered once the source's power
+# exceeds the life total of a whole Commander table (4 x 40).
+_SELF_DOUBLING_POWER_CAP = 160.0
+_SELF_DOUBLING_COUNTERS = re.compile(
+    r"put x \+1/\+1 counters on .*where x is (its|this creature's) power"
+)
 
 # A permanent below this value (about a vanilla two-drop) is not worth a removal
 # spell; a spell below this mana value (with no wipe, removal or finisher role)
