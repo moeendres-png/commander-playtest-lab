@@ -15,6 +15,7 @@ import pytest
 
 from commander_lab.engine.rules.full_game import (
     XmageFullGameRunner,
+    _RecentDecision,
     _summarize_recent_decisions,
     _with_jvm_flags,
 )
@@ -24,8 +25,8 @@ from commander_lab.engine.rules.full_game_pilot.common import (
 )
 
 
-def _record(n: int, cls: str = "declare_attacker", turn: int = 7, seat: int = 2) -> dict[str, Any]:
-    return {"n": n, "class": cls, "turn": turn, "seat": seat, "options": 3}
+def _record(n: int, cls: str = "declare_attacker", turn: int = 7, seat: int = 2) -> _RecentDecision:
+    return {"n": n, "decision_class": cls, "turn": turn, "seat": seat, "options": 3}
 
 
 def test_summarize_recent_decisions_empty() -> None:

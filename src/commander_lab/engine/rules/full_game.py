@@ -18,7 +18,7 @@ import weakref
 from collections import deque
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Literal, TextIO, cast
+from typing import Any, Literal, TextIO, TypedDict, cast
 
 from pydantic import Field, model_validator
 
@@ -863,7 +863,21 @@ _RECENT_DECISIONS_MAXLEN = 500
 _RECENT_DECISIONS_TAIL = 8
 
 
-def _summarize_recent_decisions(recent: Sequence[dict[str, Any]]) -> str:
+class _RecentDecision(TypedDict):
+    """Compact trailing decision record for the max_decisions post-mortem (#818).
+
+    Only Lab-observed metadata (counts, classes, turns, seats); no prompt or
+    option text, so no engine-derived strings reach the diagnostics surface.
+    """
+
+    n: int
+    decision_class: str
+    turn: int | None
+    seat: int | None
+    options: int | None
+
+
+def _summarize_recent_decisions(recent: Sequence[_RecentDecision]) -> str:
     """Compact, privacy-safe post-mortem of the trailing decision window.
 
     Reports only counts, decision classes, turns and seats -- no prompt or
@@ -876,10 +890,9 @@ def _summarize_recent_decisions(recent: Sequence[dict[str, Any]]) -> str:
     class_counts: dict[str, int] = {}
     triple_counts: dict[tuple[str, str, str], int] = {}
     for record in recent:
-        cls = record.get("class")
-        key_cls = cls if isinstance(cls, str) else "?"
-        class_counts[key_cls] = class_counts.get(key_cls, 0) + 1
-        triple = (key_cls, str(record.get("turn")), str(record.get("seat")))
+        cls = record["decision_class"]
+        class_counts[cls] = class_counts.get(cls, 0) + 1
+        triple = (cls, str(record["turn"]), str(record["seat"]))
         triple_counts[triple] = triple_counts.get(triple, 0) + 1
     classes = ",".join(
         f"{cls}={count}"
@@ -888,9 +901,9 @@ def _summarize_recent_decisions(recent: Sequence[dict[str, Any]]) -> str:
     top = sorted(triple_counts.items(), key=lambda kv: (-kv[1], kv[0][0], kv[0][1], kv[0][2]))[:5]
     top_str = ",".join(f"{cls}@turn={turn}/seat={seat}:{count}" for (cls, turn, seat), count in top)
     tail = ",".join(
-        f"{record.get('n')}:{record.get('class')}"
-        f"@turn={record.get('turn')}/seat={record.get('seat')}"
-        f"/opts={record.get('options')}"
+        f"{record['n']}:{record['decision_class']}"
+        f"@turn={record['turn']}/seat={record['seat']}"
+        f"/opts={record['options']}"
         for record in list(recent)[-_RECENT_DECISIONS_TAIL:]
     )
     return f"recent=total:{total} classes={{{classes}}} top=[{top_str}] tail=[{tail}]"
@@ -1251,7 +1264,7 @@ class XmageFullGameRunner:
         decision_count = 0
         observed: list[str] = []
         # #818: trailing decision window for max_decisions post-mortem.
-        recent: deque[dict[str, Any]] = deque(maxlen=_RECENT_DECISIONS_MAXLEN)
+        recent: deque[_RecentDecision] = deque(maxlen=_RECENT_DECISIONS_MAXLEN)
         while True:
             failure = status.get("failure")
             if isinstance(failure, dict):
@@ -1290,7 +1303,9 @@ class XmageFullGameRunner:
                 recent.append(
                     {
                         "n": decision_count,
-                        "class": decision_class if isinstance(decision_class, str) else "?",
+                        "decision_class": decision_class
+                        if isinstance(decision_class, str)
+                        else "?",
                         "turn": turn if type(turn) is int else None,
                         "seat": decision.get("seat") if type(decision.get("seat")) is int else None,
                         "options": len(legal_options) if isinstance(legal_options, list) else None,
