@@ -54,18 +54,28 @@ Churn = number of file touches since 2026-09-01 (a rough activity signal only).
 | `meta/`, `opponent_ensembles/` | Meta and opponent-ensemble stores | active (small) |
 | `features/`, `analysis/`, `reporting/`, `observability/`, `provenance/`, `packages/` | Support: replay debugger/scenario editor, validation analysis, reporting helpers, local tracing, provenance graph, package extraction | active (guess, small) |
 | `acceptance/` | Phase 10 acceptance | hist (guess) |
+| `decision/` | Decision-support modules: `bundle`, `context`, `information`, `quality` | active |
+| `candidate_workflow/` | Candidate evaluation workflow: `screening`, `evaluation`, `cut_frontier`, `advancement` | active |
+| `identity/` | `variant` and `workflow` identity helpers | active |
+| `rogshai/` | Rogshai MVP experiment: `first_run_preparation`, `experiments`, `mvp_acceptance` | qual / hist (guess) |
 
-Top-level modules (about 45 `*.py` in `src/commander_lab/`), grouped by name:
+Moved modules keep a shim at their old path (`commander_lab.decision_bundle`, `candidate_screening`,
+`variant_identity`, `rogshai_mvp_acceptance`, ... ) that aliases the new module object, so old imports,
+monkeypatching and pickles keep working (`tests/unit/test_moved_module_aliases.py`). New code imports
+the new paths. Modules deliberately left at top level because their file path is hashed or read by
+path (`model_resolution_software_identity` scope, `decision_statistics` in `docs/J_P5_DEVELOPMENT_FREEZE.json`,
+`robustness` in the first-option ratchet, `technical_truth` presence checks of `project_context`,
+`priority_workflows`, `adaptive_budget`, `model_informativeness`, `workflow_session`) must not move.
 
-- Optimizer/candidate workflow: `optimizer_cli`, `optimizer_v2_cli`, `candidate_evaluation`,
-  `candidate_screening`, `cut_frontier`, `advancement`, `adaptive_budget`, `priority_workflows`,
-  `workflow_session`, `workflow_identity`.
-- Decision quality and statistics: `decision_*`, `canonical_features`, `semantic_*`,
+Remaining top-level modules (about 40 `*.py` in `src/commander_lab/`, incl. shims), grouped by name:
+
+- Optimizer workflow: `optimizer_cli`, `optimizer_v2_cli`, `adaptive_budget`, `priority_workflows`,
+  `workflow_session`.
+- Decision quality and statistics: `decision_statistics`, `canonical_features`, `semantic_*`,
   `tactical_evidence`, `counterfactual`, `robustness`, `model_*`, `opponent_uncertainty`.
 - Qualification / freeze: `meta_qualification`, `freeze_readiness`, `technical_truth`,
-  `fresh_rebuild*`, `first_run_preparation`, `rogshai_mvp_acceptance` (qual; the last is
-  guess-hist, tied to a Rogshai MVP experiment).
-- Data: `deck_registry`, `data_sync`, `commander_spellbook`, `variant_identity`, `mana_analysis`,
+  `fresh_rebuild` (the Rogshai experiment modules live in `rogshai/`).
+- Data: `deck_registry`, `data_sync`, `commander_spellbook`, `mana_analysis`,
   `pod_scheduling*`, `playstyle`, `project_context`, `diagnostics`.
 
 ## Active scripts in `scripts/`

@@ -10,7 +10,7 @@ from commander_lab.fresh_rebuild import (
     load_fresh_rogshai_universe,
     run_k2_bias_suite,
 )
-from commander_lab.rogshai_mvp_acceptance import (
+from commander_lab.rogshai.mvp_acceptance import (
     PRIMARY_OPPONENT_IDS,
     run_rogshai_mvp_acceptance,
 )

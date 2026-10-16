@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from commander_lab.current_model_resolution import load_current_model_resolution
-from commander_lab.decision_information import build_decision_information_state
+from commander_lab.decision.information import build_decision_information_state
 from commander_lab.priority_workflows import PriorityWorkflowFacade
 from commander_lab.storage.run_identity import sha256_run_value
 

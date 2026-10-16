@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from commander_lab.candidate_evaluation import build_candidate_evaluation_plan
+from commander_lab.candidate_workflow.evaluation import build_candidate_evaluation_plan
 from commander_lab.deck_registry import load_deck_policy_registry
 from commander_lab.tools.service import CommanderToolService
 

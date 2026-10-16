@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.candidate_screening import RogShaiCandidateScreener
+from commander_lab.candidate_workflow.screening import RogShaiCandidateScreener
 from commander_lab.engine.structural.project import _validate_structural_profile_ids
 from commander_lab.tools.candidates import load_current_optimization_availability
 from commander_lab.tools.service import CommanderToolService

@@ -5,7 +5,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 from commander_lab import __version__
-from commander_lab.candidate_screening import RogShaiCandidateScreener
+from commander_lab.candidate_workflow.screening import RogShaiCandidateScreener
 from commander_lab.engine.structural import ENGINE_VERSION
 from commander_lab.models import CardAblationInput, CommanderDenialInput, SensitivityInput
 from commander_lab.models.pilots import PilotStrength

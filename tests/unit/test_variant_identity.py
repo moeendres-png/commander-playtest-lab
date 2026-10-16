@@ -1,4 +1,4 @@
-from commander_lab.variant_identity import build_variant_identity, deduplicate_exact_variants
+from commander_lab.identity.variant import build_variant_identity, deduplicate_exact_variants
 
 
 def test_exact_variant_identity_deduplicates_only_exact_deck_state() -> None:
