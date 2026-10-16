@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import contextlib
-import fcntl
 import hashlib
 import json
 import math
@@ -11,6 +10,7 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import threading
 import time
 import uuid
@@ -437,6 +437,30 @@ def kill_live_bridge_processes() -> int:
     return killed
 
 
+# A worker slot is held with an exclusive, non-blocking lock on its lock file,
+# so other threads, batches and processes skip it. Both raise OSError when the
+# slot is taken.
+if sys.platform == "win32":
+    import msvcrt
+
+    def _lock_slot(descriptor: int) -> None:
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
+
+    def _unlock_slot(descriptor: int) -> None:
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
+
+else:
+    import fcntl
+
+    def _lock_slot(descriptor: int) -> None:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+    def _unlock_slot(descriptor: int) -> None:
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+
+
 def _copy_card_repository(source: Path, destination: Path) -> None:
     shutil.copytree(source, destination)
 
@@ -661,7 +685,7 @@ class _RawFullGameClient:
         while True:
             descriptor = os.open(root / f"slot-{slot}.lock", os.O_RDWR | os.O_CREAT, 0o600)
             try:
-                fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                _lock_slot(descriptor)
             except OSError:
                 os.close(descriptor)
                 slot += 1
@@ -702,7 +726,7 @@ class _RawFullGameClient:
         self._slot_lock = None
         if descriptor is not None:
             with contextlib.suppress(OSError):
-                fcntl.flock(descriptor, fcntl.LOCK_UN)
+                _unlock_slot(descriptor)
             with contextlib.suppress(OSError):
                 os.close(descriptor)
 
