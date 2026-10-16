@@ -1,0 +1,92 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P2",
+        "decision_id": "ca96e3a51bc060efde324c100c598f882f9aa362b4a655e9a9829b4e81d35034",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "PILOT_CHOOSE_OBJECT-causal-obj:syphon-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "5b80358a687451adae28d0061db76d32e0cf027d0096be3b125ef426abe8c05c",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "PILOT_CHOOSE_OBJECT-causal-obj:syphon-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:syphon"
+    ],
+    "fuel": [
+      "obj:fuel-swamp-p2"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:syphon"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_CHOOSE_OBJECT",
+  "obligation_exercised": {
+    "obligation_digest": "3d259937b3733882e49245565002a452c1cd1b10410f0d57918ea05ac2e91d63",
+    "requested_state_digest": "e64a1660250af8479e8c6a633da0bb737fd0d5608ea7fe2348b88b3bfa68f44d",
+    "required_events": [
+      "choose_object_frame:P1",
+      "object_selected:obj:p1-hand-a"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Only provider-offered selectable objects were eligible; obj:p1-hand-a was selected."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "choose_object_frame:P1": {
+        "decision_frames": [
+          4
+        ]
+      },
+      "object_selected:obj:p1-hand-a": {
+        "binding": [
+          "at least one ZONE_CHANGE event(s) with target_object=obj:p1-hand-a, from=HAND, to=GRAVEYARD",
+          "exactly 0 ZONE_CHANGE event(s) with target_object=obj:p1-hand-b, from=HAND"
+        ],
+        "parts": [
+          {
+            "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:p1-hand-a, from=HAND, to=GRAVEYARD",
+            "events": [
+              9
+            ]
+          },
+          {
+            "binding": "exactly 0 ZONE_CHANGE event(s) with target_object=obj:p1-hand-b, from=HAND",
+            "events": []
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "0544c98032c62b66bbe5eff1629dbb2bafeb2af6aa96cc192ec89b2767eac21b",
+  "runner_digest": "2dc0d5ead18adea3e6797ec02167aae352ab458d7bad5878e9b7910d490e8dec",
+  "runtime_receipt_digest": "b4d0ee6e6cda32942381c40efdfc240db114a4266b65b968ecaa4ffe3b223d67",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_CHOOSE_OBJECT",
+  "variance_source": null
+}

@@ -1,0 +1,129 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "b181d7606a6eb3c316228342d00dd3dc5475ba5566e74aefdc489ffb597c7ca7",
+        "kind": "priority_pass",
+        "scope": "decision_script[8]",
+        "tag": "MICRO_MANA_PAYMENT-causal-obj:micro-bolt"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "b73939fb209f9b611e4e5b06919fc9e06799330798308b5c7daee75c1d0e0b91",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "MICRO_MANA_PAYMENT-causal-obj:micro-bolt-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "2035fc143e4779109674e97742074d9f10e6283fad138ca703d0f7456dc7410f",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_MANA_PAYMENT-causal-obj:micro-bolt-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-bolt"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p2"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-bolt"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_MANA_PAYMENT",
+  "obligation_exercised": {
+    "obligation_digest": "186ffd3cfe82b2eb5701f9e41bcc2ca5ba173bb391c31b77968dfefaee503518",
+    "requested_state_digest": "8c9c0dfdb8c515fd480b60a6526fdd79502774f671ab7eb52b7b737958a13d22",
+    "required_events": [
+      "mana_abilities_activated:2",
+      "mana_paid:UU",
+      "Counterspell_cast"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Counterspell cost is paid with exactly two blue mana from selected Islands; payment legality is provider-owned."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "Counterspell_cast": {
+        "binding": [
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1",
+          "exactly 1 COUNTERED event(s) with source_object=obj:micro-counterspell",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt, source_object=obj:micro-counterspell, from=STACK, to=GRAVEYARD"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "exactly 1 COUNTERED event(s) with source_object=obj:micro-counterspell",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt, source_object=obj:micro-counterspell, from=STACK, to=GRAVEYARD",
+            "events": [
+              12
+            ]
+          }
+        ]
+      },
+      "mana_abilities_activated:2": {
+        "binding": "engine-verified mana_paid:2",
+        "decision_frames": [
+          6,
+          8
+        ]
+      },
+      "mana_paid:UU": {
+        "binding": [
+          "a mana payment spent blue mana from the pool",
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1"
+        ],
+        "parts": [
+          {
+            "binding": "a mana payment spent blue mana from the pool",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-counterspell, player_player=P1",
+            "events": [
+              10
+            ]
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "c035ee27a03335474c5c8ad565eb130bd7def32faeb93c7bc294851d90239e42",
+  "runner_digest": "2dc0d5ead18adea3e6797ec02167aae352ab458d7bad5878e9b7910d490e8dec",
+  "runtime_receipt_digest": "38e75042baaf559c12aa4d5f37d5ef2e638d1c27bddf08bbdc6ba11897501f6f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_MANA_PAYMENT",
+  "variance_source": null
+}
