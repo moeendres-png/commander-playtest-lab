@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from commander_lab.decision_bundle import DecisionBundle, write_decision_bundle
+from commander_lab.decision.bundle import DecisionBundle, write_decision_bundle
 
 
 def _bundle() -> DecisionBundle:

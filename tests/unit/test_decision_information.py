@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from commander_lab.decision_information import (
+from commander_lab.decision.information import (
     DecisionInformationStatus,
     build_decision_information_state,
 )

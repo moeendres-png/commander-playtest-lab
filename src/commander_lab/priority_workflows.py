@@ -5,10 +5,12 @@ from pathlib import Path
 from statistics import fmean
 from typing import Any
 
-from commander_lab.advancement import decide_advancement
-from commander_lab.candidate_screening import RogShaiCandidateScreener
-from commander_lab.decision_bundle import DecisionBundle, write_decision_bundle
-from commander_lab.decision_information import build_decision_information_state
+from commander_lab.candidate_workflow.advancement import decide_advancement
+from commander_lab.candidate_workflow.screening import RogShaiCandidateScreener
+from commander_lab.decision.bundle import DecisionBundle, write_decision_bundle
+from commander_lab.decision.information import build_decision_information_state
+from commander_lab.identity.variant import build_variant_identity
+from commander_lab.identity.workflow import build_priority_comparison_identity
 from commander_lab.mana_analysis import ManaAnalyzer
 from commander_lab.model_informativeness import assess_model_informativeness
 from commander_lab.models import (
@@ -34,8 +36,6 @@ from commander_lab.storage import ExactResultCache, build_exact_result_identity
 from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.current_candidates import canonical_feature_fusion_summary
 from commander_lab.tools.service import CommanderToolService
-from commander_lab.variant_identity import build_variant_identity
-from commander_lab.workflow_identity import build_priority_comparison_identity
 
 
 class PriorityWorkflowFacade:

@@ -3,7 +3,10 @@ from __future__ import annotations
 from statistics import fmean
 from typing import TYPE_CHECKING, Any
 
-from commander_lab.cut_frontier import build_static_swap_rows, select_diverse_swap_frontier
+from commander_lab.candidate_workflow.cut_frontier import (
+    build_static_swap_rows,
+    select_diverse_swap_frontier,
+)
 from commander_lab.engine.rules import (
     RulesEngineManager,
     TacticalRuleOracle,
@@ -255,7 +258,7 @@ class ServiceOptimizerMixin(ServiceSearchMixin, ServiceMulliganMixin):
     def generate_candidate_swaps(self, request: GenerateCandidateSwapsInput) -> ToolResponse:
         def work() -> dict[str, Any]:
             self._require_active_optimization_target(request.deck_id)
-            from commander_lab.candidate_screening import RogShaiCandidateScreener
+            from commander_lab.candidate_workflow.screening import RogShaiCandidateScreener
 
             deck = self._deck(request.deck_id)
             semantic_screen = RogShaiCandidateScreener(self.root, service=self).screen_pool(
