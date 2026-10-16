@@ -94,6 +94,23 @@ def _postcombat(state: dict[str, Any]) -> bool:
     return "postcombat" in text or "post_combat" in text or "main2" in text
 
 
+def _opponent_target_offered(options: list[dict], state: dict, views) -> bool:
+    """True when the prompt also offered a permanent the actor does not own.
+
+    Effects whose legal targets are only the actor's own permanents (Guardian of
+    Faith's phasing, XMage labels it "detriment") leave no better choice, so
+    picking an own permanent there is not a pilot mistake.
+    """
+    actor = str(state.get("actor_id"))
+    for option in options:
+        found = views.permanent_owner(
+            str(_meta(option).get("object_id") or option.get("option_id")), state
+        )
+        if found is not None and found[0] != actor:
+            return True
+    return False
+
+
 def _own_turn(state: dict[str, Any]) -> bool:
     return str(state.get("active_player_id", "")) == str(state.get("actor_id", ""))
 
@@ -204,7 +221,9 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
                     if found is None:
                         continue
                     removal_total += 1
-                    if found[0] == str(state.get("actor_id")):
+                    if found[0] == str(state.get("actor_id")) and _opponent_target_offered(
+                        options, state, views
+                    ):
                         removal_on_own += 1
         elif decision_class == "declare_attacker":
             for option in chosen:
