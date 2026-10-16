@@ -12,6 +12,7 @@ from commander_lab.models import (
 from .common import (
     _LOG,
     _MANA_COST_COLORS,
+    _MANA_SYMBOL,
     FullGameProtocolError,
     _cost_amount,
     _mana_cost_text,
@@ -374,6 +375,17 @@ class _PaymentDecisions(_PolicyState):
                 exact_required = 1 if symbol and f"{{{symbol}}}" in unpaid else 0
                 return exact_required, mana_type, str(option.get("label", "")).casefold()
 
+            # A filter land or signet ("{1}, {T}: Add {R}{W}") turns pooled
+            # mana into more mana. Spending the pool on the spell first
+            # strands it, and the cancel repeats until the priority guard
+            # latches (#732). When the pool and the free sources cannot
+            # finish the unpaid cost alone, feed the costed ability the pool
+            # already covers instead; the engine re-validates the activation.
+            funded = self._pool_funded_mana_ability(options, pool_options, unpaid)
+            if funded is not None:
+                _LOG.info("feeding the pool into costed mana ability %s", funded)
+                return funded
+
             # WS229 F-RULES-03 disposition: pool-first routing is kept, but
             # auto-submit is gated to the no-discretion case. A lone pool
             # candidate is a forced move (logged); several candidates hide
@@ -491,6 +503,74 @@ class _PaymentDecisions(_PolicyState):
             return raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable mana action") from None
+
+    @staticmethod
+    def _unpaid_mana_amount(unpaid_mana: str) -> int | None:
+        """Mana symbols an unpaid cost still prints, or None when it is not countable.
+
+        Generic symbols count their number, colored, hybrid and Phyrexian
+        symbols count one. An X or any other symbol is unknown and keeps the
+        caller on its existing path.
+        """
+        total = 0
+        for symbol in _MANA_SYMBOL.findall(unpaid_mana.casefold()):
+            if symbol.isdigit():
+                total += int(symbol)
+            elif symbol and symbol != "x":
+                total += 1
+            else:
+                return None
+        return total
+
+    def _pool_funded_mana_ability(
+        self,
+        options: list[dict[str, Any]],
+        pool_options: list[dict[str, Any]],
+        unpaid_mana: str,
+    ) -> str | None:
+        """A costed mana ability to fund from the pool, when nothing else can finish.
+
+        Engine cost facts only: an offered mana ability with a known positive
+        mana cost whose cost the pool covers (``pool_covers_mana_cost`` True).
+        It is chosen only when the pool plus one payment per distinct free
+        source (a mana ability with all-zero cost facts) falls short of the
+        unpaid amount, so a spend that plain sources can finish is untouched.
+        Ties are ordered by label, then option id, so twins stay identical.
+        """
+        unpaid = self._unpaid_mana_amount(unpaid_mana)
+        if unpaid is None:
+            return None
+        pooled = 0
+        for option in pool_options:
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            available = meta.get("mana_available")
+            pooled += available if isinstance(available, int) and available > 0 else 1
+        free_sources: set[str] = set()
+        funded: list[dict[str, Any]] = []
+        for option in options:
+            if self._required_text(option, "option_type") != "mana_ability":
+                continue
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            amounts = [_cost_amount(meta, key) for key, _ in _MANA_COST_COLORS]
+            amounts.append(_cost_amount(meta, "mana_cost_generic"))
+            if any(amount is None for amount in amounts):
+                continue
+            if any(amount for amount in amounts if amount is not None):
+                if meta.get("pool_covers_mana_cost") is True:
+                    funded.append(option)
+            else:
+                free_sources.add(str(meta.get("source_object_id") or option.get("option_id")))
+        if not funded or pooled + len(free_sources) >= unpaid:
+            return None
+        funded.sort(
+            key=lambda option: (
+                str(option.get("label", "")).casefold(),
+                str(option.get("option_id", "")),
+            )
+        )
+        return self._required_text(funded[0], "option_id")
 
     def _remember_failed_payment(self, seat: int, state: dict[str, Any]) -> None:
         """Note that this seat gave up paying for its last chosen action.
