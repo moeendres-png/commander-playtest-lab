@@ -177,9 +177,12 @@ def _fires(job: str, body: str, commenter: str = "OWNER") -> bool:
     ("body", "oc", "th"),
     [
         ("/oc do the task", True, False),
-        ("please /oc do the task", True, False),
+        # The #813 regression: an /oc task naming /oc-th stayed on /oc.
+        ("/oc task naming /oc-th later", True, False),
+        ("please /oc do the task", False, False),
         ("/oc-th do the task", False, True),
-        ("please /oc-th do the task", False, True),
+        ("/oc-th task naming /oc later", False, True),
+        ("please /oc-th do the task", False, False),
         ("/opencode run", True, False),
         ("unrelated comment", False, False),
     ],

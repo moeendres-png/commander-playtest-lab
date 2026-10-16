@@ -49,6 +49,10 @@ Start from `.claude/skills/lab-ops/oc_tasks/<template>.md` and post with
 `python3 .claude/skills/lab-ops/scripts/oc_dispatch.py post`. Fill only the delta; AGENTS.md,
 permissions and evidence semantics are already injected, and repeating them dilutes the task.
 
+The lane command must be the first token of the comment (`/oc task…`, `/oc-th task…`,
+`/assure task…`, `/ro-review task…`, or the command alone): a lane fires only on a leading
+command, never on a command named later in the task text, and `oc_dispatch.py post` writes it first.
+
 - **Objective**: one sentence, one outcome. Two outcomes are two dispatches.
 - **Source lock / ownership**: repo, 40-hex SHA, branch, owner. State which facts are observed and
   which inferred; paste the failing line with file:line, not the chat that found it.
