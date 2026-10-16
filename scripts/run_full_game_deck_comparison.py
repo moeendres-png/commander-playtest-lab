@@ -18,6 +18,14 @@ Example (four-player pods, 25 seeds x 4 seats x 2 contenders = 200 games):
 
 The report is exploratory deck-building evidence for this pilot policy and
 engine pin. It is not official campaign or holdout evidence.
+
+With ``--stop-when-decided`` the seeds run in blocks of ``--look-every`` seeds
+(default 5) in the given order. After each block the finished games are
+aggregated, and the run stops early once every variant has a decided verdict
+(VARIANT_BETTER or BASELINE_BETTER) at a Bonferroni-split per-look threshold
+(significance level divided by the number of planned looks), so the overall
+Type I error stays at 5%. The report records the sequential plan under
+``sequential`` and the summary says how many of the seeds were played.
 """
 
 from __future__ import annotations
@@ -26,19 +34,27 @@ import argparse
 import json
 import os
 import sys
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 from commander_lab.deck_readiness import check_deck, format_deck_report
 from commander_lab.engine.rules.full_game import XmageFullGameRunner
 from commander_lab.engine.rules.full_game_batch import (
+    FullGameBatchCase,
+    FullGameBatchRecord,
+    FullGameBatchReport,
     XmageFullGameBatchRunner,
     execution_identity_of,
 )
 from commander_lab.engine.rules.full_game_comparison import (
+    DeckComparisonReport,
     DeckComparisonSpec,
     aggregate_comparison,
     plan_comparison_cases,
+    sequential_look_alpha,
+    sequential_looks_planned,
+    sequential_stop_now,
 )
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import RulesDeckInput
@@ -163,7 +179,63 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
             f"(pairs {row['pairs_completed']}, variant-only {row['variant_only_wins']}, "
             f"baseline-only {row['baseline_only_wins']}, p={row['sign_test_p_value']:.3g})"
         )
+    sequential = report_json.get("sequential")
+    if sequential is not None:
+        lines.append(
+            f"stopped after {sequential['seeds_played']} of {len(report_json['seeds'])} seeds"
+        )
     return lines
+
+
+def run_sequential_blocks(
+    spec: DeckComparisonSpec,
+    cases: tuple[FullGameBatchCase, ...],
+    run_block: Callable[[tuple[FullGameBatchCase, ...]], FullGameBatchReport],
+    *,
+    look_every: int,
+    significance_level: float = 0.05,
+) -> tuple[DeckComparisonReport, FullGameBatchReport, dict[str, Any]]:
+    """Play seeds in blocks of ``look_every`` and stop once decided (#832).
+
+    After each block the finished games are aggregated with the Bonferroni-split
+    per-look alpha; the run stops early once every variant has a decided verdict
+    at that level. Each look aggregates over the seeds played so far (a
+    sub-spec), so unplayed seeds are never counted as censored. The final look
+    uses the same threshold. Returns the comparison report, the combined batch
+    report over the blocks played, and the ``sequential`` payload for the
+    report JSON.
+    """
+    looks_planned = sequential_looks_planned(len(spec.seeds), look_every)
+    per_look_alpha = sequential_look_alpha(significance_level, looks_planned)
+    records: list[FullGameBatchRecord] = []
+    looks_used = 0
+    seeds_played = 0
+    seed_list = list(spec.seeds)
+    for start in range(0, len(seed_list), look_every):
+        block = tuple(seed_list[start : start + look_every])
+        report = run_block(tuple(case for case in cases if case.scenario.seed in block))
+        records.extend(report.records)
+        looks_used += 1
+        seeds_played += len(block)
+        combined = FullGameBatchReport(
+            total_cases=len(records),
+            completed_cases=sum(1 for record in records if record.status == "completed"),
+            failed_cases=sum(1 for record in records if record.status == "failed"),
+            resumed_cases=sum(1 for record in records if record.resumed_from_completed_record),
+            records=tuple(records),
+        )
+        look_spec = spec.model_copy(update={"seeds": tuple(seed_list[:seeds_played])})
+        comparison = aggregate_comparison(look_spec, combined, significance_level=per_look_alpha)
+        if sequential_stop_now(comparison.paired):
+            break
+    sequential = {
+        "looks_planned": looks_planned,
+        "looks_used": looks_used,
+        "per_look_alpha": per_look_alpha,
+        "stopped_early": seeds_played < len(spec.seeds),
+        "seeds_played": seeds_played,
+    }
+    return comparison, combined, sequential
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -185,6 +257,19 @@ def main(argv: list[str] | None = None) -> int:
         "--require-ready",
         action="store_true",
         help="refuse to run unless every contender and opponent deck is ready",
+    )
+    parser.add_argument(
+        "--stop-when-decided",
+        action="store_true",
+        help="play seeds in blocks of --look-every and stop early once every "
+        "variant has a decided verdict at the per-look threshold",
+    )
+    parser.add_argument(
+        "--look-every",
+        type=int,
+        default=5,
+        metavar="K",
+        help="seeds per interim look with --stop-when-decided (default: 5)",
     )
     args = parser.parse_args(argv)
 
@@ -210,6 +295,8 @@ def main(argv: list[str] | None = None) -> int:
     cases = plan_comparison_cases(spec)
     if args.workers is not None and args.workers < 1:
         parser.error("--workers must be at least 1")
+    if args.look_every < 1:
+        parser.error("--look-every must be at least 1")
     workers = args.workers or default_workers(memory_gb=_available_memory_gb())
     print(
         f"{len(cases)} games: {len(spec.contenders)} contenders x {len(spec.seeds)} seeds x "
@@ -228,14 +315,38 @@ def main(argv: list[str] | None = None) -> int:
         request_timeout_seconds=args.request_timeout,
     )
     batch = XmageFullGameBatchRunner(runner, args.out / "games")
-    report = batch.run(
-        cases,
-        retry_failed=args.retry_failed,
-        workers=workers,
-        parallelism=args.parallelism,
-    )
-    comparison = aggregate_comparison(spec, report)
+    sequential: dict[str, Any] | None = None
+    if args.stop_when_decided:
+        looks_planned = sequential_looks_planned(len(spec.seeds), args.look_every)
+        print(
+            f"sequential: {looks_planned} planned looks of {args.look_every} seeds, "
+            f"per-look alpha {sequential_look_alpha(0.05, looks_planned):.4g}"
+        )
+
+        def run_block(block_cases: tuple[FullGameBatchCase, ...]) -> FullGameBatchReport:
+            seeds = sorted({case.scenario.seed for case in block_cases})
+            print(f"look: playing seeds {seeds[0]}-{seeds[-1]} ({len(block_cases)} games)")
+            return batch.run(
+                block_cases,
+                retry_failed=args.retry_failed,
+                workers=workers,
+                parallelism=args.parallelism,
+            )
+
+        comparison, report, sequential = run_sequential_blocks(
+            spec, cases, run_block, look_every=args.look_every
+        )
+    else:
+        report = batch.run(
+            cases,
+            retry_failed=args.retry_failed,
+            workers=workers,
+            parallelism=args.parallelism,
+        )
+        comparison = aggregate_comparison(spec, report)
     payload = comparison.model_dump(mode="json")
+    if sequential is not None:
+        payload["sequential"] = sequential
     payload["engine"] = {
         "xmage_commit": spec.xmage_commit,
         "execution_identity": execution_identity_of(runner),

@@ -207,6 +207,47 @@ def sign_test_p_value(variant_only: int, baseline_only: int) -> float:
     return min(1.0, 2 * tail)
 
 
+def sequential_looks_planned(seed_count: int, look_every: int) -> int:
+    """Planned interim looks ``L = ceil(seed_count / look_every)`` (#832)."""
+    if seed_count < 1:
+        raise ValueError("seed_count must be at least 1")
+    if look_every < 1:
+        raise ValueError("look_every must be at least 1")
+    return -(-seed_count // look_every)
+
+
+def sequential_look_alpha(significance_level: float, looks_planned: int) -> float:
+    """Per-look significance threshold for a sequential comparison (#832).
+
+    With ``looks_planned`` interim looks, a look may declare VARIANT_BETTER or
+    BASELINE_BETTER only when the sign-test p-value is below
+    ``significance_level / looks_planned``. This Bonferroni split is simple and
+    valid: it keeps the overall Type I error at most ``significance_level``.
+    The final look uses the same threshold.
+    """
+    if not 0.0 < significance_level < 1.0:
+        raise ValueError("significance_level must be within (0, 1)")
+    if looks_planned < 1:
+        raise ValueError("looks_planned must be at least 1")
+    return significance_level / looks_planned
+
+
+def sequential_look_decided(paired: PairedVariantResult) -> bool:
+    """Whether one variant's interim result stops the sequential run (#832).
+
+    ``paired`` must come from an aggregation at the per-look alpha (see
+    :func:`sequential_look_alpha`): only a decided verdict, VARIANT_BETTER or
+    BASELINE_BETTER, stops the run. NO_CLEAR_DIFFERENCE and INSUFFICIENT never
+    stop it; more seeds might still decide the comparison.
+    """
+    return paired.verdict in ("VARIANT_BETTER", "BASELINE_BETTER")
+
+
+def sequential_stop_now(paired: Sequence[PairedVariantResult]) -> bool:
+    """Stop once every variant has a decided interim verdict (#832)."""
+    return bool(paired) and all(sequential_look_decided(result) for result in paired)
+
+
 class ContenderSummary(_StrictModel):
     deck_id: str
     games_planned: int = Field(ge=0)
@@ -398,6 +439,10 @@ __all__ = [
     "case_id",
     "plan_comparison_cases",
     "pod_decks",
+    "sequential_look_alpha",
+    "sequential_look_decided",
+    "sequential_looks_planned",
+    "sequential_stop_now",
     "sign_test_p_value",
     "wilson_interval",
 ]
