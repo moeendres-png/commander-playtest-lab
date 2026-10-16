@@ -141,6 +141,12 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
     max_turn = 0
     pilot_s = 0.0
     abilities_per_turn: dict[tuple[int, int], int] = defaultdict(int)
+    # Per (seat, card name): how often a cast was offered in an own main-phase
+    # priority window vs. actually chosen. Only the actor's own seat is
+    # recorded; hidden information stays actor-scoped.
+    offered_castable: dict[tuple[int, str], int] = Counter()
+    cast_count: dict[tuple[int, str], int] = Counter()
+    first_cast_turn: dict[tuple[int, str], int] = {}
     for record in records:
         request = record["request"]
         state = request.get("pilot_state") or {}
@@ -161,6 +167,21 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
             picked = chosen[0] if chosen else {}
             picked_type = str(picked.get("option_type", ""))
             meta = _meta(picked)
+            # Per-card cast tracking: own main-phase priority windows only.
+            if _own_turn(state) and _is_main(state):
+                offered_names = {
+                    str(_meta(o).get("source_name") or "")
+                    for o in options
+                    if _meta(o).get("ability_type") == "spell"
+                    and str(_meta(o).get("source_name") or "")
+                }
+                for name in offered_names:
+                    offered_castable[(seat, name)] += 1
+                if meta.get("ability_type") == "spell":
+                    name = str(meta.get("source_name") or "")
+                    if name:
+                        cast_count[(seat, name)] += 1
+                        first_cast_turn.setdefault((seat, name), turn)
             if meta.get("ability_type") == "spell":
                 spells[seat] += 1
                 name = str(meta.get("source_name") or "")
@@ -256,6 +277,22 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
                         needless_chumps += 1
     rounds = max(1.0, max_turn / max(1, players))
     decisions = sum(by_class.values())
+    # Per-card figures keyed by (seat, card name); first_cast_round is None
+    # when the card was offered but never cast.
+    per_card = [
+        {
+            "seat": seat,
+            "card": name,
+            "offered_castable": offered_castable[(seat, name)],
+            "cast": cast_count.get((seat, name), 0),
+            "first_cast_round": (
+                round(first_cast_turn[(seat, name)] / max(1, players), 2)
+                if (seat, name) in first_cast_turn
+                else None
+            ),
+        }
+        for (seat, name) in sorted(offered_castable)
+    ]
     return {
         "turns": max_turn,
         "rounds": round(rounds, 2),
@@ -280,6 +317,7 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
         "blocks": blocks,
         "bad_needless_chump_blocks": needless_chumps,
         "max_activations_one_turn": max(abilities_per_turn.values(), default=0),
+        "per_card": per_card,
     }
 
 
@@ -369,9 +407,88 @@ def run(args: argparse.Namespace) -> int:
             rows = [future.result() for future in futures]
     report: dict[str, Any] = {"jar": str(args.jar), "games": rows}
     report["totals"] = totals(report)
+    report["cards"] = aggregate_cards(report)
     args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
     print(json.dumps(report["totals"], indent=1))
+    for line in format_rotting(report["cards"]):
+        print(line)
     return 0 if all(row["status"] == "ok" for row in rows) else 1
+
+
+# ---------------------------------------------------------------------------
+# cards: per-card cast rate and cards that rot in hand.
+#
+# ``summarize`` records per (seat, card) how often a cast was offered in an own
+# main-phase priority window vs. actually chosen. Here the per-game figures are
+# aggregated by card name across seats and games; the "rotting" list ranks cards
+# that were offered castable in >= 3 windows of a game but never cast in it.
+# ---------------------------------------------------------------------------
+
+_ROTTING_MIN_WINDOWS = 3
+
+
+def aggregate_cards(report: dict[str, Any]) -> dict[str, Any]:
+    """Aggregate per-card cast figures over the ok games of a report."""
+    games = [g for g in report["games"] if g["status"] == "ok"]
+    offered: dict[str, int] = Counter()
+    cast: dict[str, int] = Counter()
+    seen_in: dict[str, set[int]] = defaultdict(set)
+    first_rounds: dict[str, list[float]] = defaultdict(list)
+    rotted_in: dict[str, int] = Counter()
+    for game_idx, game in enumerate(games):
+        per_game_offered: dict[str, int] = Counter()
+        per_game_cast: dict[str, int] = Counter()
+        for entry in game.get("per_card", []):
+            name = str(entry.get("card") or "")
+            if not name:
+                continue
+            n_offered = int(entry.get("offered_castable", 0) or 0)
+            n_cast = int(entry.get("cast", 0) or 0)
+            offered[name] += n_offered
+            cast[name] += n_cast
+            per_game_offered[name] += n_offered
+            per_game_cast[name] += n_cast
+            if n_offered or n_cast:
+                seen_in[name].add(game_idx)
+            first = entry.get("first_cast_round")
+            if first is not None:
+                first_rounds[name].append(float(first))
+        for name, n_offered in per_game_offered.items():
+            if n_offered >= _ROTTING_MIN_WINDOWS and per_game_cast.get(name, 0) == 0:
+                rotted_in[name] += 1
+    cards = [
+        {
+            "card": name,
+            "games_seen": len(seen_in[name]),
+            "offered_castable": offered[name],
+            "cast": cast[name],
+            "cast_rate": round(cast[name] / offered[name], 3) if offered[name] else 0.0,
+            "mean_first_cast_round": (
+                round(sum(first_rounds[name]) / len(first_rounds[name]), 2)
+                if first_rounds[name]
+                else None
+            ),
+        }
+        for name in sorted(offered)
+    ]
+    rotting_entries: list[dict[str, Any]] = [
+        {"card": name, "games_rotted": count} for name, count in rotted_in.items()
+    ]
+    rotting = sorted(
+        rotting_entries,
+        key=lambda item: (-int(item["games_rotted"]), str(item["card"])),
+    )
+    return {"cards": cards, "rotting": rotting}
+
+
+def format_rotting(cards: dict[str, Any], limit: int = 10) -> list[str]:
+    """Human-readable lines for the most-rotting cards."""
+    lines = ["most rotting cards (offered castable, never cast):"]
+    for entry in cards.get("rotting", [])[:limit]:
+        lines.append(f"  {entry['card']}: rotted in {entry['games_rotted']} game(s)")
+    if len(lines) == 1:
+        lines.append("  (none)")
+    return lines
 
 
 # ---------------------------------------------------------------------------
