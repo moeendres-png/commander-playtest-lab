@@ -38,7 +38,7 @@ def _export_fixture() -> dict:
             "agent": "foundry-implementer",
             "model": {
                 "providerID": "opencode",
-                "id": "step-5-preview-free",
+                "id": "deepseek-v4.1-flash-free",
                 "variant": "high",
             },
             "version": "1.18.30",
@@ -73,7 +73,7 @@ def test_session_stats_counts_only(tmp_path: Path) -> None:
     summary = session_stats_mod.summarize(str(path))
     assert summary["session_id"] == "ses_test"
     assert summary["agent"] == "foundry-implementer"
-    assert summary["model"] == "opencode/step-5-preview-free"
+    assert summary["model"] == "opencode/deepseek-v4.1-flash-free"
     assert summary["variant"] == "high"
     assert summary["model_turns"] == 1
     assert summary["tool_calls"] == 3
@@ -112,7 +112,7 @@ def test_session_stats_aggregates_a_multi_turn_export(tmp_path: Path) -> None:
             "agent": "foundry-implementer",
             "model": {
                 "providerID": "opencode",
-                "id": "step-5-preview-free",
+                "id": "deepseek-v4.1-flash-free",
                 "variant": "high",
             },
             "version": "1.18.30",
@@ -138,7 +138,7 @@ def test_session_stats_aggregates_a_multi_turn_export(tmp_path: Path) -> None:
     path = tmp_path / "multiturn-export.json"
     path.write_text(json.dumps(export), encoding="utf-8")
     summary = session_stats_mod.summarize(str(path))
-    assert summary["model"] == "opencode/step-5-preview-free"
+    assert summary["model"] == "opencode/deepseek-v4.1-flash-free"
     assert summary["variant"] == "high"
     assert summary["model_turns"] == turns
     # Every turn issues one tool call, so tool calls are never below turns.
@@ -173,8 +173,8 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
     entry = metrics_mod.record(
         str(metrics),
         repo_profile="mage",
-        model="opencode/step-5-preview-free",
-        execution_profile="step",
+        model="opencode/deepseek-v4.1-flash-free",
+        execution_profile="deepseek",
         native_variant="high",
         started_utc="2026-09-10T00:00:00Z",
         ended_utc="2026-09-10T01:00:00Z",
@@ -185,7 +185,7 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
         cost_usd=0.5,
     )
     assert entry["repo_profile"] == "mage"
-    assert entry["execution_profile"] == "step"
+    assert entry["execution_profile"] == "deepseek"
     assert entry["native_variant"] == "high"
     assert entry["push_result"] == "PUSHED"
     assert entry["exit_status"] == 0

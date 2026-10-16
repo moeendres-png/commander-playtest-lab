@@ -265,31 +265,30 @@ def test_repo_root_state_absent_schema_kept() -> None:
 
 
 def test_opencode_config_schema_conformance() -> None:
-    """Exactly two logical executors; admitted runtime ids pinned to one variant.
+    """Exactly one logical executor; its admitted runtime id pinned to one variant.
 
-    Owner directive (2026-10-12): only Step 5 Preview HIGH is reachable; DeepSeek
-    MAX stays in the registry as SUSPENDED and is absent from the config. Step
-    admits exactly its OpenCode Zen runtime id (no Go id, no legacy
+    Owner instruction (2026-10-16): only DeepSeek V4.1 Flash MAX is reachable. It
+    admits exactly its OpenCode Zen runtime id (no Go id, no Step, no legacy
     alias); there is no other executor. This pins the shape and the
     pinning, not just the presence of a model field, so a retired effort level
     cannot quietly reopen.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["model"] == "opencode/step-5-preview-free"
-    assert config["small_model"] == "opencode/step-5-preview-free"
+    assert config["model"] == "opencode/deepseek-v4.1-flash-free"
+    assert config["small_model"] == "opencode/deepseek-v4.1-flash-free"
     assert config["share"] == "disabled"
     assert config["enabled_providers"] == ["opencode"]
     provider = config["provider"]["opencode"]
     registry = executor_mod.load_registry()
-    # No silent fallback: only the Zen Step 5 Preview id. The suspended DeepSeek
-    # and the Go Step 5 Preview ids are absent.
+    # No silent fallback: only the Zen DeepSeek V4.1 Flash id. Step 5 Preview and the
+    # Go ids are absent.
     assert provider["whitelist"] == list(
         model.split("/", 1)[1] for model in registry.active_runtime_ids
     )
-    assert provider["whitelist"] == ["step-5-preview-free"]
+    assert provider["whitelist"] == ["deepseek-v4.1-flash-free"]
     assert "opencode-go" not in config["provider"]
     authorized = {
-        "step-5-preview-free": ("high", {"reasoningEffort": "high"}),
+        "deepseek-v4.1-flash-free": ("max", {"reasoningEffort": "max"}),
     }
     assert set(provider["models"]) == set(authorized)
     for short, (variant, options) in authorized.items():
@@ -297,10 +296,12 @@ def test_opencode_config_schema_conformance() -> None:
         assert entry["options"] == options, short
         enabled = sorted(n for n, s in entry["variants"].items() if s != {"disabled": True})
         assert enabled == [variant], f"{short}: {enabled}"
-        for retired in ("none", "off", "minimal", "low", "medium", "xhigh", "max"):
+        # Nothing below `high` is ever configured, and `high`/`xhigh` stay closed too:
+        # max is the pin.
+        for retired in ("none", "off", "minimal", "low", "medium", "high", "xhigh"):
             assert entry["variants"][retired] == {"disabled": True}, f"{short}:{retired}"
-    # Step 5 Preview is the only executor, so the build agent defaults to its level.
-    assert config["agent"]["build"] == {"variant": "high"}
+    # DeepSeek is the only executor, so the build agent defaults to its level.
+    assert config["agent"]["build"] == {"variant": "max"}
     assert "permissions" not in config
     assert isinstance(config["permission"], dict)
 
@@ -308,8 +309,8 @@ def test_opencode_config_schema_conformance() -> None:
 def test_only_authorized_executors_present_in_canonical_config() -> None:
     """The canonical config exposes exactly the admitted runtime identities.
 
-    Only ACTIVE profiles are admitted (Step 5 Preview on Zen; DeepSeek is
-    SUSPENDED). No other provider/model may appear.
+    Only ACTIVE profiles are admitted (DeepSeek V4.1 Flash on Zen). No other
+    provider/model may appear.
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     provider = config["provider"]["opencode"]
@@ -317,12 +318,9 @@ def test_only_authorized_executors_present_in_canonical_config() -> None:
     admitted = list(registry.active_runtime_ids)
     assert provider["whitelist"] == [model.split("/", 1)[1] for model in admitted]
     assert set(provider["models"]) == {model.split("/", 1)[1] for model in admitted}
-    assert set(registry.runtime_identity) == {
-        "opencode-go/deepseek-v4.1-flash",
-        "opencode/step-5-preview-free",
-    }
+    assert set(registry.runtime_identity) == {"opencode/deepseek-v4.1-flash-free"}
     profiles_for_aliases = {spec.logical_profile for spec in registry.runtime_identity.values()}
-    assert profiles_for_aliases == {"deepseek", "step"}
+    assert profiles_for_aliases == {"deepseek"}
 
 
 def _agent_frontmatter(name: str) -> dict:
@@ -333,18 +331,18 @@ def _agent_frontmatter(name: str) -> dict:
 def test_high_default_retained() -> None:
     """The default agent surface runs at an authorized native level only.
 
-    Retained intent, renamed subject: with only DeepSeek MAX and Step 5 Preview HIGH
-    permitted, every other level is retired and must not appear on any reachable
-    agent definition. No agent may sit on a retired level.
+    Retained intent, renamed subject: with only DeepSeek V4.1 Flash MAX permitted,
+    every other level is retired and must not appear on any reachable agent
+    definition. No agent may sit on a retired level (nothing below `high`).
     """
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
     models = config["provider"]["opencode"]["models"]
-    assert "deepseek-v4.1-flash" not in models
-    assert models["step-5-preview-free"]["options"] == {"reasoningEffort": "high"}
-    # Every on-disk agent runs Step 5 Preview HIGH (DeepSeek SUSPENDED 2026-10-10);
+    assert set(models) == {"deepseek-v4.1-flash-free"}
+    assert models["deepseek-v4.1-flash-free"]["options"] == {"reasoningEffort": "max"}
+    # Every on-disk agent runs DeepSeek V4.1 Flash MAX (Owner instruction 2026-10-16);
     # the launcher also pins the resolved profile inline for every run.
     expected = {
-        name: ("opencode/step-5-preview-free", "high")
+        name: ("opencode/deepseek-v4.1-flash-free", "max")
         for name in (
             "foundry-implementer.md",
             "foundry-adjudicator.md",
@@ -362,8 +360,8 @@ def test_high_default_retained() -> None:
 def test_adjudicator_exists_and_configured() -> None:
     adjudicator = _agent_frontmatter("foundry-adjudicator.md")
     assert adjudicator["mode"] == "subagent"
-    assert adjudicator["model"] == "opencode/step-5-preview-free"
-    assert adjudicator["variant"] == "high"
+    assert adjudicator["model"] == "opencode/deepseek-v4.1-flash-free"
+    assert adjudicator["variant"] == "max"
     assert adjudicator["permission"]["edit"] == "deny"
     bash = adjudicator["permission"]["bash"]
     assert bash["*"] == "ask"
@@ -426,8 +424,8 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     assert "owner-only decisions" in flat
 
 
-def test_reviewer_remains_high_and_read_only() -> None:
-    """The mandatory reviewer is Step 5 Preview HIGH and structurally read-only.
+def test_reviewer_remains_max_and_read_only() -> None:
+    """The mandatory reviewer is DeepSeek V4.1 Flash MAX and structurally read-only.
 
     Mode ``all`` lets the same read-only definition serve as a standalone
     fresh-context reviewer session and as an invocable subagent; permissions
@@ -435,8 +433,8 @@ def test_reviewer_remains_high_and_read_only() -> None:
     """
     reviewer = _agent_frontmatter("foundry-reviewer.md")
     assert reviewer["mode"] == "all"
-    assert reviewer["model"] == "opencode/step-5-preview-free"
-    assert reviewer["variant"] == "high"
+    assert reviewer["model"] == "opencode/deepseek-v4.1-flash-free"
+    assert reviewer["variant"] == "max"
     assert reviewer["permission"]["edit"] == "deny"
     assert reviewer["permission"]["bash"]["*"] == "deny"
     assert reviewer["permission"]["task"] == "deny"
@@ -1027,7 +1025,7 @@ def test_dual_executor_current_authority_is_canonical() -> None:
         assert required.lower() in flat
 
 
-def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
+def test_cpl_profile_points_to_current_single_executor_authority() -> None:
     profile = json.loads((REPO_ROOT / ".foundry" / "repo-profiles" / "cpl.json").read_text())
     canonical = profile["canonical_files"]
     assert "AGENTS.md" in canonical
@@ -1036,8 +1034,11 @@ def test_cpl_profile_points_to_current_dual_executor_authority() -> None:
     assert "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md" in canonical
     assert "docs/OPENAI_COORDINATOR_EXECUTION_AUTHORITY_2026-09-10.md" not in canonical
     notes = profile["notes"].lower()
-    assert "step 5 preview high as the default and only active executor" in notes
-    assert "deepseek v4.1 flash max is suspended" in notes
+    assert "deepseek v4.1 flash max" in notes
+    assert "as the default and only active executor" in notes
+    assert "suspended" not in notes
+    assert "step 5 preview" not in notes
+    assert profile["multimodel_runtime_status"] == "ACTIVE_SINGLE_PROFILE_ONLY"
     assert "historical model references are provenance only" in notes
 
 
@@ -1054,14 +1055,15 @@ def test_claude_entrypoint_delegates_to_canonical_policy() -> None:
     assert "owner-only reservations" in flat
 
 
-def test_current_routing_is_executor_neutral_and_step_preferred() -> None:
+def test_current_routing_names_one_executor_and_retired_step() -> None:
     routing = (REPO_ROOT / "docs" / "foundry-execution" / "ROUTING_AND_EFFORT.md").read_text(
         encoding="utf-8"
     )
     flat = " ".join(routing.lower().split())
     assert "the default and only executor" in flat
-    assert "suspended" in flat
-    assert "step" in flat
+    assert "suspended" not in flat
+    assert "step 5 preview left the zen catalog and was retired on 2026-10-16" in flat
+    assert "opencode/step-5-preview-free" not in flat
     assert "native `max`" in flat
     assert "no other opencode executor is selectable" in flat
     assert (

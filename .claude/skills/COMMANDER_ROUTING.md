@@ -10,12 +10,12 @@ This is routing guidance only; `AGENTS.md` remains authority. For each task choo
 lane that preserves required correctness and evidence:
 
 1. deterministic script/tool when judgement is unnecessary;
-2. Step 5 Preview native `high` (`opencode/step-5-preview-free`, free Zen quota) as the only OpenCode model for
+2. DeepSeek V4.1 Flash native `max` (`opencode/deepseek-v4.1-flash-free`, free Zen quota, never below `high`) as the only OpenCode model for
    implementation, debugging, tests, qualification execution, evidence production, audits,
    reviews and long engineering work (`/oc`, `/assure`, `/ro-review`, the `opencode` CLI from Claude);
    prompts follow `docs/foundry-execution/EXECUTOR_PROMPTING.md`;
-3. DeepSeek V4.1 Flash is SUSPENDED since 2026-10-10 (monthly quota exhausted): never select it
-   and never fall back to it;
+3. Step 5 Preview left the Zen catalog (retired 2026-10-16) and the OpenCode Go provider is retired:
+   never select either and never fall back to another model;
 4. bounded Claude read-only helpers: `log-scanner` = Sonnet `low`, `ci-triage` = Sonnet
    `medium`, built-in `Explore` only for a scoped lookup after deterministic search is
    insufficient;

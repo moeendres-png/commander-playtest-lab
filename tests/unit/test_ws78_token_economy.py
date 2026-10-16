@@ -322,13 +322,13 @@ def test_safety_permissions_intact(repo_root: Path):
 
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
-    # Step 5 Preview HIGH on OpenCode Zen is the only executor (DeepSeek SUSPENDED,
-    # Go ids retired 2026-10-10); no other model/provider is whitelisted.
-    assert config["model"] == "opencode/step-5-preview-free"
+    # DeepSeek V4.1 Flash MAX on OpenCode Zen is the only executor (Step left the
+    # catalog 2026-10-16, Go ids retired); no other model/provider is whitelisted.
+    assert config["model"] == "opencode/deepseek-v4.1-flash-free"
     assert config["enabled_providers"] == ["opencode"]
     provider = config["provider"]["opencode"]
-    assert provider["whitelist"] == ["step-5-preview-free"]
-    assert set(provider["models"]) == {"step-5-preview-free"}
+    assert provider["whitelist"] == ["deepseek-v4.1-flash-free"]
+    assert set(provider["models"]) == {"deepseek-v4.1-flash-free"}
     assert config["default_agent"] == "foundry-implementer"
     assert "instructions" not in config, (
         "OpenCode V2 accepts config.instructions but does not resolve its entries; "
@@ -348,8 +348,8 @@ def test_policy_layers_kept(repo_root: Path):
     routing = (repo_root / "docs/foundry-execution/ROUTING_AND_EFFORT.md").read_text(
         encoding="utf-8"
     )
-    assert "opencode-go/deepseek-v4.1-flash" in routing
-    assert "No other OpenCode executor is selectable" in routing
+    assert "opencode/deepseek-v4.1-flash-free" in routing
+    assert "no second logical executor" in routing
     implementer = (repo_root / ".opencode/agents/foundry-implementer.md").read_text(
         encoding="utf-8"
     )
@@ -384,10 +384,10 @@ def test_launcher_bundle_passes_tool_output(repo_root: Path):
     finally:
         sys.path.remove(str(repo_root / "tools" / "foundry"))
     bundle = launcher_mod.build_content_bundle(
-        str(repo_root), [], catalog=list(launcher_mod.ADMITTED_STEP_MODELS)
+        str(repo_root), [], catalog=list(launcher_mod.ADMITTED_DEEPSEEK_MODELS)
     )
     assert bundle["tool_output"] == {"max_lines": 2000, "max_bytes": 51200}
-    assert bundle["model"] == "opencode/step-5-preview-free"
+    assert bundle["model"] == "opencode/deepseek-v4.1-flash-free"
 
 
 def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path: Path):
@@ -399,22 +399,14 @@ def test_launcher_bundle_rejects_malformed_tool_output(repo_root: Path, tmp_path
     # Synthetic fixture only: a deliberately malformed tool_output block. The model
     # identity here is irrelevant to the assertion; the bundle must fail closed.
     config = {
-        "model": "opencode-go/deepseek-v4.1-flash",
+        "model": "opencode/deepseek-v4.1-flash-free",
         "share": "disabled",
         "enabled_providers": ["opencode"],
         "provider": {
             "opencode": {
-                "whitelist": ["deepseek-v4.1-flash", "step", "step-5-preview-free"],
+                "whitelist": ["deepseek-v4.1-flash-free"],
                 "models": {
-                    "deepseek-v4.1-flash": {
-                        "options": {"reasoningEffort": "max"},
-                        "variants": {"max": {}},
-                    },
-                    "step": {
-                        "options": {"reasoningEffort": "max"},
-                        "variants": {"max": {}},
-                    },
-                    "step-5-preview-free": {
+                    "deepseek-v4.1-flash-free": {
                         "options": {"reasoningEffort": "max"},
                         "variants": {"max": {}},
                     },
