@@ -247,7 +247,7 @@ def test_retired_ids_are_never_admitted_and_self_review_only_without_cross_model
     record["implementation_executor"] = "deepseek"
     assert review_mod.validate_review_record(record) == []
 
-    # As soon as a second executor is ACTIVE, same-model self-review is refused again.
+    # As soon as an executor of a different model family is ACTIVE, same-model self-review is refused again.
     registry = executor_mod.load_registry()
     other = executor_mod.ProfileSpec(
         name="other",
@@ -257,8 +257,9 @@ def test_retired_ids_are_never_admitted_and_self_review_only_without_cross_model
         admitted=(),
         runtime_status=executor_mod.ACTIVE,
     )
+    # deepseek-th is the same model family, so it alone never refuses self-review.
     two_active = dataclasses.replace(registry, profiles={**registry.profiles, "other": other})
-    assert two_active.active_profiles == ("deepseek", "other")
+    assert two_active.active_profiles == ("deepseek", "deepseek-th", "other")
     errors = review_mod.validate_review_record(record, registry=two_active)
     assert any("self-review" in error for error in errors)
 
@@ -851,3 +852,30 @@ def test_deepseek_review_workflow_pins_the_read_only_lane() -> None:
         "pull-requests": "read",
         "issues": "read",
     }
+
+
+def test_token_harbor_implementation_is_cross_provider_reviewed_by_zen_deepseek(
+    repo: dict,
+) -> None:
+    """deepseek-th (same model, other provider) adds no model independence.
+
+    A deepseek-th implementation is accepted when reviewed by the Zen deepseek
+    reviewer (the /ro-review lane); the reviewer can never be deepseek-th, and
+    with both ACTIVE profiles the Zen self-review rule is unchanged (still
+    allowed, same model family) while a different-family ACTIVE profile would
+    refuse it again.
+    """
+    registry = executor_mod.load_registry()
+    assert registry.active_profiles == ("deepseek", "deepseek-th")
+    record = _record(repo)
+    record["implementation_executor"] = "deepseek-th"
+    assert review_mod.validate_review_record(record) == []
+    record["review_executor"] = "deepseek-th"
+    errors = review_mod.validate_review_record(record)
+    assert any("review_executor must be the logical deepseek" in error for error in errors)
+    record = _record(repo)
+    record["resolved_model_id"] = "tokenharbor/deepseek-v4.1-flash"
+    record["resolved_provider"] = "tokenharbor"
+    errors = review_mod.validate_review_record(record)
+    assert any("review resolved_provider" in error for error in errors)
+    assert any("not an admitted deepseek runtime id" in error for error in errors)

@@ -27,6 +27,18 @@ with `AGENTS.md` and `docs/CURRENT_EXECUTION_AUTHORITY.md`; this file only says 
 | MATERIAL review gate on an exact SHA/TREE | `/ro-review` | `foundry-reviewer` | never |
 | Bounded side task from a Claude session | `opencode` CLI / MCP | per call | per permission mode |
 
+### `/oc` (Zen) or `/oc-th` (Token Harbor)
+
+Same model, same `foundry-implementer` agent, same trust gate; the Coordinator picks the
+provider per dispatch and never falls back from one to the other.
+
+- `/oc` (default): Zen, zero-retention, no training; capped by the daily Zen request limit.
+- `/oc-th`: Token Harbor free plan (`tokenharbor/deepseek-v4.1-flash`), 60 req/min and
+  1800 req/h, a rolling 7-day allowance. The provider documents no reasoning-effort control, so
+  the model runs at its provider default (`max` cannot be pinned). Free routes may be logged and
+  used for improvement: never put Owner data, credentials or private collection data in an
+  `/oc-th` task. Post it with `oc_dispatch.py post --lane oc-th`.
+
 The model is the same everywhere; the lane sets permissions and posture. Never ask an `/oc` run to
 review itself: the gate only accepts the separate `/ro-review` run.
 

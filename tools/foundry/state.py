@@ -46,6 +46,8 @@ MATERIALITY_VALUES = ("MATERIAL", "NON_MATERIAL")
 REVIEW_VERDICTS = ("PASS", "FAIL", "PARTIAL", "UNKNOWN", "BLOCKED", "STALE")
 REVIEW_ALIAS_CLASSES = ("CANONICAL", "LEGACY_ALIAS")
 REVIEW_EXECUTOR_PROFILES = ("deepseek",)
+# Implementation executors: the Zen default and the Token Harbor lane (2026-10-16).
+IMPLEMENTATION_EXECUTOR_PROFILES = ("deepseek", "deepseek-th")
 
 REQUIRED_V1 = [
     "schema_version",
@@ -143,7 +145,7 @@ def _validate_review_mirror(value: Any, errors: list[str]) -> None:
         errors.append(
             f"bad cross_executor_review.review_executor: {value.get('review_executor')!r}"
         )
-    if value.get("implementation_executor") not in (None, *REVIEW_EXECUTOR_PROFILES):
+    if value.get("implementation_executor") not in (None, *IMPLEMENTATION_EXECUTOR_PROFILES):
         errors.append(
             f"bad cross_executor_review.implementation_executor: "
             f"{value.get('implementation_executor')!r}"

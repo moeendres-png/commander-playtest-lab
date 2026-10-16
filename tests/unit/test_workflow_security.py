@@ -635,6 +635,6 @@ def test_opencode_runs_have_an_enforced_time_box_within_the_token_lifetime():
         for step in job["steps"]
         if step.get("name") == "Run opencode"
     ]
-    assert len(runs) == 3
+    assert len(runs) == 4
     for job_name, step in runs:
         assert 0 < step.get("timeout-minutes", 0) <= 55, job_name

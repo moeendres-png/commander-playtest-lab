@@ -48,11 +48,15 @@ def test_config_ci_agents_and_durable_state_agree():
 
 def test_launcher_exposes_exactly_the_one_routed_executor():
     """No retired executor may be reachable through the canonical launcher."""
-    assert launcher.EXECUTION_PROFILES == ("deepseek",)
-    assert launcher.ACTIVE_EXECUTION_PROFILES == ("deepseek",)
+    assert launcher.EXECUTION_PROFILES == ("deepseek", "deepseek-th")
+    assert launcher.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
     assert launcher.DEFAULT_EXECUTION_PROFILE == "deepseek"
+    # The opencode (Zen) whitelist stays single-id; Token Harbor is a separate provider.
     assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/deepseek-v4.1-flash-free",)
-    assert launcher.PROFILE_MODELS == {"deepseek": "opencode/deepseek-v4.1-flash-free"}
+    assert launcher.PROFILE_MODELS == {
+        "deepseek": "opencode/deepseek-v4.1-flash-free",
+        "deepseek-th": "tokenharbor/deepseek-v4.1-flash",
+    }
     assert not hasattr(launcher, "ZEN_MODEL"), "retired provider override must stay removed"
     for retired in ("step", "glm", "openai", "other"):
         with pytest.raises(ValueError, match="unknown execution profile"):
@@ -88,9 +92,10 @@ def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
 
 def test_documented_native_pairs_match_policy_not_runtime_claims():
     doc = (ROOT / "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md").read_text()
-    pairs = re.findall(r"--execution-profile (deepseek|step) --effort (\w+)", doc)
-    # Only the one ACTIVE profile has a documented launch pair.
+    pairs = re.findall(r"--execution-profile (deepseek-th|deepseek|step) --effort (\w+)", doc)
+    # Only the ACTIVE profiles have a documented launch pair.
     assert set(pairs) == {("deepseek", "high")}
+    assert "--effort high --execution-profile deepseek-th" in doc
     assert "--execution-profile step" not in doc
     for profile, effort in pairs:
         model = launcher.PROFILE_MODELS[profile]
