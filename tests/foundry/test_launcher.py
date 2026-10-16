@@ -1309,11 +1309,7 @@ def test_deepseek_project_effort_maps_to_native_max(target, canon, effort):
 
 
 def test_no_executor_runs_below_its_native_max(target, canon):
-    """Zen is native MAX; project effort never lowers it (nor below high).
-
-    The Token Harbor profile exposes no effort control: it runs at the provider default and
-    the bundle carries no reasoning effort or variant (nothing is faked).
-    """
+    """Zen is native MAX; project effort never lowers it (nor below high)."""
     for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
         native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
         for effort in ("high", "xhigh"):
@@ -1325,16 +1321,10 @@ def test_no_executor_runs_below_its_native_max(target, canon):
             assert plan["_env"]["FOUNDRY_EFFORT"] == effort, profile
             bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
             short = plan["execution"]["model"].split("/", 1)[1]
-            if profile == "deepseek":
-                assert native == "max"
-                entry = bundle["provider"]["opencode"]["models"][short]
-                assert entry["options"] == {"reasoningEffort": "max"}
-                assert entry["variants"] == {"max": {}}
-            else:
-                assert native == "provider_default"
-                entry = bundle["provider"]["tokenharbor"]["models"][short]
-                assert "options" not in entry and "variants" not in entry
-                assert all("variant" not in agent for agent in bundle["agent"].values())
+            assert native == "max"
+            entry = bundle["provider"]["opencode"]["models"][short]
+            assert entry["options"] == {"reasoningEffort": "max"}
+            assert entry["variants"] == {"max": {}}
 
 
 @pytest.mark.parametrize("retired_name", ["unauthorized-model", "legacy-zen", "glm-5"])
@@ -1367,7 +1357,7 @@ def test_retired_profile_is_refused_before_any_child(target, canon, monkeypatch,
     assert plan["verdict"] == "LAUNCH_REFUSED", plan
     assert "unknown execution profile" in plan["error"]
     assert not any("--auto" in args for args in calls)
-    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
+    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek",)
 
 
 def test_deepseek_failure_never_invokes_another_executor(target, canon, monkeypatch):
@@ -1459,8 +1449,8 @@ def test_main_small_and_default_model_configuration_is_internally_consistent():
     # The default profile must be the first whitelist row: no silent fallback.
     assert launcher_mod.DEFAULT_EXECUTION_PROFILE == "deepseek"
     assert launcher_mod.PRIMARY_EXECUTION_PROFILE == launcher_mod.DEFAULT_EXECUTION_PROFILE
-    assert launcher_mod.EXECUTION_PROFILES == ("deepseek", "deepseek-th")
-    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
+    assert launcher_mod.EXECUTION_PROFILES == ("deepseek",)
+    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek",)
     assert set(launcher_mod.PROFILE_MODELS) == set(launcher_mod.EXECUTION_PROFILES)
 
 

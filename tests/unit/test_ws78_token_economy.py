@@ -323,9 +323,10 @@ def test_safety_permissions_intact(repo_root: Path):
 def test_model_provider_and_v2_instruction_source_intact(repo_root: Path):
     config = _config(repo_root)
     # DeepSeek V4.1 Flash MAX on OpenCode Zen is the only executor (Step left the
-    # catalog 2026-10-16, Go ids retired); no other model/provider is whitelisted.
+    # catalog 2026-10-16, Go ids retired, Token Harbor retired 2026-10-16); no other
+    # model/provider is whitelisted.
     assert config["model"] == "opencode/deepseek-v4.1-flash-free"
-    assert config["enabled_providers"] == ["opencode", "tokenharbor"]
+    assert config["enabled_providers"] == ["opencode"]
     provider = config["provider"]["opencode"]
     assert provider["whitelist"] == ["deepseek-v4.1-flash-free"]
     assert set(provider["models"]) == {"deepseek-v4.1-flash-free"}

@@ -459,7 +459,6 @@ def _event_context(
 
 OPENCODE_LANE_COMMANDS = {
     "opencode": ("/oc", "/opencode"),
-    "opencode-th": ("/oc-th",),
     "opencode-assure": ("/assure",),
     "opencode-ro-review": ("/ro-review",),
 }
@@ -483,34 +482,33 @@ def _firing_lanes(body: str) -> set[str]:
     [
         # The command is the first token: only its own lane fires.
         ("/oc do the task", {"opencode"}),
-        ("/oc-th do the task", {"opencode-th"}),
         ("/assure audit this", {"opencode-assure"}),
         ("/ro-review review exact SHA", {"opencode-ro-review"}),
         ("/opencode run", {"opencode"}),
         ("/oc  two spaces", {"opencode"}),
         # The whole comment is exactly the command.
         ("/oc", {"opencode"}),
-        ("/oc-th", {"opencode-th"}),
         ("/assure", {"opencode-assure"}),
         ("/ro-review", {"opencode-ro-review"}),
         # The first line is exactly the command (LF, as the REST API sends it).
         ("/oc\ntask text", {"opencode"}),
-        ("/oc-th\ntask text", {"opencode-th"}),
         ("/assure\ntask text", {"opencode-assure"}),
         ("/ro-review\ntask text", {"opencode-ro-review"}),
         # CRLF, as the GitHub web comment box sends it.
         ("/oc\r\ntask text", {"opencode"}),
-        ("/oc-th\r\ntask text", {"opencode-th"}),
         ("/assure\r\ntask text", {"opencode-assure"}),
         ("/ro-review\r\ntask text", {"opencode-ro-review"}),
         # A command later in the text never triggers a lane.
         ("please /oc do the task", set()),
-        ("the task names /oc-th in the text", set()),
         ("note: /assure and /ro-review are elsewhere", set()),
         # The command first plus any mention later: only the leading lane (the
         # regression of #813 was /oc task text naming /oc-th).
         ("/oc task naming /oc-th, /assure and /ro-review", {"opencode"}),
-        ("/oc-th task naming /oc", {"opencode-th"}),
+        # The /oc-th lane was retired 2026-10-16 (Owner instruction): a comment
+        # starting with the retired command fires no lane at all.
+        ("/oc-th task naming /oc", set()),
+        ("/oc-th do the task", set()),
+        ("/oc-th", set()),
         ("/assure task naming /ro-review", {"opencode-assure"}),
         ("/ro-review task naming /assure", {"opencode-ro-review"}),
         ("/opencode task naming /oc-th", {"opencode"}),
@@ -549,7 +547,6 @@ def test_lane_mentions_admit_exactly_the_lane_commands() -> None:
     }
     assert mentions == {
         "opencode": "",  # empty selects the CLI default `/opencode,/oc`
-        "opencode-th": "/oc-th",
         "opencode-assure": "/assure",
         "opencode-ro-review": "/ro-review",
     }
@@ -775,6 +772,8 @@ def test_opencode_runs_have_an_enforced_time_box_within_the_token_lifetime():
         for step in job["steps"]
         if step.get("name") == "Run opencode"
     ]
-    assert len(runs) == 4
+    # Three lanes remain: /oc, /assure, /ro-review (the /oc-th lane was
+    # retired 2026-10-16 by Owner instruction).
+    assert len(runs) == 3
     for job_name, step in runs:
         assert 0 < step.get("timeout-minutes", 0) <= 55, job_name
