@@ -1182,6 +1182,21 @@ final class XmageFullGameSession {
         }
     }
 
+    /**
+     * Releases this game's records in the bridge's static, game-keyed maps.
+     * Call only when the session is replaced: its replay and RNG-tape exports
+     * read those records until then.
+     */
+    String engineGameId() {
+        return game.getId().toString();
+    }
+
+    void releaseStaticGameRecords() {
+        String engineGameId = engineGameId();
+        XmageFullGameStateRedactor.forgetGame(engineGameId);
+        XmageRulesRngResultTape.forgetGame(engineGameId);
+    }
+
     private synchronized void ensureStarted() {
         if (!started) {
             throw new IllegalStateException("FULL_GAME_NOT_STARTED");

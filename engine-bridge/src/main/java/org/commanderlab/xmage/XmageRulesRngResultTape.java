@@ -86,6 +86,15 @@ final class XmageRulesRngResultTape {
         return keyProblem;
     }
 
+    /** Drops the shuffle records of one finished engine game (see the redactor's forgetGame). */
+    static void forgetGame(String engineGameId) {
+        if (engineGameId == null) {
+            return;
+        }
+        PRE_SHUFFLE.remove(engineGameId);
+        RESULTS.remove(engineGameId);
+    }
+
     /** Called before the engine shuffles {@code playerId}'s library. */
     static void beforeShuffle(Game game, UUID playerId, List<UUID> order) {
         if (!enabled() || game == null || playerId == null || game.isSimulation()) {

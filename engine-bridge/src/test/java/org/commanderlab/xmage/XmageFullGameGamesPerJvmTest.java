@@ -43,6 +43,20 @@ class XmageFullGameGamesPerJvmTest {
         assertRefused(create(bridge, "batch-3"));
     }
 
+    @Test
+    void theNextGameReleasesThePreviousGamesStaticRecords() {
+        System.setProperty(XmageFullGameJsonlBridge.GAMES_PER_JVM_PROPERTY, "2");
+        XmageFullGameJsonlBridge bridge = engine();
+        playAndShutDown(bridge, "records-1");
+        String first = bridge.currentEngineGameId();
+        assertTrue(XmageFullGameStateRedactor.holdsRecordsFor(first),
+                "the opening shuffles are recorded for the first game");
+        playAndShutDown(bridge, "records-2");
+        assertFalse(XmageFullGameStateRedactor.holdsRecordsFor(first),
+                "starting the next game drops the first game's records");
+        assertTrue(XmageFullGameStateRedactor.holdsRecordsFor(bridge.currentEngineGameId()));
+    }
+
     private static void playAndShutDown(XmageFullGameJsonlBridge bridge, String gameId) {
         JsonObject created = create(bridge, gameId);
         assertTrue(created.get("success").getAsBoolean(), created.toString());
