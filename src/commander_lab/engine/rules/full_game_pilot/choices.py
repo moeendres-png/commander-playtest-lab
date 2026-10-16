@@ -338,23 +338,29 @@ class _ChoiceDecisions(_PaymentDecisions):
             kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
-                self._free_cast_refused.add(seat)
-        elif _FREE_CAST_CONTINUE_PROMPT.match(prompt) and seat in self._free_cast_refused:
+                self._free_cast_refused[seat] = turn
+                _LOG.info("free-cast guard: %s already failed this turn; declining", prompt)
+        elif (
+            _FREE_CAST_CONTINUE_PROMPT.match(prompt)
+            and seat in self._free_cast_refused
+            and self._free_cast_refused[seat] == turn
+        ):
             # The refused retry above would be re-offered by the engine for as
             # long as this seat keeps saying Yes to "Continue casting?".
-            self._free_cast_refused.discard(seat)
+            del self._free_cast_refused[seat]
             kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
         if selectable and len(selectable) != len(options):
-            _LOG.info(
-                "multikicker guard: %d consecutive yes payments for %s/%s reached the "
-                "cap %d funded by the pilot's visible mana; declining",
-                answered_yes,
-                chain_key[0] or "<unidentified source>",
-                outcome,
-                cap,
-            )
+            if cap is not None:
+                _LOG.info(
+                    "multikicker guard: %d consecutive yes payments for %s/%s reached the "
+                    "cap %d funded by the pilot's visible mana; declining",
+                    answered_yes,
+                    chain_key[0] or "<unidentified source>",
+                    outcome,
+                    cap,
+                )
             options = selectable
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
