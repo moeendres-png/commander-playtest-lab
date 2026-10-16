@@ -58,7 +58,7 @@ def test_kaervek_current_warstorm_user_correction(repo_root: Path) -> None:
     role_by_name = {card["oracle_name"]: card for card in roles["roles"]}
     assert "Midnight Reaper" not in by_name
     assert by_name["Warstorm Surge"]["printed_name_de"] == "Anschwellender Kriegssturm"
-    assert by_name["Warstorm Surge"]["box_or_source"] == "Leons Box"
+    assert "box_or_source" not in by_name["Warstorm Surge"]
     assert role_by_name["Warstorm Surge"]["roles"] == ["engine", "finisher", "payoff"]
     assert profile["roles"]["draw"] == 11
     assert profile["roles"]["finisher"] == 16
