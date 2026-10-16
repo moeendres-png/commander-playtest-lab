@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.first_run_preparation import (
+from commander_lab.rogshai.first_run_preparation import (
     EXPECTED_DECK_HASH,
     FirstRunPreparationError,
     authorize_official_run,

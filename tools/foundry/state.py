@@ -45,7 +45,9 @@ SUPPORTED_VERSIONS = ("1.0", "2.0")
 MATERIALITY_VALUES = ("MATERIAL", "NON_MATERIAL")
 REVIEW_VERDICTS = ("PASS", "FAIL", "PARTIAL", "UNKNOWN", "BLOCKED", "STALE")
 REVIEW_ALIAS_CLASSES = ("CANONICAL", "LEGACY_ALIAS")
-REVIEW_EXECUTOR_PROFILES = ("deepseek", "step")
+REVIEW_EXECUTOR_PROFILES = ("deepseek",)
+# Implementation executors: the Zen default and the Token Harbor lane (2026-10-16).
+IMPLEMENTATION_EXECUTOR_PROFILES = ("deepseek", "deepseek-th")
 
 REQUIRED_V1 = [
     "schema_version",
@@ -137,13 +139,13 @@ def _validate_review_mirror(value: Any, errors: list[str]) -> None:
         return
     if not isinstance(value.get("required"), bool):
         errors.append("cross_executor_review.required must be a bool")
-    if value.get("logical_profile") not in (None, "step"):
-        errors.append("cross_executor_review.logical_profile must be step")
+    if value.get("logical_profile") not in (None, "deepseek"):
+        errors.append("cross_executor_review.logical_profile must be deepseek")
     if value.get("review_executor") not in (None, *REVIEW_EXECUTOR_PROFILES):
         errors.append(
             f"bad cross_executor_review.review_executor: {value.get('review_executor')!r}"
         )
-    if value.get("implementation_executor") not in (None, *REVIEW_EXECUTOR_PROFILES):
+    if value.get("implementation_executor") not in (None, *IMPLEMENTATION_EXECUTOR_PROFILES):
         errors.append(
             f"bad cross_executor_review.implementation_executor: "
             f"{value.get('implementation_executor')!r}"

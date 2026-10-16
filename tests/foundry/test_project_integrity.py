@@ -21,8 +21,8 @@ def test_config_ci_agents_and_durable_state_agree():
     config = json.loads((ROOT / "opencode.json").read_text())
     models = config["provider"][launcher.CANONICAL_PROVIDER]["models"]
     schema = json.loads((ROOT / ".foundry/WORKSTREAM_STATE.schema.json").read_text())
-    # A SUSPENDED profile's model is absent from opencode.json by design.
-    assert "deepseek-v4.1-flash" not in models
+    # Retired ids (Step 5 Preview, the OpenCode Go DeepSeek id) are absent from opencode.json.
+    assert set(models) == {"deepseek-v4.1-flash-free"}
     for model in launcher.ADMITTED_RUNTIME_MODELS:
         short = model.split("/", 1)[1]
         native = models[short]["options"]["reasoningEffort"]
@@ -46,24 +46,23 @@ def test_config_ci_agents_and_durable_state_agree():
         assert front["variant"] == models[short]["options"]["reasoningEffort"]
 
 
-def test_launcher_exposes_exactly_the_two_routed_executors():
+def test_launcher_exposes_exactly_the_one_routed_executor():
     """No retired executor may be reachable through the canonical launcher."""
-    assert launcher.EXECUTION_PROFILES == ("step", "deepseek")
-    assert launcher.ACTIVE_EXECUTION_PROFILES == ("step",)
-    assert launcher.DEFAULT_EXECUTION_PROFILE == "step"
-    assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/step-5-preview-free",)
+    assert launcher.EXECUTION_PROFILES == ("deepseek", "deepseek-th")
+    assert launcher.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
+    assert launcher.DEFAULT_EXECUTION_PROFILE == "deepseek"
+    # The opencode (Zen) whitelist stays single-id; Token Harbor is a separate provider.
+    assert launcher.ADMITTED_RUNTIME_MODELS == ("opencode/deepseek-v4.1-flash-free",)
     assert launcher.PROFILE_MODELS == {
-        "deepseek": "opencode-go/deepseek-v4.1-flash",
-        "step": "opencode/step-5-preview-free",
+        "deepseek": "opencode/deepseek-v4.1-flash-free",
+        "deepseek-th": "tokenharbor/deepseek-v4.1-flash",
     }
     assert not hasattr(launcher, "ZEN_MODEL"), "retired provider override must stay removed"
-    for retired in ("glm", "openai", "other"):
+    for retired in ("step", "glm", "openai", "other"):
         with pytest.raises(ValueError, match="unknown execution profile"):
             launcher.execution_identity(None, "high", retired)
     with pytest.raises(ValueError, match="retired"):
         launcher.execution_identity("zen", "high")
-    with pytest.raises(ValueError, match="SUSPENDED"):
-        launcher.execution_identity(None, "high", "deepseek")
 
 
 def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
@@ -93,15 +92,16 @@ def test_launcher_native_pair_gap_deferral_is_preserved_and_superseded():
 
 def test_documented_native_pairs_match_policy_not_runtime_claims():
     doc = (ROOT / "docs/foundry-execution/EXECUTION_PROVIDER_OVERRIDE.md").read_text()
-    pairs = re.findall(r"--execution-profile (deepseek|step) --effort (\w+)", doc)
-    # Only the ACTIVE profile has a documented launch pair; DeepSeek is SUSPENDED.
-    assert set(pairs) == {("step", "high")}
-    assert "`--execution-profile deepseek` is refused" in doc
+    pairs = re.findall(r"--execution-profile (deepseek-th|deepseek|step) --effort (\w+)", doc)
+    # Only the ACTIVE profiles have a documented launch pair.
+    assert set(pairs) == {("deepseek", "high")}
+    assert "--effort high --execution-profile deepseek-th" in doc
+    assert "--execution-profile step" not in doc
     for profile, effort in pairs:
         model = launcher.PROFILE_MODELS[profile]
         # The documented --effort is project/authority routing, NOT the native variant.
         assert effort in launcher.ALLOWED_EFFORTS, (profile, effort)
-        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == "high"
+        assert launcher.AUTHORIZED_NATIVE_VARIANT[model.split("/", 1)[1]] == "max"
     # The doc must not present a project effort as if it were a native variant.
     assert "--effort max" not in doc
     for profile, model in launcher.PROFILE_MODELS.items():
@@ -118,7 +118,7 @@ def test_documented_native_pairs_match_policy_not_runtime_claims():
     assert "no automatic fallback" in authority
 
 
-def test_current_executor_authority_is_exactly_two_profiles():
+def test_current_executor_authority_is_exactly_one_profile():
     """Always-read policy names no models; Owner gates and routing boundaries stay stated."""
     agents = (ROOT / "AGENTS.md").read_text()
     current = (ROOT / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text()
@@ -126,7 +126,11 @@ def test_current_executor_authority_is_exactly_two_profiles():
     routing_flat = " ".join(routing.split())
     # Owner 2026-10-16: models are selected manually; the always-read policy files carry
     # no model allowlist, so a stale model list cannot drift from the launcher config.
-    for model_id in ("opencode-go/deepseek-v4.1-flash", "opencode/step-5-preview-free"):
+    for model_id in (
+        "opencode-go/deepseek-v4.1-flash",
+        "opencode/step-5-preview-free",
+        "opencode/deepseek-v4.1-flash-free",
+    ):
         assert model_id not in agents
         assert model_id not in current
     assert "The Owner selects the tool and model for each session manually" in agents
@@ -142,9 +146,9 @@ def test_current_executor_authority_is_exactly_two_profiles():
     assert "must not generate a" in routing
     assert "routing/governance issue by themselves" in routing
     index = (ROOT / "docs/foundry-execution/README.md").read_text()
-    assert "Step 5 Preview HIGH only" in index, "Foundry index omits the current only executor"
-    assert "DeepSeek SUSPENDED" in index, "Foundry index omits the DeepSeek suspension"
-    assert "DeepSeek MAX default" not in index, "Foundry index still names a suspended default"
+    assert "DeepSeek V4.1 Flash MAX only" in index, "Foundry index omits the current only executor"
+    assert "Step retired 2026-10-16" in index, "Foundry index omits the Step retirement"
+    assert "SUSPENDED" not in index, "Foundry index still names a suspended profile"
 
 
 def test_external_content_boundary_survives_policy_edits():

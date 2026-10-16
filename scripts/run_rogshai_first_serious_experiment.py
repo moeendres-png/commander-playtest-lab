@@ -11,17 +11,6 @@ from typing import Any
 
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
-from commander_lab.first_run_preparation import (
-    CARD_ABLATIONS,
-    DECK_ID,
-    EXPECTED_DECK_HASH,
-    PACKAGE_ABLATIONS,
-    SEED_ROOTS,
-    SENSITIVITY_PODS,
-    VARIANTS,
-    authorize_official_run,
-    child_seed,
-)
 from commander_lab.models import (
     CardAblationInput,
     CommanderDenialInput,
@@ -37,6 +26,17 @@ from commander_lab.models import (
 )
 from commander_lab.priority_workflows import PriorityWorkflowFacade
 from commander_lab.project_context import load_project_context
+from commander_lab.rogshai.first_run_preparation import (
+    CARD_ABLATIONS,
+    DECK_ID,
+    EXPECTED_DECK_HASH,
+    PACKAGE_ABLATIONS,
+    SEED_ROOTS,
+    SENSITIVITY_PODS,
+    VARIANTS,
+    authorize_official_run,
+    child_seed,
+)
 from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.service import CommanderToolService
 

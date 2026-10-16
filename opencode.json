@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "model": "opencode/step-5-preview-free",
+  "model": "opencode/deepseek-v4.1-flash-free",
   "default_agent": "foundry-implementer",
   "share": "disabled",
   "tool_output": {
@@ -8,7 +8,8 @@
     "max_bytes": 51200
   },
   "enabled_providers": [
-    "opencode"
+    "opencode",
+    "tokenharbor"
   ],
   "permission": {
     "read": {
@@ -182,14 +183,26 @@
     }
   },
   "provider": {
+    "tokenharbor": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://tokenharbor.ai/v1",
+        "apiKey": "{env:TOKENHARBOR_API_KEY}"
+      },
+      "models": {
+        "deepseek-v4.1-flash": {
+          "name": "DeepSeek V4.1 Flash"
+        }
+      }
+    },
     "opencode": {
       "whitelist": [
-        "step-5-preview-free"
+        "deepseek-v4.1-flash-free"
       ],
       "models": {
-        "step-5-preview-free": {
+        "deepseek-v4.1-flash-free": {
           "options": {
-            "reasoningEffort": "high"
+            "reasoningEffort": "max"
           },
           "variants": {
             "none": {
@@ -207,13 +220,13 @@
             "medium": {
               "disabled": true
             },
-            "high": {},
+            "high": {
+              "disabled": true
+            },
             "xhigh": {
               "disabled": true
             },
-            "max": {
-              "disabled": true
-            }
+            "max": {}
           }
         }
       }
@@ -221,7 +234,7 @@
   },
   "agent": {
     "build": {
-      "variant": "high"
+      "variant": "max"
     }
   },
   "experimental": {
@@ -235,8 +248,13 @@
         "action": "provider.use",
         "effect": "allow",
         "resource": "opencode"
+      },
+      {
+        "action": "provider.use",
+        "effect": "allow",
+        "resource": "tokenharbor"
       }
     ]
   },
-  "small_model": "opencode/step-5-preview-free"
+  "small_model": "opencode/deepseek-v4.1-flash-free"
 }

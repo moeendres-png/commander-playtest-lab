@@ -51,7 +51,7 @@ def _hermetic_opencode_env(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> N
         "    sys.exit(0)\n"
         "if sys.argv[1:] == ['models', 'opencode']:\n"
         "    print('opencode-go/deepseek-v4.1-flash')\n"
-        "    print('opencode/step-5-preview-free')\n"
+        "    print('opencode/deepseek-v4.1-flash-free')\n"
         "    sys.exit(0)\n"
         "print('STUB: unexpected exec', sys.argv[1:])\n"
         "sys.exit(7)\n",
@@ -332,8 +332,8 @@ def test_init_cpl_ready_with_dynamic_denies(target: dict, canon: Path) -> None:
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
     bundle = json.loads(env["OPENCODE_CONFIG_CONTENT"])
-    # The omitted execution profile resolves to the Step 5 Preview default.
-    assert bundle["model"] == "opencode/step-5-preview-free"
+    # The omitted execution profile resolves to the DeepSeek V4.1 Flash MAX default.
+    assert bundle["model"] == "opencode/deepseek-v4.1-flash-free"
     assert bundle["permission"]["bash"]["git push*"] == "allow"
     assert bundle["permission"]["bash"]["git push origin main*"] == "deny"
     assert bundle["permission"]["bash"]["git push --force*"] == "deny"
@@ -521,7 +521,7 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         "sys.path.insert(0, os.environ['FOUNDARY_TOOLS'])\n"
         "from foundry import writer_lock\n"
         "bundle = json.loads(os.environ['OPENCODE_CONFIG_CONTENT'])\n"
-        "assert bundle['model'] == 'opencode/step-5-preview-free', 'model lock missing'\n"
+        "assert bundle['model'] == 'opencode/deepseek-v4.1-flash-free', 'model lock missing'\n"
         "assert bundle['permission']['bash']['git push*'] == 'allow', 'delegated push missing'\n"
         "assert bundle['permission']['bash']['git push origin main*'] == 'deny', 'main-push deny missing'\n"
         "assert bundle['permission']['bash']['git push --force*'] == 'deny', 'force-push deny missing'\n"
@@ -543,7 +543,7 @@ def test_launch_holds_lock_passes_env_and_records_telemetry(
         canon,
         effort="xhigh",
         opencode_bin=str(stub),
-        model_catalog=list(launcher_mod.ADMITTED_STEP_MODELS),
+        model_catalog=list(launcher_mod.ADMITTED_DEEPSEEK_MODELS),
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     env = plan["_env"]
@@ -708,8 +708,8 @@ def test_init_ready_for_all_profiles(
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    # The omitted execution profile resolves to the Step 5 Preview default.
-    assert bundle["model"] == "opencode/step-5-preview-free"
+    # The omitted execution profile resolves to the DeepSeek V4.1 Flash MAX default.
+    assert bundle["model"] == "opencode/deepseek-v4.1-flash-free"
     assert bundle["permission"]["bash"]["git push*"] == "allow"
     assert bundle["permission"]["bash"]["git push origin main*"] == "deny"
     assert bundle["permission"]["bash"]["git push --force*"] == "deny"
@@ -982,16 +982,16 @@ def test_bootstrap_cli_rejects_malformed_worktree_state(target: dict) -> None:
 @pytest.mark.parametrize(
     "override,profile,provider,model,resolved_override,variant",
     [
-        # No flag resolves to the registry default (Step 5 Preview, the only ACTIVE
-        # profile since the Owner directive of 2026-10-10).
-        (None, None, "opencode", "opencode/step-5-preview-free", "step", "high"),
+        # No flag resolves to the registry default (DeepSeek V4.1 Flash MAX, the only ACTIVE
+        # profile since the Owner instruction of 2026-10-16).
+        (None, None, "opencode", "opencode/deepseek-v4.1-flash-free", "deepseek", "max"),
         (
             None,
-            "step",
+            "deepseek",
             "opencode",
-            "opencode/step-5-preview-free",
-            "step",
-            "high",
+            "opencode/deepseek-v4.1-flash-free",
+            "deepseek",
+            "max",
         ),
     ],
 )
@@ -1020,7 +1020,7 @@ def test_ws190_execution_identity(
     context = json.loads(Path(plan["context_path"]).read_text())
     assert context["execution"]["provider"] == provider
     assert context["execution"]["model"] == model
-    # Telemetry must name the executor that actually runs: a "step" label over
+    # Telemetry must name the executor that actually runs: a retired label over
     # a DeepSeek run would be a silent fallback.
     assert context["execution"]["override"] == resolved_override
     assert context["execution"]["requested_effort"] == "high"
@@ -1064,7 +1064,7 @@ def test_ws190_zen_below_high_refused(target, canon, effort):
 
 
 @pytest.mark.parametrize("result", [0, 7, 130, -2, "interrupt", "spawn-error"])
-@pytest.mark.parametrize("profile", [None, "step"])
+@pytest.mark.parametrize("profile", [None, "deepseek"])
 def test_ws190_child_lifecycle(target, canon, monkeypatch, result, profile):
     plan = _plan(target, canon, **({"execution_profile": profile} if profile else {}))
     assert plan["verdict"] == "LAUNCH_READY", plan
@@ -1097,8 +1097,8 @@ def test_ws190_child_lifecycle(target, canon, monkeypatch, result, profile):
     for record in records:
         assert record["model"] == plan["execution"]["model"]
         assert record["execution_provider"] == plan["execution"]["provider"]
-        assert record["execution_override"] == (profile or "step")
-        assert record["native_variant"] == "high"
+        assert record["execution_override"] == (profile or "deepseek")
+        assert record["native_variant"] == "max"
     assert records[-1]["exit_status"] == expected
     assert records[-1]["completed"] is (result == 0)
     assert records[-1]["interrupted"] is (result in ("interrupt", -2, 130))
@@ -1108,7 +1108,17 @@ def test_ws190_child_lifecycle(target, canon, monkeypatch, result, profile):
 
 
 @pytest.mark.parametrize(
-    "extra", [["--model", "other/x"], ["-mother/x"], ["--variant=low"], ["--continue"], ["-c"]]
+    "extra",
+    [
+        ["--model", "other/x"],
+        ["--model", "opencode/deepseek-v4.1-flash-free"],
+        ["-mother/x"],
+        ["--variant=low"],
+        ["--variant=high"],
+        ["--variant=max"],
+        ["--continue"],
+        ["-c"],
+    ],
 )
 def test_ws190_child_cannot_override_policy(target, canon, extra, monkeypatch):
     plan = _plan(target, canon, execution_provider="zen")
@@ -1165,67 +1175,67 @@ def test_ws190_cli_refuses_retired_zen_provider_override(target, canon, capsys):
     assert "retired" in capsys.readouterr().out
 
 
-# --- explicit Step 5 Preview execution profile ---------------------------------
+# --- explicit DeepSeek V4.1 Flash MAX execution profile ---------------------------------
 
 
-def test_step_profile_pins_zen_model_and_native_high(target, canon):
+def test_deepseek_profile_pins_zen_model_and_native_max(target, canon):
     before = (canon / "opencode.json").read_bytes()
-    plan = _plan(target, canon, execution_profile="step")
+    plan = _plan(target, canon, execution_profile="deepseek")
     assert plan["verdict"] == "LAUNCH_READY", plan
     execution = plan["execution"]
-    assert execution["profile"] == "step"
-    assert execution["override"] == "step"
+    assert execution["profile"] == "deepseek"
+    assert execution["override"] == "deepseek"
     assert execution["provider"] == "opencode"
-    assert execution["model"] == "opencode/step-5-preview-free"
+    assert execution["model"] == "opencode/deepseek-v4.1-flash-free"
     assert execution["requested_effort"] == "high"
-    assert execution["variant_resolution"] == "native_high"
-    assert execution["native_variant"] == "high"
+    assert execution["variant_resolution"] == "native_max"
+    assert execution["native_variant"] == "max"
     # Exact runtime provenance (policy): logical profile, resolved provider and
     # model id, alias class, and the catalog inspection that selected them.
-    assert execution["logical_executor_profile"] == "step"
+    assert execution["logical_executor_profile"] == "deepseek"
     assert execution["resolved_provider"] == "opencode"
-    assert execution["resolved_model_id"] == "opencode/step-5-preview-free"
+    assert execution["resolved_model_id"] == "opencode/deepseek-v4.1-flash-free"
     assert execution["model_alias_class"] == "CANONICAL"
     assert execution["catalog_checked"] is True
     assert execution["catalog_source"] == "cli:opencode"
     bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
-    assert bundle["model"] == "opencode/step-5-preview-free"
-    assert bundle["small_model"] == "opencode/step-5-preview-free"
+    assert bundle["model"] == "opencode/deepseek-v4.1-flash-free"
+    assert bundle["small_model"] == "opencode/deepseek-v4.1-flash-free"
     assert bundle["enabled_providers"] == ["opencode"]
-    assert bundle["provider"]["opencode"]["whitelist"] == ["step-5-preview-free"]
-    model = bundle["provider"]["opencode"]["models"]["step-5-preview-free"]
-    assert model["options"] == {"reasoningEffort": "high"}
-    assert model["variants"] == {"high": {}}
+    assert bundle["provider"]["opencode"]["whitelist"] == ["deepseek-v4.1-flash-free"]
+    model = bundle["provider"]["opencode"]["models"]["deepseek-v4.1-flash-free"]
+    assert model["options"] == {"reasoningEffort": "max"}
+    assert model["variants"] == {"max": {}}
     assert all(
-        agent == {"model": "opencode/step-5-preview-free", "variant": "high"}
+        agent == {"model": "opencode/deepseek-v4.1-flash-free", "variant": "max"}
         for agent in bundle["agent"].values()
     )
-    assert plan["_env"]["FOUNDRY_EXECUTION_PROFILE"] == "step"
-    assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "high"
+    assert plan["_env"]["FOUNDRY_EXECUTION_PROFILE"] == "deepseek"
+    assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
     context = json.loads(Path(plan["context_path"]).read_text())
     assert context["execution"] == execution
     assert (canon / "opencode.json").read_bytes() == before
 
 
-def test_step_profile_rejects_conflicting_zen_override(target, canon):
+def test_deepseek_profile_rejects_conflicting_zen_override(target, canon):
     plan = _plan(
         target,
         canon,
-        execution_profile="step",
+        execution_profile="deepseek",
         execution_provider="zen",
     )
     assert plan["verdict"] == "LAUNCH_REFUSED"
     assert "retired" in plan["error"]
 
 
-def test_step_profile_rejects_unknown_api_profile(target, canon):
+def test_deepseek_profile_rejects_unknown_api_profile(target, canon):
     plan = _plan(target, canon, execution_profile="other")
     assert plan["verdict"] == "LAUNCH_REFUSED"
     assert "unknown execution profile" in plan["error"]
 
 
-def test_step_launch_uses_explicit_model_and_no_fallback(target, canon, monkeypatch):
-    plan = _plan(target, canon, execution_profile="step")
+def test_deepseek_launch_uses_explicit_model_and_no_fallback(target, canon, monkeypatch):
+    plan = _plan(target, canon, execution_profile="deepseek")
     assert plan["verdict"] == "LAUNCH_READY", plan
     monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
     real_run = subprocess.run
@@ -1240,76 +1250,91 @@ def test_step_launch_uses_explicit_model_and_no_fallback(target, canon, monkeypa
     monkeypatch.setattr(launcher_mod.subprocess, "run", child)
     assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 7
     assert len(calls) == 1
-    assert calls[0][3:5] == ["--model", launcher_mod.STEP_MODEL]
+    assert calls[0][3:5] == ["--model", launcher_mod.DEEPSEEK_MODEL]
     records = [
         json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
     ]
-    assert {record["model"] for record in records} == {launcher_mod.STEP_MODEL}
-    assert {record["execution_override"] for record in records} == {"step"}
-    assert {record["execution_profile"] for record in records} == {"step"}
-    assert {record["native_variant"] for record in records} == {"high"}
-    assert {record["variant_resolution"] for record in records} == {"native_high"}
+    assert {record["model"] for record in records} == {launcher_mod.DEEPSEEK_MODEL}
+    assert {record["execution_override"] for record in records} == {"deepseek"}
+    assert {record["execution_profile"] for record in records} == {"deepseek"}
+    assert {record["native_variant"] for record in records} == {"max"}
+    assert {record["variant_resolution"] for record in records} == {"native_max"}
     # Exact runtime identity persists in telemetry, not merely the logical label.
-    assert {record["logical_executor_profile"] for record in records} == {"step"}
+    assert {record["logical_executor_profile"] for record in records} == {"deepseek"}
     assert {record["resolved_provider"] for record in records} == {"opencode"}
-    assert {record["resolved_model_id"] for record in records} == {"opencode/step-5-preview-free"}
+    assert {record["resolved_model_id"] for record in records} == {
+        "opencode/deepseek-v4.1-flash-free"
+    }
     assert {record["model_alias_class"] for record in records} == {"CANONICAL"}
 
 
-def test_step_go_ids_in_catalog_never_resolve(target, canon):
-    """Only Go Step 5 Preview ids listed: refused, never a fallback to the Go quota."""
+def test_retired_ids_in_catalog_never_resolve(target, canon):
+    """Only retired ids (Go DeepSeek, Step) listed: refused, never a fallback."""
     plan = _plan(
         target,
         canon,
-        execution_profile="step",
+        execution_profile="deepseek",
         model_catalog=[
             "opencode-go/deepseek-v4.1-flash",
+            "opencode/step-5-preview-free",
             "opencode-go/retired",
             "opencode-go/retired-free",
         ],
     )
     assert plan["verdict"] == "LAUNCH_REFUSED", plan
-    assert "no admitted step runtime id" in plan["error"]
+    assert "no admitted deepseek runtime id" in plan["error"]
 
 
-def test_step_catalog_without_step_refuses_without_fallback(target, canon):
+def test_catalog_without_deepseek_refuses_without_fallback(target, canon):
     plan = _plan(
         target,
         canon,
-        execution_profile="step",
+        execution_profile="deepseek",
         model_catalog=["longcat/longcat-flash", "opencode-go/deepseek-v4.1-flash"],
     )
     assert plan["verdict"] == "LAUNCH_REFUSED", plan
-    assert "no admitted step runtime id" in plan["error"]
+    assert "no admitted deepseek runtime id" in plan["error"]
     assert "fail closed" in plan["error"]
 
 
 @pytest.mark.parametrize("effort", ["high", "xhigh"])
-def test_step_project_effort_maps_to_native_high(target, canon, effort):
-    plan = _plan(target, canon, execution_profile="step", effort=effort)
+def test_deepseek_project_effort_maps_to_native_max(target, canon, effort):
+    plan = _plan(target, canon, execution_profile="deepseek", effort=effort)
     assert plan["verdict"] == "LAUNCH_READY", plan
     assert plan["execution"]["requested_effort"] == effort
-    assert plan["execution"]["native_variant"] == "high"
-    assert plan["execution"]["variant_resolution"] == "native_high"
+    assert plan["execution"]["native_variant"] == "max"
+    assert plan["execution"]["variant_resolution"] == "native_max"
     assert plan["_env"]["FOUNDRY_EFFORT"] == effort
-    assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "high"
+    assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
 
 
-def test_no_executor_runs_below_its_native_high(target, canon):
-    """Every reachable profile is native MAX; project effort never lowers it."""
+def test_no_executor_runs_below_its_native_max(target, canon):
+    """Zen is native MAX; project effort never lowers it (nor below high).
+
+    The Token Harbor profile exposes no effort control: it runs at the provider default and
+    the bundle carries no reasoning effort or variant (nothing is faked).
+    """
     for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
+        native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
         for effort in ("high", "xhigh"):
             plan = _plan(target, canon, execution_profile=profile, effort=effort)
             assert plan["verdict"] == "LAUNCH_READY", plan
-            assert plan["execution"]["native_variant"] == "high", profile
-            assert plan["execution"]["variant_resolution"] == "native_high", profile
-            assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "high", profile
+            assert plan["execution"]["native_variant"] == native, profile
+            assert plan["execution"]["variant_resolution"] == f"native_{native}", profile
+            assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == native, profile
             assert plan["_env"]["FOUNDRY_EFFORT"] == effort, profile
             bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
             short = plan["execution"]["model"].split("/", 1)[1]
-            entry = bundle["provider"]["opencode"]["models"][short]
-            assert entry["options"] == {"reasoningEffort": "high"}
-            assert entry["variants"] == {"high": {}}
+            if profile == "deepseek":
+                assert native == "max"
+                entry = bundle["provider"]["opencode"]["models"][short]
+                assert entry["options"] == {"reasoningEffort": "max"}
+                assert entry["variants"] == {"max": {}}
+            else:
+                assert native == "provider_default"
+                entry = bundle["provider"]["tokenharbor"]["models"][short]
+                assert "options" not in entry and "variants" not in entry
+                assert all("variant" not in agent for agent in bundle["agent"].values())
 
 
 @pytest.mark.parametrize("retired_name", ["unauthorized-model", "legacy-zen", "glm-5"])
@@ -1320,9 +1345,10 @@ def test_inactive_executors_absent_from_every_profile_bundle(target, canon, reti
         assert retired_name not in json.dumps(json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"]))
 
 
-def test_suspended_deepseek_is_refused_before_any_child(target, canon, monkeypatch):
-    """Owner directive 2026-10-10: DeepSeek is SUSPENDED. Selecting it is refused
-    at preparation, so no child of any executor starts and nothing falls back."""
+@pytest.mark.parametrize("retired_profile", ["step", "glm"])
+def test_retired_profile_is_refused_before_any_child(target, canon, monkeypatch, retired_profile):
+    """Step (left the catalog 2026-10-16) and any other profile are refused at
+    preparation, so no child of any executor starts and nothing falls back."""
     calls = []
     real_run = subprocess.run
 
@@ -1335,18 +1361,18 @@ def test_suspended_deepseek_is_refused_before_any_child(target, canon, monkeypat
     plan = _plan(
         target,
         canon,
-        execution_profile="deepseek",
-        model_catalog=["opencode-go/deepseek-v4.1-flash", "opencode/step-5-preview-free"],
+        execution_profile=retired_profile,
+        model_catalog=["opencode/step-5-preview-free", "opencode/deepseek-v4.1-flash-free"],
     )
     assert plan["verdict"] == "LAUNCH_REFUSED", plan
-    assert "SUSPENDED" in plan["error"] and "no fallback" in plan["error"]
+    assert "unknown execution profile" in plan["error"]
     assert not any("--auto" in args for args in calls)
-    assert "deepseek" not in launcher_mod.ACTIVE_EXECUTION_PROFILES
+    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
 
 
-def test_step_failure_never_invokes_another_executor(target, canon, monkeypatch):
-    """A Step 5 Preview child failure must not invoke any other executor."""
-    plan = _plan(target, canon, execution_profile="step")
+def test_deepseek_failure_never_invokes_another_executor(target, canon, monkeypatch):
+    """A DeepSeek child failure must not invoke any other executor."""
+    plan = _plan(target, canon, execution_profile="deepseek")
     assert plan["verdict"] == "LAUNCH_READY", plan
     monkeypatch.setenv("FOUNDRY_LOCK_DIR", str(target["locks"]))
     real_run = subprocess.run
@@ -1361,13 +1387,15 @@ def test_step_failure_never_invokes_another_executor(target, canon, monkeypatch)
     monkeypatch.setattr(launcher_mod.subprocess, "run", child)
     assert launcher_mod.launch(plan, [], str(target["wt"]), "TEST-WS", "high") == 7
     assert len(calls) == 1
-    assert calls[0][3:5] == ["--model", "opencode/step-5-preview-free"]
-    assert "deepseek" not in " ".join(calls[0])
+    assert calls[0][3:5] == ["--model", "opencode/deepseek-v4.1-flash-free"]
+    # No other executor is named on the child argv: only the one pinned --model.
+    assert "step-5-preview" not in " ".join(calls[0])
+    assert "opencode-go" not in " ".join(calls[0])
     records = [
         json.loads(s) for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
     ]
-    assert {r["execution_profile"] for r in records} == {"step"}
-    assert {r["model"] for r in records} == {"opencode/step-5-preview-free"}
+    assert {r["execution_profile"] for r in records} == {"deepseek"}
+    assert {r["model"] for r in records} == {"opencode/deepseek-v4.1-flash-free"}
 
 
 def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, monkeypatch):
@@ -1399,9 +1427,10 @@ def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, 
         context = json.loads(Path(plan["context_path"]).read_text())
         assert context["execution"]["profile"] == profile
         assert context["execution"]["model"] == model
-        assert context["execution"]["native_variant"] == "high"
+        native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
+        assert context["execution"]["native_variant"] == native
         assert plan["_env"]["FOUNDRY_EXECUTION_PROFILE"] == profile
-        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "high"
+        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == native
         records = [
             json.loads(s)
             for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
@@ -1410,9 +1439,9 @@ def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, 
         assert {r["model"] for r in records} == {model}
         assert {r["resolved_model_id"] for r in records} == {model}
         assert {r["logical_executor_profile"] for r in records} == {profile}
-        assert {r["resolved_provider"] for r in records} == {"opencode"}
+        assert {r["resolved_provider"] for r in records} == {model.split("/", 1)[0]}
         assert {r["model_alias_class"] for r in records} == {"CANONICAL"}
-        assert {r["native_variant"] for r in records} == {"high"}
+        assert {r["native_variant"] for r in records} == {native}
     monkeypatch.undo()
 
 
@@ -1420,18 +1449,18 @@ def test_main_small_and_default_model_configuration_is_internally_consistent():
     """model, small_model, build agent, and the GitHub lane must agree on one default."""
     config = json.loads((ROOT / "opencode.json").read_text(encoding="utf-8"))
     assert config["model"] == config["small_model"] == launcher_mod.CANONICAL_MODEL
-    assert launcher_mod.CANONICAL_MODEL == launcher_mod.STEP_MODEL
+    assert launcher_mod.CANONICAL_MODEL == launcher_mod.DEEPSEEK_MODEL
     models = config["provider"][launcher_mod.CANONICAL_PROVIDER]["models"]
     short = config["model"].split("/", 1)[1]
     assert config["provider"][launcher_mod.CANONICAL_PROVIDER]["whitelist"][0] == short
-    assert config["agent"]["build"] == {"variant": "high"}
-    assert models[short]["options"] == {"reasoningEffort": "high"}
-    assert [v for v, o in models[short]["variants"].items() if o != {"disabled": True}] == ["high"]
+    assert config["agent"]["build"] == {"variant": "max"}
+    assert models[short]["options"] == {"reasoningEffort": "max"}
+    assert [v for v, o in models[short]["variants"].items() if o != {"disabled": True}] == ["max"]
     # The default profile must be the first whitelist row: no silent fallback.
-    assert launcher_mod.DEFAULT_EXECUTION_PROFILE == "step"
+    assert launcher_mod.DEFAULT_EXECUTION_PROFILE == "deepseek"
     assert launcher_mod.PRIMARY_EXECUTION_PROFILE == launcher_mod.DEFAULT_EXECUTION_PROFILE
-    assert launcher_mod.EXECUTION_PROFILES == ("step", "deepseek")
-    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("step",)
+    assert launcher_mod.EXECUTION_PROFILES == ("deepseek", "deepseek-th")
+    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
     assert set(launcher_mod.PROFILE_MODELS) == set(launcher_mod.EXECUTION_PROFILES)
 
 
@@ -1447,8 +1476,9 @@ def test_nested_launch_overwrites_ambient_native_variant(target, canon, monkeypa
     for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
         plan = _plan(target, canon, execution_profile=profile)
         assert plan["verdict"] == "LAUNCH_READY", plan
-        assert plan["execution"]["native_variant"] == "high", profile
-        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "high", profile
+        native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
+        assert plan["execution"]["native_variant"] == native, profile
+        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == native, profile
 
 
 def test_nested_launch_clears_ambient_routing_suppression(target, canon, monkeypatch):
@@ -1467,7 +1497,7 @@ def test_nested_launch_clears_ambient_routing_suppression(target, canon, monkeyp
         assert "FOUNDRY_ROUTING_SUPPRESSED" not in plan["_env"], profile
 
 
-def test_step_cli_consumes_explicit_profile(target, canon, monkeypatch):
+def test_deepseek_cli_consumes_explicit_profile(target, canon, monkeypatch):
     captured = {}
 
     def fake_init(**kwargs):
@@ -1486,13 +1516,13 @@ def test_step_cli_consumes_explicit_profile(target, canon, monkeypatch):
             "--canonical-root",
             str(canon),
             "--execution-profile",
-            "step",
+            "deepseek",
             "--run-dir",
-            str(target["wt"].parent / "cli-step"),
+            str(target["wt"].parent / "cli-deepseek"),
         ]
     )
     assert rc == 0
-    assert captured["execution_profile"] == "step"
+    assert captured["execution_profile"] == "deepseek"
 
 
 # --- explicit cross-workstream access ---------------------------------------
@@ -1898,7 +1928,7 @@ def test_owned_write_is_reverified_after_lock_acquisition(
         canon,
         workspace_access=[json.dumps(spec)],
         opencode_bin=str(stub),
-        model_catalog=list(launcher_mod.ADMITTED_STEP_MODELS),
+        model_catalog=list(launcher_mod.ADMITTED_DEEPSEEK_MODELS),
     )
     assert plan["verdict"] == "LAUNCH_READY", plan
     (root / "after-init.txt").write_text("changed\n", encoding="utf-8")

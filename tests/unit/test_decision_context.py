@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab import decision_context
-from commander_lab.decision_context import (
+from commander_lab.decision import context as decision_context
+from commander_lab.decision.context import (
     CandidateAvailability,
     DecisionContextError,
     load_decision_context_registry,

@@ -9,7 +9,7 @@ from commander_lab.adaptive_budget import (
     build_conservative_adaptive_budget_plan,
     challenge_quality_metrics,
 )
-from commander_lab.candidate_screening import RogShaiCandidateScreener
+from commander_lab.candidate_workflow.screening import RogShaiCandidateScreener
 from commander_lab.storage.run_identity import sha256_run_value
 from commander_lab.tools.service import CommanderToolService
 

@@ -201,7 +201,7 @@ def _plan(target: dict, canon: Path, **over: object) -> dict:
     }
     # The Step 5 Preview default resolves from a catalog; these tests cover the
     # version gate and bundle, so they supply it instead of a live inspection.
-    kwargs.setdefault("model_catalog", list(launcher_mod.ADMITTED_STEP_MODELS))
+    kwargs.setdefault("model_catalog", list(launcher_mod.ADMITTED_DEEPSEEK_MODELS))
     kwargs.update(over)
     return launcher_mod.init(**kwargs)
 

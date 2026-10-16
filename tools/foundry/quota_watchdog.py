@@ -1,12 +1,13 @@
 """Stop an OpenCode run promptly when the provider refuses it for quota.
 
 The pinned CLI (``opencode github run`` 1.18.30) does not exit when every model
-call is refused with HTTP 429 ``GoUsageLimitError``: it prints the error, retries,
-prints ``AI_RetryError`` and then hangs until the workflow's 55-minute step
-timeout (runs 37981118028, 37981119802, 37981121170, 37986520394, 38012159229
-and 38012694554 all died this way, each needing a manual cancel). A quota
-refusal is not retryable inside one run, so waiting only burns runner time and
-hides the real cause behind a generic timeout.
+call is refused for quota: it prints the error, retries, and then either hangs
+until the workflow's 55-minute step timeout (Go runs 37981118028, 37981119802,
+37981121170, 37986520394, 38012159229 and 38012694554 all died this way, each
+needing a manual cancel) or sleeps out the provider's ``retry-after``, which for
+the Zen free-tier cap points at the next daily reset. A quota refusal is not
+retryable inside one run, so waiting only burns runner time and hides the real
+cause behind a generic timeout.
 
 Usage (the workflow runs a copy taken from the triggering commit)::
 
@@ -19,11 +20,16 @@ The watchdog runs the command in its own process group and copies its combined
 stdout/stderr through unchanged. It stops the group, and exits with
 ``EXIT_BLOCKED_SERVICE``, only on the provider's own error record: a
 ``statusCode: 429`` line followed within a few lines by a ``responseBody`` whose
-JSON has ``error.type == "GoUsageLimitError"``. Then:
+JSON carries one of the typed quota errors:
 
-- ``limitName`` in ``NON_RETRYABLE_LIMITS`` (monthly, weekly) stops at once;
-- any other limit stops once the CLI reports ``AI_RetryError`` (its own
-  retries are spent and it would only hang).
+- ``GoUsageLimitError`` (OpenCode Go). ``limitName`` in
+  ``NON_RETRYABLE_LIMITS`` (monthly, weekly) stops at once; any other limit
+  stops once the CLI reports ``AI_RetryError`` (its own retries are spent and
+  it would only hang).
+- ``FreeUsageLimitError`` (OpenCode Zen free tier). The cap resets daily and
+  the CLI honors the provider's ``retry-after``, so it stops at once. The
+  pinned CLI itself treats the same ``responseBody`` field as the detector:
+  ``responseBody.includes("FreeUsageLimitError")`` in its ``retryable()``.
 
 Prose that merely mentions the error (an issue comment quoting it, a prompt)
 never matches, because only the parsed provider response counts. Every other
@@ -46,7 +52,10 @@ from typing import IO
 
 EXIT_BLOCKED_SERVICE = 75  # EX_TEMPFAIL
 NON_RETRYABLE_LIMITS = frozenset({"monthly", "weekly"})
-QUOTA_ERROR_TYPE = "GoUsageLimitError"
+GO_PROVIDER = "OpenCode Go"
+ZEN_PROVIDER = "OpenCode Zen"
+GO_QUOTA_ERROR_TYPE = "GoUsageLimitError"
+ZEN_QUOTA_ERROR_TYPE = "FreeUsageLimitError"
 # How many lines may separate ``statusCode: 429`` from its ``responseBody``
 # (``responseHeaders`` sits between them in the CLI's error record).
 STATUS_WINDOW = 6
@@ -61,19 +70,33 @@ _RETRY_EXHAUSTED = re.compile(r"^\s*AI_RetryError\b")
 class QuotaRefusal:
     """A provider quota refusal that ends the run."""
 
-    limit_name: str
+    provider: str
+    error_type: str
+    limit_name: str | None = None
+
+    @property
+    def stops_at_once(self) -> bool:
+        """Short-window Go limits may let the CLI recover; everything else only waits."""
+        return self.limit_name is None or self.limit_name in NON_RETRYABLE_LIMITS
 
     def message(self) -> str:
+        detail = f"HTTP 429 {self.error_type}"
+        if self.limit_name is not None:
+            detail += f", limitName={self.limit_name}"
         return (
-            f"OpenCode Go usage limit reached (HTTP 429 {QUOTA_ERROR_TYPE}, "
-            f"limitName={self.limit_name}). Not retryable inside this run: stopped the CLI "
-            "instead of waiting for the step timeout. BLOCKED_SERVICE, not PASS; restoring "
-            "the quota is an Owner decision."
+            f"{self.provider} usage limit reached ({detail}). Not retryable inside this run: "
+            "stopped the CLI instead of waiting for the step timeout. BLOCKED_SERVICE, not "
+            "PASS; restoring the quota is an Owner decision."
         )
 
 
-def _quota_limit(body_literal: str) -> str | None:
-    """The ``limitName`` of a GoUsageLimitError response body, else None."""
+def _refusal(body_literal: str) -> QuotaRefusal | None:
+    """The quota refusal carried by a provider response body, else None.
+
+    ``body_literal`` is the body as the CLI's logger prints it: a JSON string
+    literal, so it is decoded twice. Only typed provider errors count; a generic
+    ``RateLimitError`` stays retryable for the CLI and never matches here.
+    """
     try:
         body = json.loads(json.loads(f'"{body_literal}"'))
     except (json.JSONDecodeError, TypeError):
@@ -81,11 +104,20 @@ def _quota_limit(body_literal: str) -> str | None:
     if not isinstance(body, dict):
         return None
     error = body.get("error")
-    if not isinstance(error, dict) or error.get("type") != QUOTA_ERROR_TYPE:
+    if not isinstance(error, dict):
+        return None
+    error_type = error.get("type")
+    if error_type == ZEN_QUOTA_ERROR_TYPE:
+        return QuotaRefusal(ZEN_PROVIDER, ZEN_QUOTA_ERROR_TYPE)
+    if error_type != GO_QUOTA_ERROR_TYPE:
         return None
     metadata = body.get("metadata")
     limit = metadata.get("limitName") if isinstance(metadata, dict) else None
-    return limit if isinstance(limit, str) and limit else "unknown"
+    return QuotaRefusal(
+        GO_PROVIDER,
+        GO_QUOTA_ERROR_TYPE,
+        limit if isinstance(limit, str) and limit else "unknown",
+    )
 
 
 class QuotaScanner:
@@ -93,22 +125,23 @@ class QuotaScanner:
 
     def __init__(self) -> None:
         self._recent: deque[str] = deque(maxlen=STATUS_WINDOW)
-        self._seen_limit: str | None = None
+        self._pending: QuotaRefusal | None = None
 
     def feed(self, line: str) -> QuotaRefusal | None:
         recent = list(self._recent)
         self._recent.append(line)
-        if _RETRY_EXHAUSTED.match(line) and self._seen_limit is not None:
-            return QuotaRefusal(self._seen_limit)
+        if _RETRY_EXHAUSTED.match(line) and self._pending is not None:
+            pending, self._pending = self._pending, None
+            return pending
         match = _RESPONSE_BODY.match(line)
         if match is None or not any(_STATUS_429.match(r) for r in recent):
             return None
-        limit = _quota_limit(match.group("body"))
-        if limit is None:
+        refusal = _refusal(match.group("body"))
+        if refusal is None:
             return None
-        self._seen_limit = limit
-        if limit in NON_RETRYABLE_LIMITS:
-            return QuotaRefusal(limit)
+        if refusal.stops_at_once:
+            return refusal
+        self._pending = refusal
         return None
 
 

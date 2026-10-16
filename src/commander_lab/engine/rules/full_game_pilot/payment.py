@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import random
-from typing import Any, cast
+from typing import Any
 
 from commander_lab.models import (
     PilotActionView,
@@ -582,7 +582,7 @@ class _PaymentDecisions(_PolicyState):
         raw = mapping[key]
         if isinstance(raw, bool) or not isinstance(raw, int):
             raise FullGameProtocolError(f"numeric decision bound is not an integer: {key}")
-        return cast(int, raw)
+        return int(raw)
 
     def _decide_numeric(
         self,

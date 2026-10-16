@@ -19,7 +19,7 @@ jobs:
         startsWith(github.event.comment.body, '/oc') ||
         contains(github.event.comment.body, ' /opencode') ||
         startsWith(github.event.comment.body, '/opencode')
-      )
+      ) && !contains(github.event.comment.body, '/oc-th')
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -117,13 +117,183 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode/step-5-preview-free
+          MODEL: opencode/deepseek-v4.1-flash-free
           AGENT: ''
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
           MENTIONS: ''
-          VARIANT: high
+          VARIANT: max
+          OIDC_BASE_URL: ''
+
+      # A run that outlives the action's GitHub token (minted once, valid for one
+      # hour) loses its push, comment and PR, and with them the agent's work
+      # (runs 37662806891, 37672161637, 37672584114). On failure or cancellation,
+      # keep the local work as a short-lived artifact instead: a bundle of every
+      # branch and HEAD plus the tracked uncommitted diff. Untracked files are never
+      # collected. The job token stays read-only; nothing is pushed from here.
+      - name: Collect unpublished agent work
+        if: failure() || cancelled()
+        run: |
+          set -uo pipefail
+          out="$RUNNER_TEMP/opencode-rescue"
+          rm -rf "$out"
+          mkdir -p "$out"
+          git -C "$GITHUB_WORKSPACE" log --oneline -20 HEAD --branches > "$out/log.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" status --porcelain=v1 --untracked-files=no > "$out/status.txt" 2>&1 || true
+          git -C "$GITHUB_WORKSPACE" diff HEAD > "$out/uncommitted.diff" 2>/dev/null || true
+          git -C "$GITHUB_WORKSPACE" bundle create "$out/work.bundle" HEAD --branches > "$out/bundle.txt" 2>&1 || true
+
+      # Fail closed: the artifact is public, so it is uploaded only when the pinned
+      # gitleaks finds nothing in the agent's new commits and in the uncommitted
+      # diff. The installer and rule set come from the triggering commit, never
+      # from the workspace the agent may have changed. A bundle needs a full clone
+      # to fetch from (the checkout is shallow): `oc_dispatch.py rescue` says so.
+      - name: Secret-scan unpublished agent work
+        id: rescue_scan
+        if: failure() || cancelled()
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/opencode-rescue"
+          trusted="$RUNNER_TEMP/opencode-rescue-trusted"
+          rm -rf "$trusted"
+          mkdir -p "$trusted"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:scripts/run_broad_secret_scan.py" > "$trusted/scan.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:.gitleaks.toml" > "$trusted/gitleaks.toml"
+          gitleaks="$(python3 -c 'import importlib.util,sys,pathlib; s=importlib.util.spec_from_file_location("scan", sys.argv[1]); m=importlib.util.module_from_spec(s); s.loader.exec_module(m); print(m.install(pathlib.Path(sys.argv[2])))' "$trusted/scan.py" "$trusted/bin")"
+          "$gitleaks" git "$GITHUB_WORKSPACE" --config "$trusted/gitleaks.toml" --ignore-gitleaks-allow --no-banner --redact --exit-code 1 --log-opts="HEAD --branches --not ${GITHUB_SHA}"
+          "$gitleaks" dir "$out" --config "$trusted/gitleaks.toml" --ignore-gitleaks-allow --no-banner --redact --exit-code 1 --max-archive-depth 3
+          echo "clean=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload unpublished agent work
+        if: (failure() || cancelled()) && steps.rescue_scan.outputs.clean == 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: opencode-rescue-${{ github.job }}-${{ github.run_id }}
+          path: ${{ runner.temp }}/opencode-rescue
+          retention-days: 7
+          if-no-files-found: ignore
+
+  opencode-th:
+    # Token Harbor lane (`/oc-th`): same trust gate and hardening as `/oc`, but the
+    # job holds TOKENHARBOR_API_KEY (not OPENCODE_API_KEY) and runs the same model
+    # served by Token Harbor. Free routes may be logged and used for improvement:
+    # never put Owner data, credentials or private collection data in an /oc-th task.
+    # The `/oc` job above excludes comments naming /oc-th, so each lane fires only
+    # on its own command.
+    # A comment's text is its prompt, so an unrestricted trigger would let any
+    # GitHub account spend the key and steer the agent.
+    if: |
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
+        contains(github.event.comment.body, ' /oc-th') ||
+        startsWith(github.event.comment.body, '/oc-th')
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+      issues: read
+    steps:
+      # The agent reads the target issue/PR text and, on a PR, its head. The
+      # target's author must be trusted (job `if:`) and a PR head must live in
+      # this repository: a fork PR could carry its own agent config. Comments by
+      # others on a trusted thread are NOT filtered here (tracked separately);
+      # only invoke the agent on threads whose comments you trust.
+      - name: Refuse fork pull requests as agent targets
+        if: github.event.issue.pull_request || github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          head_repo="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.repo.full_name')"
+          if [ "$head_repo" != "$GITHUB_REPOSITORY" ]; then
+            echo "Refusing: PR head repository '${head_repo}' is not ${GITHUB_REPOSITORY}." >&2
+            exit 1
+          fi
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # Hardened OpenCode CLI execution lane.
+      # Audited action implementation: anomalyco/opencode/github@77fc88c8ade8e5a620ebbe1197f3a572d29ae91a
+      # (github/action.yml at that SHA). That composite resolves VERSION from
+      # https://api.github.com/repos/anomalyco/opencode/releases/latest at runtime and restores
+      # ~/.opencode/bin via actions/cache key opencode-<os>-<arch>-<version> without any
+      # version/hash verification; its cache-hit path skips install entirely, so VERSION env
+      # alone cannot guarantee the executed binary. This lane installs without cache and
+      # asserts the exact qualified CLI before execution (fail-closed, no fallback to latest).
+      # Qualified CLI (WS75): v1.18.30, tag v1.18.30 published 2026-09-09.
+      # Immutable per-tag assets, SHA256 verified 2026-09-12 by direct
+      # download + sha256sum (see tools/foundry/opencode_cli_version.py,
+      # the single machine-readable pin authority):
+      #   opencode-linux-x64.tar.gz   55007246858165496ff85ba1c2b648f7421e8e2013bf4189a680c9ff8e699d17
+      #   opencode-linux-arm64.tar.gz 4111a55c2a02c0fac314bd51e9a2330280e6d29d2b85b9554fff6d62612566ed
+      - name: Install pinned OpenCode CLI v1.18.30
+        env:
+          VERSION: 1.18.30
+          OPENCODE_X64_SHA256: 55007246858165496ff85ba1c2b648f7421e8e2013bf4189a680c9ff8e699d17
+          OPENCODE_ARM64_SHA256: 4111a55c2a02c0fac314bd51e9a2330280e6d29d2b85b9554fff6d62612566ed
+        run: |
+          set -euo pipefail
+          ARCH="$(uname -m)"
+          case "${ARCH}" in
+            x86_64) ASSET="opencode-linux-x64.tar.gz"; SHA="${OPENCODE_X64_SHA256}" ;;
+            aarch64|arm64) ASSET="opencode-linux-arm64.tar.gz"; SHA="${OPENCODE_ARM64_SHA256}" ;;
+            *) echo "unsupported arch ${ARCH} (fail closed)"; exit 1 ;;
+          esac
+          URL="https://github.com/sst/opencode/releases/download/v${VERSION}/${ASSET}"
+          curl -fsSL -o "/tmp/${ASSET}" "${URL}"
+          echo "${SHA}  /tmp/${ASSET}" | sha256sum -c -
+          mkdir -p "$HOME/.opencode/bin"
+          tar -xzf "/tmp/${ASSET}" -C "$HOME/.opencode/bin"
+          rm -f "/tmp/${ASSET}"
+          echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
+
+      - name: Assert OpenCode CLI is exactly v1.18.30
+        run: |
+          set -euo pipefail
+          BIN="$HOME/.opencode/bin/opencode"
+          test -x "$BIN"
+          RESOLVED="$(command -v opencode)"
+          echo "opencode path: ${RESOLVED}"
+          test "${RESOLVED}" = "${BIN}"
+          INSTALLED="$("${BIN}" --version)"
+          echo "opencode --version (path): ${INSTALLED}"
+          test "${INSTALLED}" = "1.18.30"
+          INSTALLED_PATH="$(opencode --version)"
+          echo "opencode --version (PATH): ${INSTALLED_PATH}"
+          test "${INSTALLED_PATH}" = "1.18.30"
+
+      # Enforced time box. The action's GitHub token lives one hour, so a longer
+      # run loses its push anyway; ending the step at 55 minutes fails it, and
+      # the rescue steps below keep the work (runs 37892171436, 37919745102 and
+      # 37924003093 hung for one to three hours with only a prompt time box).
+      # A provider quota refusal (HTTP 429 GoUsageLimitError) is not retryable
+      # inside a run, yet the CLI hangs after it (runs 37981118028, 38012159229,
+      # 38012694554): tools/foundry/quota_watchdog.py, copied from the triggering
+      # commit like the rescue scanner, stops it at once and fails the step as
+      # BLOCKED_SERVICE so the rescue steps below still run.
+      - name: Run opencode
+        timeout-minutes: 55
+        run: |
+          set -euo pipefail
+          watchdog="$RUNNER_TEMP/quota_watchdog.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/quota_watchdog.py" > "$watchdog"
+          python3 -I "$watchdog" -- opencode github run
+        env:
+          TOKENHARBOR_API_KEY: ${{ secrets.TOKENHARBOR_API_KEY }}
+          MODEL: tokenharbor/deepseek-v4.1-flash
+          AGENT: ''
+          SHARE: 'false'
+          PROMPT: ''
+          USE_GITHUB_TOKEN: 'false'
+          MENTIONS: '/oc-th'
+          # Token Harbor exposes no reasoning-effort control: no VARIANT is set.
+          VARIANT: ''
           OIDC_BASE_URL: ''
 
       # A run that outlives the action's GitHub token (minted once, valid for one
@@ -175,10 +345,9 @@ jobs:
           if-no-files-found: ignore
 
   opencode-assure:
-    # Step 5 Preview HIGH maximum-assurance lane (assurance-verifier agent), started only
-    # by an explicit `/assure` comment. Since the Owner directive of 2026-10-12
-    # every lane, `/oc` above included, runs Step 5 Preview HIGH; DeepSeek is
-    # SUSPENDED. Same trust gate and hardening as the job above.
+    # DeepSeek V4.1 Flash MAX maximum-assurance lane (assurance-verifier agent), started only
+    # by an explicit `/assure` comment. Since the Owner instruction of 2026-10-16
+    # every lane, `/oc` above included, runs DeepSeek V4.1 Flash MAX. Same trust gate and hardening as the job above.
     # The repository is public: only principals with write-level association
     # may start an agent run that holds OPENCODE_API_KEY and an OIDC token.
     # A comment's text is its prompt, so an unrestricted trigger would let any
@@ -291,7 +460,7 @@ jobs:
           python3 -I "$watchdog" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode/step-5-preview-free
+          MODEL: opencode/deepseek-v4.1-flash-free
           # Not read by the pinned CLI (#685); the job env selects assurance-verifier.
           AGENT: assurance-verifier
           SHARE: 'false'
@@ -300,7 +469,7 @@ jobs:
           # `opencode github run` accepts a comment only when it mentions one of these
           # phrases (default /opencode,/oc). This lane is started by /assure.
           MENTIONS: '/assure'
-          VARIANT: high
+          VARIANT: max
           OIDC_BASE_URL: ''
 
       # A run that outlives the action's GitHub token (minted once, valid for one
@@ -353,7 +522,7 @@ jobs:
 
   opencode-ro-review:
     # Mandatory cross-executor review lane (ROUTING_AND_EFFORT.md,
-    # tools/foundry/review_gate.py): a fresh-context READ-ONLY Step 5 Preview HIGH
+    # tools/foundry/review_gate.py): a fresh-context READ-ONLY DeepSeek V4.1 Flash MAX
     # reviewer bound to the exact validated implementation SHA and TREE. Started
     # only by an explicit `/ro-review` comment, separated from the writable
     # `/assure` secondary-execution lane above. Same trust gate and hardening as
@@ -403,7 +572,7 @@ jobs:
           persist-credentials: false
 
       # Hardened OpenCode CLI execution lane (same pin/verification as the
-      # two Step 5 Preview execution jobs above).
+      # two DeepSeek V4.1 Flash execution jobs above).
       - name: Install pinned OpenCode CLI v1.18.30
         env:
           VERSION: 1.18.30
@@ -497,7 +666,7 @@ jobs:
           python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-review.log" -- opencode github run
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          MODEL: opencode/step-5-preview-free
+          MODEL: opencode/deepseek-v4.1-flash-free
           # Not read by the pinned CLI (#654); kept as the declared lane agent.
           AGENT: foundry-reviewer
           SHARE: 'false'
@@ -506,11 +675,11 @@ jobs:
           # `opencode github run` accepts a comment only when it mentions one of these
           # phrases (default /opencode,/oc). This lane is started by /ro-review.
           MENTIONS: '/ro-review'
-          VARIANT: high
+          VARIANT: max
           OIDC_BASE_URL: ''
 
-      # The run's own model-call records must all name the reviewer on Step 5
-      # Preview; none recorded means UNKNOWN and fails the job. The preflight is
+      # The run's own model-call records must all name the reviewer on DeepSeek
+      # V4.1 Flash; none recorded means UNKNOWN and fails the job. The preflight is
       # repeated on the reviewed tree the run checked out. The checker is copied
       # again from the triggering commit, never reused from a path the agent saw.
       - name: Audit reviewer runtime identity

@@ -6,6 +6,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from pydantic import BaseModel
 
 from commander_lab.agents import openai_workflow
 from commander_lab.models import WorkflowRequest
@@ -73,7 +74,34 @@ def test_sdk_tool_wrappers_expose_only_the_validated_payload() -> None:
     tools = openai_workflow._sdk_tools(registry, fake_function_tool)
     assert len(tools) == 4
     assert all(list(tool.signature.parameters) == ["payload"] for tool in tools)
-    assert all(tool.strict for tool in tools)
+    # Strict mode is decided per tool from the generated schema: tools whose input has
+    # free-form (dict) fields cannot be strict function tools in the real SDK.
+    assert {tool.name: tool.strict for tool in tools} == {
+        "deck_decision_prepare": True,
+        "deck_decision_run": True,
+        "deck_decision_diagnose": False,
+        "deck_decision_bundle": False,
+    }
+
+
+def test_tool_strict_mode_rejects_free_form_objects() -> None:
+    class Plain(BaseModel):
+        name: str
+
+    class Nested(BaseModel):
+        inner: Plain
+        items: list[Plain]
+
+    class FreeForm(BaseModel):
+        options: dict[str, Any]
+
+    class NestedFreeForm(BaseModel):
+        items: list[FreeForm]
+
+    assert openai_workflow.tool_strict_mode(Plain) is True
+    assert openai_workflow.tool_strict_mode(Nested) is True
+    assert openai_workflow.tool_strict_mode(FreeForm) is False
+    assert openai_workflow.tool_strict_mode(NestedFreeForm) is False
 
 
 def test_runtime_is_thin_four_tool_synthesizer_with_session_and_guardrails(monkeypatch) -> None:
@@ -181,3 +209,13 @@ async def test_live_workflow_path_with_fake_sdk(monkeypatch, tmp_path) -> None:
     assert report.workflow_id.startswith("workflow-")
     trace_files = list(service.trace_dir.glob(f"{report.workflow_id}.jsonl"))
     assert len(trace_files) == 1
+
+
+def test_real_sdk_builds_runtime_for_every_tool() -> None:
+    pytest.importorskip("agents")
+    service = CommanderToolService(ROOT)
+    request = WorkflowRequest(user_goal="Inspect RogShai using structured tools.")
+    runtime = openai_workflow.build_agent_runtime(service, request=request)
+    assert [tool.name for tool in runtime.orchestrator.tools] == [
+        definition.name for definition in ToolRegistry(service).definitions
+    ]

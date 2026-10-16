@@ -87,7 +87,7 @@
         "logical_profile": {
           "type": "string",
           "enum": [
-            "step"
+            "deepseek"
           ]
         },
         "resolved_model_id": {
@@ -103,15 +103,13 @@
         "implementation_executor": {
           "type": "string",
           "enum": [
-            "deepseek",
-            "step"
+            "deepseek"
           ]
         },
         "review_executor": {
           "type": "string",
           "enum": [
-            "deepseek",
-            "step"
+            "deepseek"
           ]
         },
         "reviewed_sha": {
@@ -371,7 +369,6 @@
       ],
       "enum": [
         "deepseek",
-        "step",
         null
       ],
       "description": "Explicit currently authorized Foundry executor profile for the run. Null preserves historical state compatibility; historical executor names remain free-form provenance only in executor_model/hand-off evidence, not selectable profiles."
@@ -383,24 +380,23 @@
       ],
       "enum": [
         "deepseek",
-        "step",
         null
       ],
-      "description": "Logical executor profile actually resolved for the run (same two-profile vocabulary as execution_profile)."
+      "description": "Logical executor profile actually resolved for the run (same one-profile vocabulary as execution_profile)."
     },
     "resolved_provider": {
       "type": [
         "string",
         "null"
       ],
-      "description": "Provider of the exact resolved runtime model id (provenance; opencode-go under current policy)."
+      "description": "Provider of the exact resolved runtime model id (provenance; opencode (Zen) under current policy)."
     },
     "resolved_model_id": {
       "type": [
         "string",
         "null"
       ],
-      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode/step-5-preview-free (historical states may carry opencode-go ids or a legacy alias)."
+      "description": "Exact provider/model runtime identity selected for the run, e.g. opencode/deepseek-v4.1-flash-free (historical states may carry opencode-go ids or a legacy alias)."
     },
     "model_alias_class": {
       "type": [

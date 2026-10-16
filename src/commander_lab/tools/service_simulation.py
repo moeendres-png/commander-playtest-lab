@@ -4,7 +4,7 @@ import uuid
 from statistics import fmean
 from typing import TYPE_CHECKING, Any
 
-from commander_lab.cut_frontier import build_static_swap_rows
+from commander_lab.candidate_workflow.cut_frontier import build_static_swap_rows
 from commander_lab.engine.structural import (
     run_structural_batch,
 )

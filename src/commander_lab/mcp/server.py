@@ -6,13 +6,30 @@ import queue
 import sys
 import threading
 import time
+from collections.abc import Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, TextIO
+from typing import Any, TextIO, cast
 
 from pydantic import ValidationError
 
 from commander_lab import __version__
+from commander_lab.mcp.jsonrpc_types import (
+    JsonRpcErrorResponse,
+    JsonRpcId,
+    JsonRpcMessage,
+    JsonRpcResponse,
+    JsonRpcResultResponse,
+    McpErrorBody,
+    McpParams,
+    McpPrompt,
+    McpPromptResult,
+    McpResource,
+    McpResourceReadResult,
+    McpServerInfo,
+    McpTool,
+    McpToolCallResult,
+)
 from commander_lab.project_context import load_project_context
 from commander_lab.tools import CommanderToolService, ToolRegistry
 
@@ -27,7 +44,7 @@ _SERVER_INFO_META_KEY = "io.modelcontextprotocol/serverInfo"
 
 
 class McpProtocolError(Exception):
-    def __init__(self, code: int, message: str, data: Any | None = None) -> None:
+    def __init__(self, code: int, message: str, data: object | None = None) -> None:
         super().__init__(message)
         self.code = code
         self.message = message
@@ -47,7 +64,7 @@ class McpSession:
     """
 
     legacy_initialized: bool = False
-    client_info: dict[str, Any] = field(default_factory=dict)
+    client_info: dict[str, object] = field(default_factory=dict)
     cancelled_requests: set[str] = field(default_factory=set)
     shutdown_requested: bool = False
 
@@ -74,7 +91,7 @@ class CommanderMcpServer:
         self.session = McpSession()
 
     @staticmethod
-    def _server_info() -> dict[str, str]:
+    def _server_info() -> McpServerInfo:
         return {
             "name": SERVER_NAME,
             "title": "Commander Playtest Lab",
@@ -87,33 +104,30 @@ class CommanderMcpServer:
     @classmethod
     def _error(
         cls,
-        request_id: Any,
+        request_id: JsonRpcId,
         error: McpProtocolError,
         *,
         modern: bool = False,
-    ) -> dict[str, Any]:
-        payload: dict[str, Any] = {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "error": {"code": error.code, "message": error.message},
-        }
+    ) -> JsonRpcErrorResponse:
+        body: McpErrorBody = {"code": error.code, "message": error.message}
+        payload: JsonRpcErrorResponse = {"jsonrpc": "2.0", "id": request_id, "error": body}
         if error.data is not None:
-            payload["error"]["data"] = error.data
+            body["data"] = error.data
         if modern:
-            payload["error"]["_meta"] = {_SERVER_INFO_META_KEY: cls._server_info()}
+            body["_meta"] = {_SERVER_INFO_META_KEY: cls._server_info()}
         return payload
 
     @classmethod
     def _result(
         cls,
-        request_id: Any,
-        result: dict[str, Any],
+        request_id: JsonRpcId,
+        result: Mapping[str, object],
         *,
         modern: bool = False,
-    ) -> dict[str, Any]:
+    ) -> JsonRpcResultResponse:
         body = dict(result)
         if modern:
-            meta = dict(body.get("_meta") or {})
+            meta = dict(cast(Mapping[str, object], body.get("_meta") or {}))
             meta[_SERVER_INFO_META_KEY] = cls._server_info()
             body["_meta"] = meta
         return {"jsonrpc": "2.0", "id": request_id, "result": body}
@@ -123,18 +137,18 @@ class CommanderMcpServer:
             raise McpProtocolError(-32002, "Legacy MCP session has not completed initialization")
 
     @staticmethod
-    def _request_meta(params: dict[str, Any]) -> dict[str, Any]:
+    def _request_meta(params: McpParams) -> dict[str, object]:
         value = params.get("_meta")
         return dict(value) if isinstance(value, dict) else {}
 
     @classmethod
-    def _modern_request(cls, method: str, params: dict[str, Any]) -> bool:
+    def _modern_request(cls, method: str, params: McpParams) -> bool:
         if method == "server/discover":
             return True
         return cls._request_meta(params).get(_PROTOCOL_META_KEY) == CURRENT_MCP_PROTOCOL_VERSION
 
     @classmethod
-    def _validate_modern_meta(cls, params: dict[str, Any]) -> None:
+    def _validate_modern_meta(cls, params: McpParams) -> None:
         meta = cls._request_meta(params)
         version = meta.get(_PROTOCOL_META_KEY)
         if version != CURRENT_MCP_PROTOCOL_VERSION:
@@ -149,7 +163,7 @@ class CommanderMcpServer:
         if client_info is not None and not isinstance(client_info, dict):
             raise McpProtocolError(-32602, "clientInfo metadata must be an object when supplied")
 
-    def _resources(self) -> list[dict[str, Any]]:
+    def _resources(self) -> list[McpResource]:
         return [
             {
                 "uri": "commander-lab://status",
@@ -171,10 +185,10 @@ class CommanderMcpServer:
             },
         ]
 
-    def _read_resource(self, uri: str) -> dict[str, Any]:
+    def _read_resource(self, uri: str) -> McpResourceReadResult:
         if uri == "commander-lab://status":
             context = load_project_context(self.root)
-            payload = {
+            payload: object = {
                 "server": SERVER_NAME,
                 "version": SERVER_VERSION,
                 "tool_count": len(self.registry.list_schemas()),
@@ -209,7 +223,7 @@ class CommanderMcpServer:
         }
 
     @staticmethod
-    def _prompts() -> list[dict[str, Any]]:
+    def _prompts() -> list[McpPrompt]:
         return [
             {
                 "name": "compare-swap",
@@ -241,7 +255,7 @@ class CommanderMcpServer:
             },
         ]
 
-    def _get_prompt(self, name: str, arguments: dict[str, Any]) -> dict[str, Any]:
+    def _get_prompt(self, name: str, arguments: Mapping[str, object]) -> McpPromptResult:
         if name == "optimize-deck":
             deck_id = arguments.get("deck_id")
             if not isinstance(deck_id, str) or not deck_id:
@@ -267,11 +281,11 @@ class CommanderMcpServer:
 
     def _call_tool(
         self,
-        request_id: Any,
-        params: dict[str, Any],
+        request_id: JsonRpcId,
+        params: McpParams,
         *,
         cancel_event: threading.Event | None = None,
-    ) -> dict[str, Any]:
+    ) -> McpToolCallResult:
         name = params.get("name")
         arguments = params.get("arguments", {})
         if not isinstance(name, str):
@@ -288,13 +302,13 @@ class CommanderMcpServer:
         timeout_ms = 120_000
         if "timeoutMs" in meta:
             try:
-                timeout_ms = max(0, int(meta["timeoutMs"]))
+                timeout_ms = max(0, int(cast(Any, meta["timeoutMs"])))
             except (TypeError, ValueError) as exc:
                 raise McpProtocolError(-32602, "timeoutMs must be an integer") from exc
         if timeout_ms == 0:
             raise McpProtocolError(-32001, "Tool call timed out after 0 ms")
 
-        done: queue.Queue[tuple[str, Any]] = queue.Queue(maxsize=1)
+        done: queue.Queue[tuple[str, object]] = queue.Queue(maxsize=1)
 
         def invoke() -> None:
             try:
@@ -321,9 +335,9 @@ class CommanderMcpServer:
             except queue.Empty:
                 continue
             if kind == "error":
-                raise value
-            response = value
-            body = response.model_dump(mode="json")
+                raise cast(BaseException, value)
+            response = cast(Any, value)
+            body: dict[str, object] = response.model_dump(mode="json")
             return {
                 "content": [
                     {
@@ -335,7 +349,7 @@ class CommanderMcpServer:
                 "isError": body.get("status") != "completed",
             }
 
-    def _discover_result(self) -> dict[str, Any]:
+    def _discover_result(self) -> dict[str, object]:
         return {
             "protocolVersions": [CURRENT_MCP_PROTOCOL_VERSION, LEGACY_MCP_PROTOCOL_VERSION],
             "capabilities": {
@@ -353,16 +367,17 @@ class CommanderMcpServer:
 
     def handle(
         self,
-        message: dict[str, Any],
+        message: JsonRpcMessage,
         *,
         cancel_event: threading.Event | None = None,
-    ) -> dict[str, Any] | None:
+    ) -> JsonRpcResponse | None:
         request_id = message.get("id")
         method = message.get("method")
-        params = message.get("params", {})
+        raw_params = message.get("params", {})
+        params = cast(McpParams, raw_params)
         modern = (
             isinstance(method, str)
-            and isinstance(params, dict)
+            and isinstance(raw_params, dict)
             and self._modern_request(method, params)
         )
         try:
@@ -370,9 +385,9 @@ class CommanderMcpServer:
                 raise McpProtocolError(-32600, "jsonrpc must be '2.0'")
             if not isinstance(method, str):
                 raise McpProtocolError(-32600, "method must be a string")
-            if params is None:
+            if raw_params is None:
                 params = {}
-            if not isinstance(params, dict):
+            if not isinstance(raw_params, dict):
                 raise McpProtocolError(-32602, "params must be an object")
 
             if method == "server/discover":
@@ -393,7 +408,9 @@ class CommanderMcpServer:
                         -32602,
                         f"Unsupported initialize-era protocol version: {requested}",
                     )
-                self.session.client_info = dict(params.get("clientInfo") or {})
+                self.session.client_info = dict(
+                    cast(Mapping[str, object], params.get("clientInfo") or {})
+                )
                 self.session.legacy_initialized = True
                 return self._result(
                     request_id,
@@ -433,7 +450,7 @@ class CommanderMcpServer:
                 if surface not in {"public", "expert"}:
                     raise McpProtocolError(-32602, "tool surface must be public or expert")
                 registry = self.expert_registry if surface == "expert" else self.registry
-                tools = sorted(
+                tools: list[McpTool] = sorted(
                     (
                         {
                             "name": row["name"],
@@ -538,7 +555,7 @@ class CommanderMcpServer:
         write_lock = threading.Lock()
         inflight: dict[str, tuple[threading.Event, threading.Thread]] = {}
 
-        def write_response(response: dict[str, Any] | None) -> None:
+        def write_response(response: JsonRpcResponse | None) -> None:
             if response is None:
                 return
             with write_lock:
@@ -547,7 +564,7 @@ class CommanderMcpServer:
                 stdout.write(json.dumps(response, ensure_ascii=True, separators=(",", ":")) + "\n")
                 stdout.flush()
 
-        def run_tool(message: dict[str, Any], key: str, event: threading.Event) -> None:
+        def run_tool(message: JsonRpcMessage, key: str, event: threading.Event) -> None:
             try:
                 response = self.handle(message, cancel_event=event)
                 if not event.is_set():
@@ -560,9 +577,10 @@ class CommanderMcpServer:
             if not raw:
                 continue
             try:
-                message = json.loads(raw)
-                if not isinstance(message, dict):
+                decoded = json.loads(raw)
+                if not isinstance(decoded, dict):
                     raise ValueError("message must be an object")
+                message = cast(JsonRpcMessage, decoded)
             except (json.JSONDecodeError, ValueError) as exc:
                 write_response(self._error(None, McpProtocolError(-32700, f"Parse error: {exc}")))
                 continue

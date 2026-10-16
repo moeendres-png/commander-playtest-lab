@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from commander_lab.advancement import LEGACY_ADVANCEMENT_REASON
+from commander_lab.candidate_workflow.advancement import LEGACY_ADVANCEMENT_REASON
 from commander_lab.priority_workflows import PriorityWorkflowFacade
 
 ROOT = Path(__file__).resolve().parents[2]
