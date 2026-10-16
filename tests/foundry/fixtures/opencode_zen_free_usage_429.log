@@ -1,0 +1,40 @@
+# SYNTHETIC fixture, not a captured run. The Zen free-tier refusal shape is
+# reconstructed from the pinned CLI 1.18.30 (its retryable() matches
+# responseBody.includes("FreeUsageLimitError")) and the Zen v1 console handler
+# (anomalyco/opencode@47f33329 packages/console/app/src/routes/zen/util/handler.ts:
+# 429 {"type":"error","error":{"type":"FreeUsageLimitError",...}} with an optional
+# retry-after header). The body message is the one observed in public reports
+# (anomalyco/opencode issues #42029, #42074, #42977). A captured lane log
+# replaces this file when one exists.
+[01:19:10.916] INFO (#8293): llm runtime selected {
+  "llm.runtime": "ai-sdk",
+  "llm.provider": "opencode",
+  "llm.model": "deepseek-v4.1-flash-free",
+}
+[01:19:11.055] ERROR (#8724): stream error {
+  providerID: "opencode",
+  modelID: "deepseek-v4.1-flash-free",
+  "session.id": "ses_REDACTED",
+  small: "false",
+  agent: "foundry-implementer",
+  mode: "primary",
+  error: {
+
+AI_APICallError: Error from provider (Console): Rate limit exceeded. Please try again later.
+      cause: undefined,
+        url: "https://opencode.ai/zen/v1/chat/completions",
+ requestBodyValues: [Object ...],
+ statusCode: 429,
+ responseHeaders: [Object ...],
+ responseBody: "{\"type\":\"error\",\"error\":{\"type\":\"FreeUsageLimitError\",\"message\":\"Error from provider (Console): Rate limit exceeded. Please try again later.\"}}",
+ isRetryable: true,
+       data: [Object ...],
+ vercel.ai.error: true,
+ vercel.ai.error.AI_APICallError: true,
+
+      at /$bunfs/root/chunk-4jmjcj2v.js:6:14582
+      at /$bunfs/root/chunk-4jmjcj2v.js:6:12790
+      at processTicksAndRejections (native:7:39)
+,
+  },
+}
