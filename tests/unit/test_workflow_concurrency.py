@@ -46,6 +46,16 @@ def test_non_pull_request_runs_never_share_a_concurrency_group(path: Path) -> No
     )
 
 
+def test_a_second_dispatch_of_the_same_head_does_not_cancel_the_first_sweep() -> None:
+    """Two sweeps dispatched on one head (other seeds) must both run to the end."""
+    workflow = yaml.safe_load(
+        (ROOT / ".github/workflows/collection-coverage.yml").read_text(encoding="utf-8")
+    )
+    concurrency = workflow["concurrency"]
+    assert "github.run_id" in concurrency["group"]
+    assert concurrency.get("cancel-in-progress") is not True
+
+
 @pytest.mark.parametrize(
     "name",
     [

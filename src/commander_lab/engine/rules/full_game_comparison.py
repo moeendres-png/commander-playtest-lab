@@ -19,6 +19,7 @@ not Structural confirmatory evidence, and nothing here mutates a deck.
 
 from __future__ import annotations
 
+import hashlib
 import math
 from collections import Counter
 from collections.abc import Sequence
@@ -137,9 +138,16 @@ def pod_decks(
 
 
 class SlotAlignment(_StrictModel):
-    """How a variant's library order was lined up with the baseline's."""
+    """How a variant's library order was lined up with the baseline's.
+
+    ``played_mainboard_sha256`` is the SHA-256 of the mainboard in the order the
+    engine received it: the variant's ``deck_hash`` describes its own file, but
+    the games were played from this list.
+    """
 
     deck_id: str
+    baseline_deck_id: str
+    played_mainboard_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
     swapped_slots: int = Field(ge=0)
     appended: int = Field(ge=0)
     dropped: int = Field(ge=0)
@@ -156,18 +164,16 @@ def align_to_baseline_slots(
     is merely sorted differently, or which puts a new card in another place,
     shifts every later slot and makes the paired games unrelated from the first
     shuffle on. This keeps every unchanged card in its baseline slot, moves the
-    variant's added cards into the slots of the removed cards (in list order)
-    and appends any surplus. The multiset of cards is exactly the variant's, so
-    the deck is the same deck; only its list order changes.
+    variant's added cards into the slots of the removed cards (added cards in
+    name order, slots in baseline order) and appends any surplus. The result
+    depends only on the two card multisets, never on how the variant file lists
+    its cards. The multiset of cards is exactly the variant's, so the deck is
+    the same deck; only its list order changes.
     """
     baseline_cards = list(baseline.mainboard)
     removed = Counter(baseline_cards) - Counter(variant.mainboard)
     added_budget = Counter(variant.mainboard) - Counter(baseline_cards)
-    added: list[str] = []
-    for card in variant.mainboard:
-        if added_budget[card] > 0:
-            added_budget[card] -= 1
-            added.append(card)
+    added = sorted(added_budget.elements(), key=lambda card: (card.casefold(), card))
     queue = iter(added)
     pending = next(queue, None)
     placed: list[str] = []
@@ -189,7 +195,12 @@ def align_to_baseline_slots(
         raise ValueError("slot alignment changed the variant's cards")
     aligned = variant.model_copy(update={"mainboard": tuple(placed)})
     return aligned, SlotAlignment(
-        deck_id=variant.deck_id, swapped_slots=swapped, appended=len(surplus), dropped=dropped
+        deck_id=variant.deck_id,
+        baseline_deck_id=baseline.deck_id,
+        played_mainboard_sha256=hashlib.sha256("\n".join(placed).encode()).hexdigest(),
+        swapped_slots=swapped,
+        appended=len(surplus),
+        dropped=dropped,
     )
 
 

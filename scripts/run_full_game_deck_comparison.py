@@ -178,7 +178,7 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
             f"{row['variant_deck_id']} vs {row['baseline_deck_id']}: {row['verdict']} "
             f"(pairs {row['pairs_completed']}, variant-only {row['variant_only_wins']}, "
             f"baseline-only {row['baseline_only_wins']}, "
-            f"identical games {row.get('identical_pairs', 0)}, "
+            f"identical pairs {row['identical_pairs']}, "
             f"p={row['sign_test_p_value']:.3g})"
         )
     sequential = report_json.get("sequential")

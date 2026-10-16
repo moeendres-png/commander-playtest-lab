@@ -8,6 +8,7 @@ identical until a changed card matters.
 
 from __future__ import annotations
 
+import hashlib
 from collections import Counter
 from pathlib import Path
 
@@ -17,6 +18,7 @@ from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
+    FullGameConformanceError,
     FullGameConformanceResult,
 )
 from commander_lab.engine.rules.full_game_batch import XmageFullGameBatchRunner
@@ -24,6 +26,7 @@ from commander_lab.engine.rules.full_game_comparison import (
     DeckComparisonSpec,
     aggregate_comparison,
     align_to_baseline_slots,
+    aligned_contenders,
     plan_comparison_cases,
 )
 from commander_lab.models import RulesDeckInput
@@ -61,14 +64,21 @@ def test_a_swapped_card_takes_the_slot_of_the_card_it_replaces() -> None:
     assert _aligned(("A", "B", "C", "D"), ("X", "A", "B", "D")) == ("A", "B", "X", "D")
 
 
-def test_several_swaps_fill_the_freed_slots_in_list_order() -> None:
-    # C and D leave, Y and Z arrive (Y listed before Z): Y takes C's slot.
+def test_several_swaps_fill_the_freed_slots_in_name_order() -> None:
+    # C and D leave, Y and Z arrive: Y (first by name) takes C's slot, Z takes D's.
     assert _aligned(("A", "B", "C", "D", "E"), ("E", "Y", "A", "Z", "B")) == (
         "A",
         "B",
         "Y",
         "Z",
         "E",
+    )
+
+
+def test_the_result_does_not_depend_on_how_the_variant_file_lists_its_cards() -> None:
+    baseline = ("A", "B", "C", "D", "E")
+    assert _aligned(baseline, ("E", "Y", "A", "Z", "B")) == _aligned(
+        baseline, ("Z", "B", "A", "Y", "E")
     )
 
 
@@ -205,5 +215,37 @@ def test_report_counts_games_the_change_never_touched_and_records_the_alignment(
     assert paired.identical_pairs == 3
     assert paired.variant_only_wins == 1 and paired.baseline_only_wins == 0
     (alignment,) = comparison.slot_alignment
-    assert alignment.deck_id == "variant"
+    assert alignment.deck_id == "variant" and alignment.baseline_deck_id == "base"
     assert (alignment.swapped_slots, alignment.appended, alignment.dropped) == (1, 0, 0)
+    played, _ = aligned_contenders(spec)
+    assert (
+        alignment.played_mainboard_sha256
+        == hashlib.sha256("\n".join(played[1].mainboard).encode()).hexdigest()
+    )
+
+
+class _FailingVariantRunner(_TranscriptRunner):
+    """The variant's game on seed 2 never finishes; everything else is as before."""
+
+    def run(self, *, scenario: FutureXmageScenario, decks: object, pilots: object) -> object:
+        if scenario.candidate_id == "variant" and scenario.seed == 2:
+            raise FullGameConformanceError("game ended without a result")
+        return super().run(scenario=scenario, decks=decks, pilots=pilots)
+
+
+def test_a_pair_with_a_failed_game_is_not_counted_as_identical(tmp_path: Path) -> None:
+    spec = DeckComparisonSpec(
+        comparison_id="cmp-failed",
+        contenders=_spec().contenders,
+        opponents=_spec().opponents,
+        seeds=(1, 2, 3, 4),
+        rotate_seats=False,
+        xmage_commit=XMAGE_COMMIT,
+    )
+    report = XmageFullGameBatchRunner(_FailingVariantRunner(), tmp_path).run(  # type: ignore[arg-type]
+        plan_comparison_cases(spec)
+    )
+    paired = aggregate_comparison(spec, report).paired[0]
+    assert report.failed_cases == 1
+    assert paired.pairs_completed == 3
+    assert paired.identical_pairs == 2
