@@ -112,8 +112,9 @@ technical configuration, not policy; there is no automatic fallback between exec
   (architecture, Source Truth, Rules adjudication, qualification design, gate decisions,
   review and, when authorized, campaign execution).
 - **Worker**: any other executor. OpenCode Foundry and Claude Sonnet workers inside an
-  owned workstream may merge as §10 delegates. GitHub Copilot, Google agents, Cline and any
-  other external agent work on their own branch and PR and never merge. No worker decides
+  owned workstream may merge as §10 delegates. Muse (the Owner's Meta agent) may merge its
+  own PRs under the Owner-delegated self-merge in §10. GitHub Copilot, Google agents, Cline
+  and any other external agent work on their own branch and PR and never merge. No worker decides
   Owner-only reservations (§8); results count as evidence only after the same review and
   CI gates as any other executor.
 
@@ -312,6 +313,24 @@ is hidden; Rules and evidence integrity hold; no source-lock or ownership confli
 no force/admin bypass/history rewrite is needed; the branch is the executor's own; and
 canonical HEAD/TREE is re-read with a persisted receipt afterwards. Otherwise repair if
 technical and in scope, or stop on a genuine blocker.
+
+### Owner-delegated self-merge
+
+`AGENT_SELF_MERGE = ENABLED` (Owner instruction, 2026-10-16).
+
+Claude sessions (Coordinator and thread sessions) and Muse may merge their own PRs in
+`moeendres-png/commander-playtest-lab` through the normal GitHub merge path once the PR is
+merge-ready: the required checks (`quality`, `security`, `infrastructure`) are green on the
+exact head, there is no merge conflict, no review thread is unresolved, and a MATERIAL
+change has an independent review PASS (`/ro-review`, or an independent Claude review with
+no blocking findings when no review lane is available). After merging, the agent reports
+the merge in one line with the PR link. OpenCode lane runs still open PRs and never merge;
+the session that owns the PR merges it.
+
+These still need the Owner's explicit go before merge: pushes to the engine fork
+(`moeendres-png/mage`), repins, and any change that touches signed or sealed qualification
+records or the reseal-bound files (`requirements/lock.txt`, its digest, `pyproject.toml`).
+Self-merge never bypasses branch protection, an admin override or the hard boundaries above.
 
 ## 11. Git, worktree, ownership
 
