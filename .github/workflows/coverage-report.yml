@@ -1,0 +1,57 @@
+name: Coverage Report
+
+# Line coverage of src/commander_lab from the non-qualification test suite
+# (audit P2-5). Report only: it is never a pull-request gate, has no
+# --cov-fail-under threshold and writes no evidence file. Minimum metrics are
+# set once a few reports exist (see the audit's PR plan).
+#
+# The coverage tools come from requirements/coverage-report.txt, installed on
+# top of requirements/lock.txt: the sealed dependency lock stays unchanged.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coverage-report-${{ github.sha }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+
+jobs:
+  coverage-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements/lock.txt
+            requirements/coverage-report.txt
+      - name: Install project, test and coverage tools
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --require-hashes --no-deps -r requirements/coverage-report.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Test suite with coverage
+        run: |
+          mkdir -p artifacts/coverage
+          set -o pipefail
+          pytest -q --cov=commander_lab --cov-report=xml:artifacts/coverage/coverage.xml --cov-report=term:skip-covered --ignore=tests/qualification | tail -n 200
+      - name: Upload the coverage report
+        if: always()
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: coverage-report-${{ github.run_id }}
+          path: artifacts/coverage/coverage.xml
+          if-no-files-found: warn

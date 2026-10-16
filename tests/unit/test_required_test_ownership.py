@@ -51,7 +51,7 @@ def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
         if arg in {"-q", "-ra", "-rs"}:
             continue
         # Reporting only: they never change which tests are collected.
-        if arg.startswith(("--durations=", "--junitxml=", "--cov=", "--cov-report=")):
+        if arg.startswith(("--durations=", "--junitxml=")):
             continue
         if arg.startswith("--ignore="):
             ignored.append(arg.split("=", 1)[1].rstrip("/"))
@@ -111,8 +111,6 @@ def test_infrastructure_owns_the_qualification_tests() -> None:
                 "--durations=50",
                 "--junitxml=out.xml",
                 "--ignore=tests/qualification",
-                "--cov=pkg",
-                "--cov-report=xml:cov.xml",
             ),
             {"tests/a/test_x.py"},
         ),
