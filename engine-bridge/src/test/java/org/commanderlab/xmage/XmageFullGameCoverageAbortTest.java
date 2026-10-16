@@ -150,11 +150,10 @@ class XmageFullGameCoverageAbortTest {
         // payment"; the pilot cancels, the engine reverses the cast (CR 601.2e)
         // and priority returns instead of XMAGE_ACTION_EXECUTION_FAILED.
         //
-        // End-to-end guarantee only: a pilot cancel sets paymentCancelled, the
-        // pre-existing path, so this scenario does NOT reach reversedOverAnnouncedX.
-        // That predicate is pinned by XmageFullGameEngineReversalTest
-        // #anOverAnnouncedXCastIsReversedOnlyWithAllItsFacts; no scenario that
-        // reaches it without a cancel is known.
+        // The cancel sets paymentCancelled, the first clause of the cast-failure
+        // chain in XmageFullGamePlayer. A predicate for a payment that fails
+        // without a pilot cancel (reversedOverAnnouncedX) was removed in #846:
+        // no real-engine path reaches it.
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Blue Sun's Zenith", 0, Zone.HAND));
         // Three Islands: X=0 ({U}{U}{U}) is payable, X=1 ({1}{U}{U}{U}) is not.
