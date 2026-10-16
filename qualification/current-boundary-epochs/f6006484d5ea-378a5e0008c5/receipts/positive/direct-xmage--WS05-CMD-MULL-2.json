@@ -1,0 +1,32 @@
+{
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+  "fixture_id": "WS05-CMD-MULL-2",
+  "obligation_exercised": {
+    "fixture_family": "multiplayer_commander",
+    "forbidden_events": [],
+    "obligation_digest": "84b50ad89d9847a80e8943902e8c31be2092b0a237de5d611cc82a2ed8e615f6",
+    "requested_state_digest": "87b61e4f3e8f2997fda292ed778eea1b6a23372653ea03cb42fdba7f2b4f2c0e",
+    "required_events": [
+      "mulligan_once:P1",
+      "free_mulligan:false"
+    ],
+    "terminal_postconditions": [
+      "In 2P Commander the first mulligan is not the multiplayer free mulligan; after exactly one mulligan and keep, P1 bottoms one card under the London mulligan."
+    ]
+  },
+  "observed_assertion": {
+    "principal_observation_scope": "engine-offered decision frames for the acting seat",
+    "row_document_sha256": "a7ab9f69515388ae4473bc36b228d872f1a6f01241a00817b4eb995f03680a13",
+    "semantic_events_sha256": "7361157e560b2f3fbd15c1d33c5ded035735c0f55412f3166340adf92bb0a865",
+    "terminal_facts_sha256": "ddb888c897ae62a4038d60f0a435b09aa23c8f016427703b48b7fce8e53629b0"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "98c6ae704c12dc4091aa21f2260ed2ace0ab0652f627f247a46dd23cb0aee6cd",
+  "runner_digest": "7764861f702c902cf02d4957dd861725c6b1ba0c2eac7e2a8b398de7c1f644ea",
+  "runtime_receipt_digest": "a7ab9f69515388ae4473bc36b228d872f1a6f01241a00817b4eb995f03680a13",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "current-boundary-direct:PROTOCOL2_SCRIPTED_PREGAME#WS05-CMD-MULL-2"
+}

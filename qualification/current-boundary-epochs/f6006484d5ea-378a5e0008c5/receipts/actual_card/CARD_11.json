@@ -1,0 +1,75 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_11",
+  "obligation_exercised": {
+    "obligation_digest": "1c9c4ac9b9150afd3a843f483c8666a9120c2d5c7473c45ebe8714e9d96f4483",
+    "requested_state_digest": "ea9101917793bde3ce6ed0d39ff963fd256839f0406a3eddc695a7fa3265231a",
+    "required_events": [
+      "fused_split_spell_cast",
+      "destroy_artifact",
+      "destroy_enchantment"
+    ],
+    "terminal_checks": [
+      "Glorious Anthem is in P2's graveyard",
+      "Sol Ring is in P2's graveyard"
+    ],
+    "terminal_postconditions": [
+      "Both target permanents are in P2 graveyard."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "6275b3a0017ae40977617785795670678dbfa34dc4bb183b227d84a675b7c295",
+      "size": 7111366
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "Glorious Anthem is in P2's graveyard"
+        ],
+        "check": "Sol Ring is in P2's graveyard",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Both target permanents are in P2 graveyard."
+      }
+    ],
+    "terminal_facts": {
+      "Glorious Anthem is in P2's graveyard": true,
+      "Sol Ring is in P2's graveyard": true
+    },
+    "token_evidence": {
+      "destroy_artifact": {
+        "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card11-artifact",
+        "events": [
+          9
+        ]
+      },
+      "destroy_enchantment": {
+        "binding": "at least one DESTROYED_PERMANENT event(s) with target_object=obj:card11-enchantment",
+        "events": [
+          11
+        ]
+      },
+      "fused_split_spell_cast": {
+        "binding": "a scripted priority frame selected an engine offer naming 'cast fused'",
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "4f1657ddbe48ed2fea2c6dcf400754e1f3f0fbe12968001764d82d5f2b3fb6f4",
+  "runner_digest": "7764861f702c902cf02d4957dd861725c6b1ba0c2eac7e2a8b398de7c1f644ea",
+  "runtime_receipt_digest": "56f941080c31ea9046db4153338b2bbb084853c122d81beee5621e8f27192153",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_11"
+}

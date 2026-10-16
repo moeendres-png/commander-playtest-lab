@@ -1,0 +1,588 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED_LAB_DECLARED_CAUSAL_SUBSTITUTION",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "causal_reconstruction": {
+    "actor": "P1",
+    "bolt_count": 14,
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "31ac57c0c50108bdcffd42cc341524ec5b64602f403ec47547eebe46463b4601",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-0"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "d21dbf4e989d19cbdff53f1c9a6494d0e861752f660e83e4d7e30f0dc99a616c",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-0"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "a254a1b45df8f7103520663688bcdb0db3a8b1e9f74e9ab0b5f34777beae47fd",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-0"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "9dd6f750a078ed5b1b56ef7beaeb6a9a35e02bda4760ddcf47cedfe9dab7487f",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-0"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "9a33ae62bc63d7d2786657531a752796f22870e1225e6169808b96e84f738a59",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-0"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "3b718dd24cd0840d0dcec351664a12a93214a87e5a4f32765718f4837d1aceb6",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[1]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-1"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "98186d50cde9d06cff6d6d75660b4c6f586e3c66ce07af33e937f8cc84fe75e1",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-1"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "da1c6b3e98b0bcfd0a8b14b6b06b8e40f433d906063862d4a92ef5c534a7422f",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-1"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "437e126b250e633280712faaf5fdba6f13b31ba8db5b896ca7cf0d53bd909b43",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-1"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "805666a7b8776a7dbf0a8a5bfc772f789f3978dc0d4cd474237877a84cd7c24f",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-1"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f7fdac587863200e948c0b4c0f52c594344aa5bb37c7dd433b564ed4a928c3c8",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[2]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-2"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "845389cb2ded0f385b984188453d0de72ffb65fe99203680b24b88907bef3f13",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-2"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "261038f5fca0d7b831878be0f52cf8fad49c35d75c572dc56caed61bfe1d20e2",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-2"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "7e5f45c41e3daf32cec124897ea45816e2f363258f390eed96aae1b9ab84888b",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-2"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "591e6b6de2675a8385538dd67d2c7ab606c6ba1c503486947f250ea4ec59fe7c",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-2"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "76f3d3ae432e92f0af4998c5d8db83d3bdc4cb27c74e4540ca2ca369d40a748d",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[3]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-3"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "c637faac8c4718341a7809e66f0bfff39f6bd3a7edc44db0a1b6e36e3ad6d3eb",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-3"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "3d98d7cd5d8a4a2ea0a5652687f0324d6faf821566a53fd2399fd30aaabaeb7a",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-3"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "b8561daf502a29b2d6fc4ec8b291d470cc198497443ec4b5947522f5f60993fe",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-3"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "ac7bf66d86e9ddfd23e6bdc53ee5f1315a9702aeb705423aa4b19c0450e15235",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-3"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "85cef1dfb42d79c5963e3d3ba652335053f83cd413a2e98a009b704d83e750a0",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-4"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f334d00dce5b62dd21d4fba75a39eac44982fff3b79a84ade75f4dda48b1632d",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-4"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "2b89eeb011b7ade1fdccfbc58f58ce685a5c774128fe99041e22efa69b0036d2",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-4"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "c1883b484d1e6af21e42eca439a3c472ce7d1b35fe8c0f3f9cd36558ef0ca5ce",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-4"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "33489e99337343342ccfa3b46a8591462aa35cd91a56d718a6d575ec8d25ed2b",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-4"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "5a828597fb5ce3c5cd931d8e8c151a06ef5491892169abcc7f14af35a781014d",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[5]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-5"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "d11244869a2291cba8c27818e824ac29d4552993f2bad4fa636826ad427264d2",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-5"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "261e48ca250f6984060a4dfbbd9b1a3c35734a3612ec4667a6c5ec710360c8c3",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-5"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "726fd5679782f8fd364873864761413b3d0f18c9a10887dadf42184f0b02ca23",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-5"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "e0839bd5d726016ca275a2d1f9a855b238d5750b3595e84f48813850480e2b65",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-5"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "6490b9e6b28ac0e19402dc8998f45da1d5e471bc588d0d6bdd9a230594f8f976",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[6]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-6"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "cb6f1d73d052369c486ef8e45ebc1964deace5dfb5153e21e57e2b751019218b",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-6"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "98344bd0cc046cc244d7f07a3d82929a5bde62df52c13532fa79096f839432bc",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-6"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "85abd1027af6a8ddaa09f295153c034540a912c4e39253bf521565a6182b4eba",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-6"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "f596f51e5cdb8016d181fad26cbe14860a4b0cee9ed8387250215f96abe185d6",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-6"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "87683c59f97030c9f0326ca7140276ac30b2e4271156b81062bf0225481bef23",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[7]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-7"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "5793c0a5200b4a32917eb2a1a761fbe050e475440a099e15a3660c352d92e9b8",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-7"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "0d674ef8d83978bae0081d8bbfaf5a19f9ddb1789d0779ef71ec05d81beb5387",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-7"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "50b122c000a4f7972736c49bf0b83d1923ab416c1df968b78996279c862eee5d",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-7"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "a4b4b0c5305dd346201289345b343e60dcc1f331d2e2a879aba375a430ef45f4",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-7"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "bf7962fe3387b777e7d50dc4dd958922d0405d3af14903e1c670fe5fff47dd81",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[8]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-8"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "9df2e0cda55ac7771e4dab5b3957c163f8f89104071a48d471361b704f581400",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-8"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "4f538a7b50ca022fb67884fd2a822f2ec2bdaf6e0b2d043e0a96ca621a41b2c4",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-8"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "b9a6090a2c2ba03f5c406aa00afb35d8b5f68b52ad117d97485ffd6ce22d86eb",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-8"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "221a60e0beb02c425571acbf07df3835c2bf122db64a4ce925268534071e67be",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-8"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "2b85a381749b1ffbb0ff97550242f804482c66265ae32cd4a416edd61a8468c7",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[9]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-9"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "b4ec94c24718036a98afd1308654d14b4bfd02e95a148f1bfc436edeacaaba34",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-9"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "b532458c06618844881290932087b718a6886b7ae1107039f7eac083851c0521",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-9"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "af86152a29a70aeeb28a6b6c67ae6f091898049c71a69fa1fcd92071336931a6",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-9"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "91d62acda72f7d1fb749bfad2adbe9e4ed658b1bd973cbd4f5ac9004980f0f28",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-9"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f7d747694746bc9c6487e88e19b3c13e72057ebb260d4138b315e5eadd65c1cd",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[10]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-10"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "b8ffba6920facec93117a887657a4536b230c2b1da2285b2632429688c462409",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-10"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "ace1569358ff0d1fed575e510418c6da830b1ed818764f62cf9a7d6010ecad07",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-10"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "3690dbf2fd1a7c8d02add0b8109d3c6fd03181eb6ff96accf31fae0062723ee6",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-10"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "905951adc4a4a650da62d4565e42b438fd59d34d14ba407f23ad73ece8370b9c",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-10"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "71ca340a6edc55f237fb35656e6422e49595e1949dda5c23b931733ee5ee80f7",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[11]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-11"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "153af9e4ad433e88a2b56e79f146f75348cc698d16b165ac9026f2740561196c",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-11"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "61b157bc68e2dad1241ca00f803f3689bfbe504c05a7b677fef4d2b17729ce8c",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-11"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "663d378332f904e7c62cb33a416d34aaed14b1dddee74f8360ace2ffd38c043d",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-11"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "80dcd8f32ffe283d410182015a82d10a3ac06fa39b1959c8466ca455cb5cc0f0",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-11"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "4cc08621d9965b3981b2f9117088a49c2654b0cbf626784d1dc00d98093f3a6a",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[12]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-12"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "7c896d46564793bd853dfe0fe2a0da768801c2809ef907c59c197dfb284244a1",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-12"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "fa703e25e70a6e0b9cbae1a29a704a25c015e4075707ed803254bf271894753d",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-12"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "77f9207d62d17b435e17f4ac6e1fd50866e42bed96af418fe14af96eea182a4e",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-12"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "fdd27b78c9182de3b20542a27a35781e54af56bdfe0832d8307f4c9e3edc4fc5",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-12"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "1807e89252f67da1ebab3cb2686c0a6b2c9e4aaddb124c0f6bb8021cabec5800",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[13]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-13"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "b4d34fdc4ec2433dd47e2cda76788d1000b9b87edeb7dc9d2e948de499228ac4",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-mana-13"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "c8b2fc7717d3b39c1f401dded6971702cd2cc081b560ea48a1d60773245a61fe",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-13"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "244afaeefbec85b1f8614b9c1ab97d0862c84489b166ccf3410c95f251c9f47c",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-13"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "218da65d91bdc4b084d97440b5cd970a97260d14fbb7af61e25640042b95287e",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-OWNED-3-causal-resolve-13"
+      }
+    ],
+    "entry_mode": "causal_elimination",
+    "verdict": {
+      "causal_match": true,
+      "life_totals": {
+        "P1": 40,
+        "P2": -2,
+        "P3": 40
+      },
+      "mismatches": [],
+      "survivors": [
+        "P1",
+        "P3"
+      ],
+      "victim": "P2",
+      "victim_left": true,
+      "victim_life": -2,
+      "victim_lost": true
+    },
+    "victim": "P2"
+  },
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "declared_substitution_source": "declared causal elimination (run_midgame_capability_probe.CAUSAL_ROWS, shared with Forge): the victim's recorded life is the state-based-action-pending instant (CR 704.3), placed openly as its starting life and reached only by the engine dealing the declared instruments' damage",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-ELIM-OWNED-3",
+  "obligation_exercised": {
+    "obligation_digest": "f0f10842a314d162000246cd8b149e32039f5f20a027157e9e90aeee12a61d95",
+    "requested_state_digest": "3a61678e0529798ec3755c1c434be9ac8bccdc0d546b6eb020f25eddf2648c19",
+    "required_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_checks": [
+      "every LOST event with player_player=P2 precedes the first ZONE_CHANGE event with target_object=obj:leave-owned, to=OUTSIDE"
+    ],
+    "terminal_postconditions": [
+      "All objects owned by P2 leave the game, including obj:leave-owned."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "every LOST event with player_player=P2 precedes the first ZONE_CHANGE event with target_object=obj:leave-owned, to=OUTSIDE": true
+    },
+    "token_evidence": {
+      "multiplayer_cleanup:CR800.4": {
+        "binding": [
+          "every LOST event with player_player=P2 precedes the first ZONE_CHANGE event with player_player=P2, to=OUTSIDE",
+          "P2's battlefield is exactly [] (by card identity, as a multiset)"
+        ],
+        "parts": [
+          {
+            "binding": "every LOST event with player_player=P2 precedes the first ZONE_CHANGE event with player_player=P2, to=OUTSIDE",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "P2's battlefield is exactly [] (by card identity, as a multiset)",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "player_leaves:P2": {
+        "binding": [
+          "exactly 1 LOST event(s) with player_player=P2",
+          "the engine reports P2 lost and left the game"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 LOST event(s) with player_player=P2",
+            "events": [
+              76
+            ]
+          },
+          {
+            "binding": "the engine reports P2 lost and left the game",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "2571182f38262037784e0db1bf655720772576768263917940ee02eaf372c316",
+  "runner_digest": "7764861f702c902cf02d4957dd861725c6b1ba0c2eac7e2a8b398de7c1f644ea",
+  "runtime_receipt_digest": "70e3a3bd5c365e2c3661b102cbd8fb4dd135e21a93855cf0a712d1aa06e61ba3",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-ELIM-OWNED-3",
+  "variance_source": "declared causal elimination (run_midgame_capability_probe.CAUSAL_ROWS, shared with Forge): the victim's recorded life is the state-based-action-pending instant (CR 704.3), placed openly as its starting life and reached only by the engine dealing the declared instruments' damage"
+}

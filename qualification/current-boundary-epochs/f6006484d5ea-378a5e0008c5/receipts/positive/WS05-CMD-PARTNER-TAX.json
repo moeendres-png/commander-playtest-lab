@@ -1,0 +1,43 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-PARTNER-TAX",
+  "obligation_exercised": {
+    "obligation_digest": "01cfee126ebcc41d4e413dd9611d31f3f56e2d4018a66eeb142e38bf5393cf68",
+    "requested_state_digest": "7844ce608c3dda5fa2c5cf4184bcbb0f17c1a3a7bf6833c7dd137fdf7e7c1ac5",
+    "required_events": [
+      "tax:cmd:P1-A:+4",
+      "tax:cmd:P1-B:+0"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Partner commanders track command-zone cast counts/tax independently."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "tax:cmd:P1-A:+4": {
+        "binding": "the engine determined {4} for the scripted cast of cmd:P1-A",
+        "observation": "engine terminal observation"
+      },
+      "tax:cmd:P1-B:+0": {
+        "binding": "the engine determined {1}{R} for the scripted cast of cmd:P1-B",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "bfd915887d04a6a75411713a1a08a18c1621ab9d91aa5c0f230d77e0e027e971",
+  "runner_digest": "7764861f702c902cf02d4957dd861725c6b1ba0c2eac7e2a8b398de7c1f644ea",
+  "runtime_receipt_digest": "52725463cc8ec52e47518113e02f9b7cc6c9f7dc48f03a06b4d1a4c826d04602",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-PARTNER-TAX",
+  "variance_source": null
+}

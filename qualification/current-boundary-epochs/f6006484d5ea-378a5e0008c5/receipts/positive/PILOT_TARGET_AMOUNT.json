@@ -1,0 +1,69 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_TARGET_AMOUNT",
+  "obligation_exercised": {
+    "obligation_digest": "944f467568698d876a982eb3aa93b2a248e2f87370715f5dcb11e9902c1420d0",
+    "requested_state_digest": "90b5374a56a04c19780401c33aa6db95c1db62d2687709018e4796c2d59ddc4d",
+    "required_events": [
+      "target_amount_frame:P1",
+      "amount_assignment:2+2"
+    ],
+    "terminal_checks": [
+      "every engine-accepted amount assignment is at least 1",
+      "the engine-accepted amount assignments total exactly 4"
+    ],
+    "terminal_postconditions": [
+      "Assignment totals exactly 4 and each selected damage target receives at least 1."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "every engine-accepted amount assignment is at least 1": true,
+      "the engine-accepted amount assignments total exactly 4": true
+    },
+    "token_evidence": {
+      "amount_assignment:2+2": {
+        "assignments": [
+          {
+            "amount": 2,
+            "target": "P2"
+          },
+          {
+            "amount": 2,
+            "target": "obj:pilot-p3-target"
+          }
+        ],
+        "decision_frames": [
+          1,
+          2
+        ],
+        "decision_ids": [
+          "3008f6b0c1ffd183de0c2dacbf87fc77b77e1641bc0259e30d0ed570a2d4403e",
+          "6fa5842aeab4ca2c08bfc43eddc14e98b5b5fe2dcb118ccdaa774f6e4e959ee8"
+        ],
+        "engine_amount_remaining": 4,
+        "total": 4
+      },
+      "target_amount_frame:P1": {
+        "decision_frames": [
+          1,
+          2
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "8f8400fa024dbe3c3479cb9edad5c64c49816b4cb99deaa8e4f8d581c847c32c",
+  "runner_digest": "7764861f702c902cf02d4957dd861725c6b1ba0c2eac7e2a8b398de7c1f644ea",
+  "runtime_receipt_digest": "35dd27f11207c235ef7253abbf5d42b8a3b25ef058a19497d8cc73564de49371",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_TARGET_AMOUNT",
+  "variance_source": null
+}
