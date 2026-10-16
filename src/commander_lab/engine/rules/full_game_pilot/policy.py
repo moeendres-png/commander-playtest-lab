@@ -56,6 +56,16 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
         if decision_class not in {"mana_payment", "choose_object"}:
             self._special_mana_pending.pop(seat, None)
+        # #802 review P1: a decision of any other class for this seat ends the
+        # current block-declaration round. After a declaration the engine
+        # accepts, the seat's next decision is a priority window in the
+        # declare-blockers step, so an extra combat phase later in the same
+        # turn (Aggravated Assault, Moraug, Aurelia) must start the ladder
+        # over instead of counting as engine rejections. A rejected
+        # declaration is re-asked with no other decision in between, so
+        # genuine re-asks still reach the ladder in ``_decide_blocks``.
+        if decision_class != "declare_blocker":
+            self._block_frame_asks.pop(seat, None)
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
         min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))

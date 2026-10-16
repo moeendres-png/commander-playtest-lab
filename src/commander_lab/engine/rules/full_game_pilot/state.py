@@ -44,7 +44,8 @@ class _PolicyState:
     # #802: distinct block declarations one engine frame (this blocker, these
     # attackers) is answered with before the pilot fails closed. See
     # ``_decide_blocks``: 1 = declare what pays, 2 = declare every block the
-    # frame offers, 3 = declare nothing.
+    # frame offers, 3 = declare nothing. An accepted declaration ends the
+    # round (see ``_block_frame_asks``), so the ladder restarts per combat.
     _BLOCK_DECLARATION_ASK_LIMIT = 3
 
     # Most distinct priority windows remembered per seat per step for the
@@ -152,7 +153,12 @@ class _PolicyState:
         # each block frame (blocker -> offered attackers) within that turn. The
         # engine re-asks the whole declaration when its own check rejects the
         # configuration, so the count is what lets the pilot answer with a
-        # different legal declaration instead of repeating a rejected one.
+        # different legal declaration instead of repeating a rejected one. The
+        # bridge exposes no per-combat id (step and turn repeat across extra
+        # combat phases), so the entry is cleared by the seat's next decision
+        # of any other class -- the priority window that follows an ACCEPTED
+        # declaration -- and by every new turn, or extra combats would read as
+        # rejections (review P1).
         self._block_frame_asks: dict[int, tuple[object, dict[tuple[str, ...], int]]] = {}
 
     def _turn_action_cap(self, option: dict[str, Any]) -> int:
