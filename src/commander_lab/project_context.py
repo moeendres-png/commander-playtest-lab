@@ -223,7 +223,7 @@ def _validate_playstyle(payload: dict[str, Any]) -> str:
     }
     if not required_non_bans.issubset({str(value) for value in explicitly_not}):
         raise ProjectContextError("playstyle preference lost a required evidence/usage boundary")
-    return preference_type
+    return str(preference_type)
 
 
 def _validate_decision_registry(registry: dict[str, Any], active: tuple[str, ...]) -> None:
