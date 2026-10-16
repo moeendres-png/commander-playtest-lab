@@ -83,9 +83,9 @@ CANONICAL_PROVIDER = executor_mod.CANONICAL_PROVIDER
 # id opencode/deepseek-v4.1-flash-free) is the default ACTIVE executor and
 # the fresh-context read-only reviewer for MATERIAL implementation workstreams. The
 # logical `deepseek` profile admits exactly its OpenCode Zen runtime id (see
-# .foundry/executor-profiles.json); Step 5 Preview left the catalog and the Go ids are
-# retired. The only second ACTIVE profile is `deepseek-th` (Token Harbor, the same model,
-# Owner instruction 2026-10-16): each run pins exactly one profile, never both. A runtime/quota/auth/catalog failure after
+# .foundry/executor-profiles.json); Step 5 Preview left the catalog, the Go ids
+# are retired, and the Token Harbor profile `deepseek-th` was retired 2026-10-16
+# by Owner instruction. A runtime/quota/auth/catalog failure after
 # selection is fail-closed and never re-resolves to another executor family.
 DEEPSEEK_PROFILE = "deepseek"
 # Single generic profile->canonical-runtime table, loaded from the validated
@@ -105,8 +105,7 @@ ADMITTED_DEEPSEEK_MODELS = EXECUTOR_REGISTRY.profiles[DEEPSEEK_PROFILE].admitted
 # Only ACTIVE profiles' runtime ids are reachable; the root opencode.json
 # whitelist must match exactly this set, so a SUSPENDED model is not even
 # selectable by a plain `opencode` invocation.
-# The opencode (Zen) provider whitelist covers its own ids only; the Token Harbor
-# id is declared under the separate `tokenharbor` provider and validated there.
+# The opencode (Zen) provider whitelist covers its own ids only.
 ADMITTED_RUNTIME_MODELS = tuple(
     model
     for model in EXECUTOR_REGISTRY.active_runtime_ids
@@ -119,11 +118,7 @@ AUTHORIZED_NATIVE_VARIANT = {
     ].native_variant
     for model in ADMITTED_RUNTIME_MODELS
 }
-TOKENHARBOR_PROVIDER = executor_mod.TOKENHARBOR_PROVIDER
-TOKENHARBOR_PROFILE = "deepseek-th"
-CANONICAL_ENABLED_PROVIDERS = [CANONICAL_PROVIDER, TOKENHARBOR_PROVIDER]
-TOKENHARBOR_KEY_REF = "{env:TOKENHARBOR_API_KEY}"
-TOKENHARBOR_BASE_URL = "https://tokenharbor.ai/v1"
+CANONICAL_ENABLED_PROVIDERS = [CANONICAL_PROVIDER]
 ALLOWED_EFFORTS = ("high", "xhigh")
 BELOW_HIGH = ("medium", "low", "minimal", "none", "off")
 OPENCODE_BIN_ENV = "FOUNDRY_OPENCODE_BIN"
@@ -618,22 +613,6 @@ def build_content_bundle(
     providers = config.get("enabled_providers", [])
     if providers != CANONICAL_ENABLED_PROVIDERS:
         raise ValueError(f"canonical provider drift: {providers!r}")
-    # Token Harbor: the key may only ever be the env reference, never a literal;
-    # the endpoint is the one documented host; no variant/effort is declared
-    # because the provider exposes no effort control (nothing to fake).
-    th_name = PROFILE_MODELS[TOKENHARBOR_PROFILE].split("/", 1)[1]
-    try:
-        th_cfg = config["provider"][TOKENHARBOR_PROVIDER]
-        th_options = th_cfg["options"]
-        th_models = th_cfg["models"]
-    except KeyError as exc:
-        raise ValueError(f"canonical tokenharbor provider entry missing: {exc}") from exc
-    if th_options.get("apiKey") != TOKENHARBOR_KEY_REF:
-        raise ValueError("tokenharbor apiKey must be exactly the env reference (no literal key)")
-    if th_options.get("baseURL") != TOKENHARBOR_BASE_URL:
-        raise ValueError(f"tokenharbor baseURL drift: {th_options.get('baseURL')!r}")
-    if list(th_models) != [th_name] or "variants" in th_models[th_name]:
-        raise ValueError(f"tokenharbor models drift: {sorted(th_models)!r}")
     # NOTE: provider.models is keyed by SHORT model name (verified against the
     # resolved config); the provider/model pair lives in top-level "model".
     # The whitelist admits exactly the ACTIVE runtime identities: the Zen
@@ -706,26 +685,19 @@ def build_content_bundle(
     short = selected_model.split("/", 1)[1]
     bundle["model"] = selected_model
     bundle["small_model"] = selected_model
-    if execution["provider"] == TOKENHARBOR_PROVIDER:
-        # Exactly the Token Harbor provider; no reasoning effort or variant is
-        # injected because the provider documents no control to pin.
-        bundle["enabled_providers"] = [TOKENHARBOR_PROVIDER]
-        bundle["provider"] = {TOKENHARBOR_PROVIDER: json.loads(json.dumps(th_cfg))}
-        pinned_variant = None
-    else:
-        bundle["enabled_providers"] = [CANONICAL_PROVIDER]
-        bundle["provider"] = {
-            CANONICAL_PROVIDER: {
-                "whitelist": [short],
-                "models": {
-                    short: {
-                        "options": {"reasoningEffort": native},
-                        "variants": {native: {}},
-                    }
-                },
-            }
+    bundle["enabled_providers"] = [CANONICAL_PROVIDER]
+    bundle["provider"] = {
+        CANONICAL_PROVIDER: {
+            "whitelist": [short],
+            "models": {
+                short: {
+                    "options": {"reasoningEffort": native},
+                    "variants": {native: {}},
+                }
+            },
         }
-        pinned_variant = native
+    }
+    pinned_variant = native
     # Inline run config wins over the canonical Markdown snapshot and pins every
     # reachable agent to the selected executor at exactly its authorized native
     # level, so no agent can silently run at another level or executor.

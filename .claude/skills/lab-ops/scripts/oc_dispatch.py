@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Dispatch and watch `/oc` and `/assure` work without hand-written walls of text.
 
-    oc_dispatch.py post --issue N --lane oc|oc-th|assure --task FILE [--branch B] [--dry-run]
+    oc_dispatch.py post --issue N --lane oc|assure --task FILE [--branch B] [--dry-run]
     oc_dispatch.py watch RUN | --issue N [--interval 60] [--timeout 7200]
     oc_dispatch.py rescue RUN [--out DIR]
 
@@ -84,8 +84,9 @@ def trailer_lines(trailer: str, url: str | None) -> str | None:
     return CO_AUTHOR if url is None else f"{CO_AUTHOR}\nClaude-Session: {url}"
 
 
-# Write lanes: `/oc` (Zen, default) and `/oc-th` (Token Harbor; free route may be logged).
-OC_LANES = ("oc", "oc-th")
+# Write lanes: `/oc` (Zen, default). The `/oc-th` (Token Harbor) lane was
+# retired 2026-10-16 by Owner instruction.
+OC_LANES = ("oc",)
 
 
 def footer(lane: str, trailer: str | None = CO_AUTHOR) -> str:
@@ -106,11 +107,6 @@ def footer(lane: str, trailer: str | None = CO_AUTHOR) -> str:
         rules.append(
             "Read-only: change no code, create no branch, commit or push. Post your findings as "
             "one comment on this issue."
-        )
-    if lane == "oc-th":
-        rules.append(
-            "**Data.** This lane runs on Token Harbor's free route, which may be logged and "
-            "used for improvement: work only with public repository content."
         )
     rules.append(
         "**Evidence.** `UNKNOWN != PASS`, `NOT_RUN != PASS`, and a green check is not "
@@ -282,13 +278,7 @@ def cmd_watch(a: argparse.Namespace) -> None:
     lane_jobs = [
         j for j in jobs if not (j.get("status") == "completed" and j.get("conclusion") == "skipped")
     ]
-    lane = (
-        "assure"
-        if any("assure" in j["name"] for j in lane_jobs)
-        else "oc-th"
-        if any(j["name"].endswith("opencode-th") for j in lane_jobs)
-        else "oc"
-    )
+    lane = "assure" if any("assure" in j["name"] for j in lane_jobs) else "oc"
     job_state = next((j.get("conclusion") or j.get("status") for j in lane_jobs), "no job")
 
     report, link, branch, pr_number = "", run["html_url"], None, None
@@ -369,9 +359,9 @@ def main() -> None:
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
     sub = parser.add_subparsers(dest="command", required=True)
-    post = sub.add_parser("post", help="create a /oc, /oc-th or /assure dispatch comment")
+    post = sub.add_parser("post", help="create a /oc or /assure dispatch comment")
     post.add_argument("--issue", type=int, required=True)
-    post.add_argument("--lane", choices=["oc", "oc-th", "assure"], required=True)
+    post.add_argument("--lane", choices=["oc", "assure"], required=True)
     post.add_argument("--task", type=Path, required=True, help="task skeleton to fill in")
     post.add_argument("--branch", help="branch to work on (oc) or audit (assure)")
     post.add_argument("--repo", default=DEFAULT_REPO)

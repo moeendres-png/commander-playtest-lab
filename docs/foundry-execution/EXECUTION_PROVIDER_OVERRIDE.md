@@ -54,20 +54,8 @@ profile or provider override is rejected.
 Historical receipts that name earlier executors remain valid provenance of their own runs. They do
 not authorize future routing changes, are not migration targets, and must not by themselves trigger
 a new governance/routing issue. Adding or replacing the active allowlist requires a new direct
-user instruction.
-
-## Token Harbor profile (`/oc-th`, second active)
-
-An explicit `--execution-profile deepseek-th` pins `tokenharbor/deepseek-v4.1-flash:free` (the
-same model served by Token Harbor's free route; key only via `{env:TOKENHARBOR_API_KEY}`); the
-paid base id is never called. The provider exposes no
-reasoning-effort control, so the run uses the provider default and no variant is injected.
-The profile is never a fallback for `deepseek` and vice versa. The free route may be logged and
-used for improvement: no Owner data, credentials or private collection data in such a run.
-
-```text
-python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile deepseek-th
-```
+user instruction. The Token Harbor profile (`/oc-th`, `deepseek-th`) was retired 2026-10-16 by
+Owner instruction (balance exhausted, no top-up).
 
 ## Effort resolution
 

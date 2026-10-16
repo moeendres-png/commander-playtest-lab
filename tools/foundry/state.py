@@ -46,8 +46,8 @@ MATERIALITY_VALUES = ("MATERIAL", "NON_MATERIAL")
 REVIEW_VERDICTS = ("PASS", "FAIL", "PARTIAL", "UNKNOWN", "BLOCKED", "STALE")
 REVIEW_ALIAS_CLASSES = ("CANONICAL", "LEGACY_ALIAS")
 REVIEW_EXECUTOR_PROFILES = ("deepseek",)
-# Implementation executors: the Zen default and the Token Harbor lane (2026-10-16).
-IMPLEMENTATION_EXECUTOR_PROFILES = ("deepseek", "deepseek-th")
+# Implementation executors: the Zen default (the Token Harbor lane was retired 2026-10-16).
+IMPLEMENTATION_EXECUTOR_PROFILES = ("deepseek",)
 
 REQUIRED_V1 = [
     "schema_version",

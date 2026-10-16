@@ -275,14 +275,3 @@ def test_watch_names_a_quota_blocked_run(monkeypatch, capsys):
     assert lines[0] == "run 42 oc failure"
     assert lines[1].startswith("BLOCKED_SERVICE OpenCode Go usage limit reached")
     assert "limitName=monthly" in lines[1]
-
-
-def test_oc_th_lane_posts_its_own_prefix_and_warns_about_logging(capsys, tmp_path):
-    task = tmp_path / "t.md"
-    task.write_text("/oc-th fix the thing\n", encoding="utf-8")
-    oc_dispatch.cmd_post(post_args(task, lane="oc-th", branch="x/y"))
-    out = capsys.readouterr().out
-    assert "/oc-th fix the thing" in out and "/oc-th /oc-th" not in out
-    assert "may be logged" in out and "Open a PR against `main`" in out
-    # The default lane does not swallow an /oc-th prefix as its own.
-    assert oc_dispatch.build_comment("oc", "/oc-th x", None).startswith("/oc /oc-th x")
