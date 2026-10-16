@@ -300,7 +300,18 @@ def test_attacker_choice_is_independent_of_process_local_option_ids() -> None:
         ),
         (
             "declare_blocker",
-            [_option("block", "declare_blocker", "Isamaru blocks attacker", attacker_id="a")],
+            [
+                # The engine emits both ids on every declare_blocker option
+                # (XmageFullGamePlayer.selectBlockers); the frame key the
+                # #802 ladder counts needs them.
+                _option(
+                    "block",
+                    "declare_blocker",
+                    "Isamaru blocks attacker",
+                    blocker_id="b",
+                    attacker_id="a",
+                )
+            ],
             0,
             1,
             {},

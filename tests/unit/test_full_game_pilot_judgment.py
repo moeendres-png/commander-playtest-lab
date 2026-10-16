@@ -12,11 +12,14 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
+
 from commander_lab.agents import GenericCommanderPilot
 from commander_lab.agents.card_knowledge import card_facts, card_roles
 from commander_lab.engine.rules.full_game import (
     ExternalPilotDecisionPolicy,
     FullGamePilotBinding,
+    FullGameProtocolError,
     _RuntimePilot,
 )
 from commander_lab.models import CardRole, PilotConfig, PilotStrength
@@ -411,6 +414,10 @@ def test_lone_blocker_does_not_block_a_menace_attacker() -> None:
 
 def test_a_block_the_engine_keeps_rejecting_is_dropped() -> None:
     # The engine asks again when the declared block was illegal as a whole.
+    # The pilot answers a re-ask with a different legal declaration (the frame
+    # offers one blocker, so the first two asks are that block), takes the
+    # empty declaration as its last legal answer, and fails closed after that
+    # instead of repeating an answer the engine already rejected.
     policy = _policy()
     state = _state(
         actor_board=[_card("dragon", "Dragon Token", 6, 6)],
@@ -422,9 +429,130 @@ def test_a_block_the_engine_keeps_rejecting_is_dropped() -> None:
                 "declare_blocker", [_block_option("dragon", "orc")], state, minimum=0, offset=n
             )
         )["selected_option_ids"]
-        for n in range(1, 5)
+        for n in range(1, 4)
     ]
-    assert picks == [["block-dragon"], ["block-dragon"], [], []]
+    assert picks == [["block-dragon"], ["block-dragon"], []]
+    with pytest.raises(FullGameProtocolError) as rejected:
+        policy.decide(
+            _request(
+                "declare_blocker", [_block_option("dragon", "orc")], state, minimum=0, offset=9
+            )
+        )
+    # The public label is the audited code, not a generic ENGINE_FAILURE.
+    assert rejected.value.code == "BLOCK_DECLARATION_REJECTED"
+    assert rejected.value.public_message.startswith(
+        "engine rejected every block declaration: BLOCK_DECLARATION_REJECTED"
+    )
+    assert "diagnostics sha256:" in rejected.value.public_message
+
+
+def test_engine_reask_declares_every_offered_block() -> None:
+    """#802: an engine re-ask must not repeat the declaration it just rejected.
+
+    A 6P coverage pod (seed 2: omnath, ramos, selvala, titania, veyran, zegana)
+    ended in ``ENGINE_FAILURE`` because the pilot answered XMage's block
+    declaration for seat titania with the same empty declaration every time the
+    engine asked again. The engine re-asks the whole declaration whenever its
+    own check rejects the configuration (here: a creature forced by Nacatl
+    Hunt-Pride's "blocks this turn if able" was left unblocked), and it only
+    leaves that retry loop for a computer-controlled player, so the game ran to
+    the 50 000-decision cap. Six blockers, one attacker each: the pilot's
+    judgment blocks only the deathtouch token, the second ask declares the
+    block every frame offers, so the engine's own check can pass.
+    """
+    policy = _policy()
+    state = _state(
+        actor_board=[
+            _card("token", "Shapeshifter Token", 1, 1, abilities=["deathtouch"]),
+            *[_card(f"chump-{index}", "Environmental Scientist", 2, 2) for index in range(1, 6)],
+        ],
+        opponent_board=[_card("attacker", "Kindercatch", 6, 6)],
+    )
+    blocker_ids = ("token", "chump-1", "chump-2", "chump-3", "chump-4", "chump-5")
+    frames = [_block_option(blocker_id, "attacker") for blocker_id in blocker_ids]
+    rounds = [
+        [
+            policy.decide(_request("declare_blocker", [frame], state, minimum=0, offset=n))[
+                "selected_option_ids"
+            ]
+            for frame in frames
+        ]
+        for n in range(1, 4)
+    ]
+    # Judgment, then every offered block, then the empty declaration.
+    assert [sum(len(picked) for picked in answered) for answered in rounds] == [1, 6, 0]
+    assert rounds[0][0] == ["block-token"]  # the deathtouch token trades up
+    assert rounds[1] == [[f"block-{blocker_id}"] for blocker_id in blocker_ids]
+    assert rounds[2] == [[] for _ in frames]
+    # A frame the engine still rejects has no legal declaration left.
+    with pytest.raises(FullGameProtocolError) as rejected:
+        policy.decide(_request("declare_blocker", [frames[0]], state, minimum=0, offset=5))
+    assert rejected.value.code == "BLOCK_DECLARATION_REJECTED"
+    assert rejected.value.public_message.startswith(
+        "engine rejected every block declaration: BLOCK_DECLARATION_REJECTED"
+    )
+
+
+@pytest.mark.parametrize("combats", [2, 4])
+def test_extra_combat_phases_keep_the_block_judgment(combats: int) -> None:
+    """#802 review P1: an accepted declaration must not seed the re-ask ladder.
+
+    One 2/2 blocker against a 6/6 attacker: judgment declares no block (the
+    bear would die for nothing). Extra combat phases in one turn (Aggravated
+    Assault, Moraug, Aurelia) are separate *accepted* declarations, not
+    rejections, so every combat's frame is a first ask and must get the same
+    judgment. After an accepted declaration the seat gets a priority window in
+    the declare-blockers step; that decision of another class ends the
+    declaration round. Before the fix the counter survived it, so the second
+    combat read as a re-ask and declared the block the judgment had rejected,
+    the third as the last legal answer, and the fourth failed closed.
+    """
+    policy = _policy()
+    state = _state(
+        actor_board=[_card("bear", "Grizzly Bears", 2, 2)],
+        opponent_board=[_card("brute", "Kindercatch", 6, 6)],
+    )
+    frame = [_block_option("bear", "brute")]
+    picks: list[list[str]] = []
+    for combat in range(1, combats + 1):
+        picks.append(
+            policy.decide(
+                _request("declare_blocker", frame, state, minimum=0, offset=2 * combat - 1)
+            )["selected_option_ids"]
+        )
+        # The seat's next decision after an accepted declaration: priority in
+        # the declare-blockers step. Then the next combat begins.
+        policy.decide(_request("priority", [_PASS], state, offset=2 * combat))
+    assert picks == [[] for _ in range(combats)]
+
+
+def test_block_option_without_engine_ids_fails_closed() -> None:
+    """#802 review P3: a frame the pilot cannot attribute must fail closed.
+
+    The frame key is the engine's own blocker/attacker pair. An option missing
+    either id cannot be attributed to any engine frame; keying it to an opaque
+    "None>None" would merge unrelated engine asks (and silently hide a bridge
+    that stopped emitting the ids), so it fails closed instead.
+    """
+    policy = _policy()
+    state = _state(
+        actor_board=[_card("dragon", "Dragon Token", 6, 6)],
+        opponent_board=[_card("orc", "Merciless Executioner", 3, 1)],
+    )
+    for metadata in (
+        {},
+        {"blocker_id": "dragon"},
+        {"attacker_id": "orc"},
+        {"blocker_id": "   ", "attacker_id": "orc"},
+    ):
+        option = {
+            "option_id": "block-x",
+            "label": "Dragon Token blocks Merciless Executioner",
+            "option_type": "declare_blocker",
+            "metadata": metadata,
+        }
+        with pytest.raises(FullGameProtocolError):
+            policy.decide(_request("declare_blocker", [option], state, minimum=0, offset=1))
 
 
 def test_attacks_focus_the_weakest_opponent_that_is_still_in_the_game() -> None:
