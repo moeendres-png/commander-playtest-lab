@@ -277,8 +277,8 @@ def test_opencode_config_schema_conformance() -> None:
     assert config["model"] == "opencode/deepseek-v4.1-flash-free"
     assert config["small_model"] == "opencode/deepseek-v4.1-flash-free"
     assert config["share"] == "disabled"
-    # Zen plus the Token Harbor lane (Owner instruction 2026-10-16); nothing else.
-    assert config["enabled_providers"] == ["opencode", "tokenharbor"]
+    # Only the Zen provider (Owner instruction 2026-10-16); nothing else.
+    assert config["enabled_providers"] == ["opencode"]
     provider = config["provider"]["opencode"]
     registry = executor_mod.load_registry()
     # No silent fallback: only the Zen DeepSeek V4.1 Flash id under `opencode`. Step 5
@@ -323,12 +323,10 @@ def test_only_authorized_executors_present_in_canonical_config() -> None:
     assert set(provider["models"]) == {model.split("/", 1)[1] for model in admitted}
     assert set(registry.runtime_identity) == {
         "opencode/deepseek-v4.1-flash-free",
-        "tokenharbor/deepseek-v4.1-flash:free",
     }
     profiles_for_aliases = {spec.logical_profile for spec in registry.runtime_identity.values()}
-    assert profiles_for_aliases == {"deepseek", "deepseek-th"}
-    th = config["provider"]["tokenharbor"]
-    assert set(th["models"]) == {"deepseek-v4.1-flash:free"}
+    assert profiles_for_aliases == {"deepseek"}
+    assert "tokenharbor" not in config["provider"]
 
 
 def _agent_frontmatter(name: str) -> dict:
@@ -524,7 +522,7 @@ def test_reviewer_bash_default_deny() -> None:
 
 def test_provider_lock_and_sharing() -> None:
     config = json.loads((REPO_ROOT / "opencode.json").read_text(encoding="utf-8"))
-    assert config["enabled_providers"] == ["opencode", "tokenharbor"]
+    assert config["enabled_providers"] == ["opencode"]
     assert config["share"] == "disabled"
     assert config["default_agent"] == "foundry-implementer"
 

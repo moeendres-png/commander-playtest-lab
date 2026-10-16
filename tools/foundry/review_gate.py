@@ -132,9 +132,8 @@ def validate_review_record(
     # single-executor same-model review approved by the Owner 2026-10-10) a DeepSeek
     # implementation may be reviewed by DeepSeek; its independence then rests on the
     # fresh context and the read-only /ro-review lane, which stay mandatory.
-    # `deepseek-th` (Token Harbor) is the SAME model served by another provider, so
-    # it adds provider independence but no model independence: only an ACTIVE
-    # profile of a different model_family makes self-review refusable.
+    # Only an ACTIVE profile of a different model_family makes self-review
+    # refusable.
     reviewer_family = reg.profiles["deepseek"].model_family
     cross_model_available = any(
         reg.profiles[name].model_family != reviewer_family for name in reg.active_profiles

@@ -16,7 +16,7 @@
   "profiles": [
     {
       "deck_id": "opponent/morcant-elves",
-      "name": "Alen's Morcant Elves",
+      "name": "Morcant Elves",
       "commander": "High Perfect Morcant",
       "commander_cost": 4.0,
       "commander_power": 4.0,

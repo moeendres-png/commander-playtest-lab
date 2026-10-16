@@ -140,6 +140,19 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private boolean targetChoiceRequested;
 
     /**
+     * #815: set when the engine handed the pilot a mode decision during the
+     * current priority action. Cleared with the other per-action evidence.
+     */
+    private boolean modeChoiceRequested;
+
+    /**
+     * #815: the ability the engine passed to a yes/no prompt the pilot
+     * answered Yes during the current priority action (an optional cost such
+     * as Entwine). Cleared with the other per-action evidence.
+     */
+    private Ability acceptedOptionalCostSource;
+
+    /**
      * #749: the ability instance the ENGINE passed to this player's target
      * callbacks during the current priority action, and the exact
      * {@code Target} objects it asked about (identity, not equality). Both are
@@ -617,6 +630,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
         paidSpellAbility = null;
         lifeAfterSpellManaPayment = null;
         targetChoiceRequested = false;
+        modeChoiceRequested = false;
+        acceptedOptionalCostSource = null;
         targetCallbackSource = null;
         offeredTargetObjects.clear();
         emptyNonTargetChoice = false;
@@ -698,6 +713,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || reversedUnpayableLifeCost(ability, game)
                         || reversedBeforeAnyChoice(ability, game, castOrigin, stackBefore, decisionsBefore)
                         || reversedOverAnnouncedX(ability, game, castOrigin, stackBefore)
+                        || reversedUnsatisfiableModeCount(ability, game, castOrigin, stackBefore)
                         || reversedDependentRequiredTarget(ability, game)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
@@ -751,6 +767,10 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // because the announced X exceeds what the pilot can pay.
                     // The engine reversed via its bookmark; priority returns
                     // instead of aborting.
+                    // #815's reversedUnsatisfiableModeCount: an Entwine "Yes"
+                    // forces every mode, one of which has no legal target, so
+                    // the engine cannot select the required number of modes
+                    // (CR 700.2b) and reverses the cast.
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -1309,6 +1329,39 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * and the pilot's retry guard prevents an endless re-announcement loop.
      */
     boolean reversedOverAnnouncedX(
+     * #815: true only when the engine reversed {@code casting} because it could
+     * not select the number of modes the spell requires, without the pilot
+     * having been asked to pick a mode.
+     *
+     * <p>Blinding Beam ("Choose one -- Tap two target creatures; creatures
+     * don't untap during target player's next untap step. Entwine {1}"):
+     * answering Yes to the Entwine prompt makes {@code EntwineAbility.changeModes}
+     * require every mode, and {@code Modes.choose} adds the modes automatically
+     * (no mode decision) but only those whose targets can be chosen. With
+     * fewer than two creatures "tap two target creatures" cannot be chosen, so
+     * fewer modes are selected than required, {@code Modes.isSelectedValid} is
+     * false, {@code AbilityImpl.activate} returns false and
+     * {@code PlayerImpl.cast} restores its bookmark (CR 700.2b, CR 601.2e). The
+     * bookmark restore also resets the Modes minimum, so the reversal is
+     * identified by what the bridge saw instead.
+     *
+     * <p>Facts, read after the attempt:
+     * <ol>
+     *   <li>the pilot answered Yes to a prompt of this very card, and the card
+     *       carries an engine {@code OptionalAdditionalModeSourceCosts}
+     *       ability (Entwine), the engine's own mechanism that forces every
+     *       mode;</li>
+     *   <li>the card is modal and one of its modes has a required target the
+     *       engine itself reports as not choosable
+     *       ({@code Target.canChoose}, as {@link #modeTargetsAvailable});</li>
+     *   <li>the pilot was never asked for a mode, a target, mana or X and no
+     *       cancellation or empty choice was recorded; and</li>
+     *   <li>the card is back in the zone the cast started from and the stack
+     *       holds what it held before.</li>
+     * </ol>
+     * Anything else still fails closed with XMAGE_ACTION_EXECUTION_FAILED.
+     */
+    boolean reversedUnsatisfiableModeCount(
             Ability casting,
             Game game,
             Zone origin,
@@ -1339,8 +1392,62 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // The rewind itself: card back in origin zone, stack unchanged.
         Card card = game.getCard(casting.getSourceId());
         return card != null
+        if (modeChoiceRequested
+                || targetChoiceRequested
+                || paidSpellAbility != null
+                || xAnnouncedAbility != null
+                || emptyNonTargetChoice
+                || noViableMode
+                || paymentCancelled) {
+            return false;
+        }
+        Ability accepted = acceptedOptionalCostSource;
+        if (accepted == null || accepted.getSourceId() == null
+                || !accepted.getSourceId().equals(casting.getSourceId())) {
+            return false;
+        }
+        Card card = game.getCard(casting.getSourceId());
+        Modes modes = casting.getModes();
+        if (card == null || modes == null || modes.size() < 2) {
+            return false;
+        }
+        boolean forcesModes = false;
+        for (Ability ability : card.getAbilities(game)) {
+            if (ability instanceof mage.abilities.costs.OptionalAdditionalModeSourceCosts) {
+                forcesModes = true;
+                break;
+            }
+        }
+        if (!forcesModes) {
+            return false;
+        }
+        boolean unchoosableMode = false;
+        try {
+            for (Mode mode : modes.values()) {
+                if (!modeTargetsChoosable(mode.getTargets(), casting, game)) {
+                    unchoosableMode = true;
+                    break;
+                }
+            }
+            if (!unchoosableMode) {
+                unchoosableMode = !modeTargetsChoosable(casting.getTargets(), casting, game);
+            }
+        } catch (RuntimeException ignored) {
+            return false;
+        }
+        return unchoosableMode
                 && origin == game.getState().getZone(card.getMainCard().getId())
                 && game.getStack().size() == stackBefore;
+    }
+
+    /** #815 boundary tests only: mirrors what {@link #chooseBoolean} records on Yes. */
+    void recordAcceptedOptionalCostForBoundaryTest(Ability source) {
+        acceptedOptionalCostSource = source;
+    }
+
+    /** #815 boundary tests only: mirrors the flag {@link #chooseMode} sets. */
+    void recordModeChoiceRequestedForBoundaryTest(boolean requested) {
+        modeChoiceRequested = requested;
     }
 
     /**
@@ -2210,6 +2317,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             ));
             byId.put(optionId, mode);
         }
+        modeChoiceRequested = true;
         XmageFullGameDecisionController.DecisionResponse response;
         try {
             response = request(
@@ -3102,6 +3210,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         // #689: the boolean handed to XMage is the selected option's value.
         recordNativeReturn(answeredDecisionOffset(), yes.equals(selected));
+        if (yes.equals(selected) && "choose_use".equals(decisionClass)) {
+            acceptedOptionalCostSource = source;
+        }
         return yes.equals(selected);
     }
 

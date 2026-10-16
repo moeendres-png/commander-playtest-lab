@@ -181,6 +181,43 @@ class XmageFullGameEngineReversalTest {
                 "the engine reached the mana step, so it did not stop before any choice");
     }
 
+    /**
+     * #815: Blinding Beam with Entwine paid. {@code EntwineAbility.changeModes}
+     * forces every mode; with no creature to tap the engine cannot select them
+     * and reverses the cast without a mode decision (the bridge only saw the
+     * Yes answer, which the test records the way chooseBoolean does).
+     */
+    @Test
+    void anEntwinedCastWithAnUnchoosableModeIsReversedOnlyWithAllItsFacts() {
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("issue815-entwine-modes", 2, "P1",
+                List.of(XmageMultiplayerScenario.obj("P1", "Blinding Beam", 0, Zone.HAND),
+                        XmageMultiplayerScenario.obj("P1", "Resculpt", 1, Zone.HAND)));
+        Game game = s.session.restorationGame();
+        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
+        SpellAbility beam = spellInHand(s, game, "Blinding Beam");
+        int stack = game.getStack().size();
+
+        assertFalse(player.reversedUnsatisfiableModeCount(beam, game, Zone.HAND, stack),
+                "the pilot accepted no optional cost");
+        player.recordAcceptedOptionalCostForBoundaryTest(beam);
+        assertTrue(player.reversedUnsatisfiableModeCount(beam, game, Zone.HAND, stack),
+                "Entwine accepted, a mode without a choosable target, nothing else asked, card and stack as before");
+        assertFalse(player.reversedUnsatisfiableModeCount(beam, game, Zone.GRAVEYARD, stack),
+                "the card is not back where the cast started");
+        assertFalse(player.reversedUnsatisfiableModeCount(beam, game, Zone.HAND, stack + 1),
+                "the stack is not what it was");
+        assertFalse(player.reversedUnsatisfiableModeCount(
+                        spellInHand(s, game, "Resculpt"), game, Zone.HAND, stack),
+                "another card than the one whose prompt was accepted");
+        player.recordModeChoiceRequestedForBoundaryTest(true);
+        assertFalse(player.reversedUnsatisfiableModeCount(beam, game, Zone.HAND, stack),
+                "the pilot was asked for a mode, so the failure is not the engine's own");
+        player.recordModeChoiceRequestedForBoundaryTest(false);
+        player.recordPaidSpellAbilityForBoundaryTest(beam);
+        assertFalse(player.reversedUnsatisfiableModeCount(beam, game, Zone.HAND, stack),
+                "the engine reached the mana step");
+    }
+
     private static SpellAbility spellInHand(XmageMultiplayerScenario s, Game game, String name) {
         for (Card card : s.seats.get("P1").getHand().getCards(game)) {
             if (name.equals(card.getName())) {
