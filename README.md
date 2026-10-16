@@ -14,7 +14,7 @@ governing document, the governing document wins.
 | Current engine pins | [`config/rules_engines.json`](config/rules_engines.json) — the sole machine-readable pin authority. Do not restate pins from prose |
 | Current execution authority (who runs what, at which effort) | [`docs/CURRENT_EXECUTION_AUTHORITY.md`](docs/CURRENT_EXECUTION_AUTHORITY.md) with `AGENTS.md` §6–§7 |
 | Foundry execution system | [`docs/foundry-execution/README.md`](docs/foundry-execution/README.md) — start a workstream with `.opencode/skills/workstream-bootstrap/SKILL.md` |
-| Documentation map | [`docs/README.md`](docs/README.md); code and docs onboarding map: [`docs/MODULE_MAP.md`](docs/MODULE_MAP.md) |
+| Documentation map | [`docs/README.md`](docs/README.md); code and docs onboarding map: [`docs/MODULE_MAP.md`](docs/MODULE_MAP.md); deck-variant workflow: [`docs/DECK_VARIANT_WORKFLOW.md`](docs/DECK_VARIANT_WORKFLOW.md) |
 | Live PRs, issues and branches | [`docs/REPOSITORY_TRIAGE_INDEX.md`](docs/REPOSITORY_TRIAGE_INDEX.md) |
 
 ## Project identity, licensing, and third-party software

@@ -18,6 +18,7 @@ Status legend: **active** = product path, **qual** = qualification / evidence ma
 4. `docs/CURRENT_EXECUTION_AUTHORITY.md` - current executor routing.
 5. `docs/README.md` - navigation index of `docs/`.
 6. `config/rules_engines.json` - sole machine-readable engine pins.
+7. `docs/DECK_VARIANT_WORKFLOW.md` - deck-variant workflow (filter, then real games).
 
 ## Entry points
 
