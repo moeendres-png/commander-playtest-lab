@@ -416,9 +416,10 @@ def test_agents_md_encodes_technical_autonomy() -> None:
     flat = " ".join(text.lower().split())
     assert "technical_decision_authority = autonomous_within_contract" in flat
     assert "do not stop or ask the coordinator for routine technical decisions" in flat
-    assert "deepseek max" in flat
-    assert "step 5 preview high" in flat
-    assert "no other opencode execution profile is authorized" in flat
+    # Owner instruction 2026-10-16: the Owner selects models manually; AGENTS.md
+    # carries no model allowlist, and no fallback exists between executors.
+    assert "the owner selects the tool and model for each session manually" in flat
+    assert "there is no automatic fallback between executors" in flat
     assert "autonomous tool use" in flat
     assert "authority_gate" in flat
     assert "claude_opus_coordinator_authority = delegated_by_owner" in flat
@@ -1016,13 +1017,10 @@ def test_dual_executor_current_authority_is_canonical() -> None:
     assert authority.is_file()
     flat = " ".join(authority.read_text(encoding="utf-8").lower().split())
     for required in (
-        "deepseek v4.1 flash max",
-        "opencode-go/deepseek-v4.1-flash",
-        "step 5 preview on opencode zen",
-        "native variant: `high`",
-        "opencode/step-5-preview-free",
-        "no other opencode model/profile is currently authorized",
+        "models are selected manually",
+        ".foundry/executor-profiles.json",
         "no automatic fallback",
+        "blocked_service",
         "production provider",
         "architecture freeze",
     ):
@@ -1049,7 +1047,7 @@ def test_claude_entrypoint_delegates_to_canonical_policy() -> None:
     assert "agents.md" in flat
     assert "canonical durable agent policy" in flat
     assert "not an independent policy source" in flat
-    assert "claude opus 5.5" in flat
+    assert "claude opus" in flat
     assert "when the owner delegation applies" in flat
     assert "docs/current_execution_authority.md" in flat
     assert "claude_opus_coordinator_authority = delegated_by_owner" not in flat

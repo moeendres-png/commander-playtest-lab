@@ -85,7 +85,8 @@ remaining_scope:
 - MICRO_COSTS / PILOT_TARGET_AMOUNT / PILOT_MULTI_AMOUNT lane selectors (semantic_objects
   + amount_assignment)
 - AF11 post-selection
-status: ACTIVE
+status: SUPERSEDED
+closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 authority_gates: []

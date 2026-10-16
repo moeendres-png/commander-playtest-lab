@@ -108,8 +108,8 @@ def test_claude_policy_allows_sonnet_workers_but_forbids_agent_trees_and_duplica
     """
     text = read(ROOT / "CLAUDE.md")
     flat = " ".join(text.split())
-    # Sonnet 5.5 is an authorized worker tier; it is no longer forbidden as an implementer.
-    assert "Claude Sonnet 5.5" in flat
+    # Sonnet is an authorized worker tier; it is no longer forbidden as an implementer.
+    assert "Claude Sonnet" in flat
     assert "may also be an implementation worker" in flat
     assert "Do not use `general-purpose`" not in flat
     # Flat helpers, no agent teams or recursive trees.
@@ -117,15 +117,12 @@ def test_claude_policy_allows_sonnet_workers_but_forbids_agent_trees_and_duplica
     assert "Do not create agent teams or recursive coordinator/worker trees" in flat
     # Delegation discipline: no duplicate reads of worker output.
     assert "Do not automatically re-read" in text
-    # Owner directive 2026-10-12, reconfirmed 2026-10-13: Step 5 Preview on OpenCode Zen is the
-    # only active OpenCode model, DeepSeek V4.1 Flash on OpenCode Go is SUSPENDED.
-    assert "Step 5 Preview is the only active OpenCode model" in flat
-    assert "opencode/step-5-preview-free" in flat
-    assert (
-        "DeepSeek V4.1 Flash on OpenCode Go (`opencode-go/deepseek-v4.1-flash`) is SUSPENDED"
-        in flat
-    )
-    assert "DeepSeek is the only active OpenCode model" not in flat
+    # Owner instruction 2026-10-16: models are selected manually; the always-read
+    # entrypoint carries no model allowlist and no fallback between models.
+    assert "the worker the Owner selected" in flat
+    assert "No automatic fallback between models" in flat
+    for model_id in ("opencode/step-5-preview-free", "opencode-go/deepseek-v4.1-flash"):
+        assert model_id not in flat
 
 
 def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():
