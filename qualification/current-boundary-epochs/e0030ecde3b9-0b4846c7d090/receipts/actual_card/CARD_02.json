@@ -1,0 +1,85 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_02",
+  "obligation_exercised": {
+    "obligation_digest": "1e3ff8d01c230cbcbbdf261d922cec01d34d9da67ac31db523e721abf9380bd7",
+    "requested_state_digest": "8553b0408730f93d6358706ab04cf4aa61666b32063767c9e3e37e7ee51cce56",
+    "required_events": [
+      "commander_cast",
+      "spell_resolved",
+      "creature_entered"
+    ],
+    "terminal_checks": [
+      "P1's commander cast count is 1",
+      "Rograkh, Son of Rohgahh is on P1's battlefield",
+      "no mana payment was asked"
+    ],
+    "terminal_postconditions": [
+      "Rograkh is on P1 battlefield.",
+      "commander cast count cmd:P1-A = 1.",
+      "No commander-tax increment was charged."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "7b546c7da5114373b0b9c2f018c415c1d48b30c5b2349f0268ba2eb54518734b",
+      "size": 7111364
+    },
+    "postcondition_proofs": [
+      {
+        "check": "Rograkh, Son of Rohgahh is on P1's battlefield",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Rograkh is on P1 battlefield."
+      },
+      {
+        "check": "P1's commander cast count is 1",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "commander cast count cmd:P1-A = 1."
+      },
+      {
+        "check": "no mana payment was asked",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "No commander-tax increment was charged."
+      }
+    ],
+    "terminal_facts": {
+      "P1's commander cast count is 1": true,
+      "Rograkh, Son of Rohgahh is on P1's battlefield": true,
+      "no mana payment was asked": true
+    },
+    "token_evidence": {
+      "commander_cast": {
+        "events": [
+          7
+        ]
+      },
+      "creature_entered": {
+        "events": [
+          9
+        ]
+      },
+      "spell_resolved": {
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "aca85977f2f29d533a4f84157b7d3aec5e37ef77795590b6593a59e8307d91ce",
+  "runner_digest": "2dc0d5ead18adea3e6797ec02167aae352ab458d7bad5878e9b7910d490e8dec",
+  "runtime_receipt_digest": "f6dca7d25608e94565a6516b09eccda7557b5d97db0c9bbb331128918298a6b0",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_02"
+}

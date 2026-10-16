@@ -1,0 +1,84 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_19",
+  "obligation_exercised": {
+    "obligation_digest": "2a871b4cdc852a604c125cf0a645400bbe9f142e8c5efe53d73e178ca36e7e7d",
+    "requested_state_digest": "155086cc756ac27efe79e7610e93eb786c0ce02cd4017e98b89658c6b2a90bd4",
+    "required_events": [
+      "P1_creature_dies",
+      "Butcher_trigger",
+      "opponents_choose_sacrifices",
+      "simultaneous_sacrifices"
+    ],
+    "terminal_checks": [
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P2",
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P3",
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P4"
+    ],
+    "terminal_postconditions": [
+      "P2/P3/P4 each sacrificed exactly one creature."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "7b546c7da5114373b0b9c2f018c415c1d48b30c5b2349f0268ba2eb54518734b",
+      "size": 7111364
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P3",
+          "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P4"
+        ],
+        "check": "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P2",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2/P3/P4 each sacrificed exactly one creature."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P2": true,
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P3": true,
+      "exactly 1 SACRIFICED_PERMANENT event(s) with player_player=P4": true
+    },
+    "token_evidence": {
+      "Butcher_trigger": {
+        "events": [
+          9
+        ]
+      },
+      "P1_creature_dies": {
+        "binding": "at least one ZONE_CHANGE event(s) with target_object=obj:card19-p1-other, from=BATTLEFIELD, to=GRAVEYARD",
+        "events": [
+          8
+        ]
+      },
+      "opponents_choose_sacrifices": {
+        "binding": "exactly 3 SACRIFICED_PERMANENT event(s) with source_object=obj:card_19-subject",
+        "events": [
+          10,
+          11,
+          12
+        ]
+      },
+      "simultaneous_sacrifices": {
+        "binding": "every SACRIFICED_PERMANENT event with source_object=obj:card_19-subject precedes the first ZONE_CHANGE event with source_object=obj:card_19-subject, from=BATTLEFIELD, to=GRAVEYARD",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "4d3be8c201cfc57026e8139f82eca99ac6ee209afae3975bee0134170d55ca93",
+  "runner_digest": "2dc0d5ead18adea3e6797ec02167aae352ab458d7bad5878e9b7910d490e8dec",
+  "runtime_receipt_digest": "fc41f05f967a9e68f35f974a8c0f72d536e870d9912fdfec780c5f6983b62693",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_19"
+}
