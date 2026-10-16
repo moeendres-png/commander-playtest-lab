@@ -1,0 +1,84 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_20",
+  "obligation_exercised": {
+    "obligation_digest": "151a00be1e6fd8c818c757a04c73888a4a16be5bd1f442e46f33dd8af6012c7c",
+    "requested_state_digest": "b333ef9623a718b4f70e31740379d5c7186fec8c119c49cf5d5fa4a9bccccb73",
+    "required_events": [
+      "discard:P2:1",
+      "discard:P3:1",
+      "discard:P4:1",
+      "draw:P1:3"
+    ],
+    "terminal_checks": [
+      "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, from=HAND, to=GRAVEYARD",
+      "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, player_player=P1, from=LIBRARY, to=HAND"
+    ],
+    "terminal_postconditions": [
+      "Exactly three cards were discarded this way and P1 drew exactly three cards."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "91db3fa0185bcb995b2e821435d921f7860ba4cbc56e12189c8ddf253a323612",
+      "size": 7111366
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, player_player=P1, from=LIBRARY, to=HAND"
+        ],
+        "check": "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, from=HAND, to=GRAVEYARD",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Exactly three cards were discarded this way and P1 drew exactly three cards."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, from=HAND, to=GRAVEYARD": true,
+      "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, player_player=P1, from=LIBRARY, to=HAND": true
+    },
+    "token_evidence": {
+      "discard:P2:1": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, player_player=P2, from=HAND, to=GRAVEYARD",
+        "events": [
+          9
+        ]
+      },
+      "discard:P3:1": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, player_player=P3, from=HAND, to=GRAVEYARD",
+        "events": [
+          10
+        ]
+      },
+      "discard:P4:1": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, player_player=P4, from=HAND, to=GRAVEYARD",
+        "events": [
+          11
+        ]
+      },
+      "draw:P1:3": {
+        "binding": "exactly 3 ZONE_CHANGE event(s) with source_object=obj:card_20-subject, player_player=P1, from=LIBRARY, to=HAND",
+        "events": [
+          12,
+          13,
+          14
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "c1f7c066aff5f09711e0be12af5a98137e37b2bc50cf4a611d3c27cfbec5729d",
+  "runner_digest": "63732a1133e37a611b519e7d62a4e8c1a17adb8a60f6975f3582bbe20f06e750",
+  "runtime_receipt_digest": "8380b32d9784646a5df0584caa6117ea1739b064dff53533e7b7ede664fa325e",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_20"
+}
