@@ -1,1 +1,172 @@
-IiIiVGVzdHMgZm9yICM4NTE6IExvbmRvbiBtdWxsaWdhbiBib3R0b21pbmcgZnJvbSBsYW5kLWhlYXZ5IGhhbmRzLgoKVGhlIHBpbG90IHNob3VsZCBib3R0b20gYSBsYW5kIChub3QgYSBzcGVsbCkgd2hlbiB0aGUga2VwdCBoYW5kIGlzCmxhbmQtaGVhdnksIGFuZCBhIHNwZWxsIChuZXZlciBhIGxhbmQpIHdoZW4gdGhlIGhhbmQgaXMgbWFuYS1ub3JtYWwuCiIiIgoKZnJvbSBfX2Z1dHVyZV9fIGltcG9ydCBhbm5vdGF0aW9ucwoKZnJvbSBjb21tYW5kZXJfbGFiLmFnZW50cy5saXZlX3JvdXRpbmcgaW1wb3J0IGJ1aWxkX3BpbG90CmZyb20gY29tbWFuZGVyX2xhYi5hZ2VudHMucGlsb3RzIGltcG9ydCAoCiAgICBCYXNlUGlsb3QsCiAgICBQaWxvdENvbmZpZywKICAgIFBpbG90RGVjaXNpb25Nb2RlLAopCmZyb20gY29tbWFuZGVyX2xhYi5lbmdpbmUucnVsZXMuZnVsbF9nYW1lX3BpbG90LnN0YXRlIGltcG9ydCBQaWxvdEFjdGlvblZpZXcKZnJvbSBjb21tYW5kZXJfbGFiLm1vZGVscy5waWxvdHMgaW1wb3J0IENhcmRSb2xlCgoKZGVmIF9waWxvdCgpIC0+IEJhc2VQaWxvdDoKICAgIGNvbmZpZyA9IFBpbG90Q29uZmlnKHN0cmVuZ3RoPSJhdmVyYWdlIiwgbW9kZT1QaWxvdERlY2lzaW9uTW9kZS5ERVRFUk1JTklTVElDKQogICAgcmV0dXJuIGJ1aWxkX3BpbG90KGNvbmZpZywgc3RyYXRlZ3k9ImdlbmVyaWMiKQoKCmRlZiBfbGFuZChuYW1lOiBzdHIsIGlkeDogaW50KSAtPiBQaWxvdEFjdGlvblZpZXc6CiAgICByZXR1cm4gUGlsb3RBY3Rpb25WaWV3KAogICAgICAgIGFjdGlvbl9pZD1mImxhbmQte2lkeH0iLAogICAgICAgIGFjdGlvbl9raW5kPSJjYXJkIiwKICAgICAgICBjYXJkX25hbWU9bmFtZSwKICAgICAgICBtYW5hX2Nvc3Q9MC4wLAogICAgICAgIGZsb29yX3ZhbHVlPTAuMCwKICAgICAgICBpbW1lZGlhdGVfaW1wYWN0PTAuMCwKICAgICAgICBtZXRhZGF0YT17ImlzX2xhbmQiOiBUcnVlfSwKICAgICkKCgpkZWYgX3NwZWxsKAogICAgbmFtZTogc3RyLAogICAgaWR4OiBpbnQsCiAgICAqLAogICAgbWFuYV9jb3N0OiBmbG9hdCA9IDIuMCwKICAgIHJvbGVzOiBmcm96ZW5zZXRbQ2FyZFJvbGVdID0gZnJvemVuc2V0KCksCikgLT4gUGlsb3RBY3Rpb25WaWV3OgogICAgc3RyZW5ndGhzID0ge3JvbGU6IDEuMCBmb3Igcm9sZSBpbiByb2xlc30KICAgIHJldHVybiBQaWxvdEFjdGlvblZpZXcoCiAgICAgICAgYWN0aW9uX2lkPWYic3BlbGwte2lkeH0iLAogICAgICAgIGFjdGlvbl9raW5kPSJjYXJkIiwKICAgICAgICBjYXJkX25hbWU9bmFtZSwKICAgICAgICBtYW5hX2Nvc3Q9bWFuYV9jb3N0LAogICAgICAgIHJvbGVzPXJvbGVzLAogICAgICAgIHJvbGVfc3RyZW5ndGhzPXN0cmVuZ3RocywKICAgICAgICBmbG9vcl92YWx1ZT0wLjUsCiAgICAgICAgaW1tZWRpYXRlX2ltcGFjdD0wLjMsCiAgICAgICAgbWV0YWRhdGE9eyJpc19sYW5kIjogRmFsc2V9LAogICAgKQoKCmRlZiBfYm90dG9tZWRfbmFtZXMoCiAgICBwaWxvdDogQmFzZVBpbG90LCB2aWV3czogdHVwbGVbUGlsb3RBY3Rpb25WaWV3LCAuLi5dLCBjb3VudDogaW50CikgLT4gdHVwbGVbc3RyLCAuLi5dOgogICAgYm90dG9tZWRfaWRzID0gcGlsb3QuY2hvb3NlX2JvdHRvbV9jYXJkcyh2aWV3cywgY291bnQsIGNvbW1hbmRlcl9uYW1lcz0oKSkKICAgIGJ5X2lkID0ge3YuYWN0aW9uX2lkOiB2IGZvciB2IGluIHZpZXdzfQogICAgcmV0dXJuIHR1cGxlKGJ5X2lkW2ldLmNhcmRfbmFtZSBmb3IgaSBpbiBib3R0b21lZF9pZHMpCgoKZGVmIHRlc3Rfc2l4X2xhbmRzX29uZV9zcGVsbF9ib3R0b21zX2FfbGFuZCgpIC0+IE5vbmU6CiAgICBwaWxvdCA9IF9waWxvdCgpCiAgICB2aWV3cyA9ICgqKF9sYW5kKGYiTGFuZHtpfSIsIGkpIGZvciBpIGluIHJhbmdlKDYpKSwgX3NwZWxsKCJHb29kIFNwZWxsIiwgNikpCiAgICBhc3NlcnQgX2JvdHRvbWVkX25hbWVzKHBpbG90LCB2aWV3cywgMSlbMF0uc3RhcnRzd2l0aCgiTGFuZCIpCgoKZGVmIHRlc3RfZml2ZV9sYW5kc190d29fc3BlbGxzX2JvdHRvbXNfYV9sYW5kKCkgLT4gTm9uZToKICAgIHBpbG90ID0gX3BpbG90KCkKICAgIHZpZXdzID0gKAogICAgICAgICooX2xhbmQoZiJMYW5ke2l9IiwgaSkgZm9yIGkgaW4gcmFuZ2UoNSkpLAogICAgICAgIF9zcGVsbCgiR29vZCBTcGVsbCBBIiwgNSksCiAgICAgICAgX3NwZWxsKCJHb29kIFNwZWxsIEIiLCA2KSwKICAgICkKICAgIGFzc2VydCBfYm90dG9tZWRfbmFtZXMocGlsb3QsIHZpZXdzLCAxKVswXS5zdGFydHN3aXRoKCJMYW5kIikKCgpkZWYgdGVzdF90aHJlZV9sYW5kc19mb3VyX3NwZWxsc19ib3R0b21zX2Ffc3BlbGxfbmV2ZXJfYV9sYW5kKCkgLT4gTm9uZToKICAgIHBpbG90ID0gX3BpbG90KCkKICAgIHZpZXdzID0gdHVwbGUoX2xhbmQoZiJMYW5ke2l9IiwgaSkgZm9yIGkgaW4gcmFuZ2UoMykpICsgdHVwbGUoCiAgICAgICAgX3NwZWxsKGYiU3BlbGx7aX0iLCAzICsgaSkgZm9yIGkgaW4gcmFuZ2UoNCkKICAgICkKICAgIGJvdHRvbWVkID0gX2JvdHRvbWVkX25hbWVzKHBpbG90LCB2aWV3cywgMSkKICAgIGFzc2VydCBib3R0b21lZFswXS5zdGFydHN3aXRoKCJTcGVsbCIpCgoKZGVmIHRlc3RfdHdvX2xhbmRzX2ZpdmVfc3BlbGxzX2JvdHRvbV90d29fc3BlbGxzKCkgLT4gTm9uZToKICAgIHBpbG90ID0gX3BpbG90KCkKICAgIHZpZXdzID0gdHVwbGUoX2xhbmQoZiJMYW5ke2l9IiwgaSkgZm9yIGkgaW4gcmFuZ2UoMikpICsgdHVwbGUoCiAgICAgICAgX3NwZWxsKGYiU3BlbGx7aX0iLCAyICsgaSkgZm9yIGkgaW4gcmFuZ2UoNSkKICAgICkKICAgIGJvdHRvbWVkID0gX2JvdHRvbWVkX25hbWVzKHBpbG90LCB2aWV3cywgMikKICAgIGFzc2VydCBsZW4oYm90dG9tZWQpID09IDIKICAgIGFzc2VydCBhbGwobmFtZS5zdGFydHN3aXRoKCJTcGVsbCIpIGZvciBuYW1lIGluIGJvdHRvbWVkKQoKCmRlZiB0ZXN0X3R3aW5fc3RhYmlsaXR5X3NhbWVfY2FyZHNfZGlmZmVyZW50X29yZGVyKCkgLT4gTm9uZToKICAgIHBpbG90ID0gX3BpbG90KCkKICAgIHZpZXdzX2EgPSAoCiAgICAgICAgX2xhbmQoIklzbGFuZCIsIDApLAogICAgICAgIF9sYW5kKCJNb3VudGFpbiIsIDEpLAogICAgICAgIF9sYW5kKCJQbGFpbnMiLCAyKSwKICAgICAgICBfbGFuZCgiRm9yZXN0IiwgMyksCiAgICAgICAgX2xhbmQoIlN3YW1wIiwgNCksCiAgICAgICAgX3NwZWxsKCJMaWdodG5pbmcgQm9sdCIsIDUpLAogICAgICAgIF9zcGVsbCgiQ291bnRlcnNwZWxsIiwgNiksCiAgICApCiAgICB2aWV3c19iID0gdHVwbGUocmV2ZXJzZWQodmlld3NfYSkpCiAgICBhc3NlcnQgX2JvdHRvbWVkX25hbWVzKHBpbG90LCB2aWV3c19hLCAxKSA9PSBfYm90dG9tZWRfbmFtZXMocGlsb3QsIHZpZXdzX2IsIDEpCiAgICBhc3NlcnQgX2JvdHRvbWVkX25hbWVzKHBpbG90LCB2aWV3c19hLCAyKSA9PSBfYm90dG9tZWRfbmFtZXMocGlsb3QsIHZpZXdzX2IsIDIpCgoKZGVmIHRlc3RfZXhwZW5zaXZlX3NwZWxsX21heV9nb19iZWZvcmVfdGhpcmRfbGFuZCgpIC0+IE5vbmU6CiAgICAjICM4NTEgaXRlbSAzOiBhIE1WPj02IHNwZWxsIHdpdGggbm8gcmFtcC9kcmF3IHJvbGUgbWF5IGJlIGJvdHRvbWVkCiAgICAjIGJlZm9yZSBhIDNyZCBsYW5kLgogICAgcGlsb3QgPSBfcGlsb3QoKQogICAgdmlld3MgPSAoCiAgICAgICAgX2xhbmQoIklzbGFuZCIsIDApLAogICAgICAgIF9sYW5kKCJNb3VudGFpbiIsIDEpLAogICAgICAgIF9sYW5kKCJQbGFpbnMiLCAyKSwKICAgICAgICBfc3BlbGwoIkV4cGVuc2l2ZSBGaW5pc2hlciIsIDMsIG1hbmFfY29zdD03LjApLAogICAgICAgIF9zcGVsbCgiR29vZCBTcGVsbCIsIDQpLAogICAgKQogICAgYm90dG9tZWQgPSBfYm90dG9tZWRfbmFtZXMocGlsb3QsIHZpZXdzLCAxKQogICAgYXNzZXJ0IGJvdHRvbWVkWzBdID09ICJFeHBlbnNpdmUgRmluaXNoZXIiCgoKZGVmIHRlc3RfY291bnRfdHdvX2Zyb21fc2l4X2xhbmRzX3Rha2VzX3R3b19sYW5kcygpIC0+IE5vbmU6CiAgICAjICM4NTEgaXRlbSAyOiBjb3VudCA+IDEgcmVtb3ZlcyBhZ2FpbnN0IHRoZSBzaHJpbmtpbmcgaGFuZC4KICAgIHBpbG90ID0gX3BpbG90KCkKICAgIHZpZXdzID0gKCooX2xhbmQoZiJMYW5ke2l9IiwgaSkgZm9yIGkgaW4gcmFuZ2UoNikpLCBfc3BlbGwoIkdvb2QgU3BlbGwiLCA2KSkKICAgIGJvdHRvbWVkID0gX2JvdHRvbWVkX25hbWVzKHBpbG90LCB2aWV3cywgMikKICAgIGFzc2VydCBsZW4oYm90dG9tZWQpID09IDIKICAgIGFzc2VydCBhbGwobmFtZS5zdGFydHN3aXRoKCJMYW5kIikgZm9yIG5hbWUgaW4gYm90dG9tZWQpCgoKZGVmIF9vbGRfb3BlbmluZ19jYXJkX3ZhbHVlKGNhcmQ6IFBpbG90QWN0aW9uVmlldykgLT4gZmxvYXQ6CiAgICAiIiJUaGUgcHJlLSM4NTEgcnVsZTogY29uc3RhbnQgMi4yIGZvciBldmVyeSBsYW5kLiIiIgogICAgaWYgYm9vbChjYXJkLm1ldGFkYXRhLmdldCgiaXNfbGFuZCIsIEZhbHNlKSk6CiAgICAgICAgcmV0dXJuIDIuMgogICAgdmFsdWUgPSBjYXJkLmZsb29yX3ZhbHVlICsgY2FyZC5pbW1lZGlhdGVfaW1wYWN0CiAgICBpZiBjYXJkLm1hbmFfY29zdCA8PSAyOgogICAgICAgIHZhbHVlICs9IGNhcmQuc3RyZW5ndGgoQ2FyZFJvbGUuUkFNUCkgKiAxLjQKICAgICAgICB2YWx1ZSArPSBjYXJkLnN0cmVuZ3RoKENhcmRSb2xlLkRSQVcpICogMC44CiAgICAgICAgdmFsdWUgKz0gY2FyZC5zdHJlbmd0aChDYXJkUm9sZS5TRUxFQ1RJT04pICogMC43CiAgICAgICAgdmFsdWUgKz0gY2FyZC5zdHJlbmd0aChDYXJkUm9sZS5SRU1PVkFMKSAqIDAuNDUKICAgICAgICB2YWx1ZSArPSBjYXJkLnN0cmVuZ3RoKENhcmRSb2xlLkNPVU5URVIpICogMC4zNQogICAgICAgIHZhbHVlICs9IGNhcmQuc3RyZW5ndGgoQ2FyZFJvbGUuUFJPVEVDVElPTikgKiAwLjM1CiAgICB2YWx1ZSAtPSBtYXgoMC4wLCBjYXJkLm1hbmFfY29zdCAtIDQuMCkgKiAwLjQ1CiAgICB2YWx1ZSAtPSBjYXJkLnR1cm5fY3ljbGVfcmlzayAqIDAuMjUKICAgIHJldHVybiB2YWx1ZQoKCmRlZiB0ZXN0X3dyb25nX3JlYXNvbl9jb250cm9sX29sZF9ydWxlX2JvdHRvbXNfc3BlbGxzKCkgLT4gTm9uZToKICAgICMgIzg1MSAoZik6IHdpdGggdGhlIG9sZCBjb25zdGFudC0yLjIgbGFuZCB2YWx1ZSwgKGEpIGFuZCAoYikgd291bGQKICAgICMgYm90dG9tIGEgc3BlbGwsIHByb3ZpbmcgdGhlIG5ldyB0ZXN0cyBmYWlsIG9uIHRoZSBvbGQgY29kZS4KICAgIHNpeF9vbmUgPSAoKihfbGFuZChmIkxhbmR7aX0iLCBpKSBmb3IgaSBpbiByYW5nZSg2KSksIF9zcGVsbCgiR29vZCBTcGVsbCIsIDYpKQogICAgZml2ZV90d28gPSAoCiAgICAgICAgKihfbGFuZChmIkxhbmR7aX0iLCBpKSBmb3IgaSBpbiByYW5nZSg1KSksCiAgICAgICAgX3NwZWxsKCJHb29kIFNwZWxsIEEiLCA1KSwKICAgICAgICBfc3BlbGwoIkdvb2QgU3BlbGwgQiIsIDYpLAogICAgKQogICAgZm9yIHZpZXdzIGluIChzaXhfb25lLCBmaXZlX3R3byk6CiAgICAgICAgc2NvcmVkID0gc29ydGVkKAogICAgICAgICAgICB2aWV3cywKICAgICAgICAgICAga2V5PWxhbWJkYSBjOiAoX29sZF9vcGVuaW5nX2NhcmRfdmFsdWUoYyksIC1jLm1hbmFfY29zdCwgYy5jYXJkX25hbWUpLAogICAgICAgICkKICAgICAgICAjIE9sZCBydWxlOiB0aGUgY2hlYXBlc3QgY2FyZCBieSB2YWx1ZSBpcyBhIHNwZWxsIChsYW5kIGlzIDIuMikuCiAgICAgICAgYXNzZXJ0IG5vdCBib29sKHNjb3JlZFswXS5tZXRhZGF0YS5nZXQoImlzX2xhbmQiLCBGYWxzZSkpCg==
+"""Tests for #851: London mulligan bottoming from land-heavy hands.
+
+The pilot should bottom a land (not a spell) when the kept hand is
+land-heavy, and a spell (never a land) when the hand is mana-normal.
+"""
+
+from __future__ import annotations
+
+from commander_lab.agents.live_routing import build_pilot
+from commander_lab.agents.pilots import (
+    BasePilot,
+    PilotConfig,
+    PilotDecisionMode,
+)
+from commander_lab.engine.rules.full_game_pilot.state import PilotActionView
+from commander_lab.models.pilots import CardRole
+
+
+def _pilot() -> BasePilot:
+    config = PilotConfig(strength="average", mode=PilotDecisionMode.DETERMINISTIC)
+    return build_pilot(config, strategy="generic")
+
+
+def _land(name: str, idx: int) -> PilotActionView:
+    return PilotActionView(
+        action_id=f"land-{idx}",
+        action_kind="card",
+        card_name=name,
+        mana_cost=0.0,
+        floor_value=0.0,
+        immediate_impact=0.0,
+        metadata={"is_land": True},
+    )
+
+
+def _spell(
+    name: str,
+    idx: int,
+    *,
+    mana_cost: float = 2.0,
+    roles: frozenset[CardRole] = frozenset(),
+) -> PilotActionView:
+    strengths = {role: 1.0 for role in roles}
+    return PilotActionView(
+        action_id=f"spell-{idx}",
+        action_kind="card",
+        card_name=name,
+        mana_cost=mana_cost,
+        roles=roles,
+        role_strengths=strengths,
+        floor_value=0.5,
+        immediate_impact=0.3,
+        metadata={"is_land": False},
+    )
+
+
+def _bottomed_names(
+    pilot: BasePilot, views: tuple[PilotActionView, ...], count: int
+) -> tuple[str, ...]:
+    bottomed_ids = pilot.choose_bottom_cards(views, count, commander_names=())
+    by_id = {v.action_id: v for v in views}
+    return tuple(by_id[i].card_name for i in bottomed_ids)
+
+
+def test_six_lands_one_spell_bottoms_a_land() -> None:
+    pilot = _pilot()
+    views = (*(_land(f"Land{i}", i) for i in range(6)), _spell("Good Spell", 6))
+    assert _bottomed_names(pilot, views, 1)[0].startswith("Land")
+
+
+def test_five_lands_two_spells_bottoms_a_land() -> None:
+    pilot = _pilot()
+    views = (
+        *(_land(f"Land{i}", i) for i in range(5)),
+        _spell("Good Spell A", 5),
+        _spell("Good Spell B", 6),
+    )
+    assert _bottomed_names(pilot, views, 1)[0].startswith("Land")
+
+
+def test_three_lands_four_spells_bottoms_a_spell_never_a_land() -> None:
+    pilot = _pilot()
+    views = tuple(_land(f"Land{i}", i) for i in range(3)) + tuple(
+        _spell(f"Spell{i}", 3 + i) for i in range(4)
+    )
+    bottomed = _bottomed_names(pilot, views, 1)
+    assert bottomed[0].startswith("Spell")
+
+
+def test_two_lands_five_spells_bottom_two_spells() -> None:
+    pilot = _pilot()
+    views = tuple(_land(f"Land{i}", i) for i in range(2)) + tuple(
+        _spell(f"Spell{i}", 2 + i) for i in range(5)
+    )
+    bottomed = _bottomed_names(pilot, views, 2)
+    assert len(bottomed) == 2
+    assert all(name.startswith("Spell") for name in bottomed)
+
+
+def test_twin_stability_same_cards_different_order() -> None:
+    pilot = _pilot()
+    views_a = (
+        _land("Island", 0),
+        _land("Mountain", 1),
+        _land("Plains", 2),
+        _land("Forest", 3),
+        _land("Swamp", 4),
+        _spell("Lightning Bolt", 5),
+        _spell("Counterspell", 6),
+    )
+    views_b = tuple(reversed(views_a))
+    assert _bottomed_names(pilot, views_a, 1) == _bottomed_names(pilot, views_b, 1)
+    assert _bottomed_names(pilot, views_a, 2) == _bottomed_names(pilot, views_b, 2)
+
+
+def test_expensive_spell_may_go_before_third_land() -> None:
+    # #851 item 3: a MV>=6 spell with no ramp/draw role may be bottomed
+    # before a 3rd land.
+    pilot = _pilot()
+    views = (
+        _land("Island", 0),
+        _land("Mountain", 1),
+        _land("Plains", 2),
+        _spell("Expensive Finisher", 3, mana_cost=7.0),
+        _spell("Good Spell", 4),
+    )
+    bottomed = _bottomed_names(pilot, views, 1)
+    assert bottomed[0] == "Expensive Finisher"
+
+
+def test_count_two_from_six_lands_takes_two_lands() -> None:
+    # #851 item 2: count > 1 removes against the shrinking hand.
+    pilot = _pilot()
+    views = (*(_land(f"Land{i}", i) for i in range(6)), _spell("Good Spell", 6))
+    bottomed = _bottomed_names(pilot, views, 2)
+    assert len(bottomed) == 2
+    assert all(name.startswith("Land") for name in bottomed)
+
+
+def _old_opening_card_value(card: PilotActionView) -> float:
+    """The pre-#851 rule: constant 2.2 for every land."""
+    if bool(card.metadata.get("is_land", False)):
+        return 2.2
+    value = card.floor_value + card.immediate_impact
+    if card.mana_cost <= 2:
+        value += card.strength(CardRole.RAMP) * 1.4
+        value += card.strength(CardRole.DRAW) * 0.8
+        value += card.strength(CardRole.SELECTION) * 0.7
+        value += card.strength(CardRole.REMOVAL) * 0.45
+        value += card.strength(CardRole.COUNTER) * 0.35
+        value += card.strength(CardRole.PROTECTION) * 0.35
+    value -= max(0.0, card.mana_cost - 4.0) * 0.45
+    value -= card.turn_cycle_risk * 0.25
+    return value
+
+
+def test_wrong_reason_control_old_rule_bottoms_spells() -> None:
+    # #851 (f): with the old constant-2.2 land value, (a) and (b) would
+    # bottom a spell, proving the new tests fail on the old code.
+    six_one = (*(_land(f"Land{i}", i) for i in range(6)), _spell("Good Spell", 6))
+    five_two = (
+        *(_land(f"Land{i}", i) for i in range(5)),
+        _spell("Good Spell A", 5),
+        _spell("Good Spell B", 6),
+    )
+    for views in (six_one, five_two):
+        scored = sorted(
+            views,
+            key=lambda c: (_old_opening_card_value(c), -c.mana_cost, c.card_name),
+        )
+        # Old rule: the cheapest card by value is a spell (land is 2.2).
+        assert not bool(scored[0].metadata.get("is_land", False))
