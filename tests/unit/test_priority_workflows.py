@@ -3,14 +3,29 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from commander_lab.candidate_workflow.advancement import LEGACY_ADVANCEMENT_REASON
 from commander_lab.priority_workflows import PriorityWorkflowFacade
 
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_build_screen_and_mulligan_mana_use_same_canonical_context() -> None:
-    facade = PriorityWorkflowFacade(ROOT)
+@pytest.fixture(scope="module")
+def facade() -> PriorityWorkflowFacade:
+    """Build the facade once per module and share it across read-only tests.
+
+    Safe to share: construction is deterministic and the shared tests only
+    read (build_screen, mulligan_mana, compare_validate with explicit seeds).
+    Tests that mutate state (playstyle inventory clear, isolated cache) keep
+    their own facade instances.
+    """
+    return PriorityWorkflowFacade(ROOT)
+
+
+def test_build_screen_and_mulligan_mana_use_same_canonical_context(
+    facade: PriorityWorkflowFacade,
+) -> None:
     screen = facade.build_screen("rogshai/current", limit=5)
     mana = facade.mulligan_mana("rogshai/current")
     assert screen["deck_hash"] == mana["deck_hash"]
@@ -30,8 +45,9 @@ def test_build_screen_and_mulligan_mana_use_same_canonical_context() -> None:
     assert "no empirical card-power ranking" in screen["ranking_claim"]
 
 
-def test_compare_validate_reuses_paired_engine_and_exact_cache() -> None:
-    facade = PriorityWorkflowFacade(ROOT)
+def test_compare_validate_reuses_paired_engine_and_exact_cache(
+    facade: PriorityWorkflowFacade,
+) -> None:
     request = {
         "deck_id": "rogshai/current",
         "remove": "Flare of Duplication",
@@ -89,8 +105,9 @@ def test_priority_facade_can_use_an_isolated_acceptance_cache(tmp_path: Path) ->
     assert first["paired"] == second["paired"]
 
 
-def test_diagnose_and_decision_bundle_are_reproducible(tmp_path: Path) -> None:
-    facade = PriorityWorkflowFacade(ROOT)
+def test_diagnose_and_decision_bundle_are_reproducible(
+    tmp_path: Path, facade: PriorityWorkflowFacade
+) -> None:
     comparison = {
         "status": "completed",
         "baseline_identity": {"deck_id": "rogshai/current", "deck_hash": "a" * 64},

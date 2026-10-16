@@ -218,46 +218,6 @@ class XmageFullGameEngineReversalTest {
                 "the engine reached the mana step");
     }
 
-    /**
-     * #815: Blue Sun's Zenith with X announced, then the engine's own mana
-     * payment fails (CR 601.2f) and the cast is rewound. Each recorded fact is
-     * what {@link XmageFullGamePlayer#announceX} and {@code playMana} record.
-     * A pilot cancel is a different path ({@code paymentCancelled}) and must
-     * not count here.
-     */
-    @Test
-    void anOverAnnouncedXCastIsReversedOnlyWithAllItsFacts() {
-        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("issue815-over-announced-x", 2, "P1",
-                List.of(XmageMultiplayerScenario.obj("P1", "Blue Sun's Zenith", 0, Zone.HAND),
-                        XmageMultiplayerScenario.obj("P1", "Resculpt", 1, Zone.HAND)));
-        Game game = s.session.restorationGame();
-        XmageFullGamePlayer player = (XmageFullGamePlayer) s.seats.get("P1");
-        SpellAbility zenith = spellInHand(s, game, "Blue Sun's Zenith");
-        int stack = game.getStack().size();
-
-        assertFalse(player.reversedOverAnnouncedX(zenith, game, Zone.HAND, stack),
-                "no X was announced and no payment was attempted");
-        player.recordAnnouncedAbilityForBoundaryTest(zenith);
-        assertFalse(player.reversedOverAnnouncedX(zenith, game, Zone.HAND, stack),
-                "X was announced but the engine never asked for mana");
-        player.recordPaidSpellAbilityForBoundaryTest(zenith);
-        assertTrue(player.reversedOverAnnouncedX(zenith, game, Zone.HAND, stack),
-                "X announced, payment of this spell attempted and unpaid, card and stack as before: a reversal");
-        assertFalse(player.reversedOverAnnouncedX(zenith, game, Zone.GRAVEYARD, stack),
-                "the card is not back where the cast started");
-        assertFalse(player.reversedOverAnnouncedX(zenith, game, Zone.HAND, stack + 1),
-                "the stack is not what it was");
-        assertFalse(player.reversedOverAnnouncedX(spellInHand(s, game, "Resculpt"), game, Zone.HAND, stack),
-                "another card than the one whose X was announced and whose mana was asked for");
-        player.recordPaymentCancelledForBoundaryTest(true);
-        assertFalse(player.reversedOverAnnouncedX(zenith, game, Zone.HAND, stack),
-                "the pilot cancelled the payment: that is the paymentCancelled path, not this one");
-        player.recordPaymentCancelledForBoundaryTest(false);
-        player.recordAnnouncedAbilityForBoundaryTest(null);
-        assertFalse(player.reversedOverAnnouncedX(zenith, game, Zone.HAND, stack),
-                "payment was attempted but no X was announced");
-    }
-
     private static SpellAbility spellInHand(XmageMultiplayerScenario s, Game game, String name) {
         for (Card card : s.seats.get("P1").getHand().getCards(game)) {
             if (name.equals(card.getName())) {

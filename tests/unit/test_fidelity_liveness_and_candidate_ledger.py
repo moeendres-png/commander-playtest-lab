@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from commander_lab.whole_deck.lab import WholeDeckDesignLab
 from commander_lab.whole_deck.lab_context import EnrichedWholeDeckSearchEngine
 from commander_lab.whole_deck.mechanics_fidelity import (
@@ -18,6 +20,28 @@ from commander_lab.whole_deck.search_context import current_control_mainboard
 from commander_lab.whole_deck.search_models import WholeDeckSearchConfig
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+@pytest.fixture(scope="module")
+def lab() -> WholeDeckDesignLab:
+    """Build the lab once per module and share it.
+
+    Safe to share: construction is deterministic and side-effect-free;
+    materialize() is pure computation. The expensive per-test calls
+    (build_fidelity_liveness_audit x2, _coverage_debt_proposals x2) are
+    determinism assertions and intentionally run twice - they are NOT shared.
+    """
+    return WholeDeckDesignLab(ROOT)
+
+
+@pytest.fixture(scope="module")
+def control_mainboard(lab: WholeDeckDesignLab):
+    return current_control_mainboard(ROOT)
+
+
+@pytest.fixture(scope="module")
+def control_engine(lab: WholeDeckDesignLab):
+    return _control_engine(lab)
 
 
 def _control_engine(lab: WholeDeckDesignLab) -> EnrichedWholeDeckSearchEngine:
@@ -36,10 +60,11 @@ def _control_engine(lab: WholeDeckDesignLab) -> EnrichedWholeDeckSearchEngine:
     )
 
 
-def test_current_pool_fidelity_liveness_is_deterministic_and_nonconsuming() -> None:
-    lab = WholeDeckDesignLab(ROOT)
-    control = current_control_mainboard(ROOT)
-    engine = _control_engine(lab)
+def test_current_pool_fidelity_liveness_is_deterministic_and_nonconsuming(
+    lab: WholeDeckDesignLab, control_mainboard, control_engine
+) -> None:
+    control = control_mainboard
+    engine = control_engine
     first = build_fidelity_liveness_audit(
         lab.context,
         control=control,
@@ -62,13 +87,14 @@ def test_current_pool_fidelity_liveness_is_deterministic_and_nonconsuming() -> N
     assert first["fidelity_liveness"] == "PASS"
 
 
-def test_fidelity_repair_emitter_finds_real_safe_noncontrol_neighbors() -> None:
+def test_fidelity_repair_emitter_finds_real_safe_noncontrol_neighbors(
+    lab: WholeDeckDesignLab, control_mainboard, control_engine
+) -> None:
     from commander_lab.whole_deck.optimizer_search import AdaptiveWholeDeckSearch
     from commander_lab.whole_deck.optimizer_v2 import LearningConfig, RacingConfig
 
-    lab = WholeDeckDesignLab(ROOT)
-    control = current_control_mainboard(ROOT)
-    engine = _control_engine(lab)
+    control = control_mainboard
+    engine = control_engine
     control_variant = engine.evaluate_mainboard(control, seed=31)
 
     class _NoSimulationEvaluator:
@@ -116,11 +142,10 @@ def test_fidelity_repair_emitter_finds_real_safe_noncontrol_neighbors() -> None:
 
 
 def test_candidate_ledger_is_complete_hash_verified_and_diff_reconstructable(
-    tmp_path: Path,
+    tmp_path: Path, lab: WholeDeckDesignLab, control_mainboard, control_engine
 ) -> None:
-    lab = WholeDeckDesignLab(ROOT)
-    control = current_control_mainboard(ROOT)
-    engine = _control_engine(lab)
+    control = control_mainboard
+    engine = control_engine
     variant = engine.evaluate_mainboard(control, seed=51)
     history = [
         {
@@ -167,13 +192,14 @@ def test_candidate_ledger_is_complete_hash_verified_and_diff_reconstructable(
     assert row["confirmatory_eligible"] is False
 
 
-def test_coverage_debt_emitter_is_deterministic_outcome_independent_and_legal() -> None:
+def test_coverage_debt_emitter_is_deterministic_outcome_independent_and_legal(
+    lab: WholeDeckDesignLab, control_mainboard, control_engine
+) -> None:
     from commander_lab.whole_deck.optimizer_search import AdaptiveWholeDeckSearch
     from commander_lab.whole_deck.optimizer_v2 import LearningConfig, RacingConfig
 
-    lab = WholeDeckDesignLab(ROOT)
-    control = current_control_mainboard(ROOT)
-    engine = _control_engine(lab)
+    control = control_mainboard
+    engine = control_engine
     control_variant = engine.evaluate_mainboard(control, seed=61)
 
     class _NoSimulationEvaluator:
