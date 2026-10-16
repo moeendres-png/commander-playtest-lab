@@ -721,7 +721,29 @@ class _PaymentDecisions(_PolicyState):
                 f"pilot numeric decision {chosen} outside authoritative domain "
                 f"{minimum}..{maximum} for {decision_class}"
             )
+        if decision_class == "announce_x":
+            # #815: remember the announced X per source. If the engine reverses
+            # this cast (over-announced X), the next announce_x for the same
+            # source sees the failed value and caps below it instead of
+            # re-announcing the same unpayable X forever.
+            self._remember_announced_x(runtime.binding.seat, source_object, chosen)
         return chosen
+
+    def _remember_announced_x(self, seat: int, source_object: object, chosen: int) -> None:
+        """Keep the X this seat announced for this source.
+
+        Keyed by the announce frame's ``source_object_id`` like
+        ``_priority_cost_facts``. A repeated ``announce_x`` for the same source
+        before the seat's next priority decision means the previous cast was
+        reversed (the X was unpayable), so the failed value is kept for the
+        affordable_max cap. Cleared on the seat's next priority decision.
+        """
+        if not isinstance(source_object, dict):
+            return
+        source = str(source_object.get("source_object_id") or "")
+        if not source:
+            return
+        self._failed_x_announcements.setdefault(seat, {})[source] = chosen
 
     def _remember_priority_cost_facts(
         self, seat: int, options: list[dict[str, Any]], selected: list[str]
@@ -893,6 +915,11 @@ class _PaymentDecisions(_PolicyState):
         ability's own tap or sacrifice cost, so a source that spends itself
         can leave this an over-estimate by one, and one permanent is counted
         as one mana. Both are already documented on ``_mana_budget``.
+
+        #815: if a previous X announced for this source was reversed by the
+        engine (unpayable), the cap is lowered below that failed value. A
+        repeated ``announce_x`` for the same source proves the previous value
+        failed, so the band narrows instead of re-announcing the same X.
         """
         prompt_symbols = mana_x_prompt_symbols(prompt)
         if prompt_symbols is None:
@@ -906,7 +933,17 @@ class _PaymentDecisions(_PolicyState):
         non_x, symbols = facts if facts is not None else (0, None)
         if symbols is None:
             symbols = prompt_symbols
-        return max(0, (self._mana_budget(state) - non_x) // symbols)
+        affordable = max(0, (self._mana_budget(state) - non_x) // symbols)
+        # #815: if the last X announced for this source was reversed (the
+        # engine refused the payment), cap below it. A repeated announce_x
+        # for the same source means the previous value failed, so re-announcing
+        # it would loop forever.
+        if isinstance(source_object, dict):
+            source = str(source_object.get("source_object_id") or "")
+            failed = self._failed_x_announcements.get(seat, {}).get(source)
+            if isinstance(failed, int) and failed > 0:
+                affordable = min(affordable, failed - 1)
+        return affordable
 
     def _decide_multi_amount(
         self,
