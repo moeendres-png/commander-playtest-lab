@@ -361,3 +361,109 @@ def test_payment_never_drops_an_unfitting_source() -> None:
         )
     )
     assert response["selected_option_ids"] == ["mountain"]
+
+
+def test_payment_spends_the_scarce_color_from_the_dual_land() -> None:
+    # {W}{U} with Prairie Stream and two Plains: a player taps the dual for {U}
+    # and a Plains for {W}. Spending the dual on {W} strands the {U} and the
+    # whole cast was cancelled (three times per turn in real games).
+    options = [
+        _option("cancel", "cancel_mana_payment", "Cancel mana payment"),
+        _option(
+            "stream-w", "mana_ability", "Prairie Stream — {T}: Add {W}.", source_object_id="ps"
+        ),
+        _option(
+            "stream-u", "mana_ability", "Prairie Stream — {T}: Add {U}.", source_object_id="ps"
+        ),
+        _option("plains-1", "mana_ability", "Plains — {T}: Add {W}.", source_object_id="p1"),
+        _option("plains-2", "mana_ability", "Plains — {T}: Add {W}.", source_object_id="p2"),
+    ]
+    for mode in (PilotDecisionMode.DETERMINISTIC, PilotDecisionMode.STOCHASTIC):
+        response = _policy(mode).decide(
+            _request("mana_payment", options, context={"unpaid_mana": "{W}{U}"})
+        )
+        assert response["selected_option_ids"] == ["stream-u"]
+
+
+def test_payment_keeps_flexible_sources_for_later_colors() -> None:
+    response = _policy().decide(
+        _request(
+            "mana_payment",
+            [
+                _option(
+                    "stream-w",
+                    "mana_ability",
+                    "Prairie Stream — {T}: Add {W}.",
+                    source_object_id="ps",
+                ),
+                _option(
+                    "stream-u",
+                    "mana_ability",
+                    "Prairie Stream — {T}: Add {U}.",
+                    source_object_id="ps",
+                ),
+                _option("plains", "mana_ability", "Plains — {T}: Add {W}.", source_object_id="p1"),
+                _option("island", "mana_ability", "Island — {T}: Add {U}.", source_object_id="i1"),
+            ],
+            context={"unpaid_mana": "{2}{W}"},
+        )
+    )
+    assert response["selected_option_ids"] == ["plains"]
+
+
+def test_cancelled_payment_is_not_retried_without_more_mana() -> None:
+    policy = _policy()
+    cast = _option(
+        "cast-veto", "activated_ability", "Dovin's Veto — Cast Dovin's Veto", ability_type="spell"
+    )
+    window = [_option("pass", "pass_priority", "Pass priority"), cast]
+    first = policy.decide(_request("priority", window, state=_state(step="precombat_main")))
+    assert first["selected_option_ids"] == ["cast-veto"]
+    policy.decide(
+        _request(
+            "mana_payment",
+            [_option("cancel", "cancel_mana_payment", "Cancel mana payment")],
+            context={"unpaid_mana": "{U}"},
+            offset=2,
+        )
+    )
+    again = policy.decide(
+        _request("priority", window, state=_state(step="precombat_main"), offset=3)
+    )
+    assert again["selected_option_ids"] == ["pass"]
+    richer = _state(step="precombat_main")
+    richer["players"][0]["battlefield"].append(
+        {"object_id": "land-new", "name": "Island", "tapped": False}
+    )
+    retried = policy.decide(_request("priority", window, state=richer, offset=4))
+    assert retried["selected_option_ids"] == ["cast-veto"]
+
+
+def test_one_or_more_sweep_takes_only_the_modes_that_hurt_the_table() -> None:
+    state = _state(step="precombat_main")
+    state["players"][0]["battlefield"].append(
+        {"object_id": "mine-art", "name": "Sol Ring", "tapped": False}
+    )
+    for index, opponent in enumerate(state["players"][1:]):
+        opponent["battlefield"] = [
+            {
+                "object_id": f"opp-{index}",
+                "name": "Serra Angel",
+                "tapped": False,
+                "power": 4,
+                "toughness": 4,
+            }
+        ]
+    modes = [
+        _option("gy", "mode", "exile all graveyards."),
+        _option("ench", "mode", "exile all enchantments."),
+        _option("crea", "mode", "exile all creatures."),
+        _option("art", "mode", "exile all artifacts."),
+    ]
+    policy = _policy()
+    first = policy.decide(_request("mode", modes, state=state))
+    assert first["selected_option_ids"] == ["crea"]
+    rest = [m for m in modes if m["option_id"] != "crea"]
+    request = _request("mode", rest, state=state, offset=2)
+    request["minimum_selections"] = 0
+    assert policy.decide(request)["selected_option_ids"] == []

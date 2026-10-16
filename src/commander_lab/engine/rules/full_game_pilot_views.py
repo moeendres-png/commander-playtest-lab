@@ -51,6 +51,29 @@ def commander_names(state: Mapping[str, Any]) -> frozenset[str]:
     )
 
 
+_SEAT_LABEL = re.compile(r"Full Game Seat (\d+)")
+
+
+def resolve_player(
+    raw_id: str | None, label: str, state: Mapping[str, Any]
+) -> dict[str, Any] | None:
+    """The pilot-view player an engine option refers to.
+
+    The actor-scoped state names every other player by a seat token ("op-N"),
+    while option metadata (defenders, player targets) carries the engine's own
+    player id. Those never match, so a player is also found by the seat in the
+    option's Rules-visible label ("Full Game Seat N" is seat N-1).
+    """
+    for player in players(state):
+        if raw_id and str(player.get("player_id", "")) == raw_id:
+            return player
+    found = _SEAT_LABEL.findall(label or "")
+    if not found:
+        return None
+    seat = int(found[-1]) - 1
+    return next((p for p in players(state) if p.get("seat") == seat), None)
+
+
 def permanent_owner(object_id: str, state: Mapping[str, Any]) -> tuple[str, dict[str, Any]] | None:
     """(controller player id, battlefield entry) for a permanent id."""
     for player in players(state):
@@ -314,6 +337,33 @@ def untapped_mana_estimate(state: Mapping[str, Any]) -> float:
     return max(0.0, floating) + lands
 
 
+_REACTIVE_ROLES = frozenset(
+    {CardRole.REMOVAL, CardRole.COUNTER, CardRole.PROTECTION, CardRole.DRAW, CardRole.SELECTION}
+)
+
+
+def _instant_timing(
+    facts: CardFacts, roles: Mapping[CardRole, float], state: Mapping[str, Any]
+) -> float:
+    """Instant-speed cards are played on the opponents' turns, the way players do.
+
+    An instant that removes, draws or protects is better cast at the end of an
+    opponent's turn than in one's own main phase: the mana stays up as a threat
+    of interaction, and nothing is revealed before the opponents commit. With
+    something on the stack the card answers it and timing does not apply.
+    """
+    if not facts.is_instant_speed or state.get("stack"):
+        return 0.0
+    if not (roles.keys() & _REACTIVE_ROLES) and not facts.is_creature:
+        return 0.0
+    own_turn = str(state.get("active_player_id", "")) == str(state.get("actor_id", ""))
+    if own_turn and "main" in str(state.get("phase", "")).casefold():
+        return -0.5
+    if not own_turn and str(state.get("phase", "")).casefold() == "end":
+        return 0.6
+    return 0.0
+
+
 def _curve_bonus(cost: float, state: Mapping[str, Any]) -> float:
     """Reward spending this turn's mana in the actor's own main phase.
 
@@ -392,6 +442,12 @@ def priority_view_fields(
         if curve > 0.0:
             fields["immediate_impact"] = min(2.0, float(fields["immediate_impact"]) + curve)
             extra["curve_bonus"] = round(curve, 3)
+        timing = _instant_timing(facts, roles, state)
+        if timing:
+            fields["immediate_impact"] = min(
+                2.0, max(0.0, float(fields["immediate_impact"]) + timing)
+            )
+            extra["instant_timing"] = timing
         withhold = _spell_withhold_reason(facts, roles, state, actor_id, own_stack_names)
         if CardRole.WIPE in roles and withhold is None:
             withhold = _wipe_withhold_reason(facts, state, actor_id)
@@ -552,6 +608,56 @@ def _wipe_withhold_reason(facts: CardFacts, state: Mapping[str, Any], actor_id: 
     return None
 
 
+_SWEEP_MODE = re.compile(
+    r"\b(?:destroy|exile)\s+all\s+"
+    r"(creatures|artifacts|enchantments|planeswalkers|graveyards|nonland permanents)\b"
+)
+
+
+def _sweep_matches(item: Mapping[str, Any], category: str) -> bool:
+    if category == "creatures":
+        return is_creature_entry(item)
+    if category == "nonland permanents":
+        return not is_land_entry(item)
+    facts = card_facts(str(item.get("name") or ""))
+    if facts is None:
+        return False
+    return category.removesuffix("s") in facts.types
+
+
+def sweep_mode_net(label: str, state: Mapping[str, Any], actor_id: str) -> float | None:
+    """What one "destroy/exile all X" mode takes from the table minus what it costs the actor.
+
+    None when the mode is not a symmetric sweep. The actor's own losses
+    count one and a half times: the table shares the hit three ways, the
+    actor alone pays for the card. Farewell's four modes are each judged on
+    their own, so the pilot exiles creatures without exiling its own
+    artifacts with them.
+    """
+    match = _SWEEP_MODE.search(label.casefold())
+    if match is None:
+        return None
+    category = match.group(1)
+    mine = 0.0
+    theirs = 0.0
+    for player in players(state):
+        if not _alive(player):
+            continue
+        if category == "graveyards":
+            value = 0.4 * float(player.get("graveyard_count", 0) or 0)
+        else:
+            value = sum(
+                min(12.0, entry_value(item, state))
+                for item in _items(player.get("battlefield"))
+                if _sweep_matches(item, category)
+            )
+        if str(player.get("player_id")) == actor_id:
+            mine = value
+        else:
+            theirs += value
+    return theirs - 1.5 * mine
+
+
 def target_object_bonus(
     option: Mapping[str, Any],
     state: Mapping[str, Any],
@@ -627,9 +733,11 @@ def attack_score(
     meta_raw = option.get("metadata")
     meta: Mapping[str, Any] = meta_raw if isinstance(meta_raw, dict) else {}
     attacker_id = str(meta.get("object_id") or "")
-    defender_id = str(meta.get("defender_id") or "")
     found = permanent_owner(attacker_id, state)
-    defender = next((p for p in players(state) if str(p.get("player_id")) == defender_id), None)
+    defender = resolve_player(
+        str(meta.get("defender_id") or ""), str(option.get("label") or ""), state
+    )
+    defender_id = str(defender.get("player_id", "")) if defender is not None else ""
     if found is None or defender is None:
         return 0.2, {"combat_unknown": True}
     _controller, attacker = found
@@ -674,14 +782,41 @@ def attack_score(
     life = defender.get("life")
     life_value = float(life) if isinstance(life, (int, float)) else 40.0
     damage = power * (2 if "double strike" in keywords else 1)
-    if not able and damage >= life_value:
+    lethal = not able and damage >= life_value
+    if lethal:
         score += 3.0  # lethal through an empty or evaded board
+    elif "vigilance" not in keywords and _crack_back_danger(state) and toughness >= 2:
+        # Crack-back: when one opponent's creatures could all but kill the
+        # actor on their next turn, a creature that can block stays home
+        # unless this attack wins something outright. Merely being lower on
+        # life is no reason to stop attacking: holding everything back at
+        # every life total made games longer, not safer.
+        score -= 1.2
     score += max(0.0, 20.0 - life_value) * 0.03
     if score > 0.0 and defender_id == focus_defender(state):
         # Spread-out damage lets everyone survive; pressure on one opponent
         # removes a player and shortens the game.
         score += 0.6
     return score, {"attack_power": power, "defender_blockers": len(able)}
+
+
+def _crack_back_danger(state: Mapping[str, Any]) -> bool:
+    """True when one opponent's creatures could bring the actor to 5 life or less."""
+    actor_id = str(state.get("actor_id", ""))
+    actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
+    if actor is None:
+        return False
+    life = actor.get("life")
+    life_value = float(life) if isinstance(life, int | float) else 40.0
+    danger = max(
+        (
+            board_summary(player)["creature_power"]
+            for player in players(state)
+            if str(player.get("player_id")) != actor_id and _alive(player)
+        ),
+        default=0.0,
+    )
+    return danger > 0.0 and life_value - danger <= 5.0
 
 
 def block_score(
@@ -844,6 +979,7 @@ __all__ = [
     "permanent_owner",
     "player_threat",
     "priority_view_fields",
+    "resolve_player",
     "stack_pressure",
     "table_threats",
     "target_object_bonus",

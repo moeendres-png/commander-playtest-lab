@@ -25,6 +25,7 @@ from ..full_game_pilot_views import (
     hand_role_counts,
     player_threat,
     priority_view_fields,
+    resolve_player,
     stack_pressure,
 )
 from .common import (
@@ -138,6 +139,11 @@ class _PolicyState:
         self._own_cast_names: dict[int, list[str]] = {}
         self._last_unpaid_mana: dict[int, str] = {}
         self._turn_actions: dict[int, tuple[object, Counter[str]]] = {}
+        # A cast whose payment this seat cancelled is not retried in the same
+        # turn until more mana is visible: label -> mana visible at the cancel.
+        self._last_priority_label: dict[int, str] = {}
+        self._last_priority_visible_mana: dict[int, int] = {}
+        self._failed_payments: dict[int, tuple[object, dict[str, int]]] = {}
         self._last_block_proposal: dict[int, tuple[object, int]] = {}
 
     def _turn_action_cap(self, option: dict[str, Any]) -> int:
@@ -162,6 +168,7 @@ class _PolicyState:
             if str(option.get("option_id")) not in chosen:
                 continue
             if str(option.get("option_type")) not in {"pass_priority", "mana_ability"}:
+                self._last_priority_label[seat] = str(option.get("label", ""))
                 tried = self._turn_actions.get(seat)
                 if tried is None or tried[0] != turn:
                     tried = (turn, Counter())
@@ -339,6 +346,11 @@ class _PolicyState:
     ) -> PilotActionView:
         option_id = self._required_text(option, "option_id")
         owner_id = self._object_owner(option_id, state)
+        if owner_id is None:
+            # A player target: the option carries the engine's player id, the
+            # state the seat token; the seat in the label joins them.
+            player = resolve_player(option_id, str(option.get("label", "")), state)
+            owner_id = str(player.get("player_id")) if player is not None else None
         actor_id = self._required_text(state, "actor_id")
         target_threat = self._player_threat(owner_id, state)
         beneficial = outcome in {"benefit", "benefit_to_controller"}
@@ -361,6 +373,9 @@ class _PolicyState:
         metadata = option.get("metadata")
         meta = metadata if isinstance(metadata, dict) else {}
         target_id = str(meta.get("defender_id") or meta.get("attacker_id") or "") or None
+        player = resolve_player(target_id, str(option.get("label", "")), state)
+        if player is not None:
+            target_id = str(player.get("player_id"))
         target_threat = self._player_threat(target_id, state)
         return PilotActionView(
             action_id=self._required_text(option, "option_id"),
