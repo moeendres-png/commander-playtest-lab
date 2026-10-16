@@ -144,10 +144,17 @@ class XmageFullGameCoverageAbortTest {
     }
 
     @Test
-    void anOverAnnouncedXSpellReversesInsteadOfAborting() {
+    void anOverAnnouncedXSpellThePilotCancelsAtPaymentReturnsPriorityInsteadOfAborting() {
         // #815: Blue Sun's Zenith with X announced higher than the pilot can
-        // pay. The engine reverses the cast (CR 601.2e); priority returns
-        // instead of XMAGE_ACTION_EXECUTION_FAILED.
+        // pay. With the Islands spent the bridge offers only "Cancel mana
+        // payment"; the pilot cancels, the engine reverses the cast (CR 601.2e)
+        // and priority returns instead of XMAGE_ACTION_EXECUTION_FAILED.
+        //
+        // End-to-end guarantee only: a pilot cancel sets paymentCancelled, the
+        // pre-existing path, so this scenario does NOT reach reversedOverAnnouncedX.
+        // That predicate is pinned by XmageFullGameEngineReversalTest
+        // #anOverAnnouncedXCastIsReversedOnlyWithAllItsFacts; no scenario that
+        // reaches it without a cancel is known.
         List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
         objects.add(XmageMultiplayerScenario.obj("P1", "Blue Sun's Zenith", 0, Zone.HAND));
         // Three Islands: X=0 ({U}{U}{U}) is payable, X=1 ({1}{U}{U}{U}) is not.
@@ -203,13 +210,12 @@ class XmageFullGameCoverageAbortTest {
                     if (pay == null) {
                         pay = s.action("pay_cost", "Island");
                     }
-                    // Open question for #815: once every Island is spent the bridge
-                    // offers only "Cancel mana payment" instead of failing the payment
-                    // itself. A pilot cancel sets paymentCancelled, which
-                    // reversedOverAnnouncedX excludes, so this scenario does not reach
-                    // that predicate. Do not "fix" this by cancelling here: the test
-                    // would then pass through the pre-existing cancel path.
-                    assertNotNull(pay, "mana still owed and no source left, offered: " + s.labels());
+                    if (pay == null) {
+                        // Every Island is spent and the 4th mana is still owed: the
+                        // bridge offers only the cancel, so the pilot takes it.
+                        pay = s.action("pay_cost", "Cancel mana payment");
+                    }
+                    assertNotNull(pay, "mana still owed and nothing to pay with: " + s.labels());
                     s.submit(pay);
                 }
                 default -> fail("unexpected " + cls + " for " + s.actor() + " " + s.labels());

@@ -1484,6 +1484,14 @@ final class XmageFullGamePlayer extends PlayerImpl {
         paidSpellAbility = ability;
     }
 
+    /**
+     * #815 boundary tests only: package-private, no production caller. Mirrors
+     * the flag {@link #playMana} sets when the pilot cancels a mana payment.
+     */
+    void recordPaymentCancelledForBoundaryTest(boolean cancelled) {
+        paymentCancelled = cancelled;
+    }
+
     @Override
     public boolean choose(Outcome outcome, Target target, Ability source, Game game) {
         return chooseTargetInternal(outcome, false, target, source, game, null, null);
