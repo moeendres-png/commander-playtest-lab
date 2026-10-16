@@ -341,7 +341,8 @@ def test_every_named_lane_agent_is_selected_through_the_config() -> None:
         lanes[name] = (run["env"]["AGENT"], json.loads(content) if content else None)
     assert lanes == {
         "opencode": ("", None),
-        "opencode-th": ("", None),
+        # /oc-th keeps the config's agent; only its title model moves off Zen.
+        "opencode-th": ("", {"small_model": "tokenharbor/deepseek-v4.1-flash:free"}),
         "opencode-assure": ("assurance-verifier", {"default_agent": "assurance-verifier"}),
         "opencode-ro-review": ("foundry-reviewer", {"default_agent": "foundry-reviewer"}),
     }
