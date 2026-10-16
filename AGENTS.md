@@ -324,7 +324,7 @@ merge-ready: the required checks (`quality`, `security`, `infrastructure`) are g
 exact head, there is no merge conflict, no review thread is unresolved, and a MATERIAL
 change has an independent review PASS (`/ro-review`, or an independent Claude review with
 no blocking findings when no review lane is available). After merging, the agent reports
-the merge in one line with the PR link. OpenCode lane runs still open PRs and never merge;
+the merge in one line with the PR link. One-shot OpenCode lane dispatches still open PRs and never merge;
 the session that owns the PR merges it.
 
 These still need the Owner's explicit go before merge: pushes to the engine fork
