@@ -863,3 +863,22 @@ def test_engine_player_ids_resolve_to_the_seat_tokens_of_the_pilot_view() -> Non
     score, facts = attack_score(option, state)
     assert "combat_unknown" not in facts
     assert score < 0.0  # Grave Titan blocks and kills the Myr
+
+
+def test_self_doubling_counter_ability_is_withheld_once_saturated() -> None:
+    # #817: Heroes' Bane's "Put X +1/+1 counters on it, where X is its power"
+    # doubles it per activation; the engine adds the counters one by one, so
+    # activations past any lethal power exhausted the bridge heap.
+    from commander_lab.engine.rules.full_game_pilot_views import priority_view_fields
+
+    label = "{2}{G}{G}: Put X +1/+1 counters on Heroes' Bane, where X is its power"
+    option = {
+        "option_id": "double",
+        "label": label,
+        "option_type": "activated_ability",
+        "metadata": {"source_name": "Heroes' Bane", "ability_type": "activated"},
+    }
+    small = _state(actor_board=[_card("hb", "Heroes' Bane", 8, 8)])
+    assert priority_view_fields(option, small)[1] is None
+    huge = _state(actor_board=[_card("hb", "Heroes' Bane", 4096, 4096)])
+    assert priority_view_fields(option, huge)[1] == "self_doubling_counters_saturated"

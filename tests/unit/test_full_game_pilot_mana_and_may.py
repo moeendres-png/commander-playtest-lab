@@ -467,3 +467,27 @@ def test_one_or_more_sweep_takes_only_the_modes_that_hurt_the_table() -> None:
     request = _request("mode", rest, state=state, offset=2)
     request["minimum_selections"] = 0
     assert policy.decide(request)["selected_option_ids"] == []
+
+
+def test_reversed_free_cast_is_not_retried_forever() -> None:
+    # #816/#817: XMage keeps a free-cast card whose cast was reversed (Shatter
+    # with no artifact) and re-asks "Continue casting?" for a non-computer
+    # player, so answering Yes to the identical cast prompt again loops the
+    # engine without end. After "Continue casting?" follows a Yes, the same
+    # cast prompt is not accepted again that turn; a different card still is.
+    policy = _policy()
+    cast = "Cast spell without paying its mana cost (Shatter [d67])?"
+    other = "Cast spell without paying its mana cost (Shock [e12])?"
+    cont = "You can cast 1 more spells for free. Continue casting?"
+
+    def answer(prompt: str, offset: int) -> str:
+        return policy.decide(_boolean("playforfree", prompt, offset=offset))["selected_option_ids"][
+            0
+        ]
+
+    assert answer(cast, 1) == "yes"
+    assert answer(cont, 2) == "yes"
+    assert answer(cast, 3) == "no"
+    # Continuing would only re-offer the refused card: the chain ends here.
+    assert answer(cont, 4) == "no"
+    assert answer(other, 5) == "yes"

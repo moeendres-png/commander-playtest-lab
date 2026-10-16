@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+import re
 from typing import Any
 
 from commander_lab.agents.card_knowledge import card_facts
@@ -25,6 +26,11 @@ from .common import (
     _RuntimePilot,
 )
 from .payment import _PaymentDecisions
+
+_FREE_CAST_PROMPT = re.compile(r"Cast spell without paying its mana cost")
+_FREE_CAST_CONTINUE_PROMPT = re.compile(
+    r"You can cast \d+ more spells? for free\. Continue casting"
+)
 
 
 class _ChoiceDecisions(_PaymentDecisions):
@@ -318,6 +324,28 @@ class _ChoiceDecisions(_PaymentDecisions):
                 and answered_yes >= cap
             )
         ]
+        # Free-cast retry guard (liveness only, #816/#817). XMage's
+        # castMultipleWithAttributeForFree keeps a card whose free cast was
+        # reversed (no legal target) and, for a non-computer player, re-asks
+        # "Continue casting?" forever. A cast prompt this seat already
+        # answered Yes to, followed by "Continue casting?", failed to cast;
+        # the identical cast prompt is not offered Yes again this turn.
+        turn = state.get("turn_number")
+        failed_turn, failed = self._free_cast_failed.get(seat, (None, set()))
+        if failed_turn != turn:
+            failed = set()
+        if _FREE_CAST_PROMPT.match(prompt) and prompt in failed:
+            kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
+            if kept:
+                selectable = kept
+                self._free_cast_refused.add(seat)
+        elif _FREE_CAST_CONTINUE_PROMPT.match(prompt) and seat in self._free_cast_refused:
+            # The refused retry above would be re-offered by the engine for as
+            # long as this seat keeps saying Yes to "Continue casting?".
+            self._free_cast_refused.discard(seat)
+            kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
+            if kept:
+                selectable = kept
         if selectable and len(selectable) != len(options):
             _LOG.info(
                 "multikicker guard: %d consecutive yes payments for %s/%s reached the "
@@ -355,6 +383,13 @@ class _ChoiceDecisions(_PaymentDecisions):
             raw_id = raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable boolean option") from None
+        if _FREE_CAST_PROMPT.match(prompt):
+            self._free_cast_last_yes[seat] = prompt if values[raw_id] else None
+        elif _FREE_CAST_CONTINUE_PROMPT.match(prompt):
+            last_yes = self._free_cast_last_yes.pop(seat, None)
+            if last_yes is not None:
+                failed.add(last_yes)
+        self._free_cast_failed[seat] = (turn, failed)
         if offer is None:
             # Not a repeating offer: it is a single discretionary question, so
             # it clears any chain and is never capped.

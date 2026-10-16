@@ -117,6 +117,9 @@ class _PolicyState:
         # never capped and clears this memory, so an ordinary may-trigger
         # cannot inherit a chain it never took part in.
         self._boolean_repeat: dict[int, tuple[tuple[str, str], int, int]] = {}
+        self._free_cast_failed: dict[int, tuple[Any, set[str]]] = {}
+        self._free_cast_last_yes: dict[int, str | None] = {}
+        self._free_cast_refused: set[int] = set()
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.
