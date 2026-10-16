@@ -8,8 +8,7 @@
     "max_bytes": 51200
   },
   "enabled_providers": [
-    "opencode",
-    "tokenharbor"
+    "opencode"
   ],
   "permission": {
     "read": {
@@ -183,18 +182,6 @@
     }
   },
   "provider": {
-    "tokenharbor": {
-      "npm": "@ai-sdk/openai-compatible",
-      "options": {
-        "baseURL": "https://tokenharbor.ai/v1",
-        "apiKey": "{env:TOKENHARBOR_API_KEY}"
-      },
-      "models": {
-        "deepseek-v4.1-flash:free": {
-          "name": "DeepSeek V4.1 Flash"
-        }
-      }
-    },
     "opencode": {
       "whitelist": [
         "deepseek-v4.1-flash-free"
@@ -248,11 +235,6 @@
         "action": "provider.use",
         "effect": "allow",
         "resource": "opencode"
-      },
-      {
-        "action": "provider.use",
-        "effect": "allow",
-        "resource": "tokenharbor"
       }
     ]
   },
