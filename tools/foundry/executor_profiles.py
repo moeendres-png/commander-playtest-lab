@@ -1,23 +1,19 @@
-"""Canonical OpenCode executor-profile resolution (exactly two logical profiles).
+"""Canonical OpenCode executor-profile resolution (exactly one logical profile).
 
 Single source of truth: ``.foundry/executor-profiles.json``. The code never
 invents a model identity and never falls back across executor families.
 
-Logical profiles
-----------------
+Logical profile
+---------------
 
-- ``step``: the default and only ACTIVE executor (Owner directive
-  2026-10-12), served by OpenCode Zen as ``opencode/step-5-preview-free`` at
-  its highest native variant ``high`` (the Zen catalog lists no ``max`` for
-  it), resolved only after live catalog inspection of the pinned OpenCode CLI
-  (``opencode models opencode``).
-- ``deepseek``: ``opencode-go/deepseek-v4.1-flash`` at native ``max``; kept in
-  the registry with ``runtime_status: SUSPENDED`` (its OpenCode Go monthly
-  quota is exhausted). A suspended profile never resolves; only a new direct
-  Owner instruction flips it back to ACTIVE.
+- ``deepseek``: the default and only ACTIVE executor (Owner instruction
+  2026-10-16), served by OpenCode Zen as ``opencode/deepseek-v4.1-flash-free``
+  at its highest native variant ``max``, resolved only after live catalog
+  inspection of the pinned OpenCode CLI (``opencode models opencode``). Step 5
+  Preview left the Zen catalog and was retired on 2026-10-16.
 
-Step runtime selection is deterministic: the canonical Zen id must be present
-in the inspected catalog, else resolution fails closed.
+Runtime selection is deterministic: the canonical Zen id must be present in
+the inspected catalog, else resolution fails closed.
 
 No other provider/model (another family, a retired id, or the first available
 catalog row) may ever substitute. A runtime/auth/quota/API/tool failure AFTER
@@ -38,22 +34,18 @@ from pathlib import Path
 DEFAULT_REGISTRY_PATH = Path(__file__).resolve().parents[2] / ".foundry" / "executor-profiles.json"
 
 CANONICAL_PROVIDER = "opencode"
-# Providers a registry runtime id may name: Zen (active Step) and Go (the
-# suspended DeepSeek record only).
-ADMITTED_PROVIDERS = (CANONICAL_PROVIDER, "opencode-go")
-STEP_RUNTIME_ID = "opencode/step-5-preview-free"
-DEEPSEEK_RUNTIME_ID = "opencode-go/deepseek-v4.1-flash"
-LOGICAL_PROFILES = ("deepseek", "step")
-DEFAULT_PROFILE = "step"
+# Providers a registry runtime id may name: OpenCode Zen only (the OpenCode Go
+# provider is retired).
+ADMITTED_PROVIDERS = (CANONICAL_PROVIDER,)
+DEEPSEEK_RUNTIME_ID = "opencode/deepseek-v4.1-flash-free"
+LOGICAL_PROFILES = ("deepseek",)
+DEFAULT_PROFILE = "deepseek"
 # Profiles served by OpenCode Zen: resolution needs live catalog inspection.
-ZEN_PROFILES = ("step",)
-CANONICAL_RUNTIME_IDS = {
-    "deepseek": DEEPSEEK_RUNTIME_ID,
-    "step": STEP_RUNTIME_ID,
-}
+ZEN_PROFILES = ("deepseek",)
+CANONICAL_RUNTIME_IDS = {"deepseek": DEEPSEEK_RUNTIME_ID}
 # Each profile's single highest native variant as listed by its provider
-# catalog. Step 5 Preview lists low/medium/high only, so `high` is its highest.
-NATIVE_VARIANTS = {"deepseek": "max", "step": "high"}
+# catalog (models.dev lists low/high/max for DeepSeek V4.1 Flash). Never lower.
+NATIVE_VARIANTS = {"deepseek": "max"}
 CANONICAL_ALIAS_CLASS = "CANONICAL"
 LEGACY_ALIAS_CLASS = "LEGACY_ALIAS"
 ALIAS_CLASSES = (CANONICAL_ALIAS_CLASS, LEGACY_ALIAS_CLASS)
@@ -198,7 +190,7 @@ def _split_provider(runtime_id: str) -> tuple[str, str]:
 
 
 def validate_registry(doc: dict, *, path: str = "<memory>") -> list[str]:
-    """Validate the canonical registry: exactly two profiles, no third executor."""
+    """Validate the canonical registry: exactly one profile, no other executor."""
     errors: list[str] = []
     if not isinstance(doc, dict):
         return ["registry must be a mapping"]
@@ -402,10 +394,9 @@ def resolve_executor(
 ) -> ResolvedExecutor:
     """Resolve one logical profile to its exact pinned runtime identity.
 
-    A SUSPENDED profile is refused before anything else. DeepSeek (when ACTIVE)
-    uses the pinned canonical identity; when a catalog is supplied its
-    presence is still verified. The Zen profile (Step) requires
-    catalog inspection and selects its admitted Zen id, else fails closed.
+    A SUSPENDED profile is refused before anything else. The Zen profile
+    (deepseek) requires catalog inspection and selects its admitted Zen id,
+    else fails closed.
     """
     reg = registry or load_registry()
     if logical_profile not in reg.profiles:
@@ -416,7 +407,7 @@ def resolve_executor(
     if not spec.active:
         raise ExecutorResolutionError(
             f"execution profile {logical_profile!r} is {spec.runtime_status} "
-            "(Owner directive 2026-10-12: Step 5 Preview only); fail closed, no fallback"
+            "(Owner instruction 2026-10-16: DeepSeek V4.1 Flash only); fail closed, no fallback"
         )
     catalog_checked = False
     source = "not_inspected"
@@ -432,28 +423,18 @@ def resolve_executor(
         listed, source = load_live_catalog(opencode_bin)
         catalog_checked = True
 
-    if logical_profile == "deepseek":
-        chosen = reg.runtime_identity.get(spec.canonical_runtime_id)
-        if chosen is None:  # pragma: no cover - registry validation prevents this
-            raise ExecutorResolutionError("deepseek canonical runtime id is not admitted")
-        if listed is not None and chosen.runtime_id not in listed:
-            raise ExecutorResolutionError(
-                f"canonical {chosen.runtime_id!r} is absent from the inspected catalog; "
-                "fail closed (no fallback)"
-            )
-    else:
-        if listed is None:
-            raise ExecutorResolutionError(
-                f"{logical_profile} requires live catalog inspection before selection; fail closed"
-            )
-        present = [item for item in spec.admitted if item.runtime_id in listed]
-        if not present:
-            admitted = ", ".join(spec.admitted_runtime_ids)
-            raise ExecutorResolutionError(
-                f"no admitted {logical_profile} runtime id present in the inspected catalog "
-                f"(admitted: {admitted}); fail closed (no cross-family substitute)"
-            )
-        chosen = present[0]
+    if listed is None:
+        raise ExecutorResolutionError(
+            f"{logical_profile} requires live catalog inspection before selection; fail closed"
+        )
+    present = [item for item in spec.admitted if item.runtime_id in listed]
+    if not present:
+        admitted = ", ".join(spec.admitted_runtime_ids)
+        raise ExecutorResolutionError(
+            f"no admitted {logical_profile} runtime id present in the inspected catalog "
+            f"(admitted: {admitted}); fail closed (no cross-family substitute)"
+        )
+    chosen = present[0]
 
     provider, _model = _split_provider(chosen.runtime_id)
     return ResolvedExecutor(

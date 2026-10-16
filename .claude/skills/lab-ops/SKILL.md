@@ -24,7 +24,7 @@ change GitHub state. Run them from the Lab worktree root.
 | Seal an epoch (packet + manifests + the required secret scan, before any push) | `scripts/seal.py RUN_ID [--replace OLD_EPOCH]` on a fresh branch from main |
 | Real-engine rows | `scripts/real_rows.py build` then `midgame FIX…`, `cardinality CAND`, `pregame CAND`, `af04 CAND PKG` |
 
-Every lane runs Step 5 Preview HIGH (`opencode/step-5-preview-free` on OpenCode Zen), the only OpenCode model (Owner directive 2026-10-12; DeepSeek SUSPENDED); write the task per
+Every lane runs DeepSeek V4.1 Flash MAX (`opencode/deepseek-v4.1-flash-free` on OpenCode Zen), the only OpenCode model (Owner instruction 2026-10-16); write the task per
 `docs/foundry-execution/EXECUTOR_PROMPTING.md`. Dispatch task skeletons live in `oc_tasks/`: `implement-batch.md`, `fix-review-findings.md`,
 `ci-fix.md`, `tooling.md`. Fill only the 5–10 task-specific lines; `oc_dispatch.py` appends
 the rules footer. Its commit trailer names the dispatching Claude session (`--session-url`,

@@ -1,107 +1,137 @@
-# Writing prompts for Step 5 Preview HIGH
+# Writing prompts for DeepSeek V4.1 Flash MAX
 
-Status: CANONICAL guidance (Owner directive 2026-10-12). Step 5 Preview HIGH
-(`opencode/step-5-preview-free` on OpenCode Zen, native `high`, its highest catalog level) is the
-only OpenCode model this project uses (free Zen quota). It runs every lane: `/oc`
+Status: CANONICAL guidance (Owner instruction 2026-10-16). DeepSeek V4.1 Flash MAX
+(`opencode/deepseek-v4.1-flash-free` on OpenCode Zen, native variant `max`) is the only OpenCode
+model this project uses. Zen lists it free, zero-retention and not trained on; models.dev lists
+effort values low/high/max, context 200000, output 32000. It runs every lane: `/oc`
 (`foundry-implementer`), `/assure` (`assurance-verifier`), `/ro-review` (read-only
 `foundry-reviewer`), the Foundry launcher and Claude-side runs through the `opencode` CLI
-(`opencode run -m opencode/step-5-preview-free --variant high`; the Zen free tier refuses the
-`opencode-subagent` MCP bridge). Zen rate-limits parallel free runs: start Step jobs one at a time
-and treat a hung run as `BLOCKED_SERVICE`.
-DeepSeek is SUSPENDED; never name it as a target, a fallback or a "cheaper" option.
+(`opencode run -m opencode/deepseek-v4.1-flash-free --variant max`). Step 5 Preview left the Zen
+catalog and was retired on 2026-10-16; never name another model as a target, fallback or
+"cheaper" option.
 
-This guide is derived from this repository's lane contracts, its evidence rules and the run
-failures it has recorded (step timeouts, token expiry, hung CLIs, quota refusals). It is not
-vendor documentation about the model's internals. Authority stays with `AGENTS.md` and
-`docs/CURRENT_EXECUTION_AUTHORITY.md`; this file only says how to phrase a task well.
+Always native `max`; no variant below `high` is configured anywhere and the launcher refuses a
+caller `--variant`/`--model`. Do not write "think less" or "be quick" into a task: save tokens on
+input, never on reasoning or verification.
+
+Derived from this repository's lane contracts, evidence rules and recorded run failures (step
+timeouts, token expiry, hung CLIs, quota refusals), not from vendor internals. Authority stays
+with `AGENTS.md` and `docs/CURRENT_EXECUTION_AUTHORITY.md`; this file only says how to phrase a task.
 
 ## 1. Pick the lane before writing the prompt
 
 | Need | Lane | Agent | Writes? |
 |---|---|---|---|
 | Implement, fix, CI repair, tooling, evidence production | `/oc` | `foundry-implementer` | yes, own branch + PR |
-| Maximum-assurance task (two-route proof, full suites, auditor) | `/assure` | `assurance-verifier` | yes, only when the task says so |
+| Maximum-assurance task (two-route proof, full suites, auditor) | `/assure` | `assurance-verifier` | only when the task says so |
 | MATERIAL review gate on an exact SHA/TREE | `/ro-review` | `foundry-reviewer` | never |
-| Bounded side task from a Claude session | `opencode-subagent` MCP | per call | per permission mode |
+| Bounded side task from a Claude session | `opencode` CLI / MCP | per call | per permission mode |
 
-The model is the same everywhere; the lane decides permissions and posture. Do not ask an `/oc`
-run to "also review itself": the review gate only accepts the separate `/ro-review` run.
+The model is the same everywhere; the lane sets permissions and posture. Never ask an `/oc` run to
+review itself: the gate only accepts the separate `/ro-review` run.
 
-## 2. Use the skeletons, fill only the delta
+## 2. Phrase the task: one objective, exact lock, exact commands
 
 Start from `.claude/skills/lab-ops/oc_tasks/<template>.md` and post with
-`python3 .claude/skills/lab-ops/scripts/oc_dispatch.py post`. The skeleton fields are the
-contract Step 5 Preview works best with, because each one removes a guess:
+`python3 .claude/skills/lab-ops/scripts/oc_dispatch.py post`. Fill only the delta; AGENTS.md,
+permissions and evidence semantics are already injected, and repeating them dilutes the task.
 
 - **Objective**: one sentence, one outcome. Two outcomes are two dispatches.
-- **Source lock / ownership**: repo, 40-hex SHA, branch, owner. The model re-checks it before
-  reporting; a vague lock produces a vague report.
-- **Dependencies / hard gates**: what must already be true, and which gates stop the run.
-- **Evidence required**: exact commands, tests, readbacks and the wrong-reason control each change
-  must kill. Name the command; never write "make sure it works".
-- **Stop condition**: the Semantic Completion condition or the exact fail-closed blocker.
-- **Exact next action**: the first concrete step, so the run does not spend its budget orienting.
-- **Out of scope**: branches, workstreams and evidence files it must not touch.
+- **Source lock / ownership**: repo, 40-hex SHA, branch, owner. State which facts are observed and
+  which inferred; paste the failing line with file:line, not the chat that found it.
+- **Claim first, method second**: "after the change X holds and Y is unchanged"; require a red
+  command first, then the green one, with real exit codes.
+- **Exact commands**: the one test command, the lint command, the readback. Never "make sure it works".
+- **Evidence**: what to paste, plus the wrong-reason control each change must kill.
+- **Read surface**: name the 3 to 10 files that matter and the scripts to use. "Explore the repo" burns the time box.
+- **Stop conditions**: the Semantic Completion condition or the exact fail-closed blocker. Verdicts
+  are `PASS / FAIL / UNKNOWN / BLOCKED`; `UNKNOWN != PASS`; a local run is not CI credit.
+- **Handoff format**: commits (SHA + subject), files changed, commands with exit codes, UNKNOWN and
+  BLOCKED items, exact next action; at most 40 lines.
+- **Out of scope**: files, branches and sealed evidence it must not touch; one owner per surface.
+- **Time box**: a GitHub lane step ends at 55 minutes and the action token lives one hour. Size the
+  dispatch inside that, start long suites first, push a checkpoint before any long wait.
+- Quota, auth, catalog or permission failures end the run (`BLOCKED_SERVICE`); never ask it to retry
+  on another model or provider. Keep identifiers, commands and paths verbatim; one language per field.
 
-The global policy (AGENTS.md, permissions, evidence semantics) is already injected. Do not paste
-it again; repeated policy dilutes the task delta.
+## 3. Use tools and skills, do not improvise
 
-## 3. Prompt rules that matter for this model
+Run deterministic scripts before reasoning, and load a skill before a matching task (name it in the
+first message so the run is auditable). Project skills live in `.opencode/skills/<name>/SKILL.md`:
 
-1. **Give facts, not history.** Paste the failing line, the file:line and the SHA, not the chat
-   that found them. Say which facts are observed and which are inferred.
-2. **State the claim to establish before the method.** "After the change, X holds and Y is
-   unchanged" lets the model choose a route and still be checked against the claim.
-3. **Ask for reproduce-then-repair.** Require a red command first, then the green one, with real
-   exit codes in the handoff.
-4. **Bound the read surface.** Name the 3 to 10 files that matter and the `lab-ops` scripts to use
-   for status and logs. Unbounded "explore the repo" burns the run's time box.
-5. **Fit the time box.** A GitHub lane step ends at 55 minutes and the action token lives one
-   hour. Size each dispatch to finish well inside that, start long suites first, and require a
-   pushed checkpoint before any long wait. Split anything larger.
-6. **Name the verdict vocabulary.** `PASS / FAIL / UNKNOWN / BLOCKED`; `UNKNOWN != PASS`;
-   a local run is not CI credit. Ask for a certainty ledger line per claim on `/assure`.
-7. **Make blockers terminal.** Quota (`BLOCKED_SERVICE`), auth, catalog or permission failures end
-   the run with a report. Never ask it to retry on another model or provider.
-8. **One owner per surface.** If another thread or PR owns a file, say so and forbid edits there.
-9. **German or English, never mixed inside one field.** Keep identifiers, commands and paths
-   verbatim.
+| Skill | Load it WHEN |
+|---|---|
+| `workstream-bootstrap` | starting a new workstream: repo identity, source lock, worktree inventory, branch ownership, dirty tree |
+| `continuation` | resuming after session loss, compaction or handoff: Git plus the state file win over memory |
+| `test-impact` | deciding which tests/evidence a change affects; uncertain impact means requalify |
+| `component-change-review` | reviewing a changed tool/config/doc before it earns validation credit; no weakened assertions |
+| `failure-classification` | a test, CI or run failed: assign one canonical class, `UNKNOWN` stays `UNKNOWN` |
+| `evidence-seal` | recording commands, runs, hashes and verdicts as a structured seal; nothing inferred or backfilled |
+| `rules-authority-escalation` | a task turns on what Magic rules MEAN rather than what code does: freeze the question and write an `AUTHORITY_GATE`, do not decide |
+| `lab-ops` | any PR/CI/log/PB-03/real-engine question: use the scripts below instead of raw API JSON or whole logs |
 
-## 4. Review prompts (`/ro-review`) while one model does both jobs
+Scripts (`.claude/skills/lab-ops/scripts/`, run from the worktree root, compact output):
 
-With DeepSeek suspended the reviewer is the same model as the implementer (Owner approval of
-2026-10-10 for the single-executor case, applied to Step from 2026-10-12). The only independence left is a fresh context, so protect it:
+- `gh_ops.py brief` is the one-screen lane status (open PRs, running `/oc`/`/assure` runs, PB-03, newest epoch);
+  also `status PR…`, `threads PR`, `errors JOB_ID`, `wait PR…`, `run RUN_ID`.
+- `oc_dispatch.py post|watch|rescue` builds a dispatch from a task file plus the fixed footer, watches
+  the outcome in at most 15 lines (run `watch` in the background), and recovers a failed run's bundle.
+- `pb03_packet.py RUN_ID OUT` downloads a PB-03 packet and prints the AF00-AF11 verdicts per candidate.
+- `real_rows.py build|midgame|cardinality|pregame|af04` runs rows on the real XMage engine
+  (LOCAL_OBSERVED only, never credit).
 
-- Give the reviewer the exact SHA, TREE, PR link and the acceptance claim. Do not paste the
-  implementer's reasoning, handoff narrative or "why this is correct".
+Also prefer `tools/foundry/` helpers (`source_lock.py`, `test_impact.py`, `cluster_failures.py`,
+`evidence.py`) over hand-rolled checks. Use the editor, grep and glob tools over ad-hoc shell parsing.
+
+## 4. Request-budget discipline (free tier)
+
+The free Zen tier is request-capped; user reports say about 200 requests per day (unverified).
+Spend requests like money:
+
+- Batch reads: open several files or one `grep -n` per step, not one file per step.
+- Fewer, bigger steps: edit a file completely in one write; do not narrate or re-read what you just wrote.
+- Run tests with one command per surface (`python3 -m pytest -q -p no:cacheprovider <paths>`), narrow
+  while iterating, the full suite once at the integration boundary; long suites in the background.
+- One job at a time: never run parallel free runs and never fan out subagents.
+- A quota refusal or a hung run is `BLOCKED_SERVICE`: write a checkpoint (state, branch, next action),
+  stop, and resume the next day. Do not retry in a loop and do not switch model or provider.
+
+## 5. Review prompts (`/ro-review`)
+
+With one ACTIVE profile the reviewer is the same model as the implementer (single-executor review,
+Owner approval 2026-10-10, restated 2026-10-16). If a second profile is ever ACTIVE, same-model
+self-review is refused. The only independence left is a fresh context, so protect it:
+
+- Give the reviewer the exact SHA, TREE, PR link and acceptance claim; not the implementer's
+  reasoning or "why this is correct".
 - Ask adversarially: "find the input, state or ordering that makes this wrong", with the
-  wrong-reason controls it must try, not "confirm the fix".
-- Require the machine-parseable receipt the gate reads (`DIRECT_READ_ONLY_REVIEW`) and the
-  P1/P2/P3 finding split. A MATERIAL change after the review makes it STALE.
-- For Rules, evidence, containment or security decisions, add the Claude `evidence-reviewer`
-  (Opus `high`) as a second, different-model reviewer.
+  wrong-reason controls to try, not "confirm the fix".
+- Require the machine-parseable receipt (`DIRECT_READ_ONLY_REVIEW`) and the P1/P2/P3 split. A
+  MATERIAL change after the review makes it STALE.
+- For Rules, evidence, containment or security decisions add the Claude `evidence-reviewer` (Opus
+  `high`) as a different-model second reviewer.
 
-## 5. `opencode-subagent` MCP calls from Claude
+## 6. Claude-side calls
 
-`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode/step-5-preview-free`, the plugin
-default. Still pass `model: "opencode/step-5-preview-free"` on every `agent` call so a stale plugin
-default can never select another model. Brief it like a dispatch: objective, files, exact
-validation command, stop condition, and "do not call `mcp__hearthbot__` tools".
+`.claude/settings.json` sets `OPENCODE_SUBAGENT_MODEL=opencode/deepseek-v4.1-flash-free`. Pass
+`model: "opencode/deepseek-v4.1-flash-free"` on every `opencode-subagent` `agent` call so a stale
+plugin default (the external plugin still defaults to a retired Go id) can never select another
+model. Brief it like a dispatch and add "do not call `mcp__hearthbot__` tools".
 
-## 6. Minimal example (`/oc`)
+## 7. Minimal example (`/oc`)
 
 ```text
 /oc **Objective.** Make `tools/foundry/review_gate.py` reject a review record whose reviewed_tree
 does not match the validated tree (issue #NNN item 2).
 
 **Source lock / ownership.** `moeendres-png/commander-playtest-lab@<sha>`; branch
-`fix/review-tree-<date>` from main; owner: this dispatch.
+`fix/review-tree-<date>` from main; owner: this dispatch. Load skills: component-change-review, test-impact.
 
-**Evidence required.** New test in `tests/foundry/test_review_gate.py` that is red on <sha> and
-green after; `PYTHONPATH=$PWD/src python3 -m pytest -q -p no:cacheprovider tests/foundry` exit 0;
+**Evidence required.** New test in `tests/foundry/test_review_gate.py`, red on <sha>, green after;
+`PYTHONPATH=$PWD/src python3 -m pytest -q -p no:cacheprovider tests/foundry` exit 0;
 `ruff check tools/foundry tests/foundry && ruff format --check tools/foundry tests/foundry`.
 
-**Stop condition.** PR open with both red and green outputs pasted, or a named blocker.
+**Stop condition.** PR open with red and green outputs pasted, or a named blocker.
 
 **Exact next action.** Read `review_gate.py` lines 95-140 and write the red test.
 
