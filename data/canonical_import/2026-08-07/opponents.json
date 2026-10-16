@@ -1769,7 +1769,7 @@
       "target_deck_size": 100
     },
     {
-      "deck": "Alen – High Perfect Morcant",
+      "deck": "High Perfect Morcant",
       "commander": "High Perfect Morcant",
       "data_status": "partially_observed / synthetic_completion_pool_constrained",
       "declared_slots": 100,
