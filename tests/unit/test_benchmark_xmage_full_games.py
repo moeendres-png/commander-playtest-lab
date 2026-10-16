@@ -72,3 +72,14 @@ def test_compare_fails_when_a_game_is_missing_on_either_side(tmp_path: Path) -> 
     a = [("p1", 1, "ok", "s1"), ("p1", 2, "ok", "s2")]
     assert _compare(tmp_path, a, a[:1]) == 1
     assert _compare(tmp_path, a[:1], a) == 1
+
+
+def test_two_failed_games_are_not_identical(tmp_path: Path) -> None:
+    games = [("p1", 1, "failed", None)]
+    assert _compare(tmp_path, games, games) == 1
+
+
+def test_compare_names_games_present_in_only_one_file(tmp_path: Path, capsys) -> None:
+    a = [("p1", 1, "ok", "s1"), ("p1", 2, "ok", "s2")]
+    assert _compare(tmp_path, a, a[:1]) == 1
+    assert "MISSING 1 game(s)" in capsys.readouterr().out
