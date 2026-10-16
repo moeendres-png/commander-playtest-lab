@@ -149,7 +149,7 @@ class _CombatDecisions(_ChoiceDecisions):
         return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
 
     @staticmethod
-    def _block_frame_key(options: list[dict[str, Any]]) -> tuple[str, ...]:
+    def _block_frame_key(options: list[dict[str, object]]) -> tuple[str, ...]:
         """Identify the engine's ask: the blocker and the attackers it offered.
 
         The engine's own object ids come from the option metadata, so two
@@ -177,7 +177,7 @@ class _CombatDecisions(_ChoiceDecisions):
         return tuple(sorted(parts))
 
     def _count_block_frame_ask(
-        self, seat: int, state: dict[str, Any], options: list[dict[str, Any]]
+        self, seat: int, state: dict[str, object], options: list[dict[str, object]]
     ) -> int:
         """How often the engine has asked this block frame this turn (1 = first).
 
