@@ -2,10 +2,19 @@ from __future__ import annotations
 
 import json
 import math
+import random
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
 from commander_lab.models import CardRole, Color, StructuralCardProfile, StructuralDeckProfile
+
+_CASTABILITY_TURNS: tuple[int, ...] = tuple(range(2, 11))
+_CASTABILITY_MODES: tuple[str, str] = ("play", "draw")
+DEFAULT_CASTABILITY_TRIALS = 20_000
+DEFAULT_CASTABILITY_SEED = 20261016
+_COMMANDER_LIBRARY_SIZES = (98, 99)  # 100-card deck minus one or two commanders
+_OPENING_HAND_SIZE = 7
 
 
 @dataclass(frozen=True)
@@ -32,10 +41,16 @@ class DeckManaAnalysis:
     ishai_wu_source_counts: dict[str, int]
     early_interaction_hold_up_requirements: dict[str, int]
     turn_castability_support: dict[int, dict[str, object]]
+    commander_cast_probability: dict[str, dict[str, dict[int, float]]]
+    expected_commander_turn: dict[str, dict[str, float | None]]
     evidence_class: str = "derived_structural_mana_analysis"
     approximation_note: str = (
         "Castability support is a structural source-coverage signal, not a rules-exact or "
-        "probabilistic opening-hand result."
+        "probabilistic opening-hand result. Commander cast probabilities come from a seeded "
+        "Monte Carlo over the library (7-card hand, one land per turn, no mulligans); lands "
+        "that definitely enter tapped give mana from the next turn, and mana rocks/dorks "
+        "with mana value <= 2 count from the turn after they could first be cast without "
+        "modeling the mana spent casting them."
     )
 
 
@@ -68,6 +83,184 @@ class ManaDeltaAnalysis:
     t1_untapped_source_delta: dict[str, int]
     ishai_wu_source_delta: dict[str, int]
     evidence_class: str = "derived_structural_mana_analysis"
+
+
+@dataclass(frozen=True)
+class CastabilityLibraryCard:
+    """One library card for the commander-cast Monte Carlo.
+
+    ``is_mana_accelerant`` marks nonland cards with mana value <= 2 that produce mana
+    (mana rocks and mana dorks). The simulation counts them as mana sources from the
+    turn after they could first be cast; the mana spent casting them is not modeled.
+    """
+
+    oracle_name: str
+    produces_colors: frozenset[str]
+    is_land: bool
+    definitely_tapped: bool
+    mana_value: float
+    is_mana_accelerant: bool
+
+
+@dataclass(frozen=True)
+class CommanderCastCost:
+    name: str
+    mana_value: float
+    color_pips: dict[str, int]
+
+
+@dataclass(frozen=True)
+class CommanderCastability:
+    """Seeded Monte Carlo result: is the commander castable by turn N?
+
+    ``probability[commander]["play"|"draw"][turn]`` is the share of trials where the
+    commander was castable on or before ``turn`` (turns 2..10, 3 decimals).
+    ``expected_turn[commander]["play"|"draw"]`` is the mean earliest castable turn
+    across trials that cast the commander by turn 10 (2 decimals), or None when no
+    trial did.
+    """
+
+    probability: dict[str, dict[str, dict[int, float]]]
+    expected_turn: dict[str, dict[str, float | None]]
+
+
+def _choose_land_index(
+    hand: list[CastabilityLibraryCard],
+    wanted_colors: frozenset[str],
+) -> int | None:
+    """Index of the land to play: untapped first, then most wanted colors, then name."""
+    best: int | None = None
+    best_key: tuple[bool, int, str] | None = None
+    for index, card in enumerate(hand):
+        if not card.is_land:
+            continue
+        key = (
+            card.definitely_tapped,
+            -len(card.produces_colors & wanted_colors),
+            card.oracle_name,
+        )
+        if best_key is None or key < best_key:
+            best_key = key
+            best = index
+    return best
+
+
+def simulate_commander_cast_probability(
+    library: Sequence[CastabilityLibraryCard],
+    commanders: Sequence[CommanderCastCost],
+    *,
+    trials: int = DEFAULT_CASTABILITY_TRIALS,
+    seed: int = DEFAULT_CASTABILITY_SEED,
+) -> CommanderCastability:
+    """Seeded Monte Carlo over the library: P(commander castable by turn N).
+
+    Pure and deterministic: the same ``(library, commanders, trials, seed)`` always
+    yields identical numbers. Each trial shuffles the library with ``random.Random``,
+    draws a 7-card hand, then simulates turns 1..10 on the play and on the draw from
+    the same shuffle (on the play there is no turn-1 draw). Each turn draws one card
+    (except turn 1 on the play), plays one land from hand when possible, and counts a
+    mana rock/dork as a source from the turn after it could first be cast. A land
+    that definitely enters tapped gives mana from the turn after it entered. The
+    commander is castable on turn N when available mana covers its mana value and
+    every colored pip is covered by a mana-active colored source in play. There are
+    no mulligans.
+    """
+    if len(library) not in _COMMANDER_LIBRARY_SIZES:
+        raise ValueError(
+            "castability library must hold 98 or 99 cards "
+            f"(100-card deck minus commanders); got {len(library)}"
+        )
+    if not commanders:
+        raise ValueError("at least one commander is required")
+    if trials < 1:
+        raise ValueError("trials must be positive")
+    names = [commander.name for commander in commanders]
+    if len(set(names)) != len(names):
+        raise ValueError("commander names must be unique")
+    mana_thresholds = {commander.name: math.ceil(commander.mana_value) for commander in commanders}
+    pips: Mapping[str, Mapping[str, int]] = {
+        commander.name: dict(commander.color_pips) for commander in commanders
+    }
+    wanted: Mapping[str, frozenset[str]] = {
+        commander.name: frozenset(commander.color_pips) for commander in commanders
+    }
+
+    earliest: dict[str, dict[str, list[int | None]]] = {
+        name: {mode: [] for mode in _CASTABILITY_MODES} for name in names
+    }
+    rng = random.Random(seed)
+    for _ in range(trials):
+        order = list(library)
+        rng.shuffle(order)
+        for mode in _CASTABILITY_MODES:
+            hand = list(order[:_OPENING_HAND_SIZE])
+            stock = order[_OPENING_HAND_SIZE:]
+            stock_index = 0
+            lands_in_play: list[tuple[CastabilityLibraryCard, int]] = []
+            accelerant_ready_turns: list[int] = []
+            accelerant_colors: list[frozenset[str]] = []
+            first_castable: dict[str, int | None] = dict.fromkeys(names)
+            for turn in range(1, _CASTABILITY_TURNS[-1] + 1):
+                if turn > 1 or mode == "draw":
+                    hand.append(stock[stock_index])
+                    stock_index += 1
+                land_index = _choose_land_index(hand, frozenset().union(*wanted.values()))
+                if land_index is not None:
+                    lands_in_play.append((hand.pop(land_index), turn))
+                available_mana = 0
+                active_colors: dict[str, int] = {}
+                for card, entry_turn in lands_in_play:
+                    if entry_turn < turn or not card.definitely_tapped:
+                        available_mana += 1
+                        for color in card.produces_colors:
+                            active_colors[color] = active_colors.get(color, 0) + 1
+                for ready_turn, colors in zip(
+                    accelerant_ready_turns, accelerant_colors, strict=True
+                ):
+                    if ready_turn <= turn:
+                        available_mana += 1
+                        for color in colors:
+                            active_colors[color] = active_colors.get(color, 0) + 1
+                for card in sorted(
+                    (card for card in hand if card.is_mana_accelerant),
+                    key=lambda card: (card.mana_value, card.oracle_name),
+                ):
+                    if card.mana_value <= available_mana:
+                        hand.remove(card)
+                        accelerant_ready_turns.append(turn + 1)
+                        accelerant_colors.append(card.produces_colors)
+                for name in names:
+                    if (
+                        first_castable[name] is None
+                        and available_mana >= mana_thresholds[name]
+                        and all(
+                            active_colors.get(color, 0) >= count
+                            for color, count in pips[name].items()
+                        )
+                    ):
+                        first_castable[name] = turn
+            for name in names:
+                earliest[name][mode].append(first_castable[name])
+
+    probability: dict[str, dict[str, dict[int, float]]] = {}
+    expected_turn: dict[str, dict[str, float | None]] = {}
+    for name in names:
+        probability[name] = {}
+        expected_turn[name] = {}
+        for mode in _CASTABILITY_MODES:
+            turns = earliest[name][mode]
+            probability[name][mode] = {
+                turn: round(
+                    sum(1 for first in turns if first is not None and first <= turn) / trials,
+                    3,
+                )
+                for turn in _CASTABILITY_TURNS
+            }
+            cast_turns = [first for first in turns if first is not None]
+            expected_turn[name][mode] = (
+                round(sum(cast_turns) / len(cast_turns), 2) if cast_turns else None
+            )
+    return CommanderCastability(probability=probability, expected_turn=expected_turn)
 
 
 class ManaAnalyzer:
@@ -109,6 +302,48 @@ class ManaAnalyzer:
             is_land=is_land,
             definitely_enters_tapped=definite,
             conditionally_enters_tapped=conditional,
+        )
+
+    def commander_castability(
+        self,
+        deck: StructuralDeckProfile,
+        *,
+        trials: int = DEFAULT_CASTABILITY_TRIALS,
+        seed: int = DEFAULT_CASTABILITY_SEED,
+    ) -> CommanderCastability:
+        commander_names = set(deck.commander_names)
+        library: list[CastabilityLibraryCard] = []
+        for card in deck.cards:
+            if card.oracle_name in commander_names:
+                continue
+            classification = self.classify_source(card)
+            library.append(
+                CastabilityLibraryCard(
+                    oracle_name=card.oracle_name,
+                    produces_colors=frozenset(classification.colors),
+                    is_land=card.is_land,
+                    definitely_tapped=classification.definitely_enters_tapped,
+                    mana_value=card.mana_value,
+                    is_mana_accelerant=(
+                        not card.is_land and card.mana_value <= 2.0 and bool(classification.colors)
+                    ),
+                )
+            )
+        costs = [
+            CommanderCastCost(
+                name=name,
+                mana_value=next(card.mana_value for card in deck.cards if card.oracle_name == name),
+                color_pips={
+                    color.value: int(count)
+                    for card in deck.cards
+                    if card.oracle_name == name
+                    for color, count in card.color_requirements.items()
+                },
+            )
+            for name in deck.commander_names
+        ]
+        return simulate_commander_cast_probability(
+            tuple(library), tuple(costs), trials=trials, seed=seed
         )
 
     @staticmethod
@@ -198,6 +433,7 @@ class ManaAnalyzer:
             and card.mana_value <= 2.0
             and ({CardRole.COUNTER, CardRole.PROTECTION} & set(card.roles))
         )
+        castability = self.commander_castability(deck)
         return DeckManaAnalysis(
             deck_id=deck.deck_id,
             deck_hash=deck.deck_hash,
@@ -212,6 +448,8 @@ class ManaAnalyzer:
             ishai_wu_source_counts={"W": colors.get("W", 0), "U": colors.get("U", 0)},
             early_interaction_hold_up_requirements=self._max_requirements(early_interaction),
             turn_castability_support=turn_support,
+            commander_cast_probability=castability.probability,
+            expected_commander_turn=castability.expected_turn,
         )
 
     def analyze_opening_hand(
