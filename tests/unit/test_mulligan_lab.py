@@ -30,6 +30,23 @@ def context(deck, *, ensemble=None, seed=7):
     )
 
 
+@pytest.fixture(scope="module")
+def lab(repo_root: Path) -> MulliganLab:
+    """Build the MulliganLab once per module and share it.
+
+    Safe to share: the lab holds no per-test mutable state; all methods take
+    explicit seeds and decks, and results are deterministic. Tests only read
+    from the lab and its deck objects.
+    """
+    return MulliganLab(repo_root)
+
+
+@pytest.fixture(scope="module")
+def rogshai_deck(lab: MulliganLab):
+    """Load the control deck once per module."""
+    return lab.deck("rogshai/current")
+
+
 def names(deck, wanted):
     pool = {}
     for card in deck.cards:
@@ -45,10 +62,10 @@ def names(deck, wanted):
 
 
 def test_london_mulligan_uses_free_first_multiplayer_and_commanders_stay_out(
-    repo_root: Path,
+    lab: MulliganLab,
+    rogshai_deck,
 ) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+    deck = rogshai_deck
     assert all(card.oracle_name not in deck.commander_names for card in lab._library(deck))
     bad = names(
         deck,
@@ -83,9 +100,8 @@ def test_london_mulligan_uses_free_first_multiplayer_and_commanders_stay_out(
     assert len(result.kept_cards) == 7
 
 
-def test_current_rogshai_golden_hands(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    r = lab.deck("rogshai/current")
+def test_current_rogshai_golden_hands(lab: MulliganLab, rogshai_deck) -> None:
+    r = rogshai_deck
     good = lab.evaluate(
         r,
         names(
@@ -124,25 +140,22 @@ def test_current_rogshai_golden_hands(repo_root: Path) -> None:
     assert bad.keep is False
 
 
-def test_common_random_numbers_are_reproducible(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+def test_common_random_numbers_are_reproducible(lab: MulliganLab, rogshai_deck) -> None:
+    deck = rogshai_deck
     a = tuple(lab.iter_draw_sequences(deck, samples=3, seed=99))
     b = tuple(lab.iter_draw_sequences(deck, samples=3, seed=99))
     assert [[c.oracle_name for c in h] for h in a[0]] == [[c.oracle_name for c in h] for h in b[0]]
 
 
-def test_hypergeometric_land_baseline_is_valid(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+def test_hypergeometric_land_baseline_is_valid(lab: MulliganLab, rogshai_deck) -> None:
+    deck = rogshai_deck
     lands = next(row for row in lab.baselines(deck) if row.category == "lands")
     assert 0 < lands.probability_at_least[2] < 1
     assert lands.probability_at_least[1] >= lands.probability_at_least[2]
 
 
-def test_context_deck_hash_mismatch_rejected(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+def test_context_deck_hash_mismatch_rejected(lab: MulliganLab, rogshai_deck) -> None:
+    deck = rogshai_deck
     bad = context(deck).model_copy(update={"deck_hash": "0" * 64})
     with pytest.raises(MulliganLabError):
         lab.run(bad, (MulliganPolicyName.CONSERVATIVE,), samples=2)
@@ -181,18 +194,18 @@ def test_tool_surface_runs_and_generates_non_absolute_rule(repo_root: Path, tmp_
     assert result.result["full_matchup_performance_separate"] is True
 
 
-def test_large_materialization_is_forbidden_but_streaming_supported(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+def test_large_materialization_is_forbidden_but_streaming_supported(
+    lab: MulliganLab, rogshai_deck
+) -> None:
+    deck = rogshai_deck
     with pytest.raises(MulliganLabError):
         lab.sample_draw_sequences(deck, samples=100001, seed=1)
     iterator = lab.iter_draw_sequences(deck, samples=100001, seed=1)
     assert len(next(iterator)) == 7
 
 
-def test_context_dimensions_change_model_score(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+def test_context_dimensions_change_model_score(lab: MulliganLab, rogshai_deck) -> None:
+    deck = rogshai_deck
     hand = names(
         deck,
         (
@@ -228,9 +241,10 @@ def test_context_dimensions_change_model_score(repo_root: Path) -> None:
     )
 
 
-def test_full_followup_and_overfitting_contexts_are_executed(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+def test_full_followup_and_overfitting_contexts_are_executed(
+    lab: MulliganLab, rogshai_deck
+) -> None:
+    deck = rogshai_deck
     result = lab.run(
         context(deck),
         (MulliganPolicyName.PRIMER_POLICY,),
@@ -251,9 +265,8 @@ def test_full_followup_and_overfitting_contexts_are_executed(repo_root: Path) ->
     assert all(row.samples >= 3 for row in result.overfitting_validation)
 
 
-def test_default_policy_comparison_skips_keep_rule_research(repo_root: Path) -> None:
-    lab = MulliganLab(repo_root)
-    deck = lab.deck("rogshai/current")
+def test_default_policy_comparison_skips_keep_rule_research(lab: MulliganLab, rogshai_deck) -> None:
+    deck = rogshai_deck
     result = lab.run(
         context(deck),
         (MulliganPolicyName.CURRENT_PILOT, MulliganPolicyName.PRIMER_POLICY),
