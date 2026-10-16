@@ -396,6 +396,21 @@ def _expr_eval(node: object, context: dict) -> object:
             return str(args[0] or "").startswith(str(args[1]))
         if name == "endsWith":
             return str(args[0] or "").endswith(str(args[1]))
+        if name == "format":
+            # {N} substitute; {{ and }} are literal braces (GitHub semantics).
+            template = str(args[0] if args[0] is not None else "")
+            values = ["" if value is None else str(value) for value in args[1:]]
+            protected = template.replace("{{", "\x00").replace("}}", "\x01")
+            expanded = re.sub(
+                r"\{(\d+)\}",
+                lambda match: (
+                    values[int(match.group(1))]
+                    if int(match.group(1)) < len(values)
+                    else match.group(0)
+                ),
+                protected,
+            )
+            return expanded.replace("\x00", "{").replace("\x01", "}")
         if name == "fromJSON":
             import json
 
@@ -435,6 +450,114 @@ def _event_context(
     return {"github": {"event": event}}
 
 
+# --- first-token lane triggers (issue #814) -----------------------------------
+#
+# A command that merely appears later in a comment never starts a lane: the
+# command must be the comment's first token. The constants make every accepted
+# trigger shape explicit and stay aligned with what the pinned CLI's MENTIONS
+# check admits (github.handler.ts v1.18.30:747-769).
+
+OPENCODE_LANE_COMMANDS = {
+    "opencode": ("/oc", "/opencode"),
+    "opencode-th": ("/oc-th",),
+    "opencode-assure": ("/assure",),
+    "opencode-ro-review": ("/ro-review",),
+}
+
+
+def _firing_lanes(body: str) -> set[str]:
+    """The lanes whose job condition a trusted comment with this body starts."""
+    context = _event_context(
+        commenter="OWNER", target="OWNER", target_login="maintainer", body=body
+    )
+    workflow = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    return {
+        name
+        for name, job in workflow["jobs"].items()
+        if condition_result(str(job["if"]), context) is True
+    }
+
+
+@pytest.mark.parametrize(
+    ("body", "firing"),
+    [
+        # The command is the first token: only its own lane fires.
+        ("/oc do the task", {"opencode"}),
+        ("/oc-th do the task", {"opencode-th"}),
+        ("/assure audit this", {"opencode-assure"}),
+        ("/ro-review review exact SHA", {"opencode-ro-review"}),
+        ("/opencode run", {"opencode"}),
+        ("/oc  two spaces", {"opencode"}),
+        # The whole comment is exactly the command.
+        ("/oc", {"opencode"}),
+        ("/oc-th", {"opencode-th"}),
+        ("/assure", {"opencode-assure"}),
+        ("/ro-review", {"opencode-ro-review"}),
+        # The first line is exactly the command (LF, as the REST API sends it).
+        ("/oc\ntask text", {"opencode"}),
+        ("/oc-th\ntask text", {"opencode-th"}),
+        ("/assure\ntask text", {"opencode-assure"}),
+        ("/ro-review\ntask text", {"opencode-ro-review"}),
+        # CRLF, as the GitHub web comment box sends it.
+        ("/oc\r\ntask text", {"opencode"}),
+        ("/oc-th\r\ntask text", {"opencode-th"}),
+        ("/assure\r\ntask text", {"opencode-assure"}),
+        ("/ro-review\r\ntask text", {"opencode-ro-review"}),
+        # A command later in the text never triggers a lane.
+        ("please /oc do the task", set()),
+        ("the task names /oc-th in the text", set()),
+        ("note: /assure and /ro-review are elsewhere", set()),
+        # The command first plus any mention later: only the leading lane (the
+        # regression of #813 was /oc task text naming /oc-th).
+        ("/oc task naming /oc-th, /assure and /ro-review", {"opencode"}),
+        ("/oc-th task naming /oc", {"opencode-th"}),
+        ("/assure task naming /ro-review", {"opencode-assure"}),
+        ("/ro-review task naming /assure", {"opencode-ro-review"}),
+        ("/opencode task naming /oc-th", {"opencode"}),
+        # Not the command: an extension or a non-separating character.
+        ("/octh do the task", set()),
+        ("/oc-extra do the task", set()),
+        ("/assure-extra audit", set()),
+        ("/ro-review-extra", set()),
+        ("unrelated comment", set()),
+        ("", set()),
+        # Decision: leading whitespace or a tab separator does not trigger. The
+        # command must be the first character (oc_dispatch.py post writes it so).
+        (" /oc do the task", set()),
+        ("\n/oc do the task", set()),
+        ("/oc\tdo the task", set()),
+    ],
+)
+def test_the_first_token_rule_starts_exactly_the_named_lane(body: str, firing: set[str]) -> None:
+    assert _firing_lanes(body) == firing
+
+
+def test_lane_mentions_admit_exactly_the_lane_commands() -> None:
+    """Each job's MENTIONS must admit the comment its first-token rule selects.
+
+    The pinned CLI (github.handler.ts v1.18.30:747-769) keeps the default
+    `/opencode,/oc` for an empty MENTIONS and accepts a comment only when its
+    lowercased body names one of the phrases. Every trigger form therefore
+    names the lane's own command, and no other lane's.
+    """
+    workflow = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
+    mentions = {
+        name: next(step for step in job["steps"] if step.get("name") == "Run opencode")["env"][
+            "MENTIONS"
+        ]
+        for name, job in workflow["jobs"].items()
+    }
+    assert mentions == {
+        "opencode": "",  # empty selects the CLI default `/opencode,/oc`
+        "opencode-th": "/oc-th",
+        "opencode-assure": "/assure",
+        "opencode-ro-review": "/ro-review",
+    }
+    for name, commands in OPENCODE_LANE_COMMANDS.items():
+        admitted = {"/opencode", "/oc"} if mentions[name] == "" else {mentions[name]}
+        assert admitted == set(commands), name
+
+
 def test_expression_evaluator_tracks_boolean_semantics() -> None:
     """The evaluator is non-vacuous: it detects a conjunction->disjunction swap."""
     context = {"github": {"event": {"comment": {"author_association": "NONE"}}}}
@@ -446,6 +569,21 @@ def test_expression_evaluator_tracks_boolean_semantics() -> None:
     assert condition_result(f"{trusted} || false", context) is False  # NONE is not trusted
     weakened = f"{trusted} || true"
     assert condition_result(weakened, context) is True
+
+
+def test_expression_evaluator_matches_the_literal_newline_semantics() -> None:
+    """A '\\n' literal is backslash+n; only fromJSON parses JSON escapes.
+
+    GitHub does not escape-process single-quoted expression strings, so the
+    workflow builds its LF/CRLF separators as ``fromJSON('"\\n"')``. These
+    assertions fail if the evaluator (or the workflow's separator source)
+    starts treating a plain ``'\\n'`` literal as a newline.
+    """
+    assert condition_result(r"""fromJSON('"\n"') == '\n'""", {}) is False
+    assert (
+        condition_result(r"""endsWith(format('x{0}', fromJSON('"\n"')), fromJSON('"\n"'))""", {})
+        is True
+    )
 
 
 def test_opencode_agent_refuses_untrusted_targets() -> None:
@@ -517,15 +655,17 @@ def test_step_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
     )
     assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), direct_body) is False
     assert condition_result(str(doc["jobs"]["opencode-ro-review"]["if"]), direct_body) is True
-    # The lane names no longer share a prefix, so only the explicit exclusion keeps a
-    # comment that names both markers out of the writable lane.
+    # The first-token rule replaced the old exclusion clause: an /assure comment
+    # whose text names /ro-review runs the writable lane it starts with, and the
+    # later mention does not start the read-only lane.
     both_markers = _event_context(
         commenter="OWNER",
         target="OWNER",
         target_login="maintainer",
         body="/assure and /ro-review this",
     )
-    assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), both_markers) is False
+    assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), both_markers) is True
+    assert condition_result(str(doc["jobs"]["opencode-ro-review"]["if"]), both_markers) is False
 
 
 def test_step_review_lane_stays_closed_for_untrusted_principals() -> None:

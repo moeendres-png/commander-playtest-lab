@@ -12,14 +12,27 @@ jobs:
     # may start an agent run that holds OPENCODE_API_KEY and an OIDC token.
     # A comment's text is its prompt, so an unrestricted trigger would let any
     # GitHub account spend the key and steer the agent.
+    # Trigger rule (issue #814): a lane fires only when its command is the
+    # comment's FIRST token: the body is exactly the command, or starts with the
+    # command followed by a space, LF or CRLF line ending. A command that merely
+    # appears later in the text never triggers a lane (it is task text), and
+    # `/oc-th` is not `/oc`. Expressions have no regex and a '\n' string literal
+    # is not escape-processed (it is backslash+n), so line endings come from
+    # fromJSON('"\n"') (REST API comments) and fromJSON('"\r\n"') (web-UI
+    # comments). Leading whitespace before the command does not trigger;
+    # oc_dispatch.py post writes the command first.
     if: |
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
-        contains(github.event.comment.body, ' /oc') ||
-        startsWith(github.event.comment.body, '/oc') ||
-        contains(github.event.comment.body, ' /opencode') ||
-        startsWith(github.event.comment.body, '/opencode')
-      ) && !contains(github.event.comment.body, '/oc-th')
+        github.event.comment.body == '/oc' ||
+        startsWith(github.event.comment.body, '/oc ') ||
+        startsWith(github.event.comment.body, format('/oc{0}', fromJSON('"\n"'))) ||
+        startsWith(github.event.comment.body, format('/oc{0}', fromJSON('"\r\n"'))) ||
+        github.event.comment.body == '/opencode' ||
+        startsWith(github.event.comment.body, '/opencode ') ||
+        startsWith(github.event.comment.body, format('/opencode{0}', fromJSON('"\n"'))) ||
+        startsWith(github.event.comment.body, format('/opencode{0}', fromJSON('"\r\n"')))
+      )
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -122,6 +135,9 @@ jobs:
           SHARE: 'false'
           PROMPT: ''
           USE_GITHUB_TOKEN: 'false'
+          # Empty selects the pinned CLI's default `/opencode,/oc`
+          # (github.handler.ts v1.18.30:747), exactly the two first tokens this
+          # job accepts.
           MENTIONS: ''
           VARIANT: max
           OIDC_BASE_URL: ''
@@ -179,15 +195,19 @@ jobs:
     # job holds TOKENHARBOR_API_KEY (not OPENCODE_API_KEY) and runs the same model
     # served by Token Harbor. Free routes may be logged and used for improvement:
     # never put Owner data, credentials or private collection data in an /oc-th task.
-    # The `/oc` job above excludes comments naming /oc-th, so each lane fires only
-    # on its own command.
+    # Like every lane, `/oc-th` fires only when its command is the first token
+    # (issue #814). The `/oc` trigger above accepts only a leading `/oc` or
+    # `/opencode`, so it never fires for `/oc-th`; a command named later in the
+    # text never triggers a lane.
     # A comment's text is its prompt, so an unrestricted trigger would let any
     # GitHub account spend the key and steer the agent.
     if: |
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
-        contains(github.event.comment.body, ' /oc-th') ||
-        startsWith(github.event.comment.body, '/oc-th')
+        github.event.comment.body == '/oc-th' ||
+        startsWith(github.event.comment.body, '/oc-th ') ||
+        startsWith(github.event.comment.body, format('/oc-th{0}', fromJSON('"\n"'))) ||
+        startsWith(github.event.comment.body, format('/oc-th{0}', fromJSON('"\r\n"')))
       )
     runs-on: ubuntu-latest
     permissions:
@@ -360,9 +380,11 @@ jobs:
     if: |
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
-        contains(github.event.comment.body, ' /assure') ||
-        startsWith(github.event.comment.body, '/assure')
-      ) && !contains(github.event.comment.body, '/ro-review')
+        github.event.comment.body == '/assure' ||
+        startsWith(github.event.comment.body, '/assure ') ||
+        startsWith(github.event.comment.body, format('/assure{0}', fromJSON('"\n"'))) ||
+        startsWith(github.event.comment.body, format('/assure{0}', fromJSON('"\r\n"')))
+      )
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -536,8 +558,10 @@ jobs:
     if: |
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
-        contains(github.event.comment.body, ' /ro-review') ||
-        startsWith(github.event.comment.body, '/ro-review')
+        github.event.comment.body == '/ro-review' ||
+        startsWith(github.event.comment.body, '/ro-review ') ||
+        startsWith(github.event.comment.body, format('/ro-review{0}', fromJSON('"\n"'))) ||
+        startsWith(github.event.comment.body, format('/ro-review{0}', fromJSON('"\r\n"')))
       )
     runs-on: ubuntu-latest
     permissions:
