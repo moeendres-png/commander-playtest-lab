@@ -6,7 +6,7 @@ source; if they seem to disagree, `AGENTS.md` governs. Also read the active work
 contract or checkpoint. When the Owner delegation applies, follow `AGENTS.md` §8 and
 `docs/CURRENT_EXECUTION_AUTHORITY.md`.
 
-An explicitly authorized Claude Opus engineering session applies the campaign and
+An explicitly authorized Claude Opus 5.5 engineering session applies the campaign and
 Coordinator authority of `AGENTS.md` §8: challenge assumptions, use fresh repository
 evidence, finish owned milestones end to end and continue to the next unowned task without
 routine user round-trips, within the Owner-only reservations, ownership, Git safety and
@@ -38,9 +38,11 @@ spawn children. Do not create agent teams or recursive coordinator/worker trees 
 the same logs, files, diffs, tests or evidence in Opus; reopen raw material only for an
 authority-sensitive decision, contradictory or insufficient evidence, an unusual
 security/qualification claim, or a required independent verification. Dispatches carry
-the task delta, not chat history: objective, source lock, branch/ownership, scope, hard
-gates, required evidence, forbidden shortcuts, stop conditions, expected handoff, next
-action. Do not micromanage a complete dispatch.
+the task delta, not chat history: objective, source lock, repository, branch/ownership,
+scope, dependencies, hard gates, required evidence, forbidden shortcuts, stop conditions,
+expected handoff, next action. Do not micromanage a complete dispatch unless an
+authority/ownership gate appears, canonical source changes, the packet was incomplete, or
+the run ends without resumable state.
 
 **Habits.**
 - `gh_ops.py brief` is the one-screen lane status; `oc_dispatch.py post`/`watch` build and
@@ -51,8 +53,10 @@ action. Do not micromanage a complete dispatch.
 - Long Java suites, PB-03 and CI waits run in the background, never as repeated polls.
 - GitHub GraphQL is unavailable: use `gh api` REST and the CCR routes.
 - `ci-definition-integrity-shadow` is red by design when gate tests or workflows change; it
-  is not required (required: `quality`, `security`, `infrastructure`). A workflow change
-  needs its digest updated in `WS17_SHA256SUMS`.
+  is not required (required: `quality`, `security`, `infrastructure`); never weaken it.
+  A change to `.github/workflows/production-qualification.yml` needs its digest updated in
+  `WS17_SHA256SUMS`.
 - `.claude/settings.json` sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` only as the default for
   unassigned helpers; agent frontmatter wins. `log-scanner` and `ci-triage` use
-  `omitClaudeMd: true` on purpose; `evidence-reviewer` keeps project context.
+  `omitClaudeMd: true` on purpose; `evidence-reviewer` keeps project context. No custom
+  cache TTL without benchmark evidence.

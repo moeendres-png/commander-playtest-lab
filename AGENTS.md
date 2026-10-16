@@ -4,8 +4,8 @@ Binding instructions for every agent working on `moeendres-png/commander-playtes
 whatever tool or model the Owner selects (Claude Code, OpenCode Foundry, Cline, GitHub
 Copilot, Google agents, others). Stable rules only: no SHAs, run IDs, PASS counts,
 diagnoses, prices or rate limits. Session facts live in the Workstream Contract and the
-workstream's explicit state file (the `--state` path given to the launcher; there is no
-implicit active repository-root state).
+workstream's explicit state file (the `--state` path given to the launcher);
+there is no implicit active repository-root state.
 
 ## 1. Mission and scope
 
@@ -108,13 +108,18 @@ selected, never silently lowered. Tool configuration that enforces executor iden
 (for example the OpenCode Foundry launcher and `.foundry/executor-profiles.json`) is
 technical configuration, not policy; there is no automatic fallback between executors.
 
-- **Coordinator**: an explicitly launched Claude Opus session under the delegation in §8
+- **Coordinator**: an explicitly launched Claude Opus 5.5 session under the delegation in §8
   (architecture, Source Truth, Rules adjudication, qualification design, gate decisions,
   review and, when authorized, campaign execution).
-- **Worker**: any other executor (OpenCode, Claude Sonnet, Cline, Copilot, Google agents,
-  others). A worker works on its own branch and PR, merges only where §10 delegates it,
-  never decides Owner-only reservations (§8), and its results count as evidence only after
-  the same review and CI gates as any other executor.
+- **Worker**: any other executor. OpenCode Foundry and Claude Sonnet workers inside an
+  owned workstream may merge as §10 delegates. GitHub Copilot, Google agents, Cline and any
+  other external agent work on their own branch and PR and never merge. No worker decides
+  Owner-only reservations (§8); results count as evidence only after the same review and
+  CI gates as any other executor.
+
+Tool and runtime capabilities are never inferred from model identity. A call outside the
+Foundry launcher (for example a Claude-side OpenCode call) names the Owner-selected model
+explicitly and never relies on a tool's default model.
 
 Historical model names in dated records are provenance only; they authorize nothing and
 create no migration or governance work by themselves.
@@ -137,7 +142,8 @@ Inside the authorized Workstream Contract the executor owns the loop: inspect �
 use tools → decide → implement → build/test → diagnose → repair → retest → validate →
 persist evidence → continue. It repairs adjacent in-scope defects that block the
 objective, records out-of-scope findings without silently broadening the workstream, and
-does not stop because a first plan failed.
+does not stop because a first plan failed or knowingly leave a broken reachable path
+behind.
 
 ### Autonomous tool use
 
@@ -174,9 +180,10 @@ expensive to replace or written by another worker. Ask: is it true on the curren
 lock; would this test fail if the mechanic broke; can it PASS for the wrong reason; is
 there an engine-native or simpler solution; is the evidence still valid after later
 changes; is the complexity necessary; is a local patch hiding a general defect? Fresher
-evidence may overturn an older conclusion; keep provenance and record why. Prefer the
+higher-authority evidence (§3) may overturn an older conclusion; keep provenance and record why. Prefer the
 strongest supportable solution by Rules Correctness, evidence integrity, simplicity,
-maintainability, then performance. Sunk cost is not evidence.
+maintainability, then performance. Sunk cost is not evidence. None of this authorizes
+Production Provider selection or Architecture Freeze.
 
 **Bounded scope expansion.** Adjacent work that materially advances the same objective is
 in scope (an adjacent systemic defect, a misleading or flaky test, CI needed to qualify the
@@ -184,7 +191,8 @@ work, a missing regression harness, required impact adjudication, a new prerequi
 long as it does not cross an ownership boundary, start a new objective, change reserved
 Rules/evidence/qualification policy (unless the Coordinator delegation applies), select a
 provider or claim a freeze, or weaken privacy, Rules authority, fail-closed semantics or
-evidence standards.
+evidence standards. A new objective, shared-architecture decision, Rules dispute,
+evidence-policy change or ownership conflict is a Coordinator-tier gate for workers.
 
 **Read wide, write narrow.** Inspect the whole project and engine history read-only when
 it helps; mutation stays on declared owned surfaces.
@@ -196,9 +204,9 @@ authority/ownership/source/permission gate blocks all useful work; an external d
 makes progress impossible; or tool/resource limits require a resumable handoff. A gate on
 one subproblem does not end the campaign.
 
-#### Claude Opus campaign executor
+#### Claude Opus 5.5 campaign executor
 
-An explicitly launched Claude Opus engineering session may hold this campaign authority
+An explicitly launched Claude Opus 5.5 engineering session may hold this campaign authority
 when its prompt declares the objective, repository context and writable surfaces. Within
 them it may investigate, implement, test, debug, commit, push, maintain PRs and integrate
 its own work under the same Rules, evidence, privacy, Git and merge gates. A bounded
@@ -210,11 +218,11 @@ ask-gated or denied operations stay real boundaries, and it never bypasses Found
 sandboxing, another worker's ownership, protected branches, Owner-only decisions or a
 hard prohibition in this file.
 
-#### Claude Opus Coordinator authority (owner delegation)
+#### Claude Opus 5.5 Coordinator authority (owner delegation)
 
 `CLAUDE_OPUS_COORDINATOR_AUTHORITY = DELEGATED_BY_OWNER`
 
-By direct Owner instruction, an explicitly launched Claude Opus engineering session holds
+By direct Owner instruction, an explicitly launched Claude Opus 5.5 engineering session holds
 the project's maximum delegated decision authority:
 - MTG Rules adjudication;
 - evidence promotion and evidence-policy decisions;
@@ -255,7 +263,8 @@ the Rules Core.
 Classify each material capability as `REUSE_AS_IS`, `EXTRACT_AND_GENERALIZE`, `WRAP`,
 `PORT_FROM_DONOR`, `ENGINE_NATIVE_REUSE`, `REFERENCE_ONLY` or
 `NEW_IMPLEMENTATION_REQUIRED`; the last needs a concrete source-level reason why nothing
-existing can safely satisfy the requirement. Prefer reuse > extract > wrap > port > new.
+existing can safely satisfy the requirement. Prefer reuse > extract > wrap > port > new
+when Rules Correctness, evidence integrity, licensing and source-lock compatibility permit.
 Historical code and tests may transfer; historical PASS evidence does not without impact
 adjudication. Never wholesale-merge a diverged donor branch; prefer the smallest reviewed
 transplant and keep provenance.
@@ -332,18 +341,17 @@ OpenCode child starts and stay locked for its lifetime. Foreign-active, unknown-
 undeclared worktrees stay non-writable. Cross-workstream children run under Bubblewrap
 with the host filesystem read-only and only the declared writable surfaces, a unique
 runtime directory and narrow tool caches rebound read-write. Missing Bubblewrap is a
-launch refusal, never a silent downgrade; agents never use sudo or bypass the sandbox.
+launch refusal (as is unusable Bubblewrap), never a silent downgrade; agents never use sudo or bypass the sandbox.
 
 ## 12. Privacy
 
 Executors may use project-relevant technical data: source, tests, contracts,
 qualification artifacts, build output, logs, Git metadata, engine sources, package caches,
-project configuration and the allowed MTG deck/card/collection/gameplay data. Do not
+project configuration and explicitly allowed MTG deck/card/collection/gameplay data. Do not
 expose unrelated personal data. Raw credentials, keys and tokens are `LOCAL_ONLY`: tools
 may use them locally, but values never appear in prompts, logs, evidence, commits or
 handoffs. Deny explicit secret-extraction operations. Automatic session sharing is
-disabled. Do not send Owner data or credentials to a model provider that retains or
-trains on inputs.
+disabled.
 
 ## 13. Semantic Completion Rule
 

@@ -10,8 +10,8 @@ Practical points an outside agent does not know:
 - Before every push: `ruff check`, `ruff format --check` and the affected tests
   (`python -m pytest -q <path>`).
 - Commit before running tests: on a dirty tree some tests fail with "stale canonical inputs".
-- A changed workflow file needs its digest updated in `WS17_SHA256SUMS`
-  (`tests/qualification/test_ws17_qualification.py`).
+- A change to `.github/workflows/production-qualification.yml` needs its digest updated in
+  `WS17_SHA256SUMS` (`tests/qualification/test_ws17_qualification.py`).
 - CI `ci-definition-integrity-shadow` is red by design when gate tests or workflows change;
   required checks are `quality`, `security`, `infrastructure`.
 - Report only what you ran yourself; a red test is reported with its output, never skipped.
