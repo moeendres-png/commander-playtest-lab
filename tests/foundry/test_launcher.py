@@ -1309,20 +1309,32 @@ def test_deepseek_project_effort_maps_to_native_max(target, canon, effort):
 
 
 def test_no_executor_runs_below_its_native_max(target, canon):
-    """Every reachable profile is native MAX; project effort never lowers it (nor below high)."""
+    """Zen is native MAX; project effort never lowers it (nor below high).
+
+    The Token Harbor profile exposes no effort control: it runs at the provider default and
+    the bundle carries no reasoning effort or variant (nothing is faked).
+    """
     for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
+        native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
         for effort in ("high", "xhigh"):
             plan = _plan(target, canon, execution_profile=profile, effort=effort)
             assert plan["verdict"] == "LAUNCH_READY", plan
-            assert plan["execution"]["native_variant"] == "max", profile
-            assert plan["execution"]["variant_resolution"] == "native_max", profile
-            assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max", profile
+            assert plan["execution"]["native_variant"] == native, profile
+            assert plan["execution"]["variant_resolution"] == f"native_{native}", profile
+            assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == native, profile
             assert plan["_env"]["FOUNDRY_EFFORT"] == effort, profile
             bundle = json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"])
             short = plan["execution"]["model"].split("/", 1)[1]
-            entry = bundle["provider"]["opencode"]["models"][short]
-            assert entry["options"] == {"reasoningEffort": "max"}
-            assert entry["variants"] == {"max": {}}
+            if profile == "deepseek":
+                assert native == "max"
+                entry = bundle["provider"]["opencode"]["models"][short]
+                assert entry["options"] == {"reasoningEffort": "max"}
+                assert entry["variants"] == {"max": {}}
+            else:
+                assert native == "provider_default"
+                entry = bundle["provider"]["tokenharbor"]["models"][short]
+                assert "options" not in entry and "variants" not in entry
+                assert all("variant" not in agent for agent in bundle["agent"].values())
 
 
 @pytest.mark.parametrize("retired_name", ["unauthorized-model", "legacy-zen", "glm-5"])
@@ -1355,7 +1367,7 @@ def test_retired_profile_is_refused_before_any_child(target, canon, monkeypatch,
     assert plan["verdict"] == "LAUNCH_REFUSED", plan
     assert "unknown execution profile" in plan["error"]
     assert not any("--auto" in args for args in calls)
-    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek",)
+    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
 
 
 def test_deepseek_failure_never_invokes_another_executor(target, canon, monkeypatch):
@@ -1415,9 +1427,10 @@ def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, 
         context = json.loads(Path(plan["context_path"]).read_text())
         assert context["execution"]["profile"] == profile
         assert context["execution"]["model"] == model
-        assert context["execution"]["native_variant"] == "max"
+        native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
+        assert context["execution"]["native_variant"] == native
         assert plan["_env"]["FOUNDRY_EXECUTION_PROFILE"] == profile
-        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max"
+        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == native
         records = [
             json.loads(s)
             for s in (Path(plan["run_dir"]) / "metrics.jsonl").read_text().splitlines()
@@ -1426,9 +1439,9 @@ def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, 
         assert {r["model"] for r in records} == {model}
         assert {r["resolved_model_id"] for r in records} == {model}
         assert {r["logical_executor_profile"] for r in records} == {profile}
-        assert {r["resolved_provider"] for r in records} == {"opencode"}
+        assert {r["resolved_provider"] for r in records} == {model.split("/", 1)[0]}
         assert {r["model_alias_class"] for r in records} == {"CANONICAL"}
-        assert {r["native_variant"] for r in records} == {"max"}
+        assert {r["native_variant"] for r in records} == {native}
     monkeypatch.undo()
 
 
@@ -1446,8 +1459,8 @@ def test_main_small_and_default_model_configuration_is_internally_consistent():
     # The default profile must be the first whitelist row: no silent fallback.
     assert launcher_mod.DEFAULT_EXECUTION_PROFILE == "deepseek"
     assert launcher_mod.PRIMARY_EXECUTION_PROFILE == launcher_mod.DEFAULT_EXECUTION_PROFILE
-    assert launcher_mod.EXECUTION_PROFILES == ("deepseek",)
-    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek",)
+    assert launcher_mod.EXECUTION_PROFILES == ("deepseek", "deepseek-th")
+    assert launcher_mod.ACTIVE_EXECUTION_PROFILES == ("deepseek", "deepseek-th")
     assert set(launcher_mod.PROFILE_MODELS) == set(launcher_mod.EXECUTION_PROFILES)
 
 
@@ -1463,8 +1476,9 @@ def test_nested_launch_overwrites_ambient_native_variant(target, canon, monkeypa
     for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
         plan = _plan(target, canon, execution_profile=profile)
         assert plan["verdict"] == "LAUNCH_READY", plan
-        assert plan["execution"]["native_variant"] == "max", profile
-        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == "max", profile
+        native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
+        assert plan["execution"]["native_variant"] == native, profile
+        assert plan["_env"]["FOUNDRY_NATIVE_VARIANT"] == native, profile
 
 
 def test_nested_launch_clears_ambient_routing_suppression(target, canon, monkeypatch):

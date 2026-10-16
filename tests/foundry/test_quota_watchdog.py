@@ -163,7 +163,7 @@ def test_every_opencode_run_goes_through_the_trusted_watchdog_copy():
         for step in job["steps"]
         if step.get("name") == "Run opencode"
     ]
-    assert len(runs) == 3
+    assert len(runs) == 4
     for step in runs:
         script = step["run"]
         assert "set -euo pipefail" in script
@@ -176,5 +176,11 @@ def test_every_opencode_run_goes_through_the_trusted_watchdog_copy():
                 "-- opencode github run"
             )
         )
-        assert "OPENCODE_API_KEY" in step["env"]
+        # Each lane holds exactly its own provider key: Token Harbor's only in /oc-th.
+        key = (
+            "TOKENHARBOR_API_KEY"
+            if step["env"]["MODEL"].startswith("tokenharbor/")
+            else ("OPENCODE_API_KEY")
+        )
+        assert key in step["env"]
         assert 0 < step["timeout-minutes"] <= 55

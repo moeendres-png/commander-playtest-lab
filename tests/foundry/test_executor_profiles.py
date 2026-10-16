@@ -22,7 +22,11 @@ def _registry() -> dict:
 
 def test_selected_profiles_and_highest_native_efforts_are_exact() -> None:
     doc = _registry()
-    expected = {"deepseek": ("opencode/deepseek-v4.1-flash-free", "max")}
+    expected = {
+        "deepseek": ("opencode/deepseek-v4.1-flash-free", "max"),
+        # Token Harbor exposes no effort control: provider default, nothing faked.
+        "deepseek-th": ("tokenharbor/deepseek-v4.1-flash", "provider_default"),
+    }
     actual = {
         name: (spec["model"], spec["native_variant"]) for name, spec in doc["profiles"].items()
     }
@@ -57,10 +61,12 @@ def test_registry_does_not_prescribe_task_routing_or_model_preference() -> None:
 def test_prepared_profiles_do_not_falsely_claim_runtime_activation() -> None:
     doc = _registry()
     assert doc["status"] == "ACTIVE"
-    # Owner instruction 2026-10-16: DeepSeek V4.1 Flash MAX is the one ACTIVE profile.
+    # Owner instruction 2026-10-16: Zen DeepSeek V4.1 Flash MAX is the default; the Token
+    # Harbor profile is the only second ACTIVE profile.
     assert doc["current_runtime_default"] == "deepseek"
     assert doc["profiles"]["deepseek"]["runtime_status"] == "ACTIVE"
-    assert set(doc["profiles"]) == {"deepseek"}
+    assert doc["profiles"]["deepseek-th"]["runtime_status"] == "ACTIVE"
+    assert set(doc["profiles"]) == {"deepseek", "deepseek-th"}
     assert "step" not in doc["profiles"]
 
 
@@ -91,8 +97,14 @@ def test_routing_policy_is_stable_and_fallback_free() -> None:
         keys = {"model", "native_variant", "runtime_status"}
         if profile["runtime_status"] == "SUSPENDED":
             keys.add("suspension")  # durable reason and Owner authority, no quota data
+        keys |= {"model_family", "provider", "data_note"}
+        if profile["provider"] == "tokenharbor":
+            keys.add("effort_control")
+            assert profile["native_variant"] == "provider_default"
+            assert profile["effort_control"] == "NONE_EXPOSED"
+        else:
+            assert profile["native_variant"] == "max"
         assert set(profile) == keys, profile
-        assert profile["native_variant"] == "max"
 
 
 def test_activation_evidence_records_authenticated_runtime_verification() -> None:
@@ -230,7 +242,11 @@ def test_runtime_identity_admits_only_the_zen_deepseek_id() -> None:
         "opencode/deepseek-v4.1-flash-free": {
             "logical_profile": "deepseek",
             "alias_class": "CANONICAL",
-        }
+        },
+        "tokenharbor/deepseek-v4.1-flash": {
+            "logical_profile": "deepseek-th",
+            "alias_class": "CANONICAL",
+        },
     }
     blob = json.dumps(
         {k: v for k, v in doc.items() if k != "activation_gate"}  # dated provenance excluded
@@ -238,7 +254,8 @@ def test_runtime_identity_admits_only_the_zen_deepseek_id() -> None:
     for retired in ("step-5-preview", "opencode-go/", "glm"):
         assert retired not in blob, retired
     policy = doc["resolution_policy"]
-    assert policy["logical_profiles"] == ["deepseek"]
+    assert policy["logical_profiles"] == ["deepseek", "deepseek-th"]
+    assert policy["deepseek_th_preference"] == ["tokenharbor/deepseek-v4.1-flash"]
     assert policy["deepseek_preference"] == ["opencode/deepseek-v4.1-flash-free"]
     assert "step_preference" not in policy
     assert policy["automatic_fallback"] is False
@@ -253,7 +270,8 @@ def test_cross_executor_review_policy_is_declared_and_strict() -> None:
     # approval 2026-10-10); the review stays fresh-context and read-only.
     assert policy["implementation_executor"] == "deepseek"
     assert policy["review_independence"] == (
-        "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_OTHER_PROFILE_IS_ACTIVE"
+        "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_DIFFERENT_MODEL_FAMILY_IS_ACTIVE; "
+        "CROSS_PROVIDER_WHEN_IMPLEMENTATION_IS_DEEPSEEK_TH"
     )
     assert policy["review_executor"] == "deepseek"
     assert policy["review_mode"] == "READ_ONLY_FRESH_CONTEXT"

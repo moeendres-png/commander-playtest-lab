@@ -34,9 +34,9 @@ def _registry() -> ep.ExecutorRegistry:
 def test_deepseek_is_the_one_default_active_profile() -> None:
     registry = _registry()
     assert registry.default_profile == "deepseek"
-    assert registry.logical_profiles == ("deepseek",)
-    assert registry.active_profiles == ("deepseek",)
-    assert registry.active_runtime_ids == (DEEPSEEK,)
+    assert registry.logical_profiles == ("deepseek", "deepseek-th")
+    assert registry.active_profiles == ("deepseek", "deepseek-th")
+    assert registry.active_runtime_ids == (DEEPSEEK, "tokenharbor/deepseek-v4.1-flash")
     resolved = ep.resolve_executor(
         "deepseek", registry=registry, catalog=[RETIRED_STEP, DEEPSEEK_GO, DEEPSEEK]
     )
@@ -61,7 +61,7 @@ def test_suspended_default_or_unknown_status_fails_closed() -> None:
 def test_profile_is_pinned_to_its_native_variant_never_below_high() -> None:
     """One highest native variant per profile, exactly as its provider lists."""
     registry = _registry()
-    expected = {"deepseek": "max"}
+    expected = {"deepseek": "max", "deepseek-th": "provider_default"}
     for name in registry.logical_profiles:
         spec = registry.profiles[name]
         assert spec.native_variant == expected[name], name
@@ -266,7 +266,7 @@ def test_registry_rejects_alias_drift_and_canonical_reclassification() -> None:
     }
     errors = ep.validate_registry(doc)
     # The OpenCode Go provider is retired: its ids are not even admitted providers.
-    assert any("provider is not one of ['opencode']" in error for error in errors)
+    assert any("provider is not one of ['opencode', 'tokenharbor']" in error for error in errors)
 
     doc = _drifted_registry_doc()
     doc["runtime_identity"][DEEPSEEK]["alias_class"] = "LEGACY_ALIAS"

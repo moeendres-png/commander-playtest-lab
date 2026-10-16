@@ -7,7 +7,7 @@ zero-retention, no training). Step 5 Preview left the live Zen catalog (checked 
 retired. The OpenCode Go provider and every earlier executor are retired and removed from the
 active configuration. Whenever the project uses OpenCode it uses this model and nothing else.
 
-## DeepSeek V4.1 Flash MAX profile (default, only active)
+## DeepSeek V4.1 Flash MAX profile (default)
 
 Omission selects it. An explicit `--execution-profile deepseek` is equivalent and may be used for
 clarity in Foundry `init` or `launch` invocation:
@@ -55,6 +55,18 @@ Historical receipts that name earlier executors remain valid provenance of their
 not authorize future routing changes, are not migration targets, and must not by themselves trigger
 a new governance/routing issue. Adding or replacing the active allowlist requires a new direct
 user instruction.
+
+## Token Harbor profile (`/oc-th`, second active)
+
+An explicit `--execution-profile deepseek-th` pins `tokenharbor/deepseek-v4.1-flash` (the same
+model served by Token Harbor; key only via `{env:TOKENHARBOR_API_KEY}`). The provider exposes no
+reasoning-effort control, so the run uses the provider default and no variant is injected.
+The profile is never a fallback for `deepseek` and vice versa. The free route may be logged and
+used for improvement: no Owner data, credentials or private collection data in such a run.
+
+```text
+python3 tools/foundry/launcher.py launch <existing workstream arguments> --effort high --execution-profile deepseek-th
+```
 
 ## Effort resolution
 

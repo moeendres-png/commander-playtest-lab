@@ -53,6 +53,21 @@ Active OpenCode Foundry work has exactly one supported launcher execution identi
   The default and only executor for implementation, debugging, qualification,
   integration, CI remediation, evidence generation, audits, reviews and long campaigns.
 
+A second ACTIVE profile exists for the Token Harbor lane (`/oc-th`, Owner instruction 2026-10-16):
+
+- `deepseek-th` -> `tokenharbor/deepseek-v4.1-flash` -> provider default. Same model, served by
+  Token Harbor (OpenAI-compatible, key only via `{env:TOKENHARBOR_API_KEY}`). The provider
+  exposes no reasoning-effort control, so `max`/`high` cannot be pinned and no variant is faked.
+  Free routes may be logged and used for improvement: no Owner data, credentials or private
+  collection data in an `/oc-th` task.
+
+`/oc` (default; Zen, zero-retention, daily Zen request cap) and `/oc-th` (higher rate limit, 60
+req/min) are chosen per dispatch; each run pins exactly one profile and there is no automatic
+fallback between them. `/assure` and `/ro-review` stay on Zen `deepseek`. Because both profiles
+are the same model, `deepseek-th` adds provider independence only: a `deepseek-th`
+implementation reviewed by Zen `deepseek` is cross-provider review, and self-review is refused
+only when an ACTIVE profile of a different model family exists.
+
 The launcher rejects any profile outside the ACTIVE set, and rejects every provider override,
 so no mismatched or retired pair is reachable. There is no active-work native lane below
 the executor's highest native level; the project-level `--effort` field describes task/authority routing only and never
