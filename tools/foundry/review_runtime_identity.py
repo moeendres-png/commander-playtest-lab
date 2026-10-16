@@ -15,12 +15,12 @@ the reviewer, and a declaration alone is never trusted:
 - ``preflight`` (before the run) asks the pinned CLI for its resolved config and
   for the reviewer's effective permission ruleset (``opencode debug config`` and
   ``opencode debug agent foundry-reviewer``) and fails unless the default agent
-  is the reviewer, its model is Step 5 Preview HIGH and no write-capable probe is
+  is the reviewer, its model is DeepSeek V4.1 Flash MAX and no write-capable probe is
   allowed by the merged rules;
 - ``audit LOG`` (after the run) reads the run's own ``stream`` records, copied by
   ``quota_watchdog.py --log``, and fails unless at least one main-model record
   exists and every record names the reviewer (only the tool-less native
-  ``title`` agent on the small model and ``compaction`` on Step 5 Preview may
+  ``title`` agent on the small model and ``compaction`` on DeepSeek V4.1 Flash may
   appear besides it).
 
 A failed check fails the job, so ``review_evidence.py`` (which requires a
@@ -44,10 +44,10 @@ from collections.abc import Iterable, Mapping, Sequence
 from typing import Any
 
 REVIEW_AGENT = "foundry-reviewer"
-# Step 5 Preview HIGH on OpenCode Zen (#682); the same id review_evidence.py pins.
+# DeepSeek V4.1 Flash MAX on OpenCode Zen; the same id review_evidence.py pins.
 REVIEW_PROVIDER = "opencode"
-REVIEW_MODEL = "step-5-preview-free"
-REVIEW_VARIANT = "high"
+REVIEW_MODEL = "deepseek-v4.1-flash-free"
+REVIEW_VARIANT = "max"
 # The only accepted value of OPENCODE_CONFIG_CONTENT in the review job.
 REVIEW_CONFIG_OVERRIDE = {"default_agent": REVIEW_AGENT}
 # Environment that could replace or bypass the reviewed config surface.
@@ -281,7 +281,7 @@ def stream_records(lines: Iterable[str]) -> list[dict[str, str]]:
 
 
 def audit_problems(records: Sequence[Mapping[str, str]]) -> list[str]:
-    """Every model call must be the reviewer on Step 5 Preview (titles excepted)."""
+    """Every model call must be the reviewer on DeepSeek V4.1 Flash (titles excepted)."""
     problems: list[str] = []
     reviewer_calls = 0
     for record in records:

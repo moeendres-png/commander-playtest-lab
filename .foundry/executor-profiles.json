@@ -1,7 +1,7 @@
 {
   "schema_version": "1.5",
   "status": "ACTIVE",
-  "authority_date": "2026-10-12",
+  "authority_date": "2026-10-16",
   "provider": "opencode",
   "policy": {
     "highest_supported_effort_only": true,
@@ -12,62 +12,44 @@
     "repository_prescribes_task_routing": false,
     "live_catalog_reverification_required_at_activation": true
   },
-  "current_runtime_default": "step",
+  "current_runtime_default": "deepseek",
   "profiles": {
-    "step": {
-      "model": "opencode/step-5-preview-free",
-      "native_variant": "high",
-      "runtime_status": "ACTIVE"
-    },
     "deepseek": {
-      "model": "opencode-go/deepseek-v4.1-flash",
+      "model": "opencode/deepseek-v4.1-flash-free",
       "native_variant": "max",
-      "runtime_status": "SUSPENDED",
-      "suspension": {
-        "since": "2026-10-10",
-        "reason": "Owner directive after the OpenCode Go monthly quota was exhausted (HTTP 429 GoUsageLimitError, limitName=monthly).",
-        "authority": "Direct Owner instruction 2026-10-10; confirmed by the Owner directive 2026-10-12 (Step 5 Preview only).",
-        "reactivation": "Only a new direct Owner instruction sets runtime_status back to ACTIVE; quota recovery alone does not."
-      }
+      "runtime_status": "ACTIVE"
     }
   },
   "routing_policy": {
-    "note": "Owner directive 2026-10-12: Step 5 Preview (opencode/step-5-preview-free on OpenCode Zen) is the default and only active OpenCode executor for every lane (/oc, /assure, /ro-review, the launcher, the opencode-subagent MCP and every OpenCode subagent), at its highest native variant high (the Zen catalog lists low/medium/high only, no max). DeepSeek v4.1 Flash is SUSPENDED and never selected, not even as a fallback. Every earlier executor is retired and removed from this registry; its history stays in Git and in the dated records.",
-    "primary": "step",
-    "suspended": [
-      "deepseek"
-    ],
+    "note": "Owner instruction 2026-10-16: Step 5 Preview left the live Zen catalog. DeepSeek V4.1 Flash (opencode/deepseek-v4.1-flash-free on OpenCode Zen) at native variant max is the default and only active OpenCode executor for every lane (/oc, /assure, /ro-review, the launcher, the opencode-subagent MCP and every OpenCode subagent). No variant below high is ever configured; max is the pin. Every earlier executor is retired and removed from this registry; its history stays in Git and in the dated records.",
+    "primary": "deepseek",
+    "suspended": [],
     "automatic_fallback": false,
-    "selection_authority": "Every run resolves the step profile. Re-activating DeepSeek needs a new direct Owner instruction recorded in this registry."
+    "selection_authority": "Every run resolves the deepseek profile. Adding another executor needs a new direct Owner instruction recorded in this registry."
   },
   "runtime_identity": {
-    "opencode-go/deepseek-v4.1-flash": {
+    "opencode/deepseek-v4.1-flash-free": {
       "logical_profile": "deepseek",
-      "alias_class": "CANONICAL"
-    },
-    "opencode/step-5-preview-free": {
-      "logical_profile": "step",
       "alias_class": "CANONICAL"
     }
   },
   "resolution_policy": {
-    "note": "Exactly two logical executor profiles. All runtime model IDs below map to one of them; there is no third logical executor and no cross-family substitute. Step resolves only after live pinned-CLI catalog inspection of the Zen provider: its single admitted id must be listed, otherwise fail closed.",
+    "note": "Exactly one logical executor profile. Its runtime model ID maps to it; there is no second logical executor and no cross-family substitute. DeepSeek resolves only after live pinned-CLI catalog inspection of the Zen provider: its single admitted id must be listed, otherwise fail closed.",
     "catalog_mechanism": "opencode models opencode",
     "logical_profiles": [
-      "deepseek",
-      "step"
+      "deepseek"
     ],
-    "step_preference": [
-      "opencode/step-5-preview-free"
+    "deepseek_preference": [
+      "opencode/deepseek-v4.1-flash-free"
     ],
     "post_selection_failure": "FAIL_CLOSED_NO_RE_RESOLUTION",
     "automatic_fallback": false
   },
   "cross_executor_review_policy": {
-    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY Step 5 Preview review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /ro-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is SUSPENDED the implementation executor is also Step, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence). A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
+    "note": "MATERIAL implementation workstreams require a fresh-context READ-ONLY DeepSeek V4.1 Flash MAX review of the exact validated implementation SHA and TREE before PR_READY or COMPLETE. Only the top-level read-only /ro-review lane (foundry-reviewer) can carry verifiable review evidence; a writable top-level run or a subagent it dispatches never satisfies the gate. While DeepSeek is the only ACTIVE profile the implementation executor is also DeepSeek, so the review is same-model and its independence rests on the fresh context and read-only lane alone (review_independence); if a second profile is ever ACTIVE, same-model self-review is refused. A later generated-state-only checkpoint may be NON_MATERIAL and preserves the reviewed validated implementation identity without claiming the later state commit was reviewed.",
     "required_for_material": true,
-    "implementation_executor": "step",
-    "review_executor": "step",
+    "implementation_executor": "deepseek",
+    "review_executor": "deepseek",
     "review_mode": "READ_ONLY_FRESH_CONTEXT",
     "review_agents": [
       "foundry-reviewer"
@@ -87,9 +69,7 @@
       "P2_REPAIR",
       "REVIEWED_IDENTITY_MISMATCH"
     ],
-    "unsatisfied_executors": [
-      "deepseek"
-    ],
+    "unsatisfied_executors": [],
     "non_material_closeout": "GENERATED_STATE_ONLY",
     "remote_resumability": "REQUIRES_REMOTE_CHECKPOINT_EQUALITY",
     "review_independence": "FRESH_CONTEXT_SAME_MODEL_WHILE_NO_OTHER_PROFILE_IS_ACTIVE"
@@ -106,7 +86,7 @@
     ],
     "blocker": "RESOLVED 2026-09-29: the 2026-09-28 foreign-ownership deferral on tools/foundry/launcher.py and tests/foundry/test_launcher.py was superseded by direct newest-user authority for this migration; see docs/project_integrity_20260928/OWNERSHIP_DEFERRALS_RESOLUTION_20260929.json.",
     "required_validation": [
-      "exact two-profile routing allowlist (active then suspended) and one highest native variant per model",
+      "exact one-profile routing allowlist and one highest native variant per model",
       "explicit profile selection and child --model pin",
       "no automatic fallback on quota/auth/catalog/tool/child failure",
       "telemetry/context/state provenance for selected profile/model/native variant",
@@ -143,7 +123,7 @@
       "runtime_status": "ACTIVE",
       "observed_agent_note": "The same run reported agent=foundry-implementer although the /bunny lane pins AGENT=bunny-verifier; tracked in issue #685; it does not change the model identity."
     },
-    "retired_history_note": "activation_evidence_2026_09_29, _2026_10_06 and _2026_10_10 are kept verbatim as dated provenance. They describe the executor retired on 2026-10-12 (Owner directive) and the suspended DeepSeek profile; they authorize nothing and their runtime_status values are historical.",
+    "retired_history_note": "activation_evidence_2026_09_29, _2026_10_06, _2026_10_10 and _2026_10_12 are kept verbatim as dated provenance. They describe executors retired before 2026-10-16 (Space Bunny, Step 5 Preview, the OpenCode Go DeepSeek record); they authorize nothing and their runtime_status values are historical.",
     "activation_evidence_2026_10_12": {
       "current_model_identity": "opencode/step-5-preview-free",
       "reason": "Owner directive 2026-10-12: the previous Zen executor is no longer free; use only OpenCode Zen Step 5 Preview for the whole project and remove the previous executor from the project.",
@@ -153,6 +133,17 @@
       "authenticated_runtime_smoke": "NOT_RUN: the first trusted lane run after merge is the runtime observation for the Zen identity and key. A local unauthenticated `opencode run -m opencode/step-5-preview-free` on 2026-10-12 was refused with 'Rate limit exceeded' (free-tier limit), so no local smoke counts.",
       "runtime_status": "ACTIVE",
       "activation_without_smoke": "Coordinator reading of the Owner instructions of 2026-10-12, which direct that only Step 5 Preview on OpenCode Zen be used whenever OpenCode is used: Step is activated before the authenticated smoke that required_validation asks for, because no other executor may run and the smoke itself needs an active lane. The Owner did not separately waive the smoke; it stays owed and is the first trusted lane run."
+    },
+    "activation_evidence_2026_10_16": {
+      "current_model_identity": "opencode/deepseek-v4.1-flash-free",
+      "previous_model_identity": "opencode/step-5-preview-free",
+      "reason": "opencode/step-5-preview-free has left the live OpenCode Zen catalog (GET https://opencode.ai/zen/v1/models, 88 models, no step-5-preview-free). DeepSeek V4.1 Flash is served by Zen as opencode/deepseek-v4.1-flash-free: free, zero-retention, no training; models.dev lists effort values low/high/max, context 200000, output 32000.",
+      "authority": "Direct Owner instruction 2026-10-16.",
+      "live_catalog_identity": "DIRECTLY_VERIFIED 2026-10-16: GET https://opencode.ai/zen/v1/models lists deepseek-v4.1-flash-free.",
+      "native_variant_choice": "max is the pin; no variant below high is configured anywhere (policy highest_supported_effort_only).",
+      "authenticated_runtime_smoke": "NOT_RUN: the first trusted lane run after merge is the runtime observation for the Zen identity and key.",
+      "runtime_status": "ACTIVE",
+      "activation_without_smoke": "Coordinator reading of the Owner instruction of 2026-10-16, which directs that DeepSeek V4.1 Flash MAX on OpenCode Zen be the one active OpenCode executor: it is activated before the authenticated smoke that required_validation asks for, because Step left the catalog, no other executor may run, and the smoke itself needs an active lane. The Owner did not separately waive the smoke; it stays owed and is the first trusted lane run."
     }
   }
 }

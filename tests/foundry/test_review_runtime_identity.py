@@ -39,7 +39,7 @@ REAL_IMPLEMENTER_RECORD = """\
 """
 
 
-def _record(agent: str, *, small: str = "false", model: str = "step-5-preview-free") -> str:
+def _record(agent: str, *, small: str = "false", model: str = "deepseek-v4.1-flash-free") -> str:
     return (
         "[13:23:08.884] INFO (#8297): stream {\n"
         '  providerID: "opencode",\n'
@@ -177,8 +177,8 @@ def _resolved_reviewer() -> dict:
     return {
         "name": "foundry-reviewer",
         "mode": "all",
-        "model": {"providerID": "opencode", "modelID": "step-5-preview-free"},
-        "variant": "high",
+        "model": {"providerID": "opencode", "modelID": "deepseek-v4.1-flash-free"},
+        "variant": "max",
         "permission": rules,
         "tools": {"read": True, "edit": False, "write": False, "task": False},
     }
@@ -264,9 +264,10 @@ def test_reviewer_records_pass_and_tool_less_helpers_are_tolerated() -> None:
         "",
         _record("title", small="true"),
         _record("foundry-reviewer", small="true"),
-        _record("foundry-reviewer") + _record("compaction", model="deepseek-v4.1-flash"),
+        _record("foundry-reviewer") + _record("compaction", model="step-5-preview-free"),
         _record("foundry-reviewer") + _record("build"),
         _record("foundry-reviewer") + _record("title"),
+        _record("foundry-reviewer", model="step-5-preview-free"),
         _record("foundry-reviewer", model="deepseek-v4.1-flash"),
     ],
 )

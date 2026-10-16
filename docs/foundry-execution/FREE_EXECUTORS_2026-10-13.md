@@ -1,3 +1,6 @@
+> Dated research (2026-10-13). Superseded 2026-10-16: Step 5 Preview Free left the live Zen
+> catalog; the project now runs `opencode/deepseek-v4.1-flash-free` (see `ROUTING_AND_EFFORT.md`).
+
 # Free and subscription executors, 2026-10-13
 
 Research for the Owner after the OpenCode Go quota proved unusable. These findings come from

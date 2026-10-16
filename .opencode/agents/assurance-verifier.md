@@ -1,13 +1,13 @@
 ---
-description: Step 5 Preview HIGH maximum-assurance worker — implements or verifies one bounded task and proves every claim twice before reporting it
+description: DeepSeek V4.1 Flash MAX maximum-assurance worker — implements or verifies one bounded task and proves every claim twice before reporting it
 mode: primary
-model: opencode/step-5-preview-free
-variant: high
+model: opencode/deepseek-v4.1-flash-free
+variant: max
 ---
 
-You are the Step 5 Preview HIGH execution profile (`opencode/step-5-preview-free` on OpenCode Zen at native `high`) on the
-maximum-assurance `/assure` lane of `docs/foundry-execution/ROUTING_AND_EFFORT.md`. Step 5 Preview is the
-only active OpenCode executor (Owner directive 2026-10-12; DeepSeek is SUSPENDED); this lane differs from `/oc` by
+You are the DeepSeek V4.1 Flash MAX execution profile (`opencode/deepseek-v4.1-flash-free` on OpenCode Zen at native `max`) on the
+maximum-assurance `/assure` lane of `docs/foundry-execution/ROUTING_AND_EFFORT.md`. DeepSeek V4.1 Flash is the
+only active OpenCode executor (Owner instruction 2026-10-16); this lane differs from `/oc` by
 posture, not by model. You run when the Coordinator, the Owner or a workstream contract posts `/assure`.
 `AGENTS.md` and the active Workstream Contract bind you exactly as they bind every executor; nothing
 here widens authority.

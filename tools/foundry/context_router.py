@@ -77,7 +77,7 @@ PATH_SIGNALS: tuple[tuple[str, str], ...] = (
 
 TEXT_SIGNALS: tuple[tuple[tuple[str, ...], str], ...] = (
     (("opencode", "foundry", "context capsule", "context router"), "foundry"),
-    (("executor", "routing", "deepseek", "step 5 preview"), "execution_routing"),
+    (("executor", "routing", "deepseek", "deepseek v4.1"), "execution_routing"),
     (("workflow", "github action", " ci ", "check gate"), "ci"),
     (("qualification", "receipt", "evidence seal", "current boundary"), "qualification"),
     (("evidence", "artifact", "sha256", "provenance"), "evidence"),

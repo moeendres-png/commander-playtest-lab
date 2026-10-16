@@ -85,14 +85,15 @@ Use this decision order for each new unit of work:
 
 1. **Deterministic first.** Prefer `lab-ops`, focused grep/git queries, packet readers and exact
    test commands when they can answer the question without model judgement.
-2. **Execution → Step 5 Preview HIGH.** Implementation, bugfixes, debugging, CI repair, test/fix
+2. **Execution → DeepSeek V4.1 Flash MAX.** Implementation, bugfixes, debugging, CI repair, test/fix
    loops, qualification execution, evidence production, deterministic tooling, multi-file
-   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs Step 5 Preview
-   (`opencode/step-5-preview-free`, native `high`) since 2026-10-12. `/assure` (verifier) and
+   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs DeepSeek V4.1 Flash
+   (`opencode/deepseek-v4.1-flash-free`, native `max`) since 2026-10-16. `/assure` (verifier) and
    `/ro-review` (read-only reviewer) run the same model with other agents. Write each
    dispatch per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
-3. **DeepSeek is SUSPENDED.** Its OpenCode Go monthly quota is exhausted. Never select it, never
-   fall back to it, and do not re-enable it without a new direct Owner instruction.
+3. **One OpenCode model.** Step 5 Preview left the Zen catalog (2026-10-16) and the OpenCode Go
+   provider is retired. Never select another model, never fall back, and do not add one without a
+   new direct Owner instruction.
 4. **Read-only helper.** Use `log-scanner` (Sonnet `low`) for mechanical extraction and
    `ci-triage` (Sonnet `medium`) for one red-check classification. Use built-in `Explore` only
    for a scoped read-only lookup when deterministic search is insufficient. Never use
