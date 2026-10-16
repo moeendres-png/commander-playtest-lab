@@ -136,6 +136,52 @@ def pod_decks(
     return tuple(order[(index - shift) % count] for index in range(count))
 
 
+class SwapSpecError(ValueError):
+    """A ``--swap`` text that cannot be applied to the baseline deck."""
+
+
+def parse_swaps(text: str) -> tuple[tuple[str, str], ...]:
+    """``"Out=>In"`` or several swaps of one variant, ``"A=>B;C=>D"``.
+
+    Card names contain commas and slashes but never ``;`` or ``=>``.
+    """
+    swaps: list[tuple[str, str]] = []
+    for part in text.split(";"):
+        if not part.strip():
+            continue
+        out_name, arrow, in_name = part.partition("=>")
+        if not arrow or not out_name.strip() or not in_name.strip():
+            raise SwapSpecError(f"swap must read 'Out Card=>In Card', got {part.strip()!r}")
+        swaps.append((out_name.strip(), in_name.strip()))
+    if not swaps:
+        raise SwapSpecError("swap text names no card")
+    return tuple(swaps)
+
+
+def apply_swaps(deck: RulesDeckInput, swaps: Sequence[tuple[str, str]]) -> RulesDeckInput:
+    """The deck with each card replaced by its partner, in the same library slot.
+
+    A card name matches exactly, or ignoring case when that is unambiguous. The
+    first copy in list order is replaced, so one swap changes one copy. The
+    commanders are not part of the mainboard and cannot be swapped here.
+    """
+    mainboard = list(deck.mainboard)
+    for out_name, in_name in swaps:
+        matches = [index for index, card in enumerate(mainboard) if card == out_name]
+        if not matches:
+            folded = {card for card in mainboard if card.casefold() == out_name.casefold()}
+            if len(folded) == 1:
+                matches = [
+                    index for index, card in enumerate(mainboard) if card == next(iter(folded))
+                ]
+        if not matches:
+            raise SwapSpecError(
+                f"swap-out card is not in the mainboard of {deck.deck_id}: {out_name}"
+            )
+        mainboard[matches[0]] = in_name
+    return deck.model_copy(update={"mainboard": tuple(mainboard), "deck_hash": None})
+
+
 class SlotAlignment(_StrictModel):
     """How a variant's library order was lined up with the baseline's."""
 
@@ -523,11 +569,14 @@ __all__ = [
     "DeckComparisonSpec",
     "PairedVariantResult",
     "SlotAlignment",
+    "SwapSpecError",
     "WinInterval",
     "aggregate_comparison",
     "align_to_baseline_slots",
     "aligned_contenders",
+    "apply_swaps",
     "case_id",
+    "parse_swaps",
     "plan_comparison_cases",
     "pod_decks",
     "sequential_look_alpha",
