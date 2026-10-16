@@ -18,7 +18,8 @@ Example (four-player pods, 25 seeds x 4 seats x 2 contenders = 200 games):
 
 A variant need not be a file: ``--swap 'Sol Ring=>Mind Stone'`` exchanges cards of the
 baseline in place (``'A=>B;C=>D'`` for several in one variant; repeat ``--swap`` for more
-variants). The variant keeps the baseline's card order apart from the swapped slots.
+variants). The variant keeps the baseline's card order apart from the slots of the
+swapped cards.
 
 The report is exploratory deck-building evidence for this pilot policy and
 engine pin. It is not official campaign or holdout evidence.
@@ -139,13 +140,16 @@ def load_deck(path: Path) -> RulesDeckInput:
 def swap_variants(baseline: RulesDeckInput, swap_texts: list[str]) -> list[RulesDeckInput]:
     """One variant per ``--swap`` text: the baseline with those cards exchanged."""
     variants: list[RulesDeckInput] = []
+    seen = {tuple(sorted(baseline.mainboard)): baseline.deck_id}
     for index, text in enumerate(swap_texts, start=1):
         swapped = apply_swaps(baseline, parse_swaps(text))
-        variants.append(
-            with_deck_hash(
-                swapped.model_copy(update={"deck_id": f"{baseline.deck_id}#swap{index}"})
-            )
+        variant = with_deck_hash(
+            swapped.model_copy(update={"deck_id": f"{baseline.deck_id}#swap{index}"})
         )
+        twin = seen.setdefault(tuple(sorted(variant.mainboard)), variant.deck_id)
+        if twin != variant.deck_id:
+            raise SwapSpecError(f"swap {text!r} plays the same cards as {twin}")
+        variants.append(variant)
     return variants
 
 

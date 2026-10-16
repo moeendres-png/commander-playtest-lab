@@ -216,9 +216,10 @@ python scripts/run_full_game_deck_comparison.py \
 
 A variant that differs from the baseline by a few cards needs no deck file:
 `--swap "Sol Ring=>Mind Stone"` plays the baseline with that card exchanged (repeat the
-option for more variants, or join several swaps of one variant with `;`). The card keeps
-its library slot, so the paired games stay identical until it matters. Commanders cannot
-be swapped; a card the baseline does not play is refused.
+option for more variants, or join several swaps of one variant with `;`). Every other card
+keeps its library slot, so the paired games stay identical until a swapped card matters.
+Commanders cannot be swapped, and a card the baseline does not play, a card that is
+already in the deck (basic lands excepted) or a swap that changes nothing is refused.
 
 Runs are reproducible per seed: the same seed, decks, pilot policy, bridge jar and pin
 play the same game, and the batch keys each finished record by all of them.
