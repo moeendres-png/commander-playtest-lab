@@ -230,7 +230,7 @@ jobs:
           # traverse mutable Docker-overlay state created/removed by this job.
           # CI hygiene only.
       - name: Set up JDK 17
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5 immutable revision
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v5 immutable revision
         with:
           distribution: temurin
           java-version: "17"
