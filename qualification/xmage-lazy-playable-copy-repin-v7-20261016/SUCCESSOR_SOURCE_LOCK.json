@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-lazy-playable-copy-repin-v7-20261016",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "EVIDENCE_BOUND",
- "status_note": "the pin is the head commit of moeendres-png/mage#60. The native maven.yml run on the exact commit and a local Lab bridge suite run against XMage built from it are bound below; current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin. The bridge suite is a local run (no Actions run or artifact is bound).",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the head commit of moeendres-png/mage#60. The native maven.yml run on the exact commit is bound below. The Lab bridge suite has only a LOCAL_OBSERVED run (no Actions run, job or artifact digest), which carries no CI-level credit: the CI-level bridge suite is PENDING until an XMage Full Game Conformance run on the Lab repin head is bound. NOT_RUN or PENDING never counts as PASS. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -84,24 +84,31 @@
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "the local ~/.m2 was built from exactly 16e57239 (mvn install of Mage.Deck.Constructed, Mage.Game.CommanderFreeForAll and Mage.Game.CommanderDuel with -am) for the bridge run below",
-  "installed_artifacts_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
-  "installed_artifacts": {
-   "org.mage:mage:1.4.61": "sha256 439c7e949ab3fc5b55166127ca3271a2d9e6a6da5dfb04547194269efc6b6d8b",
-   "org.mage:mage-sets:1.4.61": "sha256 ca9def8ce47a30dea5913fd138c1dd48b24534e9b27ce6e664b23c52d73e25d5"
-  },
+  "isolated_maven_repository": "local ~/.m2 only: org.mage:mage was built and installed from exactly 16e57239 (mvn install of Mage.Deck.Constructed, Mage.Game.CommanderFreeForAll and Mage.Game.CommanderDuel with -am); mage-sets was installed earlier from identical sources (the pin changes only GameImpl.java), not from an exact-commit build of mage-sets. The ~/.m2 jars have since been overwritten, so the digests below can no longer be re-derived from that repository.",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
   "bridge_suite": {
-   "command": "local: mvn -B -ntp clean verify in engine-bridge against XMage built from exact 16e57239e0738925369b704fd7fdd083b7d5024b (Lab branch repin-v7-lazy-copy)",
+   "command": "local: mvn -B -ntp clean verify in engine-bridge with org.mage:mage built from exact 16e57239e0738925369b704fd7fdd083b7d5024b (see isolated_maven_repository for mage-sets)",
    "run": 1109,
    "failures": 0,
    "errors": 0,
    "skipped": 1,
-   "status": "COMPLETE",
+   "status": "LOCAL_OBSERVED",
    "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
    "fingerprint": "XmageCandidateEngineFingerprintTest 7/7, including loadedEngineCarriesTheLazyPlayableCopy",
-   "not_claimed": "no Actions run or artifact digest is bound for the bridge suite; an XMage Full Game Conformance run on the Lab repin head would add one"
+   "not_claimed": "LOCAL_OBSERVED is not COMPLETE: no Actions run, job or artifact digest is bound, so no CI-level Lab runtime credit is claimed. An XMage Full Game Conformance run on the Lab repin head turns this into COMPLETE."
   },
-  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheLazyPlayableCopy checks the structural signature of this pin on the loaded classes (GameImpl.sharedGameCards, GameImpl.copyCardsLazily, GameImpl.ownGameCard); the v6 hooks stay checked by loadedEngineCarriesThePreconCoverageHooks."
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheLazyPlayableCopy checks the structural signature of this pin on the loaded classes (GameImpl.sharedGameCards, GameImpl.copyCardsLazily, GameImpl.ownGameCard); the v6 hooks stay checked by loadedEngineCarriesThePreconCoverageHooks.",
+  "local_observed_artifacts": {
+   "org.mage:mage:1.4.61": {
+    "built_from": "16e57239e0738925369b704fd7fdd083b7d5024b",
+    "digest": "sha256 439c7e949ab3fc5b55166127ca3271a2d9e6a6da5dfb04547194269efc6b6d8b"
+   },
+   "org.mage:mage-sets:1.4.61": {
+    "built_from": "earlier install from sources identical to 16e57239 outside GameImpl.java; not an exact-commit build",
+    "digest": "sha256 ca9def8ce47a30dea5913fd138c1dd48b24534e9b27ce6e664b23c52d73e25d5"
+   }
+  }
  },
  "architecture_freeze_binding": {
   "status": "UNCHANGED_BY_THIS_REPIN",

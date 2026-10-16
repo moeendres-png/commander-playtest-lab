@@ -9,10 +9,10 @@ front. No Rules behaviour and no card data change.
 The pin is a real commit that stays reachable as the parent of the mage#60
 merge, so it does not change when that pull request merges.
 
-Native qualification (the fork ``maven.yml`` run on the exact commit) is
-PENDING until its run is bound; NOT_RUN or PENDING never counts as PASS. The
-Lab ``bridge_suite`` is bound only to a measured run against XMage built from
-exactly the new pin.
+Native qualification is bound to the fork ``maven.yml`` run on the exact
+commit. The Lab ``bridge_suite`` is COMPLETE only with an Actions run, its job
+and an artifact digest; a local run is LOCAL_OBSERVED and carries no CI-level
+credit. NOT_RUN, PENDING or LOCAL_OBSERVED never counts as PASS.
 
 The prior pin (38cb21a8, successor lock v6) stays historical. The Owner-signed
 Architecture Freeze stays bound to b479fe74; current_qualification does not
@@ -111,31 +111,38 @@ def test_engine_delta_is_one_declared_file() -> None:
 def test_native_run_is_pending_or_binds_the_exact_pin() -> None:
     lock = _lock()
     native = lock["native_qualification"]["full_mage_tests"]
+    verify = lock["native_qualification"]["mage_verify"]
     assert native["commit"] == CURRENT_PIN
     if native["status"] == "PENDING":
         # PENDING carries no counts and no credit; NOT_RUN != PASS.
         assert not {"run", "run_id", "job", "failures", "errors", "skipped"} & set(native)
-        assert lock["status"] == "PIN_MOVED_LAB_EVIDENCE_PENDING"
-        assert lock["native_qualification"]["mage_verify"]["result"] == "PENDING"
+        assert verify["result"] == "PENDING"
         return
     assert native["status"] == "COMPLETE"
+    assert native["run_id"] and native["job"]
     assert native["failures"] == 0 and native["errors"] == 0
-    assert native["run"] > 7042
+    assert native["run"] >= 7189
+    assert verify["result"].startswith("FAIL (pre-existing")
+    assert "15 errors" in verify["detail"] and "set errors: 3" in verify["detail"]
 
 
-def test_lab_bridge_suite_is_pending_or_binds_the_exact_pin() -> None:
+def test_lab_bridge_suite_status_is_honest() -> None:
     lock = _lock()
     lab = lock["lab_runtime_qualification"]
     suite = lab["bridge_suite"]
-    if suite["status"] == "PENDING":
+    assert suite["status"] in {"PENDING", "LOCAL_OBSERVED", "COMPLETE"}
+    if suite["status"] != "COMPLETE":
+        # No Actions run, no CI-level credit: the lock stays PIN_MOVED_LAB_EVIDENCE_PENDING.
         assert lock["status"] == "PIN_MOVED_LAB_EVIDENCE_PENDING"
         assert lab["installed_artifacts_commit"] is None and not lab["installed_artifacts"]
-        assert not {"run", "failures", "errors", "skipped", "actions_run"} & set(suite)
+        assert not {"actions_run", "job", "artifact"} & set(suite)
         return
-    assert suite["status"] == "COMPLETE"
+    assert lock["status"] == "EVIDENCE_BOUND"
+    assert suite["actions_run"] and suite["job"]
+    assert len(suite["artifact"]["zip_sha256"]) == 64
     assert lab["installed_artifacts_commit"] == CURRENT_PIN
     assert suite["failures"] == 0 and suite["errors"] == 0
-    assert CURRENT_PIN in suite["command"]
+    assert f"XMAGE_COMMIT={CURRENT_PIN[:8]}" in suite["command"]
     assert set(lab["installed_artifacts"]) == {"org.mage:mage:1.4.61", "org.mage:mage-sets:1.4.61"}
     for digest in lab["installed_artifacts"].values():
         assert len(digest.removeprefix("sha256 ")) == 64
