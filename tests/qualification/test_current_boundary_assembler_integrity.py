@@ -816,11 +816,17 @@ def test_af11_adjudication_covers_the_live_pin_and_keeps_the_prior_record() -> N
     assert prior["integration_topology"]["engine_commit"] == record["supersedes"]["engine_commit"]
     assert prior["integration_topology"]["engine_commit"] != live_pin
     # The pin and its effective epoch moved and Forge was removed (Owner decision
-    # 2026-10-13); licences and the XMage topology are unchanged.
-    assert prior["licence_topology"] == record["licence_topology"]
+    # 2026-10-13); licences and the XMage topology are unchanged. The jar inventory moves
+    # only when the Lab dependency set moves (repin v7: gson, JUnit, error_prone), and every
+    # licence stays inside the adjudicated allowlist.
+    for key in ("lab", "provider", "strong_copyleft_on_provider_classpath"):
+        assert prior["licence_topology"][key] == record["licence_topology"][key]
+    assert set(record["licence_topology"]["provider_classpath"].values()) <= set(
+        asm._AF11_ADJUDICATED_LICENCES
+    )
     assert record["forge"]["role"] == "REMOVED"
     assert record["forge"]["in_production_distribution"] is False
-    assert "FORGE_SEPARATE_PROCESS" in [d["id"] for d in prior["decisions"]]
+    assert "FORGE_SEPARATE_PROCESS" not in [d["id"] for d in record["decisions"]]
     assert record["decisions"] == [
         d for d in prior["decisions"] if d["id"] != "FORGE_SEPARATE_PROCESS"
     ]
