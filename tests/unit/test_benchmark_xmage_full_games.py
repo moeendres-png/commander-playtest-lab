@@ -8,6 +8,7 @@ once with BRIDGE_EXITED.
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
 from pathlib import Path
 
@@ -29,3 +30,46 @@ def test_a_relative_jar_is_launched_by_its_absolute_path(tmp_path: Path, monkeyp
     command = _module().bridge_command(Path("bridge.jar"), ["-Xmx2g"])
     assert command == ("java", "-Xmx2g", "-jar", str(tmp_path / "bridge.jar"), "full-game")
     assert os.path.isabs(command[3])
+
+
+def _report(path: Path, games: list[dict]) -> Path:
+    path.write_text(json.dumps({"games": games}), encoding="utf-8")
+    return path
+
+
+def _game(seed: int, status: str = "ok", semantic: str | None = "s") -> dict:
+    return {
+        "pod": "p",
+        "seed": seed,
+        "status": status,
+        "semantic": semantic,
+        "wall_s": 1.0,
+        "child_cpu_s": 2.0,
+    }
+
+
+def test_compare_passes_when_every_game_is_identical(tmp_path: Path, capsys) -> None:
+    a = _report(tmp_path / "a.json", [_game(1), _game(2)])
+    b = _report(tmp_path / "b.json", [_game(1), _game(2)])
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    assert "identical 2/2" in capsys.readouterr().out
+
+
+def test_compare_fails_on_a_different_transcript(tmp_path: Path, capsys) -> None:
+    a = _report(tmp_path / "a.json", [_game(1), _game(2)])
+    b = _report(tmp_path / "b.json", [_game(1), _game(2, semantic="other")])
+    assert _module().main(["compare", str(a), str(b)]) == 1
+    assert "DIFFERENT ('p', 2) s other" in capsys.readouterr().out
+
+
+def test_two_failed_games_are_not_identical(tmp_path: Path) -> None:
+    a = _report(tmp_path / "a.json", [_game(1, "failed", None)])
+    b = _report(tmp_path / "b.json", [_game(1, "failed", None)])
+    assert _module().main(["compare", str(a), str(b)]) == 1
+
+
+def test_compare_fails_when_a_game_is_missing(tmp_path: Path, capsys) -> None:
+    a = _report(tmp_path / "a.json", [_game(1), _game(2)])
+    b = _report(tmp_path / "b.json", [_game(1)])
+    assert _module().main(["compare", str(a), str(b)]) == 1
+    assert "MISSING 1 game(s)" in capsys.readouterr().out

@@ -45,3 +45,20 @@ def test_batched_twins_play_in_two_processes_in_reverse_order(
 def test_games_per_jvm_must_be_positive() -> None:
     with pytest.raises(SystemExit):
         coverage.main(["--jar", "x.jar", "--out", "x.json", "--games-per-jvm", "0"])
+
+
+@pytest.mark.parametrize(
+    ("first", "second", "twin"),
+    [
+        ({"status": "ok", "semantic": "a"}, {"status": "ok", "semantic": "a"}, "identical"),
+        ({"status": "ok", "semantic": "a"}, {"status": "ok", "semantic": "b"}, "DIVERGED"),
+        ({"status": "ok", "semantic": "a"}, {"status": "failed"}, "not_compared"),
+        ({"status": "failed"}, {"status": "failed"}, "not_compared"),
+    ],
+)
+def test_twin_label(first: dict, second: dict, twin: str) -> None:
+    decks = tuple(coverage._load_decks()[:4])
+    row = coverage._pod_row(decks, 7, first, second)
+    assert row["twin"] == twin
+    assert row["runs"] == [first, second]
+    assert (row["size"], row["seed"]) == (4, 7)

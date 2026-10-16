@@ -134,20 +134,26 @@ def compare(args: argparse.Namespace) -> int:
     a = {(r["pod"], r["seed"]): r for r in base["games"]}
     b = {(r["pod"], r["seed"]): r for r in other["games"]}
     keys = sorted(a.keys() & b.keys())
+    # A failed game is never identical, not even to another failed game.
     differ = [
         k
         for k in keys
-        if (a[k]["status"], a[k].get("semantic")) != (b[k]["status"], b[k].get("semantic"))
+        if a[k]["status"] != "ok"
+        or b[k]["status"] != "ok"
+        or a[k].get("semantic") != b[k].get("semantic")
     ]
+    missing = len(a.keys() ^ b.keys())
     wall = [sum(d[k]["wall_s"] for k in keys) for d in (a, b)]
     cpu = [sum(d[k]["child_cpu_s"] for k in keys) for d in (a, b)]
     print(f"identical {len(keys) - len(differ)}/{len(keys)}")
     for key in differ:
-        print("DIFFERENT", key, a[key].get("semantic"), b[key].get("semantic"))
+        print("DIFFERENT", key, *(d[key].get("semantic") or d[key]["status"] for d in (a, b)))
+    if missing:
+        print(f"MISSING {missing} game(s) present in only one file")
     if wall[0] and cpu[0]:
         print(f"wall {wall[0]:.1f} -> {wall[1]:.1f} s ({100 * (wall[1] / wall[0] - 1):+.1f} %)")
         print(f"cpu  {cpu[0]:.1f} -> {cpu[1]:.1f} s ({100 * (cpu[1] / cpu[0] - 1):+.1f} %)")
-    return 1 if differ or len(keys) != len(a) or len(keys) != len(b) else 0
+    return 1 if differ or missing else 0
 
 
 def main(argv: list[str] | None = None) -> int:
