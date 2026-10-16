@@ -56,16 +56,6 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
         if decision_class not in {"mana_payment", "choose_object"}:
             self._special_mana_pending.pop(seat, None)
-        # #802 review P1: a decision of any other class for this seat ends the
-        # current block-declaration round. After a declaration the engine
-        # accepts, the seat's next decision is a priority window in the
-        # declare-blockers step, so an extra combat phase later in the same
-        # turn (Aggravated Assault, Moraug, Aurelia) must start the ladder
-        # over instead of counting as engine rejections. A rejected
-        # declaration is re-asked with no other decision in between, so
-        # genuine re-asks still reach the ladder in ``_decide_blocks``.
-        if decision_class != "declare_blocker":
-            self._block_frame_asks.pop(seat, None)
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
         min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))
@@ -137,7 +127,10 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # #700: this seat's remembered cost describes the action it chose
             # last time, and the next priority decision of this seat is a
             # different action, so it is dropped before a new one is picked.
+            # #815: same for failed X announcements — a new priority action
+            # starts with a clean retry slate.
             self._priority_cost_facts.pop(seat, None)
+            self._failed_x_announcements.pop(seat, None)
             self._last_priority_label.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected)
