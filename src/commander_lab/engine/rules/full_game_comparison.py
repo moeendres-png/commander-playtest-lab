@@ -27,6 +27,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from commander_lab.agents.card_knowledge import is_basic_land_name
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.models import (
     PilotConfig,
@@ -135,6 +136,73 @@ def pod_decks(
     order: list[RulesDeckInput] = [contender, *opponents]
     shift = tested_seat - 1
     return tuple(order[(index - shift) % count] for index in range(count))
+
+
+class SwapSpecError(ValueError):
+    """A ``--swap`` text that cannot be applied to the baseline deck."""
+
+
+def parse_swaps(text: str) -> tuple[tuple[str, str], ...]:
+    """``"Out=>In"`` or several swaps of one variant, ``"A=>B;C=>D"``.
+
+    Card names contain commas and slashes but never ``;`` or ``=>``.
+    """
+    swaps: list[tuple[str, str]] = []
+    for part in text.split(";"):
+        if not part.strip():
+            continue
+        out_name, arrow, in_name = part.partition("=>")
+        if not arrow or not out_name.strip() or not in_name.strip() or "=>" in in_name:
+            raise SwapSpecError(f"swap must read 'Out Card=>In Card', got {part.strip()!r}")
+        swaps.append((out_name.strip(), in_name.strip()))
+    if not swaps:
+        raise SwapSpecError("swap text names no card")
+    return tuple(swaps)
+
+
+def apply_swaps(deck: RulesDeckInput, swaps: Sequence[tuple[str, str]]) -> RulesDeckInput:
+    """The deck with each card replaced by its partner, in the same library slot.
+
+    A card name matches exactly, or ignoring case when that is unambiguous. The
+    first copy in list order is replaced, so one swap changes one copy. The
+    commanders are not part of the mainboard and cannot be swapped here. The
+    card coming in must not already be in the deck (basic lands excepted: a
+    singleton deck has one copy of anything else) and must not be a commander.
+    Of several swaps in one variant, the paired games keep the unchanged
+    cards' slots; which freed slot an incoming card takes is fixed by
+    :func:`align_to_baseline_slots` when the games are planned.
+    """
+    commanders = {name.casefold() for name in deck.commander_names}
+    mainboard = list(deck.mainboard)
+    for out_name, in_name in swaps:
+        if in_name.casefold() == out_name.casefold():
+            raise SwapSpecError(f"swap exchanges a card for itself: {out_name}")
+        if in_name.casefold() in commanders:
+            raise SwapSpecError(f"swap-in card is a commander of {deck.deck_id}: {in_name}")
+        if not is_basic_land_name(in_name) and any(
+            card.casefold() == in_name.casefold() for card in mainboard
+        ):
+            raise SwapSpecError(
+                f"swap-in card is already in the mainboard of {deck.deck_id}: {in_name}"
+            )
+        matches = [index for index, card in enumerate(mainboard) if card == out_name]
+        if not matches:
+            folded = {card for card in mainboard if card.casefold() == out_name.casefold()}
+            if len(folded) > 1:
+                raise SwapSpecError(
+                    f"swap-out card is ambiguous in {deck.deck_id}: {out_name} (matches "
+                    f"{', '.join(sorted(folded))}); use the exact spelling"
+                )
+            if folded:
+                matches = [
+                    index for index, card in enumerate(mainboard) if card == next(iter(folded))
+                ]
+        if not matches:
+            raise SwapSpecError(
+                f"swap-out card is not in the mainboard of {deck.deck_id}: {out_name}"
+            )
+        mainboard[matches[0]] = in_name
+    return deck.model_copy(update={"mainboard": tuple(mainboard), "deck_hash": None})
 
 
 class SlotAlignment(_StrictModel):
@@ -534,11 +602,14 @@ __all__ = [
     "DeckComparisonSpec",
     "PairedVariantResult",
     "SlotAlignment",
+    "SwapSpecError",
     "WinInterval",
     "aggregate_comparison",
     "align_to_baseline_slots",
     "aligned_contenders",
+    "apply_swaps",
     "case_id",
+    "parse_swaps",
     "plan_comparison_cases",
     "pod_decks",
     "sequential_look_alpha",

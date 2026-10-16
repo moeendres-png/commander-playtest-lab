@@ -16,6 +16,11 @@ Example (four-player pods, 25 seeds x 4 seats x 2 contenders = 200 games):
         --opponent data/opponents/lorehold_spirit_precon.json \\
         --seeds 1-25 --out artifacts/deck-comparison/rogshai-vs-variant
 
+A variant need not be a file: ``--swap 'Sol Ring=>Mind Stone'`` exchanges cards of the
+baseline in place (``'A=>B;C=>D'`` for several in one variant; repeat ``--swap`` for more
+variants). The variant keeps the baseline's card order apart from the slots of the
+swapped cards.
+
 The report is exploratory deck-building evidence for this pilot policy and
 engine pin. It is not official campaign or holdout evidence.
 
@@ -50,7 +55,10 @@ from commander_lab.engine.rules.full_game_batch import (
 from commander_lab.engine.rules.full_game_comparison import (
     DeckComparisonReport,
     DeckComparisonSpec,
+    SwapSpecError,
     aggregate_comparison,
+    apply_swaps,
+    parse_swaps,
     plan_comparison_cases,
     sequential_look_alpha,
     sequential_looks_planned,
@@ -107,22 +115,42 @@ def default_workers(cpu_count: int | None = None, memory_gb: float | None = None
     return max(1, min(by_cpu, by_memory))
 
 
+def with_deck_hash(deck: RulesDeckInput) -> RulesDeckInput:
+    """The deck with a content hash: its own, or derived from its cards."""
+    if deck.deck_hash is not None:
+        return deck
+    return deck.model_copy(
+        update={
+            "deck_hash": sha256_value(
+                {
+                    "deck_id": deck.deck_id,
+                    "commander_names": list(deck.commander_names),
+                    "mainboard": list(deck.mainboard),
+                    "sideboard": list(deck.sideboard),
+                }
+            )
+        }
+    )
+
+
 def load_deck(path: Path) -> RulesDeckInput:
-    deck = load_rules_deck_snapshot(path)
-    if deck.deck_hash is None:
-        deck = deck.model_copy(
-            update={
-                "deck_hash": sha256_value(
-                    {
-                        "deck_id": deck.deck_id,
-                        "commander_names": list(deck.commander_names),
-                        "mainboard": list(deck.mainboard),
-                        "sideboard": list(deck.sideboard),
-                    }
-                )
-            }
+    return with_deck_hash(load_rules_deck_snapshot(path))
+
+
+def swap_variants(baseline: RulesDeckInput, swap_texts: list[str]) -> list[RulesDeckInput]:
+    """One variant per ``--swap`` text: the baseline with those cards exchanged."""
+    variants: list[RulesDeckInput] = []
+    seen = {tuple(sorted(baseline.mainboard)): baseline.deck_id}
+    for index, text in enumerate(swap_texts, start=1):
+        swapped = apply_swaps(baseline, parse_swaps(text))
+        variant = with_deck_hash(
+            swapped.model_copy(update={"deck_id": f"{baseline.deck_id}#swap{index}"})
         )
-    return deck
+        twin = seen.setdefault(tuple(sorted(variant.mainboard)), variant.deck_id)
+        if twin != variant.deck_id:
+            raise SwapSpecError(f"swap {text!r} plays the same cards as {twin}")
+        variants.append(variant)
+    return variants
 
 
 def distinct_contenders(decks: list[RulesDeckInput]) -> tuple[RulesDeckInput, ...]:
@@ -243,7 +271,16 @@ def run_sequential_blocks(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     parser.add_argument("--baseline", type=Path, required=True)
-    parser.add_argument("--variant", type=Path, action="append", required=True)
+    parser.add_argument("--variant", type=Path, action="append", default=[])
+    parser.add_argument(
+        "--swap",
+        action="append",
+        default=[],
+        metavar="OUT=>IN",
+        help="a variant made from the baseline by exchanging cards in place, e.g. "
+        "'Sol Ring=>Mind Stone' (several swaps of one variant: 'A=>B;C=>D'); "
+        "repeat the option for more variants",
+    )
     parser.add_argument("--opponent", type=Path, action="append", required=True)
     parser.add_argument("--seeds", required=True, help="e.g. 1-25 or 3,7,9")
     parser.add_argument("--no-rotate", action="store_true", help="test seat 1 only")
@@ -275,9 +312,18 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if not args.variant and not args.swap:
+        parser.error("give at least one --variant or --swap")
+    baseline = load_deck(args.baseline)
+    try:
+        swapped = swap_variants(baseline, args.swap)
+    except SwapSpecError as error:
+        parser.error(str(error))
     contenders = distinct_contenders(
-        [load_deck(args.baseline), *(load_deck(path) for path in args.variant)]
+        [baseline, *(load_deck(path) for path in args.variant), *swapped]
     )
+    for variant, text in zip(swapped, args.swap, strict=True):
+        print(f"{variant.deck_id}: {text}")
     opponents = tuple(load_deck(path) for path in args.opponent)
     decks_ready = print_readiness_summary(contenders, opponents)
     if args.require_ready and not decks_ready:
@@ -349,6 +395,10 @@ def main(argv: list[str] | None = None) -> int:
     payload = comparison.model_dump(mode="json")
     if sequential is not None:
         payload["sequential"] = sequential
+    if args.swap:
+        payload["swaps"] = {
+            variant.deck_id: text for variant, text in zip(swapped, args.swap, strict=True)
+        }
     payload["engine"] = {
         "xmage_commit": spec.xmage_commit,
         "execution_identity": execution_identity_of(runner),
