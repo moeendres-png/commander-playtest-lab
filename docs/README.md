@@ -14,7 +14,7 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 | What are the durable rules for every session? | `AGENTS.md` (repository root) |
 | What is the project trying to build? | `PROJECT_MISSION.md` |
 | What are the current engine pins? | `../config/rules_engines.json` — sole machine-readable pin authority |
-| Who may execute what, and at which effort? | `AGENTS.md` §6–§7 and `COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md` |
+| Who may execute what, and at which effort? | `AGENTS.md` §6–§8 and `CURRENT_EXECUTION_AUTHORITY.md` |
 | How is a Foundry workstream started? | `../.opencode/skills/workstream-bootstrap/SKILL.md` |
 | How do I resume an interrupted one? | `../.opencode/skills/continuation/SKILL.md` |
 | Which PRs / issues / branches are live? | `REPOSITORY_TRIAGE_INDEX.md` |
