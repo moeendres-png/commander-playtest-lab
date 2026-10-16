@@ -110,18 +110,88 @@ class _CombatDecisions(_ChoiceDecisions):
         # a chump block prevents lethal or near-lethal damage); the old rule
         # always blocked at least once, which threw creatures away.
         worthwhile = sum(1 for score, _stable_id in ranked if score > 0.0)
-        take = max(min_selections, min(max_selections, worthwhile))
-        # The engine re-asks when a declared block is illegal as a whole
-        # (menace, block requirements). The same block proposed again and
-        # again is that loop; stop proposing it when blocking is optional.
-        seat = runtime.binding.seat
-        proposal = (
-            state.get("turn_number"),
-            tuple(stable_id for _score, stable_id in ranked[:take]),
-        )
-        last, repeats = self._last_block_proposal.get(seat, (None, 0))
-        repeats = repeats + 1 if last == proposal else 1
-        self._last_block_proposal[seat] = (proposal, repeats)
-        if repeats > self._BLOCK_REPEAT_LIMIT and min_selections == 0:
+        judged = max(min_selections, min(max_selections, worthwhile))
+        # #802: the engine re-asks the whole declaration whenever its own check
+        # rejects the configuration as a whole - an unmet "blocks this turn if
+        # able", a menace minimum, a restriction that discards the declared
+        # blockers. It only leaves that retry loop for a computer-controlled
+        # player, so the pilot must answer a re-ask with a *different* legal
+        # declaration: repeating one (including the empty one, which cannot
+        # satisfy a block requirement) spins until the decision cap and ends
+        # the game in ENGINE_FAILURE. The frame counter gives a bounded ladder,
+        # and a frame the engine still rejects after the pilot's last legal
+        # declaration fails closed instead of looping. The count is per seat
+        # and turn, and the seat's next decision of any other class (the
+        # priority window after an accepted declaration) clears it, so each
+        # later combat in the same turn starts the ladder over (review P1).
+        asks = self._count_block_frame_ask(runtime.binding.seat, state, options)
+        if asks > self._BLOCK_DECLARATION_ASK_LIMIT or (
+            asks == self._BLOCK_DECLARATION_ASK_LIMIT and min_selections > 0
+        ):
+            raise FullGameProtocolError(
+                "engine rejected every block declaration the pilot can make: "
+                f"seat={runtime.binding.seat} turn={state.get('turn_number')} "
+                f"frames={len(options)}",
+                code="BLOCK_DECLARATION_REJECTED",
+            )
+        if asks == self._BLOCK_DECLARATION_ASK_LIMIT:
+            # The empty declaration is the last answer left to try. It can
+            # violate no blocking restriction, but it cannot satisfy a
+            # mandatory block either ("blocks this turn if able", CR 509.1c),
+            # so a frame the engine re-asks after this has no untried legal
+            # answer: the guard above fails closed instead of repeating one.
             return []
+        # Ask 2 is a search heuristic inside the options the engine offered:
+        # the maximal declaration is the best chance to satisfy a requirement
+        # like "blocks this turn if able" (CR 509.1c). It makes no legality
+        # claim - the engine still accepts or rejects what is submitted.
+        take = judged if asks == 1 else max(min_selections, min(max_selections, len(options)))
         return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
+
+    @staticmethod
+    def _block_frame_key(options: list[dict[str, object]]) -> tuple[str, ...]:
+        """Identify the engine's ask: the blocker and the attackers it offered.
+
+        The engine's own object ids come from the option metadata, so two
+        same-named blockers stay distinct frames. An option missing either id
+        cannot be attributed to any engine frame, so it fails closed instead
+        of collapsing into one opaque ``None>None`` frame that merges
+        unrelated engine asks (and hides a bridge that stopped emitting the
+        ids). The engine emits both ids on every declare_blocker option.
+        """
+        parts: list[str] = []
+        for option in options:
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            blocker_id = meta.get("blocker_id")
+            attacker_id = meta.get("attacker_id")
+            if not isinstance(blocker_id, str) or not blocker_id.strip():
+                raise FullGameProtocolError(
+                    "declare_blocker option is missing the engine's blocker_id"
+                )
+            if not isinstance(attacker_id, str) or not attacker_id.strip():
+                raise FullGameProtocolError(
+                    "declare_blocker option is missing the engine's attacker_id"
+                )
+            parts.append(f"{blocker_id}>{attacker_id}")
+        return tuple(sorted(parts))
+
+    def _count_block_frame_ask(
+        self, seat: int, state: dict[str, object], options: list[dict[str, object]]
+    ) -> int:
+        """How often the engine has asked this block frame this turn (1 = first).
+
+        Bounded by the frame count of one declaration round. The seat's whole
+        count is dropped by its next decision of another class (see
+        ``decide``), so an accepted declaration - after which the seat gets
+        priority - starts the next combat's frames at 1 again, and the count
+        cannot grow with the length of a game.
+        """
+        turn = state.get("turn_number")
+        stored = self._block_frame_asks.get(seat)
+        counts = dict(stored[1]) if stored is not None and stored[0] == turn else {}
+        key = self._block_frame_key(options)
+        asks = counts.get(key, 0) + 1
+        counts[key] = asks
+        self._block_frame_asks[seat] = (turn, counts)
+        return asks
