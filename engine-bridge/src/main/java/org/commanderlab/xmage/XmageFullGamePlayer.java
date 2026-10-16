@@ -1329,6 +1329,41 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * and the pilot's retry guard prevents an endless re-announcement loop.
      */
     boolean reversedOverAnnouncedX(
+            Ability casting,
+            Game game,
+            Zone origin,
+            int stackBefore
+    ) {
+        if (casting == null || game == null || origin == null) {
+            return false;
+        }
+        // X was announced: the distinguisher from reversedBeforeAnyChoice.
+        if (xAnnouncedAbility == null) {
+            return false;
+        }
+        // Payment was attempted for this very card (CR 601.2f reached).
+        Ability paid = paidSpellAbility;
+        if (paid == null || paid.getSourceId() == null
+                || !paid.getSourceId().equals(casting.getSourceId())) {
+            return false;
+        }
+        // Mana payment failed (not completed like in the discard/life cases).
+        ManaCosts<ManaCost> manaCostsToPay = paid.getManaCostsToPay();
+        if (manaCostsToPay == null || manaCostsToPay.isPaid()) {
+            return false;
+        }
+        // Not a pilot cancellation.
+        if (paymentCancelled) {
+            return false;
+        }
+        // The rewind itself: card back in origin zone, stack unchanged.
+        Card card = game.getCard(casting.getSourceId());
+        return card != null
+                && origin == game.getState().getZone(card.getMainCard().getId())
+                && game.getStack().size() == stackBefore;
+    }
+
+    /**
      * #815: true only when the engine reversed {@code casting} because it could
      * not select the number of modes the spell requires, without the pilot
      * having been asked to pick a mode.
@@ -1370,28 +1405,6 @@ final class XmageFullGamePlayer extends PlayerImpl {
         if (casting == null || game == null || origin == null) {
             return false;
         }
-        // X was announced: the distinguisher from reversedBeforeAnyChoice.
-        if (xAnnouncedAbility == null) {
-            return false;
-        }
-        // Payment was attempted for this very card (CR 601.2f reached).
-        Ability paid = paidSpellAbility;
-        if (paid == null || paid.getSourceId() == null
-                || !paid.getSourceId().equals(casting.getSourceId())) {
-            return false;
-        }
-        // Mana payment failed (not completed like in the discard/life cases).
-        ManaCosts<ManaCost> manaCostsToPay = paid.getManaCostsToPay();
-        if (manaCostsToPay == null || manaCostsToPay.isPaid()) {
-            return false;
-        }
-        // Not a pilot cancellation.
-        if (paymentCancelled) {
-            return false;
-        }
-        // The rewind itself: card back in origin zone, stack unchanged.
-        Card card = game.getCard(casting.getSourceId());
-        return card != null
         if (modeChoiceRequested
                 || targetChoiceRequested
                 || paidSpellAbility != null
