@@ -56,7 +56,8 @@ def compare_legacy_to_v2(
     efficiency_ratio = v2_pairs_per_deck / legacy_pairs_per_deck
     calibration = calibration_report()
     calibration_summary = calibration["summary"]
-    assert isinstance(calibration_summary, dict)
+    if not (isinstance(calibration_summary, dict)):
+        raise RuntimeError("invariant violated: isinstance(calibration_summary, dict)")
 
     protected = (
         v2.get("confirmatory_partition_opened") is False

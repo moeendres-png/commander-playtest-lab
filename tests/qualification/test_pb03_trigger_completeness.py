@@ -173,7 +173,12 @@ def test_the_measurement_sees_the_contract_and_the_code() -> None:
 
 
 def test_every_measured_input_triggers_pb03() -> None:
-    uncovered = sorted(path for path in _measured_inputs() if not _covered(path))
+    # Only tracked files can change in a PR. An untracked file the run reads, such
+    # as the src/*.egg-info a local ``pip install -e .`` writes, needs no trigger.
+    tracked = set(_tracked_files())
+    uncovered = sorted(
+        path for path in _measured_inputs() if path in tracked and not _covered(path)
+    )
     assert not uncovered, f"PB-03 inputs that do not trigger PB-03 on a PR: {uncovered}"
 
 

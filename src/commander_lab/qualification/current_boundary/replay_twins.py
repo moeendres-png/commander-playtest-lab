@@ -204,7 +204,12 @@ class ProcessIdentity:
     def key(self) -> tuple[int, int, str] | None:
         if not self.observed:
             return None
-        assert self.pid is not None and self.start_ticks is not None and self.boot_id is not None
+        if self.pid is None:
+            raise RuntimeError("invariant violated: self.pid is not None")
+        if self.start_ticks is None:
+            raise RuntimeError("invariant violated: self.start_ticks is not None")
+        if self.boot_id is None:
+            raise RuntimeError("invariant violated: self.boot_id is not None")
         return (self.pid, self.start_ticks, self.boot_id)
 
     def to_document(self) -> dict[str, Any]:

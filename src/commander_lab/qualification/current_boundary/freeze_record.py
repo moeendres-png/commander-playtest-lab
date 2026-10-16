@@ -142,10 +142,15 @@ SIBLING_ADMISSIBLE_ARGUMENT: dict[str, str] = {
     ),
 }
 
-assert set(CAPABILITY_PROOF) == set(REQUIRED_CAPABILITIES)
-assert set(LANE_SURFACE_COMPONENTS) | set(SIBLING_ADMISSIBLE_ARGUMENT) == {
-    f"AF{n:02d}" for n in range(12)
-}
+if not (set(CAPABILITY_PROOF) == set(REQUIRED_CAPABILITIES)):
+    raise RuntimeError("invariant violated: set(CAPABILITY_PROOF) == set(REQUIRED_CAPABILITIES)")
+if not (
+    set(LANE_SURFACE_COMPONENTS) | set(SIBLING_ADMISSIBLE_ARGUMENT)
+    == {f"AF{n:02d}" for n in range(12)}
+):
+    raise RuntimeError(
+        "invariant violated: set(LANE_SURFACE_COMPONENTS) | set(SIBLING_ADMISSIBLE_ARGUMENT) == {f'AF{n:02d}' for n in range(12)}"
+    )
 
 
 class FreezeRecordError(RuntimeError):

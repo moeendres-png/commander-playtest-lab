@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
 """Audit which executed sources a path-filtered workflow's gates actually cover.
 
-A qualification workflow that filters on ``pull_request.paths`` (or gates its
-heavy jobs with the ``change-scope`` action) only runs when a listed path
-changes. If a module the workflow executes is not covered by any of those
+A qualification workflow that filters on ``pull_request.paths`` or
+``push.paths`` (or gates its heavy jobs with the ``change-scope`` action) only
+runs when a listed path changes. If a module the workflow executes is not covered by any of those
 globs, that module can change without its own gate running.
 
 For every path-filtered workflow this tool:
 
-1. collects the gate globs (trigger ``paths`` and every ``change-scope`` input);
+1. collects the gate globs (``pull_request`` and ``push`` trigger ``paths`` and
+   every ``change-scope`` input);
 2. finds the executed entry points in its ``run:`` steps (``scripts/…``,
    ``tests/…`` files or directories, ``python -m`` modules, inline
    ``commander_lab`` imports);
@@ -73,6 +74,21 @@ def trigger_gates(workflow: dict[Any, Any]) -> list[str] | None:
     """The pull_request ``paths`` filter, or None when pull requests always trigger."""
     on = workflow.get(True) or workflow.get("on") or {}
     spec = on.get("pull_request") if isinstance(on, dict) else None
+    if isinstance(spec, dict) and spec.get("paths"):
+        return [str(p) for p in spec["paths"]]
+    return None
+
+
+def push_gates(workflow: dict[Any, Any]) -> list[str] | None:
+    """The push ``paths`` filter, or None when every push triggers.
+
+    ``change-scope`` reports every non-pull-request event as relevant, so on a
+    push to main this filter alone decides whether the workflow runs. A module
+    the pull-request gates cover but this filter misses is re-qualified on its
+    PR and silently skipped on the merge commit.
+    """
+    on = workflow.get(True) or workflow.get("on") or {}
+    spec = on.get("push") if isinstance(on, dict) else None
     if isinstance(spec, dict) and spec.get("paths"):
         return [str(p) for p in spec["paths"]]
     return None
@@ -206,6 +222,7 @@ def audit(workflow_path: Path) -> dict[str, Any] | None:
     """
     workflow = yaml.safe_load(workflow_path.read_text(encoding="utf-8")) or {}
     trigger = trigger_gates(workflow)
+    push = push_gates(workflow)
     all_jobs = workflow.get("jobs") or {}
     own_scope = {name: scope_gates(job) for name, job in all_jobs.items()}
     jobs: dict[str, Any] = {}
@@ -219,7 +236,7 @@ def audit(workflow_path: Path) -> dict[str, Any] | None:
             for needed in needs:
                 if own_scope.get(needed) is not None and f"needs.{needed}." in condition:
                     scope = own_scope[needed]
-        if trigger is None and scope is None:
+        if trigger is None and push is None and scope is None:
             continue
         files, modules = entry_points(job)
         executed = sorted(str(p.relative_to(ROOT)) for p in executed_files(files, modules))
@@ -227,7 +244,11 @@ def audit(workflow_path: Path) -> dict[str, Any] | None:
         for path in executed:
             missing = [
                 gate
-                for gate, globs in (("trigger", trigger), ("change-scope", scope))
+                for gate, globs in (
+                    ("trigger", trigger),
+                    ("push", push),
+                    ("change-scope", scope),
+                )
                 if globs is not None and not covered(path, globs)
             ]
             if missing:
@@ -239,7 +260,7 @@ def audit(workflow_path: Path) -> dict[str, Any] | None:
         }
     if not jobs:
         return None
-    return {"trigger_paths": trigger, "jobs": jobs}
+    return {"trigger_paths": trigger, "push_paths": push, "jobs": jobs}
 
 
 # Workflows whose gates this tool must not rewrite, with the owner and reason.
@@ -286,16 +307,20 @@ def fix(workflow_path: Path) -> int:
     if result is None:
         return 0
     trigger_missing: list[str] = []
+    push_missing: list[str] = []
     scope_missing: list[str] = []
     for detail in result["jobs"].values():
         for item in detail["uncovered"]:
             glob = cover_glob(item["path"])
             if "trigger" in item["gates"] and glob not in trigger_missing:
                 trigger_missing.append(glob)
+            if "push" in item["gates"] and glob not in push_missing:
+                push_missing.append(glob)
             if "change-scope" in item["gates"] and glob not in scope_missing:
                 scope_missing.append(glob)
-    if not trigger_missing and not scope_missing:
+    if not trigger_missing and not push_missing and not scope_missing:
         return 0
+    missing_by_trigger = {"pull_request": trigger_missing, "push": push_missing}
     lines = workflow_path.read_text(encoding="utf-8").splitlines()
     added = 0
     section = None
@@ -303,11 +328,12 @@ def fix(workflow_path: Path) -> int:
     while index < len(lines):
         stripped = lines[index].strip()
         if stripped in {"pull_request:", "push:"}:
-            section = "trigger"
+            section = stripped[:-1]
         elif stripped.startswith("jobs:"):
             section = "jobs"
-        if section == "trigger" and stripped == "paths:" and trigger_missing:
-            added += _append_to_list(lines, index, sorted(set(trigger_missing)), block=False)
+        trigger_additions = missing_by_trigger.get(section or "")
+        if stripped == "paths:" and trigger_additions:
+            added += _append_to_list(lines, index, sorted(set(trigger_additions)), block=False)
         scope_block = any("change-scope" in lines[back] for back in range(max(0, index - 3), index))
         if section == "jobs" and stripped == "paths: |" and scope_missing and scope_block:
             added += _append_to_list(lines, index, sorted(set(scope_missing)), block=True)

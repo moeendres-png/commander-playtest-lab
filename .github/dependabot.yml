@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: maven
+    directory: /engine-bridge
+    schedule:
+      interval: monthly
+    ignore:
+      # The XMage pin moves only by Owner decision.
+      - dependency-name: "org.mage:*"

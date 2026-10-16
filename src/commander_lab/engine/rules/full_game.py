@@ -10,11 +10,14 @@ import re
 import shlex
 import shutil
 import subprocess
+import sys
 import threading
+import time
 import uuid
+import weakref
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, TextIO
 
 from pydantic import Field, model_validator
 
@@ -394,6 +397,84 @@ class FullGameReplayGate(_StrictModel):
 # working directory, each with a copy of XMage's card repository.
 PRIVATE_ENGINE_DIRECTORY = "private"
 XMAGE_CARD_REPOSITORY_FILE = "cards.h2.mv.db"
+# Old layout: one ``private/<uuid32>`` directory per game. Orphans of it
+# (a crashed Lab never removed them) are swept once they are this old.
+_ORPHAN_PRIVATE_DIRECTORY = re.compile(r"[0-9a-f]{32}")
+_ORPHAN_PRIVATE_DIRECTORY_AGE_SECONDS = 24 * 3600
+# In a slot: the size and mtime of the shared repository the slot copied.
+_SLOT_SOURCE_MARKER = "db.source"
+
+# Bridge stderr kept in memory for diagnostics. Only the last 80 lines are
+# ever reported (``stderr_tail``); the pump trims to this bound so a chatty
+# JVM cannot grow the Lab process over a long game.
+_STDERR_BUFFER_LINES = 1_000
+_STDERR_TAIL_LINES = 80
+
+# Bridge clients whose JVM is running, so an interrupted batch can stop them at
+# once instead of waiting for every game in flight to finish.
+_LIVE_CLIENTS: weakref.WeakSet[_RawFullGameClient] = weakref.WeakSet()
+_LIVE_CLIENTS_LOCK = threading.Lock()
+
+
+def kill_live_bridge_processes() -> int:
+    """Kill every running full-game bridge JVM of this process; returns how many.
+
+    Each killed client's channel is marked unusable, so its game thread fails
+    fast (``BRIDGE_CLOSED``) and its ``close()`` skips the shutdown handshake.
+    Used when a batch is interrupted; a killed game never becomes a record.
+    """
+    with _LIVE_CLIENTS_LOCK:
+        clients = list(_LIVE_CLIENTS)
+    killed = 0
+    for client in clients:
+        process = client._process
+        if process is None or process.poll() is not None:
+            continue
+        client._transport_failure = client._transport_failure or "BRIDGE_ABORTED"
+        with contextlib.suppress(OSError):
+            process.kill()
+            killed += 1
+    return killed
+
+
+# A worker slot is held with an exclusive, non-blocking lock on its lock file,
+# so other threads, batches and processes skip it. Both raise OSError when the
+# slot is taken.
+if sys.platform == "win32":
+    import msvcrt
+
+    def _lock_slot(descriptor: int) -> None:
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        msvcrt.locking(descriptor, msvcrt.LK_NBLCK, 1)
+
+    def _unlock_slot(descriptor: int) -> None:
+        os.lseek(descriptor, 0, os.SEEK_SET)
+        msvcrt.locking(descriptor, msvcrt.LK_UNLCK, 1)
+
+else:
+    import fcntl
+
+    def _lock_slot(descriptor: int) -> None:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+
+    def _unlock_slot(descriptor: int) -> None:
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+
+
+def _copy_card_repository(source: Path, destination: Path) -> None:
+    shutil.copytree(source, destination)
+
+
+def _remove_orphan_private_directories(root: Path) -> None:
+    """Remove old-style ``private/<uuid32>`` directories older than 24 hours."""
+    cutoff = time.time() - _ORPHAN_PRIVATE_DIRECTORY_AGE_SECONDS
+    with contextlib.suppress(OSError):
+        for entry in root.iterdir():
+            if not _ORPHAN_PRIVATE_DIRECTORY.fullmatch(entry.name):
+                continue
+            with contextlib.suppress(OSError):
+                if entry.is_dir() and not entry.is_symlink() and entry.stat().st_mtime < cutoff:
+                    shutil.rmtree(entry, ignore_errors=True)
 
 
 class _RawFullGameClient:
@@ -428,16 +509,29 @@ class _RawFullGameClient:
         self._stderr_lines: list[str] = []
         self._stdout_thread: threading.Thread | None = None
         self._stderr_thread: threading.Thread | None = None
+        # Set once the request/reply pairing is lost (timeout, closed or broken
+        # pipe, unparsable or unpaired reply). A late reply could still arrive
+        # and be read as the answer to the next request, so the channel takes
+        # no further requests, and close() skips the shutdown handshake that
+        # would only wait out another full request timeout.
+        self._transport_failure: str | None = None
         self.shutdown_disposition: str | None = None
         self.private_card_repository = private_card_repository
         self._private_directory: Path | None = None
+        self._slot_lock: int | None = None
 
     @property
     def stderr_tail(self) -> tuple[str, ...]:
-        return tuple(self._stderr_lines[-80:])
+        return tuple(self._stderr_lines[-_STDERR_TAIL_LINES:])
+
+    @property
+    def transport_failure(self) -> str | None:
+        """The code that made this channel unusable, or None while it is usable."""
+        return self._transport_failure
 
     def _transport_error(self, code: str, message: str) -> FullGameProtocolError:
         """A transport failure whose stderr stays in memory only (C4)."""
+        self._transport_failure = self._transport_failure or code
         tail = self.stderr_tail
         return FullGameProtocolError(
             f"{message}: " + redacted_summary(code, tail),
@@ -470,8 +564,10 @@ class _RawFullGameClient:
                 code="BRIDGE_START_FAILED",
                 diagnostics=(str(exc),),
             ) from None
-        assert self._process.stdout is not None
-        assert self._process.stderr is not None
+        if self._process.stdout is None or self._process.stderr is None:
+            raise FullGameProtocolError(
+                "full-game bridge pipes unavailable", code="BRIDGE_START_FAILED"
+            )
         self._stdout_thread = threading.Thread(
             target=self._pump_stdout,
             args=(self._process.stdout,),
@@ -484,12 +580,22 @@ class _RawFullGameClient:
         )
         self._stdout_thread.start()
         self._stderr_thread.start()
+        with _LIVE_CLIENTS_LOCK:
+            _LIVE_CLIENTS.add(self)
 
     @public_full_game_errors
     def request(self, message_type: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
         self.start()
         process = self._process
-        assert process is not None
+        if process is None:
+            raise FullGameProtocolError(
+                "full-game bridge did not start", code="BRIDGE_START_FAILED"
+            )
+        if self._transport_failure is not None:
+            raise FullGameProtocolError(
+                f"full-game bridge channel is unusable after {self._transport_failure}",
+                code="BRIDGE_UNUSABLE",
+            )
         if process.poll() is not None or process.stdin is None:
             raise self._transport_error("BRIDGE_NOT_WRITABLE", "full-game bridge is not writable")
         request_id = str(uuid.uuid4())
@@ -503,8 +609,14 @@ class _RawFullGameClient:
             "payload": body,
             "params": body,
         }
-        process.stdin.write(json.dumps(request, sort_keys=True) + "\n")
-        process.stdin.flush()
+        try:
+            process.stdin.write(json.dumps(request, sort_keys=True) + "\n")
+            process.stdin.flush()
+        except OSError:
+            # The JVM exited between poll() and write (BrokenPipeError).
+            raise self._transport_error(
+                "BRIDGE_NOT_WRITABLE", "full-game bridge is not writable"
+            ) from None
         try:
             line = self._stdout_queue.get(timeout=self.request_timeout_seconds)
         except queue.Empty:
@@ -518,6 +630,7 @@ class _RawFullGameClient:
         try:
             response = EngineProtocolResponse.from_wire(json.loads(line))
         except Exception:
+            self._transport_failure = "INVALID_RESPONSE"
             raise FullGameProtocolError(
                 f"invalid full-game bridge response for {message_type!r}: "
                 + redacted_summary("INVALID_RESPONSE", (line,)),
@@ -531,6 +644,7 @@ class _RawFullGameClient:
                 code="PROTOCOL_MISMATCH",
             )
         if response.request_id != request_id:
+            self._transport_failure = "REQUEST_ID_MISMATCH"
             raise FullGameProtocolError(
                 "full-game bridge response request_id mismatch", code="REQUEST_ID_MISMATCH"
             )
@@ -554,25 +668,78 @@ class _RawFullGameClient:
         parallel game runs in its own directory with a copy of the shared,
         already-built repository. With no shared repository yet the JVM builds
         a private one, which :meth:`_release_private_directory` may promote.
+
+        The directory is a worker slot, ``private/slot-<n>``: the first slot
+        whose ``slot-<n>.lock`` this client can lock exclusively (``flock``,
+        so other threads, batches and processes skip it). The repository is
+        copied into a slot once and reused by the games that follow, and
+        copied again when the slot's file is missing or the shared one changed.
         """
         if not self.private_card_repository:
             return None
         shared = Path(self.cwd or ".")
-        private = shared / PRIVATE_ENGINE_DIRECTORY / uuid.uuid4().hex
-        private.mkdir(parents=True)
-        self._private_directory = private
-        source = shared / "db"
-        if (source / XMAGE_CARD_REPOSITORY_FILE).is_file():
-            shutil.copytree(source, private / "db")
+        root = shared / PRIVATE_ENGINE_DIRECTORY
+        root.mkdir(parents=True, exist_ok=True)
+        _remove_orphan_private_directories(root)
+        slot = 0
+        while True:
+            descriptor = os.open(root / f"slot-{slot}.lock", os.O_RDWR | os.O_CREAT, 0o600)
+            try:
+                _lock_slot(descriptor)
+            except OSError:
+                os.close(descriptor)
+                slot += 1
+                continue
+            break
+        self._slot_lock = descriptor
+        try:
+            private = root / f"slot-{slot}"
+            private.mkdir(exist_ok=True)
+            self._private_directory = private
+            source_file = shared / "db" / XMAGE_CARD_REPOSITORY_FILE
+            slot_file = private / "db" / XMAGE_CARD_REPOSITORY_FILE
+            if source_file.is_file():
+                # H2 rewrites its file when a game closes it, so the slot's
+                # own size says nothing; a marker records which source
+                # version the slot copied.
+                source_stat = source_file.stat()
+                version = f"{source_stat.st_size}:{source_stat.st_mtime_ns}"
+                marker = private / _SLOT_SOURCE_MARKER
+                current = (
+                    slot_file.is_file()
+                    and marker.is_file()
+                    and marker.read_text(encoding="utf-8") == version
+                )
+                if not current:
+                    marker.unlink(missing_ok=True)
+                    shutil.rmtree(private / "db", ignore_errors=True)
+                    _copy_card_repository(shared / "db", private / "db")
+                    marker.write_text(version, encoding="utf-8")
+        except BaseException:
+            self._release_slot_lock()
+            self._private_directory = None
+            raise
         return str(private)
 
-    def _release_private_directory(self, disposition: str) -> None:
-        """Remove the private directory; promote a freshly built repository.
+    def _release_slot_lock(self) -> None:
+        descriptor = self._slot_lock
+        self._slot_lock = None
+        if descriptor is not None:
+            with contextlib.suppress(OSError):
+                _unlock_slot(descriptor)
+            with contextlib.suppress(OSError):
+                os.close(descriptor)
 
-        Only a gracefully shut down JVM has closed its H2 files, so only then
-        does a repository it built become the shared one, and only when no
-        shared repository appeared meanwhile (``os.rename`` refuses a
-        non-empty target, so concurrent promotions cannot mix files).
+    def _release_private_directory(self, disposition: str) -> None:
+        """Free the worker slot; promote a freshly built repository.
+
+        The slot directory stays for the next game. Only a gracefully shut
+        down JVM has closed its H2 files, so only then does a repository it
+        built become the shared one, and only when no shared repository
+        appeared meanwhile (``os.rename`` refuses a non-empty target, so
+        concurrent promotions cannot mix files). A promoted or killed JVM's
+        repository leaves the slot empty or is dropped, so the next game
+        starts from a clean copy.
         """
         private = self._private_directory
         if private is None:
@@ -580,14 +747,19 @@ class _RawFullGameClient:
         self._private_directory = None
         shared = private.parent.parent / "db"
         built = private / "db"
-        if (
-            disposition == FULL_GAME_SHUTDOWN_GRACEFUL
-            and (built / XMAGE_CARD_REPOSITORY_FILE).is_file()
-            and not (shared / XMAGE_CARD_REPOSITORY_FILE).is_file()
-        ):
-            with contextlib.suppress(OSError):
-                os.rename(built, shared)
-        shutil.rmtree(private, ignore_errors=True)
+        try:
+            if (
+                disposition == FULL_GAME_SHUTDOWN_GRACEFUL
+                and (built / XMAGE_CARD_REPOSITORY_FILE).is_file()
+                and not (shared / XMAGE_CARD_REPOSITORY_FILE).is_file()
+            ):
+                with contextlib.suppress(OSError):
+                    os.rename(built, shared)
+            if disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+                # A killed JVM may have left half-written H2 files.
+                shutil.rmtree(built, ignore_errors=True)
+        finally:
+            self._release_slot_lock()
 
     def close(self) -> str:
         """Shut the bridge process down and release a private directory."""
@@ -619,11 +791,12 @@ class _RawFullGameClient:
         try:
             if process.poll() is not None:
                 return FULL_GAME_SHUTDOWN_ALREADY_EXITED
-            shutdown_acked = True
-            try:
-                self.request("shutdown_engine")
-            except Exception:
-                shutdown_acked = False
+            shutdown_acked = self._transport_failure is None
+            if shutdown_acked:
+                try:
+                    self.request("shutdown_engine")
+                except Exception:
+                    shutdown_acked = False
             if process.poll() is None:
                 with contextlib.suppress(subprocess.TimeoutExpired):
                     process.wait(timeout=self.shutdown_grace_seconds)
@@ -643,17 +816,23 @@ class _RawFullGameClient:
                 if thread is not None:
                     thread.join(timeout=2)
             self._process = None
+            with _LIVE_CLIENTS_LOCK:
+                _LIVE_CLIENTS.discard(self)
 
-    def _pump_stdout(self, stream: Any) -> None:
+    def _pump_stdout(self, stream: TextIO) -> None:
         try:
             for line in iter(stream.readline, ""):
                 self._stdout_queue.put(line)
         finally:
             self._stdout_queue.put(None)
 
-    def _pump_stderr(self, stream: Any) -> None:
+    def _pump_stderr(self, stream: TextIO) -> None:
+        lines = self._stderr_lines
         for line in iter(stream.readline, ""):
-            self._stderr_lines.append(line.rstrip("\n"))
+            lines.append(line.rstrip("\n"))
+            if len(lines) > _STDERR_BUFFER_LINES:
+                # The pump is the only writer; readers only slice the tail.
+                del lines[:-_STDERR_TAIL_LINES]
 
     def __enter__(self) -> _RawFullGameClient:
         self.start()
@@ -740,7 +919,8 @@ class XmageFullGameRunner:
                 _decision_count, _, terminal = self._drive(client, policy, stop_after=None)
             finally:
                 self._hidden_audit = None
-            assert terminal is True
+            if terminal is not True:
+                raise FullGameConformanceError("full game ended without a terminal state")
             result = client.request("get_full_game_result")
         # The same lifecycle gate as the bounded smoke: a game-over result rests
         # on an observed graceful shutdown, never on a suppressed kill/timeout.

@@ -1,0 +1,125 @@
+{
+  "schema": "spotbugs-baseline/v1",
+  "findings": [
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:chooseMode",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:chooseTargetInternal",
+      "priority": 2,
+      "count": 4
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:getMultiAmountWithIndividualConstraints",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:playManaFrame",
+      "priority": 2,
+      "count": 2
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:playableWithManaAvailable",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:priority",
+      "priority": 2,
+      "count": 4
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:recordEmptyNonTargetChoiceForBoundaryTest",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:recordTargetChoiceRequestedForBoundaryTest",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "AT_STALE_THREAD_WRITE_OF_PRIMITIVE|org.commanderlab.xmage.XmageFullGamePlayer|method:request",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "BC_VACUOUS_INSTANCEOF|org.commanderlab.xmage.XmageNativeStateRestoration|method:enumerateCommanderCastCost",
+      "priority": 2,
+      "count": 2
+    },
+    {
+      "key": "BX_UNBOXING_IMMEDIATELY_REBOXED|org.commanderlab.xmage.XmageNativeStateRestoration|method:applyPreStart",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "DLS_DEAD_LOCAL_STORE|org.commanderlab.xmage.XmageFullGamePlayer|method:reversedUnpayableLifeCost",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "IS2_INCONSISTENT_SYNC|org.commanderlab.xmage.XmageFullGameSession|field:engineThread",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "JLM_JSR166_UTILCONCURRENT_MONITORENTER|org.commanderlab.xmage.XmageGameManager|method:createCommanderGame",
+      "priority": 2,
+      "count": 2
+    },
+    {
+      "key": "JLM_JSR166_UTILCONCURRENT_MONITORENTER|org.commanderlab.xmage.XmageGameManager|method:shutdownGame",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "REC_CATCH_EXCEPTION|org.commanderlab.xmage.XmageMidgameJsonlBridge|method:getProjection",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "SE_BAD_FIELD|org.commanderlab.xmage.XmageBridgePlayer|field:externalDecisionController",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "SE_BAD_FIELD|org.commanderlab.xmage.XmageBridgePlayer|field:startingPlayerPrompt",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "SE_BAD_FIELD|org.commanderlab.xmage.XmageFullGamePlayer|field:decisionController",
+      "priority": 1,
+      "count": 1
+    },
+    {
+      "key": "SE_NO_SERIALVERSIONID|org.commanderlab.xmage.XmageFullGamePlayer|",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "SE_TRANSIENT_FIELD_NOT_RESTORED|org.commanderlab.xmage.XmageFullGamePlayer|field:nativeWitness",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "SE_TRANSIENT_FIELD_NOT_RESTORED|org.commanderlab.xmage.XmageFullGamePlayer|field:nativeWitnessOffset",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "UPM_UNCALLED_PRIVATE_METHOD|org.commanderlab.xmage.XmageFullGamePlayer|method:chooseBoolean",
+      "priority": 2,
+      "count": 1
+    },
+    {
+      "key": "UPM_UNCALLED_PRIVATE_METHOD|org.commanderlab.xmage.XmageFullGameStateRedactor|method:publicPermanent",
+      "priority": 2,
+      "count": 1
+    }
+  ]
+}

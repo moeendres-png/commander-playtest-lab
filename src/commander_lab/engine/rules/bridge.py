@@ -139,8 +139,14 @@ class JsonLineBridgeClient:
                 raise RulesEngineUnavailable(
                     f"unable to start bridge command {self.command!r}: {exc}"
                 ) from exc
-            assert self._process.stdout is not None
-            assert self._process.stderr is not None
+            if self._process.stdout is None:
+                raise RulesEngineProtocolError(
+                    "invariant violated: self._process.stdout is not None"
+                )
+            if self._process.stderr is None:
+                raise RulesEngineProtocolError(
+                    "invariant violated: self._process.stderr is not None"
+                )
             self._stdout_queue = queue.Queue()
             self._stderr_lines = []
             stdout_log = (
@@ -185,7 +191,8 @@ class JsonLineBridgeClient:
     ) -> dict[str, Any]:
         with self._lock:
             self.start()
-            assert self._process is not None
+            if self._process is None:
+                raise RulesEngineProtocolError("invariant violated: self._process is not None")
             if self._process.stdin is None:
                 raise RulesEngineProtocolError("bridge process stdin is unavailable")
             legacy_aliases = {
@@ -261,7 +268,12 @@ class JsonLineBridgeClient:
     def legacy_request(self, method: str, params: dict[str, Any] | None = None) -> dict[str, Any]:
         with self._lock:
             self.start()
-            assert self._process is not None and self._process.stdin is not None
+            if self._process is None:
+                raise RulesEngineProtocolError("invariant violated: self._process is not None")
+            if self._process.stdin is None:
+                raise RulesEngineProtocolError(
+                    "invariant violated: self._process.stdin is not None"
+                )
             request_id = str(uuid.uuid4())
             self._process.stdin.write(
                 json.dumps({"request_id": request_id, "method": method, "params": params or {}})

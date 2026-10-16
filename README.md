@@ -12,9 +12,9 @@ governing document, the governing document wins.
 | Durable rules every session must follow | [`AGENTS.md`](AGENTS.md) — including the source-truth order, rules authority, evidence semantics, Git/worktree authority, and the fact that filenames containing `CURRENT`/`FINAL`/`LATEST` prove nothing |
 | Governing mission and gates | [`docs/PROJECT_MISSION.md`](docs/PROJECT_MISSION.md) — outranks any summary, including the one on this page |
 | Current engine pins | [`config/rules_engines.json`](config/rules_engines.json) — the sole machine-readable pin authority. Do not restate pins from prose |
-| Current execution authority (who runs what, at which effort) | [`docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md`](docs/COORDINATOR_EXECUTION_AUTHORITY_2026-09-27.md) with `AGENTS.md` §6–§7 |
+| Current execution authority (who runs what, at which effort) | [`docs/CURRENT_EXECUTION_AUTHORITY.md`](docs/CURRENT_EXECUTION_AUTHORITY.md) with `AGENTS.md` §6–§7 |
 | Foundry execution system | [`docs/foundry-execution/README.md`](docs/foundry-execution/README.md) — start a workstream with `.opencode/skills/workstream-bootstrap/SKILL.md` |
-| Documentation map | [`docs/README.md`](docs/README.md) |
+| Documentation map | [`docs/README.md`](docs/README.md); code and docs onboarding map: [`docs/MODULE_MAP.md`](docs/MODULE_MAP.md) |
 | Live PRs, issues and branches | [`docs/REPOSITORY_TRIAGE_INDEX.md`](docs/REPOSITORY_TRIAGE_INDEX.md) |
 
 ## Project identity, licensing, and third-party software
@@ -33,21 +33,20 @@ These statements are not a production-provider decision. Architecture Freeze and
 
 ## Commander Simulator Next: project goal
 
-The end goal is the best realistically achievable, maximally rules-correct full-rules
-Commander simulator, with reproducible gameplay evidence from which to learn about
-play, matchups and deck construction and improve pilots and deckbuilding decisions.
-Rules Correctness takes precedence over performance, convenience and pilot strength.
+A practical Commander simulator for real deck-building decisions: it plays real
+100-card Commander decks rules-correctly on the pinned XMage engine, so that simulated
+games stand in for real games (deck and card choices, matchups, pilot improvement,
+deck optimization).
 
-Four players (one own deck and three opponents) is the primary benchmark and decision
-mode, not an architecture constraint. Technical conformance must cover 2–5 players.
-Prefer 6+ or generally variable player counts when they improve Rules Correctness,
-simplicity, reuse, testability, or research/implementation, without weakening required
-conformance. These are target requirements, not claims of implemented support.
+- Rules-correct play is required, but maximal rules correctness is not the top
+  doctrine. A gap that would mean chasing defects without end is recorded visibly.
+- Card coverage matters: as many effects and cards as possible, including cards the
+  base XMage engine does not cover.
+- Four players (one own deck, three opponents) is the usual game; other player counts
+  are supported where useful.
 
-Architecture selection is outcome-first: existing engines, complete simulators and
-frameworks may replace entire workstreams when evidence shows a better route to the
-goal. Neither current candidates nor invested work confer architectural priority.
-See [the project mission](docs/PROJECT_MISSION.md) for the governing policy and gates.
+[`docs/PROJECT_MISSION.md`](docs/PROJECT_MISSION.md) is the governing text; this
+summary follows it.
 
 ## Runtime truth
 
@@ -158,48 +157,65 @@ src/commander_lab/engine/structural/simulator_fidelity.py
 
 ## Setup and validation
 
-```bash
-uv sync --extra dev
-uv run pytest
-```
+Requirements: Python 3.12, and for real games a JDK (CI builds with Temurin 17; 21 also works) and Maven 3.9.
 
-or:
+### Python suite (the way CI runs it)
 
 ```bash
-python -m pip install -e .
-pytest
-```
-
-### Run the suite this way, or expect a red baseline
-
-The supported local invocation is the one CI uses:
-
-```bash
+python -m venv .venv && . .venv/bin/activate
 python -m pip install --require-hashes -r requirements/lock.txt
 python -m pip install --no-deps --no-build-isolation -e .
-pytest -q
+ruff check . && ruff format --check . && mypy src/commander_lab
+PYTHONHASHSEED=0 pytest -q --ignore=tests/qualification   # ci.yml, about 10 minutes
+pytest -q tests/qualification                             # production-qualification.yml
 ```
 
-`pytest -q` runs the **whole** suite with no exclusions, which is exactly what
-`.github/workflows/ci.yml` runs. A local green therefore matches the CI denominator rather than
-a subset of it.
+CI splits the suite in two: `ci.yml` runs everything except `tests/qualification`, and
+`production-qualification.yml` runs `tests/qualification`
+(`tests/unit/test_required_test_ownership.py` keeps each file to one owner). A plain
+`pytest -q` runs both halves.
 
-Skipping the install produces failures that are **environmental, not product defects**. They are
-listed so they are recognised rather than mistaken for regressions:
+Skipping the hash-locked install produces failures that are **environmental, not product
+defects**:
 
 - `tests/integration/test_phase5_server.py` and `tests/unit/test_phase5_openai_adapter.py`
-  fail to **collect** when `httpx2` and `pytest-asyncio` (declared in
-  `[project.optional-dependencies]`, `pyproject.toml`) are absent. `test_phase10_acceptance.py`
-  fails for the same root cause: `src/commander_lab/acceptance/phase10.py` catches the resulting
-  exception and reports `failed` instead of `passed_with_limitations`.
-- Tests that spawn a child interpreter cannot import the project, because
-  `pythonpath = ["src"]` in `pyproject.toml` applies to the pytest process only and is not
-  inherited by children. The `subprocess_env` fixture in `tests/conftest.py` handles this for the
-  tests that need it, so these are covered either way.
+  fail to **collect** when `httpx2` and `pytest-asyncio` (dev extras) are absent, and
+  `test_phase10_acceptance.py` then reports `failed` instead of `passed_with_limitations`.
+- Tests that spawn a child interpreter rely on the `subprocess_env` fixture in
+  `tests/conftest.py`, because `pythonpath = ["src"]` applies to the pytest process only.
 
-A full run writes only `.pytest_cache/`, which is gitignored and untracked, and
-`src/commander_lab/tools/service.py` treats only **tracked** changes as stale canonical input.
-So running the suite does not itself cause the red-baseline cascade this section is about.
+A full run writes only `.pytest_cache/`, which is gitignored, so running the suite does not
+make canonical inputs look stale to `src/commander_lab/tools/service.py`.
+
+### Bridge and a real XMage game
+
+The engine is the fork pin named by `primary_engine` in `config/rules_engines.json` (do not
+copy the commit from prose). Build its Maven artifacts once, then the bridge:
+
+```bash
+PIN=$(python -c "import json;print(json.load(open('config/rules_engines.json'))['primary_engine']['commit'])")
+git clone https://github.com/moeendres-png/mage ../xmage && git -C ../xmage checkout "$PIN"
+(cd ../xmage && mvn -B -ntp -DskipTests install -am -pl Mage,Mage.Sets,\
+Mage.Server.Plugins/Mage.Deck.Constructed,Mage.Server.Plugins/Mage.Game.CommanderFreeForAll,\
+Mage.Server.Plugins/Mage.Game.CommanderDuel)
+(cd engine-bridge && mvn -B -ntp verify)       # bridge tests + jar, as in CI
+export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -jar $PWD/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
+```
+
+Then compare decks on real four-player games (finished games are reused when the command
+is run again with the same `--out`):
+
+```bash
+python scripts/run_full_game_deck_comparison.py \
+  --baseline data/decks/rogshai_current.json --variant my_variant.json \
+  --opponent data/decks/opponents/kaervek/current/deck.json \
+  --opponent data/opponents/hosts_of_mordor_precon.json \
+  --opponent data/opponents/lorehold_spirit_precon.json \
+  --seeds 1-5 --out artifacts/deck-comparison/try
+```
+
+Runs are reproducible per seed: the same seed, decks, pilot policy, bridge jar and pin
+play the same game, and the batch keys each finished record by all of them.
 
 Useful project commands include:
 

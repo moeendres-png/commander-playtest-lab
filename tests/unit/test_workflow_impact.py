@@ -109,3 +109,71 @@ def test_full_game_push_requalifies_semantic_replay_changes() -> None:
     )
     triggers = document.get("on") or document.get(True)
     assert "src/commander_lab/semantic_replay/**" in triggers["push"]["paths"]
+
+
+def test_a_push_filter_that_misses_an_executed_module_is_reported(tmp_path: Path) -> None:
+    # The pull-request gates cover the executed script and its imports, but the
+    # push filter on main does not: the merge commit would skip the workflow.
+    workflow = tmp_path / "gated.yml"
+    workflow.write_text(
+        """
+on:
+  pull_request:
+  push:
+    branches: [main]
+    paths:
+      - "scripts/run_full_game_deck_comparison.py"
+jobs:
+  heavy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: python scripts/run_full_game_deck_comparison.py --help
+""",
+        encoding="utf-8",
+    )
+    result = AUDIT.audit(workflow)
+    assert result is not None
+    assert result["push_paths"] == ["scripts/run_full_game_deck_comparison.py"]
+    uncovered = {item["path"]: item["gates"] for item in result["jobs"]["heavy"]["uncovered"]}
+    assert uncovered["src/commander_lab/engine/rules/full_game_batch.py"] == ["push"]
+    assert "scripts/run_full_game_deck_comparison.py" not in uncovered
+
+
+def test_fix_extends_only_the_push_filter_that_misses_a_module(tmp_path: Path) -> None:
+    workflow = tmp_path / "gated.yml"
+    workflow.write_text(
+        """on:
+  pull_request:
+    paths:
+      - "scripts/**"
+      - "src/commander_lab/**"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/run_full_game_deck_comparison.py"
+jobs:
+  heavy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: python scripts/run_full_game_deck_comparison.py --help
+""",
+        encoding="utf-8",
+    )
+    assert AUDIT.fix(workflow) > 0
+    document = __import__("yaml").safe_load(workflow.read_text(encoding="utf-8"))
+    triggers = document.get("on") or document.get(True)
+    assert triggers["pull_request"]["paths"] == ["scripts/**", "src/commander_lab/**"]
+    assert "src/commander_lab/engine/**" in triggers["push"]["paths"]
+    assert AUDIT.audit(workflow)["jobs"]["heavy"]["uncovered"] == []
+
+
+def test_full_game_push_requalifies_pilot_policy_changes() -> None:
+    # #750 moved the pilot policy into engine/rules/full_game_pilot/; the push
+    # filters of both live-engine workflows must follow it to main.
+    for name in ("xmage-full-game-conformance.yml", "xmage-real-4p-smoke.yml"):
+        document = __import__("yaml").safe_load((ROOT / ".github/workflows" / name).read_text())
+        triggers = document.get("on") or document.get(True)
+        assert AUDIT.covered(
+            "src/commander_lab/engine/rules/full_game_pilot/priority.py",
+            triggers["push"]["paths"],
+        ), name

@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import json
 import os
+import sys
+from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -40,6 +43,54 @@ def subprocess_env() -> dict[str, str]:
     existing = environment.get("PYTHONPATH")
     environment["PYTHONPATH"] = f"{src}{os.pathsep}{existing}" if existing else src
     return environment
+
+
+_REAL_WORKTREE_CHECKS: dict[str, Any] = {}
+
+
+@pytest.fixture(autouse=True, scope="session")
+def clean_tracked_worktree() -> Iterator[None]:
+    """Run the Lab as if the checkout had no uncommitted tracked edits.
+
+    ``CommanderToolService`` marks canonical runs stale and ``technical_truth`` refuses
+    optimizer manifests while ``git status`` shows a modified tracked file. That is right
+    for recorded evidence, but it made 41 unit tests fail for any developer with an
+    uncommitted edit anywhere in the repository (even ``CHANGELOG.md``).
+
+    Session-scoped so module-scoped fixtures see it too. Only modules the session
+    already imported are patched: importing them here would add their whole import
+    graph to every test's measured inputs (PB-03 trigger completeness and the
+    workflow-impact gates). The real checks stay reachable through the
+    ``real_worktree_checks`` fixture, which the gate's own tests use.
+    """
+    with pytest.MonkeyPatch.context() as patch:
+        service = sys.modules.get("commander_lab.tools.service")
+        if service is not None:
+            prop = service.CommanderToolService.__dict__["tracked_worktree_dirty"]
+            _REAL_WORKTREE_CHECKS["tracked_worktree_dirty"] = prop.fget
+            patch.setattr(
+                service.CommanderToolService,
+                "tracked_worktree_dirty",
+                property(lambda _self: False),
+            )
+        truth = sys.modules.get("commander_lab.technical_truth")
+        if truth is not None:
+            real_git = truth._git
+            _REAL_WORKTREE_CHECKS["technical_truth_git"] = real_git
+
+            def clean_status_git(root: Path, *args: str) -> str | None:
+                if args == ("status", "--porcelain", "--untracked-files=no"):
+                    return ""
+                return real_git(root, *args)
+
+            patch.setattr(truth, "_git", clean_status_git)
+        yield
+
+
+@pytest.fixture
+def real_worktree_checks() -> dict[str, Any]:
+    """The unpatched dirty-worktree checks (see ``clean_tracked_worktree``)."""
+    return dict(_REAL_WORKTREE_CHECKS)
 
 
 @pytest.fixture(autouse=True)
