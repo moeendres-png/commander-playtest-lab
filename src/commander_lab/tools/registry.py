@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, TypedDict
 
 from pydantic import BaseModel
 
@@ -119,6 +119,15 @@ from commander_lab.models.tooling import (
 from .service import CommanderToolService
 
 
+class ToolSchema(TypedDict):
+    """One entry of the tool API schema snapshot (key order is part of the wire)."""
+
+    name: str
+    description: str
+    strict: bool
+    parameters: dict[str, Any]
+
+
 @dataclass(frozen=True, slots=True)
 class ToolDefinition:
     name: str
@@ -126,7 +135,7 @@ class ToolDefinition:
     input_model: type[BaseModel]
     handler_name: str
 
-    def schema(self) -> dict[str, Any]:
+    def schema(self) -> ToolSchema:
         return {
             "name": self.name,
             "description": self.description,
@@ -782,7 +791,7 @@ class ToolRegistry:
         self.definitions = tuple(definitions)
         self._definitions = {definition.name: definition for definition in self.definitions}
 
-    def list_schemas(self) -> list[dict[str, Any]]:
+    def list_schemas(self) -> list[ToolSchema]:
         return [definition.schema() for definition in self.definitions]
 
     def input_model(self, name: str) -> type[BaseModel]:
@@ -791,11 +800,13 @@ class ToolRegistry:
         except KeyError as exc:
             raise KeyError(f"unknown tool: {name}") from exc
 
-    def invoke(self, name: str, payload: dict[str, Any]) -> ToolResponse:
+    def invoke(self, name: str, payload: Mapping[str, object]) -> ToolResponse:
         try:
             definition = self._definitions[name]
         except KeyError as exc:
             raise KeyError(f"unknown tool: {name}") from exc
         request = definition.input_model.model_validate(payload)
-        handler: Callable[[Any], ToolResponse] = getattr(self.service, definition.handler_name)
+        handler: Callable[[BaseModel], ToolResponse] = getattr(
+            self.service, definition.handler_name
+        )
         return handler(request)

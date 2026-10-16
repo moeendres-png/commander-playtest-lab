@@ -17,7 +17,7 @@ import uuid
 import weakref
 from collections.abc import Sequence
 from pathlib import Path
-from typing import Any, Literal, TextIO
+from typing import Any, Literal, TextIO, cast
 
 from pydantic import Field, model_validator
 
@@ -54,6 +54,18 @@ from .full_game_pilot.common import (
     _StrictModel,
     mana_payment_fit,
     public_full_game_errors,
+)
+from .wire_types import (
+    BridgeRequestEnvelope,
+    CapabilitiesWire,
+    FullGameDeckPayload,
+    FullGameLaneWire,
+    FullGameResultWire,
+    ProviderIdentityWire,
+    SemanticEventWire,
+    SemanticOutcomeWire,
+    SemanticTranscript,
+    StartEngineWire,
 )
 
 ClaimEvidenceStatus = Literal[
@@ -600,7 +612,7 @@ class _RawFullGameClient:
             raise self._transport_error("BRIDGE_NOT_WRITABLE", "full-game bridge is not writable")
         request_id = str(uuid.uuid4())
         body = payload or {}
-        request = {
+        request: BridgeRequestEnvelope = {
             "protocol_version": ENGINE_PROTOCOL_VERSION,
             "request_id": request_id,
             "engine": "xmage",
@@ -921,7 +933,7 @@ class XmageFullGameRunner:
                 self._hidden_audit = None
             if terminal is not True:
                 raise FullGameConformanceError("full game ended without a terminal state")
-            result = client.request("get_full_game_result")
+            result = cast(FullGameResultWire, client.request("get_full_game_result"))
         # The same lifecycle gate as the bounded smoke: a game-over result rests
         # on an observed graceful shutdown, never on a suppressed kill/timeout.
         disposition = getattr(client, "shutdown_disposition", None)
@@ -958,7 +970,7 @@ class XmageFullGameRunner:
         outcomes: list[FullGameConformanceResult | Exception] = []
         pending = list(games)
         while pending:
-            played: list[tuple[int, Any, dict[str, Any], dict[str, Any], Any]] = []
+            played: list[tuple[int, Any, ProviderIdentityWire, FullGameResultWire, Any]] = []
             client = _RawFullGameClient(
                 command,
                 cwd=self.cwd,
@@ -982,7 +994,7 @@ class XmageFullGameRunner:
                             self._hidden_audit = None
                         if terminal is not True:
                             raise FullGameConformanceError("full game ended without game over")
-                        result = client.request("get_full_game_result")
+                        result = cast(FullGameResultWire, client.request("get_full_game_result"))
                         client.request("shutdown_game")
                     except Exception as exc:  # the process is suspect; start a fresh one
                         outcomes[index] = _public_error(exc)
@@ -1112,12 +1124,12 @@ class XmageFullGameRunner:
         client: _RawFullGameClient,
         scenario: FutureXmageScenario,
         decks: tuple[RulesDeckInput, ...],
-    ) -> dict[str, Any]:
-        started = client.request("start_engine")
+    ) -> ProviderIdentityWire:
+        started = cast(StartEngineWire, client.request("start_engine"))
         if started.get("lane") != FULL_GAME_LANE:
             raise FullGameConformanceError("bridge did not enter explicit full-game lane")
-        provider = client.request("get_provider_version")
-        capabilities = client.request("get_capabilities")
+        provider = cast(ProviderIdentityWire, client.request("get_provider_version"))
+        capabilities = cast(CapabilitiesWire, client.request("get_capabilities"))
         self._validate_handshake(scenario, provider, capabilities)
 
         handles: list[str] = []
@@ -1342,8 +1354,8 @@ class XmageFullGameRunner:
     @staticmethod
     def _validate_handshake(
         scenario: FutureXmageScenario,
-        provider: dict[str, Any],
-        capabilities_payload: dict[str, Any],
+        provider: ProviderIdentityWire,
+        capabilities_payload: CapabilitiesWire,
     ) -> None:
         if provider.get("engine") != "xmage":
             raise FullGameConformanceError("full-game provider is not XMage")
@@ -1352,10 +1364,11 @@ class XmageFullGameRunner:
                 f"XMage commit mismatch: scenario={scenario.xmage_commit} "
                 f"provider={provider.get('engine_commit')}"
             )
-        lane = capabilities_payload.get("full_game_lane")
+        raw_lane = capabilities_payload.get("full_game_lane")
         caps = capabilities_payload.get("capabilities")
-        if not isinstance(lane, dict) or not isinstance(caps, dict):
+        if not isinstance(raw_lane, dict) or not isinstance(caps, dict):
             raise FullGameConformanceError("full-game capability handshake is incomplete")
+        lane = cast(FullGameLaneWire, raw_lane)
         if lane.get("lane") != FULL_GAME_LANE:
             raise FullGameConformanceError("full-game lane identity mismatch")
         if lane.get("decision_protocol_version") != FULL_GAME_DECISION_PROTOCOL_VERSION:
@@ -1399,7 +1412,7 @@ class XmageFullGameRunner:
             )
 
     @staticmethod
-    def _deck_payload(deck: RulesDeckInput) -> dict[str, Any]:
+    def _deck_payload(deck: RulesDeckInput) -> FullGameDeckPayload:
         if deck.deck_hash is None:
             raise FullGameConformanceError(f"deck_hash required for {deck.deck_id}")
         return {
@@ -1414,8 +1427,8 @@ class XmageFullGameRunner:
     def _build_result(
         cls,
         scenario: FutureXmageScenario,
-        provider: dict[str, Any],
-        result: dict[str, Any],
+        provider: ProviderIdentityWire,
+        result: FullGameResultWire,
         *,
         shutdown_disposition: str | None = None,
         hidden_audit: FullGameHiddenInformationAudit | None = None,
@@ -1461,10 +1474,10 @@ class XmageFullGameRunner:
             engine_version=str(provider.get("engine_version", "unknown")),
             xmage_commit=str(provider.get("engine_commit", "")),
             decision_protocol_version=FULL_GAME_DECISION_PROTOCOL_VERSION,
-            decision_count=int(result.get("decision_count", 0)),
+            decision_count=int(cast(int, result.get("decision_count", 0))),
             terminal=True,
             winner_seats=winner_seats,
-            result_payload=result,
+            result_payload=cast(dict[str, Any], result),
             semantic_transcript_sha256=cls._sha256(semantic),
             raw_result_sha256=cls._sha256(result),
             shutdown_disposition=FULL_GAME_SHUTDOWN_GRACEFUL,
@@ -1477,9 +1490,9 @@ class XmageFullGameRunner:
         )
 
     @staticmethod
-    def semantic_transcript(result: dict[str, Any]) -> dict[str, Any]:
+    def semantic_transcript(result: FullGameResultWire) -> SemanticTranscript:
         transcript = result.get("transcript")
-        semantic_events: list[dict[str, Any]] = []
+        semantic_events: list[SemanticEventWire] = []
         if isinstance(transcript, list):
             for raw in transcript:
                 if not isinstance(raw, dict):
@@ -1499,7 +1512,7 @@ class XmageFullGameRunner:
                     }
                 )
         outcomes = result.get("outcomes")
-        semantic_outcomes = []
+        semantic_outcomes: list[SemanticOutcomeWire] = []
         if isinstance(outcomes, list):
             semantic_outcomes = [
                 {
@@ -1551,7 +1564,7 @@ class XmageFullGameRunner:
         return [XmageFullGameRunner._semantic_text(item) for item in value]
 
     @staticmethod
-    def _sha256(value: dict[str, Any]) -> str:
+    def _sha256(value: SemanticTranscript | FullGameResultWire) -> str:
         payload = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
         return hashlib.sha256(payload.encode()).hexdigest()
 

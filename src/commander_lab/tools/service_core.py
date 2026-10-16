@@ -9,7 +9,7 @@ from collections.abc import Callable
 from datetime import UTC, datetime
 from pathlib import Path
 from statistics import fmean
-from typing import TYPE_CHECKING, Any, ClassVar, Literal
+from typing import TYPE_CHECKING, Any, ClassVar, Literal, TypeVar, cast
 
 from commander_lab import __version__
 from commander_lab.analysis import DeckValidator, validate_collection_quantities
@@ -70,6 +70,9 @@ EstimateType = Literal[
     "tactical_oracle_results",
     "external_rules_engine_results",
 ]
+
+
+_JsonShape = TypeVar("_JsonShape")
 
 
 class ToolExecutionError(RuntimeError):
@@ -1270,3 +1273,7 @@ class ServiceCore:
         if not path.exists():
             return default
         return json.loads(path.read_text(encoding="utf-8"))
+
+    def _read_optional_json_as(self, relative: str, shape: type[_JsonShape]) -> _JsonShape:
+        """Read an evidence file as ``shape`` (a TypedDict); absent file reads as ``{}``."""
+        return cast(_JsonShape, self._read_optional_json(relative, {}))
