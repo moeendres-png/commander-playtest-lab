@@ -119,7 +119,7 @@
 
 ## 1.13.2 - 2026-08-07
 
-- Sync direct physical correction for `kaervek/current`: Midnight Reaper removed because the copy could not be found; Warstorm Surge / Anschwellender Kriegssturm from Leons Box added.
+- Sync direct physical correction for `kaervek/current`: Midnight Reaper removed because the copy could not be found; Warstorm Surge / Anschwellender Kriegssturm from the collection added.
 - Refresh Kaervek hash, role profile, registry, provenance and current inventory derivatives.
 - Historical Kaervek snapshots/imports remain unchanged for reproducibility.
 

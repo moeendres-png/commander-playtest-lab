@@ -119,7 +119,7 @@
       "unknown_slots": 0,
       "data_status": "unverändertes Precon"
     },
-    "Kaervek – Leon": {
+    "Kaervek": {
       "known_card_count": 100,
       "unknown_slots": 0,
       "data_status": "letzter verifizierter gegnerischer Draft"
@@ -139,10 +139,10 @@
       "unknown_slots": 0,
       "data_status": "unverändertes offizielles Precon"
     },
-    "Alen – High Perfect Morcant": {
+    "High Perfect Morcant": {
       "known_card_count": 53,
       "unknown_slots": 47,
-      "data_status": "53 bestätigte Karten: 52 Wants/Kaufkern + Gaze of Granite; Path und Gaze physisch von Moritz übergeben"
+      "data_status": "53 bestätigte Karten: 52 Wants/Kaufkern + Gaze of Granite; Path und Gaze aus der Sammlung"
     }
   },
   "external_engine_execution_status": "blocked",

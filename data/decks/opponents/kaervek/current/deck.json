@@ -17,9 +17,7 @@
       "mana_cost": "{5}{B}{R}",
       "mana_value": 7.0,
       "color_identity": "BR",
-      "card_type": "Legendary Creature — Human Shaman",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Legendary Creature — Human Shaman"
     },
     {
       "oracle_name": "Arcane Signet",
@@ -29,9 +27,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "C",
-      "card_type": "Artifact",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Basilisk Collar",
@@ -41,9 +37,7 @@
       "mana_cost": "{1}",
       "mana_value": 1.0,
       "color_identity": "C",
-      "card_type": "Artifact — Equipment",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact — Equipment"
     },
     {
       "oracle_name": "Burnished Hart",
@@ -53,9 +47,7 @@
       "mana_cost": "{3}",
       "mana_value": 3.0,
       "color_identity": "C",
-      "card_type": "Artifact Creature — Elk",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact Creature — Elk"
     },
     {
       "oracle_name": "Cultivator's Caravan",
@@ -65,9 +57,7 @@
       "mana_cost": "{3}",
       "mana_value": 3.0,
       "color_identity": "C",
-      "card_type": "Artifact — Vehicle",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact — Vehicle"
     },
     {
       "oracle_name": "Gilded Lotus",
@@ -77,9 +67,7 @@
       "mana_cost": "{5}",
       "mana_value": 5.0,
       "color_identity": "C",
-      "card_type": "Artifact",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Hedron Archive",
@@ -89,9 +77,7 @@
       "mana_cost": "{4}",
       "mana_value": 4.0,
       "color_identity": "C",
-      "card_type": "Artifact",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Mazemind Tome",
@@ -101,9 +87,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "C",
-      "card_type": "Artifact — Book",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact — Book"
     },
     {
       "oracle_name": "Meteor Golem",
@@ -113,9 +97,7 @@
       "mana_cost": "{7}",
       "mana_value": 7.0,
       "color_identity": "C",
-      "card_type": "Artifact Creature — Golem",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact Creature — Golem"
     },
     {
       "oracle_name": "Swiftfoot Boots",
@@ -125,9 +107,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "C",
-      "card_type": "Artifact — Equipment",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Artifact — Equipment"
     },
     {
       "oracle_name": "Culling Dais",
@@ -137,9 +117,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "C",
-      "card_type": "Artifact",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Iron Myr",
@@ -149,9 +127,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "R",
-      "card_type": "Artifact Creature — Myr",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact Creature — Myr"
     },
     {
       "oracle_name": "Leaden Myr",
@@ -161,9 +137,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "B",
-      "card_type": "Artifact Creature — Myr",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact Creature — Myr"
     },
     {
       "oracle_name": "Mortarpod",
@@ -173,9 +147,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "C",
-      "card_type": "Artifact — Equipment",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact — Equipment"
     },
     {
       "oracle_name": "Palladium Myr",
@@ -185,9 +157,7 @@
       "mana_cost": "{3}",
       "mana_value": 3.0,
       "color_identity": "C",
-      "card_type": "Artifact Creature — Myr",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact Creature — Myr"
     },
     {
       "oracle_name": "Rakdos Signet",
@@ -197,9 +167,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "BR",
-      "card_type": "Artifact",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Solemn Simulacrum",
@@ -209,9 +177,7 @@
       "mana_cost": "{4}",
       "mana_value": 4.0,
       "color_identity": "C",
-      "card_type": "Artifact Creature — Golem",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact Creature — Golem"
     },
     {
       "oracle_name": "Mind Stone",
@@ -221,9 +187,7 @@
       "mana_cost": "{2}",
       "mana_value": 2.0,
       "color_identity": "C",
-      "card_type": "Artifact",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Sol Ring",
@@ -233,9 +197,7 @@
       "mana_cost": "{1}",
       "mana_value": 1.0,
       "color_identity": "C",
-      "card_type": "Artifact",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Feed the Swarm",
@@ -245,9 +207,7 @@
       "mana_cost": "{1}{B}",
       "mana_value": 2.0,
       "color_identity": "B",
-      "card_type": "Sorcery",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Hero's Downfall",
@@ -257,9 +217,7 @@
       "mana_cost": "{1}{B}{B}",
       "mana_value": 3.0,
       "color_identity": "B",
-      "card_type": "Instant",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Warstorm Surge",
@@ -269,9 +227,7 @@
       "mana_cost": "{5}{R}",
       "mana_value": 6.0,
       "color_identity": "R",
-      "card_type": "Enchantment",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Enchantment"
     },
     {
       "oracle_name": "Nullpriest of Oblivion",
@@ -281,9 +237,7 @@
       "mana_cost": "{1}{B}",
       "mana_value": 2.0,
       "color_identity": "B",
-      "card_type": "Creature — Vampire Cleric",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Creature — Vampire Cleric"
     },
     {
       "oracle_name": "Soul-Shackled Zombie",
@@ -293,9 +247,7 @@
       "mana_cost": "{3}{B}",
       "mana_value": 4.0,
       "color_identity": "B",
-      "card_type": "Creature — Zombie",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Creature — Zombie"
     },
     {
       "oracle_name": "Vile Entomber",
@@ -305,9 +257,7 @@
       "mana_cost": "{2}{B}{B}",
       "mana_value": 4.0,
       "color_identity": "B",
-      "card_type": "Creature — Zombie Warlock",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Creature — Zombie Warlock"
     },
     {
       "oracle_name": "Zombify",
@@ -317,9 +267,7 @@
       "mana_cost": "{3}{B}",
       "mana_value": 4.0,
       "color_identity": "B",
-      "card_type": "Sorcery",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Avatar of Woe",
@@ -329,9 +277,7 @@
       "mana_cost": "{6}{B}{B}",
       "mana_value": 8.0,
       "color_identity": "B",
-      "card_type": "Creature — Avatar",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Avatar"
     },
     {
       "oracle_name": "Beacon of Unrest",
@@ -341,9 +287,7 @@
       "mana_cost": "{3}{B}{B}",
       "mana_value": 5.0,
       "color_identity": "B",
-      "card_type": "Sorcery",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Butcher of Malakir",
@@ -353,9 +297,7 @@
       "mana_cost": "{5}{B}{B}",
       "mana_value": 7.0,
       "color_identity": "B",
-      "card_type": "Creature — Vampire Warrior",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Vampire Warrior"
     },
     {
       "oracle_name": "Cemetery Reaper",
@@ -365,9 +307,7 @@
       "mana_cost": "{1}{B}{B}",
       "mana_value": 3.0,
       "color_identity": "B",
-      "card_type": "Creature — Zombie",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Zombie"
     },
     {
       "oracle_name": "Executioner's Capsule",
@@ -377,9 +317,7 @@
       "mana_cost": "{B}",
       "mana_value": 1.0,
       "color_identity": "B",
-      "card_type": "Artifact",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Artifact"
     },
     {
       "oracle_name": "Infest",
@@ -389,9 +327,7 @@
       "mana_cost": "{1}{B}{B}",
       "mana_value": 3.0,
       "color_identity": "B",
-      "card_type": "Sorcery",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Makeshift Mannequin",
@@ -401,9 +337,7 @@
       "mana_cost": "{3}{B}",
       "mana_value": 4.0,
       "color_identity": "B",
-      "card_type": "Instant",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Phyrexian Rager",
@@ -413,9 +347,7 @@
       "mana_cost": "{2}{B}",
       "mana_value": 3.0,
       "color_identity": "B",
-      "card_type": "Creature — Phyrexian Horror",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Phyrexian Horror"
     },
     {
       "oracle_name": "Reassembling Skeleton",
@@ -425,9 +357,7 @@
       "mana_cost": "{1}{B}",
       "mana_value": 2.0,
       "color_identity": "B",
-      "card_type": "Creature — Skeleton Warrior",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Skeleton Warrior"
     },
     {
       "oracle_name": "Shriekmaw",
@@ -437,9 +367,7 @@
       "mana_cost": "{4}{B}",
       "mana_value": 5.0,
       "color_identity": "B",
-      "card_type": "Creature — Elemental",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Elemental"
     },
     {
       "oracle_name": "Sign in Blood",
@@ -449,9 +377,7 @@
       "mana_cost": "{B}{B}",
       "mana_value": 2.0,
       "color_identity": "B",
-      "card_type": "Sorcery",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Sorin Markov",
@@ -461,9 +387,7 @@
       "mana_cost": "{3}{B}{B}{B}",
       "mana_value": 6.0,
       "color_identity": "B",
-      "card_type": "Legendary Planeswalker — Sorin",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Legendary Planeswalker — Sorin"
     },
     {
       "oracle_name": "Infernal Grasp",
@@ -473,9 +397,7 @@
       "mana_cost": "{1}{B}",
       "mana_value": 2.0,
       "color_identity": "B",
-      "card_type": "Instant",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Night's Whisper",
@@ -485,9 +407,7 @@
       "mana_cost": "{1}{B}",
       "mana_value": 2.0,
       "color_identity": "B",
-      "card_type": "Sorcery",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Syphon Mind",
@@ -497,9 +417,7 @@
       "mana_cost": "{3}{B}",
       "mana_value": 4.0,
       "color_identity": "B",
-      "card_type": "Sorcery",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Bolt Bend",
@@ -509,9 +427,7 @@
       "mana_cost": "{3}{R}",
       "mana_value": 4.0,
       "color_identity": "R",
-      "card_type": "Instant",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Gratuitous Violence",
@@ -521,9 +437,7 @@
       "mana_cost": "{2}{R}{R}{R}",
       "mana_value": 5.0,
       "color_identity": "R",
-      "card_type": "Enchantment",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Enchantment"
     },
     {
       "oracle_name": "Seismic Rupture",
@@ -533,9 +447,7 @@
       "mana_cost": "{2}{R}",
       "mana_value": 3.0,
       "color_identity": "R",
-      "card_type": "Sorcery",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Chain Reaction",
@@ -545,9 +457,7 @@
       "mana_cost": "{2}{R}{R}",
       "mana_value": 4.0,
       "color_identity": "R",
-      "card_type": "Sorcery",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Chandra Nalaar",
@@ -557,9 +467,7 @@
       "mana_cost": "{3}{R}{R}",
       "mana_value": 5.0,
       "color_identity": "R",
-      "card_type": "Legendary Planeswalker — Chandra",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Legendary Planeswalker — Chandra"
     },
     {
       "oracle_name": "Guttersnipe",
@@ -569,9 +477,7 @@
       "mana_cost": "{2}{R}",
       "mana_value": 3.0,
       "color_identity": "R",
-      "card_type": "Creature — Goblin Shaman",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Goblin Shaman"
     },
     {
       "oracle_name": "Hoard-Smelter Dragon",
@@ -581,9 +487,7 @@
       "mana_cost": "{4}{R}{R}",
       "mana_value": 6.0,
       "color_identity": "R",
-      "card_type": "Creature — Dragon",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Dragon"
     },
     {
       "oracle_name": "Inferno Titan",
@@ -593,9 +497,7 @@
       "mana_cost": "{4}{R}{R}",
       "mana_value": 6.0,
       "color_identity": "R",
-      "card_type": "Creature — Giant",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Giant"
     },
     {
       "oracle_name": "Magma Phoenix",
@@ -605,9 +507,7 @@
       "mana_cost": "{3}{R}{R}",
       "mana_value": 5.0,
       "color_identity": "R",
-      "card_type": "Creature — Phoenix",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Phoenix"
     },
     {
       "oracle_name": "Manic Vandal",
@@ -617,9 +517,7 @@
       "mana_cost": "{2}{R}",
       "mana_value": 3.0,
       "color_identity": "R",
-      "card_type": "Creature — Human Warrior",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Human Warrior"
     },
     {
       "oracle_name": "Oxidda Scrapmelter",
@@ -629,9 +527,7 @@
       "mana_cost": "{3}{R}",
       "mana_value": 4.0,
       "color_identity": "R",
-      "card_type": "Creature — Beast",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Creature — Beast"
     },
     {
       "oracle_name": "Seething Song",
@@ -641,9 +537,7 @@
       "mana_cost": "{2}{R}",
       "mana_value": 3.0,
       "color_identity": "R",
-      "card_type": "Instant",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Abrade",
@@ -653,9 +547,7 @@
       "mana_cost": "{1}{R}",
       "mana_value": 2.0,
       "color_identity": "R",
-      "card_type": "Instant",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Big Score",
@@ -665,9 +557,7 @@
       "mana_cost": "{3}{R}",
       "mana_value": 4.0,
       "color_identity": "R",
-      "card_type": "Instant",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Burn Down the House",
@@ -677,9 +567,7 @@
       "mana_cost": "{3}{R}{R}",
       "mana_value": 5.0,
       "color_identity": "R",
-      "card_type": "Sorcery",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Sorcery"
     },
     {
       "oracle_name": "Garna, Bloodfist of Keld",
@@ -689,9 +577,7 @@
       "mana_cost": "{1}{B}{R}{R}",
       "mana_value": 4.0,
       "color_identity": "BR",
-      "card_type": "Legendary Creature — Human Berserker",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Legendary Creature — Human Berserker"
     },
     {
       "oracle_name": "Immersturm Predator",
@@ -701,9 +587,7 @@
       "mana_cost": "{2}{B}{R}",
       "mana_value": 4.0,
       "color_identity": "BR",
-      "card_type": "Creature — Vampire Dragon",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Creature — Vampire Dragon"
     },
     {
       "oracle_name": "Perforating Artist",
@@ -713,9 +597,7 @@
       "mana_cost": "{1}{B}{R}",
       "mana_value": 3.0,
       "color_identity": "BR",
-      "card_type": "Creature — Devil",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Creature — Devil"
     },
     {
       "oracle_name": "Breath of Malfegor",
@@ -725,9 +607,7 @@
       "mana_cost": "{3}{B}{R}",
       "mana_value": 5.0,
       "color_identity": "BR",
-      "card_type": "Instant",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Terminate",
@@ -737,9 +617,7 @@
       "mana_cost": "{B}{R}",
       "mana_value": 2.0,
       "color_identity": "BR",
-      "card_type": "Instant",
-      "source_category": "Kaervek-specific-purchase",
-      "box_or_source": "Moritz Box"
+      "card_type": "Instant"
     },
     {
       "oracle_name": "Tor Wauki the Younger",
@@ -749,9 +627,7 @@
       "mana_cost": "{3}{B}{R}",
       "mana_value": 5.0,
       "color_identity": "BR",
-      "card_type": "Legendary Creature — Human Archer",
-      "source_category": "Kaervek-specific-purchase",
-      "box_or_source": "Moritz Box"
+      "card_type": "Legendary Creature — Human Archer"
     },
     {
       "oracle_name": "Bloodfell Caves",
@@ -761,9 +637,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "BR",
-      "card_type": "Land",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Evolving Wilds",
@@ -773,9 +647,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Temple of Malice",
@@ -785,9 +657,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "BR",
-      "card_type": "Land",
-      "source_category": "Alen",
-      "box_or_source": "Alens Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Barren Moor",
@@ -797,9 +667,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "B",
-      "card_type": "Land",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Bojuka Bog",
@@ -809,9 +677,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "B",
-      "card_type": "Land",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Grixis Panorama",
@@ -821,9 +687,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Rakdos Carnarium",
@@ -833,9 +697,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "BR",
-      "card_type": "Land",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Terramorphic Expanse",
@@ -845,9 +707,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Leon",
-      "box_or_source": "Leons Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Command Tower",
@@ -857,9 +717,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Exotic Orchard",
@@ -869,9 +727,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Hall of Oracles",
@@ -881,9 +737,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Path of Ancestry",
@@ -893,9 +747,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Spire of Industry",
@@ -905,9 +757,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "C",
-      "card_type": "Land",
-      "source_category": "Moritz-cheap/common",
-      "box_or_source": "Moritz Box"
+      "card_type": "Land"
     },
     {
       "oracle_name": "Mountain",
@@ -917,9 +767,7 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "R",
-      "card_type": "Basic Land — Mountain",
-      "source_category": "basic-land",
-      "box_or_source": "basic-land"
+      "card_type": "Basic Land — Mountain"
     },
     {
       "oracle_name": "Swamp",
@@ -929,10 +777,8 @@
       "mana_cost": "",
       "mana_value": 0.0,
       "color_identity": "B",
-      "card_type": "Basic Land — Swamp",
-      "source_category": "basic-land",
-      "box_or_source": "basic-land"
+      "card_type": "Basic Land — Swamp"
     }
   ],
-  "snapshot_note": "User correction 2026-08-07: Midnight Reaper not found physically; replaced by Warstorm Surge from Leons Box."
+  "snapshot_note": "User correction 2026-08-07: Midnight Reaper not found physically; replaced by Warstorm Surge from the collection."
 }
