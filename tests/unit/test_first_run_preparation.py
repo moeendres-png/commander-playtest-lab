@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import subprocess
 import sys
@@ -19,8 +20,23 @@ from commander_lab.rogshai.first_run_preparation import (
 ROOT = Path(__file__).resolve().parents[2]
 
 
-def test_official_spec_is_ready_not_started_and_binds_exact_shortlist() -> None:
-    spec = build_official_run_spec(ROOT)
+@pytest.fixture(scope="module")
+def official_spec() -> dict:
+    """Build the official run spec once per module and share it.
+
+    Safe to share: build_official_run_spec is deterministic (verified: two
+    consecutive builds produce identical JSON). Tests that mutate the spec
+    (tampering control) work on a deepcopy, so the shared base is never
+    modified. Validation itself is the asserted behavior and still runs
+    per test.
+    """
+    return build_official_run_spec(ROOT)
+
+
+def test_official_spec_is_ready_not_started_and_binds_exact_shortlist(
+    official_spec: dict,
+) -> None:
+    spec = official_spec
 
     assert spec["execution_status"] == "not_started"
     assert spec["official_run_started"] is False
@@ -63,18 +79,22 @@ def test_official_spec_is_ready_not_started_and_binds_exact_shortlist() -> None:
     assert validate_official_run_spec(ROOT, spec) == spec
 
 
-def test_official_spec_tampering_fails_closed() -> None:
-    spec = build_official_run_spec(ROOT)
+def test_official_spec_tampering_fails_closed(official_spec: dict) -> None:
+    # Deepcopy: the tampering control mutates the spec, and the shared
+    # module fixture must stay pristine for the other tests.
+    spec = copy.deepcopy(official_spec)
     spec["budgets"]["workers"] = 3
 
     with pytest.raises(FirstRunPreparationError, match="modified after preparation"):
         validate_official_run_spec(ROOT, spec)
 
 
-def test_authorization_is_explicit_and_spec_is_single_use(tmp_path: Path) -> None:
+def test_authorization_is_explicit_and_spec_is_single_use(
+    tmp_path: Path, official_spec: dict
+) -> None:
     spec_path = tmp_path / "official.json"
     spec_path.write_text(
-        json.dumps(build_official_run_spec(ROOT), indent=2, sort_keys=True) + "\n",
+        json.dumps(official_spec, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
 
