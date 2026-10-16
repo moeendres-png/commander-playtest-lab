@@ -175,7 +175,7 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
         repo_profile="mage",
         model="opencode/deepseek-v4.1-flash-free",
         execution_profile="deepseek",
-        native_variant="high",
+        native_variant="max",
         started_utc="2026-09-10T00:00:00Z",
         ended_utc="2026-09-10T01:00:00Z",
         exit_status=0,
@@ -186,7 +186,7 @@ def test_metrics_new_fields_round_trip(tmp_path: Path) -> None:
     )
     assert entry["repo_profile"] == "mage"
     assert entry["execution_profile"] == "deepseek"
-    assert entry["native_variant"] == "high"
+    assert entry["native_variant"] == "max"
     assert entry["push_result"] == "PUSHED"
     assert entry["exit_status"] == 0
 
