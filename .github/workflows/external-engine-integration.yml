@@ -7,7 +7,7 @@ on:
       xmage_commit:
         description: Verified full XMage commit SHA
         required: true
-        default: 38cb21a85c4074b00ab226e625200a4feaf3462f
+        default: 16e57239e0738925369b704fd7fdd083b7d5024b
 
 permissions:
   contents: read
@@ -20,7 +20,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XMAGE_COMMIT: ${{ inputs.xmage_commit || '38cb21a85c4074b00ab226e625200a4feaf3462f' }}
+  XMAGE_COMMIT: ${{ inputs.xmage_commit || '16e57239e0738925369b704fd7fdd083b7d5024b' }}
   ENGINE_PROVIDER: xmage
   ENGINE_MODE: external
   ALLOW_TACTICAL_ORACLE_FALLBACK: "false"

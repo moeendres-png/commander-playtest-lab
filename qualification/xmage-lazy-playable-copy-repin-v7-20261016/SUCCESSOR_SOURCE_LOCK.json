@@ -1,0 +1,101 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-lazy-playable-copy-repin-v7-20261016",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the head commit of moeendres-png/mage#60. The native maven.yml run on the exact commit and the Lab bridge suite against XMage built from this pin are PENDING and carry no result counts. NOT_RUN != PASS.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+  "tree": "e6845ec795aeeae4ce5a229a9da6fb96bf51910a",
+  "role": "prior live XMage pin (repin v6: card-scanner bulk lookup mage#58 and precon card coverage mage#59); stays historical and remains the engine of the current_qualification record until the requalification of this pin",
+  "successor_locks": [
+   "qualification/xmage-precon-coverage-repin-v6-20261013/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "38cb21a85c4074b00ab226e625200a4feaf3462f",
+   "tree": "e6845ec795aeeae4ce5a229a9da6fb96bf51910a"
+  },
+  "final_integrated_candidate": {
+   "commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+   "tree": "7f751d05b0e8351d7cf8bd45f362c8e621c961ef",
+   "content": "v6 + the lazy card copy of playable calculation copies in GameImpl (mage#60)"
+  },
+  "identity_rule": "the pin is the head commit of mage#60, a single commit on the v6 pin. It stays reachable as the parent of the mage#60 merge on the candidate branch, so the pin does not change when that PR merges; the merge commit has a tree identical to this one but is a different commit and is not the pin."
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "tree": "7f751d05b0e8351d7cf8bd45f362c8e621c961ef",
+  "parents": [
+   "38cb21a85c4074b00ab226e625200a4feaf3462f"
+  ],
+  "committed_at": "2026-10-16T00:48:39+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/16e57239e0738925369b704fd7fdd083b7d5024b.tar.gz",
+  "fork_ref_note": "the commit is the head of moeendres-png/mage#60 (into claude/xmage-mp-candidate-20260929) and the pull request head branch claude/pilot-intelligence-o25mmi; it is not yet the tip of the candidate branch"
+ },
+ "donors": [
+  {
+   "finding": "PLAYABLE-CALC-LAZY-CARD-COPY",
+   "pr": "moeendres-png/mage#60",
+   "head": "16e57239e0738925369b704fd7fdd083b7d5024b",
+   "observation": "every playable calculation copied the whole game, including every game card, although the copy is thrown away before the game it was copied from changes again and reads only a few cards",
+   "fix": "GameImpl.createSimulationForPlayableCalc copies the game with a thread-local flag set; the copy constructor then shares the parent's card objects and lists their ids in sharedGameCards, and a card is deep-copied on its first read (getCard, getCards, the state-based sweep). Same map capacity and iteration order as the eager copy. No Rules behaviour and no card data change."
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --stat 38cb21a8 16e57239 -- Mage/src; blob ids from git ls-tree 16e57239",
+  "engine_module_files": {
+   "Mage/src/main/java/mage/game/GameImpl.java": "c751b3f853cb64808d94df85145e8f69be5e5cc3"
+  },
+  "dependency_change": false,
+  "build_files_changed": [],
+  "build_files_note": "the pin delta is one file, Mage/src/main/java/mage/game/GameImpl.java (63 insertions, 3 deletions); no pom.xml or other build file changes"
+ },
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on the exact pin commit (pull request head branch claude/pilot-intelligence-o25mmi of moeendres-png/mage)",
+   "commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+   "status": "PENDING",
+   "not_claimed": "the run is dispatched but has no recorded result yet, so no native credit is claimed for this pin"
+  },
+  "mage_verify": {
+   "result": "PENDING",
+   "not_claimed": "no Mage.Verify result on this pin is bound yet; the baseline at 38cb21a8 is 15 card errors and 3 set errors (v6 lock)"
+  }
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "not bound on this pin",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
+  "bridge_suite": {
+   "command": "engine-bridge mvn verify against XMage built from exact 16e57239e0738925369b704fd7fdd083b7d5024b",
+   "status": "PENDING",
+   "not_claimed": "no recorded bridge suite run against XMage built from this pin is bound yet, so no Lab runtime credit is claimed for it"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedEngineCarriesTheLazyPlayableCopy checks the structural signature of this pin on the loaded classes (GameImpl.sharedGameCards, GameImpl.copyCardsLazily, GameImpl.ownGameCard); the v6 hooks stay checked by loadedEngineCarriesThePreconCoverageHooks."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the freeze record is re-assembled."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, sealed as a new epoch. No current-boundary epoch exists for this pin yet, and none may be written by this repin. AF11 is UNKNOWN for this pin because the AF11 adjudication covers an earlier pin; the pin delta adds no dependency and no jar, so the re-adjudication is expected to carry the same inventory, but it must be recorded, not assumed."
+ }
+}
