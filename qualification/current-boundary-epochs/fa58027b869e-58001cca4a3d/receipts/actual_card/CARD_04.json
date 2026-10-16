@@ -1,0 +1,99 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_04",
+  "obligation_exercised": {
+    "obligation_digest": "84b7066117ce3d7fa4f31af3579acba06e437470f0135d53c77dc0544ec9ed59",
+    "requested_state_digest": "3060c23e121d29bfd645334e90d6d9bf2ea7f9ab2ec2685ded90efe50ce079cc",
+    "required_events": [
+      "commander_combat_damage:P2:3",
+      "Kediss_trigger",
+      "noncombat_damage:P3:3",
+      "noncombat_damage:P4:3"
+    ],
+    "terminal_checks": [
+      "Kediss, Emberclaw Familiar triggered exactly 1 time(s)",
+      "P2 is at 17 life",
+      "P3 is at 17 life",
+      "P4 is at 17 life",
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True",
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True, target_player=P2, source_object=obj:card04-attacker"
+    ],
+    "terminal_postconditions": [
+      "P2=P3=P4=17 life.",
+      "Only P2 gained commander combat damage; Kediss damage does not retrigger Kediss."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "91db3fa0185bcb995b2e821435d921f7860ba4cbc56e12189c8ddf253a323612",
+      "size": 7111366
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "P3 is at 17 life",
+          "P4 is at 17 life"
+        ],
+        "check": "P2 is at 17 life",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2=P3=P4=17 life."
+      },
+      {
+        "also": [
+          "exactly 1 DAMAGED_PLAYER event(s) with combat=True, target_player=P2, source_object=obj:card04-attacker",
+          "Kediss, Emberclaw Familiar triggered exactly 1 time(s)"
+        ],
+        "check": "exactly 1 DAMAGED_PLAYER event(s) with combat=True",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Only P2 gained commander combat damage; Kediss damage does not retrigger Kediss."
+      }
+    ],
+    "terminal_facts": {
+      "Kediss, Emberclaw Familiar triggered exactly 1 time(s)": true,
+      "P2 is at 17 life": true,
+      "P3 is at 17 life": true,
+      "P4 is at 17 life": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with combat=True, target_player=P2, source_object=obj:card04-attacker": true
+    },
+    "token_evidence": {
+      "Kediss_trigger": {
+        "events": [
+          11
+        ]
+      },
+      "commander_combat_damage:P2:3": {
+        "binding": "at least one DAMAGED_PLAYER event(s) with target_player=P2, amount=3, combat=True, source_object=obj:card04-attacker",
+        "events": [
+          10
+        ]
+      },
+      "noncombat_damage:P3:3": {
+        "events": [
+          15
+        ]
+      },
+      "noncombat_damage:P4:3": {
+        "events": [
+          13
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "744b784add32c030d43ab8510d725c8ccc36041c6c3f29fbd12f59d14dbe4d94",
+  "runner_digest": "63732a1133e37a611b519e7d62a4e8c1a17adb8a60f6975f3582bbe20f06e750",
+  "runtime_receipt_digest": "14b75203274356da510eabbfdf68b7e580e0764a429d83b587bafc47e36e3367",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_04"
+}
