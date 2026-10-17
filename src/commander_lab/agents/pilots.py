@@ -398,29 +398,53 @@ class BasePilot:
     ) -> tuple[str, ...]:
         if count <= 0:
             return ()
-        card_list = list(cards)
-        scored = sorted(
-            card_list,
-            # Twin-stable tiebreak: Rules-visible card name, never engine
-            # identity (per-process UUIDs would make same-seed twins
-            # bottom different cards). Residual same-name ties are
-            # interchangeable.
-            key=lambda card: (
-                self.opening_card_value(card, commander_names),
-                -card.mana_cost,
-                card.card_name,
-            ),
-        )
-        return tuple(card.action_id for card in scored[:count])
+        # #851: remove one card at a time against the shrinking hand, so
+        # the land-count-dependent valuation in opening_card_value sees
+        # the hand as it actually shrinks (two bottoms from 6 lands + 1
+        # spell take two lands, not a land and then a spell).
+        remaining = list(cards)
+        bottomed: list[str] = []
+        for _ in range(min(count, len(remaining))):
+            land_count = sum(1 for card in remaining if bool(card.metadata.get("is_land", False)))
+            scored = sorted(
+                remaining,
+                # Twin-stable tiebreak: Rules-visible card name, never engine
+                # identity (per-process UUIDs would make same-seed twins
+                # bottom different cards). Residual same-name ties are
+                # interchangeable.
+                key=lambda card: (
+                    self.opening_card_value(card, commander_names, land_count=land_count),
+                    -card.mana_cost,
+                    card.card_name,
+                ),
+            )
+            chosen = scored[0]
+            bottomed.append(chosen.action_id)
+            remaining.remove(chosen)
+        return tuple(bottomed)
 
     def opening_card_value(
         self,
         card: PilotActionView,
         commander_names: tuple[str, ...],
+        *,
+        land_count: int | None = None,
     ) -> float:
         del commander_names
         if bool(card.metadata.get("is_land", False)):
-            return 2.2
+            # #851: a land's bottoming value depends on how many lands the
+            # hand holds. The 1st-3rd land are worth more than any spell
+            # (never bottom a land from a mana-normal hand); the 4th land
+            # is worth an average spell (marginal); the 5th land and beyond
+            # are worth less than an average spell (bottom the excess land,
+            # not the action). Average spell here is floor_value +
+            # immediate_impact (~0.8) plus small role bonuses.
+            count = 3 if land_count is None else land_count
+            if count <= 3:
+                return 6.0
+            if count == 4:
+                return 1.5
+            return 0.4
         value = card.floor_value + card.immediate_impact
         if card.mana_cost <= 2:
             value += card.strength(CardRole.RAMP) * 1.4
@@ -864,8 +888,10 @@ class KorvoldPilot(_NumericStrategyMixin, BasePilot):
         self,
         card: PilotActionView,
         commander_names: tuple[str, ...],
+        *,
+        land_count: int | None = None,
     ) -> float:
-        value = super().opening_card_value(card, commander_names)
+        value = super().opening_card_value(card, commander_names, land_count=land_count)
         value += card.strength(CardRole.RAMP) * 0.45
         value += card.strength(CardRole.LAND_SYNERGY) * 0.35
         value += card.strength(CardRole.TOKEN_SOURCE) * 0.25
@@ -1030,8 +1056,10 @@ class RogShaiPilot(_NumericStrategyMixin, BasePilot):
         self,
         card: PilotActionView,
         commander_names: tuple[str, ...],
+        *,
+        land_count: int | None = None,
     ) -> float:
-        value = super().opening_card_value(card, commander_names)
+        value = super().opening_card_value(card, commander_names, land_count=land_count)
         if card.mana_cost <= 2 and not bool(card.metadata.get("is_land", False)):
             value += 0.3
         value += card.strength(CardRole.COUNTER) * 0.3
