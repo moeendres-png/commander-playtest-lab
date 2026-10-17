@@ -228,6 +228,30 @@ def _precision_lines(row: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _placement_lines(row: dict[str, Any]) -> list[str]:
+    """One extra line per variant with the finishing-order outcome (#875).
+
+    Every new key is read with ``.get``: payloads stored before #875 keep
+    printing the old lines unchanged.
+    """
+    interval = row.get("placement_difference_interval_95")
+    difference = row.get("placement_difference")
+    pairs = row.get("placement_pairs")
+    if (
+        not isinstance(interval, dict)
+        or not isinstance(interval.get("low"), (int, float))
+        or not isinstance(interval.get("high"), (int, float))
+        or not isinstance(difference, (int, float))
+        or not isinstance(pairs, int)
+        or pairs < 2
+    ):
+        return []
+    return [
+        f"finishing order: {row['variant_deck_id']} {difference:+.2f} "
+        f"(95% {interval['low']:+.2f}..{interval['high']:+.2f}) over {pairs} pairs"
+    ]
+
+
 def _summary_lines(report_json: dict[str, Any]) -> list[str]:
     lines: list[str] = []
     for row in report_json["contenders"]:
@@ -251,6 +275,7 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
             f"p={row['sign_test_p_value']:.3g})"
         )
         lines.extend(_precision_lines(row))
+        lines.extend(_placement_lines(row))
     sequential = report_json.get("sequential")
     if sequential is not None:
         lines.append(
