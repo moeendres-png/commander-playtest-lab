@@ -22,7 +22,7 @@ import yaml
 # Live pin: multiplayer candidate after the deterministic commander-zone ask order
 # (mage#57), the card-scanner bulk lookup (mage#58) and the precon card coverage
 # (mage#59) and the lazy playable-calculation card copy (mage#60), repin v7.
-CANONICAL_XMAGE_PIN = "16e57239e0738925369b704fd7fdd083b7d5024b"
+CANONICAL_XMAGE_PIN = "348b37db5cf64f4ed503e8d37b776d5edc70e6d5"
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 
