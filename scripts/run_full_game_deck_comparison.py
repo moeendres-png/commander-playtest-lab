@@ -50,7 +50,9 @@ from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
     FullGameBatchRecord,
     FullGameBatchReport,
+    FullGameBatchReportBatched,
     XmageFullGameBatchRunner,
+    command_with_games_per_jvm,
     execution_identity_of,
 )
 from commander_lab.engine.rules.full_game_comparison import (
@@ -314,12 +316,17 @@ def run_sequential_blocks(
         records.extend(report.records)
         looks_used += 1
         seeds_played += len(block)
-        combined = FullGameBatchReport(
-            total_cases=len(records),
-            completed_cases=sum(1 for record in records if record.status == "completed"),
-            failed_cases=sum(1 for record in records if record.status == "failed"),
-            resumed_cases=sum(1 for record in records if record.resumed_from_completed_record),
-            records=tuple(records),
+        counts: dict[str, Any] = {
+            "total_cases": len(records),
+            "completed_cases": sum(1 for record in records if record.status == "completed"),
+            "failed_cases": sum(1 for record in records if record.status == "failed"),
+            "resumed_cases": sum(1 for record in records if record.resumed_from_completed_record),
+            "records": tuple(records),
+        }
+        combined: FullGameBatchReport = (
+            FullGameBatchReportBatched(games_per_jvm=report.games_per_jvm, **counts)
+            if isinstance(report, FullGameBatchReportBatched)
+            else FullGameBatchReport(**counts)
         )
         look_spec = spec.model_copy(update={"seeds": tuple(seed_list[:seeds_played])})
         comparison = aggregate_comparison(look_spec, combined, significance_level=per_look_alpha)
@@ -355,6 +362,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--comparison-id", default=None)
     parser.add_argument("--workers", type=int, default=None, help="default: from cores/memory")
     parser.add_argument("--parallelism", choices=("thread", "process"), default="thread")
+    parser.add_argument(
+        "--games-per-jvm",
+        type=int,
+        default=1,
+        metavar="N",
+        help="play up to N games in one bridge JVM (default 1: a fresh JVM per game). "
+        "Faster (about a quarter on 4-player pods, #877); the games of a batch are isolated "
+        "by shutdown_game and checked by twin hashes, not by a process boundary, and the "
+        "report says so. Measurement runs only; the evidence and gate lanes always use 1.",
+    )
     parser.add_argument("--retry-failed", action="store_true")
     parser.add_argument("--max-decisions", type=int, default=50_000)
     parser.add_argument("--request-timeout", type=float, default=120.0)
@@ -388,6 +405,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.variant and not args.swap:
         parser.error("give at least one --variant or --swap")
+    if args.games_per_jvm < 1:
+        parser.error("--games-per-jvm must be at least 1")
     baseline = load_deck(args.baseline)
     try:
         swapped = swap_variants(baseline, args.swap)
@@ -444,12 +463,20 @@ def main(argv: list[str] | None = None) -> int:
     if command is None:
         print("set COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD first", file=sys.stderr)
         return 2
+    # Always set the property explicitly: a batched run and an ordinary run must never share a
+    # run key, whatever the environment command already carries.
+    command = command_with_games_per_jvm(command, args.games_per_jvm)
+    if args.games_per_jvm > 1:
+        print(
+            f"games per JVM: {args.games_per_jvm}. State isolation between the games of a "
+            "batch is by shutdown_game, not by a process boundary."
+        )
     runner = XmageFullGameRunner(
         command,
         max_decisions=args.max_decisions,
         request_timeout_seconds=args.request_timeout,
     )
-    batch = XmageFullGameBatchRunner(runner, args.out / "games")
+    batch = XmageFullGameBatchRunner(runner, args.out / "games", games_per_jvm=args.games_per_jvm)
     sequential: dict[str, Any] | None = None
     if args.stop_when_decided:
         looks_planned = sequential_looks_planned(len(spec.seeds), args.look_every)
@@ -499,6 +526,11 @@ def main(argv: list[str] | None = None) -> int:
         "workers": workers,
         "parallelism": args.parallelism,
     }
+    if isinstance(report, FullGameBatchReportBatched):
+        # Only a batched run says anything about isolation; the one-game-per-JVM report is unchanged.
+        payload["batch"]["games_per_jvm"] = report.games_per_jvm
+        payload["batch"]["one_isolated_jvm_per_executed_game"] = False
+        payload["batch"]["state_isolation_basis"] = report.state_isolation_basis
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / "COMPARISON_REPORT.json").write_text(
         json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
