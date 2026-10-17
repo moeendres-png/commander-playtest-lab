@@ -83,6 +83,14 @@ decided it; `NO_CLEAR_DIFFERENCE` — played out, no significant edge;
 `INSUFFICIENT` — too few finished games to say anything. The report records
 the sequential plan and how many seeds were actually played.
 
+Every variant also prints a precision line: the paired win-share difference
+with its 95% interval, the smallest difference the run could have detected,
+and how many pairs a 0.10 or 0.05 difference would need. When the run was too
+small to decide, the summary says `UNDERPOWERED` — then `NO_CLEAR_DIFFERENCE`
+means the run could not have seen an effect, not that the decks play the same.
+A single-card swap will not move win share at feasible game counts; judge it
+by the structural filter in step 2 and per-card figures, not by win share.
+
 ## Step 5 — Pilot report (only for pilot or engine changes)
 
 Answers: did the pilot get better or worse at playing, on real games?
