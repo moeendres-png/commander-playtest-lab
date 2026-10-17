@@ -118,6 +118,43 @@ def _own_turn(state: dict[str, Any]) -> bool:
     return str(state.get("active_player_id", "")) == str(state.get("actor_id", ""))
 
 
+def _is_instant_speed(name: str) -> bool:
+    """True when the card catalog knows the name as instant-speed.
+
+    Unknown names (facts is None) fall back to sorcery-speed, the old rule.
+    """
+    facts = card_facts(name)
+    return facts is not None and facts.is_instant_speed
+
+
+def _stack_top_is_own_cast(state: dict[str, Any], own_names: set[str]) -> bool:
+    """Whether the stack's top spell is one this seat cast earlier.
+
+    Index 0 is the stack top (confirmed in real recordings). Abilities are
+    skipped: the first spell object from index 0 decides. A stack item counts
+    as a spell when its name resolves to card facts; ability names (e.g.
+    "Equip {0}") do not. Name-based approximation, the same idea as the
+    pilot's ``_remember_own_cast`` in ``full_game_pilot/state.py``: stack
+    objects carry no controller, so a top spell whose name matches a spell
+    the actor cast earlier in the game is treated as the actor's own. It can
+    misfire when both seats cast the same-named card in one game, which the
+    report accepts as a documented approximation.
+    """
+    stack = state.get("stack")
+    if not isinstance(stack, list) or not stack:
+        return False
+    for item in stack:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if not name:
+            continue
+        if card_facts(name) is None:
+            continue  # ability or unknown name, not a spell
+        return name.casefold() in own_names
+    return False
+
+
 def _seat(state: dict[str, Any]) -> int:
     return int(state.get("seat", -1)) + 1
 
@@ -143,12 +180,19 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
     max_turn = 0
     pilot_s = 0.0
     abilities_per_turn: dict[tuple[int, int], int] = defaultdict(int)
-    # Per (seat, card name): how often a cast was offered in an own main-phase
+    # Per (seat, card name): how often a cast was offered in a countable
     # priority window vs. actually chosen. Only the actor's own seat is
     # recorded; hidden information stays actor-scoped.
+    # Own-cast memory: casefolded names of spells the actor chose to cast
+    # earlier in this game, per seat. Built from the actor's own chosen cast
+    # options like the pilot's _remember_own_cast; see
+    # _stack_top_is_own_cast for the name-based approximation and why.
     offered_castable: dict[tuple[int, str], int] = Counter()
     cast_count: dict[tuple[int, str], int] = Counter()
+    cast_on_opponent_turn: dict[tuple[int, str], int] = Counter()
+    instant_speed: dict[tuple[int, str], bool] = {}
     first_cast_turn: dict[tuple[int, str], int] = {}
+    own_cast_names: dict[int, set[str]] = {}
     for record in records:
         request = record["request"]
         state = request.get("pilot_state") or {}
@@ -169,21 +213,36 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
             picked = chosen[0] if chosen else {}
             picked_type = str(picked.get("option_type", ""))
             meta = _meta(picked)
-            # Per-card cast tracking: own main-phase priority windows only.
-            if _own_turn(state) and _is_main(state):
-                offered_names = {
-                    str(_meta(o).get("source_name") or "")
-                    for o in options
-                    if _meta(o).get("ability_type") == "spell"
-                    and str(_meta(o).get("source_name") or "")
-                }
-                for name in offered_names:
+            # Per-card cast tracking. A cast counts in every priority window
+            # of the actor (any turn, any phase). An offer counts for
+            # sorcery-speed cards only in own main-phase windows (the old
+            # rule); for instant-speed cards it counts in any window where
+            # the stack is empty or its top object is not a spell this seat
+            # cast earlier. Withholding a counterspell while one's own spell
+            # sits on top of the stack is correct play, not a missed cast.
+            offered_names = {
+                str(_meta(o).get("source_name") or "")
+                for o in options
+                if _meta(o).get("ability_type") == "spell"
+                and str(_meta(o).get("source_name") or "")
+            }
+            for name in offered_names:
+                is_instant = _is_instant_speed(name)
+                instant_speed[(seat, name)] = is_instant
+                if is_instant:
+                    if not _stack_top_is_own_cast(state, own_cast_names.get(seat, set())):
+                        offered_castable[(seat, name)] += 1
+                elif _own_turn(state) and _is_main(state):
                     offered_castable[(seat, name)] += 1
-                if meta.get("ability_type") == "spell":
-                    name = str(meta.get("source_name") or "")
-                    if name:
-                        cast_count[(seat, name)] += 1
-                        first_cast_turn.setdefault((seat, name), turn)
+            if meta.get("ability_type") == "spell":
+                name = str(meta.get("source_name") or "")
+                if name:
+                    cast_count[(seat, name)] += 1
+                    instant_speed[(seat, name)] = _is_instant_speed(name)
+                    if not _own_turn(state):
+                        cast_on_opponent_turn[(seat, name)] += 1
+                    first_cast_turn.setdefault((seat, name), turn)
+                    own_cast_names.setdefault(seat, set()).add(name.strip().casefold())
             if meta.get("ability_type") == "spell":
                 spells[seat] += 1
                 name = str(meta.get("source_name") or "")
@@ -280,20 +339,26 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
     rounds = max(1.0, max_turn / max(1, players))
     decisions = sum(by_class.values())
     # Per-card figures keyed by (seat, card name); first_cast_round is None
-    # when the card was offered but never cast.
+    # when the card was offered but never cast. A card can be cast without a
+    # counted offer (an instant cast while its top-of-stack guard holds), so
+    # the union of offered and cast names is listed. per_card_version 2 is
+    # the first version with instant-speed windows; readers must not mix it
+    # with older records (see compare_reports).
     per_card = [
         {
             "seat": seat,
             "card": name,
-            "offered_castable": offered_castable[(seat, name)],
+            "offered_castable": offered_castable.get((seat, name), 0),
             "cast": cast_count.get((seat, name), 0),
+            "cast_on_opponent_turn": cast_on_opponent_turn.get((seat, name), 0),
+            "instant_speed": instant_speed.get((seat, name), False),
             "first_cast_round": (
                 round(first_cast_turn[(seat, name)] / max(1, players), 2)
                 if (seat, name) in first_cast_turn
                 else None
             ),
         }
-        for (seat, name) in sorted(offered_castable)
+        for (seat, name) in sorted(set(offered_castable) | set(cast_count))
     ]
     return {
         "turns": max_turn,
@@ -320,6 +385,7 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
         "bad_needless_chump_blocks": needless_chumps,
         "max_activations_one_turn": max(abilities_per_turn.values(), default=0),
         "per_card": per_card,
+        "per_card_version": 2,
     }
 
 
@@ -414,10 +480,16 @@ def run(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 # cards: per-card cast rate and cards that rot in hand.
 #
-# ``summarize`` records per (seat, card) how often a cast was offered in an own
-# main-phase priority window vs. actually chosen. Here the per-game figures are
-# aggregated by card name across seats and games; the "rotting" list ranks cards
-# that were offered castable in >= 3 windows of a game but never cast in it.
+# ``summarize`` records per (seat, card) how often a cast was offered in a
+# countable priority window vs. actually chosen: sorcery-speed cards count in
+# own main-phase windows, instant-speed cards in any window whose stack is
+# empty or whose top object is not a spell the actor cast earlier.
+# Here the per-game figures are aggregated by card name across seats and
+# games; the "rotting" list ranks cards that were offered castable in >= 3
+# windows of a game but never cast in it. Records without the version-2
+# fields (``instant_speed``, ``cast_on_opponent_turn``, ``per_card_version``)
+# still aggregate: they predate the instant-speed windows and default to
+# sorcery-speed counting.
 # ---------------------------------------------------------------------------
 
 _ROTTING_MIN_WINDOWS = 3
@@ -428,6 +500,8 @@ def aggregate_cards(report: dict[str, Any]) -> dict[str, Any]:
     games = [g for g in report["games"] if g["status"] == "ok"]
     offered: dict[str, int] = Counter()
     cast: dict[str, int] = Counter()
+    cast_on_opponent_turn: dict[str, int] = Counter()
+    instant_speed: dict[str, bool] = {}
     seen_in: dict[str, set[int]] = defaultdict(set)
     first_rounds: dict[str, list[float]] = defaultdict(list)
     rotted_in: dict[str, int] = Counter()
@@ -442,6 +516,9 @@ def aggregate_cards(report: dict[str, Any]) -> dict[str, Any]:
             n_cast = int(entry.get("cast", 0) or 0)
             offered[name] += n_offered
             cast[name] += n_cast
+            cast_on_opponent_turn[name] += int(entry.get("cast_on_opponent_turn", 0) or 0)
+            if entry.get("instant_speed"):
+                instant_speed[name] = True
             per_game_offered[name] += n_offered
             per_game_cast[name] += n_cast
             if n_offered or n_cast:
@@ -458,6 +535,8 @@ def aggregate_cards(report: dict[str, Any]) -> dict[str, Any]:
             "games_seen": len(seen_in[name]),
             "offered_castable": offered[name],
             "cast": cast[name],
+            "cast_on_opponent_turn": cast_on_opponent_turn[name],
+            "instant_speed": instant_speed.get(name, False),
             "cast_rate": round(cast[name] / offered[name], 3) if offered[name] else 0.0,
             "mean_first_cast_round": (
                 round(sum(first_rounds[name]) / len(first_rounds[name]), 2)
@@ -552,6 +631,15 @@ def pair_games(
     return paired, unpaired
 
 
+def _per_card_versions(report: dict[str, Any]) -> set[Any]:
+    """per_card_version of the ok games of a report (1 when not recorded)."""
+    return {
+        game.get("per_card_version", 1)
+        for game in report.get("games", [])
+        if game.get("status") == "ok"
+    }
+
+
 def bootstrap_mean_ci(
     deltas: list[float],
     *,
@@ -605,6 +693,15 @@ def compare_reports(report_a: dict[str, Any], report_b: dict[str, Any]) -> dict[
         for pod, count in sorted(seeds_per_pod.items())
         if count < _MIN_PAIRED_SEEDS_PER_POD
     ]
+    # Per-card figures are never compared across different per_card_version
+    # values: version 2 changed which windows count as offers/casts for
+    # instant-speed cards, so the figures mean different things.
+    versions = sorted((_per_card_versions(report_a) | _per_card_versions(report_b)), key=repr)
+    if len(versions) > 1:
+        warnings.append(
+            "per-card figures not compared across different per_card_version "
+            f"values: {', '.join(map(repr, versions))}"
+        )
     return {
         "paired_games": len(paired),
         "paired_seeds_per_pod": seeds_per_pod,
