@@ -238,8 +238,64 @@ def test_cli_planned_games_and_time_range(
     out = capsys.readouterr().out
     # (1 baseline + 2 variants) * 25 seeds * 4 players = 300 games
     assert "Planned games: 300" in out
-    # 300 / 56 = 5.36 -> 5.4 h, 300 / 22 = 13.64 -> 13.6 h
-    assert "5.4-13.6 h" in out
+    # 300 games at the default 40 games/hour = 7.5 h (single value, #873)
+    assert "Time estimate at 40 games/hour: 7.5 h" in out
+    # 25 seeds x 4 players = 100 pairs; (1.96+0.8416)*0.63/sqrt(100) = 0.177
+    assert "Detectable win-share difference per variant (80% power, 100 pairs)" in out
+    assert "\u00b1 0.18" in out
+
+
+def test_cli_games_per_hour_flag_changes_estimate(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    cli = _cli()
+    variant_path = _write_variant(
+        tmp_path, "rogshai/test-a", remove=[NON_MANA_NONLAND], add=[MANA_ROCK]
+    )
+    code = cli.main(
+        [
+            "--baseline",
+            str(BASELINE_PATH),
+            "--variant",
+            str(variant_path),
+            "--trials",
+            str(TRIALS),
+            "--seeds",
+            "1-25",
+            "--players",
+            "4",
+            "--games-per-hour",
+            "100",
+        ]
+    )
+    assert code == 0
+    out = capsys.readouterr().out
+    # (1 baseline + 1 variant) * 25 seeds * 4 players = 200 games at 100/h
+    assert "Time estimate at 100 games/hour: 2.0 h" in out
+
+
+def test_cli_bad_games_per_hour_is_an_argparse_error(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    cli = _cli()
+    variant_path = _write_variant(
+        tmp_path, "rogshai/test-a", remove=[NON_MANA_NONLAND], add=[MANA_ROCK]
+    )
+    with pytest.raises(SystemExit) as excinfo:
+        cli.main(
+            [
+                "--baseline",
+                str(BASELINE_PATH),
+                "--variant",
+                str(variant_path),
+                "--trials",
+                str(TRIALS),
+                "--games-per-hour",
+                "0",
+            ]
+        )
+    assert excinfo.value.code == 2
+    assert "--games-per-hour" in capsys.readouterr().err
 
 
 def test_cli_json_is_stable_across_runs(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
@@ -268,3 +324,8 @@ def test_cli_json_is_stable_across_runs(tmp_path: Path, capsys: pytest.CaptureFi
         "PASS_TO_GAMES",
     }
     assert payload["planned_games"] == 8  # (1 baseline + 1 variant) * 1 seed * 4 players
+    assert payload["planned_pairs_per_variant"] == 4  # 1 seed * 4 players
+    assert payload["games_per_hour"] == 40.0
+    assert payload["time_hours"] == 0.2  # 8 games at 40/hour
+    # (1.96 + 0.8416) * 0.63 / sqrt(4) = 0.883 (#873)
+    assert payload["detectable_win_share_difference"] == 0.883

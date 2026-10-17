@@ -64,6 +64,7 @@ from commander_lab.engine.rules.full_game_comparison import (
     pairs_needed,
     parse_swaps,
     plan_comparison_cases,
+    planned_detectable_difference,
     sequential_look_alpha,
     sequential_looks_planned,
     sequential_stop_now,
@@ -334,6 +335,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--request-timeout", type=float, default=120.0)
     parser.add_argument("--plan-only", action="store_true", help="print the plan and stop")
     parser.add_argument(
+        "--games-per-hour",
+        type=float,
+        default=40.0,
+        help="host throughput for the time estimate (default: 40); "
+        "measure once on the host, speed depends on the machine",
+    )
+    parser.add_argument(
         "--require-ready",
         action="store_true",
         help="refuse to run unless every contender and opponent deck is ready",
@@ -386,10 +394,23 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("--workers must be at least 1")
     if args.look_every < 1:
         parser.error("--look-every must be at least 1")
+    if args.games_per_hour <= 0:
+        parser.error("--games-per-hour must be positive")
     workers = args.workers or default_workers(memory_gb=_available_memory_gb())
     print(
         f"{len(cases)} games: {len(spec.contenders)} contenders x {len(spec.seeds)} seeds x "
         f"{len(spec.tested_seats)} seats, {spec.player_count} players, {workers} workers"
+    )
+    # Pairs per variant-vs-baseline comparison: each seed x each tested seat.
+    pairs = len(spec.seeds) * len(spec.tested_seats)
+    detectable = planned_detectable_difference(pairs)
+    print(
+        f"Time estimate at {args.games_per_hour:g} games/hour: "
+        f"{len(cases) / args.games_per_hour:.1f} h"
+    )
+    print(
+        "Detectable win-share difference per variant "
+        f"(80% power, {pairs} pairs): \u00b1 {detectable:.2f}"
     )
     if args.plan_only:
         return 0

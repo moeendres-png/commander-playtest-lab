@@ -277,3 +277,74 @@ def test_wrong_reason_control_constant(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(fgc, "DIFFERENCE_Z95", 1.0)
     with pytest.raises(AssertionError):
         _assert_hand_arithmetic()
+
+
+def test_planned_detectable_difference() -> None:
+    # (1.96 + 0.8416) * 0.63 / sqrt(100) = 0.17650... (#873)
+    assert round(fgc.planned_detectable_difference(100), 4) == 0.1765
+    # Custom sd is honored.
+    assert round(fgc.planned_detectable_difference(100, sd=0.5), 4) == 0.1401
+    with pytest.raises(ValueError, match="pairs"):
+        fgc.planned_detectable_difference(0)
+
+
+def test_plan_only_prints_time_estimate_and_detectable_difference(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """--plan-only is JVM-free: it prints games, time and detectable difference (#873)."""
+    cli = _script_module()
+    root = Path(__file__).resolve().parents[2]
+    code = cli.main(
+        [
+            "--baseline",
+            str(root / "data/decks/rogshai_current.json"),
+            "--swap",
+            "Sol Ring=>Mind Stone",
+            "--opponent",
+            str(root / "data/opponents/hosts_of_mordor_precon.json"),
+            "--opponent",
+            str(root / "data/opponents/lorehold_spirit_precon.json"),
+            "--opponent",
+            str(root / "data/decks/opponents/kaervek/current/deck.json"),
+            "--seeds",
+            "1-25",
+            "--out",
+            str(tmp_path / "out"),
+            "--plan-only",
+        ]
+    )
+    assert code == 0
+    out = capsys.readouterr().out
+    # 2 contenders x 25 seeds x 4 seats = 200 games
+    assert "200 games: 2 contenders x 25 seeds x 4 seats" in out
+    assert "Time estimate at 40 games/hour: 5.0 h" in out
+    # 25 seeds x 4 tested seats = 100 pairs -> (1.96+0.8416)*0.63/10 = 0.18
+    assert "Detectable win-share difference per variant (80% power, 100 pairs)" in out
+
+
+def test_plan_only_games_per_hour_flag(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    cli = _script_module()
+    root = Path(__file__).resolve().parents[2]
+    code = cli.main(
+        [
+            "--baseline",
+            str(root / "data/decks/rogshai_current.json"),
+            "--swap",
+            "Sol Ring=>Mind Stone",
+            "--opponent",
+            str(root / "data/opponents/hosts_of_mordor_precon.json"),
+            "--opponent",
+            str(root / "data/opponents/lorehold_spirit_precon.json"),
+            "--opponent",
+            str(root / "data/decks/opponents/kaervek/current/deck.json"),
+            "--seeds",
+            "1-25",
+            "--out",
+            str(tmp_path / "out"),
+            "--plan-only",
+            "--games-per-hour",
+            "100",
+        ]
+    )
+    assert code == 0
+    assert "Time estimate at 100 games/hour: 2.0 h" in capsys.readouterr().out

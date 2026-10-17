@@ -2,7 +2,9 @@
 
 Compares each variant deck against the baseline (card diff, readiness, mana,
 commander castability) and prints a go/no-go verdict per variant. Afterwards it
-prints the planned game count and a time range at 22-56 games/hour.
+prints the planned game count, a time estimate at the host's games/hour
+(--games-per-hour), and the win-share difference the planned pairs can detect
+(80% power, #873).
 
 The verdict is a filter (cheap screening), not a ranking of variants.
 
@@ -14,7 +16,7 @@ Example:
     PYTHONPATH=src python scripts/deck_variant_prefilter.py \\
         --baseline data/decks/rogshai_current.json \\
         --variant /tmp/variant_a.json --variant /tmp/variant_b.json \\
-        --trials 20000 --seeds 1-25 --players 4
+        --trials 20000 --seeds 1-25 --players 4 --games-per-hour 60
 """
 
 from __future__ import annotations
@@ -34,12 +36,14 @@ from commander_lab.deck_variant import (
     compare_variant,
     comparison_to_dict,
 )
+from commander_lab.engine.rules.full_game_comparison import planned_detectable_difference
 from commander_lab.mana_analysis import DEFAULT_CASTABILITY_SEED
 from commander_lab.models import RulesDeckInput
 
-#: Full games per hour the time estimate assumes (slowest .. fastest).
-GAMES_PER_HOUR_SLOW = 22
-GAMES_PER_HOUR_FAST = 56
+#: Default full games per hour for the time estimate. Measure on the host
+#: (games / wall-clock hour for this script's planned workload) and override
+#: with --games-per-hour; speed depends on the machine, not the script.
+DEFAULT_GAMES_PER_HOUR = 40.0
 
 
 def _parse_seeds(raw: str) -> int:
@@ -145,18 +149,22 @@ def _plan_summary(
     seeds: int,
     players: int,
     rotate: bool,
-) -> tuple[str, int, float, float]:
+    games_per_hour: float,
+) -> tuple[str, int, int, float, float]:
     games = (1 + variant_count) * seeds * (players if rotate else 1)
-    hours_low = games / GAMES_PER_HOUR_FAST
-    hours_high = games / GAMES_PER_HOUR_SLOW
+    # Pairs per variant-vs-baseline comparison: each seed x each tested seat.
+    pairs = seeds * (players if rotate else 1)
+    hours = games / games_per_hour
+    detectable = planned_detectable_difference(pairs)
     seats = f"{players} players" if rotate else "no rotation"
     text = (
         f"Planned games: {games} "
         f"((1 baseline + {variant_count} variant(s)) x {seeds} seed(s) x {seats})\n"
-        f"Time estimate at {GAMES_PER_HOUR_SLOW}-{GAMES_PER_HOUR_FAST} games/hour: "
-        f"{hours_low:.1f}-{hours_high:.1f} h"
+        f"Time estimate at {games_per_hour:g} games/hour: {hours:.1f} h\n"
+        f"Detectable win-share difference per variant "
+        f"(80% power, {pairs} pairs): \u00b1 {detectable:.2f}"
     )
-    return text, games, hours_low, hours_high
+    return text, games, pairs, hours, detectable
 
 
 def _json_payload(
@@ -169,8 +177,10 @@ def _json_payload(
     players: int,
     rotate: bool,
     games: int,
-    hours_low: float,
-    hours_high: float,
+    pairs: int,
+    hours: float,
+    games_per_hour: float,
+    detectable: float,
 ) -> dict[str, Any]:
     return {
         "baseline": {"deck_id": baseline.deck_id, "name": baseline.name},
@@ -181,7 +191,10 @@ def _json_payload(
         "rotate": rotate,
         "variants": [comparison_to_dict(item) for item in comparisons],
         "planned_games": games,
-        "time_hours": {"low": round(hours_low, 1), "high": round(hours_high, 1)},
+        "planned_pairs_per_variant": pairs,
+        "games_per_hour": games_per_hour,
+        "time_hours": round(hours, 1),
+        "detectable_win_share_difference": round(detectable, 3),
     }
 
 
@@ -221,11 +234,20 @@ def main(argv: list[str] | None = None) -> int:
         help="plan without seat rotation (one seat per seed instead of --players)",
     )
     parser.add_argument("--json", action="store_true", help="machine-readable output")
+    parser.add_argument(
+        "--games-per-hour",
+        type=float,
+        default=DEFAULT_GAMES_PER_HOUR,
+        help="host throughput for the time estimate "
+        f"(default: {DEFAULT_GAMES_PER_HOUR:g}); measure once on the host",
+    )
     args = parser.parse_args(argv)
     if args.trials < 1:
         parser.error("--trials must be positive")
     if args.players < 1:
         parser.error("--players must be positive")
+    if args.games_per_hour <= 0:
+        parser.error("--games-per-hour must be positive")
     seed_count: int = args.seeds
 
     baseline = _load_deck_or_none(args.baseline)
@@ -240,11 +262,12 @@ def main(argv: list[str] | None = None) -> int:
     ]
 
     rotate = not args.no_rotate
-    plan_text, games, hours_low, hours_high = _plan_summary(
+    plan_text, games, pairs, hours, detectable = _plan_summary(
         variant_count=len(comparisons),
         seeds=seed_count,
         players=args.players,
         rotate=rotate,
+        games_per_hour=args.games_per_hour,
     )
 
     if args.json:
@@ -257,8 +280,10 @@ def main(argv: list[str] | None = None) -> int:
             players=args.players,
             rotate=rotate,
             games=games,
-            hours_low=hours_low,
-            hours_high=hours_high,
+            pairs=pairs,
+            hours=hours,
+            games_per_hour=args.games_per_hour,
+            detectable=detectable,
         )
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
