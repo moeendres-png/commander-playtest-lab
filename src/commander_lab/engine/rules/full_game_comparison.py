@@ -58,6 +58,13 @@ DIFFERENCE_Z80 = 0.8416
 # A non-decided verdict counts as underpowered when the detectable difference
 # is above this win-share fraction (#870).
 UNDERPOWERED_ABOVE = 0.10
+# Assumed per-pair standard deviation of win-share differences for *planning*
+# (#873): before any games are played there is no sample sd, so the plan
+# assumes one. Per pair, d = variant_share - baseline_share is in {-1, 0, +1};
+# with each contender winning a 4P game independently at p = 0.25,
+# Var(d) = 2*p*(1-p) = 0.375, sd ~= 0.61. 0.63 is the slightly conservative
+# planning value (it is also the example sd in #870's tests).
+PLANNED_PAIR_SD = 0.63
 
 
 class _StrictModel(BaseModel):
@@ -405,6 +412,18 @@ def _paired_difference_stats(
         DifferenceInterval(low=mean - half_width, high=mean + half_width),
         (DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / math.sqrt(n),
     )
+
+
+def planned_detectable_difference(pairs: int, sd: float = PLANNED_PAIR_SD) -> float:
+    """Win-share difference ``pairs`` planned pairs can detect at 80% power (#873).
+
+    The #870 detectable-difference arithmetic ``(Z95 + Z80) * sd / sqrt(n)``
+    with the assumed per-pair sd for planning; no games have been played yet,
+    so there is no sample sd to use.
+    """
+    if pairs < 1:
+        raise ValueError("pairs must be positive")
+    return (DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / math.sqrt(pairs)
 
 
 def pairs_needed(difference: float, sd: float, alpha: float = 0.05, power: float = 0.80) -> int:

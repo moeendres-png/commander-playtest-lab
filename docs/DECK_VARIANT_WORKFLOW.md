@@ -33,8 +33,10 @@ python scripts/deck_variant_prefilter.py \
 Verdict `BLOCKED` (exit 1) means the variant is not ready — stop here.
 `WARN` means a commander lost cast probability (>0.05 on turns 3–6) or a colour
 lost a source; `PASS_TO_GAMES` means the filter found nothing wrong. Both
-`WARN` and `PASS_TO_GAMES` exit 0. The last lines print the planned game count
-and a time estimate (22–56 games/hour on a 4-core host). Per-commander cast
+`WARN` and `PASS_TO_GAMES` exit 0. The last lines print the planned game count,
+a time estimate at the host's games/hour (`--games-per-hour`, default 40 —
+measure once on the host, speed depends on the machine), and the win-share
+difference the planned pairs can detect at 80% power. Per-commander cast
 probabilities alone:
 
 ```bash
@@ -43,8 +45,9 @@ python scripts/mana_castability_report.py --deck /tmp/my_variant.json --trials 2
 
 ## Step 3 — Size the run with `--plan-only`
 
-Answers: how many games the comparison will play, before spending any time.
-Does **not** play games.
+Answers: how many games the comparison will play, how long that takes at the
+host's games/hour, and what win-share difference the planned pairs can detect
+at 80% power — before spending any time. Does **not** play games.
 
 ```bash
 export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
