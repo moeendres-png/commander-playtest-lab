@@ -250,7 +250,7 @@ def boardwipe_risk(state: Mapping[str, Any]) -> float:
 
 
 def is_own_stack_item(
-    item: Mapping[str, Any], state: Mapping[str, Any], own_stack_names: frozenset[str]
+    item: Mapping[str, object], state: Mapping[str, object], own_stack_names: frozenset[str]
 ) -> bool:
     """Whether a stack object belongs to the actor.
 
