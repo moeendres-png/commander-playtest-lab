@@ -785,6 +785,41 @@ def test_counterspell_is_kept_for_a_spell_worth_countering() -> None:
     assert response["selected_option_ids"] == ["counter"]
 
 
+def test_stack_controller_settles_whose_spell_it_is() -> None:
+    # The bridge names the controller of every stack object. The pilot's memory
+    # of its own cast names is only the fallback for a bridge without the field.
+    counter = _cast("counter", "Counterspell", blue=2)
+    titan = _cast("titan", "Grave Titan", black=2, generic=4)
+
+    # Same name as the actor's own earlier cast, but an opponent controls this one:
+    # the name memory alone would call it "own" and refuse to counter it.
+    policy = _policy()
+    first = policy.decide(
+        _request("priority", [_PASS, titan], _state(hand=["Grave Titan"]), offset=1)
+    )
+    assert first["selected_option_ids"] == ["titan"]
+    theirs = _state(
+        hand=["Counterspell"],
+        stack=[{"object_id": "s", "name": "Grave Titan", "controller_id": "op-1"}],
+    )
+    response = policy.decide(_request("priority", [_PASS, counter], theirs, offset=2))
+    assert response["selected_option_ids"] == ["counter"]
+
+    # The actor's own spell, never cast through a priority option (a free cast):
+    # the controller says it is the actor's, so it is not countered.
+    free_cast = _state(
+        hand=["Counterspell"],
+        stack=[{"object_id": "s", "name": "Grave Titan", "controller_id": "actor"}],
+    )
+    response = _policy().decide(_request("priority", [_PASS, counter], free_cast))
+    assert response["selected_option_ids"] == ["pass"]
+
+    # Without the field the old fallback still decides.
+    unknown = _state(hand=["Counterspell"], stack=[{"object_id": "s", "name": "Grave Titan"}])
+    response = _policy().decide(_request("priority", [_PASS, counter], unknown))
+    assert response["selected_option_ids"] == ["counter"]
+
+
 def test_card_knowledge_covers_every_owner_coverage_deck() -> None:
     import json
     from pathlib import Path

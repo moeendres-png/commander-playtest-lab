@@ -1310,6 +1310,7 @@ final class XmageFullGameSession {
             payload.add("failure", error);
         }
 
+        controller.noteLosses(game);
         JsonArray outcomes = new JsonArray();
         for (Player player : XmageSeating.playersInSeatOrder(game)) {
             JsonObject item = new JsonObject();
@@ -1319,6 +1320,9 @@ final class XmageFullGameSession {
             item.addProperty("life", player.getLife());
             item.addProperty("won", player.hasWon());
             item.addProperty("lost", player.hasLost());
+            // Turn number at which the player was first seen as lost (null while
+            // it has not lost): finishing order for comparisons, public information.
+            item.addProperty("lost_on_turn", controller.lostOnTurn(player.getId()));
             item.addProperty("left", player.hasLeft());
             // WS213 live authoritative availability per principal (WS211):
             // proof, not heuristic; re-evaluated on every payload.

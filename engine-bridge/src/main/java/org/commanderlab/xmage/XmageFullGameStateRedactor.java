@@ -522,6 +522,13 @@ final class XmageFullGameStateRedactor {
             } else {
                 item.addProperty("name", stackObject.getName());
             }
+            // Whose spell or ability it is, as the permanents already say. A
+            // stack object's controller is public; the id stays actor-scoped,
+            // so a pilot recognises its own objects without remembering names.
+            item.addProperty(
+                    "controller_id",
+                    ActorSafeIdentity.optionalForSeat(game, actor, stackObject.getControllerId())
+            );
             stack.add(item);
         }
         view.add("stack", stack);
@@ -594,6 +601,7 @@ final class XmageFullGameStateRedactor {
             if (stackItem.has("face_down")) {
                 stackItem.add("name", JsonNull.INSTANCE);
             }
+            replacePrincipalId(stackItem, "controller_id", rawAnchorId, publicAnchorId);
         }
         if (view.has("commander_status") && view.get("commander_status").isJsonArray()) {
             for (JsonElement statusElement : view.getAsJsonArray("commander_status")) {

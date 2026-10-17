@@ -17,8 +17,10 @@ Commander player would look at:
     python scripts/pilot_decision_report.py compare before.json after.json
 
 ``--workers N`` plays N games at once, each in its own Python process (the recording
-patches the policy class, so games must not share a process) and with a private card
-database per bridge JVM.
+patches the policy class, so games must not share a process). Every game runs with a
+private card database slot per bridge JVM, also with one worker: report processes started
+side by side must not open one H2 file together (it fails about one start in ten with
+XMAGE_CARD_REPOSITORY_INIT_FAILED, H2 "Lock file recently modified", #878).
 
 The figures are measurements of local games for pilot work, not qualification
 evidence. Lower is better for every "bad_*" counter.
@@ -322,15 +324,11 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
 
 
 def _play(
-    command: tuple[str, ...],
-    pod: str,
-    setup: tuple[Any, Any, Any],
-    seed: int,
-    private: bool = False,
+    command: tuple[str, ...], pod: str, setup: tuple[Any, Any, Any], seed: int
 ) -> dict[str, Any]:
     scenario, decks, pilots = setup
     scenario = scenario.model_copy(update={"seed": seed})
-    runner = XmageFullGameRunner(command, private_card_repository=private)
+    runner = XmageFullGameRunner(command, private_card_repository=True)
     records: list[dict[str, Any]] = []
     started = time.monotonic()
     row: dict[str, Any] = {"pod": pod, "seed": seed, "players": len(decks)}
@@ -401,9 +399,7 @@ def run(args: argparse.Namespace) -> int:
         rows = [_play(command, pod, setup, seed) for pod, setup, seed in jobs]
     else:
         with ProcessPoolExecutor(max_workers=args.workers) as pool:
-            futures = [
-                pool.submit(_play, command, pod, setup, seed, True) for pod, setup, seed in jobs
-            ]
+            futures = [pool.submit(_play, command, pod, setup, seed) for pod, setup, seed in jobs]
             rows = [future.result() for future in futures]
     report: dict[str, Any] = {"jar": str(args.jar), "games": rows}
     report["totals"] = totals(report)
