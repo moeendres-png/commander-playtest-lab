@@ -126,23 +126,31 @@ def _is_instant_speed(name: str) -> bool:
 
 
 def _stack_top_is_own_cast(state: dict[str, Any], own_names: set[str]) -> bool:
-    """Whether the stack's top object is a spell this seat cast earlier.
+    """Whether the stack's top spell is one this seat cast earlier.
 
-    Name-based approximation, the same idea as the pilot's
-    ``_remember_own_cast`` in ``full_game_pilot/state.py``: stack objects
-    carry no controller, so a top object whose name matches a spell the actor
-    cast earlier in the game is treated as the actor's own. It can misfire
-    when both seats cast the same-named card in one game, which the report
-    accepts as a documented approximation.
+    Index 0 is the stack top (confirmed in real recordings). Abilities are
+    skipped: the first spell object from index 0 decides. A stack item counts
+    as a spell when its name resolves to card facts; ability names (e.g.
+    "Equip {0}") do not. Name-based approximation, the same idea as the
+    pilot's ``_remember_own_cast`` in ``full_game_pilot/state.py``: stack
+    objects carry no controller, so a top spell whose name matches a spell
+    the actor cast earlier in the game is treated as the actor's own. It can
+    misfire when both seats cast the same-named card in one game, which the
+    report accepts as a documented approximation.
     """
     stack = state.get("stack")
     if not isinstance(stack, list) or not stack:
         return False
-    top = stack[0]
-    if not isinstance(top, dict):
-        return False
-    name = str(top.get("name") or "").strip().casefold()
-    return bool(name) and name in own_names
+    for item in stack:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name") or "").strip()
+        if not name:
+            continue
+        if card_facts(name) is None:
+            continue  # ability or unknown name, not a spell
+        return name.casefold() in own_names
+    return False
 
 
 def _seat(state: dict[str, Any]) -> int:

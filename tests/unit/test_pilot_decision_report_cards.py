@@ -409,3 +409,57 @@ def test_compare_warns_when_per_card_versions_differ() -> None:
     version_warnings = [warning for warning in mixed["warnings"] if "per_card_version" in warning]
     assert len(version_warnings) == 1
     assert "not compared" in version_warnings[0]
+
+
+# ---------------------------------------------------------------------------
+# #882 review: _stack_top_is_own_cast reads the top *spell* — index 0 is the
+# stack top (real recordings), abilities are skipped. Cases from the review
+# table; the first two are the Rotprobe (they fail on the old stack[-1] code).
+# ---------------------------------------------------------------------------
+
+_OWN_SPELL = "ishai, ojutai dragonspeaker"  # casefolded, as stored in own_names
+
+
+def _stack_state(names: list[str]) -> dict[str, Any]:
+    return {"stack": [{"name": name} for name in names]}
+
+
+def test_stack_top_foe_spell_on_top_own_below_offers() -> None:
+    # [opponent spell, own spell]: top spell is foe's -> offer (False).
+    assert (
+        pdr._stack_top_is_own_cast(
+            _stack_state(["Sol Ring", "Ishai, Ojutai Dragonspeaker"]), {_OWN_SPELL}
+        )
+        is False
+    )
+
+
+def test_stack_top_own_spell_on_top_foe_below_withholds() -> None:
+    # [own spell, opponent spell]: top spell is own -> no offer (True).
+    assert (
+        pdr._stack_top_is_own_cast(
+            _stack_state(["Ishai, Ojutai Dragonspeaker", "Sol Ring"]), {_OWN_SPELL}
+        )
+        is True
+    )
+
+
+def test_stack_top_ability_skipped_own_spell_below_withholds() -> None:
+    # [own ability, own spell]: ability skipped, top spell is own -> True.
+    assert (
+        pdr._stack_top_is_own_cast(
+            _stack_state(["Equip {0}", "Ishai, Ojutai Dragonspeaker"]), {_OWN_SPELL}
+        )
+        is True
+    )
+
+
+def test_stack_top_ability_skipped_foe_spell_below_offers() -> None:
+    # [own ability, opponent spell]: ability skipped, top spell is foe's -> False.
+    assert (
+        pdr._stack_top_is_own_cast(_stack_state(["Equip {0}", "Sol Ring"]), {_OWN_SPELL}) is False
+    )
+
+
+def test_stack_top_empty_stack_offers() -> None:
+    assert pdr._stack_top_is_own_cast({"stack": []}, {_OWN_SPELL}) is False
