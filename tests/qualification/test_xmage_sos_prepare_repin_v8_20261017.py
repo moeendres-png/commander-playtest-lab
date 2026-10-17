@@ -108,8 +108,11 @@ def test_successor_lock_binds_the_candidate_its_donor_and_the_prior_pin() -> Non
 
 def test_engine_delta_is_the_declared_files() -> None:
     delta = _lock()["engine_delta"]
-    assert tuple(sorted(delta["engine_module_files"])) == tuple(sorted(ENGINE_FILES))
-    assert all(len(blob) == 40 for blob in delta["engine_module_files"].values())
+    # A list of path/blob objects, not a path -> blob map: a "SecretsOf..." key next to a
+    # 40-hex value is flagged by the broad secret scan as a generic API key.
+    files = delta["engine_module_files"]
+    assert tuple(sorted(item["path"] for item in files)) == tuple(sorted(ENGINE_FILES))
+    assert all(len(item["blob"]) == 40 for item in files)
     assert delta["dependency_change"] is False
     assert delta["build_files_changed"] == []
 

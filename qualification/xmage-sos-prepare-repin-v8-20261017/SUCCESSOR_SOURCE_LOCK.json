@@ -57,11 +57,20 @@
  ],
  "engine_delta": {
   "method": "git diff --stat 16e57239 348b37db -- Mage/src Mage.Sets/src; blob ids from git ls-tree 348b37db",
-  "engine_module_files": {
-   "Mage/src/main/java/mage/abilities/effects/common/BecomePreparedSourceEffect.java": "a801fb96cea51b2386f7e1e7256c8e4db3a365ba",
-   "Mage.Sets/src/mage/cards/c/CoerciveImpetus.java": "0cbf54d0f4b982bee3a00e8e6d837356fbfc4887",
-   "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java": "96a04faa0ea96b6c92892114d4bb60f9af9ca5a2"
-  },
+  "engine_module_files": [
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CoerciveImpetus.java",
+    "blob": "0cbf54d0f4b982bee3a00e8e6d837356fbfc4887"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+    "blob": "96a04faa0ea96b6c92892114d4bb60f9af9ca5a2"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/common/BecomePreparedSourceEffect.java",
+    "blob": "a801fb96cea51b2386f7e1e7256c8e4db3a365ba"
+   }
+  ],
   "dependency_change": false,
   "build_files_changed": [],
   "build_files_note": "no pom.xml or other build file changes; the delta is one engine file, one card file and one set file (plus Mage.Tests)"
