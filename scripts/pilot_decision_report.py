@@ -414,6 +414,52 @@ def _play(
     return row
 
 
+def _play_batch(
+    command: tuple[str, ...],
+    jobs: list[tuple[str, tuple[Any, Any, Any], int]],
+) -> list[dict[str, Any]]:
+    """Play several games in one bridge JVM process (Owner decision 2026-10-15).
+
+    Measurement only; the bridge must be started with
+    -Dcommanderlab.fullGame.gamesPerJvm=N for N >= len(jobs).
+
+    A batched row carries the semantic hash, the winners and a wall time, not the
+    per-decision summary of :func:`_play`: the recording hook cannot tell the
+    games of one process apart without guessing, so ``decisions_recorded`` is
+    False and :func:`totals` keeps those games out of the decision figures. Use
+    the default of one game per JVM for decision, pilot-time and card figures.
+    """
+    game_inputs = []
+    job_metas = []
+    for pod, setup, seed in jobs:
+        scenario, decks, pilots = setup
+        game_inputs.append((scenario.model_copy(update={"seed": seed}), decks, pilots))
+        job_metas.append((pod, seed, len(decks)))
+
+    runner = XmageFullGameRunner(command, private_card_repository=True)
+    started = time.monotonic()
+    outcomes = runner.run_batch(game_inputs)
+    # One JVM plays the whole chunk, so a game has no wall time of its own: every
+    # row carries its share of the chunk, and the shares add up to the chunk total.
+    share = round((time.monotonic() - started) / max(1, len(outcomes)), 2)
+
+    rows: list[dict[str, Any]] = []
+    for (pod, seed, n_players), outcome in zip(job_metas, outcomes, strict=True):
+        row: dict[str, Any] = {"pod": pod, "seed": seed, "players": n_players}
+        if isinstance(outcome, Exception):
+            row |= {"status": "failed", "error": f"{type(outcome).__name__}: {outcome}"[:400]}
+        else:
+            row |= {
+                "status": "ok",
+                "semantic": outcome.semantic_transcript_sha256,
+                "winners": list(outcome.winner_seats),
+            }
+        row |= {"wall_s": share, "decisions_recorded": False}
+        print(json.dumps(row), flush=True)
+        rows.append(row)
+    return rows
+
+
 _TOTALS = (
     "turns",
     "decisions",
@@ -445,29 +491,64 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
     for key in _TOTALS:
         out[key] = round(sum(float(g.get(key, 0)) for g in games), 2)
     if games:
-        out["mean_rounds"] = round(sum(g["rounds"] for g in games) / len(games), 2)
+        # Batched games (--games-per-jvm > 1) carry no decision record; they count
+        # for the wall time but not for the per-decision figures.
+        recorded = [g for g in games if "rounds" in g]
         out["mean_wall_s"] = round(out["wall_s"] / len(games), 1)
-        out["mean_decisions"] = round(out["decisions"] / len(games), 0)
-        # Per-game player count; reports written before ``players`` was stored
-        # fall back to the old 4-player assumption.
-        player_rounds = sum(float(g.get("players", 4)) * g["rounds"] for g in games)
-        out["spells_per_player_round"] = (
-            round(out["spells_cast"] / player_rounds, 2) if player_rounds else 0.0
-        )
+        if len(recorded) < len(games):
+            out["games_without_decision_record"] = len(games) - len(recorded)
+        if recorded:
+            out["mean_rounds"] = round(sum(g["rounds"] for g in recorded) / len(recorded), 2)
+            out["mean_decisions"] = round(out["decisions"] / len(recorded), 0)
+            # Per-game player count; reports written before ``players`` was stored
+            # fall back to the old 4-player assumption.
+            player_rounds = sum(float(g.get("players", 4)) * g["rounds"] for g in recorded)
+            out["spells_per_player_round"] = (
+                round(out["spells_cast"] / player_rounds, 2) if player_rounds else 0.0
+            )
     return out
 
 
 def run(args: argparse.Namespace) -> int:
-    command = bench.bridge_command(args.jar, args.jvm_option)
+    # Validate games_per_jvm (measurement only; evidence lane stays at 1)
+    if args.games_per_jvm < 1:
+        raise ValueError("--games-per-jvm must be positive")
+    jvm_options = list(args.jvm_option)
+    if args.games_per_jvm > 1:
+        jvm_options.append(f"-Dcommanderlab.fullGame.gamesPerJvm={args.games_per_jvm}")
+    command = bench.bridge_command(args.jar, jvm_options)
     setups = {pod: bench._setup(paths) for pod, paths in bench._pods(args.coverage_pods)}
     jobs = [(pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds]
-    if args.workers <= 1:
-        rows = [_play(command, pod, setup, seed) for pod, setup, seed in jobs]
+    run_started = time.monotonic()
+    rows: list[dict[str, Any]]
+    if args.games_per_jvm == 1:
+        # Single game per JVM (default, also used by evidence lane)
+        if args.workers <= 1:
+            rows = [_play(command, pod, setup, seed) for pod, setup, seed in jobs]
+        else:
+            with ProcessPoolExecutor(max_workers=args.workers) as pool:
+                futures = [
+                    pool.submit(_play, command, pod, setup, seed) for pod, setup, seed in jobs
+                ]
+                rows = [future.result() for future in futures]
     else:
-        with ProcessPoolExecutor(max_workers=args.workers) as pool:
-            futures = [pool.submit(_play, command, pod, setup, seed) for pod, setup, seed in jobs]
-            rows = [future.result() for future in futures]
-    report: dict[str, Any] = {"jar": str(args.jar), "games": rows}
+        # Batched: multiple games per JVM (measurement only)
+        size = args.games_per_jvm
+        chunks = [jobs[i : i + size] for i in range(0, len(jobs), size)]
+        if args.workers <= 1:
+            rows = [row for chunk in chunks for row in _play_batch(command, chunk)]
+        else:
+            with ProcessPoolExecutor(max_workers=args.workers) as pool:
+                batch_futures = [pool.submit(_play_batch, command, chunk) for chunk in chunks]
+                rows = [row for future in batch_futures for row in future.result()]
+    elapsed_s = round(time.monotonic() - run_started, 1)
+    report: dict[str, Any] = {
+        "jar": str(args.jar),
+        "games_per_jvm": args.games_per_jvm,
+        "workers": args.workers,
+        "elapsed_s": elapsed_s,
+        "games": rows,
+    }
     report["totals"] = totals(report)
     report["cards"] = aggregate_cards(report)
     args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
@@ -782,6 +863,13 @@ def main(argv: list[str] | None = None) -> int:
     play.add_argument("--coverage-pods", action="store_true")
     play.add_argument("--jvm-option", action="append", default=[])
     play.add_argument("--workers", type=int, default=1)
+    play.add_argument(
+        "--games-per-jvm",
+        type=int,
+        default=1,
+        help="play up to N games in one bridge JVM (default: 1, measurement only). "
+        "Requires the bridge to support -Dcommanderlab.fullGame.gamesPerJvm=N.",
+    )
     play.set_defaults(func=run)
     diff = sub.add_parser("compare")
     diff.add_argument("a", type=Path)
