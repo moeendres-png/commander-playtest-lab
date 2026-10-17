@@ -10,7 +10,6 @@ import mage.game.Game;
 import mage.game.GameCommanderImpl;
 import mage.game.GameOptions;
 import mage.game.events.TableEvent;
-import mage.game.mulligan.MulliganType;
 import mage.players.Player;
 import mage.util.ThreadUtils;
 import mage.util.XmageThreadFactory;
@@ -151,7 +150,7 @@ final class XmageFullGameSession {
         // the engine applies CR 103.8a (see XmageCommanderGames).
         this.game = XmageCommanderGames.create(
                 playerCount,
-                MulliganType.LONDON.getMulligan(freeMulligans),
+                new XmageLondonMulligan(freeMulligans),
                 startingLife
         );
         // WS213 authoritative Rules-RNG binding (WS212 engine contract): the
