@@ -375,7 +375,7 @@ def _failure_class_of(exc: Exception) -> FullGameFailureClass | None:
 
 
 def execute_batch_chunk(
-    runner: Any,
+    runner: XmageFullGameRunner,
     cases: list[FullGameBatchCase],
     run_keys: list[str],
     execution: ExecutionIdentity,
