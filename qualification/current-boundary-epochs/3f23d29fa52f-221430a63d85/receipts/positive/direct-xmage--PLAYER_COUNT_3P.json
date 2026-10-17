@@ -1,0 +1,42 @@
+{
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "execution_mode": "PROTOCOL2_LIFECYCLE",
+  "fixture_id": "PLAYER_COUNT_3P",
+  "obligation_exercised": {
+    "fixture_family": "player_count",
+    "forbidden_events": [
+      "technical_20_life_start"
+    ],
+    "obligation_digest": "e86224bf4b5a5afd547667788af04b607d191d892b075e0089474cbac0450f7b",
+    "requested_state_digest": "2eb3e4b230510ad64f16f73f9b993fad9fd3fbafd766f01ed969c9e3cc8a9339",
+    "required_events": [
+      "game_created",
+      "commander_zones_initialized",
+      "libraries_shuffled",
+      "opening_hands_drawn",
+      "first_turn_started"
+    ],
+    "terminal_postconditions": [
+      "exactly 3 live real players exist",
+      "each player started at 40 life",
+      "each commander began in command zone",
+      "each library was derived from exactly 99 Mountains",
+      "opening hand size is seven after scripted keeps",
+      "turn/priority ring contains exactly the live players"
+    ]
+  },
+  "observed_assertion": {
+    "principal_observation_scope": "engine-offered decision frames for the acting seat",
+    "row_document_sha256": "e751e72ecf2bc08485888fad310cf7f0e3b967f8e6ba8b234509d2380a12c7c8",
+    "semantic_events_sha256": "7361157e560b2f3fbd15c1d33c5ded035735c0f55412f3166340adf92bb0a865",
+    "terminal_facts_sha256": "810233eee0577dcaeae5c85f2dbbc95cc8d2fc3f458f6375eff4895b82ed44a4"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "cda98ca0b5cf5a68c1c2f8918399465f93a6ef2865d62b0f66360e4b5116ba6a",
+  "runner_digest": "45b5babaaade13c43c4d5a7baaff1071b3a3f87221fe052adbfca9a75e54ec29",
+  "runtime_receipt_digest": "e751e72ecf2bc08485888fad310cf7f0e3b967f8e6ba8b234509d2380a12c7c8",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "current-boundary-direct:PROTOCOL2_LIFECYCLE#PLAYER_COUNT_3P"
+}
