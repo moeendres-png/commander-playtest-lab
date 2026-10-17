@@ -1,0 +1,82 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-DMG-CONTROL",
+  "obligation_exercised": {
+    "obligation_digest": "deb4fa5f78913c161fc036af6db449d636851fde1f929d4f9e7378185370ff28",
+    "requested_state_digest": "f04417443daf96f0c3e92e244cbcc8cd9eb8fc14568c99b7ed19bee173b5d508",
+    "required_events": [
+      "commander_combat_damage:P2:2:cmd:P1-A",
+      "player_loses:P2"
+    ],
+    "terminal_checks": [
+      "P2 is at 38 life",
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "Commander identity remains cmd:P1-A despite controller P3; P2 reaches 21 from that same commander and loses."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P2 is at 38 life": true,
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "commander_combat_damage:P2:2:cmd:P1-A": {
+        "binding": [
+          "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:isamaru-controlled, target_player=P2, amount=2, combat=True",
+          "every GAINED_CONTROL event with target_object=obj:isamaru-controlled, player_player=P3 precedes the first DAMAGED_PLAYER event with source_object=obj:isamaru-controlled",
+          "the engine's commander combat damage from P1's Isamaru, Hound of Konda to P2 is 21"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:isamaru-controlled, target_player=P2, amount=2, combat=True",
+            "events": [
+              13
+            ]
+          },
+          {
+            "binding": "every GAINED_CONTROL event with target_object=obj:isamaru-controlled, player_player=P3 precedes the first DAMAGED_PLAYER event with source_object=obj:isamaru-controlled",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the engine's commander combat damage from P1's Isamaru, Hound of Konda to P2 is 21",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "player_loses:P2": {
+        "binding": [
+          "exactly 1 LOST event(s) with player_player=P2",
+          "every DAMAGED_PLAYER event with source_object=obj:isamaru-controlled, target_player=P2, amount=2, combat=True precedes the first LOST event with player_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 LOST event(s) with player_player=P2",
+            "events": [
+              14
+            ]
+          },
+          {
+            "binding": "every DAMAGED_PLAYER event with source_object=obj:isamaru-controlled, target_player=P2, amount=2, combat=True precedes the first LOST event with player_player=P2",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "7b630a8e596d678f1775fbf89f7d5acdbbd22a467e1ebdbb67d1affab9b28358",
+  "runner_digest": "221428d3024a17731b84891ba97ba92f28daa502f14e9fd645dbca7b5754beb3",
+  "runtime_receipt_digest": "2a3fd6d4ca399ca491e5fabcc4c2017e6a5a53b9de6a27ad7e41a1e9d4f08dc7",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-DMG-CONTROL",
+  "variance_source": null
+}

@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-sos-prepare-repin-v8-20261017",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head commit of moeendres-png/mage#61 (merged into claude/xmage-mp-candidate-20260929 as c39ab8a99617496e1880e3cc053a793517b2b238). The native maven.yml run on the exact commit and the Lab bridge suite are PENDING (NOT_RUN != PASS) and are bound by a later commit once seen. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head commit of moeendres-png/mage#61 (merged into claude/xmage-mp-candidate-20260929 as c39ab8a99617496e1880e3cc053a793517b2b238). The native maven.yml run on the exact commit and the Lab bridge suite (XMage Full Game Conformance run 39040295273 against XMage built from exactly 348b37db) are bound below. current_boundary stays REQUALIFICATION_REQUIRED until the epoch of PB-03 on the Lab main merge commit of this repin is sealed with AF11 adjudicated for this pin.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -78,21 +78,44 @@
  "native_qualification": {
   "full_mage_tests": {
    "command": "maven.yml workflow_dispatch on branch claude/project-thread-md70sq of moeendres-png/mage (pull request head of mage#61)",
+   "run_id": 39039483998,
+   "job": 117415870358,
    "commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
-   "status": "PENDING"
+   "run": 7198,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 125,
+   "status": "COMPLETE",
+   "source": "Mage Actions run 39039483998 (maven.yml workflow_dispatch, head 348b37db), job 117415870358, Mage.Tests module summary line 'Tests run: 7198, Failures: 0, Errors: 0, Skipped: 125'",
+   "baseline_at_prior_pin": "7189 run / 125 skipped at 16e57239 (run 38852980732); the pin adds nine tests (EnabledPrepareCardsTest 8, CoerciveImpetusTest 1)"
   },
   "mage_verify": {
-   "result": "PENDING",
-   "detail": "the pre-existing 15 card errors and 3 set errors of the v6 and v7 locks are expected; recorded only once the run is seen"
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "VerifyCardDataTest.test_checkMissingSetData:1230 'Found set errors: 3' (SLZ, FRA, MBC) and VerifyCardDataTest.test_verifyCards:361 'found 15 errors in 91172 cards verify'; the same 15 card errors (Dragon Engine / Traxos subtypes) and 3 set errors as the v6 and v7 locks record. The pin changes no card that is among them."
   }
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "PENDING",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 348b37db for that job, cache keyed by the commit)",
+  "installed_artifacts_commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.61": "sha256 5ac292012fd09d8209d791316a05e05fd70e7d4563b8eefb3ff6adff974c73c6",
+   "org.mage:mage-sets:1.4.61": "sha256 5b67532a93f3309e13f785c977ed592fd18350ef0dc6b36250a4cfa472f235c0"
+  },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance on the repin branch: engine-bridge mvn verify against XMage built from exact 348b37db",
-   "status": "PENDING"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head f0276df394e8597b375c18dbe7a2c89248b2f6c9 (XMAGE_COMMIT=348b37db, checked in the job): engine-bridge mvn verify against XMage built from exact 348b37db",
+   "run": 2029,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 39040295273,
+   "job": 117418301737,
+   "artifact": {
+    "id": 12104082498,
+    "zip_sha256": "ff840438afba1a0d755573e380ff0f6abd7b6fdb06b345ec2d0f29caad56ffdd"
+   },
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8, including loadedCardSetCarriesTheEnabledPrepareCreatures"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedCardSetCarriesTheEnabledPrepareCreatures checks that the loaded Strixhaven set carries the seven enabled cards; the v6 and v7 hooks stay checked."
  },
