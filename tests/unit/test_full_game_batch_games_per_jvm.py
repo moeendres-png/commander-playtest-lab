@@ -129,7 +129,7 @@ def test_n_games_share_a_jvm_and_the_report_says_so(tmp_path: Path) -> None:
     assert isinstance(report, FullGameBatchReportBatched)
     assert report.games_per_jvm == 3
     assert report.one_isolated_jvm_per_executed_game is False
-    assert report.state_isolation_basis == "SHUTDOWN_GAME_AND_TWIN_HASHES_NOT_A_PROCESS_BOUNDARY"
+    assert report.state_isolation_basis == "SHUTDOWN_GAME_ONLY_NOT_A_PROCESS_BOUNDARY"
     assert report.schema_version == "xmage-full-game-batch-report-games-per-jvm-1.0.0"
     assert [r.case_id for r in report.records] == [f"seed-{s}" for s in range(1, 8)]
     assert report.completed_cases == 7
@@ -255,29 +255,57 @@ def test_a_runner_that_cannot_play_several_games_is_refused(tmp_path: Path) -> N
     _batch(_FakeRunner(jar, games_per_jvm=4), tmp_path, 3)
 
 
-def _batch_runner_calls_with_games_per_jvm() -> set[str]:
-    """Files under scripts/ and src/ that pass ``games_per_jvm`` to XmageFullGameBatchRunner."""
+#: Files that may set up or drive a batched run.
+_BATCH_CALLERS = {
+    "scripts/run_full_game_deck_comparison.py",  # the only user of the batch runner's option
+    "scripts/run_collection_coverage_games.py",  # its own sweep, straight on run_batch
+    "scripts/pilot_decision_report.py",  # measurement, straight on run_batch
+    "src/commander_lab/engine/rules/full_game_batch.py",
+    "src/commander_lab/engine/rules/full_game.py",
+}
+
+
+def _files_using_batched_play() -> set[str]:
+    """Files under scripts/ and src/ that can start games in a shared JVM.
+
+    Any keyword or attribute named ``games_per_jvm``, any reference to ``run_batch`` or
+    ``execute_batch_chunk``, and any ``XmageFullGameBatchRunner(...)`` call that takes ``**``
+    keywords (which could carry the option unseen).
+    """
+    watched = {"games_per_jvm", "run_batch", "execute_batch_chunk"}
     found: set[str] = set()
     for folder in ("scripts", "src"):
         for path in sorted((ROOT / folder).rglob("*.py")):
-            tree = ast.parse(path.read_text(encoding="utf-8"))
-            for node in ast.walk(tree):
-                if not isinstance(node, ast.Call):
-                    continue
-                name = getattr(node.func, "id", getattr(node.func, "attr", ""))
-                if name == "XmageFullGameBatchRunner" and any(
-                    kw.arg == "games_per_jvm" for kw in node.keywords
+            rel = path.relative_to(ROOT).as_posix()
+            for node in ast.walk(ast.parse(path.read_text(encoding="utf-8"))):
+                name = ""
+                if isinstance(node, ast.keyword):
+                    name = node.arg or ""
+                elif isinstance(node, ast.Attribute):
+                    name = node.attr
+                elif isinstance(node, ast.Name):
+                    name = node.id
+                elif isinstance(node, ast.alias):
+                    name = node.name
+                if name in watched:
+                    found.add(rel)
+                if (
+                    isinstance(node, ast.Call)
+                    and getattr(node.func, "id", getattr(node.func, "attr", ""))
+                    == "XmageFullGameBatchRunner"
+                    and any(kw.arg is None for kw in node.keywords)
                 ):
-                    found.add(path.relative_to(ROOT).as_posix())
+                    found.add(rel)
     return found
 
 
-def test_only_the_deck_comparison_script_may_batch_games() -> None:
+def test_only_known_files_can_batch_games() -> None:
     """The evidence and gate lanes keep one game per process (Owner decision 2026-10-15)."""
-    assert _batch_runner_calls_with_games_per_jvm() <= {"scripts/run_full_game_deck_comparison.py"}
+    users = _files_using_batched_play()
+    assert users - _BATCH_CALLERS == set(), users - _BATCH_CALLERS
     for gate in ("run_real_deck_gate.py", "run_optimizer_v2_full_game_route.py"):
         assert "XmageFullGameBatchRunner(" in (ROOT / "scripts" / gate).read_text(encoding="utf-8")
-        assert gate not in " ".join(_batch_runner_calls_with_games_per_jvm())
+        assert f"scripts/{gate}" not in users
 
 
 # --- the deck comparison script -------------------------------------------------------------
@@ -350,7 +378,10 @@ def test_the_cli_refuses_a_non_positive_games_per_jvm() -> None:
 
 
 def _run_cli(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, extra: list[str]
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    extra: list[str],
+    env_command: tuple[str, ...] | None = None,
 ) -> tuple[dict[str, Any], list[tuple[str, ...]]]:
     """Run main() against a fake bridge; returns COMPARISON_REPORT.json and the commands used."""
     import json
@@ -375,7 +406,7 @@ def _run_cli(
 
         @staticmethod
         def command_from_environment() -> tuple[str, ...]:
-            return ("java", "-jar", str(jar), "full-game")
+            return env_command or ("java", "-jar", str(jar), "full-game")
 
         def run(self, *, scenario: Any, decks: Any, pilots: Any) -> FullGameConformanceResult:
             return _conformance(scenario, (1,))
@@ -407,10 +438,7 @@ def test_the_cli_batches_when_asked_and_says_so_in_the_report(
     assert commands[0][1] == f"-D{GAMES_PER_JVM_PROPERTY}=2"
     assert payload["batch"]["games_per_jvm"] == 2
     assert payload["batch"]["one_isolated_jvm_per_executed_game"] is False
-    assert (
-        payload["batch"]["state_isolation_basis"]
-        == "SHUTDOWN_GAME_AND_TWIN_HASHES_NOT_A_PROCESS_BOUNDARY"
-    )
+    assert payload["batch"]["state_isolation_basis"] == "SHUTDOWN_GAME_ONLY_NOT_A_PROCESS_BOUNDARY"
     assert payload["batch"]["completed_cases"] == 4
 
 
@@ -427,3 +455,54 @@ def test_the_cli_report_is_unchanged_without_the_option(
         "workers",
         "parallelism",
     }
+
+
+def test_a_default_run_never_resumes_batched_records_even_if_the_env_command_has_the_property(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # The bridge command of the environment already carries the property. A batched run and
+    # an ordinary run must still get different run keys, or the ordinary run would resume
+    # the batched records and report them as one isolated JVM per game.
+    env = ("java", f"-D{GAMES_PER_JVM_PROPERTY}=4", "-jar", str(_jar(tmp_path)), "full-game")
+    batched, _ = _run_cli(tmp_path, monkeypatch, ["--games-per-jvm", "4"], env_command=env)
+    assert batched["batch"]["completed_cases"] == 4
+    ordinary, commands = _run_cli(tmp_path, monkeypatch, [], env_command=env)
+    assert ordinary["batch"]["resumed_cases"] == 0
+    assert ordinary["batch"]["completed_cases"] == 4
+    assert "games_per_jvm" not in ordinary["batch"]
+    assert not any(GAMES_PER_JVM_PROPERTY in part for part in commands[0])
+
+
+def test_a_one_game_runner_refuses_a_command_that_still_has_the_property(tmp_path: Path) -> None:
+    runner = _FakeRunner(_jar(tmp_path), games_per_jvm=4)
+    with pytest.raises(ValueError, match="one game per JVM"):
+        XmageFullGameBatchRunner(runner, tmp_path / "out")  # type: ignore[arg-type]
+    # batched is fine, and so is a command without the property
+    _batch(runner, tmp_path, 4)
+    XmageFullGameBatchRunner(_PlainRunner(_jar(tmp_path)), tmp_path / "out")  # type: ignore[arg-type]
+
+
+class _RaisingBatchRunner(_FakeRunner):
+    """run_batch raises as a whole, as it does when a replacement bridge process cannot start."""
+
+    def run_batch(self, games: Any) -> list[FullGameConformanceResult | Exception]:
+        raise FullGameProtocolError("BRIDGE_START_FAILED: no process")
+
+
+def test_a_chunk_that_raises_as_a_whole_fails_every_case_of_the_chunk(tmp_path: Path) -> None:
+    runner = _RaisingBatchRunner(_jar(tmp_path), games_per_jvm=3)
+    report = _batch(runner, tmp_path, 3).run(_cases(1, 2, 3, 4))
+    assert report.failed_cases == 4
+    assert report.completed_cases == 0
+    assert {r.failure_class for r in report.records} == {FullGameFailureClass.PROTOCOL}
+
+
+class _ShortBatchRunner(_FakeRunner):
+    def run_batch(self, games: Any) -> list[FullGameConformanceResult | Exception]:
+        return super().run_batch(games)[:-1]
+
+
+def test_a_chunk_that_loses_an_outcome_is_an_error_not_a_silent_gap(tmp_path: Path) -> None:
+    runner = _ShortBatchRunner(_jar(tmp_path), games_per_jvm=3)
+    with pytest.raises(RuntimeError, match="lost an outcome"):
+        _batch(runner, tmp_path, 3).run(_cases(1, 2, 3))

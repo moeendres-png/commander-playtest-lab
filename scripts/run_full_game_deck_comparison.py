@@ -463,11 +463,13 @@ def main(argv: list[str] | None = None) -> int:
     if command is None:
         print("set COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD first", file=sys.stderr)
         return 2
+    # Always set the property explicitly: a batched run and an ordinary run must never share a
+    # run key, whatever the environment command already carries.
+    command = command_with_games_per_jvm(command, args.games_per_jvm)
     if args.games_per_jvm > 1:
-        command = command_with_games_per_jvm(command, args.games_per_jvm)
         print(
             f"games per JVM: {args.games_per_jvm}. State isolation between the games of a "
-            "batch is by shutdown_game and twin hashes, not by a process boundary."
+            "batch is by shutdown_game, not by a process boundary."
         )
     runner = XmageFullGameRunner(
         command,

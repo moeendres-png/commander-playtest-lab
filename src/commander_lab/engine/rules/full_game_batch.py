@@ -153,14 +153,14 @@ class FullGameBatchReportBatched(FullGameBatchReport):
     :class:`FullGameBatchReport` claims one isolated JVM per executed game; that is false
     here, so this is a separate type with its own schema version instead of a relaxed flag
     on the evidence report. State isolation between games rests on ``shutdown_game``
-    between them and on twin hashes, not on a process boundary.
+    between them, not on a process boundary; this runner does not compare twin hashes.
     """
 
     schema_version: _BatchedSchema = _BATCHED_SCHEMA  # type: ignore[assignment]
     one_isolated_jvm_per_executed_game: Literal[False] = False  # type: ignore[assignment]
     games_per_jvm: int = Field(ge=2)
-    state_isolation_basis: Literal["SHUTDOWN_GAME_AND_TWIN_HASHES_NOT_A_PROCESS_BOUNDARY"] = (
-        "SHUTDOWN_GAME_AND_TWIN_HASHES_NOT_A_PROCESS_BOUNDARY"
+    state_isolation_basis: Literal["SHUTDOWN_GAME_ONLY_NOT_A_PROCESS_BOUNDARY"] = (
+        "SHUTDOWN_GAME_ONLY_NOT_A_PROCESS_BOUNDARY"
     )
 
 
@@ -169,7 +169,8 @@ def command_with_games_per_jvm(command: tuple[str, ...], games_per_jvm: int) -> 
 
     The property goes right after the executable, so it is part of the command and therefore
     of the execution identity: records of a batched run are never reused by a run with another
-    value, and never by an ordinary one-game-per-JVM run.
+    value. For ``games_per_jvm == 1`` the property is removed, so an ordinary one-game-per-JVM
+    run never shares a run key with a batched one, whatever the environment command carries.
     """
     if games_per_jvm < 1:
         raise ValueError("games_per_jvm must be positive")
@@ -487,11 +488,16 @@ class XmageFullGameBatchRunner:
     ) -> None:
         if games_per_jvm < 1:
             raise ValueError("games_per_jvm must be positive")
+        command = tuple(getattr(runner, "command", None) or ())
+        if games_per_jvm == 1 and _games_per_jvm_permitted(command) > 1:
+            raise ValueError(
+                f"the bridge command carries -D{GAMES_PER_JVM_PROPERTY}; "
+                "one game per JVM needs it removed (command_with_games_per_jvm)"
+            )
         if games_per_jvm > 1:
             if not hasattr(runner, "run_batch"):
                 raise ValueError("games_per_jvm > 1 needs a runner with run_batch")
-            permitted = _games_per_jvm_permitted(tuple(getattr(runner, "command", None) or ()))
-            if permitted < games_per_jvm:
+            if _games_per_jvm_permitted(command) < games_per_jvm:
                 raise ValueError(
                     f"start the bridge with -D{GAMES_PER_JVM_PROPERTY}={games_per_jvm} or more "
                     "(command_with_games_per_jvm)"
@@ -761,13 +767,17 @@ class XmageFullGameBatchRunner:
 
 
 __all__ = [
+    "GAMES_PER_JVM_PROPERTY",
     "BatchParallelism",
     "ExecutionIdentity",
     "FullGameBatchCase",
     "FullGameBatchRecord",
     "FullGameBatchReport",
+    "FullGameBatchReportBatched",
     "FullGameFailureClass",
     "XmageFullGameBatchRunner",
+    "command_with_games_per_jvm",
     "execute_batch_case",
+    "execute_batch_chunk",
     "execution_identity_of",
 ]
