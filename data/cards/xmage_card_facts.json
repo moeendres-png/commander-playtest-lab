@@ -1,5 +1,5 @@
 {
- "card_count": 2097,
+ "card_count": 2104,
  "cards": {
   "Abbey Griffin": {
    "engine_name": "Abbey Griffin",
@@ -3419,6 +3419,25 @@
     "SORCERY"
    ]
   },
+  "Blazing Firesinger": {
+   "engine_name": "Blazing Firesinger",
+   "loyalty": null,
+   "mana_cost": "{2}{R}",
+   "mana_value": 3.0,
+   "power": 2.0,
+   "rules": [
+    "{this} enters prepared."
+   ],
+   "subtypes": [
+    "Dwarf",
+    "Bard"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Blazing Specter": {
    "engine_name": "Blazing Specter",
    "loyalty": null,
@@ -5535,6 +5554,25 @@
     "CREATURE"
    ]
   },
+  "Cheerful Osteomancer": {
+   "engine_name": "Cheerful Osteomancer",
+   "loyalty": null,
+   "mana_cost": "{3}{B}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "{this} enters prepared."
+   ],
+   "subtypes": [
+    "Orc",
+    "Warlock"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Child of Night": {
    "engine_name": "Child of Night",
    "loyalty": null,
@@ -6080,7 +6118,7 @@
    "power": null,
    "rules": [
     "Enchant creature",
-    "Enchanted creature gets +2/+2 and is goaded.",
+    "Enchanted creature gets +1/+1 and is goaded.",
     "Whenever enchanted creature attacks, draw a card and you lose 1 life."
    ],
    "subtypes": [
@@ -13580,6 +13618,25 @@
    ],
    "supertypes": [],
    "toughness": 1.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Goblin Glasswright": {
+   "engine_name": "Goblin Glasswright",
+   "loyalty": null,
+   "mana_cost": "{1}{R}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "{this} enters prepared."
+   ],
+   "subtypes": [
+    "Goblin",
+    "Sorcerer"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
    "types": [
     "CREATURE"
    ]
@@ -28281,6 +28338,28 @@
     "SORCERY"
    ]
   },
+  "Sanar, Unfinished Genius": {
+   "engine_name": "Sanar, Unfinished Genius",
+   "loyalty": null,
+   "mana_cost": "{U}{R}",
+   "mana_value": 2.0,
+   "power": 0.0,
+   "rules": [
+    "{this} enters prepared.",
+    "{T}: Create a Treasure token. Activate only if you've cast an instant or sorcery spell this turn."
+   ],
+   "subtypes": [
+    "Goblin",
+    "Sorcerer"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
+   "toughness": 4.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Sanctum Plowbeast": {
    "engine_name": "Sanctum Plowbeast",
    "loyalty": null,
@@ -31253,6 +31332,26 @@
     "CREATURE"
    ]
   },
+  "Spellbook Seeker": {
+   "engine_name": "Spellbook Seeker",
+   "loyalty": null,
+   "mana_cost": "{3}{U}",
+   "mana_value": 4.0,
+   "power": 3.0,
+   "rules": [
+    "Flying",
+    "{this} enters prepared."
+   ],
+   "subtypes": [
+    "Bird",
+    "Wizard"
+   ],
+   "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Sphere of the Suns": {
    "engine_name": "Sphere of the Suns",
    "loyalty": null,
@@ -32461,6 +32560,25 @@
     "CREATURE"
    ]
   },
+  "Studious First-Year": {
+   "engine_name": "Studious First-Year",
+   "loyalty": null,
+   "mana_cost": "{G}",
+   "mana_value": 1.0,
+   "power": 1.0,
+   "rules": [
+    "{this} enters prepared."
+   ],
+   "subtypes": [
+    "Bear",
+    "Wizard"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
   "Study Hall": {
    "engine_name": "Study Hall",
    "loyalty": null,
@@ -33531,6 +33649,27 @@
     "Ally"
    ],
    "supertypes": [],
+   "toughness": 3.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Tam, Observant Sequencer": {
+   "engine_name": "Tam, Observant Sequencer",
+   "loyalty": null,
+   "mana_cost": "{2}{G}{U}",
+   "mana_value": 4.0,
+   "power": 4.0,
+   "rules": [
+    "<i>Landfall</i> &mdash; Whenever a land you control enters, {this} becomes prepared."
+   ],
+   "subtypes": [
+    "Gorgon",
+    "Wizard"
+   ],
+   "supertypes": [
+    "LEGENDARY"
+   ],
    "toughness": 3.0,
    "types": [
     "CREATURE"
@@ -39298,15 +39437,7 @@
    ]
   }
  },
- "missing": [
-  "Blazing Firesinger",
-  "Cheerful Osteomancer",
-  "Goblin Glasswright",
-  "Sanar, Unfinished Genius",
-  "Spellbook Seeker",
-  "Studious First-Year",
-  "Tam, Observant Sequencer"
- ],
+ "missing": [],
  "schema_version": "xmage-card-facts-1.0.0",
  "source": "pinned XMage card repository (engine bridge cards.h2)"
 }

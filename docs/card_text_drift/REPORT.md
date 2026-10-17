@@ -6,9 +6,9 @@ real-deck cards (basic lands excluded).
 ## Counts
 
 - A (structural field differs): 2
-- B (numbers or keywords differ): 5
+- B (numbers or keywords differ): 4
 - C (similarity < 0.8): 59
-- OK: 674
+- OK: 675
 - EXPORT_GAP (facts export lacks the field): 7
 - Excluded basic lands: 5 (Forest, Island, Mountain, Plains, Swamp)
 - Missing from a data file: 165
@@ -33,7 +33,6 @@ in-game check.
 | The Fantasticar | EXPORT_GAP | EXPORT_GAP | Flying Whenever you cast a noncreature spell, you may have The Fantasticar become an artifact creature until end of turn… | Flying Whenever you cast a noncreature spell, you may have {this} become an artifact creature until end of turn. Wheneve… | engine facts export has null for a field the printed card defines | Re-run scripts/export_xmage_card_facts.py and check whether the field is present for The Fantasticar. |
 | Uthros Research Craft | EXPORT_GAP | EXPORT_GAP | Station (Tap another creature you control: Put charge counters equal to its power on this Spacecraft. Station only as a … | Station <i>(Tap another creature you control: Put charge counters equal to its power on {this}. Station only as a sorcer… | engine facts export has null for a field the printed card defines | Re-run scripts/export_xmage_card_facts.py and check whether the field is present for Uthros Research Craft. |
 | Chrome Host Seedshark | B | UNSURE | Flying Whenever you cast a noncreature spell, incubate X, where X is that spell's mana value. (Create an Incubator token… | Flying Whenever you cast a noncreature spell, incubate X, where X is that spell's mana value. | keyword set differs: keywords only in oracle ['transform'] / only in engine [] |  |
-| Coercive Impetus | B | DIFFERENT | Enchant creature Enchanted creature gets +1/+1 and is goaded. (It attacks each combat if able and attacks a player other… | Enchant creature Enchanted creature gets +2/+2 and is goaded. Whenever enchanted creature attacks, draw a card and you l… | number multiset differs: numbers only in oracle ['1', '1'] / only in engine ['2', '2'] | Cast Coercive Impetus in a real game and observe whether the listed ability/number/condition behaves as printed. |
 | Invisible Woman | B | DIFFERENT | At the beginning of combat on your turn, if you've cast a noncreature spell this turn, create a 0/3 colorless Wall creat… | At the beginning of combat on your turn, if you've cast a noncreature spell this turn, create a 0/3 colorless Wall creat… | number multiset differs: numbers only in oracle ['1'] / only in engine [] | Cast Invisible Woman in a real game and observe whether the listed ability/number/condition behaves as printed. |
 | Kirol, History Buff // Pack a Punch | B | UNSURE |  |  | keyword set differs: keywords only in oracle ['mill'] / only in engine [] |  |
 | Opal Palace | B | DIFFERENT | {T}: Add {C}. {1}, {T}: Add one mana of any color in your commander's color identity. If you spend this mana to cast you… | {T}: Add {C}. {1}, {T}: Add one mana of any color in your commander's color identity. | number multiset differs: numbers only in oracle ['1', '1'] / only in engine [] | Cast Opal Palace in a real game and observe whether the listed ability/number/condition behaves as printed. |

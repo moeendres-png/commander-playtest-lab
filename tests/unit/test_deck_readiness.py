@@ -75,11 +75,16 @@ def test_invented_card_is_no_card_facts() -> None:
     assert report.counts[CardReadinessStatus.NO_CARD_FACTS] == 1
 
 
-def test_missing_in_xmage_is_reported() -> None:
-    missing: list[str] = _FACTS["missing"]
-    assert missing, "the fixture facts need a missing entry"
-    deck = _deck([missing[0], *_known_names()[1:100]])
-    report = check_deck(deck)
+def test_missing_in_xmage_is_reported(tmp_path: Path) -> None:
+    # The live engine may know every card (the repo facts then list none as missing), so
+    # the missing entry comes from a facts file written here.
+    missing_name = "Card The Engine Does Not Implement"
+    facts_path = tmp_path / "xmage_card_facts.json"
+    facts_path.write_text(
+        json.dumps({**_FACTS, "missing": [missing_name]}, ensure_ascii=False), encoding="utf-8"
+    )
+    deck = _deck([missing_name, *_known_names()[1:100]])
+    report = check_deck(deck, facts_path=facts_path)
     assert report.ready is False
     assert report.cards[0].status is CardReadinessStatus.KNOWN_MISSING_IN_XMAGE
     assert report.counts[CardReadinessStatus.KNOWN_MISSING_IN_XMAGE] == 1
