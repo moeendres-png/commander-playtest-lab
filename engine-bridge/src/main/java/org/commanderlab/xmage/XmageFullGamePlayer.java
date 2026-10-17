@@ -1486,7 +1486,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     @Override
     public boolean chooseTarget(Outcome outcome, Target target, Ability source, Game game) {
-        return chooseTargetInternal(outcome, true, target, source, game, null, null);
+        JsonObject supplied = null;
+        // #866: the engine's London mulligan asks for its bottom card through
+        // this callback, not through choose(Outcome, Cards, ...). The marker
+        // is set by the engine path itself (XmageLondonMulligan), never
+        // derived from prompt text (F-RULES-03).
+        if (XmageLondonMulligan.londonBottomInProgress()) {
+            supplied = new JsonObject();
+            supplied.addProperty("bottom_of_library_selection", true);
+        }
+        return chooseTargetInternal(outcome, true, target, source, game, null, supplied);
     }
 
     @Override
