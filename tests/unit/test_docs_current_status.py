@@ -3,8 +3,8 @@
 config/rules_engines.json is the machine-readable status (read only here).
 When architecture_freeze.status == "CLAIMED", the present-tense orientation
 documents in ORIENTATION_DOCS must not repeat the stale NOT CLAIMED /
-NOT SELECTED status. Dated historical records (docs/archive/**, dated
-folders) are deliberately not covered: they describe their own moment.
+NOT SELECTED status. Dated historical records are deliberately not covered:
+they describe their own moment.
 """
 
 from __future__ import annotations
