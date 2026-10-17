@@ -23,8 +23,11 @@ import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.costs.mana.ManaCosts;
 import mage.abilities.mana.ManaOptions;
+import mage.abilities.keyword.CastFromGraveyardAbility;
 import mage.cards.Card;
 import mage.cards.Cards;
+import mage.cards.ModalDoubleFacedCard;
+import mage.cards.SplitCard;
 import mage.cards.decks.Deck;
 import mage.choices.Choice;
 import mage.constants.ManaType;
@@ -1281,16 +1284,24 @@ final class XmageFullGamePlayer extends PlayerImpl {
     }
 
     /**
-     * The ability whose targets the engine chooses for a cast. For most
-     * spells that is the ability the pilot picked; a Flashback (or Harmonize)
-     * ability carries no targets itself, the engine puts a copy of the card's
-     * own spell ability on the stack ({@code getSpellAbilityToResolve}).
+     * The ability whose targets the engine chooses for a cast, read without
+     * side effects. For most spells that is the ability the pilot picked. A
+     * Flashback (or Harmonize) ability carries no targets itself, the engine
+     * casts a copy of the card's own spell ability. The engine's
+     * {@code getSpellAbilityToResolve} is NOT used here: on the pilot's
+     * original ability it registers a replacement effect ("exile it if it
+     * leaves the stack") on every call, which a reversed cast must not leave
+     * behind (#864). Split and modal double-faced cards pick a half by name;
+     * they are not resolved here, so they keep failing closed.
      */
     private static Ability castSpellAbility(Ability casting, Game game) {
-        if (casting instanceof SpellAbility) {
-            SpellAbility toResolve = ((SpellAbility) casting).getSpellAbilityToResolve(game);
-            if (toResolve != null) {
-                return toResolve;
+        if (casting instanceof CastFromGraveyardAbility) {
+            Card card = game.getCard(casting.getSourceId());
+            if (card != null
+                    && !(card instanceof SplitCard)
+                    && !(card instanceof ModalDoubleFacedCard)
+                    && card.getSpellAbility() != null) {
+                return card.getSpellAbility();
             }
         }
         return casting;

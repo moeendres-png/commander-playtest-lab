@@ -233,6 +233,7 @@ class XmageFullGameEngineReversalTest {
                 List.of(XmageMultiplayerScenario.obj("P1", "Purify the Grave", 0, Zone.GRAVEYARD),
                         XmageMultiplayerScenario.obj("P1", "Plains", 1, Zone.BATTLEFIELD)));
         Game game = s.session.restorationGame();
+        int replacementEffectsBefore = game.getContinuousEffects().getReplacementEffects().size();
 
         s.submit(s.action("activate_ability", "Flashback"));
 
@@ -245,6 +246,8 @@ class XmageFullGameEngineReversalTest {
         assertTrue(s.seats.get("P1").getGraveyard().getCards(game).stream()
                         .anyMatch(c -> "Purify the Grave".equals(c.getName())),
                 "Purify the Grave is still in the graveyard");
+        assertEquals(replacementEffectsBefore, game.getContinuousEffects().getReplacementEffects().size(),
+                "a reversed cast leaves no replacement effect behind (the guard only reads)");
     }
 
     private static SpellAbility spellInHand(XmageMultiplayerScenario s, Game game, String name) {
