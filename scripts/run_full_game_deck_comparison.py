@@ -37,6 +37,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import os
 import sys
 from collections.abc import Callable
@@ -53,11 +54,14 @@ from commander_lab.engine.rules.full_game_batch import (
     execution_identity_of,
 )
 from commander_lab.engine.rules.full_game_comparison import (
+    DIFFERENCE_Z80,
+    DIFFERENCE_Z95,
     DeckComparisonReport,
     DeckComparisonSpec,
     SwapSpecError,
     aggregate_comparison,
     apply_swaps,
+    pairs_needed,
     parse_swaps,
     plan_comparison_cases,
     sequential_look_alpha,
@@ -187,6 +191,42 @@ def print_readiness_summary(
     return ready
 
 
+def _precision_lines(row: dict[str, Any]) -> list[str]:
+    """One extra line per variant with the precision figures (#870).
+
+    Every new key is read with ``.get``: payloads stored before #870 (and the
+    optimizer route, which prints the same payload shape) keep printing the
+    old lines unchanged. The per-pair sd is recovered from the detectable
+    difference, so the summary needs no extra stored field.
+    """
+    interval = row.get("win_share_difference_interval_95")
+    detectable = row.get("detectable_difference_80pct_power")
+    difference = row.get("win_share_difference")
+    pairs = row.get("pairs_completed")
+    if (
+        not isinstance(interval, dict)
+        or not isinstance(interval.get("low"), (int, float))
+        or not isinstance(interval.get("high"), (int, float))
+        or not isinstance(detectable, (int, float))
+        or not isinstance(difference, (int, float))
+        or not isinstance(pairs, int)
+        or pairs < 2
+    ):
+        return []
+    sd = detectable * math.sqrt(pairs) / (DIFFERENCE_Z95 + DIFFERENCE_Z80)
+    lines = [
+        f"{row['variant_deck_id']} vs {row['baseline_deck_id']}: "
+        f"difference {difference:+.2f} "
+        f"(95% {interval['low']:+.2f}..{interval['high']:+.2f}), "
+        f"run could detect >= {detectable:.2f}; "
+        f"0.10 needs ~{pairs_needed(0.10, sd)} pairs, "
+        f"0.05 needs ~{pairs_needed(0.05, sd)} pairs"
+    ]
+    if row.get("underpowered"):
+        lines.append(f"UNDERPOWERED: {row['verdict']} here is not evidence of no effect")
+    return lines
+
+
 def _summary_lines(report_json: dict[str, Any]) -> list[str]:
     lines: list[str] = []
     for row in report_json["contenders"]:
@@ -209,6 +249,7 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
             f"identical pairs {row['identical_pairs']}, "
             f"p={row['sign_test_p_value']:.3g})"
         )
+        lines.extend(_precision_lines(row))
     sequential = report_json.get("sequential")
     if sequential is not None:
         lines.append(

@@ -49,6 +49,15 @@ DEFAULT_DECISION_POLICY_VERSION = "xmage-full-game-policy-1.0.0"
 DEFAULT_BRIDGE_VERSION = "xmage-engine-bridge-0.1.0-SNAPSHOT"
 # Two-sided 95% normal quantile for the Wilson interval.
 _Z95 = 1.959963984540054
+# Two-sided 95% normal quantile for the paired-difference interval (#870).
+# The wrong-reason control in tests/unit/test_comparison_precision.py patches
+# this to 1.0; keep the name stable.
+DIFFERENCE_Z95 = 1.96
+# One-sided 80% normal quantile for the detectable difference (#870).
+DIFFERENCE_Z80 = 0.8416
+# A non-decided verdict counts as underpowered when the detectable difference
+# is above this win-share fraction (#870).
+UNDERPOWERED_ABOVE = 0.10
 
 
 class _StrictModel(BaseModel):
@@ -340,6 +349,17 @@ class WinInterval(_StrictModel):
     high: float = Field(ge=0.0, le=1.0)
 
 
+class DifferenceInterval(_StrictModel):
+    """95% normal interval of a paired win-share difference.
+
+    Unlike :class:`WinInterval` this is a difference of two win shares, so
+    ``low`` and ``high`` may be negative and are not limited to 0..1.
+    """
+
+    low: float
+    high: float
+
+
 def wilson_interval(successes: float, trials: int, z: float = _Z95) -> WinInterval:
     """Wilson score interval; a shared win counts fractionally."""
     if trials <= 0:
@@ -359,6 +379,47 @@ def sign_test_p_value(variant_only: int, baseline_only: int) -> float:
     k = min(variant_only, baseline_only)
     tail = sum(math.comb(n, i) for i in range(k + 1)) / float(2**n)
     return min(1.0, 2 * tail)
+
+
+def _paired_difference_stats(
+    differences: Sequence[float],
+) -> tuple[DifferenceInterval | None, float | None]:
+    """95% interval and 80%-power detectable difference of the mean difference.
+
+    Normal approximation on the sample standard deviation of the per-pair
+    differences ``d_i`` (variant share minus baseline share): the interval is
+    ``mean(d) +/- 1.96 * sd / sqrt(n)`` and the detectable difference
+    ``(1.96 + 0.8416) * sd / sqrt(n)`` (#870). Returns ``(None, None)`` for
+    fewer than 2 pairs or zero spread: with no variation the run saw nothing
+    to put an interval on.
+    """
+    n = len(differences)
+    if n < 2:
+        return None, None
+    mean = sum(differences) / n
+    sd = math.sqrt(sum((d - mean) ** 2 for d in differences) / (n - 1))
+    if sd == 0.0:
+        return None, None
+    half_width = DIFFERENCE_Z95 * sd / math.sqrt(n)
+    return (
+        DifferenceInterval(low=mean - half_width, high=mean + half_width),
+        (DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / math.sqrt(n),
+    )
+
+
+def pairs_needed(difference: float, sd: float, alpha: float = 0.05, power: float = 0.80) -> int:
+    """Pairs needed to detect a win-share ``difference`` at the given power (#870).
+
+    Normal approximation: ``ceil(((1.96 + 0.8416) * sd / difference) ** 2)``
+    from the per-pair standard deviation ``sd``. ``alpha`` and ``power``
+    document the 95%/80% levels the constants encode; other levels would need
+    other quantiles.
+    """
+    if difference <= 0.0:
+        raise ValueError("difference must be positive")
+    if sd < 0.0:
+        raise ValueError("sd must be non-negative")
+    return math.ceil(((DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / difference) ** 2)
 
 
 def sequential_looks_planned(seed_count: int, look_every: int) -> int:
@@ -432,6 +493,19 @@ class PairedVariantResult(_StrictModel):
     identical_pairs: int = Field(default=0, ge=0)
     sign_test_p_value: float = Field(ge=0.0, le=1.0)
     verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER", "NO_CLEAR_DIFFERENCE", "INSUFFICIENT"]
+    # 95% normal interval of the mean paired win-share difference (#870).
+    # The pairs are treated as independent although the seat rotations of one
+    # seed share a shuffle, so the interval is slightly narrow; the sign-test
+    # verdict is unchanged. None for fewer than 2 pairs or zero spread.
+    win_share_difference_interval_95: DifferenceInterval | None = None
+    # Smallest win-share difference this run could have detected at 80% power
+    # (#870). None when the interval is None.
+    detectable_difference_80pct_power: float | None = None
+    # True exactly when the verdict is NO_CLEAR_DIFFERENCE or INSUFFICIENT and
+    # the detectable difference is above UNDERPOWERED_ABOVE (#870): the run
+    # was too small to rule out a meaningful edge, so the verdict is not
+    # evidence of no effect.
+    underpowered: bool = False
 
 
 class DeckComparisonReport(_StrictModel):
@@ -547,6 +621,10 @@ def aggregate_comparison(
         variant_only = sum(1 for left, right in pairs if right > left)
         baseline_only = sum(1 for left, right in pairs if left > right)
         p_value = sign_test_p_value(variant_only, baseline_only)
+        # Per-pair differences: identical pairs and shared wins are 0 or
+        # fractional, and they narrow the interval like any other pair (#870).
+        differences = [right - left for left, right in pairs]
+        interval_95, detectable = _paired_difference_stats(differences)
         if not pairs:
             verdict: Literal[
                 "VARIANT_BETTER", "BASELINE_BETTER", "NO_CLEAR_DIFFERENCE", "INSUFFICIENT"
@@ -566,6 +644,11 @@ def aggregate_comparison(
                 verdict = "BASELINE_BETTER"
             else:
                 verdict = "NO_CLEAR_DIFFERENCE"
+        underpowered = (
+            verdict in ("NO_CLEAR_DIFFERENCE", "INSUFFICIENT")
+            and detectable is not None
+            and detectable > UNDERPOWERED_ABOVE
+        )
         paired.append(
             PairedVariantResult(
                 variant_deck_id=variant.deck_id,
@@ -580,6 +663,9 @@ def aggregate_comparison(
                 identical_pairs=identical,
                 sign_test_p_value=p_value,
                 verdict=verdict,
+                win_share_difference_interval_95=interval_95,
+                detectable_difference_80pct_power=detectable,
+                underpowered=underpowered,
             )
         )
 
@@ -597,9 +683,13 @@ def aggregate_comparison(
 
 __all__ = [
     "COMPARISON_EVIDENCE_CLASS",
+    "DIFFERENCE_Z80",
+    "DIFFERENCE_Z95",
+    "UNDERPOWERED_ABOVE",
     "ContenderSummary",
     "DeckComparisonReport",
     "DeckComparisonSpec",
+    "DifferenceInterval",
     "PairedVariantResult",
     "SlotAlignment",
     "SwapSpecError",
@@ -609,6 +699,7 @@ __all__ = [
     "aligned_contenders",
     "apply_swaps",
     "case_id",
+    "pairs_needed",
     "parse_swaps",
     "plan_comparison_cases",
     "pod_decks",
