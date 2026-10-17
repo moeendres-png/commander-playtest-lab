@@ -139,6 +139,61 @@ class FullGameBatchReport(_StrictModel):
         return self
 
 
+#: The bridge JVM property that lets one process play several games (Owner decision 2026-10-15).
+GAMES_PER_JVM_PROPERTY = "commanderlab.fullGame.gamesPerJvm"
+
+
+_BATCHED_SCHEMA = "xmage-full-game-batch-report-games-per-jvm-1.0.0"
+_BatchedSchema = Literal["xmage-full-game-batch-report-games-per-jvm-1.0.0"]
+
+
+class FullGameBatchReportBatched(FullGameBatchReport):
+    """Report of a run that played several games per bridge JVM (opt-in, #877 step 3).
+
+    :class:`FullGameBatchReport` claims one isolated JVM per executed game; that is false
+    here, so this is a separate type with its own schema version instead of a relaxed flag
+    on the evidence report. State isolation between games rests on ``shutdown_game``
+    between them, not on a process boundary; this runner does not compare twin hashes.
+    """
+
+    schema_version: _BatchedSchema = _BATCHED_SCHEMA  # type: ignore[assignment]
+    one_isolated_jvm_per_executed_game: Literal[False] = False  # type: ignore[assignment]
+    games_per_jvm: int = Field(ge=2)
+    state_isolation_basis: Literal["SHUTDOWN_GAME_ONLY_NOT_A_PROCESS_BOUNDARY"] = (
+        "SHUTDOWN_GAME_ONLY_NOT_A_PROCESS_BOUNDARY"
+    )
+
+
+def command_with_games_per_jvm(command: tuple[str, ...], games_per_jvm: int) -> tuple[str, ...]:
+    """``command`` with the JVM property that lets the bridge play ``games_per_jvm`` games.
+
+    The property goes right after the executable, so it is part of the command and therefore
+    of the execution identity: records of a batched run are never reused by a run with another
+    value. For ``games_per_jvm == 1`` the property is removed, so an ordinary one-game-per-JVM
+    run never shares a run key with a batched one, whatever the environment command carries.
+    """
+    if games_per_jvm < 1:
+        raise ValueError("games_per_jvm must be positive")
+    if not command:
+        raise ValueError("full-game bridge command is empty")
+    prefix = f"-D{GAMES_PER_JVM_PROPERTY}="
+    cleaned = tuple(part for part in command if not part.startswith(prefix))
+    if games_per_jvm == 1:
+        return cleaned
+    return (cleaned[0], f"{prefix}{games_per_jvm}", *cleaned[1:])
+
+
+def _games_per_jvm_permitted(command: tuple[str, ...]) -> int:
+    prefix = f"-D{GAMES_PER_JVM_PROPERTY}="
+    for part in command:
+        if part.startswith(prefix):
+            try:
+                return max(1, int(part[len(prefix) :]))
+            except ValueError:
+                return 1
+    return 1
+
+
 class _GameRunner(Protocol):
     def run(
         self,
@@ -306,6 +361,86 @@ def _run_with_startup_retry(
     raise AssertionError("unreachable")  # pragma: no cover
 
 
+def _failure_class_of(exc: Exception) -> FullGameFailureClass | None:
+    """The documented failure family of ``exc``; None means a defect of the Lab."""
+    if isinstance(exc, FullGameProtocolError):
+        return FullGameFailureClass.PROTOCOL
+    if isinstance(exc, FullGameConformanceError):
+        return FullGameFailureClass.CONFORMANCE
+    if isinstance(exc, (OSError, ValueError)):
+        return FullGameFailureClass.CONFIGURATION
+    if isinstance(exc, RuntimeError):
+        return FullGameFailureClass.ENGINE
+    return None
+
+
+def execute_batch_chunk(
+    runner: Any,
+    cases: list[FullGameBatchCase],
+    run_keys: list[str],
+    execution: ExecutionIdentity,
+) -> list[FullGameBatchRecord]:
+    """Play several cases in one bridge process and classify each outcome (opt-in).
+
+    Module-level so a process worker can run it. The runner's ``run_batch`` shuts each game
+    down before the next one and, after a failed game, continues in a fresh process. A
+    record's ``elapsed_seconds`` is its share of the chunk: the games share one process, so
+    none has a wall time of its own. A startup collision on the card repository is retried
+    by the one-game path, as in :func:`execute_batch_case`.
+    """
+    if not cases or len(cases) != len(run_keys):
+        raise ValueError("a full-game batch chunk needs one run key per case")
+    started = time.monotonic()
+    try:
+        outcomes = runner.run_batch([(case.scenario, case.decks, case.pilots) for case in cases])
+    except Exception as exc:
+        failure_class = _failure_class_of(exc)
+        if failure_class is None:
+            raise
+        return [
+            _failed_record(case, run_key, started, failure_class, exc)
+            for case, run_key in zip(cases, run_keys, strict=True)
+        ]
+    if len(outcomes) != len(cases):
+        raise RuntimeError("full-game batch chunk lost an outcome")
+    share = (time.monotonic() - started) / len(cases)
+    records: list[FullGameBatchRecord] = []
+    for case, run_key, outcome in zip(cases, run_keys, outcomes, strict=True):
+        if isinstance(outcome, FullGameProtocolError) and _is_startup_collision(outcome):
+            records.append(execute_batch_case(runner, case, run_key, execution))
+            continue
+        if isinstance(outcome, Exception):
+            failure_class = _failure_class_of(outcome)
+            if failure_class is None:
+                raise outcome
+            records.append(
+                _failed_record(case, run_key, time.monotonic() - share, failure_class, outcome)
+            )
+            continue
+        if execution_identity_of(runner) != execution:
+            changed = ValueError("full-game batch execution identity changed during game")
+            records.append(
+                _failed_record(
+                    case,
+                    run_key,
+                    time.monotonic() - share,
+                    FullGameFailureClass.CONFIGURATION,
+                    changed,
+                )
+            )
+            continue
+        records.append(
+            FullGameBatchRecord(
+                case_id=case.case_id,
+                run_key=run_key,
+                status="completed",
+                elapsed_seconds=share,
+                result=outcome,
+            )
+        )
+    return records
+
+
 def _failed_record(
     case: FullGameBatchCase,
     run_key: str,
@@ -344,9 +479,32 @@ class XmageFullGameBatchRunner:
     the runner must then be picklable.
     """
 
-    def __init__(self, runner: XmageFullGameRunner, output_directory: str | Path) -> None:
+    def __init__(
+        self,
+        runner: XmageFullGameRunner,
+        output_directory: str | Path,
+        *,
+        games_per_jvm: int = 1,
+    ) -> None:
+        if games_per_jvm < 1:
+            raise ValueError("games_per_jvm must be positive")
+        command = tuple(getattr(runner, "command", None) or ())
+        if games_per_jvm == 1 and _games_per_jvm_permitted(command) > 1:
+            raise ValueError(
+                f"the bridge command carries -D{GAMES_PER_JVM_PROPERTY}; "
+                "one game per JVM needs it removed (command_with_games_per_jvm)"
+            )
+        if games_per_jvm > 1:
+            if not hasattr(runner, "run_batch"):
+                raise ValueError("games_per_jvm > 1 needs a runner with run_batch")
+            if _games_per_jvm_permitted(command) < games_per_jvm:
+                raise ValueError(
+                    f"start the bridge with -D{GAMES_PER_JVM_PROPERTY}={games_per_jvm} or more "
+                    "(command_with_games_per_jvm)"
+                )
         self.runner = runner
         self.output_directory = Path(output_directory)
+        self.games_per_jvm = games_per_jvm
 
     def execution_identity(self) -> ExecutionIdentity:
         return execution_identity_of(self.runner)
@@ -375,7 +533,7 @@ class XmageFullGameBatchRunner:
             if reused is not None:
                 records[index] = reused
                 continue
-            if workers == 1:
+            if workers == 1 and self.games_per_jvm == 1:
                 # Sequential path: identical to the historical behaviour,
                 # including a later duplicate case reusing an earlier one.
                 record = execute_batch_case(self.runner, case, run_key, execution)
@@ -388,7 +546,12 @@ class XmageFullGameBatchRunner:
             keys = [item[2] for item in pending]
             if len(set(keys)) != len(keys):
                 raise ValueError("parallel full-game batch cases must have distinct run keys")
-            for index, record, path in self._run_parallel(pending, workers, parallelism):
+            runs = (
+                self._run_parallel(pending, workers, parallelism)
+                if self.games_per_jvm == 1
+                else self._run_batched(pending, workers, parallelism)
+            )
+            for index, record, path in runs:
                 self._write_record(path, record)
                 records[index] = record
 
@@ -398,6 +561,15 @@ class XmageFullGameBatchRunner:
         completed = sum(record.status == "completed" for record in final)
         failed = sum(record.status == "failed" for record in final)
         resumed = sum(record.resumed_from_completed_record for record in final)
+        if self.games_per_jvm > 1:
+            return FullGameBatchReportBatched(
+                total_cases=len(final),
+                completed_cases=completed,
+                failed_cases=failed,
+                resumed_cases=resumed,
+                records=final,
+                games_per_jvm=self.games_per_jvm,
+            )
         return FullGameBatchReport(
             total_cases=len(final),
             completed_cases=completed,
@@ -488,6 +660,72 @@ class XmageFullGameBatchRunner:
                     kill_live_bridge_processes()
                 raise
 
+    def _run_batched(
+        self,
+        pending: list[tuple[int, FullGameBatchCase, str, ExecutionIdentity, Path]],
+        workers: int,
+        parallelism: BatchParallelism,
+    ) -> Iterator[tuple[int, FullGameBatchRecord, Path]]:
+        """Pending cases in chunks of ``games_per_jvm``, one bridge process per chunk."""
+        size = self.games_per_jvm
+        chunks = [pending[start : start + size] for start in range(0, len(pending), size)]
+        if workers == 1:
+            for chunk in chunks:
+                chunk_records = execute_batch_chunk(
+                    self.runner,
+                    [item[1] for item in chunk],
+                    [item[2] for item in chunk],
+                    chunk[0][3],
+                )
+                for item, record in zip(chunk, chunk_records, strict=True):
+                    yield item[0], record, item[4]
+            return
+        yield from self._run_parallel_chunks(chunks, workers, parallelism)
+
+    def _run_parallel_chunks(
+        self,
+        chunks: list[list[tuple[int, FullGameBatchCase, str, ExecutionIdentity, Path]]],
+        workers: int,
+        parallelism: BatchParallelism,
+    ) -> Iterator[tuple[int, FullGameBatchRecord, Path]]:
+        executor: Executor
+        if parallelism == "process":
+            executor = ProcessPoolExecutor(
+                max_workers=min(workers, len(chunks)),
+                mp_context=multiprocessing.get_context("spawn"),
+            )
+        else:
+            executor = ThreadPoolExecutor(
+                max_workers=min(workers, len(chunks)),
+                thread_name_prefix="full-game-batch",
+            )
+        with executor:
+            futures: dict[
+                Future[list[FullGameBatchRecord]],
+                list[tuple[int, FullGameBatchCase, str, ExecutionIdentity, Path]],
+            ] = {
+                executor.submit(
+                    execute_batch_chunk,
+                    self._parallel_runner(),
+                    [item[1] for item in chunk],
+                    [item[2] for item in chunk],
+                    chunk[0][3],
+                ): chunk
+                for chunk in chunks
+            }
+            try:
+                for future in as_completed(futures):
+                    chunk = futures[future]
+                    for item, record in zip(chunk, future.result(), strict=True):
+                        yield item[0], record, item[4]
+            except BaseException:
+                # As in _run_parallel: drop queued chunks and stop the bridge JVMs of
+                # chunks in flight, so leaving the executor does not wait for them.
+                executor.shutdown(wait=False, cancel_futures=True)
+                if parallelism == "thread":
+                    kill_live_bridge_processes()
+                raise
+
     def run_key(self, case: FullGameBatchCase) -> str:
         return self._run_key(case, self.execution_identity())
 
@@ -529,13 +767,17 @@ class XmageFullGameBatchRunner:
 
 
 __all__ = [
+    "GAMES_PER_JVM_PROPERTY",
     "BatchParallelism",
     "ExecutionIdentity",
     "FullGameBatchCase",
     "FullGameBatchRecord",
     "FullGameBatchReport",
+    "FullGameBatchReportBatched",
     "FullGameFailureClass",
     "XmageFullGameBatchRunner",
+    "command_with_games_per_jvm",
     "execute_batch_case",
+    "execute_batch_chunk",
     "execution_identity_of",
 ]

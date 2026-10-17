@@ -94,6 +94,17 @@ means the run could not have seen an effect, not that the decks play the same.
 A single-card swap will not move win share at feasible game counts; judge it
 by the structural filter in step 2 and per-card figures, not by win share.
 
+Faster runs: `--games-per-jvm N` plays up to N games in one bridge process (default 1).
+On 36 seeds of the real pod, N=4 gave the same transcript hashes and winners as one
+game per JVM and took about 25 % less time (89 to 119 games/hour at the same worker
+count, 4 cores, 2026-10-17). It is opt-in and exists for this comparison only: the
+report then says `one_isolated_jvm_per_executed_game: false` (state isolation rests on
+the game shutdown, not on a process boundary; the runner does not compare twin hashes
+itself, the 36-seed twin result above was a separate local run), the setting is part
+of the execution identity so a resumed run never mixes batch sizes, and the decision
+gates and evidence lanes keep one game per JVM. Games played this way carry no
+per-decision record for `pilot_decision_report.py`.
+
 ## Step 5 — Pilot report (only for pilot or engine changes)
 
 Answers: did the pilot get better or worse at playing, on real games?
