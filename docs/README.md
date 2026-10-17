@@ -26,9 +26,10 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 - `CURRENT_EXECUTION_AUTHORITY.md` — current execution authority.
 - `EVIDENCE_INDEX_REQUIREMENTS.md` — evidence index schema; companion to
   `RETENTION_AND_LIFECYCLE_POLICY.md`.
-- `ARCHITECTURE_FREEZE = NOT CLAIMED` / `PRODUCTION_PROVIDER = NOT SELECTED` is the
-  machine-readable status in `../config/rules_engines.json`. A document repeating that
-  status in prose is not the source of truth for it.
+- ARCHITECTURE_FREEZE = CLAIMED (2026-10-10, Owner-signed), PRODUCTION_PROVIDER = XMAGE;
+  the machine-readable status is config/rules_engines.json (architecture_freeze,
+  provider_decision) and AGENTS.md section 1. A document repeating that status in prose
+  is not the source of truth for it.
 
 ## Subdirectories
 

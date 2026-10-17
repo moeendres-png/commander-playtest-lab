@@ -5,7 +5,9 @@ repository. Maintained as a navigation aid, not as authority: `config/rules_engi
 remains the sole machine-readable pin authority, and the newest direct user statement
 outranks every file here.
 
-`ARCHITECTURE_FREEZE = NOT CLAIMED`. `PRODUCTION_PROVIDER = NOT SELECTED`.
+ARCHITECTURE_FREEZE = CLAIMED (2026-10-10, Owner-signed), PRODUCTION_PROVIDER = XMAGE;
+the machine-readable status is config/rules_engines.json (architecture_freeze,
+provider_decision) and AGENTS.md section 1.
 
 ## Why this file exists
 

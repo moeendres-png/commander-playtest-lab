@@ -8,9 +8,12 @@ selection: maximally rules-correct gameplay supporting learning and deck optimiz
 and preference for 6+ / variable player counts when they improve correctness,
 simplicity, reuse, testability or research/implementation without reducing conformance.
 Existing engines, simulators or frameworks may replace whole workstreams on evidence.
-The layers below describe the existing system, not an Architecture Freeze or a mandate
-to retain this implementation. `ARCHITECTURE_FREEZE = NOT CLAIMED`;
-`PRODUCTION_PROVIDER = NOT SELECTED`.
+The layers below describe the existing system, not a mandate to retain this
+implementation. ARCHITECTURE_FREEZE = CLAIMED (2026-10-10, Owner-signed),
+PRODUCTION_PROVIDER = XMAGE; the machine-readable status is config/rules_engines.json
+(architecture_freeze, provider_decision) and AGENTS.md section 1. The Freeze binds XMage
+as the Rules Core
+([ARCHITECTURE_FREEZE_ADR.md](architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md)).
 
 The existing project separates eight layers:
 
