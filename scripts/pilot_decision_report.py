@@ -190,7 +190,11 @@ _SEAT_KEYS = (
 
 
 def _round_of(turn: int, players: int) -> int:
-    """1-based round of a game turn counter (every player takes one turn per round)."""
+    """1-based round of a game turn counter, assuming every player takes one turn per round.
+
+    Only the fallback: once a player has left the game the counter advances by fewer than
+    ``players`` per round, so :func:`summarize` counts the seat's own turns instead.
+    """
     return (max(turn, 1) - 1) // max(1, players) + 1
 
 
@@ -212,6 +216,7 @@ def summarize(
     idle_main_with_spell = 0
     idle_main_with_land = 0
     own_turns: set[tuple[int, int]] = set()
+    own_turn_count: Counter[int] = Counter()
     removal_on_own = 0
     removal_total = 0
     wipes_cast = 0
@@ -249,8 +254,12 @@ def summarize(
         turn = int(state.get("turn_number", 0) or 0)
         max_turn = max(max_turn, turn)
         seat = _seat(state)
-        if _own_turn(state):
+        if _own_turn(state) and (seat, turn) not in own_turns:
             own_turns.add((seat, turn))
+            own_turn_count[seat] += 1
+        # The seat's own turn number: exact after eliminations and extra turns, which turn
+        # counter arithmetic is not. Before the seat's first own turn, the arithmetic stands in.
+        own_round = own_turn_count[seat] or _round_of(turn, players)
         if decision_class == "priority":
             if len(options) == 1:
                 forced += 1
@@ -293,7 +302,7 @@ def summarize(
                     instant_speed[(seat, name)] = _is_instant_speed(name)
                     if not _own_turn(state):
                         cast_on_opponent_turn[(seat, name)] += 1
-                    first_cast_round.setdefault((seat, name), _round_of(turn, players))
+                    first_cast_round.setdefault((seat, name), own_round)
                     own_cast_names.setdefault(seat, set()).add(name.strip().casefold())
             if meta.get("ability_type") == "spell":
                 spells[seat] += 1
@@ -306,8 +315,8 @@ def summarize(
                 }
                 if str(meta.get("source_object_id")) in command_ids:
                     commander_turn.setdefault(seat, turn)
-                    commander_round.setdefault(seat, _round_of(turn, players))
-                    commander_round_by_name[seat].setdefault(name, _round_of(turn, players))
+                    commander_round.setdefault(seat, own_round)
+                    commander_round_by_name[seat].setdefault(name, own_round)
                 facts = card_facts(name)
                 roles = card_roles(facts) if facts is not None else {}
                 if CardRole.WIPE in roles:

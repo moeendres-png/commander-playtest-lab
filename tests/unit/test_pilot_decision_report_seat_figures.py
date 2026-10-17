@@ -173,16 +173,22 @@ def test_cast_share_is_none_when_never_offered() -> None:
 # --- rounds, not the turn counter ------------------------------------------
 
 
-def _commander_record(seat: int, turn: int) -> dict[str, Any]:
+def _own_turn_passes(seat: int, turns: list[int]) -> list[dict[str, Any]]:
+    """One priority pass on each of the seat's own turns, as a real game records them."""
+    return [_record(seat=seat, turn=turn) for turn in turns]
+
+
+def _commander_cast(
+    seat: int, turn: int, name: str = "Rogshai", object_id: str = "cmd"
+) -> dict[str, Any]:
     actor = f"p{seat + 1}"
-    record = _record(
+    return _record(
         seat=seat,
         turn=turn,
-        options=[_spell("c", "Rogshai", source_object_id="cmd"), _pass()],
+        options=[_spell("c", name, source_object_id=object_id), _pass()],
         picked="c",
-        players=[{"player_id": actor, "command": [{"object_id": "cmd"}]}],
+        players=[{"player_id": actor, "command": [{"object_id": object_id}]}],
     )
-    return record
 
 
 @pytest.mark.parametrize(
@@ -190,28 +196,35 @@ def _commander_record(seat: int, turn: int) -> dict[str, Any]:
     [(0, 1, 1), (1, 2, 1), (2, 3, 1), (3, 4, 1), (0, 5, 2), (3, 8, 2), (1, 10, 3)],
 )
 def test_commander_first_cast_is_reported_as_a_round(seat: int, turn: int, round_: int) -> None:
-    summary = pdr.summarize([_commander_record(seat, turn)], players=4)
+    earlier = [seat + 1 + 4 * k for k in range(round_ - 1)]
+    records = [*_own_turn_passes(seat, earlier), _commander_cast(seat, turn)]
+    summary = pdr.summarize(records, players=4)
     assert summary["commander_first_cast_round"] == {str(seat + 1): round_}
     # The counter field is unchanged: it still depends on where the seat sits.
     assert summary["commander_first_cast_turn"] == {str(seat + 1): turn}
 
 
+def test_the_round_counts_own_turns_after_a_player_has_left() -> None:
+    # Four players: own turns at 1, 5, 9. A player is eliminated, so the next round has three
+    # turns and the seat's fourth turn is turn 12, where counter arithmetic says round 3.
+    records = [*_own_turn_passes(0, [1, 5, 9]), _commander_cast(0, 12)]
+    summary = pdr.summarize(records, players=4)
+    assert summary["commander_first_cast_round"] == {"1": 4}
+    assert summary["commander_first_cast_turn"] == {"1": 12}
+
+
 def test_partner_commanders_keep_their_own_first_cast_round() -> None:
-    # Rograkh costs {0} and comes down on the first turn; Ishai follows later.
-    players = [{"player_id": "p1", "command": [{"object_id": "rog"}, {"object_id": "ish"}]}]
-
-    def cast(name: str, object_id: str, turn: int) -> dict[str, Any]:
-        return _record(
-            turn=turn,
-            options=[_spell("c", name, source_object_id=object_id), _pass()],
-            picked="c",
-            players=players,
-        )
-
-    summary = pdr.summarize(
-        [cast("Rograkh, Son of Rohgahh", "rog", 1), cast("Ishai, Ojutai Dragonspeaker", "ish", 9)],
-        players=4,
-    )
+    # Rograkh costs {0} and comes down on the first turn; Ishai follows on the third.
+    records = [
+        _commander_cast(0, 1, "Rograkh, Son of Rohgahh", "rog"),
+        *_own_turn_passes(0, [5]),
+        _commander_cast(0, 9, "Ishai, Ojutai Dragonspeaker", "ish"),
+    ]
+    for record in (records[0], records[2]):
+        record["request"]["pilot_state"]["players"] = [
+            {"player_id": "p1", "command": [{"object_id": "rog"}, {"object_id": "ish"}]}
+        ]
+    summary = pdr.summarize(records, players=4)
     assert summary["commander_first_cast_round"] == {"1": 1}
     assert summary["commander_first_cast_round_by_name"] == {
         "1": {"Ishai, Ojutai Dragonspeaker": 3, "Rograkh, Son of Rohgahh": 1}
