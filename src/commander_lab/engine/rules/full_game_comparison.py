@@ -22,7 +22,7 @@ from __future__ import annotations
 import hashlib
 import math
 from collections import Counter
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -475,6 +475,9 @@ class ContenderSummary(_StrictModel):
     mean_turns: float | None
     mean_decisions: float | None
     failure_classes: dict[str, int]
+    # Mean finishing-order score over completed games with a score (#875).
+    # None when no game had one (results without lost_on_turn).
+    mean_finishing_score: float | None = None
 
 
 class PairedVariantResult(_StrictModel):
@@ -506,6 +509,15 @@ class PairedVariantResult(_StrictModel):
     # was too small to rule out a meaningful edge, so the verdict is not
     # evidence of no effect.
     underpowered: bool = False
+    # Finishing-order outcome (#875): paired mean difference of the per-game
+    # finishing scores, with a 95% interval from the #870 arithmetic. This is
+    # exploratory: win share stays the verdict, ranks within a pod are not
+    # independent of each other, and the pair is the unit. None (and zero
+    # pairs) when a game in the pair has no score, e.g. results recorded
+    # before #874 added lost_on_turn.
+    placement_difference: float | None = None
+    placement_difference_interval_95: DifferenceInterval | None = None
+    placement_pairs: int = Field(default=0, ge=0)
 
 
 class DeckComparisonReport(_StrictModel):
@@ -538,6 +550,91 @@ def _tested_outcome(record_result: FullGameConformanceResult, seat: int) -> tupl
     return (1.0 / len(winners) if seat in winners else 0.0), False
 
 
+def finishing_scores(
+    outcomes: Sequence[Mapping[str, object]], player_count: int
+) -> dict[int, float | None]:
+    """Finishing-order score per seat from one game's outcomes (#875).
+
+    Rank rules: winner(s) rank first; players who lost are ranked by
+    ``lost_on_turn`` (a later loss is better); equal turns share the average
+    rank; players who neither won nor lost share the averaged ranks between
+    the winners and the losers. Score ``s = (N - rank) / (N - 1)``: 1.0 for a
+    sole winner, 0.0 for the first player out.
+
+    Returns ``None`` for every seat when any lost seat has ``lost_on_turn``
+    null, i.e. results recorded before #874 added the field. Seats are keyed
+    exactly as they appear in ``outcomes``; the bridge records them 0-based
+    (``winner_seats`` in ``full_game.py`` adds 1 for the same reason).
+    """
+    rows: list[tuple[int, bool, bool, object]] = []
+    for outcome in outcomes:
+        if not isinstance(outcome, Mapping):
+            continue
+        seat = outcome.get("seat")
+        if not isinstance(seat, int) or isinstance(seat, bool):
+            continue
+        rows.append(
+            (
+                seat,
+                outcome.get("won") is True,
+                outcome.get("lost") is True,
+                outcome.get("lost_on_turn"),
+            )
+        )
+    if any(
+        lost and (not isinstance(turn, int) or isinstance(turn, bool)) for _, _, lost, turn in rows
+    ):
+        return {seat: None for seat, _, _, _ in rows}
+    if player_count < 2:
+        return {seat: None for seat, _, _, _ in rows}
+    winners = [seat for seat, won, _, _ in rows if won]
+    middle = [seat for seat, won, lost, _ in rows if not won and not lost]
+    losers = [
+        (seat, turn)
+        for seat, won, lost, turn in rows
+        if lost and not won and isinstance(turn, int) and not isinstance(turn, bool)
+    ]
+    ranks: dict[int, float] = {}
+    w, m = len(winners), len(middle)
+    if w:
+        average = (1 + w) / 2
+        for seat in winners:
+            ranks[seat] = average
+    if m:
+        average = w + (1 + m) / 2
+        for seat in middle:
+            ranks[seat] = average
+    # Losers, latest loss first; equal turns share the average rank.
+    ordered = sorted(losers, key=lambda item: item[1], reverse=True)
+    rank = w + m + 1
+    i = 0
+    while i < len(ordered):
+        j = i + 1
+        while j < len(ordered) and ordered[j][1] == ordered[i][1]:
+            j += 1
+        average = rank + (j - i - 1) / 2
+        for k in range(i, j):
+            ranks[ordered[k][0]] = average
+        rank += j - i
+        i = j
+    n = player_count
+    return {seat: (n - rank) / (n - 1) for seat, rank in ranks.items()}
+
+
+def _tested_placement(
+    record_result: FullGameConformanceResult, player_count: int, tested_seat: int
+) -> float | None:
+    """Finishing-order score of the 1-based tested seat, or None.
+
+    The bridge records outcome seats 0-based; ``winner_seats`` adds 1 for the
+    same reason (see ``full_game.py``).
+    """
+    raw = record_result.result_payload.get("outcomes")
+    if not isinstance(raw, list):
+        return None
+    return finishing_scores(raw, player_count).get(tested_seat - 1)
+
+
 def aggregate_comparison(
     spec: DeckComparisonSpec,
     report: FullGameBatchReport,
@@ -555,6 +652,9 @@ def aggregate_comparison(
     by_case = {record.case_id: record for record in report.records}
     # outcome[(contender, seed, seat)] = win share in that game, or None if censored.
     outcome: dict[tuple[str, int, int], float | None] = {}
+    # placement[(contender, seed, seat)] = finishing-order score of the tested
+    # seat in that game, or None when the game has no score (#875).
+    placement: dict[tuple[str, int, int], float | None] = {}
     transcript_of: dict[tuple[str, int, int], str] = {}
     summaries: list[ContenderSummary] = []
     for contender in spec.contenders:
@@ -563,6 +663,7 @@ def aggregate_comparison(
         turns: list[int] = []
         decisions: list[int] = []
         failures: dict[str, int] = {}
+        place_scores: list[float] = []
         for seed in spec.seeds:
             for seat in spec.tested_seats:
                 planned += 1
@@ -570,6 +671,7 @@ def aggregate_comparison(
                 record = by_case.get(case_id(*key))
                 if record is None or record.status != "completed" or record.result is None:
                     outcome[key] = None
+                    placement[key] = None
                     if record is not None:
                         failed += 1
                         name = record.failure_class.value if record.failure_class else "unknown"
@@ -580,6 +682,10 @@ def aggregate_comparison(
                 no_winner += int(without_winner)
                 wins += share
                 outcome[key] = share
+                place_score = _tested_placement(record.result, spec.player_count, seat)
+                placement[key] = place_score
+                if place_score is not None:
+                    place_scores.append(place_score)
                 transcript_of[key] = record.result.semantic_transcript_sha256
                 turn = record.result.result_payload.get("turn_number")
                 if isinstance(turn, int) and not isinstance(turn, bool):
@@ -598,6 +704,9 @@ def aggregate_comparison(
                 mean_turns=(sum(turns) / len(turns)) if turns else None,
                 mean_decisions=(sum(decisions) / len(decisions)) if decisions else None,
                 failure_classes=dict(sorted(failures.items())),
+                mean_finishing_score=(sum(place_scores) / len(place_scores))
+                if place_scores
+                else None,
             )
         )
 
@@ -605,6 +714,7 @@ def aggregate_comparison(
     paired: list[PairedVariantResult] = []
     for variant in spec.contenders[1:]:
         pairs: list[tuple[float, float]] = []
+        place_pairs: list[tuple[float, float]] = []
         censored = identical = 0
         for seed in spec.seeds:
             for seat in spec.tested_seats:
@@ -618,6 +728,10 @@ def aggregate_comparison(
                     transcript_of[(baseline, seed, seat)]
                     == transcript_of[(variant.deck_id, seed, seat)]
                 )
+                left_place = placement[(baseline, seed, seat)]
+                right_place = placement[(variant.deck_id, seed, seat)]
+                if left_place is not None and right_place is not None:
+                    place_pairs.append((left_place, right_place))
         variant_only = sum(1 for left, right in pairs if right > left)
         baseline_only = sum(1 for left, right in pairs if left > right)
         p_value = sign_test_p_value(variant_only, baseline_only)
@@ -625,6 +739,10 @@ def aggregate_comparison(
         # fractional, and they narrow the interval like any other pair (#870).
         differences = [right - left for left, right in pairs]
         interval_95, detectable = _paired_difference_stats(differences)
+        # Finishing-order differences on the same pairs (#875): a pair joins
+        # only when both games have a score.
+        place_differences = [right - left for left, right in place_pairs]
+        place_interval_95, _ = _paired_difference_stats(place_differences)
         if not pairs:
             verdict: Literal[
                 "VARIANT_BETTER", "BASELINE_BETTER", "NO_CLEAR_DIFFERENCE", "INSUFFICIENT"
@@ -666,6 +784,11 @@ def aggregate_comparison(
                 win_share_difference_interval_95=interval_95,
                 detectable_difference_80pct_power=detectable,
                 underpowered=underpowered,
+                placement_difference=(sum(place_differences) / len(place_differences))
+                if place_differences
+                else None,
+                placement_difference_interval_95=place_interval_95,
+                placement_pairs=len(place_pairs),
             )
         )
 
@@ -699,6 +822,7 @@ __all__ = [
     "aligned_contenders",
     "apply_swaps",
     "case_id",
+    "finishing_scores",
     "pairs_needed",
     "parse_swaps",
     "plan_comparison_cases",
