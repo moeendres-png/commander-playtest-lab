@@ -23,8 +23,11 @@ import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.costs.mana.ManaCosts;
 import mage.abilities.mana.ManaOptions;
+import mage.abilities.keyword.CastFromGraveyardAbility;
 import mage.cards.Card;
 import mage.cards.Cards;
+import mage.cards.ModalDoubleFacedCard;
+import mage.cards.SplitCard;
 import mage.cards.decks.Deck;
 import mage.choices.Choice;
 import mage.constants.ManaType;
@@ -1244,7 +1247,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
      *       left any trace: no target was requested, no mana was asked for, no
      *       X was announced, no mode or cost choice came back empty;</li>
      *   <li>the spell has a target with a minimum above zero, and nothing was
-     *       chosen for it; and</li>
+     *       chosen for it (for a Flashback cast, on the card's own spell
+     *       ability that the engine resolves; #864); and</li>
      *   <li>the card is back in the zone the cast started from and the stack
      *       holds exactly what it held before: the rewind happened.</li>
      * </ol>
@@ -1270,20 +1274,46 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 || paymentCancelled) {
             return false;
         }
-        boolean unchosenRequiredTarget = false;
-        for (Target target : casting.getTargets()) {
-            if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
-                unchosenRequiredTarget = true;
-                break;
-            }
-        }
-        if (!unchosenRequiredTarget) {
+        if (!hasUnchosenRequiredTarget(castSpellAbility(casting, game))) {
             return false;
         }
         Card card = game.getCard(casting.getSourceId());
         return card != null
                 && origin == game.getState().getZone(card.getMainCard().getId())
                 && game.getStack().size() == stackBefore;
+    }
+
+    /**
+     * The ability whose targets the engine chooses for a cast, read without
+     * side effects. For most spells that is the ability the pilot picked. A
+     * Flashback (or Harmonize) ability carries no targets itself, the engine
+     * casts a copy of the card's own spell ability. The engine's
+     * {@code getSpellAbilityToResolve} is NOT used here: on the pilot's
+     * original ability it registers a replacement effect ("exile it if it
+     * leaves the stack") on every call, which a reversed cast must not leave
+     * behind (#864). Split and modal double-faced cards pick a half by name;
+     * they are not resolved here, so they keep failing closed.
+     */
+    private static Ability castSpellAbility(Ability casting, Game game) {
+        if (casting instanceof CastFromGraveyardAbility) {
+            Card card = game.getCard(casting.getSourceId());
+            if (card != null
+                    && !(card instanceof SplitCard)
+                    && !(card instanceof ModalDoubleFacedCard)
+                    && card.getSpellAbility() != null) {
+                return card.getSpellAbility();
+            }
+        }
+        return casting;
+    }
+
+    private static boolean hasUnchosenRequiredTarget(Ability ability) {
+        for (Target target : ability.getTargets()) {
+            if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
