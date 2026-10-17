@@ -138,7 +138,7 @@ def _stack_top_is_own_cast(state: dict[str, Any], own_names: set[str]) -> bool:
     stack = state.get("stack")
     if not isinstance(stack, list) or not stack:
         return False
-    top = stack[-1]
+    top = stack[0]
     if not isinstance(top, dict):
         return False
     name = str(top.get("name") or "").strip().casefold()
