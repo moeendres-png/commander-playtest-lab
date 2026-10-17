@@ -12,7 +12,6 @@ import re
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from typing import Any
 
 # ---------------------------------------------------------------------------
 # Normalisation
@@ -280,7 +279,18 @@ _STRUCTURAL_FIELDS: tuple[tuple[str, str], ...] = (
 )
 
 
-def _fmt(value: Any) -> str:
+def _str_list(value: object) -> list[str]:
+    """Narrow a JSON-ish mapping value to a list of strings.
+
+    Non-list values (None, a bare string, a number) yield []; a bare string
+    is deliberately not split into characters.
+    """
+    if isinstance(value, (list, tuple)):
+        return [str(v) for v in value]
+    return []
+
+
+def _fmt(value: object) -> str:
     if value is None:
         return "null"
     if isinstance(value, float) and value.is_integer():
@@ -313,8 +323,8 @@ def _mana_cost_matches(oracle_cost: str | None, engine_cost: str | None) -> bool
 
 
 def compare_card(
-    oracle_entry: Mapping[str, Any],
-    facts_entry: Mapping[str, Any],
+    oracle_entry: Mapping[str, object],
+    facts_entry: Mapping[str, object],
     known_keywords: Sequence[str] = (),
 ) -> CardDrift:
     """Compare one card's Oracle entry with its engine facts entry."""
@@ -347,7 +357,7 @@ def compare_card(
         if o_s != e_s:
             # null engine power on a Vehicle/Spacecraft is an export gap:
             # the export query has no power column for those frames.
-            subtypes = [str(s) for s in (facts_entry.get("subtypes") or [])]
+            subtypes = [str(s) for s in _str_list(facts_entry.get("subtypes"))]
             if (
                 facts_key == "power"
                 and e_val is None
@@ -370,7 +380,7 @@ def compare_card(
     )
     engine_type_words: Counter[str] = Counter()
     for key in ("supertypes", "types", "subtypes"):
-        for t in facts_entry.get(key) or []:
+        for t in _str_list(facts_entry.get(key)):
             for w in re.findall(r"[a-z]+", str(t).lower()):
                 engine_type_words[w] += 1
     # The em-dash separator and words like "legendary" appear on both sides;
@@ -391,23 +401,23 @@ def compare_card(
 
     if structural:
         oracle_norm = normalize_oracle_text(str(oracle_entry.get("oracle_text") or ""), name)
-        engine_norm = normalize_engine_rules(list(facts_entry.get("rules") or []), name)
+        engine_norm = normalize_engine_rules(_str_list(facts_entry.get("rules")), name)
         similarity = _similarity(oracle_norm, engine_norm)
         return CardDrift(name=name, tier="A", similarity=similarity, structural=tuple(structural))
 
     # --- Tier B: numbers / keywords ------------------------------------
     oracle_norm = normalize_oracle_text(str(oracle_entry.get("oracle_text") or ""), name)
-    engine_norm = normalize_engine_rules(list(facts_entry.get("rules") or []), name)
+    engine_norm = normalize_engine_rules(_str_list(facts_entry.get("rules")), name)
 
     o_nums = number_multiset(oracle_norm)
     e_nums = number_multiset(engine_norm)
     numbers_only_oracle = tuple(sorted((o_nums - e_nums).elements()))
     numbers_only_engine = tuple(sorted((e_nums - o_nums).elements()))
 
-    oracle_kw = {str(k).lower() for k in (oracle_entry.get("keywords") or [])}
+    oracle_kw = {k.lower() for k in _str_list(oracle_entry.get("keywords"))}
     # Detect keywords in engine text with italic content preserved: ability
     # words (<i>Magecraft</i>) would otherwise be stripped before matching.
-    engine_kw_text = _strip_tags_keep_content("\n".join(facts_entry.get("rules") or []))
+    engine_kw_text = _strip_tags_keep_content("\n".join(_str_list(facts_entry.get("rules"))))
     engine_kw_raw = engine_keywords(engine_kw_text, known_keywords or ())
     engine_kw = {k.lower() for k in engine_kw_raw}
     keywords_only_oracle = tuple(sorted(oracle_kw - engine_kw))
@@ -428,7 +438,7 @@ def compare_card(
     # --- Tier C / OK: similarity ----------------------------------------
     # Compare face by face for split/adventure/double-faced cards.
     oracle_faces = split_oracle_faces(str(oracle_entry.get("oracle_text") or ""))
-    engine_faces = split_engine_faces(list(facts_entry.get("rules") or []))
+    engine_faces = split_engine_faces(_str_list(facts_entry.get("rules")))
     if len(oracle_faces) > 1 or len(engine_faces) > 1:
         similarity = _face_similarity(oracle_faces, engine_faces, name)
     else:
