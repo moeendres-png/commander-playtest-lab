@@ -160,6 +160,55 @@ final class XmageFullGameDecisionController {
             throw failure;
         }
 
+        // #877 single-option priority pass (proposal): when a priority decision
+        // has exactly one legal option and that option is pass_priority with
+        // min==max==1, the pilot call is skipped and the option is auto-selected.
+        // The decision is still recorded for audit. This targets ~27% of all
+        // decisions (forced passes) without changing game semantics: there is
+        // no choice to make, so no pilot state, counter or RNG can depend on
+        // the skipped call.
+        //
+        // Acceptance bar (per review): semantic transcript hash identical
+        // with and without this change on 36 seeds. "Identical" not "faster".
+        if ("priority".equals(decisionClass)
+                && minimumSelections == 1
+                && maximumSelections == 1
+                && legalOptions != null
+                && legalOptions.size() == 1) {
+            JsonElement singleOption = legalOptions.get(0);
+            if (singleOption.isJsonObject()) {
+                JsonObject option = singleOption.getAsJsonObject();
+                JsonElement optionType = option.get("option_type");
+                JsonElement optionId = option.get("option_id");
+                if (optionType != null
+                        && optionType.isJsonPrimitive()
+                        && "pass_priority".equals(optionType.getAsString())
+                        && optionId != null
+                        && optionId.isJsonPrimitive()) {
+                    // The pilot would have selected this single option.
+                    // No pilot state, counter or RNG depends on the skipped call
+                    // because there was no decision to make.
+                    String selectedId = optionId.getAsString();
+                    DecisionResponse autoResponse = new DecisionResponse(
+                            "auto-single-option",
+                            actor.getId().toString(),
+                            List.of(selectedId),
+                            List.of(),
+                            null,
+                            null
+                    );
+                    // Record for audit.
+                    JsonObject auditRecord = new JsonObject();
+                    auditRecord.addProperty("decision_class", decisionClass);
+                    auditRecord.addProperty("auto_selected", true);
+                    auditRecord.addProperty("reason", "single_option_pass_priority");
+                    auditRecord.addProperty("selected_option_id", selectedId);
+                    recordDecisionRequested(auditRecord);
+                    return autoResponse;
+                }
+            }
+        }
+
         // CR 723 (controlling another player): XMage remains the sole authority
         // for whether this player's turn is controlled. The bridge only routes
         // the engine-generated decision to that controller's principal.
