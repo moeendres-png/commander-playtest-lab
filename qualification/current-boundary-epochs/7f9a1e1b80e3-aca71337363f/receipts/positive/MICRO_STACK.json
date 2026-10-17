@@ -1,0 +1,164 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "2b03c4df76b42c9346881662061a164ad3a41ae2578cba01ec614fbea20aeba9",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "MICRO_STACK-causal-obj:micro-bolt-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f4173e0653be430737f93595b5e1917d486895f80fbd5d8dd42c603402fcb57a",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_STACK-causal-obj:micro-bolt-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-bolt"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-bolt"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_STACK",
+  "obligation_exercised": {
+    "obligation_digest": "bd58a0a80630f44cc6933cdccc6250874ba5a578f264b71bb047979d262088d2",
+    "requested_state_digest": "5d400bf883c9abeb3a073e877e94cf6f1c0831023d63d81ad87b2d598f90fccd",
+    "required_events": [
+      "priority:P2",
+      "spell_cast:Giant_Growth",
+      "stack_push:Giant_Growth",
+      "resolve:Giant_Growth",
+      "resolve:Lightning_Bolt"
+    ],
+    "terminal_checks": [
+      "exactly 0 ZONE_CHANGE event(s) with target_object=obj:micro-target, from=BATTLEFIELD"
+    ],
+    "terminal_postconditions": [
+      "Grizzly Bears survives Lightning Bolt because Giant Growth resolves first.",
+      "Stack is empty after both spells resolve."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "exactly 0 ZONE_CHANGE event(s) with target_object=obj:micro-target, from=BATTLEFIELD": true
+    },
+    "token_evidence": {
+      "priority:P2": {
+        "binding": [
+          "a scripted priority frame selected an engine offer naming 'Giant Growth'",
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-growth, player_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "a scripted priority frame selected an engine offer naming 'Giant Growth'",
+            "decision_frames": [
+              1
+            ]
+          },
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-growth, player_player=P2",
+            "events": [
+              10
+            ]
+          }
+        ]
+      },
+      "resolve:Giant_Growth": {
+        "binding": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-growth, from=STACK, to=GRAVEYARD",
+          "every ZONE_CHANGE event with target_object=obj:micro-growth, from=STACK, to=GRAVEYARD precedes the first DAMAGED_PERMANENT event with source_object=obj:micro-bolt, target_object=obj:micro-target, amount=3"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-growth, from=STACK, to=GRAVEYARD",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:micro-growth, from=STACK, to=GRAVEYARD precedes the first DAMAGED_PERMANENT event with source_object=obj:micro-bolt, target_object=obj:micro-target, amount=3",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "resolve:Lightning_Bolt": {
+        "binding": [
+          "exactly 1 DAMAGED_PERMANENT event(s) with source_object=obj:micro-bolt, target_object=obj:micro-target, amount=3",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt, from=STACK, to=GRAVEYARD",
+          "every ZONE_CHANGE event with target_object=obj:micro-growth, from=STACK, to=GRAVEYARD precedes the first ZONE_CHANGE event with target_object=obj:micro-bolt, from=STACK, to=GRAVEYARD"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 DAMAGED_PERMANENT event(s) with source_object=obj:micro-bolt, target_object=obj:micro-target, amount=3",
+            "events": [
+              12
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt, from=STACK, to=GRAVEYARD",
+            "events": [
+              13
+            ]
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:micro-growth, from=STACK, to=GRAVEYARD precedes the first ZONE_CHANGE event with target_object=obj:micro-bolt, from=STACK, to=GRAVEYARD",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "spell_cast:Giant_Growth": {
+        "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:micro-growth, player_player=P2",
+        "events": [
+          10
+        ]
+      },
+      "stack_push:Giant_Growth": {
+        "binding": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-growth, from=HAND, to=STACK",
+          "every ZONE_CHANGE event with target_object=obj:micro-growth, from=HAND, to=STACK precedes the first SPELL_CAST event with source_object=obj:micro-growth, player_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-growth, from=HAND, to=STACK",
+            "events": [
+              9
+            ]
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:micro-growth, from=HAND, to=STACK precedes the first SPELL_CAST event with source_object=obj:micro-growth, player_player=P2",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "bf9e2a18b5c2b33b4aedfc28f69f8e4d1d1d7410720b3d5c29c1d6da41aa0c5c",
+  "runner_digest": "8cae656812feae9c93339a2460e2cffa148bf7613872ba4c4c1d818c06bd1533",
+  "runtime_receipt_digest": "9c85cb3c640c866da399f8b50f8f8c1cc00a4791ae39be07064c1e28f8eef6a2",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_STACK",
+  "variance_source": null
+}
