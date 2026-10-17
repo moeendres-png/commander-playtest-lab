@@ -104,12 +104,12 @@
   "runtime_switch": "DONE_D5",
   "note": "selected_provider is the architecture-level selection made at the Freeze. The D5 runtime switch moved the launched runtime (production_bridge) to the full-game lane; provider_decision, current_runtime and primary_engine.production_ready record that switch. D17 stays a bounded limitation: pilots out of process, no third-party code in the engine JVM; stronger isolation is a gate before any untrusted pilot.",
   "current_qualification": {
-   "evidence_epoch": "qualification/current-boundary-epochs/7f9a1e1b80e3-aca71337363f",
+   "evidence_epoch": "qualification/current-boundary-epochs/acaedfbb07d3-9f52300a501e",
    "engine_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
-   "engine_artifact_sha256": "1d7c40d3b29f11a2dc67c75c3c5871c200a48cda9fde3ffa91c1f9cf8e39d39d",
-   "lab_commit": "7f9a1e1b80e31d04d1af9c6ce619773a717d5534",
+   "engine_artifact_sha256": "e1054183a436c87cc512e9390f7cad3481940cd21b2b739163d5f06fe4bd5505",
+   "lab_commit": "acaedfbb07d3b4dd4d6c113ec5c317a77d0fe5f1",
    "freeze_eligible": true,
-   "note": "Requalification on XMage pin 16e57239 (repin v7, lazy playable-calculation card copy, #801) on main 7f9a1e1b (PB-03 run 39014548283, after the bridge changes #828, #845, #846, #865 and #868), AF11 adjudicated for that pin with the XMage-only topology record (qualification/af11-xmage-only-topology-20261016); current_qualification always names the newest sealed epoch bound to the pin (the one the capability derivation selects). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
+   "note": "Requalification on XMage pin 16e57239 (repin v7, lazy playable-calculation card copy, #801) on main acaedfbb (PB-03 run 39025386306, after the bridge changes #828, #845, #846, #865, #868 and #886), AF11 adjudicated for that pin with the XMage-only topology record (qualification/af11-xmage-only-topology-20261016); current_qualification always names the newest sealed epoch bound to the pin (the one the capability derivation selects). The jar build is not byte-reproducible, so each rebuild is requalified by PB-03; the signed Freeze identities above (evidence_epoch, engine_artifact_sha256) stay the Owner-signed basis and are never rewritten."
   }
  }
 }
