@@ -1,0 +1,112 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "ddd9cb12040014a718ddb1b90f15f555ac8e7e8f789665aeba10d4f52f11b9f5",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "WS05-MP-PRIO-5-causal-obj:mp-bolt-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "6a7d7505582136779851aaccf8abfeccf11b589e37422dbeb5e08f795fc3b6f8",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-PRIO-5-causal-obj:mp-bolt-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:mp-bolt"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:mp-bolt"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-PRIO-5",
+  "obligation_exercised": {
+    "obligation_digest": "24d6dfeeed8899be450c35d9ba1967b1b3e6f5e15ae808230186744378511054",
+    "requested_state_digest": "1ead03fb2a0598dff2266abe2d5b6900ee2984f2ef93a0a96608b983812efaf2",
+    "required_events": [
+      "priority_ring_live_order",
+      "priority_action_resets_pass_count",
+      "response_on_stack"
+    ],
+    "terminal_checks": [
+      "Grizzly Bears is on P5's battlefield"
+    ],
+    "terminal_postconditions": [
+      "Priority traverses exactly P1..P5 live ring and resets after P5 acts; eliminated/nonexistent seats are absent."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "Grizzly Bears is on P5's battlefield": true
+    },
+    "token_evidence": {
+      "priority_action_resets_pass_count": {
+        "binding": [
+          "the engine's first 10 priority decisions went to ['P1', 'P2', 'P3', 'P4', 'P5', 'P5', 'P1', 'P2', 'P3', 'P4'] in that order",
+          "every ZONE_CHANGE event with target_object=obj:mp-response, from=STACK, to=GRAVEYARD precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK"
+        ],
+        "parts": [
+          {
+            "binding": "the engine's first 10 priority decisions went to ['P1', 'P2', 'P3', 'P4', 'P5', 'P5', 'P1', 'P2', 'P3', 'P4'] in that order",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:mp-response, from=STACK, to=GRAVEYARD precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "priority_ring_live_order": {
+        "binding": "the engine's first 5 priority decisions went to ['P1', 'P2', 'P3', 'P4', 'P5'] in that order",
+        "observation": "engine terminal observation"
+      },
+      "response_on_stack": {
+        "binding": [
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:mp-response, player_player=P5",
+          "every SPELL_CAST event with source_object=obj:mp-response, player_player=P5 precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:mp-response, player_player=P5",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "every SPELL_CAST event with source_object=obj:mp-response, player_player=P5 precedes the first ZONE_CHANGE event with target_object=obj:mp-bolt, from=STACK",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "9a6e32324249b00f4c84c9963b9748f12afc380d321e8941d7e8697a6d576ab2",
+  "runner_digest": "45b5babaaade13c43c4d5a7baaff1071b3a3f87221fe052adbfca9a75e54ec29",
+  "runtime_receipt_digest": "05a3a773b76108d155f09df79cb73be1248166eab430786f1fd9bcc7dbe10086",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-PRIO-5",
+  "variance_source": null
+}

@@ -1,0 +1,110 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_07",
+  "obligation_exercised": {
+    "obligation_digest": "6ec502c79c2b595b632917d693516717eb61999043826788af87b88929cd4ac3",
+    "requested_state_digest": "3635cf1286d5525f9327b7f1451042df0c5f2c6bb7d6e8298f3a94b0536edcbb",
+    "required_events": [
+      "draw_attempt:1",
+      "draw_card",
+      "draw_attempt:2",
+      "draw_disallowed"
+    ],
+    "terminal_checks": [
+      "exactly 1 ZONE_CHANGE event(s) with player_player=P2, from=LIBRARY, to=HAND",
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card07-draw, from=STACK, to=GRAVEYARD"
+    ],
+    "terminal_postconditions": [
+      "P2 draws exactly one card."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar",
+      "sha256": "b10d14cd8f7573ed6ee18922b16412b52e6c99080cf9b11e536bbc70cbcf7c0c",
+      "size": 7111366
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card07-draw, from=STACK, to=GRAVEYARD"
+        ],
+        "check": "exactly 1 ZONE_CHANGE event(s) with player_player=P2, from=LIBRARY, to=HAND",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2 draws exactly one card."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 ZONE_CHANGE event(s) with player_player=P2, from=LIBRARY, to=HAND": true,
+      "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card07-draw, from=STACK, to=GRAVEYARD": true
+    },
+    "token_evidence": {
+      "draw_attempt:1": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card07-draw, player_player=P2, from=LIBRARY, to=HAND",
+        "events": [
+          9
+        ]
+      },
+      "draw_attempt:2": {
+        "binding": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card07-draw, from=STACK, to=GRAVEYARD",
+          "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card07-draw, player_player=P2, from=LIBRARY, to=HAND"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card07-draw, from=STACK, to=GRAVEYARD",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card07-draw, player_player=P2, from=LIBRARY, to=HAND",
+            "events": [
+              9
+            ]
+          }
+        ]
+      },
+      "draw_card": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card07-draw, player_player=P2, from=LIBRARY, to=HAND",
+        "events": [
+          9
+        ]
+      },
+      "draw_disallowed": {
+        "binding": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card07-draw, from=STACK, to=GRAVEYARD",
+          "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card07-draw, player_player=P2, from=LIBRARY, to=HAND"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:card07-draw, from=STACK, to=GRAVEYARD",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with source_object=obj:card07-draw, player_player=P2, from=LIBRARY, to=HAND",
+            "events": [
+              9
+            ]
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "7968637999f4ad507b37b3d88308171936977bb376f2af90a417a1833d03b7b9",
+  "runner_digest": "45b5babaaade13c43c4d5a7baaff1071b3a3f87221fe052adbfca9a75e54ec29",
+  "runtime_receipt_digest": "21a87960513eb869b260a880061033bd63e99e85b9607a9a5cb3e288278d2b73",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_07"
+}

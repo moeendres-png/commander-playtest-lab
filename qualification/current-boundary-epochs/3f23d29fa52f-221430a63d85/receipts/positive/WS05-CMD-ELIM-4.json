@@ -1,0 +1,75 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-ELIM-4",
+  "obligation_exercised": {
+    "obligation_digest": "281f00fa938d76b0a184f6300f222c6723882fe436974ac1e783743746ea7879",
+    "requested_state_digest": "177b07d677057c94d157d968525500eb002743f65ae3ff6d42af137544cef708",
+    "required_events": [
+      "commander_damage_total:P2:21",
+      "player_loses:P2",
+      "multiplayer_cleanup:CR800.4",
+      "object_leaves_game:obj:p2-owned"
+    ],
+    "terminal_checks": [
+      "P2 is at 38 life",
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "Commander-damage loss and multiplayer leave-game cleanup are integrated in one stable state before priority."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P2 is at 38 life": true,
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "commander_damage_total:P2:21": {
+        "binding": "the engine's commander combat damage from P1's Isamaru, Hound of Konda to P2 is 21",
+        "observation": "engine terminal observation"
+      },
+      "multiplayer_cleanup:CR800.4": {
+        "binding": "every LOST event with player_player=P2 precedes the first ZONE_CHANGE event with player_player=P2, to=OUTSIDE",
+        "observation": "engine terminal observation"
+      },
+      "object_leaves_game:obj:p2-owned": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:p2-owned, from=BATTLEFIELD, to=OUTSIDE",
+        "events": [
+          12
+        ]
+      },
+      "player_loses:P2": {
+        "binding": [
+          "exactly 1 LOST event(s) with player_player=P2",
+          "every DAMAGED_PLAYER event with source_object=obj:elim-isamaru, target_player=P2, amount=2, combat=True precedes the first LOST event with player_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 LOST event(s) with player_player=P2",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "every DAMAGED_PLAYER event with source_object=obj:elim-isamaru, target_player=P2, amount=2, combat=True precedes the first LOST event with player_player=P2",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ecb8dc3b91e0c2fccd8ba0ce863ef210b0194aba38bbc36e5ae4e5686ad02d8c",
+  "runner_digest": "45b5babaaade13c43c4d5a7baaff1071b3a3f87221fe052adbfca9a75e54ec29",
+  "runtime_receipt_digest": "328137e1d4067d10a4bd74cbf43b3a6881313a7fe17a3a2b6eb5e187abbb63c3",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-ELIM-4",
+  "variance_source": null
+}
