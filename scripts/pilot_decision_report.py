@@ -422,39 +422,40 @@ def _play_batch(
 
     Measurement only; the bridge must be started with
     -Dcommanderlab.fullGame.gamesPerJvm=N for N >= len(jobs).
+
+    A batched row carries the semantic hash, the winners and a wall time, not the
+    per-decision summary of :func:`_play`: the recording hook cannot tell the
+    games of one process apart without guessing, so ``decisions_recorded`` is
+    False and :func:`totals` keeps those games out of the decision figures. Use
+    the default of one game per JVM for decision, pilot-time and card figures.
     """
-    # Prepare the game inputs for run_batch
     game_inputs = []
     job_metas = []
     for pod, setup, seed in jobs:
         scenario, decks, pilots = setup
-        scenario = scenario.model_copy(update={"seed": seed})
-        game_inputs.append((scenario, decks, pilots))
-        job_metas.append((pod, setup, seed, len(decks)))
+        game_inputs.append((scenario.model_copy(update={"seed": seed}), decks, pilots))
+        job_metas.append((pod, seed, len(decks)))
 
     runner = XmageFullGameRunner(command, private_card_repository=True)
+    started = time.monotonic()
     outcomes = runner.run_batch(game_inputs)
+    # One JVM plays the whole chunk, so a game has no wall time of its own: every
+    # row carries its share of the chunk, and the shares add up to the chunk total.
+    share = round((time.monotonic() - started) / max(1, len(outcomes)), 2)
 
-    rows = []
-    for (pod, _setup, seed, n_players), outcome in zip(job_metas, outcomes, strict=True):
+    rows: list[dict[str, Any]] = []
+    for (pod, seed, n_players), outcome in zip(job_metas, outcomes, strict=True):
         row: dict[str, Any] = {"pod": pod, "seed": seed, "players": n_players}
-        started = time.monotonic()
-        try:
-            if isinstance(outcome, Exception):
-                raise outcome
-            # run_batch returns FullGameConformanceResult; we need to record
-            # decisions for the per-card analysis. For batched runs, we play
-            # without the detailed recording (measurement only).
+        if isinstance(outcome, Exception):
+            row |= {"status": "failed", "error": f"{type(outcome).__name__}: {outcome}"[:400]}
+        else:
             row |= {
                 "status": "ok",
                 "semantic": outcome.semantic_transcript_sha256,
                 "winners": list(outcome.winner_seats),
             }
-        except Exception as exc:
-            row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
-        row["wall_s"] = round(time.monotonic() - started, 2)
-        # Note: batched runs skip per-decision recording (measurement only)
-        print(json.dumps({k: row[k] for k in row if k != "by_class"}), flush=True)
+        row |= {"wall_s": share, "decisions_recorded": False}
+        print(json.dumps(row), flush=True)
         rows.append(row)
     return rows
 
@@ -490,15 +491,21 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
     for key in _TOTALS:
         out[key] = round(sum(float(g.get(key, 0)) for g in games), 2)
     if games:
-        out["mean_rounds"] = round(sum(g["rounds"] for g in games) / len(games), 2)
+        # Batched games (--games-per-jvm > 1) carry no decision record; they count
+        # for the wall time but not for the per-decision figures.
+        recorded = [g for g in games if "rounds" in g]
         out["mean_wall_s"] = round(out["wall_s"] / len(games), 1)
-        out["mean_decisions"] = round(out["decisions"] / len(games), 0)
-        # Per-game player count; reports written before ``players`` was stored
-        # fall back to the old 4-player assumption.
-        player_rounds = sum(float(g.get("players", 4)) * g["rounds"] for g in games)
-        out["spells_per_player_round"] = (
-            round(out["spells_cast"] / player_rounds, 2) if player_rounds else 0.0
-        )
+        if len(recorded) < len(games):
+            out["games_without_decision_record"] = len(games) - len(recorded)
+        if recorded:
+            out["mean_rounds"] = round(sum(g["rounds"] for g in recorded) / len(recorded), 2)
+            out["mean_decisions"] = round(out["decisions"] / len(recorded), 0)
+            # Per-game player count; reports written before ``players`` was stored
+            # fall back to the old 4-player assumption.
+            player_rounds = sum(float(g.get("players", 4)) * g["rounds"] for g in recorded)
+            out["spells_per_player_round"] = (
+                round(out["spells_cast"] / player_rounds, 2) if player_rounds else 0.0
+            )
     return out
 
 
@@ -512,6 +519,8 @@ def run(args: argparse.Namespace) -> int:
     command = bench.bridge_command(args.jar, jvm_options)
     setups = {pod: bench._setup(paths) for pod, paths in bench._pods(args.coverage_pods)}
     jobs = [(pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds]
+    run_started = time.monotonic()
+    rows: list[dict[str, Any]]
     if args.games_per_jvm == 1:
         # Single game per JVM (default, also used by evidence lane)
         if args.workers <= 1:
@@ -530,15 +539,14 @@ def run(args: argparse.Namespace) -> int:
             rows = [row for chunk in chunks for row in _play_batch(command, chunk)]
         else:
             with ProcessPoolExecutor(max_workers=args.workers) as pool:
-                futures = [
-                    pool.submit(_play_batch, command, chunk) for chunk in chunks
-                ]
-                rows: list[dict[str, Any]] = [
-                    row for future in futures for row in future.result()
-                ]
+                batch_futures = [pool.submit(_play_batch, command, chunk) for chunk in chunks]
+                rows = [row for future in batch_futures for row in future.result()]
+    elapsed_s = round(time.monotonic() - run_started, 1)
     report: dict[str, Any] = {
         "jar": str(args.jar),
         "games_per_jvm": args.games_per_jvm,
+        "workers": args.workers,
+        "elapsed_s": elapsed_s,
         "games": rows,
     }
     report["totals"] = totals(report)

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import time
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
@@ -99,3 +100,82 @@ def test_games_per_jvm_rejects_zero(monkeypatch: Any, tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError, match="must be positive"):
         pdr.run(args)
+
+
+class _FakeScenario:
+    seed = 0
+
+    def model_copy(self, update: dict[str, Any]) -> _FakeScenario:
+        return self
+
+
+class _FakeBatchRunner:
+    """Stands in for XmageFullGameRunner: the first game is ok, the second fails."""
+
+    def __init__(self, command: Any, private_card_repository: bool = False) -> None:
+        self.command = command
+
+    def run_batch(self, games: Any) -> list[Any]:
+        time.sleep(0.2)
+        outcomes: list[Any] = [
+            SimpleNamespace(semantic_transcript_sha256="b" * 64, winner_seats=(2,)),
+            RuntimeError("boom"),
+        ]
+        return outcomes[: len(games)]
+
+
+def test_play_batch_rows_have_a_wall_time_and_say_they_have_no_decisions(
+    monkeypatch: Any,
+) -> None:
+    """The batched row is built after the games ran; its wall time still is the chunk's."""
+    monkeypatch.setattr(pdr, "XmageFullGameRunner", _FakeBatchRunner)
+    setup = (_FakeScenario(), ("d1", "d2"), ("p1", "p2"))
+    rows = pdr._play_batch(("java",), [("pod", setup, 1), ("pod", setup, 2)])
+
+    assert [row["status"] for row in rows] == ["ok", "failed"]
+    assert rows[0]["semantic"] == "b" * 64
+    assert rows[0]["winners"] == [2]
+    assert "boom" in rows[1]["error"]
+    assert all(row["decisions_recorded"] is False for row in rows)
+    # Two games share one 0.2 s chunk: each row carries its share, not 0.0.
+    assert all(row["wall_s"] >= 0.09 for row in rows)
+
+
+def test_totals_accepts_batched_rows(monkeypatch: Any) -> None:
+    """A batched game has no `rounds`; totals() used to raise KeyError on it."""
+    monkeypatch.setattr(pdr, "XmageFullGameRunner", _FakeBatchRunner)
+    setup = (_FakeScenario(), ("d1", "d2"), ("p1", "p2"))
+    rows = pdr._play_batch(("java",), [("pod", setup, 1), ("pod", setup, 2)])
+    totals = pdr.totals({"games": rows})
+
+    assert totals["games_ok"] == 1
+    assert totals["games_failed"] == 1
+    assert totals["games_without_decision_record"] == 1
+    assert totals["mean_wall_s"] >= 0.1
+
+
+def test_a_batched_run_writes_its_report(monkeypatch: Any, tmp_path: Path) -> None:
+    """End to end through run(): the games are played, then the report must exist."""
+    monkeypatch.setattr(pdr, "XmageFullGameRunner", _FakeBatchRunner)
+    monkeypatch.setattr(pdr.bench, "bridge_command", lambda jar, opts: ("java", *opts))
+    monkeypatch.setattr(pdr.bench, "_pods", lambda coverage: [("pod", ["deck"])])
+    monkeypatch.setattr(
+        pdr.bench, "_setup", lambda paths: (_FakeScenario(), ("d1", "d2"), ("p1", "p2"))
+    )
+    out = tmp_path / "report.json"
+    args = SimpleNamespace(
+        jar=Path("x.jar"),
+        out=out,
+        seeds=[1, 2],
+        coverage_pods=False,
+        jvm_option=[],
+        workers=1,
+        games_per_jvm=2,
+    )
+    pdr.run(args)
+
+    report = json.loads(out.read_text(encoding="utf-8"))
+    assert report["games_per_jvm"] == 2
+    assert report["elapsed_s"] >= 0.1
+    assert len(report["games"]) == 2
+    assert report["totals"]["games_without_decision_record"] == 1
