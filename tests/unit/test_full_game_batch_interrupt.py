@@ -21,9 +21,11 @@ import pytest
 from commander_lab.engine.rules import full_game, full_game_batch
 from commander_lab.engine.rules.full_game import FullGameProtocolError, _RawFullGameClient
 
-# Answers start_engine, then never answers anything else (a hung game).
+# Answers start_engine, then never answers anything else (a hung game). Before it
+# hangs it drops a marker file, so the test knows the game is blocked in that request.
 _WEDGED_BRIDGE = """
-import json, sys, time
+import json, os, sys, time
+from pathlib import Path
 for line in sys.stdin:
     request = json.loads(line)
     if request["message_type"] == "start_engine":
@@ -31,6 +33,7 @@ for line in sys.stdin:
                           "request_id": request["request_id"], "success": True,
                           "status": "ok", "payload": {}, "errors": []}), flush=True)
         continue
+    (Path(__file__).parent / f"hung-{os.getpid()}").touch()
     time.sleep(3600)
 """
 
@@ -70,9 +73,13 @@ def test_interrupting_a_parallel_batch_kills_games_in_flight(
         raise AssertionError("a hung game never finishes")
 
     def interrupt_once_all_games_run(futures: Any) -> Iterator[Any]:
+        # Interrupt only once every bridge holds its unanswered request: a game
+        # still starting would fail with another code (BRIDGE_EXITED/UNUSABLE) or
+        # outside the try block, depending on timing.
         deadline = time.monotonic() + 60
-        while len(_live_clients()) < GAMES and time.monotonic() < deadline:
+        while len(list(tmp_path.glob("hung-*"))) < GAMES and time.monotonic() < deadline:
             time.sleep(0.05)
+        assert len(list(tmp_path.glob("hung-*"))) == GAMES
         assert len(_live_clients()) == GAMES
         interrupted_at.append(time.monotonic())
         raise KeyboardInterrupt
