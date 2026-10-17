@@ -414,6 +414,51 @@ def _play(
     return row
 
 
+def _play_batch(
+    command: tuple[str, ...],
+    jobs: list[tuple[str, tuple[Any, Any, Any], int]],
+) -> list[dict[str, Any]]:
+    """Play several games in one bridge JVM process (Owner decision 2026-10-15).
+
+    Measurement only; the bridge must be started with
+    -Dcommanderlab.fullGame.gamesPerJvm=N for N >= len(jobs).
+    """
+    # Prepare the game inputs for run_batch
+    game_inputs = []
+    job_metas = []
+    for pod, setup, seed in jobs:
+        scenario, decks, pilots = setup
+        scenario = scenario.model_copy(update={"seed": seed})
+        game_inputs.append((scenario, decks, pilots))
+        job_metas.append((pod, setup, seed, len(decks)))
+
+    runner = XmageFullGameRunner(command, private_card_repository=True)
+    outcomes = runner.run_batch(game_inputs)
+
+    rows = []
+    for (pod, _setup, seed, n_players), outcome in zip(job_metas, outcomes, strict=True):
+        row: dict[str, Any] = {"pod": pod, "seed": seed, "players": n_players}
+        started = time.monotonic()
+        try:
+            if isinstance(outcome, Exception):
+                raise outcome
+            # run_batch returns FullGameConformanceResult; we need to record
+            # decisions for the per-card analysis. For batched runs, we play
+            # without the detailed recording (measurement only).
+            row |= {
+                "status": "ok",
+                "semantic": outcome.semantic_transcript_sha256,
+                "winners": list(outcome.winner_seats),
+            }
+        except Exception as exc:
+            row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
+        row["wall_s"] = round(time.monotonic() - started, 2)
+        # Note: batched runs skip per-decision recording (measurement only)
+        print(json.dumps({k: row[k] for k in row if k != "by_class"}), flush=True)
+        rows.append(row)
+    return rows
+
+
 _TOTALS = (
     "turns",
     "decisions",
@@ -458,16 +503,44 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
 
 
 def run(args: argparse.Namespace) -> int:
-    command = bench.bridge_command(args.jar, args.jvm_option)
+    # Validate games_per_jvm (measurement only; evidence lane stays at 1)
+    if args.games_per_jvm < 1:
+        raise ValueError("--games-per-jvm must be positive")
+    jvm_options = list(args.jvm_option)
+    if args.games_per_jvm > 1:
+        jvm_options.append(f"-Dcommanderlab.fullGame.gamesPerJvm={args.games_per_jvm}")
+    command = bench.bridge_command(args.jar, jvm_options)
     setups = {pod: bench._setup(paths) for pod, paths in bench._pods(args.coverage_pods)}
     jobs = [(pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds]
-    if args.workers <= 1:
-        rows = [_play(command, pod, setup, seed) for pod, setup, seed in jobs]
+    if args.games_per_jvm == 1:
+        # Single game per JVM (default, also used by evidence lane)
+        if args.workers <= 1:
+            rows = [_play(command, pod, setup, seed) for pod, setup, seed in jobs]
+        else:
+            with ProcessPoolExecutor(max_workers=args.workers) as pool:
+                futures = [
+                    pool.submit(_play, command, pod, setup, seed) for pod, setup, seed in jobs
+                ]
+                rows = [future.result() for future in futures]
     else:
-        with ProcessPoolExecutor(max_workers=args.workers) as pool:
-            futures = [pool.submit(_play, command, pod, setup, seed) for pod, setup, seed in jobs]
-            rows = [future.result() for future in futures]
-    report: dict[str, Any] = {"jar": str(args.jar), "games": rows}
+        # Batched: multiple games per JVM (measurement only)
+        size = args.games_per_jvm
+        chunks = [jobs[i : i + size] for i in range(0, len(jobs), size)]
+        if args.workers <= 1:
+            rows = [row for chunk in chunks for row in _play_batch(command, chunk)]
+        else:
+            with ProcessPoolExecutor(max_workers=args.workers) as pool:
+                futures = [
+                    pool.submit(_play_batch, command, chunk) for chunk in chunks
+                ]
+                rows: list[dict[str, Any]] = [
+                    row for future in futures for row in future.result()
+                ]
+    report: dict[str, Any] = {
+        "jar": str(args.jar),
+        "games_per_jvm": args.games_per_jvm,
+        "games": rows,
+    }
     report["totals"] = totals(report)
     report["cards"] = aggregate_cards(report)
     args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
@@ -786,8 +859,8 @@ def main(argv: list[str] | None = None) -> int:
         "--games-per-jvm",
         type=int,
         default=1,
-        help="play up to N games in one bridge JVM (default: 1). "
-        "Saves JVM startup + card DB load time (~25%%).",
+        help="play up to N games in one bridge JVM (default: 1, measurement only). "
+        "Requires the bridge to support -Dcommanderlab.fullGame.gamesPerJvm=N.",
     )
     play.set_defaults(func=run)
     diff = sub.add_parser("compare")
