@@ -782,6 +782,13 @@ def main(argv: list[str] | None = None) -> int:
     play.add_argument("--coverage-pods", action="store_true")
     play.add_argument("--jvm-option", action="append", default=[])
     play.add_argument("--workers", type=int, default=1)
+    play.add_argument(
+        "--games-per-jvm",
+        type=int,
+        default=1,
+        help="play up to N games in one bridge JVM (default: 1). "
+        "Saves JVM startup + card DB load time (~25%%).",
+    )
     play.set_defaults(func=run)
     diff = sub.add_parser("compare")
     diff.add_argument("a", type=Path)
