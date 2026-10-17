@@ -8,9 +8,11 @@ This document defines **what problem Commander Simulator Next should solve and w
 It deliberately does **not** select a Rules Core, provider, programming language,
 repository topology, runtime protocol, storage model, or implementation architecture.
 
-`PRODUCTION_PROVIDER = NOT_SELECTED`  
-`ARCHITECTURE_FREEZE = NOT_CLAIMED`  
-`PRODUCTION_REPOSITORY = NOT_CREATED`
+**Status update 2026-10-17:** At the 2026-10-05 evidence baseline, `PRODUCTION_PROVIDER`
+was `NOT_SELECTED`, `ARCHITECTURE_FREEZE` was `NOT_CLAIMED`, and `PRODUCTION_REPOSITORY`
+was `NOT_CREATED`. Current status: ARCHITECTURE_FREEZE = CLAIMED (2026-10-10,
+Owner-signed), PRODUCTION_PROVIDER = XMAGE; the machine-readable status is
+config/rules_engines.json (architecture_freeze, provider_decision) and AGENTS.md section 1.
 
 ---
 
