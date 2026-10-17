@@ -249,12 +249,28 @@ def boardwipe_risk(state: Mapping[str, Any]) -> float:
     return max(0.0, min(1.0, lead * cards))
 
 
+def is_own_stack_item(
+    item: Mapping[str, Any], state: Mapping[str, Any], own_stack_names: frozenset[str]
+) -> bool:
+    """Whether a stack object belongs to the actor.
+
+    The bridge states whose every stack object is (``controller_id``, actor-scoped
+    like the permanents'); that settles it. A bridge without the field leaves
+    only the pilot's memory of its own cast names, which a same-named opponent
+    spell, a free cast or a copy can fool.
+    """
+    controller = item.get("controller_id")
+    if isinstance(controller, str) and controller:
+        return controller == str(state.get("actor_id", ""))
+    return str(item.get("name") or "").casefold() in own_stack_names
+
+
 def stack_pressure(state: Mapping[str, Any], own_stack_names: frozenset[str]) -> float:
     """0..1: how much the opponents' objects on the stack call for an answer now."""
     total = 0.0
     for item in _items(state.get("stack")):
         name = str(item.get("name") or "")
-        if name.casefold() in own_stack_names:
+        if is_own_stack_item(item, state, own_stack_names):
             continue
         facts = card_facts(name)
         total += facts.mana_value if facts is not None else 2.0
@@ -518,12 +534,10 @@ def _spell_withhold_reason(
         if hand_size < 2:
             return "additional_discard_cost_unpayable"
     if CardRole.COUNTER in roles and "counter target" in text:
-        stack_names = {
-            str(item.get("name", "")).casefold()
-            for item in _items(state.get("stack"))
-            if item.get("name")
-        }
-        if stack_names and stack_names <= own_stack_names:
+        stack_items = [item for item in _items(state.get("stack")) if item.get("name")]
+        if stack_items and all(
+            is_own_stack_item(item, state, own_stack_names) for item in stack_items
+        ):
             return "counter_only_own_stack"
     if CardRole.COUNTER in roles and "counter target" in text:
         worth = counter_target_worth(state, own_stack_names)
@@ -595,7 +609,7 @@ def counter_target_worth(state: Mapping[str, Any], own_stack_names: frozenset[st
     commanders = commander_names(state)
     for item in reversed(_items(state.get("stack"))):
         name = str(item.get("name") or "")
-        if name.casefold() in own_stack_names:
+        if is_own_stack_item(item, state, own_stack_names):
             continue
         if name.casefold() in commanders:
             return 10.0
@@ -705,8 +719,21 @@ def target_object_bonus(
     beneficial = outcome in {"benefit", "benefit_to_controller"}
     if found is None:
         name = str(meta.get("name") or option.get("label") or "").casefold()
-        if meta.get("zone") == "stack" or name in own_stack_names:
-            return -6.0 if (name in own_stack_names and not beneficial) else 0.0
+        stack_item = next(
+            (
+                item
+                for item in _items(state.get("stack"))
+                if str(item.get("object_id")) == object_id
+            ),
+            None,
+        )
+        own_object = (
+            is_own_stack_item(stack_item, state, own_stack_names)
+            if stack_item is not None
+            else name in own_stack_names
+        )
+        if meta.get("zone") == "stack" or stack_item is not None or own_object:
+            return -6.0 if (own_object and not beneficial) else 0.0
         return 0.0
     controller, item = found
     value = min(12.0, entry_value(item, state))

@@ -13,9 +13,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -71,6 +73,8 @@ final class XmageFullGameDecisionController {
     private DecisionException terminalFailure;
     private boolean terminal;
     private final JsonArray transcript = new JsonArray();
+    /** Turn number at which each player was first seen as lost; see {@link #noteLosses}. */
+    private final Map<UUID, Integer> lostOnTurn = new HashMap<>();
 
     XmageFullGameDecisionController() {
         this(Duration.ofMinutes(2));
@@ -128,6 +132,7 @@ final class XmageFullGameDecisionController {
         if (game == null || actor == null) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: game/actor unavailable");
         }
+        noteLosses(game);
         if (decisionClass == null || decisionClass.isBlank()) {
             throw new DecisionException("BRIDGE_PROTOCOL_ERROR: decision_class is blank");
         }
@@ -682,6 +687,28 @@ final class XmageFullGameDecisionController {
 
     synchronized JsonArray transcript() {
         return transcript.deepCopy();
+    }
+
+    /**
+     * Remembers the turn on which a player is first seen as lost. Every
+     * decision of every player passes through {@link #request}, and priority
+     * decisions arrive several times per turn, so a loss is noticed within the
+     * turn it happened. Read-only: nothing here changes the game.
+     */
+    synchronized void noteLosses(Game game) {
+        if (game == null) {
+            return;
+        }
+        for (Player player : game.getPlayers().values()) {
+            if (player.hasLost()) {
+                lostOnTurn.putIfAbsent(player.getId(), game.getState().getTurnNum());
+            }
+        }
+    }
+
+    /** Turn on which the player was first seen as lost, or null if it has not lost. */
+    synchronized Integer lostOnTurn(UUID playerId) {
+        return lostOnTurn.get(playerId);
     }
 
     synchronized long decisionCount() {
