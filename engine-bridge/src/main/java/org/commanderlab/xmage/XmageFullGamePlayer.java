@@ -1244,7 +1244,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
      *       left any trace: no target was requested, no mana was asked for, no
      *       X was announced, no mode or cost choice came back empty;</li>
      *   <li>the spell has a target with a minimum above zero, and nothing was
-     *       chosen for it; and</li>
+     *       chosen for it (for a Flashback cast, on the card's own spell
+     *       ability that the engine resolves; #864); and</li>
      *   <li>the card is back in the zone the cast started from and the stack
      *       holds exactly what it held before: the rewind happened.</li>
      * </ol>
@@ -1270,20 +1271,38 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 || paymentCancelled) {
             return false;
         }
-        boolean unchosenRequiredTarget = false;
-        for (Target target : casting.getTargets()) {
-            if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
-                unchosenRequiredTarget = true;
-                break;
-            }
-        }
-        if (!unchosenRequiredTarget) {
+        if (!hasUnchosenRequiredTarget(castSpellAbility(casting, game))) {
             return false;
         }
         Card card = game.getCard(casting.getSourceId());
         return card != null
                 && origin == game.getState().getZone(card.getMainCard().getId())
                 && game.getStack().size() == stackBefore;
+    }
+
+    /**
+     * The ability whose targets the engine chooses for a cast. For most
+     * spells that is the ability the pilot picked; a Flashback (or Harmonize)
+     * ability carries no targets itself, the engine puts a copy of the card's
+     * own spell ability on the stack ({@code getSpellAbilityToResolve}).
+     */
+    private static Ability castSpellAbility(Ability casting, Game game) {
+        if (casting instanceof SpellAbility) {
+            SpellAbility toResolve = ((SpellAbility) casting).getSpellAbilityToResolve(game);
+            if (toResolve != null) {
+                return toResolve;
+            }
+        }
+        return casting;
+    }
+
+    private static boolean hasUnchosenRequiredTarget(Ability ability) {
+        for (Target target : ability.getTargets()) {
+            if (target.getMinNumberOfTargets() > 0 && target.getSize() == 0) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

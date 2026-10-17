@@ -218,6 +218,35 @@ class XmageFullGameEngineReversalTest {
                 "the engine reached the mana step");
     }
 
+    /**
+     * Purify the Grave ("Exile target card from a graveyard", Flashback {W}) with
+     * no other card in any graveyard: the playable check reads the card in the
+     * graveyard, where it is itself a legal target, and offers the flashback cast.
+     * On the stack it is not in a graveyard, so no target is legal and the engine
+     * reverses the cast before asking anything (CR 601.2c) -- the same reversal as
+     * Resculpt, started from the graveyard. It used to end the game (coverage
+     * sweep run 38958475012, pod chulane/gitrog/juri/korvold, seed 17).
+     */
+    @Test
+    void aFlashbackCastWithNoTargetOutsideItselfIsReversedNotFailed() {
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start("flashback-self-target", 2, "P1",
+                List.of(XmageMultiplayerScenario.obj("P1", "Purify the Grave", 0, Zone.GRAVEYARD),
+                        XmageMultiplayerScenario.obj("P1", "Plains", 1, Zone.BATTLEFIELD)));
+        Game game = s.session.restorationGame();
+
+        s.submit(s.action("activate_ability", "Flashback"));
+
+        JsonObject payload = s.session.pendingDecisionPayload();
+        assertTrue(payload.get("failure").isJsonNull(),
+                "the reversal must not end the game: " + payload.get("failure"));
+        assertEquals("priority", s.decisionClass(), "the same player is asked again");
+        assertEquals("P1", s.actor(), "P1 keeps priority");
+        assertTrue(game.getStack().isEmpty(), "nothing was left on the stack");
+        assertTrue(s.seats.get("P1").getGraveyard().getCards(game).stream()
+                        .anyMatch(c -> "Purify the Grave".equals(c.getName())),
+                "Purify the Grave is still in the graveyard");
+    }
+
     private static SpellAbility spellInHand(XmageMultiplayerScenario s, Game game, String name) {
         for (Card card : s.seats.get("P1").getHand().getCards(game)) {
             if (name.equals(card.getName())) {
