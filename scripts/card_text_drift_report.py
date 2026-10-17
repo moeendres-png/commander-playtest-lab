@@ -116,8 +116,10 @@ def _triage(drift: CardDrift, oracle_text: str, engine_rules: list[str]) -> tupl
     """Return (oracle_excerpt, engine_excerpt, class, reason).
 
     Classes: WORDING | EXPORT_GAP | DIFFERENT | UNSURE.
-    This is a first-pass heuristic triage; DIFFERENT means "candidate",
-    never a proven engine bug.
+    DIFFERENT means "candidate implementation difference": the normalized
+    texts disagree on an effect number, keyword or structural field in a way
+    no known noise pattern explains. Never a proven engine bug from text
+    alone; each DIFFERENT card gets a proposed in-game check.
     """
     o_ex = _excerpt(oracle_text)
     e_ex = _excerpt(" ".join(engine_rules))
@@ -133,6 +135,15 @@ def _triage(drift: CardDrift, oracle_text: str, engine_rules: list[str]) -> tupl
         # Variable P/T (*) exported as 0 is a known export convention.
         if any(s.field in ("power", "toughness") and s.engine == "0" for s in drift.structural):
             return o_ex, e_ex, "EXPORT_GAP", f"variable P/T exported as 0 ({fields})"
+        # Exact structural fields (mana cost/value, power, toughness,
+        # loyalty) are compared literally: a diff here is a candidate.
+        if all(s.field != "types" for s in drift.structural):
+            return (
+                o_ex,
+                e_ex,
+                "DIFFERENT",
+                f"structural field differs: {fields}",
+            )
         return o_ex, e_ex, "UNSURE", f"structural field differs: {fields}; needs a rules check"
     if drift.tier == "B":
         bits = []
@@ -147,10 +158,14 @@ def _triage(drift: CardDrift, oracle_text: str, engine_rules: list[str]) -> tupl
                 f"only in engine {list(drift.keywords_only_engine)}"
             )
         detail = "; ".join(bits)
-        # Numbers differing only by reminder-text stripping on dual lands
-        # (mana abilities parenthesised in Oracle) is wording.
         if drift.numbers_only_oracle or drift.numbers_only_engine:
-            return o_ex, e_ex, "UNSURE", f"number multiset differs: {detail}"
+            o_vals = set(drift.numbers_only_oracle)
+            e_vals = set(drift.numbers_only_engine)
+            if o_vals != e_vals:
+                # Different numeric values (e.g. +1/+1 vs +2/+2): candidate.
+                return o_ex, e_ex, "DIFFERENT", f"number multiset differs: {detail}"
+            # Same values, different counts: duplication noise.
+            return o_ex, e_ex, "WORDING", f"number counts differ, same values: {detail}"
         return o_ex, e_ex, "UNSURE", f"keyword set differs: {detail}"
     # Tier C: low similarity, no structural/number/keyword diff.
     return o_ex, e_ex, "WORDING", "same effect, different phrasing or ordering"

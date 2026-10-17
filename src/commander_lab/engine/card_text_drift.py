@@ -47,6 +47,7 @@ _TYPOGRAPHIC = (
     ("\u201d", '"'),
     ("\u2014", "-"),
     ("\u2013", "-"),
+    ("\u2212", "-"),  # minus sign: planeswalker loyalty costs use U+2212
     ("\u2022", "-"),
     ("\u00b7", "-"),
     ("&bull;", "-"),
@@ -64,6 +65,17 @@ _NUMBER = re.compile(r"-?\d+(?:\.\d+)?")
 
 def _strip_html(text: str) -> str:
     text = _ITALIC_REMINDER.sub(" ", text)
+    text = _HTML_TAG.sub(" ", text)
+    return html.unescape(text)
+
+
+def _strip_tags_keep_content(text: str) -> str:
+    """Remove HTML tags but keep their content (for keyword detection).
+
+    Ability words like <i>Magecraft</i> are wrapped in italics in the engine
+    export; dropping the content (as _strip_html does for similarity) would
+    hide keywords that the Oracle keyword list contains.
+    """
     text = _HTML_TAG.sub(" ", text)
     return html.unescape(text)
 
@@ -167,17 +179,65 @@ def split_engine_faces(lines: Sequence[str]) -> list[str]:
 # ---------------------------------------------------------------------------
 
 
+_BRACED = re.compile(r"\{[^}]*\}")
+
+
+def _dedup_sentences(text: str) -> str:
+    """Drop exact-duplicate sentences (split-mana-ability noise).
+
+    The engine lists "{T}: Add {W} or {U}" as two parallel abilities, each
+    repeating "deals 1 damage to you"; the Oracle states it once. Counting
+    each distinct sentence once keeps the number multiset comparable.
+    """
+    seen: set[str] = set()
+    out: list[str] = []
+    for sentence in text.split("."):
+        key = sentence.strip()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        out.append(sentence)
+    return ".".join(out)
+
+
 def number_multiset(text: str) -> Counter[str]:
-    """Multiset of numbers in normalised text (as strings, order-free)."""
+    """Multiset of numbers in normalised text (as strings, order-free).
+
+    Numbers inside {...} mana symbols are excluded: they are costs, and the
+    engine lists adventure-card costs in the rules text where the Oracle
+    keeps them in the mana_cost field. Duplicate sentences are counted once
+    (split mana abilities repeat the damage line per color).
+    """
+    text = _BRACED.sub(" ", text)
+    text = _dedup_sentences(text)
     return Counter(_NUMBER.findall(text))
 
 
 def engine_keywords(rules_text: str, known: Sequence[str]) -> set[str]:
-    """Keywords present in engine rules text, matched as whole words."""
+    """Keywords present in engine rules text.
+
+    Matching is lenient: a keyword matches a whole word, a word starting
+    with the keyword ("goad" in "goaded", "mill" in "mills") or a word
+    ending with it ("cycling" in "plainscycling"). Multi-word phrases
+    require an exact phrase match. A keyword ending in "cycling" also
+    matches any *cycling word in the text ("landcycling" matches
+    "Plainscycling"): the specific type implies the general mechanic.
+    """
     found: set[str] = set()
     lowered = rules_text.lower()
     for kw in known:
-        pattern = r"(?<![a-z])" + re.escape(kw.lower()) + r"(?![a-z])"
+        k = kw.lower().strip()
+        if not k:
+            continue
+        if " " in k:
+            # Multi-word phrase: exact match.
+            pattern = r"(?<![a-z])" + re.escape(k) + r"(?![a-z])"
+        elif k.endswith("cycling"):
+            # *cycling family: any *cycling word in the text counts.
+            pattern = r"(?<![a-z])[a-z]*cycling(?![a-z])"
+        else:
+            # Single word: allow affixes on either side.
+            pattern = r"(?<![a-z])[a-z]*" + re.escape(k) + r"[a-z]*(?![a-z])"
         if re.search(pattern, lowered):
             found.add(kw)
     return found
@@ -345,7 +405,10 @@ def compare_card(
     numbers_only_engine = tuple(sorted((e_nums - o_nums).elements()))
 
     oracle_kw = {str(k).lower() for k in (oracle_entry.get("keywords") or [])}
-    engine_kw_raw = engine_keywords(engine_norm, known_keywords or ())
+    # Detect keywords in engine text with italic content preserved: ability
+    # words (<i>Magecraft</i>) would otherwise be stripped before matching.
+    engine_kw_text = _strip_tags_keep_content("\n".join(facts_entry.get("rules") or []))
+    engine_kw_raw = engine_keywords(engine_kw_text, known_keywords or ())
     engine_kw = {k.lower() for k in engine_kw_raw}
     keywords_only_oracle = tuple(sorted(oracle_kw - engine_kw))
     keywords_only_engine = tuple(sorted(engine_kw - oracle_kw))

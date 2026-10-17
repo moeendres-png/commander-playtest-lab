@@ -156,3 +156,37 @@ def test_basic_lands_excluded():
 def test_number_multiset():
     assert number_multiset("draw 2 cards then draw 3") == {"2": 1, "3": 1}
     assert number_multiset("no numbers here") == {}
+
+
+def test_u2212_minus_normalises_to_ascii():
+    # U+2212 (minus sign) must become ASCII "-" so planeswalker loyalty
+    # costs compare equal: oracle "<U+2212>8" vs engine "-8".
+    o = normalize_oracle_text("\u22128: deal 10 damage", "Chandra Nalaar")
+    e = normalize_engine_rules(["-8: {this} deals 10 damage"], "Chandra Nalaar")
+    assert "\u2212" not in o
+    assert number_multiset(o) == number_multiset(e)
+
+
+def test_coercive_impetus_numbers_differ_is_tier_b():
+    # Real engine difference: +2/+2 vs printed +1/+1 must surface as
+    # tier B with the differing numbers (triage maps it to DIFFERENT).
+    o = _oracle(
+        "Coercive Impetus",
+        oracle_text=("Enchant creature\nEnchanted creature gets +1/+1 and is goaded."),
+        keywords=["Goad"],
+        power=None,
+        toughness=None,
+        type_line="Enchantment \u2014 Aura",
+    )
+    f = _facts(
+        "Coercive Impetus",
+        rules=["Enchant creature", "Enchanted creature gets +2/+2 and is goaded."],
+        types=["ENCHANTMENT"],
+        subtypes=["Aura"],
+        power=None,
+        toughness=None,
+    )
+    drift = compare_card(o, f, known_keywords=["Goad"])
+    assert drift.tier == "B"
+    assert set(drift.numbers_only_oracle) == {"1"}
+    assert set(drift.numbers_only_engine) == {"2"}

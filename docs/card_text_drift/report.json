@@ -158,234 +158,6 @@
     },
     {
       "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Adarkar Wastes",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "sense the good"
-      ],
-      "name": "Alicia Masters, Skilled Sculptor",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.96,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "dualcast"
-      ],
-      "name": "Alisaie Leveilleur",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.973,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "eukrasia"
-      ],
-      "name": "Alphinaud Leveilleur",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9697,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "cycling",
-        "landcycling",
-        "typecycling"
-      ],
-      "name": "Angel of the Ruins",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9286,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "magecraft"
-      ],
-      "name": "Archmage Emeritus",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.963,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "constellation"
-      ],
-      "name": "Archon of Sun's Grace",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9787,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "cycling",
-        "typecycling"
-      ],
-      "name": "Ash Barrens",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "diana"
-      ],
-      "name": "Astrologian's Planisphere",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9873,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Battlefield Forge",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "lethal voice"
-      ],
-      "name": "Black Bolt, Inhuman King",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9697,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "buy information",
-        "hire a mercenary",
-        "sell contraband"
-      ],
-      "name": "Black Market Connections",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.8889,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "spirit of the whalaqee"
-      ],
-      "name": "Blue Mage's Cane",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9649,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "cosmic awareness"
-      ],
-      "name": "Captain Mar-Vell, Space-Born",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9565,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Caves of Koilos",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "full party",
-        "light party"
-      ],
-      "name": "Champions from Beyond",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9286,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Chandra Nalaar",
-      "numbers_only_engine": [
-        "-8"
-      ],
-      "numbers_only_oracle": [
-        "8"
-      ],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Chandra, Torch of Defiance",
-      "numbers_only_engine": [
-        "-3",
-        "-7"
-      ],
-      "numbers_only_oracle": [
-        "3",
-        "7"
-      ],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
       "keywords_only_oracle": [
         "transform"
       ],
@@ -398,9 +170,7 @@
     },
     {
       "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "goad"
-      ],
+      "keywords_only_oracle": [],
       "name": "Coercive Impetus",
       "numbers_only_engine": [
         "2",
@@ -411,210 +181,6 @@
         "1"
       ],
       "similarity": 0.9524,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "escalate"
-      ],
-      "name": "Collective Effort",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9538,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "converge"
-      ],
-      "name": "Crystalline Crawler",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9041,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "krishna"
-      ],
-      "name": "Dancer's Chakrams",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9836,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "flashback"
-      ],
-      "name": "Deep Analysis",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "metalcraft"
-      ],
-      "name": "Dispatch",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Doctor Doom, King of Latveria",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "constellation"
-      ],
-      "name": "Doomwake Giant",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9189,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "mill"
-      ],
-      "name": "Extract from Darkness",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "goad"
-      ],
-      "name": "Eye of Nidhogg",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "council's dilemma"
-      ],
-      "name": "Fateful Tempest",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "throw wide the gates"
-      ],
-      "name": "G'raha Tia, Scion Reborn",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9545,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "insatiable hunger"
-      ],
-      "name": "Galactus, Devourer of Worlds",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9697,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "goad"
-      ],
-      "name": "Ghoulish Impetus",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9643,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Glorious Purpose",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.96,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Hildibrand Manderville // Gentleman's Rise",
-      "numbers_only_engine": [
-        "2"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.9014,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "shiva's aid"
-      ],
-      "name": "Hraesvelgr of the First Brood",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9123,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Hypnotic Sprite // Mesmeric Glare",
-      "numbers_only_engine": [
-        "2"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.8,
       "structural": [],
       "tier": "B"
     },
@@ -633,145 +199,9 @@
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Iron Monger, Sadistic Tycoon",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Kang, Temporal Tyrant",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
         "mill"
       ],
       "name": "Kirol, History Buff // Pack a Punch",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "trace aether"
-      ],
-      "name": "Krile Baldesion",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9714,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Lethal Scheme",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "alliance"
-      ],
-      "name": "Lita, Little Orphan Amphibian",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9434,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "lieutenant"
-      ],
-      "name": "Loyal Drake",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9714,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "goad"
-      ],
-      "name": "Martial Impetus",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "cycling",
-        "landcycling",
-        "typecycling"
-      ],
-      "name": "Monstrosity of the Lake",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Murderous Rider // Swift End",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.8571,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Narset, Parter of Veils",
-      "numbers_only_engine": [
-        "-2"
-      ],
-      "numbers_only_oracle": [
-        "2"
-      ],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "landfall"
-      ],
-      "name": "Omnath, Locus of Rage",
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
       "similarity": 1.0,
@@ -793,422 +223,13 @@
     },
     {
       "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "goad"
-      ],
-      "name": "Parasitic Impetus",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "explore"
-      ],
-      "name": "Path of Discovery",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "raid"
-      ],
-      "name": "Perforating Artist",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Prowler, Clawed Thief",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Quintorius, History Chaser",
-      "numbers_only_engine": [
-        "-4"
-      ],
-      "numbers_only_oracle": [
-        "4"
-      ],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "manifest"
-      ],
-      "name": "Reality Shift",
+      "name": "Adarkar Wastes",
       "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "death sickle"
-      ],
-      "name": "Reaper's Scythe",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9348,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "goad"
-      ],
-      "name": "Redemption Arc",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "hagneia"
-      ],
-      "name": "Sage's Nouliths",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9818,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "escape"
-      ],
-      "name": "Sentinel's Eyes",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "goad"
-      ],
-      "name": "Shiny Impetus",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Shivan Reef",
-      "numbers_only_engine": [
-        "1"
-      ],
       "numbers_only_oracle": [],
       "similarity": 0.7059,
       "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Sorin Markov",
-      "numbers_only_engine": [
-        "-3",
-        "-7"
-      ],
-      "numbers_only_oracle": [
-        "3",
-        "7"
-      ],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "dash attack",
-        "foot toss",
-        "jump kick"
-      ],
-      "name": "Special Move",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.8831,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "magecraft"
-      ],
-      "name": "Storm-Kiln Artist",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9333,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Sulfurous Springs",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "flashback"
-      ],
-      "name": "Summons of Saruman",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Talisman of Conviction",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Talisman of Creativity",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Talisman of Dominance",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Talisman of Hierarchy",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Talisman of Indulgence",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Talisman of Progress",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "scions' secretary"
-      ],
-      "name": "Tataru Taru",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9737,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "royal guard"
-      ],
-      "name": "Thancred Waters",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9667,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "mill"
-      ],
-      "name": "The Mouth of Sauron",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "cycling",
-        "landcycling",
-        "typecycling"
-      ],
-      "name": "Troll of Khazad-d\u00fbm",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9167,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "typhoid mary"
-      ],
-      "name": "Typhoid Mary, Fractured",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Ultron, Unlimited",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.963,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Underground River",
-      "numbers_only_engine": [
-        "1"
-      ],
-      "numbers_only_oracle": [],
-      "similarity": 0.7059,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "draw arcanum",
-        "play arcanum"
-      ],
-      "name": "Urianger Augurelt",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9636,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "magecraft"
-      ],
-      "name": "Veyran, Voice of Duality",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.9885,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "connive"
-      ],
-      "name": "Villainous Hideout",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 1.0,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [
-        "fight"
-      ],
-      "name": "Voracious Hydra",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.8333,
-      "structural": [],
-      "tier": "B"
+      "tier": "C"
     },
     {
       "keywords_only_engine": [],
@@ -1217,6 +238,16 @@
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
       "similarity": 0.6667,
+      "structural": [],
+      "tier": "C"
+    },
+    {
+      "keywords_only_engine": [],
+      "keywords_only_oracle": [],
+      "name": "Battlefield Forge",
+      "numbers_only_engine": [],
+      "numbers_only_oracle": [],
+      "similarity": 0.7059,
       "structural": [],
       "tier": "C"
     },
@@ -1243,10 +274,10 @@
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Cascade Bluffs",
+      "name": "Caves of Koilos",
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
-      "similarity": 0.72,
+      "similarity": 0.7059,
       "structural": [],
       "tier": "C"
     },
@@ -1307,16 +338,6 @@
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
       "similarity": 0.5,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Fetid Heath",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.72,
       "structural": [],
       "tier": "C"
     },
@@ -1413,36 +434,6 @@
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Razortide Bridge",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.7368,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Rugged Prairie",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.72,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Rustvale Bridge",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.7368,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
       "name": "Sacred Peaks",
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
@@ -1493,40 +484,20 @@
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Smoldering Marsh",
+      "name": "Shivan Reef",
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
-      "similarity": 0.7143,
+      "similarity": 0.7059,
       "structural": [],
       "tier": "C"
     },
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Sodden Verdure",
+      "name": "Sulfurous Springs",
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
-      "similarity": 0.7143,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Sunken Hollow",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.7143,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Sunken Ruins",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.72,
+      "similarity": 0.7059,
       "structural": [],
       "tier": "C"
     },
@@ -1537,6 +508,66 @@
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
       "similarity": 0.3333,
+      "structural": [],
+      "tier": "C"
+    },
+    {
+      "keywords_only_engine": [],
+      "keywords_only_oracle": [],
+      "name": "Talisman of Conviction",
+      "numbers_only_engine": [],
+      "numbers_only_oracle": [],
+      "similarity": 0.7059,
+      "structural": [],
+      "tier": "C"
+    },
+    {
+      "keywords_only_engine": [],
+      "keywords_only_oracle": [],
+      "name": "Talisman of Creativity",
+      "numbers_only_engine": [],
+      "numbers_only_oracle": [],
+      "similarity": 0.7059,
+      "structural": [],
+      "tier": "C"
+    },
+    {
+      "keywords_only_engine": [],
+      "keywords_only_oracle": [],
+      "name": "Talisman of Dominance",
+      "numbers_only_engine": [],
+      "numbers_only_oracle": [],
+      "similarity": 0.7059,
+      "structural": [],
+      "tier": "C"
+    },
+    {
+      "keywords_only_engine": [],
+      "keywords_only_oracle": [],
+      "name": "Talisman of Hierarchy",
+      "numbers_only_engine": [],
+      "numbers_only_oracle": [],
+      "similarity": 0.7059,
+      "structural": [],
+      "tier": "C"
+    },
+    {
+      "keywords_only_engine": [],
+      "keywords_only_oracle": [],
+      "name": "Talisman of Indulgence",
+      "numbers_only_engine": [],
+      "numbers_only_oracle": [],
+      "similarity": 0.7059,
+      "structural": [],
+      "tier": "C"
+    },
+    {
+      "keywords_only_engine": [],
+      "keywords_only_oracle": [],
+      "name": "Talisman of Progress",
+      "numbers_only_engine": [],
+      "numbers_only_oracle": [],
+      "similarity": 0.7059,
       "structural": [],
       "tier": "C"
     },
@@ -1573,26 +604,6 @@
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Turbulent Moor",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.7143,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
-      "name": "Turbulent Steppe",
-      "numbers_only_engine": [],
-      "numbers_only_oracle": [],
-      "similarity": 0.7143,
-      "structural": [],
-      "tier": "C"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
       "name": "Umbral Expanse",
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
@@ -1603,10 +614,10 @@
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Vernal Fen",
+      "name": "Underground River",
       "numbers_only_engine": [],
       "numbers_only_oracle": [],
-      "similarity": 0.7143,
+      "similarity": 0.7059,
       "structural": [],
       "tier": "C"
     }
@@ -1780,9 +791,9 @@
   ],
   "tiers": {
     "A": 2,
-    "B": 85,
-    "C": 47,
+    "B": 5,
+    "C": 59,
     "EXPORT_GAP": 7,
-    "OK": 606
+    "OK": 674
   }
 }
