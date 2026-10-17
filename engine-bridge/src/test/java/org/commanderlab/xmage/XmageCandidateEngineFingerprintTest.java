@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Successor-repin identity guard (2026-09-29, successor v2 2026-09-30, v3 2026-10-01,
- * v4 2026-10-03, v5 2026-10-11, v6 2026-10-13, v7 2026-10-16): the bridge
+ * v4 2026-10-03, v5 2026-10-11, v6 2026-10-13, v7 2026-10-16, v8 2026-10-17): the bridge
  * declares the XMage multiplayer candidate as its engine commit, and the engine
  * classes actually loaded at runtime are that candidate's.
  *
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "16e57239e0738925369b704fd7fdd083b7d5024b";
+    static final String CANDIDATE = "348b37db5cf64f4ed503e8d37b776d5edc70e6d5";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
@@ -142,6 +142,26 @@ class XmageCandidateEngineFingerprintTest {
         assertEquals(void.class, lazy.getReturnType(), "mage#60");
         Method own = mage.game.GameImpl.class.getDeclaredMethod("ownGameCard", java.util.UUID.class);
         assertEquals(mage.cards.Card.class, own.getReturnType(), "mage#60");
+    }
+
+    /**
+     * Successor v8 (2026-10-17): the loaded card set carries the seven enabled Strixhaven
+     * prepare creatures (mage#61) and still hides the cards that are unfinished.
+     */
+    @Test
+    void loadedCardSetCarriesTheEnabledPrepareCreatures() {
+        java.util.Set<String> names = new java.util.HashSet<>();
+        for (mage.cards.ExpansionSet.SetCardInfo info
+                : mage.sets.SecretsOfStrixhaven.getInstance().getSetCardInfo()) {
+            names.add(info.getName());
+        }
+        for (String enabled : new String[]{"Spellbook Seeker", "Sanar, Unfinished Genius",
+                "Blazing Firesinger", "Cheerful Osteomancer", "Goblin Glasswright",
+                "Studious First-Year", "Tam, Observant Sequencer"}) {
+            assertTrue(names.contains(enabled),
+                    "mage#61: loaded card set is not the successor's: " + enabled);
+        }
+        assertFalse(names.contains("Adventurous Eater"), "mage#61: unfinished card is playable");
     }
 
     /**

@@ -1,0 +1,110 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-sos-prepare-repin-v8-20261017",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the head commit of moeendres-png/mage#61 (merged into claude/xmage-mp-candidate-20260929 as c39ab8a99617496e1880e3cc053a793517b2b238). The native maven.yml run on the exact commit and the Lab bridge suite are PENDING (NOT_RUN != PASS) and are bound by a later commit once seen. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "prior_live_pin": {
+  "commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+  "tree": "7f751d05b0e8351d7cf8bd45f362c8e621c961ef",
+  "role": "prior live XMage pin (repin v7: lazy card copy of playable calculation copies, mage#60); stays historical and is the engine of the current_qualification record until the requalification of this pin",
+  "successor_locks": [
+   "qualification/xmage-lazy-playable-copy-repin-v7-20261016/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "16e57239e0738925369b704fd7fdd083b7d5024b",
+   "tree": "7f751d05b0e8351d7cf8bd45f362c8e621c961ef"
+  },
+  "final_integrated_candidate": {
+   "commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+   "tree": "f62bfea3d215441c568baa8ff9878597a60979bc",
+   "content": "v7 + seven enabled Secrets of Strixhaven prepare creatures, Coercive Impetus +1/+1 and the enters-prepared copy lifetime fix (mage#61)"
+  },
+  "identity_rule": "the pin is the head commit of mage#61, two commits on the v7 pin. It stays reachable as the second parent of the mage#61 merge on the candidate branch (merge commit c39ab8a99617496e1880e3cc053a793517b2b238), so the pin does not change when that PR merges; the merge commit has a tree identical to this one but is a different commit and is not the pin."
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-mp-candidate-20260929",
+  "commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+  "tree": "f62bfea3d215441c568baa8ff9878597a60979bc",
+  "parents": [
+   "d809b5a0f6c0121c84a487e959730209276b3243"
+  ],
+  "committed_at": "2026-10-17T11:27:53+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/348b37db5cf64f4ed503e8d37b776d5edc70e6d5.tar.gz",
+  "fork_ref_note": "the commit is the head of moeendres-png/mage#61 (into claude/xmage-mp-candidate-20260929) and of the pull request head branch claude/project-thread-md70sq; it is reachable as the second parent of the merge commit c39ab8a99617496e1880e3cc053a793517b2b238"
+ },
+ "donors": [
+  {
+   "finding": "SOS-PREPARE-CARDS",
+   "pr": "moeendres-png/mage#61",
+   "head": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+   "observation": "seven Secrets of Strixhaven prepare creatures of the Owner's collection sat in the set's unfinished list; Coercive Impetus gave +2/+2 instead of +1/+1; and a creature that enters prepared lost its prepare spell copy at once, because BecomePreparedSourceEffect linked the copy to the permanent with the zone change counter of the replacement step, one lower than the final value",
+   "fix": "the seven names leave the unfinished list; BoostEnchantedEffect(1, 1); the copy is linked with the final zone change counter when game.getPermanentEntering(...) is non-null. Tests: EnabledPrepareCardsTest 8, PrepareTest 14, CoerciveImpetusTest 1, run locally. No other Rules behaviour and no other card data change."
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --stat 16e57239 348b37db -- Mage/src Mage.Sets/src; blob ids from git ls-tree 348b37db",
+  "engine_module_files": [
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CoerciveImpetus.java",
+    "blob": "0cbf54d0f4b982bee3a00e8e6d837356fbfc4887"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+    "blob": "96a04faa0ea96b6c92892114d4bb60f9af9ca5a2"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/common/BecomePreparedSourceEffect.java",
+    "blob": "a801fb96cea51b2386f7e1e7256c8e4db3a365ba"
+   }
+  ],
+  "dependency_change": false,
+  "build_files_changed": [],
+  "build_files_note": "no pom.xml or other build file changes; the delta is one engine file, one card file and one set file (plus Mage.Tests)"
+ },
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/project-thread-md70sq of moeendres-png/mage (pull request head of mage#61)",
+   "commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+   "status": "PENDING"
+  },
+  "mage_verify": {
+   "result": "PENDING",
+   "detail": "the pre-existing 15 card errors and 3 set errors of the v6 and v7 locks are expected; recorded only once the run is seen"
+  }
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "PENDING",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance on the repin branch: engine-bridge mvn verify against XMage built from exact 348b37db",
+   "status": "PENDING"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit, and XmageCandidateEngineFingerprintTest.loadedCardSetCarriesTheEnabledPrepareCreatures checks that the loaded Strixhaven set carries the seven enabled cards; the v6 and v7 hooks stay checked."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the freeze record is re-assembled."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 workflow_dispatch on the exact Lab main merge commit of this repin, sealed as a new epoch, then AF11 re-adjudicated for this pin. No current-boundary epoch exists for this pin yet, and none may be written by this repin."
+ }
+}

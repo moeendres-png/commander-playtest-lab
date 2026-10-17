@@ -30,7 +30,7 @@ STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 # Live pin: multiplayer candidate after the deterministic commander-zone ask order
 # (mage#57), the card-scanner bulk lookup (mage#58) and the precon card coverage
 # (mage#59) and the lazy playable-calculation card copy (mage#60), repin v7.
-CANONICAL_XMAGE_PIN = "16e57239e0738925369b704fd7fdd083b7d5024b"
+CANONICAL_XMAGE_PIN = "348b37db5cf64f4ed503e8d37b776d5edc70e6d5"
 _HEX40 = re.compile(r"[0-9a-f]{40}")
 _BASE_IMAGE_DIGEST = re.compile(r"sha256:[0-9a-f]{64}")
 _MANIFEST_REL = "config/rules_engines.json"
