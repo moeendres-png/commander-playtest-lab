@@ -116,6 +116,21 @@ python scripts/pilot_decision_report.py run --jar engine-bridge/target/xmage-eng
 python scripts/pilot_decision_report.py compare /tmp/before.json /tmp/after.json
 ```
 
+Reading the per-card and per-seat figures of a report (`per_card_version` 3):
+
+- `cast_rate` is the casts inside a counted window per counted window, so it never
+  exceeds 1. `cast_share` is the share of games with a counted offer in which the card
+  was cast; use it for a card that is held for several turns. A split card counts once
+  under its combined name ("Wear // Tear").
+- `first_cast_round`, `mean_first_cast_round` and `commander_first_cast_round` are the
+  1-based round of the seat's own turn. `commander_first_cast_turn` is the game turn
+  counter and depends on the seat; `commander_first_cast_round_by_name` keeps partner
+  commanders apart.
+- The counters at the top of a game row add up all seats of the pod. `by_seat` (per
+  game), `totals_by_seat` (per report) and `cards.by_seat` give one seat's figures; a
+  statement about one deck needs that seat.
+- Per-card figures of different `per_card_version` values are not compared.
+
 ## Pitfalls
 
 - `COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD` must point at the bridge jar

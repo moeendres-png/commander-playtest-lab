@@ -45,7 +45,11 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 import benchmark_xmage_full_games as bench  # noqa: E402
 
-from commander_lab.agents.card_knowledge import card_facts, card_roles  # noqa: E402
+from commander_lab.agents.card_knowledge import (  # noqa: E402
+    canonical_card_name,
+    card_facts,
+    card_roles,
+)
 from commander_lab.engine.rules import full_game_pilot_views as views  # noqa: E402
 from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
 from commander_lab.engine.rules.full_game_pilot import (  # noqa: E402
@@ -146,7 +150,7 @@ def _stack_top_is_own_cast(state: dict[str, Any], own_names: set[str]) -> bool:
     for item in stack:
         if not isinstance(item, dict):
             continue
-        name = str(item.get("name") or "").strip()
+        name = canonical_card_name(str(item.get("name") or ""))
         if not name:
             continue
         if card_facts(name) is None:
@@ -159,12 +163,52 @@ def _seat(state: dict[str, Any]) -> int:
     return int(state.get("seat", -1)) + 1
 
 
-def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
-    """Play-quality figures of one recorded game."""
+# Counters repeated per seat in ``summarize(...)["by_seat"]``.
+_SEAT_KEYS = (
+    "decisions",
+    "forced_priority",
+    "pilot_s",
+    "by_class",
+    "spells_cast",
+    "own_turns",
+    "bad_idle_main_with_castable_spell",
+    "bad_idle_main_with_unplayed_land",
+    "removal_targets",
+    "bad_removal_on_own_permanent",
+    "wipes_cast",
+    "bad_wipes_while_ahead",
+    "counters_cast",
+    "attacks",
+    "bad_attacks_into_killer",
+    "blocks",
+    "bad_needless_chump_blocks",
+    "max_activations_one_turn",
+    "commander_first_cast_turn",
+    "commander_first_cast_round",
+    "commander_first_cast_round_by_name",
+)
+
+
+def _round_of(turn: int, players: int) -> int:
+    """1-based round of a game turn counter (every player takes one turn per round)."""
+    return (max(turn, 1) - 1) // max(1, players) + 1
+
+
+def summarize(
+    records: list[dict[str, Any]], players: int, *, by_seat: bool = True
+) -> dict[str, Any]:
+    """Play-quality figures of one recorded game.
+
+    The counters at the top level add up all seats of the pod. ``by_seat`` repeats the
+    ``_SEAT_KEYS`` counters for each seat on its own, so a figure about one deck is not
+    mixed with the opponents' play.
+    """
     by_class: Counter[str] = Counter()
     forced = 0
     spells: Counter[int] = Counter()
     commander_turn: dict[int, int] = {}
+    commander_round: dict[int, int] = {}
+    commander_round_by_name: dict[int, dict[str, int]] = defaultdict(dict)
     idle_main_with_spell = 0
     idle_main_with_land = 0
     own_turns: set[tuple[int, int]] = set()
@@ -189,9 +233,10 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
     # _stack_top_is_own_cast for the name-based approximation and why.
     offered_castable: dict[tuple[int, str], int] = Counter()
     cast_count: dict[tuple[int, str], int] = Counter()
+    cast_in_offer_window: dict[tuple[int, str], int] = Counter()
     cast_on_opponent_turn: dict[tuple[int, str], int] = Counter()
     instant_speed: dict[tuple[int, str], bool] = {}
-    first_cast_turn: dict[tuple[int, str], int] = {}
+    first_cast_round: dict[tuple[int, str], int] = {}
     own_cast_names: dict[int, set[str]] = {}
     for record in records:
         request = record["request"]
@@ -220,28 +265,35 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
             # the stack is empty or its top object is not a spell this seat
             # cast earlier. Withholding a counterspell while one's own spell
             # sits on top of the stack is correct play, not a missed cast.
+            # Names are the physical card's: XMage offers each half of a split
+            # card and the combined card as separate spells, which count once.
             offered_names = {
-                str(_meta(o).get("source_name") or "")
+                canonical_card_name(str(_meta(o).get("source_name") or ""))
                 for o in options
                 if _meta(o).get("ability_type") == "spell"
                 and str(_meta(o).get("source_name") or "")
             }
+            counted_now: set[str] = set()
             for name in offered_names:
                 is_instant = _is_instant_speed(name)
                 instant_speed[(seat, name)] = is_instant
                 if is_instant:
                     if not _stack_top_is_own_cast(state, own_cast_names.get(seat, set())):
                         offered_castable[(seat, name)] += 1
+                        counted_now.add(name)
                 elif _own_turn(state) and _is_main(state):
                     offered_castable[(seat, name)] += 1
+                    counted_now.add(name)
             if meta.get("ability_type") == "spell":
-                name = str(meta.get("source_name") or "")
+                name = canonical_card_name(str(meta.get("source_name") or ""))
                 if name:
                     cast_count[(seat, name)] += 1
+                    if name in counted_now:
+                        cast_in_offer_window[(seat, name)] += 1
                     instant_speed[(seat, name)] = _is_instant_speed(name)
                     if not _own_turn(state):
                         cast_on_opponent_turn[(seat, name)] += 1
-                    first_cast_turn.setdefault((seat, name), turn)
+                    first_cast_round.setdefault((seat, name), _round_of(turn, players))
                     own_cast_names.setdefault(seat, set()).add(name.strip().casefold())
             if meta.get("ability_type") == "spell":
                 spells[seat] += 1
@@ -254,6 +306,8 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
                 }
                 if str(meta.get("source_object_id")) in command_ids:
                     commander_turn.setdefault(seat, turn)
+                    commander_round.setdefault(seat, _round_of(turn, players))
+                    commander_round_by_name[seat].setdefault(name, _round_of(turn, players))
                 facts = card_facts(name)
                 roles = card_roles(facts) if facts is not None else {}
                 if CardRole.WIPE in roles:
@@ -341,26 +395,27 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
     # Per-card figures keyed by (seat, card name); first_cast_round is None
     # when the card was offered but never cast. A card can be cast without a
     # counted offer (an instant cast while its top-of-stack guard holds), so
-    # the union of offered and cast names is listed. per_card_version 2 is
-    # the first version with instant-speed windows; readers must not mix it
-    # with older records (see compare_reports).
+    # the union of offered and cast names is listed. cast_in_offer_window is
+    # the part of ``cast`` that happened in a window counted in
+    # offered_castable, so cast_in_offer_window / offered_castable never
+    # exceeds 1. per_card_version 2 added instant-speed windows; version 3
+    # counts a split card once under its combined name and gives
+    # first_cast_round as the 1-based round of the seat's own turn. Readers
+    # must not mix versions (see compare_reports).
     per_card = [
         {
             "seat": seat,
             "card": name,
             "offered_castable": offered_castable.get((seat, name), 0),
             "cast": cast_count.get((seat, name), 0),
+            "cast_in_offer_window": cast_in_offer_window.get((seat, name), 0),
             "cast_on_opponent_turn": cast_on_opponent_turn.get((seat, name), 0),
             "instant_speed": instant_speed.get((seat, name), False),
-            "first_cast_round": (
-                round(first_cast_turn[(seat, name)] / max(1, players), 2)
-                if (seat, name) in first_cast_turn
-                else None
-            ),
+            "first_cast_round": first_cast_round.get((seat, name)),
         }
         for (seat, name) in sorted(set(offered_castable) | set(cast_count))
     ]
-    return {
+    result: dict[str, Any] = {
         "turns": max_turn,
         "rounds": round(rounds, 2),
         "decisions": decisions,
@@ -370,7 +425,15 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
         "pilot_s": round(pilot_s, 2),
         "spells_cast": sum(spells.values()),
         "spells_per_player_round": round(sum(spells.values()) / players / rounds, 2),
+        # The game turn counter at the first commander cast. It counts every player's
+        # turns, so it depends on the seat; commander_first_cast_round is the round.
         "commander_first_cast_turn": {str(k): v for k, v in sorted(commander_turn.items())},
+        "commander_first_cast_round": {str(k): v for k, v in sorted(commander_round.items())},
+        # Partner commanders are separate cards (one may cost {0}), so the first cast of
+        # either hides the other; this keeps each commander's round.
+        "commander_first_cast_round_by_name": {
+            str(k): dict(sorted(v.items())) for k, v in sorted(commander_round_by_name.items())
+        },
         "own_turns": len(own_turns),
         "bad_idle_main_with_castable_spell": idle_main_with_spell,
         "bad_idle_main_with_unplayed_land": idle_main_with_land,
@@ -385,8 +448,22 @@ def summarize(records: list[dict[str, Any]], players: int) -> dict[str, Any]:
         "bad_needless_chump_blocks": needless_chumps,
         "max_activations_one_turn": max(abilities_per_turn.values(), default=0),
         "per_card": per_card,
-        "per_card_version": 2,
+        "per_card_version": 3,
     }
+    if by_seat:
+        result["by_seat"] = {
+            str(seat): {
+                key: value
+                for key, value in summarize(
+                    [r for r in records if _seat(r["request"].get("pilot_state") or {}) == seat],
+                    players,
+                    by_seat=False,
+                ).items()
+                if key in _SEAT_KEYS
+            }
+            for seat in sorted({_seat(r["request"].get("pilot_state") or {}) for r in records})
+        }
+    return result
 
 
 def _play(
@@ -410,7 +487,7 @@ def _play(
         row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
     row["wall_s"] = round(time.monotonic() - started, 2)
     row |= summarize(records, len(decks))
-    print(json.dumps({k: row[k] for k in row if k != "by_class"}), flush=True)
+    print(json.dumps({k: row[k] for k in row if k not in {"by_class", "by_seat"}}), flush=True)
     return row
 
 
@@ -509,6 +586,24 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
     return out
 
 
+def totals_by_seat(report: dict[str, Any]) -> dict[str, dict[str, float]]:
+    """The ``_TOTALS`` counters of each seat, summed over the ok games with ``by_seat``.
+
+    ``totals`` adds up all seats of a pod; a deck's own figures need the seat.
+    """
+    out: dict[str, dict[str, float]] = {}
+    for game in report["games"]:
+        if game.get("status") != "ok":
+            continue
+        for seat, counters in (game.get("by_seat") or {}).items():
+            row = out.setdefault(seat, {"games_ok": 0.0})
+            row["games_ok"] += 1
+            for key in _TOTALS:
+                if key in counters:
+                    row[key] = round(row.get(key, 0.0) + float(counters[key]), 2)
+    return out
+
+
 def run(args: argparse.Namespace) -> int:
     # Validate games_per_jvm (measurement only; evidence lane stays at 1)
     if args.games_per_jvm < 1:
@@ -550,6 +645,7 @@ def run(args: argparse.Namespace) -> int:
         "games": rows,
     }
     report["totals"] = totals(report)
+    report["totals_by_seat"] = totals_by_seat(report)
     report["cards"] = aggregate_cards(report)
     args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
     print(json.dumps(report["totals"], indent=1))
@@ -577,37 +673,72 @@ _ROTTING_MIN_WINDOWS = 3
 
 
 def aggregate_cards(report: dict[str, Any]) -> dict[str, Any]:
-    """Aggregate per-card cast figures over the ok games of a report."""
+    """Aggregate per-card cast figures over the ok games of a report.
+
+    ``cards`` and ``rotting`` merge all seats by card name, which is right for one deck
+    played in every seat and wrong for a pod of different decks; ``by_seat`` repeats the
+    aggregation for each seat on its own.
+    """
+    result = _aggregate_cards(report, None)
+    seats = sorted(
+        {
+            int(entry["seat"])
+            for game in report["games"]
+            if game["status"] == "ok"
+            for entry in game.get("per_card", [])
+            if entry.get("seat") is not None
+        }
+    )
+    result["by_seat"] = {str(seat): _aggregate_cards(report, seat) for seat in seats}
+    return result
+
+
+def _aggregate_cards(report: dict[str, Any], seat: int | None) -> dict[str, Any]:
     games = [g for g in report["games"] if g["status"] == "ok"]
     offered: dict[str, int] = Counter()
     cast: dict[str, int] = Counter()
+    cast_in_window: dict[str, int] = Counter()
     cast_on_opponent_turn: dict[str, int] = Counter()
     instant_speed: dict[str, bool] = {}
     seen_in: dict[str, set[int]] = defaultdict(set)
+    games_offered: dict[str, int] = Counter()
+    games_cast_after_offer: dict[str, int] = Counter()
     first_rounds: dict[str, list[float]] = defaultdict(list)
     rotted_in: dict[str, int] = Counter()
     for game_idx, game in enumerate(games):
         per_game_offered: dict[str, int] = Counter()
         per_game_cast: dict[str, int] = Counter()
+        per_game_cast_in_window: dict[str, int] = Counter()
         for entry in game.get("per_card", []):
+            if seat is not None and entry.get("seat") != seat:
+                continue
             name = str(entry.get("card") or "")
             if not name:
                 continue
             n_offered = int(entry.get("offered_castable", 0) or 0)
             n_cast = int(entry.get("cast", 0) or 0)
+            # Records before per_card_version 3 do not split out the casts inside a
+            # counted window; their cast count stands in for it.
+            n_in_window = int(entry.get("cast_in_offer_window", n_cast) or 0)
             offered[name] += n_offered
             cast[name] += n_cast
+            cast_in_window[name] += n_in_window
             cast_on_opponent_turn[name] += int(entry.get("cast_on_opponent_turn", 0) or 0)
             if entry.get("instant_speed"):
                 instant_speed[name] = True
             per_game_offered[name] += n_offered
             per_game_cast[name] += n_cast
+            per_game_cast_in_window[name] += n_in_window
             if n_offered or n_cast:
                 seen_in[name].add(game_idx)
             first = entry.get("first_cast_round")
             if first is not None:
                 first_rounds[name].append(float(first))
         for name, n_offered in per_game_offered.items():
+            if n_offered:
+                games_offered[name] += 1
+                if per_game_cast_in_window.get(name, 0):
+                    games_cast_after_offer[name] += 1
             if n_offered >= _ROTTING_MIN_WINDOWS and per_game_cast.get(name, 0) == 0:
                 rotted_in[name] += 1
     cards = [
@@ -616,9 +747,25 @@ def aggregate_cards(report: dict[str, Any]) -> dict[str, Any]:
             "games_seen": len(seen_in[name]),
             "offered_castable": offered[name],
             "cast": cast[name],
+            "cast_in_offer_window": cast_in_window[name],
             "cast_on_opponent_turn": cast_on_opponent_turn[name],
             "instant_speed": instant_speed.get(name, False),
-            "cast_rate": round(cast[name] / offered[name], 3) if offered[name] else 0.0,
+            # Casts in a counted window per counted window, at most 1.
+            "cast_rate": (
+                round(min(cast_in_window[name], offered[name]) / offered[name], 3)
+                if offered[name]
+                else 0.0
+            ),
+            # Share of the games with at least one counted offer in which the card
+            # was cast in such a window. A window rate counts a card held for ten
+            # windows ten times; this counts the game once.
+            "games_offered": games_offered[name],
+            "games_cast_after_offer": games_cast_after_offer[name],
+            "cast_share": (
+                round(games_cast_after_offer[name] / games_offered[name], 3)
+                if games_offered[name]
+                else None
+            ),
             "mean_first_cast_round": (
                 round(sum(first_rounds[name]) / len(first_rounds[name]), 2)
                 if first_rounds[name]

@@ -370,7 +370,7 @@ def test_old_record_without_version_fields_aggregates() -> None:
     assert counter["cast_rate"] == pytest.approx(0.25)
 
 
-def test_new_records_carry_per_card_version_2() -> None:
+def test_new_records_carry_per_card_version_3() -> None:
     records = [
         _priority_record(
             options=[_option("cs", source_name="Counterspell"), _pass_option()],
@@ -378,7 +378,7 @@ def test_new_records_carry_per_card_version_2() -> None:
         )
     ]
     summary = pdr.summarize(records, players=4)
-    assert summary["per_card_version"] == 2
+    assert summary["per_card_version"] == 3
     assert summary["per_card"][0]["instant_speed"] is True
 
 

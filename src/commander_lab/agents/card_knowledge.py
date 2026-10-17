@@ -131,6 +131,29 @@ def _lookup(name: str, path: str) -> CardFacts | None:
     return catalog.get(key) or catalog.get(key.split(" // ")[0])
 
 
+@lru_cache(maxsize=4)
+def _split_card_names(path: str) -> dict[str, str]:
+    """Casefolded half name -> catalog name of the split card it belongs to."""
+    halves: dict[str, str] = {}
+    for facts in _catalog(path).values():
+        if " // " in facts.name:
+            for half in facts.name.split(" // "):
+                halves[half.strip().casefold()] = facts.name
+    return halves
+
+
+def canonical_card_name(name: str | None, path: Path | None = None) -> str:
+    """The catalog name of the physical card a (half) name stands for.
+
+    XMage names each half of a split, adventure or flip card on its own ("Wear",
+    "Tear") next to the combined name ("Wear // Tear"). Anything that counts cards,
+    not spell halves, must count them under one name. A name that is no known half
+    is returned unchanged.
+    """
+    text = (name or "").strip()
+    return _split_card_names(str(path or _DEFAULT_PATH)).get(text.casefold(), text)
+
+
 _REMOVAL = re.compile(
     r"(destroy|exile) (up to (one|two|three) )?(another )?target"
     r"|(destroy|exile) (two|three|x) target"
