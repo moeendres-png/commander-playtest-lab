@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Add the Oracle data of named cards to data/cards/oracle_subset.json, on demand (#877).
 
-The catalog is a subset on purpose: the cards of the current decks and a few fixtures. A card
-is added when a deck or a comparison needs it, with its Oracle data from Scryfall. Nothing is
-imported in bulk and a card the catalog already knows (by name or alias) is never touched.
+The catalog is a subset on purpose: the cards of the current decks and a few fixtures. The deck
+overlays (data/decks/*_card_catalog_overrides.json) are loaded next to it, so their cards count as
+known and are not imported again. A card is added when a deck or a comparison needs it, with its
+Oracle data from Scryfall. Nothing is imported in bulk and a card the catalog already knows (by name or alias) is never touched.
 
     python scripts/import_oracle_cards.py deck.json                 # the deck's missing cards
     python scripts/import_oracle_cards.py --name "Mind Stone" --name "Sol Ring"
@@ -38,6 +39,8 @@ from commander_lab.engine.rules.project import load_rules_deck_snapshot  # noqa:
 CATALOG = ROOT / "data/cards/oracle_subset.json"
 COLLECTION_URL = "https://api.scryfall.com/cards/collection"
 BATCH = 75  # Scryfall's documented maximum identifiers per collection request
+#: Deck-specific rows that the tools load on top of the catalog (local_snapshots, service_core).
+OVERLAY_GLOB = "data/decks/*_card_catalog_overrides.json"
 SCOPE_SENTENCE = (
     " Cards added on demand with scripts/import_oracle_cards.py carry their Scryfall provenance;"
     " being in the catalog is not a promise that the engine implements them."
@@ -115,9 +118,27 @@ def known_keys(catalog: Mapping[str, Any]) -> set[str]:
     }
 
 
-def missing_names(catalog: Mapping[str, Any], wanted: Iterable[str]) -> list[str]:
-    """The wanted names the catalog does not know yet, in input order, without repeats."""
-    known = known_keys(catalog)
+def default_overlays(catalog_path: Path) -> list[Path]:
+    """The deck overlays that belong to the repository catalog; none for any other file."""
+    if catalog_path.resolve() != CATALOG.resolve():
+        return []
+    return sorted(ROOT.glob(OVERLAY_GLOB))
+
+
+def overlay_keys(paths: Iterable[Path]) -> set[str]:
+    """Names and aliases of the overlay rows. The tools read them next to the catalog, and a card
+    present in both with another representation is a "duplicate conflicting card identity"."""
+    out: set[str] = set()
+    for path in paths:
+        out |= known_keys(json.loads(path.read_text(encoding="utf-8")))
+    return out
+
+
+def missing_names(
+    catalog: Mapping[str, Any], wanted: Iterable[str], extra_known: Iterable[str] = ()
+) -> list[str]:
+    """The wanted names neither the catalog nor an overlay knows, in input order, no repeats."""
+    known = known_keys(catalog) | set(extra_known)
     out: list[str] = []
     seen: set[str] = set()
     for name in wanted:
@@ -196,6 +217,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument("--catalog", type=Path, default=CATALOG)
     parser.add_argument(
+        "--overlay",
+        type=Path,
+        action="append",
+        default=None,
+        help="deck overlay whose cards count as known (default: the repository's deck overlays "
+        "when --catalog is the repository catalog)",
+    )
+    parser.add_argument(
         "--dry-run", action="store_true", help="print what would be added, write nothing"
     )
     args = parser.parse_args(argv)
@@ -203,9 +232,12 @@ def main(argv: list[str] | None = None) -> int:
         parser.error("give a deck file, --name or --names-file")
 
     catalog = json.loads(args.catalog.read_text(encoding="utf-8"))
-    todo = missing_names(catalog, wanted_names(args.decks, args.name, args.names_file))
+    overlaid = overlay_keys(
+        args.overlay if args.overlay is not None else default_overlays(args.catalog)
+    )
+    todo = missing_names(catalog, wanted_names(args.decks, args.name, args.names_file), overlaid)
     if not todo:
-        print("every wanted card is already in the catalog")
+        print("every wanted card is already in the catalog or its deck overlay")
         return 0
     if args.dry_run:
         print(f"would fetch {len(todo)} card(s): {', '.join(todo)}")
@@ -220,7 +252,7 @@ def main(argv: list[str] | None = None) -> int:
     fresh = [
         e
         for e in entries.values()
-        if oracle_lookup_key(e["oracle_name"]) not in known_keys(catalog)
+        if oracle_lookup_key(e["oracle_name"]) not in known_keys(catalog) | overlaid
     ]
     if fresh:
         args.catalog.write_text(
