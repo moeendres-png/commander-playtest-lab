@@ -68,7 +68,9 @@ python scripts/mana_castability_report.py --deck /tmp/my_variant.json --trials 2
 
 Answers: how many games the comparison will play, how long that takes at the
 host's games/hour, and what win-share difference the planned pairs can detect
-at 80% power — before spending any time. Does **not** play games.
+at 80% power — before spending any time. Does **not** play games. The planned
+figure assumes independent games (per-pair sd 0.63); pairs that end identically
+make the real figure smaller, and the run prints its own figure at the end.
 
 ```bash
 export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"

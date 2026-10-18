@@ -162,7 +162,10 @@ def _plan_summary(
         f"((1 baseline + {variant_count} variant(s)) x {seeds} seed(s) x {seats})\n"
         f"Time estimate at {games_per_hour:g} games/hour: {hours:.1f} h\n"
         f"Detectable win-share difference per variant "
-        f"(80% power, {pairs} pairs): \u00b1 {detectable:.2f}"
+        f"(80% power, {pairs} pairs): \u00b1 {detectable:.2f}. "
+        "This figure assumes independent games (per-pair sd 0.63); pairs that "
+        "end identically make the real figure smaller, and the run prints its "
+        "own figure at the end."
     )
     return text, games, pairs, hours, detectable
 
