@@ -66,8 +66,10 @@ def entry_from_scryfall(
 ) -> dict[str, Any]:
     """One catalog entry from a Scryfall card object.
 
-    A multi-faced card keeps the front face's cost, mana value and colours (the drift report
-    reads the Oracle entry that way); its text is every face, joined by a line that is exactly
+    A card with several faces (split, adventure, transform, modal) keeps the front face's cost
+    (the drift report compares one face's cost); mana value and colours are the card's own when
+    Scryfall gives them on the card, as it does for a split card whose halves share one face,
+    and the front face's otherwise. Its text is every face, joined by a line that is exactly
     ``//``. The alias is the front-face name, and only that: a face name two cards share would
     make the catalog ambiguous.
     """
@@ -161,7 +163,7 @@ def merged_catalog(catalog: Mapping[str, Any], entries: Sequence[dict[str, Any]]
 
 
 def fetch_cards(names: Sequence[str]) -> tuple[dict[str, dict[str, Any]], list[str]]:
-    """Scryfall card objects for the names (a multi-faced card is asked for by its front name)."""
+    """Scryfall card objects for the names (a card with several faces is asked for by its front name)."""
     found: dict[str, dict[str, Any]] = {}
     missing: list[str] = []
     for start in range(0, len(names), BATCH):
