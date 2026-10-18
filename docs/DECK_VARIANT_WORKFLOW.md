@@ -151,6 +151,8 @@ Reading the per-card and per-seat figures of a report (`per_card_version` 3):
   game), `totals_by_seat` (per report) and `cards.by_seat` give one seat's figures; a
   statement about one deck needs that seat.
 - Per-card figures of different `per_card_version` values are not compared.
+- `rounds_own_turns` is the game length in own turns (max over seats); after
+  eliminations it exceeds `rounds`. `mean_rounds_own_turns` is its mean.
 
 ## Pitfalls
 

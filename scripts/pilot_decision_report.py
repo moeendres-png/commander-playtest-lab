@@ -427,6 +427,10 @@ def summarize(
     result: dict[str, Any] = {
         "turns": max_turn,
         "rounds": round(rounds, 2),
+        # Game length in own turns: the largest number of own turns any seat
+        # had. After eliminations this exceeds rounds (which divides total
+        # turns by player count). 0 when no decision record exists.
+        "rounds_own_turns": max(own_turn_count.values(), default=0),
         "decisions": decisions,
         "decisions_per_round": round(decisions / rounds, 1),
         "forced_priority": forced,
@@ -585,6 +589,13 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
             out["games_without_decision_record"] = len(games) - len(recorded)
         if recorded:
             out["mean_rounds"] = round(sum(g["rounds"] for g in recorded) / len(recorded), 2)
+            # Games with rounds_own_turns (new) vs old reports without it.
+            # Same rule as mean_rounds: leave out games without the field.
+            with_own_turns = [g for g in recorded if "rounds_own_turns" in g]
+            if with_own_turns:
+                out["mean_rounds_own_turns"] = round(
+                    sum(g["rounds_own_turns"] for g in with_own_turns) / len(with_own_turns), 2
+                )
             out["mean_decisions"] = round(out["decisions"] / len(recorded), 0)
             # Per-game player count; reports written before ``players`` was stored
             # fall back to the old 4-player assumption.
