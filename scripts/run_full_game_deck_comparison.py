@@ -454,7 +454,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     print(
         "Detectable win-share difference per variant "
-        f"(80% power, {pairs} pairs): \u00b1 {detectable:.2f}"
+        f"(80% power, {pairs} pairs): \u00b1 {detectable:.2f}. "
+        "This figure assumes independent games (per-pair sd 0.63); pairs that "
+        "end identically make the real figure smaller, and the run prints its "
+        "own figure at the end."
     )
     if args.plan_only:
         return 0
