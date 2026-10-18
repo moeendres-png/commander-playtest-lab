@@ -62,10 +62,14 @@ PARTNER: dict[str, Any] = {
     "keywords": ["Partner with"],
     "legalities": {"commander": "legal"},
 }
-TWO_FACED: dict[str, Any] = {
+# Real Scryfall shapes. A split card has both halves on one face: the card object carries the
+# combined colours and mana value, the halves only name, cost, type and text.
+SPLIT: dict[str, Any] = {
     "name": "Wear // Tear",
     "oracle_id": "00000000-0000-0000-0000-000000000004",
-    "cmc": 4.0,
+    "layout": "split",
+    "cmc": 3.0,
+    "mana_cost": "{1}{R} // {W}",
     "type_line": "Instant // Instant",
     "colors": ["R", "W"],
     "color_identity": ["R", "W"],
@@ -75,16 +79,41 @@ TWO_FACED: dict[str, Any] = {
         {
             "name": "Wear",
             "mana_cost": "{1}{R}",
-            "colors": ["R"],
             "oracle_text": "Destroy target artifact.",
             "type_line": "Instant",
         },
         {
             "name": "Tear",
             "mana_cost": "{W}",
-            "colors": ["W"],
             "oracle_text": "Destroy target enchantment.",
             "type_line": "Instant",
+        },
+    ],
+}
+# A transform card has a front and a back face: colours and cost live on the faces.
+TRANSFORM: dict[str, Any] = {
+    "name": "Delver of Secrets // Insectile Aberration",
+    "oracle_id": "00000000-0000-0000-0000-000000000005",
+    "layout": "transform",
+    "cmc": 1.0,
+    "type_line": "Creature — Human Wizard // Creature — Human Insect",
+    "color_identity": ["U"],
+    "keywords": ["Flying", "Transform"],
+    "legalities": {"commander": "legal"},
+    "card_faces": [
+        {
+            "name": "Delver of Secrets",
+            "mana_cost": "{U}",
+            "colors": ["U"],
+            "oracle_text": "At the beginning of your upkeep, look at the top card of your library.",
+            "type_line": "Creature — Human Wizard",
+        },
+        {
+            "name": "Insectile Aberration",
+            "mana_cost": "",
+            "colors": ["U"],
+            "oracle_text": "Flying",
+            "type_line": "Creature — Human Insect",
         },
     ],
 }
@@ -120,13 +149,22 @@ def test_a_legendary_creature_can_be_commander_and_names_its_partner() -> None:
     assert entry["partner_with"] == ["Toothy, Imaginary Friend"]
 
 
-def test_a_two_faced_card_keeps_the_front_face_cost_and_only_the_front_alias() -> None:
-    entry = _entry(TWO_FACED)
+def test_a_split_card_keeps_both_halves_on_one_card_and_the_front_cost_and_alias() -> None:
+    entry = _entry(SPLIT)
     CardIdentity.model_validate(entry)
     assert entry["aliases"] == ["Wear"]
-    assert entry["mana_cost"] == "{1}{R}"
-    assert entry["colors"] == ["R"]
+    assert entry["mana_cost"] == "{1}{R}"  # one half, as the drift report compares it
+    assert entry["mana_value"] == 3.0  # the card's combined value, not the front half's
+    assert entry["colors"] == ["R", "W"]  # both halves are on the card
     assert entry["oracle_text"] == "Destroy target artifact.\n//\nDestroy target enchantment."
+
+
+def test_a_transform_card_takes_cost_and_colours_from_its_front_face() -> None:
+    entry = _entry(TRANSFORM)
+    CardIdentity.model_validate(entry)
+    assert entry["aliases"] == ["Delver of Secrets"]
+    assert entry["mana_cost"] == "{U}" and entry["mana_value"] == 1.0
+    assert entry["colors"] == ["U"] and entry["color_identity"] == ["U"]
 
 
 def _catalog(names: list[str]) -> dict[str, Any]:
