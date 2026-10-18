@@ -254,3 +254,65 @@ def test_main_needs_something_to_import(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as stopped:
         imp.main(["--catalog", str(tmp_path / "x.json")])
     assert stopped.value.code == 2
+
+
+# --- deck overlays: the tools load them next to the catalog -----------------------------------
+
+
+def _overlay(path: Path, names: list[str]) -> Path:
+    path.write_text(json.dumps(_catalog(names)), encoding="utf-8")
+    return path
+
+
+def test_cards_of_a_deck_overlay_are_known_and_not_imported(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # An imported card that an overlay also defines would be a "duplicate conflicting card
+    # identity" for the code that loads both.
+    catalog_path = tmp_path / "oracle_subset.json"
+    _write_catalog(catalog_path, ["Sol Ring"])
+    overlay = _overlay(tmp_path / "deck_card_catalog_overrides.json", ["Mind Stone"])
+    monkeypatch.setattr(
+        imp, "fetch_cards", lambda names: (_ for _ in ()).throw(AssertionError("no fetch"))
+    )
+    code = imp.main(
+        ["--catalog", str(catalog_path), "--overlay", str(overlay), "--name", "Mind Stone"]
+    )
+    assert code == 0
+    assert "already in the catalog or its deck overlay" in capsys.readouterr().out
+    assert [c["oracle_name"] for c in json.loads(catalog_path.read_text())["cards"]] == ["Sol Ring"]
+
+
+def test_an_overlay_card_is_skipped_even_when_scryfall_returns_it(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    catalog_path = tmp_path / "oracle_subset.json"
+    _write_catalog(catalog_path, ["Sol Ring"])
+    overlay = _overlay(tmp_path / "o.json", ["Forest"])
+    monkeypatch.setattr(
+        imp, "fetch_cards", lambda names: ({"Mind Stone": MIND_STONE, "Forest": FOREST}, [])
+    )
+    imp.main(
+        [
+            "--catalog", str(catalog_path), "--overlay", str(overlay),
+            "--name", "Mind Stone", "--name", "Forest",
+        ]
+    )  # fmt: skip
+    names = [c["oracle_name"] for c in json.loads(catalog_path.read_text())["cards"]]
+    assert names == ["Mind Stone", "Sol Ring"]
+
+
+def test_only_the_repository_catalog_gets_the_repository_overlays(tmp_path: Path) -> None:
+    overlays = imp.default_overlays(imp.CATALOG)
+    assert ROOT / "data/decks/rogshai_current_card_catalog_overrides.json" in overlays
+    assert imp.default_overlays(tmp_path / "other.json") == []
+
+
+def test_every_card_of_the_own_deck_is_known_to_the_catalog_and_its_overlay() -> None:
+    # The effective catalog of the tools is the subset plus the deck overlay; asking the importer
+    # for the own deck must find nothing to fetch (no network).
+    catalog = json.loads(imp.CATALOG.read_text(encoding="utf-8"))
+    overlaid = imp.overlay_keys(imp.default_overlays(imp.CATALOG))
+    wanted = imp.wanted_names([ROOT / "data/decks/rogshai_current.json"], [], [])
+    assert imp.missing_names(catalog, wanted, overlaid) == []
+    assert imp.missing_names(catalog, wanted)  # without the overlay the subset alone lacks some
