@@ -18,6 +18,23 @@ Exit 0 means every deck is ready; exit 1 lists unknown cards. Fix those first
 (add card data), otherwise the later steps silently measure "unknown card"
 instead of the card.
 
+### A card the catalog does not know
+
+The effective catalog is `data/cards/oracle_subset.json` plus the deck overlays
+`data/decks/*_card_catalog_overrides.json`: a card in both with another
+representation is a "duplicate conflicting card identity", so the importer
+counts overlay cards as known and skips them. Add the Oracle data of the
+missing cards on demand — with a deck file, one `--name` (repeatable) or
+`--names-file` (one name per line); nothing is imported in bulk. `--dry-run`
+prints what would be added and writes nothing:
+
+```bash
+python scripts/import_oracle_cards.py /tmp/my_variant.json --dry-run
+python scripts/import_oracle_cards.py --name "Mind Stone" --dry-run
+```
+
+Importing a card does not make it playable: the engine facts decide that.
+
 ## Step 2 — Prefilter and castability: is the variant worth real games?
 
 Answers: card diff, mana-base deltas, commander cast-probability deltas, and
@@ -36,7 +53,11 @@ lost a source; `PASS_TO_GAMES` means the filter found nothing wrong. Both
 `WARN` and `PASS_TO_GAMES` exit 0. The last lines print the planned game count,
 a time estimate at the host's games/hour (`--games-per-hour`, default 40 —
 measure once on the host, speed depends on the machine), and the win-share
-difference the planned pairs can detect at 80% power. Per-commander cast
+difference the planned pairs can detect at 80% power. For reference, on one
+host (4 cores, measured 2026-10-17 and 2026-10-18) the comparison runner played 24 games on 4 workers
+in 6.4 minutes — about 225 games/hour on an idle host — and
+`pilot_decision_report.py run --workers 4` played 48 games in 973 s —
+178 games/hour including the decision recording. Per-commander cast
 probabilities alone:
 
 ```bash
