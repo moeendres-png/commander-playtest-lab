@@ -171,22 +171,6 @@
     {
       "keywords_only_engine": [],
       "keywords_only_oracle": [],
-      "name": "Coercive Impetus",
-      "numbers_only_engine": [
-        "2",
-        "2"
-      ],
-      "numbers_only_oracle": [
-        "1",
-        "1"
-      ],
-      "similarity": 0.9524,
-      "structural": [],
-      "tier": "B"
-    },
-    {
-      "keywords_only_engine": [],
-      "keywords_only_oracle": [],
       "name": "Invisible Woman",
       "numbers_only_engine": [],
       "numbers_only_oracle": [
@@ -791,9 +775,9 @@
   ],
   "tiers": {
     "A": 2,
-    "B": 5,
+    "B": 4,
     "C": 59,
     "EXPORT_GAP": 7,
-    "OK": 674
+    "OK": 675
   }
 }

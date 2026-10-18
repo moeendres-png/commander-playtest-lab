@@ -35,9 +35,9 @@ in-game check), `UNSURE`.
 
 ## Current figures
 
-From `docs/card_text_drift/report.json` (run 2026-10-17):
+From `docs/card_text_drift/report.json` (run 2026-10-17, facts exported from the live pin):
 
-- A: 2, B: 85, C: 47, OK: 606, EXPORT_GAP: 7
+- A: 2, B: 4, C: 59, OK: 675, EXPORT_GAP: 7
 - Excluded basic lands: 5
 - 165 real-deck cards have engine facts but no Oracle entry to compare
   (listed as missing in the report).
