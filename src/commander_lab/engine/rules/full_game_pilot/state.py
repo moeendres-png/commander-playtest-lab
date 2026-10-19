@@ -22,6 +22,7 @@ from ..full_game_pilot_views import (
     boardwipe_risk,
     card_view_fields,
     creature_power,
+    entry_value,
     hand_role_counts,
     player_threat,
     priority_view_fields,
@@ -63,6 +64,9 @@ class _PolicyState:
         self._pilots = {item.binding.seat: item for item in runtime_pilots}
         self._player_count = len(runtime_pilots)
         self.scenario_seed = scenario_seed
+        # Per-state object index cache (initialized lazily in _find_object).
+        self._object_index: dict[str, dict[str, Any]] = {}
+        self._object_index_state_id: int = 0
         self._mulligan_count: dict[int, int] = {
             seat: 0 for seat in range(1, len(runtime_pilots) + 1)
         }
@@ -378,6 +382,13 @@ class _PolicyState:
             owner_id = str(player.get("player_id")) if player is not None else None
         actor_id = self._required_text(state, "actor_id")
         target_threat = self._player_threat(owner_id, state)
+        # Card-level threat: how dangerous is this specific permanent?
+        # Combines player threat (context) with card threat (specific).
+        # A high-value permanent controlled by a low-threat player is still
+        # worth removing; a low-value permanent by a high-threat player less so.
+        card_threat = self._card_threat(option_id, state)
+        # Weighted combination: 70% card, 30% player (card matters more for removal)
+        combined_threat = card_threat * 0.7 + target_threat * 0.3
         beneficial = outcome in {"benefit", "benefit_to_controller"}
         roles = frozenset({CardRole.PROTECTION}) if beneficial else frozenset({CardRole.REMOVAL})
         return PilotActionView(
@@ -390,7 +401,7 @@ class _PolicyState:
             immediate_impact=0.6,
             target_player_id=owner_id,
             target_threat=target_threat,
-            threat_score=target_threat,
+            threat_score=combined_threat,
             metadata={"target_is_actor_controlled": owner_id == actor_id},
         )
 
@@ -485,6 +496,44 @@ class _PolicyState:
                 ):
                     return player_id
         return None
+
+    def _find_object(self, object_id: str, state: dict[str, Any]) -> dict[str, Any] | None:
+        """Find a card/permanent object by ID in any player's zones.
+
+        Uses a per-state cache: the state dict id identifies the game state,
+        and the object index is rebuilt only when the state changes.
+        """
+        # Cache the object index per state to avoid O(n) search per lookup
+        state_id = id(state)
+        if self._object_index_state_id != state_id:
+            index: dict[str, dict[str, Any]] = {}
+            players = state.get("players")
+            if isinstance(players, list):
+                for raw in players:
+                    if not isinstance(raw, dict):
+                        continue
+                    for zone in ("battlefield", "graveyard", "command", "hand", "stack"):
+                        items = raw.get(zone)
+                        if not isinstance(items, list):
+                            continue
+                        for item in items:
+                            if isinstance(item, dict):
+                                oid = str(item.get("object_id", ""))
+                                if oid:
+                                    index[oid] = item
+            self._object_index = index
+            self._object_index_state_id = state_id
+        return self._object_index.get(object_id)
+
+    def _card_threat(self, object_id: str, state: dict[str, Any]) -> float:
+        """Threat score of a specific card/permanent (0.0 if not found)."""
+        obj = self._find_object(object_id, state)
+        if obj is None:
+            return 0.0
+        try:
+            return float(entry_value(obj, state))
+        except Exception:
+            return 0.0
 
     def _player_threat(self, player_id: str | None, state: dict[str, Any]) -> float:
         if player_id is None:

@@ -202,6 +202,241 @@ def table_threats(state: Mapping[str, Any]) -> dict[str, float]:
     }
 
 
+def tempo_score(actor_id: str, state: Mapping[str, Any]) -> float:
+    """Tempo evaluation: is the actor ahead (+1.0) or behind (-1.0)?
+
+    Combines:
+    - Life total relative to table average (30%)
+    - Board threat relative to max opponent threat (50%)
+    - Cards in hand relative to average (20%)
+
+    Returns float in [-1.0, 1.0]: positive = ahead, negative = behind.
+    """
+    threats = table_threats(state)
+    if not threats or actor_id not in threats:
+        return 0.0
+
+    actor_threat = threats[actor_id]
+    opp_threats = [t for pid, t in threats.items() if pid != actor_id]
+    max_opp_threat = max(opp_threats) if opp_threats else 0.0
+
+    # Board position: actor threat vs max opponent (50%)
+    if max_opp_threat > 0:
+        board_score = (actor_threat - max_opp_threat) / max_opp_threat
+    elif actor_threat > 0:
+        board_score = 1.0
+    else:
+        board_score = 0.0
+    board_score = max(-1.0, min(1.0, board_score))
+
+    # Life: actor life vs 40 (30%)
+    actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
+    life = 40.0
+    if actor is not None:
+        life_val = actor.get("life")
+        if isinstance(life_val, (int, float)):
+            life = float(life_val)
+    life_score = (life - 20.0) / 20.0  # 40 life = +1.0, 0 life = -1.0
+    life_score = max(-1.0, min(1.0, life_score))
+
+    # Cards: hand size vs average (20%)
+    # Simplified: use threat as proxy (already includes hand_count)
+    hand_score = board_score * 0.5  # Correlated with board
+
+    tempo = board_score * 0.5 + life_score * 0.3 + hand_score * 0.2
+    return max(-1.0, min(1.0, tempo))
+
+
+def desperation_score(actor_id: str, state: Mapping[str, Any]) -> float:
+    """Desperation: should the actor take risky aggressive actions?
+
+    Returns 0.0 in normal situations (no effect on decisions).
+    Returns positive value (0.0 to 1.0) only when truly desperate:
+    - Very low life (<= 10) AND
+    - Behind on board (tempo < -0.3) AND
+    - An opponent is close to winning (high threat)
+
+    The idea: Don't be aggressive just for the sake of it. Only when
+    the alternative (playing normally) is likely to lose anyway.
+
+    A smarter pilot recognizes desperate situations via card evaluation,
+    not via a global "be aggressive" flag. This score is a safety net
+    for when the card-level logic doesn't capture the urgency.
+    """
+    # Get life
+    actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
+    if actor is None:
+        return 0.0
+    life_val = actor.get("life")
+    life = float(life_val) if isinstance(life_val, (int, float)) else 40.0
+
+    # Not desperate if life is reasonable
+    if life > 10:
+        return 0.0
+
+    # Check board position
+    tempo = tempo_score(actor_id, state)
+    if tempo > -0.3:
+        # Not far enough behind to be desperate
+        return 0.0
+
+    # Check if an opponent is threatening to win
+    threats = table_threats(state)
+    opp_threats = [t for pid, t in threats.items() if pid != actor_id]
+    if not opp_threats:
+        return 0.0
+    max_opp = max(opp_threats)
+
+    # Desperate if: low life + behind + opponent is strong
+    # Scale: life 10 → 0.0, life 1 → 1.0 (but only if other conditions met)
+    life_factor = (10.0 - life) / 9.0  # 10→0.0, 1→1.0
+    tempo_factor = min(1.0, abs(tempo))  # How far behind
+
+    # Only desperate if opponent is actually threatening (not just ahead, but dangerous)
+    if max_opp < 20.0:  # Threshold for "dangerous" board
+        return 0.0
+
+    desperation = life_factor * 0.5 + tempo_factor * 0.5
+    return max(0.0, min(1.0, desperation))
+
+
+def bread_weight(role: CardRole) -> float:
+    """BREAD priority weight for a card role.
+
+    BREAD (Bombs, Removal, Evasion, Aggro, Duds) is a draft heuristic for
+    pick order. Adapted for in-game decisions:
+    - Bombs (1.5): Game-winning threats (FINISHER, PAYOFF, ENGINE)
+    - Removal (1.3): Interaction (REMOVAL, COUNTER, WIPE)
+    - Evasion (1.2): Hard to block threats (COMBAT_PAYOFF)
+    - Aggro (1.1): Efficient threats (TOKEN_SOURCE)
+    - Support (1.0): Mana, draw, etc. (baseline)
+    - Duds (0.8): Narrow/situational (GRAVEYARD_HATE)
+
+    Higher weight = higher priority when choosing among options.
+    """
+    weights = {
+        # Bombs - game winners
+        CardRole.FINISHER: 1.5,
+        CardRole.PAYOFF: 1.5,
+        CardRole.ENGINE: 1.5,
+        # Removal - interaction
+        CardRole.REMOVAL: 1.3,
+        CardRole.COUNTER: 1.3,
+        CardRole.WIPE: 1.3,
+        CardRole.PROTECTION: 1.3,
+        # Evasion - hard to answer threats
+        CardRole.COMBAT_PAYOFF: 1.2,
+        # Aggro - efficient pressure
+        CardRole.TOKEN_SOURCE: 1.1,
+        CardRole.SACRIFICE_OUTLET: 1.1,
+        # Support - baseline (1.0)
+        CardRole.MANA_SOURCE: 1.0,
+        CardRole.RAMP: 1.0,
+        CardRole.DRAW: 1.0,
+        CardRole.SELECTION: 1.0,
+        CardRole.RECURSION: 1.0,
+        CardRole.ENABLER: 1.0,
+        CardRole.LAND_SYNERGY: 1.0,
+        # Duds - situational
+        CardRole.GRAVEYARD_HATE: 0.8,
+    }
+    return weights.get(role, 1.0)
+
+
+def synergy_bonus(
+    card_name: str, battlefield: list[dict[str, Any]], state: Mapping[str, Any]
+) -> float:
+    """Synergy bonus for playing a card given current battlefield.
+
+    Returns a bonus multiplier (0.0 = no synergy, up to 1.0 = strong synergy).
+    Based on:
+    - Tribal synergies (same creature type)
+    - Mechanic synergies (+1/+1 counters, sacrifice, etc.)
+    - Card type synergies (artifacts, enchantments)
+
+    This is a heuristic - real synergies are learned from game data.
+    """
+    if not battlefield:
+        return 0.0
+
+    bonus = 0.0
+    card_lower = card_name.casefold()
+
+    # Get card facts for synergy detection
+    try:
+        facts = card_facts(card_name)
+        if facts is None:
+            return 0.0
+        card_types = facts.type_line.casefold()
+        card_text = facts.oracle_text.casefold()
+    except Exception:
+        return 0.0
+
+    # Count synergistic permanents on battlefield
+    tribal_matches = 0
+    counter_synergy = 0
+    sacrifice_synergy = 0
+    artifact_synergy = 0
+
+    for permanent in battlefield:
+        if not isinstance(permanent, dict):
+            continue
+        perm_name = str(permanent.get("name", ""))
+        if not perm_name or perm_name.casefold() == card_lower:
+            continue
+
+        try:
+            perm_facts = card_facts(perm_name)
+            if perm_facts is None:
+                continue
+            perm_types = perm_facts.type_line.casefold()
+            perm_text = perm_facts.oracle_text.casefold()
+        except Exception:
+            continue
+
+        # Tribal: share creature type (e.g., both Goblins)
+        if "creature" in card_types and "creature" in perm_types:
+            # Simple heuristic: check for common tribal words
+            tribal_words = [
+                "goblin",
+                "elf",
+                "zombie",
+                "vampire",
+                "dragon",
+                "angel",
+                "demon",
+                "elemental",
+                "warrior",
+                "wizard",
+                "soldier",
+                "knight",
+            ]
+            for tribe in tribal_words:
+                if tribe in card_types and tribe in perm_types:
+                    tribal_matches += 1
+                    break
+
+        # +1/+1 counter synergy
+        if "+1/+1" in card_text and "+1/+1" in perm_text:
+            counter_synergy += 1
+
+        # Sacrifice synergy
+        if "sacrifice" in card_text and "sacrifice" in perm_text:
+            sacrifice_synergy += 1
+
+        # Artifact synergy
+        if "artifact" in card_types and "artifact" in perm_types:
+            artifact_synergy += 1
+
+    # Calculate bonus (capped at 1.0)
+    # Tribal is strongest (0.3 per match, up to 0.6)
+    bonus += min(0.6, tribal_matches * 0.3)
+    # Others are weaker (0.2 per match, up to 0.4 total)
+    bonus += min(0.4, (counter_synergy + sacrifice_synergy + artifact_synergy) * 0.2)
+
+    return min(1.0, bonus)
+
+
 def archenemy(state: Mapping[str, Any]) -> str | None:
     """The player the table should be working against, when one clearly leads.
 
@@ -777,6 +1012,10 @@ def attack_score(
 ) -> tuple[float, dict[str, Any]]:
     """Score one 'attacker attacks defender' option; <= 0 means better to hold.
 
+    Implements "Imagine the Worst" (minimax heuristic): assume the opponent
+    will make the worst possible blocks. If the worst case is still favorable,
+    attack with confidence. If the worst case is bad, don't attack.
+
     Safe attacks (no untapped potential blocker of that defender can kill the
     attacker, or the attacker is evasive against all of them) are good, more
     so against a low-life defender. An attack into a blocker that kills the
@@ -1016,11 +1255,13 @@ __all__ = [
     "block_score",
     "board_summary",
     "boardwipe_risk",
+    "bread_weight",
     "card_view_fields",
     "color_choice_rank",
     "commander_names",
     "counter_target_worth",
     "creature_board_value",
+    "desperation_score",
     "entry_value",
     "focus_defender",
     "hand_role_counts",
@@ -1033,7 +1274,9 @@ __all__ = [
     "priority_view_fields",
     "resolve_player",
     "stack_pressure",
+    "synergy_bonus",
     "table_threats",
     "target_object_bonus",
+    "tempo_score",
     "untapped_mana_estimate",
 ]
