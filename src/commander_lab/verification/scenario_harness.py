@@ -13,7 +13,6 @@ See: docs/evidence-standard.md (PARTIAL ≠ FULL)
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 
 @dataclass
@@ -47,7 +46,7 @@ class ScenarioAssertion:
     # Path in the tape JSON (dot-separated)
     path: str
     # Expected value (or callable returning bool)
-    expected: Any
+    expected: object
     description: str
 
 
