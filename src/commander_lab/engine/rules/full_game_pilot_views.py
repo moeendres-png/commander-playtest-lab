@@ -732,9 +732,7 @@ def priority_view_fields(
         ]
         synergy = synergy_bonus(source_name, own_battlefield, state)
         if synergy > 0.0:
-            fields["immediate_impact"] = min(
-                2.0, float(fields["immediate_impact"]) + synergy * 0.3
-            )
+            fields["immediate_impact"] = min(2.0, float(fields["immediate_impact"]) + synergy * 0.3)
             extra["synergy_bonus"] = round(synergy, 3)
         # BREAD: role-based priority as a small tiebreaker.
         # bread_weight() returns: Bombs 1.5, Removal 1.3, Evasion 1.2,
@@ -744,7 +742,7 @@ def priority_view_fields(
         # equal cards, it doesn't make a Dud better than a Bomb.
         # We take max() because a card can have multiple roles (e.g., a
         # creature that's both Aggro and Evasion); we use the highest priority.
-        bread = max((bread_weight(r) for r in roles.keys()), default=1.0)
+        bread = max((bread_weight(r) for r in roles), default=1.0)
         fields["immediate_impact"] = min(
             2.0, max(0.0, float(fields["immediate_impact"]) + (bread - 1.0) * 0.3)
         )
