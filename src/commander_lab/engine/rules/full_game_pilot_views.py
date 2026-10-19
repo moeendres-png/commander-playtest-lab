@@ -202,7 +202,7 @@ def table_threats(state: Mapping[str, Any]) -> dict[str, float]:
     }
 
 
-def tempo_score(actor_id: str, state: Mapping[str, Any]) -> float:
+def tempo_score(actor_id: str, state: Mapping[str, object]) -> float:
     """Tempo evaluation: is the actor ahead (+1.0) or behind (-1.0)?
 
     Combines:
@@ -247,7 +247,7 @@ def tempo_score(actor_id: str, state: Mapping[str, Any]) -> float:
     return max(-1.0, min(1.0, tempo))
 
 
-def desperation_score(actor_id: str, state: Mapping[str, Any]) -> float:
+def desperation_score(actor_id: str, state: Mapping[str, object]) -> float:
     """Desperation: should the actor take risky aggressive actions?
 
     Returns 0.0 in normal situations (no effect on decisions).
@@ -344,7 +344,7 @@ def bread_weight(role: CardRole) -> float:
 
 
 def synergy_bonus(
-    card_name: str, battlefield: list[dict[str, Any]], state: Mapping[str, Any]
+    card_name: str, battlefield: list[dict[str, object]], state: Mapping[str, object]
 ) -> float:
     """Synergy bonus for playing a card given current battlefield.
 
@@ -716,6 +716,39 @@ def priority_view_fields(
                 fields["immediate_impact"] = min(
                     2.0, float(fields["immediate_impact"]) + min(1.0, best / 8.0)
                 )
+        # Synergy: bonus for cards that work well with our battlefield.
+        # synergy_bonus() returns 0.0-1.0 (tribal 0.3, +1/+1 counters 0.2,
+        # sacrifice 0.25, artifacts 0.2; see function docstring for details).
+        # We scale by 0.3 and cap at 2.0 total, so synergy is a tiebreaker,
+        # not a dominant factor. Example: Llanowar Elves with Wood Elves on
+        # battlefield gets +0.09 (0.3 * 0.3).
+        # Design rationale (Hans, 2026-10-18): synergy should reward
+        # coherent deck strategies without overriding card fundamentals.
+        own_battlefield = [
+            item
+            for p in players(state)
+            if str(p.get("player_id")) == actor_id
+            for item in _items(p.get("battlefield"))
+        ]
+        synergy = synergy_bonus(source_name, own_battlefield, state)
+        if synergy > 0.0:
+            fields["immediate_impact"] = min(
+                2.0, float(fields["immediate_impact"]) + synergy * 0.3
+            )
+            extra["synergy_bonus"] = round(synergy, 3)
+        # BREAD: role-based priority as a small tiebreaker.
+        # bread_weight() returns: Bombs 1.5, Removal 1.3, Evasion 1.2,
+        # Aggro 1.1, Support/Mana 1.0, Duds 0.8.
+        # Formula: (weight - 1.0) * 0.3, so Bombs get +0.15, Duds get -0.06.
+        # This is intentionally small: BREAD breaks ties between otherwise
+        # equal cards, it doesn't make a Dud better than a Bomb.
+        # We take max() because a card can have multiple roles (e.g., a
+        # creature that's both Aggro and Evasion); we use the highest priority.
+        bread = max((bread_weight(r) for r in roles.keys()), default=1.0)
+        fields["immediate_impact"] = min(
+            2.0, max(0.0, float(fields["immediate_impact"]) + (bread - 1.0) * 0.3)
+        )
+        extra["bread_weight"] = round(bread, 3)
         return {**fields, "metadata": extra}, withhold
 
     if option_type in {"activated_ability"} and ability_type != "spell":
@@ -1088,6 +1121,24 @@ def attack_score(
         # Spread-out damage lets everyone survive; pressure on one opponent
         # removes a player and shortens the game.
         score += 0.6
+    # Desperation: when truly desperate, favor aggression over caution.
+    # desperation_score() returns 0.0-1.0, but only >0 when ALL three hold:
+    #   - Life <= 10 (we're dying)
+    #   - Tempo < -0.3 (we're behind on board)
+    #   - Max opponent threat >= 20 (someone is about to kill us)
+    # In normal situations it returns 0.0, so this code has no effect.
+    # When desperate, we add desperation * 1.0 to the attack score, making
+    # aggressive attacks more attractive than holding back blockers.
+    # Design rationale (Hans, 2026-10-18): "Tempo-Effekt generell schwächer,
+    # nur in echten Desperation-Situationen stark." A desperate player should
+    # attack; a non-desperate player should not be affected.
+    # Note: actor_id is read from state (pattern used at line 462). If empty,
+    # we skip (defensive, shouldn't happen in practice).
+    actor_id = str(state.get("actor_id", ""))
+    if actor_id:
+        desp = desperation_score(actor_id, state)
+        if desp > 0.0:
+            score += desp * 1.0
     return score, {"attack_power": power, "defender_blockers": len(able)}
 
 

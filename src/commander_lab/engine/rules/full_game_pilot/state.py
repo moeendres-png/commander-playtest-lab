@@ -65,7 +65,7 @@ class _PolicyState:
         self._player_count = len(runtime_pilots)
         self.scenario_seed = scenario_seed
         # Per-state object index cache (initialized lazily in _find_object).
-        self._object_index: dict[str, dict[str, Any]] = {}
+        self._object_index: dict[str, dict[str, object]] = {}
         self._object_index_state_id: int = 0
         self._mulligan_count: dict[int, int] = {
             seat: 0 for seat in range(1, len(runtime_pilots) + 1)
@@ -497,7 +497,7 @@ class _PolicyState:
                     return player_id
         return None
 
-    def _find_object(self, object_id: str, state: dict[str, Any]) -> dict[str, Any] | None:
+    def _find_object(self, object_id: str, state: dict[str, object]) -> dict[str, object] | None:
         """Find a card/permanent object by ID in any player's zones.
 
         Uses a per-state cache: the state dict id identifies the game state,
@@ -506,7 +506,7 @@ class _PolicyState:
         # Cache the object index per state to avoid O(n) search per lookup
         state_id = id(state)
         if self._object_index_state_id != state_id:
-            index: dict[str, dict[str, Any]] = {}
+            index: dict[str, dict[str, object]] = {}
             players = state.get("players")
             if isinstance(players, list):
                 for raw in players:
@@ -525,7 +525,7 @@ class _PolicyState:
             self._object_index_state_id = state_id
         return self._object_index.get(object_id)
 
-    def _card_threat(self, object_id: str, state: dict[str, Any]) -> float:
+    def _card_threat(self, object_id: str, state: dict[str, object]) -> float:
         """Threat score of a specific card/permanent (0.0 if not found)."""
         obj = self._find_object(object_id, state)
         if obj is None:
