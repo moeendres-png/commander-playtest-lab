@@ -5,8 +5,8 @@ from __future__ import annotations
 import pytest
 
 from commander_lab.verification.scenario_harness import (
-    ScenarioHarness,
     START_CORPUS,
+    ScenarioHarness,
 )
 
 

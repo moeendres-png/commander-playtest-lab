@@ -13,13 +13,13 @@ See: docs/evidence-standard.md (PARTIAL ≠ FULL)
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any
 
 
 @dataclass
 class CardSetup:
     """A card to put on the battlefield during setup."""
+
     name: str
     controller_seat: int = 0
     tapped: bool = False
@@ -29,6 +29,7 @@ class CardSetup:
 @dataclass
 class ScriptedDecision:
     """A pre-scripted decision for the pilot."""
+
     # Match criteria (all must match)
     prompt_contains: str | None = None
     option_label: str | None = None
@@ -42,6 +43,7 @@ class ScriptedDecision:
 @dataclass
 class ScenarioAssertion:
     """An assertion on the tape end-state."""
+
     # Path in the tape JSON (dot-separated)
     path: str
     # Expected value (or callable returning bool)
@@ -52,6 +54,7 @@ class ScenarioAssertion:
 @dataclass
 class Scenario:
     """A complete scripted scenario."""
+
     scenario_id: str
     description: str
     # Cards to set up
@@ -103,9 +106,9 @@ class ScenarioHarness:
 # Start corpus: 5 cards with well-known behavior from Mage.Tests
 # (Full 20-50 card corpus is future work; H3 showed 68s per test)
 START_CORPUS = [
-    "Lightning Bolt",      # Direct damage
-    "Sol Ring",            # Mana acceleration
-    "Command Tower",       # Mana fixing
-    "Swords to Plowshares", # Removal
-    "Cultivate",           # Ramp
+    "Lightning Bolt",  # Direct damage
+    "Sol Ring",  # Mana acceleration
+    "Command Tower",  # Mana fixing
+    "Swords to Plowshares",  # Removal
+    "Cultivate",  # Ramp
 ]
