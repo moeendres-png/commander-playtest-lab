@@ -435,7 +435,7 @@ class XmageFullGameUnchoosableCostTest {
     }
 
     /** Scripted answers for the decisions a cost raises, by decision class. */
-    private static final class Answers {
+    static final class Answers {
         private final Deque<String> uses = new ArrayDeque<>();
         private String land;
         private String pickName;
@@ -463,7 +463,7 @@ class XmageFullGameUnchoosableCostTest {
      * Answers whatever the engine asks, with the first option unless scripted,
      * until the lane is back at a priority decision or the loop bound is hit.
      */
-    private static void drive(XmageMultiplayerScenario s, Answers answers) {
+    static void drive(XmageMultiplayerScenario s, Answers answers) {
         for (int i = 0; i < 40; i++) {
             String decisionClass = s.decisionClass();
             if ("priority".equals(decisionClass)) {
@@ -522,7 +522,7 @@ class XmageFullGameUnchoosableCostTest {
      * test makes to the board afterwards is not in its offers. Playing a land
      * returns priority to the same seat with a freshly built frame.
      */
-    private static void refreshOffers(XmageMultiplayerScenario s) {
+    static void refreshOffers(XmageMultiplayerScenario s) {
         for (JsonElement element : s.session.legalActionsPayload().getAsJsonArray("actions")) {
             JsonObject candidate = element.getAsJsonObject();
             if (candidate.getAsJsonObject("metadata").get("label").getAsString()
@@ -541,12 +541,12 @@ class XmageFullGameUnchoosableCostTest {
                 new XmageActualCardCorpusTest.Started(s.session, s.seats, null), tag, value);
     }
 
-    private static boolean inHand(Game game, XmageMultiplayerScenario s, String name) {
+    static boolean inHand(Game game, XmageMultiplayerScenario s, String name) {
         return s.seats.get("P1").getHand().getCards(game).stream()
                 .anyMatch(card -> name.equals(card.getName()));
     }
 
-    private static Permanent onBattlefield(Game game, String name) {
+    static Permanent onBattlefield(Game game, String name) {
         return game.getBattlefield().getAllActivePermanents().stream()
                 .filter(permanent -> name.equals(permanent.getName()))
                 .findFirst()

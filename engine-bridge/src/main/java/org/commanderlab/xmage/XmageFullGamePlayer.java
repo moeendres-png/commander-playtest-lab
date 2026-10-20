@@ -17,6 +17,7 @@ import mage.abilities.costs.Costs;
 import mage.abilities.costs.common.DiscardTargetCost;
 import mage.abilities.costs.common.PayLifeCost;
 import mage.abilities.costs.common.PayVariableLifeCost;
+import mage.abilities.costs.common.RemoveCounterCost;
 import mage.abilities.costs.common.SacrificeSourceCost;
 import mage.abilities.costs.common.TapSourceCost;
 import mage.abilities.costs.common.TapTargetCost;
@@ -834,7 +835,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     || reversedRequiredXTarget(game)
                     || reversedEmptyNonTargetChoice(ability)
                     || reversedUnchoosableCostTarget(ability, game, stateBefore)
-                    || reversedUnchoosableAbilityTarget(ability, game, stateBefore)) {
+                    || reversedUnchoosableAbilityTarget(ability, game, stateBefore)
+                    || reversedChainedLifeCost(ability, game, stateBefore)) {
                 // Cancelled or uncompletable activation: the engine reversed
                 // it; the same player receives priority again (#662 S3).
                 // #703 adds the engine-reversed X-target case: the announced
@@ -978,6 +980,71 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         return stateBefore.equals(XmageStateFingerprint.ofOrNull(game));
     }
+
+
+    /**
+     * True only when the engine reversed an ACTIVATION because the life it
+     * promised in several costs together exceeds the life total, and the game
+     * is back exactly where it was.
+     *
+     * <p>Lashwrithe's "Equip {B/P}{B/P}" with 2 life: the pilot answers Yes to
+     * each "pay 2 life instead of {B}" (CR 107.4f), each answer alone is
+     * affordable, and the engine turns them into two {@code PayLifeCost}s. The
+     * first is paid, the second is not (CR 119.4: a player can pay life only up
+     * to their life total, so the cost is unpaid under CR 118.3),
+     * {@code AbilityImpl.activate} returns false and {@code playAbility}
+     * restores its bookmark (CR 601.2e / 727).
+     *
+     * <p>Engine-held facts, read after the attempt: it is the pilot's
+     * ability ({@link #sameActionAbility}); its mana is paid; the FIRST unpaid
+     * cost is a static "pay N life" {@code PayLifeCost} after at least one
+     * paid {@code PayLifeCost}; the life already paid by those plus N exceeds
+     * the life total now; and {@link XmageStateFingerprint} equals the one taken
+     * before the engine started, so the life total is the one the payments were
+     * checked against. A dynamic amount (the text carries no number), a first
+     * unpaid cost of another kind or enough life keeps failing closed.
+     */
+    boolean reversedChainedLifeCost(Ability acting, Game game, String stateBefore) {
+        Ability engine = engineActionAbility;
+        if (game == null || stateBefore == null || !sameActionAbility(engine, acting)) {
+            return false;
+        }
+        ManaCosts<ManaCost> manaCostsToPay = engine.getManaCostsToPay();
+        if (manaCostsToPay == null || !manaCostsToPay.isPaid()) {
+            return false;
+        }
+        Costs<Cost> costs = engine.getCosts();
+        if (costs == null || costs.isEmpty()) {
+            return false;
+        }
+        int paidLife = 0;
+        Cost unpaid = null;
+        for (Cost cost : costs) {
+            if (cost.isPaid()) {
+                if (cost instanceof PayLifeCost life) {
+                    paidLife += life.getLifePaid();
+                }
+            } else {
+                unpaid = cost;
+                break;
+            }
+        }
+        if (!(unpaid instanceof PayLifeCost) || paidLife <= 0) {
+            return false;
+        }
+        java.util.regex.Matcher amount = STATIC_LIFE_COST.matcher(unpaid.getText());
+        if (!amount.matches()) {
+            return false;
+        }
+        int promised = paidLife + Integer.parseInt(amount.group(1));
+        if (getLife() >= promised) {
+            return false;
+        }
+        return stateBefore.equals(XmageStateFingerprint.ofOrNull(game));
+    }
+
+    private static final java.util.regex.Pattern STATIC_LIFE_COST =
+            java.util.regex.Pattern.compile("pay (\\d+) life");
 
     private boolean hasEmptyUnaskedRequiredTarget(Iterable<Target> targets) {
         for (Target target : targets) {
@@ -3173,10 +3240,87 @@ final class XmageFullGamePlayer extends PlayerImpl {
      */
     Set<UUID> offeredTargets(Target target, Ability source, Game game, Set<UUID> restrictedIds) {
         UUID abilityControllerId = target.getAffectedAbilityControllerId(getId());
+        Set<UUID> possible;
         if (restrictedIds == null) {
-            return target.possibleTargets(abilityControllerId, source, game);
+            possible = target.possibleTargets(abilityControllerId, source, game);
+        } else {
+            possible = target.possibleTargets(abilityControllerId, source, game, restrictedIds);
         }
-        return target.possibleTargets(abilityControllerId, source, game, restrictedIds);
+        return withoutRefusedChoices(possible, target, source, game);
+    }
+
+    /**
+     * Drops from the offered set the choices the engine itself would refuse once
+     * the pilot made them, so the pilot is never handed an option that can only
+     * end in a rewind it cannot avoid. Two engine-held facts, nothing else:
+     *
+     * <ul>
+     *   <li>a TARGET: the engine's own rule-modifying effects forbid targeting
+     *       it. {@code TargetImpl.addTarget} asks
+     *       {@code ContinuousEffects.preventedByRuleModification} with a
+     *       {@code TargetEvent} and puts nothing when it answers true, but
+     *       {@code possibleTargets} does not ask. Ground Seal ("cards in
+     *       graveyards can't be the targets of spells or abilities") with
+     *       Atzocan Seer's "return target Dinosaur card from your graveyard"
+     *       offered every Dinosaur card, took the pilot's pick, dropped it, and
+     *       the activation ended in XMAGE_ACTION_EXECUTION_FAILED;</li>
+     *   <li>a RemoveCounterCost TARGET without a counter:
+     *       {@code RemoveCounterCost.pay} skips a chosen object that has no
+     *       counter and leaves the cost unpaid, while a card such as Scholar of
+     *       New Horizons ("remove a counter from a permanent you control")
+     *       declares its cost target without a counter filter, so every
+     *       permanent was offered.</li>
+     * </ul>
+     *
+     * An emptied set takes the existing empty-set path, which the rewind
+     * predicates ({@link #reversedUnchoosableCostTarget}) already recognise.
+     */
+    private Set<UUID> withoutRefusedChoices(
+            Set<UUID> offered, Target target, Ability source, Game game) {
+        if (offered == null || offered.isEmpty() || game == null) {
+            return offered;
+        }
+        boolean refuseTargeting = source != null && !target.isNotTarget();
+        boolean needsCounter = isRemoveCounterCostTarget(target);
+        if (!refuseTargeting && !needsCounter) {
+            return offered;
+        }
+        Set<UUID> kept = new java.util.LinkedHashSet<>();
+        for (UUID id : offered) {
+            if (refuseTargeting
+                    && game.getContinuousEffects().preventedByRuleModification(
+                            new mage.game.events.TargetEvent(id, source), null, game, true)) {
+                continue;
+            }
+            if (needsCounter) {
+                Card object = game.getPermanent(id);
+                if (object == null) {
+                    object = game.getCard(id);
+                }
+                if (object == null || object.getCounters(game).isEmpty()) {
+                    continue;
+                }
+            }
+            kept.add(id);
+        }
+        return kept;
+    }
+
+    private boolean isRemoveCounterCostTarget(Target target) {
+        Ability engine = engineActionAbility;
+        if (engine == null || engine.getCosts() == null) {
+            return false;
+        }
+        for (Cost cost : engine.getCosts()) {
+            if (cost instanceof RemoveCounterCost) {
+                for (Target costTarget : costTargets(cost)) {
+                    if (costTarget == target) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     private boolean chooseTargetInternal(
