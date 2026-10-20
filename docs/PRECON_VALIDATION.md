@@ -136,8 +136,24 @@ die anderen sechs Karten sind neu.
   der Hash anders. Beide Pods liefern mit demselben JAR und Seed wechselnd zwei Hashes
   (029: `ff71f5b7…` und `6144e8fe…`, zehn Läufe; 033: `1b23f691…` und `1908ba32…`, vier Läufe;
   jeweils mit dem Basis- und dem Fix-JAR, bei 029 auch mit einem Vergleichs-JAR ohne
-  Zustandsabdruck). Der Unterschied kommt also nicht von der Änderung; die Ursache der
-  Instabilität ist nicht untersucht. Ein Spiel pro Pod ist weiter keine Passquote.
+  Zustandsabdruck). Der Unterschied kommt also nicht von der Änderung. Ursache (später
+  gefunden, `LOCAL_OBSERVED`): die Engine sammelt `Card`, `Permanent` und Enums in `HashSet`s, die
+  keinen eigenen `hashCode` haben, die Iterationsreihenfolge wechselt mit jedem JVM-Start. Bei 029
+  fragt Kathril, Aspect Warper je Zählermarken-Art nach einem Ziel (`Collectors.toSet()` von
+  `CounterType`), bei 033 sammelt Wave Goodbye die Kreaturen in einem `HashSet<Card>`, wodurch die
+  Commander-Ersatzfragen („Move X to command zone instead of your hand?“) in Zug 32 mal von
+  Sitz 1, mal von Sitz 2 zuerst gestellt werden. Der erste abweichende Eintrag steht in beiden
+  Fällen im Entscheidungs-Trace (Object-IDs normalisiert); mit `EnumSet` für die zwei Karten und
+  `LinkedHashSet` für 113 Dateien liefert Pod 029 in 4 von 4 und Pod 033 in 12 von 12 Läufen
+  denselben Hash. Die Patches stehen auf dem Fork-Branch `claude/project-thread-nik5ho`
+  (Perf-Port, Rules-RNG-Einzeiler und diese Patches); die Kandidatenlinie und der Pin sind
+  unverändert. Der Perf-Port im selben Branch ist nicht ausgabegleich: mit ihm liefert Pod 033
+  einen dritten, ebenfalls stabilen Hash (`07364fb0…` statt `1908ba32…`, 3 von 3 Läufen). Erste
+  Abweichung ist ein Optionstext: `AddManaChosenColorEffect` merkt sich beim Berechnen der Mana
+  die gewählte Farbe in einem Feld und hängt sie danach an den Regeltext an („… chosen color
+  {U}“), und der Port spart Spielkopien, sodass dieses Feld auf einem anderen Objekt gesetzt
+  wird. Der Text ist Teil des Optionsnamens und des Sortierschlüssels der Bridge (`abilitySortKey`),
+  die Spiele laufen danach verschieden weiter. Ein Spiel pro Pod ist weiter keine Passquote.
 - Sweep mit #928 und dem Crew-/Marath-Fix (gleiche Pods, Plan-Seed 1, Spiel-Seed 1, `LOCAL_OBSERVED`, ein Lauf,
   JAR `b85faccb…`, Import-Report des Pins als Deckliste): **46 von 46 Pods laufen durch**, alle 182
   importierbaren Decks stehen in mindestens einem durchgespielten Pod. 36 der 43 vorher
@@ -146,6 +162,14 @@ die anderen sechs Karten sind neu.
   nicht mehr wählt; pod-004 wiederholt mit demselben JAR zweimal den neuen Hash, und mit dem JAR
   ohne den Crew-Fakt auf dem neuen Pilotcode den alten. Die 36-Seed-Hashes der Abnahme sind gegen
   diesen Stand neu zu kalibrieren. Ein Spiel pro Pod ist weiter keine Passquote.
+- Zweiter Sweep (Plan-Seed 2, Spiel-Seed 2, gleiche 182 Decks, JAR `b85faccb…`, `LOCAL_OBSERVED`,
+  ein Lauf): **45 von 46 Pods laufen durch**, ein Abbruch: pod-004, `BRIDGE_PROTOCOL_ERROR: numeric
+  bounds reversed: 1..0`. Ursache: Pia Nalaar, Chief Mechanic fragt am Ende des Zuges
+  `getAmount(1, Energie)` auch dann, wenn der Spieler keine Energie hat, also einen leeren Bereich
+  (die anderen Energie-Karten fragen ab 0 oder prüfen vorher). Die Bridge bleibt dort absichtlich
+  fail-closed. Mit einer Prüfung an der Karte (Fork-Patch, siehe oben) läuft der Pod durch
+  (2673 Entscheidungen, Hash `c2aeceed…`). Pilot und Bridge sehen die Energie nicht im
+  Spielzustand; eine Pilot-Umgehung hätte den Zustandsabdruck des Replays geändert.
 
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
@@ -176,8 +200,9 @@ Immer nur ein Sweep gleichzeitig: bei CPU-Mangel werden langsame Entscheidungen 
 - „Alle Precon-Karten sind in XMage implementiert und spielbar“ (frühere Fassung dieser Datei):
   widerlegt, 31 Kartennamen fehlen am Pin, und Import beweist keine Kartenfunktion.
 - „Alle 182 importierbaren Decks laufen im Pod“: ohne die Fixes (#928, Crew/Marath) widerlegt (9 von 46
-  Pods brachen ab); mit ihnen lief in einem Sweep jeder der 46 Pods durch. Das ist ein Spiel pro
-  Pod mit einem Seed und keine Aussage über andere Seeds oder Pläne.
+  Pods brachen ab); mit ihnen lief in einem Sweep jeder der 46 Pods durch, in einem zweiten mit
+  anderem Plan und Seed brach einer ab (Pia Nalaar, siehe oben). Das ist ein Spiel pro Pod und
+  keine Aussage über andere Seeds oder Pläne.
 - Die Zahlen „195/195 ENGINE_FAILURE“ und „221 fehlende Karten“ aus früheren Übergaben: Das
   Skript hat dasselbe Deck auf alle Plätze gesetzt, die 221 stammt aus einer
   Dateinamen-Heuristik. Beide dürfen nicht mehr zitiert werden.
