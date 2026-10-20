@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Literal, NamedTuple
@@ -394,7 +394,7 @@ _REMOVE_X_COUNTERS = re.compile(
 
 def option_x_counter_cap(
     label: str,
-    metadata: dict[str, Any],
+    metadata: Mapping[str, object],
     battlefield: object,
 ) -> int | None:
     """How many counters an "X" paid by removing counters from its source can use.

@@ -760,7 +760,7 @@ class _PaymentDecisions(_PolicyState):
         seat: int,
         options: list[dict[str, Any]],
         selected: list[str],
-        state: dict[str, Any] | None = None,
+        state: dict[str, object] | None = None,
     ) -> None:
         """Keep the cost the engine reported for the priority option just chosen.
 
@@ -871,7 +871,7 @@ class _PaymentDecisions(_PolicyState):
             return None
         return non_x, symbols
 
-    def _take_remembered_x_counter_cap(self, seat: int, source_object: Any) -> int | None:
+    def _take_remembered_x_counter_cap(self, seat: int, source_object: object) -> int | None:
         """Consume this seat's remembered counter cap for this announce source.
 
         Taken like ``_take_remembered_priority_cost_facts``: one cap belongs to
