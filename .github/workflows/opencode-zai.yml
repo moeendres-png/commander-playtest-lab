@@ -42,7 +42,7 @@ jobs:
       # Uses the OpenAI-compatible endpoint https://api.z.ai/api/paas/v4 with the
       # ZAI_API_KEY secret. Only the zai provider is allowed (deny-all + allow-zai).
       OPENCODE_CONFIG_CONTENT: >-
-        {"enabled_providers":["zai"],"provider":{"zai":{"npm":"@ai-sdk/openai-compatible","name":"Z.ai","options":{"baseURL":"https://api.z.ai/api/paas/v4"},"models":{"glm-4.7-flash":{"name":"GLM 4.7 Flash"}}}},"model":"zai/glm-4.7-flash","small_model":"zai/glm-4.7-flash","experimental":{"policies":[{"action":"provider.use","effect":"deny","resource":"*"},{"action":"provider.use","effect":"allow","resource":"zai"}]}}
+        {"enabled_providers":["zai"],"provider":{"zai":{"npm":"@ai-sdk/openai-compatible","name":"Z.ai","env":["ZAI_API_KEY"],"options":{"baseURL":"https://api.z.ai/api/paas/v4"},"models":{"glm-4.7-flash":{"name":"GLM 4.7 Flash"}}}},"model":"zai/glm-4.7-flash","small_model":"zai/glm-4.7-flash","experimental":{"policies":[{"action":"provider.use","effect":"deny","resource":"*"},{"action":"provider.use","effect":"allow","resource":"zai"}]}}
     steps:
       - name: Refuse fork pull requests as agent targets
         if: github.event.issue.pull_request || github.event.pull_request
@@ -103,6 +103,7 @@ jobs:
       - name: Preflight Z.ai provider
         run: |
           set -euo pipefail
+          test -n "${ZAI_API_KEY:-}" || { echo "ZAI_API_KEY secret is empty (fail closed before spending quota)" >&2; exit 1; }
           opencode debug config > "$RUNNER_TEMP/zai-config.json"
           python3 - <<'PYTHON'
           import json, os, sys
@@ -111,6 +112,8 @@ jobs:
           model = cfg.get("model", "")
           print(f"resolved model: {model}")
           assert model == "zai/glm-4.7-flash", f"unexpected model: {model}"
+          # The custom provider only reads its key from the variable it names.
+          assert cfg["provider"]["zai"].get("env") == ["ZAI_API_KEY"], "zai provider has no key source"
           print("preflight OK")
           PYTHON
         env:
@@ -191,7 +194,7 @@ jobs:
     env:
       # Merge the zai provider config with the read-only reviewer agent.
       OPENCODE_CONFIG_CONTENT: >-
-        {"enabled_providers":["zai"],"provider":{"zai":{"npm":"@ai-sdk/openai-compatible","name":"Z.ai","options":{"baseURL":"https://api.z.ai/api/paas/v4"},"models":{"glm-4.7-flash":{"name":"GLM 4.7 Flash"}}}},"model":"zai/glm-4.7-flash","small_model":"zai/glm-4.7-flash","default_agent":"foundry-reviewer","experimental":{"policies":[{"action":"provider.use","effect":"deny","resource":"*"},{"action":"provider.use","effect":"allow","resource":"zai"}]}}
+        {"enabled_providers":["zai"],"provider":{"zai":{"npm":"@ai-sdk/openai-compatible","name":"Z.ai","env":["ZAI_API_KEY"],"options":{"baseURL":"https://api.z.ai/api/paas/v4"},"models":{"glm-4.7-flash":{"name":"GLM 4.7 Flash"}}}},"model":"zai/glm-4.7-flash","small_model":"zai/glm-4.7-flash","default_agent":"foundry-reviewer","experimental":{"policies":[{"action":"provider.use","effect":"deny","resource":"*"},{"action":"provider.use","effect":"allow","resource":"zai"}]}}
     steps:
       - name: Refuse fork pull requests as agent targets
         if: github.event.issue.pull_request || github.event.pull_request
@@ -251,6 +254,7 @@ jobs:
       - name: Preflight reviewer runtime identity
         run: |
           set -euo pipefail
+          test -n "${ZAI_API_KEY:-}" || { echo "ZAI_API_KEY secret is empty (fail closed before spending quota)" >&2; exit 1; }
           opencode debug config > "$RUNNER_TEMP/zai-review-config.json"
           opencode debug agent foundry-reviewer > "$RUNNER_TEMP/zai-reviewer.json" 2>&1 || true
           python3 - <<'PYTHON'
@@ -263,6 +267,8 @@ jobs:
           print(f"default agent: {agent}")
           assert model == "zai/glm-4.7-flash", f"unexpected model: {model}"
           assert agent == "foundry-reviewer", f"unexpected agent: {agent}"
+          # The custom provider only reads its key from the variable it names.
+          assert cfg["provider"]["zai"].get("env") == ["ZAI_API_KEY"], "zai provider has no key source"
           print("preflight OK")
           PYTHON
         env:
