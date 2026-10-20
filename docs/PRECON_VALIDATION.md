@@ -171,7 +171,26 @@ die anderen sechs Karten sind neu.
   (2673 Entscheidungen, Hash `c2aeceed…`). Pilot und Bridge sehen die Energie nicht im
   Spielzustand; eine Pilot-Umgehung hätte den Zustandsabdruck des Replays geändert.
 
-- Dritter Sweep (Plan-Seed 4, Spiel-Seed 4, gleiche 182 Decks, `LOCAL_OBSERVED`, ein Lauf, Stand
+- Familiensuche mit weiteren Plänen (Spiel-Seed 1, `LOCAL_OBSERVED`, je Plan ein Lauf, die 182 Decks aus dem
+  Import-Report des Pins):
+  - **Plan-Seed 2:** 40 von 46 Pods liefen durch (JAR `d7f55047…`), sechs brachen ab
+    (fünfmal `XMAGE_ACTION_EXECUTION_FAILED`, einmal `ENGINE_FAILURE`). Vier Familien, behoben in
+    #932: (1) ein Ziel, das eine Regelmodifikation nicht wählbar macht (Ground Seal gegen den
+    Seer), wurde der Pilotseite als Kostenziel angeboten; (2) "Remove a counter"-Kosten wurden für
+    Objekte ohne Marke angeboten (Scholar ohne Marke); (3) zweite Phyrexian-Lebenszahlung bei zu
+    wenig Leben (Lashwrithe), wo die Engine zurückspult; (4) die Kopier-Wirkung "Continue to
+    choose copies and cast?" (Mizzix's Mastery) wurde nach abgelehntem Zauber erneut
+    gestellt und bejaht. Mit #932 (JAR `6ffcd616…`): **46 von 46**, alle 182 Decks in einem durchgespielten Pod.
+    Welcher Pod zu welcher Familie gehört, habe ich nicht einzeln aufgeschlüsselt.
+  - **Plan-Seed 3:** 45 von 46 Pods liefen durch (JAR `6ffcd616…`, 178 Decks in durchgelaufenen Pods;
+    zusammen mit Plan-Seed 2 alle 182). Ein Abbruch, `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION:
+    choose_use`: Willie Lumpkin, Postman trifft einen Gegner, der an diesem Schaden ausscheidet,
+    und der Effekt fragt ihn beim Auflösen trotzdem "darf ziehen?". Behoben in #934 (kein Frame
+    für einen ausgeschiedenen Spieler, XMage bekommt seine eigene Nicht-Antwort); der Pod läuft
+    danach zu Ende (3534 Entscheidungen).
+  - Das sind Funde pro Plan, kein Passanteil: ein Spiel pro Pod, eine Handvoll Pläne, und ein
+    sauberer Lauf beweist nicht, dass andere Pläne oder Seeds sauber laufen.
+- Familiensuche Plan-Seed 4 (Spiel-Seed 4, gleiche 182 Decks, `LOCAL_OBSERVED`, ein Lauf, Stand
   `1b5e542`): **41 von 46 Pods laufen durch**, fünf brechen ab (012, 021, 022, 029, 032). Mit dem
   Stand von `f5eecc7` (#931–#933) laufen 012, 022 und 029 durch (nicht je bis zur Karte
   verfolgt); 021 und 032 brachen dort weiter ab und werden im Piloten behoben:

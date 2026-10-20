@@ -279,4 +279,83 @@ class XmageMultiplayerLeaverMayChoiceTest {
         }
         fail("P1 never reached its pile choice");
     }
+
+    /**
+     * Willie Lumpkin, Postman ("Whenever Willie Lumpkin deals combat damage to an opponent, you
+     * draw a card and that player may draw a card. ..."): the opponent at 1 life loses to that very
+     * damage, so the resolving effect still names a player who left (CR 800.4a). It makes no choice:
+     * no {@code choose_use} frame is exposed, XMage gets its own no-response, the controller still
+     * draws, and the game goes on. (Until the request-time unwind this ended the lane with
+     * {@code PLAYER_LEFT_GAME_UNSUPPORTED_DECISION}.) The control at full life is asked.
+     */
+    @ParameterizedTest(name = "{0} players")
+    @ValueSource(ints = {4, 5})
+    void anOpponentWhoLostToTheCombatDamageIsNotAskedItsMayDraw(int playerCount) {
+        WillieRun lost = playWillie(playerCount, 1);
+        assertTrue(lost.p2AskedChooseUse == 0, "no choose_use frame reached the departed P2");
+        assertFalse(lost.p2InGame, "P2 lost to the combat damage");
+        assertEquals(1, lost.p1HandGain, "P1 still drew its card");
+        assertTrue(lost.cancelledRecorded, "the retirement of the departed player's frame is recorded");
+
+        WillieRun control = playWillie(playerCount, 40);
+        assertEquals(1, control.p2AskedChooseUse, "control: a surviving opponent is asked");
+        assertTrue(control.p2InGame, "control: P2 is still in the game");
+        assertFalse(control.cancelledRecorded, "control: nothing was retired");
+    }
+
+    private record WillieRun(int p2AskedChooseUse, boolean p2InGame, int p1HandGain, boolean cancelledRecorded) { }
+
+    private static WillieRun playWillie(int playerCount, int p2Life) {
+        List<XmageNativeStateRestoration.RequestedObject> objects = new ArrayList<>();
+        objects.add(XmageMultiplayerScenario.obj("P1", "Willie Lumpkin, Postman", 0, Zone.BATTLEFIELD));
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
+                "willie-" + p2Life + "-" + playerCount + "p", playerCount, "P1", objects);
+        Game game = s.session.restorationGame();
+        s.seats.get("P2").setLife(p2Life, game, null);
+        int handBefore = s.seats.get("P1").getHand().size();
+        int asked = 0;
+        for (int i = 0; i < 200 && game.getTurnNum() < 2; i++) {
+            JsonObject payload = s.session.pendingDecisionPayload();
+            assertTrue(payload.get("failure").isJsonNull(), "the lane goes on: " + payload.get("failure"));
+            if (payload.get("decision").isJsonNull()) {
+                break;
+            }
+            String cls = s.decisionClass();
+            switch (cls) {
+                case "priority" -> s.submit(s.action("pass_priority", "Pass"));
+                case "declare_attacker" -> s.submit(attacks(s));
+                case "choose_use" -> {
+                    assertEquals("P2", s.actor(), "only the damaged opponent is asked");
+                    asked++;
+                    s.submit(labelled(s, "No"));
+                }
+                case "choose_object" -> {
+                    // P1's cleanup discard ends the turn: the draw happened in combat.
+                    assertEquals("P1", s.actor(), "only P1 discards to hand size");
+                    i = 200;
+                }
+                default -> fail("unexpected " + cls + " for " + s.actor() + " " + s.labels());
+            }
+        }
+        boolean cancelled = false;
+        for (JsonElement event : s.session.resultPayload().getAsJsonArray("transcript")) {
+            JsonObject e = event.getAsJsonObject();
+            if (e.has("event_type") && "engine_decision_cancelled".equals(e.get("event_type").getAsString())) {
+                cancelled |= "player_left_game".equals(e.getAsJsonObject("payload").get("reason").getAsString());
+            }
+        }
+        return new WillieRun(asked, s.seats.get("P2").isInGame(),
+                s.seats.get("P1").getHand().size() - handBefore, cancelled);
+    }
+
+    private static JsonObject attacks(XmageMultiplayerScenario s) {
+        for (JsonElement e : s.session.legalActionsPayload().getAsJsonArray("actions")) {
+            String label = e.getAsJsonObject().getAsJsonObject("metadata").get("label").getAsString();
+            if (label.contains("attacks") && label.contains("Seat 2")) {
+                return e.getAsJsonObject();
+            }
+        }
+        fail("no attack on Seat 2 in " + s.labels());
+        return null;
+    }
 }
