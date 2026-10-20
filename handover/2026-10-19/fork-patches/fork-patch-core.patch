@@ -1,0 +1,157 @@
+diff --git a/Mage/src/main/java/mage/abilities/AbilitiesImpl.java b/Mage/src/main/java/mage/abilities/AbilitiesImpl.java
+index 71083f3b..c104aff6 100644
+--- a/Mage/src/main/java/mage/abilities/AbilitiesImpl.java
++++ b/Mage/src/main/java/mage/abilities/AbilitiesImpl.java
+@@ -33,6 +33,16 @@ public class AbilitiesImpl<T extends Ability> extends ArrayList<T> implements Ab
+         Collections.addAll(this, abilities);
+     }
+ 
++    /**
++     * Creates a single-element Abilities without varargs array allocation.
++     * Use instead of {@code new AbilitiesImpl<>(ability)} in hot paths.
++     */
++    public static <T extends Ability> AbilitiesImpl<T> singleton(T ability) {
++        AbilitiesImpl<T> result = new AbilitiesImpl<>();
++        result.add(ability);
++        return result;
++    }
++
+     public AbilitiesImpl(final AbilitiesImpl<T> abilities) {
+         this.ensureCapacity(abilities.size());
+         for (T ability : abilities) {
+diff --git a/Mage/src/main/java/mage/abilities/TriggeredAbilities.java b/Mage/src/main/java/mage/abilities/TriggeredAbilities.java
+index 1e745ea6..386087da 100644
+--- a/Mage/src/main/java/mage/abilities/TriggeredAbilities.java
++++ b/Mage/src/main/java/mage/abilities/TriggeredAbilities.java
+@@ -102,6 +102,20 @@ public class TriggeredAbilities extends LinkedHashMap<String, TriggeredAbility>
+     public void checkTriggers(GameEvent event, Game game) {
+         processingStart(event);
+         boolean needErrorChecksOnEnd = true;
++        // Optimization: quick pre-check without copying. checkEventType() is a pure
++        // type comparison (no state mutation). If no trigger matches the event type,
++        // skip the ArrayList copy entirely. Most game events don't trigger anything.
++        boolean anyMatch = false;
++        for (TriggeredAbility ability : this.values()) {
++            if (ability.checkEventType(event, game)) {
++                anyMatch = true;
++                break;
++            }
++        }
++        if (!anyMatch) {
++            processingEnd(needErrorChecksOnEnd);
++            return;
++        }
+         // must keep real object refs (not copies), cause check trigger code can change trigger's and effect's data like targets
+         ArrayList<TriggeredAbility> currentTriggers = new ArrayList<>(this.values());
+         try {
+diff --git a/Mage/src/main/java/mage/cards/CardImpl.java b/Mage/src/main/java/mage/cards/CardImpl.java
+index 2fb28158..89035d17 100644
+--- a/Mage/src/main/java/mage/cards/CardImpl.java
++++ b/Mage/src/main/java/mage/cards/CardImpl.java
+@@ -260,16 +260,30 @@ public abstract class CardImpl extends MageObjectImpl implements Card {
+             return abilities;
+         }
+ 
++        // P2 fast path: no dynamic abilities and haven't lost all -> return base directly.
++        // Avoids allocating new AbilitiesImpl and copying for the common case
++        // (most cards have no dynamic abilities most of the time).
++        // Safe because base abilities are not modified in this path.
++        Abilities<Ability> dynamicAbilities = cardState.getAbilities();
++        boolean hasDynamic = dynamicAbilities != null && !dynamicAbilities.isEmpty();
++        boolean lostAll = cardState.hasLostAllAbilities();
++        boolean isMainCard = this.getId().equals(this.getMainCard().getId());
++        if (!hasDynamic && !lostAll && isMainCard) {
++            return abilities;
++        }
++
+         // collects all abilities
+         Abilities<Ability> all = new AbilitiesImpl<>();
+ 
+         // basic
+-        if (!cardState.hasLostAllAbilities()) {
++        if (!lostAll) {
+             all.addAll(abilities);
+         }
+ 
+         // dynamic
+-        all.addAll(cardState.getAbilities());
++        if (hasDynamic) {
++            all.addAll(dynamicAbilities);
++        }
+ 
+         // workaround to add dynamic flashback ability from main card to all parts (example: Snapcaster Mage gives flashback to split card)
+         if (!this.getId().equals(this.getMainCard().getId())) {
+diff --git a/Mage/src/main/java/mage/game/GameState.java b/Mage/src/main/java/mage/game/GameState.java
+index 35059221..db851e3b 100644
+--- a/Mage/src/main/java/mage/game/GameState.java
++++ b/Mage/src/main/java/mage/game/GameState.java
+@@ -767,10 +767,14 @@ public class GameState implements Serializable, Copyable<GameState> {
+         PlayerList newPlayerList = new PlayerList();
+         Player currentPlayer = game.getPlayer(playerId);
+         if (currentPlayer != null) {
++            // Fast path: RangeOfInfluence.ALL (Commander) means all players are in range,
++            // skip the per-player hasPlayerInRange check (Set lookup) entirely.
++            boolean allInRange =
++                    game.getRangeOfInfluence() == mage.constants.RangeOfInfluence.ALL;
+             // must fill PlayerList by table added order (same as main game)
+             for (Player player : players.values()) {
+                 if ((!excludeLeavedPlayers || player.isInGame())
+-                        && currentPlayer.hasPlayerInRange(player.getId())) {
++                        && (allInRange || currentPlayer.hasPlayerInRange(player.getId()))) {
+                     newPlayerList.add(player.getId());
+                 }
+             }
+diff --git a/Mage/src/main/java/mage/players/PlayerImpl.java b/Mage/src/main/java/mage/players/PlayerImpl.java
+index 4c1fc72f..0e9c3cf4 100644
+--- a/Mage/src/main/java/mage/players/PlayerImpl.java
++++ b/Mage/src/main/java/mage/players/PlayerImpl.java
+@@ -3576,7 +3576,15 @@ public abstract class PlayerImpl implements Player, Serializable {
+     @Override
+     public ManaOptions getManaAvailable(Game originalGame) {
+         // workaround to fix a triggers list modification bug (game must be immutable on playable calculations)
+-        Game game = originalGame.createSimulationForPlayableCalc();
++        // Optimization: if the passed game is already a playable-calc simulation (e.g. called from
++        // getPlayable() which already created one), reuse it instead of creating a nested copy.
++        // This eliminates one full GameState copy per playable check.
++        Game game;
++        if (originalGame.inCheckPlayableState()) {
++            game = originalGame;
++        } else {
++            game = originalGame.createSimulationForPlayableCalc();
++        }
+ 
+         ManaOptions availableMana = new ManaOptions();
+         availableMana.addMana(manaPool.getMana());
+@@ -3591,7 +3599,7 @@ public abstract class PlayerImpl implements Player, Serializable {
+             Abilities<ActivatedManaAbilityImpl> manaAbilities
+                     = card.getAbilities(game).getAvailableActivatedManaAbilities(Zone.HAND, playerId, game);
+             for (ActivatedManaAbilityImpl ability : manaAbilities) {
+-                Abilities<ActivatedManaAbilityImpl> noTapAbilities = new AbilitiesImpl<>(ability);
++                Abilities<ActivatedManaAbilityImpl> noTapAbilities = AbilitiesImpl.singleton(ability);
+                 if (ability.getManaCosts().isEmpty() && !ability.isPoolDependant()) {
+                     sourceWithoutManaCosts.add(noTapAbilities);
+                 } else {
+@@ -3615,7 +3623,7 @@ public abstract class PlayerImpl implements Player, Serializable {
+                     // abilities without Tap costs have to be handled as separate sources, because they can be used also
+                     if (!ability.hasTapCost()) {
+                         it.remove();
+-                        Abilities<ActivatedManaAbilityImpl> noTapAbilities = new AbilitiesImpl<>(ability);
++                        Abilities<ActivatedManaAbilityImpl> noTapAbilities = AbilitiesImpl.singleton(ability);
+                         if (ability.getManaCosts().isEmpty() && !ability.isPoolDependant()) {
+                             sourceWithoutManaCosts.add(noTapAbilities);
+                         } else {
+@@ -4312,7 +4320,13 @@ public abstract class PlayerImpl implements Player, Serializable {
+             return playable;
+         }
+ 
+-        Game game = originalGame.createSimulationForPlayableCalc();
++        // Optimization: reuse the simulation if already in playable-calc state (avoids nested GameState copy)
++        Game game;
++        if (originalGame.inCheckPlayableState()) {
++            game = originalGame;
++        } else {
++            game = originalGame.createSimulationForPlayableCalc();
++        }
+         ManaOptions availableMana = getManaAvailable(game); // get available mana options (mana pool and conditional mana added (but conditional still lose condition))
+         if (hidden && fromZone.match(Zone.HAND)) {
+             for (Card card : hand.getCards(game)) {
