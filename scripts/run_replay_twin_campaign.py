@@ -35,7 +35,7 @@ from commander_lab.qualification.current_boundary import replay_twins as twins  
 
 DEFAULT_OUT_DIR = REPO_ROOT / "docs" / "af09_replay_twins_20261001" / "evidence"
 CONFORMANCE_SCRIPT = REPO_ROOT / "scripts" / "run_external_full_game_conformance.py"
-XMAGE_MAGE_JAR_NAME = "mage-1.4.61.jar"
+XMAGE_MAGE_JAR_NAME = "mage-1.4.62.jar"
 
 
 def _parse_args() -> argparse.Namespace:
@@ -56,7 +56,7 @@ def _parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help=(
-            "replace the classpath's org.mage:mage:1.4.61 jar with this exact "
+            "replace the classpath's org.mage:mage:1.4.62 jar with this exact "
             "artifact (used to run the pinned candidate build locally); the "
             "provider's observed artifact digest is still bound from the engine"
         ),
