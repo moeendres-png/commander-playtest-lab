@@ -657,3 +657,108 @@ def test_payment_still_spends_a_lone_pool_candidate_when_plain_sources_suffice()
         )
     )
     assert response["selected_option_ids"] == ["pool-white"]
+
+
+_FREE_CAST_CARDS = ("Hellish Rebuke", "Light Up the Stage", "Rakdos Charm")
+
+
+def _free_cast_pick() -> dict[str, Any]:
+    request = _request(
+        "choose_object",
+        [
+            _option(
+                f"exiled-{index}",
+                "choice",
+                name,
+                object_id=f"exiled-{index}",
+                name=name,
+                zone="exiled",
+            )
+            for index, name in enumerate(_FREE_CAST_CARDS)
+        ],
+        context={
+            "targeted": False,
+            "outcome": "playforfree",
+            "target_description": "up to one card to cast",
+            "target_name": "card to cast",
+            "required": True,
+        },
+        prompt="Select up to one card to cast",
+        state=_state(step="upkeep"),
+    )
+    request["minimum_selections"] = 0
+    request["maximum_selections"] = 1
+    return request
+
+
+def _policy_that_cast(*names: str) -> ExternalPilotDecisionPolicy:
+    """A policy whose seat 1 has cast the named spells earlier in the game.
+
+    The pilot remembers the names of its own casts so it never targets its own spell on the
+    stack; Izzet Chemister later exiles those very cards, so the free-cast choice offers
+    cards whose names the pilot still holds as its own.
+    """
+    policy = _policy()
+    casts = [
+        _option(f"cast-{index}", "activated_ability", name, ability_type="spell", source_name=name)
+        for index, name in enumerate(names)
+    ]
+    policy._remember_own_cast(1, casts, [str(cast["option_id"]) for cast in casts], turn=3)
+    return policy
+
+
+def test_free_cast_choice_picks_a_card() -> None:
+    # Izzet Chemister ("Cast any number of cards exiled with this without paying their mana
+    # costs") asks "Select up to one card to cast" with the engine's playforfree outcome.
+    # Scored as a neutral target, each card carried the own-spell penalty, so every score was
+    # negative, the pilot picked none and answered Yes to "Continue casting?" for 50000
+    # decisions (precon pod, plan seed 4).
+    response = _policy_that_cast(*_FREE_CAST_CARDS).decide(_free_cast_pick())
+    assert len(response["selected_option_ids"]) == 1
+    assert response["selected_option_ids"][0] in {f"exiled-{index}" for index in range(3)}
+
+
+def test_free_cast_choice_is_not_widened_to_other_outcomes() -> None:
+    # Control: the same frame under the neutral outcome keeps the old rule (min 0, every score
+    # negative, nothing selected), so only the engine's playforfree outcome changed.
+    request = _free_cast_pick()
+    request["context"]["outcome"] = "neutral"
+    response = _policy_that_cast(*_FREE_CAST_CARDS).decide(request)
+    assert response["selected_option_ids"] == []
+
+
+_VAULT_112 = {
+    "source_object_id": "saga",
+    "ability_original_id": "chapter-three",
+    "ability_type": "triggered",
+    "source_name": "Vault 112: Sadistic Simulation",
+}
+
+
+def _energy_amount(source: dict[str, Any], maximum: int = 4) -> dict[str, Any]:
+    request = _request(
+        "amount",
+        [],
+        context={"numeric_min": 0, "numeric_max": maximum, "outcome": "benefit"},
+        prompt="How many {E} do you like to pay?",
+        state=_state(step="precombat_main"),
+    )
+    request["minimum_selections"] = 0
+    request["maximum_selections"] = 0
+    request["source_object"] = source
+    return request
+
+
+def test_vault_112_chapter_three_pays_no_energy() -> None:
+    # The chapter's free play reaches the land-or-spell callback from a caller outside the
+    # declared decision classes (ADR section 28), which ends the game. Paying zero is legal.
+    response = _policy().decide(_energy_amount(_VAULT_112))
+    assert response["numeric_choice"] == 0
+
+
+def test_other_energy_payments_are_not_declined() -> None:
+    # Control: the same question from another source still goes to the pilot's own scoring,
+    # which spends the energy it is asked for.
+    other = dict(_VAULT_112, source_name="Aetherworks Marvel")
+    response = _policy().decide(_energy_amount(other))
+    assert response["numeric_choice"] > 0
