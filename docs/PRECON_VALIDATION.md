@@ -171,6 +171,24 @@ die anderen sechs Karten sind neu.
   (2673 Entscheidungen, Hash `c2aeceed…`). Pilot und Bridge sehen die Energie nicht im
   Spielzustand; eine Pilot-Umgehung hätte den Zustandsabdruck des Replays geändert.
 
+- Dritter Sweep (Plan-Seed 4, Spiel-Seed 4, gleiche 182 Decks, `LOCAL_OBSERVED`, ein Lauf, Stand
+  `1b5e542`): **41 von 46 Pods laufen durch**, fünf brechen ab (012, 021, 022, 029, 032). Mit dem
+  Stand von `f5eecc7` (#931–#933) laufen 012, 022 und 029 durch (nicht je bis zur Karte
+  verfolgt); 021 und 032 brachen dort weiter ab und werden im Piloten behoben:
+  - Pod 021, Vault 112: Sadistic Simulation, Kapitel III. „Pay any amount of {E}“ (Aktion
+    `amount`) führt bei Energie über den Land-oder-Zauber-Aufrufer (ADR Abschnitt 28,
+    `UNSUPPORTED_DECISION_CLASS`), und die Bridge beendet das Spiel dort absichtlich. Der Pilot
+    zahlt für diese Quelle keine Energie (`_UNSUPPORTED_ENERGY_PAYMENT_SOURCES`); null ist eine
+    legale Antwort und überspringt das Exil. Das ist eine Umgehung, keine Unterstützung der Karte:
+    der Pfad selbst bleibt geschlossen. Ihn in der Bridge zu öffnen wäre eine Freeze-Entscheidung
+    des Owners.
+  - Pod 032, Izzet Chemister: Die Wahl „Select up to one card to cast“ (Outcome `playforfree`)
+    bewertete jede Karte negativ (der Pilot hatte die drei Zauber selbst gewirkt, siehe
+    `target_object_bonus`), wählte nichts und beantwortete „Continue casting?“ 50000 Mal mit Ja.
+    `playforfree` zählt jetzt wie ein Vorteil für den Wählenden und wählt bis zum Maximum.
+  Mit dem Stand von `f5eecc7` und diesen zwei Pilot-Änderungen laufen alle drei Pods durch (012:
+  3133 Entscheidungen, 021: 2402, 032: 3662; ein Spiel je Pod, keine Passquote). Die Bridge
+  ändert sich dabei nicht.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
