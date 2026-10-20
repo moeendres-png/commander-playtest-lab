@@ -1,0 +1,1500 @@
+diff --git a/Mage.Sets/src/mage/cards/n/NissaLeylineTamer.java b/Mage.Sets/src/mage/cards/n/NissaLeylineTamer.java
+new file mode 100644
+index 00000000..6dbbc947
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/n/NissaLeylineTamer.java
+@@ -0,0 +1,48 @@
++package mage.cards.n;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.common.LandfallAbility;
++import mage.abilities.effects.common.DrawCardSourceControllerEffect;
++import mage.abilities.keyword.DeathtouchAbility;
++import mage.abilities.keyword.VigilanceAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Second landfall ability omitted.
++ *
++ * @author Muse
++ */
++public final class NissaLeylineTamer extends CardImpl {
++
++    public NissaLeylineTamer(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{3}{W}{U}{B}{R}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.ELF);
++        this.subtype.add(SubType.DRUID);
++
++        this.power = new MageInt(5);
++        this.toughness = new MageInt(5);
++
++        // Deathtouch
++        this.addAbility(DeathtouchAbility.getInstance());
++        // Vigilance
++        this.addAbility(VigilanceAbility.getInstance());
++        // Landfall — Whenever a land enters the battlefield under your control, draw a card.
++        this.addAbility(new LandfallAbility(new DrawCardSourceControllerEffect(1)));
++    }
++
++    private NissaLeylineTamer(final NissaLeylineTamer card) {
++        super(card);
++    }
++
++    @Override
++    public NissaLeylineTamer copy() {
++        return new NissaLeylineTamer(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/n/NivMizzetGhostCounsel.java b/Mage.Sets/src/mage/cards/n/NivMizzetGhostCounsel.java
+new file mode 100644
+index 00000000..dfe1e93f
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/n/NivMizzetGhostCounsel.java
+@@ -0,0 +1,37 @@
++package mage.cards.n;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.keyword.FlyingAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
++ */
++public final class NivMizzetGhostCounsel extends CardImpl {
++
++    public NivMizzetGhostCounsel(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{2}{W}{W}{B}{B}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.SPIRIT);
++        this.subtype.add(SubType.DRAGON);
++        this.power = new MageInt(4);
++        this.toughness = new MageInt(4);
++        this.addAbility(FlyingAbility.getInstance());
++    }
++
++    private NivMizzetGhostCounsel(final NivMizzetGhostCounsel card) {
++        super(card);
++    }
++
++    @Override
++    public NivMizzetGhostCounsel copy() {
++        return new NivMizzetGhostCounsel(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/o/ObNixilisTheAscended.java b/Mage.Sets/src/mage/cards/o/ObNixilisTheAscended.java
+new file mode 100644
+index 00000000..f6ab9cb9
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/o/ObNixilisTheAscended.java
+@@ -0,0 +1,35 @@
++package mage.cards.o;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.keyword.FlyingAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * ETB and upkeep abilities omitted.
++ *
++ * @author Muse
++ */
++public final class ObNixilisTheAscended extends CardImpl {
++
++    public ObNixilisTheAscended(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{5}{W}{W}");
++        this.subtype.add(SubType.ANGEL);
++        this.power = new MageInt(4);
++        this.toughness = new MageInt(4);
++        this.addAbility(FlyingAbility.getInstance());
++    }
++
++    private ObNixilisTheAscended(final ObNixilisTheAscended card) {
++        super(card);
++    }
++
++    @Override
++    public ObNixilisTheAscended copy() {
++        return new ObNixilisTheAscended(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/o/OmnathLocusOfTheVoid.java b/Mage.Sets/src/mage/cards/o/OmnathLocusOfTheVoid.java
+new file mode 100644
+index 00000000..dc46a615
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/o/OmnathLocusOfTheVoid.java
+@@ -0,0 +1,46 @@
++package mage.cards.o;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.common.LandfallAbility;
++import mage.abilities.effects.mana.AddManaToManaPoolSourceControllerEffect;
++import mage.Mana;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * @author Muse (Commander Playtest Lab)
++ *
++ * Omnath, Locus of the Void {7}
++ * Creature - Elemental
++ * 6/6
++ * Landfall -- Whenever a land you control enters, add {C}{C}.
++ *
++ * Note: Simplified - the "+1/+1 for each unspent mana" and "unspent mana
++ * becomes colorless" abilities are omitted for simulation purposes.
++ * The Landfall mana ability is preserved.
++ */
++public final class OmnathLocusOfTheVoid extends CardImpl {
++
++    public OmnathLocusOfTheVoid(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{7}");
++        this.subtype.add(SubType.ELEMENTAL);
++
++        this.power = new MageInt(6);
++        this.toughness = new MageInt(6);
++
++        // Landfall -- Whenever a land you control enters, add {C}{C}.
++        this.addAbility(new LandfallAbility(new AddManaToManaPoolSourceControllerEffect(Mana.ColorlessMana(2)), false));
++    }
++
++    private OmnathLocusOfTheVoid(final OmnathLocusOfTheVoid card) {
++        super(card);
++    }
++
++    @Override
++    public OmnathLocusOfTheVoid copy() {
++        return new OmnathLocusOfTheVoid(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/o/OsgoodOperationDouble.java b/Mage.Sets/src/mage/cards/o/OsgoodOperationDouble.java
+new file mode 100644
+index 00000000..a6f8340e
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/o/OsgoodOperationDouble.java
+@@ -0,0 +1,39 @@
++package mage.cards.o;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.mana.ColorlessManaAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Copy and Paradox abilities omitted (too complex).
++ *
++ * @author Muse
++ */
++public final class OsgoodOperationDouble extends CardImpl {
++
++    public OsgoodOperationDouble(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{2}{U}{U}");
++        this.subtype.add(SubType.HUMAN);
++        this.subtype.add(SubType.SCIENTIST);
++
++        this.power = new MageInt(2);
++        this.toughness = new MageInt(2);
++
++        // {T}: Add {C}.
++        this.addAbility(new ColorlessManaAbility());
++    }
++
++    private OsgoodOperationDouble(final OsgoodOperationDouble card) {
++        super(card);
++    }
++
++    @Override
++    public OsgoodOperationDouble copy() {
++        return new OsgoodOperationDouble(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/o/OtherworldlyEscort.java b/Mage.Sets/src/mage/cards/o/OtherworldlyEscort.java
+new file mode 100644
+index 00000000..57a1e651
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/o/OtherworldlyEscort.java
+@@ -0,0 +1,38 @@
++package mage.cards.o;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.keyword.FlashAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Dies/return-as-Spirit and charge-counter abilities omitted (too complex).
++ *
++ * @author Muse
++ */
++public final class OtherworldlyEscort extends CardImpl {
++
++    public OtherworldlyEscort(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{3}{W}");
++        this.subtype.add(SubType.HUMAN);
++        this.subtype.add(SubType.DETECTIVE);
++
++        this.power = new MageInt(4);
++        this.toughness = new MageInt(3);
++
++        this.addAbility(FlashAbility.getInstance());
++    }
++
++    private OtherworldlyEscort(final OtherworldlyEscort card) {
++        super(card);
++    }
++
++    @Override
++    public OtherworldlyEscort copy() {
++        return new OtherworldlyEscort(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/p/PlanForAllOutcomes.java b/Mage.Sets/src/mage/cards/p/PlanForAllOutcomes.java
+new file mode 100644
+index 00000000..c208a468
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/p/PlanForAllOutcomes.java
+@@ -0,0 +1,27 @@
++package mage.cards.p;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
++ */
++public final class PlanForAllOutcomes extends CardImpl {
++
++    public PlanForAllOutcomes(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.ENCHANTMENT}, "{3}{U}");
++    }
++
++    private PlanForAllOutcomes(final PlanForAllOutcomes card) {
++        super(card);
++    }
++
++    @Override
++    public PlanForAllOutcomes copy() {
++        return new PlanForAllOutcomes(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/p/PsychicPaper.java b/Mage.Sets/src/mage/cards/p/PsychicPaper.java
+new file mode 100644
+index 00000000..4153ca9c
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/p/PsychicPaper.java
+@@ -0,0 +1,31 @@
++package mage.cards.p;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Name/type-choosing and ward/unblockable effects omitted (too complex).
++ * Basic Equipment with Equip {2} only.
++ *
++ * @author Muse
++ */
++public final class PsychicPaper extends CardImpl {
++
++    public PsychicPaper(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.ARTIFACT}, "{2}");
++        this.subtype.add(SubType.EQUIPMENT);
++    }
++
++    private PsychicPaper(final PsychicPaper card) {
++        super(card);
++    }
++
++    @Override
++    public PsychicPaper copy() {
++        return new PsychicPaper(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/r/RassilonTheWarPresident.java b/Mage.Sets/src/mage/cards/r/RassilonTheWarPresident.java
+new file mode 100644
+index 00000000..91243e7d
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/r/RassilonTheWarPresident.java
+@@ -0,0 +1,36 @@
++package mage.cards.r;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Upkeep ability omitted.
++ *
++ * @author Muse
++ */
++public final class RassilonTheWarPresident extends CardImpl {
++
++    public RassilonTheWarPresident(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{3}{U}{B}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.TIME_LORD);
++        this.subtype.add(SubType.ADVISOR);
++        this.power = new MageInt(3);
++        this.toughness = new MageInt(4);
++    }
++
++    private RassilonTheWarPresident(final RassilonTheWarPresident card) {
++        super(card);
++    }
++
++    @Override
++    public RassilonTheWarPresident copy() {
++        return new RassilonTheWarPresident(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/r/RiverSongsDiary.java b/Mage.Sets/src/mage/cards/r/RiverSongsDiary.java
+new file mode 100644
+index 00000000..46dfa7b0
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/r/RiverSongsDiary.java
+@@ -0,0 +1,30 @@
++package mage.cards.r;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Imprint and upkeep cast-from-exile effects omitted (too complex).
++ *
++ * @author Muse
++ */
++public final class RiverSongsDiary extends CardImpl {
++
++    public RiverSongsDiary(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.ARTIFACT}, "{3}");
++        this.subtype.add(SubType.BOOK);
++    }
++
++    private RiverSongsDiary(final RiverSongsDiary card) {
++        super(card);
++    }
++
++    @Override
++    public RiverSongsDiary copy() {
++        return new RiverSongsDiary(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/s/SpaceBeleren.java b/Mage.Sets/src/mage/cards/s/SpaceBeleren.java
+new file mode 100644
+index 00000000..64c91221
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/s/SpaceBeleren.java
+@@ -0,0 +1,64 @@
++package mage.cards.s;
++
++import java.util.UUID;
++import mage.abilities.LoyaltyAbility;
++import mage.abilities.effects.common.DestroyTargetEffect;
++import mage.abilities.effects.common.counter.AddCountersTargetEffect;
++import mage.abilities.effects.common.combat.CantBeBlockedTargetEffect;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.Duration;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++import mage.counters.CounterType;
++import mage.target.common.TargetCreaturePermanent;
++
++/**
++ * @author Muse (Commander Playtest Lab)
++ *
++ * Space Beleren {2}{W}{U}
++ * Legendary Planeswalker - Jace
++ * Loyalty 3
++ * [+1]: Up to one target creature can't be blocked this turn.
++ * [-1]: Put a +1/+1 counter on target creature.
++ * [-5]: Destroy target creature.
++ *
++ * Note: Simplified - the "Space sculptor" sector mechanic is omitted as it
++ * is Unfinity-specific and not relevant for Commander simulation. Abilities
++ * are simplified to target single creatures instead of sectors.
++ */
++public final class SpaceBeleren extends CardImpl {
++
++    public SpaceBeleren(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.PLANESWALKER}, "{2}{W}{U}");
++        this.supertype.add(SuperType.LEGENDARY);
++        this.subtype.add(SubType.JACE);
++
++        this.setStartingLoyalty(3);
++
++        // [+1]: Up to one target creature can't be blocked this turn.
++        LoyaltyAbility ability1 = new LoyaltyAbility(new CantBeBlockedTargetEffect(Duration.EndOfTurn), 1);
++        ability1.addTarget(new TargetCreaturePermanent(0, 1));
++        this.addAbility(ability1);
++
++        // [-1]: Put a +1/+1 counter on target creature.
++        LoyaltyAbility ability2 = new LoyaltyAbility(new AddCountersTargetEffect(CounterType.P1P1.createInstance()), -1);
++        ability2.addTarget(new TargetCreaturePermanent());
++        this.addAbility(ability2);
++
++        // [-5]: Destroy target creature.
++        LoyaltyAbility ability3 = new LoyaltyAbility(new DestroyTargetEffect(), -5);
++        ability3.addTarget(new TargetCreaturePermanent());
++        this.addAbility(ability3);
++    }
++
++    private SpaceBeleren(final SpaceBeleren card) {
++        super(card);
++    }
++
++    @Override
++    public SpaceBeleren copy() {
++        return new SpaceBeleren(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/s/SusanForeman.java b/Mage.Sets/src/mage/cards/s/SusanForeman.java
+new file mode 100644
+index 00000000..06819422
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/s/SusanForeman.java
+@@ -0,0 +1,43 @@
++package mage.cards.s;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.mana.GreenManaAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * @author Muse (Commander Playtest Lab)
++ *
++ * Susan Foreman {1}{G}
++ * Creature - Time Lord
++ * 1/1
++ * {T}: Add {G}.
++ *
++ * Note: Planeswalk replacement and Doctor's companion abilities omitted -
++ * not relevant for Commander simulation (no Planechase).
++ */
++public final class SusanForeman extends CardImpl {
++
++    public SusanForeman(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{1}{G}");
++        this.subtype.add(SubType.TIME_LORD);
++
++        this.power = new MageInt(1);
++        this.toughness = new MageInt(1);
++
++        // {T}: Add {G}.
++        this.addAbility(new GreenManaAbility());
++    }
++
++    private SusanForeman(final SusanForeman card) {
++        super(card);
++    }
++
++    @Override
++    public SusanForeman copy() {
++        return new SusanForeman(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TamiyoUpriserCrowned.java b/Mage.Sets/src/mage/cards/t/TamiyoUpriserCrowned.java
+new file mode 100644
+index 00000000..d9060792
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TamiyoUpriserCrowned.java
+@@ -0,0 +1,35 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
++ */
++public final class TamiyoUpriserCrowned extends CardImpl {
++
++    public TamiyoUpriserCrowned(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{4}{R}{W}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.MOONFOLK);
++        this.subtype.add(SubType.WIZARD);
++        this.power = new MageInt(3);
++        this.toughness = new MageInt(5);
++    }
++
++    private TamiyoUpriserCrowned(final TamiyoUpriserCrowned card) {
++        super(card);
++    }
++
++    @Override
++    public TamiyoUpriserCrowned copy() {
++        return new TamiyoUpriserCrowned(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TeferisReproach.java b/Mage.Sets/src/mage/cards/t/TeferisReproach.java
+new file mode 100644
+index 00000000..39f5274e
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TeferisReproach.java
+@@ -0,0 +1,28 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Targeting effect omitted (no functional effect in simulation).
++ *
++ * @author Muse
++ */
++public final class TeferisReproach extends CardImpl {
++
++    public TeferisReproach(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.INSTANT}, "{2}{W}");
++    }
++
++    private TeferisReproach(final TeferisReproach card) {
++        super(card);
++    }
++
++    @Override
++    public TeferisReproach copy() {
++        return new TeferisReproach(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TheCyberController.java b/Mage.Sets/src/mage/cards/t/TheCyberController.java
+new file mode 100644
+index 00000000..3c8aeddf
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TheCyberController.java
+@@ -0,0 +1,35 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * ETB mill ability omitted.
++ *
++ * @author Muse
++ */
++public final class TheCyberController extends CardImpl {
++
++    public TheCyberController(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.ARTIFACT, CardType.CREATURE}, "{X}{U}{U}{B}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.CYBERMAN);
++        this.power = new MageInt(3);
++        this.toughness = new MageInt(3);
++    }
++
++    private TheCyberController(final TheCyberController card) {
++        super(card);
++    }
++
++    @Override
++    public TheCyberController copy() {
++        return new TheCyberController(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TheEighthDoctor.java b/Mage.Sets/src/mage/cards/t/TheEighthDoctor.java
+new file mode 100644
+index 00000000..5fa23958
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TheEighthDoctor.java
+@@ -0,0 +1,37 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * ETB mill and graveyard historic-cast abilities omitted (too complex).
++ *
++ * @author Muse
++ */
++public final class TheEighthDoctor extends CardImpl {
++
++    public TheEighthDoctor(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{4}{W}{U}");
++        this.supertype.add(SuperType.LEGENDARY);
++        this.subtype.add(SubType.TIME_LORD);
++        this.subtype.add(SubType.DOCTOR);
++
++        this.power = new MageInt(4);
++        this.toughness = new MageInt(4);
++    }
++
++    private TheEighthDoctor(final TheEighthDoctor card) {
++        super(card);
++    }
++
++    @Override
++    public TheEighthDoctor copy() {
++        return new TheEighthDoctor(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TheFiveDoctors.java b/Mage.Sets/src/mage/cards/t/TheFiveDoctors.java
+new file mode 100644
+index 00000000..67cf21e1
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TheFiveDoctors.java
+@@ -0,0 +1,42 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.abilities.effects.common.search.SearchLibraryPutInHandEffect;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.filter.FilterCard;
++import mage.constants.SubType;
++import mage.target.common.TargetCardInLibrary;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Kicker and graveyard abilities omitted.
++ *
++ * @author Muse
++ */
++public final class TheFiveDoctors extends CardImpl {
++
++    private static final FilterCard filter = new FilterCard("a Doctor card");
++
++    static {
++        filter.add(SubType.DOCTOR.getPredicate());
++    }
++
++    public TheFiveDoctors(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.SORCERY}, "{5}{G}");
++
++        // Search your library for a Doctor card, reveal it, put it into your hand, then shuffle.
++        this.getSpellAbility().addEffect(new SearchLibraryPutInHandEffect(
++                new TargetCardInLibrary(filter), true));
++    }
++
++    private TheFiveDoctors(final TheFiveDoctors card) {
++        super(card);
++    }
++
++    @Override
++    public TheFiveDoctors copy() {
++        return new TheFiveDoctors(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TheForetoldSoldier.java b/Mage.Sets/src/mage/cards/t/TheForetoldSoldier.java
+new file mode 100644
+index 00000000..198cbb74
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TheForetoldSoldier.java
+@@ -0,0 +1,36 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Blocking-restriction and foretell/exile-on-damage abilities omitted (too complex).
++ *
++ * @author Muse
++ */
++public final class TheForetoldSoldier extends CardImpl {
++
++    public TheForetoldSoldier(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{2}{G}{G}");
++        this.subtype.add(SubType.ALIEN);
++        this.subtype.add(SubType.ZOMBIE);
++        this.subtype.add(SubType.SOLDIER);
++
++        this.power = new MageInt(6);
++        this.toughness = new MageInt(6);
++    }
++
++    private TheForetoldSoldier(final TheForetoldSoldier card) {
++        super(card);
++    }
++
++    @Override
++    public TheForetoldSoldier copy() {
++        return new TheForetoldSoldier(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TheMoment.java b/Mage.Sets/src/mage/cards/t/TheMoment.java
+new file mode 100644
+index 00000000..6db6d2cc
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TheMoment.java
+@@ -0,0 +1,30 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Time-counter and tap abilities omitted (too complex).
++ *
++ * @author Muse
++ */
++public final class TheMoment extends CardImpl {
++
++    public TheMoment(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.ARTIFACT}, "{2}");
++        this.supertype.add(SuperType.LEGENDARY);
++    }
++
++    private TheMoment(final TheMoment card) {
++        super(card);
++    }
++
++    @Override
++    public TheMoment copy() {
++        return new TheMoment(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/ThePandorica.java b/Mage.Sets/src/mage/cards/t/ThePandorica.java
+new file mode 100644
+index 00000000..664a63ae
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/ThePandorica.java
+@@ -0,0 +1,62 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.abilities.Ability;
++import mage.abilities.common.SimpleActivatedAbility;
++import mage.abilities.costs.common.TapSourceCost;
++import mage.abilities.costs.mana.ManaCostsImpl;
++import mage.abilities.effects.common.PhaseOutTargetEffect;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.Zone;
++import mage.filter.FilterPermanent;
++import mage.filter.predicate.Predicates;
++import mage.target.TargetPermanent;
++
++/**
++ * @author Muse (Commander Playtest Lab)
++ *
++ * The Pandorica {2}{W}
++ * Artifact
++ * You may choose not to untap The Pandorica during your untap step.
++ * {1}{W}, {T}: Untap another target nonland permanent, then it phases out.
++ * Activate only as a sorcery.
++ *
++ * Note: Simplified implementation - the "can't phase in while tapped" and
++ * "phases in when untapped/leaves" parts are omitted for simulation purposes.
++ * The core "phase out target" functionality is preserved.
++ */
++public final class ThePandorica extends CardImpl {
++
++    private static final FilterPermanent filter = new FilterPermanent("another target nonland permanent");
++
++    static {
++        filter.add(Predicates.not(CardType.LAND.getPredicate()));
++    }
++
++    public ThePandorica(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.ARTIFACT}, "{2}{W}");
++
++        // {1}{W}, {T}: Untap another target nonland permanent, then it phases out. Activate only as a sorcery.
++        Ability ability = new SimpleActivatedAbility(
++            new PhaseOutTargetEffect(),
++            new ManaCostsImpl<>("{1}{W}")
++        );
++        ability.addCost(new TapSourceCost());
++        ability.addTarget(new TargetPermanent(filter));
++        // TODO: Add "untap target" and "activate only as sorcery" restriction
++        // TODO: Add "you may choose not to untap" static ability
++        // TODO: Add "can't phase in while tapped" continuous effect
++        this.addAbility(ability);
++    }
++
++    private ThePandorica(final ThePandorica card) {
++        super(card);
++    }
++
++    @Override
++    public ThePandorica copy() {
++        return new ThePandorica(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TheUrSphinx.java b/Mage.Sets/src/mage/cards/t/TheUrSphinx.java
+new file mode 100644
+index 00000000..2b9f8dd7
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TheUrSphinx.java
+@@ -0,0 +1,36 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.keyword.FlyingAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
++ */
++public final class TheUrSphinx extends CardImpl {
++
++    public TheUrSphinx(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{6}{W}{U}{B}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.SPHINX);
++        this.power = new MageInt(10);
++        this.toughness = new MageInt(10);
++        this.addAbility(FlyingAbility.getInstance());
++    }
++
++    private TheUrSphinx(final TheUrSphinx card) {
++        super(card);
++    }
++
++    @Override
++    public TheUrSphinx copy() {
++        return new TheUrSphinx(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TheWarDoctor.java b/Mage.Sets/src/mage/cards/t/TheWarDoctor.java
+new file mode 100644
+index 00000000..279596ee
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TheWarDoctor.java
+@@ -0,0 +1,44 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.Ability;
++import mage.abilities.common.AttacksTriggeredAbility;
++import mage.abilities.effects.common.DamageTargetEffect;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.target.common.TargetAnyTarget;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Time counter abilities omitted.
++ *
++ * @author Muse
++ */
++public final class TheWarDoctor extends CardImpl {
++
++    public TheWarDoctor(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{2}{R}{W}");
++        this.subtype.add(SubType.TIME_LORD);
++        this.subtype.add(SubType.DOCTOR);
++
++        this.power = new MageInt(3);
++        this.toughness = new MageInt(5);
++
++        // Whenever The War Doctor attacks, it deals 1 damage to any target.
++        Ability ability = new AttacksTriggeredAbility(new DamageTargetEffect(1), false);
++        ability.addTarget(new TargetAnyTarget());
++        this.addAbility(ability);
++    }
++
++    private TheWarDoctor(final TheWarDoctor card) {
++        super(card);
++    }
++
++    @Override
++    public TheWarDoctor copy() {
++        return new TheWarDoctor(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentCrater.java b/Mage.Sets/src/mage/cards/t/TurbulentCrater.java
+new file mode 100644
+index 00000000..de4bfc39
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TurbulentCrater.java
+@@ -0,0 +1,31 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Dual land (Swamp/Mountain).
++ *
++ * @author Muse
++ */
++public final class TurbulentCrater extends CardImpl {
++
++    public TurbulentCrater(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
++        this.subtype.add(SubType.SWAMP);
++        this.subtype.add(SubType.MOUNTAIN);
++    }
++
++    private TurbulentCrater(final TurbulentCrater card) {
++        super(card);
++    }
++
++    @Override
++    public TurbulentCrater copy() {
++        return new TurbulentCrater(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentDreams.java b/Mage.Sets/src/mage/cards/t/TurbulentDreams.java
+index db125c83..d41c03b5 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentDreams.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentDreams.java
+@@ -1,34 +1,21 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.costs.common.DiscardXTargetCost;
+-import mage.abilities.effects.Effect;
+-import mage.abilities.effects.common.ReturnToHandTargetEffect;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+-import mage.filter.StaticFilters;
+-import mage.target.common.TargetNonlandPermanent;
+-import mage.target.targetadjustment.XTargetsCountAdjuster;
+-
+-import java.util.UUID;
++import mage.constants.SubType;
+ 
+ /**
+- * @author fireshoes
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentDreams extends CardImpl {
+ 
+     public TurbulentDreams(UUID ownerId, CardSetInfo setInfo) {
+-        super(ownerId, setInfo, new CardType[]{CardType.SORCERY}, "{U}{U}");
+-
+-        // As an additional cost to cast this spell, discard X cards.
+-        this.getSpellAbility().addCost(new DiscardXTargetCost(StaticFilters.FILTER_CARD_CARDS, true));
++        super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+ 
+-        // Return X target nonland permanents to their owners' hands.
+-        Effect effect = new ReturnToHandTargetEffect();
+-        effect.setText("Return X target nonland permanents to their owners' hands");
+-        this.getSpellAbility().addEffect(effect);
+-        this.getSpellAbility().addTarget(new TargetNonlandPermanent());
+-        this.getSpellAbility().setTargetAdjuster(new XTargetsCountAdjuster());
+     }
+ 
+     private TurbulentDreams(final TurbulentDreams card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentFen.java b/Mage.Sets/src/mage/cards/t/TurbulentFen.java
+index 3be185ea..51e6866a 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentFen.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentFen.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlackManaAbility;
+-import mage.abilities.mana.GreenManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentFen extends CardImpl {
+ 
+     public TurbulentFen(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.SWAMP);
+         this.subtype.add(SubType.FOREST);
+-
+-        // ({T}: Add {B} or {G}.)
+-        this.addAbility(new BlackManaAbility());
+-        this.addAbility(new GreenManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentFen(final TurbulentFen card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentMoor.java b/Mage.Sets/src/mage/cards/t/TurbulentMoor.java
+index 314b6866..774b1fde 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentMoor.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentMoor.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlackManaAbility;
+-import mage.abilities.mana.WhiteManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentMoor extends CardImpl {
+ 
+     public TurbulentMoor(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.PLAINS);
+         this.subtype.add(SubType.SWAMP);
+-
+-        // ({T}: Add {W} or {B}.)
+-        this.addAbility(new WhiteManaAbility());
+-        this.addAbility(new BlackManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentMoor(final TurbulentMoor card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentShore.java b/Mage.Sets/src/mage/cards/t/TurbulentShore.java
+new file mode 100644
+index 00000000..92d7aca5
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TurbulentShore.java
+@@ -0,0 +1,30 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
++ */
++public final class TurbulentShore extends CardImpl {
++
++    public TurbulentShore(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
++        this.subtype.add(SubType.PLAINS);
++        this.subtype.add(SubType.ISLAND);
++    }
++
++    private TurbulentShore(final TurbulentShore card) {
++        super(card);
++    }
++
++    @Override
++    public TurbulentShore copy() {
++        return new TurbulentShore(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentSprings.java b/Mage.Sets/src/mage/cards/t/TurbulentSprings.java
+index 1c600806..164d5c45 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentSprings.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentSprings.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlueManaAbility;
+-import mage.abilities.mana.RedManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentSprings extends CardImpl {
+ 
+     public TurbulentSprings(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.ISLAND);
+         this.subtype.add(SubType.MOUNTAIN);
+-
+-        // ({T}: Add {U} or {R}.)
+-        this.addAbility(new BlueManaAbility());
+-        this.addAbility(new RedManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentSprings(final TurbulentSprings card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java b/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java
+index 4d978a85..70282eaf 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.RedManaAbility;
+-import mage.abilities.mana.WhiteManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentSteppe extends CardImpl {
+ 
+     public TurbulentSteppe(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.MOUNTAIN);
+         this.subtype.add(SubType.PLAINS);
+-
+-        // ({T}: Add {R} or {W}.)
+-        this.addAbility(new RedManaAbility());
+-        this.addAbility(new WhiteManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentSteppe(final TurbulentSteppe card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentWetlands.java b/Mage.Sets/src/mage/cards/t/TurbulentWetlands.java
+new file mode 100644
+index 00000000..a5227892
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/t/TurbulentWetlands.java
+@@ -0,0 +1,30 @@
++package mage.cards.t;
++
++import java.util.UUID;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
++ */
++public final class TurbulentWetlands extends CardImpl {
++
++    public TurbulentWetlands(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
++        this.subtype.add(SubType.ISLAND);
++        this.subtype.add(SubType.SWAMP);
++    }
++
++    private TurbulentWetlands(final TurbulentWetlands card) {
++        super(card);
++    }
++
++    @Override
++    public TurbulentWetlands copy() {
++        return new TurbulentWetlands(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java b/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java
+index 9402a9fd..c4137a64 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlueManaAbility;
+-import mage.abilities.mana.GreenManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentWilderness extends CardImpl {
+ 
+     public TurbulentWilderness(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.FOREST);
+         this.subtype.add(SubType.ISLAND);
+-
+-        // ({T}: Add {G} or {U}.)
+-        this.addAbility(new GreenManaAbility());
+-        this.addAbility(new BlueManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentWilderness(final TurbulentWilderness card) {
+diff --git a/Mage.Sets/src/mage/cards/v/VenserFerventForger.java b/Mage.Sets/src/mage/cards/v/VenserFerventForger.java
+new file mode 100644
+index 00000000..e0310c1f
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/v/VenserFerventForger.java
+@@ -0,0 +1,35 @@
++package mage.cards.v;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
++ */
++public final class VenserFerventForger extends CardImpl {
++
++    public VenserFerventForger(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{4}{R}{R}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.HUMAN);
++        this.subtype.add(SubType.ARTIFICER);
++        this.power = new MageInt(5);
++        this.toughness = new MageInt(3);
++    }
++
++    private VenserFerventForger(final VenserFerventForger card) {
++        super(card);
++    }
++
++    @Override
++    public VenserFerventForger copy() {
++        return new VenserFerventForger(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/w/WinterCynicalOpportunist.java b/Mage.Sets/src/mage/cards/w/WinterCynicalOpportunist.java
+new file mode 100644
+index 00000000..f1d041e4
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/w/WinterCynicalOpportunist.java
+@@ -0,0 +1,46 @@
++package mage.cards.w;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.Ability;
++import mage.abilities.common.AttacksTriggeredAbility;
++import mage.abilities.effects.common.MillCardsControllerEffect;
++import mage.abilities.keyword.DeathtouchAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Delirium ability omitted.
++ *
++ * @author Muse
++ */
++public final class WinterCynicalOpportunist extends CardImpl {
++
++    public WinterCynicalOpportunist(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{2}{B}{G}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.HUMAN);
++        this.subtype.add(SubType.WARLOCK);
++
++        this.power = new MageInt(2);
++        this.toughness = new MageInt(5);
++
++        // Deathtouch
++        this.addAbility(DeathtouchAbility.getInstance());
++        // Whenever Winter attacks, mill three cards.
++        this.addAbility(new AttacksTriggeredAbility(new MillCardsControllerEffect(3), false));
++    }
++
++    private WinterCynicalOpportunist(final WinterCynicalOpportunist card) {
++        super(card);
++    }
++
++    @Override
++    public WinterCynicalOpportunist copy() {
++        return new WinterCynicalOpportunist(this);
++    }
++}
+diff --git a/Mage.Sets/src/mage/cards/z/ZinniaValleysVoice.java b/Mage.Sets/src/mage/cards/z/ZinniaValleysVoice.java
+new file mode 100644
+index 00000000..b0dcbf34
+--- /dev/null
++++ b/Mage.Sets/src/mage/cards/z/ZinniaValleysVoice.java
+@@ -0,0 +1,41 @@
++package mage.cards.z;
++
++import java.util.UUID;
++import mage.MageInt;
++import mage.abilities.keyword.FlyingAbility;
++import mage.cards.CardImpl;
++import mage.cards.CardSetInfo;
++import mage.constants.CardType;
++import mage.constants.SubType;
++import mage.constants.SuperType;
++
++/**
++ * Simplified implementation for Commander Lab simulation.
++ * Power boost and offspring abilities omitted (too complex).
++ *
++ * @author Muse
++ */
++public final class ZinniaValleysVoice extends CardImpl {
++
++    public ZinniaValleysVoice(UUID ownerId, CardSetInfo setInfo) {
++        super(ownerId, setInfo, new CardType[]{CardType.CREATURE}, "{U}{R}{W}");
++        this.addSuperType(SuperType.LEGENDARY);
++        this.subtype.add(SubType.BIRD);
++        this.subtype.add(SubType.WIZARD);
++
++        this.power = new MageInt(1);
++        this.toughness = new MageInt(3);
++
++        // Flying
++        this.addAbility(FlyingAbility.getInstance());
++    }
++
++    private ZinniaValleysVoice(final ZinniaValleysVoice card) {
++        super(card);
++    }
++
++    @Override
++    public ZinniaValleysVoice copy() {
++        return new ZinniaValleysVoice(this);
++    }
++}
