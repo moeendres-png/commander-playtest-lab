@@ -1,0 +1,18 @@
+date: 2026-10-20T15:41:58+02:00
+nproc: 2
+RAM (proc/meminfo): siehe unten
+Maven: 3.9.9 (workspace/tools/apache-maven-3.9.9, via mvn-proxy.sh)
+Lab worktree: ed2fbae2679801d5035f35b5d5f3a2e6352e412f (wt-m1-sweep, detached)
+Mage worktree: 043579bb7829fa866ade893909c9ba4825a18b23 (wt-mage-pin0435, detached)
+MemTotal:        8125588 kB
+MemAvailable:     704364 kB
+openjdk version "17.0.20.1" 2026-08-18
+Mage-Build: mvn -DskipTests install -am -pl Mage,Mage.Sets,Mage.Deck.Constructed,Mage.Game.CommanderFreeForAll,Mage.Game.CommanderDuel -> BUILD SUCCESS, 09:02 min, Artefakte 1.4.62 in /root/.m2
+Bridge-Build: mvn verify -> BUILD FAILURE in Tests: 1124 run, 4 Failures, 0 Errors, 1 Skipped; alle 4 in XmageFullGameReplayExportTest (XMAGE_CARD_REPOSITORY_INIT_FAILED in frischer JVM); Isolationstest der Klasse: identisch 4/6 Failures
+Bridge-JAR: mvn package -DskipTests -> BUILD SUCCESS; sha256 3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d
+Kalibrierung (2026-10-20): measure_precon_imports.py --enumerate-missing, frisches Workdir
+Ergebnis: decks_total=195, decks_ok=182, decks_failed=13, infrastructure_error=0, total_wall_s=62.6, Exit 0
+Fehlende Karten: 31 distinkte Namen, 33 Eintraege — Deck fuer Deck identisch zu docs/PRECON_VALIDATION.md (Namen + Zonen). GATE BESTANDEN.
+Hinweis: 1. Startversuch scheiterte an fehlendem java auf PATH (Probe misconfigured), 2. Versuch von Runtime-Restart gekillt (Probe ok), 3. Versuch sauber durchgelaufen.
+Sweep p1g1: workers=1 (2 Kerne), Summe Pod-wall_s 2660,8 s; Lauf 1 nach Pod 027 durch Runtime-Restart unterbrochen, Rest per Fortsetzungs-Treiber (Sweep-Maschinerie) nachgefahren.
+Erster Sweep-Versuch verworfen: Venv zeigte auf Haupt-Clone (Szenario band 348b37db) -> 46x ENGINE_FAILURE im Handshake; Fix: PYTHONPATH auf Worktree-src.

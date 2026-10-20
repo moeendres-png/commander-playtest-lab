@@ -1,0 +1,2 @@
+3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d  xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+Referenz-JAR (Erstmessung Claude): 3f6531d7365fa1476d84eeb87edb5e6580196db2cb21556f80e9f6f7a5407986
