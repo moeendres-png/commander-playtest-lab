@@ -15,6 +15,7 @@ These checks keep the workflows safe against that audience:
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -227,6 +228,88 @@ def test_every_workflow_declares_token_permissions(path: Path) -> None:
         return
     for name, job in workflow["jobs"].items():
         assert "permissions" in job, f"{path.name}:{name} runs with the default token permissions"
+
+
+# GitHub Actions offers the ``env`` context only inside steps. At any other job
+# key (``env``, ``if``, ``runs-on``, ``strategy``, ...) the expression makes the
+# whole file invalid: every push then records a failed run named after the file
+# path with no jobs, and no trigger of the workflow ever fires.
+ENV_CONTEXT_IN_EXPRESSION = re.compile(r"\$\{\{(?:(?!\}\}).)*?(?<![\w.])env\s*\.", re.DOTALL)
+ENV_CONTEXT_BARE = re.compile(r"(?<![\w.])env\s*\.")
+
+
+def _job_level_env_context_uses(workflow: dict) -> list[str]:
+    found: list[str] = []
+    for name, job in (workflow.get("jobs") or {}).items():
+        for key, value in job.items():
+            if key == "steps":
+                continue
+            text = yaml.safe_dump(value)
+            pattern = ENV_CONTEXT_BARE if key == "if" else ENV_CONTEXT_IN_EXPRESSION
+            if pattern.search(text):
+                found.append(f"{name}.{key}")
+    return found
+
+
+@pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)
+def test_jobs_read_the_env_context_only_inside_their_steps(path: Path) -> None:
+    assert _job_level_env_context_uses(_load(path)) == [], (
+        f"{path.name}: the env context is not available at job level (invalid workflow file)"
+    )
+
+
+def test_job_level_env_context_use_is_detected() -> None:
+    job_env = yaml.safe_load(
+        "jobs:\n  j:\n    runs-on: ubuntu-latest\n    env:\n      A: ${{ env.B }}\n    steps: []\n"
+    )
+    job_if = yaml.safe_load(
+        "jobs:\n  j:\n    runs-on: ubuntu-latest\n    if: env.B == 'x'\n    steps: []\n"
+    )
+    in_steps = yaml.safe_load(
+        "jobs:\n  j:\n    runs-on: ubuntu-latest\n    env:\n      A: ${{ secrets.B }}\n"
+        "    steps:\n      - run: echo\n        env:\n          C: ${{ env.A }}\n"
+    )
+    assert _job_level_env_context_uses(job_env) == ["j.env"]
+    assert _job_level_env_context_uses(job_if) == ["j.if"]
+    assert _job_level_env_context_uses(in_steps) == []
+
+
+# A custom OpenCode provider reads its API key only from the variables named in its
+# own ``env`` list. Exporting ZAI_API_KEY alone is not enough: the request then goes
+# out without an Authorization header and fails with HTTP 401 (reproduced against
+# the pinned CLI v1.18.30; the first /oc-zai-review run failed this way).
+ZAI_WORKFLOW = ROOT / ".github/workflows/opencode-zai.yml"
+ZAI_LANE_JOBS = {"oc-zai", "oc-zai-review"}
+
+
+def _zai_lane_key_problems(workflow: dict) -> list[str]:
+    problems: list[str] = []
+    jobs = workflow["jobs"]
+    if set(jobs) != ZAI_LANE_JOBS:
+        problems.append(f"unexpected jobs: {sorted(jobs)}")
+    for name, job in jobs.items():
+        config = json.loads(job["env"]["OPENCODE_CONFIG_CONTENT"])
+        if config["provider"]["zai"].get("env") != ["ZAI_API_KEY"]:
+            problems.append(f"{name}: provider.zai.env does not name ZAI_API_KEY")
+        for step in job["steps"]:
+            takes_key = step.get("name", "").startswith(("Preflight", "Run opencode"))
+            if takes_key and step.get("env", {}).get("ZAI_API_KEY") != "${{ secrets.ZAI_API_KEY }}":
+                problems.append(f"{name}: step '{step['name']}' does not pass the secret")
+    return problems
+
+
+def test_zai_lanes_hand_their_api_key_to_the_provider() -> None:
+    assert _zai_lane_key_problems(_load(ZAI_WORKFLOW)) == []
+
+
+def test_zai_lane_without_a_key_source_is_detected() -> None:
+    workflow = _load(ZAI_WORKFLOW)
+    config = json.loads(workflow["jobs"]["oc-zai-review"]["env"]["OPENCODE_CONFIG_CONTENT"])
+    del config["provider"]["zai"]["env"]
+    workflow["jobs"]["oc-zai-review"]["env"]["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
+    assert _zai_lane_key_problems(workflow) == [
+        "oc-zai-review: provider.zai.env does not name ZAI_API_KEY"
+    ]
 
 
 # --- behavioral evaluation of the GitHub Actions `if` expressions -----------

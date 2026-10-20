@@ -25,8 +25,8 @@ import pytest
 import yaml
 
 WORKFLOWS_DIR = ".github/workflows"
-HASHSEED_EXEMPT = {"opencode.yml"}
-RANGE_INSTALL_EXEMPT = {"windows-runtime.yml", "opencode.yml"}
+HASHSEED_EXEMPT = {"opencode.yml", "opencode-zai.yml"}
+RANGE_INSTALL_EXEMPT = {"windows-runtime.yml", "opencode.yml", "opencode-zai.yml"}
 CONTAINER_DIGEST = "sha256:1f79c73404fb0cccf9a3459eda22892f368d994b1028d6fb1ae871c1f49749a6"
 
 LOCKED_INSTALL_MARKERS = (
