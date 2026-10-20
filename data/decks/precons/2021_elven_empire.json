@@ -1,0 +1,528 @@
+{
+  "deck_id": "precon/2021/elven_empire",
+  "name": "Elven Empire",
+  "commander": {
+    "commanders": [
+      "Lathril, Blade of the Elves"
+    ],
+    "uses_partner": false,
+    "commander_identity_override": null
+  },
+  "cards": [
+    {
+      "oracle_name": "Lathril, Blade of the Elves",
+      "quantity": 1,
+      "zone": "commander",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Abomination of Llanowar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Beast Whisperer",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Canopy Tactician",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Cultivator of Blades",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dwynen, Gilt-Leaf Daen",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elderfang Ritualist",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elvish Archdruid",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elvish Mystic",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elvish Rejuvenator",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "End-Raze Forerunners",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Eyeblight Cullers",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Farhaven Elf",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Golgari Findbroker",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Harald, King of Skemfar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Imperious Perfect",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Jagged-Scar Archers",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Jaspera Sentinel",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Llanowar Tribe",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Lys Alana Huntmaster",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Lys Alana Scarblade",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Marwyn, the Nurturer",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Masked Admirers",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Miara, Thorn of the Glade",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Nullmage Shepherd",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Numa, Joraga Chieftain",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Poison-Tip Archer",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Reclamation Sage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Rhys the Exiled",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ruthless Winnower",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Shaman of the Pack",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Skemfar Shadowsage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Springbloom Druid",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sylvan Messenger",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Timberwatch Elf",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Twinblade Assassins",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Voice of Many",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Voice of the Woods",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Wirewood Channeler",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Wolverine Riders",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Wood Elves",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elven Ambush",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Poison the Cup",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Putrefy",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tergrid's Shadow",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ambition's Cost",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bounty of Skemfar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Casualties of War",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Eyeblight Massacre",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elvish Promenade",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Harvest Season",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Pact of the Serpent",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Return Upon the Tide",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Roots of Wisdom",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Arcane Signet",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Serpent's Soul-Jar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Binding the Old Gods",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Crown of Skemfar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elderfang Venom",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Pride of the Perfect",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Prowess of the Fair",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Moldervine Reclamation",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Command Tower",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 16,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Foul Orchard",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Golgari Guildgate",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Golgari Rot Farm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Jungle Hollow",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Myriad Landscape",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Path of Ancestry",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Skemfar Elderhall",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Swamp",
+      "quantity": 13,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    }
+  ],
+  "source": "MTGJSON",
+  "release_date": "2021-02-05",
+  "mtgjson_file": "ElvenEmpire_KHC",
+  "format": "commander"
+}

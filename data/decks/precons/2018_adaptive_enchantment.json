@@ -1,0 +1,619 @@
+{
+  "deck_id": "precon/2018/adaptive_enchantment",
+  "name": "Adaptive Enchantment",
+  "commander": {
+    "commanders": [
+      "Estrid, the Masked"
+    ],
+    "uses_partner": false,
+    "commander_identity_override": null
+  },
+  "cards": [
+    {
+      "oracle_name": "Estrid, the Masked",
+      "quantity": 1,
+      "zone": "commander",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bruna, Light of Alabaster",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Eidolon of Blossoms",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Hydra Omnivore",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ajani's Chosen",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Celestial Archon",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Silent Sentinel",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Boon Satyr",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Herald of the Pantheon",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Cold-Eyed Selkie",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Daxos of Meletis",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elderwood Scion",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Archetype of Imagination",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Whitewater Naiads",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Aura Gnarlid",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Reclamation Sage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Yavimaya Enchantress",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Martial Coup",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Phyrexian Rebirth",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Winds of Rath",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Creeping Renaissance",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Kruphix's Insight",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dismantling Blow",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bant Charm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sigil of the Empty Throne",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dictate of Kruphix",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bear Umbra",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Enchantress's Presence",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Epic Proportions",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ground Seal",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Spawning Grounds",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Finest Hour",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Righteous Authority",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sage's Reverie",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Soul Snare",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Unquestioned Authority",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Eel Umbra",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Vow of Flight",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dawn's Reflection",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Fertile Ground",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Overgrowth",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Snake Umbra",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Vow of Wildness",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Wild Growth",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Unflinching Courage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Plains",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Plains",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Plains",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Island",
+      "quantity": 2,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Island",
+      "quantity": 2,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Island",
+      "quantity": 2,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 2,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Azorius Chancery",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Blossoming Sands",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Command Tower",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Evolving Wilds",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Krosan Verge",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Meandering River",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mosswort Bridge",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Seaside Citadel",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Selesnya Sanctuary",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Simic Growth Chamber",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Terramorphic Expanse",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Thornwood Falls",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tranquil Cove",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tranquil Expanse",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Woodland Stream",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Kestia, the Cultivator",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tuvasa the Sunlit",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Empyrial Storm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Heavenly Blademaster",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Estrid's Invocation",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ever-Watching Threshold",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Octopus Umbra",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Genesis Storm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Myth Unbound",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Nylea's Colossus",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ravenous Slime",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Arixmethes, Slumbering Isle",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Loyal Unicorn",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Loyal Drake",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Loyal Guardian",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forge of Heroes",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    }
+  ],
+  "source": "MTGJSON",
+  "release_date": "2018-08-10",
+  "mtgjson_file": "AdaptiveEnchantment_C18",
+  "format": "commander"
+}

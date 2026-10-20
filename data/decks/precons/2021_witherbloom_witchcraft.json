@@ -1,0 +1,591 @@
+{
+  "deck_id": "precon/2021/witherbloom_witchcraft",
+  "name": "Witherbloom Witchcraft",
+  "commander": {
+    "commanders": [
+      "Willowdusk, Essence Seer"
+    ],
+    "uses_partner": false,
+    "commander_identity_override": null
+  },
+  "cards": [
+    {
+      "oracle_name": "Willowdusk, Essence Seer",
+      "quantity": 1,
+      "zone": "commander",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ob Nixilis Reignited",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Gyome, Master Chef",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Marshland Bloodcaster",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tivash, Gloom Summoner",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Veinwitch Coven",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Blossoming Bogbeast",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ezzaroot Channeler",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sproutback Trudge",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Yedora, Grave Gardener",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bloodtracker",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Defiant Bloodlord",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Noxious Gearhulk",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sangromancer",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ageless Entity",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Gluttonous Troll",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sapling of Colfenor",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Honor Troll",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dina, Soul Steeper",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bloodthirsty Aerialist",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Epicure of Blood",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Silversmote Ghoul",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Vampire Nighthawk",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Leyline Prowler",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Essence Pulse",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Healing Technique",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Pest Infestation",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Revival Experiment",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Damnable Pact",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Deadly Tempest",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Taste of Death",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Gaze of Granite",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ancient Craving",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Feed the Swarm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Cultivate",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Rampant Growth",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mortality Spear",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Reckless Spite",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Suffer the Past",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Pulse of Murasa",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Druidic Satchel",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Loxodon Warhammer",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Well of Lost Dreams",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Arcane Signet",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Elixir of Immortality",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Paradise Plume",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Pristine Talisman",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sun Droplet",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Talisman of Resilience",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Blight Mound",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Trudge Garden",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sanguine Bond",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Greed",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Gift of Paradise",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Moldervine Reclamation",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Exotic Orchard",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "High Market",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Llanowar Wastes",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Temple of Malady",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Witherbloom Campus",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Study Hall",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Blighted Woodland",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Command Tower",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Gingerbread Cabin",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Golgari Rot Farm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Jungle Hollow",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Myriad Landscape",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Radiant Fountain",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sapseep Forest",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tainted Wood",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Temple of the False God",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Swamp",
+      "quantity": 6,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Swamp",
+      "quantity": 5,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 6,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 5,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Witch's Clinic",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Nissa's Renewal",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Verdant Sun's Avatar",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Alhammarret's Archive",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Venser's Journal",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Rogue's Passage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    }
+  ],
+  "source": "MTGJSON",
+  "release_date": "2021-04-23",
+  "mtgjson_file": "WitherbloomWitchcraft_C21",
+  "format": "commander"
+}

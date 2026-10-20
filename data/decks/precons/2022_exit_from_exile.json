@@ -1,0 +1,612 @@
+{
+  "deck_id": "precon/2022/exit_from_exile",
+  "name": "Exit from Exile",
+  "commander": {
+    "commanders": [
+      "Faldorn, Dread Wolf Herald"
+    ],
+    "uses_partner": false,
+    "commander_identity_override": null
+  },
+  "cards": [
+    {
+      "oracle_name": "Faldorn, Dread Wolf Herald",
+      "quantity": 1,
+      "zone": "commander",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Vivien, Champion of the Wilds",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Xenagos, the Reveler",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Aurora Phoenix",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bonecrusher Giant",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dire Fleet Daredevil",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Dream Pillager",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Etali, Primal Storm",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Greater Gargadon",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Izzet Chemister",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Laelia, the Blade Reforged",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tectonic Giant",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Urabrask the Hidden",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Wild-Magic Sorcerer",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Arasta of the Endless Web",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Battle Mammoth",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "End-Raze Forerunners",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Hornet Queen",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Lovestruck Beast",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Managorger Hydra",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sweet-Gum Recluse",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Embereth Shieldbreaker",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sakura-Tribe Elder",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Bloodbraid Elf",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Grumgully, the Generous",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ignite the Future",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Jeska's Will",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mizzium Mortars",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ezuri's Predation",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Escape to the Wilds",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Nature's Lore",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Light Up the Stage",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Beanstalk Giant",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Cultivate",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Explore",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Kodama's Reach",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Search for Tomorrow",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Terramorph",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Three Visits",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Return of the Wildspeaker",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Demon Bolt",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Beast Within",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Natural Reclamation",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Chaos Wand",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Arcane Signet",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sol Ring",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Outpost Siege",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Stolen Strategy",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Warstorm Surge",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Primeval Bounty",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sandwurm Convergence",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Castle Embereth",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Cinder Glade",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Game Trail",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Kessig Wolf Run",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mossfire Valley",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mosswort Bridge",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Raging Ravine",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Spinerock Knoll",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Temple of Abandon",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Command Tower",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Ash Barrens",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Blighted Woodland",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Gruul Turf",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Highland Forest",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Myriad Landscape",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Temple of the False God",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mountain",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mountain",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mountain",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Mountain",
+      "quantity": 2,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Forest",
+      "quantity": 3,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Durnan of the Yawning Portal",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Passionate Archaeologist",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Delayed Blast Fireball",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Nalfeshnee",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Green Slime",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Journey to the Lost City",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Tlincalli Hunter",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Venture Forth",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Sarevok's Tome",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    },
+    {
+      "oracle_name": "Volcanic Torrent",
+      "quantity": 1,
+      "zone": "main",
+      "physical_copy_ids": [],
+      "notes": null
+    }
+  ],
+  "source": "MTGJSON",
+  "release_date": "2022-06-10",
+  "mtgjson_file": "ExitFromExile_CLB",
+  "format": "commander"
+}
