@@ -64,9 +64,11 @@ class _PolicyState:
         self._pilots = {item.binding.seat: item for item in runtime_pilots}
         self._player_count = len(runtime_pilots)
         self.scenario_seed = scenario_seed
-        # Per-state object index cache (initialized lazily in _find_object).
+        # Per-state object index cache (initialized lazily in _find_object). The
+        # indexed state is kept by reference: an id() is unique only among live
+        # objects, so keying on it could serve the index of an already freed state.
         self._object_index: dict[str, dict[str, object]] = {}
-        self._object_index_state_id: int = 0
+        self._object_index_state: dict[str, object] | None = None
         self._mulligan_count: dict[int, int] = {
             seat: 0 for seat in range(1, len(runtime_pilots) + 1)
         }
@@ -500,12 +502,11 @@ class _PolicyState:
     def _find_object(self, object_id: str, state: dict[str, object]) -> dict[str, object] | None:
         """Find a card/permanent object by ID in any player's zones.
 
-        Uses a per-state cache: the state dict id identifies the game state,
-        and the object index is rebuilt only when the state changes.
+        Uses a per-state cache: the state dict identifies the game state, and
+        the object index is rebuilt only when a different state dict arrives.
         """
         # Cache the object index per state to avoid O(n) search per lookup
-        state_id = id(state)
-        if self._object_index_state_id != state_id:
+        if self._object_index_state is not state:
             index: dict[str, dict[str, object]] = {}
             players = state.get("players")
             if isinstance(players, list):
@@ -522,7 +523,7 @@ class _PolicyState:
                                 if oid:
                                     index[oid] = item
             self._object_index = index
-            self._object_index_state_id = state_id
+            self._object_index_state = state
         return self._object_index.get(object_id)
 
     def _card_threat(self, object_id: str, state: dict[str, object]) -> float:
