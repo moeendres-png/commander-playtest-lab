@@ -15,6 +15,7 @@ These checks keep the workflows safe against that audience:
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -271,6 +272,44 @@ def test_job_level_env_context_use_is_detected() -> None:
     assert _job_level_env_context_uses(job_env) == ["j.env"]
     assert _job_level_env_context_uses(job_if) == ["j.if"]
     assert _job_level_env_context_uses(in_steps) == []
+
+
+# A custom OpenCode provider reads its API key only from the variables named in its
+# own ``env`` list. Exporting ZAI_API_KEY alone is not enough: the request then goes
+# out without an Authorization header and fails with HTTP 401 (reproduced against
+# the pinned CLI v1.18.30; the first /oc-zai-review run failed this way).
+ZAI_WORKFLOW = ROOT / ".github/workflows/opencode-zai.yml"
+ZAI_LANE_JOBS = {"oc-zai", "oc-zai-review"}
+
+
+def _zai_lane_key_problems(workflow: dict) -> list[str]:
+    problems: list[str] = []
+    jobs = workflow["jobs"]
+    if set(jobs) != ZAI_LANE_JOBS:
+        problems.append(f"unexpected jobs: {sorted(jobs)}")
+    for name, job in jobs.items():
+        config = json.loads(job["env"]["OPENCODE_CONFIG_CONTENT"])
+        if config["provider"]["zai"].get("env") != ["ZAI_API_KEY"]:
+            problems.append(f"{name}: provider.zai.env does not name ZAI_API_KEY")
+        for step in job["steps"]:
+            takes_key = step.get("name", "").startswith(("Preflight", "Run opencode"))
+            if takes_key and step.get("env", {}).get("ZAI_API_KEY") != "${{ secrets.ZAI_API_KEY }}":
+                problems.append(f"{name}: step '{step['name']}' does not pass the secret")
+    return problems
+
+
+def test_zai_lanes_hand_their_api_key_to_the_provider() -> None:
+    assert _zai_lane_key_problems(_load(ZAI_WORKFLOW)) == []
+
+
+def test_zai_lane_without_a_key_source_is_detected() -> None:
+    workflow = _load(ZAI_WORKFLOW)
+    config = json.loads(workflow["jobs"]["oc-zai-review"]["env"]["OPENCODE_CONFIG_CONTENT"])
+    del config["provider"]["zai"]["env"]
+    workflow["jobs"]["oc-zai-review"]["env"]["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
+    assert _zai_lane_key_problems(workflow) == [
+        "oc-zai-review: provider.zai.env does not name ZAI_API_KEY"
+    ]
 
 
 # --- behavioral evaluation of the GitHub Actions `if` expressions -----------
