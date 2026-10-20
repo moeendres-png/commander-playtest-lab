@@ -499,13 +499,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     /**
      * The declared engine caller of the land-or-spell callback. At the pin the
-     * callback has two callers: this one, and
+     * callback has two callers: this one (at 1.4.62 {@code castSpellWithAttributesForFree}
+     * delegates to {@code castSpellWithAttributes}, which now holds the body and is
+     * the frame that calls in; the callback is only reached with {@code playLand},
+     * that is through the free variant), and
      * {@code Vault112SadisticSimulationChapterEffect.apply} (Vault 112: Sadistic
      * Simulation), whose legality is not declared on this lane. That caller, and
      * any other, fails closed (UNSUPPORTED_DECISION_CLASS); it never receives a
      * legality this player built.
      */
-    static final String LAND_OR_SPELL_CALLER = "mage.util.CardUtil#castSpellWithAttributesForFree";
+    static final String LAND_OR_SPELL_CALLER = "mage.util.CardUtil#castSpellWithAttributes";
 
     /** The immediate engine frame that called into this player, not any frame below. */
     private static boolean calledFromCastWithAttributesForFree() {
@@ -539,8 +542,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
             }
         });
         // #662 L1: this callback is reached from an engine "you may play lands and cast
-        // spells from among them" effect (CardUtil.castSpellWithAttributesForFree with
-        // playLand), where the engine plays a chosen land part without timing checks.
+        // spells from among them" effect (CardUtil.castSpellWithAttributesForFree via
+        // CardUtil.castSpellWithAttributes with playLand), where the engine plays a
+        // chosen land part without timing checks.
         // The engine's own component enumeration decides which land parts qualify
         // (land drop available, active player); the usual playable list filters them
         // out by stack timing, which left a modal double-faced card's land face unoffered.
