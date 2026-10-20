@@ -3,8 +3,8 @@
   "name": "Heads I Win, Tails You Lose",
   "commander": {
     "commanders": [
-      "Zndrsplt, Eye of Wisdom // Zndrsplt, Eye of Wisdom",
-      "Okaun, Eye of Chaos // Okaun, Eye of Chaos"
+      "Zndrsplt, Eye of Wisdom",
+      "Okaun, Eye of Chaos"
     ],
     "uses_partner": true,
     "commander_identity_override": null
