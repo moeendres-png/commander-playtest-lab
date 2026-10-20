@@ -229,6 +229,50 @@ def test_every_workflow_declares_token_permissions(path: Path) -> None:
         assert "permissions" in job, f"{path.name}:{name} runs with the default token permissions"
 
 
+# GitHub Actions offers the ``env`` context only inside steps. At any other job
+# key (``env``, ``if``, ``runs-on``, ``strategy``, ...) the expression makes the
+# whole file invalid: every push then records a failed run named after the file
+# path with no jobs, and no trigger of the workflow ever fires.
+ENV_CONTEXT_IN_EXPRESSION = re.compile(r"\$\{\{(?:(?!\}\}).)*?(?<![\w.])env\s*\.", re.DOTALL)
+ENV_CONTEXT_BARE = re.compile(r"(?<![\w.])env\s*\.")
+
+
+def _job_level_env_context_uses(workflow: dict) -> list[str]:
+    found: list[str] = []
+    for name, job in (workflow.get("jobs") or {}).items():
+        for key, value in job.items():
+            if key == "steps":
+                continue
+            text = yaml.safe_dump(value)
+            pattern = ENV_CONTEXT_BARE if key == "if" else ENV_CONTEXT_IN_EXPRESSION
+            if pattern.search(text):
+                found.append(f"{name}.{key}")
+    return found
+
+
+@pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)
+def test_jobs_read_the_env_context_only_inside_their_steps(path: Path) -> None:
+    assert _job_level_env_context_uses(_load(path)) == [], (
+        f"{path.name}: the env context is not available at job level (invalid workflow file)"
+    )
+
+
+def test_job_level_env_context_use_is_detected() -> None:
+    job_env = yaml.safe_load(
+        "jobs:\n  j:\n    runs-on: ubuntu-latest\n    env:\n      A: ${{ env.B }}\n    steps: []\n"
+    )
+    job_if = yaml.safe_load(
+        "jobs:\n  j:\n    runs-on: ubuntu-latest\n    if: env.B == 'x'\n    steps: []\n"
+    )
+    in_steps = yaml.safe_load(
+        "jobs:\n  j:\n    runs-on: ubuntu-latest\n    env:\n      A: ${{ secrets.B }}\n"
+        "    steps:\n      - run: echo\n        env:\n          C: ${{ env.A }}\n"
+    )
+    assert _job_level_env_context_uses(job_env) == ["j.env"]
+    assert _job_level_env_context_uses(job_if) == ["j.if"]
+    assert _job_level_env_context_uses(in_steps) == []
+
+
 # --- behavioral evaluation of the GitHub Actions `if` expressions -----------
 #
 # The trust properties below are semantic: the workflow's condition text is

@@ -18,13 +18,6 @@ on:
   pull_request_review_comment:
     types: [created]
 
-# Z.ai provider config, merged after opencode.json via OPENCODE_CONFIG_CONTENT.
-# Uses the OpenAI-compatible endpoint https://api.z.ai/api/paas/v4 with the
-# ZAI_API_KEY secret. Only the zai provider is allowed (deny-all + allow-zai).
-env:
-  ZAI_PROVIDER_CONFIG: >-
-    {"enabled_providers":["zai"],"provider":{"zai":{"npm":"@ai-sdk/openai-compatible","name":"Z.ai","options":{"baseURL":"https://api.z.ai/api/paas/v4"},"models":{"glm-4.7-flash":{"name":"GLM 4.7 Flash"}}}},"model":"zai/glm-4.7-flash","small_model":"zai/glm-4.7-flash","experimental":{"policies":[{"action":"provider.use","effect":"deny","resource":"*"},{"action":"provider.use","effect":"allow","resource":"zai"}]}}
-
 jobs:
   oc-zai:
     # Implementation lane: writable, for mechanical tasks and things Muse
@@ -44,7 +37,12 @@ jobs:
       pull-requests: read
       issues: read
     env:
-      OPENCODE_CONFIG_CONTENT: ${{ env.ZAI_PROVIDER_CONFIG }}
+      # Z.ai provider config, merged after opencode.json. The env context is not
+      # available at job level, so the JSON is a literal here (as in oc-zai-review).
+      # Uses the OpenAI-compatible endpoint https://api.z.ai/api/paas/v4 with the
+      # ZAI_API_KEY secret. Only the zai provider is allowed (deny-all + allow-zai).
+      OPENCODE_CONFIG_CONTENT: >-
+        {"enabled_providers":["zai"],"provider":{"zai":{"npm":"@ai-sdk/openai-compatible","name":"Z.ai","options":{"baseURL":"https://api.z.ai/api/paas/v4"},"models":{"glm-4.7-flash":{"name":"GLM 4.7 Flash"}}}},"model":"zai/glm-4.7-flash","small_model":"zai/glm-4.7-flash","experimental":{"policies":[{"action":"provider.use","effect":"deny","resource":"*"},{"action":"provider.use","effect":"allow","resource":"zai"}]}}
     steps:
       - name: Refuse fork pull requests as agent targets
         if: github.event.issue.pull_request || github.event.pull_request
