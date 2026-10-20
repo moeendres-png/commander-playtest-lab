@@ -76,13 +76,13 @@ Stand der Messung:
 | Pod | Karte | Aktion | Zuerst unbezahlte Kosten | Mit #920 |
 |---|---|---|---|---|
 | 005 | Osgir, the Reconstructor | Aktivierung: {X}, {T}, Artefaktkarte mit Manawert X aus dem Friedhof exilieren | Exil-Kosten (Ziel leer) | läuft durch |
-| 008, 035 | Grim Hireling | Aktivierung: {B}, X Schätze opfern | Opfer-Kosten (nach dem Mana ein Schatz zu wenig) | 035 läuft durch; 008 kommt weiter und bricht später an Crew 2 ab |
+| 008, 035 | Grim Hireling | Aktivierung: {B}, X Schätze opfern | Opfer-Kosten (nach dem Mana ein Schatz zu wenig) | 035 läuft durch; 008 kommt weiter und bricht später an Crew 2 ab (mit dem Crew-Fix durch) |
 | 011 | Collective Effort | Zauber (Escalate) | zweites „Kreatur tappen“ | läuft durch |
 | 027 | Ruthless Radrat | Zauber (Squad) | zweites „vier Karten aus dem Friedhof exilieren“ | läuft durch |
 | 028 | Skeletal Scrying | Zauber | „X Karten aus dem Friedhof exilieren“ | läuft durch |
 | 037 | Peerless Recycling | Zauber (Gift) | Ziel „zwei Permanent-Karten im Friedhof“ nicht wählbar | läuft durch |
-| 040 | Imposter Mech | Aktivierung: Crew 3 | Crew-Kosten (gewählte Kreaturen zu schwach) | bricht weiter ab |
-| 042 | Marath, Will of the Wild | Aktivierung: {X}, X +1/+1-Marken entfernen | Marken-Kosten (X größer als die Marken) | bricht weiter ab |
+| 040 | Imposter Mech | Aktivierung: Crew 3 | Crew-Kosten (gewählte Kreaturen zu schwach) | bricht ab; mit dem Crew-/Marath-Fix durch |
+| 042 | Marath, Will of the Wild | Aktivierung: {X}, X +1/+1-Marken entfernen | Marken-Kosten (X größer als die Marken) | bricht ab; mit dem Crew-/Marath-Fix durch |
 
 Grim Hireling und Collective Effort sind dieselben Karten wie in der Stichprobe am alten Pin;
 die anderen sechs Karten sind neu.
@@ -93,9 +93,18 @@ die anderen sechs Karten sind neu.
   haben, das leer blieb und dem Piloten nie vorgelegt wurde (bei Zielen der Fähigkeit selbst: ein
   leeres, nie vorgelegtes Pflichtziel) und (3) der Spielzustand nach dem Fehlschlag Bit für Bit
   dem davor entspricht (`XmageStateFingerprint`, SHA-256 über Ids und Zähler, bleibt im Prozess).
-  Crew und Marath sind keine Zielkosten; ein Crew-Mangel nach einer Wahl scheitert weiter
-  geschlossen (`XmageFullGameCrewUnpayableCostTest`). Sie brauchen eine Korrektur im Piloten
-  (Crew nur mit ausreichender Power ansagen, X bei Marath durch die Marken begrenzen).
+  Crew und Marath sind keine Zielkosten; ein Crew-Mangel nach einer Wahl scheitert in der Bridge
+  weiter geschlossen (`XmageFullGameCrewUnpayableCostTest`). Sie werden im Piloten behoben (unten).
+- **Crew und Marath (Pilot)**. Crew: die Engine bietet Crew an, wenn die Power des Vehicles selbst
+  die Kosten decken würde (`CrewCost.canPay` wertet seinen Filter ohne Quelle aus, siehe #715), die
+  gewählten anderen Kreaturen reichen dann nicht. Die Bridge meldet auf dem Angebot
+  `crew_payable_without_source`: die Antwort der Engine auf `canPay` in einer Berechnungskopie des
+  Spiels, in der das Vehicle getappt ist (ein getapptes Vehicle zählt dort nicht mit). Der Pilot
+  lässt ein Crew-Angebot mit `false` liegen (`_priority_action_affordable`), ohne Kartenname und
+  ohne Power-Rechnung. Marath: die Marken-Kosten sind eine Karten-eigene Kostenklasse, die Engine
+  begrenzt X nicht durch die Marken. Der Pilot liest die gedruckte Kostenzeile des gewählten
+  Angebots („Remove X +1/+1 counters from …“) und die öffentlichen Marken der Quelle und hält sein
+  angesagtes X darin (`option_x_counter_cap`); die Domäne der Engine bleibt unverändert.
 - Sweep mit dem Fix (gleiche Pods, Plan-Seed 1, Spiel-Seed 1, `LOCAL_OBSERVED`, ein Lauf, JAR
   `7d082d8d…`, vor der letzten Härtung des Zustandsabdrucks gebaut; die neun betroffenen Pods mit
   dem endgültigen JAR `888ee822…` nachgespielt: sechs laufen mit gleichem Hash und gleicher
@@ -109,6 +118,14 @@ die anderen sechs Karten sind neu.
   jeweils mit dem Basis- und dem Fix-JAR, bei 029 auch mit einem Vergleichs-JAR ohne
   Zustandsabdruck). Der Unterschied kommt also nicht von der Änderung; die Ursache der
   Instabilität ist nicht untersucht. Ein Spiel pro Pod ist weiter keine Passquote.
+- Sweep mit #928 und dem Crew-/Marath-Fix (gleiche Pods, Plan-Seed 1, Spiel-Seed 1, `LOCAL_OBSERVED`, ein Lauf,
+  JAR `b85faccb…`, Import-Report des Pins als Deckliste): **46 von 46 Pods laufen durch**, alle 182
+  importierbaren Decks stehen in mindestens einem durchgespielten Pod. 36 der 43 vorher
+  durchgelaufenen Pods haben denselben Semantic-Hash. Bei sieben Pods (004, 006, 010, 011, 024,
+  032, 039) ändern sich Hash und Entscheidungszahl, weil der Pilot das unbezahlbare Crew-Angebot
+  nicht mehr wählt; pod-004 wiederholt mit demselben JAR zweimal den neuen Hash, und mit dem JAR
+  ohne den Crew-Fakt auf dem neuen Pilotcode den alten. Die 36-Seed-Hashes der Abnahme sind gegen
+  diesen Stand neu zu kalibrieren. Ein Spiel pro Pod ist weiter keine Passquote.
 
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
@@ -138,8 +155,9 @@ Immer nur ein Sweep gleichzeitig: bei CPU-Mangel werden langsame Entscheidungen 
 
 - „Alle Precon-Karten sind in XMage implementiert und spielbar“ (frühere Fassung dieser Datei):
   widerlegt, 31 Kartennamen fehlen am Pin, und Import beweist keine Kartenfunktion.
-- „Alle 182 importierbaren Decks laufen im Pod“: widerlegt, mit dem Fix #920 brechen noch 3 von 46
-  Pods ab (Crew, Marath; siehe oben), ohne ihn waren es 9.
+- „Alle 182 importierbaren Decks laufen im Pod“: ohne die Fixes (#928, Crew/Marath) widerlegt (9 von 46
+  Pods brachen ab); mit ihnen lief in einem Sweep jeder der 46 Pods durch. Das ist ein Spiel pro
+  Pod mit einem Seed und keine Aussage über andere Seeds oder Pläne.
 - Die Zahlen „195/195 ENGINE_FAILURE“ und „221 fehlende Karten“ aus früheren Übergaben: Das
   Skript hat dasselbe Deck auf alle Plätze gesetzt, die 221 stammt aus einer
   Dateinamen-Heuristik. Beide dürfen nicht mehr zitiert werden.

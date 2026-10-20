@@ -196,3 +196,50 @@ def test_sacrifice_source_with_pool_shortfall_withheld() -> None:
     metadata = dict(SPELL_METADATA, ability_type="activated", requires_sacrifice_source=True)
     state = _state({"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0})
     assert policy._priority_action_affordable(_option(metadata), state) is False
+
+
+# #920: Crew the other creatures cannot pay. The engine offers Crew when the
+# Vehicle's own power would cover the cost (CrewCost.canPay evaluates its filter
+# without the ability's source), so the bridge reports the engine's own check with
+# the Vehicle set aside and the pilot leaves such an offer alone.
+CREW_METADATA = {
+    "ability_type": "activated_nonmana",
+    "source_name": "Imposter Mech",
+    "mana_cost_generic": 0,
+    "mana_cost_white": 0,
+    "mana_cost_blue": 0,
+    "mana_cost_black": 0,
+    "mana_cost_red": 0,
+    "mana_cost_green": 0,
+    "mana_cost_colorless": 0,
+    "pool_covers_mana_cost": True,
+    "requires_tap_source": False,
+    "requires_untap_source": False,
+    "requires_sacrifice_source": False,
+}
+
+
+def test_withholds_crew_the_other_creatures_cannot_pay() -> None:
+    policy = _policy()
+    state = _state({"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0})
+    metadata = dict(CREW_METADATA, crew_payable_without_source=False)
+    assert policy._priority_action_affordable(_option(metadata), state) is False
+
+
+def test_crew_the_other_creatures_can_pay_stays_available() -> None:
+    policy = _policy()
+    state = _state({"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0})
+    metadata = dict(CREW_METADATA, crew_payable_without_source=True)
+    assert policy._priority_action_affordable(_option(metadata), state) is True
+
+
+def test_unknown_crew_fact_means_affordable() -> None:
+    policy = _policy()
+    state = _state({"white": 0, "blue": 0, "black": 0, "red": 0, "green": 0, "colorless": 0})
+    assert policy._priority_action_affordable(_option(dict(CREW_METADATA)), state) is True
+
+
+def test_withheld_crew_is_not_re_offered_as_needs_mana_first() -> None:
+    """A Crew shortfall is not a pool shortfall: more mana never helps."""
+    metadata = dict(CREW_METADATA, crew_payable_without_source=False)
+    assert _policy()._priority_awaits_mana(_option(metadata)) is False

@@ -140,10 +140,11 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # #815: same for failed X announcements — a new priority action
             # starts with a clean retry slate.
             self._priority_cost_facts.pop(seat, None)
+            self._priority_x_counter_caps.pop(seat, None)
             self._failed_x_announcements.pop(seat, None)
             self._last_priority_label.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
-            self._remember_priority_cost_facts(seat, options, selected)
+            self._remember_priority_cost_facts(seat, options, selected, pilot_state)
             self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
             # Measured where the cast was chosen: a cancelled payment leaves
             # its sources tapped in the cancel's own state view.

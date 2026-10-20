@@ -147,6 +147,10 @@ class _PolicyState:
         # that follows carries no cost at all, so this is where that cost
         # survives the hop. It is consumed by the announce it was kept for.
         self._priority_cost_facts: dict[int, dict[str, int]] = {}
+        # #920: the counters the seat's chosen activation can still remove for
+        # its X (see ``option_x_counter_cap``), same key and lifetime as
+        # ``_priority_cost_facts``.
+        self._priority_x_counter_caps: dict[int, dict[str, int]] = {}
         # #815: X values this seat announced that the engine then refused to
         # let it pay (reversed over-announced X). Keyed by seat and the
         # announce frame's ``source_object_id``; the next announce for the
