@@ -53,7 +53,7 @@ python scripts/import_deck.py \
 
 ## Karten-Abdeckung
 
-Am Pin `043579bb` importieren 182 von 195 Precons; 13 Decks scheitern an 31 Kartennamen, die die
+Am Pin `043579bb` importieren 182 von 195 Precons; 13 Decks scheitern an 31 verschiedenen Kartennamen, die die
 Engine nicht kennt. Import ist nicht Spielbarkeit. Gemessener Stand, Liste der fehlenden Karten und
 Reproduktion: `docs/PRECON_VALIDATION.md`.
 

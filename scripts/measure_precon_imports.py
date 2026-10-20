@@ -43,6 +43,7 @@ from commander_lab.models import RulesBackend, RulesEngineAvailability  # noqa: 
 
 PRECON_DIR = REPO / "data" / "decks" / "precons"
 UNKNOWN_CARD = re.compile(r"UNKNOWN_CARD_NAME: (.+)$", re.M)
+COMMANDER_VALIDATION = "COMMANDER_VALIDATION_FAILED"
 FILLER_MAINBOARD = "Plains"
 FILLER_COMMANDER = "Isamaru, Hound of Konda"  # a plain legend, only a placeholder for the probe
 MAX_ENUMERATION_STEPS = 60
@@ -88,6 +89,11 @@ def enumerate_missing(
             return {"missing_cards": missing, "final_status": "OK_AFTER_REPLACEMENT"}
         card = unknown_card_name(error)
         if card is None:
+            if missing and COMMANDER_VALIDATION in error:
+                # The importer resolves every card name before it validates the commander,
+                # so this error means no unknown name is left; the filler (Plains) merely
+                # breaks the commander's color identity.
+                return {"missing_cards": missing, "final_status": "ALL_NAMES_FOUND"}
             return {"missing_cards": missing, "final_status": f"OTHER_ERROR: {error[:200]}"}
         role = replace_card(variant, card)
         if role is None:

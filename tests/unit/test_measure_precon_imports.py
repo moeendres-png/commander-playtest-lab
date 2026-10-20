@@ -85,3 +85,25 @@ def test_enumeration_stops_on_another_error_and_on_a_card_it_cannot_replace() ->
         _deck(), lambda d: ("FAILED", "X: deck_import_failed: UNKNOWN_CARD_NAME: Not In Deck")
     )
     assert phantom["final_status"] == "NOT_REPLACEABLE: Not In Deck"
+
+
+def test_a_color_identity_error_after_replacements_means_every_name_was_found() -> None:
+    module = _module()
+
+    def try_import(deck: dict[str, Any]) -> tuple[str, str]:
+        names = [c["oracle_name"] for c in deck["cards"]]
+        if "Cybership" in names:
+            return "FAILED", "X: deck_import_failed: UNKNOWN_CARD_NAME: Cybership"
+        return (
+            "FAILED",
+            "X: deck_import_failed: COMMANDER_VALIDATION_FAILED: Invalid color identity",
+        )
+
+    report = module.enumerate_missing(_deck(), try_import)
+    assert report["final_status"] == "ALL_NAMES_FOUND"
+    assert [m["card"] for m in report["missing_cards"]] == ["Cybership"]
+    # Without a replacement the same error is a different problem, not an enumeration result.
+    untouched = module.enumerate_missing(
+        _deck(), lambda d: ("FAILED", "X: deck_import_failed: COMMANDER_VALIDATION_FAILED: x")
+    )
+    assert untouched["final_status"].startswith("OTHER_ERROR")
