@@ -132,7 +132,8 @@ die anderen sechs Karten sind neu.
   Abweichung ist ein Optionstext: `AddManaChosenColorEffect` merkt sich beim Berechnen der Mana
   die gewählte Farbe in einem Feld und hängt sie danach an den Regeltext an („… chosen color
   {U}“), und der Port spart Spielkopien, sodass dieses Feld auf einem anderen Objekt gesetzt
-  wird. Der Pilot liest Mana-Symbole aus diesem Text. Ein Spiel pro Pod ist weiter keine Passquote.
+  wird. Der Text ist Teil des Optionsnamens und des Sortierschlüssels der Bridge (`abilitySortKey`),
+  die Spiele laufen danach verschieden weiter. Ein Spiel pro Pod ist weiter keine Passquote.
 - Sweep mit #928 und dem Crew-/Marath-Fix (gleiche Pods, Plan-Seed 1, Spiel-Seed 1, `LOCAL_OBSERVED`, ein Lauf,
   JAR `b85faccb…`, Import-Report des Pins als Deckliste): **46 von 46 Pods laufen durch**, alle 182
   importierbaren Decks stehen in mindestens einem durchgespielten Pod. 36 der 43 vorher
