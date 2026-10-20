@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-Du kannst **jedes legale 100-Karten Commander-Deck** im Simulator testen – jederzeit, gegeneinander, so wie du es aufsetzen willst.
+Du kannst eine eigene Deckliste ins Projektformat überführen, von der Engine auf Importierbarkeit prüfen lassen und in Vierer-Pods gegen andere Decks spielen lassen. Nicht jedes legale Deck funktioniert: Karten, die die Engine nicht kennt, blockieren den Import, und ein erfolgreicher Import beweist nicht, dass jede Karte wie gedruckt spielt (siehe `docs/PRECON_VALIDATION.md`).
 
 ## Deck importieren
 
@@ -57,21 +57,37 @@ Am Pin `043579bb` importieren 182 von 195 Precons; 13 Decks scheitern an 31 Kart
 Engine nicht kennt. Import ist nicht Spielbarkeit. Gemessener Stand, Liste der fehlenden Karten und
 Reproduktion: `docs/PRECON_VALIDATION.md`.
 
-## Spiele simulieren
+## Import prüfen und Spiele simulieren
 
-Aktuell: Die Spiel-Simulation nutzt das Coverage-Pod-System. Für Custom-Decks:
+Beides braucht das Bridge-JAR der Engine (`--jar`). Ein Pod besteht immer aus vier **verschiedenen**
+Decks; ein Deck auf mehreren Plätzen lehnt der Validator vor dem Start ab. Das Verzeichnis muss
+im Repository liegen.
 
-1. Deck importieren (siehe oben)
-2. Deck in ein Coverage-Pod-Verzeichnis kopieren
-3. `pilot_decision_report.py` mit `--coverage-pods` ausführen
+1. Deck importieren (siehe oben), Ausgabe nach `data/decks/custom/`.
+2. Prüfen, ob die Engine alle Karten und den Commander auflöst (kein Spiel):
 
-**Zukünftig:** Ein CLI-Tool für beliebige 4-Deck-Kombinationen ist geplant.
+   ```bash
+   python scripts/measure_precon_imports.py --jar <bridge.jar> --workdir <leeres Verzeichnis> \
+     --deck-dir data/decks/custom --out imports.json --enumerate-missing
+   ```
 
-## Deck-Validierung
+   `FAILED` heißt, die Engine hat das Deck abgelehnt (bei `--enumerate-missing` stehen alle
+   unbekannten Karten im Bericht); `INFRASTRUCTURE_ERROR` heißt, die Bridge selbst ist
+   ausgefallen und der Lauf endet mit Exit-Code 3.
+3. Mindestens vier importierbare Decks in Vierer-Pods spielen:
 
-Jedes importierte Deck wird validiert:
-- Genau 100 Karten (inkl. Commander)
-- Commander in der Commander-Zone
-- Keine Duplikate (außer Basic Lands)
+   ```bash
+   python scripts/precon_pod_sweep.py --jar <bridge.jar> --out sweep.json \
+     --deck-dir data/decks/custom --import-report imports.json
+   ```
 
-Bei Problemen gibt das Import-Skript eine Warnung aus.
+Das Coverage-Pod-System (`pilot_decision_report.py run --coverage-pods`) spielt dagegen feste
+Pods aus den 18 Decks unter `data/coverage_decks/collection` und nimmt keine eigenen Decks auf.
+
+## Deck-Prüfung
+
+- `scripts/import_deck.py` zählt die Karten und warnt (nur auf stderr), wenn die Summe nicht 100
+  ist. Es prüft weder Duplikate noch Commander-Zone, Kartenexistenz oder Legalität.
+- Die Engine (Schritt 2 oben) löst jede Karte gegen ihre Kartendatenbank auf und validiert den
+  Commander gegen die Karten. Typische Ablehnungen: `UNKNOWN_CARD_NAME`, `CARD_IDENTITY_MISMATCH`
+  (Commander in der Form „A // B“: nur den Vordernamen eintragen).
