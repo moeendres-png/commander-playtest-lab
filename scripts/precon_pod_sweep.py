@@ -3,13 +3,16 @@
 Every pod seats four DIFFERENT decks: the full-game validator rejects one deck on several
 seats before any JVM starts (``distinct deck identities per seat``), so a sweep that repeats a
 deck measures that rejection and never plays a game. The plan covers every selected deck at
-least once; with ``--pod-size`` not dividing the deck count the last pod is filled from the
-start of the shuffled list.
+least once; when four does not divide the deck count the last pod is filled from the start of
+the shuffled list. A pod always seats four decks: the full-game scenario is a four-player game.
 
     python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json --workers 2
     # only decks that import cleanly (output of an import measurement: {"results": [...]})
     python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json \\
         --import-report imports.json
+    # any directory of deck files inside the repository, e.g. decks from import_deck.py
+    python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json \\
+        --deck-dir data/decks/custom
 
 A failed pod is a result row, not a crash. The game is played by ``benchmark_xmage_full_games``
 (same pilots, private card repository, bridge command). Local runs are measurements, not
@@ -35,7 +38,10 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 PRECON_DIR = ROOT / "data/decks/precons"
+POD_SIZE = 4
 _FAMILY = re.compile(r"\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b")
+_CODE_LIST = re.compile(r"\[([A-Z][A-Z0-9_]*(?:, [A-Z][A-Z0-9_]*)*)\]")
+_GENERIC = "ENGINE_FAILURE"
 
 
 def plan_pods(decks: Sequence[str], pod_size: int = 4, seed: int = 1) -> list[tuple[str, ...]]:
@@ -54,9 +60,19 @@ def plan_pods(decks: Sequence[str], pod_size: int = 4, seed: int = 1) -> list[tu
 
 
 def failure_family(error: str | None) -> str:
-    """The bridge's own error code when the message carries one, else the exception type."""
+    """The most specific public code of the failure, else the exception type.
+
+    The bridge error carries ``ENGINE_FAILURE [ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED]``:
+    the generic wrapper first, the cause after it. Only those codes are public; which card
+    caused the failure stays in the redacted diagnostics.
+    """
     if not error:
         return "NONE"
+    listed = _CODE_LIST.search(error)
+    if listed:
+        specific = [c for c in listed.group(1).split(", ") if c != _GENERIC]
+        if specific:
+            return specific[-1]
     match = _FAMILY.search(error)
     return match.group(0) if match else error.split(":", 1)[0].strip() or "UNKNOWN"
 
@@ -81,16 +97,22 @@ def summarize(pods: Sequence[dict[str, Any]]) -> dict[str, Any]:
 def run(args: argparse.Namespace) -> int:
     import benchmark_xmage_full_games as bench  # heavy imports, kept off the planning tests
 
+    deck_dir = args.deck_dir.resolve()
+    try:
+        deck_dir.relative_to(ROOT)
+    except ValueError:
+        print(f"--deck-dir must be inside the repository ({ROOT})", file=sys.stderr)
+        return 2
     if args.import_report:
         names = importable_decks(args.import_report)
     else:
-        names = sorted(p.stem for p in PRECON_DIR.glob("*.json"))
-    pods = plan_pods(names, args.pod_size, args.plan_seed)
+        names = sorted(p.stem for p in deck_dir.glob("*.json"))
+    pods = plan_pods(names, POD_SIZE, args.plan_seed)
     if args.limit:
         pods = pods[: args.limit]
     command = bench.bridge_command(args.jar, [])
     setups = [
-        bench._setup(tuple((PRECON_DIR / f"{name}.json").relative_to(ROOT) for name in decks))
+        bench._setup(tuple((deck_dir / f"{name}.json").relative_to(ROOT) for name in decks))
         for decks in pods
     ]
     rows: list[dict[str, Any]] = []
@@ -120,7 +142,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--jar", type=Path, required=True)
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--import-report", type=Path, default=None)
-    parser.add_argument("--pod-size", type=int, default=4)
+    parser.add_argument("--deck-dir", type=Path, default=PRECON_DIR)
     parser.add_argument("--plan-seed", type=int, default=1, help="shuffle seed of the pod plan")
     parser.add_argument("--game-seed", type=int, default=1, help="Rules seed of every game")
     parser.add_argument("--workers", type=int, default=2)
