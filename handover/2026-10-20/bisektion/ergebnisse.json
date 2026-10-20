@@ -1,0 +1,175 @@
+{
+  "baseline": {
+    "5": {
+      "status": "ok",
+      "semantic": "d87ff3476b454de6e6c60b94762120bd0a713383cb96669116b631d5e26737b6",
+      "decisions": 5765,
+      "winners": [
+        1
+      ],
+      "wall_s": 116.18
+    },
+    "10": {
+      "status": "ok",
+      "semantic": "5a3d66b838f60b8e45fd726cd912ac20dddedd766cb3652c061995384d37670e",
+      "decisions": 4202,
+      "winners": [
+        4
+      ],
+      "wall_s": 98.68
+    }
+  },
+  "baseline_kalibrierung": "Beide Baseline-Hashes aus compare_b.json exakt reproduziert (Seed 5 d87ff347..., Seed 10 5a3d66b8...)",
+  "varianten": {
+    "v0": {
+      "hunks": {
+        "H-PI": "an",
+        "H-CI": "an",
+        "H-TA": "an"
+      },
+      "jar_sha256": "2d1bba6cbef6d824d6f7c297eca32479a6a6d9c5eaa52a066e5c3529973fe1a6",
+      "seeds": {
+        "5": {
+          "status": "ok",
+          "semantic": "4ca08e0e72a78ab8e71b9f90f22aeae4eb2e2ca426ef4fdb90168116278710b5",
+          "match_baseline": false,
+          "decisions": 3980,
+          "winners": [
+            3
+          ],
+          "wall_s": 77.84,
+          "error": null
+        },
+        "10": {
+          "status": "failed",
+          "semantic": null,
+          "match_baseline": false,
+          "decisions": null,
+          "winners": null,
+          "wall_s": 76.27,
+          "error": "FullGameConformanceError: engine failed: ENGINE_FAILURE [ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED] (diagnostics sha256:31bc0f4a3b29a64c)"
+        }
+      }
+    },
+    "v1": {
+      "hunks": {
+        "H-PI": "aus",
+        "H-CI": "an",
+        "H-TA": "an"
+      },
+      "jar_sha256": "7f796445c1d3840b41153a217f5ccdf8458d2ff473f4b77d8800ab1321d1f69f",
+      "seeds": {
+        "5": {
+          "status": "ok",
+          "semantic": "4ca08e0e72a78ab8e71b9f90f22aeae4eb2e2ca426ef4fdb90168116278710b5",
+          "match_baseline": false,
+          "decisions": 3980,
+          "winners": [
+            3
+          ],
+          "wall_s": 85.19,
+          "error": null
+        },
+        "10": {
+          "status": "failed",
+          "semantic": null,
+          "match_baseline": false,
+          "decisions": null,
+          "winners": null,
+          "wall_s": 87.1,
+          "error": "FullGameConformanceError: engine failed: ENGINE_FAILURE [ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED] (diagnostics sha256:64509c6f37b6c296)"
+        }
+      }
+    },
+    "v2": {
+      "hunks": {
+        "H-PI": "an",
+        "H-CI": "aus",
+        "H-TA": "an"
+      },
+      "jar_sha256": "a7647e1125917de0da1e2aa62d27547e99a96e1d67cc90ed7609a77bcca292f5",
+      "seeds": {
+        "5": {
+          "status": "ok",
+          "semantic": "4ca08e0e72a78ab8e71b9f90f22aeae4eb2e2ca426ef4fdb90168116278710b5",
+          "match_baseline": false,
+          "decisions": 3980,
+          "winners": [
+            3
+          ],
+          "wall_s": 82.69,
+          "error": null
+        },
+        "10": {
+          "status": "failed",
+          "semantic": null,
+          "match_baseline": false,
+          "decisions": null,
+          "winners": null,
+          "wall_s": 80.36,
+          "error": "FullGameConformanceError: engine failed: ENGINE_FAILURE [ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED] (diagnostics sha256:eaf77feb52cea3af)"
+        }
+      }
+    },
+    "v3": {
+      "hunks": {
+        "H-PI": "an",
+        "H-CI": "an",
+        "H-TA": "aus"
+      },
+      "jar_sha256": "806490f6bce7c5f93a6ed5490c12456414e5363e48d29a735fc8de815fa653b8",
+      "seeds": {
+        "5": {
+          "status": "ok",
+          "semantic": "4ca08e0e72a78ab8e71b9f90f22aeae4eb2e2ca426ef4fdb90168116278710b5",
+          "match_baseline": false,
+          "decisions": 3980,
+          "winners": [
+            3
+          ],
+          "wall_s": 78.78,
+          "error": null
+        },
+        "10": {
+          "status": "failed",
+          "semantic": null,
+          "match_baseline": false,
+          "decisions": null,
+          "winners": null,
+          "wall_s": 85.83,
+          "error": "FullGameConformanceError: engine failed: ENGINE_FAILURE [ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED] (diagnostics sha256:0a1f303ec80bdcc3)"
+        }
+      }
+    },
+    "v4": {
+      "hunks": {
+        "H-PI": "aus",
+        "H-CI": "aus",
+        "H-TA": "aus"
+      },
+      "jar_sha256": "b0900e7868e4c0cfe0f2f81032b6014d32a26ac29509f9ea46355002a53451c3",
+      "seeds": {
+        "5": {
+          "status": "ok",
+          "semantic": "4ca08e0e72a78ab8e71b9f90f22aeae4eb2e2ca426ef4fdb90168116278710b5",
+          "match_baseline": false,
+          "decisions": 3980,
+          "winners": [
+            3
+          ],
+          "wall_s": 63.48,
+          "error": null
+        },
+        "10": {
+          "status": "failed",
+          "semantic": null,
+          "match_baseline": false,
+          "decisions": null,
+          "winners": null,
+          "wall_s": 65.48,
+          "error": "FullGameConformanceError: engine failed: ENGINE_FAILURE [ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED] (diagnostics sha256:d827fdeb499b5ecf)"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+ "jar": "/home/hatch/workspace/tmp/bisect/jar_v3.jar",
+ "jvm_options": [],
+ "workers": 1,
+ "total_wall_s": 164.61,
+ "games": [
+  {
+   "pod": "real",
+   "seed": 5,
+   "status": "ok",
+   "semantic": "4ca08e0e72a78ab8e71b9f90f22aeae4eb2e2ca426ef4fdb90168116278710b5",
+   "decisions": 3980,
+   "winners": [
+    3
+   ],
+   "wall_s": 78.78,
+   "child_cpu_s": 95.15
+  },
+  {
+   "pod": "real",
+   "seed": 10,
+   "status": "failed",
+   "error": "FullGameConformanceError: engine failed: ENGINE_FAILURE [ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED] (diagnostics sha256:0a1f303ec80bdcc3)",
+   "wall_s": 85.83,
+   "child_cpu_s": 101.39
+  }
+ ]
+}

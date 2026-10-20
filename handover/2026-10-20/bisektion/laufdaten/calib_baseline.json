@@ -1,0 +1,32 @@
+{
+ "jar": "/home/hatch/workspace/tmp/xmage-engine-bridge-base-348b37db.jar",
+ "jvm_options": [],
+ "workers": 1,
+ "total_wall_s": 214.87,
+ "games": [
+  {
+   "pod": "real",
+   "seed": 5,
+   "status": "ok",
+   "semantic": "d87ff3476b454de6e6c60b94762120bd0a713383cb96669116b631d5e26737b6",
+   "decisions": 5765,
+   "winners": [
+    1
+   ],
+   "wall_s": 116.18,
+   "child_cpu_s": 140.46
+  },
+  {
+   "pod": "real",
+   "seed": 10,
+   "status": "ok",
+   "semantic": "5a3d66b838f60b8e45fd726cd912ac20dddedd766cb3652c061995384d37670e",
+   "decisions": 4202,
+   "winners": [
+    4
+   ],
+   "wall_s": 98.68,
+   "child_cpu_s": 114.68
+  }
+ ]
+}

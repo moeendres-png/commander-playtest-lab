@@ -1,0 +1,25 @@
+diff --git a/Mage/src/main/java/mage/abilities/TriggeredAbilities.java b/Mage/src/main/java/mage/abilities/TriggeredAbilities.java
+index 386087da..1e745ea6 100644
+--- a/Mage/src/main/java/mage/abilities/TriggeredAbilities.java
++++ b/Mage/src/main/java/mage/abilities/TriggeredAbilities.java
+@@ -102,20 +102,6 @@ public class TriggeredAbilities extends LinkedHashMap<String, TriggeredAbility>
+     public void checkTriggers(GameEvent event, Game game) {
+         processingStart(event);
+         boolean needErrorChecksOnEnd = true;
+-        // Optimization: quick pre-check without copying. checkEventType() is a pure
+-        // type comparison (no state mutation). If no trigger matches the event type,
+-        // skip the ArrayList copy entirely. Most game events don't trigger anything.
+-        boolean anyMatch = false;
+-        for (TriggeredAbility ability : this.values()) {
+-            if (ability.checkEventType(event, game)) {
+-                anyMatch = true;
+-                break;
+-            }
+-        }
+-        if (!anyMatch) {
+-            processingEnd(needErrorChecksOnEnd);
+-            return;
+-        }
+         // must keep real object refs (not copies), cause check trigger code can change trigger's and effect's data like targets
+         ArrayList<TriggeredAbility> currentTriggers = new ArrayList<>(this.values());
+         try {
