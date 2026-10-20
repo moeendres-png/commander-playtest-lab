@@ -35,6 +35,32 @@ Pin = `348b37db` (`config/rules_engines.json`) · Fork-Head (geprüft) = `109316
 
 ---
 
+## Nachtrag 2026-10-20 (Claude-Thread 1, Fix-Verifikation — von Hans übermittelt)
+
+Die offenen Punkte aus §2.6 sind inzwischen aufgelöst:
+
+- **Karten-Fix bestätigt:** 6 Turbulent-Lands auf Pin-Stand zurück → Seed 5 = Baseline
+  `d87ff347…` und der **Seed-10-Crash ist weg** (B4 damit aufgelöst: Der Crash stammte
+  von den ausgehöhlten Karten).
+- **Zweiter Schuldiger: P1** (`GameState.getPlayersInRange`-Fast-Path). Mit nur P1 aktiv
+  weicht Seed 10 ab (`f5e722a7…`, 4298 statt 4202 Decisions, anderer Sieger); ohne
+  Core-Änderungen stimmt Seed 10. P1 war in der Bisektion per Auftrag immer aktiv und
+  daher dort unsichtbar. Vermutete Ursache (nicht gezeigt): ausgeschiedene Spieler
+  bleiben in der Range.
+- **Endkonfiguration verifiziert (36/36 Seeds identisch zur Baseline, alle OK):**
+  Pin + Fork-Patches, 6 Karten zurück, P1 zurück — H-PI/H-CI/H-TA und `singleton` aktiv.
+- Kalibrierungs-Vorbehalt: Die Baseline-Hashes reproduzieren nur mit Lab-Stand
+  `muse/precon-pilot-improvements` (`4f3af5e`); auf main weicht Seed 5 ab.
+- Nicht gepusht: Fork-Head `10931648` ist nicht auf GitHub; der verifizierte Stand wurde
+  aus den Handover-Patches rekonstruiert (Dateien `0001-*.patch`–`0003-*.patch`,
+  `lauf-36-*.json`). Der neue Pin `043579bb` (Lab #923) enthält die Patches laut
+  Update-Thread nicht — der Fix betrifft nur die alte Linie.
+- **Portierungs-Regeln (neue Linie):** Bestehende Kartenimplementierungen nie durch
+  vereinfachte ersetzen · P1 bleibt draußen · CardImpl-Fast-Path und
+  TriggeredAbilities-Pre-Check vor Übernahme neu prüfen.
+
+---
+
 ## 2. Befunde je Audit
 
 ### 2.1 Phase-A-Projekt-Audit (2026-10-19)
@@ -113,11 +139,11 @@ abweichenden Semantic Hashes.
 | B1 | **Bisektion V0–V4:** Kein Einzel-Revert (V1=H-PI aus, V2=H-CI aus, V3=H-TA aus) und auch V4 (alle aus) ändert etwas — alle Varianten liefern bit-identisch Seed 5 = `4ca08e0e…` (Mismatch) und Seed 10 FAILED. Baseline vorher exakt kalibriert (beide Baseline-Hashes reproduziert) | DIRECTLY_VERIFIED | erledigt | H-PI/H-CI/H-TA sind als Ursache **ausgeschlossen** |
 | B2 | **Ursache der Hash-Abweichungen:** Fork-Diff Pin..Head in `Mage.Sets/cards`: 48 Dateien neu, nur 6 modifiziert — alle 6 sind Turbulent-Dual-Lands, ersetzt durch „Simplified implementation" **ohne** Mana-Abilities und ETB-Effekt (Pin-Version von Turbulent Steppe: `RedManaAbility` + `WhiteManaAbility` + `EntersBattlefieldTappedUnlessAbility`) | DIRECTLY_VERIFIED | offen (Fix ausstehend) | Fix = echte Implementierungen wiederherstellen (Claude-Thread 1) |
 | B3 | Turbulent Steppe ist die einzige geänderte Karte im Smoke-Pod (`.deck.cards[11]`, Lorehold Spirit Precon; Pod = 319 distinkte Karten) und gibt im Fork kein Mana → abweichende Verläufe ab den ersten Zügen; Fork-Trajektorie Seed 5: 3980 Decisions/Winner [3] vs. Baseline 5765/[1] | DIRECTLY_VERIFIED | erledigt (Zuordnung Seed 5) | Erklärt 29/35 ohne jeden Core-Hunk |
-| B4 | **Seed-10-Crash: Ursache UNKNOWN.** Ein mana-loses Land muss die Engine nicht crashen lassen; Zuordnung erst durch V5 | UNKNOWN | offen | V5-Diskriminator: nur die 6 Turbulent-Dateien auf Pin zurück, Rest Fork-Head (~10 Min) |
+| B4 | **Seed-10-Crash: Ursache UNKNOWN.** Ein mana-loses Land muss die Engine nicht crashen lassen; Zuordnung erst durch V5 | UNKNOWN → **aufgelöst** (Nachtrag) | erledigt | V5 durch Claude-Thread 1 gelaufen: Karten-Fix beseitigt auch den Crash |
 | B5 | Verbleibendes Delta V4↔Pin neben den Karten: 48 neue Karten + 10 Set-Dateien (u. a. Kartennummern 2000+), P1-Fast-Path und `AbilitiesImpl.singleton` bleiben aktiv — falls V5 nicht alles heilt, ist dort weiterzusuchen | CODE_DERIVED (Diff-Aufzählung) | offen | Reihenfolge nach V5-Ergebnis |
 | B6 | H-CI (CardImpl-Fast-Path) bleibt ein realer Delta zum Pin (Pin baut immer frische Aggregat-Liste) — aber nach B1 **nicht** die Ursache der gemessenen Abweichungen; Fix-Empfehlung aus der korrigierten Rangfolge (Fast-Path entfernen/defensive Kopie) bleibt als Hygiene bestehen, ohne Bug-Behauptung | CODE_DERIVED | offen | Nicht mit B1 verwechseln: unschädlich ≠ bewiesen korrekt |
 | B7 | Laufzeiten für Anschlussplanung: volle Maven-Modul-Kette ~10,5 Min, Core-Rebuild ~21 s, Bridge ~60–80 s, Orakel (2 Seeds) 2,5–4 Min, 36-Seed-Lauf ~34 Min | DIRECTLY_VERIFIED | erledigt | — |
-| B8 | Abschlusskonfiguration (36 Seeds, 0 Mismatches) ist **nicht gelaufen** — im Hunk-Rahmen existiert keine saubere Konfiguration; Lauf erst nach Fork-Fix sinnvoll, dann Wiederholung auf Claudes Stand | NOT_RUN | offen | Kein PASS ableitbar |
+| B8 | Abschlusskonfiguration (36 Seeds, 0 Mismatches) ist **nicht gelaufen** — im Hunk-Rahmen existiert keine saubere Konfiguration; Lauf erst nach Fork-Fix sinnvoll | NOT_RUN → **gelaufen** (Nachtrag) | erledigt | Claude-Thread 1: Endkonfiguration 36/36 identisch, alle OK |
 
 ### 2.7 Upstream-Delta
 
