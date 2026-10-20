@@ -131,6 +131,11 @@ class _PolicyState:
         self._free_cast_refused: dict[int, object] = {}
         # Seats whose last "copied card to cast" choice (Mizzix's Mastery) picked nothing.
         self._copy_cast_declined: set[int] = set()
+        # Slaughter the Strong asks for one creature at a time and toggles a creature that is
+        # picked again: per seat, the engine ids picked so far in the running selection, and
+        # the seats whose selection just ended (their next may-prompt must end it too).
+        self._running_selection: dict[int, set[str]] = {}
+        self._selection_ended: set[int] = set()
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.

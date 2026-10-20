@@ -208,6 +208,29 @@ die anderen sechs Karten sind neu.
   Mit dem Stand von `f5eecc7` und diesen zwei Pilot-Änderungen laufen alle drei Pods durch (012:
   3133 Entscheidungen, 021: 2402, 032: 3662; ein Spiel je Pod, keine Passquote). Die Bridge
   ändert sich dabei nicht.
+- Familiensuche Plan-Seed 5 (Spiel-Seed 5, gleiche 182 Decks, `LOCAL_OBSERVED`, ein Lauf, Stand
+  `d59d0cd`, Jar und Pilot von `main`): drei der 46 Pods brechen ab, alle drei im Piloten und ohne
+  Änderung der Bridge. Der Lauf wurde in drei Teilen gespielt, weil der erste Prozess nach 23 Pods
+  abbrach; die Abbrüche wurden einzeln auf `d59d0cd` nachgespielt:
+  - Pod 007, Slaughter the Strong: Die Karte fragt Kreatur für Kreatur („already selected total
+    power N“) und nimmt eine erneut gewählte Kreatur wieder heraus, bis nichts mehr gewählt wird,
+    und fragt dann „End the selection“ oder „Continue the selection“. Der Pilot wählte die eine
+    sichtbare Kreatur jedes Mal und erreichte `max_decisions=50000`. Er wählt jede Kreatur jetzt
+    einmal, wählt nichts, wenn keine neue mehr da ist, und beendet die Auswahl.
+  - Pod 017, Timely Ward: „You may cast this spell as though it had flash if it targets a
+    commander.“ Die Engine bietet den Zauber zu jeder Zeit an und prüft das Ziel erst nach der
+    Wahl; außerhalb eines Sorcery-Fensters (hier ein eigener Zauber auf dem Stapel) scheitert der
+    Zauber an einem Token. Der Pilot bietet ihn dort ohne Commander-Kreatur auf dem Tisch nicht
+    an und zielt sonst auf den Commander.
+  - Pod 035, Tekuthal, Inquiry Dominus: „Remove three counters from among other artifacts,
+    creatures, and planeswalkers you control“ wird angeboten, sobald ein solches Objekt existiert,
+    und scheitert, wenn die Marken aller zusammen unter drei liegen (hier Inspirit mit zwei
+    Ladungsmarken; die Engine prüft in `RemoveCounterCost.canPay` nur, ob ein Ziel wählbar ist).
+    Der Pilot aktiviert solche Kosten nur, wenn die Marken auf seinen Permanenten reichen (zählt
+    ohne Typfilter, findet also nur einen Mangel, den keine Wahl beheben kann).
+  Mit Jar von `d59d0cd` und diesen Änderungen laufen 007, 017 und 035 durch (1818, 3294 und 2225
+  Entscheidungen, siehe Nachspiel). Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
+  alle Zähler identisch.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung

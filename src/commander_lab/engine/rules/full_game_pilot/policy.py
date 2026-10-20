@@ -14,6 +14,9 @@ from .priority import _PriorityDecisions
 # Mizzix's Mastery (overload) asks for one copied card at a time and removes it
 # only when one was chosen; see ``_decide_boolean`` for the matching guard.
 _COPY_CAST_PROMPT = re.compile(r"Select up to one copied card to cast")
+# Slaughter the Strong ("chooses any number of creatures ... with total power 4 or less") asks for
+# one creature at a time and reports the running total; choosing a creature again takes it back out.
+_RUNNING_SELECTION_PROMPT = re.compile(r"\(already selected\b")
 
 
 class ExternalPilotDecisionPolicy(_PriorityDecisions):
@@ -75,6 +78,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         # decision of any other class ends the life they promised.
         if decision_class != "choose_use":
             self._phyrexian_life_promised.pop(seat, None)
+            self._selection_ended.discard(seat)
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
         min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))
@@ -88,6 +92,11 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         numeric_choice: int | None = None
         numeric_choices: list[int] | None = None
         prompt = str(request.get("prompt", ""))
+        running_selection = (
+            decision_class == "target"
+            and min_selections == 0
+            and _RUNNING_SELECTION_PROMPT.search(prompt) is not None
+        )
 
         if decision_class == "mulligan":
             selected = [self._decide_mulligan(runtime, pilot_state, options, rng)]
@@ -173,11 +182,14 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # the cheapest card, which is the least likely to matter later.
             selected = [self._cheapest_object(options)]
         elif decision_class in {"target", "choose_object", "target_amount"}:
+            # A running selection offers the creatures already picked again (picking one
+            # takes it back out), so the pilot is shown only the ones it has not picked.
+            picked = self._running_selection.get(seat, set()) if running_selection else set()
             selected = self._decide_targets(
                 runtime,
                 pilot_state,
                 request,
-                options,
+                [option for option in options if option.get("option_id") not in picked],
                 min_selections,
                 max_selections,
                 rng,
@@ -211,6 +223,13 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                 self._copy_cast_declined.discard(seat)
             else:
                 self._copy_cast_declined.add(seat)
+
+        if running_selection and selected:
+            self._running_selection.setdefault(seat, set()).update(selected)
+        else:
+            self._running_selection.pop(seat, None)
+            if running_selection:
+                self._selection_ended.add(seat)
 
         if len(selected) < min_selections or len(selected) > max_selections:
             raise FullGameProtocolError(

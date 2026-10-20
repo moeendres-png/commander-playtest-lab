@@ -762,3 +762,296 @@ def test_other_energy_payments_are_not_declined() -> None:
     other = dict(_VAULT_112, source_name="Aetherworks Marvel")
     response = _policy().decide(_energy_amount(other))
     assert response["numeric_choice"] > 0
+
+
+_SLAUGHTER_CREATURES = ("Sun Titan", "Kor Spiritdancer", "Paradise Druid")
+_SLAUGHTER_PROMPT = (
+    "Select up to one any number of creatures you control with total power 4 or less "
+    "(already selected total power {total})"
+)
+
+
+def _slaughter_state() -> dict[str, Any]:
+    state = _state(step="precombat_main")
+    state["players"][0]["battlefield"] += [
+        {
+            "object_id": f"creature-{index}",
+            "name": name,
+            "card_types": ["Creature"],
+            "power": 1,
+            "toughness": 2,
+            "tapped": False,
+        }
+        for index, name in enumerate(_SLAUGHTER_CREATURES)
+    ]
+    return state
+
+
+def _slaughter_pick(offered: tuple[int, ...], *, total: int = 0, offset: int = 1) -> dict[str, Any]:
+    request = _request(
+        "target",
+        [
+            _option(
+                f"creature-{index}",
+                "target",
+                _SLAUGHTER_CREATURES[index],
+                object_id=f"creature-{index}",
+                name=_SLAUGHTER_CREATURES[index],
+                zone="battlefield",
+                zone_index=index,
+            )
+            for index in offered
+        ],
+        context={
+            "targeted": True,
+            "outcome": "boostcreature",
+            "target_description": "any number of creatures you control with total power 4 or less",
+            "target_name": "any number of creatures you control with total power 4 or less",
+            "required": False,
+        },
+        prompt=_SLAUGHTER_PROMPT.format(total=total),
+        state=_slaughter_state(),
+        offset=offset,
+    )
+    request["minimum_selections"] = 0
+    request["maximum_selections"] = 1
+    request["source_object"] = {
+        "source_object_id": "spell",
+        "ability_original_id": "slaughter-the-strong",
+        "ability_type": "spell",
+        "source_name": "Slaughter the Strong",
+    }
+    return request
+
+
+def test_running_selection_picks_each_creature_once_and_ends() -> None:
+    # Slaughter the Strong asks for one creature at a time and takes a creature back out when
+    # it is picked again, until a pick of nothing, then asks "End the selection" or
+    # "Continue the selection". The pilot picked the one creature it could see every time, so
+    # the selection toggled for 50000 decisions (precon pod, plan seed 5). It now picks each
+    # creature once, picks nothing when none is left, and ends the selection.
+    policy = _policy()
+
+    def pick(offered: tuple[int, ...], offset: int) -> list[str]:
+        selected: list[str] = policy.decide(_slaughter_pick(offered, offset=offset))[
+            "selected_option_ids"
+        ]
+        return selected
+
+    first = pick((0, 1, 2), 1)
+    assert len(first) == 1
+    second = pick((0, 1, 2), 2)
+    assert len(second) == 1 and second != first
+    third = pick((0, 1, 2), 3)
+    assert len(third) == 1 and third not in (first, second)
+    assert pick((0, 1, 2), 4) == []
+    end = _boolean("detriment", "Creature selection", offset=5)
+    assert policy.decide(end)["selected_option_ids"] == ["yes"]
+
+
+def test_running_selection_with_a_single_creature_ends_after_one_pick() -> None:
+    # The pod's frame: one creature on the table, offered again after it was picked.
+    policy = _policy()
+    first = policy.decide(_slaughter_pick((0,), offset=1))["selected_option_ids"]
+    assert first == ["creature-0"]
+    assert policy.decide(_slaughter_pick((0,), offset=2))["selected_option_ids"] == []
+
+
+def test_selection_end_is_not_forced_on_other_may_prompts() -> None:
+    # Control: with no selection just ended, the same may-prompt keeps the pilot's own answer
+    # (a detriment question is declined), so only the answer straight after a selection changed.
+    answer = _policy().decide(_boolean("detriment", "Creature selection", offset=1))
+    assert answer["selected_option_ids"] == ["no"]
+
+
+def test_a_target_prompt_without_a_running_total_is_not_a_selection() -> None:
+    # Control: a plain optional target asked twice in a row keeps picking the best target.
+    policy = _policy()
+    request = _slaughter_pick((0,), offset=1)
+    request["prompt"] = "Select up to one creature you control"
+    assert policy.decide(request)["selected_option_ids"] == ["creature-0"]
+    request["decision_offset"] = 2
+    assert policy.decide(request)["selected_option_ids"] == ["creature-0"]
+
+
+_COMMANDER = "Isamaru, Hound of Konda"
+
+
+def _ward_state(*, stack: tuple[str, ...], commander_on_table: bool = True) -> dict[str, Any]:
+    state = _state(step="precombat_main")
+    battlefield: list[dict[str, Any]] = state["players"][0]["battlefield"]
+    battlefield.append(
+        {
+            "object_id": "token",
+            "name": "Saproling Token",
+            "power": 1,
+            "toughness": 1,
+            "tapped": False,
+        }
+    )
+    if commander_on_table:
+        battlefield.append(
+            {
+                "object_id": "commander",
+                "name": _COMMANDER,
+                "power": 2,
+                "toughness": 2,
+                "tapped": False,
+            }
+        )
+    state["commander_status"] = [{"owner_id": "actor", "name": _COMMANDER}]
+    state["stack"] = [
+        {"object_id": f"stack-{index}", "name": name, "controller_id": "actor"}
+        for index, name in enumerate(stack)
+    ]
+    return state
+
+
+def _ward_cast(name: str = "Timely Ward") -> dict[str, Any]:
+    return _option(
+        "cast",
+        "activated_ability",
+        f"{name} — Cast {name}",
+        source_name=name,
+        source_object_id="hand-0",
+        ability_type="spell",
+        mana_cost_white=1,
+        mana_cost_generic=2,
+        pool_covers_mana_cost=False,
+        requires_tap_source=False,
+        requires_untap_source=False,
+        requires_sacrifice_source=False,
+    )
+
+
+def _ward_target(name: str, stack: tuple[str, ...]) -> dict[str, Any]:
+    request = _request(
+        "target",
+        [
+            _option("token", "target", "Saproling Token", object_id="token", zone="battlefield"),
+            _option("commander", "target", _COMMANDER, object_id="commander", zone="battlefield"),
+        ],
+        context={"targeted": True, "outcome": "boostcreature", "required": False},
+        prompt="Select a creature",
+        state=_ward_state(stack=stack),
+    )
+    request["source_object"] = {
+        "source_object_id": "spell",
+        "ability_original_id": "ward",
+        "ability_type": "spell",
+        "source_name": name,
+    }
+    return request
+
+
+def test_commander_only_cast_is_not_offered_without_a_commander_outside_a_sorcery_window() -> None:
+    # Timely Ward may be cast at instant speed only if it targets a commander. XMage offers
+    # the cast anyway and fails it after the targets are chosen, which ended a precon game
+    # (plan seed 5). With something on the stack and no commander on the table the pilot passes.
+    state = _ward_state(stack=("Unfinished Business",), commander_on_table=False)
+    response = _policy().decide(_request("priority", [_PASS, *_TAPS, _ward_cast()], state=state))
+    assert response["selected_option_ids"] == ["pass"]
+
+
+def test_commander_only_cast_is_offered_in_a_sorcery_window_and_with_a_commander() -> None:
+    # Controls: the same cast with an empty stack in the actor's main phase, and the cast at
+    # instant speed with a commander to aim at, are chosen as before.
+    sorcery = _ward_state(stack=(), commander_on_table=False)
+    response = _policy().decide(_request("priority", [_PASS, *_TAPS, _ward_cast()], state=sorcery))
+    assert response["selected_option_ids"] == ["cast"]
+    instant = _ward_state(stack=("Unfinished Business",))
+    response = _policy().decide(_request("priority", [_PASS, *_TAPS, _ward_cast()], state=instant))
+    assert response["selected_option_ids"] == ["cast"]
+
+
+def test_commander_only_cast_targets_the_commander_outside_a_sorcery_window() -> None:
+    # The pilot ranked the token first and the cast failed. Outside a sorcery window the
+    # spell is on the stack with others, and only the commander is a legal way to cast it.
+    stack = ("Timely Ward", "Unfinished Business")
+    response = _policy().decide(_ward_target("Timely Ward", stack))
+    assert response["selected_option_ids"] == ["commander"]
+
+
+def test_commander_only_target_rule_is_limited_to_that_card_and_timing() -> None:
+    # Controls: the identical frame from another spell, or from Timely Ward in a sorcery
+    # window (the spell alone on the stack), keeps the pilot's own ranking.
+    stack = ("Timely Ward", "Unfinished Business")
+    other = _policy().decide(_ward_target("Savannah Lions", stack))
+    assert other["selected_option_ids"] == ["token"]
+    sorcery = _policy().decide(_ward_target("Timely Ward", ("Timely Ward",)))
+    assert sorcery["selected_option_ids"] == ["token"]
+
+
+_TEKUTHAL_LABEL = (
+    "Tekuthal, Inquiry Dominus — {1}{U/P}{U/P}, Remove three counters from among other "
+    "artifacts, creatures, and planeswalkers you control: Put an indestructible counter on {this}."
+)
+
+
+def _tekuthal_state(*charge: int) -> dict[str, Any]:
+    """A table where Tekuthal sits beside one permanent per entry of ``charge`` counters."""
+    state = _state(step="precombat_main")
+    battlefield: list[dict[str, Any]] = state["players"][0]["battlefield"]
+    battlefield.append(
+        {
+            "object_id": "tekuthal",
+            "name": "Tekuthal, Inquiry Dominus",
+            "counters": [],
+            "tapped": False,
+        }
+    )
+    battlefield.extend(
+        {
+            "object_id": f"vessel-{index}",
+            "name": "Inspirit, Flagship Vessel",
+            "counters": [{"type": "charge", "count": count}],
+            "tapped": False,
+        }
+        for index, count in enumerate(charge)
+    )
+    return state
+
+
+def _tekuthal_activation() -> dict[str, Any]:
+    return _option(
+        "tekuthal",
+        "activated_ability",
+        _TEKUTHAL_LABEL,
+        source_name="Tekuthal, Inquiry Dominus",
+        source_object_id="tekuthal",
+        ability_type="activated_nonmana",
+        mana_cost_generic=1,
+        pool_covers_mana_cost=False,
+        requires_tap_source=False,
+        requires_untap_source=False,
+        requires_sacrifice_source=False,
+    )
+
+
+def test_counter_cost_the_table_cannot_fund_is_not_activated() -> None:
+    # XMage offers "Remove three counters from among other ..." while any such permanent
+    # exists and fails the activation when the counters on all of them fall short, which
+    # ended a precon game (plan seed 5, Inspirit's two charge counters). The pilot passes.
+    for charge in ((), (2,), (1, 1)):
+        state = _tekuthal_state(*charge)
+        response = _policy().decide(
+            _request("priority", [_PASS, *_TAPS, _tekuthal_activation()], state=state)
+        )
+        assert response["selected_option_ids"] == ["pass"], charge
+
+
+def test_counter_cost_the_table_can_fund_is_still_offered() -> None:
+    # Controls: three counters among the other permanents (in one pile or several), and the
+    # source's own counters not counting for an "other" cost.
+    for charge in ((3,), (2, 1), (1, 1, 1)):
+        state = _tekuthal_state(*charge)
+        response = _policy().decide(
+            _request("priority", [_PASS, *_TAPS, _tekuthal_activation()], state=state)
+        )
+        assert response["selected_option_ids"] == ["tekuthal"], charge
+    own = _tekuthal_state(2)
+    own["players"][0]["battlefield"][-2]["counters"] = [{"type": "indestructible", "count": 5}]
+    response = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _tekuthal_activation()], state=own)
+    )
+    assert response["selected_option_ids"] == ["pass"]

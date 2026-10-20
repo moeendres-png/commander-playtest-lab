@@ -13,7 +13,9 @@ from commander_lab.models import (
 
 from ..full_game_pilot_views import (
     color_choice_rank,
+    commander_creature_names,
     named_choice_rank,
+    needs_commander_target,
     sweep_mode_net,
     target_object_bonus,
 )
@@ -127,6 +129,21 @@ class _ChoiceDecisions(_PaymentDecisions):
 
         if not options:
             return []
+        source = request.get("source_object")
+        if (
+            isinstance(source, dict)
+            and source.get("ability_type") == "spell"
+            and needs_commander_target(
+                str(source.get("source_name") or ""), state, spell_on_stack=True
+            )
+        ):
+            # Cast outside a sorcery window, the spell only works against a commander.
+            commanders = commander_creature_names(state)
+            options = [
+                option
+                for option in options
+                if str(option.get("label", "")).casefold() in commanders
+            ] or options
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
         # Twin-stable target identities: (zone, zone_index) pins the same
@@ -385,6 +402,14 @@ class _ChoiceDecisions(_PaymentDecisions):
         if _COPY_CAST_CONTINUE_PROMPT.match(prompt) and seat in self._copy_cast_declined:
             self._copy_cast_declined.discard(seat)
             kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
+            if kept:
+                selectable = kept
+        # Running-selection guard (liveness only). Once a seat picks no further creature, Slaughter
+        # the Strong asks "End the selection" or "Continue the selection"; Continue only reopens the
+        # pick, which this seat has just declined, so the selection ends here.
+        if seat in self._selection_ended:
+            self._selection_ended.discard(seat)
+            kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
         if selectable and len(selectable) != len(options):
