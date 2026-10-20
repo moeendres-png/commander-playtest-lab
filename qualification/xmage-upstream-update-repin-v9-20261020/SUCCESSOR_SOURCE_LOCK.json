@@ -3,7 +3,7 @@
  "workstream": "xmage-upstream-update-repin-v9-20261020",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
  "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head of the fork branch update-upstream-2026-10 (moeendres-png/mage#64, a draft pull request into claude/xmage-mp-candidate-20260929 used as the exact-commit CI vehicle). The native maven.yml run on the exact commit and the Lab bridge suite are PENDING (NOT_RUN != PASS) and are bound by a later commit once seen. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin and the epoch is sealed.",
+ "status_note": "the pin is the head of the fork branch update-upstream-2026-10 (moeendres-png/mage#64, a draft pull request into claude/xmage-mp-candidate-20260929 used as the exact-commit CI vehicle). The native maven.yml run on the exact commit is bound under native_qualification (COMPLETE). The Lab bridge suite is PENDING (NOT_RUN != PASS) and is bound by a later commit once seen. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin and the epoch is sealed.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -230,11 +230,18 @@
   "full_mage_tests": {
    "command": "maven.yml workflow_dispatch on branch update-upstream-2026-10 of moeendres-png/mage",
    "commit": "043579bb7829fa866ade893909c9ba4825a18b23",
-   "status": "PENDING"
+   "run_id": 39402991245,
+   "job": "build (17, temurin, jdk)",
+   "job_id": 118562032106,
+   "run": 7459,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 126,
+   "status": "COMPLETE"
   },
   "mage_verify": {
-   "result": "PENDING",
-   "detail": "the first run on 6a4d4189 failed VerifyCardDataTest on 23 duplicated set registrations that the merge introduced; they are removed in the pin. The result of the run on the pin is recorded once seen."
+   "result": "PASS",
+   "detail": "same job, same commit: Mage.Verify ran 28 tests, 0 failures, 0 errors, 8 skipped, BUILD SUCCESS. The first run on 6a4d4189 failed VerifyCardDataTest on 23 duplicated set registrations that the merge introduced; they are removed in the pin. The v8 lock recorded 15 card and 3 set verify errors as baseline; none remain on this commit."
   }
  },
  "local_observed": {
