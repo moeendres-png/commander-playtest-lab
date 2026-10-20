@@ -1,0 +1,20 @@
+diff --git a/Mage/src/main/java/mage/game/GameState.java b/Mage/src/main/java/mage/game/GameState.java
+index 35059221..db851e3b 100644
+--- a/Mage/src/main/java/mage/game/GameState.java
++++ b/Mage/src/main/java/mage/game/GameState.java
+@@ -767,10 +767,14 @@ public class GameState implements Serializable, Copyable<GameState> {
+         PlayerList newPlayerList = new PlayerList();
+         Player currentPlayer = game.getPlayer(playerId);
+         if (currentPlayer != null) {
++            // Fast path: RangeOfInfluence.ALL (Commander) means all players are in range,
++            // skip the per-player hasPlayerInRange check (Set lookup) entirely.
++            boolean allInRange =
++                    game.getRangeOfInfluence() == mage.constants.RangeOfInfluence.ALL;
+             // must fill PlayerList by table added order (same as main game)
+             for (Player player : players.values()) {
+                 if ((!excludeLeavedPlayers || player.isInGame())
+-                        && currentPlayer.hasPlayerInRange(player.getId())) {
++                        && (allInRange || currentPlayer.hasPlayerInRange(player.getId()))) {
+                     newPlayerList.add(player.getId());
+                 }
+             }

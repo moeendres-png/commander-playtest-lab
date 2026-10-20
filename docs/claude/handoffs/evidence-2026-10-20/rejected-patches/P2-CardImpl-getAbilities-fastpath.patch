@@ -1,0 +1,37 @@
+diff --git a/Mage/src/main/java/mage/cards/CardImpl.java b/Mage/src/main/java/mage/cards/CardImpl.java
+index 2fb28158..89035d17 100644
+--- a/Mage/src/main/java/mage/cards/CardImpl.java
++++ b/Mage/src/main/java/mage/cards/CardImpl.java
+@@ -260,16 +260,30 @@ public abstract class CardImpl extends MageObjectImpl implements Card {
+             return abilities;
+         }
+ 
++        // P2 fast path: no dynamic abilities and haven't lost all -> return base directly.
++        // Avoids allocating new AbilitiesImpl and copying for the common case
++        // (most cards have no dynamic abilities most of the time).
++        // Safe because base abilities are not modified in this path.
++        Abilities<Ability> dynamicAbilities = cardState.getAbilities();
++        boolean hasDynamic = dynamicAbilities != null && !dynamicAbilities.isEmpty();
++        boolean lostAll = cardState.hasLostAllAbilities();
++        boolean isMainCard = this.getId().equals(this.getMainCard().getId());
++        if (!hasDynamic && !lostAll && isMainCard) {
++            return abilities;
++        }
++
+         // collects all abilities
+         Abilities<Ability> all = new AbilitiesImpl<>();
+ 
+         // basic
+-        if (!cardState.hasLostAllAbilities()) {
++        if (!lostAll) {
+             all.addAll(abilities);
+         }
+ 
+         // dynamic
+-        all.addAll(cardState.getAbilities());
++        if (hasDynamic) {
++            all.addAll(dynamicAbilities);
++        }
+ 
+         // workaround to add dynamic flashback ability from main card to all parts (example: Snapcaster Mage gives flashback to split card)
+         if (!this.getId().equals(this.getMainCard().getId())) {

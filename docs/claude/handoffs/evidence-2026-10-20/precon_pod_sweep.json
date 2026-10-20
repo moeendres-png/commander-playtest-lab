@@ -1,0 +1,392 @@
+{
+ "jar": "engine-bridge built from pin 348b37db (unmodified), seed 1, private card repository, pilots from branch muse/precon-pilot-improvements @4f3af5e",
+ "pods_total": 25,
+ "pods_ok": 19,
+ "pods": [
+  {
+   "pod": "first",
+   "decks": [
+    "2011_counterpunch",
+    "2011_devour_for_power",
+    "2011_heavenly_inferno",
+    "2011_mirror_mastery"
+   ],
+   "status": "failed",
+   "cause": "XMAGE_ACTION_EXECUTION_FAILED: activation of Ghave, Guru of Spores (remove +1/+1 counter cost), turn 50; 3/3 runs"
+  },
+  {
+   "pod": 0,
+   "decks": [
+    "2011_counterpunch",
+    "2019_faceless_menace",
+    "2022_maestros_massacre",
+    "2024_eldrazi_incursion"
+   ],
+   "status": "ok",
+   "decisions": 4514,
+   "winners": [
+    2
+   ],
+   "wall_s": 188.28,
+   "cause": null
+  },
+  {
+   "pod": 1,
+   "decks": [
+    "2013_evasive_maneuvers",
+    "2020_enhanced_evolution",
+    "2022_obscura_operation",
+    "2024_graveyard_overdrive_collector_s_edition"
+   ],
+   "status": "ok",
+   "decisions": 4947,
+   "winners": [
+    2
+   ],
+   "wall_s": 196.64,
+   "cause": null
+  },
+  {
+   "pod": 2,
+   "decks": [
+    "2014_forged_in_stone",
+    "2020_symbiotic_swarm",
+    "2022_the_ruinous_powers_collector_s_edition",
+    "2024_peace_offering"
+   ],
+   "status": "ok",
+   "decisions": 3719,
+   "winners": [
+    2
+   ],
+   "wall_s": 145.81,
+   "cause": null
+  },
+  {
+   "pod": 3,
+   "decks": [
+    "2015_plunder_the_graves",
+    "2021_dungeons_of_death",
+    "2023_ahoy_mateys",
+    "2024_squirreled_away"
+   ],
+   "status": "ok",
+   "decisions": 2599,
+   "winners": [
+    3
+   ],
+   "wall_s": 120.58,
+   "cause": null
+  },
+  {
+   "pod": 4,
+   "decks": [
+    "2016_entropic_uprising",
+    "2021_prismari_performance",
+    "2023_elven_council",
+    "2025_eternal_might"
+   ],
+   "status": "ok",
+   "decisions": 4996,
+   "winners": [
+    2
+   ],
+   "wall_s": 148.5,
+   "cause": null
+  },
+  {
+   "pod": 5,
+   "decks": [
+    "2017_draconic_domination",
+    "2021_vampiric_bloodline",
+    "2023_from_cute_to_brute",
+    "2025_living_energy"
+   ],
+   "status": "failed",
+   "decisions": null,
+   "winners": null,
+   "wall_s": 20.01,
+   "cause": "CARD_IDENTITY_MISMATCH (DFC name 'Esika, God of the Tree // The Prismatic Bridge' resolves to front face only)"
+  },
+  {
+   "pod": 6,
+   "decks": [
+    "2017_plunder_the_graves",
+    "2022_chaos_incarnate",
+    "2023_the_hosts_of_mordor",
+    "2025_scions___spellcraft_collector_s_edition__final_fantasy_xiv_"
+   ],
+   "status": "ok",
+   "decisions": 2621,
+   "winners": [
+    2
+   ],
+   "wall_s": 88.37,
+   "cause": null
+  },
+  {
+   "pod": 7,
+   "decks": [
+    "2018_devour_for_power",
+    "2022_forces_of_the_imperium",
+    "2024_creative_energy",
+    "2026_avengers_assemble_collector_s_edition"
+   ],
+   "status": "ok",
+   "decisions": 4041,
+   "winners": [
+    1
+   ],
+   "wall_s": 87.29,
+   "cause": null
+  },
+  {
+   "pod": 8,
+   "decks": [
+    "2011_devour_for_power",
+    "2019_merciless_rage",
+    "2022_mishra_s_burnished_banner",
+    "2024_grand_larceny"
+   ],
+   "status": "ok",
+   "decisions": 3034,
+   "winners": [
+    3
+   ],
+   "wall_s": 108.27,
+   "cause": null
+  },
+  {
+   "pod": 9,
+   "decks": [
+    "2011_mirror_mastery",
+    "2020_arcane_maelstrom",
+    "2022_necron_dynasties_collector_s_edition",
+    "2024_hail__caesar"
+   ],
+   "status": "failed",
+   "decisions": null,
+   "winners": null,
+   "wall_s": 71.61,
+   "cause": "XMAGE_ACTION_EXECUTION_FAILED: activation of Necron Overlord (X, tap X untapped artifacts), turn 30"
+  },
+  {
+   "pod": 10,
+   "decks": [
+    "2013_mind_seize",
+    "2020_land_s_wrath",
+    "2022_party_time",
+    "2024_most_wanted"
+   ],
+   "status": "failed",
+   "decisions": null,
+   "winners": null,
+   "wall_s": 126.6,
+   "cause": "XMAGE_ACTION_EXECUTION_FAILED: activation of Grim Hireling (sacrifice X Treasures), turn 46"
+  },
+  {
+   "pod": 11,
+   "decks": [
+    "2013_power_hungry",
+    "2020_ruthless_regiment",
+    "2022_the_ruinous_powers",
+    "2024_quick_draw"
+   ],
+   "status": "ok",
+   "decisions": 7554,
+   "winners": [
+    2
+   ],
+   "wall_s": 214.75,
+   "cause": null
+  },
+  {
+   "pod": 12,
+   "decks": [
+    "2014_guided_by_nature",
+    "2020_timeless_wisdom",
+    "2022_tyranid_swarm",
+    "2024_scrappy_survivors"
+   ],
+   "status": "ok",
+   "decisions": 2718,
+   "winners": [
+    3
+   ],
+   "wall_s": 82.19,
+   "cause": null
+  },
+  {
+   "pod": 13,
+   "decks": [
+    "2014_sworn_to_darkness",
+    "2021_coven_counters",
+    "2022_urza_s_iron_alliance",
+    "2025_counter_blitz__final_fantasy_x_"
+   ],
+   "status": "ok",
+   "decisions": 1960,
+   "winners": [
+    1
+   ],
+   "wall_s": 70.49,
+   "cause": null
+  },
+  {
+   "pod": 14,
+   "decks": [
+    "2015_seize_control",
+    "2021_elven_empire",
+    "2023_corrupting_influence",
+    "2025_counter_intelligence"
+   ],
+   "status": "failed",
+   "decisions": null,
+   "winners": null,
+   "wall_s": 155.52,
+   "cause": "DECISION_ADVANCE_TIMEOUT (75 s) inside DistributeCountersEffect.apply -> CardImpl.addCounters -> Watchers; reproduced 2x under load; UNKNOWN whether hang or slowness"
+  },
+  {
+   "pod": 15,
+   "decks": [
+    "2015_wade_into_battle",
+    "2021_phantom_premonition",
+    "2023_enduring_enchantments",
+    "2025_jeskai_striker"
+   ],
+   "status": "ok",
+   "decisions": 3101,
+   "winners": [
+    1
+   ],
+   "wall_s": 94.37,
+   "cause": null
+  },
+  {
+   "pod": 16,
+   "decks": [
+    "2016_invent_superiority",
+    "2021_quantum_quandrix",
+    "2023_fae_dominion",
+    "2025_limit_break_collector_s_edition__final_fantasy_vii_"
+   ],
+   "status": "ok",
+   "decisions": 3323,
+   "winners": [
+    3
+   ],
+   "wall_s": 104.91,
+   "cause": null
+  },
+  {
+   "pod": 17,
+   "decks": [
+    "2016_stalwart_unity",
+    "2021_spirit_squadron",
+    "2023_planeswalker_party",
+    "2025_revival_trance__final_fantasy_vi_"
+   ],
+   "status": "ok",
+   "decisions": 2586,
+   "winners": [
+    3
+   ],
+   "wall_s": 94.42,
+   "cause": null
+  },
+  {
+   "pod": 18,
+   "decks": [
+    "2017_evasive_maneuvers",
+    "2021_witherbloom_witchcraft",
+    "2023_riders_of_rohan",
+    "2025_scions___spellcraft__final_fantasy_xiv_"
+   ],
+   "status": "ok",
+   "decisions": 6476,
+   "winners": [
+    2
+   ],
+   "wall_s": 169.94,
+   "cause": null
+  },
+  {
+   "pod": 19,
+   "decks": [
+    "2017_guided_by_nature",
+    "2022_buckle_up",
+    "2023_veloci_ramp_tor",
+    "2025_temur_roar"
+   ],
+   "status": "ok",
+   "decisions": 2983,
+   "winners": [
+    3
+   ],
+   "wall_s": 82.73,
+   "cause": null
+  },
+  {
+   "pod": 20,
+   "decks": [
+    "2017_vampiric_bloodlust",
+    "2022_draconic_destruction",
+    "2024_20_ways_to_win",
+    "2026_avengers_assemble"
+   ],
+   "status": "ok",
+   "decisions": 2238,
+   "winners": [
+    2
+   ],
+   "wall_s": 68.6,
+   "cause": null
+  },
+  {
+   "pod": 21,
+   "decks": [
+    "2018_breed_lethality",
+    "2022_exit_from_exile",
+    "2024_creative_energy_collector_s_edition",
+    "2026_calling_all_angels"
+   ],
+   "status": "ok",
+   "decisions": 3099,
+   "winners": [
+    4
+   ],
+   "wall_s": 108.82,
+   "cause": null
+  },
+  {
+   "pod": 22,
+   "decks": [
+    "2018_exquisite_invention",
+    "2022_forces_of_the_imperium_collector_s_edition",
+    "2024_deep_clue_sea",
+    "2026_doom_prevails"
+   ],
+   "status": "failed",
+   "decisions": null,
+   "winners": null,
+   "wall_s": 70.67,
+   "cause": "XMAGE_ACTION_EXECUTION_FAILED: cast of Collective Effort (choose one or more / escalate), turn 29"
+  },
+  {
+   "pod": 23,
+   "decks": [
+    "2018_subjective_reality",
+    "2022_legends__legacy",
+    "2024_eldrazi_incursion_collector_s_edition",
+    "2026_goblin_storm"
+   ],
+   "status": "ok",
+   "decisions": 2819,
+   "winners": [
+    1
+   ],
+   "wall_s": 68.88,
+   "cause": null
+  }
+ ]
+}

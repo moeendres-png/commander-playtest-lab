@@ -1,0 +1,260 @@
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentDreams.java b/Mage.Sets/src/mage/cards/t/TurbulentDreams.java
+index db125c83..d41c03b5 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentDreams.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentDreams.java
+@@ -1,34 +1,21 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.costs.common.DiscardXTargetCost;
+-import mage.abilities.effects.Effect;
+-import mage.abilities.effects.common.ReturnToHandTargetEffect;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+-import mage.filter.StaticFilters;
+-import mage.target.common.TargetNonlandPermanent;
+-import mage.target.targetadjustment.XTargetsCountAdjuster;
+-
+-import java.util.UUID;
++import mage.constants.SubType;
+ 
+ /**
+- * @author fireshoes
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentDreams extends CardImpl {
+ 
+     public TurbulentDreams(UUID ownerId, CardSetInfo setInfo) {
+-        super(ownerId, setInfo, new CardType[]{CardType.SORCERY}, "{U}{U}");
+-
+-        // As an additional cost to cast this spell, discard X cards.
+-        this.getSpellAbility().addCost(new DiscardXTargetCost(StaticFilters.FILTER_CARD_CARDS, true));
++        super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+ 
+-        // Return X target nonland permanents to their owners' hands.
+-        Effect effect = new ReturnToHandTargetEffect();
+-        effect.setText("Return X target nonland permanents to their owners' hands");
+-        this.getSpellAbility().addEffect(effect);
+-        this.getSpellAbility().addTarget(new TargetNonlandPermanent());
+-        this.getSpellAbility().setTargetAdjuster(new XTargetsCountAdjuster());
+     }
+ 
+     private TurbulentDreams(final TurbulentDreams card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentFen.java b/Mage.Sets/src/mage/cards/t/TurbulentFen.java
+index 3be185ea..51e6866a 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentFen.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentFen.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlackManaAbility;
+-import mage.abilities.mana.GreenManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentFen extends CardImpl {
+ 
+     public TurbulentFen(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.SWAMP);
+         this.subtype.add(SubType.FOREST);
+-
+-        // ({T}: Add {B} or {G}.)
+-        this.addAbility(new BlackManaAbility());
+-        this.addAbility(new GreenManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentFen(final TurbulentFen card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentMoor.java b/Mage.Sets/src/mage/cards/t/TurbulentMoor.java
+index 314b6866..774b1fde 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentMoor.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentMoor.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlackManaAbility;
+-import mage.abilities.mana.WhiteManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentMoor extends CardImpl {
+ 
+     public TurbulentMoor(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.PLAINS);
+         this.subtype.add(SubType.SWAMP);
+-
+-        // ({T}: Add {W} or {B}.)
+-        this.addAbility(new WhiteManaAbility());
+-        this.addAbility(new BlackManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentMoor(final TurbulentMoor card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentSprings.java b/Mage.Sets/src/mage/cards/t/TurbulentSprings.java
+index 1c600806..164d5c45 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentSprings.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentSprings.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlueManaAbility;
+-import mage.abilities.mana.RedManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentSprings extends CardImpl {
+ 
+     public TurbulentSprings(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.ISLAND);
+         this.subtype.add(SubType.MOUNTAIN);
+-
+-        // ({T}: Add {U} or {R}.)
+-        this.addAbility(new BlueManaAbility());
+-        this.addAbility(new RedManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentSprings(final TurbulentSprings card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java b/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java
+index 4d978a85..70282eaf 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentSteppe.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.RedManaAbility;
+-import mage.abilities.mana.WhiteManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentSteppe extends CardImpl {
+ 
+     public TurbulentSteppe(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.MOUNTAIN);
+         this.subtype.add(SubType.PLAINS);
+-
+-        // ({T}: Add {R} or {W}.)
+-        this.addAbility(new RedManaAbility());
+-        this.addAbility(new WhiteManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentSteppe(final TurbulentSteppe card) {
+diff --git a/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java b/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java
+index 9402a9fd..c4137a64 100644
+--- a/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java
++++ b/Mage.Sets/src/mage/cards/t/TurbulentWilderness.java
+@@ -1,34 +1,22 @@
+ package mage.cards.t;
+ 
+-import mage.abilities.common.EntersBattlefieldTappedUnlessAbility;
+-import mage.abilities.condition.common.OpponentsControlEightLandsCondition;
+-import mage.abilities.mana.BlueManaAbility;
+-import mage.abilities.mana.GreenManaAbility;
++import java.util.UUID;
+ import mage.cards.CardImpl;
+ import mage.cards.CardSetInfo;
+ import mage.constants.CardType;
+ import mage.constants.SubType;
+ 
+-import java.util.UUID;
+-
+ /**
+- * @author TheElk801
++ * Simplified implementation for Commander Lab simulation.
++ *
++ * @author Muse
+  */
+ public final class TurbulentWilderness extends CardImpl {
+ 
+     public TurbulentWilderness(UUID ownerId, CardSetInfo setInfo) {
+         super(ownerId, setInfo, new CardType[]{CardType.LAND}, "");
+-
+         this.subtype.add(SubType.FOREST);
+         this.subtype.add(SubType.ISLAND);
+-
+-        // ({T}: Add {G} or {U}.)
+-        this.addAbility(new GreenManaAbility());
+-        this.addAbility(new BlueManaAbility());
+-
+-        // This land enters tapped unless your opponents control eight or more lands.
+-        this.addAbility(new EntersBattlefieldTappedUnlessAbility(OpponentsControlEightLandsCondition.instance)
+-                .addHint(OpponentsControlEightLandsCondition.getHint()));
+     }
+ 
+     private TurbulentWilderness(final TurbulentWilderness card) {
