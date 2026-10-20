@@ -25,6 +25,7 @@ import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.costs.mana.ManaCosts;
 import mage.abilities.mana.ManaOptions;
 import mage.abilities.keyword.CastFromGraveyardAbility;
+import mage.abilities.keyword.CrewAbility;
 import mage.cards.Card;
 import mage.cards.Cards;
 import mage.cards.ModalDoubleFacedCard;
@@ -3620,6 +3621,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
             // Leave cost-kind fields absent; pilot treats them as unknown.
         }
         try {
+            if (ability instanceof CrewAbility && game != null) {
+                Boolean payable = crewPayableWithoutSource(ability, game);
+                if (payable != null) {
+                    metadata.addProperty("crew_payable_without_source", payable);
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // Leave the crew fact absent; pilot treats it as unknown.
+        }
+        try {
             // A part of a card (a split half, an adventure, a modal face) is
             // its own object; name the whole card it belongs to, so a caller
             // can bind the offer to the card it placed. Absent for whole cards.
@@ -3644,6 +3655,51 @@ final class XmageFullGamePlayer extends PlayerImpl {
         } catch (RuntimeException ignored) {
             // Leave source-tapped field absent; pilot treats it as unknown.
         }
+    }
+
+    /**
+     * #920: whether the engine's own crew cost can be paid with the Vehicle set
+     * aside, the engine's own verdict asked on a playable-calculation copy of
+     * the game in which the Vehicle is tapped.
+     *
+     * <p>{@code CrewCost.canPay} sums power over
+     * {@code getAllActivePermanents(filter, controllerId, game)}, which calls
+     * {@code filter.match(perm, game)} with no source context, so
+     * {@code AnotherPredicate} never excludes the ability's own Vehicle and a
+     * Vehicle that is already a creature counts its own power toward its crew
+     * cost (see {@link #emptyNonTargetChoice}). The same filter also demands
+     * {@code TappedPredicate.UNTAPPED}, so a tapped Vehicle is not counted:
+     * asking {@code canPay} with the source tapped is the engine's answer to
+     * "could the OTHER creatures crew it", with no rule restated here. A
+     * tapped Vehicle may still be crewed (CR 702.122a), so tapping it in the
+     * copy changes nothing about the real cost.
+     *
+     * <p>Only the engine's crew cost is asked: {@code CrewCost} is not
+     * visible outside its package, so it is found by its class name, and an
+     * ability without one (or any failure) reports nothing, which the pilot
+     * reads as unknown. Pure calculation: the real game is not touched.
+     */
+    private Boolean crewPayableWithoutSource(Ability ability, Game game) {
+        if (ability.getSourceId() == null || ability.getControllerId() == null) {
+            return null;
+        }
+        Cost crewCost = null;
+        for (Cost cost : ability.getCosts()) {
+            if ("CrewCost".equals(cost.getClass().getSimpleName())) {
+                crewCost = cost;
+                break;
+            }
+        }
+        if (crewCost == null) {
+            return null;
+        }
+        Game simulation = game.createSimulationForPlayableCalc();
+        Permanent source = simulation.getPermanent(ability.getSourceId());
+        if (source == null) {
+            return null;
+        }
+        source.setTapped(true);
+        return crewCost.canPay(ability, ability, ability.getControllerId(), simulation);
     }
 
     private String abilityLabel(Ability ability, Game game) {

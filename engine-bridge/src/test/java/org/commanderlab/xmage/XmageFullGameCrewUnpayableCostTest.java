@@ -74,6 +74,7 @@ class XmageFullGameCrewUnpayableCostTest {
     private static final String TOR = "Tor Wauki the Younger";
     private static final String BEARS = "Grizzly Bears";
     private static final String CREW = "Crew 3";
+    private static final String HILL_GIANT = "Hill Giant";
 
     /**
      * Red control. A crewed Cultivator's Caravan (a 5/5 artifact creature)
@@ -347,6 +348,127 @@ class XmageFullGameCrewUnpayableCostTest {
         player.recordEmptyNonTargetChoiceForBoundaryTest(null);
         assertFalse(player.reversedEmptyNonTargetChoice(crew),
                 "DEFENCE IN DEPTH: no empty choice means no reversal evidence");
+    }
+
+    // ---- #920: the crew fact the pilot reads before it picks Crew ---------
+
+    /**
+     * The upstream defect (see above) makes the engine offer Crew 3 although
+     * nothing but the crewed Vehicle itself could pay for it, and a pilot that
+     * picks it then loses the game to the shortfall. The bridge therefore
+     * reports the engine's own verdict with the Vehicle set aside
+     * ({@code crew_payable_without_source}), so the pilot can leave the
+     * offer alone. Red control: nothing else is an untapped creature.
+     */
+    @Test
+    void crewFactIsFalseWhenOnlyTheVehicleItselfCouldPay() {
+        XmageMultiplayerScenario s = crewedCaravan("issue920-crew-fact-alone", List.of());
+        Game game = s.session.restorationGame();
+        assertTrue(caravan(game).isCreature(game),
+                "precondition: the Vehicle is a creature, so canPay counts its own power");
+
+        JsonObject crew = s.action("activate_ability", CREW);
+        assertNotNull(crew, "the engine still offers Crew 3: " + s.labels());
+        assertEquals(false, crewFact(s),
+                "no other untapped creature exists, so the crew cost cannot be paid without "
+                        + "the Vehicle's own power");
+        assertFalse(caravan(game).isTapped(),
+                "the fact is asked on a copy of the game: the real Vehicle stays untapped");
+    }
+
+    /**
+     * Same shape with a creature that qualifies but is below the threshold:
+     * the engine's own sum decides, no power arithmetic is restated here.
+     */
+    @Test
+    void crewFactIsFalseWhenTheOtherCreaturesAreTooWeak() {
+        XmageMultiplayerScenario s = crewedCaravan("issue920-crew-fact-weak", List.of(
+                XmageMultiplayerScenario.obj("P1", BEARS, 0, Zone.BATTLEFIELD)));
+        Game game = s.session.restorationGame();
+        assertEquals(2, permanent(game, BEARS).getPower().getValue(),
+                "precondition: " + BEARS + " alone is below the Crew 3 threshold");
+
+        JsonObject crew = s.action("activate_ability", CREW);
+        assertNotNull(crew, "the engine still offers Crew 3: " + s.labels());
+        assertEquals(false, crewFact(s), "2 power cannot pay Crew 3");
+    }
+
+    /**
+     * Positive control, and the reason the fact is not simply "false for a
+     * crewed Vehicle": another untapped creature with exactly the crew value
+     * keeps the offer payable.
+     */
+    @Test
+    void crewFactIsTrueWhenAnotherCreatureCanPay() {
+        XmageMultiplayerScenario s = crewedCaravan("issue920-crew-fact-enough", List.of(
+                XmageMultiplayerScenario.obj("P1", HILL_GIANT, 0, Zone.BATTLEFIELD)));
+        Game game = s.session.restorationGame();
+        assertTrue(caravan(game).isCreature(game),
+                "precondition: the Vehicle is already a creature (the shape that overcounts)");
+        assertEquals(3, permanent(game, HILL_GIANT).getPower().getValue(),
+                "precondition: " + HILL_GIANT + " has exactly the crew value");
+
+        JsonObject crew = s.action("activate_ability", CREW);
+        assertNotNull(crew, "Crew 3 is offered: " + s.labels());
+        assertEquals(true, crewFact(s), "an untapped 3-power creature can pay Crew 3");
+    }
+
+    /**
+     * Ordinary path: a Vehicle that is not a creature and a creature that can
+     * pay. The fact must not change what a normal crew looks like.
+     */
+    @Test
+    void crewFactIsTrueForAnOrdinaryUncrewedVehicle() {
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
+                "issue920-crew-fact-ordinary", 2, "P1", battlefield(CARAVAN, TOR));
+        JsonObject crew = s.action("activate_ability", CREW);
+        assertNotNull(crew, "Crew 3 is offered: " + s.labels());
+        assertEquals(true, crewFact(s), "Tor Wauki's 3 power pays Crew 3");
+    }
+
+    /** An ability that is not a crew ability carries no crew fact at all. */
+    @Test
+    void nonCrewOptionsCarryNoCrewFact() {
+        XmageMultiplayerScenario s = XmageMultiplayerScenario.start(
+                "issue920-crew-fact-absent", 2, "P1", battlefield(CARAVAN, TOR));
+        JsonObject decision = s.session.pendingDecisionPayload().getAsJsonObject("decision");
+        int crewOptions = 0;
+        for (JsonElement element : decision.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            JsonObject metadata = option.getAsJsonObject("metadata");
+            boolean carriesFact = metadata != null
+                    && metadata.has("crew_payable_without_source");
+            if (option.get("label").getAsString().contains(CREW)) {
+                crewOptions++;
+                assertTrue(carriesFact, "the crew option carries the fact: " + option);
+            } else {
+                assertFalse(carriesFact, "only Crew reports the fact: " + option);
+            }
+        }
+        assertEquals(1, crewOptions, "exactly one crew option is offered: " + s.labels());
+    }
+
+    /**
+     * The fact as the pilot receives it: on the metadata of the priority
+     * decision's legal option whose label contains {@code labelPart}.
+     */
+    private static JsonObject offeredMetadata(XmageMultiplayerScenario s, String labelPart) {
+        JsonObject decision = s.session.pendingDecisionPayload().getAsJsonObject("decision");
+        assertNotNull(decision, "a decision is pending");
+        for (JsonElement element : decision.getAsJsonArray("legal_options")) {
+            JsonObject option = element.getAsJsonObject();
+            if (option.get("label").getAsString().contains(labelPart)) {
+                return option.getAsJsonObject("metadata");
+            }
+        }
+        throw new AssertionError("no legal option labelled \"" + labelPart + "\": " + s.labels());
+    }
+
+    private static Boolean crewFact(XmageMultiplayerScenario s) {
+        JsonObject metadata = offeredMetadata(s, CREW);
+        return metadata.has("crew_payable_without_source")
+                ? metadata.get("crew_payable_without_source").getAsBoolean()
+                : null;
     }
 
     // ---- fixture ------------------------------------------------------------

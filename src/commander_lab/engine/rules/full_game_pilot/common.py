@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 import re
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from functools import wraps
 from typing import Any, Literal, NamedTuple
@@ -380,6 +380,68 @@ def _option_non_x_mana_value(metadata: dict[str, Any]) -> int | None:
             return None
         non_x += raw
     return non_x
+
+
+# The cost the engine prints for an X paid by removing counters from the
+# ability's own source: "Remove X +1/+1 counters from {this}" (a card that
+# names itself prints a short name instead, "... from Marath"). Only this exact
+# phrase is read; any other X cost keeps the engine's own bounds.
+_REMOVE_X_COUNTERS = re.compile(
+    r"\bRemove X (?P<kind>\S+) counters? from (?P<source>\{this\}|[^:,<]+?)\s*(?::|,|$)",
+    re.IGNORECASE,
+)
+
+
+def option_x_counter_cap(
+    label: str,
+    metadata: Mapping[str, object],
+    battlefield: object,
+) -> int | None:
+    """How many counters an "X" paid by removing counters from its source can use.
+
+    #920: some cards pay an announced X by removing X counters from themselves
+    through a cost the engine does not bound (Marath, Will of the Wild: ``{X},
+    Remove X +1/+1 counters from Marath``). The engine then lets X exceed the
+    counters, pays the mana, and cannot remove the counters, so the activation
+    is reversed and the game stops. The pilot can see the counters, which are
+    board-public, and read the cost off the option's own printed text, so it
+    keeps its announced X within what is there.
+
+    ``None`` means the option has no such cost, the printed source is not this
+    ability's own permanent, or the permanent is not on the battlefield view;
+    an unreadable cost is never turned into a number.
+    """
+    match = _REMOVE_X_COUNTERS.search(label or "")
+    if match is None:
+        return None
+    source_id = str(metadata.get("source_object_id") or "")
+    source_name = str(metadata.get("source_name") or "").casefold()
+    printed = match.group("source").strip().casefold()
+    # The printed name is this ability's own permanent: "{this}", the full
+    # name, or the short name a legendary card uses for itself.
+    if not source_id or (
+        printed != "{this}" and not (source_name and source_name.startswith(printed))
+    ):
+        return None
+    if not isinstance(battlefield, list):
+        return None
+    kind = match.group("kind").casefold()
+    for item in battlefield:
+        if not isinstance(item, dict) or str(item.get("object_id") or "") != source_id:
+            continue
+        counters = item.get("counters")
+        if not isinstance(counters, list):
+            return None
+        total = 0
+        for entry in counters:
+            if not isinstance(entry, dict) or str(entry.get("type") or "").casefold() != kind:
+                continue
+            count = entry.get("count")
+            if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+                return None
+            total += count
+        return total
+    return None
 
 
 def offers_mana_ability(rule_text: str) -> bool:

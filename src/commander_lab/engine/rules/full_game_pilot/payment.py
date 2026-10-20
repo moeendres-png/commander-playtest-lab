@@ -23,6 +23,7 @@ from .common import (
     mana_produced_letters,
     mana_x_prompt_symbols,
     offers_mana_ability,
+    option_x_counter_cap,
 )
 from .state import _PolicyState
 
@@ -140,8 +141,10 @@ class _PaymentDecisions(_PolicyState):
         tapped source, an untap cost on an untapped source, or mana costs
         the current pool cannot cover (``pool_covers_mana_cost`` is the
         engine's own ``Mana.enough`` verdict, projected losslessly by the
-        bridge) on an action that also taps or sacrifices its own source.
-        That last case is the one a pool shortfall proves: paying the mana
+        bridge) on an action that also taps or sacrifices its own source,
+        and a Crew activation whose cost the engine's own check says the
+        other creatures cannot pay (``crew_payable_without_source``).
+        The mana case is the one a pool shortfall proves: paying the mana
         can consume the very source the tap/sacrifice cost needs (a fetch
         with ``{1}, {T}, Sacrifice`` and one untapped land). Any other
         action is paid through the engine's own mana-payment decisions from
@@ -154,9 +157,11 @@ class _PaymentDecisions(_PolicyState):
         engine-offered, the pilot simply selects pass/another legal action
         instead, and the engine re-validates whatever is selected (a
         mid-payment cancel aborts to pass natively). No card names, no
-        label parsing, no invented actions. A False result is a pool shortfall
-        on an action that spends its own source; _priority_awaits_mana
-        decides which of those are re-offered as needs-mana-first intent.
+        label parsing, no invented actions. A False result from a pool shortfall
+        on an action that spends its own source is decided by
+        _priority_awaits_mana: it is re-offered as needs-mana-first intent.
+        Any other False result (a tapped source, a Crew the other creatures
+        cannot pay) stays withheld.
         """
         del state
         metadata = option.get("metadata")
@@ -165,6 +170,11 @@ class _PaymentDecisions(_PolicyState):
         if metadata.get("requires_tap_source") is True and metadata.get("source_tapped") is True:
             return False
         if metadata.get("requires_untap_source") is True and metadata.get("source_tapped") is False:
+            return False
+        # #920: the engine's own crew-cost check with the Vehicle set aside
+        # (``crew_payable_without_source``). The engine offers Crew when the
+        # Vehicle's own power would pay for it, which no crew can ever use.
+        if metadata.get("crew_payable_without_source") is False:
             return False
         if metadata.get("pool_covers_mana_cost") is not False:
             return True
@@ -746,7 +756,11 @@ class _PaymentDecisions(_PolicyState):
         self._failed_x_announcements.setdefault(seat, {})[source] = chosen
 
     def _remember_priority_cost_facts(
-        self, seat: int, options: list[dict[str, Any]], selected: list[str]
+        self,
+        seat: int,
+        options: list[dict[str, Any]],
+        selected: list[str],
+        state: dict[str, object] | None = None,
     ) -> None:
         """Keep the cost the engine reported for the priority option just chosen.
 
@@ -781,6 +795,16 @@ class _PaymentDecisions(_PolicyState):
             non_x = _option_non_x_mana_value(metadata)
             if source and non_x is not None:
                 self._priority_cost_facts[seat] = {source: non_x}
+            if source and state is not None:
+                # #920: an X paid by removing counters from the source can use
+                # no more counters than the source has.
+                cap = option_x_counter_cap(
+                    str(option.get("label") or ""),
+                    metadata,
+                    self._actor(state).get("battlefield"),
+                )
+                if cap is not None:
+                    self._priority_x_counter_caps[seat] = {source: cap}
             return
 
     def _take_remembered_priority_cost_facts(self, seat: int, source_object: Any) -> int | None:
@@ -846,6 +870,19 @@ class _PaymentDecisions(_PolicyState):
         if non_x < 0 or symbols < 1:
             return None
         return non_x, symbols
+
+    def _take_remembered_x_counter_cap(self, seat: int, source_object: object) -> int | None:
+        """Consume this seat's remembered counter cap for this announce source.
+
+        Taken like ``_take_remembered_priority_cost_facts``: one cap belongs to
+        one announcement of the action it was kept for.
+        """
+        if not isinstance(source_object, dict):
+            return None
+        source = str(source_object.get("source_object_id") or "")
+        if not source:
+            return None
+        return self._priority_x_counter_caps.get(seat, {}).pop(source, None)
 
     def _mana_budget(self, state: dict[str, Any]) -> int:
         """Mana the actor can see it could produce right now.
@@ -934,6 +971,10 @@ class _PaymentDecisions(_PolicyState):
         if symbols is None:
             symbols = prompt_symbols
         affordable = max(0, (self._mana_budget(state) - non_x) // symbols)
+        # #920: an X that is also paid by removing counters from its source.
+        counter_cap = self._take_remembered_x_counter_cap(seat, source_object)
+        if counter_cap is not None:
+            affordable = min(affordable, counter_cap)
         # #815: if the last X announced for this source was reversed (the
         # engine refused the payment), cap below it. A repeated announce_x
         # for the same source means the previous value failed, so re-announcing
