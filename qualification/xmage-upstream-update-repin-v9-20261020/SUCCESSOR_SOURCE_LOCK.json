@@ -285,6 +285,6 @@
  },
  "current_boundary": {
   "status": "REQUALIFICATION_REQUIRED",
-  "how": "PB-03 runs on the repin pull request and on the exact Lab main merge commit, sealed as a new epoch, then AF11 is re-adjudicated for this pin (the mage jar names change to 1.4.62). No current-boundary epoch exists for this pin yet, and none may be written by this repin."
+  "how": "PB-03 runs on the repin pull request and on the exact Lab main merge commit of this repin. Epoch qualification/current-boundary-epochs/63f6aebfdea5-17e95be8d3a0 (PB-03 run 39410096746 on main 63f6aebf) is sealed with FULL107 107/107 and AF00-AF10 PASS; its AF11 is UNKNOWN because the adjudication then in force covered the earlier pin. The AF11 re-adjudication for this pin is recorded in qualification/af11-xmage-only-topology-20261020/. The status stays REQUALIFICATION_REQUIRED until PB-03 on a Lab main that carries that record yields an epoch with AF00-AF11 PASS and architecture_freeze.current_qualification names it."
  }
 }
