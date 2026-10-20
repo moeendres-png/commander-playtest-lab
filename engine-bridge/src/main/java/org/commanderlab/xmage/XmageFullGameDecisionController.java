@@ -147,9 +147,23 @@ final class XmageFullGameDecisionController {
 
         if (!actor.isInGame() && !"priority".equals(decisionClass)) {
             // A player who left makes no choices (CR 800.4a): no frame is ever
-            // published for it; the lane fails closed instead of guessing.
-            // Priority keeps the owner's F-39 path: the engine still gives a
-            // player who just lost one priority round, answered with pass.
+            // published for it. A class whose callback unwinds natively (the
+            // same set cancelPendingForDepartedPlayer retires) gets XMage's own
+            // no-response, as if the frame had been pending when the player
+            // left (F-42): an opponent who lost to the combat damage that
+            // triggered "that player may draw a card" is still named by the
+            // resolving effect. Every other class fails closed instead of
+            // guessing. Priority keeps the owner's F-39 path: the engine still
+            // gives a player who just lost one priority round, answered with pass.
+            if (DEPARTED_CANCELLABLE.contains(decisionClass) || departedUnwindQualified) {
+                JsonObject event = new JsonObject();
+                event.addProperty("decision_class", decisionClass);
+                event.addProperty("reason", "player_left_game");
+                recordTranscript("engine_decision_cancelled", event);
+                throw new DecisionCancelledException(
+                        "ENGINE_DECISION_CANCELLED: player left before the frame class=" + decisionClass
+                );
+            }
             DecisionException failure = new DecisionException(
                     "PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: the engine asked a player who left the game for "
                             + decisionClass
