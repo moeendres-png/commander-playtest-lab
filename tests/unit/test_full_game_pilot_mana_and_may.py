@@ -297,6 +297,56 @@ def test_repeated_may_trigger_prompt_is_answered_yes_every_time() -> None:
     assert answers == ["yes", "yes", "yes", "yes"]
 
 
+def _phyrexian_ask(life: int, offset: int, *, step: str = "precombat_main") -> dict[str, Any]:
+    """One ask of ``ManaCostsImpl.handlePhyrexianManaCosts`` at ``life``."""
+    request = _boolean("loselife", "Pay 2 life instead of {B} (phyrexian cost)?", offset=offset)
+    request["pilot_state"] = _state(step=step)
+    request["pilot_state"]["players"][0]["life"] = life
+    return request
+
+
+def test_phyrexian_life_is_not_promised_twice_at_two_life() -> None:
+    # Lashwrithe's Equip {B/P}{B/P} at 2 life (#920, pod 018): the engine tests
+    # both asks against the 2 life the player still has, the pilot said Yes to
+    # both, and the second PayLifeCost (CR 119.4) was unpayable, which failed
+    # the whole activation. The second ask no longer offers Yes.
+    policy = _policy()
+    first = policy.decide(_phyrexian_ask(2, 1))
+    second = policy.decide(_phyrexian_ask(2, 2))
+    assert first["selected_option_ids"] == ["yes"]
+    assert second["selected_option_ids"] == ["no"]
+
+
+def test_phyrexian_life_is_paid_twice_when_the_life_total_covers_both() -> None:
+    # Negative control: the guard only subtracts what was promised, it never
+    # declines a payment the life total covers (4 life covers both asks).
+    policy = _policy()
+    answers = [
+        policy.decide(_phyrexian_ask(life, offset))["selected_option_ids"][0]
+        for offset, life in ((1, 4), (2, 4))
+    ]
+    assert answers == ["yes", "yes"]
+
+
+def test_phyrexian_life_promise_ends_with_the_payment() -> None:
+    # The asks of one payment are back to back; a decision of another class
+    # (the targets of the equip, the mana payment) starts the count over, so
+    # the next activation at 4 life is asked afresh.
+    policy = _policy()
+    assert policy.decide(_phyrexian_ask(4, 1))["selected_option_ids"] == ["yes"]
+    assert policy.decide(_phyrexian_ask(4, 2))["selected_option_ids"] == ["yes"]
+    policy.decide(
+        _request(
+            "priority",
+            [_PASS],
+            state=_state(step="precombat_main"),
+            offset=3,
+        )
+    )
+    assert policy.decide(_phyrexian_ask(4, 4))["selected_option_ids"] == ["yes"]
+    assert policy.decide(_phyrexian_ask(4, 5))["selected_option_ids"] == ["yes"]
+
+
 @pytest.mark.parametrize(
     ("outcome", "expected"),
     [("benefit", "yes"), ("detriment", "no"), ("aidontuseit", "yes")],
