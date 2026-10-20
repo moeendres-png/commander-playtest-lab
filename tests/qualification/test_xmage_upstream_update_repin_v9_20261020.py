@@ -138,7 +138,8 @@ def test_engine_delta_declares_the_resolved_conflicts_and_the_dependency_change(
     }
     assert delta["dependency_change"] is True
     on_provider_classpath = {
-        change["artifact"]: change["on_provider_classpath"] for change in delta["dependency_changes"]
+        change["artifact"]: change["on_provider_classpath"]
+        for change in delta["dependency_changes"]
     }
     # No dependency of the provider classpath changes, so AF11's licence inventory only
     # renames the five mage jars.
