@@ -68,24 +68,47 @@ Stand der Messung:
 - Ursache der neun Ausfälle (lokal nachgespielt, `LOCAL_OBSERVED`; der öffentliche Fehler nennt
   absichtlich nur den Code und einen Schlüssel-Digest, die Karte steht nur im Prozess): in
   jedem Pod bot die Engine eine Aktion an, deren Kosten eine Wahl oder ein X enthalten, und
-  konnte sie nach der Wahl nicht ausführen. Keines der bisherigen Umkehr-Prädikate der Bridge
-  hat den Fall erkannt, deshalb bricht das Spiel ab.
+  konnte sie nach der Wahl nicht ausführen. Die Engine bricht eine solche Aktion selbst ab und
+  stellt den Zustand davor wieder her (CR 601.2e / 727); die Bridge kannte bis #920 dafür nur
+  andere Umkehr-Prädikate und beendete das Spiel. Die zuerst unbezahlten Kosten je Pod stammen aus
+  einem lokalen Nachspielen mit instrumentierter `AbilityImpl` (nicht eingecheckt):
 
-| Pod | Karte | Aktion | Letzte Entscheidung vor dem Abbruch |
-|---|---|---|---|
-| 005 | Osgir, the Reconstructor | Aktivierung: {X}, {T}, Artefaktkarte mit Manawert X aus dem Friedhof exilieren | X angesagt |
-| 008, 035 | Grim Hireling | Aktivierung: {B}, X Schätze opfern | Mana aus dem Pool bezahlt |
-| 011 | Collective Effort | Zauber (Escalate) | Kreatur gewählt |
-| 027 | Ruthless Radrat | Zauber | vier Friedhofskarten gewählt |
-| 028 | Skeletal Scrying | Zauber | Mana aus dem Pool bezahlt |
-| 037 | Peerless Recycling | Zauber | Ja/Nein-Frage mit „Ja“ beantwortet |
-| 040 | Imposter Mech | Aktivierung: Crew 3 | Kreatur gewählt |
-| 042 | Marath, Will of the Wild | Aktivierung: {X}, X +1/+1-Marken entfernen | Mana aus dem Pool bezahlt |
+| Pod | Karte | Aktion | Zuerst unbezahlte Kosten | Mit #920 |
+|---|---|---|---|---|
+| 005 | Osgir, the Reconstructor | Aktivierung: {X}, {T}, Artefaktkarte mit Manawert X aus dem Friedhof exilieren | Exil-Kosten (Ziel leer) | läuft durch |
+| 008, 035 | Grim Hireling | Aktivierung: {B}, X Schätze opfern | Opfer-Kosten (nach dem Mana ein Schatz zu wenig) | 035 läuft durch; 008 kommt weiter und bricht später an Crew 2 ab |
+| 011 | Collective Effort | Zauber (Escalate) | zweites „Kreatur tappen“ | läuft durch |
+| 027 | Ruthless Radrat | Zauber (Squad) | zweites „vier Karten aus dem Friedhof exilieren“ | läuft durch |
+| 028 | Skeletal Scrying | Zauber | „X Karten aus dem Friedhof exilieren“ | läuft durch |
+| 037 | Peerless Recycling | Zauber (Gift) | Ziel „zwei Permanent-Karten im Friedhof“ nicht wählbar | läuft durch |
+| 040 | Imposter Mech | Aktivierung: Crew 3 | Crew-Kosten (gewählte Kreaturen zu schwach) | bricht weiter ab |
+| 042 | Marath, Will of the Wild | Aktivierung: {X}, X +1/+1-Marken entfernen | Marken-Kosten (X größer als die Marken) | bricht weiter ab |
 
 Grim Hireling und Collective Effort sind dieselben Karten wie in der Stichprobe am alten Pin;
-die anderen sechs Karten sind neu. Welche Wahl die Engine im Einzelfall ablehnt, ist je Karte
-nicht bestimmt. Meine Einschätzung: eine Korrektur ist je Kostenform ein eigener Fall mit eigener
-Engine-Evidenz (wie #715, #740, #747, #749, #815), kein einzelner Schalter.
+die anderen sechs Karten sind neu.
+
+- **Bridge-Fix #920** (`XmageFullGamePlayer.reversedUnchoosableCostTarget` und
+  `reversedUnchoosableAbilityTarget`): die Bridge erkennt die Umkehr, wenn (1) die Engine die
+  Fähigkeit der gewählten Karte benutzt hat, (2) die ersten unbezahlten Kosten ein Pflichtziel
+  haben, das leer blieb und dem Piloten nie vorgelegt wurde (bei Zielen der Fähigkeit selbst: ein
+  leeres, nie vorgelegtes Pflichtziel) und (3) der Spielzustand nach dem Fehlschlag Bit für Bit
+  dem davor entspricht (`XmageStateFingerprint`, SHA-256 über Ids und Zähler, bleibt im Prozess).
+  Crew und Marath sind keine Zielkosten; ein Crew-Mangel nach einer Wahl scheitert weiter
+  geschlossen (`XmageFullGameCrewUnpayableCostTest`). Sie brauchen eine Korrektur im Piloten
+  (Crew nur mit ausreichender Power ansagen, X bei Marath durch die Marken begrenzen).
+- Sweep mit dem Fix (gleiche Pods, Plan-Seed 1, Spiel-Seed 1, `LOCAL_OBSERVED`, ein Lauf, JAR
+  `7d082d8d…`, vor der letzten Härtung des Zustandsabdrucks gebaut; die neun betroffenen Pods mit
+  dem endgültigen JAR `888ee822…` nachgespielt: sechs laufen mit gleichem Hash und gleicher
+  Entscheidungszahl durch, 008, 040 und 042 brechen wie zuvor ab): **43 von 46 Pods laufen durch** (vorher 37), 6 Pods wurden repariert (005, 011,
+  027, 028, 035, 037), kein Pod ist neu abgebrochen, 3 brechen weiter ab (008, 040, 042; alle in
+  Crew oder Marath). 170 von 182 Decks stehen jetzt in mindestens einem durchgespielten Pod, 12
+  stehen nur in Pods, die scheiterten. 35 der 37 vorher durchgelaufenen Pods haben denselben
+  Semantic-Hash und dieselbe Entscheidungszahl. Bei 029 und 033 ist die Entscheidungszahl gleich,
+  der Hash anders. Beide Pods liefern mit demselben JAR und Seed wechselnd zwei Hashes
+  (029: `ff71f5b7…` und `6144e8fe…`, zehn Läufe; 033: `1b23f691…` und `1908ba32…`, vier Läufe;
+  jeweils mit dem Basis- und dem Fix-JAR, bei 029 auch mit einem Vergleichs-JAR ohne
+  Zustandsabdruck). Der Unterschied kommt also nicht von der Änderung; die Ursache der
+  Instabilität ist nicht untersucht. Ein Spiel pro Pod ist weiter keine Passquote.
 
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
@@ -115,7 +138,8 @@ Immer nur ein Sweep gleichzeitig: bei CPU-Mangel werden langsame Entscheidungen 
 
 - „Alle Precon-Karten sind in XMage implementiert und spielbar“ (frühere Fassung dieser Datei):
   widerlegt, 31 Kartennamen fehlen am Pin, und Import beweist keine Kartenfunktion.
-- „Alle 182 importierbaren Decks laufen im Pod“: widerlegt, 9 von 46 Pods brechen ab (siehe oben).
+- „Alle 182 importierbaren Decks laufen im Pod“: widerlegt, mit dem Fix #920 brechen noch 3 von 46
+  Pods ab (Crew, Marath; siehe oben), ohne ihn waren es 9.
 - Die Zahlen „195/195 ENGINE_FAILURE“ und „221 fehlende Karten“ aus früheren Übergaben: Das
   Skript hat dasselbe Deck auf alle Plätze gesetzt, die 221 stammt aus einer
   Dateinamen-Heuristik. Beide dürfen nicht mehr zitiert werden.

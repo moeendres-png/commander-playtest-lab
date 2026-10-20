@@ -19,6 +19,7 @@ import mage.abilities.costs.common.PayLifeCost;
 import mage.abilities.costs.common.PayVariableLifeCost;
 import mage.abilities.costs.common.SacrificeSourceCost;
 import mage.abilities.costs.common.TapSourceCost;
+import mage.abilities.costs.common.TapTargetCost;
 import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.costs.mana.ManaCosts;
@@ -173,6 +174,32 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private final java.util.Deque<String> manaPaymentsInFlight = new java.util.ArrayDeque<>();
 
     private final Set<Target> offeredTargetObjects =
+            java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+
+    /**
+     * #920: the priority option the pilot chose in the current action, and the
+     * latest instance of THAT card's ability the engine handed to any callback
+     * of this action ({@link #request}, the target callbacks). The first is the
+     * bridge's own choice; the second is engine-held: {@code
+     * PlayerImpl.activateAbility} and {@code cast} work on {@code
+     * ability.copy()}, so the object whose costs and targets the engine
+     * actually walked is the one in its callbacks, never the option the bridge
+     * holds. Read only by {@link #reversedUnchoosableCostTarget} and {@link
+     * #reversedUnchoosableAbilityTarget}. Reset on every priority entry.
+     */
+    private Ability actingAbility;
+    private Ability engineActionAbility;
+
+    /**
+     * #920: the exact {@code Target} objects (identity, not equality) for which
+     * the pilot was actually sent a decision during the current action, i.e.
+     * whose legal set was non-empty. A target the engine skipped because its
+     * {@code canChoose} is false ({@code Targets.makeChoice}, Targets.java:105)
+     * and a target whose callback found an empty legal set are both absent.
+     * {@link #offeredTargetObjects} is wider: it also holds the empty
+     * callbacks. Reset on every priority entry.
+     */
+    private final Set<Target> askedTargetObjects =
             java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
 
     /**
@@ -641,6 +668,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
         acceptedOptionalCostSource = null;
         targetCallbackSource = null;
         offeredTargetObjects.clear();
+        askedTargetObjects.clear();
+        actingAbility = null;
+        engineActionAbility = null;
         emptyNonTargetChoice = false;
         emptyNonTargetChoiceSource = null;
         JsonArray options = new JsonArray();
@@ -692,6 +722,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
             fail("ILLEGAL_ACTION", "priority option disappeared: " + selected);
         }
         recordNativeReturn(answered, ability);
+        actingAbility = ability;
+        // Engine-held state before the engine starts on the action: the
+        // proof, read again after a failure, that the engine rewound it
+        // (#920). Nothing is decided from it here.
+        String stateBefore = XmageStateFingerprint.ofOrNull(game);
         // Spell abilities enumerated by getPlayable are cast, never
         // "activated": the engine owns timing, costs (incl. commander tax),
         // payment (pool auto-spend, bookmark rollback on failure), targets,
@@ -720,7 +755,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
                         || reversedUnpayableLifeCost(ability, game)
                         || reversedBeforeAnyChoice(ability, game, castOrigin, stackBefore, decisionsBefore)
                         || reversedUnsatisfiableModeCount(ability, game, castOrigin, stackBefore)
-                        || reversedDependentRequiredTarget(ability, game)) {
+                        || reversedDependentRequiredTarget(ability, game)
+                        || reversedUnchoosableCostTarget(ability, game, stateBefore)
+                        || reversedUnchoosableAbilityTarget(ability, game, stateBefore)) {
                     // Cancelled or uncompletable cast: the engine reversed it
                     // and restored its bookmark; the player has not passed, so
                     // the engine's priority loop asks the same player again
@@ -734,14 +771,17 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // a spell and an activated ability, so the evidence that
                     // identifies the reversal is identical too.
                     //
-                    // #715's emptyNonTargetChoice does NOT apply here. No cast
-                    // on the pinned engine reaches it, so accepting it in this
-                    // branch would widen the guard on an unproven case: an
-                    // empty optional non-target choice that a SPELL's cost
-                    // raises still PAYS that cost, and the failure that follows
-                    // it is not the engine reversing the proposal. The term is
-                    // kept in the activation branch, where
-                    // CrewCost.pay returning false is a genuine reversal.
+                    // #715's emptyNonTargetChoice does NOT apply here on its
+                    // own. An empty optional non-target choice that a SPELL's
+                    // cost raises still PAYS that cost, and the failure that
+                    // follows it is not by itself the engine reversing the
+                    // proposal. The term is kept in the activation branch,
+                    // where CrewCost.pay returning false is a genuine reversal.
+                    // A cast does reach the empty callback (Collective
+                    // Effort's second Escalate tap): #920's
+                    // reversedUnchoosableCostTarget accepts that one, because
+                    // it also requires the cost to be UNPAID with an empty
+                    // required target and the rewind to be proven.
                     //
                     // #740's reversedUnpayableDiscardCost DOES apply here and
                     // is the same shape: the engine paid the mana, could not pay
@@ -772,6 +812,11 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     // forces every mode, one of which has no legal target, so
                     // the engine cannot select the required number of modes
                     // (CR 700.2b) and reverses the cast.
+                    //
+                    // #920's reversedUnchoosableCostTarget and
+                    // reversedUnchoosableAbilityTarget: the engine reached a
+                    // cost or an ability target it could not fill, and the
+                    // game is provably back where it was (state fingerprint).
                     return false;
                 }
                 fail("XMAGE_ACTION_EXECUTION_FAILED", "priority cast failed: " + selected);
@@ -786,7 +831,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
                     || concessionInterruptedAction
                     || leftMidAction()
                     || reversedRequiredXTarget(game)
-                    || reversedEmptyNonTargetChoice(ability)) {
+                    || reversedEmptyNonTargetChoice(ability)
+                    || reversedUnchoosableCostTarget(ability, game, stateBefore)
+                    || reversedUnchoosableAbilityTarget(ability, game, stateBefore)) {
                 // Cancelled or uncompletable activation: the engine reversed
                 // it; the same player receives priority again (#662 S3).
                 // #703 adds the engine-reversed X-target case: the announced
@@ -810,6 +857,193 @@ final class XmageFullGamePlayer extends PlayerImpl {
             fail("XMAGE_ACTION_EXECUTION_FAILED", "priority activation failed: " + selected);
         }
         return true;
+    }
+
+    /**
+     * #920: true only when the engine reversed the action because the first
+     * unpaid COST of the ability it was activating needed a choice the engine
+     * itself could not offer, and the game is back exactly where it was.
+     *
+     * <p>Seven precon cards end in this shape: Osgir, the Reconstructor
+     * ("Exile an artifact card with mana value X from your graveyard"), Skeletal
+     * Scrying ("exile X cards from your graveyard"), Ruthless Radrat (Squad: the
+     * second "exile four cards from your graveyard"), Grim Hireling ("Sacrifice
+     * X Treasures" after the {B} was paid with one of them) and Collective
+     * Effort (the second Escalate "tap an untapped creature you control" after
+     * the first tapped the only one). The pilot proposes an X or a promise the
+     * cost cannot fund; {@code ManaCostsImpl.pay} succeeds first, then
+     * {@code CostsImpl.pay} (CR 601.2g / 602.2b) reaches a cost whose target
+     * the engine cannot fill.
+     *
+     * <p>Engine-held facts, read after the attempt:
+     * <ol>
+     *   <li>the ability instance the engine used for this action ({@link
+     *       #engineActionAbility}) is the pilot's card and, for an activation,
+     *       its very ability;</li>
+     *   <li>its mana costs are paid, so the non-mana costs were reached and the
+     *       failure is not a cancelled or abandoned payment;</li>
+     *   <li>the FIRST unpaid cost ({@code CostsImpl.pay} returns false at the
+     *       first cost whose {@code pay} fails) has a target with a minimum
+     *       above zero and nothing chosen, and the pilot was never sent a
+     *       decision for that target ({@link #askedTargetObjects}). The engine
+     *       left it empty because it had nothing to offer:
+     *       {@code Targets.makeChoice} skips a target whose {@code canChoose}
+     *       is false without calling the player (Targets.java:105), and a cost
+     *       such as {@code TapTargetCost} that calls {@code target.choose}
+     *       itself reaches an empty callback;</li>
+     *   <li>{@link XmageStateFingerprint} of the game now equals the one taken
+     *       when the pilot chose. This is the rewind: {@code PlayerImpl.cast}
+     *       and {@code playAbility} restore their bookmark whenever {@code
+     *       activate} returns false (CR 601.2e / 727), and anything the action
+     *       had already done (a tapped land, mana in the pool, an exiled card,
+     *       a spell on the stack) would make the digests differ.</li>
+     * </ol>
+     *
+     * <p>No legality is recomputed: no filter is evaluated, no X derived, no
+     * option rebuilt. It does not cover a Crew cost (not a target cost: a
+     * shortfall with a choice made keeps failing closed, see {@code
+     * XmageFullGameCrewUnpayableCostTest}), Marath's counter cost, a cost whose
+     * target was offered and answered, or a cost that failed while its target
+     * was filled. It can hide an action the engine offers and can never
+     * complete (a cost target that is empty for every X); the pilot's per-turn
+     * attempt caps bound how often it is proposed again.
+     */
+    boolean reversedUnchoosableCostTarget(Ability acting, Game game, String stateBefore) {
+        Ability engine = engineActionAbility;
+        if (game == null || stateBefore == null || !sameActionAbility(engine, acting)) {
+            return false;
+        }
+        ManaCosts<ManaCost> manaCostsToPay = engine.getManaCostsToPay();
+        if (manaCostsToPay == null || !manaCostsToPay.isPaid()) {
+            return false;
+        }
+        Costs<Cost> costs = engine.getCosts();
+        if (costs == null || costs.isEmpty()) {
+            return false;
+        }
+        Cost unpaid = null;
+        for (Cost cost : costs) {
+            if (!cost.isPaid()) {
+                unpaid = cost;
+                break;
+            }
+        }
+        if (unpaid == null || !hasEmptyUnaskedRequiredTarget(costTargets(unpaid))) {
+            return false;
+        }
+        return stateBefore.equals(XmageStateFingerprint.ofOrNull(game));
+    }
+
+    /**
+     * #920: true only when the engine reversed the action because a REQUIRED
+     * target of the ability had no legal option after an answer the pilot gave
+     * to an earlier prompt, and the game is back exactly where it was.
+     *
+     * <p>Peerless Recycling: the pilot answers Yes to "Gift a card", which
+     * turns the target into "two target permanent cards from your graveyard".
+     * With one permanent card there the target cannot be chosen,
+     * {@code Targets.makeChoice} skips it without calling the player, {@code
+     * chooseTargets} returns false at AbilityImpl.activate's CR 601.2c check
+     * and {@code PlayerImpl.cast} restores its bookmark. The sibling shapes
+     * (#703 after an announced X, #749 after an earlier target) each name their
+     * own earlier choice; this one does not need to, because the evidence is
+     * the same engine facts plus the rewind.
+     *
+     * <p>Engine-held facts: the engine's ability instance is the pilot's
+     * card/ability ({@link #sameActionAbility}); its targets are not all
+     * chosen; every target the pilot was sent a decision for is chosen; some
+     * target with a minimum above zero is empty and was never sent to the pilot
+     * ({@link #askedTargetObjects}); and {@link XmageStateFingerprint} equals
+     * the one taken before the engine started. A declined or vetoed target, a
+     * target on another card, or an action that left the game changed keeps
+     * failing closed with XMAGE_ACTION_EXECUTION_FAILED.
+     */
+    boolean reversedUnchoosableAbilityTarget(Ability acting, Game game, String stateBefore) {
+        Ability engine = engineActionAbility;
+        if (game == null || stateBefore == null || !sameActionAbility(engine, acting)) {
+            return false;
+        }
+        Targets targets = engine.getTargets();
+        if (targets == null || targets.isEmpty() || targets.isChosen(game)) {
+            return false;
+        }
+        for (Target target : targets) {
+            if (askedTargetObjects.contains(target) && !target.isChosen(game)) {
+                return false;
+            }
+        }
+        if (!hasEmptyUnaskedRequiredTarget(targets)) {
+            return false;
+        }
+        return stateBefore.equals(XmageStateFingerprint.ofOrNull(game));
+    }
+
+    private boolean hasEmptyUnaskedRequiredTarget(Iterable<Target> targets) {
+        for (Target target : targets) {
+            if (target.getMinNumberOfTargets() > 0
+                    && target.getSize() == 0
+                    && !askedTargetObjects.contains(target)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * The targets of one cost. {@code TapTargetCost} keeps its target in a
+     * private field instead of {@code getTargets()}.
+     */
+    private static List<Target> costTargets(Cost cost) {
+        List<Target> out = new ArrayList<>(cost.getTargets());
+        if (cost instanceof TapTargetCost tap && tap.getTarget() != null) {
+            out.add(tap.getTarget());
+        }
+        return out;
+    }
+
+    /**
+     * True when {@code engine}, an ability instance the ENGINE handed to a
+     * callback, is the ability the pilot chose: same source object, and for an
+     * activated ability the same original id (a land tapped for mana during
+     * the payment calls back with its own mana ability, which is never the
+     * action being decided). A cast compares the card alone: the engine casts
+     * a copy of the spell ability, and Flashback casts the card's own.
+     */
+    private static boolean sameActionAbility(Ability engine, Ability acting) {
+        if (engine == null || acting == null
+                || engine.getSourceId() == null
+                || !engine.getSourceId().equals(acting.getSourceId())) {
+            return false;
+        }
+        if (acting instanceof SpellAbility) {
+            return engine instanceof SpellAbility;
+        }
+        return engine.getOriginalId() != null
+                && engine.getOriginalId().equals(acting.getOriginalId());
+    }
+
+    /**
+     * Records the engine's ability for {@link #engineActionAbility} when it is
+     * the pilot's card or ability (see {@link #sameActionAbility}).
+     */
+    private void recordEngineActionAbility(Ability source) {
+        if (sameActionAbility(source, actingAbility)) {
+            engineActionAbility = source;
+        }
+    }
+
+    /**
+     * #920 boundary tests only: package-private, no production caller. Mirrors
+     * what {@link #priority} and the engine callbacks record: the chosen
+     * ability, the ability instance the engine used and the targets the pilot
+     * was sent a decision for.
+     */
+    void recordEngineActionForBoundaryTest(Ability acting, Ability engine, Target... asked) {
+        actingAbility = acting;
+        engineActionAbility = null;
+        recordEngineActionAbility(engine);
+        askedTargetObjects.clear();
+        askedTargetObjects.addAll(List.of(asked));
     }
 
     /**
@@ -1046,6 +1280,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     private void recordTargetCallback(Ability source, Target target) {
         targetCallbackSource = source;
         offeredTargetObjects.add(target);
+        recordEngineActionAbility(source);
     }
 
     /**
@@ -1531,6 +1766,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
             return false;
         }
 
+        askedTargetObjects.add(target);
         JsonArray options = objectOptions(sorted, game, "target_amount");
         int remaining = target.getAmountRemaining();
         JsonObject context = new JsonObject();
@@ -3012,6 +3248,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // and mask a failure raised later in the same action.
         emptyNonTargetChoice = false;
         emptyNonTargetChoiceSource = null;
+        askedTargetObjects.add(target);
         JsonObject context = suppliedContext == null ? new JsonObject() : suppliedContext.deepCopy();
         context.addProperty("targeted", targeted);
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
@@ -3262,6 +3499,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // reaching a request.
         emptyNonTargetChoice = false;
         emptyNonTargetChoiceSource = null;
+        recordEngineActionAbility(source);
         return decisionController.request(
                 game,
                 this,
