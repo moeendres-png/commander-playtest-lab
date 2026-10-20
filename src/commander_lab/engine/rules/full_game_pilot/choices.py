@@ -27,6 +27,11 @@ from .common import (
 )
 from .payment import _PaymentDecisions
 
+# The engine's own tag for "choose a card to cast or play without paying for it". Picking one is
+# a benefit to the chooser. Scored like a neutral target, every card of a free-cast choice such as
+# Izzet Chemister's "Select up to one card to cast" came out negative, the pilot picked none, and
+# then answered Yes to "Continue casting?" for ever (precon pod, 50000 decisions, no cast).
+_FREE_PLAY_OUTCOMES = frozenset({"playforfree"})
 _FREE_CAST_PROMPT = re.compile(r"Cast spell without paying its mana cost")
 _PHYREXIAN_LIFE_PROMPT = re.compile(r"Pay (\d+) life instead of ")
 _FREE_CAST_CONTINUE_PROMPT = re.compile(
@@ -178,7 +183,7 @@ class _ChoiceDecisions(_PaymentDecisions):
 
         if max_selections <= 0:
             return []
-        if outcome in {"benefit", "benefit_to_controller"}:
+        if outcome in {"benefit", "benefit_to_controller"} | _FREE_PLAY_OUTCOMES:
             take = max_selections
         elif min_selections == 0:
             take = 0 if all(score < 0.0 for score, _label, _oid in ranked) else 1

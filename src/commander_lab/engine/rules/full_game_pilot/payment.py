@@ -27,6 +27,10 @@ from .common import (
 )
 from .state import _PolicyState
 
+# Sources whose "pay any amount of {E}" question leads into an engine path the bridge keeps
+# closed. Casefolded names as the bridge reports them in ``source_name``.
+_UNSUPPORTED_ENERGY_PAYMENT_SOURCES = frozenset({"vault 112: sadistic simulation"})
+
 
 class _PaymentDecisions(_PolicyState):
     @staticmethod
@@ -721,6 +725,8 @@ class _PaymentDecisions(_PolicyState):
             )
             if affordable_max is not None:
                 domain["affordable_max"] = affordable_max
+        if self._declines_unsupported_energy_payment(decision_class, prompt, source_object):
+            return minimum
         chosen = runtime.pilot.choose_number(self._pilot_state(runtime, state), domain, rng)
         if isinstance(chosen, bool) or not isinstance(chosen, int):
             raise FullGameProtocolError(
@@ -738,6 +744,26 @@ class _PaymentDecisions(_PolicyState):
             # re-announcing the same unpayable X forever.
             self._remember_announced_x(runtime.binding.seat, source_object, chosen)
         return chosen
+
+    @staticmethod
+    def _declines_unsupported_energy_payment(
+        decision_class: str, prompt: str, source_object: object
+    ) -> bool:
+        """True for the one "pay any amount of {E}" question that leads into a closed path.
+
+        Vault 112: Sadistic Simulation, chapter III, exiles that many cards and lets its
+        controller play one for free through the engine's land-or-spell callback. That
+        caller is outside the declared decision classes (architecture freeze ADR section 28:
+        UNSUPPORTED_DECISION_CLASS), so paying any energy ended the game. Paying none is a
+        legal answer ("Pay any amount") and skips the exile, so the game goes on without the
+        chapter's benefit. The bridge still fails closed on the path itself.
+        """
+        if decision_class != "amount" or "{E}" not in prompt:
+            return False
+        if not isinstance(source_object, dict):
+            return False
+        name = str(source_object.get("source_name") or "").strip().casefold()
+        return name in _UNSUPPORTED_ENERGY_PAYMENT_SOURCES
 
     def _remember_announced_x(self, seat: int, source_object: object, chosen: int) -> None:
         """Keep the X this seat announced for this source.
