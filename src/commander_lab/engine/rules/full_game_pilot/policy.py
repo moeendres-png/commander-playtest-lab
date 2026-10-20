@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from .common import (
@@ -9,6 +10,10 @@ from .common import (
     public_full_game_errors,
 )
 from .priority import _PriorityDecisions
+
+# Mizzix's Mastery (overload) asks for one copied card at a time and removes it
+# only when one was chosen; see ``_decide_boolean`` for the matching guard.
+_COPY_CAST_PROMPT = re.compile(r"Select up to one copied card to cast")
 
 
 class ExternalPilotDecisionPolicy(_PriorityDecisions):
@@ -196,6 +201,12 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             )
         else:  # pragma: no cover - guarded by exhaustive supported class set
             raise FullGameProtocolError(f"unhandled decision class: {decision_class}")
+
+        if decision_class in {"target", "choose_object"} and _COPY_CAST_PROMPT.match(prompt):
+            if selected:
+                self._copy_cast_declined.discard(seat)
+            else:
+                self._copy_cast_declined.add(seat)
 
         if len(selected) < min_selections or len(selected) > max_selections:
             raise FullGameProtocolError(

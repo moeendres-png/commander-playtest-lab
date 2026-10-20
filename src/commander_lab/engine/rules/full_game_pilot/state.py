@@ -126,6 +126,8 @@ class _PolicyState:
         self._free_cast_failed: dict[int, tuple[object, set[str]]] = {}
         self._free_cast_last_yes: dict[int, str | None] = {}
         self._free_cast_refused: dict[int, object] = {}
+        # Seats whose last "copied card to cast" choice (Mizzix's Mastery) picked nothing.
+        self._copy_cast_declined: set[int] = set()
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.

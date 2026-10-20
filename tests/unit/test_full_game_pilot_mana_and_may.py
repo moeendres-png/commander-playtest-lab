@@ -493,6 +493,31 @@ def test_reversed_free_cast_is_not_retried_forever() -> None:
     assert answer(other, 5) == "yes"
 
 
+def test_declined_copy_cast_ends_the_continue_chain() -> None:
+    # Mizzix's Mastery (overload) removes a copied card only when one was
+    # chosen and then asks "Continue to choose copies and cast?" while cards
+    # remain. A seat that chose none and answers Yes is asked the same thing
+    # again, so one pod ran into max_decisions=50000. After a choice of nothing
+    # the chain ends; the question is answered normally otherwise.
+    policy = _policy()
+    ask = "Select up to one copied card to cast without paying its mana cost?"
+    cont = "Continue to choose copies and cast?"
+
+    def pick_nothing(offset: int) -> list[str]:
+        request = _request("target", [], prompt=ask, offset=offset)
+        request["minimum_selections"] = 0
+        selected: list[str] = policy.decide(request)["selected_option_ids"]
+        return selected
+
+    def answer(prompt: str, offset: int) -> str:
+        return policy.decide(_boolean("benefit", prompt, offset=offset))["selected_option_ids"][0]
+
+    assert answer(cont, 1) == "yes"  # control: nothing declined yet, the chain is not ended
+    assert pick_nothing(2) == []
+    assert answer(cont, 3) == "no"
+    assert answer(cont, 4) == "yes"  # the refusal is spent: a later chain is not capped
+
+
 _FILTER_FACTS: dict[str, Any] = {
     "mana_cost_white": 0,
     "mana_cost_blue": 0,

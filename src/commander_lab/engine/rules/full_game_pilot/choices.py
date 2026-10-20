@@ -31,6 +31,7 @@ _FREE_CAST_PROMPT = re.compile(r"Cast spell without paying its mana cost")
 _FREE_CAST_CONTINUE_PROMPT = re.compile(
     r"You can cast \d+ more spells? for free\. Continue casting"
 )
+_COPY_CAST_CONTINUE_PROMPT = re.compile(r"Continue to choose copies and cast\?")
 
 
 class _ChoiceDecisions(_PaymentDecisions):
@@ -348,6 +349,16 @@ class _ChoiceDecisions(_PaymentDecisions):
             # The refused retry above would be re-offered by the engine for as
             # long as this seat keeps saying Yes to "Continue casting?".
             del self._free_cast_refused[seat]
+            kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
+            if kept:
+                selectable = kept
+        # Copy-cast retry guard (liveness only). Mizzix's Mastery's overload loop
+        # removes a copied card only when one was chosen, then asks "Continue to
+        # choose copies and cast?" for as long as cards remain. A seat that just
+        # chose none would be asked the same question again with the same answer,
+        # so a Yes only restarts the loop without end; the chain ends here.
+        if _COPY_CAST_CONTINUE_PROMPT.match(prompt) and seat in self._copy_cast_declined:
+            self._copy_cast_declined.discard(seat)
             kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
