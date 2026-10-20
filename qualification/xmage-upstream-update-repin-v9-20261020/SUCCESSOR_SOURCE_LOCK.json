@@ -3,7 +3,7 @@
  "workstream": "xmage-upstream-update-repin-v9-20261020",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
  "status": "EVIDENCE_BOUND",
- "status_note": "the pin is the head of the fork branch update-upstream-2026-10 (moeendres-png/mage#64, a draft pull request into claude/xmage-mp-candidate-20260929 used as the exact-commit CI vehicle; the candidate branch was fast-forwarded to the pin on 2026-10-20 10:47 UTC with the Owner's go, which merged mage#64). The native maven.yml run on the exact commit is bound under native_qualification (COMPLETE) and the Lab bridge suite (XMage Full Game Conformance run 39407371992 against XMage built from exactly 043579bb) is bound below. current_boundary stays REQUALIFICATION_REQUIRED until the epoch of PB-03 on the Lab main merge commit of this repin is sealed with AF11 adjudicated for this pin.",
+ "status_note": "the pin is the head of the fork branch update-upstream-2026-10 (moeendres-png/mage#64, a draft pull request into claude/xmage-mp-candidate-20260929 used as the exact-commit CI vehicle; the candidate branch was fast-forwarded to the pin on 2026-10-20 10:47 UTC with the Owner's go, which merged mage#64). The native maven.yml run on the exact commit is bound under native_qualification (COMPLETE) and the Lab bridge suite (XMage Full Game Conformance run 39407371992 against XMage built from exactly 043579bb) is bound below. current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED; the sealed epochs and the current qualification state are listed under current_boundary.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -285,6 +285,6 @@
  },
  "current_boundary": {
   "status": "REQUALIFICATION_REQUIRED",
-  "how": "PB-03 runs on the repin pull request and on the exact Lab main merge commit of this repin. Epoch qualification/current-boundary-epochs/63f6aebfdea5-17e95be8d3a0 (PB-03 run 39410096746 on main 63f6aebf) is sealed with FULL107 107/107 and AF00-AF10 PASS; its AF11 is UNKNOWN because the adjudication then in force covered the earlier pin. The AF11 re-adjudication for this pin is recorded in qualification/af11-xmage-only-topology-20261020/. The status stays REQUALIFICATION_REQUIRED until PB-03 on a Lab main that carries that record yields an epoch with AF00-AF11 PASS and architecture_freeze.current_qualification names it."
+  "how": "Repin-time record; the status field keeps the value the repin was merged with. Sealed epochs for this pin: qualification/current-boundary-epochs/63f6aebfdea5-17e95be8d3a0 (PB-03 run 39410096746 on main 63f6aebf, FULL107 107/107, AF00-AF10 PASS, AF11 UNKNOWN because the adjudication then in force covered the earlier pin) and qualification/current-boundary-epochs/4463c5d36501-5c263ff7f1bb (PB-03 run 39425789252 on main 4463c5d3, FULL107 107/107, AF00-AF11 PASS under qualification/af11-xmage-only-topology-20261020/). architecture_freeze.current_qualification in config/rules_engines.json names the second epoch."
  }
 }
