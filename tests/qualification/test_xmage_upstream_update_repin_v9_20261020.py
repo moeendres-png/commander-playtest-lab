@@ -227,7 +227,14 @@ def test_signed_freeze_and_current_qualification_do_not_move_with_the_pin() -> N
     assert freeze["evidence_epoch"] == FREEZE_EPOCH
     # current_qualification lags the live pin until PB-03 on the Lab main merge
     # commit of this repin is sealed and the freeze record is re-assembled.
-    assert freeze["current_qualification"]["engine_commit"] in (PRIOR_PIN, CURRENT_PIN)
+    current = freeze["current_qualification"]
+    assert current["engine_commit"] in (PRIOR_PIN, CURRENT_PIN)
+    if current["engine_commit"] == CURRENT_PIN:
+        # Moving current_qualification onto the new pin needs a sealed epoch for it.
+        epoch = REPO_ROOT / current["evidence_epoch"]
+        runtime = json.loads((epoch / "PB03_RUNTIME_EXECUTION.json").read_text())
+        assert runtime["candidate_commit"] == CURRENT_PIN
+        assert (epoch / "CURRENT_BOUNDARY_SHA256SUMS").is_file()
 
 
 def test_current_boundary_requires_requalification() -> None:
