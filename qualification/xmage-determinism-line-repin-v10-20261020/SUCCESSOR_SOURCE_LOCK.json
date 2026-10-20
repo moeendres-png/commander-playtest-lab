@@ -1,0 +1,175 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-determinism-line-repin-v10-20261020",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the head of the fork branch claude/xmage-candidate-determinism-20261020 (moeendres-png/mage), four engine commits on the v9 pin 043579bb: the Rules-RNG repair (technical winner, Pool of Vigorous Growth), enum-ordered counter-type loops, insertion-ordered object sets and the Pia Nalaar energy guard. The same seed replays the same game: two 46-pod precon sweeps on one build gave identical semantic hashes in every pod, where the v9 pin changed hash between runs in pods 029 and 033. The perf port (0c0132a2ef) is deliberately not part of the pin because it changes the text of mana-ability options. The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the Owner's go (2026-10-20 20:02 UTC). The native maven.yml run on the exact commit and the Lab bridge suite are bound under native_qualification and lab_runtime_qualification; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "owner_go": {
+  "decision": "Owner wrote 'ja hier mein Go! also die linie ohne perf port' on the decision card of the Perf-Port and Precon thread, 2026-10-20 20:02 UTC",
+  "scope": "push the line without the perf port to the fork, fast-forward the candidate line, open the repin; sealing the new epoch is a separate step"
+ },
+ "prior_live_pin": {
+  "commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "tree": "8a3a81952509adca28cb0a8b296642de18766987",
+  "role": "prior live XMage pin (repin v9, magefree/mage master fab0f23b, engine 1.4.62, mage#64); stays historical and is the engine of the current_qualification epoch until this repin is requalified",
+  "successor_locks": [
+   "qualification/xmage-upstream-update-repin-v9-20261020/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+   "tree": "8a3a81952509adca28cb0a8b296642de18766987"
+  },
+  "candidate_line_head": {
+   "commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+   "branch": "claude/xmage-mp-candidate-20260929",
+   "content": "fast-forwarded to the v9 pin on 2026-10-20 10:47 UTC; fast-forwarded to this pin with the repin"
+  },
+  "final_integrated_candidate": {
+   "commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+   "tree": "93fc5e5dc26cb18027ea2185db75eca008160288",
+   "content": "v9 pin plus four engine commits that make equal seeds replay equal; no upstream merge, no perf port"
+  },
+  "identity_rule": "the pin is the head commit of the fork branch claude/xmage-candidate-determinism-20261020 (four commits on 043579bb), cherry-picked from claude/project-thread-nik5ho without the perf port 0c0132a2ef"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/xmage-candidate-determinism-20261020",
+  "commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "tree": "93fc5e5dc26cb18027ea2185db75eca008160288",
+  "parents": [
+   "381ab86950f133e391b4d41ddcd79af2c74e238f"
+  ],
+  "committed_at": "2026-10-20T18:06:23+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2.tar.gz",
+  "fork_ref_note": "the commit is the head of claude/xmage-candidate-determinism-20261020 and, after the fast-forward, of claude/xmage-mp-candidate-20260929"
+ },
+ "donors": [
+  {
+   "finding": "ITERATION-ORDER-NONDETERMINISM",
+   "branch": "claude/project-thread-nik5ho (moeendres-png/mage), commits a25f8b9364, 576b3bcff5, 72e9091efd, 40e305efe0",
+   "head": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+   "observation": "the engine collects cards, permanents and enum values in HashSets whose iteration order follows identity hash codes, which differ per JVM start; equal seeds therefore gave different games in pods 029 (Kathril, Aspect Warper) and 033 (Wave Goodbye: commander replacement questions for seats 1 and 2 swapped). The technical winner and Pool of Vigorous Growth drew from RandomUtil instead of the game Rules RNG.",
+   "fix": "the four commits listed under engine_delta.commits; each is a change of order or of the random source only, plus the Pia Nalaar guard for an empty range 1..0"
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --shortstat 043579bb 769e6ebb in moeendres-png/mage; blob ids from git rev-parse 769e6ebb:path",
+  "commits": [
+   {
+    "commit": "db8b588dce61525d9f15c10ed316d2e95fbf502b",
+    "title": "Rules RNG: draw the technical winner and Pool of Vigorous Growth from the game's Rules RNG",
+    "files": [
+     "Mage/src/main/java/mage/game/GameImpl.java",
+     "Mage.Sets/src/mage/cards/p/PoolOfVigorousGrowth.java"
+    ]
+   },
+   {
+    "commit": "bd499587d057b2d603fc54d4f64ba79ba53b7525",
+    "title": "Counter-type loops: iterate in enum order instead of identity-hash order",
+    "files": [
+     "Mage.Sets/src/mage/cards/k/KathrilAspectWarper.java",
+     "Mage.Sets/src/mage/cards/e/ExoticPets.java"
+    ]
+   },
+   {
+    "commit": "381ab86950f133e391b4d41ddcd79af2c74e238f",
+    "title": "Object sets: keep insertion order instead of identity-hash order",
+    "files_changed": 113,
+    "note": "HashSet of Card, Permanent, Spell, Ability and Player objects becomes LinkedHashSet in 113 files (Mage core: effects, Game, GameImpl, PlayerImpl; Mage.Sets: cards); no change of what is collected, only of the order it is iterated in"
+   },
+   {
+    "commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+    "title": "Pia Nalaar, Chief Mechanic: no amount to choose without energy",
+    "files": [
+     "Mage.Sets/src/mage/cards/p/PiaNalaarChiefMechanic.java"
+    ]
+   }
+  ],
+  "commit_count": 4,
+  "files_changed": 117,
+  "insertions": 239,
+  "deletions": 139,
+  "post_pin_edits": [
+   {
+    "path": "Mage/src/main/java/mage/game/GameImpl.java",
+    "blob": "853ae02f380f51d5e84d09457a0814d6d382db06"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/p/PoolOfVigorousGrowth.java",
+    "blob": "1355076131c9e2a2f23816644a208e612ab8c0ee"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/p/PiaNalaarChiefMechanic.java",
+    "blob": "db23e530e5825e5a7eb35f56fbc42b9a32c744b5"
+   }
+  ],
+  "dependency_change": false,
+  "version_change": {
+   "from": "1.4.62",
+   "to": "1.4.62",
+   "note": "unchanged; the engine version string does not move with this repin"
+  },
+  "build_files_changed": []
+ },
+ "not_in_pin": [
+  "the perf port 0c0132a2ef (reuse of the playable-calculation simulation, skipped no-op trigger scans, singleton ability lists): it saves about 9 percent CPU but changes the option text of Thriving Moor (AddManaChosenColorEffect) and with it the option name and the ability sort key, so pod 033 plays a different game (07364fb0 with the port, 1908ba32 without)",
+  "the 35-commit perf and card patch set of the Muse handover (fork-patches/), including the six simplified Turbulent dual lands the bisection found"
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/xmage-candidate-determinism-20261020 of moeendres-png/mage",
+   "commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+   "run_id": 39488646515,
+   "job": "build (17, temurin, jdk)",
+   "job_id": 118855581111,
+   "run": 7459,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 126,
+   "status": "COMPLETE"
+  },
+  "mage_verify": {
+   "result": "PASS",
+   "detail": "same job, same commit: Mage.Verify ran 28 tests, 0 failures, 0 errors, 8 skipped, BUILD SUCCESS. Mage.Tests and Mage.Verify counts equal those of the v9 pin 043579bb (7459 run, 126 skipped; 28 run, 8 skipped): the four engine commits change order and random source only."
+  }
+ },
+ "local_observed": {
+  "status": "LOCAL_OBSERVED (no CI-level credit)",
+  "precon_sweeps": "46 pods (plan seed 1, game seed 1, 3 workers) on the engine of this pin with the Lab bridge at main a4fc243: run A 46/46 ok, run B 46/46 ok, semantic hashes identical in all 46 pods. Against the sweep of the v9 pin with the same Lab bridge (#929) 44 pods are equal and pods 010 and 033 differ: the v9 engine plays pod 010 two ways (ff58e12e, f0aa64b5 in two runs; the pinned line always ff58e12e) and pod 033 two ways",
+  "determinism_pods": "pod 029 4/4 and pod 033 12/12 runs gave one hash each with the patches in the jar; before, pod 033 gave two hashes in 6 runs",
+  "bridge_identity_tests": "to be re-run against the 1.4.62 artifacts built from this line"
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound once it exists (XMage built and installed from exactly the pin for that job, cache keyed by the commit)",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=769e6ebb): engine-bridge mvn verify against XMage built from the exact pin",
+   "status": "PENDING"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest keeps the v6, v7 and v8 hooks checked."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the epoch is sealed."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "Repin-time record; the status field keeps the value the repin was merged with. Sealed epochs of the v9 pin: qualification/current-boundary-epochs/63f6aebfdea5-17e95be8d3a0 and qualification/current-boundary-epochs/4463c5d36501-5c263ff7f1bb (FULL107 107/107, AF00-AF11 PASS, AF11 under qualification/af11-xmage-only-topology-20261020/); architecture_freeze.current_qualification in config/rules_engines.json names the second epoch and does not move with this repin. A new epoch for this pin needs PB-03 on the Lab main merge commit of this repin, an AF11 adjudication for the new mage jar names and the seal."
+ }
+}
