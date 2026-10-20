@@ -50,6 +50,26 @@ dieselbe Liste wie die frühere Handover-Messung, jetzt mit einem Befehl reprodu
 Vereinfachte Ersatzkarten (`SYNTHETIC`) aus den früheren Fork-Patches schließen diese Lücke nur
 beim Import. Sie spielen nicht wie gedruckt und sind keine Regelevidenz.
 
+## Ersatzdecks (Variante, `data/decks/precon_variants/`)
+
+Für neun der 13 Decks gibt es eine klar benannte Kopie, in der jede dem Engine-Pin unbekannte
+Hauptdeckkarte durch eine echte, importierbare Karte ersetzt ist (`scripts/build_precon_variants.py`,
+`--check` prüft, dass die eingecheckten Dateien dem Generator entsprechen). Die Originale in
+`data/decks/precons/` bleiben unverändert; kein Skript liest die Varianten von selbst.
+
+- Kennzeichnung: `deck_id` beginnt mit `precon-variant/`, der Name endet auf
+  „(variant, replacement cards)“, jede ersetzte Karte trägt die Notiz „VARIANT: replaces …“.
+- Ersatzkarten stammen aus der Muse-Vorlage (M2, 2026-10-20): am Pin importierbar, Commander-legal,
+  in der Farbidentität des Decks, noch nicht im Deck; gegen Scryfall und die Deckdateien nachgeprüft.
+- Nicht ersetzt werden vier Decks, deren **Commander** unbekannt ist (`2024_death_toll`,
+  `2024_family_matters`, `2024_miracle_worker`, `2026_multiverse_reforged`): ein anderer Commander
+  wäre ein anderes Deck.
+- Eine Variante ist ein Testdeck, nicht das gedruckte Precon. Sie sagt nichts über dessen Stärke
+  und gehört weder in Qualifikationsevidenz noch in Rankings oder Stärkevergleiche.
+- Einsatz: Kartenfunktions- und Bridge-Tests, Abdeckung zusätzlicher Karten im Sweep
+  (`precon_pod_sweep.py --deck-dir data/decks/precon_variants` nach dem Importlauf mit
+  `measure_precon_imports.py --deck-dir data/decks/precon_variants`).
+
 ## Spielbarkeit
 
 **Import ist nicht Spielbarkeit.** Der Import beweist nur, dass Kartennamen und Commander
