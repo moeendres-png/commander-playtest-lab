@@ -1,0 +1,1562 @@
+[
+  {
+    "deck": "2011_counterpunch",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2011_devour_for_power",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2011_heavenly_inferno",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2011_mirror_mastery",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2013_eternal_bargain",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2013_evasive_maneuvers",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2013_mind_seize",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2013_nature_of_the_beast",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2013_power_hungry",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2014_built_from_scratch",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2014_forged_in_stone",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2014_guided_by_nature",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2014_peer_through_time",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2014_sworn_to_darkness",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2015_call_the_spirits",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2015_plunder_the_graves",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2015_seize_control",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2015_swell_the_host",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2015_wade_into_battle",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2016_breed_lethality",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2016_entropic_uprising",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2016_invent_superiority",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2016_open_hostility",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2016_stalwart_unity",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_arcane_wizardry",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_draconic_domination",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_evasive_maneuvers",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_feline_ferocity",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_guided_by_nature",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_heavenly_inferno",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_plunder_the_graves",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2017_vampiric_bloodlust",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_adaptive_enchantment",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_breed_lethality",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_built_from_scratch",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_devour_for_power",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_exquisite_invention",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_nature_s_vengeance",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_subjective_reality",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2018_wade_into_battle",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2019_faceless_menace",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2019_merciless_rage",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2019_primal_genesis",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_arcane_maelstrom",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_arm_for_battle",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_enhanced_evolution",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_land_s_wrath",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_reap_the_tides",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_ruthless_regiment",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_sneak_attack",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_symbiotic_swarm",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2020_timeless_wisdom",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_aura_of_courage",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_coven_counters",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_draconic_rage",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_dungeons_of_death",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_elven_empire",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_lorehold_legacies",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_phantom_premonition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_planar_portal",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_prismari_performance",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_quantum_quandrix",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_silverquill_statement",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_spirit_squadron",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_undead_unleashed",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_vampiric_bloodline",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2021_witherbloom_witchcraft",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_bedecked_brokers",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_buckle_up",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_cabaretti_cacophony",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_chaos_incarnate",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_draconic_destruction",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_draconic_dissent",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_exit_from_exile",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_first_flight",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_forces_of_the_imperium",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_forces_of_the_imperium_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_grave_danger",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_heads_i_win__tails_you_lose",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_legends__legacy",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_maestros_massacre",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_mind_flayarrrs",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_mishra_s_burnished_banner",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_necron_dynasties",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_necron_dynasties_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_obscura_operation",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_painbow",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_party_time",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_riveteers_rampage",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_the_ruinous_powers",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_the_ruinous_powers_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_token_triumph",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_tyranid_swarm",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_tyranid_swarm_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2022_urza_s_iron_alliance",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_ahoy_mateys",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_angels__they_re_just_like_us_but_cooler_and_with_wings",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_blast_from_the_past",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_blood_rites",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_call_for_backup",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_cavalry_charge",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_corrupting_influence",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_divine_convocation",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_eldrazi_unbound",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_elven_council",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_enduring_enchantments",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_explorers_of_the_deep",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_fae_dominion",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_food_and_fellowship",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_from_cute_to_brute",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_growing_threat",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_masters_of_evil",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_paradox_power",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_planeswalker_party",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_rebellion_rising",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_riders_of_rohan",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_sliver_swarm",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_the_hosts_of_mordor",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_timey_wimey",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_tinker_time",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_veloci_ramp_tor",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2023_virtue_and_valor",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_20_ways_to_win",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_animated_army",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_blame_game",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_creative_energy",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_creative_energy_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_deadly_disguise",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_death_toll",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_deep_clue_sea",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_desert_bloom",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_eldrazi_incursion",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_eldrazi_incursion_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_endless_punishment",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_family_matters",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_grand_larceny",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_graveyard_overdrive",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_graveyard_overdrive_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_hail__caesar",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_jump_scare_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_miracle_worker",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_most_wanted",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_mutant_menace",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_peace_offering",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_quick_draw",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_raining_cats_and_dogs",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_revenant_recon",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_science_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_scrappy_survivors",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_squirreled_away",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_tricky_terrain",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2024_tricky_terrain_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_abzan_armor",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_counter_blitz__final_fantasy_x_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_counter_blitz_collector_s_edition__final_fantasy_x_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_counter_intelligence",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_eternal_might",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_everyone_s_invited_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_jeskai_striker",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_limit_break__final_fantasy_vii_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_limit_break_collector_s_edition__final_fantasy_vii_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_living_energy",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_mardu_surge",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_revival_trance__final_fantasy_vi_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_revival_trance_collector_s_edition__final_fantasy_vi_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_scions___spellcraft__final_fantasy_xiv_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_scions___spellcraft_collector_s_edition__final_fantasy_xiv_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_sultai_arisen",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_temur_roar",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2025_world_shaper",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_avengers_assemble",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_avengers_assemble_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_blight_curse",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_calling_all_angels",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_dance_of_the_elements",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_doom_prevails",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_doom_prevails_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_goblin_storm",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_hatsune_miku",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_keen_engineering",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_lorehold_spirit",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_multiverse_reforged",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_odds_and_ends",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_prismari_artistry",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_quandrix_unlimited",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_reign_of_dragons",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_silverquill_influence",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_the_fantastic_four",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_the_fantastic_four_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_tramplesaurus_rex",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_turtle_power_",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_wakanda_forever",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_wakanda_forever_collector_s_edition",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_witherbloom_pestilence",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  },
+  {
+    "deck": "2026_wretched_ranks",
+    "status": "ENGINE_FAILURE",
+    "error": "FullGameConformanceError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:9c33df85439d1065)",
+    "decisions": null,
+    "winners": null,
+    "wall_s": 0.0
+  }
+]
