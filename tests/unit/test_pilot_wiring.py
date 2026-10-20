@@ -85,7 +85,5 @@ def test_desperation_wiring_executes():
     with patch.object(v, "desperation_score", return_value=0.8):
         score_desp, _ = v.attack_score(option, state)
     # Without the wiring, both scores would be identical.
-    assert score_desp > score_calm, (
-        f"desperation wiring not executed: {score_desp} <= {score_calm}"
-    )
+    assert score_desp > score_calm, f"desperation wiring not executed: {score_desp} <= {score_calm}"
     assert abs((score_desp - score_calm) - 0.8) < 0.01

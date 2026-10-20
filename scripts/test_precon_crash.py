@@ -10,7 +10,7 @@ Check with: pgrep -f benchmark_xmage
 Usage:
     # Test single deck
     python3 scripts/test_precon_crash.py --deck 2011_counterpunch --jar <jar>
-    
+
     # Test all 195 decks (takes ~2-3 hours)
     python3 scripts/test_precon_crash.py --all --jar <jar> --out ~/workspace/tmp/precon_results.json
 """
@@ -20,7 +20,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import time
 from pathlib import Path
 
 # Add repo to path
@@ -28,29 +27,27 @@ REPO = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO / "scripts"))
 sys.path.insert(0, str(REPO / "src"))
 
-from benchmark_xmage_full_games import _play, _setup, bridge_command
+from benchmark_xmage_full_games import _play, _setup, bridge_command  # noqa: E402
 
 PRECON_DIR = REPO / "data" / "decks" / "precons"
 
 
-def test_single_deck(
-    deck_path: Path, command: tuple[str, ...], seed: int = 1
-) -> dict:
+def test_single_deck(deck_path: Path, command: tuple[str, ...], seed: int = 1) -> dict:
     """Test a single precon deck in a 4-player game.
-    
+
     All 4 players use the same precon deck to isolate deck-specific
     crashes from interaction effects.
     """
     deck_name = deck_path.stem
-    
+
     # All 4 players use the same deck (_setup expects Path objects)
     deck_rel = deck_path.relative_to(REPO)
     setup = _setup((deck_rel,) * 4)
-    
+
     # _play returns a row dict with status, semantic, decisions, winners, etc.
     # A failed game has status="failed" with error details.
     row = _play(command, f"precon-{deck_name}", setup, seed, private=False)
-    
+
     return {
         "deck": deck_name,
         "status": "OK" if row["status"] == "ok" else "ENGINE_FAILURE",
@@ -72,9 +69,8 @@ def main() -> int:
 
     # Check no other benchmark is running
     import subprocess
-    ps = subprocess.run(
-        ["pgrep", "-f", "benchmark_xmage"], capture_output=True
-    )
+
+    ps = subprocess.run(["pgrep", "-f", "benchmark_xmage"], capture_output=True)
     if ps.returncode == 0:
         print(
             "WARNING: Another benchmark is running! CPU contention causes false failures.",
@@ -107,7 +103,7 @@ def main() -> int:
     command = bridge_command(jar, [])
     results = []
     out_path = Path(args.out)
-    
+
     for i, deck_path in enumerate(decks, 1):
         print(f"[{i}/{len(decks)}] {deck_path.stem}...", file=sys.stderr, flush=True)
         try:
@@ -121,7 +117,7 @@ def main() -> int:
         results.append(result)
         status_icon = "✓" if result["status"] == "OK" else "✗"
         print(f"  {status_icon} {result['status']}", file=sys.stderr)
-        
+
         # Save incrementally (in case of interruption)
         with open(out_path, "w") as f:
             json.dump(results, f, indent=2)
@@ -130,18 +126,18 @@ def main() -> int:
     by_status: dict[str, int] = {}
     for r in results:
         by_status[r["status"]] = by_status.get(r["status"], 0) + 1
-    
+
     print("\n=== Summary ===", file=sys.stderr)
     for status, count in sorted(by_status.items()):
         print(f"  {status}: {count}", file=sys.stderr)
-    
+
     failures = [r for r in results if r["status"] != "OK"]
     if failures:
         print(f"\n⚠️  {len(failures)} decks failed:", file=sys.stderr)
         for f in failures[:20]:
             err = (f.get("error") or "")[:80]
             print(f"  - {f['deck']}: {err}", file=sys.stderr)
-    
+
     return 0 if not failures else 1
 
 
