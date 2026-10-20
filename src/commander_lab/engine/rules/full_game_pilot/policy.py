@@ -71,6 +71,10 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         # genuine re-asks still reach the ladder in ``_decide_blocks``.
         if decision_class != "declare_blocker":
             self._block_frame_asks.pop(seat, None)
+        # #920: the asks of one Phyrexian payment are back to back, so a
+        # decision of any other class ends the life they promised.
+        if decision_class != "choose_use":
+            self._phyrexian_life_promised.pop(seat, None)
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
         min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))

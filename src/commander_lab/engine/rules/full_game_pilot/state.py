@@ -123,6 +123,9 @@ class _PolicyState:
         # never capped and clears this memory, so an ordinary may-trigger
         # cannot inherit a chain it never took part in.
         self._boolean_repeat: dict[int, tuple[tuple[str, str], int, int]] = {}
+        # #920: life the seat's Yes answers to the consecutive "Pay N life
+        # instead of {X}?" asks of one Phyrexian payment have promised so far.
+        self._phyrexian_life_promised: dict[int, int] = {}
         self._free_cast_failed: dict[int, tuple[object, set[str]]] = {}
         self._free_cast_last_yes: dict[int, str | None] = {}
         self._free_cast_refused: dict[int, object] = {}
