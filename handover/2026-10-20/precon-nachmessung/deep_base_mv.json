@@ -1,0 +1,84 @@
+{
+  "2026_multiverse_reforged": {
+    "missing_cards": [
+      {
+        "card": "Nissa, Leyline Tamer",
+        "role": "mainboard"
+      },
+      {
+        "card": "Omnath, Locus of the Void",
+        "role": "mainboard"
+      },
+      {
+        "card": "Dack Fayden, Helping Hand",
+        "role": "mainboard"
+      },
+      {
+        "card": "Ob Nixilis, the Ascended",
+        "role": "mainboard"
+      },
+      {
+        "card": "Teferi's Reproach",
+        "role": "mainboard"
+      },
+      {
+        "card": "Avacyn, Angel of Horror",
+        "role": "mainboard"
+      },
+      {
+        "card": "Jhoira, Weatherlight Corsair",
+        "role": "mainboard"
+      },
+      {
+        "card": "Venser, Fervent Forger",
+        "role": "mainboard"
+      },
+      {
+        "card": "Niv-Mizzet, Ghost Counsel",
+        "role": "mainboard"
+      },
+      {
+        "card": "Tamiyo, Upriser Crowned",
+        "role": "mainboard"
+      },
+      {
+        "card": "The Ur-Sphinx",
+        "role": "mainboard"
+      },
+      {
+        "card": "Ginger, Queen of Sweets",
+        "role": "mainboard"
+      },
+      {
+        "card": "Memnarch, the Warden",
+        "role": "mainboard"
+      },
+      {
+        "card": "Turbulent Crater",
+        "role": "mainboard"
+      },
+      {
+        "card": "Turbulent Shore",
+        "role": "mainboard"
+      },
+      {
+        "card": "Turbulent Wetlands",
+        "role": "mainboard"
+      },
+      {
+        "card": "Plan for All Outcomes",
+        "role": "mainboard"
+      },
+      {
+        "card": "Fatehold Charm",
+        "role": "mainboard"
+      },
+      {
+        "card": "Jace, Multiverse Architect",
+        "role": "commander"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Akroma, Angel of Fury,card=Akroma, Angel of Fury,message=Invalid color "
+  }
+}

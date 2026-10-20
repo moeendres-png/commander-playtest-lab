@@ -1,0 +1,350 @@
+{
+  "2022_heads_i_win__tails_you_lose": {
+    "missing_cards": [],
+    "identity_mismatch_fixed_by_front_name": true,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_angels__they_re_just_like_us_but_cooler_and_with_wings": {
+    "missing_cards": [],
+    "identity_mismatch_fixed_by_front_name": true,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_blast_from_the_past": {
+    "missing_cards": [
+      {
+        "card": "Susan Foreman",
+        "role": "mainboard"
+      },
+      {
+        "card": "The Five Doctors",
+        "role": "mainboard"
+      },
+      {
+        "card": "The Eighth Doctor",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_call_for_backup": {
+    "missing_cards": [
+      {
+        "card": "Ichor Elixir",
+        "role": "mainboard"
+      },
+      {
+        "card": "Path of the Pyromancer",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_cavalry_charge": {
+    "missing_cards": [
+      {
+        "card": "Ichor Elixir",
+        "role": "mainboard"
+      },
+      {
+        "card": "Path of the Enigma",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_divine_convocation": {
+    "missing_cards": [
+      {
+        "card": "Ichor Elixir",
+        "role": "mainboard"
+      },
+      {
+        "card": "Path of the Ghosthunter",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_from_cute_to_brute": {
+    "missing_cards": [],
+    "identity_mismatch_fixed_by_front_name": true,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_growing_threat": {
+    "missing_cards": [
+      {
+        "card": "Ichor Elixir",
+        "role": "mainboard"
+      },
+      {
+        "card": "Path of the Schemer",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_masters_of_evil": {
+    "missing_cards": [
+      {
+        "card": "Missy",
+        "role": "mainboard"
+      },
+      {
+        "card": "Cyber Conversion",
+        "role": "mainboard"
+      },
+      {
+        "card": "Doomsday Confluence",
+        "role": "mainboard"
+      },
+      {
+        "card": "Death in Heaven",
+        "role": "mainboard"
+      },
+      {
+        "card": "Rassilon, the War President",
+        "role": "mainboard"
+      },
+      {
+        "card": "The Cyber-Controller",
+        "role": "mainboard"
+      },
+      {
+        "card": "Cybership",
+        "role": "mainboard"
+      },
+      {
+        "card": "Don't Blink",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Plains,card=Plains,message=Invalid color identity (includes {W}, but yo"
+  },
+  "2023_paradox_power": {
+    "missing_cards": [
+      {
+        "card": "Osgood, Operation Double",
+        "role": "mainboard"
+      },
+      {
+        "card": "The Foretold Soldier",
+        "role": "mainboard"
+      },
+      {
+        "card": "River Song's Diary",
+        "role": "mainboard"
+      },
+      {
+        "card": "Psychic Paper",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Plains,card=Plains,message=Invalid color identity (includes {W}, but yo"
+  },
+  "2023_timey_wimey": {
+    "missing_cards": [
+      {
+        "card": "The Pandorica",
+        "role": "mainboard"
+      },
+      {
+        "card": "The War Doctor",
+        "role": "mainboard"
+      },
+      {
+        "card": "The Moment",
+        "role": "mainboard"
+      },
+      {
+        "card": "Psychic Paper",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2023_tinker_time": {
+    "missing_cards": [
+      {
+        "card": "Ichor Elixir",
+        "role": "mainboard"
+      },
+      {
+        "card": "Path of the Animist",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Plains,card=Plains,message=Invalid color identity (includes {W}, but yo"
+  },
+  "2024_blame_game": {
+    "missing_cards": [
+      {
+        "card": "Feather, Radiant Arbiter",
+        "role": "mainboard"
+      },
+      {
+        "card": "Immortal Obligation",
+        "role": "mainboard"
+      },
+      {
+        "card": "Otherworldly Escort",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2024_death_toll": {
+    "missing_cards": [
+      {
+        "card": "Winter, Cynical Opportunist",
+        "role": "commander"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Arachnogenesis,card=Arachnogenesis,message=Invalid color identity (incl"
+  },
+  "2024_family_matters": {
+    "missing_cards": [
+      {
+        "card": "Zinnia, Valley's Voice",
+        "role": "commander"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Adarkar Wastes,card=Adarkar Wastes,message=Invalid color identity (incl"
+  },
+  "2024_miracle_worker": {
+    "missing_cards": [
+      {
+        "card": "Aminatou, Veil Piercer",
+        "role": "commander"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Adarkar Wastes,card=Adarkar Wastes,message=Invalid color identity (incl"
+  },
+  "2024_raining_cats_and_dogs": {
+    "missing_cards": [],
+    "identity_mismatch_fixed_by_front_name": true,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  },
+  "2024_revenant_recon": {
+    "missing_cards": [
+      {
+        "card": "Eye of Duskmantle",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Plains,card=Plains,message=Invalid color identity (includes {W}, but yo"
+  },
+  "2024_tricky_terrain": {
+    "missing_cards": [
+      {
+        "card": "Desert Warfare",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Plains,card=Plains,message=Invalid color identity (includes {W}, but yo"
+  },
+  "2024_tricky_terrain_collector_s_edition": {
+    "missing_cards": [
+      {
+        "card": "Desert Warfare",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ANDERER_FEHLER: RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: COMMANDER_VALIDATION_FAILED: type=OTHER,group=Plains,card=Plains,message=Invalid color identity (includes {W}, but yo"
+  },
+  "2026_multiverse_reforged": {
+    "missing_cards": [
+      {
+        "card": "Nissa, Leyline Tamer",
+        "role": "mainboard"
+      },
+      {
+        "card": "Omnath, Locus of the Void",
+        "role": "mainboard"
+      },
+      {
+        "card": "Dack Fayden, Helping Hand",
+        "role": "mainboard"
+      },
+      {
+        "card": "Ob Nixilis, the Ascended",
+        "role": "mainboard"
+      },
+      {
+        "card": "Teferi's Reproach",
+        "role": "mainboard"
+      },
+      {
+        "card": "Avacyn, Angel of Horror",
+        "role": "mainboard"
+      },
+      {
+        "card": "Jhoira, Weatherlight Corsair",
+        "role": "mainboard"
+      },
+      {
+        "card": "Venser, Fervent Forger",
+        "role": "mainboard"
+      },
+      {
+        "card": "Niv-Mizzet, Ghost Counsel",
+        "role": "mainboard"
+      },
+      {
+        "card": "Tamiyo, Upriser Crowned",
+        "role": "mainboard"
+      },
+      {
+        "card": "The Ur-Sphinx",
+        "role": "mainboard"
+      },
+      {
+        "card": "Ginger, Queen of Sweets",
+        "role": "mainboard"
+      },
+      {
+        "card": "Memnarch, the Warden",
+        "role": "mainboard"
+      },
+      {
+        "card": "Turbulent Crater",
+        "role": "mainboard"
+      },
+      {
+        "card": "Turbulent Shore",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "ITERATIONSLIMIT"
+  },
+  "2026_odds_and_ends": {
+    "missing_cards": [
+      {
+        "card": "Exchange of Words",
+        "role": "mainboard"
+      },
+      {
+        "card": "Space Beleren",
+        "role": "mainboard"
+      }
+    ],
+    "identity_mismatch_fixed_by_front_name": false,
+    "final_status": "OK_NACH_ENTFERNUNG"
+  }
+}
