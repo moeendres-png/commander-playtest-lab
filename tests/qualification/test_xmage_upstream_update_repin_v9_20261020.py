@@ -23,6 +23,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 CURRENT_PIN = "043579bb7829fa866ade893909c9ba4825a18b23"
 CURRENT_TREE = "8a3a81952509adca28cb0a8b296642de18766987"
@@ -78,6 +80,24 @@ ACTIVE_LITERAL_CONSUMERS = (
 )
 
 
+def _live_pin() -> str:
+    manifest = json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
+    return manifest["primary_engine"]["commit"]
+
+
+# This file proves the 2026-10-20 repin EVENT. Its current-pin assertions hold only while
+# this repin's pin is live; after a later forward repin they are superseded by that repin's
+# successor guard (tests/qualification/test_xmage_determinism_line_repin_v10_20261020.py)
+# and are skipped, never rewritten. Its historical assertions stay active.
+superseded_by_later_repin = pytest.mark.skipif(
+    _live_pin() != CURRENT_PIN,
+    reason=(
+        "superseded: live XMage pin moved forward "
+        "(see test_xmage_determinism_line_repin_v10_20261020.py)"
+    ),
+)
+
+
 def _manifest() -> dict:
     return json.loads((REPO_ROOT / "config/rules_engines.json").read_text())
 
@@ -86,6 +106,7 @@ def _lock() -> dict:
     return json.loads((REPO_ROOT / SUCCESSOR_LOCK).read_text())
 
 
+@superseded_by_later_repin
 def test_live_pin_is_the_successor_candidate() -> None:
     primary = _manifest()["primary_engine"]
     assert primary["commit"] == CURRENT_PIN
@@ -100,6 +121,7 @@ def test_selection_truth_unchanged() -> None:
     assert cfg["current_runtime"]["production_provider"] == "xmage"
 
 
+@superseded_by_later_repin
 def test_successor_lock_binds_the_candidate_its_donor_and_the_prior_pin() -> None:
     lock = _lock()
     pin = lock["new_live_pin"]
@@ -219,6 +241,7 @@ def test_engine_version_moves_with_the_pin_everywhere_it_is_declared() -> None:
     assert f'XMAGE_MAGE_JAR_NAME = "mage-{ENGINE_VERSION}.jar"' in twins
 
 
+@superseded_by_later_repin
 def test_signed_freeze_and_current_qualification_do_not_move_with_the_pin() -> None:
     freeze = _manifest()["architecture_freeze"]
     assert freeze["status"] == "CLAIMED"
@@ -249,6 +272,7 @@ def test_current_boundary_requires_requalification() -> None:
         assert path.parent.name.startswith(runtime["runner_commit"][:12]), path.parent.name
 
 
+@superseded_by_later_repin
 def test_all_active_literal_pin_consumers_migrated() -> None:
     for rel in ACTIVE_LITERAL_CONSUMERS:
         text = (REPO_ROOT / rel).read_text()
@@ -256,6 +280,7 @@ def test_all_active_literal_pin_consumers_migrated() -> None:
         assert PRIOR_PIN not in text, rel
 
 
+@superseded_by_later_repin
 def test_prior_pin_stays_historical() -> None:
     from commander_lab.qualification.current_boundary import source_lock
 
