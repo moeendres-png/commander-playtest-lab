@@ -157,3 +157,13 @@ The control test `anUnqualifiedClassStillFailsClosed` now accepts the fail-close
 | The same bridge code on exact `9375f35a` | The engine asks the departed player again and the lane fails closed; nothing is dealt for P1. |
 
 **Still fail-closed:** `replacement_effect`; non-combat `multi_amount`.
+
+## Follow-up 5 — a frame requested for a player who has already left (2026-10-20)
+
+**What the precon pod sweep found.** Plan seed 3, game seed 1, pod 040 ended with `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: choose_use`. Willie Lumpkin, Postman ("Whenever Willie Lumpkin deals combat damage to an opponent, you draw a card and that player may draw a card. …") hit an opponent who lost to that very damage. The resolving effect still named the player, so XMage asked a player who had left the game for a "may" choice.
+
+**Why it is not a rules question.** CR 800.4a: a player who left makes no choices. The pending-frame path of this finding already answers that by retiring the frame and handing XMage its own no-response (`false`). The request-time path (the actor has already left when the engine asks) failed closed for every class, although the callback for the same class unwinds natively.
+
+**Change.** `XmageFullGameDecisionController.request` now treats a non-priority frame for a departed actor like a pending frame of a departed player. If its class is in `DEPARTED_CANCELLABLE`, or the caller qualified it, no frame is published, `engine_decision_cancelled` is recorded with reason `player_left_game`, and the callback gets the same `DecisionCancelledException` (for `choose_use` that is `false`). Every other class still fails closed.
+
+**Test.** `XmageMultiplayerLeaverMayChoiceTest.anOpponentWhoLostToTheCombatDamageIsNotAskedItsMayDraw` (4P and 5P): the opponent at 1 life is never asked and the controller still draws; the control at 40 life is asked once.
