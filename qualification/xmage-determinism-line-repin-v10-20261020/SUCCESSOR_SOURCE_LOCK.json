@@ -2,7 +2,7 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-determinism-line-repin-v10-20261020",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status": "EVIDENCE_BOUND",
  "status_note": "the pin is the head of the fork branch claude/xmage-candidate-determinism-20261020 (moeendres-png/mage), four engine commits on the v9 pin 043579bb: the Rules-RNG repair (technical winner, Pool of Vigorous Growth), enum-ordered counter-type loops, insertion-ordered object sets and the Pia Nalaar energy guard. The same seed replays the same game: two 46-pod precon sweeps on one build gave identical semantic hashes in every pod, where the v9 pin changed hash between runs in pods 029 and 033. The perf port (0c0132a2ef) is deliberately not part of the pin because it changes the text of mana-ability options. The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the Owner's go (2026-10-20 20:02 UTC). The native maven.yml run on the exact commit and the Lab bridge suite are bound under native_qualification and lab_runtime_qualification; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
@@ -149,17 +149,33 @@
   "status": "LOCAL_OBSERVED (no CI-level credit)",
   "precon_sweeps": "46 pods (plan seed 1, game seed 1, 3 workers) on the engine of this pin with the Lab bridge at main a4fc243: run A 46/46 ok, run B 46/46 ok, semantic hashes identical in all 46 pods. Against the sweep of the v9 pin with the same Lab bridge (#929) 44 pods are equal and pods 010 and 033 differ: the v9 engine plays pod 010 two ways (ff58e12e, f0aa64b5 in two runs; the pinned line always ff58e12e) and pod 033 two ways",
   "determinism_pods": "pod 029 4/4 and pod 033 12/12 runs gave one hash each with the patches in the jar; before, pod 033 gave two hashes in 6 runs",
-  "bridge_identity_tests": "to be re-run against the 1.4.62 artifacts built from this line"
+  "bridge_identity_tests": "the engine-bridge suite ran in Actions against XMage built from the exact pin (lab_runtime_qualification.bridge_suite); not repeated locally"
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound once it exists (XMage built and installed from exactly the pin for that job, cache keyed by the commit)",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
-  "bridge_suite": {
-   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=769e6ebb): engine-bridge mvn verify against XMage built from the exact pin",
-   "status": "PENDING"
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 769e6ebb for that job, cache keyed by the commit; step 'Record engine artifact identity' of job 118876272095 prints the sha256 of the installed jars)",
+  "installed_artifacts_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 568b8481c3555aa4d64d00742208117edca7dbab0417afeda5af9f72fdead95d",
+   "org.mage:mage-sets:1.4.62": "sha256 5fd9ecaf123693096031eedc1a9451c6e7e3df49a4949018c54c280e7f58523d"
   },
-  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest keeps the v6, v7 and v8 hooks checked."
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head c9be3f64bb7d1dd61e46df7c66971e9c01aed63d (XMAGE_COMMIT=769e6ebb, checked in the job): engine-bridge mvn verify against XMage built from exact 769e6ebb; the head contains main with #934 (d59d0cd2)",
+   "run": 2112,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 39494583708,
+   "job": 118876272095,
+   "artifact": {
+    "id": 12298151293,
+    "zip_sha256": "f82e6de20d31867b2bfb48293fd24d3fb6d1d1b9e421d99599c698b477f81010"
+   },
+   "tests_run": 1147,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest checks the seven prepare creatures, the finished Adventurous Eater and the still unfinished cards; the v6, v7 and v8 hooks stay checked."
  },
  "architecture_freeze_binding": {
   "status": "UNCHANGED_BY_THIS_REPIN",
