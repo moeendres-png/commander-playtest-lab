@@ -593,7 +593,7 @@ def build_launch_plan(
                 "module": "engine-bridge",
                 "classes": str(workspace / "target" / "classes"),
                 "classpath_manifest": str(workspace / "target" / "cp-wsr22.txt"),
-                "maven_coordinates": "org.mage:mage:1.4.61",
+                "maven_coordinates": "org.mage:mage:1.4.62",
             },
             workspace=str(workspace),
         )

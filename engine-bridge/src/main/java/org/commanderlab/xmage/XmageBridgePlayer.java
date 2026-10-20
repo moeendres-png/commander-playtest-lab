@@ -277,7 +277,7 @@ final class XmageBridgePlayer extends PlayerImpl {
     ) {
         if (externalDecisionController != null && BOTTOM_SELECTION.get()) {
             /*
-             * Pinned 1.4.61 PlayerImpl.putCardsOnBottomOfLibrary reaches this
+             * Pinned 1.4.62 PlayerImpl.putCardsOnBottomOfLibrary reaches this
              * bulk callback only for an any-order ordering of two or more
              * cards (mid-game "put the rest on the bottom in any order", e.g.
              * Impulse/Anticipate). London mulligan bottoms one card at a time

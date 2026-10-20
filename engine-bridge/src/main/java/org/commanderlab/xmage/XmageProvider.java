@@ -19,9 +19,9 @@ import java.util.HexFormat;
 final class XmageProvider {
 
     static final String ENGINE = "xmage";
-    static final String ENGINE_VERSION = "1.4.61";
+    static final String ENGINE_VERSION = "1.4.62";
     static final String ENGINE_COMMIT =
-            "348b37db5cf64f4ed503e8d37b776d5edc70e6d5";
+            "043579bb7829fa866ade893909c9ba4825a18b23";
     static final String PROTOCOL_VERSION = "2.0.0";
 
     private XmageProvider() {
