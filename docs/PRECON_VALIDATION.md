@@ -171,6 +171,26 @@ die anderen sechs Karten sind neu.
   (2673 Entscheidungen, Hash `c2aeceed…`). Pilot und Bridge sehen die Energie nicht im
   Spielzustand; eine Pilot-Umgehung hätte den Zustandsabdruck des Replays geändert.
 
+- Familiensuche mit weiteren Plänen (Spiel-Seed 1, `LOCAL_OBSERVED`, je Plan ein Lauf, die 182 Decks aus dem
+  Import-Report des Pins):
+  - **Plan-Seed 2:** 40 von 46 Pods liefen durch (JAR `d7f55047…`), sechs brachen ab
+    (fünfmal `XMAGE_ACTION_EXECUTION_FAILED`, einmal `ENGINE_FAILURE`). Vier Familien, behoben in
+    #932: (1) ein Ziel, das eine Regelmodifikation nicht wählbar macht (Ground Seal gegen den
+    Seer), wurde der Pilotseite als Kostenziel angeboten; (2) "Remove a counter"-Kosten wurden für
+    Objekte ohne Marke angeboten (Scholar ohne Marke); (3) zweite Phyrexian-Lebenszahlung bei zu
+    wenig Leben (Lashwrithe), wo die Engine zurückspult; (4) die Kopier-Wirkung "Continue to
+    choose copies and cast?" (Mizzix's Mastery) wurde nach abgelehntem Zauber erneut
+    gestellt und bejaht. Mit #932 (JAR `6ffcd616…`): **46 von 46**, alle 182 Decks in einem durchgespielten Pod.
+    Welcher Pod zu welcher Familie gehört, habe ich nicht einzeln aufgeschlüsselt.
+  - **Plan-Seed 3:** 45 von 46 Pods liefen durch (JAR `6ffcd616…`, 178 Decks in durchgelaufenen Pods;
+    zusammen mit Plan-Seed 2 alle 182). Ein Abbruch, `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION:
+    choose_use`: Willie Lumpkin, Postman trifft einen Gegner, der an diesem Schaden ausscheidet,
+    und der Effekt fragt ihn beim Auflösen trotzdem "darf ziehen?". Behoben in #934 (kein Frame
+    für einen ausgeschiedenen Spieler, XMage bekommt seine eigene Nicht-Antwort); der Pod läuft
+    danach zu Ende (3534 Entscheidungen).
+  - Das sind Funde pro Plan, kein Passanteil: ein Spiel pro Pod, eine Handvoll Pläne, und ein
+    sauberer Lauf beweist nicht, dass andere Pläne oder Seeds sauber laufen.
+
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
