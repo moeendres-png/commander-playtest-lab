@@ -46,15 +46,16 @@ python scripts/import_deck.py \
 
 ## Precon-Decks
 
-Alle 198 offiziellen Commander Precons (2011–2026) sind bereits im Projekt:
+195 offizielle Commander Precons (2011–2026) liegen im Projekt:
 - Verzeichnis: `data/decks/precons/`
 - Format: `{jahr}_{deckname}.json`
 - Beispiel: `data/decks/precons/2011_counterpunch.json`
 
 ## Karten-Abdeckung
 
-Alle 6432 Karten aus den Precons sind in der Kartendatenbank (`data/cards/xmage_card_facts.json`).
-Die XMage-Java-Engine implementiert ~30.000 Karten – alle Precon-Karten sind spielbar.
+Am Pin `043579bb` importieren 182 von 195 Precons; 13 Decks scheitern an 31 Kartennamen, die die
+Engine nicht kennt. Import ist nicht Spielbarkeit. Gemessener Stand, Liste der fehlenden Karten und
+Reproduktion: `docs/PRECON_VALIDATION.md`.
 
 ## Spiele simulieren
 
