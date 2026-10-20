@@ -28,6 +28,7 @@ from .common import (
 from .payment import _PaymentDecisions
 
 _FREE_CAST_PROMPT = re.compile(r"Cast spell without paying its mana cost")
+_PHYREXIAN_LIFE_PROMPT = re.compile(r"Pay (\d+) life instead of ")
 _FREE_CAST_CONTINUE_PROMPT = re.compile(
     r"You can cast \d+ more spells? for free\. Continue casting"
 )
@@ -303,6 +304,28 @@ class _ChoiceDecisions(_PaymentDecisions):
         # parse is never capped: the Lab never decides a discretionary choice
         # for a player (F-RULES-03).
         seat = runtime.binding.seat
+        # Phyrexian-life guard (legality, #920). ManaCostsImpl asks once per
+        # Phyrexian symbol, "Pay 2 life instead of {B}?", and tests every ask
+        # against the life total as it stands before any of them is paid, so
+        # at 2 life both asks of {B/P}{B/P} (Lashwrithe's Equip) are offered
+        # although CR 119.4 lets a player pay no more life than they have. A
+        # second Yes then leaves an unpayable PayLifeCost and the engine
+        # fails the whole activation. The life the earlier Yes answers of
+        # this payment already promised is therefore taken off before the next
+        # Yes is offered. The asks of one payment are consecutive, so any
+        # other prompt (and, in ``decide``, any other decision class) starts
+        # the count over.
+        life_prompt = _PHYREXIAN_LIFE_PROMPT.match(prompt)
+        life_promised = 0
+        life_yes_blocked = False
+        if life_prompt is None:
+            self._phyrexian_life_promised.pop(seat, None)
+        else:
+            life_promised = self._phyrexian_life_promised.get(seat, 0)
+            life = self._actor(state).get("life")
+            life_yes_blocked = isinstance(life, int | float) and (
+                life < life_promised + int(life_prompt.group(1))
+            )
         offer = _multikicker_offer(prompt)
         chain_key = (self._boolean_source_key(source_object), outcome)
         prior = self._boolean_repeat.get(seat)
@@ -316,14 +339,11 @@ class _ChoiceDecisions(_PaymentDecisions):
         ):
             answered_yes = prior[2]
             cap = self._boolean_yes_cap(offer, self._actor(state))
+        yes_withheld = life_yes_blocked or (cap is not None and answered_yes >= cap)
         selectable = [
             option
             for option in options
-            if not (
-                values[self._required_text(option, "option_id")]
-                and cap is not None
-                and answered_yes >= cap
-            )
+            if not (values[self._required_text(option, "option_id")] and yes_withheld)
         ]
         # Free-cast retry guard (liveness only, #816/#817). XMage's
         # castMultipleWithAttributeForFree keeps a card whose free cast was
@@ -363,7 +383,13 @@ class _ChoiceDecisions(_PaymentDecisions):
             if kept:
                 selectable = kept
         if selectable and len(selectable) != len(options):
-            if cap is not None:
+            if life_yes_blocked:
+                _LOG.info(
+                    "phyrexian life guard: %d life already promised in this payment; declining %r",
+                    life_promised,
+                    prompt,
+                )
+            elif cap is not None:
                 _LOG.info(
                     "multikicker guard: %d consecutive yes payments for %s/%s reached the "
                     "cap %d funded by the pilot's visible mana; declining",
@@ -407,6 +433,8 @@ class _ChoiceDecisions(_PaymentDecisions):
             if last_yes is not None:
                 failed.add(last_yes)
         self._free_cast_failed[seat] = (turn, failed)
+        if life_prompt is not None and values[raw_id]:
+            self._phyrexian_life_promised[seat] = life_promised + int(life_prompt.group(1))
         if offer is None:
             # Not a repeating offer: it is a single discretionary question, so
             # it clears any chain and is never capped.
