@@ -6,7 +6,7 @@
 |------------|---------|-------|
 | XMage Engine (Fork) | Java | XMage ist Java; Fork muss Java bleiben |
 | Engine Bridge | Java | Läuft in der JVM, kommuniziert via JSON |
-| Pilot (Entscheidungslogik) | Python | 3400+ Zeilen Entscheidungslogik |
+| Pilot (Entscheidungslogik) | Python | rund 4800 Zeilen Entscheidungslogik (Stand 2026-10-20) |
 | Analyse/Orchestrierung | Python | Data-Science-Ökosystem (pandas, numpy) |
 | Kommunikation | JSON über stdin/stdout | Sprachagnostisches Protokoll |
 
@@ -21,8 +21,8 @@ möglich:**
 | Sprache | Machbarkeit | Aufwand | Empfehlung |
 |---------|-------------|---------|------------|
 | **Python** (aktuell) | ✅ Läuft | – | ✅ Behalten |
-| **Rust** | ✅ Möglich | Hoch (3400 Zeilen neu) | ⚠️ Nur bei Bedarf |
-| **Go** | ✅ Möglich | Hoch (340o Zeilen neu) | ⚠️ Nur bei Bedarf |
+| **Rust** | ✅ Möglich | Hoch (rund 4800 Zeilen neu) | ⚠️ Nur bei Bedarf |
+| **Go** | ✅ Möglich | Hoch (rund 4800 Zeilen neu) | ⚠️ Nur bei Bedarf |
 | **JavaScript/Node.js** | ✅ Möglich | Hoch | ❌ Kein Vorteil |
 | **C++** | ✅ Möglich | Sehr hoch | ❌ Kein Vorteil |
 | **Java** | ✅ Möglich | Hoch | ⚠️ Möglich, aber... |

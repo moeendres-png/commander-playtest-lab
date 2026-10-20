@@ -8,9 +8,11 @@ als eine generische Kreatur.
 
 ## Ansatz
 
-### Phase 1: Offline-Analyse (bereits implementiert)
-`scripts/card_synergy_report.py` findet Karten-Paare mit überproportionaler
-Win-Rate aus historischen Spieldaten.
+### Phase 1: Offline-Analyse (Skript vorhanden, explorativ)
+`scripts/card_synergy_report.py` liest die Berichte von `pilot_decision_report.py` und vergleicht
+die Gewinnrate eines Platzes, der beide Karten ausgespielt hat, mit der durchschnittlichen
+Gewinnrate eines Platzes. Das ist keine Qualifikationsevidenz: dieselben Decks kehren wieder, ein
+Paar-Lift spiegelt auch das Deck wider, und es gibt noch keine Auswertung über echte Läufe.
 
 ### Phase 2: Echtzeit-Nutzung (zukünftig)
 

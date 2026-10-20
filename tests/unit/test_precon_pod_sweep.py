@@ -59,6 +59,19 @@ def test_a_failure_is_named_by_the_bridge_error_code() -> None:
     assert family(None) == "NONE"
 
 
+def test_the_generic_engine_failure_wrapper_yields_to_the_cause_code() -> None:
+    family = _module().failure_family
+    wrapped = (
+        "FullGameConformanceError: engine failed: ENGINE_FAILURE "
+        "[ENGINE_FAILURE, XMAGE_ACTION_EXECUTION_FAILED] (diagnostics sha256:559363e1f809ce34)"
+    )
+    assert family(wrapped) == "XMAGE_ACTION_EXECUTION_FAILED"
+    # nothing more specific than the wrapper: the wrapper is the family
+    assert (
+        family("engine failed: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics)") == "ENGINE_FAILURE"
+    )
+
+
 def test_only_decks_that_import_cleanly_are_selected(tmp_path: Path) -> None:
     report = tmp_path / "imports.json"
     rows = [{"deck": "b", "status": "OK"}, {"deck": "a", "status": "FAILED"}]
@@ -78,3 +91,14 @@ def test_the_summary_counts_failures_by_family() -> None:
         "pods_failed": 2,
         "families": {"COST_FAILED": 2},
     }
+
+
+def test_pod_size_is_not_a_flag_and_a_deck_dir_outside_the_repository_is_refused(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    module = _module()
+    with pytest.raises(SystemExit):
+        module.main(["--jar", "x.jar", "--out", "o.json", "--pod-size", "3"])
+    code = module.main(["--jar", "x.jar", "--out", "o.json", "--deck-dir", str(tmp_path)])
+    assert code == 2
+    assert "inside the repository" in capsys.readouterr().err

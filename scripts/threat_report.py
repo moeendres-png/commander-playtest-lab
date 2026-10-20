@@ -5,14 +5,16 @@ Takes a pilot_decision_report JSON output and finds opponent cards that
 appear disproportionately often in games the pilot lost.
 
 Usage:
-    python scripts/threat_report.py <report.json> [--min-games 5] [--top 20]
+    python scripts/threat_report.py <report.json> [--min-games 5] [--top 20] [--pilot-seat 1]
 
+Seats are 1-based, as in the report. A card counts as played when it was cast.
 For each opponent card:
   - P(loss | opponent played card) vs baseline loss rate
   - Threat score = lift = P(loss|card) / P(loss)
   - Only cards with >= min_games appearances are reported.
 
-This helps tune removal: high-threat cards are priority targets.
+This is exploratory evidence about the games in one report: the same decks recur, so a card's
+lift also reflects the deck it sits in. It is not qualification evidence.
 """
 
 from __future__ import annotations
@@ -23,30 +25,25 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from pilot_report_samples import ok_games
+
 
 def load_report(path: Path) -> dict:
     with open(path) as f:
         return json.load(f)
 
 
-def extract_threats(report: dict, pilot_seat: int = 0) -> list[dict]:
-    """Extract per-game: did pilot lose, which opponent cards were played."""
+def extract_threats(report: dict, pilot_seat: int = 1) -> list[dict]:
+    """Extract per game: did the pilot seat lose, which cards did the other seats play."""
     games = []
-    for game in report.get("games", []):
-        if game.get("status") != "ok":
-            continue
-        winner = game.get("winner_seat")
-        if winner is None:
-            continue
-        pilot_lost = winner != pilot_seat
-        # Opponent cards (not pilot's seat)
-        opp_cards = set()
-        for entry in game.get("per_card", []):
-            seat = entry.get("seat")
-            name = entry.get("card_name") or entry.get("name")
-            if seat != pilot_seat and seat is not None and name:
-                opp_cards.add(name)
-        games.append({"pilot_lost": pilot_lost, "opp_cards": opp_cards})
+    for game in ok_games(report):
+        opp_cards: set[str] = set()
+        for seat, cards in game["cards_by_seat"].items():
+            if seat != pilot_seat:
+                opp_cards |= cards
+        games.append({"pilot_lost": pilot_seat not in game["winners"], "opp_cards": opp_cards})
     return games
 
 
@@ -103,8 +100,8 @@ def main() -> int:
     parser.add_argument(
         "--pilot-seat",
         type=int,
-        default=0,
-        help="Pilot's seat number (default: 0)",
+        default=1,
+        help="Pilot's seat, 1-based as in the report (default: 1)",
     )
     args = parser.parse_args()
 

@@ -206,9 +206,9 @@ def tempo_score(actor_id: str, state: Mapping[str, object]) -> float:
     """Tempo evaluation: is the actor ahead (+1.0) or behind (-1.0)?
 
     Combines:
-    - Life total relative to table average (30%)
+    - Life total, (life - 20) / 20 clamped to [-1, 1] (30%)
     - Board threat relative to max opponent threat (50%)
-    - Cards in hand relative to average (20%)
+    - Cards in hand (20%): not measured, approximated as half the board score
 
     Returns float in [-1.0, 1.0]: positive = ahead, negative = behind.
     """
@@ -239,8 +239,8 @@ def tempo_score(actor_id: str, state: Mapping[str, object]) -> float:
     life_score = (life - 20.0) / 20.0  # 40 life = +1.0, 0 life = -1.0
     life_score = max(-1.0, min(1.0, life_score))
 
-    # Cards: hand size vs average (20%)
-    # Simplified: use threat as proxy (already includes hand_count)
+    # Cards (20%): hand size is not measured. Simplified: use threat as proxy (it already
+    # includes hand_count), as half the board score.
     hand_score = board_score * 0.5  # Correlated with board
 
     tempo = board_score * 0.5 + life_score * 0.3 + hand_score * 0.2
@@ -718,7 +718,7 @@ def priority_view_fields(
                 )
         # Synergy: bonus for cards that work well with our battlefield.
         # synergy_bonus() returns 0.0-1.0 (tribal 0.3, +1/+1 counters 0.2,
-        # sacrifice 0.25, artifacts 0.2; see function docstring for details).
+        # sacrifice 0.2, artifacts 0.2; see function docstring for details).
         # We scale by 0.3 and cap at 2.0 total, so synergy is a tiebreaker,
         # not a dominant factor. Example: Llanowar Elves with Wood Elves on
         # battlefield gets +0.09 (0.3 * 0.3).
