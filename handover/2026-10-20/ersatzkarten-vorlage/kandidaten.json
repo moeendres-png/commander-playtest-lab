@@ -1,0 +1,269 @@
+{
+ "zweck": "Ersatzkandidaten je Hauptdeck-Slot (M2). Vollständige Slotdaten: kandidaten_slots_a.json + kandidaten_slots_b.json; Satz-Zuordnungen + Nachweise: kandidaten_saetze.json.",
+ "slot_count": 29,
+ "slots_with_3_candidates": 1,
+ "slots_mit_0_kandidaten": [],
+ "index": [
+  {
+   "deck": "2023_blast_from_the_past",
+   "card": "Susan Foreman",
+   "kandidaten": [
+    "Sakura-Tribe Elder",
+    "Satyr Wayfinder",
+    "Etherium Sculptor"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Missy",
+   "kandidaten": [
+    "Steel Hellkite",
+    "Inferno Titan",
+    "Brudiclad, Telchor Engineer"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Cyber Conversion",
+   "kandidaten": [
+    "Arcane Denial",
+    "Terminate",
+    "Reality Shift"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Doomsday Confluence",
+   "kandidaten": [
+    "Faithless Looting",
+    "Vandalblast",
+    "Preordain"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Death in Heaven",
+   "kandidaten": [
+    "Kang Dynasty",
+    "Age of Ultron",
+    "In the Darkness Bind Them"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Rassilon, the War President",
+   "kandidaten": [
+    "Mulldrifter",
+    "Psychosis Crawler",
+    "Shriekmaw"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "The Cyber-Controller",
+   "kandidaten": [
+    "Burnished Hart",
+    "Pilgrim's Eye",
+    "Academy Manufactor"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Cybership",
+   "kandidaten": [
+    "N'Yami-Class Mother Ship",
+    "Avengers Quinjet",
+    "Damocles Base, Sword of Kang"
+   ]
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Don't Blink",
+   "kandidaten": [
+    "Arcane Denial",
+    "Terminate",
+    "Reality Shift"
+   ]
+  },
+  {
+   "deck": "2023_paradox_power",
+   "card": "The Foretold Soldier",
+   "kandidaten": [
+    "Solemn Simulacrum",
+    "Whirler Rogue",
+    "Archmage Emeritus"
+   ]
+  },
+  {
+   "deck": "2023_paradox_power",
+   "card": "River Song's Diary",
+   "kandidaten": [
+    "Commander's Sphere",
+    "Burnished Hart",
+    "Chromatic Lantern"
+   ]
+  },
+  {
+   "deck": "2023_paradox_power",
+   "card": "Psychic Paper",
+   "kandidaten": [
+    "Swiftfoot Boots",
+    "Lightning Greaves",
+    "Hero's Blade"
+   ]
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "The Pandorica",
+   "kandidaten": [
+    "Commander's Sphere",
+    "Burnished Hart",
+    "Chromatic Lantern"
+   ]
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "The War Doctor",
+   "kandidaten": [
+    "Solemn Simulacrum",
+    "Whirler Rogue",
+    "Anger"
+   ]
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "The Moment",
+   "kandidaten": [
+    "Swiftfoot Boots",
+    "Fellwar Stone",
+    "Izzet Signet"
+   ]
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "Psychic Paper",
+   "kandidaten": [
+    "Swiftfoot Boots",
+    "Hero's Blade",
+    "Sword of the Animist"
+   ]
+  },
+  {
+   "deck": "2024_blame_game",
+   "card": "Feather, Radiant Arbiter",
+   "kandidaten": [
+    "Burnished Hart",
+    "Bastion Protector",
+    "Pilgrim's Eye"
+   ]
+  },
+  {
+   "deck": "2024_blame_game",
+   "card": "Immortal Obligation",
+   "kandidaten": [
+    "Abrade",
+    "Boros Charm",
+    "Valorous Stance"
+   ]
+  },
+  {
+   "deck": "2024_revenant_recon",
+   "card": "Eye of Duskmantle",
+   "kandidaten": [
+    "Meteor Golem",
+    "Butcher of Malakir",
+    "Thought Monitor"
+   ]
+  },
+  {
+   "deck": "2024_tricky_terrain",
+   "card": "Desert Warfare",
+   "kandidaten": [
+    "Reconnaissance Mission",
+    "Path of Discovery",
+    "Greater Good"
+   ]
+  },
+  {
+   "deck": "2024_tricky_terrain_collector_s_edition",
+   "card": "Desert Warfare",
+   "kandidaten": [
+    "Reconnaissance Mission",
+    "Path of Discovery",
+    "Greater Good"
+   ]
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Dack Fayden, Helping Hand",
+   "kandidaten": [
+    "Sun Titan",
+    "Steel Hellkite",
+    "Inferno Titan"
+   ]
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Teferi's Reproach",
+   "kandidaten": [
+    "Chaos Warp",
+    "Mortify",
+    "Generous Gift"
+   ]
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Jhoira, Weatherlight Corsair",
+   "kandidaten": [
+    "Sun Titan",
+    "Steel Hellkite",
+    "Inferno Titan"
+   ]
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Venser, Fervent Forger",
+   "kandidaten": [
+    "Sun Titan",
+    "Steel Hellkite",
+    "Inferno Titan"
+   ]
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Tamiyo, Upriser Crowned",
+   "kandidaten": [
+    "Sun Titan",
+    "Steel Hellkite",
+    "Inferno Titan"
+   ]
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "The Ur-Sphinx",
+   "kandidaten": [
+    "Cavern-Hoard Dragon",
+    "Zetalpa, Primal Dawn",
+    "Bogardan Hellkite"
+   ]
+  },
+  {
+   "deck": "2026_odds_and_ends",
+   "card": "Exchange of Words",
+   "kandidaten": [
+    "Propaganda",
+    "Ghostly Prison",
+    "Bastion of Remembrance"
+   ]
+  },
+  {
+   "deck": "2026_odds_and_ends",
+   "card": "Space Beleren",
+   "kandidaten": [
+    "Tezzeret, Betrayer of Flesh",
+    "Elspeth, Knight-Errant",
+    "Gideon Jura"
+   ]
+  }
+ ]
+}

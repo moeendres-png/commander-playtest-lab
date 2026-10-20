@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2023_masters_of_evil", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3c3ef23b-74bf-4e98-b115-ec6f261635b2' deck_id='precon/2023/masters_of_evil' deck_hash='a60fea660dc07a8ac93a167f7783894112753da3af64c3b259f43", "status": "OK", "wall_s": 12.23}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2023_masters_of_evil_satz2.json

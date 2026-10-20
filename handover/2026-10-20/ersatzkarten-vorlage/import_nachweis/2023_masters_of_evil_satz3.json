@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/m1/bridge.jar",
+  "jar_sha256": "3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/m2/copies/2023_masters_of_evil_satz3",
+  "decks_total": 1,
+  "decks_ok": 1,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 14.7,
+  "results": [
+    {
+      "deck": "2023_masters_of_evil",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6d562884-0a4f-45dd-ac33-01d82d8d12eb' deck_id='precon/2023/masters_of_evil' deck_hash='c01576face6ad405691d9631ea650a5e424e3967109bef0cfc074",
+      "status": "OK",
+      "wall_s": 11.85
+    }
+  ]
+}

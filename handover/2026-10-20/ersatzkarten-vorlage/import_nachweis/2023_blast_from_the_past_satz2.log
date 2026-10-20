@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2023_blast_from_the_past", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1b8a315a-1f0e-458e-ac1b-db77caa50458' deck_id='precon/2023/blast_from_the_past' deck_hash='f68259622a14d22015f9071fa8e4d2c6755b99072cefaf529", "status": "OK", "wall_s": 12.59}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2023_blast_from_the_past_satz2.json

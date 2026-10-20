@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2024_revenant_recon", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-667ba0fd-1a11-4a18-b7c0-55c2155d196e' deck_id='precon/2024/revenant_recon' deck_hash='ecb6b6ea7b8d2a958eb396c4cb26318289bd7fa9056ad0973d0f1e", "status": "OK", "wall_s": 12.5}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2024_revenant_recon_satz1.json

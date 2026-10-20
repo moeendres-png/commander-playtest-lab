@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/m1/bridge.jar",
+  "jar_sha256": "3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/m2/copies/2026_multiverse_reforged_satz3",
+  "decks_total": 1,
+  "decks_ok": 1,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 14.3,
+  "results": [
+    {
+      "deck": "2026_multiverse_reforged",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-0042b9b0-c177-40ed-a378-6909361aea6d' deck_id='precon/2026/multiverse_reforged' deck_hash='c67000dbcf1afee15e24e86471ae167a388adce1927faf42e",
+      "status": "OK",
+      "wall_s": 13.52
+    }
+  ]
+}

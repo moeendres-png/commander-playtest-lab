@@ -1,0 +1,239 @@
+{
+ "source": "measure_precon_imports.py @ Pin 043579bb, Lab ed2fbae26 (LOCAL_OBSERVED 2026-10-20); Mengen aus den Deckdateien",
+ "slots": [
+  {
+   "deck": "2023_blast_from_the_past",
+   "card": "Susan Foreman",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Missy",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Cyber Conversion",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Doomsday Confluence",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Death in Heaven",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Rassilon, the War President",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "The Cyber-Controller",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Cybership",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_masters_of_evil",
+   "card": "Don't Blink",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_paradox_power",
+   "card": "The Foretold Soldier",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_paradox_power",
+   "card": "River Song's Diary",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_paradox_power",
+   "card": "Psychic Paper",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "The Pandorica",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "The War Doctor",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "The Moment",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2023_timey_wimey",
+   "card": "Psychic Paper",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_blame_game",
+   "card": "Feather, Radiant Arbiter",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_blame_game",
+   "card": "Immortal Obligation",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_death_toll",
+   "card": "Winter, Cynical Opportunist",
+   "zone": "commander",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_family_matters",
+   "card": "Zinnia, Valley's Voice",
+   "zone": "commander",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_miracle_worker",
+   "card": "Aminatou, Veil Piercer",
+   "zone": "commander",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_revenant_recon",
+   "card": "Eye of Duskmantle",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_tricky_terrain",
+   "card": "Desert Warfare",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2024_tricky_terrain_collector_s_edition",
+   "card": "Desert Warfare",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Dack Fayden, Helping Hand",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Teferi's Reproach",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Jhoira, Weatherlight Corsair",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Venser, Fervent Forger",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Tamiyo, Upriser Crowned",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "The Ur-Sphinx",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_multiverse_reforged",
+   "card": "Jace, Multiverse Architect",
+   "zone": "commander",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_odds_and_ends",
+   "card": "Exchange of Words",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  },
+  {
+   "deck": "2026_odds_and_ends",
+   "card": "Space Beleren",
+   "zone": "mainboard",
+   "quantity": 1,
+   "share_of_deck": 0.01
+  }
+ ],
+ "slot_count": 33,
+ "distinct_cards": 31,
+ "decks": 13
+}

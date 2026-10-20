@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2024_blame_game", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-7a05e30f-0858-4b31-84b1-29e92761e674' deck_id='precon/2024/blame_game' deck_hash='d36a0d0ab0888d08124a29f9b5c9e9fe5cdf785cc026ae8dd092b81c9c", "status": "OK", "wall_s": 12.08}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2024_blame_game_satz3.json

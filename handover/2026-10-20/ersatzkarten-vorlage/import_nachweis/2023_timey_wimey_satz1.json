@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/m1/bridge.jar",
+  "jar_sha256": "3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/m2/copies/2023_timey_wimey_satz1",
+  "decks_total": 1,
+  "decks_ok": 1,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 12.9,
+  "results": [
+    {
+      "deck": "2023_timey_wimey",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2f6061fc-5b6d-42a8-a511-d3f3ce8823d5' deck_id='precon/2023/timey_wimey' deck_hash='f9fc1956f9400d73b348557c152ea537592ebdb8592911a56194f262a",
+      "status": "OK",
+      "wall_s": 12.1
+    }
+  ]
+}

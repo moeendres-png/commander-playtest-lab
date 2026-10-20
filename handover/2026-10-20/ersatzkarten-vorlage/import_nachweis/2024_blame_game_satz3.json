@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/m1/bridge.jar",
+  "jar_sha256": "3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/m2/copies/2024_blame_game_satz3",
+  "decks_total": 1,
+  "decks_ok": 1,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 12.9,
+  "results": [
+    {
+      "deck": "2024_blame_game",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-7a05e30f-0858-4b31-84b1-29e92761e674' deck_id='precon/2024/blame_game' deck_hash='d36a0d0ab0888d08124a29f9b5c9e9fe5cdf785cc026ae8dd092b81c9c",
+      "status": "OK",
+      "wall_s": 12.08
+    }
+  ]
+}

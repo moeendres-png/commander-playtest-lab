@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2024_tricky_terrain_collector_s_edition", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-d0fb8e87-ac8e-4c41-a708-711a2f74147e' deck_id='precon/2024/tricky_terrain_collector_s_edition' deck_hash='e5a3f293c8546149ca0677a159553dbdd7", "status": "OK", "wall_s": 11.69}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2024_tricky_terrain_collector_s_edition_satz3.json

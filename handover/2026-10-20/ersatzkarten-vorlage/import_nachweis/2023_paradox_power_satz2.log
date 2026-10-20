@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2023_paradox_power", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2ffef833-4131-461c-84c1-92a301b49935' deck_id='precon/2023/paradox_power' deck_hash='65ca60696cbc4017150ad632dfc46f72ad0f031d412d2b0d7bf0bee", "status": "OK", "wall_s": 13.81}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2023_paradox_power_satz2.json

@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2026_odds_and_ends", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-19f08328-6160-43dc-bdef-a61f8a3be25c' deck_id='precon/2026/odds_and_ends' deck_hash='68e9d6517a743290bdc211573e681b7b1413197a3ad4f7b11f03303", "status": "OK", "wall_s": 12.73}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2026_odds_and_ends_satz1.json

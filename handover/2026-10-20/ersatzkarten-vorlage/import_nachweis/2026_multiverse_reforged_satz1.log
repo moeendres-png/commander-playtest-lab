@@ -1,0 +1,3 @@
+probe: availability=available engine=1.4.62
+{"deck": "2026_multiverse_reforged", "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-70578023-34c6-40e5-b052-efb6675f7e0c' deck_id='precon/2026/multiverse_reforged' deck_hash='f41ff16d64c1f314f265ac6d3e59bf0a0ea03391211d7adb5", "status": "OK", "wall_s": 12.86}
+DONE: 1/1 OK -> /home/hatch/workspace/tmp/m2/import_nachweis/2026_multiverse_reforged_satz1.json

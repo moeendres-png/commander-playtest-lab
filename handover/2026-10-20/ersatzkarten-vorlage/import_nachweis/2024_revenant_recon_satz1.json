@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/m1/bridge.jar",
+  "jar_sha256": "3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/m2/copies/2024_revenant_recon_satz1",
+  "decks_total": 1,
+  "decks_ok": 1,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 13.2,
+  "results": [
+    {
+      "deck": "2024_revenant_recon",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-667ba0fd-1a11-4a18-b7c0-55c2155d196e' deck_id='precon/2024/revenant_recon' deck_hash='ecb6b6ea7b8d2a958eb396c4cb26318289bd7fa9056ad0973d0f1e",
+      "status": "OK",
+      "wall_s": 12.5
+    }
+  ]
+}

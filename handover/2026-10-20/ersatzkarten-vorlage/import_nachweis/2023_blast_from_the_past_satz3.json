@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/m1/bridge.jar",
+  "jar_sha256": "3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/m2/copies/2023_blast_from_the_past_satz3",
+  "decks_total": 1,
+  "decks_ok": 1,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 13.4,
+  "results": [
+    {
+      "deck": "2023_blast_from_the_past",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6c63a2fe-32e5-48ed-8f95-3444a285ce56' deck_id='precon/2023/blast_from_the_past' deck_hash='8115f854ed15b4c9cc7b2b7a1bc70373efddb45329baf86bd",
+      "status": "OK",
+      "wall_s": 12.61
+    }
+  ]
+}

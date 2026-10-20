@@ -1,0 +1,1375 @@
+{
+ "cards": [
+  {
+   "name": "Susan Foreman",
+   "scryfall": {
+    "mana_cost": "{1}{G}",
+    "cmc": 2.0,
+    "type_line": "Legendary Creature — Time Lord",
+    "power": "1",
+    "toughness": "1",
+    "loyalty": null,
+    "keywords": [
+     "Doctor's companion"
+    ],
+    "oracle_text": "If you would planeswalk, instead look at the top two cards of your planar deck, put one on the bottom of your planar deck and the other on top, then planeswalk.\n{T}: Add {G}.\nDoctor's companion (You can have two commanders if the other is the Doctor.)",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "G"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "SusanForeman.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{1}{G}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "1",
+     "1"
+    ],
+    "ability_lines": [
+     "new GreenManaAbility()"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Missy",
+   "scryfall": {
+    "mana_cost": "{3}{U}{B}{R}",
+    "cmc": 6.0,
+    "type_line": "Legendary Creature — Time Lord Rogue",
+    "power": "4",
+    "toughness": "5",
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "Whenever another nonartifact creature dies, return it to the battlefield under your control face down and tapped. It's a 2/2 Cyberman artifact creature.\nAt the beginning of your end step, each opponent faces a villainous choice — Each artifact creature you control deals 1 damage to that opponent, or you draw a card and chaos ensues.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "B",
+     "R",
+     "U"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "Missy.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{3}{U}{B}{R}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "4",
+     "5"
+    ],
+    "ability_lines": [
+     "new DiesCreatureTriggeredAbility(new GainLifeEffect(1), false, filter)"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Cyber Conversion",
+   "scryfall": {
+    "mana_cost": "{U}{U}",
+    "cmc": 2.0,
+    "type_line": "Instant",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "Turn target creature face down. It's a 2/2 Cyberman artifact creature.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "U"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "CyberConversion.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{U}{U}",
+    "types": [
+     "Instant"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Doomsday Confluence",
+   "scryfall": {
+    "mana_cost": "{X}{X}{B}",
+    "cmc": 1.0,
+    "type_line": "Sorcery",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "Choose X. You may choose the same mode more than once.\n• Each player sacrifices a nonartifact creature of their choice.\n• Create a 3/3 black Dalek artifact creature token with menace.\n• Each opponent discards a card.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "B"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "DoomsdayConfluence.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{X}{X}{B}",
+    "types": [
+     "Sorcery"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Death in Heaven",
+   "scryfall": {
+    "mana_cost": "{3}{B}",
+    "cmc": 4.0,
+    "type_line": "Enchantment — Saga",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [
+     "Mill"
+    ],
+    "oracle_text": "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\nI, II — Target player mills two cards, then exiles their graveyard.\nIII — Put all creature cards exiled with this enchantment onto the battlefield face down under your control. They're 2/2 Cyberman artifact creatures.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "B"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "DeathInHeaven.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{3}{B}",
+    "types": [
+     "Enchantment"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Rassilon, the War President",
+   "scryfall": {
+    "mana_cost": "{3}{U}{B}",
+    "cmc": 5.0,
+    "type_line": "Legendary Creature — Time Lord Noble",
+    "power": "3",
+    "toughness": "4",
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "At the beginning of your upkeep, you lose 2 life and exile the top card of your library. You may play that card for as long as it remains exiled.\nEach noncreature spell you cast from exile has conspire. (As you cast that spell, you may tap two untapped creatures you control that share a color with it. When you do, copy it and you may choose new targets for the copy.)",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "B",
+     "U"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "RassilonTheWarPresident.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{3}{U}{B}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "3",
+     "4"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "The Cyber-Controller",
+   "scryfall": {
+    "mana_cost": "{X}{U}{U}{B}",
+    "cmc": 3.0,
+    "type_line": "Legendary Artifact Creature — Cyberman",
+    "power": "3",
+    "toughness": "3",
+    "loyalty": null,
+    "keywords": [
+     "Mill"
+    ],
+    "oracle_text": "When The Cyber-Controller enters, each opponent mills X cards. Put all creature cards milled this way onto the battlefield face down under your control. They're 2/2 Cyberman artifact creatures.\nOther artifact creatures you control get +1/+1.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "B",
+     "U"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "TheCyberController.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{X}{U}{U}{B}",
+    "types": [
+     "Artifact",
+     "Creature"
+    ],
+    "p_t": [
+     "3",
+     "3"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Cybership",
+   "scryfall": {
+    "mana_cost": "{6}",
+    "cmc": 6.0,
+    "type_line": "Artifact — Vehicle",
+    "power": "8",
+    "toughness": "8",
+    "loyalty": null,
+    "keywords": [
+     "Flying",
+     "Crew"
+    ],
+    "oracle_text": "Flying\nWhenever this Vehicle deals combat damage to a player, put the top two cards of that player's library onto the battlefield face down under your control. They're 2/2 Cyberman artifact creatures.\nCrew 4",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "Cybership.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{6}",
+    "types": [
+     "Artifact"
+    ],
+    "p_t": [
+     "8",
+     "8"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Don't Blink",
+   "scryfall": {
+    "mana_cost": "{1}{U}",
+    "cmc": 2.0,
+    "type_line": "Instant",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [
+     "Cycling"
+    ],
+    "oracle_text": "Until end of turn, if one or more creatures would enter from exile or after being cast from exile, their owners shuffle them into their libraries instead.\nCycling {2} ({2}, Discard this card: Draw a card.)",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "U"
+    ],
+    "commander_legality": "legal",
+    "rarity": "uncommon",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "DontBlink.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{1}{U}",
+    "types": [
+     "Instant"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "The Foretold Soldier",
+   "scryfall": {
+    "mana_cost": "{2}{G}{G}",
+    "cmc": 4.0,
+    "type_line": "Creature — Alien Zombie Soldier",
+    "power": "6",
+    "toughness": "6",
+    "loyalty": null,
+    "keywords": [
+     "Foretell"
+    ],
+    "oracle_text": "This creature must be blocked if able.\nThis creature can't be blocked by more than one creature.\nWhenever this creature deals damage, exile it face down. It becomes foretold.\nForetell {1}{G} (During your turn, you may pay {2} and exile this card from your hand face down. Cast it on a later turn for its foretell cost.)",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "G"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "TheForetoldSoldier.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}{G}{G}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "6",
+     "6"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "River Song's Diary",
+   "scryfall": {
+    "mana_cost": "{3}",
+    "cmc": 3.0,
+    "type_line": "Artifact — Book",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [
+     "Imprint"
+    ],
+    "oracle_text": "Imprint — Whenever a player casts an instant or sorcery spell from their hand, exile it instead of putting it into a graveyard as it resolves.\nAt the beginning of your upkeep, if there are four or more cards exiled with this artifact, choose one of them at random. You may cast it without paying its mana cost.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "RiverSongsDiary.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{3}",
+    "types": [
+     "Artifact"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Psychic Paper",
+   "scryfall": {
+    "mana_cost": "{2}",
+    "cmc": 2.0,
+    "type_line": "Artifact — Equipment",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [
+     "Equip"
+    ],
+    "oracle_text": "As this Equipment becomes attached to a creature, choose a creature card name and a creature type.\nEquipped creature has ward {1}, it can't be blocked, and its name and creature type are the last chosen name and creature type.\nEquip {2}",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [],
+    "commander_legality": "legal",
+    "rarity": "uncommon",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "PsychicPaper.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}",
+    "types": [
+     "Artifact"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "The Pandorica",
+   "scryfall": {
+    "mana_cost": "{2}{W}",
+    "cmc": 3.0,
+    "type_line": "Legendary Artifact",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "You may choose not to untap The Pandorica during your untap step.\n{1}{W}, {T}: Untap another target nonland permanent, then it phases out. It can't phase in for as long as The Pandorica remains tapped. When The Pandorica becomes untapped or leaves the battlefield, that permanent phases in. Activate only as a sorcery.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "ThePandorica.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}{W}",
+    "types": [
+     "Artifact"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [
+     "ability"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "The War Doctor",
+   "scryfall": {
+    "mana_cost": "{2}{R}{W}",
+    "cmc": 4.0,
+    "type_line": "Legendary Creature — Time Lord Doctor",
+    "power": "3",
+    "toughness": "5",
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "Whenever one or more other permanents phase out and whenever one or more other cards are put into exile from anywhere, put a time counter on The War Doctor.\nWhenever The War Doctor attacks, it deals damage equal to the number of time counters on it to any target. If a creature dealt damage this way would die this turn, exile it instead.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [
+     "R",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "TheWarDoctor.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}{R}{W}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "3",
+     "5"
+    ],
+    "ability_lines": [
+     "ability"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "The Moment",
+   "scryfall": {
+    "mana_cost": "{2}",
+    "cmc": 2.0,
+    "type_line": "Legendary Artifact",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "At the beginning of your upkeep, put a time counter on The Moment.\n{2}, {T}: Untap target creature you control. It phases out until The Moment leaves the battlefield.\n{3}, {T}: Destroy each nonland permanent with mana value less than or equal to the number of time counters on The Moment. Then sacrifice The Moment. Activate only as a sorcery.",
+    "set": "who",
+    "set_name": "Doctor Who",
+    "released_at": "2023-10-13",
+    "color_identity": [],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "TheMoment.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}",
+    "types": [
+     "Artifact"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Feather, Radiant Arbiter",
+   "scryfall": {
+    "mana_cost": "{R}{W}{W}",
+    "cmc": 3.0,
+    "type_line": "Legendary Creature — Angel",
+    "power": "4",
+    "toughness": "3",
+    "loyalty": null,
+    "keywords": [
+     "Flying",
+     "Lifelink"
+    ],
+    "oracle_text": "Flying, lifelink\nWhenever you cast a noncreature spell that targets only Feather, you may choose any number of other creatures that spell could target and pay {2} for each of those creatures. If you do, for each of those creatures, copy that spell. The copy targets that creature. (Copies of permanent spells become tokens.)",
+    "set": "mkc",
+    "set_name": "Murders at Karlov Manor Commander",
+    "released_at": "2024-02-09",
+    "color_identity": [
+     "R",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "mythic",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "FeatherRadiantArbiter.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{R}{W}{W}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "4",
+     "3"
+    ],
+    "ability_lines": [
+     "FlyingAbility.getInstance()",
+     "LifelinkAbility.getInstance()"
+    ],
+    "keyword_hints": [
+     "Flying",
+     "Lifelink"
+    ],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Immortal Obligation",
+   "scryfall": {
+    "mana_cost": "{1}{W}",
+    "cmc": 2.0,
+    "type_line": "Instant",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [
+     "Goad"
+    ],
+    "oracle_text": "Return target creature card from an opponent's graveyard to the battlefield under their control with a duty counter on it. For as long as that creature has a duty counter on it, it is goaded, can't attack you or a permanent you control, and can't block creatures you control.",
+    "set": "mkc",
+    "set_name": "Murders at Karlov Manor Commander",
+    "released_at": "2024-02-09",
+    "color_identity": [
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "ImmortalObligation.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{1}{W}",
+    "types": [
+     "Instant"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Winter, Cynical Opportunist",
+   "scryfall": {
+    "mana_cost": "{2}{B}{G}",
+    "cmc": 4.0,
+    "type_line": "Legendary Creature — Human Warlock",
+    "power": "2",
+    "toughness": "5",
+    "loyalty": null,
+    "keywords": [
+     "Deathtouch",
+     "Delirium",
+     "Mill"
+    ],
+    "oracle_text": "Deathtouch\nWhenever Winter attacks, mill three cards.\nDelirium — At the beginning of your end step, you may exile any number of cards from your graveyard with four or more card types among them. If you do, put a permanent card from among them onto the battlefield with a finality counter on it.",
+    "set": "dsc",
+    "set_name": "Duskmourn: House of Horror Commander",
+    "released_at": "2024-09-27",
+    "color_identity": [
+     "B",
+     "G"
+    ],
+    "commander_legality": "legal",
+    "rarity": "mythic",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "WinterCynicalOpportunist.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}{B}{G}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "2",
+     "5"
+    ],
+    "ability_lines": [
+     "DeathtouchAbility.getInstance()",
+     "new AttacksTriggeredAbility(new MillCardsControllerEffect(3), false)"
+    ],
+    "keyword_hints": [
+     "Deathtouch"
+    ],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Zinnia, Valley's Voice",
+   "scryfall": {
+    "mana_cost": "{U}{R}{W}",
+    "cmc": 3.0,
+    "type_line": "Legendary Creature — Bird Bard",
+    "power": "1",
+    "toughness": "3",
+    "loyalty": null,
+    "keywords": [
+     "Flying"
+    ],
+    "oracle_text": "Flying\nZinnia gets +X/+0, where X is the number of other creatures you control with base power 1.\nCreature spells you cast gain offspring {2} as you cast them. (You may pay an additional {2} as you cast a creature spell. If you do, when that creature enters, create a 1/1 token copy of it.)",
+    "set": "blc",
+    "set_name": "Bloomburrow Commander",
+    "released_at": "2024-08-02",
+    "color_identity": [
+     "R",
+     "U",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "mythic",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "ZinniaValleysVoice.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{U}{R}{W}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "1",
+     "3"
+    ],
+    "ability_lines": [
+     "FlyingAbility.getInstance()"
+    ],
+    "keyword_hints": [
+     "Flying"
+    ],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Aminatou, Veil Piercer",
+   "scryfall": {
+    "mana_cost": "{1}{W}{U}{B}",
+    "cmc": 4.0,
+    "type_line": "Legendary Creature — Human Wizard",
+    "power": "2",
+    "toughness": "4",
+    "loyalty": null,
+    "keywords": [
+     "Surveil"
+    ],
+    "oracle_text": "At the beginning of your upkeep, surveil 2. (Look at the top two cards of your library, then put any number of them into your graveyard and the rest on top of your library in any order.)\nEach enchantment card in your hand has miracle. Its miracle cost is equal to its mana cost reduced by {4}. (You may cast a card for its miracle cost when you draw it if it's the first card you drew this turn.)",
+    "set": "dsc",
+    "set_name": "Duskmourn: House of Horror Commander",
+    "released_at": "2024-09-27",
+    "color_identity": [
+     "B",
+     "U",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "mythic",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "AminatouVeilPiercer.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{1}{W}{U}{B}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "2",
+     "4"
+    ],
+    "ability_lines": [
+     "new BeginningOfUpkeepTriggeredAbility(\n                TargetController.YOU, new SurveilEffect(2), false)"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Eye of Duskmantle",
+   "scryfall": {
+    "mana_cost": "{5}{B}{B}",
+    "cmc": 7.0,
+    "type_line": "Creature — Eye",
+    "power": "3",
+    "toughness": "8",
+    "loyalty": null,
+    "keywords": [
+     "Flying",
+     "Lifelink"
+    ],
+    "oracle_text": "Flying, lifelink\nYou may play lands and cast spells from among cards in your graveyard you've surveilled this turn. If you cast a spell this way, you pay life equal to its mana value rather than paying its mana cost.",
+    "set": "mkc",
+    "set_name": "Murders at Karlov Manor Commander",
+    "released_at": "2024-02-09",
+    "color_identity": [
+     "B"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "EyeOfDuskmantle.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{5}{B}{B}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "3",
+     "8"
+    ],
+    "ability_lines": [
+     "FlyingAbility.getInstance()",
+     "LifelinkAbility.getInstance()"
+    ],
+    "keyword_hints": [
+     "Flying",
+     "Lifelink"
+    ],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Desert Warfare",
+   "scryfall": {
+    "mana_cost": "{3}{G}",
+    "cmc": 4.0,
+    "type_line": "Enchantment",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "Whenever you sacrifice a Desert and whenever a Desert card is put into your graveyard from your hand or library, put that card onto the battlefield under your control at the beginning of your next end step.\nAt the beginning of combat on your turn, if you control five or more Deserts, create that many 1/1 red, green, and white Sand Warrior creature tokens. They gain haste.",
+    "set": "m3c",
+    "set_name": "Modern Horizons 3 Commander",
+    "released_at": "2024-06-14",
+    "color_identity": [
+     "G"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "DesertWarfare.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{3}{G}",
+    "types": [
+     "Enchantment"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [
+     "new SacrificePermanentTriggeredAbility(\n                new DrawCardSourceControllerEffect(1), filter)"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Dack Fayden, Helping Hand",
+   "scryfall": {
+    "mana_cost": "{4}{W}{W}",
+    "cmc": 6.0,
+    "type_line": "Legendary Creature — Human Advisor",
+    "power": "4",
+    "toughness": "6",
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "When Dack Fayden enters, reveal cards from the top of your library until you reveal X creature cards, where X is the number of opponents you have. Put those creature cards onto the battlefield, then shuffle. They're goaded for the rest of the game. For each of those permanents, choose a different opponent. Each opponent gains control of the permanent for which they were chosen.",
+    "set": "frc",
+    "set_name": "Reality Fracture Commander",
+    "released_at": "2026-10-02",
+    "color_identity": [
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "DackFaydenHelpingHand.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{4}{W}{W}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "4",
+     "6"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Teferi's Reproach",
+   "scryfall": {
+    "mana_cost": "{2}{W}",
+    "cmc": 3.0,
+    "type_line": "Instant",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "Choose target opponent. Until that player's next turn, they gain protection from everything and their life total can't change. All nonland permanents they control phase out. (While they're phased out, they're treated as though they don't exist. They phase in before that player untaps during their next untap step.)\nExile Teferi's Reproach.",
+    "set": "frc",
+    "set_name": "Reality Fracture Commander",
+    "released_at": "2026-10-02",
+    "color_identity": [
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "TeferisReproach.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}{W}",
+    "types": [
+     "Instant"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Jhoira, Weatherlight Corsair",
+   "scryfall": {
+    "mana_cost": "{4}{B}{B}",
+    "cmc": 6.0,
+    "type_line": "Legendary Creature — Human Pirate",
+    "power": "4",
+    "toughness": "5",
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "Whenever Jhoira enters or attacks, target opponent reveals cards from the top of their library until they reveal a historic permanent card. You put that card onto the battlefield under your control and lose life equal to that permanent's mana value. That player puts the rest of the revealed cards on the bottom of their library in a random order. (Artifacts, legendaries, and Sagas are historic.)",
+    "set": "frc",
+    "set_name": "Reality Fracture Commander",
+    "released_at": "2026-10-02",
+    "color_identity": [
+     "B"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "JhoiraWeatherlightCorsair.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{4}{B}{B}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "4",
+     "5"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Venser, Fervent Forger",
+   "scryfall": {
+    "mana_cost": "{4}{R}{R}",
+    "cmc": 6.0,
+    "type_line": "Legendary Creature — Human Sorcerer",
+    "power": "5",
+    "toughness": "3",
+    "loyalty": null,
+    "keywords": [
+     "Flash"
+    ],
+    "oracle_text": "Flash\nWhen Venser enters, choose one —\n• Copy target instant or sorcery spell an opponent controls twice. You may choose new targets for the copies.\n• Create two tokens that are copies of target permanent an opponent controls. They gain haste. At the beginning of the next end step, sacrifice them.",
+    "set": "frc",
+    "set_name": "Reality Fracture Commander",
+    "released_at": "2026-10-02",
+    "color_identity": [
+     "R"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "VenserFerventForger.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{4}{R}{R}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "5",
+     "3"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Tamiyo, Upriser Crowned",
+   "scryfall": {
+    "mana_cost": "{4}{R}{W}",
+    "cmc": 6.0,
+    "type_line": "Legendary Creature — Moonfolk Warrior",
+    "power": "3",
+    "toughness": "5",
+    "loyalty": null,
+    "keywords": [
+     "Flying",
+     "Haste",
+     "Double strike"
+    ],
+    "oracle_text": "Flying, double strike, haste\nWhen Tamiyo enters, you become the monarch.\nWhenever one or more creatures deal combat damage to you while you're the monarch, tap those creatures and put a stun counter on each of them.",
+    "set": "frc",
+    "set_name": "Reality Fracture Commander",
+    "released_at": "2026-10-02",
+    "color_identity": [
+     "R",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "TamiyoUpriserCrowned.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{4}{R}{W}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "3",
+     "5"
+    ],
+    "ability_lines": [],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "The Ur-Sphinx",
+   "scryfall": {
+    "mana_cost": "{6}{W}{U}{B}",
+    "cmc": 9.0,
+    "type_line": "Legendary Creature — Sphinx Avatar",
+    "power": "10",
+    "toughness": "10",
+    "loyalty": null,
+    "keywords": [
+     "Flying",
+     "Eminence",
+     "Mill"
+    ],
+    "oracle_text": "Eminence — As long as The Ur-Sphinx is in the command zone or on the battlefield, other Sphinx spells you cast cost {1} less to cast.\nFlying\nWhenever one or more Sphinxes you control attack, each player mills that many cards. For each player, you may cast a card that player milled this way without paying its mana cost.",
+    "set": "frc",
+    "set_name": "Reality Fracture Commander",
+    "released_at": "2026-10-02",
+    "color_identity": [
+     "B",
+     "U",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "TheUrSphinx.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{6}{W}{U}{B}",
+    "types": [
+     "Creature"
+    ],
+    "p_t": [
+     "10",
+     "10"
+    ],
+    "ability_lines": [
+     "FlyingAbility.getInstance()"
+    ],
+    "keyword_hints": [
+     "Flying"
+    ],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Jace, Multiverse Architect",
+   "scryfall": {
+    "mana_cost": "{1}{W}{U}{B}{R}",
+    "cmc": 5.0,
+    "type_line": "Legendary Planeswalker — Jace",
+    "power": null,
+    "toughness": null,
+    "loyalty": "4",
+    "keywords": [],
+    "oracle_text": "At the beginning of combat on each opponent's turn, they may pay {2}. If they don't, creatures they control can't attack Jaces you control this turn.\n+1: Draw two cards, then put a card from your hand on the bottom of your library.\n−3: Exile another target planeswalker or creature you control. Reveal cards from the top of your library until you reveal a creature or planeswalker card. Put that card onto the battlefield and the rest on the bottom of your library in a random order.\nJace, Multiverse Architect can be your commander.",
+    "set": "frc",
+    "set_name": "Reality Fracture Commander",
+    "released_at": "2026-10-02",
+    "color_identity": [
+     "B",
+     "R",
+     "U",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "mythic",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "JaceMultiverseArchitect.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{1}{W}{U}{B}{R}",
+    "types": [
+     "Planeswalker"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [
+     "CanBeYourCommanderAbility.getInstance()"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Exchange of Words",
+   "scryfall": {
+    "mana_cost": "{1}{U}{U}",
+    "cmc": 3.0,
+    "type_line": "Enchantment",
+    "power": null,
+    "toughness": null,
+    "loyalty": null,
+    "keywords": [],
+    "oracle_text": "When this enchantment enters, choose two target creatures. For as long as this enchantment remains on the battlefield, exchange the text boxes of those creatures.",
+    "set": "unf",
+    "set_name": "Unfinity",
+    "released_at": "2022-10-07",
+    "color_identity": [
+     "U"
+    ],
+    "commander_legality": "legal",
+    "rarity": "rare",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "ExchangeOfWords.java",
+    "patch_file": "fork-patch-cards-a-m.patch",
+    "mana_cost": "{1}{U}{U}",
+    "types": [
+     "Enchantment"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [
+     "new EntersBattlefieldTriggeredAbility(\n                new DrawCardSourceControllerEffect(1))"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  },
+  {
+   "name": "Space Beleren",
+   "scryfall": {
+    "mana_cost": "{2}{W}{U}",
+    "cmc": 4.0,
+    "type_line": "Legendary Planeswalker — Jace",
+    "power": null,
+    "toughness": null,
+    "loyalty": "3",
+    "keywords": [],
+    "oracle_text": "Space sculptor (Space Beleren divides the battlefield into alpha, beta, and gamma sectors. If a creature isn't assigned to a sector, its controller assigns it to one. Opponents assign first.)\n+1: Creatures in each sector can be blocked this turn only by creatures in the same sector.\n−1: Put a +1/+1 counter on each creature in the sector of your choice.\n−5: Destroy all creatures in the sector of your choice.",
+    "set": "unf",
+    "set_name": "Unfinity",
+    "released_at": "2022-10-07",
+    "color_identity": [
+     "U",
+     "W"
+    ],
+    "commander_legality": "legal",
+    "rarity": "mythic",
+    "source": "Scryfall API GET /cards/named?exact= (EXTERNAL_DATA, Abruf 2026-10-20)"
+   },
+   "stub": {
+    "file": "SpaceBeleren.java",
+    "patch_file": "fork-patch-cards-n-z.patch",
+    "mana_cost": "{2}{W}{U}",
+    "types": [
+     "Planeswalker"
+    ],
+    "p_t": [
+     null,
+     null
+    ],
+    "ability_lines": [
+     "ability1",
+     "ability2",
+     "ability3"
+    ],
+    "keyword_hints": [],
+    "source": "Fork-Patches auf muse/claude-handover, handover/2026-10-19/fork-patches/ (SYNTHETIC)"
+   },
+   "stub_reliability": "ja",
+   "stub_diffs": [],
+   "in_repo_card_knowledge": false,
+   "in_repo_card_knowledge_source": "data/cards/*.json @ ed2fbae26, strukturierter Namensindex + Rohtextsuche (LOCAL_OBSERVED 2026-10-20): 0 von 31"
+  }
+ ],
+ "count": 31
+}

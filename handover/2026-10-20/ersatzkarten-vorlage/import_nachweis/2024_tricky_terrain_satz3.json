@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/m1/bridge.jar",
+  "jar_sha256": "3dd2720419e1a8a86ea309b60c50e383c156d34dd141f01ca4a7302560d8572d",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/m2/copies/2024_tricky_terrain_satz3",
+  "decks_total": 1,
+  "decks_ok": 1,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 12.2,
+  "results": [
+    {
+      "deck": "2024_tricky_terrain",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-24269851-930b-48e4-a492-d6be3686d852' deck_id='precon/2024/tricky_terrain' deck_hash='ba1e4b0b9c2e156b11d602344d5d28e0945b69e8650095cf77902e",
+      "status": "OK",
+      "wall_s": 11.48
+    }
+  ]
+}
