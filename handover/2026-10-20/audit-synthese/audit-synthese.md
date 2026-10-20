@@ -61,6 +61,24 @@ Die offenen Punkte aus §2.6 sind inzwischen aufgelöst:
 
 ---
 
+## Nachtrag 2 — 2026-10-20 (Precon-Nachmessung, Muse)
+
+O4 ist ausgeführt; §2.8 PC1 ist damit entschieden (Bericht + Rohdaten:
+`handover/2026-10-20/precon-nachmessung/`):
+
+- **Beide Kennzahlen widerlegt.** Produktivpfad-Messung (`import_deck` →
+  `XmageDeckImporter`, keine Spiele): Baseline **173/195** Import OK, Fork **191/195**.
+- Am Pin fehlen **53 distinkte Karten** (18 Decks) — nicht 221. Die 221-Heuristik hatte
+  ~200 falsch-positive und ~32 falsch-negative Einträge.
+- Der Fork deckt alle 53 ab: **0 fehlende Karten** am Fork.
+- 4 Decks scheitern auf beiden Ständen nur an Deck-Daten (`CARD_IDENTITY_MISMATCH`,
+  Commander-Name in „A // B"-Form); mit Frontnamen: Fork **195/195**, Baseline 177/195.
+- PR #914 („192/195, 0 fehlend") so nicht reproduziert (Fork: 191/195 wie vorliegend).
+- Offen bleibt die Spiel-Ebene: ENGINE_FAILUREs in echten Spielen trotz sauberem
+  Import (WS2) — separates Problem, Ursache UNKNOWN, Issue #920.
+
+---
+
 ## 2. Befunde je Audit
 
 ### 2.1 Phase-A-Projekt-Audit (2026-10-19)
