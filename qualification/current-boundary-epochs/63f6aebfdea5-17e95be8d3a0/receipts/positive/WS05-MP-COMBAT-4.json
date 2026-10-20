@@ -1,0 +1,45 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-COMBAT-4",
+  "obligation_exercised": {
+    "obligation_digest": "03cfc6dcab35c3d037d3f3384347bee99a5b3a442fb94e66a9f25532885c4403",
+    "requested_state_digest": "8496df0e4d29b868872b947e095e890d8f61e17bd6ea82317238660334e85f64",
+    "required_events": [
+      "attacker_declared:obj:mp-attacker-0->P2",
+      "attacker_declared:obj:mp-attacker-1->P3"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "A single declare-attackers action may assign different attackers to different defending players; each assignment retains defender identity."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "attacker_declared:obj:mp-attacker-0->P2": {
+        "events": [
+          7
+        ]
+      },
+      "attacker_declared:obj:mp-attacker-1->P3": {
+        "events": [
+          8
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "20806a2ecac494856914794d413f08cd2b2624e149e4d389ac638029fe4f73bb",
+  "runner_digest": "c7b17a53892486b6439d7ee5e41d334caaf4f1825d54b73c783112836f5ef306",
+  "runtime_receipt_digest": "d197002ea41298f918eafe5d3011b43ee66b5cd199d69d7844c33b48bb340453",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-COMBAT-4",
+  "variance_source": null
+}

@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-upstream-update-repin-v9-20261020",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head of the fork branch update-upstream-2026-10 (moeendres-png/mage#64, a draft pull request into claude/xmage-mp-candidate-20260929 used as the exact-commit CI vehicle). The native maven.yml run on the exact commit is bound under native_qualification (COMPLETE). The Lab bridge suite is PENDING (NOT_RUN != PASS) and is bound by a later commit once seen. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin and the epoch is sealed.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head of the fork branch update-upstream-2026-10 (moeendres-png/mage#64, a draft pull request into claude/xmage-mp-candidate-20260929 used as the exact-commit CI vehicle; the candidate branch was fast-forwarded to the pin on 2026-10-20 10:47 UTC with the Owner's go, which merged mage#64). The native maven.yml run on the exact commit is bound under native_qualification (COMPLETE) and the Lab bridge suite (XMage Full Game Conformance run 39407371992 against XMage built from exactly 043579bb) is bound below. current_boundary stays REQUALIFICATION_REQUIRED until the epoch of PB-03 on the Lab main merge commit of this repin is sealed with AF11 adjudicated for this pin.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -251,12 +251,28 @@
   "bridge_identity_tests": "XmageCandidateEngineFingerprintTest 8/8 and JsonlBridgeTest 13/13 against the 1.4.62 artifacts built from this line"
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "PENDING",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 043579bb for that job, cache keyed by the commit; step 'Record engine artifact identity' of job 118576541363 prints the sha256 of the installed jars)",
+  "installed_artifacts_commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 93854faed324c0c88fbf9220f5846dbe744e6bf44aacb316c189742063852701",
+   "org.mage:mage-sets:1.4.62": "sha256 d56e4cdeaa40e5787609d11c864850e4a357ad3a9b76e0f1ed3fbabbeebbb664"
+  },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance on the repin branch: engine-bridge mvn verify against XMage built from exact 043579bb",
-   "status": "PENDING"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head 1cb72cb300accf4207109fed8ca4e27cbaa0b5e2 (XMAGE_COMMIT=043579bb, checked in the job): engine-bridge mvn verify against XMage built from exact 043579bb",
+   "run": 2082,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 39407371992,
+   "job": 118576541363,
+   "artifact": {
+    "id": 12259030977,
+    "zip_sha256": "c00656ada5581101e238aaf72f3d14327ef9b95a1b4a7ffea3cd6b71e254f668"
+   },
+   "tests_run": 1124,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest.loadedCardSetCarriesTheEnabledPrepareCreatures checks the seven prepare creatures, the finished Adventurous Eater and the still unfinished cards; the v6 and v7 hooks stay checked."
  },
@@ -269,6 +285,6 @@
  },
  "current_boundary": {
   "status": "REQUALIFICATION_REQUIRED",
-  "how": "PB-03 runs on the repin pull request and on the exact Lab main merge commit, sealed as a new epoch, then AF11 is re-adjudicated for this pin (the mage jar names change to 1.4.62). No current-boundary epoch exists for this pin yet, and none may be written by this repin."
+  "how": "PB-03 runs on the repin pull request and on the exact Lab main merge commit of this repin. Epoch qualification/current-boundary-epochs/63f6aebfdea5-17e95be8d3a0 (PB-03 run 39410096746 on main 63f6aebf) is sealed with FULL107 107/107 and AF00-AF10 PASS; its AF11 is UNKNOWN because the adjudication then in force covered the earlier pin. The AF11 re-adjudication for this pin is recorded in qualification/af11-xmage-only-topology-20261020/. The status stays REQUALIFICATION_REQUIRED until PB-03 on a Lab main that carries that record yields an epoch with AF00-AF11 PASS and architecture_freeze.current_qualification names it."
  }
 }

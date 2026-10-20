@@ -1,0 +1,132 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_03",
+  "obligation_exercised": {
+    "obligation_digest": "61528efc70ddfeeab941b163b63b92beb538cc9fd072332577d12d456bcb2da2",
+    "requested_state_digest": "d4019717873412187a5d4eb3e7acc40a7220c53b3c99053992867bc64a74e14a",
+    "required_events": [
+      "spell_announced",
+      "targets_locked",
+      "total_cost_determined"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Total cost is pre-Esior total + exactly {3} generic, not +{6}."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.62/mage-1.4.62.jar",
+      "sha256": "393866b22b524e041b9661e8ebabdd0c977f0d4b9c717f9b7da7ceb5bdd1908b",
+      "size": 7191920
+    },
+    "postcondition_proofs": [
+      {
+        "held": true,
+        "kind": "event_token",
+        "postcondition": "Total cost is pre-Esior total + exactly {3} generic, not +{6}.",
+        "token": "total_cost_determined"
+      }
+    ],
+    "terminal_facts": {},
+    "token_evidence": {
+      "spell_announced": {
+        "binding": "at least one SPELL_CAST event(s) with source_object=obj:card03-spell",
+        "events": [
+          8
+        ]
+      },
+      "targets_locked": {
+        "assignments": [
+          {
+            "amount": 2,
+            "target": "obj:P1-commander"
+          },
+          {
+            "amount": 2,
+            "target": "obj:card03-cmd-b"
+          }
+        ],
+        "binding": "engine-verified amount_assignment:2+2",
+        "decision_frames": [
+          2,
+          3
+        ],
+        "decision_ids": [
+          "621972aa11148a4068589947f7e85a2953984e3f6417426427d0a7aac45fa965",
+          "41b0bf3f57ab7550faf64b25e8f10ebdde19d2d5a3f364358c1a96fdaeedfd14"
+        ],
+        "engine_amount_remaining": 4,
+        "total": 4
+      },
+      "total_cost_determined": {
+        "base_mana": "{6}{U}{R}",
+        "binding": "engine-verified cost_determined:base_plus_3_generic",
+        "charged_mana": 11,
+        "decision_ids": [
+          "eed9ac3dc4aaaf5ba2f1bd815620c0a0095c383e741bdfde3ef500f3d83e7101",
+          "68a675b876d96847a305fd5057bbf2c15920422319b3e1bfda2f8dd3c0a76d50",
+          "b7e7c65559ca461d551d2b0cf3add36951e94b86b5852b06e6e44d42aa8ef296",
+          "17d07377eed2f79dc0643144b1dca9f088f368da776316ec8991638bd20252ed",
+          "84dbf95eb127056a67bf6a18b51f23a3532cb37119b587278a85f1e96b91be8c",
+          "c0c9fbbd1898b24228e5142449030dfd8594f6ebe8559d967ae719fd46793b5d",
+          "9e93127be9fd926b376e3b6accad0b0ad176adf3a347f736c9822daf9d54a0f9",
+          "9ec53167ef03cff9bc6c7d5357580b9f10a7b774786ddb57c7f03605f14c2694",
+          "058152ea4cd781a8eed9ec777d5b172cf57fa7ed0e0d81647976beac1752385e",
+          "4c6fb0790744e547a397726cf0a398a7cf8cbd36844f78ed31e07618331b0d8b",
+          "eb15759e0ac1aef48e45562b12a01b367f170d8bd2cd0df0e5bb2310c3de4e0a",
+          "4e685b957975769e40769304f88bdbc7d2a771aca1a274c6064a76eae97dc9dd",
+          "b78768d3b3694980cb24b1e9ffc1338c98846b01456288ec3d59db9a4d124a79",
+          "b6f5bf3dcea2b3a66c80c824c5376be6d02bcca22ec52b41b39512eba8acae27",
+          "ec79eb17455370d267367abebf8df6a56049adb3f3ae981348d8222a9ee020c8",
+          "c0bdd7a7468a538a06d72409be152b6ec27fdd3882ac1db15ba5c2ce40a6d0c8",
+          "3e013bda3073c83fa8a8dc51936aa4d138b986f6cc365f280f7377bd35455eb4",
+          "3d82fd75db16d5aa336b1dc30ed3ec503c9d8a8a56f5cf6a6207f4632abac591",
+          "7dfe47b6c0a3ba6fcd9ccef6389d972075c0f6dde7f9d70b6b47c2e4984b47e5",
+          "78fe44e2f0bf875b8ad7a90958974b24aae4c782dbf0cf6ed62108c8d0884fe9",
+          "a1580e3f58457804aac244c35388455d4d0c15ef8d74eee318cd872f9cdaa6c5",
+          "b35007c610f2c9316c35d3f6b77fa1029b069dc1e25e1eb5e2e7db3e87af286a"
+        ],
+        "determined_mana": "{9}{U}{R}",
+        "payment_frames": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "unpaid_mana": "{9}{U}{R}"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "d6bc986fdf349f7dba223597283d0c6ead037f315fc2653984820567e46f0c5d",
+  "runner_digest": "c7b17a53892486b6439d7ee5e41d334caaf4f1825d54b73c783112836f5ef306",
+  "runtime_receipt_digest": "4d93553ae61be1e23c52df3520e342f87472e47489facf661f32c9be62750a41",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_03"
+}

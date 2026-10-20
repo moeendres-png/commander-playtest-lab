@@ -1,0 +1,122 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "a09e633177497f150e97e4300df959f5f576156d085bb98fe66038b9970970fb",
+        "kind": "priority_pass",
+        "scope": "decision_script[6]",
+        "tag": "WS05-CMD-ZONE-LIB-YES-causal-obj:cmd-zone-source"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "e4161e5734a009cfbdec5fc4d0adfe7f16d584ca1a2805e414872b88afbfed81",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "WS05-CMD-ZONE-LIB-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "fc2c6c6bcfbece196b3706f4d14bc76e52bbb7cd1c5bc40a7365ecc840982436",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-CMD-ZONE-LIB-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "c5a8f9559d816fe2ded09526a9020b07b1c7d65edc1c40a5458dab3d7fac0e55",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[1]",
+        "tag": "WS05-CMD-ZONE-LIB-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "d407f6ec6890ad56f361e2e7c04d1a5e15eb68bed6f644d1ed670e88ed4d4292",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-CMD-ZONE-LIB-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "5380a72ca37e633e8c61f3291da973108974b06892dfd215617e0e75edcf1ef8",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[2]",
+        "tag": "WS05-CMD-ZONE-LIB-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "938c1b544d8bd4577b99f051b2d20fb9cecb85d2627bd72a907d766531c6c16c",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-CMD-ZONE-LIB-YES-causal-obj:cmd-zone-source-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:cmd-zone-source"
+    ],
+    "fuel": [
+      "obj:fuel-forest-a",
+      "obj:fuel-plains-a",
+      "obj:fuel-island-a"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:cmd-zone-source"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-LIB-YES",
+  "obligation_exercised": {
+    "obligation_digest": "7a3eb9ceeaa2e2718200b8b00b5a588b2465721e35f8b7ecdd74bd61d0462839",
+    "requested_state_digest": "534ff135bf2b5c828cdf3451e84add05bd56c1db5b0118852fc18e7d5e869045",
+    "required_events": [
+      "commander_zone_event:library",
+      "commander_choice:command"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "commander_choice:command": {
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          9
+        ]
+      },
+      "commander_zone_event:library": {
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "d3b46eb70dbf1b4c933be5099a668aa9714dd52fea14922f123f979cfaaee89c",
+  "runner_digest": "c7b17a53892486b6439d7ee5e41d334caaf4f1825d54b73c783112836f5ef306",
+  "runtime_receipt_digest": "3b49e16ecb70fa3688d1b8703e794a847a4ba69c7b2b3a3f9faa13da5f10fc28",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-ZONE-LIB-YES",
+  "variance_source": null
+}
