@@ -30,7 +30,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * #690: the land-or-spell callback's two engine callers at the pin.
  *
  * <p>{@link XmageFullGamePlayer#chooseLandOrSpellAbility} follows exactly one
- * declared engine caller ({@code CardUtil#castSpellWithAttributesForFree},
+ * declared engine caller ({@code CardUtil#castSpellWithAttributes}, the body behind
+ * {@code castSpellWithAttributesForFree} since 1.4.62,
  * proven by the {@code land_or_spell} matrix row). The other caller at the pin is
  * {@code Vault112SadisticSimulationChapterEffect.apply} (Vault 112: Sadistic
  * Simulation, chapter III), whose legality this lane never declared. This test

@@ -26,12 +26,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * #703: an activation XMage itself reverses because the announced X left a
  * REQUIRED target with no legal choice must not abort the game.
  *
- * <p>The engine path, read off the pinned XMage source (b479fe74 / 1.4.61):
+ * <p>The engine path, read off the XMage source (first read at b479fe74 / 1.4.61, re-read at the 1.4.62 pin 043579bb):
  * {@code AbilityImpl.activate} calls {@code adjustX},
  * {@code handleManaXCosts} (the only caller of {@code announceX} for a {X} mana
  * cost), {@code getModes().choose}, and then {@code adjustTargets(game)} and
  * {@code getTargets().chooseTargets(...)} — targets are chosen BEFORE any cost
- * is paid (AbilityImpl.java:353-435). A card whose target filter depends on the
+ * is paid (AbilityImpl.java:354-436). A card whose target filter depends on the
  * announced X narrows to an empty legal set; {@code Targets.makeChoice} then
  * skips a target whose {@code canChoose} is false (Targets.java:105, reached
  * through {@code TargetCard.canChoose} -&gt;
@@ -362,7 +362,7 @@ class XmageFullGameReversedActivationTest {
      * the spell path, not only on the activated-ability path.
      *
      * <p>{@code AbilityImpl.activate} runs one code path for a spell and for an
-     * activated ability alike (pinned XMage 1.4.61, AbilityImpl.java:423/432):
+     * activated ability alike (pinned XMage 1.4.62, AbilityImpl.java:424/433):
      * {@code adjustX}, then {@code handleManaXCosts} (the only caller of
      * {@code announceX} for an {X} mana cost), then {@code getModes().choose},
      * then {@code adjustTargets(game)} and {@code getTargets().chooseTargets} —

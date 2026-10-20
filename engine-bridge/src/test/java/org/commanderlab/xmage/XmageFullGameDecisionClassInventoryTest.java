@@ -106,7 +106,7 @@ class XmageFullGameDecisionClassInventoryTest {
     @Test
     void landOrSpellCallersAreInventoried() {
         assertEquals(2, LAND_OR_SPELL_CALLERS.size(), "the pin has exactly two callers");
-        assertEquals("mage.util.CardUtil#castSpellWithAttributesForFree",
+        assertEquals("mage.util.CardUtil#castSpellWithAttributes",
                 XmageFullGamePlayer.LAND_OR_SPELL_CALLER,
                 "the supported caller is the declared engine caller");
         LandOrSpellCaller supported = LAND_OR_SPELL_CALLERS.get(XmageFullGamePlayer.LAND_OR_SPELL_CALLER);

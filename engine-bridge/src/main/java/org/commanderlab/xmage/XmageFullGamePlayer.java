@@ -243,7 +243,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
      *
      * <p>{@code AbilityImpl.activate} pays the mana cost with
      * {@code getManaCostsToPay().pay(this, game, this, controllerId, false,
-     * null)} (pinned XMage 1.4.61, AbilityImpl.java:464) and
+     * null)} (pinned XMage 1.4.62, AbilityImpl.java:465) and
      * {@code ManaCostsImpl.pay} calls {@code player.playMana(ability, unpaid,
      * promptText, game)} (:150) with that same {@code this}. So the ability the
      * engine records here is the cast copy {@code PlayerImpl.cast} pushed on
@@ -499,13 +499,16 @@ final class XmageFullGamePlayer extends PlayerImpl {
 
     /**
      * The declared engine caller of the land-or-spell callback. At the pin the
-     * callback has two callers: this one, and
+     * callback has two callers: this one (at 1.4.62 {@code castSpellWithAttributesForFree}
+     * delegates to {@code castSpellWithAttributes}, which now holds the body and is
+     * the frame that calls in; the callback is only reached with {@code playLand},
+     * that is through the free variant), and
      * {@code Vault112SadisticSimulationChapterEffect.apply} (Vault 112: Sadistic
      * Simulation), whose legality is not declared on this lane. That caller, and
      * any other, fails closed (UNSUPPORTED_DECISION_CLASS); it never receives a
      * legality this player built.
      */
-    static final String LAND_OR_SPELL_CALLER = "mage.util.CardUtil#castSpellWithAttributesForFree";
+    static final String LAND_OR_SPELL_CALLER = "mage.util.CardUtil#castSpellWithAttributes";
 
     /** The immediate engine frame that called into this player, not any frame below. */
     private static boolean calledFromCastWithAttributesForFree() {
@@ -539,8 +542,9 @@ final class XmageFullGamePlayer extends PlayerImpl {
             }
         });
         // #662 L1: this callback is reached from an engine "you may play lands and cast
-        // spells from among them" effect (CardUtil.castSpellWithAttributesForFree with
-        // playLand), where the engine plays a chosen land part without timing checks.
+        // spells from among them" effect (CardUtil.castSpellWithAttributesForFree via
+        // CardUtil.castSpellWithAttributes with playLand), where the engine plays a
+        // chosen land part without timing checks.
         // The engine's own component enumeration decides which land parts qualify
         // (land drop available, active player); the usual playable list filters them
         // out by stack timing, which left a modal double-faced card's land face unoffered.
@@ -840,7 +844,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
      *
      * <p>Engine evidence, not a bridge guess. {@code AbilityImpl.activate}
      * calls {@code adjustTargets} and then {@code getTargets().chooseTargets}
-     * (pinned XMage 1.4.61, AbilityImpl.java:423/432) for a spell and for an
+     * (pinned XMage 1.4.62, AbilityImpl.java:424/433) for a spell and for an
      * activated ability alike, both before any cost is paid. A target whose
      * legality depends on the announced X narrows to an empty legal set;
      * {@code Targets.makeChoice} then skips it outright when {@code canChoose}
@@ -1051,7 +1055,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * <p>The card is the issue's own: Big Score, "{@code As an additional cost
      * to cast this spell, discard a card.}" — in XMage a
      * {@code DiscardCardCost}, a {@code DiscardTargetCost} over a
-     * {@code TargetCardInHand} (pinned 1.4.61:
+     * {@code TargetCardInHand} (pinned 1.4.62:
      * {@code Mage.Sets/src/mage/cards/b/BigScore.java}: {@code
      * getSpellAbility().addCost(new DiscardCardCost(false))}). With nothing else
      * in hand the cost has no legal choice, CR 118.3 says a cost that cannot be
@@ -3618,7 +3622,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
      * context instead of prompt-text sniffing. Proven path: PlayerImpl
      * funnels bottom selection through
      * {@code choose(Outcome, Cards, TargetCard, Ability, Game)} (pinned
-     * 1.4.61 bytecode). Thread-local because the engine drives each player
+     * 1.4.62 source). Thread-local because the engine drives each player
      * on its game thread; always cleared in {@code finally}.
      */
     /**

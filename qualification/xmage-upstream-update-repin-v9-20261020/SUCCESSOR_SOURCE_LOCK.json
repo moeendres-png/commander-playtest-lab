@@ -1,0 +1,274 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-upstream-update-repin-v9-20261020",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the head of the fork branch update-upstream-2026-10 (moeendres-png/mage#64, a draft pull request into claude/xmage-mp-candidate-20260929 used as the exact-commit CI vehicle). The native maven.yml run on the exact commit is bound under native_qualification (COMPLETE). The Lab bridge suite is PENDING (NOT_RUN != PASS) and is bound by a later commit once seen. current_boundary stays REQUALIFICATION_REQUIRED until PB-03 runs on the Lab main merge commit of this repin and the epoch is sealed.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "owner_go": {
+  "decision": "Owner tapped 'Go, mit Merge' on the repin decision card of the XMage-Upstream-Update thread, 2026-10-20 09:35 UTC",
+  "scope": "repin v9 with merge on green required checks and PB-03; sealing of the new epoch is a separate step"
+ },
+ "prior_live_pin": {
+  "commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+  "tree": "f62bfea3d215441c568baa8ff9878597a60979bc",
+  "role": "prior live XMage pin (repin v8, seven Secrets of Strixhaven prepare creatures, mage#61); stays historical and is the engine of the current_qualification record until the requalification of this pin",
+  "successor_locks": [
+   "qualification/xmage-sos-prepare-repin-v8-20261017/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "348b37db5cf64f4ed503e8d37b776d5edc70e6d5",
+   "tree": "f62bfea3d215441c568baa8ff9878597a60979bc"
+  },
+  "candidate_line_head": {
+   "commit": "c39ab8a99617496e1880e3cc053a793517b2b238",
+   "branch": "claude/xmage-mp-candidate-20260929",
+   "content": "merge of mage#61, tree identical to the v8 pin"
+  },
+  "upstream_master": {
+   "repository": "https://github.com/magefree/mage.git",
+   "commit": "fab0f23b78ddd755102cebfe20d618be87af59d0",
+   "version": "1.4.62",
+   "commits_not_in_prior_pin": 688,
+   "release_tag_in_range": {
+    "tag": "xmage_1.4.62V1",
+    "commit": "eb69d05b"
+   }
+  },
+  "merge_commit": {
+   "commit": "7e4360a2284a99626714a38585b4b0f87d0ed06d",
+   "parents": [
+    "c39ab8a99617496e1880e3cc053a793517b2b238",
+    "fab0f23b78ddd755102cebfe20d618be87af59d0"
+   ],
+   "tree": "e291c94a086e90d96deaec6cdd445da1a248519d"
+  },
+  "final_integrated_candidate": {
+   "commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+   "tree": "8a3a81952509adca28cb0a8b296642de18766987",
+   "content": "candidate line c39ab8a9 + magefree/mage master fab0f23b (version 1.4.62), 18 conflicted files resolved, fork APIs kept, duplicated set registrations dropped, three fork tests adapted to upstream behavior"
+  },
+  "identity_rule": "the pin is the head commit of the fork branch update-upstream-2026-10 (three commits on c39ab8a9: the merge, the test adaptation and the registration dedupe). The branch is not merged into the candidate branch by this repin; a later fast-forward of claude/xmage-mp-candidate-20260929 to the pin keeps the pin commit unchanged."
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "update-upstream-2026-10",
+  "commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "tree": "8a3a81952509adca28cb0a8b296642de18766987",
+  "parents": [
+   "6a4d4189545d39655cf88445f5265ec8046cd8bb"
+  ],
+  "committed_at": "2026-10-20T09:44:37+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/043579bb7829fa866ade893909c9ba4825a18b23.tar.gz",
+  "fork_ref_note": "the commit is the head of update-upstream-2026-10 and of claude/project-thread-4f9csz (moeendres-png/mage#64)"
+ },
+ "donors": [
+  {
+   "finding": "UPSTREAM-MASTER-UPDATE",
+   "pr": "moeendres-png/mage#64",
+   "head": "043579bb7829fa866ade893909c9ba4825a18b23",
+   "observation": "the pin was 688 upstream commits behind magefree/mage master (new cards, Rules fixes such as mana abilities and Panharmonicon triggers, the Prepare rework, the Evoke rework), and the fork line carried its own Prepare, Evoke-adjacent and card additions that overlapped upstream in 45 files, 18 of them textual conflicts",
+   "fix": "magefree/mage master merged into the candidate line. Prepare (PrepareCard, PrepareSpellCard, BecomePrepared*Effect) and MageIdentifier take upstream's structure with the fork's enters-prepared lifetime fix superseded by upstream's PreparedSpellCopy; the fork GameImpl prepareRef block is removed; the seven cards the fork and upstream both implemented use upstream's version; duplicated SetCardInfo registrations are dropped. Tests: the 126 fork test classes (417 tests) pass; three of them were adapted: EnabledPrepareCardsTest (Careful Study discards two cards as printed), EvokeTest and ecc/AshlingTheLimitlessTest (the granted-evoke choice text carries no source suffix)."
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --shortstat 348b37db 043579bb in moeendres-png/mage; blob ids from git rev-parse 043579bb:path",
+  "commits": 693,
+  "files_changed": 1424,
+  "engine_module_files_changed": 1193,
+  "engine_module_scope": "Mage/src and Mage.Sets/src",
+  "resolved_conflict_files": [
+   {
+    "path": ".github/workflows/maven.yml",
+    "blob": "89ec73902cd07f5156f25cea08326908f74a3904"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/a/AshlingTheLimitless.java",
+    "blob": "c21e98a60d7988b4b03fabdccb45cf81a4c5b4a2"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/n/NYamiClassMotherShip.java",
+    "blob": "3d52f0f6bdafbdde58b646a6e1ff05e66deaadfa"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/s/ShuriTheBlackPanther.java",
+    "blob": "586ba8dfcd25e72e5e80b6e313ed9c16cf25b391"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/s/StormOfMemories.java",
+    "blob": "830103dbf3df93046f356aff4717340283cd51d2"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/s/StormQueenOfWakanda.java",
+    "blob": "c0a164ad1d36dbf1b207398e2bcebc26140a5d8d"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/ThorAsgardsAvenger.java",
+    "blob": "0ac63f853c4892eed3940df5df2d545816ab692b"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/w/WKabiShieldOfTheNation.java",
+    "blob": "a4c9f9ae98f16e4ffa44600bed45303212c7ff4a"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/w/WakandaForever.java",
+    "blob": "1fd16b56952f0f8afc989e51eeace0e887d91613"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/SecretsOfStrixhaven.java",
+    "blob": "c730bfcb04abee2adca2fb30136e7d3eefc9cfe1"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/SecretsOfStrixhavenCommander.java",
+    "blob": "be4b810fdd4576978d62b7474a9f144afe80de08"
+   },
+   {
+    "path": "Mage.Tests/src/test/java/org/mage/test/cards/abilities/keywords/PrepareTest.java",
+    "blob": "7dec69755812aac5842e33ff9b558afe43dfae7b"
+   },
+   {
+    "path": "Mage.Tests/src/test/java/org/mage/test/cards/single/msc/StormQueenOfWakandaTest.java",
+    "blob": "0bcc7f3baa5aac1254ff33fe171e337f8cb7d008"
+   },
+   {
+    "path": "Mage.Tests/src/test/java/org/mage/test/cards/single/msc/ThorAsgardsAvengerTest.java",
+    "blob": "3465bdc49dec9ef7f0c35fcb4c2fde8192479f6b"
+   },
+   {
+    "path": "Mage/src/main/java/mage/MageIdentifier.java",
+    "blob": "58d9ca44b29a19d442a65334f3b45fcbf63859fe"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/common/BecomePreparedTargetEffect.java",
+    "blob": "e371606c265277a9a8e573be048dfa8136262d7c"
+   },
+   {
+    "path": "Mage/src/main/java/mage/cards/PrepareCard.java",
+    "blob": "087e075cc06f4104ba821ffe4665d7e09ca416db"
+   },
+   {
+    "path": "Mage/src/main/java/mage/cards/PrepareSpellCard.java",
+    "blob": "da93b39188e973c0bcf78163ba8183e832b91d84"
+   }
+  ],
+  "post_merge_edits": [
+   {
+    "path": "Mage/src/main/java/mage/game/GameImpl.java",
+    "blob": "7b2e3075d4a276afa954e86983a7e396091dce71"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/LorwynEclipsedCommander.java",
+    "blob": "e8c55135693f68d1c3ed4cc2c5b18f9a8abccf85"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/MarvelSuperHeroesCommander.java",
+    "blob": "49525b9737cfb0381aa35027e97ffcc0d32917a6"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/TeenageMutantNinjaTurtlesEternal.java",
+    "blob": "bdb61fc4b40a20c847c594bc0ae9631430547428"
+   },
+   {
+    "path": "Mage.Tests/src/test/java/org/mage/test/cards/abilities/keywords/EvokeTest.java",
+    "blob": "0d2a464104738043b40d9e8b9b77390a9d9a0a56"
+   },
+   {
+    "path": "Mage.Tests/src/test/java/org/mage/test/cards/single/ecc/AshlingTheLimitlessTest.java",
+    "blob": "40dc2f4bab47327036bfb7da98aaf0357a46366a"
+   },
+   {
+    "path": "Mage.Tests/src/test/java/org/mage/test/cards/single/sos/EnabledPrepareCardsTest.java",
+    "blob": "51dd43861297c926562b08ab93decb04e64a9287"
+   }
+  ],
+  "dependency_change": true,
+  "dependency_changes": [
+   {
+    "artifact": "org.assertj:assertj-core",
+    "module": "pom.xml",
+    "scope": "test",
+    "from": "3.21.0",
+    "to": "3.27.7",
+    "on_provider_classpath": false
+   },
+   {
+    "artifact": "org.openjfx:javafx-controls and javafx-swing",
+    "module": "Mage.Client/pom.xml",
+    "scope": "compile",
+    "from": "11.0.2",
+    "to": "17.0.20",
+    "on_provider_classpath": false
+   }
+  ],
+  "version_change": {
+   "from": "1.4.61",
+   "to": "1.4.62",
+   "note": "every module POM; the bridge pins xmage.version and ENGINE_VERSION to 1.4.62 in this repin"
+  },
+  "build_files_changed": [
+   "pom.xml and every module pom.xml (version 1.4.62, assertj-core, Mage.Client JavaFX)",
+   ".github/workflows/maven.yml and the labeler workflows (upstream)"
+  ],
+  "build_files_note": "the Lab bridge classpath (mage, mage-sets, the game and deck plugins) gains no dependency; the version suffix of the five mage jars changes"
+ },
+ "not_in_pin": [
+  "the 35-commit perf and card patch set of the Muse handover (fork-patches/), including the six simplified Turbulent dual lands the bisection found",
+  "a repair of the Rules-RNG stream for PoolOfVigorousGrowth and the winner pick in GameImpl (audit pending)"
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch update-upstream-2026-10 of moeendres-png/mage",
+   "commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+   "run_id": 39402991245,
+   "job": "build (17, temurin, jdk)",
+   "job_id": 118562032106,
+   "run": 7459,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 126,
+   "status": "COMPLETE"
+  },
+  "mage_verify": {
+   "result": "PASS",
+   "detail": "same job, same commit: Mage.Verify ran 28 tests, 0 failures, 0 errors, 8 skipped, BUILD SUCCESS. The first run on 6a4d4189 failed VerifyCardDataTest on 23 duplicated set registrations that the merge introduced; they are removed in the pin. The v8 lock recorded 15 card and 3 set verify errors as baseline; none remain on this commit."
+  }
+ },
+ "local_observed": {
+  "status": "LOCAL_OBSERVED (no CI-level credit)",
+  "fork_tests": "126 fork test classes, 417 tests, 0 failures, 0 errors at the pin",
+  "full_mage_tests": "7459 tests, 0 failures, 0 errors, 126 skipped at 6a4d4189 (before the registration dedupe, which touches set files only)",
+  "bridge_identity_tests": "XmageCandidateEngineFingerprintTest 8/8 and JsonlBridgeTest 13/13 against the 1.4.62 artifacts built from this line"
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "PENDING",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance on the repin branch: engine-bridge mvn verify against XMage built from exact 043579bb",
+   "status": "PENDING"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest.loadedCardSetCarriesTheEnabledPrepareCreatures checks the seven prepare creatures, the finished Adventurous Eater and the still unfinished cards; the v6 and v7 hooks stay checked."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the epoch is sealed."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "PB-03 runs on the repin pull request and on the exact Lab main merge commit, sealed as a new epoch, then AF11 is re-adjudicated for this pin (the mage jar names change to 1.4.62). No current-boundary epoch exists for this pin yet, and none may be written by this repin."
+ }
+}
