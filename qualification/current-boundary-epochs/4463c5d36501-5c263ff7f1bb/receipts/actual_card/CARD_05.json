@@ -1,0 +1,72 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_05",
+  "obligation_exercised": {
+    "obligation_digest": "d6040c5c5fd7987943949b3f93bd4fa719870af0af68d3d464a12a3db4483684",
+    "requested_state_digest": "13a258b73064c86def48b27fcc6aa3b419f4d5298fd588d83fc228273b031b3b",
+    "required_events": [
+      "instant_cast",
+      "Veyran_magecraft_trigger",
+      "Veyran_additional_trigger"
+    ],
+    "terminal_checks": [
+      "every Veyran, Voice of Duality on P1's battlefield is 4/4"
+    ],
+    "terminal_postconditions": [
+      "After both triggers resolve Veyran has +2/+2 until end of turn."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.62/mage-1.4.62.jar",
+      "sha256": "04c24171dfa40e0217f209c0f3991a9d800730c5400e13e1a3b74b0b6cb2c31d",
+      "size": 7191920
+    },
+    "postcondition_proofs": [
+      {
+        "check": "every Veyran, Voice of Duality on P1's battlefield is 4/4",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "After both triggers resolve Veyran has +2/+2 until end of turn."
+      }
+    ],
+    "terminal_facts": {
+      "every Veyran, Voice of Duality on P1's battlefield is 4/4": true
+    },
+    "token_evidence": {
+      "Veyran_additional_trigger": {
+        "binding": "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card_05-subject",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "Veyran_magecraft_trigger": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card_05-subject, target_name~=stack ability (<i>Magecraft</i>",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "instant_cast": {
+        "binding": "at least one SPELL_CAST event(s) with source_object=obj:card05-bolt",
+        "events": [
+          8
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "c5916b6d3888f14a828da4f8c1489f67c757867d198b6b0ac6940430af78fe33",
+  "runner_digest": "8476cb20270470facafb3c163c653f92b623e8726712f3bd6a34e3f8a8f064c3",
+  "runtime_receipt_digest": "e1e189efa081ea081a3ec921fd46cecad3daaac92bfa6ef655bc487b35bb1198",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_05"
+}

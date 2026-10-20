@@ -1,0 +1,32 @@
+{
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "execution_mode": "PROTOCOL2_SCRIPTED_PREGAME",
+  "fixture_id": "WS05-CMD-MULL-4",
+  "obligation_exercised": {
+    "fixture_family": "multiplayer_commander",
+    "forbidden_events": [],
+    "obligation_digest": "334acd2d9630992b457d4522cf77684ed373cb4939c2cbf555eb3bbb38ccecc9",
+    "requested_state_digest": "89d20bb6dbc4464fcc767752a681213db594cb8189f6ba09bbfd6883ffc784e3",
+    "required_events": [
+      "mulligan_once:P1",
+      "free_mulligan:true"
+    ],
+    "terminal_postconditions": [
+      "In 4P multiplayer Commander the first mulligan is free and a kept hand after exactly one mulligan bottoms zero cards."
+    ]
+  },
+  "observed_assertion": {
+    "principal_observation_scope": "engine-offered decision frames for the acting seat",
+    "row_document_sha256": "7eb41cdab2832bfa076901b0ee94a538fb17417a6689be087d5b0d604364411b",
+    "semantic_events_sha256": "7361157e560b2f3fbd15c1d33c5ded035735c0f55412f3166340adf92bb0a865",
+    "terminal_facts_sha256": "7d54f42aadce0eea4482a4cb49be3ac36441a92dafc9e14a73becd72ea3e6a30"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "a0c61a2ee13d4a9e67b7047ae8b3f77f1fb9a5dade53e9a978ca679c75d23a6f",
+  "runner_digest": "8476cb20270470facafb3c163c653f92b623e8726712f3bd6a34e3f8a8f064c3",
+  "runtime_receipt_digest": "7eb41cdab2832bfa076901b0ee94a538fb17417a6689be087d5b0d604364411b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "current-boundary-direct:PROTOCOL2_SCRIPTED_PREGAME#WS05-CMD-MULL-4"
+}

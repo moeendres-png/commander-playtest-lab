@@ -1,0 +1,109 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "043579bb7829fa866ade893909c9ba4825a18b23",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "3724db58881d9032dcaf2c506c3d6280160fc311e538a2c7e7721d909873e258",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "MICRO_RULES_RANDOMNESS-causal-obj:micro-stitch-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "823b567596dca59d1efba8fe3ca265e4e852dbafc06062eabd554737fea33445",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_RULES_RANDOMNESS-causal-obj:micro-stitch-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "d8dd3f8ae6e3646e30615a9d3b7b3cfaa03ad1eebef340b723b8c8e2ca90ed51",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[1]",
+        "tag": "MICRO_RULES_RANDOMNESS-causal-obj:micro-stitch-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f1da2ebac5bdef02a61c33e70f05820d84a4550215b9a07eaa8dbceecca9af15",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_RULES_RANDOMNESS-causal-obj:micro-stitch-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "2a20ca4e58d2dc80b28727a75038dd9c25f9b0bba33129b15d89cdb583337c55",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[2]",
+        "tag": "MICRO_RULES_RANDOMNESS-causal-obj:micro-stitch-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "facc1af17139b0e3dd1e8e30638ce5c127b9588d56466eb5c4720632f8bf448f",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_RULES_RANDOMNESS-causal-obj:micro-stitch-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-stitch"
+    ],
+    "fuel": [
+      "obj:fuel-island-p1",
+      "obj:fuel-mountain-p1",
+      "obj:fuel-plains-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-stitch"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_RULES_RANDOMNESS",
+  "obligation_exercised": {
+    "obligation_digest": "c40577b42b4d5957aad85a1d34795c94301690aea987da7f26a972e91964ffec",
+    "requested_state_digest": "2762365a5424db5e8788ee0ad4da211ef3d873b72eb5ccd1af2a9467dd026640",
+    "required_events": [
+      "rules_rng:coin_flip:HEADS",
+      "extra_turn_created:P1"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Rules randomness came only from RulesRng channel and the predetermined semantic HEADS result created an extra turn."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "extra_turn_created:P1": {
+        "binding": "the engine's pending extra turns are ['P1'], in the order taken",
+        "observation": "engine terminal observation"
+      },
+      "rules_rng:coin_flip:HEADS": {
+        "binding": "exactly 1 COIN_FLIPPED event(s) with source_object=obj:micro-stitch, coin_result=HEADS, coin_won=True",
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "1b3ccf956ad85dce379775eeae97896e62aa911f67683b97498faf63b3bfc2cd",
+  "runner_digest": "8476cb20270470facafb3c163c653f92b623e8726712f3bd6a34e3f8a8f064c3",
+  "runtime_receipt_digest": "5257854f541646d90bcac45e079b201c2ceda688c6381f7260997d5ac61d126b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_RULES_RANDOMNESS",
+  "variance_source": null
+}
