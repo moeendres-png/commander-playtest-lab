@@ -43,12 +43,6 @@ class _PolicyState:
     # activations (sacrifice outlets, pingers) legitimately go further.
     _TURN_SPELL_CAP = 3
     _TURN_ABILITY_CAP = 8
-    # #802: distinct block declarations one engine frame (this blocker, these
-    # attackers) is answered with before the pilot fails closed. See
-    # ``_decide_blocks``: 1 = declare what pays, 2 = declare every block the
-    # frame offers, 3 = declare nothing. An accepted declaration ends the
-    # round (see ``_block_frame_asks``), so the ladder restarts per combat.
-    _BLOCK_DECLARATION_ASK_LIMIT = 3
 
     # Most distinct priority windows remembered per seat per step for the
     # #718 recurrence bound. Bounded so the guard cannot itself grow without
