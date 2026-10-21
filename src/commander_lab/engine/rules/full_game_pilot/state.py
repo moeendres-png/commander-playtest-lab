@@ -135,6 +135,9 @@ class _PolicyState:
         # picked again: per seat, the engine ids picked so far in the running selection, and
         # the seats whose selection just ended (their next may-prompt must end it too).
         self._running_selection: dict[int, set[str]] = {}
+        # Lim-Dul's Vault: per seat, the ability that asked and how many times in a row the seat
+        # has paid a life to look at five more cards.
+        self._life_dig_yes: dict[int, tuple[str, int]] = {}
         self._selection_ended: set[int] = set()
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the

@@ -1055,3 +1055,41 @@ def test_counter_cost_the_table_can_fund_is_still_offered() -> None:
         _request("priority", [_PASS, *_TAPS, _tekuthal_activation()], state=own)
     )
     assert response["selected_option_ids"] == ["pass"]
+
+
+_DIG_PROMPT = "Pay 1 life and look at the next 5 cards?"
+_LIM_DUL = {
+    "source_object_id": "vault",
+    "ability_original_id": "lim-duls-vault",
+    "ability_type": "spell",
+    "source_name": "Lim-Dûl's Vault",
+}
+
+
+def _dig(offset: int, source: dict[str, Any] | None = None) -> dict[str, Any]:
+    request = _boolean("benefit", _DIG_PROMPT, offset=offset)
+    request["source_object"] = source or _LIM_DUL
+    return request
+
+
+def test_life_dig_stops_after_a_few_digs() -> None:
+    # Lim-Dul's Vault lets a player pay 1 life and look at five more cards "as many times as
+    # you choose". The pilot cannot judge the cards, so it paid every time: one precon game
+    # (plan seed 5) ran for nearly an hour. After three digs in a row the answer is No.
+    policy = _policy()
+    answers = [policy.decide(_dig(offset))["selected_option_ids"][0] for offset in range(1, 6)]
+    assert answers == ["yes", "yes", "yes", "no", "no"]
+
+
+def test_life_dig_count_ends_with_the_effect() -> None:
+    # Controls: a priority window means the effect resolved, so a later cast starts afresh; and
+    # the same question from another ability is counted on its own.
+    policy = _policy()
+    for offset in range(1, 4):
+        assert policy.decide(_dig(offset))["selected_option_ids"] == ["yes"]
+    assert policy.decide(_dig(4))["selected_option_ids"] == ["no"]
+    policy.decide(_request("priority", [_PASS], state=_state(step="precombat_main"), offset=5))
+    assert policy.decide(_dig(6))["selected_option_ids"] == ["yes"]
+    other = dict(_LIM_DUL, ability_original_id="another-vault")
+    for offset in range(7, 10):
+        assert policy.decide(_dig(offset, other))["selected_option_ids"] == ["yes"]

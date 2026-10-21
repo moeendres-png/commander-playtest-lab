@@ -40,6 +40,12 @@ _FREE_CAST_CONTINUE_PROMPT = re.compile(
     r"You can cast \d+ more spells? for free\. Continue casting"
 )
 _COPY_CAST_CONTINUE_PROMPT = re.compile(r"Continue to choose copies and cast\?")
+# Lim-Dul's Vault: "As many times as you choose, you may pay 1 life, put those cards on the bottom
+# of your library, then look at the top five cards." The pilot cannot judge the five cards it
+# digs past, so it answered Yes every time (precon pod, plan seed 5: thousands of times, one game
+# of nearly an hour). A seat stops after a few digs, like a player who does not find what it wants.
+_LIFE_DIG_PROMPT = re.compile(r"Pay 1 life and look at the next 5 cards\?")
+_LIFE_DIG_CAP = 3
 
 
 class _ChoiceDecisions(_PaymentDecisions):
@@ -361,7 +367,15 @@ class _ChoiceDecisions(_PaymentDecisions):
         ):
             answered_yes = prior[2]
             cap = self._boolean_yes_cap(offer, self._actor(state))
-        yes_withheld = life_yes_blocked or (cap is not None and answered_yes >= cap)
+        dig_key = self._boolean_source_key(source_object)
+        dug = 0
+        if _LIFE_DIG_PROMPT.match(prompt):
+            prior_dig = self._life_dig_yes.get(seat)
+            dug = prior_dig[1] if prior_dig is not None and prior_dig[0] == dig_key else 0
+        dig_yes_blocked = dug >= _LIFE_DIG_CAP
+        yes_withheld = (
+            life_yes_blocked or dig_yes_blocked or (cap is not None and answered_yes >= cap)
+        )
         selectable = [
             option
             for option in options
@@ -419,6 +433,13 @@ class _ChoiceDecisions(_PaymentDecisions):
                     life_promised,
                     prompt,
                 )
+            elif dig_yes_blocked:
+                _LOG.info(
+                    "life-dig guard: %d consecutive digs for %s; declining %r",
+                    dug,
+                    dig_key or "<unidentified source>",
+                    prompt,
+                )
             elif cap is not None:
                 _LOG.info(
                     "multikicker guard: %d consecutive yes payments for %s/%s reached the "
@@ -463,6 +484,8 @@ class _ChoiceDecisions(_PaymentDecisions):
             if last_yes is not None:
                 failed.add(last_yes)
         self._free_cast_failed[seat] = (turn, failed)
+        if _LIFE_DIG_PROMPT.match(prompt) and values[raw_id]:
+            self._life_dig_yes[seat] = (dig_key, dug + 1)
         if life_prompt is not None and values[raw_id]:
             self._phyrexian_life_promised[seat] = life_promised + int(life_prompt.group(1))
         if offer is None:

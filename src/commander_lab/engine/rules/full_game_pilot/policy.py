@@ -161,6 +161,8 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             self._priority_x_counter_caps.pop(seat, None)
             self._failed_x_announcements.pop(seat, None)
             self._last_priority_label.pop(seat, None)
+            # A priority window means the effect that was asking has resolved.
+            self._life_dig_yes.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected, pilot_state)
             self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
