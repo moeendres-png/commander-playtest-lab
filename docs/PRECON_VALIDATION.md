@@ -236,6 +236,23 @@ die anderen sechs Karten sind neu.
   Mit Jar von `d59d0cd` und diesen Änderungen laufen 007, 017, 018 und 035 durch (1818, 3294, 6562 und 2225
   Entscheidungen; ein Spiel je Pod, keine Passquote). Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
   alle Zähler identisch.
+- Familiensuche Plan-Seeds 6 bis 8 auf dem neuen Pin `769e6ebb` (Repin v10, Spiel-Seed gleich dem
+  Plan-Seed, gleiche 182 Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708` gegen den Pin gebaut,
+  Pilot von `main`): Seed 6 und Seed 8 laufen mit 46 von 46 Pods durch, Seed 7 mit 44 von 46. Die
+  beiden Abbrüche liegen im Piloten, die Bridge bleibt unverändert (keine Requalifizierung):
+  - Pod 023, Gift of Doom: Die Aura mit Morph wird als „Cast Gift of Doom using Morph“ angeboten.
+    Die verdeckt gewirkte Karte löst beim Eintritt den Aura-Test der Engine aus („found etb aura
+    with empty spell ability or without any targets“, `PlayerImpl.moveCards`), jeder Versuch endet
+    in einem internen Fehler und das Spiel in `ENGINE_FAILURE`. Der Pilot wirkt sie nicht
+    verdeckt (`_FACE_DOWN_AURAS`); der normale Zauber bleibt möglich.
+  - Pod 045, Yuriko, the Tiger's Shadow: Commander ninjutsu ist in XMage eine `Zone.ALL`-Fähigkeit
+    und wird angeboten, auch wenn die Karte schon im Spiel liegt (der Pilot hatte Yuriko normal
+    gewirkt). Die Kosten „reveal ninjutsu card“ zahlen nur aus Hand oder Befehlszone, die Aktivierung
+    scheitert nach dem Bezahlen des Manas (`XMAGE_ACTION_EXECUTION_FAILED`). Der Pilot aktiviert
+    Ninjutsu nicht für eine Karte, die auf dem Schlachtfeld liegt.
+  Mit diesen Änderungen laufen 023 und 045 durch (2268 und 4301 Entscheidungen; ein Spiel je Pod,
+  keine Passquote). Seed 8 wurde zusätzlich auf unverändertem `main` gespielt. Pilotvergleich
+  vorher/nachher auf zehn Seeds (1–10, gleiches Jar): alle Zähler identisch.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
