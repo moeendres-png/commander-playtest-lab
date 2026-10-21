@@ -154,6 +154,15 @@ that `build_xmage_cds_archive.py` prints, which now carries serial GC.
 | 3 | Fork: lazy copy of triggers, watchers and battlefield in `GameState.copy` | 8-15 % (estimate) | fork push, repin, requalification. The copy is where games diverged before (`AddManaChosenColorEffect`, the P1 fast path); only with a 36-seed and a sweep comparison, locally first. |
 | 4 | Card-test time: keep the card database, run the tests of a change in one invocation (section 8) | cold 39 s -> 10 s, further tests about 0.25 s each | no code; CI cache or workflow habit of the fork's test job. Owner's call for the fork CI. |
 
+Why stage 3 stays small: the JFR profile of one game (seed 1, 7,614 game-thread samples; 3,306
+of them, 43 %, inside `createSimulationForPlayableCalc`) shows no single hot spot in the copy.
+It is the object graph: `Battlefield.copy` 31 %, `TriggeredAbilities.copy` 27 %, `Modes`/
+`Mode`/`Effects` copies 35 %, `Watchers` 7 %, `ContinuousEffects` 7 % (inclusive shares, they
+overlap); leaf time is `HashMap.putVal` 16 %, `Effects.<init>` 12 %, `CardUtil.deepCopyObject`
+7 %. Safe micro-changes (presizing the `ArrayList` copies) would save a few percent; presizing
+a `HashMap` or `HashSet` changes its iteration order and is exactly what the determinism line
+removed. Sharing instead of copying is where earlier attempts diverged.
+
 Removing the second simulation copy (about 24 % faster) was rejected earlier because one game
 played differently (`docs/performance/XMAGE_FULL_GAME_SPEED_2026-10-12.md`); that stands.
 
