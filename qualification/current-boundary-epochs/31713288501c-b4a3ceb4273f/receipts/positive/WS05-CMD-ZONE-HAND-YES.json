@@ -1,0 +1,92 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "e51d698ba2f7ab411669120253b86eadcdfa0e968844ba1fae4d855dd3a2fb69",
+        "kind": "priority_pass",
+        "scope": "decision_script[6]",
+        "tag": "WS05-CMD-ZONE-HAND-YES-causal-obj:cmd-zone-source"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "d7d5e259e79b74789510235985fdd7410e99a1d1a2ec765368a5c324b38292e8",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "WS05-CMD-ZONE-HAND-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "ad9335c0cd82d85e92d392fea03ef0fed94088a062b8a640a8171812f4ba1793",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-CMD-ZONE-HAND-YES-causal-obj:cmd-zone-source-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:cmd-zone-source"
+    ],
+    "fuel": [
+      "obj:fuel-island-a"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:cmd-zone-source"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-HAND-YES",
+  "obligation_exercised": {
+    "obligation_digest": "8935ad928e36d0789756d890384c21489907036265103662f6e6e2689d85d11e",
+    "requested_state_digest": "4ef0d4b710d1471168799afc1c4f4b72ae5b615aae4912bfddd323bbee5c3441",
+    "required_events": [
+      "commander_zone_event:hand",
+      "commander_choice:command"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "commander_choice:command": {
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          9
+        ]
+      },
+      "commander_zone_event:hand": {
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ad3e088dba4008eb92560d540be3df6878ae915953bbc124b1a7f61022779f74",
+  "runner_digest": "37699bb6bfc56732e2b7dd23454d81682365ba0520bf29b3b6154287654a914f",
+  "runtime_receipt_digest": "2b07f9a43784ae6a24e050c05ecf019cddceb948670273082c1b7b68730fdc2b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-ZONE-HAND-YES",
+  "variance_source": null
+}

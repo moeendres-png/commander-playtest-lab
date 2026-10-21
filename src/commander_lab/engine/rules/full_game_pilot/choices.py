@@ -13,7 +13,7 @@ from commander_lab.models import (
 
 from ..full_game_pilot_views import (
     color_choice_rank,
-    commander_creature_names,
+    commander_creature_ids,
     named_choice_rank,
     needs_commander_target,
     sweep_mode_net,
@@ -144,11 +144,11 @@ class _ChoiceDecisions(_PaymentDecisions):
             )
         ):
             # Cast outside a sorcery window, the spell only works against a commander.
-            commanders = commander_creature_names(state)
+            commanders = commander_creature_ids(state)
             options = [
                 option
                 for option in options
-                if str(option.get("label", "")).casefold() in commanders
+                if str((option.get("metadata") or {}).get("object_id", "")) in commanders
             ] or options
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)

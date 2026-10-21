@@ -253,6 +253,25 @@ die anderen sechs Karten sind neu.
   Mit diesen Änderungen laufen 023 und 045 durch (2268 und 4301 Entscheidungen; ein Spiel je Pod,
   keine Passquote). Seed 8 wurde zusätzlich auf unverändertem `main` gespielt. Pilotvergleich
   vorher/nachher auf zehn Seeds (1–10, gleiches Jar): alle Zähler identisch.
+- Familiensuche Plan-Seeds 9 und 10 auf dem Pin `769e6ebb` (Spiel-Seed gleich dem Plan-Seed, gleiche 182
+  Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708`, Pilot von `main` `16a4de4`): Seed 10 läuft
+  mit 46 von 46 Pods durch, Seed 9 mit 43 von 46. Die drei Abbrüche liegen im Piloten, die Bridge
+  bleibt unverändert (keine Requalifizierung):
+  - Pod 007, Yuriko, the Tiger's Shadow: wie Pod 045 aus Seed 7, nur lag die Karte im Friedhof. Commander
+    ninjutsu ist `Zone.ALL`, das Aufdecken zahlt nur aus Hand oder Befehlszone. Der Pilot aktiviert
+    Ninjutsu jetzt nicht für Karten auf dem Schlachtfeld, im Friedhof oder im Exil
+    (`ninjutsu_card_outside_hand`).
+  - Pod 018, Timely Ward: Zwei Karten „Wyleth, Soul of Steel“ lagen auf dem Tisch, nur eine ist der
+    Commander des Spielers. Die Zielwahl nahm nach dem Namen (`commander_creature_names`) die falsche und
+    der Zauber scheiterte. Der Pilot erkennt Commander jetzt an Name und Besitzer
+    (`commander_creature_ids`) und wählt per Objekt-ID.
+  - Pod 021, Jaspera Sentinel: „{T}, Tap an untapped creature you control: Add one mana of any
+    color.“ wird angeboten, wenn der Sentinel die einzige Kreatur ist; die Aktivierung scheitert
+    („mana activation failed“), weil das eigene {T} sie schon getappt hat. Der Pilot zahlt nicht mit
+    solchen Kosten, wenn keine weitere ungetappte Kreatur da ist (`tap_creature_cost_unpayable`).
+  Mit diesen Änderungen laufen 007, 018 und 021 durch (6019, 2228 und 4674 Entscheidungen; ein Spiel
+  je Pod, keine Passquote). Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
+  alle Zähler identisch.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
