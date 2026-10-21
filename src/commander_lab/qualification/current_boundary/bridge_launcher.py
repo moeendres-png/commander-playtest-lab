@@ -576,6 +576,10 @@ def build_launch_plan(
         argv = (
             "java",
             "-Djava.awt.headless=true",
+            # Serial GC: small live set, about 1 GB/s allocation, one collector thread. Measured
+            # -10 to -16 % CPU per game with identical semantic transcripts on 36 + 46 + 24 games
+            # (docs/performance/XMAGE_EFFICIENCY_OFFENSIVE_2026-10-21.md); a JVM flag, no game logic.
+            "-XX:+UseSerialGC",
             f"-Dcommanderlab.repoRoot={workspace.parent}",
             "-cp",
             f"{workspace / 'target' / 'classes'}:{classpath}",

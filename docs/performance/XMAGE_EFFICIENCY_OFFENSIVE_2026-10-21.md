@@ -36,7 +36,12 @@ The evidence lanes (PB-03, gates) keep one game per JVM (Owner decision 2026-10-
 they could take without breaking that rule is the launch flags alone: serial GC and AppCDS,
 one game per JVM: 914.5 -> 819.3 s (-10 %), CPU 3072 -> 2588 s (-16 %), 36/36 identical.
 That is a change of the bridge command string and so of the batch execution identity; it is
-the Owner's call and not made here.
+the Owner's call. Owner go 2026-10-21 for the serial GC part: the current-boundary launcher
+(`qualification/current_boundary/bridge_launcher.py`, used by PB-03, the AF lanes and the
+mid-game twin) now starts the bridge with `-XX:+UseSerialGC`; PB-03 spends about 22 of its 27
+minutes in games. The AppCDS part does not fit that launcher: it starts the bridge with
+`-cp target/classes:<jars>`, and a class archive cannot hold classes from a directory and
+checks the exact class path, so the archive stays a tool of the measurement runs.
 
 ## 2. Method
 
