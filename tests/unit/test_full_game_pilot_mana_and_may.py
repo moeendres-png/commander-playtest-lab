@@ -1016,6 +1016,128 @@ def test_commander_only_target_rule_is_limited_to_that_card_and_timing() -> None
     assert sorcery["selected_option_ids"] == ["token"]
 
 
+def _concierge_target(source_name: str, *names: str) -> dict[str, Any]:
+    options = [
+        _option(f"target-{index}", "target", name, object_id=f"obj-{index}", name=name)
+        for index, name in enumerate(names)
+    ]
+    request = _request(
+        "target",
+        options,
+        context={"targeted": True, "outcome": "removal", "required": True},
+        prompt="Select up to one creature",
+        state=_state(step="precombat_main"),
+    )
+    request["minimum_selections"] = 0
+    request["source_object"] = {
+        "source_object_id": "spell",
+        "ability_original_id": "trigger",
+        "ability_type": "triggered_nonmana",
+        "source_name": source_name,
+    }
+    return request
+
+
+def test_exile_and_suspend_is_never_aimed_at_a_token() -> None:
+    # Sinister Concierge exiled a Vampire Token, the engine threw "Card must be in exile zone"
+    # while giving it suspend, and the precon game ended (plan seed 3, game seed 103).
+    only_token = _policy().decide(_concierge_target("Sinister Concierge", "Vampire Token"))
+    assert only_token["selected_option_ids"] == []
+    mixed = _policy().decide(
+        _concierge_target("Sinister Concierge", "Vampire Token", "Archmage Emeritus")
+    )
+    assert mixed["selected_option_ids"] in ([], ["target-1"])
+
+
+def test_the_token_rule_is_limited_to_the_exile_and_suspend_card() -> None:
+    # Controls: another source keeps the pilot's own ranking and may aim at a token.
+    other = _policy().decide(_concierge_target("Swords to Plowshares", "Vampire Token"))
+    assert other["selected_option_ids"] == ["target-0"]
+    # The card's own non-token targets are still reachable.
+    card = _policy().decide(_concierge_target("Sinister Concierge", "Archmage Emeritus"))
+    assert card["selected_option_ids"] == ["target-0"]
+
+
+def _sacrifice_during_payment(
+    payer_id: str, *names: str, asking: str = "szeras", minimum: int = 1
+) -> list[str]:
+    """The payment frame of an activation, then a sacrifice choice (a mana ability's or its own)."""
+    policy = _policy()
+    payment = _request(
+        "mana_payment",
+        [_option("cancel", "cancel_mana_payment", "Cancel"), *_TAPS],
+        context={"unpaid_mana": "{1}"},
+    )
+    payment["source_object"] = {
+        "source_object_id": payer_id,
+        "ability_type": "activated_nonmana",
+        "source_name": "Necron Overlord",
+    }
+    policy.decide(payment)
+    options = [
+        _option(f"sacrifice-{name}", "target", name, object_id=name, name=name) for name in names
+    ]
+    request = _request(
+        "choose_object",
+        options,
+        context={"targeted": False, "outcome": "sacrifice", "required": False},
+        prompt="Select another creature (to sacrifice)",
+        offset=2,
+    )
+    request["minimum_selections"] = request["maximum_selections"] = minimum
+    request["source_object"] = {
+        "source_object_id": asking,
+        "ability_type": "activated_mana" if asking == "szeras" else "activated_nonmana",
+        "source_name": "Illuminor Szeras" if asking == "szeras" else "Necron Overlord",
+    }
+    return list(policy.decide(request)["selected_option_ids"])
+
+
+def test_the_payment_of_an_activation_never_sacrifices_its_own_source() -> None:
+    # Illuminor Szeras' mana ability sacrifices another creature. Paying Necron Overlord's
+    # {X}, {T} ability with it, the pilot sacrificed the Overlord, the {T} cost found nothing
+    # to tap and the game stopped (plan seed 1, game seed 101, pod 024).
+    for names in (("Zeta Overlord", "Tomb Blade"), ("Tomb Blade", "Zeta Overlord")):
+        assert _sacrifice_during_payment("Zeta Overlord", *names) == ["sacrifice-Tomb Blade"]
+
+
+def test_the_payment_source_is_sacrificed_when_nothing_else_is_on_offer() -> None:
+    # The pilot cannot avoid it, so the engine's single option stays.
+    assert _sacrifice_during_payment("Zeta Overlord", "Zeta Overlord") == [
+        "sacrifice-Zeta Overlord"
+    ]
+
+
+def test_the_payment_source_stays_on_offer_when_the_cost_needs_more_than_the_rest() -> None:
+    # Breya, Etherium Shaper's "Sacrifice two artifacts" with Breya and one Thopter: dropping
+    # Breya left one option for two picks and the game stopped (plan seed 4, game seed 104,
+    # pod 014). A choice the payment's source cannot be spared from keeps it.
+    chosen = _sacrifice_during_payment("breya", "breya", "thopter", asking="szeras", minimum=2)
+    assert sorted(chosen) == ["sacrifice-breya", "sacrifice-thopter"]
+
+
+def test_the_activations_own_sacrifice_cost_may_take_its_source() -> None:
+    # The same cost asked by the activation itself (not by another permanent's mana ability):
+    # nothing is being paid for with the source, so it is a plain option.
+    chosen = _sacrifice_during_payment("breya", "breya", "thopter", asking="breya", minimum=2)
+    assert sorted(chosen) == ["sacrifice-breya", "sacrifice-thopter"]
+
+
+def test_another_sacrifice_choice_keeps_the_pilots_own_ranking() -> None:
+    # Control: with no payment in progress (a fresh policy) the pilot ranks the options itself.
+    request = _request(
+        "choose_object",
+        [
+            _option("sacrifice-a", "target", "Zeta Overlord", object_id="Zeta Overlord"),
+            _option("sacrifice-b", "target", "Tomb Blade", object_id="Tomb Blade"),
+        ],
+        context={"targeted": False, "outcome": "sacrifice", "required": False},
+        prompt="Select another creature (to sacrifice)",
+    )
+    request["source_object"] = {"source_object_id": "szeras", "source_name": "Illuminor Szeras"}
+    assert len(_policy().decide(request)["selected_option_ids"]) == 1
+
+
 def _morph_cast(name: str) -> dict[str, Any]:
     return _option(
         "morph",

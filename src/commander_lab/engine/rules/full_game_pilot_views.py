@@ -64,6 +64,23 @@ _COMMANDER_TARGET_FLASH = frozenset({"timely ward"})
 # not hold the card, so it is named here.
 _FACE_DOWN_AURAS = frozenset({"gift of doom"})
 
+# Exiles "up to one target creature" and gives the exiled card suspend. A token ceases to exist in
+# exile, and the engine's SuspendAbility.addTimeCountersAndSuspend then throws "Card must be in
+# exile zone: Vampire Token", which kills the game (precon pod, plan seed 3, game seed 103). The
+# trigger works on every other creature. The printed card catalog does not know whether the
+# permanent is a token, so the card is named here and a token reads off its printed name.
+_EXILE_AND_SUSPEND_TARGETERS = frozenset({"sinister concierge"})
+
+
+def is_unsuspendable_target(source_name: str, option: Mapping[str, object]) -> bool:
+    """Whether this target option is a token aimed at an exile-and-suspend effect."""
+    if source_name.casefold() not in _EXILE_AND_SUSPEND_TARGETERS:
+        return False
+    metadata = option.get("metadata")
+    meta = metadata if isinstance(metadata, Mapping) else {}
+    name = str(meta.get("name") or option.get("label") or "")
+    return name.casefold().endswith(" token")
+
 
 def needs_commander_target(
     source_name: str, state: Mapping[str, object], *, spell_on_stack: bool
@@ -157,6 +174,40 @@ def counter_cost_number(label: str) -> int | None:
         return None
     number = found.group(1)
     return int(number) if number.isdigit() else _COUNTER_NUMBERS[number]
+
+
+# "Remove X counters from an artifact or creature you control" (Moxite Refinery, plan seed 6,
+# game seed 106, pod 040). The engine bounds neither X nor the pick: the player names X, picks
+# one permanent and one counter type, and the activation is reversed when that pile is smaller.
+_REMOVE_X_COUNTERS_FROM_ONE = re.compile(
+    r"remove x counters from an? (?P<kinds>[a-z]+(?: or [a-z]+)*) you control"
+)
+
+
+def is_x_counter_pile_cost(label: str) -> bool:
+    """Whether a cost removes X counters of one type from a single permanent you control."""
+    return _REMOVE_X_COUNTERS_FROM_ONE.search(label.casefold()) is not None
+
+
+def x_counter_pile_cap(label: str, battlefield: object) -> int | None:
+    """The largest X a "remove X counters from an <types> you control" cost can pay.
+
+    One permanent pays, with counters of one type, so X is at most the largest pile on the
+    actor's permanents of the printed types. A permanent counts when the printed card catalog
+    gives it the type; an unknown card does not, which only ever lowers the cap. ``None`` means
+    the label has no such cost or there is no battlefield view.
+    """
+    found = _REMOVE_X_COUNTERS_FROM_ONE.search(label.casefold())
+    if found is None or not isinstance(battlefield, list):
+        return None
+    kinds = found.group("kinds").split(" or ")
+    best = 0
+    for item in _items(battlefield):
+        facts = card_facts(str(item.get("name") or ""))
+        if facts is None or not any(kind == "permanent" or kind in facts.types for kind in kinds):
+            continue
+        best = max(best, counter_stack(item))
+    return best
 
 
 def counter_stack(item: Mapping[str, object]) -> int:

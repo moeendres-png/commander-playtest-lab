@@ -355,11 +355,72 @@ die anderen sechs Karten sind neu.
     `sourceId`; Protector of the Wastes (im selben Spiel) liest sie ohne Nullprüfung. Das ist ein
     Fehler der Engine (im neueren Fork-Checkout unverändert), den der Pilot nicht umgehen kann, ohne
     einen Massenentferner oder Gegner-Auren zu meiden. Eine Lösung wäre eine Fork-Änderung (nullsichere
-    Prüfung in `ProtectorOfTheWastes`; dieselbe Zeile steht laut Textsuche auch in `IvoraInsatiableHeir`,
-    `JadeOrbOfDragonkind`, `MisfortuneTeller` und `TomeboundLich`, ungeprüft) und bleibt offen.
+    Prüfung in `ProtectorOfTheWastes`: das Eintreten-Ereignis nennt das eintretende Objekt als Ziel,
+    nicht als Quelle). Vier ähnlich gebaute Karten (`IvoraInsatiableHeir`, `JadeOrbOfDragonkind`,
+    `MisfortuneTeller`, `TomeboundLich`) lesen für das Eintreten die Ziel-ID und sind nicht betroffen.
+    Die Änderung liegt als Patch vor (`/mnt/project-files/fork-fixes-2026-10-21/`); ein Fork-Push
+    braucht Hans' Go.
   Ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
   alle Entscheidungs- und Verhaltenszähler identisch; nur `wall_s` liegt im zweiten Lauf um etwa 12 %
   höher (`pilot_s` innerhalb des Konfidenzintervalls gleich), also Maschinenrauschen, nicht der Pilot.
+- Familiensuche Plan-Seeds 1 bis 3 mit Spiel-Seed +100 (101 bis 103) auf dem Pin `769e6ebb` (gleiche 182
+  Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708`, Pilot von `main` `e1b873c`): Seed 102 läuft mit 46 von
+  46 Pods durch, die Seeds 101 und 103 mit je 45 von 46. Beide Abbrüche lagen im Piloten (die Bridge
+  und die Engine bleiben unverändert):
+  - Seed 101, Pod 024 (Necron Overlord, Illuminor Szeras): `XMAGE_ACTION_EXECUTION_FAILED: priority
+    activation failed` in Zug 48. Zwei Ursachen hintereinander. Erstens kündigte der Pilot für Necron
+    Overlords „{X}, {T}, Tap X untapped artifacts you control" X = 14 an (so viel Mana seine 13 Sümpfe
+    und Szeras hergeben); die Engine begrenzt dieses X nicht, und die Tap-Kosten fanden nur wenige
+    Artefakte (`option_x_tap_cap`: X bleibt bei den ungetappten Artefakten, die ein Kartenkatalog als
+    Artefakt kennt, ohne die Quelle selbst; unbekannte Karten und Spielsteine zählen nicht, was den
+    Deckel nur senkt). Zweitens zahlte der Pilot das Mana mit Szeras' Fähigkeit („{T}, Sacrifice
+    another creature: Add {B}…") und opferte dafür Necron Overlord selbst: dessen eigene {T}-Kosten
+    fanden danach keine Quelle, die Aktivierung wurde zurückgenommen. Das Opfer innerhalb einer Zahlung
+    nimmt jetzt nie die Quelle der bezahlten Aktivierung (`_without_payment_source`), solange eine
+    andere Wahl da ist. Die frühere Beobachtung auf dem alten Pin („Kosten mit Auswahl: Ghave, Necron
+    Overlord, Grim Hireling, die Engine bietet die Aktivierung an, kann sie aber nicht ausführen") hat
+    für Necron Overlord damit ihre Ursache. Pod 024 läuft jetzt durch (4563 Entscheidungen).
+  - Seed 103, Pod 002 (Sinister Concierge): `XMAGE_INTERNAL_ERRORS` mit `IllegalArgumentException: Card
+    must be in exile zone: Vampire Token`. Sinister Concierge exiliert „up to one target creature" und
+    gibt der exilierten Karte dann Suspend; ein Spielstein bleibt nicht im Exil, und
+    `SuspendAbility.addTimeCountersAndSuspend` wirft. Der Pilot zielte auf den Vampire Token des
+    Gegners. Die Karte kennt der Katalog nicht als Sonderfall, also steht sie in
+    `_EXILE_AND_SUSPEND_TARGETERS`, und ein Ziel, dessen Name auf „ Token" endet, wird für sie nicht
+    angeboten („up to one" bleibt offen, der Pilot darf auch niemanden wählen). Eine Fork-Änderung
+    (`instanceof PermanentToken` in `SinisterConciergeEffect`) wäre die Engine-Seite und ist nicht
+    nötig. Pod 002 läuft jetzt durch (4774 Entscheidungen).
+  Ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches
+  Jar): alle Entscheidungs- und Verhaltenszähler identisch; nur `wall_s` liegt im zweiten Lauf um
+  etwa 21 % niedriger (`pilot_s` innerhalb des Konfidenzintervalls gleich), also Maschinenrauschen,
+  nicht der Pilot.
+- Familiensuche Plan-Seeds 4 bis 6 mit Spiel-Seed +100 (104 bis 106) auf dem Pin `769e6ebb` (gleiche 182
+  Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708`): Seed 105 läuft mit 46 von 46 Pods durch. Mit dem
+  Piloten von `main` `5991d9d` (nach #952) fielen Seed 104 zwei Pods (014, 022) und Seed 106 vier Pods
+  (026, 040, 043, 044) aus. Alle Abbrüche lagen im Piloten (Bridge und Engine bleiben unverändert); mit
+  den Fixes läuft jeder Seed mit 46 von 46 Pods durch (Wiederholungslauf der Seeds 104 und 106).
+  - Seed 104, Pods 014 und 022, Seed 106, Pod 026: „policy produced 1 selections outside 2..2 for
+    choose_object" (Breya, Etherium Shaper: „Sacrifice two artifacts" mit Breya und einem Thopter) und
+    der gleiche Fall mit „3..3". Das war eine Regression aus #952: `_without_payment_source` nahm die
+    Quelle der bezahlten Aktivierung aus *jeder* Opferwahl, auch aus der eigenen Opferkosten-Wahl der
+    Aktivierung und aus Wahlen, die ohne die Quelle weniger Optionen als die Mindestzahl hätten. Jetzt
+    bleibt die Quelle im Angebot, wenn der Rest die Mindestzahl nicht füllt, und die Opferwahl, die die
+    Aktivierung selbst stellt (gleiche Quelle), wird nicht gefiltert. Zwei neue Tests in
+    `test_full_game_pilot_mana_and_may.py` (rot ohne, grün mit der Änderung). Pod 026 war nur im
+    JVM-Stapel des Sweeps rot und lief einzeln mit dem alten Piloten ebenfalls in den Fehler; mit dem
+    Fix läuft er durch.
+  - Seed 106, Pod 040 (Moxite Refinery): `XMAGE_ACTION_EXECUTION_FAILED: priority activation failed`
+    (AbilityImpl-Zeile 472, Nicht-Mana-Kosten) in Zug 43. „{2}, {T}, Remove X counters from an artifact
+    or creature you control" bekam X = 40 (Obergrenze des Bereichs); die Engine begrenzt weder X noch
+    die Wahl von Karte und Zählerart und kehrt die Aktivierung um, wenn der gewählte Stapel kleiner
+    ist. `x_counter_pile_cap` hält X beim größten Zählerstapel einer Karte der genannten Typen
+    (Kartenkatalog; unbekannte Karten zählen nicht, was den Deckel nur senkt); Karte und Zählerart
+    folgen der Stapelwahl für feste Zahlen (`_decide_counter_cost_objects`,
+    `_counter_type_for_cost`) mit dem angesagten X. Die Pods 043 und 044 desselben JVM-Stapels fielen mit
+    derselben Diagnose-Prüfsumme nach dem Abbruch von Pod 040 mit aus und liefen einzeln durch. Neue
+    Datei `test_x_counter_pile_920.py` (rot ohne, grün mit der Änderung).
+  Ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar,
+  Pilot von `main` `5991d9d` gegen diesen Stand): alle Entscheidungs- und Verhaltenszähler identisch
+  (36268 Entscheidungen); `wall_s` und `pilot_s` unterscheiden sich nur durch Maschinenrauschen.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung

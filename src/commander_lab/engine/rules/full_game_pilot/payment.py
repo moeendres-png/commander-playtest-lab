@@ -13,7 +13,9 @@ from commander_lab.models import (
 from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
+    is_x_counter_pile_cost,
     tap_creature_cost_unpayable,
+    x_counter_pile_cap,
 )
 from .common import (
     _LOG,
@@ -30,6 +32,7 @@ from .common import (
     mana_x_prompt_symbols,
     offers_mana_ability,
     option_x_counter_cap,
+    option_x_tap_cap,
 )
 from .state import _PolicyState
 
@@ -45,7 +48,14 @@ class _PaymentDecisions(_PolicyState):
     def _paying_counters(self, seat: int) -> int | None:
         """How many counters the "remove N counters ..." cost this seat is paying takes."""
         label = self._last_priority_label.get(seat)
-        return None if label is None else counter_cost_number(label)
+        if label is None:
+            return None
+        number = counter_cost_number(label)
+        if number is None and is_x_counter_pile_cost(label):
+            # The cost takes the X this seat announced for the activation.
+            announced = self._failed_x_announcements.get(seat, {})
+            return next(iter(announced.values())) if len(announced) == 1 else None
+        return number
 
     def _paying_counter_kind(self, seat: int, state: dict[str, object]) -> str | None:
         """The counter kind a "remove a K counter from a permanent you control" cost takes now."""
@@ -859,14 +869,21 @@ class _PaymentDecisions(_PolicyState):
                 self._priority_cost_facts[seat] = {source: non_x}
             if source and state is not None:
                 # #920: an X paid by removing counters from the source can use
-                # no more counters than the source has.
-                cap = option_x_counter_cap(
-                    str(option.get("label") or ""),
-                    metadata,
-                    self._actor(state).get("battlefield"),
-                )
-                if cap is not None:
-                    self._priority_x_counter_caps[seat] = {source: cap}
+                # no more counters than the source has, and an X paid by
+                # tapping untapped permanents no more than the seat has.
+                label = str(option.get("label") or "")
+                battlefield = self._actor(state).get("battlefield")
+                caps = [
+                    cap
+                    for cap in (
+                        option_x_counter_cap(label, metadata, battlefield),
+                        option_x_tap_cap(label, metadata, battlefield),
+                        x_counter_pile_cap(label, battlefield),
+                    )
+                    if cap is not None
+                ]
+                if caps:
+                    self._priority_x_counter_caps[seat] = {source: min(caps)}
             return
 
     def _take_remembered_priority_cost_facts(self, seat: int, source_object: Any) -> int | None:
@@ -1033,7 +1050,8 @@ class _PaymentDecisions(_PolicyState):
         if symbols is None:
             symbols = prompt_symbols
         affordable = max(0, (self._mana_budget(state) - non_x) // symbols)
-        # #920: an X that is also paid by removing counters from its source.
+        # #920: an X that is also paid by removing counters from its source,
+        # or by tapping X untapped permanents.
         counter_cap = self._take_remembered_x_counter_cap(seat, source_object)
         if counter_cap is not None:
             affordable = min(affordable, counter_cap)

@@ -206,3 +206,9 @@ python scripts/benchmark_xmage_full_games.py compare before.json after.json
   sweep.
 - A new jar needs a new archive. Without it `--fast` still uses serial GC and the JVM runs at
   normal class-loading speed.
+- Chunk starts can collide on the card repository (`XMAGE_CARD_REPOSITORY_INIT_FAILED`, H2 "Lock
+  file recently modified", #731, #878). Over twelve 36-seed sweeps that followed one another, 9 of
+  48 chunk starts failed their first game this way (also with the unmodified pin jar), which looked
+  like a game failure. `run_batch` now starts such a first game again in a fresh process, up to four
+  times with the back-off of the batch runner; any other failure, and a collision after the first
+  game, stays a failed game.

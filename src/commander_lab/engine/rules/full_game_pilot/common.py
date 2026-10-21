@@ -12,6 +12,7 @@ from typing import Any, Literal, NamedTuple
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from commander_lab.agents import BasePilot
+from commander_lab.agents.card_knowledge import card_facts
 from commander_lab.engine.rules.failure_privacy import (
     PUBLIC_FAILURE_CODES,
     public_full_game_exception_message,
@@ -455,6 +456,56 @@ def option_x_counter_cap(
             total += count
         return total
     return None
+
+
+# The cost the engine prints for an X paid by tapping permanents: "Tap X untapped artifacts
+# you control" (Necron Overlord). The kind is the plural noun before "you control".
+_TAP_X_UNTAPPED = re.compile(
+    r"\bTap X untapped (?P<kind>[a-z]+?)s? you control\b",
+    re.IGNORECASE,
+)
+
+
+def option_x_tap_cap(
+    label: str,
+    metadata: Mapping[str, object],
+    battlefield: object,
+) -> int | None:
+    """How many permanents an "X" paid by tapping X untapped permanents can use.
+
+    Sibling of ``option_x_counter_cap`` (#920, plan seed 1, game seed 101, pod 024): Necron
+    Overlord's ``{X}, {T}, Tap X untapped artifacts you control`` leaves X unbounded in the
+    engine, the benefit-biased pilot announced the 14 mana its Swamps could pay, the mana was
+    paid, and the tap cost found five artifacts, so the activation was reversed and the game
+    stopped. The untapped permanents are board-public, and the cost is printed on the option the
+    pilot chose, so the pilot keeps its announced X within what is there.
+
+    The source is not counted when the same cost taps it (``{T}``): it is tapped first. A
+    permanent counts when the printed card catalog gives it the printed type; a token or an
+    unknown card does not, which only ever lowers the cap. Mana paid out of the same artifacts
+    is not subtracted (a residual, like the mana budget's one-permanent-one-mana reading).
+
+    ``None`` means the option has no such cost or there is no battlefield view; an unreadable
+    cost is never turned into a number.
+    """
+    match = _TAP_X_UNTAPPED.search(label or "")
+    if match is None or not isinstance(battlefield, list):
+        return None
+    kind = match.group("kind").casefold()
+    source_id = str(metadata.get("source_object_id") or "")
+    taps_source = "{t}" in (label or "").casefold()
+    count = 0
+    for item in battlefield:
+        if not isinstance(item, dict) or item.get("tapped") is not False:
+            continue
+        if item.get("face_down") is True:
+            continue
+        if taps_source and source_id and str(item.get("object_id") or "") == source_id:
+            continue
+        facts = card_facts(str(item.get("name") or ""))
+        if facts is not None and kind in facts.types:
+            count += 1
+    return count
 
 
 def offers_mana_ability(rule_text: str) -> bool:
