@@ -1258,6 +1258,168 @@ def test_counter_cost_the_table_can_fund_is_still_offered() -> None:
     assert response["selected_option_ids"] == ["pass"]
 
 
+_TAYAM_LABEL = (
+    "Tayam, Luminous Enigma — {3}, Remove three counters from creatures you control: Mill three "
+    "cards, then return a permanent card with mana value 3 or less from your graveyard to the "
+    "battlefield."
+)
+
+
+def _tayam_activation() -> dict[str, Any]:
+    option = _tekuthal_activation()
+    option["option_id"] = "tayam"
+    option["label"] = _TAYAM_LABEL
+    option["metadata"].update(source_name="Tayam, Luminous Enigma", source_object_id="tayam")
+    return option
+
+
+def test_counter_cost_without_among_is_read_too() -> None:
+    # Tayam words the same cost "from creatures you control" (plan seed 12: two counters on one
+    # creature, the activation failed). Two counters are short of three, three are enough.
+    short = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _tayam_activation()], state=_tekuthal_state(2))
+    )
+    assert short["selected_option_ids"] == ["pass"]
+    enough = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _tayam_activation()], state=_tekuthal_state(3))
+    )
+    assert enough["selected_option_ids"] == ["tayam"]
+
+
+def test_counter_cost_takes_one_type_from_each_permanent() -> None:
+    # XMage removes counters of one type from each chosen permanent, so two creatures holding
+    # three counters of two types between them (a +1/+1 and a vigilance counter on one, a
+    # vigilance counter on the other) cannot pay three (plan seed 12: Tayam failed after the
+    # counter choice). A third creature with a counter, or a stack of three, can.
+    state = _tekuthal_state(1)
+    state["players"][0]["battlefield"][-1]["counters"] = [
+        {"type": "+1/+1", "count": 1},
+        {"type": "vigilance", "count": 1},
+    ]
+    state["players"][0]["battlefield"].append(
+        {
+            "object_id": "second",
+            "name": "Kathril, Aspect Warper",
+            "counters": [{"type": "vigilance", "count": 1}],
+            "tapped": False,
+        }
+    )
+    short = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _tayam_activation()], state=state)
+    )
+    assert short["selected_option_ids"] == ["pass"]
+    state["players"][0]["battlefield"].append(
+        {
+            "object_id": "third",
+            "name": "Sol Ring",
+            "counters": [{"type": "charge", "count": 1}],
+            "tapped": False,
+        }
+    )
+    enough = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _tayam_activation()], state=state)
+    )
+    assert enough["selected_option_ids"] == ["tayam"]
+
+
+def _paying_tayam(*piles: int) -> tuple[ExternalPilotDecisionPolicy, dict[str, Any]]:
+    """A policy that just chose Tayam's activation, on a table with one creature per pile."""
+    state = _tekuthal_state(*piles)
+    policy = _policy()
+    chosen = policy.decide(
+        _request("priority", [_PASS, *_TAPS, _tayam_activation()], state=state, offset=1)
+    )
+    assert chosen["selected_option_ids"] == ["tayam"]
+    return policy, state
+
+
+def _pick_creatures(
+    state: dict[str, Any], offset: int, *, minimum: int, maximum: int = 3
+) -> dict[str, Any]:
+    options = [
+        _option(f"vessel-{index}", "choose_object_option", "Inspirit, Flagship Vessel")
+        for index in range(len(state["players"][0]["battlefield"]) - 4)
+    ]
+    request = _request("choose_object", options, state=state, offset=offset)
+    request["minimum_selections"] = minimum
+    request["maximum_selections"] = maximum
+    return request
+
+
+def test_counter_cost_is_paid_from_the_biggest_piles_first_and_stops_at_the_number() -> None:
+    # Tayam asks for creatures one pick after the other. The seat takes the biggest pile, and once
+    # the piles cover the three counters it declines the optional pick (plan seed 12 chose
+    # creatures with one counter each and came up short).
+    policy, state = _paying_tayam(1, 5, 2)
+    first = policy.decide(_pick_creatures(state, 2, minimum=1))
+    assert first["selected_option_ids"] == ["vessel-1"]
+    done = policy.decide(_pick_creatures(state, 3, minimum=0, maximum=2))
+    assert done["selected_option_ids"] == []
+
+
+def test_counter_cost_takes_further_piles_until_the_number_is_covered() -> None:
+    policy, state = _paying_tayam(1, 2, 1)
+    first = policy.decide(_pick_creatures(state, 2, minimum=1))
+    assert first["selected_option_ids"] == ["vessel-1"]
+    second = policy.decide(_pick_creatures(state, 3, minimum=0, maximum=2))
+    assert second["selected_option_ids"] == ["vessel-0"]
+    done = policy.decide(_pick_creatures(state, 4, minimum=0, maximum=1))
+    assert done["selected_option_ids"] == []
+
+
+_KATHRIL_PROMPT = (
+    "Choose a counter to remove from <font color='#DAA520' object_id='#a1b2'>Kathril, Aspect "
+    "Warper</font> [#a1b2]"
+)
+
+
+def _kathril_choice(state: dict[str, Any], offset: int) -> dict[str, Any]:
+    state["players"][0]["battlefield"].append(
+        {
+            "object_id": "kathril",
+            "name": "Kathril, Aspect Warper",
+            "counters": [
+                {"type": "trample", "count": 1},
+                {"type": "+1/+1", "count": 5},
+                {"type": "vigilance", "count": 1},
+            ],
+            "tapped": False,
+        }
+    )
+    options = [
+        {**_option(f"counter-{label}", "choice_option", label), "metadata": {"choice": label}}
+        for label in ("trample", "+1/+1", "vigilance")
+    ]
+    return _request("choice", options, state=state, prompt=_KATHRIL_PROMPT, offset=offset)
+
+
+def test_counter_cost_removes_the_biggest_counter_pile_of_the_permanent() -> None:
+    policy, state = _paying_tayam(3)
+    response = policy.decide(_kathril_choice(state, 2))
+    assert response["selected_option_ids"] == ["counter-+1/+1"]
+
+
+def test_counter_choice_outside_a_counter_cost_keeps_the_default_pick() -> None:
+    # Control: the same question while the seat is not paying such a cost is not answered by the
+    # pile rule.
+    policy = _policy()
+    state = _tekuthal_state(1)
+    request = _kathril_choice(state, 1)
+    assert (
+        policy._counter_type_for_cost(1, state, request["legal_options"], _KATHRIL_PROMPT) is None
+    )
+
+
+def test_counter_cost_takes_as_many_counters_of_a_pile_as_it_may() -> None:
+    policy, state = _paying_tayam(3)
+    prompt = "Choose how many counters (+1/+1) to remove from Kathril, Aspect Warper as payment"
+    context = {"numeric_min": 1, "numeric_max": 3, "outcome": "unboostcreature"}
+    request = _request("amount", [], state=state, prompt=prompt, context=context, offset=2)
+    request["minimum_selections"] = 0
+    request["maximum_selections"] = 0
+    assert policy.decide(request)["numeric_choice"] == 3
+
+
 _DIG_PROMPT = "Pay 1 life and look at the next 5 cards?"
 _LIM_DUL = {
     "source_object_id": "vault",

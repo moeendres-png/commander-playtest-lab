@@ -669,6 +669,20 @@ def test_budget_fallback_is_not_a_mana_budget_for_a_non_mana_x() -> None:
     assert response["numeric_choice"] == INT_MAX
 
 
+def test_numa_pay_x_x_prompt_is_a_mana_x_of_two_symbols() -> None:
+    # Numa, Joraga Chieftain pays {X}{X} but announces X through its own wording. Announcing the
+    # engine ceiling overflowed the doubled cost, the payment was free and two billion counters
+    # were distributed (plan seed 11). Five untapped sources are two X at most, whatever the
+    # pilot picks inside that band.
+    response = _policy().decide(
+        _announce_x_request(
+            prompt="Announce the value for {X} (pay to distribute counters)",
+            context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "boostcreature"},
+        )
+    )
+    assert 0 <= response["numeric_choice"] <= 2
+
+
 def test_a_non_mana_x_is_not_budgeted_even_with_a_remembered_mana_cost() -> None:
     # The same source id and the same remembered cost, but the engine is now
     # asking for a counter, not mana. The cost is not consumed as mana either:

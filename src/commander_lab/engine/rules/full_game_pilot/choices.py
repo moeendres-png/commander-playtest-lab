@@ -15,7 +15,9 @@ from ..full_game_pilot_views import (
     color_choice_rank,
     commander_creature_ids,
     named_choice_rank,
+    named_counter_piles,
     needs_commander_target,
+    own_counter_stacks,
     sweep_mode_net,
     target_object_bonus,
 )
@@ -46,6 +48,12 @@ _COPY_CAST_CONTINUE_PROMPT = re.compile(r"Continue to choose copies and cast\?")
 # of nearly an hour). A seat stops after a few digs, like a player who does not find what it wants.
 _LIFE_DIG_PROMPT = re.compile(r"Pay 1 life and look at the next 5 cards\?")
 _LIFE_DIG_CAP = 3
+
+# "Choose a counter to remove from <name>": the pick among the counter types of a permanent that
+# pays a "remove N counters" cost.
+_COUNTER_CHOICE_PROMPT = re.compile(
+    r"Choose a counter to remove from (?:<[^>]*>)?(?P<name>[^<\[]+)"
+)
 
 
 class _ChoiceDecisions(_PaymentDecisions):
@@ -590,6 +598,71 @@ class _ChoiceDecisions(_PaymentDecisions):
             raise FullGameProtocolError("pilot returned unknown stable pile option") from None
         return self._require_offered(raw_id, options, "pile decision")
 
+    def _decide_counter_cost_objects(
+        self,
+        seat: int,
+        state: dict[str, object],
+        options: list[dict[str, object]],
+        min_selections: int,
+    ) -> list[str] | None:
+        """Pick the permanents that pay a "remove N counters" cost: biggest pile first.
+
+        XMage removes counters of one type from each chosen permanent and asks only how many when
+        the pile holds several, so the cost is paid when the chosen piles add up to N. The seat
+        takes the largest pile first and stops once N are covered (None: not such a payment).
+        """
+        wanted = self._paying_counters(seat)
+        if wanted is None:
+            return None
+        stacks = own_counter_stacks(state, str(state.get("actor_id", "")))
+        if any(str(option.get("option_id")) not in stacks for option in options):
+            return None
+        picked = self._counter_cost_progress.setdefault(seat, {})
+        offered = [
+            (stacks[str(option.get("option_id"))], index)
+            for index, option in enumerate(options)
+            if str(option.get("option_id")) not in picked
+        ]
+        if min_selections == 0 and (sum(picked.values()) >= wanted or not offered):
+            return []
+        if not offered:
+            return None
+        stack, index = max(offered, key=lambda entry: (entry[0], -entry[1]))
+        if min_selections == 0 and stack == 0:
+            return []
+        option_id = self._required_text(options[index], "option_id")
+        picked[option_id] = stack
+        return [option_id]
+
+    def _counter_type_for_cost(
+        self,
+        seat: int,
+        state: dict[str, object],
+        options: list[dict[str, object]],
+        prompt: str,
+    ) -> str | None:
+        """The counter type to remove from a permanent that pays a cost: its biggest pile."""
+        if self._paying_counters(seat) is None:
+            return None
+        found = _COUNTER_CHOICE_PROMPT.search(prompt)
+        if found is None:
+            return None
+        piles = named_counter_piles(
+            state, str(state.get("actor_id", "")), found.group("name").strip()
+        )
+        if not piles:
+            return None
+        best = max(
+            range(len(options)),
+            key=lambda index: (
+                piles.get(str(options[index].get("label", "")).casefold(), 0),
+                -index,
+            ),
+        )
+        return self._require_offered(
+            self._required_text(options[best], "option_id"), options, "counter option"
+        )
+
     def _decide_choice(
         self,
         runtime: _RuntimePilot,
@@ -609,6 +682,9 @@ class _ChoiceDecisions(_PaymentDecisions):
         if not options:
             raise FullGameProtocolError("choice decision has no legal options")
         seat = int(state.get("seat", -1)) + 1
+        paying = self._counter_type_for_cost(seat, state, options, prompt)
+        if paying is not None:
+            return paying
         actor = self._actor(state)
         hand = actor.get("hand")
         battlefield = actor.get("battlefield")
