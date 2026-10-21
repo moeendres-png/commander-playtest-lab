@@ -780,7 +780,7 @@ def _engine_cost(meta: Mapping[str, Any]) -> float | None:
 
 
 def cast_locked_by_mana_value(
-    facts: CardFacts | None, engine_cost: float | None, state: Mapping[str, Any], actor_id: str
+    facts: CardFacts | None, engine_cost: float | None, state: Mapping[str, object], actor_id: str
 ) -> bool:
     """True when an opponent's Brisela or Void Winnower forbids casting this spell.
 
