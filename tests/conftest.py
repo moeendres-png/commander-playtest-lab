@@ -17,6 +17,27 @@ from commander_lab.engine.structural import (
 from commander_lab.models import CardIdentity
 
 
+def pytest_addoption(parser: pytest.Parser) -> None:
+    group = parser.getgroup("shards", "parallel shards (tests/pytest_shards.py)")
+    group.addoption("--shards", type=int, default=1, metavar="N", help="run N parallel processes")
+    group.addoption("--shard-weights", default=None, metavar="PATH", help="weight table to use")
+
+
+@pytest.hookimpl(tryfirst=True)
+def pytest_cmdline_main(config: pytest.Config) -> int | None:
+    """``pytest --shards=N`` runs the suite as N pytest processes (tests/pytest_shards.py).
+
+    The module is imported here and only here: a module conftest imports at load time would be
+    a measured input of every test (PB-03 trigger completeness, workflow-impact gates). A shard
+    child never shards again, whatever ``PYTEST_ADDOPTS`` it inherited.
+    """
+    if int(config.getoption("shards")) <= 1 or os.environ.get("COMMANDER_LAB_PYTEST_SHARD"):
+        return None
+    from tests import pytest_shards
+
+    return pytest_shards.command_line_main(config)
+
+
 @pytest.fixture(scope="session")
 def repo_root() -> Path:
     return Path(__file__).resolve().parents[1]

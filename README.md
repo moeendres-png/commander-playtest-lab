@@ -166,14 +166,16 @@ python -m venv .venv && . .venv/bin/activate
 python -m pip install --require-hashes -r requirements/lock.txt
 python -m pip install --no-deps --no-build-isolation -e .
 ruff check . && ruff format --check . && mypy src/commander_lab
-PYTHONHASHSEED=0 pytest -q --ignore=tests/qualification   # ci.yml, about 10 minutes
+PYTHONHASHSEED=0 pytest -q --shards=4 --ignore=tests/qualification   # ci.yml: four processes, about 6 minutes
+PYTHONHASHSEED=0 pytest -q --ignore=tests/qualification   # the same tests in one process
 pytest -q tests/qualification                             # production-qualification.yml
 ```
 
 CI splits the suite in two: `ci.yml` runs everything except `tests/qualification`, and
 `production-qualification.yml` runs `tests/qualification`
 (`tests/unit/test_required_test_ownership.py` keeps each file to one owner). A plain
-`pytest -q` runs both halves.
+`pytest -q` runs both halves. `--shards=N` is explained in
+`docs/performance/CI_QUALITY_SHARDS_2026-10-21.md`.
 
 Skipping the hash-locked install produces failures that are **environmental, not product
 defects**:

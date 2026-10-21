@@ -68,7 +68,10 @@ jobs:
         # tests/unit/test_required_test_ownership.py keeps each file to one owner.
         # Priority E1 (#479): per-test durations (log) and JUnit XML (ci-evidence
         # artifact) are reporting only; they never change collection or outcome.
-        run: pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit.xml --ignore=tests/qualification
+        # --shards=4 (tests/pytest_shards.py) runs the same selection as four parallel pytest
+        # processes on the 4-core runner, each in its own checkout copy; the last shard runs
+        # everything the weight table does not list, so no test can fall out of the run.
+        run: pytest -q --durations=50 --junitxml=artifacts/quality/pytest-junit.xml --shards=4 --ignore=tests/qualification
       - name: Compile
         if: ${{ success() || failure() }}
         run: python -m compileall -q src tests
