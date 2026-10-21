@@ -10,7 +10,11 @@ from commander_lab.models import (
     PilotActionView,
 )
 
-from ..full_game_pilot_views import counter_cost_number, tap_creature_cost_unpayable
+from ..full_game_pilot_views import (
+    best_cost_counter_kind,
+    counter_cost_number,
+    tap_creature_cost_unpayable,
+)
 from .common import (
     _LOG,
     _MANA_COST_COLORS,
@@ -42,6 +46,13 @@ class _PaymentDecisions(_PolicyState):
         """How many counters the "remove N counters ..." cost this seat is paying takes."""
         label = self._last_priority_label.get(seat)
         return None if label is None else counter_cost_number(label)
+
+    def _paying_counter_kind(self, seat: int, state: dict[str, object]) -> str | None:
+        """The counter kind a "remove a K counter from a permanent you control" cost takes now."""
+        label = self._last_priority_label.get(seat)
+        if label is None:
+            return None
+        return best_cost_counter_kind(label, state, str(state.get("actor_id", "")))
 
     @staticmethod
     def _priority_awaits_mana(option: dict[str, Any]) -> bool:

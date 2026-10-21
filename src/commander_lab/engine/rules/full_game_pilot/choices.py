@@ -14,10 +14,12 @@ from commander_lab.models import (
 from ..full_game_pilot_views import (
     color_choice_rank,
     commander_creature_ids,
+    counter_cost_kinds,
     named_choice_rank,
     named_counter_piles,
     needs_commander_target,
     own_counter_stacks,
+    own_counters_by_kind,
     sweep_mode_net,
     target_object_bonus,
 )
@@ -51,6 +53,7 @@ _LIFE_DIG_CAP = 3
 
 # "Choose a counter to remove from <name>": the pick among the counter types of a permanent that
 # pays a "remove N counters" cost.
+_COUNTER_KIND_PROMPT = re.compile(r"Remove an? .+ counter from an? permanent you control or ")
 _COUNTER_CHOICE_PROMPT = re.compile(
     r"Choose a counter to remove from (?:<[^>]*>)?(?P<name>[^<\[]+)"
 )
@@ -434,6 +437,18 @@ class _ChoiceDecisions(_PaymentDecisions):
             kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
+        # Counter-kind guard (legality). Ion Storm's "remove a +1/+1 counter or remove a charge
+        # counter" asks which kind to pay with; the cost fails unless a permanent holds that kind,
+        # so only the kind the seat can pay is offered (the permanent is picked to match).
+        paying_kind = self._paying_counter_kind(seat, state)
+        if paying_kind is not None and _COUNTER_KIND_PROMPT.match(prompt):
+            kept = [
+                o
+                for o in selectable
+                if counter_cost_kinds(str(o.get("label", ""))) == (paying_kind,)
+            ]
+            if kept:
+                selectable = kept
         if selectable and len(selectable) != len(options):
             if life_yes_blocked:
                 _LOG.info(
@@ -613,7 +628,7 @@ class _ChoiceDecisions(_PaymentDecisions):
         """
         wanted = self._paying_counters(seat)
         if wanted is None:
-            return None
+            return self._decide_kind_cost_object(seat, state, options, min_selections)
         stacks = own_counter_stacks(state, str(state.get("actor_id", "")))
         if any(str(option.get("option_id")) not in stacks for option in options):
             return None
@@ -633,6 +648,29 @@ class _ChoiceDecisions(_PaymentDecisions):
         option_id = self._required_text(options[index], "option_id")
         picked[option_id] = stack
         return [option_id]
+
+    def _decide_kind_cost_object(
+        self,
+        seat: int,
+        state: dict[str, object],
+        options: list[dict[str, object]],
+        min_selections: int,
+    ) -> list[str] | None:
+        """Pick the permanent that pays "remove a K counter from a permanent you control".
+
+        XMage offers every permanent the player controls and fails the activation when the one
+        picked holds no such counter, so the seat picks the permanent with the biggest pile of the
+        kind it is paying with (None: not such a payment).
+        """
+        kind = self._paying_counter_kind(seat, state)
+        if kind is None or min_selections < 1:
+            return None
+        held = own_counters_by_kind(state, str(state.get("actor_id", "")))
+        ids = [str(option.get("option_id")) for option in options]
+        if any(option_id not in held for option_id in ids):
+            return None
+        best = max(range(len(ids)), key=lambda index: (held[ids[index]].get(kind, 0), -index))
+        return [ids[best]] if held[ids[best]].get(kind, 0) > 0 else None
 
     def _counter_type_for_cost(
         self,

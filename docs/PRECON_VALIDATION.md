@@ -304,6 +304,32 @@ die anderen sechs Karten sind neu.
   Mit den Änderungen laufen Seed 11 Pod 013 (2046 Entscheidungen) und Seed 12 Pod 006 (2611
   Entscheidungen) durch; ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn
   Seeds (1–10, gleiches Jar): alle Zähler identisch.
+- Familiensuche Plan-Seeds 13 bis 16 auf dem Pin `769e6ebb` (Spiel-Seed gleich dem Plan-Seed, gleiche 182
+  Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708`, Pilot von `main` `1531f5f`): Seed 14 läuft mit
+  46 von 46 Pods durch, die Seeds 13, 15 und 16 mit je 45 von 46. Ein Abbruch liegt in der Bridge,
+  zwei im Piloten (die Bridge bleibt unverändert, keine Requalifizierung):
+  - Seed 13, Pod 040: `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: replacement_effect`. Ein Spieler
+    scheidet im Kampfschaden aus, die Engine fragt ihn danach noch nach einem Ersatzeffekt. Die Bridge
+    beendet das Spiel für diese Klasse absichtlich (deklarierte Fail-closed-Klasse, auch der Zwillingstest
+    kennt sie); eine Lösung wäre eine Bridge-Änderung mit Requalifizierung und bleibt offen.
+  - Seed 15, Pod 018, Ion Storm: „{1}{R}, Remove a +1/+1 counter or a charge counter from a permanent
+    you control“ ist eine `OrCost` aus zwei `RemoveCounterCost` mit einem unfiltrierten
+    `TargetControlledPermanent`. Die Engine bietet jede eigene Permanente an und scheitert, wenn die
+    gewählte keine Marke der Art trägt (`XMAGE_ACTION_EXECUTION_FAILED`); der Pilot hatte ein Land
+    gewählt. Der Pilot aktiviert Ion Storm nur noch, wenn eine der genannten Markenarten auf dem Tisch
+    liegt (`single_counter_cost_unpayable`), antwortet auf die Frage nach der Art mit der Art, die er
+    hat, und wählt die Permanente mit dem größten Stapel dieser Art (`_decide_kind_cost_object`).
+  - Seed 16, Pod 018, Encore: `XMAGE_INTERNAL_ERRORS` mit `NoSuchElementException` in `EncoreEffect`.
+    Encore erzeugt eine Spielfigur je Gegner im Spiel (`getOpponentsInGame`) und läuft dann über die
+    Gegner des Rundenstart-Schnappschusses (`getOpponents`), der einen in dieser Runde ausgeschiedenen
+    Spieler noch nennt: eine Figur zu wenig. Das ist ein Fehler der Engine, den der Pilot umgeht: er
+    aktiviert Encore nicht mehr, sobald ein Gegner ausgeschieden ist (`_ENCORE_LABEL`). Den
+    Schnappschuss sieht der Pilot nicht, deshalb gilt das ab dem ersten Ausscheiden.
+  Mit den Änderungen laufen Seed 15 Pod 018 (4228 Entscheidungen) und Seed 16 Pod 018 (2808
+  Entscheidungen) durch; ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn
+  Seeds (1–10, gleiches Jar): alle Entscheidungszähler identisch; nur die Laufzeiten liegen auf
+  dieser Maschine beide um etwa 12 % höher (`wall_s` und `pilot_s`, bei gleichen Entscheidungen
+  also Maschinenrauschen, nicht der Pilot).
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
