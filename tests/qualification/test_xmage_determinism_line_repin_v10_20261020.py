@@ -75,7 +75,8 @@ def _live_pin() -> str:
 
 # This file proves the 2026-10-20 determinism-line repin EVENT. Its current-pin
 # assertions hold only while this repin's pin is live; after a later forward repin they
-# are superseded by that repin's successor guard and are skipped, never rewritten. Its
+# are superseded by that repin's successor guard
+# (test_xmage_lazy_triggers_repin_v11_20261021.py) and are skipped, never rewritten. Its
 # historical assertions stay active.
 superseded_by_later_repin = pytest.mark.skipif(
     _live_pin() != CURRENT_PIN,
@@ -207,6 +208,7 @@ def test_engine_version_does_not_move_with_this_pin() -> None:
     assert f'XMAGE_MAGE_JAR_NAME = "mage-{ENGINE_VERSION}.jar"' in twins
 
 
+@superseded_by_later_repin
 def test_signed_freeze_and_current_qualification_do_not_move_with_the_pin() -> None:
     freeze = _manifest()["architecture_freeze"]
     assert freeze["status"] == "CLAIMED"
