@@ -192,6 +192,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # A running selection offers the creatures already picked again (picking one
             # takes it back out), so the pilot is shown only the ones it has not picked.
             picked = self._running_selection.get(seat, set()) if running_selection else set()
+            asking_source = request.get("source_object")
             paying_counters = (
                 self._decide_counter_cost_objects(seat, pilot_state, options, min_selections)
                 if decision_class == "choose_object"
@@ -209,6 +210,10 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                         decision_class,
                         context,
                         [option for option in options if option.get("option_id") not in picked],
+                        asking=str(asking_source.get("source_object_id", ""))
+                        if isinstance(asking_source, dict)
+                        else "",
+                        minimum=min_selections,
                     ),
                     min_selections,
                     max_selections,
