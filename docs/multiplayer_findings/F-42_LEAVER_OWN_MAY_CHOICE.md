@@ -113,7 +113,7 @@ The other leave suites stay green:
 
 **Still fail-closed:**
 - `multi_amount` (combat damage assignment among blockers). A control test pins this.
-- `replacement_effect`.
+- `replacement_effect` (qualified later, see Follow-up 6).
 
 **Results:**
 - `XmageMultiplayerLeaverDecisionClassTest`: 12/12 red before, 12/12 green after; `trigger_order` was red on damage even with a native-style unwind. The 2 `multi_amount` control cases stay fail-closed.
@@ -156,7 +156,7 @@ The control test `anUnqualifiedClassStillFailsClosed` now accepts the fail-close
 | Intermediate candidate `4e59e8b9` | The game goes on. Both blockers survive with 0 damage, the Wurm left with P1, and every other player is at 40 (`combatDamageAssignmentOfALeaverDealsNoDamage`). |
 | The same bridge code on exact `9375f35a` | The engine asks the departed player again and the lane fails closed; nothing is dealt for P1. |
 
-**Still fail-closed:** `replacement_effect`; non-combat `multi_amount`.
+**Still fail-closed:** non-combat `multi_amount` (`replacement_effect` was qualified in Follow-up 6).
 
 ## Follow-up 5 — a frame requested for a player who has already left (2026-10-20)
 
@@ -167,3 +167,17 @@ The control test `anUnqualifiedClassStillFailsClosed` now accepts the fail-close
 **Change.** `XmageFullGameDecisionController.request` now treats a non-priority frame for a departed actor like a pending frame of a departed player. If its class is in `DEPARTED_CANCELLABLE`, or the caller qualified it, no frame is published, `engine_decision_cancelled` is recorded with reason `player_left_game`, and the callback gets the same `DecisionCancelledException` (for `choose_use` that is `false`). Every other class still fails closed.
 
 **Test.** `XmageMultiplayerLeaverMayChoiceTest.anOpponentWhoLostToTheCombatDamageIsNotAskedItsMayDraw` (4P and 5P): the opponent at 1 life is never asked and the controller still draws; the control at 40 life is asked once.
+
+## Follow-up 6 — `replacement_effect` of a player who has left (2026-10-21)
+
+**What the precon pod sweep found.** Plan seed 13, game seed 13, pod 040 ended with `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: replacement_effect` in turn 51 although the game was already decided (Seat 2 won). `GameImpl.checkStateBasedActions` first removed Seat 3, which had lost to combat damage, and then destroyed a creature still carrying lethal damage (`PermanentImpl.destroy`). Two replacement effects applied to that event, and `ContinuousEffects.replaceEvent` asked the affected player, who had just left.
+
+**Why it is not a rules question.** CR 800.4a: a player who left makes no choices. XMage's own `HumanPlayer.chooseReplacementEffect` leaves its `while (canRespond())` loop for such a player and returns 0, the same no-response the other qualified classes use.
+
+**Change.** `XmageFullGamePlayer.chooseReplacementEffect` marks its frame as qualified for the departed-player unwind (`departedUnwindQualified`, the F-43 mechanism). A frame requested for a player who left, or pending when the player leaves, is retired with `engine_decision_cancelled` (`player_left_game`), and the callback returns 0. A player still in the game gets its frame as before. The `replacement_effect` tolerance in the `XmageFullGameReplayTwinTest` soak assertion is removed: the lane no longer fails at this class after a concession.
+
+**Test.** `XmageFullGameDepartedReplacementEffectTest`: a departed player's two-effect choice returns 0 with no frame and a recorded retirement (red before: `PLAYER_LEFT_GAME_UNSUPPORTED_DECISION`, green after); a player still in the game is asked and its selected index is returned (control, green before and after). The affected permanent's own fate is unchanged: the engine applies effect 0 to a permanent whose controller has left.
+
+**Measured.** Pod 040 of plan seed 13 / game seed 13 on pin `769e6ebb` plus this change: `ok`, Seat 2 wins after 2957 decisions (before: `ENGINE_FAILURE`).
+
+**Still fail-closed:** non-combat `multi_amount`.
