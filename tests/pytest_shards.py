@@ -1,5 +1,9 @@
 """Opt-in parallel shards for the pytest suite: ``pytest --shards=N``.
 
+``tests/conftest.py`` declares the option and calls ``command_line_main`` only when it is used;
+it does not import this module otherwise, because a module conftest imports becomes a measured
+input of every test (``tests/qualification/test_pb03_trigger_completeness.py``).
+
 The required ``quality`` context ran the whole suite in one process (about 16 minutes of the
 18-minute job on a 4-core runner). With ``--shards=N`` this process starts N pytest children
 instead of running tests itself, and they run side by side:
@@ -48,17 +52,9 @@ CHECKOUT_COPY_IGNORE = shutil.ignore_patterns(
 )
 
 
-def pytest_addoption(parser: pytest.Parser) -> None:
-    group = parser.getgroup("shards")
-    group.addoption("--shards", type=int, default=1, metavar="N", help="run N parallel shards")
-    group.addoption("--shard-weights", default=None, metavar="PATH", help="weight table to use")
-
-
-@pytest.hookimpl(tryfirst=True)
-def pytest_cmdline_main(config: pytest.Config) -> int | None:
+def command_line_main(config: pytest.Config) -> int | None:
+    """The ``pytest_cmdline_main`` of ``tests/conftest.py`` once ``--shards`` is above one."""
     count = int(config.getoption("shards"))
-    if count <= 1 or os.environ.get(CHILD_ENV):
-        return None
     if Path(config.invocation_params.dir).resolve() != config.rootpath.resolve():
         raise pytest.UsageError("--shards must be run from the rootdir")
     weights_option = config.getoption("shard_weights")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -28,22 +29,38 @@ def _write(path: Path, text: str = "def test_ok():\n    assert True\n") -> None:
 
 
 def _suite(tmp_path: Path) -> Path:
-    """Five test files, one failing test, one ignored directory."""
+    """Five test files, one failing test, one ignored directory, under the real conftest."""
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests/__init__.py").write_text("", encoding="utf-8")
+    for name in ("conftest.py", "pytest_shards.py"):
+        shutil.copy(REPO / "tests" / name, tmp_path / "tests" / name)
     (tmp_path / "pytest.ini").write_text(
-        "[pytest]\ntestpaths = suite\naddopts = -p no:cacheprovider\n", encoding="utf-8"
+        "[pytest]\ntestpaths = tests/suite\naddopts = -p no:cacheprovider\n", encoding="utf-8"
     )
-    _write(tmp_path / "suite/a/test_one.py", "def test_a():\n    pass\n\ndef test_b():\n    pass\n")
-    _write(tmp_path / "suite/a/test_two.py")
-    _write(tmp_path / "suite/b/test_three.py", "def test_bad():\n    assert 1 == 2\n")
-    _write(tmp_path / "suite/b/test_new_unlisted.py")
-    _write(tmp_path / "suite/skipped/test_ignored.py", "def test_never():\n    raise SystemExit\n")
+    _write(
+        tmp_path / "tests/suite/a/test_one.py",
+        "def test_a():\n    pass\n\ndef test_b():\n    pass\n",
+    )
+    _write(tmp_path / "tests/suite/a/test_two.py")
+    _write(tmp_path / "tests/suite/b/test_three.py", "def test_bad():\n    assert 1 == 2\n")
+    _write(tmp_path / "tests/suite/b/test_new_unlisted.py")
+    _write(
+        tmp_path / "tests/suite/skipped/test_ignored.py",
+        "def test_never():\n    raise SystemExit\n",
+    )
     (tmp_path / "weights.json").write_text(
-        '{"files": {"suite/a/test_one.py": 5.0, "suite/a/test_two.py": 3.0,'
-        ' "suite/b/test_three.py": 4.0, "suite/gone/test_removed.py": 9.0,'
-        ' "suite/skipped/test_ignored.py": 2.0}}',
+        '{"files": {"tests/suite/a/test_one.py": 5.0, "tests/suite/a/test_two.py": 3.0,'
+        ' "tests/suite/b/test_three.py": 4.0, "tests/suite/gone/test_removed.py": 9.0,'
+        ' "tests/suite/skipped/test_ignored.py": 2.0}}',
         encoding="utf-8",
     )
     return tmp_path
+
+
+def _environment() -> dict[str, str]:
+    environment = {**os.environ, "PYTHONPATH": str(REPO / "src")}
+    environment.pop(shards.CHILD_ENV, None)
+    return environment
 
 
 def _collect(root: Path, arguments: list[str]) -> set[str]:
@@ -59,12 +76,17 @@ def _collect(root: Path, arguments: list[str]) -> set[str]:
             *arguments,
         ],
         cwd=root,
+        env=_environment(),
         capture_output=True,
         text=True,
         check=False,
     )
     assert done.returncode == 0, done.stdout + done.stderr
     return {line for line in done.stdout.splitlines() if "::" in line}
+
+
+def test_conftest_and_module_agree_on_the_child_marker() -> None:
+    assert f'"{shards.CHILD_ENV}"' in (REPO / "tests/conftest.py").read_text(encoding="utf-8")
 
 
 def test_the_quality_command_is_modelled() -> None:
@@ -96,9 +118,15 @@ def test_the_plan_is_a_deterministic_balanced_partition() -> None:
 
 def test_vanished_ignored_and_unselected_files_are_left_out(tmp_path: Path) -> None:
     root = _suite(tmp_path)
-    selection = shards.parse_arguments(["--ignore=suite/skipped", "suite"], ("suite",))
+    selection = shards.parse_arguments(
+        ["--ignore=tests/suite/skipped", "tests/suite"], ("tests/suite",)
+    )
     chosen = shards.selected_files(shards.load_weights(root / "weights.json"), root, selection)
-    assert sorted(chosen) == ["suite/a/test_one.py", "suite/a/test_two.py", "suite/b/test_three.py"]
+    assert sorted(chosen) == [
+        "tests/suite/a/test_one.py",
+        "tests/suite/a/test_two.py",
+        "tests/suite/b/test_three.py",
+    ]
     assert shards.load_weights(root / "missing.json") == {}
 
 
@@ -106,23 +134,21 @@ def test_every_shard_runs_its_own_tests_and_all_together_run_every_test_once(
     tmp_path: Path,
 ) -> None:
     root = _suite(tmp_path)
-    selection = shards.parse_arguments(["--ignore=suite/skipped"], ("suite",))
+    selection = shards.parse_arguments(["--ignore=tests/suite/skipped"], ("tests/suite",))
     chosen = shards.selected_files(shards.load_weights(root / "weights.json"), root, selection)
     plan = shards.plan_shards(chosen, 3)
     per_shard = [
         _collect(root, shards.shard_arguments(selection, plan, index)) for index in range(3)
     ]
-    everything = _collect(root, ["--ignore=suite/skipped"])
+    everything = _collect(root, ["--ignore=tests/suite/skipped"])
     assert len(everything) == 5
     assert set().union(*per_shard) == everything
     assert sum(len(found) for found in per_shard) == len(everything)
     # the file the table does not know runs in the last shard
-    assert "suite/b/test_new_unlisted.py::test_ok" in per_shard[-1]
+    assert "tests/suite/b/test_new_unlisted.py::test_ok" in per_shard[-1]
 
 
 def _run_sharded(root: Path, weights: str = "weights.json") -> subprocess.CompletedProcess[str]:
-    environment = {**os.environ, "PYTHONPATH": str(REPO), "PYTEST_PLUGINS": "tests.pytest_shards"}
-    environment.pop(shards.CHILD_ENV, None)
     return subprocess.run(
         [
             sys.executable,
@@ -132,10 +158,10 @@ def _run_sharded(root: Path, weights: str = "weights.json") -> subprocess.Comple
             "--shards=2",
             f"--shard-weights={root / weights}",
             "--junitxml=out/pytest-junit.xml",
-            "--ignore=suite/skipped",
+            "--ignore=tests/suite/skipped",
         ],
         cwd=root,
-        env=environment,
+        env=_environment(),
         capture_output=True,
         text=True,
         check=False,
@@ -163,8 +189,8 @@ def test_a_failing_test_in_any_shard_fails_the_run_and_the_report_is_merged(
 
 def test_an_error_that_stops_collection_in_one_shard_fails_the_run(tmp_path: Path) -> None:
     root = _suite(tmp_path)
-    (root / "suite/b/test_three.py").write_text("def test_bad(:\n", encoding="utf-8")
-    (root / "suite/b/test_new_unlisted.py").unlink()
+    (root / "tests/suite/b/test_three.py").write_text("def test_bad(:\n", encoding="utf-8")
+    (root / "tests/suite/b/test_new_unlisted.py").unlink()
     done = _run_sharded(root)
     assert done.returncode >= 2, done.stdout + done.stderr
     assert "SyntaxError" in done.stdout
