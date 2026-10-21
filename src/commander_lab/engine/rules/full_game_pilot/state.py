@@ -600,17 +600,23 @@ class _PolicyState:
         decision_class: str,
         context: Mapping[str, object],
         options: list[dict[str, object]],
+        *,
+        asking: str,
+        minimum: int,
     ) -> list[dict[str, object]]:
         """The sacrifice options, minus the permanent whose activation is being paid for.
 
         A mana ability that sacrifices another creature (Illuminor Szeras) asked inside the
         payment of an activation of Necron Overlord, and the pilot sacrificed the Overlord: its
         own {T} cost then found nothing to tap, the activation was reversed and the game
-        stopped (plan seed 1, game seed 101, pod 024). The payment's source is kept whenever it
-        is the only creature on offer.
+        stopped (plan seed 1, game seed 101, pod 024). The payment's source is kept whenever the
+        rest cannot fill the choice (the only creature on offer, or fewer than the minimum:
+        Breya, Etherium Shaper's "Sacrifice two artifacts" with one Thopter, plan seed 4, game
+        seed 104, pod 014). A sacrifice that is the activation's own cost (`asking` is the
+        payment's source) is an ordinary choice.
         """
         paying = self._payment_source.get(seat)
-        if decision_class != "choose_object" or not paying:
+        if decision_class != "choose_object" or not paying or asking == paying:
             return options
         if str(context.get("outcome", "")).casefold() != "sacrifice":
             return options
@@ -620,7 +626,7 @@ class _PolicyState:
             if isinstance(metadata, dict) and str(metadata.get("object_id", "")) == paying:
                 continue
             kept.append(option)
-        return kept or options
+        return kept if kept and len(kept) >= minimum else options
 
     def _cheapest_object(self, options: list[dict[str, Any]]) -> str:
         def key(option: dict[str, Any]) -> tuple[float, str]:

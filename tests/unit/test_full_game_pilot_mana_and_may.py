@@ -1058,8 +1058,10 @@ def test_the_token_rule_is_limited_to_the_exile_and_suspend_card() -> None:
     assert card["selected_option_ids"] == ["target-0"]
 
 
-def _sacrifice_during_payment(payer_id: str, *names: str) -> list[str]:
-    """The payment frame of an activation, then the mana ability's sacrifice choice."""
+def _sacrifice_during_payment(
+    payer_id: str, *names: str, asking: str = "szeras", minimum: int = 1
+) -> list[str]:
+    """The payment frame of an activation, then a sacrifice choice (a mana ability's or its own)."""
     policy = _policy()
     payment = _request(
         "mana_payment",
@@ -1082,10 +1084,11 @@ def _sacrifice_during_payment(payer_id: str, *names: str) -> list[str]:
         prompt="Select another creature (to sacrifice)",
         offset=2,
     )
+    request["minimum_selections"] = request["maximum_selections"] = minimum
     request["source_object"] = {
-        "source_object_id": "szeras",
-        "ability_type": "activated_mana",
-        "source_name": "Illuminor Szeras",
+        "source_object_id": asking,
+        "ability_type": "activated_mana" if asking == "szeras" else "activated_nonmana",
+        "source_name": "Illuminor Szeras" if asking == "szeras" else "Necron Overlord",
     }
     return list(policy.decide(request)["selected_option_ids"])
 
@@ -1103,6 +1106,21 @@ def test_the_payment_source_is_sacrificed_when_nothing_else_is_on_offer() -> Non
     assert _sacrifice_during_payment("Zeta Overlord", "Zeta Overlord") == [
         "sacrifice-Zeta Overlord"
     ]
+
+
+def test_the_payment_source_stays_on_offer_when_the_cost_needs_more_than_the_rest() -> None:
+    # Breya, Etherium Shaper's "Sacrifice two artifacts" with Breya and one Thopter: dropping
+    # Breya left one option for two picks and the game stopped (plan seed 4, game seed 104,
+    # pod 014). A choice the payment's source cannot be spared from keeps it.
+    chosen = _sacrifice_during_payment("breya", "breya", "thopter", asking="szeras", minimum=2)
+    assert sorted(chosen) == ["sacrifice-breya", "sacrifice-thopter"]
+
+
+def test_the_activations_own_sacrifice_cost_may_take_its_source() -> None:
+    # The same cost asked by the activation itself (not by another permanent's mana ability):
+    # nothing is being paid for with the source, so it is a plain option.
+    chosen = _sacrifice_during_payment("breya", "breya", "thopter", asking="breya", minimum=2)
+    assert sorted(chosen) == ["sacrifice-breya", "sacrifice-thopter"]
 
 
 def test_another_sacrifice_choice_keeps_the_pilots_own_ranking() -> None:
