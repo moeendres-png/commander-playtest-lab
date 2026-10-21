@@ -13,7 +13,9 @@ from commander_lab.models import (
 
 from ..full_game_pilot_views import (
     color_choice_rank,
+    commander_creature_names,
     named_choice_rank,
+    needs_commander_target,
     sweep_mode_net,
     target_object_bonus,
 )
@@ -38,6 +40,12 @@ _FREE_CAST_CONTINUE_PROMPT = re.compile(
     r"You can cast \d+ more spells? for free\. Continue casting"
 )
 _COPY_CAST_CONTINUE_PROMPT = re.compile(r"Continue to choose copies and cast\?")
+# Lim-Dul's Vault: "As many times as you choose, you may pay 1 life, put those cards on the bottom
+# of your library, then look at the top five cards." The pilot cannot judge the five cards it
+# digs past, so it answered Yes every time (precon pod, plan seed 5: thousands of times, one game
+# of nearly an hour). A seat stops after a few digs, like a player who does not find what it wants.
+_LIFE_DIG_PROMPT = re.compile(r"Pay 1 life and look at the next 5 cards\?")
+_LIFE_DIG_CAP = 3
 
 
 class _ChoiceDecisions(_PaymentDecisions):
@@ -127,6 +135,21 @@ class _ChoiceDecisions(_PaymentDecisions):
 
         if not options:
             return []
+        source = request.get("source_object")
+        if (
+            isinstance(source, dict)
+            and source.get("ability_type") == "spell"
+            and needs_commander_target(
+                str(source.get("source_name") or ""), state, spell_on_stack=True
+            )
+        ):
+            # Cast outside a sorcery window, the spell only works against a commander.
+            commanders = commander_creature_names(state)
+            options = [
+                option
+                for option in options
+                if str(option.get("label", "")).casefold() in commanders
+            ] or options
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
         # Twin-stable target identities: (zone, zone_index) pins the same
@@ -344,7 +367,15 @@ class _ChoiceDecisions(_PaymentDecisions):
         ):
             answered_yes = prior[2]
             cap = self._boolean_yes_cap(offer, self._actor(state))
-        yes_withheld = life_yes_blocked or (cap is not None and answered_yes >= cap)
+        dig_key = self._boolean_source_key(source_object)
+        dug = 0
+        if _LIFE_DIG_PROMPT.match(prompt):
+            prior_dig = self._life_dig_yes.get(seat)
+            dug = prior_dig[1] if prior_dig is not None and prior_dig[0] == dig_key else 0
+        dig_yes_blocked = dug >= _LIFE_DIG_CAP
+        yes_withheld = (
+            life_yes_blocked or dig_yes_blocked or (cap is not None and answered_yes >= cap)
+        )
         selectable = [
             option
             for option in options
@@ -387,11 +418,26 @@ class _ChoiceDecisions(_PaymentDecisions):
             kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
+        # Running-selection guard (liveness only). Once a seat picks no further creature, Slaughter
+        # the Strong asks "End the selection" or "Continue the selection"; Continue only reopens the
+        # pick, which this seat has just declined, so the selection ends here.
+        if seat in self._selection_ended:
+            self._selection_ended.discard(seat)
+            kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
+            if kept:
+                selectable = kept
         if selectable and len(selectable) != len(options):
             if life_yes_blocked:
                 _LOG.info(
                     "phyrexian life guard: %d life already promised in this payment; declining %r",
                     life_promised,
+                    prompt,
+                )
+            elif dig_yes_blocked:
+                _LOG.info(
+                    "life-dig guard: %d consecutive digs for %s; declining %r",
+                    dug,
+                    dig_key or "<unidentified source>",
                     prompt,
                 )
             elif cap is not None:
@@ -438,6 +484,8 @@ class _ChoiceDecisions(_PaymentDecisions):
             if last_yes is not None:
                 failed.add(last_yes)
         self._free_cast_failed[seat] = (turn, failed)
+        if _LIFE_DIG_PROMPT.match(prompt) and values[raw_id]:
+            self._life_dig_yes[seat] = (dig_key, dug + 1)
         if life_prompt is not None and values[raw_id]:
             self._phyrexian_life_promised[seat] = life_promised + int(life_prompt.group(1))
         if offer is None:
