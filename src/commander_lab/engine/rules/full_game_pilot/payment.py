@@ -30,6 +30,7 @@ from .common import (
     mana_x_prompt_symbols,
     offers_mana_ability,
     option_x_counter_cap,
+    option_x_tap_cap,
 )
 from .state import _PolicyState
 
@@ -859,14 +860,20 @@ class _PaymentDecisions(_PolicyState):
                 self._priority_cost_facts[seat] = {source: non_x}
             if source and state is not None:
                 # #920: an X paid by removing counters from the source can use
-                # no more counters than the source has.
-                cap = option_x_counter_cap(
-                    str(option.get("label") or ""),
-                    metadata,
-                    self._actor(state).get("battlefield"),
-                )
-                if cap is not None:
-                    self._priority_x_counter_caps[seat] = {source: cap}
+                # no more counters than the source has, and an X paid by
+                # tapping untapped permanents no more than the seat has.
+                label = str(option.get("label") or "")
+                battlefield = self._actor(state).get("battlefield")
+                caps = [
+                    cap
+                    for cap in (
+                        option_x_counter_cap(label, metadata, battlefield),
+                        option_x_tap_cap(label, metadata, battlefield),
+                    )
+                    if cap is not None
+                ]
+                if caps:
+                    self._priority_x_counter_caps[seat] = {source: min(caps)}
             return
 
     def _take_remembered_priority_cost_facts(self, seat: int, source_object: Any) -> int | None:
@@ -1033,7 +1040,8 @@ class _PaymentDecisions(_PolicyState):
         if symbols is None:
             symbols = prompt_symbols
         affordable = max(0, (self._mana_budget(state) - non_x) // symbols)
-        # #920: an X that is also paid by removing counters from its source.
+        # #920: an X that is also paid by removing counters from its source,
+        # or by tapping X untapped permanents.
         counter_cap = self._take_remembered_x_counter_cap(seat, source_object)
         if counter_cap is not None:
             affordable = min(affordable, counter_cap)
