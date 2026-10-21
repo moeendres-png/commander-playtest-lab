@@ -183,6 +183,8 @@ class _PolicyState:
         # A cast whose payment this seat cancelled is not retried in the same
         # turn until more mana is visible: label -> mana visible at the cancel.
         self._last_priority_label: dict[int, str] = {}
+        # The source of that action, for the mana abilities that must not pay for it (#920).
+        self._last_priority_source: dict[int, str] = {}
         self._last_priority_visible_mana: dict[int, int] = {}
         self._failed_payments: dict[int, tuple[object, dict[str, int]]] = {}
         # #802: per seat, the turn it belongs to and how often the engine asked
@@ -220,6 +222,16 @@ class _PolicyState:
                 continue
             if str(option.get("option_type")) not in {"pass_priority", "mana_ability"}:
                 self._last_priority_label[seat] = str(option.get("label", ""))
+                chosen_meta = option.get("metadata")
+                source_id = (
+                    str(chosen_meta.get("source_object_id") or "")
+                    if isinstance(chosen_meta, dict)
+                    else ""
+                )
+                if source_id:
+                    self._last_priority_source[seat] = source_id
+                else:
+                    self._last_priority_source.pop(seat, None)
                 tried = self._turn_actions.get(seat)
                 if tried is None or tried[0] != turn:
                     tried = (turn, Counter())

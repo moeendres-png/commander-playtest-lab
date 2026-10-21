@@ -421,6 +421,36 @@ die anderen sechs Karten sind neu.
   Ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar,
   Pilot von `main` `5991d9d` gegen diesen Stand): alle Entscheidungs- und Verhaltenszähler identisch
   (36268 Entscheidungen); `wall_s` und `pilot_s` unterscheiden sich nur durch Maschinenrauschen.
+- Familiensuche Plan-Seeds 7 bis 17 mit Spiel-Seed +100 (107 bis 117) auf dem Pin `769e6ebb` (gleiche 182
+  Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708`): die Seeds 107 bis 113, 116 und 117 laufen mit 46 von
+  46 Pods durch (Piloten von `main` `b010543` bis `d2d8f15`, je ein Spiel je Pod, 414 Spiele). Seed 114 und
+  115 verlieren je einen Pod, beide im Piloten (Bridge und Engine unverändert):
+  - Seed 114, Pod 004 (Hazel of the Rootbloom): `XMAGE_ACTION_EXECUTION_FAILED: mana activation failed`.
+    „{T}, Pay 2 life, Tap X untapped tokens you control: Add X mana" fragt „Announce the value for {X}
+    (untapped tokens you control to tap)". Hazel war selbst eine Token-Kopie, die Engine zählt sie in der
+    Obergrenze (`numeric_max` 1) mit, ihr eigenes `{T}` tappt sie zuerst, die Tap-Kosten finden nichts und die
+    Mana-Fähigkeit wird umgekehrt. Der Prompt ist kein Mana-X, die Mana-Obergrenze griff also nicht.
+    `x_tap_prompt_cap` (`full_game_pilot/common.py`) liest die Tap-X-Form des Prompts und zählt die
+    ungetappten Token neben der Quelle (Token = Name endet auf „ Token", die Sicht hat kein Token-Feld; eine
+    Quelle ohne eigenes `{T}` zählt sich selbst), `option_x_tap_cap` kennt dieselben Token, und
+    `_priority_action_affordable` hält eine Mana-Fähigkeit mit Tap-X ohne Ziel zurück, statt 2 Leben für kein
+    Mana zu zahlen. Neue Datei `test_tap_x_tokens_920.py` (drei Tests rot ohne, grün mit der Änderung).
+  - Seed 115, Pod 026 (Alchemist's Refuge): `priority activation failed`. Für „{G}{U}, {T}: You may cast spells
+    this turn as though they had flash" zahlte der Pilot einen Teil der {G}{U} mit dem Refuge selbst
+    („{T}: Add {C}"); die Mana-Kosten werden zuerst bezahlt, das `{T}` der Aktivierung findet die Quelle
+    getappt. Gleiche Ursache wie die Opferkosten in #952. `_last_priority_source` merkt die Quelle der
+    gewählten Aktion, `_spends_the_activations_own_source` hält deren Mana-Fähigkeiten aus der Zahlung
+    zurück, wenn der Kostenteil des Labels `{T}` enthält. Neue Datei `test_own_source_payment_920.py`
+    (rot ohne, grün mit der Änderung; Gegenproben: andere Quelle, Aktivierung ohne `{T}`).
+  Beide Pods laufen mit den Fixes durch (einzeln auf demselben Jar).
+  Pod 044 des Seeds 6 (Plan- und Spiel-Seed 6) wechselt auf Live-Pin zwischen zwei Hashes, weil Wurmcoil
+  Engine seine zwei Wurm-Token in zufälliger Reihenfolge anlegt (`CreateTokenEvent`-`HashMap`,
+  `TokenImpl`-`HashSet`, Token ohne `hashCode`); das ist eine Fork-Änderung und steht nicht in diesem PR.
+  Ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar, aus dem
+  Tempt-Jar und den Klassen des Pins `456b0e22` zusammengesetzt, Pilot von `main` `f14a191` gegen diesen Stand): alle Entscheidungs- und
+  Verhaltenszähler identisch (36268 Entscheidungen); `wall_s` und `pilot_s` unterscheiden sich nur durch
+  Maschinenrauschen (`pilot_s` +0,29 s je Spiel bei vier parallel laufenden Sweeps; die neuen Prüfungen
+  kosten unter einer Mikrosekunde je Aufruf).
 - Determinismus-Zensus Plan-Seed 21 (Spiel-Seed 21) auf dem Pin `769e6ebb` (Lab `f50a1f754`, Muses eigenes
   Jar, `--games-per-jvm 6 --fast`, zwei Läufe, `LOCAL_OBSERVED`): 43 Pods laufen in beiden Läufen durch
   und liefern denselben Hash, Pod 010 fällt in beiden Läufen mit `BLOCK_DECLARATION_REJECTED` aus.

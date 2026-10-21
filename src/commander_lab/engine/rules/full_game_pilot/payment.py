@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 import re
+from collections.abc import Mapping
 from typing import Any
 
 from commander_lab.models import (
@@ -33,6 +34,7 @@ from .common import (
     offers_mana_ability,
     option_x_counter_cap,
     option_x_tap_cap,
+    x_tap_prompt_cap,
 )
 from .state import _PolicyState
 
@@ -192,8 +194,9 @@ class _PaymentDecisions(_PolicyState):
         engine-offered, the pilot simply selects pass/another legal action
         instead, and the engine re-validates whatever is selected (a
         mid-payment cancel aborts to pass natively). No card names, no invented
-        actions, and the only label read is the "tap N untapped creatures you
-        control" cost, which the bridge does not project as a fact. A False
+        actions, and the only labels read are the "tap N untapped creatures you
+        control" cost and a mana ability's "Tap X untapped ... you control"
+        cost, which the bridge does not project as facts. A False
         result from a pool shortfall on an action that spends its own source is
         decided by _priority_awaits_mana: it is re-offered as needs-mana-first
         intent. Any other False result (a tapped source, a Crew the other
@@ -207,6 +210,15 @@ class _PaymentDecisions(_PolicyState):
         # offers it with the source as the only candidate and fails it once chosen.
         if tap_creature_cost_unpayable(
             str(option.get("label", "")), str(metadata.get("source_object_id") or ""), state
+        ):
+            return False
+        # #920: a mana ability that taps X untapped permanents and has none to tap makes no
+        # mana for its other costs (Hazel of the Rootbloom pays 2 life for X = 0).
+        label = str(option.get("label", ""))
+        if (
+            metadata.get("ability_type") == "activated_mana"
+            and "tap x untapped" in label.casefold()
+            and option_x_tap_cap(label, metadata, self._actor(state).get("battlefield")) == 0
         ):
             return False
         if metadata.get("requires_tap_source") is True and metadata.get("source_tapped") is True:
@@ -224,6 +236,27 @@ class _PaymentDecisions(_PolicyState):
             metadata.get("requires_tap_source") is True
             or metadata.get("requires_sacrifice_source") is True
         )
+
+    def _spends_the_activations_own_source(self, seat: int, option: Mapping[str, object]) -> bool:
+        """Whether this mana ability is the source of the {T} ability being paid for (#920).
+
+        Plan seed 15, game seed 115, pod 026: Alchemist's Refuge's ``{G}{U}, {T}: You may cast
+        spells this turn as though they had flash`` was paid partly by tapping the Refuge for
+        {C}. The mana cost is paid first, so the ability's own ``{T}`` then found its source
+        tapped, the activation was reversed and the game stopped. Same cause as the sacrifice
+        cost of #952, read from the label of the action the seat chose at priority.
+        """
+        payer = self._payment_source.get(seat)
+        metadata = option.get("metadata")
+        if (
+            not payer
+            or self._last_priority_source.get(seat) != payer
+            or not isinstance(metadata, dict)
+            or str(metadata.get("source_object_id") or "") != payer
+        ):
+            return False
+        cost = self._last_priority_label.get(seat, "").casefold().split(" — ", 1)[-1]
+        return "{t}" in cost.partition(":")[0]
 
     @staticmethod
     def _floats_mana_only(meta: dict[str, Any]) -> bool:
@@ -499,8 +532,9 @@ class _PaymentDecisions(_PolicyState):
         # at priority; pool spends and cancel are always selectable.
         selectable: list[dict[str, Any]] = []
         for option in non_pool:
-            if self._required_text(option, "option_type") == "mana_ability" and not (
-                self._priority_action_affordable(option, state)
+            if self._required_text(option, "option_type") == "mana_ability" and (
+                not self._priority_action_affordable(option, state)
+                or self._spends_the_activations_own_source(seat, option)
             ):
                 continue
             selectable.append(option)
@@ -761,6 +795,11 @@ class _PaymentDecisions(_PolicyState):
             affordable_max = self._announce_x_affordable_max(
                 runtime, state, context, source_object, prompt
             )
+            if affordable_max is None:
+                # #920: a tap-X cost is not a mana X; it is bounded by what is there to tap.
+                affordable_max = x_tap_prompt_cap(
+                    prompt, source_object, self._actor(state).get("battlefield")
+                )
             if affordable_max is not None:
                 domain["affordable_max"] = affordable_max
         if self._declines_unsupported_energy_payment(decision_class, prompt, source_object):

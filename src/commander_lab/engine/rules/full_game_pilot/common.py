@@ -481,7 +481,8 @@ def option_x_tap_cap(
     pilot chose, so the pilot keeps its announced X within what is there.
 
     The source is not counted when the same cost taps it (``{T}``): it is tapped first. A
-    permanent counts when the printed card catalog gives it the printed type; a token or an
+    permanent counts when the printed card catalog gives it the printed type, or, for tokens,
+    when its name ends in " Token"; a token the catalog does not know under that name or an
     unknown card does not, which only ever lowers the cap. Mana paid out of the same artifacts
     is not subtracted (a residual, like the mana budget's one-permanent-one-mana reading).
 
@@ -491,9 +492,17 @@ def option_x_tap_cap(
     match = _TAP_X_UNTAPPED.search(label or "")
     if match is None or not isinstance(battlefield, list):
         return None
-    kind = match.group("kind").casefold()
-    source_id = str(metadata.get("source_object_id") or "")
-    taps_source = "{t}" in (label or "").casefold()
+    return _untapped_kind_count(
+        match.group("kind").casefold(),
+        battlefield,
+        str(metadata.get("source_object_id") or ""),
+        taps_source="{t}" in (label or "").casefold(),
+    )
+
+
+def _untapped_kind_count(
+    kind: str, battlefield: list[object], source_id: str, *, taps_source: bool
+) -> int:
     count = 0
     for item in battlefield:
         if not isinstance(item, dict) or item.get("tapped") is not False:
@@ -502,10 +511,57 @@ def option_x_tap_cap(
             continue
         if taps_source and source_id and str(item.get("object_id") or "") == source_id:
             continue
+        if kind == "token":
+            # The view has no token flag; the engine names its tokens "Servo Token".
+            if str(item.get("name") or "").endswith(" Token"):
+                count += 1
+            continue
         facts = card_facts(str(item.get("name") or ""))
         if facts is not None and kind in facts.types:
             count += 1
     return count
+
+
+# The engine's prompt for the same X when the seat is asked for it: Hazel of the Rootbloom's
+# "{T}, Pay 2 life, Tap X untapped tokens you control: Add X mana" is announced as
+# "Announce the value for {X} (untapped tokens you control to tap)". It is not a mana X, so the
+# mana budget does not bound it.
+_TAP_X_PROMPT = re.compile(
+    r"\AAnnounce the value for \{X\} \(untapped (?P<kind>[a-z]+?)s? you control to tap\)\Z",
+    re.IGNORECASE,
+)
+
+
+def x_tap_prompt_cap(prompt: str, source_object: object, battlefield: object) -> int | None:
+    """How many permanents the tap-X cost named by an ``announce_x`` prompt can use (#920).
+
+    Plan seed 14, game seed 114, pod 004: Hazel of the Rootbloom was itself a token (a copy), so
+    the engine counted it among the "untapped tokens you control" it offered as X's ceiling and
+    its own ``{T}`` then tapped it first. The cost found nothing to tap, the mana ability was
+    reversed and the game stopped. The announce frame carries no cost, so the tap-X wording is
+    read from the prompt and whether the source taps itself from the source's own ability text
+    on the actor's battlefield (unreadable: it does).
+
+    ``None`` means the prompt is not a tap-X prompt or there is no battlefield view.
+    """
+    found = _TAP_X_PROMPT.match((prompt or "").strip())
+    if found is None or not isinstance(source_object, Mapping) or not isinstance(battlefield, list):
+        return None
+    source_id = str(source_object.get("source_object_id") or "")
+    taps_source = True
+    for item in battlefield:
+        if not isinstance(item, dict) or str(item.get("object_id") or "") != source_id:
+            continue
+        abilities = item.get("abilities")
+        for text in abilities if isinstance(abilities, list) else ():
+            cost = str(text).casefold().partition(":")[0]
+            if "tap x untapped" in cost:
+                taps_source = "{t}" in cost
+                break
+        break
+    return _untapped_kind_count(
+        found.group("kind").casefold(), battlefield, source_id, taps_source=taps_source
+    )
 
 
 def offers_mana_ability(rule_text: str) -> bool:
