@@ -1,0 +1,62 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-TAX-4",
+  "obligation_exercised": {
+    "obligation_digest": "5611dcb59e09badbb2d8216049a5538a806aaf39e4a6893803a05f509c01b21c",
+    "requested_state_digest": "674b4b12b3f439edd7d024d99f797c87c04370190f21dce39a38309981264eab",
+    "required_events": [
+      "commander_cast_from_command",
+      "commander_tax:+4_generic",
+      "mana_paid:4"
+    ],
+    "terminal_checks": [
+      "P1's commander cast count is 3"
+    ],
+    "terminal_postconditions": [
+      "Rograkh printed mana cost 0 plus two prior command-zone casts gives exactly {4} additional generic; cast count becomes 3."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P1's commander cast count is 3": true
+    },
+    "token_evidence": {
+      "commander_cast_from_command": {
+        "events": [
+          7
+        ]
+      },
+      "commander_tax:+4_generic": {
+        "decision_frames": [
+          2,
+          4,
+          6,
+          8
+        ],
+        "paid_minus_printed": 4
+      },
+      "mana_paid:4": {
+        "decision_frames": [
+          2,
+          4,
+          6,
+          8
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "967898f43093b39c7a263138bfdc1c236b632f391e2af35870b5d6e3b65d5562",
+  "runner_digest": "6f515c43c6724fa58cfce6c0c5995581b34c41657298ccabdb75b237a5bcc119",
+  "runtime_receipt_digest": "75de9d3d39fb3db02699564c546677db3006e17dba5bb5677bc0694dab3e9638",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-TAX-4",
+  "variance_source": null
+}
