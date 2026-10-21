@@ -62,3 +62,83 @@ def test_a_failed_game_moves_the_rest_to_a_fresh_process(monkeypatch: pytest.Mon
     assert outcomes[2] == ("c", FULL_GAME_SHUTDOWN_GRACEFUL)
     assert len(_FakeClient.instances) == 2
     assert _FakeClient.instances[0].requests == ["get_full_game_result", "shutdown_game"]
+
+
+class _KilledClient(_FakeClient):
+    """The process the first instances start ends the way ``dispositions`` says."""
+
+    dispositions: ClassVar[list[str]] = []
+
+    def __exit__(self, *_args: object) -> None:
+        self.shutdown_disposition = self.dispositions[len(_FakeClient.instances) - 1]
+
+
+def _runner_with_killed_processes(
+    monkeypatch: pytest.MonkeyPatch, dispositions: list[str]
+) -> XmageFullGameRunner:
+    _FakeClient.instances = []
+    _KilledClient.dispositions = dispositions
+    monkeypatch.setattr(full_game, "_RawFullGameClient", _KilledClient)
+    runner = XmageFullGameRunner(("java", "-jar", "x.jar", "full-game"))
+    monkeypatch.setattr(runner, "_validated_policy", lambda scenario, *_: scenario)
+    monkeypatch.setattr(runner, "_open_game", lambda *_: {})
+
+    def drive(_client: Any, policy: str, **_kwargs: Any) -> tuple[int, Any, bool]:
+        if policy == "hang":
+            raise FullGameConformanceError("bridge closed")
+        return 1, None, True
+
+    def build(_cls: Any, scenario: Any, *_args: Any, shutdown_disposition: str, **_kw: Any) -> Any:
+        if shutdown_disposition != FULL_GAME_SHUTDOWN_GRACEFUL:
+            raise FullGameConformanceError(
+                f"full game shutdown not graceful: {shutdown_disposition}"
+            )
+        return scenario
+
+    monkeypatch.setattr(runner, "_drive", drive)
+    monkeypatch.setattr(XmageFullGameRunner, "_build_result", classmethod(build))
+    return runner
+
+
+def test_games_finished_before_a_hang_are_played_again_alone(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # process 1 plays a and b, then hangs on "hang" and is killed; a and b are replayed in
+    # processes 2 and 3, c runs in process 4
+    runner = _runner_with_killed_processes(
+        monkeypatch, ["forced_kill", *[FULL_GAME_SHUTDOWN_GRACEFUL] * 3]
+    )
+    games: Any = [("a", (), ()), ("b", (), ()), ("hang", (), ()), ("c", (), ())]
+    outcomes = runner.run_batch(games)
+
+    assert outcomes[:2] == ["a", "b"]
+    assert isinstance(outcomes[2], FullGameConformanceError)
+    assert outcomes[3] == "c"
+    assert len(_FakeClient.instances) == 4
+
+
+def test_a_replayed_game_that_cannot_shut_down_cleanly_is_not_replayed_again(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runner = _runner_with_killed_processes(monkeypatch, ["forced_kill", "unacked_exit"])
+    games: Any = [("a", (), ()), ("hang", (), ())]
+    outcomes = runner.run_batch(games)
+
+    assert isinstance(outcomes[0], FullGameConformanceError)
+    assert "shutdown not graceful" in str(outcomes[0])
+    assert isinstance(outcomes[1], FullGameConformanceError)
+    assert len(_FakeClient.instances) == 2
+
+
+def test_an_unclean_exit_without_a_failed_game_still_fails_every_result(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runner = _runner_with_killed_processes(monkeypatch, ["unacked_exit"])
+    games: Any = [("a", (), ()), ("b", (), ())]
+    outcomes = runner.run_batch(games)
+
+    assert all(
+        isinstance(outcome, FullGameConformanceError) and "shutdown not graceful" in str(outcome)
+        for outcome in outcomes
+    )
+    assert len(_FakeClient.instances) == 1

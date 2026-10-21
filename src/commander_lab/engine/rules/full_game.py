@@ -1035,7 +1035,27 @@ class XmageFullGameRunner:
         is shut down before the next one starts. After a failed game the process is
         discarded and the remaining games start in a fresh one. Every result rests on
         the graceful shutdown of the process that played it.
+
+        A game that finished before such a failure cannot rest on that shutdown when the
+        failure was a hang or a lost transport: the process is killed, not shut down. The
+        game itself is fine and games are deterministic, so it is played again alone in its
+        own process; its result then rests on that process's graceful shutdown. A neighbour's
+        hang costs the finished games a replay, not their result.
         """
+        return self._run_batch(games, replay_after_unclean_exit=True)
+
+    def _run_batch(
+        self,
+        games: Sequence[
+            tuple[
+                FutureXmageScenario,
+                tuple[RulesDeckInput, ...],
+                tuple[FullGamePilotBinding, ...],
+            ]
+        ],
+        *,
+        replay_after_unclean_exit: bool,
+    ) -> list[FullGameConformanceResult | Exception]:
         command = self.command
         if command is None:
             raise FullGameConformanceError(
@@ -1045,6 +1065,7 @@ class XmageFullGameRunner:
         pending = list(games)
         while pending:
             played: list[tuple[int, Any, ProviderIdentityWire, FullGameResultWire, Any]] = []
+            game_failed = False
             client = _RawFullGameClient(
                 command,
                 cwd=self.cwd,
@@ -1072,10 +1093,20 @@ class XmageFullGameRunner:
                         client.request("shutdown_game")
                     except Exception as exc:  # the process is suspect; start a fresh one
                         outcomes[index] = _public_error(exc)
+                        game_failed = True
                         break
                     played.append((index, scenario, provider, result, audit))
             disposition = getattr(client, "shutdown_disposition", None)
             for index, scenario, provider, result, audit in played:
+                if (
+                    replay_after_unclean_exit
+                    and game_failed
+                    and disposition != FULL_GAME_SHUTDOWN_GRACEFUL
+                ):
+                    outcomes[index] = self._run_batch(
+                        [games[index]], replay_after_unclean_exit=False
+                    )[0]
+                    continue
                 try:
                     outcomes[index] = self._build_result(
                         scenario,
