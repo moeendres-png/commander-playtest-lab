@@ -231,10 +231,13 @@ def own_counters_by_kind(state: Mapping[str, object], actor_id: str) -> dict[str
 
 def best_cost_counter_kind(label: str, state: Mapping[str, object], actor_id: str) -> str | None:
     """The named counter kind with the biggest pile on the actor's permanents, else None."""
+    named = counter_cost_kinds(label)
+    if not named:
+        return None
     held = own_counters_by_kind(state, actor_id).values()
     piles = [
         (max((kinds.get(kind, 0) for kinds in held), default=0), -index, kind)
-        for index, kind in enumerate(counter_cost_kinds(label))
+        for index, kind in enumerate(named)
     ]
     best = max(piles, default=(0, 0, ""))
     return best[2] if best[0] > 0 else None
