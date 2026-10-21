@@ -330,6 +330,36 @@ die anderen sechs Karten sind neu.
   Seeds (1–10, gleiches Jar): alle Entscheidungszähler identisch; nur die Laufzeiten liegen auf
   dieser Maschine beide um etwa 12 % höher (`wall_s` und `pilot_s`, bei gleichen Entscheidungen
   also Maschinenrauschen, nicht der Pilot).
+- Familiensuche Plan-Seeds 17 bis 20 auf dem Pin `769e6ebb` (Spiel-Seed gleich dem Plan-Seed, gleiche 182
+  Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708`, Pilot von `main` `4501d6e`): Die Seeds 17 und 18
+  laufen mit 46 von 46 Pods durch, die Seeds 19 und 20 mit je 45 von 46. Ein Abbruch liegt im Piloten,
+  einer in der Engine (die Bridge bleibt unverändert, keine Requalifizierung):
+  - Seed 19, Pod 019 (Prosperous Bandit): `priority cast failed`, bevor irgendeine Zahlung beginnt.
+    Ein Gegner hat Bruna und Gisela zu Brisela, Voice of Nightmares verschmolzen („Your opponents
+    can't cast spells with mana value 3 or less“). Die Sperre ist ein `CAST_SPELL_LATE`-Ersatzeffekt,
+    der den Zauber über `game.getStack().getSpell(...)` liest, also erst, wenn er schon auf dem Stack
+    liegt. Die
+    Spielbar-Liste der Engine fragt davor, findet keinen Zauber und bietet den Cast an; der echte Cast
+    wird nach der ersten Frage (hier die Offspring-Frage) in `AbilityImpl.activate` verworfen, und die
+    Bridge hat keinen Beleg für eine Rückabwicklung. Der Pilot hält Zauber zurück, die Brisela
+    (Manawert 3 oder weniger) oder Void Winnower (gerade Manawerte, X-Zauber) eines Gegners sperrt
+    (`cast_locked_by_mana_value`). Void Winnower (Deck `2026_odds_and_ends`) liest den Zauber im
+    Quelltext auf dieselbe Weise, ist aber noch in keinem Sweep zum Abbruch geworden und nur durch Tests
+    belegt; Sanctum Prelate gleicht in der Form, nennt eine gewählte Zahl, die der Pilot nicht sieht,
+    und steht in keinem Precon-Deck.
+    Seed 19 Pod 019 läuft jetzt durch (2258 Entscheidungen).
+  - Seed 20, Pod 008: `XMAGE_INTERNAL_ERRORS` mit `NullPointerException` in
+    `ProtectorOfTheWastesTriggeredAbility.checkTrigger` (`event.getSourceId().equals(...)`). Kehrt eine
+    Aura aus dem Friedhof auf das Schlachtfeld zurück (hier Screams from Within nach Tip the Scales),
+    läuft das über `AuraReplacementEffect` ohne Quelle, und das Eintreten-Ereignis hat keine
+    `sourceId`; Protector of the Wastes (im selben Spiel) liest sie ohne Nullprüfung. Das ist ein
+    Fehler der Engine (im neueren Fork-Checkout unverändert), den der Pilot nicht umgehen kann, ohne
+    einen Massenentferner oder Gegner-Auren zu meiden. Eine Lösung wäre eine Fork-Änderung (nullsichere
+    Prüfung in `ProtectorOfTheWastes`; dieselbe Zeile steht laut Textsuche auch in `IvoraInsatiableHeir`,
+    `JadeOrbOfDragonkind`, `MisfortuneTeller` und `TomeboundLich`, ungeprüft) und bleibt offen.
+  Ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
+  alle Entscheidungs- und Verhaltenszähler identisch; nur `wall_s` liegt im zweiten Lauf um etwa 12 %
+  höher (`pilot_s` innerhalb des Konfidenzintervalls gleich), also Maschinenrauschen, nicht der Pilot.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung

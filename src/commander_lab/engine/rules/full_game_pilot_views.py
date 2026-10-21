@@ -258,6 +258,19 @@ def single_counter_cost_unpayable(label: str, state: Mapping[str, object], actor
 _ENCORE_LABEL = re.compile(r" — encore\b")
 
 
+# "Your opponents can't cast spells with ..." locks that read the spell off the stack
+# (Brisela, Voice of Nightmares: mana value 3 or less; Void Winnower: even mana values). They
+# are checked when the cast is announced, but the engine's playable list asks before the spell
+# is on the stack, finds none and still offers the cast. The announced cast is then refused
+# after the first question and the bridge has no proof of a reversal (plan seed 19, "priority
+# cast failed"). The pilot holds back what the lock forbids. The mana value of a spell with {X}
+# on the stack depends on the X the pilot would pick: Brisela reads it at X = 0, Void Winnower
+# holds every such spell back.
+_BRISELA = "brisela, voice of nightmares"
+_BRISELA_MAX_VALUE = 3
+_VOID_WINNOWER = "void winnower"
+
+
 _SEAT_LABEL = re.compile(r"Full Game Seat (\d+)")
 
 
@@ -766,6 +779,29 @@ def _engine_cost(meta: Mapping[str, Any]) -> float | None:
     return float(total)
 
 
+def cast_locked_by_mana_value(
+    facts: CardFacts | None, engine_cost: float | None, state: Mapping[str, object], actor_id: str
+) -> bool:
+    """True when an opponent's Brisela or Void Winnower forbids casting this spell.
+
+    The mana value is the card's own; for a card the pilot has no facts about it is the cost the
+    engine offers the cast at.
+    """
+    value = facts.mana_value if facts is not None else engine_cost
+    if value is None:
+        return False
+    variable = facts is not None and "{x}" in facts.mana_cost.casefold()
+    names = {
+        str(item.get("name") or "").casefold()
+        for player in players(state)
+        if str(player.get("player_id")) != actor_id and not player.get("has_lost")
+        for item in _items(player.get("battlefield"))
+    }
+    if _BRISELA in names and value <= _BRISELA_MAX_VALUE:
+        return True
+    return _VOID_WINNOWER in names and (variable or int(value) % 2 == 0)
+
+
 def _opponent_has(state: Mapping[str, Any], actor_id: str, predicate: Any) -> bool:
     return any(
         predicate(item)
@@ -877,6 +913,9 @@ def priority_view_fields(
         and source_name.casefold() in _FACE_DOWN_AURAS
     ):
         return {**fields, "metadata": extra}, "aura_cast_face_down"
+
+    if ability_type == "spell" and cast_locked_by_mana_value(facts, engine_cost, state, actor_id):
+        return {**fields, "metadata": extra}, "cast_locked_by_opponent_mana_value_lock"
 
     if option_type == "play_land" or ability_type == "play_land":
         fields.update(floor_value=1.6, immediate_impact=1.2, mana_cost=0.0)
