@@ -51,6 +51,93 @@ def commander_names(state: Mapping[str, Any]) -> frozenset[str]:
     )
 
 
+# "You may cast this spell as though it had flash if it targets a commander." XMage offers the
+# cast at any time and checks the targets only once they are chosen: outside a sorcery window an
+# Aura aimed at anything else fails the whole cast and with it the game (precon pod, plan seed 5,
+# Timely Ward on a token). The printed card catalog does not hold the card, so it is named here.
+_COMMANDER_TARGET_FLASH = frozenset({"timely ward"})
+
+# An Aura with morph cast face down: the permanent enters as a creature, yet XMage still runs
+# the Aura check on the card ("found etb aura with empty spell ability or without any targets",
+# PlayerImpl.moveCards) and every attempt ends in an internal error that kills the game (precon
+# pod, plan seed 7, Gift of Doom). Its normal cast is unaffected. The printed card catalog does
+# not hold the card, so it is named here.
+_FACE_DOWN_AURAS = frozenset({"gift of doom"})
+
+
+def needs_commander_target(
+    source_name: str, state: Mapping[str, object], *, spell_on_stack: bool
+) -> bool:
+    """Whether casting this spell now only works against a commander.
+
+    It does not outside a sorcery window: the actor's own main phase with nothing on the stack
+    but the spell itself (``spell_on_stack`` once its targets are being chosen).
+    """
+    if source_name.casefold() not in _COMMANDER_TARGET_FLASH:
+        return False
+    own_turn = str(state.get("active_player_id", "")) == str(state.get("actor_id", ""))
+    in_main = "main" in str(state.get("phase", "")).casefold()
+    on_stack = len(_items(state.get("stack")))
+    return not (own_turn and in_main and on_stack <= (1 if spell_on_stack else 0))
+
+
+def commander_creature_names(state: Mapping[str, object]) -> frozenset[str]:
+    """Names of the commanders that are creatures on a battlefield right now."""
+    commanders = commander_names(state)
+    return frozenset(
+        str(item.get("name", "")).casefold()
+        for player in players(state)
+        for item in _items(player.get("battlefield"))
+        if str(item.get("name", "")).casefold() in commanders and is_creature_entry(item)
+    )
+
+
+# "Remove three counters from among other artifacts, creatures, and planeswalkers you control"
+# (Tekuthal, Tayam). XMage offers the activation whenever one such permanent exists and fails the
+# whole activation when the counters on all of them fall short of the number the cost names.
+_COUNTER_NUMBERS = {
+    "two": 2,
+    "three": 3,
+    "four": 4,
+    "five": 5,
+    "six": 6,
+    "seven": 7,
+    "eight": 8,
+    "nine": 9,
+    "ten": 10,
+}
+_REMOVE_COUNTERS_FROM_AMONG = re.compile(
+    r"remove (\d+|two|three|four|five|six|seven|eight|nine|ten) counters from among (other )?"
+)
+
+
+def spread_counter_cost_unpayable(
+    label: str, source_object_id: str, state: Mapping[str, object], actor_id: str
+) -> bool:
+    """Whether a "remove N counters from among ..." cost needs more counters than the actor has.
+
+    Counts the counters on every permanent the actor controls (the source excluded for an "other"
+    cost) without looking at the types the cost names, so it only ever finds a shortfall that no
+    choice of permanents could make good.
+    """
+    found = _REMOVE_COUNTERS_FROM_AMONG.search(label.casefold())
+    if found is None:
+        return False
+    number = found.group(1)
+    wanted = int(number) if number.isdigit() else _COUNTER_NUMBERS[number]
+    held = 0
+    for player in players(state):
+        if str(player.get("player_id", "")) != actor_id:
+            continue
+        for item in _items(player.get("battlefield")):
+            if found.group(2) and str(item.get("object_id", "")) == source_object_id:
+                continue
+            for counter in _items(item.get("counters")):
+                count = counter.get("count")
+                held += count if isinstance(count, int) else 0
+    return held < wanted
+
+
 _SEAT_LABEL = re.compile(r"Full Game Seat (\d+)")
 
 
@@ -657,6 +744,20 @@ def priority_view_fields(
     extra: dict[str, Any] = {}
     engine_cost = _engine_cost(meta)
 
+    if (
+        ability_type == "spell"
+        and needs_commander_target(source_name, state, spell_on_stack=False)
+        and not commander_creature_names(state)
+    ):
+        return {**fields, "metadata": extra}, "no_commander_for_conditional_flash"
+
+    if (
+        ability_type == "spell"
+        and " using morph" in label
+        and source_name.casefold() in _FACE_DOWN_AURAS
+    ):
+        return {**fields, "metadata": extra}, "aura_cast_face_down"
+
     if option_type == "play_land" or ability_type == "play_land":
         fields.update(floor_value=1.6, immediate_impact=1.2, mana_cost=0.0)
         extra["is_land"] = True
@@ -760,6 +861,12 @@ def priority_view_fields(
         if "draw a card" in label or "cycling" in label:
             fields["roles"] = frozenset({CardRole.DRAW})
             fields["role_strengths"] = {CardRole.DRAW: 0.6}
+        if spread_counter_cost_unpayable(
+            label, str(meta.get("source_object_id") or ""), state, actor_id
+        ):
+            return {**fields, "metadata": extra}, "remove_counters_cost_unpayable"
+        if ninjutsu_card_on_battlefield(label, str(meta.get("source_object_id") or ""), state):
+            return {**fields, "metadata": extra}, "ninjutsu_card_on_battlefield"
         if _SELF_DOUBLING_COUNTERS.search(label):
             # #817: "Put X +1/+1 counters on this, where X is its power"
             # doubles the permanent on every activation. Past lethal damage
@@ -830,6 +937,26 @@ def _spell_withhold_reason(
             # spending it on a token or a mana creature.
             return "no_worthy_removal_target"
     return None
+
+
+def ninjutsu_card_on_battlefield(
+    label: str, source_object_id: str, state: Mapping[str, object]
+) -> bool:
+    """True for a (commander) ninjutsu offer whose card already stands on the battlefield.
+
+    Commander ninjutsu is a Zone.ALL ability in XMage, so the engine offers it for the ninja
+    wherever it is. The cost that reveals the card only pays from the hand or the command zone, so
+    after the mana is spent the activation fails and with it the game (precon pod, plan seed 7,
+    Yuriko, the Tiger's Shadow cast normally and then offered her own ninjutsu).
+    """
+    ability = label.casefold().split(" — ", 1)[-1]
+    if not source_object_id or not ability.startswith(("ninjutsu", "commander ninjutsu")):
+        return False
+    return any(
+        str(item.get("object_id")) == source_object_id
+        for player in players(state)
+        for item in _items(player.get("battlefield"))
+    )
 
 
 # A self-doubling counter ability is not offered once the source's power

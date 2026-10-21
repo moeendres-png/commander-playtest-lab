@@ -208,6 +208,51 @@ die anderen sechs Karten sind neu.
   Mit dem Stand von `f5eecc7` und diesen zwei Pilot-Änderungen laufen alle drei Pods durch (012:
   3133 Entscheidungen, 021: 2402, 032: 3662; ein Spiel je Pod, keine Passquote). Die Bridge
   ändert sich dabei nicht.
+- Familiensuche Plan-Seed 5 (Spiel-Seed 5, gleiche 182 Decks, `LOCAL_OBSERVED`, ein Lauf, Stand
+  `d59d0cd`, Jar und Pilot von `main`): vier der 46 Pods brechen ab, alle vier im Piloten und
+  ohne Änderung der Bridge. Der Lauf wurde in drei Teilen gespielt, weil der erste Prozess nach 23
+  Pods abbrach; die Abbrüche wurden einzeln auf `d59d0cd` nachgespielt:
+  - Pod 007, Slaughter the Strong: Die Karte fragt Kreatur für Kreatur („already selected total
+    power N“) und nimmt eine erneut gewählte Kreatur wieder heraus, bis nichts mehr gewählt wird,
+    und fragt dann „End the selection“ oder „Continue the selection“. Der Pilot wählte die eine
+    sichtbare Kreatur jedes Mal und erreichte `max_decisions=50000`. Er wählt jede Kreatur jetzt
+    einmal, wählt nichts, wenn keine neue mehr da ist, und beendet die Auswahl.
+  - Pod 017, Timely Ward: „You may cast this spell as though it had flash if it targets a
+    commander.“ Die Engine bietet den Zauber zu jeder Zeit an und prüft das Ziel erst nach der
+    Wahl; außerhalb eines Sorcery-Fensters (hier ein eigener Zauber auf dem Stapel) scheitert der
+    Zauber an einem Token. Der Pilot bietet ihn dort ohne Commander-Kreatur auf dem Tisch nicht
+    an und zielt sonst auf den Commander.
+  - Pod 035, Tekuthal, Inquiry Dominus: „Remove three counters from among other artifacts,
+    creatures, and planeswalkers you control“ wird angeboten, sobald ein solches Objekt existiert,
+    und scheitert, wenn die Marken aller zusammen unter drei liegen (hier Inspirit mit zwei
+    Ladungsmarken; die Engine prüft in `RemoveCounterCost.canPay` nur, ob ein Ziel wählbar ist).
+    Der Pilot aktiviert solche Kosten nur, wenn die Marken auf seinen Permanenten reichen (zählt
+    ohne Typfilter, findet also nur einen Mangel, den keine Wahl beheben kann).
+  - Pod 018, Lim-Dûl's Vault: „As many times as you choose, you may pay 1 life ... look at the top
+    five cards“ fragt „Pay 1 life and look at the next 5 cards?“ bei jedem Durchgang neu. Der Pilot
+    kann die fünf Karten nicht bewerten und antwortete jedes Mal Ja (über 10000 Entscheidungen, das
+    Spiel lief fast eine Stunde bis `ENGINE_FAILURE`). Er zahlt jetzt höchstens dreimal hintereinander
+    (`_LIFE_DIG_CAP`); ein Prioritätsfenster beendet die Zählung.
+  Mit Jar von `d59d0cd` und diesen Änderungen laufen 007, 017, 018 und 035 durch (1818, 3294, 6562 und 2225
+  Entscheidungen; ein Spiel je Pod, keine Passquote). Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
+  alle Zähler identisch.
+- Familiensuche Plan-Seeds 6 bis 8 auf dem neuen Pin `769e6ebb` (Repin v10, Spiel-Seed gleich dem
+  Plan-Seed, gleiche 182 Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708` gegen den Pin gebaut,
+  Pilot von `main`): Seed 6 und Seed 8 laufen mit 46 von 46 Pods durch, Seed 7 mit 44 von 46. Die
+  beiden Abbrüche liegen im Piloten, die Bridge bleibt unverändert (keine Requalifizierung):
+  - Pod 023, Gift of Doom: Die Aura mit Morph wird als „Cast Gift of Doom using Morph“ angeboten.
+    Die verdeckt gewirkte Karte löst beim Eintritt den Aura-Test der Engine aus („found etb aura
+    with empty spell ability or without any targets“, `PlayerImpl.moveCards`), jeder Versuch endet
+    in einem internen Fehler und das Spiel in `ENGINE_FAILURE`. Der Pilot wirkt sie nicht
+    verdeckt (`_FACE_DOWN_AURAS`); der normale Zauber bleibt möglich.
+  - Pod 045, Yuriko, the Tiger's Shadow: Commander ninjutsu ist in XMage eine `Zone.ALL`-Fähigkeit
+    und wird angeboten, auch wenn die Karte schon im Spiel liegt (der Pilot hatte Yuriko normal
+    gewirkt). Die Kosten „reveal ninjutsu card“ zahlen nur aus Hand oder Befehlszone, die Aktivierung
+    scheitert nach dem Bezahlen des Manas (`XMAGE_ACTION_EXECUTION_FAILED`). Der Pilot aktiviert
+    Ninjutsu nicht für eine Karte, die auf dem Schlachtfeld liegt.
+  Mit diesen Änderungen laufen 023 und 045 durch (2268 und 4301 Entscheidungen; ein Spiel je Pod,
+  keine Passquote). Seed 8 wurde zusätzlich auf unverändertem `main` gespielt. Pilotvergleich
+  vorher/nachher auf zehn Seeds (1–10, gleiches Jar): alle Zähler identisch.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
