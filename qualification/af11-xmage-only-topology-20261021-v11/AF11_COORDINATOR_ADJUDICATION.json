@@ -1,0 +1,110 @@
+{
+ "schema_version": "commander-lab.af11-coordinator-adjudication/1.0.0",
+ "gate": "AF11",
+ "gate_name": "INTEROP_LICENSE_TOPOLOGY",
+ "gate_contract": "Actual integration topology satisfies WS-09: the selected provider runs as a genuine separate process, and no other rules engine is part of the integration (Forge removed by Owner decision 2026-10-13).",
+ "ws09_semantics": "G12 INTEROP_LICENSE (qualification/obligations/FULL_RULES_REQUIREMENTS_CONTRACT_v1.json): technical interoperability and licensing compatibility for the actual integration/distribution model; Forge must remain across a genuine separate-process/service boundary.",
+ "adjudicated_by": "Coordinator (AGENTS.md section 8, Owner delegation)",
+ "adjudicated_on": "2026-10-21",
+ "selected_provider": "xmage",
+ "owner_selection": {
+  "record": "docs/engine_strategy_20261009/ENGINE_STRATEGY_ADR.md",
+  "owner_statement": "#255 comment 6080484727",
+  "effective_epoch": "qualification/current-boundary-epochs/f14a1911e69c-e841aec870e9",
+  "effective_condition": "sealed main epoch on the new pin on which every XMage gate except AF11 is PASS (PB-03 run 39668803187 on main f14a1911: FULL107 107/107, AF00-AF10 PASS, AF11 UNKNOWN; sealed by the PR that carries this record)",
+  "effective_epoch_named_by": "Coordinator, 2026-10-21. The Owner's condition in #255 is unchanged; this record only names the sealed epoch that satisfies it on the new pin."
+ },
+ "integration_topology": {
+  "provider_process": "external JVM running the XMage bridge (engine-bridge JsonlBridge), driven over stdin/stdout JSONL",
+  "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+  "launch_main_class": "org.commanderlab.xmage.Main",
+  "engine_commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "adapter_serves": [
+   "xmage"
+  ],
+  "lab_process_embeds_engine": false,
+  "provider_classpath_manifest": "engine-bridge/target/cp-wsr22.txt"
+ },
+ "licence_topology": {
+  "lab": "LicenseRef-Proprietary",
+  "provider": "MIT",
+  "provider_classpath": {
+   "apiguardian-api-1.1.2.jar": "Apache-2.0",
+   "error_prone_annotations-2.48.0.jar": "Apache-2.0",
+   "failureaccess-1.0.3.jar": "Apache-2.0",
+   "gson-2.14.0.jar": "Apache-2.0",
+   "guava-33.4.8-jre.jar": "Apache-2.0",
+   "h2-1.4.197.jar": "MPL-2.0 OR EPL-1.0",
+   "j2objc-annotations-3.0.0.jar": "Apache-2.0",
+   "jsoup-1.21.2.jar": "MIT",
+   "jspecify-1.0.0.jar": "Apache-2.0",
+   "junit-jupiter-5.13.4.jar": "EPL-2.0",
+   "junit-jupiter-api-5.13.4.jar": "EPL-2.0",
+   "junit-jupiter-engine-5.13.4.jar": "EPL-2.0",
+   "junit-jupiter-params-5.13.4.jar": "EPL-2.0",
+   "junit-platform-commons-1.13.4.jar": "EPL-2.0",
+   "junit-platform-engine-1.13.4.jar": "EPL-2.0",
+   "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar": "Apache-2.0",
+   "mage-1.4.62.jar": "MIT",
+   "mage-deck-constructed-1.4.62.jar": "MIT",
+   "mage-game-commanderduel-1.4.62.jar": "MIT",
+   "mage-game-commanderfreeforall-1.4.62.jar": "MIT",
+   "mage-sets-1.4.62.jar": "MIT",
+   "opentest4j-1.3.0.jar": "Apache-2.0",
+   "ormlite-core-5.7.jar": "ISC",
+   "ormlite-jdbc-5.7.jar": "ISC",
+   "protobuf-java-3.25.8.jar": "BSD-3-Clause",
+   "reload4j-1.2.22.jar": "Apache-2.0",
+   "slf4j-api-2.0.17.jar": "MIT",
+   "slf4j-reload4j-2.0.17.jar": "MIT"
+  },
+  "strong_copyleft_on_provider_classpath": false
+ },
+ "forge": {
+  "role": "REMOVED",
+  "owner_decision": "docs/owner_decision_20261013_forge_removal/OWNER_DECISION_FORGE_REMOVAL.md",
+  "in_production_distribution": false,
+  "detail": "Forge has no role in the Lab: no reference column, no differential lane, no container image. No GPL component is part of the process topology, so the former separate-process condition for Forge is vacuous, not relaxed."
+ },
+ "decisions": [
+  {
+   "id": "SEPARATE_PROCESS_TOPOLOGY",
+   "decision": "SATISFIED",
+   "basis": "The Lab drives the selected provider only through an external process over JSONL; no engine code is embedded in the Lab process. Measured per run by the assembler (adapter identity, embedded-engine check, recorded boundary)."
+  },
+  {
+   "id": "PROVIDER_SPECIFIC_DECISION_IDENTITY_SHIM",
+   "decision": "SATISFIED",
+   "basis": "With one selected provider the adapter serves exactly one decision-identity shape. The shim only carries the provider's own published decision identity (AF04 PASS on the effective epoch); it reconstructs no legality and fabricates no option, so it is an adapter detail, not a cross-provider interop layer."
+  },
+  {
+   "id": "PROVIDER_LICENCE_COMPATIBILITY",
+   "decision": "SATISFIED",
+   "basis": "XMage is MIT (LICENSE at the pin). Every jar on the bridge runtime classpath is permissive (MIT, Apache-2.0, BSD-3-Clause, ISC) or weak file-level copyleft used unmodified (MPL-2.0 OR EPL-1.0 for h2, EPL-2.0 for the JUnit test jars); none is GPL, LGPL or AGPL. MIT permits use, modification and redistribution in proprietary software provided the copyright and permission notice is included."
+  }
+ ],
+ "conditions": [
+  "Any distribution of the production artifact ships the XMage MIT copyright and permission notice and the third-party notices of every jar on the provider classpath (Apache-2.0 NOTICE files; MPL-2.0/EPL source availability for unmodified jars).",
+  "A change to the provider classpath jar set or to the XMage engine pin invalidates this adjudication: the assembler then reports AF11 UNKNOWN until the Coordinator re-adjudicates the inventory and pin.",
+  "No Forge code enters the Lab, the XMage fork or any production artifact; re-introducing any GPL engine needs a new Owner licence decision and a new AF11 adjudication."
+ ],
+ "not_claimed": [
+  "ARCHITECTURE_FREEZE (separate Owner decision)",
+  "PRODUCTION_REPOSITORY (not created)",
+  "runtime manifest provider_decision change (stays NO_PROVIDER_READY until the Freeze workstream records it)",
+  "a legal opinion; an external legal review before commercial distribution is an Owner decision"
+ ],
+ "verdict_rule": "The assembler derives AF11 PASS for the selected provider only when every measured technical fact holds, this record validates against the source lock (provider and Lab licences, engine pin equal to the engine the run executed, Forge role), the effective epoch is a sealed epoch whose seal verifies and whose AF00-AF10 pass, every classpath licence is in the adjudicated allowlist, and the classpath manifest and entry point the runner's launch contract uses match this record. A violated fact is FAIL; anything else, including a malformed record, is UNKNOWN.",
+ "supersedes": {
+  "record": "qualification/af11-xmage-only-topology-20261021/AF11_COORDINATOR_ADJUDICATION.json",
+  "engine_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "why": "repin v11 (#955) moved the XMage pin to 456b0e22 (head of the fork candidate line: Protector of the Wastes and Tempt with Reflections fixes and lazy triggers in GameState). The prior record's condition 'a change to the XMage engine pin invalidates this adjudication' applies. The prior record stays the adjudication of every epoch run on 769e6ebb."
+ },
+ "pin_delta": {
+  "from": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "to": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "diff": "git diff --shortstat 769e6ebb 456b0e22 (moeendres-png/mage): 7 files changed, 277 insertions, 13 deletions; three engine commits on the v10 pin (Protector of the Wastes, Tempt with Reflections, lazy triggers in GameState/GameImpl) and their tests; no upstream merge, no perf port. git diff --name-only 769e6ebb 456b0e22 lists no pom.xml and no LICENSE file",
+  "licence_effect": "none: LICENSE.txt is unchanged, XMage stays MIT; no pom.xml changed in the engine, so the module version stays 1.4.62 and the bridge runtime classpath is the 28-jar inventory above unchanged; engine-bridge/pom.xml has no commit since the v10 sealed main d012424b5 (xmage.version 1.4.62). Measured on the sealed epoch: the launch classpath recorded in MIDGAME_REPLAY_TWIN_EXECUTIONS.json of PB-03 run 39668803187 lists exactly the 28 jars of the inventory above. The assembler checks the run's classpath against the inventory on each PB-03",
+  "topology_effect": "none: same adapter, entry point, classpath manifest and external-process boundary"
+ }
+}
