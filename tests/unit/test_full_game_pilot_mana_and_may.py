@@ -1551,6 +1551,81 @@ def test_encore_waits_until_no_opponent_is_out_of_the_game() -> None:
     assert _policy().decide(request)["selected_option_ids"] == ["pass"]
 
 
+def _locked_state(
+    lock: str | None, *, holder: str = "opponent-1", lost: bool = False
+) -> dict[str, Any]:
+    state = _ward_state(stack=())
+    if lock is not None:
+        player = next(p for p in state["players"] if p["player_id"] == holder)
+        player["has_lost"] = lost
+        player["battlefield"].append(
+            {"object_id": "lock", "name": lock, "power": 9, "toughness": 10, "tapped": False}
+        )
+    return state
+
+
+def _lock_cast(name: str, *, red: int, generic: int) -> dict[str, Any]:
+    return _option(
+        "cast",
+        "activated_ability",
+        f"{name} — Cast {name}",
+        source_name=name,
+        source_object_id="hand-0",
+        ability_type="spell",
+        mana_cost_red=red,
+        mana_cost_generic=generic,
+        pool_covers_mana_cost=False,
+        requires_tap_source=False,
+        requires_untap_source=False,
+        requires_sacrifice_source=False,
+    )
+
+
+def _lock_choice(state: dict[str, Any], option: dict[str, Any]) -> str:
+    response = _policy().decide(_request("priority", [_PASS, *_TAPS, option], state=state))
+    return str(response["selected_option_ids"][0])
+
+
+_BRISELA = "Brisela, Voice of Nightmares"
+
+
+def test_brisela_holds_back_the_spells_it_forbids() -> None:
+    # Brisela forbids opponents' spells with mana value 3 or less, but only once the spell is on
+    # the stack, so the engine still offers the cast and then refuses it after the first
+    # question (plan seed 19, Prosperous Bandit, "priority cast failed"). The pilot passes.
+    bandit = _lock_cast("Prosperous Bandit", red=1, generic=2)
+    assert _lock_choice(_locked_state(None), bandit) == "cast"
+    assert _lock_choice(_locked_state(_BRISELA), bandit) == "pass"
+
+
+def test_brisela_leaves_other_casts_alone() -> None:
+    # Controls: Brisela on the actor's own side, with its holder out of the game, or a spell
+    # of mana value 4 or more (a four-mana cast with a fourth land to pay for it).
+    bandit = _lock_cast("Prosperous Bandit", red=1, generic=2)
+    assert _lock_choice(_locked_state(_BRISELA, holder="actor"), bandit) == "cast"
+    assert _lock_choice(_locked_state(_BRISELA, lost=True), bandit) == "cast"
+    state = _locked_state(_BRISELA)
+    state["players"][0]["battlefield"].append(
+        {"object_id": "land-3", "name": "Plains", "tapped": False}
+    )
+    four = _lock_cast("Prosperous Bandit", red=1, generic=3)
+    request = _request("priority", [_PASS, *_TAPS, four], state=state)
+    assert _policy().decide(request)["selected_option_ids"] == ["cast"]
+
+
+def test_void_winnower_holds_back_even_and_x_spells() -> None:
+    # Void Winnower forbids even mana values through the same late check. Odd values stay
+    # castable; a spell with {X} is held back because its value depends on the X chosen.
+    winnower = "Void Winnower"
+    two = _lock_cast("Prosperous Bandit", red=1, generic=1)
+    three = _lock_cast("Prosperous Bandit", red=1, generic=2)
+    assert _lock_choice(_locked_state(winnower), two) == "pass"
+    assert _lock_choice(_locked_state(winnower), three) == "cast"
+    fireball = _lock_cast("Fireball", red=1, generic=0)
+    assert _lock_choice(_locked_state(None), fireball) == "cast"
+    assert _lock_choice(_locked_state(winnower), fireball) == "pass"
+
+
 _DIG_PROMPT = "Pay 1 life and look at the next 5 cards?"
 _LIM_DUL = {
     "source_object_id": "vault",
