@@ -64,6 +64,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             raise FullGameProtocolError(f"decision actor has unmapped seat: {seat}")
         if decision_class not in {"mana_payment", "choose_object"}:
             self._special_mana_pending.pop(seat, None)
+            self._payment_source.pop(seat, None)
         # #802 review P1: a decision of any other class for this seat ends the
         # current block-declaration round. After a declaration the engine
         # accepts, the seat's next decision is a priority window in the
@@ -116,6 +117,9 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             )
         elif decision_class == "mana_payment":
             self._last_unpaid_mana[seat] = str(context.get("unpaid_mana") or "")
+            payer = request.get("source_object")
+            if isinstance(payer, dict) and payer.get("source_object_id"):
+                self._payment_source[seat] = str(payer["source_object_id"])
             selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
             chosen_type = next(
                 (
@@ -200,7 +204,12 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                     runtime,
                     pilot_state,
                     request,
-                    [option for option in options if option.get("option_id") not in picked],
+                    self._without_payment_source(
+                        seat,
+                        decision_class,
+                        context,
+                        [option for option in options if option.get("option_id") not in picked],
+                    ),
                     min_selections,
                     max_selections,
                     rng,

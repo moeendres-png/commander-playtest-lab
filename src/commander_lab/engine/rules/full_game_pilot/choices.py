@@ -15,6 +15,7 @@ from ..full_game_pilot_views import (
     color_choice_rank,
     commander_creature_ids,
     counter_cost_kinds,
+    is_unsuspendable_target,
     named_choice_rank,
     named_counter_piles,
     needs_commander_target,
@@ -161,6 +162,15 @@ class _ChoiceDecisions(_PaymentDecisions):
                 for option in options
                 if str((option.get("metadata") or {}).get("object_id", "")) in commanders
             ] or options
+        if isinstance(source, dict):
+            # A token aimed at an exile-and-suspend trigger kills the game; every other
+            # creature, and passing on "up to one", stays open.
+            source_name = str(source.get("source_name") or "")
+            options = [
+                option for option in options if not is_unsuspendable_target(source_name, option)
+            ]
+            if not options and min_selections == 0:
+                return []
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
         pilot_state = self._pilot_state(runtime, state)
         # Twin-stable target identities: (zone, zone_index) pins the same

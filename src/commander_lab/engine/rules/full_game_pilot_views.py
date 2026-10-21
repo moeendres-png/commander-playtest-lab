@@ -64,6 +64,23 @@ _COMMANDER_TARGET_FLASH = frozenset({"timely ward"})
 # not hold the card, so it is named here.
 _FACE_DOWN_AURAS = frozenset({"gift of doom"})
 
+# Exiles "up to one target creature" and gives the exiled card suspend. A token ceases to exist in
+# exile, and the engine's SuspendAbility.addTimeCountersAndSuspend then throws "Card must be in
+# exile zone: Vampire Token", which kills the game (precon pod, plan seed 3, game seed 103). The
+# trigger works on every other creature. The printed card catalog does not know whether the
+# permanent is a token, so the card is named here and a token reads off its printed name.
+_EXILE_AND_SUSPEND_TARGETERS = frozenset({"sinister concierge"})
+
+
+def is_unsuspendable_target(source_name: str, option: Mapping[str, object]) -> bool:
+    """Whether this target option is a token aimed at an exile-and-suspend effect."""
+    if source_name.casefold() not in _EXILE_AND_SUSPEND_TARGETERS:
+        return False
+    metadata = option.get("metadata")
+    meta = metadata if isinstance(metadata, Mapping) else {}
+    name = str(meta.get("name") or option.get("label") or "")
+    return name.casefold().endswith(" token")
+
 
 def needs_commander_target(
     source_name: str, state: Mapping[str, object], *, spell_on_stack: bool

@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import random
 from collections import Counter
+from collections.abc import Mapping
 from typing import Any, Literal, cast
 
 from commander_lab.agents.card_knowledge import card_facts
@@ -84,6 +85,10 @@ class _PolicyState:
         # Seats whose last mana-payment choice was a special mana action
         # (Delve, Convoke, Improvise): the next card choice pays for it.
         self._special_mana_pending: dict[int, bool] = {}
+        # #920: the permanent whose activation the seat is paying for right now, from the last
+        # mana_payment frame's source. A "sacrifice another creature" cost of a mana ability
+        # inside that payment must not take it (Necron Overlord, plan seed 1, game seed 101).
+        self._payment_source: dict[int, str] = {}
         # No-progress guard memory for priority windows (per seat): free
         # repeatable actions (Equip {0}, untap loops) can re-offer
         # identically forever with zero game-state progress. An identical
@@ -163,9 +168,10 @@ class _PolicyState:
         # that follows carries no cost at all, so this is where that cost
         # survives the hop. It is consumed by the announce it was kept for.
         self._priority_cost_facts: dict[int, dict[str, int]] = {}
-        # #920: the counters the seat's chosen activation can still remove for
-        # its X (see ``option_x_counter_cap``), same key and lifetime as
-        # ``_priority_cost_facts``.
+        # #920: the counters the seat's chosen activation can still remove, or
+        # the untapped permanents it can still tap, for its X (see
+        # ``option_x_counter_cap`` and ``option_x_tap_cap``), same key and
+        # lifetime as ``_priority_cost_facts``.
         self._priority_x_counter_caps: dict[int, dict[str, int]] = {}
         # #815: X values this seat announced that the engine then refused to
         # let it pay (reversed over-announced X). Keyed by seat and the
@@ -587,6 +593,34 @@ class _PolicyState:
         if actor is None:
             raise FullGameProtocolError("actor is absent from actor-scoped state")
         return actor
+
+    def _without_payment_source(
+        self,
+        seat: int,
+        decision_class: str,
+        context: Mapping[str, object],
+        options: list[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        """The sacrifice options, minus the permanent whose activation is being paid for.
+
+        A mana ability that sacrifices another creature (Illuminor Szeras) asked inside the
+        payment of an activation of Necron Overlord, and the pilot sacrificed the Overlord: its
+        own {T} cost then found nothing to tap, the activation was reversed and the game
+        stopped (plan seed 1, game seed 101, pod 024). The payment's source is kept whenever it
+        is the only creature on offer.
+        """
+        paying = self._payment_source.get(seat)
+        if decision_class != "choose_object" or not paying:
+            return options
+        if str(context.get("outcome", "")).casefold() != "sacrifice":
+            return options
+        kept = []
+        for option in options:
+            metadata = option.get("metadata")
+            if isinstance(metadata, dict) and str(metadata.get("object_id", "")) == paying:
+                continue
+            kept.append(option)
+        return kept or options
 
     def _cheapest_object(self, options: list[dict[str, Any]]) -> str:
         def key(option: dict[str, Any]) -> tuple[float, str]:
