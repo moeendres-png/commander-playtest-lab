@@ -66,11 +66,11 @@ def command_line_main(config: pytest.Config) -> int | None:
     except ValueError as error:
         raise pytest.UsageError(str(error)) from error
     files = selected_files(weights, config.rootpath, selection)
-    shards = min(count, len(files))
-    if shards <= 1:
+    plan = plan_for(files, count)
+    if plan is None:
         print(f"--shards={count}: {len(files)} weighted file(s) selected, running one process")
         return None
-    return run_shards(config.rootpath, selection, plan_shards(files, shards))
+    return run_shards(config.rootpath, selection, plan)
 
 
 @dataclass(frozen=True)
@@ -139,6 +139,12 @@ def plan_shards(files: Mapping[str, float], count: int) -> list[list[str]]:
     return [sorted(shard) for shard in shards]
 
 
+def plan_for(files: Mapping[str, float], count: int) -> list[list[str]] | None:
+    """The shard plan for ``count`` requested shards, or None when fewer than two have files."""
+    shards = min(count, len(files))
+    return plan_shards(files, shards) if shards > 1 else None
+
+
 def shard_arguments(selection: Selection, plan: Sequence[Sequence[str]], index: int) -> list[str]:
     """pytest arguments of shard ``index`` (without interpreter and without ``--junitxml``)."""
     arguments = list(selection.options)
@@ -153,12 +159,11 @@ def shard_arguments(selection: Selection, plan: Sequence[Sequence[str]], index: 
 
 
 def merge_junit(parts: Sequence[Path], target: Path) -> None:
+    """Merge every part into ``target``; a part that does not exist is an error, not a gap."""
     merged = ET.Element("testsuites")
     totals = {"tests": 0, "failures": 0, "errors": 0, "skipped": 0}
     seconds = 0.0
     for part in parts:
-        if not part.is_file():
-            continue
         document = ET.parse(part).getroot()
         for suite in [document] if document.tag == "testsuite" else list(document):
             merged.append(suite)
@@ -172,12 +177,23 @@ def merge_junit(parts: Sequence[Path], target: Path) -> None:
     ET.ElementTree(merged).write(target, encoding="utf-8", xml_declaration=True)
 
 
+def exit_status(codes: Sequence[int]) -> int:
+    """The worst shard result as a process exit code.
+
+    A child killed by a signal has a negative return code (``max([-9, 0])`` would be 0), so it
+    counts as 128 plus the signal, the way a shell reports it.
+    """
+    return max(128 - code if code < 0 else code for code in codes)
+
+
 def run_shards(rootdir: Path, selection: Selection, plan: Sequence[Sequence[str]]) -> int:
     count = len(plan)
     outdir = Path(selection.junit).resolve().parent if selection.junit else rootdir
     outdir.mkdir(parents=True, exist_ok=True)
     scratch = Path(tempfile.mkdtemp(prefix="pytest-shards-"))
     junit = [outdir / f".pytest-junit-shard-{index + 1}.xml" for index in range(count)]
+    for stale in junit:
+        stale.unlink(missing_ok=True)
     print(f"--shards={count}: {sum(len(shard) for shard in plan)} weighted files, checkout copies")
     lock = threading.Lock()
     grouped = bool(os.environ.get("GITHUB_ACTIONS"))
@@ -214,12 +230,18 @@ def run_shards(rootdir: Path, selection: Selection, plan: Sequence[Sequence[str]
             codes = list(pool.map(run_one, range(count)))
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
-    if selection.junit:
+    status = exit_status(codes)
+    missing = [index + 1 for index, part in enumerate(junit) if not part.is_file()]
+    if missing:
+        # A shard that left no report cannot be told from one that ran nothing.
+        print(f"shard report missing for shard(s) {missing}: the run is not trusted")
+        status = max(status, 1)
+    elif selection.junit:
         merge_junit(junit, Path(selection.junit).resolve())
     for part in junit:
         part.unlink(missing_ok=True)
     print("shard exit codes:", ", ".join(str(code) for code in codes))
-    return max(codes)
+    return status
 
 
 def weights_from_junit(reports: Sequence[Path], rootdir: Path) -> dict[str, float]:

@@ -112,10 +112,11 @@ def test_the_shards_of_the_quality_command_select_each_quality_file_exactly_once
     weights = pytest_shards.selected_files(
         pytest_shards.load_weights(pytest_shards.WEIGHTS_PATH), REPO, parsed
     )
-    plan = pytest_shards.plan_shards(weights, count)
+    plan = pytest_shards.plan_for(weights, count)
+    assert plan is not None
     chosen = [
         selection(("pytest", *pytest_shards.shard_arguments(parsed, plan, index)), files)
-        for index in range(count)
+        for index in range(len(plan))
     ]
     assert set().union(*chosen) == quality
     assert sum(len(shard) for shard in chosen) == len(quality)

@@ -217,7 +217,7 @@ def test_junit_reports_are_merged_with_summed_totals(tmp_path: Path) -> None:
         '<testsuite tests="3" failures="0" errors="1" skipped="2" time="0.5"/>', encoding="utf-8"
     )
     target = tmp_path / "out" / "merged.xml"
-    shards.merge_junit([first, second, tmp_path / "missing.xml"], target)
+    shards.merge_junit([first, second], target)
     merged = ET.parse(target).getroot()
     assert [merged.get(key) for key in ("tests", "failures", "errors", "skipped", "time")] == [
         "5",
@@ -227,6 +227,88 @@ def test_junit_reports_are_merged_with_summed_totals(tmp_path: Path) -> None:
         "2.000",
     ]
     assert len(merged.findall("testsuite")) == 2
+
+
+def test_a_missing_shard_report_is_an_error_not_a_gap(tmp_path: Path) -> None:
+    present = tmp_path / "one.xml"
+    present.write_text('<testsuite tests="1" failures="0" errors="0" skipped="0" time="1"/>')
+    with pytest.raises(FileNotFoundError):
+        shards.merge_junit([present, tmp_path / "missing.xml"], tmp_path / "merged.xml")
+    assert not (tmp_path / "merged.xml").exists()
+
+
+@pytest.mark.parametrize(
+    ("codes", "expected"),
+    [
+        ([0, 0], 0),
+        ([0, 1, 0], 1),
+        ([1, 2], 2),
+        ([-9, 0, 0, 0], 137),
+        ([0, 0, -15], 143),
+        ([-9, 1], 137),
+    ],
+)
+def test_the_worst_shard_exit_code_counts_a_signal_death_as_a_failure(
+    codes: list[int], expected: int
+) -> None:
+    assert shards.exit_status(codes) == expected
+
+
+def test_a_shard_killed_by_a_signal_fails_the_run(tmp_path: Path) -> None:
+    root = _suite(tmp_path)
+    _write(
+        root / "tests/suite/c/test_killer.py",
+        "import os\nimport signal\n\ndef test_kill():\n    os.kill(os.getpid(), signal.SIGKILL)\n",
+    )
+    (root / "weights.json").write_text(
+        '{"files": {"tests/suite/c/test_killer.py": 9.0, "tests/suite/a/test_one.py": 5.0,'
+        ' "tests/suite/a/test_two.py": 3.0}}',
+        encoding="utf-8",
+    )
+    done = _run_sharded(root)
+    assert done.returncode == 137, done.stdout + done.stderr
+    assert "shard report missing for shard(s) [1]" in done.stdout
+    assert "shard exit codes: -9, " in done.stdout
+    assert not (root / "out/pytest-junit.xml").exists()
+
+
+def test_a_stale_shard_report_is_never_merged(tmp_path: Path) -> None:
+    root = _suite(tmp_path)
+    (root / "out").mkdir()
+    stale = root / "out/.pytest-junit-shard-1.xml"
+    stale.write_text('<testsuite tests="999" failures="0" errors="0" skipped="0" time="1"/>')
+    done = _run_sharded(root)
+    assert done.returncode == 1, done.stdout + done.stderr
+    report = ET.parse(root / "out/pytest-junit.xml").getroot()
+    assert report.get("tests") == "5"
+
+
+def test_without_the_option_and_in_a_child_the_module_is_not_even_imported(
+    tmp_path: Path,
+) -> None:
+    root = _suite(tmp_path)
+    program = (
+        "import sys, pytest\n"
+        "code = pytest.main(sys.argv[1:])\n"
+        "print('MODULE IMPORTED', 'tests.pytest_shards' in sys.modules)\n"
+        "raise SystemExit(code)\n"
+    )
+    for extra, marker in (([], None), (["--shards=2"], "1/2")):
+        environment = _environment()
+        if marker:
+            environment[shards.CHILD_ENV] = marker
+        done = subprocess.run(
+            [sys.executable, "-c", program, "-q", *extra, "--ignore=tests/suite/skipped"],
+            cwd=root,
+            env=environment,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert done.returncode == 1, done.stdout + done.stderr
+        assert "MODULE IMPORTED False" in done.stdout
+        assert "pytest shard" not in done.stdout
+        assert "1 failed, 4 passed" in done.stdout
 
 
 def test_weights_are_read_from_junit_class_names(tmp_path: Path) -> None:
