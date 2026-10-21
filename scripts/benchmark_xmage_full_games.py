@@ -16,6 +16,10 @@ semantic transcript identical, then the timing difference.
 Extra JVM options go before -jar (``--jvm-option=-XX:SharedArchiveFile=x.jsa``).
 ``--workers N`` plays N games at once; then use ``--private-card-repository``, or
 parallel JVMs collide on the shared card database at start-up (#739).
+``--fast`` adds the launch options of ``fast_jvm_options`` (serial GC, AppCDS archive next to the jar).
+``--games-per-jvm N`` (batch measurement runs only, Owner decision 2026-10-15) plays up to N
+consecutive games in one bridge process; a failed game ends that process and the rest of
+the chunk continues in a fresh one. Wall and CPU of a batched game are the chunk average.
 Local timings are measurements, not qualification evidence.
 """
 
@@ -32,6 +36,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
+GAMES_PER_JVM_PROPERTY = "commanderlab.fullGame.gamesPerJvm"
 
 import run_real_4p_full_game_smoke as smoke  # noqa: E402
 
@@ -96,6 +101,63 @@ def _play(
     return row
 
 
+def _row_of(outcome: Any) -> dict[str, Any]:
+    if isinstance(outcome, Exception):  # a failed game is a result row, not a crash
+        return {"status": "failed", "error": f"{type(outcome).__name__}: {outcome}"[:400]}
+    return {
+        "status": "ok",
+        "semantic": outcome.semantic_transcript_sha256,
+        "decisions": outcome.decision_count,
+        "winners": list(outcome.winner_seats),
+    }
+
+
+def _play_batch(
+    command: tuple[str, ...],
+    jobs: list[tuple[str, tuple[Any, Any, Any], int]],
+    private: bool,
+) -> list[dict[str, Any]]:
+    """Play ``jobs`` one after the other in one bridge process (wall and CPU: chunk average)."""
+    runner = XmageFullGameRunner(command, private_card_repository=private)
+    games = [
+        (setup[0].model_copy(update={"seed": seed}), setup[1], setup[2]) for _, setup, seed in jobs
+    ]
+    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    started = time.monotonic()
+    try:
+        outcomes: list[Any] = runner.run_batch(games)
+    except Exception as exc:
+        outcomes = [exc] * len(jobs)
+    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    wall = round((time.monotonic() - started) / len(jobs), 2)
+    cpu = round(
+        ((after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)) / len(jobs), 2
+    )
+    rows = []
+    for (pod, _, seed), outcome in zip(jobs, outcomes, strict=True):
+        row = {"pod": pod, "seed": seed} | _row_of(outcome)
+        row |= {"wall_s": wall, "child_cpu_s": cpu, "batched": len(jobs)}
+        print(json.dumps(row), flush=True)
+        rows.append(row)
+    return rows
+
+
+def fast_jvm_options(jar: Path) -> list[str]:
+    """Launch options that make a bridge JVM cheaper without changing a game.
+
+    Serial GC: the live set is small and the games allocate about 1 GB/s, so one collector
+    thread beats G1's concurrent threads (measured -10 % CPU, identical transcripts). With an
+    AppCDS archive next to the jar (``<jar>.jsa`` from ``build_xmage_cds_archive.py``) the JVM
+    also maps its classes instead of loading them; JVM logging then goes to stderr, because the
+    JVM's own warning (a stale archive) would otherwise reach the protocol on stdout.
+    """
+    options = ["-XX:+UseSerialGC"]
+    archive = jar.resolve().with_suffix(".jsa")
+    if archive.is_file():
+        options += ["-Xlog:disable", "-Xlog:all=warning:stderr", f"-XX:SharedArchiveFile={archive}"]
+    return options
+
+
 def bridge_command(jar: Path, jvm_options: list[str]) -> tuple[str, ...]:
     """The bridge launch command, with the jar as an absolute path.
 
@@ -107,7 +169,12 @@ def bridge_command(jar: Path, jvm_options: list[str]) -> tuple[str, ...]:
 
 
 def run(args: argparse.Namespace) -> int:
-    command = bridge_command(args.jar, args.jvm_option)
+    jvm_options = list(args.jvm_option)
+    if args.fast:
+        jvm_options = fast_jvm_options(args.jar) + jvm_options
+    if args.games_per_jvm > 1:
+        jvm_options.append(f"-D{GAMES_PER_JVM_PROPERTY}={args.games_per_jvm}")
+    command = bridge_command(args.jar, jvm_options)
     setups = {pod: _setup(paths) for pod, paths in _pods(args.coverage_pods)}
     jobs = [(pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds]
     started = time.monotonic()
@@ -117,10 +184,22 @@ def run(args: argparse.Namespace) -> int:
         return _play(command, pod, setup, seed, args.private_card_repository)
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        rows = list(pool.map(play, jobs))
+        if args.games_per_jvm == 1:
+            rows = list(pool.map(play, jobs))
+        else:
+            size = args.games_per_jvm
+            chunks = [jobs[start : start + size] for start in range(0, len(jobs), size)]
+            rows = [
+                row
+                for chunk in pool.map(
+                    lambda chunk: _play_batch(command, chunk, args.private_card_repository), chunks
+                )
+                for row in chunk
+            ]
     report = {
         "jar": str(args.jar),
-        "jvm_options": list(args.jvm_option),
+        "jvm_options": jvm_options,
+        "games_per_jvm": args.games_per_jvm,
         "workers": args.workers,
         "total_wall_s": round(time.monotonic() - started, 2),
         "games": rows,
@@ -129,10 +208,16 @@ def run(args: argparse.Namespace) -> int:
     return 0 if all(row["status"] == "ok" for row in rows) else 1
 
 
+def _games_by_key(report: dict[str, Any]) -> dict[tuple[str, int], dict[str, Any]]:
+    """Games of a benchmark file (``games``) or a pod sweep (``rows``, one game seed)."""
+    rows = report["games"] if "games" in report else report["rows"]
+    return {(r["pod"], r.get("seed", report.get("game_seed"))): r for r in rows}
+
+
 def compare(args: argparse.Namespace) -> int:
     base, other = (json.loads(path.read_text(encoding="utf-8")) for path in (args.a, args.b))
-    a = {(r["pod"], r["seed"]): r for r in base["games"]}
-    b = {(r["pod"], r["seed"]): r for r in other["games"]}
+    a = _games_by_key(base)
+    b = _games_by_key(other)
     keys = sorted(a.keys() & b.keys())
     # A failed game is never identical, not even to another failed game.
     differ = [
@@ -166,6 +251,10 @@ def main(argv: list[str] | None = None) -> int:
     play.add_argument("--coverage-pods", action="store_true")
     play.add_argument("--jvm-option", action="append", default=[])
     play.add_argument("--workers", type=int, default=1)
+    play.add_argument("--games-per-jvm", type=int, default=1)
+    play.add_argument(
+        "--fast", action="store_true", help="serial GC and, if present, the jar's AppCDS archive"
+    )
     play.add_argument("--private-card-repository", action="store_true")
     play.set_defaults(func=run)
     diff = sub.add_parser("compare")
@@ -173,6 +262,8 @@ def main(argv: list[str] | None = None) -> int:
     diff.add_argument("b", type=Path)
     diff.set_defaults(func=compare)
     args = parser.parse_args(argv)
+    if args.cmd == "run" and args.games_per_jvm < 1:
+        parser.error("--games-per-jvm must be positive")
     return int(args.func(args))
 
 

@@ -260,6 +260,9 @@ _BATCH_CALLERS = {
     "scripts/run_full_game_deck_comparison.py",  # the only user of the batch runner's option
     "scripts/run_collection_coverage_games.py",  # its own sweep, straight on run_batch
     "scripts/pilot_decision_report.py",  # measurement, straight on run_batch
+    "scripts/benchmark_xmage_full_games.py",  # speed benchmark and its pod sweep, on run_batch
+    "scripts/precon_pod_sweep.py",  # pod sweep, plays chunks through the benchmark's batch
+    "scripts/check_batch_failure_isolation.py",  # measurement check of a failing batch game
     "src/commander_lab/engine/rules/full_game_batch.py",
     "src/commander_lab/engine/rules/full_game.py",
 }

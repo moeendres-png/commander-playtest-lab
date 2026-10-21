@@ -102,3 +102,14 @@ def test_pod_size_is_not_a_flag_and_a_deck_dir_outside_the_repository_is_refused
     code = module.main(["--jar", "x.jar", "--out", "o.json", "--deck-dir", str(tmp_path)])
     assert code == 2
     assert "inside the repository" in capsys.readouterr().err
+
+
+def test_pods_are_chunked_consecutively_per_bridge_jvm() -> None:
+    chunk = _module().chunk_indices
+    assert chunk(5, 1) == [[0], [1], [2], [3], [4]]
+    assert chunk(5, 2) == [[0, 1], [2, 3], [4]]
+    assert chunk(4, 8) == [[0, 1, 2, 3]]
+    assert chunk(0, 3) == []
+    assert chunk(5, 2, reverse=True) == [[4, 3], [2, 1], [0]]
+    with pytest.raises(ValueError):
+        chunk(3, 0)

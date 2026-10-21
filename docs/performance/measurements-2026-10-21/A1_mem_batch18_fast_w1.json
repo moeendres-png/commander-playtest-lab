@@ -1,0 +1,249 @@
+{
+ "jar": "JAR.jar",
+ "jvm_options": [
+  "-XX:+UseSerialGC",
+  "-Xlog:disable",
+  "-Xlog:all=warning:stderr",
+  "-XX:SharedArchiveFile=JAR.jsa",
+  "-Dcommanderlab.fullGame.gamesPerJvm=18"
+ ],
+ "games_per_jvm": 18,
+ "workers": 1,
+ "total_wall_s": 544.15,
+ "games": [
+  {
+   "pod": "real",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "45556bdb7c61f256d5abb6430351dc0eb0c86f0bc3be864a61cf11254907672b",
+   "decisions": 4095,
+   "winners": [
+    3
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 2,
+   "status": "ok",
+   "semantic": "e3196abea7c5a5d6e1082ca644feeb00ef8749eb7f0c4be07d2dabd0e9ecd629",
+   "decisions": 2436,
+   "winners": [
+    1
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 3,
+   "status": "ok",
+   "semantic": "cfae05a4388fb7bbe5a0c8d5306ca76782c018b908c5c51ad781fa54cbac6e6d",
+   "decisions": 4098,
+   "winners": [
+    2
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 4,
+   "status": "ok",
+   "semantic": "a9e50cd5121dd41ed0432a19e481b8960a604f79e34afc43e22441a4e25e6b38",
+   "decisions": 4392,
+   "winners": [
+    4
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 5,
+   "status": "ok",
+   "semantic": "394a70f7342389e79557e2f1d42634d0572a3150af4150df30612543b72fdc0e",
+   "decisions": 5755,
+   "winners": [
+    1
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 6,
+   "status": "ok",
+   "semantic": "f183916aff0f6d2da22ab761d4a6a5650bf5afa2e4bab0d4c9b4e28a26d405a9",
+   "decisions": 2631,
+   "winners": [
+    3
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 7,
+   "status": "ok",
+   "semantic": "2ea1b820bbdd2339e22167402f1cc817fda5f4eb230de2260d289d333c5c1b90",
+   "decisions": 2712,
+   "winners": [
+    3
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 8,
+   "status": "ok",
+   "semantic": "e0a7db3d9c0c527e640bac9b651ed58528238c98a4b5f8e8c1996903b66cea0a",
+   "decisions": 3291,
+   "winners": [
+    3
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 9,
+   "status": "ok",
+   "semantic": "77bd57022197497fdd6b0c9c22e9fcc5857a759a79e9b55ec741bbbfdba87c3d",
+   "decisions": 2411,
+   "winners": [
+    1
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 10,
+   "status": "ok",
+   "semantic": "240b118a095a498cf5b1e2c89aa8c722c06dc48b64e0a107021f724b0197a731",
+   "decisions": 4447,
+   "winners": [
+    4
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 11,
+   "status": "ok",
+   "semantic": "7fa2a7c277321f757865ccb534ddf10f2e345433538f2bbb8b1a668f65c94cb3",
+   "decisions": 3498,
+   "winners": [
+    4
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 12,
+   "status": "ok",
+   "semantic": "c80fa040d773fc25738bb34e64ca976b5f887103cba7a37321176b56e2d439d4",
+   "decisions": 3564,
+   "winners": [
+    3
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 13,
+   "status": "ok",
+   "semantic": "5f23d7106b9adb855987ca882cd54eb43fb1e0fd13105b99102f489bc11fdd4a",
+   "decisions": 5520,
+   "winners": [
+    4
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 14,
+   "status": "ok",
+   "semantic": "5edd5cd19f3491be4d4c960f8b5ee4ff78bd158b100914ce50b54008d8fa8085",
+   "decisions": 1657,
+   "winners": [
+    4
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 15,
+   "status": "ok",
+   "semantic": "a9ab08af4e56dfd0a75b7b863b3a2745b40311c16459a8164864d920c7b9a9d5",
+   "decisions": 2474,
+   "winners": [
+    3
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 16,
+   "status": "ok",
+   "semantic": "7757e62bf1be368fa4d4fe49009b33f0e922418549b3105e6fe634aa0b9dee5c",
+   "decisions": 2072,
+   "winners": [
+    1
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 17,
+   "status": "ok",
+   "semantic": "4a9d991eefe764a7908c3a49f67293f2bf1c2be316d5c9d81f38b2cf83c8631c",
+   "decisions": 5735,
+   "winners": [
+    1
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  },
+  {
+   "pod": "real",
+   "seed": 18,
+   "status": "ok",
+   "semantic": "bbeff4a64a8f4fb04f321f3abc56ab2f2d16a58fb9dd85de5ec15181c0c02488",
+   "decisions": 3209,
+   "winners": [
+    3
+   ],
+   "wall_s": 30.23,
+   "child_cpu_s": 29.55,
+   "batched": 18
+  }
+ ]
+}
