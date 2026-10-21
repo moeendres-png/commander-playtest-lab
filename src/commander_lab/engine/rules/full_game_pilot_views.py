@@ -81,14 +81,24 @@ def needs_commander_target(
     return not (own_turn and in_main and on_stack <= (1 if spell_on_stack else 0))
 
 
-def commander_creature_names(state: Mapping[str, object]) -> frozenset[str]:
-    """Names of the commanders that are creatures on a battlefield right now."""
-    commanders = commander_names(state)
+def commander_creature_ids(state: Mapping[str, object]) -> frozenset[str]:
+    """Object ids of the commanders that are creatures under their owner's control right now.
+
+    A battlefield card only counts when its name and its controller match a commander entry:
+    another player's card of the same name is no commander (two Wyleth, Soul of Steel on one
+    table, plan seed 9), and a Timely Ward aimed at it fails the cast.
+    """
+    owned = {
+        (str(entry.get("owner_id", "")), str(entry.get("name", "")).casefold())
+        for entry in _items(state.get("commander_status"))
+        if entry.get("name")
+    }
     return frozenset(
-        str(item.get("name", "")).casefold()
+        str(item.get("object_id", ""))
         for player in players(state)
         for item in _items(player.get("battlefield"))
-        if str(item.get("name", "")).casefold() in commanders and is_creature_entry(item)
+        if (str(player.get("player_id", "")), str(item.get("name", "")).casefold()) in owned
+        and is_creature_entry(item)
     )
 
 
@@ -747,7 +757,7 @@ def priority_view_fields(
     if (
         ability_type == "spell"
         and needs_commander_target(source_name, state, spell_on_stack=False)
-        and not commander_creature_names(state)
+        and not commander_creature_ids(state)
     ):
         return {**fields, "metadata": extra}, "no_commander_for_conditional_flash"
 
@@ -865,8 +875,8 @@ def priority_view_fields(
             label, str(meta.get("source_object_id") or ""), state, actor_id
         ):
             return {**fields, "metadata": extra}, "remove_counters_cost_unpayable"
-        if ninjutsu_card_on_battlefield(label, str(meta.get("source_object_id") or ""), state):
-            return {**fields, "metadata": extra}, "ninjutsu_card_on_battlefield"
+        if ninjutsu_card_outside_hand(label, str(meta.get("source_object_id") or ""), state):
+            return {**fields, "metadata": extra}, "ninjutsu_card_outside_hand_and_command_zone"
         if _SELF_DOUBLING_COUNTERS.search(label):
             # #817: "Put X +1/+1 counters on this, where X is its power"
             # doubles the permanent on every activation. Past lethal damage
@@ -939,15 +949,49 @@ def _spell_withhold_reason(
     return None
 
 
-def ninjutsu_card_on_battlefield(
+# "{T}, Tap an untapped creature you control: Add one mana of any color." (Jaspera Sentinel,
+# Springleaf Drum). XMage offers the ability while the source is the only untapped creature and
+# fails it after the choice, because the {T} cost has already tapped the source (precon pod, plan
+# seed 9: Jaspera Sentinel alone on the table paid for Sol Ring).
+_TAP_UNTAPPED_CREATURES = re.compile(
+    r"tap (an|one|two|three) untapped creatures? you control", re.IGNORECASE
+)
+_TAP_CREATURE_COUNTS = {"an": 1, "one": 1, "two": 2, "three": 3}
+
+
+def tap_creature_cost_unpayable(
     label: str, source_object_id: str, state: Mapping[str, object]
 ) -> bool:
-    """True for a (commander) ninjutsu offer whose card already stands on the battlefield.
+    """Whether a "tap N untapped creatures you control" cost has too few creatures to tap.
+
+    Counts the actor's untapped creatures without the source: the ability's own {T} taps the
+    source first, so it never pays its second cost.
+    """
+    found = _TAP_UNTAPPED_CREATURES.search(label.split(" — ", 1)[-1])
+    if found is None:
+        return False
+    actor_id = str(state.get("actor_id", ""))
+    free = sum(
+        1
+        for player in players(state)
+        if str(player.get("player_id", "")) == actor_id
+        for item in _items(player.get("battlefield"))
+        if str(item.get("object_id", "")) != source_object_id
+        and item.get("tapped") is not True
+        and is_creature_entry(item)
+    )
+    return free < _TAP_CREATURE_COUNTS[found.group(1).casefold()]
+
+
+def ninjutsu_card_outside_hand(
+    label: str, source_object_id: str, state: Mapping[str, object]
+) -> bool:
+    """True for a (commander) ninjutsu offer whose card lies on the battlefield, in a graveyard or in exile.
 
     Commander ninjutsu is a Zone.ALL ability in XMage, so the engine offers it for the ninja
     wherever it is. The cost that reveals the card only pays from the hand or the command zone, so
-    after the mana is spent the activation fails and with it the game (precon pod, plan seed 7,
-    Yuriko, the Tiger's Shadow cast normally and then offered her own ninjutsu).
+    after the mana is spent the activation fails and with it the game (precon pods, plan seeds 7
+    and 9, Yuriko, the Tiger's Shadow on the battlefield and in the graveyard).
     """
     ability = label.casefold().split(" — ", 1)[-1]
     if not source_object_id or not ability.startswith(("ninjutsu", "commander ninjutsu")):
@@ -955,7 +999,8 @@ def ninjutsu_card_on_battlefield(
     return any(
         str(item.get("object_id")) == source_object_id
         for player in players(state)
-        for item in _items(player.get("battlefield"))
+        for zone in ("battlefield", "graveyard", "exile")
+        for item in _items(player.get(zone))
     )
 
 

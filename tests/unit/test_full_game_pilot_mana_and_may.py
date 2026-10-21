@@ -31,6 +31,7 @@ from commander_lab.engine.rules.full_game import (
     _RuntimePilot,
     mana_payment_fit,
 )
+from commander_lab.engine.rules.full_game_pilot_views import tap_creature_cost_unpayable
 from commander_lab.models import (
     PilotActionView,
     PilotConfig,
@@ -877,8 +878,21 @@ def test_a_target_prompt_without_a_running_total_is_not_a_selection() -> None:
 _COMMANDER = "Isamaru, Hound of Konda"
 
 
-def _ward_state(*, stack: tuple[str, ...], commander_on_table: bool = True) -> dict[str, Any]:
+def _ward_state(
+    *, stack: tuple[str, ...], commander_on_table: bool = True, lookalike: bool = False
+) -> dict[str, Any]:
     state = _state(step="precombat_main")
+    if lookalike:
+        # Another player's card of the commander's name; it is no commander.
+        state["players"][1]["battlefield"].append(
+            {
+                "object_id": "lookalike",
+                "name": _COMMANDER,
+                "power": 2,
+                "toughness": 2,
+                "tapped": False,
+            }
+        )
     battlefield: list[dict[str, Any]] = state["players"][0]["battlefield"]
     battlefield.append(
         {
@@ -924,16 +938,21 @@ def _ward_cast(name: str = "Timely Ward") -> dict[str, Any]:
     )
 
 
-def _ward_target(name: str, stack: tuple[str, ...]) -> dict[str, Any]:
+def _ward_target(name: str, stack: tuple[str, ...], *, lookalike: bool = False) -> dict[str, Any]:
+    options = [
+        _option("token", "target", "Saproling Token", object_id="token", zone="battlefield"),
+        _option("commander", "target", _COMMANDER, object_id="commander", zone="battlefield"),
+    ]
+    if lookalike:
+        options.insert(
+            0, _option("lookalike", "target", _COMMANDER, object_id="lookalike", zone="battlefield")
+        )
     request = _request(
         "target",
-        [
-            _option("token", "target", "Saproling Token", object_id="token", zone="battlefield"),
-            _option("commander", "target", _COMMANDER, object_id="commander", zone="battlefield"),
-        ],
+        options,
         context={"targeted": True, "outcome": "boostcreature", "required": False},
         prompt="Select a creature",
-        state=_ward_state(stack=stack),
+        state=_ward_state(stack=stack, lookalike=lookalike),
     )
     request["source_object"] = {
         "source_object_id": "spell",
@@ -970,6 +989,21 @@ def test_commander_only_cast_targets_the_commander_outside_a_sorcery_window() ->
     stack = ("Timely Ward", "Unfinished Business")
     response = _policy().decide(_ward_target("Timely Ward", stack))
     assert response["selected_option_ids"] == ["commander"]
+
+
+def test_commander_only_cast_does_not_target_another_card_of_the_commanders_name() -> None:
+    # Two cards named like the commander were on one table (plan seed 9): the cast was aimed at
+    # the other player's card, which is no commander, and failed. The target must be the commander.
+    stack = ("Timely Ward", "Unfinished Business")
+    response = _policy().decide(_ward_target("Timely Ward", stack, lookalike=True))
+    assert response["selected_option_ids"] == ["commander"]
+
+
+def test_commander_only_cast_is_not_offered_when_only_a_lookalike_stands_on_the_table() -> None:
+    # The commander is not on the table, only another player's card with its name.
+    state = _ward_state(stack=("Unfinished Business",), commander_on_table=False, lookalike=True)
+    response = _policy().decide(_request("priority", [_PASS, *_TAPS, _ward_cast()], state=state))
+    assert response["selected_option_ids"] == ["pass"]
 
 
 def test_commander_only_target_rule_is_limited_to_that_card_and_timing() -> None:
@@ -1047,19 +1081,22 @@ def _ninjutsu(source_object_id: str) -> dict[str, Any]:
     )
 
 
-def _ninjutsu_state(*, ninja_on_battlefield: bool) -> dict[str, Any]:
+def _ninjutsu_state(*, ninja_in: str) -> dict[str, Any]:
     state = _state(step="declare_blockers")
     ninja = {"object_id": "ninja", "name": "Yuriko, the Tiger's Shadow", "tapped": False}
-    zone = state["players"][0]["battlefield" if ninja_on_battlefield else "hand"]
-    zone.append(ninja)
+    state["players"][0].setdefault(ninja_in, []).append(ninja)
     return state
 
 
-def test_ninjutsu_is_not_activated_for_a_card_that_is_already_on_the_battlefield() -> None:
+@pytest.mark.parametrize("zone", ["battlefield", "graveyard", "exile"])
+def test_ninjutsu_is_not_activated_for_a_card_that_is_not_in_hand_or_command_zone(
+    zone: str,
+) -> None:
     # Commander ninjutsu is a Zone.ALL ability, so XMage offers it for the ninja wherever it
-    # stands. The reveal cost only pays from the hand or the command zone: the activation failed
-    # after the mana was spent and ended a precon game (plan seed 7, Yuriko in play).
-    state = _ninjutsu_state(ninja_on_battlefield=True)
+    # lies. The reveal cost only pays from the hand or the command zone: the activation failed
+    # after the mana was spent and ended a precon game (plan seeds 7 and 9, Yuriko in play and in
+    # the graveyard).
+    state = _ninjutsu_state(ninja_in=zone)
     response = _policy().decide(
         _request("priority", [_PASS, *_TAPS, _ninjutsu("ninja")], state=state)
     )
@@ -1068,11 +1105,82 @@ def test_ninjutsu_is_not_activated_for_a_card_that_is_already_on_the_battlefield
 
 def test_ninjutsu_from_the_hand_is_still_activated() -> None:
     # Control: the same offer with the ninja in hand is chosen as before.
-    state = _ninjutsu_state(ninja_on_battlefield=False)
+    state = _ninjutsu_state(ninja_in="hand")
     response = _policy().decide(
         _request("priority", [_PASS, *_TAPS, _ninjutsu("ninja")], state=state)
     )
     assert response["selected_option_ids"] == ["ninjutsu"]
+
+
+_SENTINEL_LABEL = (
+    "Jaspera Sentinel — {T}, Tap an untapped creature you control: Add one mana of any color."
+)
+
+
+def _sentinel_payment(*, other_creature: bool) -> dict[str, Any]:
+    state = _state(step="precombat_main")
+    battlefield: list[dict[str, Any]] = state["players"][0]["battlefield"]
+    battlefield.append(
+        {
+            "object_id": "sentinel",
+            "name": "Jaspera Sentinel",
+            "power": 1,
+            "toughness": 2,
+            "tapped": False,
+        }
+    )
+    if other_creature:
+        battlefield.append(
+            {
+                "object_id": "bear",
+                "name": "Grizzly Bears",
+                "power": 2,
+                "toughness": 2,
+                "tapped": False,
+            }
+        )
+    sentinel = _option(
+        "sentinel",
+        "mana_ability",
+        _SENTINEL_LABEL,
+        source_name="Jaspera Sentinel",
+        source_object_id="sentinel",
+        ability_type="activated_mana",
+        mana_ability=True,
+        pool_covers_mana_cost=True,
+        requires_tap_source=True,
+        requires_untap_source=False,
+        requires_sacrifice_source=False,
+        source_tapped=False,
+    )
+    forest = _option("forest", "mana_ability", "Forest — {T}: Add {G}.", source_name="Forest")
+    cancel = _option("cancel", "cancel_mana_payment", "Cancel mana payment")
+    request = _request(
+        "mana_payment",
+        [cancel, sentinel, forest],
+        context={"unpaid_mana": "{1}"},
+        prompt="{1}",
+        state=state,
+    )
+    request["source_object"] = {"source_name": "Sol Ring", "ability_type": "spell"}
+    return request
+
+
+def test_a_tap_creature_mana_cost_is_not_paid_with_the_source_as_the_only_creature() -> None:
+    # Jaspera Sentinel taps itself for {T}, so "Tap an untapped creature you control" needs a
+    # second creature. XMage offered it alone on the table and failed the payment (plan seed 9).
+    response = _policy().decide(_sentinel_payment(other_creature=False))
+    assert response["selected_option_ids"] == ["forest"]
+
+
+def test_a_tap_creature_mana_cost_is_still_offered_with_a_creature_to_tap() -> None:
+    # Control: with another untapped creature the ability is selectable as before (the choice
+    # between it and a Forest is the pilot's own).
+    request = _sentinel_payment(other_creature=True)
+    assert _policy().decide(request)["selected_option_ids"] in (["forest"], ["sentinel"])
+    assert not tap_creature_cost_unpayable(_SENTINEL_LABEL, "sentinel", request["pilot_state"])
+    alone = _sentinel_payment(other_creature=False)
+    assert tap_creature_cost_unpayable(_SENTINEL_LABEL, "sentinel", alone["pilot_state"])
 
 
 _TEKUTHAL_LABEL = (

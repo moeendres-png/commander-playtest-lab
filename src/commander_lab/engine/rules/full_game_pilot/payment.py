@@ -9,6 +9,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_views import tap_creature_cost_unpayable
 from .common import (
     _LOG,
     _MANA_COST_COLORS,
@@ -160,17 +161,24 @@ class _PaymentDecisions(_PolicyState):
         This is pilot choice, not a legality verdict: withheld options stay
         engine-offered, the pilot simply selects pass/another legal action
         instead, and the engine re-validates whatever is selected (a
-        mid-payment cancel aborts to pass natively). No card names, no
-        label parsing, no invented actions. A False result from a pool shortfall
-        on an action that spends its own source is decided by
-        _priority_awaits_mana: it is re-offered as needs-mana-first intent.
-        Any other False result (a tapped source, a Crew the other creatures
-        cannot pay) stays withheld.
+        mid-payment cancel aborts to pass natively). No card names, no invented
+        actions, and the only label read is the "tap N untapped creatures you
+        control" cost, which the bridge does not project as a fact. A False
+        result from a pool shortfall on an action that spends its own source is
+        decided by _priority_awaits_mana: it is re-offered as needs-mana-first
+        intent. Any other False result (a tapped source, a Crew the other
+        creatures cannot pay, a tap-creature cost with nothing to tap) stays
+        withheld.
         """
-        del state
         metadata = option.get("metadata")
         if not isinstance(metadata, dict):
             return True
+        # A "tap an untapped creature you control" cost beside the source's own {T}: the engine
+        # offers it with the source as the only candidate and fails it once chosen.
+        if tap_creature_cost_unpayable(
+            str(option.get("label", "")), str(metadata.get("source_object_id") or ""), state
+        ):
+            return False
         if metadata.get("requires_tap_source") is True and metadata.get("source_tapped") is True:
             return False
         if metadata.get("requires_untap_source") is True and metadata.get("source_tapped") is False:
