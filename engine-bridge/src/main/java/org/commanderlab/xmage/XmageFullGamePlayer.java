@@ -2425,16 +2425,29 @@ final class XmageFullGamePlayer extends PlayerImpl {
             indexByOption.put(optionId, index);
             index++;
         }
-        String selected = requireSingle(request(
-                game,
-                "replacement_effect",
-                "Choose replacement effect",
-                1,
-                1,
-                options,
-                new JsonObject(),
-                null
-        ));
+        String selected;
+        try {
+            selected = requireSingle(request(
+                    game,
+                    "replacement_effect",
+                    "Choose replacement effect",
+                    1,
+                    1,
+                    options,
+                    new JsonObject(),
+                    null,
+                    true
+            ));
+        } catch (XmageFullGameDecisionController.DecisionCancelledException cancelled) {
+            // The affected player left the game (CR 800.4a: it makes no choices),
+            // for example a permanent of a player who just lost to the combat
+            // damage that also destroys that permanent. XMage's own player
+            // leaves the while (canRespond()) loop of HumanPlayer.chooseReplacementEffect
+            // and returns 0, so no frame is published and the engine gets that
+            // same no-response. Pod 040 of plan seed 13 ended with
+            // PLAYER_LEFT_GAME_UNSUPPORTED_DECISION here although the game was won.
+            return 0;
+        }
         Integer selectedIndex = indexByOption.get(selected);
         if (selectedIndex == null) {
             fail("ILLEGAL_ACTION", "replacement option disappeared: " + selected);
@@ -3635,6 +3648,25 @@ final class XmageFullGamePlayer extends PlayerImpl {
             JsonObject context,
             Ability source
     ) {
+        return request(game, decisionClass, prompt, min, max, options, context, source, false);
+    }
+
+    /**
+     * As above, with {@code departedUnwindQualified} marking a class whose
+     * callback unwinds natively when its player left (see
+     * {@link XmageFullGameDecisionController#request}).
+     */
+    private XmageFullGameDecisionController.DecisionResponse request(
+            Game game,
+            String decisionClass,
+            String prompt,
+            int min,
+            int max,
+            JsonArray options,
+            JsonObject context,
+            Ability source,
+            boolean departedUnwindQualified
+    ) {
         // #715: every decision actually handed to the pilot clears the
         // empty-non-target-choice evidence. If the pilot was asked anything at
         // all, the engine had something to offer and an earlier empty choice
@@ -3654,7 +3686,8 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 max,
                 options,
                 context,
-                sourceMetadata(source, game)
+                sourceMetadata(source, game),
+                departedUnwindQualified
         );
     }
 

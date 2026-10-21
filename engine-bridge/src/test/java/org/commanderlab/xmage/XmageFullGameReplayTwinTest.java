@@ -94,8 +94,7 @@ class XmageFullGameReplayTwinTest {
             assertTrue(first.stream().noneMatch(l -> l.contains("|LEAK ")),
                     "no frame reaches a departed player: " + first.stream().filter(l -> l.contains("|LEAK ")).toList());
             assertTrue(first.stream().noneMatch(l -> l.startsWith("TERMINAL failure=") && !l.startsWith("TERMINAL failure=null")
-                            && !l.contains("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount")
-                            && !l.contains("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: replacement_effect")),
+                            && !l.contains("PLAYER_LEFT_GAME_UNSUPPORTED_DECISION: multi_amount")),
                     "the lane never fails after a concession except at a documented fail-closed class: " + terminal);
         }
         int limit = Math.min(first.size(), second.size());
