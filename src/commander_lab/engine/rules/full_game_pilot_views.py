@@ -103,8 +103,9 @@ def commander_creature_ids(state: Mapping[str, object]) -> frozenset[str]:
 
 
 # "Remove three counters from among other artifacts, creatures, and planeswalkers you control"
-# (Tekuthal, Tayam). XMage offers the activation whenever one such permanent exists and fails the
-# whole activation when the counters on all of them fall short of the number the cost names.
+# (Tekuthal) or "Remove three counters from creatures you control" (Tayam). XMage offers the
+# activation whenever one such permanent exists and fails the whole activation when the counters on
+# all of them fall short of the number the cost names.
 _COUNTER_NUMBERS = {
     "two": 2,
     "three": 3,
@@ -117,35 +118,82 @@ _COUNTER_NUMBERS = {
     "ten": 10,
 }
 _REMOVE_COUNTERS_FROM_AMONG = re.compile(
-    r"remove (\d+|two|three|four|five|six|seven|eight|nine|ten) counters from among (other )?"
+    r"remove (\d+|two|three|four|five|six|seven|eight|nine|ten) counters from (?:among )?(other )?"
 )
 
 
 def spread_counter_cost_unpayable(
     label: str, source_object_id: str, state: Mapping[str, object], actor_id: str
 ) -> bool:
-    """Whether a "remove N counters from among ..." cost needs more counters than the actor has.
+    """Whether a "remove N counters from among ..." cost has too few counters to be paid.
 
-    Counts the counters on every permanent the actor controls (the source excluded for an "other"
-    cost) without looking at the types the cost names, so it only ever finds a shortfall that no
-    choice of permanents could make good.
+    XMage pays it per chosen permanent (``RemoveCounterCost``): at most N permanents, and from
+    each one only counters of a single type, so a permanent gives at most its largest stack.
+    The N largest stacks must therefore add up to N. The types the cost names are not looked at
+    (the source is left out for an "other" cost), so this only finds a shortfall that no choice
+    of permanents could make good.
     """
     found = _REMOVE_COUNTERS_FROM_AMONG.search(label.casefold())
     if found is None:
         return False
     number = found.group(1)
     wanted = int(number) if number.isdigit() else _COUNTER_NUMBERS[number]
-    held = 0
+    stacks: list[int] = []
     for player in players(state):
         if str(player.get("player_id", "")) != actor_id:
             continue
         for item in _items(player.get("battlefield")):
             if found.group(2) and str(item.get("object_id", "")) == source_object_id:
                 continue
+            if stack := counter_stack(item):
+                stacks.append(stack)
+    return sum(sorted(stacks, reverse=True)[:wanted]) < wanted
+
+
+def counter_cost_number(label: str) -> int | None:
+    """How many counters a "remove N counters from ..." cost takes, else None."""
+    found = _REMOVE_COUNTERS_FROM_AMONG.search(label.casefold())
+    if found is None:
+        return None
+    number = found.group(1)
+    return int(number) if number.isdigit() else _COUNTER_NUMBERS[number]
+
+
+def counter_stack(item: Mapping[str, object]) -> int:
+    """The largest pile of one counter type on a permanent (what it can give a cost)."""
+    counts = [
+        count
+        for counter in _items(item.get("counters"))
+        if isinstance(count := counter.get("count"), int)
+    ]
+    return max(counts, default=0)
+
+
+def named_counter_piles(state: Mapping[str, object], actor_id: str, name: str) -> dict[str, int]:
+    """Counter type to its largest pile on the actor's permanents of the given name."""
+    piles: dict[str, int] = {}
+    for player in players(state):
+        if str(player.get("player_id", "")) != actor_id:
+            continue
+        for item in _items(player.get("battlefield")):
+            if str(item.get("name", "")).casefold() != name.casefold():
+                continue
             for counter in _items(item.get("counters")):
                 count = counter.get("count")
-                held += count if isinstance(count, int) else 0
-    return held < wanted
+                if isinstance(count, int):
+                    key = str(counter.get("type", "")).casefold()
+                    piles[key] = max(piles.get(key, 0), count)
+    return piles
+
+
+def own_counter_stacks(state: Mapping[str, object], actor_id: str) -> dict[str, int]:
+    """Object id to its largest counter pile, for the permanents the actor controls."""
+    return {
+        str(item.get("object_id", "")): counter_stack(item)
+        for player in players(state)
+        if str(player.get("player_id", "")) == actor_id
+        for item in _items(player.get("battlefield"))
+    }
 
 
 _SEAT_LABEL = re.compile(r"Full Game Seat (\d+)")

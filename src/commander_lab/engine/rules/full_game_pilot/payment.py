@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import random
+import re
 from typing import Any
 
 from commander_lab.models import (
     PilotActionView,
 )
 
-from ..full_game_pilot_views import tap_creature_cost_unpayable
+from ..full_game_pilot_views import counter_cost_number, tap_creature_cost_unpayable
 from .common import (
     _LOG,
     _MANA_COST_COLORS,
@@ -31,9 +32,17 @@ from .state import _PolicyState
 # Sources whose "pay any amount of {E}" question leads into an engine path the bridge keeps
 # closed. Casefolded names as the bridge reports them in ``source_name``.
 _UNSUPPORTED_ENERGY_PAYMENT_SOURCES = frozenset({"vault 112: sadistic simulation"})
+# "Choose how many counters (+1/+1) to remove from <name> as payment": the engine's question
+# when a "remove N counters" cost takes several counters from one permanent.
+_COUNTER_COUNT_PROMPT = re.compile(r"Choose how many counters \(")
 
 
 class _PaymentDecisions(_PolicyState):
+    def _paying_counters(self, seat: int) -> int | None:
+        """How many counters the "remove N counters ..." cost this seat is paying takes."""
+        label = self._last_priority_label.get(seat)
+        return None if label is None else counter_cost_number(label)
+
     @staticmethod
     def _priority_awaits_mana(option: dict[str, Any]) -> bool:
         """True when the only proven obstacle to an action is the actor's pool.
@@ -735,6 +744,14 @@ class _PaymentDecisions(_PolicyState):
                 domain["affordable_max"] = affordable_max
         if self._declines_unsupported_energy_payment(decision_class, prompt, source_object):
             return minimum
+        if (
+            decision_class == "amount"
+            and _COUNTER_COUNT_PROMPT.match(prompt)
+            and self._paying_counters(int(state.get("seat", -1)) + 1) is not None
+        ):
+            # A "remove N counters" cost asks how many of one pile pays; the cost is only paid
+            # once N are gone, so the seat takes as many as it may.
+            return maximum
         chosen = runtime.pilot.choose_number(self._pilot_state(runtime, state), domain, rng)
         if isinstance(chosen, bool) or not isinstance(chosen, int):
             raise FullGameProtocolError(

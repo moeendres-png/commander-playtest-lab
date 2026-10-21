@@ -163,6 +163,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             self._last_priority_label.pop(seat, None)
             # A priority window means the effect that was asking has resolved.
             self._life_dig_yes.pop(seat, None)
+            self._counter_cost_progress.pop(seat, None)
             selected = [self._decide_priority(runtime, pilot_state, options, rng)]
             self._remember_priority_cost_facts(seat, options, selected, pilot_state)
             self._remember_own_cast(seat, options, selected, turn=pilot_state.get("turn_number"))
@@ -187,14 +188,23 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # A running selection offers the creatures already picked again (picking one
             # takes it back out), so the pilot is shown only the ones it has not picked.
             picked = self._running_selection.get(seat, set()) if running_selection else set()
-            selected = self._decide_targets(
-                runtime,
-                pilot_state,
-                request,
-                [option for option in options if option.get("option_id") not in picked],
-                min_selections,
-                max_selections,
-                rng,
+            paying_counters = (
+                self._decide_counter_cost_objects(seat, pilot_state, options, min_selections)
+                if decision_class == "choose_object"
+                else None
+            )
+            selected = (
+                paying_counters
+                if paying_counters is not None
+                else self._decide_targets(
+                    runtime,
+                    pilot_state,
+                    request,
+                    [option for option in options if option.get("option_id") not in picked],
+                    min_selections,
+                    max_selections,
+                    rng,
+                )
             )
             if decision_class == "target_amount":
                 numeric_choice = self._decide_numeric(

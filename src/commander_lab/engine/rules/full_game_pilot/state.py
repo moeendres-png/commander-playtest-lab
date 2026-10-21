@@ -139,6 +139,9 @@ class _PolicyState:
         # has paid a life to look at five more cards.
         self._life_dig_yes: dict[int, tuple[str, int]] = {}
         self._selection_ended: set[int] = set()
+        # A "remove N counters from ..." cost being paid: per seat, the permanents chosen so far
+        # and the counters each of them can give.
+        self._counter_cost_progress: dict[int, dict[str, int]] = {}
         # Latch: once tripped, the seat keeps passing while the window
         # stays identical (a single forced pass would just resume the
         # loop). Any window change unlatches and resumes normal choice.

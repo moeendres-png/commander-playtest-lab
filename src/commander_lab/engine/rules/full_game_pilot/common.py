@@ -140,6 +140,16 @@ _PRIORITY_MANACOST_KEYS: tuple[str, ...] = (
 # nothing else is a mana X. Matching it whole is also what makes the same
 # prompt the X count. Engine text, never a Lab-invented one.
 _MANA_X_PROMPT = re.compile(r"\AAnnounce the value for (?P<symbols>(?:\{X\})+)\Z", re.IGNORECASE)
+# One engine call site announces a mana X through the non-mana wording: Numa, Joraga Chieftain
+# asks "Pay {X}{X}?", then ``announceX(0, Integer.MAX_VALUE, "Announce the value for {X} (pay to
+# distribute counters)")`` and pays ``{X}{X}`` as ``GenericManaCost(2 * X)``. Announcing the
+# ceiling overflows that product, the payment costs nothing and the engine distributes two
+# billion counters (precon pod, plan seed 11: no decision for 75 s, BRIDGE_ERROR). The prompt
+# is matched whole, and it stands for the two X symbols of the cost it pays.
+_PAID_X_PROMPT = re.compile(
+    r"\AAnnounce the value for \{X\} \(pay to distribute counters\)\Z", re.IGNORECASE
+)
+_PAID_X_SYMBOLS = 2
 _X_SYMBOL_TOKEN = re.compile(r"\{X\}", re.IGNORECASE)
 
 # XMage's per-game object short id, in the form the pinned engine emits.
@@ -185,7 +195,10 @@ def mana_x_prompt_symbols(prompt: str) -> int | None:
     of the announced cost (CR 601.2b, 107.3a) and never a guess about a prompt
     that merely mentions the symbol.
     """
-    match = _MANA_X_PROMPT.match((prompt or "").strip())
+    text = (prompt or "").strip()
+    if _PAID_X_PROMPT.match(text) is not None:
+        return _PAID_X_SYMBOLS
+    match = _MANA_X_PROMPT.match(text)
     if match is None:
         return None
     return len(_X_SYMBOL_TOKEN.findall(match.group("symbols")))
