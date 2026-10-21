@@ -327,7 +327,9 @@ die anderen sechs Karten sind neu.
     Schnappschuss sieht der Pilot nicht, deshalb gilt das ab dem ersten Ausscheiden.
   Mit den Änderungen laufen Seed 15 Pod 018 (4228 Entscheidungen) und Seed 16 Pod 018 (2808
   Entscheidungen) durch; ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn
-  Seeds (1–10, gleiches Jar): alle Zähler identisch.
+  Seeds (1–10, gleiches Jar): alle Entscheidungszähler identisch; nur die Laufzeiten liegen auf
+  dieser Maschine beide um etwa 12 % höher (`wall_s` und `pilot_s`, bei gleichen Entscheidungen
+  also Maschinenrauschen, nicht der Pilot).
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
