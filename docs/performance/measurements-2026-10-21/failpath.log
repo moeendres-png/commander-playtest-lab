@@ -1,0 +1,8 @@
+good-bad-good 1 -> identical to single-game reference
+good-bad-good 5 broken -> failed as expected
+    full-game diagnostics redacted: BRIDGE_ERROR [BRIDGE_ERROR] (diagnostics sha256:fe4d49306c7057dd)
+good-bad-good 2 -> identical to single-game reference
+bad-good 5 broken -> failed as expected
+    full-game diagnostics redacted: BRIDGE_ERROR [BRIDGE_ERROR] (diagnostics sha256:fe4d49306c7057dd)
+bad-good 3 -> identical to single-game reference
+FAILPATH PASS

@@ -36,6 +36,9 @@ from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E4
 DEFAULT_JAR = ROOT / "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
 # Unified JVM logging goes to stderr only; stdout is the bridge protocol.
 JVM_LOG_FLAGS = ("-Xlog:disable", "-Xlog:all=warning:stderr")
+# Serial GC: the games allocate about 1 GB/s but keep a small live set, so one collector thread
+# costs 10 % less CPU than G1 (measured, identical transcripts). Trained and run alike.
+SPEED_FLAGS = ("-XX:+UseSerialGC",)
 TRAINING_SHUTDOWN_GRACE_SECONDS = 300.0
 
 
@@ -43,6 +46,7 @@ def bridge_command(jar: Path, archive: Path) -> tuple[str, ...]:
     return (
         "java",
         *JVM_LOG_FLAGS,
+        *SPEED_FLAGS,
         f"-XX:SharedArchiveFile={archive}",
         "-jar",
         str(jar),
@@ -71,6 +75,7 @@ def main(argv: list[str] | None = None) -> int:
         (
             "java",
             *JVM_LOG_FLAGS,
+            *SPEED_FLAGS,
             f"-XX:ArchiveClassesAtExit={archive}",
             "-jar",
             str(jar),

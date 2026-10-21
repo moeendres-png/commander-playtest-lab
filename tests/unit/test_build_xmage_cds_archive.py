@@ -24,6 +24,7 @@ def test_bridge_command_keeps_jvm_logging_off_stdout() -> None:
     # the bridge protocol, so every JVM log line must go to stderr.
     assert jvm_options[:2] == ("-Xlog:disable", "-Xlog:all=warning:stderr")
     assert "-XX:SharedArchiveFile=/b/bridge.jsa" in jvm_options
+    assert "-XX:+UseSerialGC" in jvm_options
 
 
 def test_missing_jar_is_refused_before_any_game(tmp_path: Path, capsys) -> None:  # type: ignore[no-untyped-def]

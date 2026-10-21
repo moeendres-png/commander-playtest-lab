@@ -7,6 +7,8 @@ least once; when four does not divide the deck count the last pod is filled from
 the shuffled list. A pod always seats four decks: the full-game scenario is a four-player game.
 
     python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json --workers 2
+    # several pods per bridge JVM (measurement runs only, Owner decision 2026-10-15)
+    python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json --games-per-jvm 8 --fast
     # only decks that import cleanly (output of an import measurement: {"results": [...]})
     python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json \\
         --import-report imports.json
@@ -18,6 +20,12 @@ A failed pod is a result row, not a crash. The game is played by ``benchmark_xma
 (same pilots, private card repository, bridge command). Local runs are measurements, not
 qualification evidence; only one sweep should run at a time, because CPU contention turns slow
 decisions into ``DECISION_ADVANCE_TIMEOUT`` rows.
+
+With ``--games-per-jvm N`` a worker plays up to N consecutive pods in one bridge JVM: the
+start-up cost (JVM, card scan, JIT warm-up) is paid once per chunk instead of once per pod, and
+every pod keeps the semantic transcript it has alone in a JVM (checked by comparing sweeps with
+``benchmark_xmage_full_games.py compare``-style hash identity). A failed pod ends its JVM and the
+rest of the chunk continues in a fresh one. Wall time and CPU of a batched pod are chunk averages.
 """
 
 from __future__ import annotations
@@ -57,6 +65,18 @@ def plan_pods(decks: Sequence[str], pod_size: int = 4, seed: int = 1) -> list[tu
     # overlaps the decks already in the last pod.
     order += order[: (-len(order)) % pod_size]
     return [tuple(order[i : i + pod_size]) for i in range(0, len(order), pod_size)]
+
+
+def chunk_indices(count: int, size: int, reverse: bool = False) -> list[list[int]]:
+    """Consecutive pod indices, ``size`` per bridge JVM (one chunk is one JVM's batch).
+
+    ``reverse`` plays the pods last to first, so a batch run meets other neighbours than
+    the forward run did: state a game leaves behind would show up as a different transcript.
+    """
+    if size < 1:
+        raise ValueError("games per JVM must be positive")
+    order = list(range(count))[::-1] if reverse else list(range(count))
+    return [order[start : start + size] for start in range(0, count, size)]
 
 
 def failure_family(error: str | None) -> str:
@@ -110,7 +130,12 @@ def run(args: argparse.Namespace) -> int:
     pods = plan_pods(names, POD_SIZE, args.plan_seed)
     if args.limit:
         pods = pods[: args.limit]
-    command = bench.bridge_command(args.jar, [])
+    jvm_options = list(args.jvm_option)
+    if args.fast:
+        jvm_options = bench.fast_jvm_options(args.jar) + jvm_options
+    if args.games_per_jvm > 1:
+        jvm_options.append(f"-D{bench.GAMES_PER_JVM_PROPERTY}={args.games_per_jvm}")
+    command = bench.bridge_command(args.jar, jvm_options)
     setups = [
         bench._setup(tuple((deck_dir / f"{name}.json").relative_to(ROOT) for name in decks))
         for decks in pods
@@ -118,13 +143,21 @@ def run(args: argparse.Namespace) -> int:
     rows: list[dict[str, Any]] = []
     lock = threading.Lock()
 
-    def play(index: int) -> None:
-        row = bench._play(command, f"pod-{index:03d}", setups[index], args.game_seed, True)
-        row["decks"] = list(pods[index])
+    def play(indices: Sequence[int]) -> None:
+        if len(indices) == 1:
+            i = indices[0]
+            played = [bench._play(command, f"pod-{i:03d}", setups[i], args.game_seed, True)]
+        else:
+            jobs = [(f"pod-{i:03d}", setups[i], args.game_seed) for i in indices]
+            played = bench._play_batch(command, jobs, True)
+        for i, row in zip(indices, played, strict=True):
+            row["decks"] = list(pods[i])
         with lock:
-            rows.append(row)
+            rows.extend(played)
             report = {
                 "jar": str(args.jar),
+                "jvm_options": jvm_options,
+                "games_per_jvm": args.games_per_jvm,
                 "game_seed": args.game_seed,
                 "plan_seed": args.plan_seed,
             }
@@ -132,7 +165,7 @@ def run(args: argparse.Namespace) -> int:
             args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
-        list(pool.map(play, range(len(pods))))
+        list(pool.map(play, chunk_indices(len(pods), args.games_per_jvm, args.reverse)))
     print(json.dumps(summarize(rows)))
     return 0 if all(row["status"] == "ok" for row in rows) else 1
 
@@ -146,8 +179,33 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--plan-seed", type=int, default=1, help="shuffle seed of the pod plan")
     parser.add_argument("--game-seed", type=int, default=1, help="Rules seed of every game")
     parser.add_argument("--workers", type=int, default=2)
+    parser.add_argument(
+        "--jvm-option",
+        action="append",
+        default=[],
+        help="extra JVM option before -jar, in the =-form (--jvm-option=-XX:...)",
+    )
+    parser.add_argument(
+        "--fast",
+        action="store_true",
+        help="serial GC and, if present, the jar's AppCDS archive (see benchmark_xmage_full_games)",
+    )
+    parser.add_argument(
+        "--games-per-jvm",
+        type=int,
+        default=1,
+        help="pods per bridge JVM (measurement runs only; default 1)",
+    )
+    parser.add_argument(
+        "--reverse",
+        action="store_true",
+        help="play the pods last to first (batch leak check: other neighbours than a forward run)",
+    )
     parser.add_argument("--limit", type=int, default=0, help="play only the first N pods")
-    return run(parser.parse_args(argv))
+    args = parser.parse_args(argv)
+    if args.games_per_jvm < 1:
+        parser.error("--games-per-jvm must be positive")
+    return run(args)
 
 
 if __name__ == "__main__":

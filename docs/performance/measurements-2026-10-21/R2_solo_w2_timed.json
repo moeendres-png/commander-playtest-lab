@@ -1,0 +1,841 @@
+{
+ "jar": "JAR.jar",
+ "jvm_options": [],
+ "games_per_jvm": 1,
+ "game_seed": 1,
+ "plan_seed": 1,
+ "pods": 46,
+ "pods_ok": 46,
+ "pods_failed": 0,
+ "families": {},
+ "rows": [
+  {
+   "pod": "pod-000",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "510a11272479332ee2ff621b1d4580bd6f84d4d81839b1bfe3d782491b908385",
+   "decisions": 2241,
+   "winners": [
+    3
+   ],
+   "wall_s": 40.33,
+   "child_cpu_s": 65.69,
+   "decks": [
+    "2020_arcane_maelstrom",
+    "2026_doom_prevails_collector_s_edition",
+    "2022_draconic_destruction",
+    "2015_swell_the_host"
+   ]
+  },
+  {
+   "pod": "pod-001",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "c38bebff830f02236f5b878bcbd1077a465931862fa3e688a814c427bc838958",
+   "decisions": 2856,
+   "winners": [
+    1
+   ],
+   "wall_s": 46.63,
+   "child_cpu_s": 142.11,
+   "decks": [
+    "2023_divine_convocation",
+    "2014_forged_in_stone",
+    "2015_wade_into_battle",
+    "2024_graveyard_overdrive_collector_s_edition"
+   ]
+  },
+  {
+   "pod": "pod-002",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "090d0f2fe72567894182f8ec112d096525971c717fbb6e68bc98112a849cba0c",
+   "decisions": 5938,
+   "winners": [
+    1
+   ],
+   "wall_s": 72.55,
+   "child_cpu_s": 234.94,
+   "decks": [
+    "2018_breed_lethality",
+    "2021_draconic_rage",
+    "2024_deep_clue_sea",
+    "2019_primal_genesis"
+   ]
+  },
+  {
+   "pod": "pod-003",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "9cc0e11a9663a7107a81d3776b1f032445f16cfb045be3c63fdb70e4381299fd",
+   "decisions": 2143,
+   "winners": [
+    3
+   ],
+   "wall_s": 34.58,
+   "child_cpu_s": 58.44,
+   "decks": [
+    "2022_draconic_dissent",
+    "2019_merciless_rage",
+    "2015_plunder_the_graves",
+    "2025_counter_intelligence"
+   ]
+  },
+  {
+   "pod": "pod-004",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "c8935ee87768a6fb9fd01627a432c548f2966566b5b842d27fcb03da484293dd",
+   "decisions": 3475,
+   "winners": [
+    1
+   ],
+   "wall_s": 50.92,
+   "child_cpu_s": 179.67,
+   "decks": [
+    "2014_built_from_scratch",
+    "2023_call_for_backup",
+    "2025_revival_trance__final_fantasy_vi_",
+    "2016_breed_lethality"
+   ]
+  },
+  {
+   "pod": "pod-005",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "2fc7ad64d5dc821937958f568e4b3dc2eeadbbea7b1fa8a32a6066c68fde1459",
+   "decisions": 3225,
+   "winners": [
+    1
+   ],
+   "wall_s": 51.13,
+   "child_cpu_s": 160.82,
+   "decks": [
+    "2026_dance_of_the_elements",
+    "2021_lorehold_legacies",
+    "2025_limit_break_collector_s_edition__final_fantasy_vii_",
+    "2013_power_hungry"
+   ]
+  },
+  {
+   "pod": "pod-006",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "58abe976c43a7459ad16f22093f3803039bab1817b6246963e1a3652b105ce6d",
+   "decisions": 3184,
+   "winners": [
+    1
+   ],
+   "wall_s": 51.07,
+   "child_cpu_s": 163.51,
+   "decks": [
+    "2022_forces_of_the_imperium_collector_s_edition",
+    "2026_prismari_artistry",
+    "2017_guided_by_nature",
+    "2019_faceless_menace"
+   ]
+  },
+  {
+   "pod": "pod-007",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "ee779af472fa2abaa270dc6e077736ff22aa71f03fa50193894f0a0add4d6706",
+   "decisions": 5611,
+   "winners": [
+    1
+   ],
+   "wall_s": 79.7,
+   "child_cpu_s": 191.27,
+   "decks": [
+    "2022_token_triumph",
+    "2022_the_ruinous_powers_collector_s_edition",
+    "2023_veloci_ramp_tor",
+    "2026_the_fantastic_four_collector_s_edition"
+   ]
+  },
+  {
+   "pod": "pod-008",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "f3e7e374e871d0b73490ffff05bb949ebb8f1882252da929d3e103d0395abbf8",
+   "decisions": 3654,
+   "winners": [
+    2
+   ],
+   "wall_s": 77.6,
+   "child_cpu_s": 225.26,
+   "decks": [
+    "2025_revival_trance_collector_s_edition__final_fantasy_vi_",
+    "2022_legends__legacy",
+    "2022_party_time",
+    "2018_nature_s_vengeance"
+   ]
+  },
+  {
+   "pod": "pod-009",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "e4a966445592b3d86a4b8eaaf6b9dd6fef49ce78e9d613186dac5372397a0393",
+   "decisions": 2976,
+   "winners": [
+    4
+   ],
+   "wall_s": 44.04,
+   "child_cpu_s": 187.73,
+   "decks": [
+    "2026_calling_all_angels",
+    "2023_elven_council",
+    "2015_call_the_spirits",
+    "2024_endless_punishment"
+   ]
+  },
+  {
+   "pod": "pod-010",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "ff58e12ec70166294fb0b9deb912470cd1434a17a0fcf7d6e5340c405063e49e",
+   "decisions": 5419,
+   "winners": [
+    1
+   ],
+   "wall_s": 96.62,
+   "child_cpu_s": 274.64,
+   "decks": [
+    "2018_subjective_reality",
+    "2022_exit_from_exile",
+    "2022_maestros_massacre",
+    "2022_necron_dynasties"
+   ]
+  },
+  {
+   "pod": "pod-011",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "09ba4a5654be7c05ba409852ef6ef7b69b9c2d63265b63caa87b29ca3aaa4c45",
+   "decisions": 2427,
+   "winners": [
+    1
+   ],
+   "wall_s": 37.54,
+   "child_cpu_s": 67.72,
+   "decks": [
+    "2023_rebellion_rising",
+    "2024_quick_draw",
+    "2022_bedecked_brokers",
+    "2022_tyranid_swarm_collector_s_edition"
+   ]
+  },
+  {
+   "pod": "pod-012",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "21e723d7861e2ca6a980772653eea6620b6cd71701335961236fdbbda1276fa0",
+   "decisions": 3252,
+   "winners": [
+    2
+   ],
+   "wall_s": 60.97,
+   "child_cpu_s": 239.95,
+   "decks": [
+    "2022_mishra_s_burnished_banner",
+    "2021_aura_of_courage",
+    "2023_food_and_fellowship",
+    "2023_sliver_swarm"
+   ]
+  },
+  {
+   "pod": "pod-013",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "f6cfa282b978922d7cbe5a8405ba865535b3fc87f848bc8eb68f45bf1e14b13b",
+   "decisions": 3056,
+   "winners": [
+    1
+   ],
+   "wall_s": 55.55,
+   "child_cpu_s": 197.73,
+   "decks": [
+    "2024_deadly_disguise",
+    "2018_adaptive_enchantment",
+    "2014_peer_through_time",
+    "2018_devour_for_power"
+   ]
+  },
+  {
+   "pod": "pod-014",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "c8d24c81cb21c2b41baad46d1146f279ef6d1f11f8cd1704d87424e5e09e4ce4",
+   "decisions": 5182,
+   "winners": [
+    2
+   ],
+   "wall_s": 79.73,
+   "child_cpu_s": 203.45,
+   "decks": [
+    "2026_witherbloom_pestilence",
+    "2016_stalwart_unity",
+    "2026_avengers_assemble_collector_s_edition",
+    "2024_jump_scare_"
+   ]
+  },
+  {
+   "pod": "pod-015",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "55022d792b3d5fbe43250faebd9a8eff8d504f532c2c8a26cc99c151d052b818",
+   "decisions": 3320,
+   "winners": [
+    2
+   ],
+   "wall_s": 54.66,
+   "child_cpu_s": 198.75,
+   "decks": [
+    "2023_enduring_enchantments",
+    "2025_counter_blitz__final_fantasy_x_",
+    "2017_feline_ferocity",
+    "2026_avengers_assemble"
+   ]
+  },
+  {
+   "pod": "pod-016",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "38101d74528531253d472f579931d839313ce35650c69eb73dab336fd03e7db5",
+   "decisions": 2022,
+   "winners": [
+    2
+   ],
+   "wall_s": 37.55,
+   "child_cpu_s": 155.72,
+   "decks": [
+    "2026_wakanda_forever_collector_s_edition",
+    "2020_sneak_attack",
+    "2026_doom_prevails",
+    "2026_wretched_ranks"
+   ]
+  },
+  {
+   "pod": "pod-017",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "0e6fc99a39b924ffa095e2d230e48e0b6a7262929104f4f841d30f19e3074544",
+   "decisions": 2517,
+   "winners": [
+    4
+   ],
+   "wall_s": 43.16,
+   "child_cpu_s": 131.74,
+   "decks": [
+    "2026_blight_curse",
+    "2020_enhanced_evolution",
+    "2020_arm_for_battle",
+    "2023_angels__they_re_just_like_us_but_cooler_and_with_wings"
+   ]
+  },
+  {
+   "pod": "pod-018",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "a9be4ede18f8ff8ceb1a4ea7f00c903fc0351e6d524cf79e95c1c21f698a5040",
+   "decisions": 2359,
+   "winners": [
+    2
+   ],
+   "wall_s": 47.31,
+   "child_cpu_s": 141.06,
+   "decks": [
+    "2026_silverquill_influence",
+    "2024_creative_energy_collector_s_edition",
+    "2023_explorers_of_the_deep",
+    "2022_cabaretti_cacophony"
+   ]
+  },
+  {
+   "pod": "pod-019",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "de7e9b399ada28b74f4fab099e97ae2bbaf0f86abf436a3dd6574322f357b2c9",
+   "decisions": 3341,
+   "winners": [
+    1
+   ],
+   "wall_s": 58.28,
+   "child_cpu_s": 172.11,
+   "decks": [
+    "2025_limit_break__final_fantasy_vii_",
+    "2011_devour_for_power",
+    "2017_heavenly_inferno",
+    "2024_animated_army"
+   ]
+  },
+  {
+   "pod": "pod-020",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "aa31f7d9943f17662223fcdb8f03fa1f2ab6630f065fb745fd75c7e89fec4356",
+   "decisions": 2200,
+   "winners": [
+    1
+   ],
+   "wall_s": 38.08,
+   "child_cpu_s": 163.78,
+   "decks": [
+    "2025_world_shaper",
+    "2016_invent_superiority",
+    "2022_tyranid_swarm",
+    "2025_scions___spellcraft__final_fantasy_xiv_"
+   ]
+  },
+  {
+   "pod": "pod-021",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "61f92c114ddd816fe00fabd87a3d31ff5247c80aef7549cafb65d52a555d961b",
+   "decisions": 3190,
+   "winners": [
+    2
+   ],
+   "wall_s": 60.22,
+   "child_cpu_s": 216.28,
+   "decks": [
+    "2024_scrappy_survivors",
+    "2022_heads_i_win__tails_you_lose",
+    "2018_wade_into_battle",
+    "2024_raining_cats_and_dogs"
+   ]
+  },
+  {
+   "pod": "pod-022",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "16e21f2532811a00f6a40616e9727f0c2400077f4836df630fb85fcd1189e782",
+   "decisions": 1972,
+   "winners": [
+    1
+   ],
+   "wall_s": 30.15,
+   "child_cpu_s": 58.98,
+   "decks": [
+    "2021_prismari_performance",
+    "2011_mirror_mastery",
+    "2021_silverquill_statement",
+    "2023_corrupting_influence"
+   ]
+  },
+  {
+   "pod": "pod-023",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "d5e57f52f212006a0086e0d662de221f11c0ae77a483ad04e23441551cdcb135",
+   "decisions": 2771,
+   "winners": [
+    4
+   ],
+   "wall_s": 43.22,
+   "child_cpu_s": 158.92,
+   "decks": [
+    "2024_20_ways_to_win",
+    "2021_witherbloom_witchcraft",
+    "2016_entropic_uprising",
+    "2014_sworn_to_darkness"
+   ]
+  },
+  {
+   "pod": "pod-024",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "7fd7685d096a7e441752699460a5b25406f957efaa3d2e84c326ea2e233942a0",
+   "decisions": 2944,
+   "winners": [
+    1
+   ],
+   "wall_s": 44.51,
+   "child_cpu_s": 144.24,
+   "decks": [
+    "2026_wakanda_forever",
+    "2022_necron_dynasties_collector_s_edition",
+    "2024_squirreled_away",
+    "2014_guided_by_nature"
+   ]
+  },
+  {
+   "pod": "pod-025",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "6a9c1803bc785a159e77c1d078324c4bcc256d17d060c0b15f0ea042fecec9e4",
+   "decisions": 2071,
+   "winners": [
+    1
+   ],
+   "wall_s": 38.55,
+   "child_cpu_s": 140.92,
+   "decks": [
+    "2024_mutant_menace",
+    "2022_urza_s_iron_alliance",
+    "2022_painbow",
+    "2026_hatsune_miku"
+   ]
+  },
+  {
+   "pod": "pod-026",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "b224ad58f9f6cb45cb0fd98a76e448232ab25bde1a94061d7faa16648645d1ce",
+   "decisions": 3359,
+   "winners": [
+    2
+   ],
+   "wall_s": 46.94,
+   "child_cpu_s": 143.3,
+   "decks": [
+    "2022_the_ruinous_powers",
+    "2022_chaos_incarnate",
+    "2020_land_s_wrath",
+    "2016_open_hostility"
+   ]
+  },
+  {
+   "pod": "pod-027",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "012445689996c9d9ecaa000b6a7c487c601892bebc880ad7fec47c63265df371",
+   "decisions": 3120,
+   "winners": [
+    2
+   ],
+   "wall_s": 50.08,
+   "child_cpu_s": 155.68,
+   "decks": [
+    "2024_hail__caesar",
+    "2026_quandrix_unlimited",
+    "2020_timeless_wisdom",
+    "2023_eldrazi_unbound"
+   ]
+  },
+  {
+   "pod": "pod-028",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "d7d8e71d2a818188e59f66d84ef7778ba2cad0e845a90492a7037f3b43e59ecb",
+   "decisions": 2624,
+   "winners": [
+    2
+   ],
+   "wall_s": 42.44,
+   "child_cpu_s": 148.29,
+   "decks": [
+    "2023_ahoy_mateys",
+    "2017_vampiric_bloodlust",
+    "2021_quantum_quandrix",
+    "2013_eternal_bargain"
+   ]
+  },
+  {
+   "pod": "pod-029",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "6144e8fe910ac0479df5b0e4b1fe52bd4ad2d22b9af1d5129bf9d1c0bacb880f",
+   "decisions": 3017,
+   "winners": [
+    3
+   ],
+   "wall_s": 49.35,
+   "child_cpu_s": 151.2,
+   "decks": [
+    "2023_growing_threat",
+    "2024_eldrazi_incursion",
+    "2020_symbiotic_swarm",
+    "2021_undead_unleashed"
+   ]
+  },
+  {
+   "pod": "pod-030",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "e89a039ea00065ba08059c39be4cb7895423ac35f5d09ddf842cfc064b6241cb",
+   "decisions": 5180,
+   "winners": [
+    2
+   ],
+   "wall_s": 95.28,
+   "child_cpu_s": 211.38,
+   "decks": [
+    "2026_the_fantastic_four",
+    "2024_graveyard_overdrive",
+    "2021_spirit_squadron",
+    "2025_everyone_s_invited_"
+   ]
+  },
+  {
+   "pod": "pod-031",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "15b3ec09f1653d35b0fecf4d8071f21368cc0deb2b50efe1f184ce52a4d58622",
+   "decisions": 4197,
+   "winners": [
+    3
+   ],
+   "wall_s": 67.78,
+   "child_cpu_s": 225.45,
+   "decks": [
+    "2026_lorehold_spirit",
+    "2024_most_wanted",
+    "2018_exquisite_invention",
+    "2022_grave_danger"
+   ]
+  },
+  {
+   "pod": "pod-032",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "5ffa8040f53cfe4e76140f9adec7ea2f3c9b8201de2bd73909adb68afd3e002f",
+   "decisions": 4728,
+   "winners": [
+    3
+   ],
+   "wall_s": 77.68,
+   "child_cpu_s": 307.93,
+   "decks": [
+    "2020_ruthless_regiment",
+    "2025_living_energy",
+    "2024_grand_larceny",
+    "2022_obscura_operation"
+   ]
+  },
+  {
+   "pod": "pod-033",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "1908ba328ec7de3c43ca916bceea19877c44404eaabd7ea308875995cbbb1294",
+   "decisions": 4047,
+   "winners": [
+    1
+   ],
+   "wall_s": 62.93,
+   "child_cpu_s": 99.32,
+   "decks": [
+    "2026_turtle_power_",
+    "2022_forces_of_the_imperium",
+    "2020_reap_the_tides",
+    "2017_draconic_domination"
+   ]
+  },
+  {
+   "pod": "pod-034",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "03ece1c82f407bca90a973d934c4d16c2d9b9b578fa509860b143cf2e4fd62d1",
+   "decisions": 4260,
+   "winners": [
+    1
+   ],
+   "wall_s": 63.62,
+   "child_cpu_s": 295.65,
+   "decks": [
+    "2023_fae_dominion",
+    "2025_sultai_arisen",
+    "2022_first_flight",
+    "2023_virtue_and_valor"
+   ]
+  },
+  {
+   "pod": "pod-035",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "30752903a441da32590787b57fd2629153611cabad1274ae97ab1e07c17b71e6",
+   "decisions": 3074,
+   "winners": [
+    2
+   ],
+   "wall_s": 52.36,
+   "child_cpu_s": 85.95,
+   "decks": [
+    "2025_jeskai_striker",
+    "2025_counter_blitz_collector_s_edition__final_fantasy_x_",
+    "2022_riveteers_rampage",
+    "2021_planar_portal"
+   ]
+  },
+  {
+   "pod": "pod-036",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "8435682a336e030e834435da602b6b2e7c7d1c441ffadf88c5949f71ff6b91a1",
+   "decisions": 3172,
+   "winners": [
+    1
+   ],
+   "wall_s": 56.93,
+   "child_cpu_s": 192.38,
+   "decks": [
+    "2025_abzan_armor",
+    "2026_tramplesaurus_rex",
+    "2023_riders_of_rohan",
+    "2021_elven_empire"
+   ]
+  },
+  {
+   "pod": "pod-037",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "daf38ddcf7a9e59221501cc4c0700bff69010197b68aea72f7f0c90e01985549",
+   "decisions": 2847,
+   "winners": [
+    2
+   ],
+   "wall_s": 55.13,
+   "child_cpu_s": 184.32,
+   "decks": [
+    "2024_peace_offering",
+    "2025_temur_roar",
+    "2023_from_cute_to_brute",
+    "2021_dungeons_of_death"
+   ]
+  },
+  {
+   "pod": "pod-038",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "235c4656eb2b011e56c1272bfc5e83604a4d6a70d4a4d097c28b9031c2eab049",
+   "decisions": 2710,
+   "winners": [
+    1
+   ],
+   "wall_s": 46.98,
+   "child_cpu_s": 168.18,
+   "decks": [
+    "2026_reign_of_dragons",
+    "2011_heavenly_inferno",
+    "2024_science_",
+    "2013_mind_seize"
+   ]
+  },
+  {
+   "pod": "pod-039",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "5ddded560fdd600371a4ab85f14d21d46d780bdfcb8518cabcf21c6436a2805d",
+   "decisions": 7123,
+   "winners": [
+    2
+   ],
+   "wall_s": 89.67,
+   "child_cpu_s": 200.01,
+   "decks": [
+    "2013_evasive_maneuvers",
+    "2026_keen_engineering",
+    "2022_mind_flayarrrs",
+    "2017_evasive_maneuvers"
+   ]
+  },
+  {
+   "pod": "pod-040",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "19be198686a1757808fbf258ab2d5243e66db3ab349df98934b77ee8ccb5ad1e",
+   "decisions": 3954,
+   "winners": [
+    2
+   ],
+   "wall_s": 54.0,
+   "child_cpu_s": 207.02,
+   "decks": [
+    "2025_mardu_surge",
+    "2021_phantom_premonition",
+    "2022_buckle_up",
+    "2023_the_hosts_of_mordor"
+   ]
+  },
+  {
+   "pod": "pod-041",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "314e663d96d8e7170732dd1c95034616d264ad282dac824395869d2e89a7517c",
+   "decisions": 2299,
+   "winners": [
+    4
+   ],
+   "wall_s": 39.64,
+   "child_cpu_s": 151.65,
+   "decks": [
+    "2011_counterpunch",
+    "2025_scions___spellcraft_collector_s_edition__final_fantasy_xiv_",
+    "2023_planeswalker_party",
+    "2023_cavalry_charge"
+   ]
+  },
+  {
+   "pod": "pod-042",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "2983c75b89932e97e31123c118b72991d66c1f37b4b2d951559bcc8edcbcab59",
+   "decisions": 1955,
+   "winners": [
+    4
+   ],
+   "wall_s": 34.15,
+   "child_cpu_s": 124.92,
+   "decks": [
+    "2013_nature_of_the_beast",
+    "2024_desert_bloom",
+    "2017_arcane_wizardry",
+    "2021_coven_counters"
+   ]
+  },
+  {
+   "pod": "pod-043",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "dac2d9552ca989706154bb1482ab0e7d69647bc92f3b9aeb8ce4c24c5e3ce082",
+   "decisions": 3105,
+   "winners": [
+    1
+   ],
+   "wall_s": 50.69,
+   "child_cpu_s": 209.24,
+   "decks": [
+    "2023_blood_rites",
+    "2026_goblin_storm",
+    "2024_creative_energy",
+    "2023_tinker_time"
+   ]
+  },
+  {
+   "pod": "pod-044",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "0cdc5a9ed001621bf1cb7540a7752263525e9cf00f52d6542d45557956e17423",
+   "decisions": 2688,
+   "winners": [
+    3
+   ],
+   "wall_s": 41.38,
+   "child_cpu_s": 66.7,
+   "decks": [
+    "2024_eldrazi_incursion_collector_s_edition",
+    "2017_plunder_the_graves",
+    "2021_vampiric_bloodline",
+    "2015_seize_control"
+   ]
+  },
+  {
+   "pod": "pod-045",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "aec71fc529baa75de273b15d2fd4810f91c24dd61ce996e8a5863c984e9e07c4",
+   "decisions": 3391,
+   "winners": [
+    2
+   ],
+   "wall_s": 45.48,
+   "child_cpu_s": 167.93,
+   "decks": [
+    "2025_eternal_might",
+    "2018_built_from_scratch",
+    "2020_arcane_maelstrom",
+    "2026_doom_prevails_collector_s_edition"
+   ]
+  }
+ ]
+}
