@@ -1,0 +1,187 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "65225afca0107139a1562cdfb31a3384f51838b32dc1fd774929142407b63a63",
+        "kind": "priority_pass",
+        "scope": "decision_script[6]",
+        "tag": "MICRO_COPY-causal-obj:micro-bolt"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "cf85938c4e08854037d7f571fa449826a5bb18c98f08a362e1608ad1b0abbdd4",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "MICRO_COPY-causal-obj:micro-bolt-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "27d35780e4605a7ff04329618b7ffb50be9674f1c63430ba6bc0c312e2e2058b",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_COPY-causal-obj:micro-bolt-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "33487623f8c6887544d06dbeb14a8d45187b51c56dcdcd7a1017e6013a1f24ec",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "MICRO_COPY-causal-obj:micro-flare"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "f1260201f1a0021635a70cff25d10cc47a9471889380ffe249668db57ea7a46d",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "MICRO_COPY-causal-obj:micro-flare"
+      },
+      {
+        "actor": "P4",
+        "decision_id": "827d076056f2939b357879e6882400bcaff21dd1661122ac5dbd73969c7dec17",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "MICRO_COPY-causal-obj:micro-flare"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "aa1807f423db61b510aedc94b4a0506db62fb49dc73f35bd775f9cc44d47913c",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[1]",
+        "tag": "MICRO_COPY-causal-obj:micro-flare-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "96b0d97af0af9c07d6e729269ae40e8b9ae9c430675f6d679ec771cb23be12a5",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_COPY-causal-obj:micro-flare-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "50c8f41df14f32a351d9bf060bf41106c7cc372ecafd479afbb9c81f63dc0d5b",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[2]",
+        "tag": "MICRO_COPY-causal-obj:micro-flare-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "450270a883aa62adb67a2f3de5794ce0a80f6df25841bc80ee6302f0ebf4ef3c",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_COPY-causal-obj:micro-flare-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "3bf0be3c3005c5b4d6a4b2ae1600cd95b07aab05769840597133caf428baa4ff",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[3]",
+        "tag": "MICRO_COPY-causal-obj:micro-flare-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "7a72215b8b2616b5002741abed37abe9ab585ae8c7f3f6920e34bbc8af1865a3",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_COPY-causal-obj:micro-flare-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-bolt",
+      "obj:micro-flare"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p2",
+      "obj:fuel-mountain-p1-0",
+      "obj:fuel-mountain-p1-1",
+      "obj:fuel-mountain-p1-2"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 2,
+      "frames_verified": 2,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-flare",
+        "obj:micro-bolt"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_COPY",
+  "obligation_exercised": {
+    "obligation_digest": "4112328b7b68a41fc7e0b6502fe4847f1c80416d19efc2f3e79341665b34a635",
+    "requested_state_digest": "551af790319399cc9b15155c9ac757c48880947991616ff81efe7ec758f3d882",
+    "required_events": [
+      "copy_spell:Lightning_Bolt",
+      "copy_created_on_stack"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Spell copy is not cast and exists as a distinct semantic stack object with copied characteristics."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "copy_created_on_stack": {
+        "binding": [
+          "exactly 1 DAMAGED_PLAYER event(s) with source_name=Lightning Bolt, target_player=P2, amount=3, source_object=<unnamed-object>",
+          "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-bolt, target_player=P2, amount=3",
+          "every COPIED_STACKOBJECT event with source_name=Lightning Bolt precedes the first DAMAGED_PLAYER event with source_object=obj:micro-bolt"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_name=Lightning Bolt, target_player=P2, amount=3, source_object=<unnamed-object>",
+            "events": [
+              14
+            ]
+          },
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-bolt, target_player=P2, amount=3",
+            "events": [
+              16
+            ]
+          },
+          {
+            "binding": "every COPIED_STACKOBJECT event with source_name=Lightning Bolt precedes the first DAMAGED_PLAYER event with source_object=obj:micro-bolt",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "copy_spell:Lightning_Bolt": {
+        "binding": [
+          "exactly 1 COPIED_STACKOBJECT event(s) with source_name=Lightning Bolt",
+          "exactly 0 SPELL_CAST event(s) with source_name=Lightning Bolt"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 COPIED_STACKOBJECT event(s) with source_name=Lightning Bolt",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "exactly 0 SPELL_CAST event(s) with source_name=Lightning Bolt",
+            "events": []
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "40bfe8cce3756d4b68b5ab2691a7f38dd391c6247d9d9ee38e6e9ea67ba782d6",
+  "runner_digest": "2a2f33463c536b18e685faace5302145851ee6c4da8c56dbca0a35bccf40c381",
+  "runtime_receipt_digest": "2941d48af05598bb22eec5d2ef1d965112e9c57da15c0067d7dbadf25c6a95ae",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_COPY",
+  "variance_source": null
+}
