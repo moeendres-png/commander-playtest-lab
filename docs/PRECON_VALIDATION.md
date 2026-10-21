@@ -451,6 +451,18 @@ die anderen sechs Karten sind neu.
   Verhaltenszähler identisch (36268 Entscheidungen); `wall_s` und `pilot_s` unterscheiden sich nur durch
   Maschinenrauschen (`pilot_s` +0,29 s je Spiel bei vier parallel laufenden Sweeps; die neuen Prüfungen
   kosten unter einer Mikrosekunde je Aufruf).
+- Determinismus-Zensus Plan-Seed 21 (Spiel-Seed 21) auf dem Pin `769e6ebb` (Lab `f50a1f754`, Muses eigenes
+  Jar, `--games-per-jvm 6 --fast`, zwei Läufe, `LOCAL_OBSERVED`): 43 Pods laufen in beiden Läufen durch
+  und liefern denselben Hash, Pod 010 fällt in beiden Läufen mit `BLOCK_DECLARATION_REJECTED` aus.
+  - Pod 010 (Kaalia of the Vast gegen Scarlet Witch, Chaotic Avenger, Zug 45): Predatory Impetus lag auf
+    Kaalia („must be blocked if able"), die Engine lehnte deshalb die leere Erklärung und den Block des
+    Reiver Demon ab, den anderen Angreifer des Rahmens. Die Leiter des Piloten (Urteil, größte
+    Erklärung, leere Erklärung, Abbruch) legte bei einem Rahmen mit einem Block und zwei Angreifern nur
+    den bestbewerteten Block vor und nie den Block von Kaalia. Nach der leeren Erklärung erklärt der
+    Pilot jetzt jeden einzelnen Block, den die früheren Antworten ausließen, und bricht erst danach ab;
+    die ersten drei Antworten sind unverändert. Neuer Test in `test_full_game_pilot_judgment.py` (rot
+    ohne, grün mit der Änderung). Einzeln nachgespielt (Muses Jar-Stand, `main`-Pilot ohne Pod-Wechsel):
+    vorher `BLOCK_DECLARATION_REJECTED` in Zug 45, mit dem Fix 2880 Entscheidungen, Sitz 2 gewinnt.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung

@@ -1,0 +1,104 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "e8c4b00688965a29e1f9fcf6857b191f799e76956991f385e72cafd60b59a46c",
+        "kind": "priority_pass",
+        "scope": "decision_script[6]",
+        "tag": "WS05-CMD-ZONE-GY-YES-causal-obj:cmd-zone-source"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "66171244991e9d25280297f8515daae1d9d3eae38a7f30db4c592fc16864d3f3",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "WS05-CMD-ZONE-GY-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "c97bbe4f42982006d2a033054883819823a54f012c84630b8811b3a015c10ff8",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-CMD-ZONE-GY-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "f733cbed5f5877e2f2513e6a17a312f7181d8a952bfb15d932056f9a216c6a0d",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[1]",
+        "tag": "WS05-CMD-ZONE-GY-YES-causal-obj:cmd-zone-source-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "69d1a6c737bba058c86ffafa17d79f98532ec4062f74b1878af554da5295cc26",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-CMD-ZONE-GY-YES-causal-obj:cmd-zone-source-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:cmd-zone-source"
+    ],
+    "fuel": [
+      "obj:fuel-swamp-a",
+      "obj:fuel-swamp-b"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:cmd-zone-source"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-ZONE-GY-YES",
+  "obligation_exercised": {
+    "obligation_digest": "37b6de31c417e2689fe27b227f2c1595c8f76d0e34f038d77e742f493ea373e3",
+    "requested_state_digest": "6d902194fb8eeabc9768d3581fbdbc80d26163c27b25d4c0ff7d1fca7b882100",
+    "required_events": [
+      "commander_zone_event:graveyard",
+      "commander_choice:command"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Commander is in command zone after the rule-defined choice; object lineage remains commander cmd:P1-A while zone object incarnation changes."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "commander_choice:command": {
+        "decision_frames": [
+          4
+        ],
+        "events": [
+          12
+        ]
+      },
+      "commander_zone_event:graveyard": {
+        "events": [
+          10
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e44aa06634cc9606d7546f5a02c9eeec6a0728a0f1b32d7d98d0240eff1ce6c3",
+  "runner_digest": "6f515c43c6724fa58cfce6c0c5995581b34c41657298ccabdb75b237a5bcc119",
+  "runtime_receipt_digest": "1df73955354721a80f2ba8ea3d02654bcb00f9c8ca4f47cb95897f667cffce94",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-ZONE-GY-YES",
+  "variance_source": null
+}

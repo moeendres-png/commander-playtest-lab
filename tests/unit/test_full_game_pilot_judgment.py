@@ -446,6 +446,49 @@ def test_a_block_the_engine_keeps_rejecting_is_dropped() -> None:
     assert "diagnostics sha256:" in rejected.value.public_message
 
 
+def test_engine_reask_reaches_the_attacker_a_requirement_names() -> None:
+    """Seed 21 pod 010: "must be blocked if able" on the lower-ranked attacker.
+
+    Predatory Impetus made Kaalia of the Vast "must be blocked if able", so
+    the engine rejected the empty declaration and the block of the Reiver
+    Demon, the only other block the frame offers. The ladder used to be
+    judgment, maximal declaration (the best-ranked single block), empty
+    declaration, fail: it never declared the block of Kaalia. After the empty
+    declaration it now declares every single block the earlier asks left out.
+    """
+    policy = _policy()
+    state = _state(
+        actor_board=[_card("witch", "Scarlet Witch, Chaotic Avenger", 3, 3)],
+        opponent_board=[
+            _card("kaalia", "Kaalia of the Vast", 5, 5),
+            _card("demon", "Reiver Demon", 6, 6),
+        ],
+    )
+    frame = [
+        {**_block_option("witch", "kaalia"), "option_id": "block-kaalia"},
+        {**_block_option("witch", "demon"), "option_id": "block-demon"},
+    ]
+    picks: list[list[str]] = []
+    for n in range(1, 10):
+        try:
+            picks.append(
+                policy.decide(_request("declare_blocker", frame, state, minimum=0, offset=n))[
+                    "selected_option_ids"
+                ]
+            )
+        except FullGameProtocolError as rejected:
+            assert rejected.code == "BLOCK_DECLARATION_REJECTED"
+            break
+    else:
+        raise AssertionError("the ladder never ended")
+    # Bounded, never repeats a declaration after the second ask, and the
+    # engine's accepted declaration (block Kaalia) is among the answers.
+    assert len(picks) <= 5
+    assert picks[2:] == [list(item) for item in dict.fromkeys(map(tuple, picks[2:]))]
+    assert ["block-kaalia"] in picks and ["block-demon"] in picks
+    assert [] in picks
+
+
 def test_engine_reask_declares_every_offered_block() -> None:
     """#802: an engine re-ask must not repeat the declaration it just rejected.
 
