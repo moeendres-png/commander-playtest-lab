@@ -1,0 +1,9 @@
+M3 Determinismus-Zensus — Setup (Muse-Maschine)
+Datum: 2026-10-21T14:28:00+02:00
+Lab-Worktree: wt-m3-census @ f50a1f754096ac20f30a590f83b66357ee8de3ca
+Mage-Worktree: wt-mage-v10 @ 769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2 (Pin aus config/rules_engines.json primary_engine.commit)
+openjdk version "17.0.20.1" 2026-08-18
+Apache Maven 3.9.9 (8e8579a9e76f7d015ee5ec7bfcdc97d260186937)
+nproc: 2
+RAM: 7 GB total
+Disk frei: 93G
