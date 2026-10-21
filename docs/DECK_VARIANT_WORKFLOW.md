@@ -128,6 +128,22 @@ of the execution identity so a resumed run never mixes batch sizes, and the deci
 gates and evidence lanes keep one game per JVM. Games played this way carry no
 per-decision record for `pilot_decision_report.py`.
 
+Faster still: start the bridge with serial GC and an AppCDS class archive (both
+change only how the JVM runs, not a game):
+
+```bash
+python scripts/build_xmage_cds_archive.py        # once per jar build, prints the command
+export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="<the command it prints>"
+python scripts/run_full_game_deck_comparison.py ... --games-per-jvm 6
+```
+
+Measured on 4 cores (2026-10-21), 24 two-player games (2 contenders x 6 seeds x 2 seats,
+4 workers): 286 s with one game per JVM, 158 s with `--games-per-jvm 4`, 114 s with
+`--games-per-jvm 6` and the archive command (302 -> 758 games/hour, 64 % less CPU). All 24
+transcript hashes were identical in the three runs. Set `--games-per-hour` to the
+figure you measure on your host. Method and sweep numbers:
+`docs/performance/XMAGE_EFFICIENCY_OFFENSIVE_2026-10-21.md`.
+
 ## Step 5 — Pilot report (only for pilot or engine changes)
 
 Answers: did the pilot get better or worse at playing, on real games?

@@ -131,6 +131,21 @@ Batching stays measurement-only (Owner decision 2026-10-15): the bridge needs
 Different chunk sizes and orders mean different neighbours in a JVM; state that one game left
 behind would show up as a different hash. None did.
 
+### The deck-comparison path end to end
+
+`run_full_game_deck_comparison.py` (baseline against one swap variant, one opponent, seeds 1-6,
+both seats, 24 two-player games, 4 workers) with the bridge command from the environment:
+
+| Launch | Wall | Process-tree CPU | Games per hour |
+|---|---:|---:|---:|
+| one game per JVM, defaults | 286.4 s | 1113 s | 302 |
+| 4 games per JVM, defaults | 157.8 s | 535 s | 548 |
+| 6 games per JVM, serial GC, AppCDS | **114.0 s** | **400 s** | **758** |
+
+All 24 games have the same semantic transcript hash, decision count and winner in the three
+runs (compared by case id). The comparison runner needs no code change: it reads the command
+that `build_xmage_cds_archive.py` prints, which now carries serial GC.
+
 ## 7. Next stages (not started; each needs the Owner's go as stated)
 
 | Stage | What | Expected | Cost |
