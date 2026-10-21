@@ -120,20 +120,17 @@ def test_every_shard_runs_its_own_tests_and_all_together_run_every_test_once(
     assert "suite/b/test_new_unlisted.py::test_ok" in per_shard[-1]
 
 
-def test_a_failing_test_in_any_shard_fails_the_run_and_the_report_is_merged(
-    tmp_path: Path,
-) -> None:
-    root = _suite(tmp_path)
+def _run_sharded(root: Path, weights: str = "weights.json") -> subprocess.CompletedProcess[str]:
     environment = {**os.environ, "PYTHONPATH": str(REPO), "PYTEST_PLUGINS": "tests.pytest_shards"}
     environment.pop(shards.CHILD_ENV, None)
-    done = subprocess.run(
+    return subprocess.run(
         [
             sys.executable,
             "-m",
             "pytest",
             "-q",
             "--shards=2",
-            f"--shard-weights={root / 'weights.json'}",
+            f"--shard-weights={root / weights}",
             "--junitxml=out/pytest-junit.xml",
             "--ignore=suite/skipped",
         ],
@@ -143,6 +140,13 @@ def test_a_failing_test_in_any_shard_fails_the_run_and_the_report_is_merged(
         text=True,
         check=False,
     )
+
+
+def test_a_failing_test_in_any_shard_fails_the_run_and_the_report_is_merged(
+    tmp_path: Path,
+) -> None:
+    root = _suite(tmp_path)
+    done = _run_sharded(root)
     assert done.returncode == 1, done.stdout + done.stderr
     assert "pytest shard 1/2: exit code" in done.stdout
     assert "test_bad" in done.stdout
@@ -155,6 +159,24 @@ def test_a_failing_test_in_any_shard_fails_the_run_and_the_report_is_merged(
     assert (root / "out/pytest-shard-1.log").is_file()
     assert (root / "out/pytest-shard-2.log").is_file()
     assert not list((root / "out").glob(".pytest-junit-shard-*.xml"))
+
+
+def test_an_error_that_stops_collection_in_one_shard_fails_the_run(tmp_path: Path) -> None:
+    root = _suite(tmp_path)
+    (root / "suite/b/test_three.py").write_text("def test_bad(:\n", encoding="utf-8")
+    (root / "suite/b/test_new_unlisted.py").unlink()
+    done = _run_sharded(root)
+    assert done.returncode >= 2, done.stdout + done.stderr
+    assert "SyntaxError" in done.stdout
+
+
+def test_without_a_weight_table_the_suite_runs_as_one_ordinary_process(tmp_path: Path) -> None:
+    root = _suite(tmp_path)
+    done = _run_sharded(root, weights="missing.json")
+    assert done.returncode == 1, done.stdout + done.stderr
+    assert "running one process" in done.stdout
+    assert "pytest shard" not in done.stdout
+    assert "1 failed, 4 passed" in done.stdout
 
 
 def test_junit_reports_are_merged_with_summed_totals(tmp_path: Path) -> None:

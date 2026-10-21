@@ -198,10 +198,13 @@ def run_shards(rootdir: Path, selection: Selection, plan: Sequence[Sequence[str]
             f"--junitxml={junit[index]}",
         ]
         environment = {**os.environ, CHILD_ENV: f"{index + 1}/{count}"}
-        with log.open("w", encoding="utf-8") as sink:
-            code = subprocess.run(
-                command, cwd=checkout, env=environment, stdout=sink, stderr=subprocess.STDOUT
-            ).returncode
+        try:
+            with log.open("w", encoding="utf-8") as sink:
+                code = subprocess.run(
+                    command, cwd=checkout, env=environment, stdout=sink, stderr=subprocess.STDOUT
+                ).returncode
+        finally:
+            shutil.rmtree(checkout, ignore_errors=True)
         with lock:
             title = f"pytest shard {index + 1}/{count}: exit code {code}"
             print(f"::group::{title}" if grouped else f"===== {title} =====")
