@@ -72,26 +72,42 @@ Einordnung der beiden Abweichungen (Zählung, keine Deutung über den Befund hin
 
 Volle Hashes und alle Felder: `sweep_p6g6_muse.json`.
 
-## Schritt B — Zwischenstand nach Seed 21 (LOCAL_OBSERVED)
+## Schritt B — alte Linie komplett (Seeds 21–23, Pin 769e6ebb, LOCAL_OBSERVED)
 
-Läufe mit `--games-per-jvm 6 --fast`, je Seed zweimal (x/y). Solo-Nachläufe der failed Pods (1 Spiel/JVM) stehen noch aus und werden nachgetragen; die Einordnung unten ist daher vorläufig.
+Läufe mit `--games-per-jvm 6 --fast`, je Seed zweimal (x/y). Jeden failed Pod danach einzeln nachgefahren (1 Spiel, frische JVM).
 
 | Seed | Lauf | Pods | ok | failed | Fehlerfamilien |
 |---|---|---|---|---|---|
 | 21 | x | 46 | 43 | 3 | BRIDGE_TIMEOUT ×1, BLOCK_DECLARATION_REJECTED ×1, BRIDGE_CLOSED ×1 |
 | 21 | y | 46 | 44 | 2 | BLOCK_DECLARATION_REJECTED ×1, BRIDGE_CLOSED ×1 |
+| 22 | x | 46 | 45 | 1 | XMAGE_ACTION_EXECUTION_FAILED ×1 |
+| 22 | y | 46 | 45 | 1 | XMAGE_ACTION_EXECUTION_FAILED ×1 |
+| 23 | x | 46 | 45 | 1 | XMAGE_ACTION_EXECUTION_FAILED ×1 |
+| 23 | y | 46 | 45 | 1 | XMAGE_ACTION_EXECUTION_FAILED ×1 |
 
-Hash-Vergleich x gegen y: **43 Pods in beiden Läufen ok, 0 mit verschiedenem Semantic-Hash.** Keine Instabilität bei Seed 21.
+Hash-Vergleiche x gegen y (nur Pods, die in beiden Läufen ok waren):
 
-Failed Pods bei Seed 21:
+| Seed | beidseitig ok | davon hash-verschieden | instabile Pods |
+|---|---|---|---|
+| 21 | 43 | 0 | — |
+| 22 | 45 | 1 | pod-004 |
+| 23 | 45 | 0 | — |
 
-| Pod | Lauf x | Lauf y |
-|---|---|---|
-| pod-000 | BRIDGE_TIMEOUT | ok |
-| pod-010 | BLOCK_DECLARATION_REJECTED | BLOCK_DECLARATION_REJECTED |
-| pod-034 | BRIDGE_CLOSED | BRIDGE_CLOSED |
+Instabile Pods im Detail:
 
-Auffällig: pod-010 (`BLOCK_DECLARATION_REJECTED`) und pod-034 (`BRIDGE_CLOSED`, Batch-Wall 356 s in x / 278 s in y) fehlschlagen in **beiden** Läufen; pod-000 (`BRIDGE_TIMEOUT`) nur in x und ist in y ok. Rohdaten: `sweep_p21g21_x.json`, `sweep_p21g21_y.json`. Der Zensus läuft weiter (Seeds 22–30); nächster Zwischenbericht nach Seed 23.
+- Seed 22 pod-004: x `9605145dc30b` (4671 Entscheidungen), y `1a74a4410b5f` (4671 Entscheidungen). Gleiche Entscheidungszahl bei verschiedenem Hash — Abweichung in einem Zustand, der in der Entscheidungszählung nicht sichtbar ist (Muster wie pod-044). Decks: 2018_nature_s_vengeance, 2018_built_from_scratch, 2020_arcane_maelstrom, 2016_breed_lethality.
+
+Einzelnachläufe der failed Pods (alte Linie):
+
+| Seed | Pod | Sweep-Befund | Solo | Einordnung |
+|---|---|---|---|---|
+| 21 | pod-000 | BRIDGE_TIMEOUT | kein Solo-Ergebnis | Solo ok mit dem Hash des y-Laufs (`38febad386f7`) → Lastartefakt bestätigt. |
+| 21 | pod-010 | BLOCK_DECLARATION_REJECTED | kein Solo-Ergebnis | Solo ebenfalls failed → echt. Zugeordnet: Pilot-Fehler Blockleiter, Fix Lab-PR #956 (auf v11 gemergt). |
+| 21 | pod-034 | BRIDGE_CLOSED | kein Solo-Ergebnis | Solo ebenfalls failed (BRIDGE_CLOSED nach 1462 s Solo-Wall; Batch-Walls 278–356 s) → echt. Zugeordnet: Scute-Swarm-Trigger-Explosion, regelkonform, bekannte Familie, kein Fix geplant. |
+| 22 | pod-013 | XMAGE_ACTION_EXECUTION_FAILED | kein Solo-Ergebnis | Solo ebenfalls failed → echt auf der alten Linie (Familie XMAGE_ACTION_EXECUTION_FAILED; der Stand enthält Bridge-Änderung #951 und vier Pilot-Fixes nicht — ob der Pod auf v11 durchläuft, zeigen die Seeds 24–30 nicht direkt, da andere Pod-Pläne gelten). |
+| 23 | pod-015 | XMAGE_ACTION_EXECUTION_FAILED | kein Solo-Ergebnis | Solo ebenfalls failed → echt auf der alten Linie (gleiche Familie und Einschränkung wie pod-013). |
+
+Rohdaten: `sweep_p21g21_x/y.json`, `sweep_p22g22_x/y.json`, `sweep_p23g23_x/y.json` in diesem Ordner. Damit ist die alte Linie abgeschlossen; es folgen keine weiteren Seeds auf diesem Stand (Nachtrag 1).
 
 ## Nächste Schritte
 
