@@ -125,28 +125,41 @@ class _CombatDecisions(_ChoiceDecisions):
         # priority window after an accepted declaration) clears it, so each
         # later combat in the same turn starts the ladder over (review P1).
         asks = self._count_block_frame_ask(runtime.binding.seat, state, options)
-        if asks > self._BLOCK_DECLARATION_ASK_LIMIT or (
-            asks == self._BLOCK_DECLARATION_ASK_LIMIT and min_selections > 0
-        ):
+        judged_pick = [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:judged]]
+        maximal = max(min_selections, min(max_selections, len(options)))
+        maximal_pick = [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:maximal]]
+        # Ask 1 is the judgment. Ask 2 is a search heuristic inside the options
+        # the engine offered: the maximal declaration is the best chance to
+        # satisfy a requirement like "blocks this turn if able" (CR 509.1c). It
+        # makes no legality claim - the engine still accepts or rejects what is
+        # submitted.
+        if asks == 1:
+            return judged_pick
+        if asks == 2:
+            return maximal_pick
+        # From ask 3 on: the empty declaration (it can violate no blocking
+        # restriction, but it cannot satisfy a mandatory block either), then
+        # each single block the earlier asks did not declare, best first. A
+        # requirement that names one attacker ("must be blocked if able", a
+        # Predatory Impetus on a lower-ranked attacker) is only met by the
+        # declaration that blocks that attacker, and the maximal declaration
+        # of a one-block frame names only the best-ranked one (Seed 21 pod 010:
+        # the Reiver Demon was offered, the Kaalia the requirement named never).
+        tried = [judged_pick, maximal_pick]
+        ladder: list[list[str]] = [[]] if min_selections == 0 else []
+        if min_selections <= 1 <= max_selections:
+            for _score, stable_id in ranked:
+                single = [raw_by_stable_id[stable_id]]
+                if single not in tried and single not in ladder:
+                    ladder.append(single)
+        if asks - 3 >= len(ladder):
             raise FullGameProtocolError(
                 "engine rejected every block declaration the pilot can make: "
                 f"seat={runtime.binding.seat} turn={state.get('turn_number')} "
                 f"frames={len(options)}",
                 code="BLOCK_DECLARATION_REJECTED",
             )
-        if asks == self._BLOCK_DECLARATION_ASK_LIMIT:
-            # The empty declaration is the last answer left to try. It can
-            # violate no blocking restriction, but it cannot satisfy a
-            # mandatory block either ("blocks this turn if able", CR 509.1c),
-            # so a frame the engine re-asks after this has no untried legal
-            # answer: the guard above fails closed instead of repeating one.
-            return []
-        # Ask 2 is a search heuristic inside the options the engine offered:
-        # the maximal declaration is the best chance to satisfy a requirement
-        # like "blocks this turn if able" (CR 509.1c). It makes no legality
-        # claim - the engine still accepts or rejects what is submitted.
-        take = judged if asks == 1 else max(min_selections, min(max_selections, len(options)))
-        return [raw_by_stable_id[stable_id] for _score, stable_id in ranked[:take]]
+        return ladder[asks - 3]
 
     @staticmethod
     def _block_frame_key(options: list[dict[str, object]]) -> tuple[str, ...]:
