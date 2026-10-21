@@ -2,7 +2,7 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-lazy-triggers-repin-v11-20261021",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status": "EVIDENCE_BOUND",
  "status_note": "the pin is the head of the fork branch claude/project-thread-8i686d (moeendres-png/mage), three engine commits on the v10 pin 769e6ebb: the Protector of the Wastes trigger fix (the trigger read the event source instead of the entering permanent and ended a precon pod in an engine NullPointerException), Tempt with Reflections creating its copies in table order instead of identity-hash order, and the lazy trigger copy of a playable-calculation game copy (the copy takes the triggers of its parent on first use). The same seed still replays the same game: with and without the trigger commit 46 of 46 precon pods and 36 of 36 seeds give identical semantic hashes, and the 36 seeds also equal those of the v10 pin. The lazy trigger copy saves about 3 to 6 percent of the CPU time of a sweep. The perf port (0c0132a2ef) stays out of the pin because it changes option text. The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the Owner's go (2026-10-21 18:34 UTC). The native maven.yml run on the exact commit and the Lab bridge suite are bound under native_qualification and lab_runtime_qualification; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
@@ -167,11 +167,27 @@
  },
  "lab_runtime_qualification": {
   "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 456b0e22 for that job, cache keyed by the commit; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "installed_artifacts_commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 8e6e10e21394cf83c39b3e3715ea927c4ec2c8c1d465ce91ff267ae1c9612a4c",
+   "org.mage:mage-sets:1.4.62": "sha256 491e5aa742ca23efd5531836471a7d1a8a966498731d3bc343a8a522f46c2220"
+  },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=456b0e22, checked in the job): engine-bridge mvn verify against XMage built from exact 456b0e22",
-   "status": "PENDING"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head 54e78a9fe09ac780ac14e9ae3eceacff867b9c04 (XMAGE_COMMIT=456b0e22, checked in the job): engine-bridge mvn verify against XMage built from exact 456b0e22; the head contains main with #951 (d2d8f15cb2) and #954 (167643d)",
+   "run": 2159,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 39659106453,
+   "job": 119427888116,
+   "artifact": {
+    "id": 12373288739,
+    "zip_sha256": "41a27ab3d3dcb8ff48fbfad6ca8d9966c0dfd5274ebcd9dd6570c818cbc2b575"
+   },
+   "tests_run": 1149,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest checks the seven prepare creatures, the finished Adventurous Eater and the still unfinished cards; the v6, v7 and v8 hooks stay checked."
  },
