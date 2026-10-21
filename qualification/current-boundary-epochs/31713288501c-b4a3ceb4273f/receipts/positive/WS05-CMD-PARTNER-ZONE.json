@@ -1,0 +1,43 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-PARTNER-ZONE",
+  "obligation_exercised": {
+    "obligation_digest": "0e1f450cbbe6f7ac6316db72cd605fead37431bbc93d5228f15deb7d969bf4b7",
+    "requested_state_digest": "d13cf57e931370ea78f14b5cc8008d0204ed1bc03a6d83986b5974b0d57b9a05",
+    "required_events": [
+      "game_start_command_zone:cmd:P1-A",
+      "game_start_command_zone:cmd:P1-B"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Both partner commanders begin in command zone as separate commander identities."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "game_start_command_zone:cmd:P1-A": {
+        "binding": "Rograkh, Son of Rohgahh begins in P1's command zone as exactly one engine commander identity",
+        "observation": "engine terminal observation"
+      },
+      "game_start_command_zone:cmd:P1-B": {
+        "binding": "Kediss, Emberclaw Familiar begins in P1's command zone as exactly one engine commander identity",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "22ba3825099787f2fc669ff225be0448f7a3a47a7a4dcc9f7bb6497745fc6b2b",
+  "runner_digest": "37699bb6bfc56732e2b7dd23454d81682365ba0520bf29b3b6154287654a914f",
+  "runtime_receipt_digest": "012385059476565139cf93a8bd0d541487d14e4673e387d963ea2a64b8d7c8e4",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-PARTNER-ZONE",
+  "variance_source": null
+}

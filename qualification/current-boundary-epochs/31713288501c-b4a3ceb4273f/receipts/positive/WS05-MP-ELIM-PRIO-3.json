@@ -1,0 +1,590 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "causal_reconstruction": {
+    "actor": "P1",
+    "bolt_count": 14,
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "79a0def3942a4c976c3fbe4090c5fa6e43b2367a8192b2cb02f57e0742acbc9c",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-0"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "b0ae74f1978180d7184eaf951078da84963de82b148ee47a5f96b7a49b946bb8",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-0"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "4cf1fc881c2c6f5163103f79dcc22411dabd4fac86732837d3debbae7c1ea42c",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-0"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "ec58f963327785662125ff1be6d4a016466418d3b75661bd59666115614af2cc",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-0"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "f60adaa70d33f2fe8b4e266b61bc599fd049edf749580691f84c3ba9149f3af8",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-0"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "7e972681d9c03635d5d17d59074d8c3ffdb29d86b82c57d958abcb6edf83c39e",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[1]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-1"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "4cc27e384413b6603c2fbe52b0cefd6bd16e0daecfc794252b79d5a8f5174e08",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-1"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "16663d5c1ac1393fa23b2708894ac0dc43cf51f0ed87c2cbf0614f73b8a9b117",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-1"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "78a848402494a26aaf6bb79b4690c4cb0c31e48217d10f8c521380b0a931ff7d",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-1"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "ae0d88a6ef7f7eb80f54390929861973522c6c1f94600a0f2d4ae8a652bcd567",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-1"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "96cbaf3c8d591e3c8779185a0594c0a4d58d93d10d9514c31b2ecd28725a1cb6",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[2]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-2"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "2b57ba1957a29246aaf6d6ccfd62860a3ae80a2897c5da9c0ee02e2cb2b9184f",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-2"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "b92732240c9530fbdaa2ec969fd4421f08440a9cf70fb04236ce437d581241d8",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-2"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "a44eb1ad4a39de1874c27efcb9ddbf5abbde6e53e11da63369a65d62604de37f",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-2"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "6b3960dcad08ee7b00b0963ae6da82769124b9fb58188c43511a34e80661d779",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-2"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "0e165c06fe0d3cf448fd4a16735da3fdb8864a647bbc69716e2e9fd1e4c7d6b5",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[3]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-3"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "ae01d6c93ab761789c59d25445263237ba1d4003a3c3cb80a0944e6afdb98c14",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-3"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "8174dfd1ee3b78ae441e391c05886ebb857c37e4c9b7ef1e3a124465aa0ad2bd",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-3"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "2d59c79b2169371047712626dd307d414e1a7c22c8a9bd56db5193dc5815414d",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-3"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "c8e2307da8160abe96b78f7b0f60b0fcbf6966c232888b345b2d0814ef95a0d6",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-3"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "e7bc00c676d3e59349091a7d196e37a310672171876026d0b837b93aeac424d7",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-4"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "600ebda64c22f3e7c7f187a381472a0d2359bf7dd9704d5d5ec2ab02c8be1309",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-4"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "bcf2b3a9595db941e35e8d566a447ca138ecc1a14e4529bf0501c23f1a0570d4",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-4"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "ba221adf257a902257c77d36978db6edabc78fb39d43b009a5501f62c16bb818",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-4"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "359b8222c1eb43a001cc6c9d1afe7cc8f1299d580483aa23d58594579a410d1a",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-4"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "4a2e02d40ba081807dd7f3fafd45df76a13159ca341cd3b0421f2962f836f32e",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[5]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-5"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "3ffca8833e5df884a0d7f2525e2438cdffbadefdbfa22cb7770a44e0d110cf0b",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-5"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "0b2765d464ba8425c81198c05609b7ab3bd41f0f241d9bc5853e38ca9681ee6e",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-5"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "68fd8098f6c204184929a0548bbea57fa6e893eb65502bbb685d1ebe76d4cfff",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-5"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "38e1bb9aa74265b7ac4c5fba8b5683429a6060ce97cb6066a2ef37b6e6194f7f",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-5"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "cf1592c9401d819d177a1ff2f72ab8d99f3fb1387b0ff753d5373e1e2002f1aa",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[6]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-6"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "3b0ee0f262b06c352c5cd1a1d69613e32ad02888b1b4074dab93886e4ba85d89",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-6"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "de42dcdca2aba3f4c94bef7f7939fb299b3001cc4785e9594a773f8ec5642ed5",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-6"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "cd3a28dbd6bd694b57cfd6ae710eab23b28e9606f18d58511a082a9437eb21e5",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-6"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "53740f7fd4ac577e1f75181c1b644de3b703135dc2305374b382d78e381fb63b",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-6"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "9e235dcddb7f20db55166dfea5d1a6230fce060e388989c5d255aaac9272b752",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[7]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-7"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "9cf0765ae632b4879abae874d3f5f4fcb2b06989d9d69cab1a38ddfb7a8331ff",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-7"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "6c390fdbe609f6170532fac28e7e0d8ee3dc4b37d5ade9fad13bb2e5f77a250e",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-7"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "87ccdd9666b240d2c5348b5b6e7d4fae4b289244f856f371cfae4bf9a4438484",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-7"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "97c0953013d520ec946bd175ec4a8b695c3d687dd5eeac279ee31429b0cfed52",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-7"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "162b6b455f7dd96210bcfab5363c5c98c49d902249238f8a23329fc06e941d8e",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[8]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-8"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f9c37f08ed3b32931cca0ab6583e61718a8eecdbb0cb4decab27beab38e9614e",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-8"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "d19d8ace815a5c24af10619c0352a8d8f03a9b3b97f50578ac963b586edd3347",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-8"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "9d970c115846089bf4cdcc9fac77065399222bb4a919e0c32fbf245390e3e542",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-8"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "81f2dafb4fa339d9bad8e524ea4b981e76b6712420364fe9a7977e2d6910c70c",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-8"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f2af3de78bba5fb6fd81dcb12630b680d6202f35a3a2d97a76cc0eb8bf3a79d4",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[9]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-9"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "815e7fd9ad098bdb57d6b4b1a1559df25bc557bda9d7db1b5dc0c697f2a08560",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-9"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "971718ee82b5a066ae005440ddaaecab323098d8d42366b50eab29c103283f92",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-9"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "b1626ee1fa888622bccfb0953b8774eb12979f7f10d297c134725c9820f031f9",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-9"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "2b5dd34bc3367da111d7e665a06c6b62d716e1060de693420b858b9f984c83fe",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-9"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "2cb92007f415aeea7cb91ffdf5ed33ce7a11dfa6b3f522f10fe37b6c01cfdb2c",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[10]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-10"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "0bf1d15ae64e9baf2d6579916a074dcf228e7f71ed8ca36a8e4ec77896f47dfa",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-10"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "f3fe651b26af45e6720c7fb854f6cd8abefad6c369b8f8c53a25439b644c0f13",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-10"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "06bab48089166f0504c53a7a040e9437533758c69eae7a5b03818812fabca583",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-10"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "4d1fe3f50fd96acd9fd94e4a9dd21abb6fe29244fd7f612dec67036278ece603",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-10"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "2dbcd85fd365bf2cbe88fbe22430383cec5f65d19d6fb7be4df49d1b0aa69b63",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[11]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-11"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "5ea43a1427fdc1b1b1db6f93d73a0ddc8da6b730c9753f61422251477415d27f",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-11"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "7280bb5997a1a47ed1dd9d59aff5da580dd26a5b478cb8876c68b06a62ac8c31",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-11"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "bbe01901e441274d7de091dbd443e9b02c0c6887c49bead1376adbaa5846f319",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-11"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "aeee1f456912a5794642f58af4612985bcc5aef083fdd30528da48ccedda2737",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-11"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "7688894ff65a861efaa8885c199c4c5602055dfcc84531928348355466dee46b",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[12]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-12"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "147212a5e55684f55343ede71eab78186f51be57eee8a6086965fece6ca4be9b",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-12"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "329a88b3d74a5c95f4224b8780be8b5e1a9f8a2616514d5f8d40df74ae3ebaa1",
+        "kind": "priority_pass",
+        "scope": "decision_script[4]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-12"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "935826a93e849888da4d6a05ae63eb62398e3bf4bdea5cfe79c1b9c52ca83133",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-12"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "96c8b88070803d174898dec342b7f9d16e351ec507a1d3dba7bfe3108830a448",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-12"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "c795ce023d1009a2669637187827d40b88f54713d63f1c731329f07743d9f10c",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[13]",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-13"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "323f9e616d0c5e92704cf38d3aff788098efb3ea1c6b004005c341887e88742a",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-mana-13"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "7b4043acd0278b5f57c2c9db56a38f151d7041023fa989d745732068a4f7f7f4",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-13"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "7bb8232bd8c3b184a252d6d11460cd0d4a167f5d5824dfaaee4a6a127a097dd0",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-13"
+      },
+      {
+        "actor": "P3",
+        "decision_id": "6104f1edfbc10007e2dc2f7feb09a13f8367ef4713f2e3b41a3274257f9dffeb",
+        "kind": "priority_pass",
+        "scope": "single_option",
+        "tag": "WS05-MP-ELIM-PRIO-3-causal-resolve-13"
+      }
+    ],
+    "entry_mode": "causal_elimination",
+    "verdict": {
+      "causal_match": true,
+      "life_totals": {
+        "P1": 40,
+        "P2": -2,
+        "P3": 40
+      },
+      "mismatches": [],
+      "survivors": [
+        "P1",
+        "P3"
+      ],
+      "victim": "P2",
+      "victim_left": true,
+      "victim_life": -2,
+      "victim_lost": true
+    },
+    "victim": "P2"
+  },
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "declared_substitution_source": "declared causal elimination (run_midgame_capability_probe.CAUSAL_ROWS, shared with Forge): the victim's recorded life is the state-based-action-pending instant (CR 704.3), placed openly as its starting life and reached only by the engine dealing the declared instruments' damage",
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-ELIM-PRIO-3",
+  "obligation_exercised": {
+    "obligation_digest": "89735aabd886bf07e06f5c9157e93e29fd67290f9e98c0626bbd8fd7fedcc98c",
+    "requested_state_digest": "d16603d115f0d2b396fb317bf4b415764be5be7574269958635b3defbf0493b0",
+    "required_events": [
+      "player_leaves:P2",
+      "multiplayer_cleanup:CR800.4"
+    ],
+    "terminal_checks": [
+      "the engine asked no priority decision of P2",
+      "the engine's first 2 priority decisions went to ['P1', 'P3'] in that order"
+    ],
+    "terminal_postconditions": [
+      "After P2 leaves, priority ring excludes P2 and next eligible live player is selected."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "the engine asked no priority decision of P2": true,
+      "the engine's first 2 priority decisions went to ['P1', 'P3'] in that order": true
+    },
+    "token_evidence": {
+      "multiplayer_cleanup:CR800.4": {
+        "binding": [
+          "every LOST event with player_player=P2 precedes the first ZONE_CHANGE event with player_player=P2, to=OUTSIDE",
+          "P2's battlefield is exactly [] (by card identity, as a multiset)"
+        ],
+        "parts": [
+          {
+            "binding": "every LOST event with player_player=P2 precedes the first ZONE_CHANGE event with player_player=P2, to=OUTSIDE",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "P2's battlefield is exactly [] (by card identity, as a multiset)",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "player_leaves:P2": {
+        "binding": [
+          "exactly 1 LOST event(s) with player_player=P2",
+          "the engine reports P2 lost and left the game"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 LOST event(s) with player_player=P2",
+            "events": [
+              76
+            ]
+          },
+          {
+            "binding": "the engine reports P2 lost and left the game",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "16a22fc3c56c21e47764cfd92b050df9ce148cc8662af6ba38f0e7a5de648710",
+  "runner_digest": "37699bb6bfc56732e2b7dd23454d81682365ba0520bf29b3b6154287654a914f",
+  "runtime_receipt_digest": "a5e9caf64bfc52ae303c176c091012c7f140acfa20a71aeaf7ebc90e2da37ac0",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-ELIM-PRIO-3",
+  "variance_source": "engine declaration-step priority allowance (midgame_lane.DECLARATION_STEP_PRIORITY_ALLOWANCE): during a declaration step the engine does not hold priority the way its arrival readback reports it, so the engine's own field-level compare is false with only the priority mismatches it documents"
+}

@@ -1,0 +1,45 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_TARGETS",
+  "obligation_exercised": {
+    "obligation_digest": "7d0176267940aced3802c9a4c64969931e8762dbd742817087177ed32f4a40e0",
+    "requested_state_digest": "a23542bc32a8dacfcf554a4edaff992f5075a62dc5f4b90c4eab8005a1d2e73e",
+    "required_events": [
+      "legal_targets_exposed",
+      "target_selected:P2"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Only Rules-Core legal targets were offered and P2 was selected."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "legal_targets_exposed": {
+        "decision_frames": [
+          1
+        ]
+      },
+      "target_selected:P2": {
+        "decision_frames": [
+          1
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "d02c48a50b13998d68e820e2f701c18a6110c9fbb9907b71c22d27a005bf299f",
+  "runner_digest": "37699bb6bfc56732e2b7dd23454d81682365ba0520bf29b3b6154287654a914f",
+  "runtime_receipt_digest": "94ce27d58b24f3a9e195f4eec9072aa96115c0d501bbd3e0427784e6bf02fcc0",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_TARGETS",
+  "variance_source": null
+}
