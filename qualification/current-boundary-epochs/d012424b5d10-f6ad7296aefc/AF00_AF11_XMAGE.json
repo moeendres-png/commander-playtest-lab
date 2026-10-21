@@ -1,0 +1,620 @@
+{
+ "boundary": "FRESH_CURRENT_BOUNDARY_EXECUTION",
+ "candidate": "xmage",
+ "column_provenance": {
+  "class": "FRESH_CURRENT_BOUNDARY_EXECUTION"
+ },
+ "full107_counts": {
+  "BLOCKED": 0,
+  "CRASH": 0,
+  "FAIL": 0,
+  "PASS": 107,
+  "PROTOCOL_FAILURE": 0,
+  "TIMEOUT": 0,
+  "UNKNOWN": 0
+ },
+ "gate_catalog": "architecture_freeze_gate_catalog_v2.json (AF00-AF11, all required)",
+ "gates": [
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "candidate commit reported by the provider at handshake: 769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+    "commit the evidence is required to be about: 769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+    "engine_commit provenance: file:/home/runner/.m2/repository/org/mage/mage/1.4.62/mage-1.4.62.jar",
+    "Lab runner HEAD/TREE bound in FULL107_*_RUNTIME_LOG_INDEX.json"
+   ],
+   "gate": "AF00",
+   "name": "SOURCE_AND_BUILD_LOCK",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "20 AF01 v2 invariants executed under Protocol 2.0.0 on the full-game lane",
+    "AF01_*_XMAGE.json"
+   ],
+   "gate": "AF01",
+   "name": "PROTOCOL_HANDSHAKE",
+   "nonblocking_limitations": [
+    "the generic compatibility lane reports seed_supported=True; the rules_randomness_core_owned invariant verdict is PASS, and any engine seed acknowledgement is recorded in the candidate's HIDDEN_INFO artifact"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "all_or_nothing": true,
+   "blocking_rows": [],
+   "evidence": [
+    "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "counts with a complete lifecycle: [2, 3, 4, 5]",
+    "counts without one: []",
+    "bounded 6P lifecycle recorded: True"
+   ],
+   "gate": "AF02",
+   "lifecycle_assessment": {
+    "all_or_nothing": true,
+    "complete_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "detail": {
+     "2P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "3P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "4P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     },
+     "5P": {
+      "bound_external_choices": 1,
+      "complete": true,
+      "completed_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ],
+      "missing_steps": [],
+      "reasons": [],
+      "required_steps": [
+       "handshake",
+       "import_deck",
+       "create_commander_game",
+       "start_game",
+       "decision_drive"
+      ]
+     }
+    },
+    "incomplete_counts": [],
+    "reason": "every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0",
+    "required_counts": [
+     2,
+     3,
+     4,
+     5
+    ],
+    "verdict": "PASS"
+   },
+   "name": "PLAYER_CARDINALITY",
+   "nonblocking_limitations": [
+    "6P is bounded secondary evidence; 7P is not attempted on this boundary"
+   ],
+   "verdict": "PASS"
+  },
+  {
+   "authority": "ENGINE_ONLY",
+   "blocking_rows": [],
+   "evidence": [
+    "deck_import_rejects_unknown_card: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_non_commander: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_colour_identity_violation: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_wrong_deck_size: PASS (the engine refused the mutated deck at the import boundary)",
+    "deck_import_rejects_empty_mainboard: PASS (the engine refused the mutated deck at the import boundary)"
+   ],
+   "gate": "AF03",
+   "name": "RULES_AUTHORITY",
+   "nonblocking_limitations": [
+    "proves the engine refuses these specific illegality classes at the import boundary; it is not an exhaustive proof of deck legality"
+   ],
+   "observed_probe_count": 5,
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "decision_boundary": {
+    "bounded_secondary_cardinalities_checked": [
+     "6P"
+    ],
+    "candidate": "xmage",
+    "contradictions": [],
+    "externally_answered_decision_classes": [
+     "MULLIGAN",
+     "PRIORITY"
+    ],
+    "frame_count": 25,
+    "frames": [
+     {
+      "actor": "565dc601-46e5-478a-ad64-3614f69a05c9",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 565dc601-46e5-478a-ad64-3614f69a05c9 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "35b55d7f2617f2b649ae36c516e03eda2a750041b36b525a454efbb0a40c3b0f",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "3df74037-4e86-431d-918f-3cfe618d2eb0",
+      "cardinality": "2P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 3df74037-4e86-431d-918f-3cfe618d2eb0 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "e2b221f81b5ee1423ad8e63af0f0a896c67966d6e886b8c03a5369f36b9cd195",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "565dc601-46e5-478a-ad64-3614f69a05c9",
+      "cardinality": "2P",
+      "chosen_option_id": "8ba2a018f2da4862fe22b32a9042d892929597cf2d195c34def6d97136878c28",
+      "detail": "PRIORITY answered by 565dc601-46e5-478a-ad64-3614f69a05c9 at revision 3; 1 engine-offered option(s); chosen='8ba2a018f2da4862fe22b32a9042d892929597cf2d195c34def6d97136878c28'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "8ba2a018f2da4862fe22b32a9042d892929597cf2d195c34def6d97136878c28",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 3
+     },
+     {
+      "actor": "035ecdd1-045e-400a-958c-699ea172efe9",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 035ecdd1-045e-400a-958c-699ea172efe9 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "69a7382babd5acfda9396ae43ea33677277ece3e6a47cd2fee402226ac39c89b",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "7bfa5926-1bfa-47eb-a125-064dafb857f0",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 7bfa5926-1bfa-47eb-a125-064dafb857f0 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "5f0eb798ae393bda6ac7e0483169cb53336e5a86c0ce0235e8bd83554d322307",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "d9833537-0696-46c2-ab41-2b565ae823da",
+      "cardinality": "3P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by d9833537-0696-46c2-ab41-2b565ae823da at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "acdbbc7ea5d4540e78d9c7283f39b76a807d5374f169719c0caf189c489307f5",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "035ecdd1-045e-400a-958c-699ea172efe9",
+      "cardinality": "3P",
+      "chosen_option_id": "f53c1b959676f22ea7a757703260e7d210c581935828ff801e77184e0c0b7451",
+      "detail": "PRIORITY answered by 035ecdd1-045e-400a-958c-699ea172efe9 at revision 4; 1 engine-offered option(s); chosen='f53c1b959676f22ea7a757703260e7d210c581935828ff801e77184e0c0b7451'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "f53c1b959676f22ea7a757703260e7d210c581935828ff801e77184e0c0b7451",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 4
+     },
+     {
+      "actor": "c05d9117-5e48-47eb-b84c-75951c22b981",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by c05d9117-5e48-47eb-b84c-75951c22b981 at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "b9668fc544d1956dbee744e3af87f2ec72849bb4c13697cbe88bee2b4ed31288",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "1291bff7-feed-4539-9b97-f4179723e46f",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 1291bff7-feed-4539-9b97-f4179723e46f at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "fe5ebe550a6ee7e3dab2cab6c1e9d7ac63493b87376f57abd0a6b65ffbfc37b4",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "86335eb6-c38f-41e4-81b6-50f2ec41c028",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 86335eb6-c38f-41e4-81b6-50f2ec41c028 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "ae8dadb1806e1137a2be2c4449c03dcf13e09ada5efdb5a003857e813aca5d2a",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "0762cbe0-cf89-42cc-aded-dac011a97859",
+      "cardinality": "4P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 0762cbe0-cf89-42cc-aded-dac011a97859 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "92707f9b81c22856b6a077976d69b7bc07a197933ad0805f4566e1f6061d1a6f",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "c05d9117-5e48-47eb-b84c-75951c22b981",
+      "cardinality": "4P",
+      "chosen_option_id": "5acba2d6ec8d06ad1e83fc0eae484292963660a3e31eca7699d430ffd3951b16",
+      "detail": "PRIORITY answered by c05d9117-5e48-47eb-b84c-75951c22b981 at revision 5; 1 engine-offered option(s); chosen='5acba2d6ec8d06ad1e83fc0eae484292963660a3e31eca7699d430ffd3951b16'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "5acba2d6ec8d06ad1e83fc0eae484292963660a3e31eca7699d430ffd3951b16",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 5
+     },
+     {
+      "actor": "c0f4ae3f-bcea-4199-94dc-f59a7affea0a",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by c0f4ae3f-bcea-4199-94dc-f59a7affea0a at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "4721c9f44130134e601afa485dbca91d0266117ff4300944c6776c0eaa383ff3",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "3e14afc7-6499-416b-8775-7d274f6dd3d0",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 3e14afc7-6499-416b-8775-7d274f6dd3d0 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "7fe93d497ded377b9a0a334c27667804f07758818c3e179834fceff3e44cb0eb",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "cd50e28b-5325-411c-89fd-79e040b52787",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by cd50e28b-5325-411c-89fd-79e040b52787 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "fc0e1f7511d97b2c3ab10d95b81c1e20e50f73c46b35d3c3877438ecc38df020",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "c7cfdf7c-cef8-4628-99a6-b9f0115259a5",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by c7cfdf7c-cef8-4628-99a6-b9f0115259a5 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "4227e652cb5b70d3a529ac16a9ebce0fedabb925ab81e8f4c07d6c59f5fdbe24",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "9527d11d-8c6c-470c-b4b3-ff9e75fbc526",
+      "cardinality": "5P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 9527d11d-8c6c-470c-b4b3-ff9e75fbc526 at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "3316b5446c5e3c0c8c5095c15871a7b6399f7715b105b06ed6a31a8ac08900ca",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "c0f4ae3f-bcea-4199-94dc-f59a7affea0a",
+      "cardinality": "5P",
+      "chosen_option_id": "5db15ce89d28089d40886c94e4ae4cbe99ed180006393e40048c1e48d3697b9b",
+      "detail": "PRIORITY answered by c0f4ae3f-bcea-4199-94dc-f59a7affea0a at revision 6; 1 engine-offered option(s); chosen='5db15ce89d28089d40886c94e4ae4cbe99ed180006393e40048c1e48d3697b9b'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "5db15ce89d28089d40886c94e4ae4cbe99ed180006393e40048c1e48d3697b9b",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 6
+     },
+     {
+      "actor": "7809e925-c901-4b75-ad10-447b7533ed7e",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 7809e925-c901-4b75-ad10-447b7533ed7e at revision 1; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "7c5f5a10bde49a635f80d5911cc1357eb7baca02bce433aeb3c993045a92ae63",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 1
+     },
+     {
+      "actor": "62c07147-a3ff-4baf-91b9-117262846812",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by 62c07147-a3ff-4baf-91b9-117262846812 at revision 2; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "46c51187babe6937c3a5e9e011e95670c7649431ff7e62586dd595aa3b9dd39b",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 2
+     },
+     {
+      "actor": "cab35d53-a1ae-47a2-b069-4db368fb83a0",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by cab35d53-a1ae-47a2-b069-4db368fb83a0 at revision 3; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "ca3e82f68279be38305321981f925fdd342eb6541cc1a3e434d083aa20a1edba",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 3
+     },
+     {
+      "actor": "ae75cdca-25f2-427d-808c-a9372deeac95",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by ae75cdca-25f2-427d-808c-a9372deeac95 at revision 4; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "dce9a49e0f4028f6171a6a25ebd282b335849c4161f16a0a95660c016d1afe84",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 4
+     },
+     {
+      "actor": "dcad0c7c-ea49-4e7d-9843-51d9181c629a",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by dcad0c7c-ea49-4e7d-9843-51d9181c629a at revision 5; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "deff2edd5e1de3dbcb8ac9ce75b66cb49716314f8b7228b099dcb5270074ce07",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 5
+     },
+     {
+      "actor": "dffd042f-5054-44de-8488-5366f96275c5",
+      "cardinality": "6P",
+      "chosen_option_id": null,
+      "detail": "MULLIGAN answered by dffd042f-5054-44de-8488-5366f96275c5 at revision 6; 2 engine-offered option(s); chosen=None; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "8124e36666e1aa361536695c592d32fec2c213eea3aabb60ee335c0dee00a575",
+      "kind": "MULLIGAN",
+      "offered_count": 2,
+      "revision": 6
+     },
+     {
+      "actor": "7809e925-c901-4b75-ad10-447b7533ed7e",
+      "cardinality": "6P",
+      "chosen_option_id": "310c589c31fb6f4a2b98a54f6a3615a242bf9960c33c54d31d990f5cb2cbf5e2",
+      "detail": "PRIORITY answered by 7809e925-c901-4b75-ad10-447b7533ed7e at revision 7; 1 engine-offered option(s); chosen='310c589c31fb6f4a2b98a54f6a3615a242bf9960c33c54d31d990f5cb2cbf5e2'; engine reported the executed option identity",
+      "engine_accepted": true,
+      "engine_executed_option_id": "310c589c31fb6f4a2b98a54f6a3615a242bf9960c33c54d31d990f5cb2cbf5e2",
+      "kind": "PRIORITY",
+      "offered_count": 1,
+      "revision": 7
+     }
+    ],
+    "gaps": [],
+    "gate": "AF04",
+    "limitations": [],
+    "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+    "required_cardinalities": [
+     "2P",
+     "3P",
+     "4P",
+     "5P"
+    ],
+    "required_frame_counts": {
+     "2P": 3,
+     "3P": 4,
+     "4P": 5,
+     "5P": 6
+    },
+    "schema_version": "commander-lab.af04-decision-boundary/1.0.0",
+    "statement": "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback",
+    "verdict": "PASS"
+   },
+   "evidence": [
+    "AF04 derived from this epoch's external decision frames (25 frame(s) across 2P, 3P, 4P, 5P); externally answered classes: MULLIGAN, PRIORITY",
+    "decision identity provenance on the live AF01 frame (R-2): {'byte_matched': {'action_id': True, 'actor_id': True, 'decision_id': True}, 'identity_field': 'decision_id', 'pass_identity_offered': True, 'submitted_fields': ['action_id', 'actor_id', 'decision_id'], 'verified': True}",
+    "every recorded external decision frame in this epoch was answered from the engine-offered option domain, was accepted by the engine, and binds its actor and revision to the offering frame; no decision class was answered by a fail-closed policy fallback"
+   ],
+   "gate": "AF04",
+   "name": "LEGAL_ACTION_AND_DECISION_BOUNDARY",
+   "nonblocking_limitations": [
+    "every frame in this epoch's decision tape was answered from the engine-offered domain with a recorded engine acceptance; a decision class absent from the tape is not claimed as exercised"
+   ],
+   "owner_ruling": "R-2",
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "20 of 20 HIDDEN_* rows PASS in this epoch",
+    "principal-scoping audit: NONE"
+   ],
+   "gate": "AF05",
+   "name": "HIDDEN_INFORMATION",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "107 of 107 rows PASS under the effective contract; 0 BLOCKED; 0 UNKNOWN"
+   ],
+   "gate": "AF06",
+   "name": "GENERAL_RULES_CORRECTNESS",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "29 of 29 frozen corpus identities have their own mandatory CARD_* row PASS in this epoch",
+    "28 corpus fixtures outside the provider denominator are credited from same-epoch, runner-bound campaign receipts (CARD_01, CARD_03, CARD_04, CARD_05, CARD_06, CARD_07, CARD_08, CARD_09, CARD_10, CARD_11, CARD_12, CARD_13, CARD_14, CARD_15, CARD_16, CARD_17, CARD_18, CARD_19, CARD_20, CARD_21, CARD_22, CARD_23, CARD_24, CARD_25, CARD_26, CARD_27, CARD_28, CARD_29)",
+    "the artifact's own summary reports 0 of 29 (written before the mid-game lane runs; the row states above are authoritative)",
+    "every frozen corpus identity is covered by its own passing mandatory fixture row with a current-boundary execution"
+   ],
+   "gate": "AF07",
+   "name": "ACTUAL_CARD_BEHAVIOR",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "36 of 36 WS05 multiplayer/Commander obligations PASS",
+    "cardinality lifecycle: PASS (every mandatory count [2, 3, 4, 5] completed a full Commander lifecycle under Protocol 2.0.0)"
+   ],
+   "gate": "AF08",
+   "name": "MULTIPLAYER_COMMANDER",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, never a demonstrated Rules RNG tape",
+    "replay export was refused by the engine (codes: unsupported_message)",
+    "replay export attempted in a live game and refused by the engine (RNG_REPLAY_XMAGE.json; refusal codes: unsupported_message)",
+    "seed binding: ACKNOWLEDGED_ENGINE_SEED (requested=424242, acknowledged=424242); acknowledgement is a precondition for RNG control, not a demonstrated Rules RNG tape",
+    "a fail-closed export refusal is an absent capability, never a satisfied obligation and never a replay PASS",
+    "deterministic setup alone (deck import, game creation, seed acknowledgement) is not semantic replay proof",
+    "clean-process twin taken from the production midgame lane (MIDGAME_REPLAY_TWIN_EXECUTIONS.json: 5/5 replay/RNG rows verified; record and replay in distinct fresh processes, the replay re-issuing only the taped external inputs)",
+    "the single-process replay export refusal stays recorded as an absent capability; it is not a satisfied obligation and this verdict does not rest on it, only on the proven clean-process twin"
+   ],
+   "gate": "AF09",
+   "name": "RNG_REPLAY",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "denominator accounting complete: 107 explicit outcomes for 107 rows",
+    "zero CRASH/TIMEOUT/PROTOCOL_FAILURE",
+    "native suites: 299 tests, all green"
+   ],
+   "gate": "AF10",
+   "name": "RUNTIME_EVIDENCE_RELIABILITY",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  },
+  {
+   "blocking_rows": [],
+   "evidence": [
+    "this run measured one candidate, driven through its own external adapter (xmage=engine-bridge/src/main/java/org/commanderlab/xmage); no other candidate shares the Lab driver",
+    "no adapter identity resolves to the Lab's in-tree engine package, so no engine code is embedded in the Lab process",
+    "qualification boundary recorded for this run: commander-lab.pre-freeze-qualification/2.0.0",
+    "recorded licence topology: xmage xmage MIT (recorded metadata; no legal conclusion is drawn here)",
+    "every observable AF11 technical fact holds, and the Coordinator adjudication qualification/af11-xmage-only-topology-20261021/AF11_COORDINATOR_ADJUDICATION.json validates for the selected provider xmage: licences match the source lock, the effective epoch passes AF00-AF10, no Forge role remains (Owner decision 2026-10-13), and this run's provider classpath equals the adjudicated licence inventory, hence PASS"
+   ],
+   "gate": "AF11",
+   "name": "INTEROP_LICENSE_TOPOLOGY",
+   "nonblocking_limitations": [],
+   "verdict": "PASS"
+  }
+ ],
+ "native_runs": {
+  "direct": {
+   "candidate": "xmage",
+   "candidate_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "d012424b5d105e08662b8bf0a96ba78b6736ffb9",
+   "failed": 0,
+   "failures": 0,
+   "passed": 34,
+   "receipt_digest": "43d1a72fd8de466f7b8daf998ae7d52c0d14a3746aaeb1e4cdf6d6128d46bc55",
+   "returncode": 0,
+   "tests": 34
+  },
+  "mechanism": {
+   "candidate": "xmage",
+   "candidate_commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+   "engine_identity_justification": "ENGINE_NOT_A_SEPARATE_GIT_CHECKOUT",
+   "errors": 0,
+   "executed_commit": "d012424b5d105e08662b8bf0a96ba78b6736ffb9",
+   "failed": 0,
+   "failures": 0,
+   "passed": 265,
+   "receipt_digest": "8ee3b5d14ea774572e0cc4f5e2e84c8add724bfa0cb29f10bd46e8601c623121",
+   "returncode": 0,
+   "tests": 265
+  }
+ },
+ "qualification_boundary": "commander-lab.pre-freeze-qualification/2.0.0",
+ "schema_version": "wsr22.af-matrix/1.0.0"
+}
