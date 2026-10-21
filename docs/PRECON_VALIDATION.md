@@ -272,6 +272,38 @@ die anderen sechs Karten sind neu.
   Mit diesen Änderungen laufen 007, 018 und 021 durch (6019, 2228 und 4674 Entscheidungen; ein Spiel
   je Pod, keine Passquote). Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
   alle Zähler identisch.
+- Familiensuche Plan-Seeds 11 und 12 auf dem Pin `769e6ebb` (Spiel-Seed gleich dem Plan-Seed, gleiche 182
+  Decks, `LOCAL_OBSERVED`, Jar aus `main` `d74dd708`, Pilot von `main` `8f4665b`): Seed 11 läuft mit
+  45 von 46 Pods durch, Seed 12 mit 40 von 46 im Sweep und 45 von 46 nach den Einzelläufen unten. Zwei
+  Abbrüche liegen im Piloten (die Bridge bleibt unverändert, keine Requalifizierung), einer ist ein
+  gültiges Spiel, das nicht endet:
+  - Seed 11, Pod 013, Numa, Joraga Chieftain: Numa zahlt `{X}{X}`, fragt X aber mit „Announce the value
+    for {X} (pay to distribute counters)“ ab. Der Pilot las das nicht als Mana-X und nannte die
+    Obergrenze der Engine; doppelt gezählt läuft sie über, die Zahlung kostete nichts und zwei
+    Milliarden Marken wurden verteilt. Der Pilot liest die Ansage jetzt als Mana-X mit zwei Symbolen
+    (`_PAID_X_PROMPT` in `common.py`) und bleibt in dem Band, das die Quellen bezahlen.
+  - Seed 12, Pod 006, Tayam, Luminous Enigma: „{3}, Remove three counters from creatures you control“
+    ist bei `769e6ebb` eine `RemoveCounterCost` mit bis zu drei Kreaturen. Die Engine nimmt von jeder
+    gewählten Kreatur Marken einer einzigen Art und fragt nur dann nach der Menge, wenn noch mehr als
+    eine fehlt und der Stapel größer als eins ist. Der Pilot prüfte nur die Summe aller Marken
+    (und las Tayams Wortlaut ohne „among“ gar nicht), wählte Kreaturen mit je einer Marke und eine
+    beliebige Markenart; die Kosten kamen nicht zusammen (`XMAGE_ACTION_EXECUTION_FAILED`). Der Pilot
+    prüft jetzt, ob die größten Stapel je Kreatur zusammen die Zahl ergeben
+    (`spread_counter_cost_unpayable`), wählt die Kreaturen nach dem größten Stapel zuerst und hört auf,
+    sobald die Zahl gedeckt ist, nimmt von der Kreatur die Markenart mit dem größten Stapel und
+    antwortet auf „Choose how many counters“ mit dem Höchstwert (`_decide_counter_cost_objects`,
+    `_counter_type_for_cost`).
+  - Seed 12, Pod 016: kein Pilotfehler. Ashaya, Soul of the Wild, Scute Swarm, Zimone und Retreat to
+    Coralhelm lassen die Landfall-Trigger exponentiell wachsen (9 Insekten in Zug 42, 243 in Zug 44, 498
+    in Zug 46, etwa 1000 Trigger gleichzeitig auf dem Stapel). Jedes Land erzeugt dann tausende
+    Reihenfolge-Entscheidungen mit einem Zustand von 500 Permanenten, das Spiel braucht über zehn
+    Minuten und endet nicht. Das Spiel ist regelkonform und bleibt unbehoben (Familie „Trigger-Explosion“).
+    Die Pods 012 bis 015 desselben Batches meldeten „shutdown not
+    graceful“, weil die JVM beim Abbruch des hängenden Spiels starb; einzeln laufen sie durch (3020,
+    2847, 3556 und 5401 Entscheidungen).
+  Mit den Änderungen laufen Seed 11 Pod 013 (2046 Entscheidungen) und Seed 12 Pod 006 (2611
+  Entscheidungen) durch; ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn
+  Seeds (1–10, gleiches Jar): alle Zähler identisch.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung
