@@ -209,9 +209,10 @@ die anderen sechs Karten sind neu.
   3133 Entscheidungen, 021: 2402, 032: 3662; ein Spiel je Pod, keine Passquote). Die Bridge
   ändert sich dabei nicht.
 - Familiensuche Plan-Seed 5 (Spiel-Seed 5, gleiche 182 Decks, `LOCAL_OBSERVED`, ein Lauf, Stand
-  `d59d0cd`, Jar und Pilot von `main`): drei der 46 Pods brechen ab, alle drei im Piloten und ohne
-  Änderung der Bridge. Der Lauf wurde in drei Teilen gespielt, weil der erste Prozess nach 23 Pods
-  abbrach; die Abbrüche wurden einzeln auf `d59d0cd` nachgespielt:
+  `d59d0cd`, Jar und Pilot von `main`): vier der 46 Pods brechen ab. Drei liegen im Piloten und
+  sind behoben, ohne Änderung der Bridge; der vierte (Pod 018) ist offen. Der Lauf wurde in drei
+  Teilen gespielt, weil der erste Prozess nach 23 Pods abbrach; die Abbrüche wurden einzeln auf
+  `d59d0cd` nachgespielt:
   - Pod 007, Slaughter the Strong: Die Karte fragt Kreatur für Kreatur („already selected total
     power N“) und nimmt eine erneut gewählte Kreatur wieder heraus, bis nichts mehr gewählt wird,
     und fragt dann „End the selection“ oder „Continue the selection“. Der Pilot wählte die eine
@@ -228,6 +229,8 @@ die anderen sechs Karten sind neu.
     Ladungsmarken; die Engine prüft in `RemoveCounterCost.canPay` nur, ob ein Ziel wählbar ist).
     Der Pilot aktiviert solche Kosten nur, wenn die Marken auf seinen Permanenten reichen (zählt
     ohne Typfilter, findet also nur einen Mangel, den keine Wahl beheben kann).
+  - Pod 018: beendet sich auch mit diesen Änderungen nicht sauber (`ENGINE_FAILURE` nach rund 57
+    Minuten, das Spiel ist extrem langsam). Die Ursache ist noch nicht bestimmt; offen.
   Mit Jar von `d59d0cd` und diesen Änderungen laufen 007, 017 und 035 durch (1818, 3294 und 2225
   Entscheidungen, siehe Nachspiel). Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
   alle Zähler identisch.
