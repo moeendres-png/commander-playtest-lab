@@ -57,6 +57,13 @@ def commander_names(state: Mapping[str, Any]) -> frozenset[str]:
 # Timely Ward on a token). The printed card catalog does not hold the card, so it is named here.
 _COMMANDER_TARGET_FLASH = frozenset({"timely ward"})
 
+# An Aura with morph cast face down: the permanent enters as a creature, yet XMage still runs
+# the Aura check on the card ("found etb aura with empty spell ability or without any targets",
+# PlayerImpl.moveCards) and every attempt ends in an internal error that kills the game (precon
+# pod, plan seed 7, Gift of Doom). Its normal cast is unaffected. The printed card catalog does
+# not hold the card, so it is named here.
+_FACE_DOWN_AURAS = frozenset({"gift of doom"})
+
 
 def needs_commander_target(
     source_name: str, state: Mapping[str, object], *, spell_on_stack: bool
@@ -744,6 +751,13 @@ def priority_view_fields(
     ):
         return {**fields, "metadata": extra}, "no_commander_for_conditional_flash"
 
+    if (
+        ability_type == "spell"
+        and " using morph" in label
+        and source_name.casefold() in _FACE_DOWN_AURAS
+    ):
+        return {**fields, "metadata": extra}, "aura_cast_face_down"
+
     if option_type == "play_land" or ability_type == "play_land":
         fields.update(floor_value=1.6, immediate_impact=1.2, mana_cost=0.0)
         extra["is_land"] = True
@@ -851,6 +865,8 @@ def priority_view_fields(
             label, str(meta.get("source_object_id") or ""), state, actor_id
         ):
             return {**fields, "metadata": extra}, "remove_counters_cost_unpayable"
+        if ninjutsu_card_on_battlefield(label, str(meta.get("source_object_id") or ""), state):
+            return {**fields, "metadata": extra}, "ninjutsu_card_on_battlefield"
         if _SELF_DOUBLING_COUNTERS.search(label):
             # #817: "Put X +1/+1 counters on this, where X is its power"
             # doubles the permanent on every activation. Past lethal damage
@@ -921,6 +937,26 @@ def _spell_withhold_reason(
             # spending it on a token or a mana creature.
             return "no_worthy_removal_target"
     return None
+
+
+def ninjutsu_card_on_battlefield(
+    label: str, source_object_id: str, state: Mapping[str, object]
+) -> bool:
+    """True for a (commander) ninjutsu offer whose card already stands on the battlefield.
+
+    Commander ninjutsu is a Zone.ALL ability in XMage, so the engine offers it for the ninja
+    wherever it is. The cost that reveals the card only pays from the hand or the command zone, so
+    after the mana is spent the activation fails and with it the game (precon pod, plan seed 7,
+    Yuriko, the Tiger's Shadow cast normally and then offered her own ninjutsu).
+    """
+    ability = label.casefold().split(" — ", 1)[-1]
+    if not source_object_id or not ability.startswith(("ninjutsu", "commander ninjutsu")):
+        return False
+    return any(
+        str(item.get("object_id")) == source_object_id
+        for player in players(state)
+        for item in _items(player.get("battlefield"))
+    )
 
 
 # A self-doubling counter ability is not offered once the source's power

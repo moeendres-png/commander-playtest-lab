@@ -982,6 +982,99 @@ def test_commander_only_target_rule_is_limited_to_that_card_and_timing() -> None
     assert sorcery["selected_option_ids"] == ["token"]
 
 
+def _morph_cast(name: str) -> dict[str, Any]:
+    return _option(
+        "morph",
+        "activated_ability",
+        f"{name} — Cast {name} using Morph",
+        source_name=name,
+        source_object_id="hand-0",
+        ability_type="spell",
+        mana_cost_generic=3,
+        pool_covers_mana_cost=False,
+        requires_tap_source=False,
+        requires_untap_source=False,
+        requires_sacrifice_source=False,
+    )
+
+
+def test_an_aura_is_not_cast_face_down() -> None:
+    # XMage offers "Cast Gift of Doom using Morph" and then throws at the Aura check when the
+    # face-down permanent enters, which ended a precon game (plan seed 7). The pilot passes.
+    response = _policy().decide(
+        _request(
+            "priority", [_PASS, *_TAPS, _morph_cast("Gift of Doom")], state=_ward_state(stack=())
+        )
+    )
+    assert response["selected_option_ids"] == ["pass"]
+
+
+def test_the_face_down_rule_is_limited_to_auras() -> None:
+    # Controls: the same morph cast of a creature, and the ordinary cast of the Aura, are chosen
+    # as before.
+    state = _ward_state(stack=())
+    creature = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _morph_cast("Exalted Angel")], state=state)
+    )
+    assert creature["selected_option_ids"] == ["morph"]
+    aura = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _ward_cast("Gift of Doom")], state=state)
+    )
+    assert aura["selected_option_ids"] == ["cast"]
+
+
+_NINJUTSU_LABEL = (
+    "Yuriko, the Tiger's Shadow — Commander ninjutsu {U}{B} <i>({U}{B} Return an unblocked "
+    "attacker you control to hand: Put this card onto the battlefield from your hand or the "
+    "command zone tapped and attacking.)</i>"
+)
+
+
+def _ninjutsu(source_object_id: str) -> dict[str, Any]:
+    return _option(
+        "ninjutsu",
+        "activated_ability",
+        _NINJUTSU_LABEL,
+        source_name="Yuriko, the Tiger's Shadow",
+        source_object_id=source_object_id,
+        ability_type="activated_nonmana",
+        mana_cost_blue=1,
+        mana_cost_black=1,
+        pool_covers_mana_cost=False,
+        requires_tap_source=False,
+        requires_untap_source=False,
+        requires_sacrifice_source=False,
+    )
+
+
+def _ninjutsu_state(*, ninja_on_battlefield: bool) -> dict[str, Any]:
+    state = _state(step="declare_blockers")
+    ninja = {"object_id": "ninja", "name": "Yuriko, the Tiger's Shadow", "tapped": False}
+    zone = state["players"][0]["battlefield" if ninja_on_battlefield else "hand"]
+    zone.append(ninja)
+    return state
+
+
+def test_ninjutsu_is_not_activated_for_a_card_that_is_already_on_the_battlefield() -> None:
+    # Commander ninjutsu is a Zone.ALL ability, so XMage offers it for the ninja wherever it
+    # stands. The reveal cost only pays from the hand or the command zone: the activation failed
+    # after the mana was spent and ended a precon game (plan seed 7, Yuriko in play).
+    state = _ninjutsu_state(ninja_on_battlefield=True)
+    response = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _ninjutsu("ninja")], state=state)
+    )
+    assert response["selected_option_ids"] == ["pass"]
+
+
+def test_ninjutsu_from_the_hand_is_still_activated() -> None:
+    # Control: the same offer with the ninja in hand is chosen as before.
+    state = _ninjutsu_state(ninja_on_battlefield=False)
+    response = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _ninjutsu("ninja")], state=state)
+    )
+    assert response["selected_option_ids"] == ["ninjutsu"]
+
+
 _TEKUTHAL_LABEL = (
     "Tekuthal, Inquiry Dominus — {1}{U/P}{U/P}, Remove three counters from among other "
     "artifacts, creatures, and planeswalkers you control: Put an indestructible counter on {this}."
