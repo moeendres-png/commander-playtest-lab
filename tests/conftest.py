@@ -16,6 +16,9 @@ from commander_lab.engine.structural import (
 )
 from commander_lab.models import CardIdentity
 
+# ``pytest --shards=N`` (see the module docstring); the hooks are inert without the option.
+from tests.pytest_shards import pytest_addoption, pytest_cmdline_main  # noqa: F401
+
 
 @pytest.fixture(scope="session")
 def repo_root() -> Path:

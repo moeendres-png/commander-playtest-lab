@@ -17,6 +17,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from tests import pytest_shards
+
 REPO = Path(__file__).resolve().parents[2]
 OWNERS = {
     "quality": (".github/workflows/ci.yml", "quality"),
@@ -50,8 +52,9 @@ def selection(command: tuple[str, ...], test_files: list[str]) -> set[str]:
     for arg in args:
         if arg in {"-q", "-ra", "-rs"}:
             continue
-        # Reporting only: they never change which tests are collected.
-        if arg.startswith(("--durations=", "--junitxml=")):
+        # Reporting only: they never change which tests are collected. ``--shards=N``
+        # splits the same selection over N processes (test_every_shard_selection_...).
+        if arg.startswith(("--durations=", "--junitxml=", "--shards=")):
             continue
         if arg.startswith("--ignore="):
             ignored.append(arg.split("=", 1)[1].rstrip("/"))
@@ -96,6 +99,26 @@ def test_infrastructure_owns_the_qualification_tests() -> None:
     assert qualification
     assert selection(_pytest_command("infrastructure"), files) == qualification
     assert _pytest_command("quality")[-1] == "--ignore=tests/qualification"
+
+
+def test_the_shards_of_the_quality_command_select_each_quality_file_exactly_once() -> None:
+    command = _pytest_command("quality")
+    shard_option = [arg for arg in command if arg.startswith("--shards=")]
+    assert len(shard_option) == 1
+    count = int(shard_option[0].split("=", 1)[1])
+    files = _test_files()
+    quality = selection(command, files)
+    parsed = pytest_shards.parse_arguments(command[command.index("pytest") + 1 :], ("tests",))
+    weights = pytest_shards.selected_files(
+        pytest_shards.load_weights(pytest_shards.WEIGHTS_PATH), REPO, parsed
+    )
+    plan = pytest_shards.plan_shards(weights, count)
+    chosen = [
+        selection(("pytest", *pytest_shards.shard_arguments(parsed, plan, index)), files)
+        for index in range(count)
+    ]
+    assert set().union(*chosen) == quality
+    assert sum(len(shard) for shard in chosen) == len(quality)
 
 
 @pytest.mark.parametrize(
