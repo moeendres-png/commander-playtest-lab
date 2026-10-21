@@ -19,15 +19,16 @@ excluded, as in `ci.yml`):
 | One process (the command until now) | 22:09 min | 3738 passed, 7 skipped |
 | Four shards, one shared checkout | 6:10 min | 1 failed (see below) |
 | Four shards, a checkout copy each | 6:11 min | 3738 passed, 7 skipped |
-| The workflow command itself (`--shards=4`), shards 328 s each | 6:06 min | 3738 passed, 7 skipped, plus the 16 new tests |
+| The workflow command itself (`--shards=4`), shards 328 s each | 6:06 min | 3738 passed, 7 skipped, plus the new tests |
 
-That is 3.6x on the local machine. The CI runner is faster per core than this container (the
-single-process step took 990 s there against 1330 s here), so the test step should land around
-5 minutes and the job around 7.
+That is 3.6x on the local machine. On the CI runner (`ubuntu-latest`, 4 vCPUs) two runs of the
+workflow command on this change gave a `quality` job of 5:58 min and 10:35 min (the single-process
+job took 17:52 min). The second run landed on a runner about twice as slow per core; its four shards
+were balanced (481, 491 and 524 s), so the spread is the runner, not the plan.
 
 Per test, the sharded run and the one-process run agree: no test of the one-process JUnit
 report is missing from the merged sharded report, every shared test has the same outcome, and
-the only additional ones are the 16 tests of this change.
+the only additional ones are the tests of this change itself.
 
 ## How it works
 
