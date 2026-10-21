@@ -13,7 +13,9 @@ from commander_lab.models import (
 from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
+    is_x_counter_pile_cost,
     tap_creature_cost_unpayable,
+    x_counter_pile_cap,
 )
 from .common import (
     _LOG,
@@ -46,7 +48,14 @@ class _PaymentDecisions(_PolicyState):
     def _paying_counters(self, seat: int) -> int | None:
         """How many counters the "remove N counters ..." cost this seat is paying takes."""
         label = self._last_priority_label.get(seat)
-        return None if label is None else counter_cost_number(label)
+        if label is None:
+            return None
+        number = counter_cost_number(label)
+        if number is None and is_x_counter_pile_cost(label):
+            # The cost takes the X this seat announced for the activation.
+            announced = self._failed_x_announcements.get(seat, {})
+            return next(iter(announced.values())) if len(announced) == 1 else None
+        return number
 
     def _paying_counter_kind(self, seat: int, state: dict[str, object]) -> str | None:
         """The counter kind a "remove a K counter from a permanent you control" cost takes now."""
@@ -869,6 +878,7 @@ class _PaymentDecisions(_PolicyState):
                     for cap in (
                         option_x_counter_cap(label, metadata, battlefield),
                         option_x_tap_cap(label, metadata, battlefield),
+                        x_counter_pile_cap(label, battlefield),
                     )
                     if cap is not None
                 ]

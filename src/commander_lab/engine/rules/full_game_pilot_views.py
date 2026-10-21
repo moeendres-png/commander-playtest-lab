@@ -176,6 +176,40 @@ def counter_cost_number(label: str) -> int | None:
     return int(number) if number.isdigit() else _COUNTER_NUMBERS[number]
 
 
+# "Remove X counters from an artifact or creature you control" (Moxite Refinery, plan seed 6,
+# game seed 106, pod 040). The engine bounds neither X nor the pick: the player names X, picks
+# one permanent and one counter type, and the activation is reversed when that pile is smaller.
+_REMOVE_X_COUNTERS_FROM_ONE = re.compile(
+    r"remove x counters from an? (?P<kinds>[a-z]+(?: or [a-z]+)*) you control"
+)
+
+
+def is_x_counter_pile_cost(label: str) -> bool:
+    """Whether a cost removes X counters of one type from a single permanent you control."""
+    return _REMOVE_X_COUNTERS_FROM_ONE.search(label.casefold()) is not None
+
+
+def x_counter_pile_cap(label: str, battlefield: object) -> int | None:
+    """The largest X a "remove X counters from an <types> you control" cost can pay.
+
+    One permanent pays, with counters of one type, so X is at most the largest pile on the
+    actor's permanents of the printed types. A permanent counts when the printed card catalog
+    gives it the type; an unknown card does not, which only ever lowers the cap. ``None`` means
+    the label has no such cost or there is no battlefield view.
+    """
+    found = _REMOVE_X_COUNTERS_FROM_ONE.search(label.casefold())
+    if found is None or not isinstance(battlefield, list):
+        return None
+    kinds = found.group("kinds").split(" or ")
+    best = 0
+    for item in _items(battlefield):
+        facts = card_facts(str(item.get("name") or ""))
+        if facts is None or not any(kind == "permanent" or kind in facts.types for kind in kinds):
+            continue
+        best = max(best, counter_stack(item))
+    return best
+
+
 def counter_stack(item: Mapping[str, object]) -> int:
     """The largest pile of one counter type on a permanent (what it can give a cost)."""
     counts = [
