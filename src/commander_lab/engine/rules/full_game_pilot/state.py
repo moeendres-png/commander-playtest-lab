@@ -634,6 +634,42 @@ class _PolicyState:
             kept.append(option)
         return kept if kept and len(kept) >= minimum else options
 
+    def _without_tapped_objects(
+        self,
+        pilot_state: dict[str, object],
+        context: Mapping[str, object],
+        options: list[dict[str, object]],
+        *,
+        minimum: int,
+    ) -> list[dict[str, object]]:
+        """The tap options, minus the permanents that are already tapped.
+
+        "Tap an artifact you control" inside an activation's cost is asked after the mana is
+        paid, and the engine still offers the artifacts that payment just tapped (and the
+        activation's own source, tapped by its {T}). Tapping one of those again fails the cost
+        and reverses the activation: Necron Overlord's "{X}, {T}, Tap an artifact you control"
+        paid with the Sceptre of Eternal Glory, then picked the Sceptre (plan seed 19, game
+        seed 119, pod 013). All options stay when no untapped one is left or fewer than the
+        minimum remain, so the choice is never emptied by this filter.
+        """
+        if str(context.get("outcome", "")).casefold() != "tap":
+            return options
+        battlefield = self._actor(pilot_state).get("battlefield")
+        if not isinstance(battlefield, list):
+            return options
+        tapped = {
+            str(item.get("object_id", ""))
+            for item in battlefield
+            if isinstance(item, dict) and item.get("tapped") is True
+        }
+        kept = []
+        for option in options:
+            metadata = option.get("metadata")
+            if isinstance(metadata, dict) and str(metadata.get("object_id", "")) in tapped:
+                continue
+            kept.append(option)
+        return kept if kept and len(kept) >= minimum else options
+
     def _cheapest_object(self, options: list[dict[str, Any]]) -> str:
         def key(option: dict[str, Any]) -> tuple[float, str]:
             facts = card_facts(str(option.get("label", "")))
