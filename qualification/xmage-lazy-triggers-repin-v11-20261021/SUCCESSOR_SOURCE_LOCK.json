@@ -1,0 +1,205 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-lazy-triggers-repin-v11-20261021",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head of the fork branch claude/project-thread-8i686d (moeendres-png/mage), three engine commits on the v10 pin 769e6ebb: the Protector of the Wastes trigger fix (the trigger read the event source instead of the entering permanent and ended a precon pod in an engine NullPointerException), Tempt with Reflections creating its copies in table order instead of identity-hash order, and the lazy trigger copy of a playable-calculation game copy (the copy takes the triggers of its parent on first use). The same seed still replays the same game: with and without the trigger commit 46 of 46 precon pods and 36 of 36 seeds give identical semantic hashes, and the 36 seeds also equal those of the v10 pin. The lazy trigger copy saves about 3 to 6 percent of the CPU time of a sweep. The perf port (0c0132a2ef) stays out of the pin because it changes option text. The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the Owner's go (2026-10-21 18:34 UTC). The native maven.yml run on the exact commit and the Lab bridge suite are bound under native_qualification and lab_runtime_qualification; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "owner_go": {
+  "decision": "Owner chose 'Go mit Lazy-Triggers' on the decision card 'Repin v11 jetzt starten (Fork-Push bis Siegel)?' of the efficiency thread, 2026-10-21 18:34 UTC; the Protector and Tempt fixes were covered by the Owner's go of 2026-10-21 13:39 UTC",
+  "scope": "push the line to the fork, run the fork CI, fast-forward the candidate line, open the repin, PB-03 and both seals"
+ },
+ "prior_live_pin": {
+  "commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+  "tree": "93fc5e5dc26cb18027ea2185db75eca008160288",
+  "role": "prior live XMage pin (repin v10, determinism line without the perf port, engine 1.4.62); stays historical and is the engine of the current_qualification epoch d012424b5d10-f6ad7296aefc until this repin is requalified",
+  "successor_locks": [
+   "qualification/xmage-determinism-line-repin-v10-20261020/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+   "tree": "93fc5e5dc26cb18027ea2185db75eca008160288"
+  },
+  "candidate_line_head": {
+   "commit": "769e6ebbfdf1bd91eb357f63e0e6a3e848ed24b2",
+   "branch": "claude/xmage-mp-candidate-20260929",
+   "content": "fast-forwarded to the v10 pin on 2026-10-20 after the Owner's go of 20:02 UTC; fast-forwarded to this pin with the repin"
+  },
+  "final_integrated_candidate": {
+   "commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+   "tree": "e111416966fa9a2acaf2902ff5ea3c9efad635e8",
+   "content": "v10 pin plus three engine commits; no upstream merge, no perf port"
+  },
+  "identity_rule": "the pin is the head commit of the fork branch claude/project-thread-8i686d (three commits on 769e6ebb); the first two are the commits of the draft mage PR #66 (branch claude/protector-tempt-fixes-20261021)"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/project-thread-8i686d",
+  "commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "tree": "e111416966fa9a2acaf2902ff5ea3c9efad635e8",
+  "parents": [
+   "1d9a4d63ab6db79fb89e6ca4c2bcc2c2927c1ec0"
+  ],
+  "committed_at": "2026-10-21T15:25:28+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/456b0e227cc09a90e9d485b9d932f3717ef9e2be.tar.gz",
+  "fork_ref_note": "the commit is the head of claude/project-thread-8i686d and, after the fast-forward, of claude/xmage-mp-candidate-20260929"
+ },
+ "donors": [
+  {
+   "finding": "PROTECTOR-OF-THE-WASTES-NPE",
+   "branch": "claude/protector-tempt-fixes-20261021 (moeendres-png/mage), draft PR #66",
+   "head": "6265139e3b1e31d194a0b162b48ab133d2930c35",
+   "observation": "Protector of the Wastes read the source of the event instead of the entering permanent in its trigger; a precon pod (plan seed 20, pod 008) ended in an engine NullPointerException.",
+   "fix": "the trigger acts on the entering permanent (target id), one test in Mage.Tests"
+  },
+  {
+   "finding": "TEMPT-WITH-REFLECTIONS-ITERATION-ORDER",
+   "branch": "claude/protector-tempt-fixes-20261021 (moeendres-png/mage), draft PR #66",
+   "head": "1d9a4d63ab6db79fb89e6ca4c2bcc2c2927c1ec0",
+   "observation": "Tempt with Reflections created its copies in the iteration order of a HashSet; equal seeds gave 4 different semantic hashes in 8 runs of pod 022 (plan seed 6, game seed 6).",
+   "fix": "LinkedHashSet / table order; 8 of 8 runs gave one hash afterwards, one test in Mage.Tests"
+  },
+  {
+   "finding": "PLAYABLE-CALC-COPY-COST",
+   "branch": "claude/project-thread-8i686d (moeendres-png/mage)",
+   "head": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+   "observation": "createSimulationForPlayableCalc copied the triggers of its parent for every playable calculation although about two thirds of the copies never read them.",
+   "fix": "GameState copies the triggers on first use for a playable-calculation copy; a copy of a copy that has not read them yet shares the same unchanged source; ordinary copies and restore copy up front as before; three tests in Mage.Tests (PlayableCalcTriggersCopyTest)"
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --shortstat 769e6ebb 456b0e22 in moeendres-png/mage; blob ids from git rev-parse 456b0e22:path",
+  "commits": [
+   {
+    "commit": "6265139e3b1e31d194a0b162b48ab133d2930c35",
+    "title": "Protector of the Wastes: trigger on the entering permanent, not on the event source",
+    "files": [
+     "Mage.Sets/src/mage/cards/p/ProtectorOfTheWastes.java",
+     "Mage.Tests/src/test/java/org/mage/test/cards/single/tdc/ProtectorOfTheWastesTest.java"
+    ]
+   },
+   {
+    "commit": "1d9a4d63ab6db79fb89e6ca4c2bcc2c2927c1ec0",
+    "title": "Tempt with Reflections: create the copies in table order",
+    "files": [
+     "Mage.Sets/src/mage/cards/t/TemptWithReflections.java",
+     "Mage.Tests/src/test/java/org/mage/test/cards/single/c16/TemptWithReflectionsTest.java"
+    ]
+   },
+   {
+    "commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+    "title": "Playable calculation copies copy the triggers on first use",
+    "files": [
+     "Mage/src/main/java/mage/game/GameImpl.java",
+     "Mage/src/main/java/mage/game/GameState.java",
+     "Mage.Tests/src/test/java/org/mage/test/serverside/PlayableCalcTriggersCopyTest.java"
+    ]
+   }
+  ],
+  "commit_count": 3,
+  "files_changed": 7,
+  "insertions": 277,
+  "deletions": 13,
+  "post_pin_edits": [
+   {
+    "path": "Mage/src/main/java/mage/game/GameImpl.java",
+    "blob": "e75438705e18af29089c6e102bd723de580d63cf"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/GameState.java",
+    "blob": "a68a5c15bf53519f078f9cdb39e1385bc3f11342"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/p/ProtectorOfTheWastes.java",
+    "blob": "b2a10f494f39a08a3c1d4be4d350a002f18bbbdc"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TemptWithReflections.java",
+    "blob": "57cf71f5b43c963d2ea0f76970966ff8cb4ca0cb"
+   }
+  ],
+  "dependency_change": false,
+  "version_change": {
+   "from": "1.4.62",
+   "to": "1.4.62",
+   "note": "unchanged; the engine version string does not move with this repin"
+  },
+  "build_files_changed": []
+ },
+ "not_in_pin": [
+  "the perf port 0c0132a2ef (reuse of the playable-calculation simulation, skipped no-op trigger scans, singleton ability lists): it saves about 9 percent CPU but changes the option text of Thriving Moor (AddManaChosenColorEffect) and with it the option name and the ability sort key, so pod 033 plays a different game (07364fb0 with the port, 1908ba32 without)",
+  "the 35-commit perf and card patch set of the Muse handover (fork-patches/), including the six simplified Turbulent dual lands the bisection found"
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/project-thread-8i686d of moeendres-png/mage",
+   "commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+   "run_id": 39654101249,
+   "job": "build (17, temurin, jdk)",
+   "job_id": 119409701731,
+   "run": 7467,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 126,
+   "status": "COMPLETE"
+  },
+  "mage_verify": {
+   "result": "PASS",
+   "detail": "same job, same commit: Mage.Verify ran 28 tests, 0 failures, 0 errors, 8 skipped, BUILD SUCCESS. The Mage.Tests count is 8 above the v10 pin (7467 against 7459 run, 126 skipped as before): the tests of the three engine commits (Protector of the Wastes, Tempt with Reflections, three for the trigger copy); Mage.Verify counts equal those of the v10 pin (28 run, 8 skipped)."
+  }
+ },
+ "local_observed": {
+  "status": "LOCAL_OBSERVED (no CI-level credit)",
+  "precon_sweeps": "46 pods (plan seed 1, game seed 1, 4 workers, 12 games per JVM) on the jar of the v10 pin plus the Protector and Tempt commits (A) and the same jar plus the trigger commit (B): 46 of 46 pods ok in both, semantic hashes identical in all 46 pods; CPU -3.2 percent",
+  "seed_runs": "36 seeds (4 workers, 9 games per JVM): in four runs on the jar of the v10 pin, on A and on B no seed has two different semantic hashes; the sporadic first-game failures of a chunk were XMAGE_CARD_REPOSITORY_INIT_FAILED start-up collisions that also occur with the unmodified pin jar (Lab #954 starts such a game again), and the seeds that failed were played alone with equal hashes. CPU of the trigger commit: -3 to -6 percent (interleaved median -6, clean run -6.3).",
+  "bridge_identity_tests": "the engine-bridge suite runs in Actions against XMage built from the exact pin (lab_runtime_qualification.bridge_suite); not repeated locally"
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 456b0e22 for that job, cache keyed by the commit; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
+  "installed_artifacts_commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 8e6e10e21394cf83c39b3e3715ea927c4ec2c8c1d465ce91ff267ae1c9612a4c",
+   "org.mage:mage-sets:1.4.62": "sha256 491e5aa742ca23efd5531836471a7d1a8a966498731d3bc343a8a522f46c2220"
+  },
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head 54e78a9fe09ac780ac14e9ae3eceacff867b9c04 (XMAGE_COMMIT=456b0e22, checked in the job): engine-bridge mvn verify against XMage built from exact 456b0e22; the head contains main with #951 (d2d8f15cb2) and #954 (167643d)",
+   "run": 2159,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 39659106453,
+   "job": 119427888116,
+   "artifact": {
+    "id": 12373288739,
+    "zip_sha256": "41a27ab3d3dcb8ff48fbfad6ca8d9966c0dfd5274ebcd9dd6570c818cbc2b575"
+   },
+   "tests_run": 1149,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest checks the seven prepare creatures, the finished Adventurous Eater and the still unfinished cards; the v6, v7 and v8 hooks stay checked."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names (d012424b5d10-f6ad7296aefc, engine 769e6ebb) until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the epoch is sealed."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "Repin-time record; the status field keeps the value the repin was merged with. Sealed epochs of the v10 pin: qualification/current-boundary-epochs/31713288501c-b4a3ceb4273f and qualification/current-boundary-epochs/d012424b5d10-f6ad7296aefc (FULL107 107/107, AF00-AF11 PASS, AF11 under qualification/af11-xmage-only-topology-20261021/); architecture_freeze.current_qualification in config/rules_engines.json names the second epoch and does not move with this repin."
+ }
+}
