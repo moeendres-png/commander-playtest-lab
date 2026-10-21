@@ -928,6 +928,20 @@ def _with_jvm_flags(command: tuple[str, ...]) -> tuple[str, ...]:
     return (command[0], *extra, *command[1:])
 
 
+# A bridge JVM that starts while another one has just touched the card repository can fail deck
+# import before any game exists (H2 "Lock file recently modified", #731, #878). Same codes and
+# back-off as the batch runner's start-up retry in full_game_batch.
+_STARTUP_COLLISION_CODES = frozenset({"XMAGE_CARD_REPOSITORY_INIT_FAILED"})
+_STARTUP_ATTEMPTS = 4
+_STARTUP_BACKOFF_SECONDS = 3.0
+
+
+def _is_startup_collision(exc: Exception) -> bool:
+    if not isinstance(exc, FullGameProtocolError):
+        return False
+    return any(str(item) in _STARTUP_COLLISION_CODES for item in (exc.diagnostics or ()))
+
+
 def _public_error(exc: Exception) -> Exception:
     """The exception a public :class:`XmageFullGameRunner` method would raise for ``exc``."""
 
@@ -1041,6 +1055,10 @@ class XmageFullGameRunner:
         game itself is fine and games are deterministic, so it is played again alone in its
         own process; its result then rests on that process's graceful shutdown. A neighbour's
         hang costs the finished games a replay, not their result.
+
+        A first game that fails on the card repository start-up collision says nothing about
+        the game; it is started again in a fresh process (up to ``_STARTUP_ATTEMPTS`` times,
+        with back-off), as the batch runner does for single games.
         """
         return self._run_batch(games, replay_after_unclean_exit=True)
 
@@ -1063,9 +1081,11 @@ class XmageFullGameRunner:
             )
         outcomes: list[FullGameConformanceResult | Exception] = []
         pending = list(games)
+        startup_attempts: dict[int, int] = {}
         while pending:
             played: list[tuple[int, Any, ProviderIdentityWire, FullGameResultWire, Any]] = []
             game_failed = False
+            backoff = 0.0
             client = _RawFullGameClient(
                 command,
                 cwd=self.cwd,
@@ -1092,10 +1112,24 @@ class XmageFullGameRunner:
                         result = cast(FullGameResultWire, client.request("get_full_game_result"))
                         client.request("shutdown_game")
                     except Exception as exc:  # the process is suspect; start a fresh one
+                        attempts = startup_attempts.get(index, 0) + 1
+                        if (
+                            not played
+                            and _is_startup_collision(exc)
+                            and attempts < _STARTUP_ATTEMPTS
+                        ):
+                            # nothing of this game exists yet: start it again, not as a failure
+                            startup_attempts[index] = attempts
+                            backoff = _STARTUP_BACKOFF_SECONDS * attempts
+                            outcomes.pop()
+                            pending.insert(0, games[index])
+                            break
                         outcomes[index] = _public_error(exc)
                         game_failed = True
                         break
                     played.append((index, scenario, provider, result, audit))
+            if backoff:
+                time.sleep(backoff)  # the failed process has released its card repository slot
             disposition = getattr(client, "shutdown_disposition", None)
             for index, scenario, provider, result, audit in played:
                 if (
