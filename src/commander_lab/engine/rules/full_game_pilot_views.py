@@ -196,6 +196,65 @@ def own_counter_stacks(state: Mapping[str, object], actor_id: str) -> dict[str, 
     }
 
 
+# "Remove a +1/+1 counter or a charge counter from a permanent you control" (Ion Storm). XMage
+# lets the player pick any permanent they control for the cost and fails the whole activation
+# when the one picked holds none of the named counters.
+_REMOVE_KIND_COUNTER = re.compile(
+    r"remove an? (?P<first>[^,:]+?) counter(?: or (?:remove )?an? (?P<second>[^,:]+?) counter)?"
+    r" from an? permanent you control"
+)
+
+
+def counter_cost_kinds(label: str) -> tuple[str, ...]:
+    """The counter kinds a "remove a K counter from a permanent you control" cost names."""
+    found = _REMOVE_KIND_COUNTER.search(label.casefold())
+    if found is None:
+        return ()
+    return tuple(kind for kind in found.group("first", "second") if kind)
+
+
+def own_counters_by_kind(state: Mapping[str, object], actor_id: str) -> dict[str, dict[str, int]]:
+    """Object id to counter kind to count, for the permanents the actor controls."""
+    held: dict[str, dict[str, int]] = {}
+    for player in players(state):
+        if str(player.get("player_id", "")) != actor_id:
+            continue
+        for item in _items(player.get("battlefield")):
+            kinds = held.setdefault(str(item.get("object_id", "")), {})
+            for counter in _items(item.get("counters")):
+                count = counter.get("count")
+                if isinstance(count, int) and count > 0:
+                    kind = str(counter.get("type", "")).casefold()
+                    kinds[kind] = kinds.get(kind, 0) + count
+    return held
+
+
+def best_cost_counter_kind(label: str, state: Mapping[str, object], actor_id: str) -> str | None:
+    """The named counter kind with the biggest pile on the actor's permanents, else None."""
+    held = own_counters_by_kind(state, actor_id).values()
+    piles = [
+        (max((kinds.get(kind, 0) for kinds in held), default=0), -index, kind)
+        for index, kind in enumerate(counter_cost_kinds(label))
+    ]
+    best = max(piles, default=(0, 0, ""))
+    return best[2] if best[0] > 0 else None
+
+
+def single_counter_cost_unpayable(label: str, state: Mapping[str, object], actor_id: str) -> bool:
+    """Whether a "remove a K counter from a permanent you control" cost has no counter to take."""
+    return (
+        bool(counter_cost_kinds(label)) and best_cost_counter_kind(label, state, actor_id) is None
+    )
+
+
+# Encore ("For each opponent, create a token copy that attacks that opponent"). XMage makes one
+# token per opponent still in the game, then walks the opponents of the turn-start snapshot, which
+# still names a player who left this turn, and runs out of tokens (NoSuchElementException in
+# EncoreEffect, plan seed 16). The pilot cannot see the snapshot, so it holds Encore back once
+# any opponent is out.
+_ENCORE_LABEL = re.compile(r" — encore\b")
+
+
 _SEAT_LABEL = re.compile(r"Full Game Seat (\d+)")
 
 
@@ -921,10 +980,14 @@ def priority_view_fields(
             fields["role_strengths"] = {CardRole.DRAW: 0.6}
         if spread_counter_cost_unpayable(
             label, str(meta.get("source_object_id") or ""), state, actor_id
-        ):
+        ) or single_counter_cost_unpayable(label, state, actor_id):
             return {**fields, "metadata": extra}, "remove_counters_cost_unpayable"
         if ninjutsu_card_outside_hand(label, str(meta.get("source_object_id") or ""), state):
             return {**fields, "metadata": extra}, "ninjutsu_card_outside_hand_and_command_zone"
+        if _ENCORE_LABEL.search(label) and not all(
+            _alive(player) for player in players(state) if str(player.get("player_id")) != actor_id
+        ):
+            return {**fields, "metadata": extra}, "encore_with_departed_opponent"
         if _SELF_DOUBLING_COUNTERS.search(label):
             # #817: "Put X +1/+1 counters on this, where X is its power"
             # doubles the permanent on every activation. Past lethal damage

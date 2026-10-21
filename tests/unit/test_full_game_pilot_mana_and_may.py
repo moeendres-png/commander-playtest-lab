@@ -1420,6 +1420,137 @@ def test_counter_cost_takes_as_many_counters_of_a_pile_as_it_may() -> None:
     assert policy.decide(request)["numeric_choice"] == 3
 
 
+_ION_STORM_LABEL = (
+    "Ion Storm — {1}{R}, Remove a +1/+1 counter or a charge counter from a permanent you control: "
+    "Ion Storm deals 2 damage to any target."
+)
+_MOUNTAIN = _option("tap-r", "mana_ability", "Mountain — {T}: Add {R}.", source_name="Mountain")
+
+
+def _ion_storm_activation() -> dict[str, Any]:
+    option = _tekuthal_activation()
+    option["option_id"] = "ion-storm"
+    option["label"] = _ION_STORM_LABEL
+    option["metadata"].update(
+        source_name="Ion Storm", source_object_id="ion-storm", mana_cost_red=1, mana_cost_generic=1
+    )
+    return option
+
+
+def _ion_storm_choice(state: dict[str, Any]) -> dict[str, Any]:
+    return _request(
+        "priority", [_PASS, *_TAPS, _MOUNTAIN, _ion_storm_activation()], state=state, offset=1
+    )
+
+
+def test_counter_cost_on_a_permanent_without_the_counter_is_not_activated() -> None:
+    # XMage lets Ion Storm's cost pick any permanent the player controls and fails the whole
+    # activation when that one holds neither counter (plan seed 15). With no +1/+1 or charge
+    # counter on the table the pilot passes; with one of them it activates.
+    nothing = _policy().decide(_ion_storm_choice(_tekuthal_state()))
+    assert nothing["selected_option_ids"] == ["pass"]
+    other_kind = _tekuthal_state(1)
+    other_kind["players"][0]["battlefield"][-1]["counters"] = [{"type": "vigilance", "count": 4}]
+    assert _policy().decide(_ion_storm_choice(other_kind))["selected_option_ids"] == ["pass"]
+    charged = _policy().decide(_ion_storm_choice(_tekuthal_state(1)))
+    assert charged["selected_option_ids"] == ["ion-storm"]
+
+
+def _paying_ion_storm(
+    state: dict[str, Any],
+) -> ExternalPilotDecisionPolicy:
+    policy = _policy()
+    assert policy.decide(_ion_storm_choice(state))["selected_option_ids"] == ["ion-storm"]
+    return policy
+
+
+def _kind_choice(state: dict[str, Any]) -> dict[str, Any]:
+    options = [
+        {
+            **_option(
+                "p1p1", "choose_use_option", "Remove a +1/+1 counter from a permanent you control"
+            ),
+            "metadata": {"value": True},
+        },
+        {
+            **_option(
+                "charge",
+                "choose_use_option",
+                "Remove a charge counter from a permanent you control",
+            ),
+            "metadata": {"value": False},
+        },
+    ]
+    prompt = (
+        "Remove a +1/+1 counter from a permanent you control or "
+        "remove a charge counter from a permanent you control?"
+    )
+    return _request("choose_use", options, state=state, prompt=prompt, offset=2)
+
+
+def test_counter_cost_pays_with_the_kind_the_table_holds() -> None:
+    # "Remove a +1/+1 counter or remove a charge counter" asks for the kind first. The seat
+    # answers the kind that sits on a permanent it controls (the first listed would fail here).
+    state = _tekuthal_state(2)
+    policy = _paying_ion_storm(state)
+    assert policy.decide(_kind_choice(state))["selected_option_ids"] == ["charge"]
+    both = _tekuthal_state(1)
+    both["players"][0]["battlefield"][-1]["counters"] = [
+        {"type": "charge", "count": 1},
+        {"type": "+1/+1", "count": 3},
+    ]
+    policy = _paying_ion_storm(both)
+    assert policy.decide(_kind_choice(both))["selected_option_ids"] == ["p1p1"]
+
+
+def test_counter_cost_picks_the_permanent_that_holds_the_counter() -> None:
+    state = _tekuthal_state(0, 2, 1)
+    policy = _paying_ion_storm(state)
+    options = [
+        _option(object_id, "choose_object_option", name)
+        for object_id, name in (
+            ("land-0", "Plains"),
+            ("tekuthal", "Tekuthal, Inquiry Dominus"),
+            ("vessel-0", "Inspirit, Flagship Vessel"),
+            ("vessel-1", "Inspirit, Flagship Vessel"),
+            ("vessel-2", "Inspirit, Flagship Vessel"),
+        )
+    ]
+    request = _request("choose_object", options, state=state, offset=3)
+    assert policy.decide(request)["selected_option_ids"] == ["vessel-1"]
+    # Control: a seat that is not paying such a cost is left to the ordinary pick.
+    fresh = _policy()
+    assert fresh._decide_kind_cost_object(1, state, options, 1) is None
+
+
+_ENCORE_LABEL = (
+    "Striking Sliver — Encore {1} <i>({1}, Exile this card from your graveyard: For each opponent, "
+    "create a token copy that attacks that opponent this turn if able. They gain haste. Sacrifice "
+    "them at the beginning of the next end step. Activate only as a sorcery.)</i>"
+)
+
+
+def _encore_activation() -> dict[str, Any]:
+    option = _tekuthal_activation()
+    option["option_id"] = "encore"
+    option["label"] = _ENCORE_LABEL
+    option["metadata"].update(source_name="Striking Sliver", source_object_id="striking-sliver")
+    return option
+
+
+def test_encore_waits_until_no_opponent_is_out_of_the_game() -> None:
+    # XMage makes one Encore token per opponent still in the game but then walks the turn-start
+    # opponents, which still include a player who left this turn, and runs out of tokens (plan
+    # seed 16, NoSuchElementException). The pilot holds Encore back once an opponent is out.
+    state = _state(step="precombat_main")
+    request = _request("priority", [_PASS, *_TAPS, _encore_activation()], state=state)
+    assert _policy().decide(request)["selected_option_ids"] == ["encore"]
+    state["players"][2]["has_lost"] = True
+    state["players"][2]["life"] = -3
+    request = _request("priority", [_PASS, *_TAPS, _encore_activation()], state=state)
+    assert _policy().decide(request)["selected_option_ids"] == ["pass"]
+
+
 _DIG_PROMPT = "Pay 1 life and look at the next 5 cards?"
 _LIM_DUL = {
     "source_object_id": "vault",
