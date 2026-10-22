@@ -52,7 +52,9 @@ def test_structural_runtime_preserves_every_official_card_identity_and_quantity(
     }
     structural = load_project_structural_decks(ROOT, include_current_opponents=True)
 
-    for deck_id in EXACT_LIST_IDS:
+    checked = list(EXACT_LIST_IDS)
+    assert checked, "nothing was checked: EXACT_LIST_IDS is empty"
+    for deck_id in checked:
         exact = profiles[deck_id].deck
         assert exact is not None
         expected = exact.quantities()

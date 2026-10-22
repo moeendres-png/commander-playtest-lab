@@ -73,7 +73,9 @@ def test_runner_carries_the_declared_capabilities_into_the_identity() -> None:
 
 def test_no_single_candidate_is_named_as_the_reason_for_all() -> None:
     """The retired reason hard-cited XMage for every candidate."""
-    for line in SOURCE.splitlines():
+    checked = list(SOURCE.splitlines())
+    assert checked, "nothing was checked: SOURCE.splitlines() is empty"
+    for line in checked:
         if "starting_state_injection_supported=false" in line:
             assert line.strip().startswith("#"), line.strip()[:90]
 

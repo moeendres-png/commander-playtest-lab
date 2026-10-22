@@ -98,6 +98,7 @@ def test_new_skill_frontmatter_and_names() -> None:
 
 
 def test_new_skill_markdown_links_resolve() -> None:
+    checked = 0
     for skill in NEW_SKILLS:
         skill_dir = SKILLS_ROOT / skill
         text = (skill_dir / "SKILL.md").read_text(encoding="utf-8")
@@ -109,11 +110,15 @@ def test_new_skill_markdown_links_resolve() -> None:
                 resolved = skill_dir / target.removeprefix("{baseDir}/")
             else:
                 resolved = skill_dir / target
-            assert resolved.exists(), f"{skill}: dead link {raw} -> {resolved}"
+            checked += 1
+            assert resolved.exists() is True, f"{skill}: dead link {raw} -> {resolved}"
+    assert checked >= 1, "no relative link was found, so no link was checked"
 
 
 def test_exact_upstream_blobs_have_not_drifted() -> None:
-    for relative, expected in EXACT_GIT_BLOBS.items():
+    checked = list(EXACT_GIT_BLOBS.items())
+    assert checked, "nothing was checked: EXACT_GIT_BLOBS.items() is empty"
+    for relative, expected in checked:
         path = SKILLS_ROOT / relative
         assert path.is_file(), relative
         assert _git_blob_sha(path.read_bytes()) == expected, relative
@@ -129,7 +134,9 @@ def _directory_digest(directory: Path) -> str:
 
 
 def test_exact_upstream_directories_have_not_drifted() -> None:
-    for relative, expected in EXACT_DIRECTORY_DIGESTS.items():
+    checked = list(EXACT_DIRECTORY_DIGESTS.items())
+    assert checked, "nothing was checked: EXACT_DIRECTORY_DIGESTS.items() is empty"
+    for relative, expected in checked:
         directory = SKILLS_ROOT / relative
         assert directory.is_dir(), relative
         assert _directory_digest(directory) == expected, relative
@@ -151,4 +158,6 @@ def test_provenance_and_licenses_present() -> None:
 
 def test_post_patch_runner_is_valid_python() -> None:
     runner = SKILLS_ROOT / "post-patch-validation" / "scripts" / "post_patch_validation.py"
-    compile(runner.read_text(encoding="utf-8"), str(runner), "exec")
+    code = compile(runner.read_text(encoding="utf-8"), str(runner), "exec")
+    assert code.co_filename == str(runner)
+    assert "main" in code.co_names, "the runner defines the entry point `main`"

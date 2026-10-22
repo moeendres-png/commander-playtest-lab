@@ -398,6 +398,8 @@ def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Pat
             text=True,
         )
     first = {relative: (root / relative).read_bytes() for relative in targets}
-    for relative, target in targets.items():
+    checked = list(targets.items())
+    assert checked, "nothing was checked: targets.items() is empty"
+    for relative, target in checked:
         assert first[relative] == before[relative], relative
         assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"

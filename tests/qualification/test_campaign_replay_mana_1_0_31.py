@@ -95,7 +95,9 @@ def test_the_diff_is_declarations_only_on_the_named_records() -> None:
 
 def test_every_added_payment_is_bound_to_the_records_own_sources() -> None:
     materialization = load_effective_materialization(REPO_ROOT)
-    for fixture_id in _changed():
+    checked = list(_changed())
+    assert checked, "nothing was checked: _changed() is empty"
+    for fixture_id in checked:
         record = dict(materialization.record(fixture_id))
         declared = [
             list(cost.get("explicit_payment_sources") or ())
@@ -184,5 +186,7 @@ def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Pat
         )
         for relative in targets:
             assert (root / relative).read_bytes() == before[relative], relative
-    for relative in targets:
+    checked = list(targets)
+    assert checked, "nothing was checked: targets is empty"
+    for relative in checked:
         assert (REPO_ROOT / relative).read_bytes() == before[relative], relative

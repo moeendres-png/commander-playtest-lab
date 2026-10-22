@@ -193,7 +193,9 @@ def test_binding_declares_build_identity_that_the_runner_can_consume(
     for candidate in ("xmage",):
         declared = module.NATIVE_SUITE_BINDING[candidate].get("build_identity")
         assert isinstance(declared, str)
-        json.loads(declared)  # a JSON object, as the receipt contract requires
+        # a JSON object, as the receipt contract requires
+        identity = json.loads(declared)
+        assert identity == {"lab_adapter": "engine-bridge", "lane": "maven-surefire"}, candidate
 
 
 def test_native_suite_argv_is_a_list_not_a_shell_string(

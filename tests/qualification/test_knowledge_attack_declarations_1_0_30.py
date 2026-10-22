@@ -124,7 +124,9 @@ def test_red_control_an_undeclared_or_mismatched_attack_frame_is_unscripted() ->
     step match; a record without it has no answer (the transport raises)."""
     records = _records()
     probe = midgame_rows.probe_module()
-    for fixture_id in knowledge_projection.ROWS:
+    checked = list(knowledge_projection.ROWS)
+    assert checked, "nothing was checked: knowledge_projection.ROWS is empty"
+    for fixture_id in checked:
         record = records[fixture_id]
         temporal = record.get("temporal_state") or {}
         declared = {

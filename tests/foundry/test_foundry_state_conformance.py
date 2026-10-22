@@ -165,12 +165,14 @@ def test_state_file_is_conformant_or_registered(path: Path) -> None:
 
 def test_every_exemption_still_points_at_a_real_file() -> None:
     """A stale path in EXEMPTIONS would silently stop covering anything."""
-    for key in EXEMPTIONS:
-        assert (REPO_ROOT / key).is_file(), f"EXEMPTIONS names a file that does not exist: {key}"
+    stale = [key for key in EXEMPTIONS if not (REPO_ROOT / key).is_file()]
+    assert stale == [], f"EXEMPTIONS names files that do not exist: {stale}"
 
 
 def test_exemption_entries_carry_owner_and_reason() -> None:
-    for key, entry in EXEMPTIONS.items():
+    checked = list(EXEMPTIONS.items())
+    assert checked, "nothing was checked: EXEMPTIONS.items() is empty"
+    for key, entry in checked:
         owner, reason = entry
         assert owner.strip(), f"{key}: exemption has no owner"
         assert len(reason.strip()) > 40, f"{key}: exemption reason is not substantive"

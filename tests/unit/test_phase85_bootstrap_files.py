@@ -22,8 +22,8 @@ def test_required_phase85_files_exist(repo_root: Path) -> None:
         ".devcontainer/devcontainer.json",
         "schemas/engine_adapter_protocol.schema.json",
     ]
-    for rel in required:
-        assert (repo_root / rel).exists(), rel
+    missing = [rel for rel in required if not (repo_root / rel).exists()]
+    assert missing == []
 
 
 def _gnu_bash() -> str | None:

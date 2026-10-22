@@ -68,7 +68,9 @@ def test_comment_triggered_jobs_with_secrets_require_a_trusted_author(path: Path
     workflow = _load(path)
     if not _events(workflow) & COMMENT_EVENTS:
         return
-    for name, job in workflow["jobs"].items():
+    checked = list(workflow["jobs"].items())
+    assert checked, "nothing was checked: workflow['jobs'].items() is empty"
+    for name, job in checked:
         if "secrets." not in yaml.safe_dump(job):
             continue
         assert TRUSTED_GATE.search(str(job.get("if", ""))), (
@@ -136,7 +138,9 @@ def test_pull_request_target_never_checks_out_candidate_code(path: Path) -> None
     workflow = _load(path)
     if "pull_request_target" not in _events(workflow):
         return
-    for step in _steps(workflow):
+    checked = list(_steps(workflow))
+    assert checked, "nothing was checked: _steps(workflow) is empty"
+    for step in checked:
         if str(step.get("uses", "")).startswith("actions/checkout@"):
             ref = str((step.get("with") or {}).get("ref", ""))
             if ref == HISTORICAL_BASE_REF:
@@ -206,7 +210,9 @@ def test_the_current_base_contract_rejects_every_weakening(mutation: str, expect
 
 @pytest.mark.parametrize("path", WORKFLOWS + ACTIONS, ids=lambda p: f"{p.parent.name}/{p.name}")
 def test_untrusted_event_text_is_never_interpolated_into_a_shell(path: Path) -> None:
-    for step in _steps(_load(path)):
+    checked = list(_steps(_load(path)))
+    assert checked, "nothing was checked: _steps(_load(path)) is empty"
+    for step in checked:
         match = UNTRUSTED_TEXT.search(str(step.get("run", "")))
         assert match is None, (
             f"{path.name}:{step.get('name')} interpolates {match.group(0)} into a shell"
@@ -215,7 +221,9 @@ def test_untrusted_event_text_is_never_interpolated_into_a_shell(path: Path) -> 
 
 @pytest.mark.parametrize("path", WORKFLOWS + ACTIONS, ids=lambda p: f"{p.parent.name}/{p.name}")
 def test_third_party_actions_are_pinned_to_a_commit(path: Path) -> None:
-    for step in _steps(_load(path)):
+    checked = list(_steps(_load(path)))
+    assert checked, "nothing was checked: _steps(_load(path)) is empty"
+    for step in checked:
         uses = str(step.get("uses", ""))
         if uses and not uses.startswith("./"):
             assert PINNED.match(uses), f"{path.name}: {uses} is not pinned to a full commit SHA"
@@ -226,7 +234,9 @@ def test_every_workflow_declares_token_permissions(path: Path) -> None:
     workflow = _load(path)
     if "permissions" in workflow:
         return
-    for name, job in workflow["jobs"].items():
+    checked = list(workflow["jobs"].items())
+    assert checked, "nothing was checked: workflow['jobs'].items() is empty"
+    for name, job in checked:
         assert "permissions" in job, f"{path.name}:{name} runs with the default token permissions"
 
 

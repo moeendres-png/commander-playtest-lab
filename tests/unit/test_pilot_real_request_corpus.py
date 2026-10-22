@@ -166,10 +166,10 @@ def test_a_renamed_option_id_is_caught(
     for option in row["request"]["legal_options"]:
         option["id"] = option.pop("option_id")
     outcome = corpus_tool.replay([row])[0]
-    caught = outcome["answer"] is None or corpus_tool.legality_problems(
-        row["request"], outcome["answer"]
+    caught = outcome["answer"] is None or bool(
+        corpus_tool.legality_problems(row["request"], outcome["answer"])
     )
-    assert caught
+    assert caught is True
 
 
 def test_a_moved_players_list_changes_the_answer_or_raises(

@@ -365,7 +365,9 @@ class TestProbeReceipt:
     def test_every_row_states_its_construction_verdict_explicitly(self) -> None:
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
         allowed = {"EXACT", "ALLOWED_VARIANCE", "MISMATCH", "UNRECOGNIZED", None}
-        for row in receipt["rows"]:
+        checked = list(receipt["rows"])
+        assert checked, "nothing was checked: receipt['rows'] is empty"
+        for row in checked:
             assert row.get("construction_verdict") in allowed, row["fixture_id"]
             if row["outcome"] == "ENGINE_NATIVE_REACHABLE":
                 if row["engine_construction_match"] is True:
@@ -542,7 +544,9 @@ class TestFrozenRecords:
             REPO_ROOT / "qualification" / "ws47" / "SEMANTIC_FIXTURE_MATERIALIZATION_v1_0_5.json"
         )
         receipt = json.loads(RECEIPT.read_text(encoding="utf-8"))
-        for row in receipt["rows"]:
+        checked = list(receipt["rows"])
+        assert checked, "nothing was checked: receipt['rows'] is empty"
+        for row in checked:
             record = ml.frozen_record(materialization, row["fixture_id"])
             assert record["requested_state_digest"], row["fixture_id"]
             assert record["execution_entry_mode"] == "NATIVE_STATE_LOAD", row["fixture_id"]

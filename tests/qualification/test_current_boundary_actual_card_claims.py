@@ -44,7 +44,9 @@ def test_the_refusal_statement_is_conditional_not_unconditional() -> None:
 def test_no_unconditional_prose_claim_remains() -> None:
     """The old string may only survive inside a comment recording its removal."""
     source = RUNNER.read_text(encoding="utf-8")
-    for line in source.splitlines():
+    checked = list(source.splitlines())
+    assert checked, "nothing was checked: source.splitlines() is empty"
+    for line in checked:
         if "proving the import is" in line or "the engine itself rejected" in line:
             assert line.strip().startswith("#"), line.strip()[:90]
 

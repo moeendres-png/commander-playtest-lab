@@ -91,7 +91,7 @@ def test_old_bare_command_hangs_on_the_same_log(tmp_path):
     finally:
         proc.kill()
         proc.wait()
-    assert hung
+    assert hung is True, "the replayed run ended by itself, so it is no control"
 
 
 def test_zen_free_tier_log_stops_the_hung_cli_at_once(tmp_path, capsys):

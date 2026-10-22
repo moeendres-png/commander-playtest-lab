@@ -75,5 +75,7 @@ def test_no_new_literal_copy_of_the_live_pin(repo_root: Path) -> None:
 
 def test_every_remaining_literal_consumer_matches_the_manifest(repo_root: Path) -> None:
     pin = canonical_xmage_engine_pin()
-    for rel in sorted(ALLOWED_LITERAL_CONSUMERS):
+    checked = list(sorted(ALLOWED_LITERAL_CONSUMERS))
+    assert checked, "nothing was checked: sorted(ALLOWED_LITERAL_CONSUMERS) is empty"
+    for rel in checked:
         assert pin in (repo_root / rel).read_text(encoding="utf-8"), rel

@@ -755,7 +755,7 @@ def test_a_pre_first_turn_counter_of_either_convention_is_pregame(record, turn_n
     # A provider may report 0 before the first turn, XMage reports 1; with no phase, active or
     # priority player both mean that no turn has begun.
     proof = _proof(record, _mutate(["turn_number"], turn_number))
-    assert proof.established, proof.reason()
+    assert proof.established is True, proof.reason()
 
 
 @pytest.mark.parametrize(
@@ -798,7 +798,9 @@ def test_a_channel_other_than_a_library_shuffle_is_unsupported(record) -> None:
 
 def test_every_requested_channel_is_checked(record) -> None:
     fields = {c.field for c in _proof(record, _state()).checks}
-    for channel in record["rules_randomness"]["channels"]:
+    checked = list(record["rules_randomness"]["channels"])
+    assert checked, "nothing was checked: record['rules_randomness']['channels'] is empty"
+    for channel in checked:
         assert f"rules_randomness.channel.{channel}" in fields
 
 

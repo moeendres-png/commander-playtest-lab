@@ -313,7 +313,8 @@ def test_validate_inputs_accepts_exact_coverage(player_count: int) -> None:
     scenario = _scenario(player_count)
     decks = tuple(_deck(seat) for seat in range(1, player_count + 1))
     pilots = tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, player_count + 1))
-    XmageFullGameRunner._validate_inputs(scenario, decks, pilots)
+    # Returns None when seats, decks and pilots cover the pod exactly and raises otherwise.
+    assert XmageFullGameRunner._validate_inputs(scenario, decks, pilots) is None
 
 
 def test_validate_inputs_rejects_mismatched_deck_count() -> None:
@@ -352,7 +353,9 @@ def test_handshake_accepts_two_to_six_lane() -> None:
     for player_count in (2, 3, 4, 5, 6):
         scenario = _scenario(player_count)
         provider = {"engine": "xmage", "engine_commit": XMAGE_COMMIT}
-        XmageFullGameRunner._validate_handshake(scenario, provider, _handshake_lane())
+        assert (
+            XmageFullGameRunner._validate_handshake(scenario, provider, _handshake_lane()) is None
+        ), player_count
 
 
 def test_handshake_rejects_legacy_four_only_lane() -> None:
@@ -424,12 +427,14 @@ def test_batch_case_accepts_exact_coverage(player_count: int) -> None:
     scenario = _scenario(player_count)
     decks = tuple(_deck(seat) for seat in range(1, player_count + 1))
     pilots = tuple(_binding(seat, f"fixture-{seat}") for seat in range(1, player_count + 1))
-    FullGameBatchCase(
+    case = FullGameBatchCase(
         case_id=f"ws215-{player_count}p",
         scenario=scenario,
         decks=decks,
         pilots=pilots,
     )
+    assert case.case_id == f"ws215-{player_count}p"
+    assert len(case.decks) == len(case.pilots) == player_count
 
 
 def test_batch_case_rejects_mismatched_cardinality() -> None:

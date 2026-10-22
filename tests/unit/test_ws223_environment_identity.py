@@ -40,7 +40,9 @@ def _workflow_files(repo_root: Path) -> list[Path]:
 
 
 def test_hashseed_pinned_everywhere_except_documented_exemption(repo_root: Path) -> None:
-    for path in _workflow_files(repo_root):
+    checked = list(_workflow_files(repo_root))
+    assert checked, "nothing was checked: _workflow_files(repo_root) is empty"
+    for path in checked:
         text = path.read_text(encoding="utf-8")
         runs_python = "setup-python" in text
         if path.name in HASHSEED_EXEMPT:
@@ -51,14 +53,18 @@ def test_hashseed_pinned_everywhere_except_documented_exemption(repo_root: Path)
 
 
 def test_hashseed_value_is_zero_not_arbitrary(repo_root: Path) -> None:
-    for path in _workflow_files(repo_root):
+    checked = list(_workflow_files(repo_root))
+    assert checked, "nothing was checked: _workflow_files(repo_root) is empty"
+    for path in checked:
         for line in path.read_text(encoding="utf-8").splitlines():
             if "PYTHONHASHSEED" in line and ":" in line:
                 assert '"0"' in line, f"{path.name} uses a non-canonical hashseed: {line.strip()}"
 
 
 def test_pip_cache_keys_are_explicit_and_lock_bound(repo_root: Path) -> None:
-    for path in _workflow_files(repo_root):
+    checked = list(_workflow_files(repo_root))
+    assert checked, "nothing was checked: _workflow_files(repo_root) is empty"
+    for path in checked:
         if path.name in HASHSEED_EXEMPT:
             continue
         workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -82,7 +88,9 @@ def test_pip_cache_keys_are_explicit_and_lock_bound(repo_root: Path) -> None:
 
 
 def test_locked_install_in_every_ubuntu_lane(repo_root: Path) -> None:
-    for path in _workflow_files(repo_root):
+    checked = list(_workflow_files(repo_root))
+    assert checked, "nothing was checked: _workflow_files(repo_root) is empty"
+    for path in checked:
         if path.name in RANGE_INSTALL_EXEMPT:
             continue
         text = path.read_text(encoding="utf-8")
@@ -121,7 +129,9 @@ def test_no_hardcoded_engine_commit_outside_base_image_digest(repo_root: Path) -
     """WS-A1D/WS223 domain split: base-image digests are allowed in Dockerfiles;
     hardcoded 40-hex engine commits anywhere else still fail."""
     for name in ("docker/xmage/Dockerfile",):
-        for line in (repo_root / name).read_text(encoding="utf-8").splitlines():
+        lines = (repo_root / name).read_text(encoding="utf-8").splitlines()
+        assert len(lines) >= 1, f"{name} is empty, so no line was checked"
+        for line in lines:
             stripped = re.sub(r"sha256:[0-9a-f]{64}", "", line)
             assert not re.search(r"[0-9a-f]{40}", stripped), (name, line.strip())
 
@@ -208,7 +218,7 @@ def test_locked_install_comment_is_not_a_command(tmp_path, monkeypatch):
     monkeypatch.setattr(
         __import__(__name__, fromlist=["_workflow_files"]), "_workflow_files", lambda _: [workflow]
     )
-    test_locked_install_in_every_ubuntu_lane(tmp_path)
+    assert test_locked_install_in_every_ubuntu_lane(tmp_path) is None
 
 
 def test_actual_unlocked_install_is_still_rejected(tmp_path, monkeypatch):

@@ -23,7 +23,7 @@ def test_local_current_decks_validate(repo_root: Path, catalog) -> None:
     for filename in ("rogshai_current.json",):
         deck = load_model(repo_root / "data/decks" / filename, Deck)
         report = validator.validate(deck)
-        assert report.valid, report.model_dump()
+        assert report.valid is True, report.model_dump()
 
 
 def test_off_color_card_is_rejected() -> None:

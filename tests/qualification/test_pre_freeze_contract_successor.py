@@ -863,7 +863,9 @@ def test_lane_rows_bound_to_corrected_fixtures_agree_with_the_records() -> None:
     corrected = [
         fixture_id for fixture_id in CHANGED_FIXTURE_IDS if fixture_id != "WS05-CMD-START-2"
     ]
-    for fixture_id in corrected:
+    checked = list(corrected)
+    assert checked, "nothing was checked: corrected is empty"
+    for fixture_id in checked:
         if fixture_id not in mr.ROWS:
             continue
         record = resolver.effective_record(fixture_id)
@@ -3022,7 +3024,9 @@ def test_contract_1_0_23_generator_regenerates_byte_identically(tmp_path: Path) 
         capture_output=True,
         text=True,
     )
-    for relative, target in targets.items():
+    checked = list(targets.items())
+    assert checked, "nothing was checked: targets.items() is empty"
+    for relative, target in checked:
         assert (root / relative).read_bytes() == first[relative]
         assert target.read_bytes() == committed_before[relative], (
             f"REPO_ROOT was mutated: {relative}"
@@ -3039,7 +3043,9 @@ def test_contract_1_0_23_generator_reproduces_the_committed_bytes(tmp_path: Path
         capture_output=True,
         text=True,
     )
-    for relative in _TEMP_REPO_FILES:
+    checked = list(_TEMP_REPO_FILES)
+    assert checked, "nothing was checked: _TEMP_REPO_FILES is empty"
+    for relative in checked:
         if "pre-freeze-successor/FULL107_SUCCESSOR_CONTRACT_v1_0_23" in relative or (
             "SEMANTIC_FIXTURE_SCHEMA_v1_0_23" in relative
         ):
@@ -3705,7 +3711,9 @@ def test_contract_1_0_24_generator_regenerates_byte_identically(tmp_path: Path) 
         "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_24_SUCCESSOR.json",
     ):
         assert first[relative] == committed_before[relative], relative
-    for relative, target in targets.items():
+    checked = list(targets.items())
+    assert checked, "nothing was checked: targets.items() is empty"
+    for relative, target in checked:
         assert target.read_bytes() == committed_before[relative], (
             f"REPO_ROOT was mutated: {relative}"
         )
@@ -3715,7 +3723,9 @@ def test_contract_1_0_24_generator_regenerates_byte_identically(tmp_path: Path) 
         capture_output=True,
         text=True,
     )
-    for relative in targets:
+    checked_2 = list(targets)
+    assert checked_2, "nothing was checked: targets is empty"
+    for relative in checked_2:
         assert (root / relative).read_bytes() == first[relative]
 
 
@@ -4106,7 +4116,9 @@ def test_contract_1_0_25_generator_regenerates_byte_identically(tmp_path: Path) 
         "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_25_SUCCESSOR.json",
     ):
         assert first[relative] == before[relative], relative
-    for relative, target in targets.items():
+    checked = list(targets.items())
+    assert checked, "nothing was checked: targets.items() is empty"
+    for relative, target in checked:
         assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
     subprocess.run(
         [sys.executable, str(GENERATOR_1_0_25), str(root)],
@@ -4114,7 +4126,9 @@ def test_contract_1_0_25_generator_regenerates_byte_identically(tmp_path: Path) 
         capture_output=True,
         text=True,
     )
-    for relative in targets:
+    checked_2 = list(targets)
+    assert checked_2, "nothing was checked: targets is empty"
+    for relative in checked_2:
         assert (root / relative).read_bytes() == first[relative]
 
 
@@ -4306,7 +4320,9 @@ def test_contract_1_0_26_generator_regenerates_byte_identically(tmp_path: Path) 
         "qualification/pre-freeze-successor/SEMANTIC_FIXTURE_SCHEMA_v1_0_26_SUCCESSOR.json",
     ):
         assert first[relative] == before[relative], relative
-    for relative, target in targets.items():
+    checked = list(targets.items())
+    assert checked, "nothing was checked: targets.items() is empty"
+    for relative, target in checked:
         assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
     subprocess.run(
         [sys.executable, str(GENERATOR_1_0_26), str(root)],
@@ -4314,7 +4330,9 @@ def test_contract_1_0_26_generator_regenerates_byte_identically(tmp_path: Path) 
         capture_output=True,
         text=True,
     )
-    for relative in targets:
+    checked_2 = list(targets)
+    assert checked_2, "nothing was checked: targets is empty"
+    for relative in checked_2:
         assert (root / relative).read_bytes() == first[relative]
 
 
@@ -4543,7 +4561,9 @@ def test_contract_1_0_27_generator_regenerates_byte_identically(tmp_path: Path) 
         text=True,
     )
     first = {relative: (root / relative).read_bytes() for relative in targets}
-    for relative, target in targets.items():
+    checked = list(targets.items())
+    assert checked, "nothing was checked: targets.items() is empty"
+    for relative, target in checked:
         assert first[relative] == before[relative], relative
         assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
     subprocess.run(
@@ -4552,5 +4572,7 @@ def test_contract_1_0_27_generator_regenerates_byte_identically(tmp_path: Path) 
         capture_output=True,
         text=True,
     )
-    for relative in targets:
+    checked_2 = list(targets)
+    assert checked_2, "nothing was checked: targets is empty"
+    for relative in checked_2:
         assert (root / relative).read_bytes() == first[relative]

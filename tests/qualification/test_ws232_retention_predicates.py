@@ -49,7 +49,9 @@ def test_predicate_coverage_complete():
 
 def test_predicates_are_semantic_not_existence():
     preds = _load("RETENTION_PREDICATES.json")
-    for p in preds["predicates"]:
+    checked = list(preds["predicates"])
+    assert checked, "nothing was checked: preds['predicates'] is empty"
+    for p in checked:
         assert p["semantic_premise"], p["predicate_id"]
         assert p["n_scoped_rerun_required"] == [2, 3, 5]
         assert p["binds"], p["predicate_id"]

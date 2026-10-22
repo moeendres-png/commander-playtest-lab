@@ -120,6 +120,8 @@ def test_non_mapping_evidence_is_handled() -> None:
 def test_same_semantics_literal_is_not_assigned_in_the_comparison_loop() -> None:
     """A literal SAME_SEMANTICS assignment would reintroduce the defect."""
     tree = ast.parse(ASSEMBLER.read_text(encoding="utf-8"))
-    for node in ast.walk(tree):
+    checked = list(ast.walk(tree))
+    assert checked, "nothing was checked: ast.walk(tree) is empty"
+    for node in checked:
         if isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant):
             assert node.value.value != "SAME_SEMANTICS", "SAME_SEMANTICS must be derived"

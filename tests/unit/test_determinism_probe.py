@@ -88,7 +88,9 @@ def test_normalising_does_not_hide_which_object_has_which_ability() -> None:
     """Negative control: relabelling ids must keep two objects apart (a swap is a swap)."""
     swapped = _game((UUID_A, UUID_B), swap_from=0)
     plain = _game((UUID_A, UUID_B))
-    assert probe.first_difference(probe.rows_of(plain), probe.rows_of(swapped)) is not None
+    found = probe.first_difference(probe.rows_of(plain), probe.rows_of(swapped))
+    assert found is not None
+    assert found["paths"], "the swap is named by a path, not just flagged"
 
 
 def test_a_changed_answer_is_a_difference() -> None:

@@ -1068,7 +1068,9 @@ def test_every_forged_binding_is_rejected_independently(accepted_evidence, tmp_p
         ("expected_bindings",): "expected_binding_mismatch:source_sha",
         ("python_version",): "runtime_observation_mismatch:python_version",
     }
-    for keys, value in controls:
+    checked = list(controls)
+    assert checked, "nothing was checked: controls is empty"
+    for keys, value in checked:
         forged = copy.deepcopy(valid)
         target = forged
         for key in keys[:-1]:

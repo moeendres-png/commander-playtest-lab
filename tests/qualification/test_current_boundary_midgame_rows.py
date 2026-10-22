@@ -459,7 +459,9 @@ def test_every_registered_row_observes_something() -> None:
             Path(__file__).resolve().parents[2]
         ).denominator_records()
     }
-    for fixture_id, spec in mr.ROWS.items():
+    checked = list(mr.ROWS.items())
+    assert checked, "nothing was checked: mr.ROWS.items() is empty"
+    for fixture_id, spec in checked:
         required = records[fixture_id]["expected_events"]["required_events"]
         assert required or spec.terminal_checks, fixture_id
 

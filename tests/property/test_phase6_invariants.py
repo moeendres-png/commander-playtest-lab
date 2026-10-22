@@ -36,7 +36,9 @@ def test_cards_zones_elimination_and_logs_remain_consistent_across_seeds(
             "kaervek/current",
         ),
     )
-    for pod_index, deck_ids in enumerate(pods):
+    checked = list(enumerate(pods))
+    assert checked, "nothing was checked: enumerate(pods) is empty"
+    for pod_index, deck_ids in checked:
         for seed in range(16):
             path = tmp_path / f"pod-{pod_index}-seed-{seed}.jsonl"
             result = simulator.simulate(

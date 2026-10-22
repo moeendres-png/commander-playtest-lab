@@ -80,7 +80,9 @@ def test_every_exclusion_names_one_rule_one_file_one_value_and_a_reason() -> Non
 
 def test_no_exclusion_is_stale() -> None:
     """Each excluded value still occurs in its file; otherwise the entry must go."""
-    for exclusion in _scanner().exclusions(CONFIG):
+    checked = list(_scanner().exclusions(CONFIG))
+    assert checked, "nothing was checked: _scanner().exclusions(CONFIG) is empty"
+    for exclusion in checked:
         text = (REPO / exclusion["path"]).read_text(encoding="utf-8")
         assert exclusion["value"] in text, exclusion
 

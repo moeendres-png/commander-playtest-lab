@@ -226,7 +226,9 @@ def test_reported_true_without_executed_proof_counts_missing(
     tmp_path: Path, capability: str
 ) -> None:
     proofs = [name for name in CAPABILITY_PROOF[capability] if name != AF01_PROOF]
-    for dropped in proofs:
+    checked = list(proofs)
+    assert checked, "nothing was checked: proofs is empty"
+    for dropped in checked:
         result = _assemble(_epoch(tmp_path / dropped, drop_classes=[dropped]))
         missing = result.record["truthful_capabilities"]["missing_required_capabilities"]
         assert capability in missing, dropped

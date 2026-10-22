@@ -21,7 +21,9 @@ from commander_lab.models import (
 
 
 def test_every_required_message_type_has_a_valid_request_model() -> None:
-    for kind in EngineMessageType:
+    checked = list(EngineMessageType)
+    assert checked, "nothing was checked: EngineMessageType is empty"
+    for kind in checked:
         request = EngineProtocolRequest(
             request_id=f"req-{kind.value}", engine="xmage", message_type=kind
         )

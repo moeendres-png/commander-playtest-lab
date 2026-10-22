@@ -117,7 +117,9 @@ def test_exact_main_mismatch_blocks_admission(tmp_path):
 
 def test_no_required_obligation_accepts_unknown_partial_not_run():
     c = j("qualification/obligations/QUALIFICATION_OBLIGATION_CATALOG_v1.json")
-    for o in c["obligations"]:
+    checked = list(c["obligations"])
+    assert checked, "nothing was checked: c['obligations'] is empty"
+    for o in checked:
         if o["required"]:
             assert "UNKNOWN" not in o["satisfying_verdicts"]
             assert "PARTIAL" not in o["satisfying_verdicts"]
