@@ -1,0 +1,91 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_14",
+  "obligation_exercised": {
+    "obligation_digest": "f6f1202d7297dcdebc4c8e806560e5021b1b26ea06f55386d9c015fd5f9442fb",
+    "requested_state_digest": "2a5e2739f569e8512f81fdd7d1d7dbb543eadae7d83dbf61683340484b67d9d8",
+    "required_events": [
+      "overload_cast",
+      "destroy_each_opponent_artifact"
+    ],
+    "terminal_checks": [
+      "Sol Ring is on P1's battlefield",
+      "no Sol Ring is on P2's battlefield",
+      "no Sol Ring is on P3's battlefield",
+      "no Sol Ring is on P4's battlefield",
+      "the engine asked no target decision"
+    ],
+    "terminal_postconditions": [
+      "P2/P3/P4 artifacts are destroyed.",
+      "P1 Sol Ring remains.",
+      "The overloaded spell has no targets."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.62/mage-1.4.62.jar",
+      "sha256": "f9fe403293bb205f2e494c9cc889fd157096b76252c5621a00ac6d65050feff0",
+      "size": 7192481
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "no Sol Ring is on P3's battlefield",
+          "no Sol Ring is on P4's battlefield"
+        ],
+        "check": "no Sol Ring is on P2's battlefield",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P2/P3/P4 artifacts are destroyed."
+      },
+      {
+        "check": "Sol Ring is on P1's battlefield",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "P1 Sol Ring remains."
+      },
+      {
+        "check": "the engine asked no target decision",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "The overloaded spell has no targets."
+      }
+    ],
+    "terminal_facts": {
+      "Sol Ring is on P1's battlefield": true,
+      "no Sol Ring is on P2's battlefield": true,
+      "no Sol Ring is on P3's battlefield": true,
+      "no Sol Ring is on P4's battlefield": true,
+      "the engine asked no target decision": true
+    },
+    "token_evidence": {
+      "destroy_each_opponent_artifact": {
+        "binding": "exactly 3 DESTROYED_PERMANENT event(s) with source_object=obj:card_14-subject",
+        "events": [
+          9,
+          10,
+          11
+        ]
+      },
+      "overload_cast": {
+        "binding": "a scripted priority frame selected an engine offer naming 'with overload'",
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "dcdf5870166020ae9a2b3329ac0106f2e865d3967ccbcdb829cc5e35ceb2370e",
+  "runner_digest": "ba2f27393199a6793574613e44e6e0a75cb35a8b132e3b988ac7f7158817e5c9",
+  "runtime_receipt_digest": "a3de99e3bbcd5b9946ad585fddaeea1879c5925ce6789f7c2cdc75afca468f60",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_14"
+}
