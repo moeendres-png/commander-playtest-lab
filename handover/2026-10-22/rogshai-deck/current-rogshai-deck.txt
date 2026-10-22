@@ -72,7 +72,7 @@ Deck
 1 Sulfur Falls
 1 Swiftfoot Boots
 1 Swords to Plowshares
-1 Tale's End
+1 Louisoix's Sacrifice
 1 Talisman of Creativity
 1 Talisman of Progress
 1 Temple of Enlightenment
