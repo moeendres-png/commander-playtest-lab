@@ -5,6 +5,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.MageItem;
 import mage.MageObject;
+import mage.abilities.Abilities;
 import mage.abilities.Ability;
 import mage.abilities.ActivatedAbility;
 import mage.abilities.Mode;
@@ -24,10 +25,13 @@ import mage.abilities.costs.common.TapTargetCost;
 import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.costs.mana.ManaCosts;
+import mage.abilities.mana.ActivatedManaAbilityImpl;
 import mage.abilities.mana.ManaOptions;
 import mage.abilities.keyword.CastFromGraveyardAbility;
 import mage.abilities.keyword.CrewAbility;
 import mage.cards.Card;
+import mage.cards.CardWithHalves;
+import mage.cards.CardWithSpellOption;
 import mage.cards.Cards;
 import mage.cards.ModalDoubleFacedCard;
 import mage.cards.SplitCard;
@@ -36,9 +40,11 @@ import mage.choices.Choice;
 import mage.constants.ManaType;
 import mage.constants.MultiAmountType;
 import mage.constants.Outcome;
+import mage.constants.PhaseStep;
 import mage.constants.RangeOfInfluence;
 import mage.constants.Zone;
 import mage.game.Game;
+import mage.game.GameState;
 import mage.game.combat.CombatGroup;
 import mage.game.stack.Spell;
 import mage.game.stack.StackObject;
@@ -66,6 +72,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Headless XMage player whose discretionary decisions are supplied externally.
@@ -380,6 +387,142 @@ final class XmageFullGamePlayer extends PlayerImpl {
             capturedManaAvailable = available.copy();
         }
         return available;
+    }
+
+    /*
+     * T-1: a mana payment frame needs two things from the playable calculation, the mana
+     * abilities the player may activate and the available mana, but playableWithManaAvailable
+     * computes the whole playable list for it: every spell and ability of every zone, each
+     * checked in a copy of the game. getPlayable accepts a mana ability of a permanent when
+     * the permanent can use activated abilities and the ability can be activated by this
+     * player (findActivatedAbilityFromPlayable), which is what getUseableManaAbilities checks;
+     * so the mana abilities are collected from the active permanents of all players directly.
+     * That holds only while no card has a mana ability outside the battlefield (Elvish Spirit
+     * Guide in a hand, for one, or one an effect has given to a card in a hand or graveyard):
+     * then the full calculation stays. getPlayable offers nothing
+     * in the silent part of the declare attackers step, and neither does this. Switch
+     * commanderlab.verifyManaPaymentPath on and both paths run and must agree (the game
+     * continues on the full calculation); XmageFullGameManaPaymentPathTest uses it.
+     */
+    static final String VERIFY_MANA_PAYMENT_PATH = "commanderlab.verifyManaPaymentPath";
+    static final AtomicLong MANA_PATH_FAST = new AtomicLong();
+    static final AtomicLong MANA_PATH_FULL = new AtomicLong();
+    static final AtomicLong MANA_PATH_VERIFIED = new AtomicLong();
+
+    private transient java.lang.ref.WeakReference<Game> manaZoneGame;
+    private transient boolean manaZoneGameHasOutsideManaAbility;
+
+    private PlayableWithMana manaPaymentOptions(Game game) {
+        if (game.isSimulation() || hasManaAbilityOutsideBattlefield(game)
+                || grantedManaAbilityOutsideBattlefield(game)) {
+            MANA_PATH_FULL.incrementAndGet();
+            return playableWithManaAvailable(game);
+        }
+        PlayableWithMana direct = manaPaymentOptionsDirect(game);
+        if (Boolean.getBoolean(VERIFY_MANA_PAYMENT_PATH)) {
+            PlayableWithMana full = playableWithManaAvailable(game);
+            java.util.Set<UUID> directIds = manaAbilityIds(direct.playable());
+            java.util.Set<UUID> fullIds = manaAbilityIds(full.playable());
+            if (!directIds.equals(fullIds) || !String.valueOf(direct.available()).equals(String.valueOf(full.available()))) {
+                throw new IllegalStateException("MANA_PAYMENT_PATH_MISMATCH: direct " + directIds.size()
+                        + " mana abilities, getPlayable " + fullIds.size() + ", direct-only "
+                        + difference(directIds, fullIds) + ", getPlayable-only " + difference(fullIds, directIds)
+                        + ", available direct " + direct.available() + " getPlayable " + full.available());
+            }
+            MANA_PATH_VERIFIED.incrementAndGet();
+            return full;
+        }
+        MANA_PATH_FAST.incrementAndGet();
+        return direct;
+    }
+
+    private PlayableWithMana manaPaymentOptionsDirect(Game game) {
+        List<ActivatedAbility> manaAbilities = new ArrayList<>();
+        if (!playableCalculationSkipped(game)) {
+            for (Permanent permanent : game.getBattlefield().getAllActivePermanents()) {
+                manaAbilities.addAll(getUseableManaAbilities(permanent, Zone.BATTLEFIELD, game).values());
+            }
+        }
+        return new PlayableWithMana(manaAbilities, getManaAvailable(game));
+    }
+
+    private static java.util.Set<UUID> manaAbilityIds(List<ActivatedAbility> playable) {
+        java.util.Set<UUID> ids = new java.util.TreeSet<>();
+        for (ActivatedAbility ability : playable) {
+            if (ability.isManaAbility()) {
+                ids.add(ability.getId());
+            }
+        }
+        return ids;
+    }
+
+    private static java.util.Set<UUID> difference(java.util.Set<UUID> left, java.util.Set<UUID> right) {
+        java.util.Set<UUID> only = new java.util.TreeSet<>(left);
+        only.removeAll(right);
+        return only;
+    }
+
+    /** The condition under which PlayerImpl.getPlayable returns an empty list. */
+    private static boolean playableCalculationSkipped(Game game) {
+        if (game.getStep() == null) {
+            return true;
+        }
+        return game.getPhase() != null
+                && game.getPhase().getStep() != null
+                && game.getPhase().getStep().getType() == PhaseStep.DECLARE_ATTACKERS
+                && game.getPhase().getStep().getStepPart() == mage.game.turn.Step.StepPart.PRE;
+    }
+
+    /** Looked up once per game: the cards of a game do not change after the game is set up. */
+    private boolean hasManaAbilityOutsideBattlefield(Game game) {
+        if (manaZoneGame == null || manaZoneGame.get() != game) {
+            boolean outside = false;
+            for (Card card : game.getCards()) {
+                if (hasManaAbilityOutsideBattlefield(card)) {
+                    outside = true;
+                    break;
+                }
+            }
+            manaZoneGame = new java.lang.ref.WeakReference<>(game);
+            manaZoneGameHasOutsideManaAbility = outside;
+        }
+        return manaZoneGameHasOutsideManaAbility;
+    }
+
+    /** A mana ability an effect gave to a card that is not on the battlefield (getPlayable reads those too). */
+    static boolean grantedManaAbilityOutsideBattlefield(Game game) {
+        GameState state = game.getState();
+        for (Card card : game.getCards()) {
+            Abilities<Ability> granted = state.getAllOtherAbilities(card.getId());
+            if (granted == null || granted.isEmpty() || state.getZone(card.getId()) == Zone.BATTLEFIELD) {
+                continue;
+            }
+            for (Ability ability : granted) {
+                if (ability instanceof ActivatedManaAbilityImpl && ability.getZone() != Zone.BATTLEFIELD) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasManaAbilityOutsideBattlefield(Card card) {
+        if (card == null) {
+            return false;
+        }
+        for (Ability ability : card.getAbilities()) {
+            if (ability instanceof ActivatedManaAbilityImpl && ability.getZone() != Zone.BATTLEFIELD) {
+                return true;
+            }
+        }
+        if (card instanceof CardWithHalves halves) {
+            return hasManaAbilityOutsideBattlefield(halves.getLeftHalfCard())
+                    || hasManaAbilityOutsideBattlefield(halves.getRightHalfCard());
+        }
+        if (card instanceof CardWithSpellOption option) {
+            return hasManaAbilityOutsideBattlefield(option.getSpellCard());
+        }
+        return false;
     }
 
     private PlayableWithMana playableWithManaAvailable(Game game) {
@@ -2171,7 +2314,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
         // per-object usable mana abilities of the player's permanents, as XMage's human
         // player uses while paying (getUseableManaAbilities: canActivate + canUse checks).
         Map<UUID, ActivatedAbility> usableManaAbilities = new LinkedHashMap<>();
-        PlayableWithMana offered = playableWithManaAvailable(game);
+        PlayableWithMana offered = manaPaymentOptions(game);
         offered.playable().stream()
                 .filter(Ability::isManaAbility)
                 .forEach(manaAbility -> usableManaAbilities.putIfAbsent(manaAbility.getId(), manaAbility));

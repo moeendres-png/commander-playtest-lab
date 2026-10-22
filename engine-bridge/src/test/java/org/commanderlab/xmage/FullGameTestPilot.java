@@ -34,6 +34,12 @@ final class FullGameTestPilot {
     }
 
     static XmageFullGameSession realDeckSession(String gameId, int players, long seed) throws IOException {
+        return realDeckSession(gameId, players, seed, null);
+    }
+
+    /** As above; {@code extraCard} replaces the last main-deck card of the first deck. */
+    static XmageFullGameSession realDeckSession(String gameId, int players, long seed, String extraCard)
+            throws IOException {
         XmageDeckImporter importer = new XmageDeckImporter();
         List<String> handles = new ArrayList<>();
         for (int seat = 0; seat < players; seat++) {
@@ -51,6 +57,9 @@ final class FullGameTestPilot {
                 for (int copy = 0; copy < card.get("quantity").getAsInt(); copy++) {
                     target.add(card.get("oracle_name").getAsString());
                 }
+            }
+            if (extraCard != null && seat == 0) {
+                main.set(main.size() - 1, extraCard);
             }
             handles.add(importer.importCommanderDeck(
                     "pilot-deck-" + seat, "0".repeat(64), main, commanders).deckHandle());
