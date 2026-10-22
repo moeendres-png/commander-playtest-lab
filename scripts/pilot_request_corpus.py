@@ -18,6 +18,11 @@ footprint of a pilot change on real inputs, to quote next to the report comparis
 Only requests that a fresh policy reproduced when they were recorded (``stateless``) count:
 a request that depends on what the same seat was asked earlier cannot be replayed alone.
 
+``record --all`` keeps every decision of the games instead of a sample (a full dump, several
+MB, not for the repository). ``diff --corpus DUMP`` replays it as the games were played, one
+policy per seed with the requests in order, so no request is left out as "not replayable
+alone". ``scripts/pilot_reach_report.py`` says which changed pilot lines either file reaches.
+
 The corpus is a sample of the pod, not a game. It proves that real shapes are answered
 legally; it does not rank pilots.
 """
@@ -200,6 +205,24 @@ def replay(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
     return results
 
 
+def replay_game(rows: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Answer the rows of a full dump as played: one policy per seed, requests in order."""
+    results = []
+    policy: Any = None
+    current: int | None = None
+    for row in rows:
+        seed = int(row["seed"])
+        if policy is None or seed != current:
+            policy, current = fresh_policy(seed), seed
+        try:
+            answer = policy.decide(copy.deepcopy(row["request"]))
+            error = None
+        except Exception as exc:  # a raise is a result of the replay, not a crash of it
+            answer, error = None, f"{type(exc).__name__}: {exc}"[:300]
+        results.append({"answer": answer, "error": error})
+    return results
+
+
 def record(args: argparse.Namespace) -> int:
     import benchmark_xmage_full_games as bench
     import pilot_decision_report as pdr
@@ -220,6 +243,20 @@ def record(args: argparse.Namespace) -> int:
         records += [
             {"seed": seed, "request": item["request"], "answer": item["answer"]} for item in sink
         ]
+    if args.all:
+        full = [{**r, "class": r["request"]["decision_class"]} for r in records]
+        header = {
+            "corpus_version": CORPUS_VERSION,
+            "kind": "full",
+            "pod": "real",
+            "seeds": bench._seeds(args.seeds),
+            "games_decisions": len(records),
+            "jar_sha256": hashlib.sha256(args.jar.read_bytes()).hexdigest(),
+            "classes": dict(sorted(Counter(r["class"] for r in full).items())),
+        }
+        write_corpus(args.out, header, full)
+        print(json.dumps(header, indent=1))
+        return 0
     rows = select_corpus(records)
     replayed = replay(rows)
     for row, outcome in zip(rows, replayed, strict=True):
@@ -242,7 +279,8 @@ def record(args: argparse.Namespace) -> int:
 
 def diff(args: argparse.Namespace) -> int:
     header, rows = load_corpus(args.corpus)
-    replayed = replay(rows)
+    full = header.get("kind") == "full"
+    replayed = replay_game(rows) if full else replay(rows)
     changed: Counter[str] = Counter()
     total: Counter[str] = Counter()
     errors = illegal = 0
@@ -252,12 +290,15 @@ def diff(args: argparse.Namespace) -> int:
             continue
         if legality_problems(row["request"], outcome["answer"]):
             illegal += 1
-        if not row["stateless"]:
+        if not full and not row["stateless"]:
             continue
         total[row["class"]] += 1
         if answer_key(outcome["answer"]) != answer_key(row["answer"]):
             changed[row["class"]] += 1
-    print(f"corpus: {len(rows)} requests, {header['stateless']} replayable alone")
+    if full:
+        print(f"full dump: {len(rows)} requests replayed as played (one policy per seed)")
+    else:
+        print(f"corpus: {len(rows)} requests, {header['stateless']} replayable alone")
     print(f"raised: {errors}, illegal answers: {illegal}")
     for name in sorted(total):
         print(f"  {name:18s} {changed[name]:4d} of {total[name]:4d} answers changed")
@@ -272,6 +313,9 @@ def main(argv: Sequence[str] | None = None) -> int:
     rec.add_argument("--jar", type=Path, required=True)
     rec.add_argument("--seeds", default="1-2")
     rec.add_argument("--out", type=Path, default=DEFAULT_CORPUS)
+    rec.add_argument(
+        "--all", action="store_true", help="keep every decision (a full dump) instead of a sample"
+    )
     rec.set_defaults(func=record)
     dif = sub.add_parser("diff", help="answers the current pilot changes on the corpus")
     dif.add_argument("--corpus", type=Path, default=DEFAULT_CORPUS)

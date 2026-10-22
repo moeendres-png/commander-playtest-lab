@@ -237,3 +237,19 @@ def test_diff_reports_nothing_for_the_recording_pilot_and_counts_a_changed_pilot
     changed = int(priority_line.split()[1])
     assert changed > 0, loud
     assert "changed in total: 0 of" not in loud
+
+
+def test_a_full_dump_is_replayed_with_one_policy_per_seed(
+    corpus: tuple[dict[str, Any], list[dict[str, Any]]], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """A full dump is a game: the policy remembers what the seat was asked earlier."""
+    rows = sorted((r for r in corpus[1] if r["stateless"]), key=lambda r: int(r["seed"]))[:80]
+    made: list[int] = []
+    original = corpus_tool.fresh_policy
+    monkeypatch.setattr(
+        corpus_tool, "fresh_policy", lambda seed: made.append(seed) or original(seed)
+    )
+    outcomes = corpus_tool.replay_game(rows)
+    assert len(outcomes) == len(rows) and all(o["answer"] is not None for o in outcomes)
+    assert made == sorted({int(r["seed"]) for r in rows})
+    assert len(made) < len(rows)

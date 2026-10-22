@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import random
 import sys
 import time
@@ -819,12 +820,24 @@ def format_rotting(cards: dict[str, Any], limit: int = 10) -> list[str]:
 #
 # Games are paired by (pod, seed) across the two reports; per metric the mean
 # per-game delta is reported with a 95% paired bootstrap interval (fixed seed,
-# 2000 resamples, stdlib only). A metric is CHANGED only when the interval
-# excludes 0, so seed noise and a real shift do not look the same.
+# 2000 resamples, stdlib only). ``changed`` is true when the interval excludes 0.
+#
+# About twenty metrics are compared at once, so some interval excludes 0 by chance
+# in most comparisons of two identical pilots (``calibrate`` measures how often).
+# Each metric therefore also gets a sign-flip permutation p-value, and the p-values
+# of the metrics that move at all are Holm-adjusted: ``significant`` is the verdict
+# that holds up against the number of looks. A change that is judged on one metric
+# names it up front (``--primary``); that metric is tested alone, the rest are
+# exploratory.
 # ---------------------------------------------------------------------------
 
 _BOOTSTRAP_SEED = 20261016
 _BOOTSTRAP_RESAMPLES = 2000
+_FLIP_SEED = 20261022
+_FLIPS = 4000
+_ALPHA = 0.05
+# (z(1 - alpha/2) + z(power)) for alpha = 5 % two-sided and 80 % power.
+_POWER_FACTOR = 2.8
 _MIN_PAIRED_SEEDS_PER_POD = 10
 
 _COMPARE_METRICS = (*_TOTALS, "spells_per_player_round")
@@ -905,15 +918,80 @@ def bootstrap_mean_ci(
     return means[int(0.025 * resamples)], means[int(0.975 * resamples) - 1]
 
 
-def compare_reports(report_a: dict[str, Any], report_b: dict[str, Any]) -> dict[str, Any]:
+def sign_flip_p_value(deltas: list[float], *, seed: int = _FLIP_SEED, flips: int = _FLIPS) -> float:
+    """Two-sided sign-flip permutation p-value that the mean paired delta is zero.
+
+    Under "the change moves nothing" each pair's delta is as likely positive as negative, so
+    flipping signs gives the distribution of the mean. Valid for any number of pairs (the
+    bootstrap interval is optimistic with a dozen). Exact when all ``2**n`` flips fit in
+    ``flips``; otherwise ``flips`` seeded random flips, never below ``1 / (flips + 1)``.
+    """
+    if not any(deltas):
+        return 1.0
+    n = len(deltas)
+    observed = abs(sum(deltas))
+    # Tolerance: sums of the same floats in another order differ in the last digits.
+    threshold = observed - 1e-9 * max(1.0, observed)
+    if 2**n <= flips:
+        extreme = sum(
+            abs(sum(d if (bits >> i) & 1 else -d for i, d in enumerate(deltas))) >= threshold
+            for bits in range(2**n)
+        )
+        return extreme / 2**n
+    rng = random.Random(seed)
+    extreme = 0
+    for _ in range(flips):
+        bits = rng.getrandbits(n)
+        total = sum(d if (bits >> i) & 1 else -d for i, d in enumerate(deltas))
+        if abs(total) >= threshold:
+            extreme += 1
+    return (extreme + 1) / (flips + 1)
+
+
+def holm_adjust(p_values: dict[str, float]) -> dict[str, float]:
+    """Holm step-down adjusted p-values (family-wise error control), same keys."""
+    ordered = sorted(p_values.items(), key=lambda item: (item[1], item[0]))
+    adjusted: dict[str, float] = {}
+    running = 0.0
+    for rank, (key, p) in enumerate(ordered):
+        running = max(running, min(1.0, (len(ordered) - rank) * p))
+        adjusted[key] = running
+    return adjusted
+
+
+def minimum_detectable_change(deltas: list[float]) -> float:
+    """Smallest mean paired change this many pairs detect with 80 % power at 5 % (two-sided).
+
+    ``2.8 * sd / sqrt(n)`` from the spread of the observed paired deltas: a planning figure
+    for how large a change must be to show, not a statement about the change.
+    """
+    n = len(deltas)
+    if n < 2:
+        return float("inf")
+    mean = sum(deltas) / n
+    sd = math.sqrt(sum((d - mean) ** 2 for d in deltas) / (n - 1))
+    return _POWER_FACTOR * sd / math.sqrt(n)
+
+
+def compare_reports(
+    report_a: dict[str, Any],
+    report_b: dict[str, Any],
+    *,
+    primary: str | None = None,
+    resamples: int = _BOOTSTRAP_RESAMPLES,
+    flips: int = _FLIPS,
+) -> dict[str, Any]:
     """Compare two pilot reports on their paired (pod, seed) games.
 
-    Per metric: mean per-game delta with a 95% paired bootstrap interval; the
-    metric is marked CHANGED only when the interval excludes 0. Pods with fewer
-    than 10 paired seeds get a noise warning.
+    Per metric: mean per-game delta with a 95% paired bootstrap interval (``changed`` when it
+    excludes 0), a sign-flip p-value, the smallest change these pairs detect (``mde80``) and
+    ``significant``: the p-value Holm-adjusted over the metrics that move, or, for ``primary``,
+    the p-value alone (named before the games, so one look). Pods with fewer than 10 paired
+    seeds get a noise warning.
     """
     paired, unpaired = pair_games(report_a, report_b)
     metrics: dict[str, dict[str, Any]] = {}
+    deltas_of: dict[str, list[float]] = {}
     for key in _COMPARE_METRICS:
         deltas = [
             float(game_b.get(key, 0)) - float(game_a.get(key, 0)) for _, game_a, game_b in paired
@@ -923,7 +1001,8 @@ def compare_reports(report_a: dict[str, Any], report_b: dict[str, Any]) -> dict[
         before = sum(float(game_a.get(key, 0)) for _, game_a, _ in paired) / len(paired)
         after = sum(float(game_b.get(key, 0)) for _, _, game_b in paired) / len(paired)
         mean_delta = sum(deltas) / len(deltas)
-        ci_lo, ci_hi = bootstrap_mean_ci(deltas)
+        ci_lo, ci_hi = bootstrap_mean_ci(deltas, resamples=resamples)
+        deltas_of[key] = deltas
         metrics[key] = {
             "paired_games": len(deltas),
             "before_mean": before,
@@ -931,7 +1010,26 @@ def compare_reports(report_a: dict[str, Any], report_b: dict[str, Any]) -> dict[
             "mean_delta": mean_delta,
             "ci95": [ci_lo, ci_hi],
             "changed": bool(ci_lo > 0 or ci_hi < 0),
+            "p": sign_flip_p_value(deltas, flips=flips),
+            "mde80": minimum_detectable_change(deltas),
         }
+    if primary is not None and primary not in metrics:
+        raise ValueError(f"primary metric {primary!r} is not among the compared metrics")
+    # The family: every metric that moves in at least one pair, except the primary one.
+    family = {
+        key: metric["p"]
+        for key, metric in metrics.items()
+        if key != primary and any(deltas_of[key])
+    }
+    adjusted = holm_adjust(family)
+    for key, metric in metrics.items():
+        if key == primary:
+            metric["role"] = "primary"
+            metric["p_adjusted"] = metric["p"]
+        else:
+            metric["role"] = "exploratory"
+            metric["p_adjusted"] = adjusted.get(key, 1.0)
+        metric["significant"] = bool(metric["p_adjusted"] < _ALPHA)
     seeds_per_pod: dict[str, int] = {}
     for (pod, _seed), _, _ in paired:
         seeds_per_pod[str(pod)] = seeds_per_pod.get(str(pod), 0) + 1
@@ -953,32 +1051,97 @@ def compare_reports(report_a: dict[str, Any], report_b: dict[str, Any]) -> dict[
     return {
         "paired_games": len(paired),
         "paired_seeds_per_pod": seeds_per_pod,
+        "primary": primary,
+        "family_size": len(family),
         "metrics": metrics,
         "unpaired_games": unpaired,
         "warnings": warnings,
     }
 
 
+def _verdict(metric: dict[str, Any]) -> str:
+    if metric["significant"]:
+        return "CHANGED"
+    return "ci only" if metric["changed"] else "same"
+
+
 def format_comparison(result: dict[str, Any]) -> list[str]:
     """Human-readable lines for a ``compare_reports`` result."""
     lines = [f"paired games: {result['paired_games']}"]
+    primary = result.get("primary")
+    if primary and primary in result["metrics"]:
+        metric = result["metrics"][primary]
+        lines.append(
+            f"PRIMARY {primary}: {_verdict(metric)} (delta {metric['mean_delta']:+.2f}, "
+            f"p={metric['p']:.4f}, detectable change {metric['mde80']:.2f})"
+        )
     for key in _COMPARE_METRICS:
         metric = result["metrics"].get(key)
         if metric is None:
             lines.append(f"{key:40s} no paired games")
             continue
         lo, hi = metric["ci95"]
-        flag = "CHANGED" if metric["changed"] else "same"
+        role = "*" if metric["role"] == "primary" else " "
         lines.append(
-            f"{key:40s} {metric['before_mean']:>10.2f} -> {metric['after_mean']:<10.2f} "
-            f"delta {metric['mean_delta']:+.2f}  95% CI [{lo:+.2f}, {hi:+.2f}]  {flag}"
+            f"{role}{key:39s} {metric['before_mean']:>10.2f} -> {metric['after_mean']:<10.2f} "
+            f"delta {metric['mean_delta']:+.2f}  95% CI [{lo:+.2f}, {hi:+.2f}]  "
+            f"p={metric['p']:.4f} adj={metric['p_adjusted']:.4f} "
+            f"min {metric['mde80']:.2f}  {_verdict(metric)}"
         )
+    ci_only = sorted(
+        k for k, m in result["metrics"].items() if m["changed"] and not m["significant"]
+    )
+    lines.append(
+        f"CHANGED = adjusted p < {_ALPHA} (Holm over {result['family_size']} moving metrics"
+        f"{'; the primary metric alone' if primary else ''}); 'ci only' = the interval excludes 0 "
+        f"but the adjusted p does not: {len(ci_only)} of {len(result['metrics'])} metrics"
+    )
+    if not primary:
+        lines.append("no primary metric named: every metric above is exploratory (--primary)")
     for game in result["unpaired_games"]:
         lines.append(
             f"unpaired: report={game['report']} pod={game['pod']} "
             f"seed={game['seed']} reason={game['reason']}"
         )
     lines.extend(result["warnings"])
+    return lines
+
+
+def format_markdown(result: dict[str, Any], path_a: Path, path_b: Path) -> list[str]:
+    """A block for a pull request: the primary metric, then what else moved, then the limits."""
+    lines = [
+        f"Pilot comparison `{path_a.name}` -> `{path_b.name}`: {result['paired_games']} paired "
+        f"games in {len(result['paired_seeds_per_pod'])} pod(s)."
+    ]
+    primary = result.get("primary")
+    shown = [k for k in _COMPARE_METRICS if k in result["metrics"]]
+    moved = [k for k in shown if k == primary or result["metrics"][k]["changed"]]
+    lines += [
+        "",
+        "| metric | before | after | delta | 95% CI | p | adjusted p | detectable | verdict |",
+        "|---|---:|---:|---:|---|---:|---:|---:|---|",
+    ]
+    for key in moved:
+        m = result["metrics"][key]
+        name = f"**{key}** (primary)" if key == primary else key
+        lines.append(
+            f"| {name} | {m['before_mean']:.2f} | {m['after_mean']:.2f} | {m['mean_delta']:+.2f} "
+            f"| [{m['ci95'][0]:+.2f}, {m['ci95'][1]:+.2f}] | {m['p']:.4f} "
+            f"| {m['p_adjusted']:.4f} | {m['mde80']:.2f} | {_verdict(m)} |"
+        )
+    if not moved:
+        lines.append("| (no metric moved) | | | | | | | | |")
+    lines.append("")
+    lines.append(
+        f"{len(shown)} metrics compared; adjusted p is Holm over {result['family_size']} moving "
+        f"metrics{
+            ' (the primary metric is tested alone)'
+            if primary
+            else ' and nothing was named as primary, so every row is exploratory'
+        }. 'detectable' is the smallest "
+        "mean change these pairs detect with 80 % power."
+    )
+    lines.extend(f"- {w}" for w in result["warnings"])
     return lines
 
 
@@ -992,6 +1155,11 @@ def comparison_payload(result: dict[str, Any], path_a: Path, path_b: Path) -> di
             "mean_delta": round(metric["mean_delta"], 4),
             "ci95": [round(metric["ci95"][0], 4), round(metric["ci95"][1], 4)],
             "changed": metric["changed"],
+            "p": round(metric["p"], 6),
+            "p_adjusted": round(metric["p_adjusted"], 6),
+            "significant": metric["significant"],
+            "role": metric["role"],
+            "mde80": round(metric["mde80"], 4) if math.isfinite(metric["mde80"]) else None,
         }
         for key, metric in result["metrics"].items()
     }
@@ -1000,6 +1168,8 @@ def comparison_payload(result: dict[str, Any], path_a: Path, path_b: Path) -> di
         "report_b": str(path_b),
         "paired_games": result["paired_games"],
         "paired_seeds_per_pod": result["paired_seeds_per_pod"],
+        "primary": result.get("primary"),
+        "family_size": result["family_size"],
         "metrics": metrics,
         "unpaired_games": result["unpaired_games"],
         "warnings": result["warnings"],
@@ -1009,14 +1179,89 @@ def comparison_payload(result: dict[str, Any], path_a: Path, path_b: Path) -> di
 def compare(args: argparse.Namespace) -> int:
     report_a = json.loads(args.a.read_text(encoding="utf-8"))
     report_b = json.loads(args.b.read_text(encoding="utf-8"))
-    result = compare_reports(report_a, report_b)
+    result = compare_reports(report_a, report_b, primary=getattr(args, "primary", None))
     for line in format_comparison(result):
         print(line)
+    if getattr(args, "markdown", False):
+        print()
+        for line in format_markdown(result, args.a, args.b):
+            print(line)
     if args.json is not None:
         args.json.write_text(
             json.dumps(comparison_payload(result, args.a, args.b), indent=1) + "\n",
             encoding="utf-8",
         )
+    return 0
+
+
+_CALIBRATION_SEED = 20261023
+
+
+def calibrate_report(
+    report: dict[str, Any],
+    *,
+    rounds: int = 200,
+    resamples: int = 400,
+    flips: int = 1000,
+    seed: int = _CALIBRATION_SEED,
+) -> dict[str, Any]:
+    """How often does comparing two pilots that differ in nothing flag a change?
+
+    The ok games of one report are shuffled and split into two arms of equal size whose games
+    are then paired in order. The pairs are unrelated (a pilot change that diverges the games
+    couples them only weakly, so this is the conservative null), so every flag is false.
+    Reports the share of rounds in which any metric is flagged by the interval alone and
+    after Holm, and the share per metric.
+    """
+    games = [g for g in report.get("games", []) if g.get("status") == "ok"]
+    half = len(games) // 2
+    if half < 3:
+        raise ValueError(f"need at least 6 ok games to split into two arms, got {len(games)}")
+    rng = random.Random(seed)
+    any_ci = any_holm = 0
+    per_metric: Counter[str] = Counter()
+    for _ in range(rounds):
+        order = games[:]
+        rng.shuffle(order)
+        arm_a = [{**order[i], "pod": "null", "seed": i} for i in range(half)]
+        arm_b = [{**order[half + i], "pod": "null", "seed": i} for i in range(half)]
+        result = compare_reports(
+            {"games": arm_a}, {"games": arm_b}, resamples=resamples, flips=flips
+        )
+        flagged = [k for k, m in result["metrics"].items() if m["changed"]]
+        any_ci += bool(flagged)
+        any_holm += any(m["significant"] for m in result["metrics"].values())
+        per_metric.update(flagged)
+    return {
+        "games": len(games),
+        "pairs": half,
+        "rounds": rounds,
+        "any_metric_flagged_by_interval": any_ci / rounds,
+        "any_metric_significant_after_holm": any_holm / rounds,
+        "per_metric_flagged_by_interval": {
+            k: per_metric[k] / rounds for k in sorted(per_metric, key=lambda k: -per_metric[k])
+        },
+    }
+
+
+def calibrate(args: argparse.Namespace) -> int:
+    report = json.loads(args.report.read_text(encoding="utf-8"))
+    result = calibrate_report(report, rounds=args.rounds)
+    print(
+        f"{result['games']} ok games -> {result['pairs']} unrelated pairs, {result['rounds']} rounds, "
+        "no change between the arms"
+    )
+    print(
+        f"any metric flagged by its interval alone: {result['any_metric_flagged_by_interval']:.1%}"
+    )
+    print(
+        "any metric significant after Holm:        "
+        f"{result['any_metric_significant_after_holm']:.1%}"
+    )
+    worst = list(result["per_metric_flagged_by_interval"].items())[:5]
+    print("most often flagged by interval: " + ", ".join(f"{k} {v:.0%}" for k, v in worst))
+    if args.json is not None:
+        args.json.write_text(json.dumps(result, indent=1) + "\n", encoding="utf-8")
     return 0
 
 
@@ -1042,7 +1287,22 @@ def main(argv: list[str] | None = None) -> int:
     diff.add_argument("a", type=Path)
     diff.add_argument("b", type=Path)
     diff.add_argument("--json", type=Path, default=None, help="write the comparison as JSON")
+    diff.add_argument(
+        "--primary",
+        choices=_COMPARE_METRICS,
+        default=None,
+        help="the one metric the change is judged on, named before the games were played",
+    )
+    diff.add_argument("--markdown", action="store_true", help="also print a block for a PR")
     diff.set_defaults(func=compare)
+    cal = sub.add_parser(
+        "calibrate",
+        help="false-positive rate of compare on a report (two arms that differ in nothing)",
+    )
+    cal.add_argument("report", type=Path)
+    cal.add_argument("--rounds", type=int, default=200)
+    cal.add_argument("--json", type=Path, default=None)
+    cal.set_defaults(func=calibrate)
     args = parser.parse_args(argv)
     return int(args.func(args))
 

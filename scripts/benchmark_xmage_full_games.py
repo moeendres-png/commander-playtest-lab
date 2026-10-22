@@ -26,6 +26,7 @@ Local timings are measurements, not qualification evidence.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import resource
 import sys
@@ -47,7 +48,32 @@ COVERAGE_DIR = ROOT / "data/coverage_decks/collection"
 COVERAGE_PODS = ((0, 1, 2, 3), (4, 5, 6, 7), (8, 9, 10, 11), (12, 13, 14, 15), (16, 17, 0, 5))
 
 
+def master_seeds(master: str, count: int) -> list[int]:
+    """``count`` distinct game seeds derived from ``master`` (SHA-256), in [1, 2**31).
+
+    Seeds 1..N are not a sample anyone chose without looking: a run that is announced with a
+    master seed cannot be steered towards seeds on which a change looks good, and rerunning
+    the announcement gives the same seeds.
+    """
+    if count < 1:
+        raise ValueError("a seed set needs at least one seed")
+    seeds: list[int] = []
+    index = 0
+    while len(seeds) < count:
+        digest = hashlib.sha256(f"{master}:{index}".encode()).digest()
+        seed = int.from_bytes(digest[:4], "big") % (2**31 - 1) + 1
+        if seed not in seeds:
+            seeds.append(seed)
+        index += 1
+    return seeds
+
+
 def _seeds(text: str) -> list[int]:
+    if text.startswith("hash:"):
+        master, _, count = text[len("hash:") :].rpartition(":")
+        if not master or not count.isdigit():
+            raise ValueError("seed set must look like hash:MASTER:COUNT")
+        return master_seeds(master, int(count))
     seeds: list[int] = []
     for part in text.split(","):
         low, _, high = part.partition("-")
