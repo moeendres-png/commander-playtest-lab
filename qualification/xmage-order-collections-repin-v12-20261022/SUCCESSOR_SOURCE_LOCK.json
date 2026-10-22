@@ -2,7 +2,7 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-order-collections-repin-v12-20261022",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status": "EVIDENCE_BOUND",
  "status_note": "the pin is the merge head of the fork branch claude/project-thread-5hvqry (moeendres-png/mage): the v11 pin 456b0e22 plus three engine changes that make equal seeds replay equal games and the merge of Muse's player-order branch. (1) The tokens of one event are created in the order they were given (CreateTokenEvent/TokenImpl; Wurmcoil Engine's two Wurms, seed 22 pod 004 and seed 6 pod 044; mage#68). (2) Collections over objects without their own hashCode keep insertion or declaration order where they decide something a player sees or the order of zone changes (CreatedTokensEvent, ContinuousEffects, ManaType sets as EnumSet, four cards that move a set of cards together; mage#70). (3) Eighteen cards iterate their players in table or battlefield order instead of HashMap order (Wave of Vitriol, From the Ashes and sixteen more; plan seeds 24, 27 and 30, four formerly unstable pods; mage#69). The v11 pin gave two semantic hashes for the same seed in these pods; with this pin they give one. Pods and seeds that were stable stay on the same hash (46 of 46 precon pods and 36 of 36 real-pod seeds equal to v11). The perf port (0c0132a2ef) stays out of the pin because it changes option text. The engine version stays 1.4.62. The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the repin (Owner's go: 2026-10-22 09:42 UTC, E3, and the request of 15:57 UTC to merge mage#68, #69 and #70 and repin). The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite is bound under lab_runtime_qualification when its Actions run is complete; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
@@ -297,11 +297,27 @@
  },
  "lab_runtime_qualification": {
   "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 4da83f62 for that job, cache keyed by the commit; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "installed_artifacts_commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 a75a6f2f219c10bdd5d7425a5711d29cb57e9400d009a213fb0085126a2c28ef",
+   "org.mage:mage-sets:1.4.62": "sha256 7980b7017528b40b1a014bd9828d04bbb6bdab4bb675aaf9c3f6470161e430e1"
+  },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance pull_request run on the repin branch head: engine-bridge mvn verify against XMage built from exact 4da83f62 (XMAGE_COMMIT=4da83f62, checked in the job)",
-   "status": "PENDING"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head cd1a16a2ee154f0341eb3e2923ddcd9bbf515fd8 (XMAGE_COMMIT=4da83f62, checked in the job): engine-bridge mvn verify against XMage built from exact 4da83f62",
+   "run": 2185,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 39825890942,
+   "job": 119989047073,
+   "artifact": {
+    "id": 12447582214,
+    "zip_sha256": "37eb8bd2fb81d9bc0ec5e56d48368ce361c659401654b15f81cb315d29749b43"
+   },
+   "tests_run": 1150,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest checks the seven prepare creatures, the finished Adventurous Eater and the still unfinished cards; the v6, v7 and v8 hooks stay checked."
  },
