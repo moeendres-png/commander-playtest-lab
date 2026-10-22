@@ -76,8 +76,8 @@ def _live_pin() -> str:
 
 # This file proves the 2026-10-21 lazy-triggers repin EVENT. Its current-pin assertions hold
 # only while this repin's pin is live; after a later forward repin they are superseded by that
-# repin's successor guard and are skipped, never rewritten. Its historical assertions stay
-# active.
+# repin's successor guard (test_xmage_order_collections_repin_v12_20261022.py) and are skipped,
+# never rewritten. Its historical assertions stay active.
 superseded_by_later_repin = pytest.mark.skipif(
     _live_pin() != CURRENT_PIN,
     reason="superseded: live XMage pin moved forward (see the next repin's successor guard)",

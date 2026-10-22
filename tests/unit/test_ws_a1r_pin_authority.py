@@ -36,7 +36,7 @@ def test_manifest_pins_unchanged_by_authority_repair(repo_root: Path) -> None:
     # Live pin: multiplayer candidate after the deterministic commander-zone ask order
     # (mage#57), the card-scanner bulk lookup (mage#58) and the precon card coverage
     # (mage#59) and the lazy playable-calculation card copy (mage#60), repin v7.
-    assert config["primary_engine"]["commit"] == "456b0e227cc09a90e9d485b9d932f3717ef9e2be"
+    assert config["primary_engine"]["commit"] == "4da83f6267907798e5527c3e5f8a0bd3579ff993"
     assert config["provider_decision"] == "XMAGE_SELECTED"
     assert config["current_runtime"]["provider_selected"] is True
     assert config["current_runtime"]["production_provider"] == "xmage"

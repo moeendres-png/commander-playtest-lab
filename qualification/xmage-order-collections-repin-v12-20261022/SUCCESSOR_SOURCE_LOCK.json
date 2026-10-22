@@ -1,0 +1,319 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-order-collections-repin-v12-20261022",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the merge head of the fork branch claude/project-thread-5hvqry (moeendres-png/mage): the v11 pin 456b0e22 plus three engine changes that make equal seeds replay equal games and the merge of Muse's player-order branch. (1) The tokens of one event are created in the order they were given (CreateTokenEvent/TokenImpl; Wurmcoil Engine's two Wurms, seed 22 pod 004 and seed 6 pod 044; mage#68). (2) Collections over objects without their own hashCode keep insertion or declaration order where they decide something a player sees or the order of zone changes (CreatedTokensEvent, ContinuousEffects, ManaType sets as EnumSet, four cards that move a set of cards together; mage#70). (3) Eighteen cards iterate their players in table or battlefield order instead of HashMap order (Wave of Vitriol, From the Ashes and sixteen more; plan seeds 24, 27 and 30, four formerly unstable pods; mage#69). The v11 pin gave two semantic hashes for the same seed in these pods; with this pin they give one. Pods and seeds that were stable stay on the same hash (46 of 46 precon pods and 36 of 36 real-pod seeds equal to v11). The perf port (0c0132a2ef) stays out of the pin because it changes option text. The engine version stays 1.4.62. The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the repin (Owner's go: 2026-10-22 09:42 UTC, E3, and the request of 15:57 UTC to merge mage#68, #69 and #70 and repin). The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite is bound under lab_runtime_qualification when its Actions run is complete; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "owner_go": {
+  "decision": "Owner chose 'Go fuer alles zu Wave B ... und E1 bis E3 nach Empfehlung' on 2026-10-22 09:42 UTC (E3: bundle the v12 repin with the token order of mage#68 and a second reason; this includes fork push, repin, PB-03, AF11 adjudication and seals) and asked on 2026-10-22 15:57 UTC that mage#68, #69 and #70 are merged and the repin takes place",
+  "scope": "push the line to the fork, run the fork CI, fast-forward the candidate line, open the repin, PB-03 and both seals"
+ },
+ "prior_live_pin": {
+  "commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "tree": "e111416966fa9a2acaf2902ff5ea3c9efad635e8",
+  "role": "prior live XMage pin (repin v11, Protector of the Wastes, Tempt with Reflections and lazy triggers, engine 1.4.62); stays historical and is the engine of the current_qualification epoch dac1ed64937a-187ab54c36bb until this repin is requalified",
+  "successor_locks": [
+   "qualification/xmage-determinism-line-repin-v10-20261020/SUCCESSOR_SOURCE_LOCK.json",
+   "qualification/xmage-lazy-triggers-repin-v11-20261021/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+   "tree": "e111416966fa9a2acaf2902ff5ea3c9efad635e8"
+  },
+  "candidate_line_head": {
+   "commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+   "branch": "claude/xmage-mp-candidate-20260929",
+   "content": "fast-forwarded to the v11 pin on 2026-10-21 after the Owner's go of 18:34 UTC; fast-forwarded to this pin with the repin"
+  },
+  "final_integrated_candidate": {
+   "commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+   "tree": "64106e3ce6f537bc0f3fda83910abb569b23e34b",
+   "content": "v11 pin plus the token order, the insertion-order collections and the 18 player-order cards; no upstream merge, no perf port"
+  },
+  "identity_rule": "the pin is the head commit of the fork branch claude/project-thread-5hvqry: a merge of claude/project-thread-nwlvfk (mage#69, one commit dd71626b390 on the token commit) into 4da49dc2216 (mage#70, which carries the token commit 537ce62cc1d of mage#68); #68, #69 and #70 are CI carriers whose heads are ancestors of the pin"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/project-thread-5hvqry",
+  "commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+  "tree": "64106e3ce6f537bc0f3fda83910abb569b23e34b",
+  "parents": [
+   "4da49dc221679a2b2776df829bbd1c43e0af3bdd",
+   "dd71626b390f179cf392acc654470924de5e3b6b"
+  ],
+  "committed_at": "2026-10-22T16:24:03+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/4da83f6267907798e5527c3e5f8a0bd3579ff993.tar.gz",
+  "fork_ref_note": "the commit is the head of claude/project-thread-5hvqry and, after the fast-forward, of claude/xmage-mp-candidate-20260929"
+ },
+ "donors": [
+  {
+   "finding": "WURMCOIL-TOKEN-CREATION-ORDER",
+   "branch": "claude/token-creation-order-20261021 (moeendres-png/mage), draft PR #68",
+   "head": "537ce62cc1d75486abfcda5e14b94117d0adec83",
+   "observation": "CreateTokenEvent kept its tokens in a HashMap and TokenImpl.putOntoBattlefieldHelper collected the permanents in a HashSet; tokens carry no hashCode, so the two Wurms of Wurmcoil Engine (deathtouch and lifelink) were made in an order that changed from run to run: seed 22 pod 004 gave two hashes in 16 plain games on v11 (7 and 9), seed 6 pod 044 two hashes in 8 runs.",
+   "fix": "LinkedHashMap / LinkedHashSet; CreateTokenEventOrderTest (64 fresh events) fails without it; 16 of 16 runs of pod 044 and 17 of 17 plain games of pod 004 give one hash afterwards"
+  },
+  {
+   "finding": "IDENTITY-HASH-COLLECTIONS",
+   "branch": "claude/project-thread-5hvqry (moeendres-png/mage), draft PR #70",
+   "head": "4da49dc221679a2b2776df829bbd1c43e0af3bdd",
+   "observation": "A HashSet or HashMap over objects without their own hashCode (token, permanent, effect, enum constant) iterates in the order of the JVM identity hash; where the iteration decides something a player sees or the order of zone changes, a game with the same seed can diverge.",
+   "fix": "insertion or declaration order in CreatedTokensEvent, ContinuousEffects (requirement and restriction effects of a permanent, approving objects of an as-though check), ManaType sets of mana abilities as EnumSet, and Consuming Tide, Dreams of Steel and Oil, Legions to Ashes, Teferi Temporal Pilgrim; ManaTypeOrderTest fails with the HashSet it replaces"
+  },
+  {
+   "finding": "PLAYER-ORDER-IN-18-CARDS",
+   "branch": "claude/project-thread-nwlvfk (moeendres-png/mage), draft PR #69",
+   "head": "dd71626b390f179cf392acc654470924de5e3b6b",
+   "observation": "Wave of Vitriol (HashMap<Player,Integer>, key hash from the per-game random player id) and From the Ashes (HashMap<UUID,Integer>) asked the players in an order that changed from game to game; plan seeds 24, 27 and 30 (pods 030, 028, 005 and 036) gave two to four hashes for one seed. Sixteen more cards apply an effect per player or controller through a HashMap or HashSet of UUIDs the same way.",
+   "fix": "LinkedHashMap / LinkedHashSet in the 18 card files; no card test (evidence: hash stability of the four pods, see local_observed)"
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --shortstat 456b0e22 4da83f62 in moeendres-png/mage; blob ids from git rev-parse 4da83f62:path",
+  "commits": [
+   {
+    "commit": "537ce62cc1d75486abfcda5e14b94117d0adec83",
+    "title": "Create the tokens of one event in the order they were given",
+    "files": [
+     "Mage/src/main/java/mage/game/events/CreateTokenEvent.java",
+     "Mage/src/main/java/mage/game/permanent/token/TokenImpl.java",
+     "Mage/src/test/java/mage/game/events/CreateTokenEventOrderTest.java"
+    ]
+   },
+   {
+    "commit": "4da49dc221679a2b2776df829bbd1c43e0af3bdd",
+    "title": "Iterate identity-hashed collections in insertion or declaration order",
+    "files": [
+     "Mage/src/main/java/mage/game/events/CreatedTokensEvent.java",
+     "Mage/src/main/java/mage/abilities/effects/ContinuousEffects.java",
+     "Mage/src/main/java/mage/constants/ManaType.java",
+     "Mage/src/test/java/mage/constants/ManaTypeOrderTest.java",
+     "plus eight mana-ability classes and four cards, see post_pin_edits"
+    ]
+   },
+   {
+    "commit": "dd71626b390f179cf392acc654470924de5e3b6b",
+    "title": "Iterate players in a fixed order in cards that spend, search or destroy per player",
+    "files": [
+     "18 card files under Mage.Sets/src/mage/cards, see post_pin_edits"
+    ]
+   },
+   {
+    "commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+    "title": "Merge claude/project-thread-nwlvfk (mage#69) into the v12 candidate",
+    "files": []
+   }
+  ],
+  "commit_count": 4,
+  "files_changed": 35,
+  "insertions": 173,
+  "deletions": 48,
+  "post_pin_edits": [
+   {
+    "path": "Mage.Sets/src/mage/cards/c/ConsumingTide.java",
+    "blob": "f449b3230c3807244555d0779958f0dea4d5e8f8"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CurseOfBounty.java",
+    "blob": "6c41190985466cab45cc84ee470bb249eb6e95ac"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CurseOfDisturbance.java",
+    "blob": "f4e12b15c638cae32aee22e93ce74f06c189f7c3"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CurseOfOpulence.java",
+    "blob": "dc5cc0fd5c687140aaac87d1102a29604c49b132"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CurseOfTheSwine.java",
+    "blob": "be6ad1e1c43da14bcc8e42fac2a18aab892c1fd7"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CurseOfVerbosity.java",
+    "blob": "c44cff181c90e3cc75cd820b6ddaef1ad9621870"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CurseOfVitality.java",
+    "blob": "fe9f285dd64fc9c7848cb49bdd42cf968680028d"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/d/DreamsOfSteelAndOil.java",
+    "blob": "26c324d918f0690032059e256f3eeb95edb03d7f"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/f/FandanielTelophoroiAscian.java",
+    "blob": "d8c6cf051258d1aa8d98111b83d123980bf87097"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/f/FromTheAshes.java",
+    "blob": "f640bc6ac4702afe95de98c00969268a6dafa6fd"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/h/HighcliffFelidar.java",
+    "blob": "12f16969e7426a75bf492f8ef5b08ebf6dceaa21"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/i/IncendiaryCommand.java",
+    "blob": "dc636b5e436e1af5ca7e16cad45a28609ebf3edf"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/i/InfernalOffering.java",
+    "blob": "123851bba348d89b5b4268a1f1c5f5f719ea9f2b"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/l/LegateLaniusCaesarsAce.java",
+    "blob": "2af26f4f6c2f3824619909c6b834b762efb7fc06"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/l/LegionsToAshes.java",
+    "blob": "78120b5736170a459a3947e7dfff538d119438cf"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/m/MasterOfCeremonies.java",
+    "blob": "7370a04a9da1cd6983c4df332519c1fc573a72c5"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/o/OrderOfSuccession.java",
+    "blob": "21ed08385a1762a6a5439469f0b84473d6cc77d1"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/s/ScytheSpecter.java",
+    "blob": "b5235aa0b63226d8011e771c35fd766515c8e32c"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TeferiTemporalPilgrim.java",
+    "blob": "3888087f786028986f605e2f7c7265d6d5da742f"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/Terastodon.java",
+    "blob": "e4601772abf5263962af0ecfbd2e6fe8ea26bd6b"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/u/UnexplainedAbsence.java",
+    "blob": "3821f087da184fd8212dcfc8f1133738ca77a2c7"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/w/WaveOfVitriol.java",
+    "blob": "87dab7b0c6afee2ba9e17837e603c61caa28f937"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/ContinuousEffects.java",
+    "blob": "07e5d3c706742f41e300db2febd8c4f7908e99de"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/mana/AddManaInAnyCombinationEffect.java",
+    "blob": "5bfea3c5a99b386ce7470dd7b8ee8e3970a1cdc0"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/mana/ActivatedManaAbilityImpl.java",
+    "blob": "2ddf6f7ac3a02d77979ea3a847cf58bac6a4adf3"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/mana/AnyColorCardInYourGraveyardManaAbility.java",
+    "blob": "1ba65b9bbf75098915c1b70f7ec27b17d4a91c4a"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/mana/AnyColorLandsProduceManaAbility.java",
+    "blob": "8befaff4cdb3ff8dc665489d81773e8cdc4ffceb"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/mana/AnyColorPermanentTypesManaAbility.java",
+    "blob": "8aeb26864ceda4b14a826a175c71b35629cb5313"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/mana/TriggeredManaAbility.java",
+    "blob": "a4efb6d6e5bf1ef3efad2086fa8f97c0c242c2ce"
+   },
+   {
+    "path": "Mage/src/main/java/mage/constants/ManaType.java",
+    "blob": "c1e4068eea40eb134379fd5e6e4b15bfda934856"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/events/CreateTokenEvent.java",
+    "blob": "07f304865ae047f136e2865a22f6837e83937f3f"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/events/CreatedTokensEvent.java",
+    "blob": "320c2fa949c571c0009020708d5697bf48d1df72"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/permanent/token/TokenImpl.java",
+    "blob": "d130f598ff4725a57d95bd943d93cdb359491615"
+   }
+  ],
+  "dependency_change": false,
+  "version_change": {
+   "from": "1.4.62",
+   "to": "1.4.62",
+   "note": "unchanged; the engine version string does not move with this repin"
+  },
+  "build_files_changed": []
+ },
+ "not_in_pin": [
+  "the perf port 0c0132a2ef (reuse of the playable-calculation simulation, skipped no-op trigger scans, singleton ability lists): it saves about 9 percent CPU but changes the option text of Thriving Moor (AddManaChosenColorEffect) and with it the option name and the ability sort key, so pod 033 plays a different game (07364fb0 with the port, 1908ba32 without)",
+  "the 35-commit perf and card patch set of the Muse handover (fork-patches/), including the six simplified Turbulent dual lands the bisection found"
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/project-thread-5hvqry of moeendres-png/mage",
+   "commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+   "run_id": 39813841039,
+   "job": "build (17, temurin, jdk)",
+   "job_id": 119946985837,
+   "run": 7467,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 126,
+   "status": "COMPLETE"
+  },
+  "mage_verify": {
+   "result": "PASS",
+   "detail": "same job, same commit: Mage.Verify ran 28 tests, 0 failures, 0 errors, 8 skipped, BUILD SUCCESS. Mage.Tests counts equal those of the v11 pin (7467 run, 126 skipped): the new tests (CreateTokenEventOrderTest, ManaTypeOrderTest) live in the Mage framework module."
+  }
+ },
+ "local_observed": {
+  "status": "LOCAL_OBSERVED (no CI-level credit)",
+  "jar": "bridge jar built from the Lab bridge with D-3 (stable commander lists) against the exact pin 4da83f62679, sha256 a9f4b086d9f9204cccf83c987e1729fc5695ffefd4d5e9f8bff6df5a199045f9; baseline bridge_v11.jar = pin 456b0e22 with the same Lab bridge of main cd95f2ad2",
+  "precon_sweeps": "46 pods (plan seed 1, game seed 1, 2 workers, 12 games per JVM): 46 of 46 ok on v11 and on the final jar, semantic hashes identical in all 46 pods",
+  "seed_runs": "36 real-pod seeds (3 workers, 9 games per JVM): 36 of 36 ok on both jars, the semantic hash of every seed equal to v11",
+  "formerly_unstable_pods": "seed 22 pod 004 (Wurmcoil Engine, mage#68): one semantic hash 1a74a441 in 27 of 27 plain games on the final jar (v11: two hashes in 16 games). Plan seeds 24, 27 and 30 (mage#69): pods 030, 028, 005 and 036 give one hash in 4 of 4 games each (e0e1eeb7, dc98496a, 2aba23dd, 502cc6be); on v11 the same probe found two hashes in each of the four pods.",
+  "raw_order": "determinism_probe.py --raw-order on the real pod: seed 1 and seed 2 give 0 of 4095 and 0 of 2436 requests that differ between two plain games on the final jar; the v11 jar gives 1060 and 312 (the four commander lists the bridge now sorts)",
+  "speed": "not claimed: the sweeps were not interleaved. T-1 (direct mana payment) was measured interleaved at -2 percent wall and -0.6 percent CPU, under the 3 percent bar, and is not in the bridge. E1 (-XX:+UseSerialGC for the PB-03 start) is measured on PB-03 itself.",
+  "report": "docs/performance/V12_BRIDGE_UND_MOTOR_2026-10-22.md",
+  "bridge_identity_tests": "the engine-bridge suite runs in Actions against XMage built from the exact pin (lab_runtime_qualification.bridge_suite); not repeated locally"
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run below (XMage built and installed from exactly 4da83f62 for that job, cache keyed by the commit; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head: engine-bridge mvn verify against XMage built from exact 4da83f62 (XMAGE_COMMIT=4da83f62, checked in the job)",
+   "status": "PENDING"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest checks the seven prepare creatures, the finished Adventurous Eater and the still unfinished cards; the v6, v7 and v8 hooks stay checked."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names (dac1ed64937a-187ab54c36bb, engine 456b0e22) until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the epoch is sealed."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "Repin-time record; the status field keeps the value the repin was merged with. Sealed epochs of the v10 pin: qualification/current-boundary-epochs/31713288501c-b4a3ceb4273f and qualification/current-boundary-epochs/d012424b5d10-f6ad7296aefc. Sealed epoch of the v11 pin: qualification/current-boundary-epochs/dac1ed64937a-187ab54c36bb (PB-03 run 39682049983 on main dac1ed64: FULL107 107/107, AF00-AF11 PASS, AF11 under qualification/af11-xmage-only-topology-20261021-v11/); architecture_freeze.current_qualification in config/rules_engines.json names it and does not move with this repin. The next steps are PB-03 on the Lab main merge commit of this repin, the AF11 adjudication for 4da83f62 (qualification/af11-xmage-only-topology-20261022-v12/) and the seals."
+ }
+}

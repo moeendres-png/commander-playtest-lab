@@ -573,8 +573,13 @@ def build_launch_plan(
             resolved_lane = "compatibility"
         lane_args = (resolved_lane,) if resolved_lane in ("full-game", "midgame") else ()
         classpath = _read_classpath(workspace, "target/cp-wsr22.txt")
+        # Serial GC (2026-10-22): the bridge is launched on small CI runners and several
+        # games run side by side; the parallel collector's extra threads cost CPU there and
+        # the heap stays small. Measured on the real pod (12 of 12 identical semantic hashes):
+        # -12 percent wall time, -20 percent CPU. GC choice does not enter the game.
         argv = (
             "java",
+            "-XX:+UseSerialGC",
             "-Djava.awt.headless=true",
             f"-Dcommanderlab.repoRoot={workspace.parent}",
             "-cp",

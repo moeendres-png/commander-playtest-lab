@@ -162,7 +162,7 @@ def main() -> None:
     parser.add_argument("--out", help="midgame: output directory")
     parser.add_argument(
         "--commit",
-        default="456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+        default="4da83f6267907798e5527c3e5f8a0bd3579ff993",
         help="midgame: candidate commit recorded in the document",
     )
     a = parser.parse_args()

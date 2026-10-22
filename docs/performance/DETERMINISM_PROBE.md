@@ -34,14 +34,19 @@ a dependency on iteration order.
 
 ### Lists that come in a random order
 
-Between two plain games the bridge sends some lists in another order although the game is the
-same: `commander_status` (sorted by the random UUID string of the commander),
-`commander_damage_to_player`, `players[].command` and `players[].exile` are filled from
-UUID-keyed collections. In every game above the pilot's answers did not depend on it, and the
+Up to the v11 pin the bridge sent some lists in another order between two plain games although
+the game was the same: `commander_status` (sorted by the random UUID string of the commander),
+`commander_damage_to_player`, `players[].command` and `players[].exile` were filled from
+UUID-keyed collections. In every game above the pilot's answers did not depend on it, so the
 probe sorts these lists by their naming field before it compares (`KNOWN_ORDER_NOISE`; switch
 off with `--raw-order`). Every other list keeps its order: a changed battlefield order is
-reported. That the pilot is order-insensitive for these four lists is observed, not enforced;
-a stable order from the bridge is a candidate for the next bridge change.
+reported.
+
+Since the v12 repin the bridge sorts the four lists by content itself
+(`XmageFullGameStateRedactor`, `XmageFullGameViewOrderTest`), and `--raw-order` finds nothing to
+normalise on a v12 jar (real-pod seeds 1 and 2: 0 of 4095 and 0 of 2436 requests differ; on the
+v11 jar 1060 and 312). The normalisation stays in the probe so that a v11 jar or an older
+replay can still be compared; see `V12_BRIDGE_UND_MOTOR_2026-10-22.md`.
 
 ## Use
 
