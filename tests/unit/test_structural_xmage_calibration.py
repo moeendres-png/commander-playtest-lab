@@ -159,7 +159,9 @@ def test_uncurated_lands_and_mana_rocks_take_their_colours_from_the_rules() -> N
     assert profile_from_facts("Test Painland", painland).produces_colors == {Color.WHITE}
     assert profile_from_facts("Test Signet", rock).produces_colors == {Color.GREEN, Color.BLUE}
     assert profile_from_facts("Test Gem", any_color).produces_colors == set(Color)
-    curated = StructuralCardProfile(oracle_name="Test Temple", is_land=True, roles=frozenset())
+    curated = StructuralCardProfile(
+        oracle_name="Test Temple", is_land=True, roles=frozenset({CardRole.MANA_SOURCE})
+    )
     assert apply_card_facts(curated, temple).produces_colors == frozenset()
 
 
