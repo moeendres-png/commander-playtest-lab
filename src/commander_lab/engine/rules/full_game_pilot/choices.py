@@ -51,6 +51,7 @@ _COPY_CAST_CONTINUE_PROMPT = re.compile(r"Continue to choose copies and cast\?")
 # of nearly an hour). A seat stops after a few digs, like a player who does not find what it wants.
 _LIFE_DIG_PROMPT = re.compile(r"Pay 1 life and look at the next 5 cards\?")
 _LIFE_DIG_CAP = 3
+_CONTINUE_SELECTION_LABEL = "continue the selection"
 
 # "Choose a counter to remove from <name>": the pick among the counter types of a permanent that
 # pays a "remove N counters" cost.
@@ -442,8 +443,12 @@ class _ChoiceDecisions(_PaymentDecisions):
         # Running-selection guard (liveness only). Once a seat picks no further creature, Slaughter
         # the Strong asks "End the selection" or "Continue the selection"; Continue only reopens the
         # pick, which this seat has just declined, so the selection ends here.
-        if seat in self._selection_ended:
+        # The same ask straight after a "Continue" (no pick in between) means nothing is left to
+        # pick: Slaughter the Strong with every creature within the power already chosen asked
+        # "Continue the selection" 50000 times (plan seed 6, game seed 206, pod 039).
+        if seat in self._selection_ended or seat in self._selection_reopened:
             self._selection_ended.discard(seat)
+            self._selection_reopened.discard(seat)
             kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
@@ -531,6 +536,18 @@ class _ChoiceDecisions(_PaymentDecisions):
                 offer.ordinal,
                 (answered_yes + 1) if values[raw_id] else 0,
             )
+        chosen_label = next(
+            (
+                str(option.get("label", ""))
+                for option in offered
+                if option.get("option_id") == raw_id
+            ),
+            "",
+        )
+        if chosen_label.casefold() == _CONTINUE_SELECTION_LABEL:
+            self._selection_reopened.add(seat)
+        else:
+            self._selection_reopened.discard(seat)
         return self._require_offered(raw_id, offered, "boolean decision")
 
     @staticmethod

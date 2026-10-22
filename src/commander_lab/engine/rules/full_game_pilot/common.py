@@ -564,6 +564,57 @@ def x_tap_prompt_cap(prompt: str, source_object: object, battlefield: object) ->
     )
 
 
+# The cost words of an ability that taps other permanents: "Tap X untapped artifacts you
+# control", "Tap an artifact you control", "Tap two untapped creatures you control".
+_TAP_COST = re.compile(
+    r"\btap (?P<count>x|an?|one|two|three|four|\d+) (?P<other>other )?(?:untapped )?"
+    r"(?P<kind>[a-z]+?)s? you control\b"
+)
+_TAP_COST_COUNTS = {"a": 1, "an": 1, "one": 1, "two": 2, "three": 3, "four": 4}
+_TAP_COST_KINDS = frozenset({"artifact", "creature", "land", "enchantment", "token"})
+
+
+def tap_cost_needs_permanent(
+    label: str,
+    announced_x: int | None,
+    payer_id: str,
+    candidate_id: str,
+    battlefield: object,
+) -> bool:
+    """Whether tapping ``candidate_id`` for mana leaves a "tap N untapped ..." cost short (#920).
+
+    Plan seed 3, game seed 203, pod 026: Trazyn the Infinite's "{X}, {T}, Tap X untapped
+    artifacts you control" was announced with X = 1 for the one untapped artifact besides
+    Trazyn, and the pilot then paid the {X} by tapping that very artifact (Sol Ring) for mana.
+    The mana cost is paid first, so the tap cost found nothing to tap, the activation was
+    reversed and the game stopped. Read from the label of the action the seat chose: the
+    candidate is needed when the untapped permanents of the cost's kind cover the cost now but
+    not once the candidate is tapped. A cost the board cannot cover anyway is not this rule's.
+    """
+    if not isinstance(battlefield, list):
+        return False
+    cost = label.casefold().split(" — ", 1)[-1].partition(":")[0]
+    found = _TAP_COST.search(cost)
+    if found is None or found.group("kind") not in _TAP_COST_KINDS:
+        return False
+    count = found.group("count")
+    needed = max(announced_x or 1, 1) if count == "x" else _TAP_COST_COUNTS.get(count) or int(count)
+    taps_source = "{t}" in cost or found.group("other") is not None
+    kind = found.group("kind")
+    before = _untapped_kind_count(kind, battlefield, payer_id, taps_source=taps_source)
+    without = _untapped_kind_count(
+        kind,
+        [
+            item
+            for item in battlefield
+            if not (isinstance(item, dict) and str(item.get("object_id") or "") == candidate_id)
+        ],
+        payer_id,
+        taps_source=taps_source,
+    )
+    return without < needed <= before
+
+
 def offers_mana_ability(rule_text: str) -> bool:
     """Whether a public permanent's own ability text reads as a mana ability.
 

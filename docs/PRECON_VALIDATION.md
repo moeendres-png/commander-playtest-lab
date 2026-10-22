@@ -467,6 +467,43 @@ die anderen sechs Karten sind neu.
     Entscheidungen, Gewinner Sitz 1). Pilotvergleich auf zehn Seeds (1–10, gleiches Jar, Pilot von `main`
     `84e245a` gegen diesen Stand): alle Entscheidungs- und Verhaltenszähler identisch (4095 Entscheidungen im
     ersten Spiel, 36268 insgesamt), nur `wall_s` und `pilot_s` unterscheiden sich durch Maschinenrauschen.
+- Familiensuche Plan-Seeds 1 bis 6 und 20 mit Spiel-Seed +200 (201 bis 206) und +100 (120) auf dem Live-Pin
+  `456b0e22` (gleiches Jar wie oben, Pilot von `main` `8b74950`, `LOCAL_OBSERVED`, je ein Spiel je Pod):
+  Seed 120, 204 und 205 laufen mit 46 von 46 Pods durch, Seed 201, 202, 203 und 206 mit je 45 von 46. Bridge
+  und Engine unverändert; drei der vier Abbrüche liegen im Piloten, einer ist ein Lastflake:
+  - Seed 201, Pod 024: `BRIDGE_ERROR` nach 245 s, während vier Sweeps und mehrere Replays gleichzeitig
+    liefen. Einzeln auf demselben Jar läuft der Pod durch (4603 Entscheidungen); nicht reproduzierbar, kein
+    Pilotfall.
+  - Seed 202, Pod 037 (Capricopian): `ENGINE_FAILURE`, drei `NullPointerException` in
+    `PlayerIdPredicate` (`CapricopianEffect.apply`). „{2}: Put a +1/+1 counter on Capricopian, then you may
+    reselect which player it is attacking" darf nur der angegriffene Spieler aktivieren; der Pilot tat es
+    als Verteidiger, sechs Mal in drei Paaren mit der ersten Aktivierung noch auf dem Stapel. Die Karte baut
+    ihren Spielerfilter mit `game.getCombat().getDefenderId(...)`, und das ist null, sobald die Kreatur nicht
+    (mehr) im Kampf ist (vermutlich nach der ersten Auflösung, die sie verlegt). `_turn_action_cap`
+    (`full_game_pilot/state.py`) lässt Fähigkeiten eines Permanents, das ein Gegner kontrolliert, nur einmal je
+    Zug zu (die Fähigkeit dient dem Angreifer wie dem Aktivierenden). Neue Datei
+    `test_opposing_ability_cap_920.py` (ein Test rot ohne, grün mit der Änderung; Gegenproben: einmal erlaubt,
+    eigenes Permanent behält die normale Obergrenze). Die Null-Prüfung in der Karte selbst wäre eine
+    Fork-Änderung und steht nicht in diesem PR.
+  - Seed 203, Pod 026 (Trazyn the Infinite): `XMAGE_ACTION_EXECUTION_FAILED`. „{X}, {T}, Tap X untapped
+    artifacts you control" wurde mit X = 1 für das einzige ungetappte Artefakt neben Trazyn angesagt; den
+    {X}-Teil bezahlte der Pilot danach mit eben diesem Artefakt (Sol Ring), die Tap-Kosten fanden nichts.
+    `tap_cost_needs_permanent` (`full_game_pilot/common.py`) liest „Tap X/an/zwei untapped … you control" aus
+    dem Label der gewählten Aktion (X aus der eigenen Ansage) und `_spends_a_permanent_the_tap_cost_needs`
+    (`payment.py`) hält Mana-Fähigkeiten zurück, deren Quelle die Kosten sonst unterdeckt. Neue Datei
+    `test_tap_cost_reserve_920.py` (ein Zahlungstest rot ohne, grün mit der Änderung; Lesetests und
+    Gegenproben: zweites Artefakt, X = 2, Nicht-Artefakt, Kosten ohnehin nicht deckbar).
+  - Seed 206, Pod 039 (Slaughter the Strong): `ENGINE_FAILURE` durch das Limit von 50000 Entscheidungen.
+    Passt nach den Wahlen des Piloten kein Geschöpf mehr in die restliche Gesamtstärke, überspringt die
+    Engine die Wahl und fragt „End the selection" oder „Continue the selection" erneut; der Pilot antwortete
+    jedes Mal „Continue". `_selection_reopened` (`state.py`, `choices.py`) merkt ein „Continue" und beantwortet
+    dieselbe Frage ohne Wahl dazwischen mit „End". Neue Datei `test_selection_reopened_920.py` (zwei Tests
+    rot ohne, grün mit der Änderung; Gegenproben: erste Frage unverändert, eine Wahl dazwischen löscht die
+    Merkung).
+  Die drei Pods laufen mit den Fixes durch (Pod 037: 1940, Pod 026: 3595, Pod 039: 4109 Entscheidungen, einzeln
+  auf demselben Jar). Pilotvergleich auf zehn Seeds (1–10, gleiches Jar, `main` `8b74950` gegen diesen Stand):
+  alle Entscheidungs- und Verhaltenszähler identisch (36268 Entscheidungen); `wall_s` und `pilot_s`
+  unterscheiden sich nur durch Maschinenrauschen.
 - Determinismus-Zensus Plan-Seed 21 (Spiel-Seed 21) auf dem Pin `769e6ebb` (Lab `f50a1f754`, Muses eigenes
   Jar, `--games-per-jvm 6 --fast`, zwei Läufe, `LOCAL_OBSERVED`): 43 Pods laufen in beiden Läufen durch
   und liefern denselben Hash, Pod 010 fällt in beiden Läufen mit `BLOCK_DECLARATION_REJECTED` aus.

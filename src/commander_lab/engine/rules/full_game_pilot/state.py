@@ -43,6 +43,7 @@ class _PolicyState:
     # activations (sacrifice outlets, pingers) legitimately go further.
     _TURN_SPELL_CAP = 3
     _TURN_ABILITY_CAP = 8
+    _TURN_OPPOSING_ABILITY_CAP = 1
 
     # Most distinct priority windows remembered per seat per step for the
     # #718 recurrence bound. Bounded so the guard cannot itself grow without
@@ -138,6 +139,8 @@ class _PolicyState:
         # has paid a life to look at five more cards.
         self._life_dig_yes: dict[int, tuple[str, int]] = {}
         self._selection_ended: set[int] = set()
+        # Seats that just answered "Continue the selection" and have not been asked to pick since.
+        self._selection_reopened: set[int] = set()
         # A "remove N counters from ..." cost being paid: per seat, the permanents chosen so far
         # and the counters each of them can give.
         self._counter_cost_progress: dict[int, dict[str, int]] = {}
@@ -199,12 +202,44 @@ class _PolicyState:
         # rejections (review P1).
         self._block_frame_asks: dict[int, tuple[object, dict[tuple[str, ...], int]]] = {}
 
-    def _turn_action_cap(self, option: dict[str, Any]) -> int:
+    def _turn_action_cap(
+        self, option: dict[str, Any], state: Mapping[str, object] | None = None
+    ) -> int:
+        """How often this turn the pilot puts one action up (by its label).
+
+        An ability of a permanent an opponent controls (Capricopian's "{2}: put a +1/+1 counter
+        on it, then you may reselect which player it is attacking", usable by the player it
+        attacks) serves its controller as much as the activator, so the pilot uses it once a
+        turn. Activated again with the first still on the stack, the engine's `getDefenderId`
+        returns null (the creature is evidently out of combat after the first resolution) and
+        reaches `PlayerIdPredicate` (plan seed 2, game seed 202, pod 037).
+        """
         metadata = option.get("metadata")
         meta = metadata if isinstance(metadata, dict) else {}
-        return (
-            self._TURN_SPELL_CAP if meta.get("ability_type") == "spell" else self._TURN_ABILITY_CAP
-        )
+        if meta.get("ability_type") == "spell":
+            return self._TURN_SPELL_CAP
+        if state is not None and self._on_an_opponents_battlefield(
+            state, str(meta.get("source_object_id") or "")
+        ):
+            return self._TURN_OPPOSING_ABILITY_CAP
+        return self._TURN_ABILITY_CAP
+
+    @staticmethod
+    def _on_an_opponents_battlefield(state: Mapping[str, object], object_id: str) -> bool:
+        players = state.get("players")
+        if not object_id or not isinstance(players, list):
+            return False
+        actor_id = str(state.get("actor_id", ""))
+        for player in players:
+            if not isinstance(player, dict) or str(player.get("player_id")) == actor_id:
+                continue
+            battlefield = player.get("battlefield")
+            if isinstance(battlefield, list) and any(
+                isinstance(item, dict) and str(item.get("object_id")) == object_id
+                for item in battlefield
+            ):
+                return True
+        return False
 
     def _own_stack_names(self, seat: int) -> frozenset[str]:
         return frozenset(self._own_cast_names.get(seat, ()))

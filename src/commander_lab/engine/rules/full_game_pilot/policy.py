@@ -80,6 +80,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
         if decision_class != "choose_use":
             self._phyrexian_life_promised.pop(seat, None)
             self._selection_ended.discard(seat)
+            self._selection_reopened.discard(seat)
         options = self._legal_options(request)
         context = dict(request.get("context") or {})
         min_selections = int(request.get("minimum_selections", request.get("min_selections", 0)))
