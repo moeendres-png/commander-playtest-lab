@@ -1,0 +1,86 @@
+Commander
+1 Chulane, Teller of Tales
+
+Deck
+1 Academy Manufactor
+1 Adrix and Nev, Twincasters
+1 Aerial Extortionist
+1 Aether Adept
+1 Angel of Finality
+1 Arcane Denial
+1 Arcane Signet
+1 Arbor Elf
+1 Azorius Chancery
+1 Bennie Bracks, Zoologist
+1 Brazen Borrower
+1 Canopy Vista
+1 Cloudblazer
+1 Command Tower
+1 Crop Rotation
+1 Detective of the Month
+1 Environmental Scientist
+1 Erdwal Illuminator
+1 Ethereal Investigator
+1 Evolving Wilds
+1 Exotic Orchard
+1 Fabled Passage
+1 Farewell
+1 Felidar Retreat
+1 Fellwar Stone
+1 Fleetfoot Panther
+1 Fumigate
+1 Helpful Hunter
+1 Horizon Explorer
+1 Killer Service
+1 Koma, Cosmos Serpent
+1 Kor Skyfisher
+1 Lightning Greaves
+1 Llanowar Elves
+1 Lonis, Cryptozoologist
+1 Loran of the Third Path
+1 Mechanized Production
+1 Nature's Lore
+1 Negate
+1 Noxious Newt
+1 Open the Armory
+1 Oracle of Mul Daya
+1 Path of Ancestry
+1 Prairie Stream
+1 Psychosis Crawler
+1 Rampaging Baloths
+1 Sakura-Tribe Elder
+1 Seaside Citadel
+1 Selesnya Sanctuary
+1 Serene Sleuth
+1 Shattered Acolyte
+1 Shimmer Dragon
+1 Shrieking Drake
+1 Silence
+1 Simic Growth Chamber
+1 Sol Ring
+1 Spectral Sailor
+1 Springbloom Druid
+1 Studious First-Year
+1 Sungrass Prairie
+1 Swiftfoot Boots
+1 Swords to Plowshares
+1 Talisman of Curiosity
+1 Tangletrove Kelp
+1 Tatyova, Benthic Druid
+1 Temple of Enlightenment
+1 Temple of Mystery
+1 Temple of Plenty
+1 Terramorphic Expanse
+1 Tezzeret, Betrayer of Flesh
+1 Tireless Provisioner
+1 Tireless Tracker
+1 Tyvar's Stand
+1 Veil of Summer
+1 Voracious Greatshark
+1 Wavesifter
+1 Whirler Rogue
+1 Wilderness Reclamation
+1 Wood Elves
+8 Forest
+8 Island
+4 Plains
