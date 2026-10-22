@@ -698,3 +698,33 @@ def test_a_fault_is_counted_in_the_request_the_runner_really_sends_per_decision(
     source = (ROOT / "src/commander_lab/engine/rules/full_game.py").read_text(encoding="utf-8")
     assert f'"{Q.DECISION_REQUEST}",' in source
     assert Q.DECISION_REQUEST != "get_full_game_decision"
+
+
+def test_the_memory_batch_length_follows_the_passes_option() -> None:
+    memory = next(spec for spec in Q.build_plan(passes=4) if spec.name == "memory")
+    assert len(memory.games) == 4 * len(Q.POOL) and memory.games_per_jvm == len(memory.games)
+
+
+@pytest.mark.parametrize("option", ["--memory-passes", "--workers"])
+def test_the_run_options_must_be_positive(option: str) -> None:
+    with pytest.raises(SystemExit):
+        Q.main(["run", "--jar", "bridge.jar", "--out", "report.json", option, "0"])
+
+
+def test_the_qualification_workflow_is_on_demand_never_a_gate_and_reads_the_pin_from_config() -> (
+    None
+):
+    import yaml
+
+    path = ROOT / ".github/workflows/batching-qualification.yml"
+    text = path.read_text(encoding="utf-8")
+    workflow = yaml.safe_load(text)
+    events = workflow.get(True, workflow.get("on"))
+    assert set(events) == {"workflow_dispatch"}, "never triggered by a push or a pull request"
+    concurrency = workflow["concurrency"]
+    assert "github.run_id" in concurrency["group"] and concurrency["cancel-in-progress"] is False
+    assert 'config["primary_engine"]["commit"]' in text, "the pin comes from config, not a copy"
+    steps = [step.get("name", "") for step in workflow["jobs"]["batching-qualification"]["steps"]]
+    assert steps.index("Build the AppCDS archive") < steps.index("Run the batching qualification")
+    assert "scripts/qualify_game_batching.py run" in text and "--fast" in text
+    assert "if: always()" in text, "the report is published even when a property fails"

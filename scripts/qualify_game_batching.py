@@ -699,7 +699,7 @@ def _identity(env: Environment) -> dict[str, Any]:
 
 def run(args: argparse.Namespace) -> int:
     pool = POOL
-    plan = build_plan(pool)
+    plan = build_plan(pool, args.memory_passes)
     env = load_environment(args.jar, args.fast, pool)
     report: dict[str, Any] = {"schema": SCHEMA, "batches": {}}
     if args.resume and args.out.is_file():
@@ -761,6 +761,12 @@ def main(argv: list[str] | None = None) -> int:
     play.add_argument("--fast", action="store_true", help="serial GC and the jar's AppCDS archive")
     play.add_argument("--resume", action="store_true", help="play only the batches still open")
     play.add_argument("--only", action="append", choices=("reference", *PROPERTIES), default=[])
+    play.add_argument(
+        "--memory-passes",
+        type=int,
+        default=MEMORY_PASSES,
+        help=f"passes of the pool in the memory batch (default {MEMORY_PASSES}, 8 games each)",
+    )
     play.set_defaults(func=run)
     check = sub.add_parser("verdict")
     check.add_argument("report", type=Path)
@@ -768,6 +774,8 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if args.cmd == "run" and args.workers < 1:
         parser.error("--workers must be positive")
+    if args.cmd == "run" and args.memory_passes < 1:
+        parser.error("--memory-passes must be positive")
     return int(args.func(args))
 
 

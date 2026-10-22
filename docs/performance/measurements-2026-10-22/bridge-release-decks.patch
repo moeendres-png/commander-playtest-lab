@@ -1,0 +1,90 @@
+diff --git a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java
+index 43efe80..56cdbb4 100644
+--- a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java
++++ b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageDeckImporter.java
+@@ -11,6 +11,7 @@ import mage.deck.Commander;
+ 
+ import java.text.Normalizer;
+ import java.util.ArrayList;
++import java.util.Collection;
+ import java.util.List;
+ import java.util.Map;
+ import java.util.UUID;
+@@ -256,6 +257,14 @@ public final class XmageDeckImporter {
+         return deck;
+     }
+ 
++    /** Drops decks whose game is over; a handle is never used by a later game. */
++    void forget(Collection<String> deckHandles) {
++        for (String handle : deckHandles) {
++            decksByHandle.remove(handle);
++            requestsByHandle.remove(handle);
++        }
++    }
++
+     int storedDeckCount() {
+         return decksByHandle.size();
+     }
+diff --git a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java
+index 956cce3..5497bf3 100644
+--- a/engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java
++++ b/engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGameJsonlBridge.java
+@@ -24,6 +24,12 @@ final class XmageFullGameJsonlBridge {
+     static final String GAMES_PER_JVM_PROPERTY = "commanderlab.fullGame.gamesPerJvm";
+     private final int gamesPerJvm = Math.max(1, Integer.getInteger(GAMES_PER_JVM_PROPERTY, 1));
+     private int gamesCreated;
++    private List<String> sessionDeckHandles = List.of();
++
++    /** Decks the importer still holds; for tests. */
++    int storedDeckCount() {
++        return deckImporter.storedDeckCount();
++    }
+ 
+     /** Engine game id of the current session, or null; for tests. */
+     String currentEngineGameId() {
+@@ -156,9 +162,11 @@ final class XmageFullGameJsonlBridge {
+         try {
+             if (session != null && session.isShutDown() && gamesCreated < gamesPerJvm) {
+                 // Batch opt-in: the previous game was shut down, so the next may start.
+-                // Its records in the bridge's static, game-keyed maps go with it;
+-                // a long-lived JVM would otherwise keep every finished game's.
++                // Its records in the bridge's static, game-keyed maps go with it, and so do
++                // the decks it was built from (about 2 MiB per four-player game); a
++                // long-lived JVM would otherwise keep every finished game's.
+                 session.releaseStaticGameRecords();
++                deckImporter.forget(sessionDeckHandles);
+                 session = null;
+             }
+             if (session != null) {
+@@ -217,6 +225,7 @@ final class XmageFullGameJsonlBridge {
+             int startingLife = optionalInt(payload, "starting_life", 40);
+ 
+             gamesCreated++;
++            sessionDeckHandles = List.copyOf(deckHandles);
+             session = new XmageFullGameSession(
+                     gameId,
+                     new ArrayList<>(deckHandles),
+diff --git a/engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameGamesPerJvmTest.java b/engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameGamesPerJvmTest.java
+index f124d0f..114291d 100644
+--- a/engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameGamesPerJvmTest.java
++++ b/engine-bridge/src/test/java/org/commanderlab/xmage/XmageFullGameGamesPerJvmTest.java
+@@ -57,6 +57,19 @@ class XmageFullGameGamesPerJvmTest {
+         assertTrue(XmageFullGameStateRedactor.holdsRecordsFor(bridge.currentEngineGameId()));
+     }
+ 
++    @Test
++    void theNextGameReleasesTheDecksOfThePreviousGame() {
++        System.setProperty(XmageFullGameJsonlBridge.GAMES_PER_JVM_PROPERTY, "3");
++        XmageFullGameJsonlBridge bridge = engine();
++        playAndShutDown(bridge, "decks-1");
++        assertEquals(2, bridge.storedDeckCount(), "the two decks of the first game");
++        playAndShutDown(bridge, "decks-2");
++        assertEquals(2, bridge.storedDeckCount(),
++                "the first game's decks are gone once the second game starts");
++        playAndShutDown(bridge, "decks-3");
++        assertEquals(2, bridge.storedDeckCount(), "a batch holds the decks of one game, not of all");
++    }
++
+     @Test
+     void forgetGameRemovesTheRngTapePreShuffleAndResultsEntries() {
+         String id = "tape-forget-test";
