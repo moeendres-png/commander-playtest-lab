@@ -432,7 +432,7 @@ def _decisions(hook: Any, client: _Client, count: int, *, create: bool = True) -
     if create:
         hook.before(client, "create_full_game", {})
     for _ in range(count):
-        hook.before(client, "get_full_game_decision", None)
+        hook.before(client, Q.DECISION_REQUEST, None)
 
 
 def test_a_kill_fault_kills_the_jvm_of_the_chosen_game_at_the_chosen_decision() -> None:
@@ -480,7 +480,7 @@ def test_the_memory_hook_samples_every_game_start_and_end() -> None:
     client = _Client(os.getpid())
     for _ in range(3):
         hook.after(client, "create_full_game", {})
-        hook.after(client, "get_full_game_decision", {})
+        hook.after(client, Q.DECISION_REQUEST, {})
         hook.after(client, "shutdown_game", {})
     assert [(s["game"], s["when"]) for s in hook.samples] == [
         (1, "start"),
@@ -690,3 +690,11 @@ def test_a_fault_that_did_not_fire_is_played_again() -> None:
     record = _record(plan["isolation-stop-2"])
     record["fault_fired"] = False
     assert not Q.batch_is_done(plan["isolation-stop-2"], record)
+
+
+def test_a_fault_is_counted_in_the_request_the_runner_really_sends_per_decision() -> None:
+    """The first live run counted ``get_full_game_decision``, which the runner sends once per
+    wait for the engine, not per answered decision, so no fault ever fired."""
+    source = (ROOT / "src/commander_lab/engine/rules/full_game.py").read_text(encoding="utf-8")
+    assert f'"{Q.DECISION_REQUEST}",' in source
+    assert Q.DECISION_REQUEST != "get_full_game_decision"

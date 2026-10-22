@@ -82,6 +82,8 @@ MASTER = "batching-qualification-2026-10-22"
 BAD_DECK_SUFFIX = "!bad-deck"
 BROKEN_CARD = "Zzyzx Nonexistent Card"
 FAULT_AFTER_DECISIONS = 400
+#: The request that answers one decision (``XmageFullGameRunner._drive``); a fault is counted in these.
+DECISION_REQUEST = "submit_full_game_decision"
 #: How long a stopped JVM may stay silent before the runner gives up on it.
 STOPPED_REQUEST_TIMEOUT_SECONDS = 60.0
 
@@ -241,7 +243,7 @@ class FaultHook(Hook):
             self.created += 1
             self.decisions = 0
         elif (
-            message_type == "get_full_game_decision"
+            message_type == DECISION_REQUEST
             and not self.fired
             and self.created == self.fault.position
         ):
