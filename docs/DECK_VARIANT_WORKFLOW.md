@@ -155,6 +155,27 @@ python scripts/pilot_decision_report.py run --jar engine-bridge/target/xmage-eng
 python scripts/pilot_decision_report.py compare /tmp/before.json /tmp/after.json
 ```
 
+A pilot change that is judged by this comparison follows four rules, because about twenty
+metrics are compared at once and some interval excludes 0 by chance in most comparisons of two
+identical pilots:
+
+1. Name the metric the change is meant to move before the games are played, and compare with
+   `--primary spells_cast` (or the metric you named). It is tested alone; the others are
+   exploratory.
+2. Take the seeds from a master seed written in the pull request, `--seeds hash:<master>:<N>`
+   instead of `1-N`, so the seeds cannot be chosen after the result.
+3. Read `CHANGED` (the adjusted p-value of the sign-flip test, Holm over the metrics that
+   move) and not the interval alone; `ci only` is a hint, not a finding. The line `min` is the
+   smallest mean change these pairs detect with 80 % power: a shift smaller than that is not
+   excluded, it is invisible.
+4. Paste `compare ... --markdown` into the pull request. Ten pairs detect only large shifts
+   (several per cent of a count, tens of percentage points of a win rate); plan 20 or more
+   pairs, and rotate the seats, because in 183 precon pods seat 1 won 38.8 % of the games and seat 4 10.4 %.
+
+`pilot_decision_report.py calibrate report.json` shows the false-positive rate of the method on
+a report you already have: it splits the games into two arms that differ in nothing and counts
+how often a metric is flagged by its interval alone and after Holm.
+
 Before the games, a pilot change gets a first look that needs no JVM and takes seconds:
 
 ```bash
