@@ -139,7 +139,9 @@ def test_j_p2_current_opponents_route_to_non_generic_archetype_pilots(repo_root:
         "opponent/wakanda-forever-precon": "ArtifactPilot",
         "kaervek/current": "KaervekOpponentPilot",
     }
-    for deck_id, pilot_name in expected.items():
+    checked = list(expected.items())
+    assert checked, "nothing was checked: expected.items() is empty"
+    for deck_id, pilot_name in checked:
         assert auto_pilot_name(profiles[deck_id].commander_strategy) == pilot_name
 
 

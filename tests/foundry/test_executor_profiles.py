@@ -294,7 +294,9 @@ def test_activation_evidence_is_not_a_workstream_state_record() -> None:
     masquerade the evidence block as a workstream state record.
     """
     doc = _registry()
-    for name, block in doc["activation_gate"].items():
+    checked = list(doc["activation_gate"].items())
+    assert checked, "nothing was checked: doc['activation_gate'].items() is empty"
+    for name, block in checked:
         if not name.startswith("activation_evidence_"):
             continue
         assert "objective" not in block, name

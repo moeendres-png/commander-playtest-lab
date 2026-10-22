@@ -34,6 +34,8 @@ def test_import_orders_are_cycle_free(repo_root) -> None:
         "import commander_lab.tools.registry; import commander_lab.tools",
         "import commander_lab.tools; import commander_lab.tools.registry",
     )
-    for statement in statements:
+    checked = list(statements)
+    assert checked, "nothing was checked: statements is empty"
+    for statement in checked:
         result = _cold_import(repo_root, statement)
         assert result.returncode == 0, result.stderr

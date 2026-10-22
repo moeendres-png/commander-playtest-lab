@@ -172,7 +172,9 @@ def test_every_sealed_step_is_a_security_job_step():
         Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml"
     ).read_text()
     security = workflow.split("\n  security:\n", 1)[1].split("\n  infrastructure:\n", 1)[0]
-    for name in evidence.STEPS:
+    checked = list(evidence.STEPS)
+    assert checked, "nothing was checked: evidence.STEPS is empty"
+    for name in checked:
         assert f"        id: {name}\n" in security, name
     for precondition in ("install-tooling", "build-wheel", "install-wheel-tooling"):
         assert precondition in evidence.STEPS

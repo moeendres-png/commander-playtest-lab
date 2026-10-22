@@ -52,7 +52,11 @@ DISCARD = ("PILOT_CHOOSE_OBJECT", "object_selected:obj:p1-hand-a")
 def test_the_chosen_card_is_discarded_and_the_other_stays() -> None:
     check = _binding(*DISCARD)
     tape = [_move(9, "obj:p1-hand-a", "HAND", "GRAVEYARD")]
-    assert _evidence(check, tape, []) is not None
+    evidence = _evidence(check, tape, [])
+    assert evidence is not None
+    discarded, kept = evidence["parts"]
+    assert discarded["events"] == [9], "the chosen card left the hand for the graveyard"
+    assert kept["events"] == [], "the other card never left the hand"
 
 
 def test_discarding_the_other_card_or_both_is_not_the_selection() -> None:
@@ -93,7 +97,10 @@ def _question(
 
 
 def test_the_replacement_frame_is_the_owners_command_zone_question() -> None:
-    assert _evidence(_binding(*FRAME), [], [_question()]) is not None
+    evidence = _evidence(_binding(*FRAME), [], [_question()])
+    assert evidence is not None
+    assert "to command zone instead of" in evidence["binding"]
+    assert evidence["observation"] == "engine terminal observation"
 
 
 def test_another_player_another_question_or_a_second_ask_is_not_the_frame() -> None:
@@ -157,7 +164,11 @@ def _spend(color: str = "blue") -> mr.Frame:
 
 def test_two_blue_mana_charged_for_the_one_counterspell_is_the_payment() -> None:
     trace = [_tap(), _spend(), _tap(), _spend()]
-    assert _evidence(_binding(*PAYMENT), [CAST], trace) is not None
+    evidence = _evidence(_binding(*PAYMENT), [CAST], trace)
+    assert evidence is not None
+    parts = {part["binding"]: part for part in evidence["parts"]}
+    assert "the engine charged exactly 2 mana" in parts
+    assert any(part.get("events") == [10] for part in parts.values()), "the one counterspell cast"
 
 
 def test_another_amount_color_cast_count_or_floating_mana_is_not_the_payment() -> None:

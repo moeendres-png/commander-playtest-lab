@@ -24,7 +24,9 @@ OUT = REPO / "qualification/final-current-boundary-20260927"
 def test_runner_never_asserts_engine_owned() -> None:
     source = RUNNER.read_text(encoding="utf-8")
     # The name may appear in a comment recording the retirement, never as a value.
-    for line in source.splitlines():
+    checked = list(source.splitlines())
+    assert checked, "nothing was checked: source.splitlines() is empty"
+    for line in checked:
         stripped = line.strip()
         if '"engine_owned"' in stripped:
             assert stripped.startswith("#"), f"engine_owned asserted: {stripped}"

@@ -258,7 +258,8 @@ def test_wrong_remote_slug_rejected(rig: dict) -> None:
 def test_injection_branch_names_rejected(rig: dict) -> None:
     for evil in ("x --force", "HEAD:refs/heads/other", "-u", "a:b", "a..b", "a b"):
         rc = safe_push_mod._valid_branch_name(evil, str(rig["wt"]))
-        assert rc is not None, evil
+        # The reason names the rejected branch (repr), so it is a reason and not a bare flag.
+        assert isinstance(rc, str) and evil in rc, evil
 
 
 def test_non_fast_forward_rejected_and_remote_untouched(rig: dict) -> None:

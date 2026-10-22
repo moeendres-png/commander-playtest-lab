@@ -74,7 +74,10 @@ def _near_miss_mutations() -> list[tuple[str, dict]]:
 
 def test_the_baseline_payload_validates() -> None:
     """Guard for the corpus: only meaningful if the unmutated payload is accepted."""
-    EngineProtocolRequest.model_validate(_valid_request_payload())
+    payload = _valid_request_payload()
+    request = EngineProtocolRequest.model_validate(payload)
+    assert request.request_id == payload["request_id"]
+    assert request.message_type == payload["message_type"]
 
 
 def test_protocol_rejects_every_near_miss_mutation() -> None:
@@ -109,7 +112,9 @@ def test_protocol_validation_is_stable_and_does_not_mutate_its_input() -> None:
         except ValidationError as exc:
             return f"rejected:{len(exc.errors())}:{sorted(e['type'] for e in exc.errors())}"
 
-    for label, payload in _near_miss_mutations():
+    checked = list(_near_miss_mutations())
+    assert checked, "nothing was checked: _near_miss_mutations() is empty"
+    for label, payload in checked:
         snapshot = copy.deepcopy(payload)
         first = outcome(payload)
         assert payload == snapshot, f"{label}: validation mutated the caller's payload"

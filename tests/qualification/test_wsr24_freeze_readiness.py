@@ -232,6 +232,9 @@ def test_readiness_packets_claim_no_eligibility_and_name_real_preventers():
         assert len(elig["prevented_by"]) >= 1
         verdicts = {g["gate"]: g["current_verdict"] for g in packet["gates"]}
         non_pass = {gid for gid, v in verdicts.items() if v != "PASS"}
+        assert len(non_pass) >= 1, (
+            "a packet that is not freeze-eligible has a gate that is not PASS"
+        )
         joined = " ".join(elig["prevented_by"])
         for gid in non_pass:
             assert gid in joined, f"{gid} is non-PASS but unnamed in prevented_by"
@@ -254,7 +257,9 @@ def test_no_ranking_or_winner_keys_in_machine_packets():
 
 
 def test_no_freeze_eligible_true_anywhere_in_wsr24_json():
-    for path in READY_DIR.glob("*.json"):
+    checked = list(READY_DIR.glob("*.json"))
+    assert checked, "nothing was checked: READY_DIR.glob('*.json') is empty"
+    for path in checked:
         text = path.read_text()
         assert '"freeze_eligible": true' not in text, f"{path.name} claims eligibility"
 

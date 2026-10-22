@@ -1310,7 +1310,9 @@ def test_deepseek_project_effort_maps_to_native_max(target, canon, effort):
 
 def test_no_executor_runs_below_its_native_max(target, canon):
     """Zen is native MAX; project effort never lowers it (nor below high)."""
-    for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
+    checked = list(launcher_mod.ACTIVE_EXECUTION_PROFILES)
+    assert checked, "nothing was checked: launcher_mod.ACTIVE_EXECUTION_PROFILES is empty"
+    for profile in checked:
         native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
         for effort in ("high", "xhigh"):
             plan = _plan(target, canon, execution_profile=profile, effort=effort)
@@ -1329,7 +1331,9 @@ def test_no_executor_runs_below_its_native_max(target, canon):
 
 @pytest.mark.parametrize("retired_name", ["unauthorized-model", "legacy-zen", "glm-5"])
 def test_inactive_executors_absent_from_every_profile_bundle(target, canon, retired_name):
-    for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
+    checked = list(launcher_mod.ACTIVE_EXECUTION_PROFILES)
+    assert checked, "nothing was checked: launcher_mod.ACTIVE_EXECUTION_PROFILES is empty"
+    for profile in checked:
         plan = _plan(target, canon, execution_profile=profile)
         assert plan["verdict"] == "LAUNCH_READY", plan
         assert retired_name not in json.dumps(json.loads(plan["_env"]["OPENCODE_CONFIG_CONTENT"]))
@@ -1402,7 +1406,9 @@ def test_telemetry_and_state_record_the_actual_selected_executor(target, canon, 
             return real_run(args, **kwargs)
         return subprocess.CompletedProcess(args, 0)
 
-    for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
+    checked = list(launcher_mod.ACTIVE_EXECUTION_PROFILES)
+    assert checked, "nothing was checked: launcher_mod.ACTIVE_EXECUTION_PROFILES is empty"
+    for profile in checked:
         model = launcher_mod.PROFILE_MODELS[profile]
         # A distinct run_dir per profile so each metrics.jsonl is this profile's own.
         plan = _plan(
@@ -1463,7 +1469,9 @@ def test_nested_launch_overwrites_ambient_native_variant(target, canon, monkeypa
     unauthorized or retired level leaking through from an outer session.
     """
     monkeypatch.setenv("FOUNDRY_NATIVE_VARIANT", "xhigh")
-    for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
+    checked = list(launcher_mod.ACTIVE_EXECUTION_PROFILES)
+    assert checked, "nothing was checked: launcher_mod.ACTIVE_EXECUTION_PROFILES is empty"
+    for profile in checked:
         plan = _plan(target, canon, execution_profile=profile)
         assert plan["verdict"] == "LAUNCH_READY", plan
         native = launcher_mod.EXECUTOR_REGISTRY.profiles[profile].native_variant
@@ -1475,7 +1483,9 @@ def test_nested_launch_clears_ambient_routing_suppression(target, canon, monkeyp
     """Inherited routing suppression must not silently carry into a fresh launch."""
     monkeypatch.setenv("OPENCODE_DISABLE_PROJECT_CONFIG", "1")
     monkeypatch.setenv("FOUNDRY_ROUTING_SUPPRESSED", "1")
-    for profile in launcher_mod.ACTIVE_EXECUTION_PROFILES:
+    checked = list(launcher_mod.ACTIVE_EXECUTION_PROFILES)
+    assert checked, "nothing was checked: launcher_mod.ACTIVE_EXECUTION_PROFILES is empty"
+    for profile in checked:
         plan = _plan(
             target,
             canon,

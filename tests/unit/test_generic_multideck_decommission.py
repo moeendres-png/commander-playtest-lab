@@ -50,7 +50,7 @@ def test_live_auto_pilot_does_not_treat_unknown_or_korvold_as_rogshai() -> None:
 
 def test_live_builder_uses_generic_pilot_for_unknown_family() -> None:
     pilot = build_pilot(PilotConfig(), strategy="unknown-family")
-    assert isinstance(pilot, GenericCommanderPilot)
+    assert type(pilot) is GenericCommanderPilot  # exactly, not a subclass of it
 
 
 def test_live_builder_rejects_cross_family_and_retired_korvold_pilots() -> None:
@@ -63,10 +63,10 @@ def test_live_builder_rejects_cross_family_and_retired_korvold_pilots() -> None:
 
 
 def test_live_builder_preserves_rogshai_and_kaervek_families() -> None:
-    assert isinstance(build_pilot(PilotConfig(), strategy="rogshai"), RogShaiPilot)
-    assert isinstance(
-        build_pilot(PilotConfig(), strategy="punisher_control_reanimation"),
-        KaervekOpponentPilot,
+    assert type(build_pilot(PilotConfig(), strategy="rogshai")) is RogShaiPilot
+    assert (
+        type(build_pilot(PilotConfig(), strategy="punisher_control_reanimation"))
+        is KaervekOpponentPilot
     )
 
 

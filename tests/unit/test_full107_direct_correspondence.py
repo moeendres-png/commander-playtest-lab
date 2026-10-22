@@ -107,7 +107,9 @@ def test_direct_entries_require_exact_register_verdict(repo_root: Path) -> None:
 def test_native_direct_requires_executed_subset(repo_root: Path) -> None:
     mapping = _load_mapping(repo_root)
     records = _load_materialization(repo_root)
-    for entry in mapping["entries"]:
+    checked = list(mapping["entries"])
+    assert checked, "nothing was checked: mapping['entries'] is empty"
+    for entry in checked:
         if entry["status"] == "DIRECT":
             mode = records[entry["fixture_id"]].get("execution_entry_mode")
             if mode == "NATIVE_STATE_LOAD":
@@ -136,6 +138,7 @@ def test_exact_fixtures_bind_real_cards_in_deck_state(repo_root: Path) -> None:
     for fixture_id in ("WS05-CMD-MULL-2", "WS05-CMD-MULL-4"):
         deck_state = records[fixture_id]["deck_state"]
         assert len(deck_state) == (2 if fixture_id.endswith("-2") else 4)
+        assert len(deck_state) >= 1, fixture_id
         for seat in deck_state:
             commanders = seat["commander"]
             assert commanders == [{"card_identity": "Rograkh, Son of Rohgahh", "count": 1}]
@@ -174,7 +177,9 @@ def test_partner_fixtures_match_executed_subset_shape(repo_root: Path) -> None:
         ],
         "WS05-CMD-PARTNER-TAX": ["tax:cmd:P1-A:+4", "tax:cmd:P1-B:+0"],
     }
-    for fixture_id, required in expected_events.items():
+    checked = list(expected_events.items())
+    assert checked, "nothing was checked: expected_events.items() is empty"
+    for fixture_id, required in checked:
         record = records[fixture_id]
         assert record["execution_entry_mode"] == "NATIVE_STATE_LOAD"
         assert record.get("deck_state") is None

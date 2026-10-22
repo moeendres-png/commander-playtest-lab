@@ -35,7 +35,10 @@ def _current_fact() -> dict[str, object]:
 
 
 def test_verified_empty_fact_accepts_matching_current_fact() -> None:
-    validate_verified_empty_fact("Verified Vanilla", _verification(), _current_fact())
+    # Returns None when the verification matches the current fact and raises otherwise.
+    assert (
+        validate_verified_empty_fact("Verified Vanilla", _verification(), _current_fact()) is None
+    )
 
 
 def test_verified_empty_fact_fails_closed_if_rules_text_appears() -> None:

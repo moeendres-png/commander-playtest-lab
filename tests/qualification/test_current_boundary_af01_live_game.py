@@ -55,7 +55,9 @@ def test_decision_probes_are_scoped_to_the_live_game() -> None:
     source = (REPO / SCANNED_REL / "af01.py").read_text(encoding="utf-8")
     tree = ast.parse(source)
     # Every request that submits or reads a legal action must carry the game_id.
-    for node in ast.walk(tree):
+    checked = list(ast.walk(tree))
+    assert checked, "nothing was checked: ast.walk(tree) is empty"
+    for node in checked:
         if not isinstance(node, ast.Call):
             continue
         func = node.func
@@ -170,7 +172,9 @@ def test_pattern_table_covers_every_policy_shortcut() -> None:
     blob = " ".join(pattern for pattern, _ in LEGALITY_RECONSTRUCTION_PATTERNS)
     for required in ("first_option", "random_option", "default_yes", "requested_options"):
         assert required in blob
-    for pattern, label in LEGALITY_RECONSTRUCTION_PATTERNS:
+    checked = list(LEGALITY_RECONSTRUCTION_PATTERNS)
+    assert checked, "nothing was checked: LEGALITY_RECONSTRUCTION_PATTERNS is empty"
+    for pattern, label in checked:
         re.compile(pattern)  # must be a valid pattern
         assert label
 

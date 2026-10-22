@@ -99,6 +99,7 @@ def test_every_af_verdict_in_the_packet_matches_the_artifact() -> None:
     """
     for column, candidate in enumerate(("XMage", "Forge")):
         matrix = _matrix(candidate.upper())
+        assert len(matrix) >= 1, f"{candidate}: the artifact states no gate verdict"
         for gate, verdict in matrix.items():
             stated = _packet_gate_row(gate)
             assert stated[column] == verdict, (
@@ -113,7 +114,7 @@ def test_the_two_candidate_columns_actually_differ_somewhere() -> None:
         for gate in ("AF00", "AF01", "AF02", "AF03", "AF04", "AF11")
         if _packet_gate_row(gate)[0] != _packet_gate_row(gate)[1]
     ]
-    assert differing, "no gate differs between candidates; the columns are not being read"
+    assert len(differing) >= 1, "no gate differs between candidates; the columns are not being read"
 
 
 def test_receipt_counts_are_stated() -> None:

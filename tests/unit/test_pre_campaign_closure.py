@@ -117,7 +117,7 @@ def test_diversified_constructive_starts_can_select_semantic_unknown() -> None:
         if target in start:
             found = True
             break
-    assert found
+    assert found is True
 
 
 def test_forced_inclusion_probe_is_feasibility_only() -> None:

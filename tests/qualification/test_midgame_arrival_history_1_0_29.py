@@ -379,14 +379,20 @@ def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Pat
         capture_output=True,
         text=True,
     )
-    for relative in all_paths:
+    checked = list(all_paths)
+    assert checked, "nothing was checked: all_paths is empty"
+    for relative in checked:
         assert (root / relative).read_bytes() == first[relative], relative
-    for relative, target in targets.items():
+    checked_2 = list(targets.items())
+    assert checked_2, "nothing was checked: targets.items() is empty"
+    for relative, target in checked_2:
         assert first[relative] == before[relative], relative
         assert target.read_bytes() == before[relative], f"REPO_ROOT was mutated: {relative}"
     # The historical generator's tamper-target outputs are still deterministic
     # run to run, even though they no longer name the current contract.
-    for relative in generated:
+    checked_3 = list(generated)
+    assert checked_3, "nothing was checked: generated is empty"
+    for relative in checked_3:
         assert (root / relative).read_bytes() != (REPO_ROOT / relative).read_bytes(), relative
         assert (REPO_ROOT / relative).read_bytes() == generated_before[relative], (
             f"REPO_ROOT was mutated: {relative}"

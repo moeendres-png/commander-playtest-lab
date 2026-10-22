@@ -659,7 +659,9 @@ def test_an_identity_also_visible_elsewhere_cannot_decide_and_is_set_aside(
 def test_every_declared_row_is_bound_to_its_records_own_obligation(
     records: dict[str, dict[str, Any]],
 ) -> None:
-    for fixture, kind in kp.ROWS.items():
+    checked = list(kp.ROWS.items())
+    assert checked, "nothing was checked: kp.ROWS.items() is empty"
+    for fixture, kind in checked:
         state = records[fixture]["knowledge_state"]["viewer_states"][0]
         assert state["viewer"] == "P1"
         assert state["obligation"] == kp.OBLIGATION_TEXT[kind]
@@ -676,7 +678,9 @@ def test_every_declared_row_is_bound_to_its_records_own_obligation(
 def test_a_conforming_capture_verifies_every_declared_row(
     records: dict[str, dict[str, Any]],
 ) -> None:
-    for fixture in kp.ROWS:
+    checked = list(kp.ROWS)
+    assert checked, "nothing was checked: kp.ROWS is empty"
+    for fixture in checked:
         verdict = _verdict(records, fixture)
         assert verdict.classification == kp.VERIFIED, (fixture, _failed(verdict))
         assert verdict.token_evidence[f"knowledge_projection:{fixture}:P1"]
@@ -866,7 +870,9 @@ def _remove_one_lossless_check(capture: kp.Capture) -> None:
 def test_unmeasured_evidence_is_unverified_never_a_pass(
     records: dict[str, dict[str, Any]], name: str, mutate: Callable[[kp.Capture], None]
 ) -> None:
-    for fixture in kp.ROWS:
+    checked = list(kp.ROWS)
+    assert checked, "nothing was checked: kp.ROWS is empty"
+    for fixture in checked:
         verdict = _verdict(records, fixture, mutate)
         assert verdict.classification == kp.UNVERIFIED, (name, fixture, _failed(verdict))
 

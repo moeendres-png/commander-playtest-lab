@@ -8,12 +8,16 @@ from commander_lab.whole_deck.optimizer_v2_decision_runtime import (
 
 
 def test_decision_boundary_accepts_complete_structural_pairs() -> None:
-    _require_uncensored_decision_evidence(
-        {
-            "decision_evidence_eligible": True,
-            "censored_pair_count": 0,
-        },
-        evidence_context="confirmatory",
+    # Returns None when the evidence is uncensored and raises otherwise.
+    assert (
+        _require_uncensored_decision_evidence(
+            {
+                "decision_evidence_eligible": True,
+                "censored_pair_count": 0,
+            },
+            evidence_context="confirmatory",
+        )
+        is None
     )
 
 

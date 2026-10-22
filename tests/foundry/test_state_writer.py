@@ -176,7 +176,9 @@ def test_positive_identity_fields_survive_checkpoint(tmp_path: Path) -> None:
     _seed(path, original)
     state_mod.update_state(str(path), {"status": "BLOCKED", "current_failure": "x"})
     reread = yaml.safe_load(path.read_text(encoding="utf-8"))
-    for field in state_mod.IMMUTABLE_IDENTITY_FIELDS:
+    checked = list(state_mod.IMMUTABLE_IDENTITY_FIELDS)
+    assert checked, "nothing was checked: state_mod.IMMUTABLE_IDENTITY_FIELDS is empty"
+    for field in checked:
         assert reread[field] == original[field], field
 
 

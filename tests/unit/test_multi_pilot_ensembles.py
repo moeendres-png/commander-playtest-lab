@@ -138,7 +138,9 @@ def test_omniscient_policy_is_rejected() -> None:
 
 def test_all_profiles_select_only_supplied_legal_actions() -> None:
     actions = (_action("a", "Engine", roles=(CardRole.ENGINE,)), _action("b", "Pass", kind="pass"))
-    for profile in PilotRegistry(ROOT).profiles():
+    checked = list(PilotRegistry(ROOT).profiles())
+    assert checked, "nothing was checked: PilotRegistry(ROOT).profiles() is empty"
+    for profile in checked:
         state = _state(strategy=profile.commander_family)
         pilot = build_pilot(
             PilotConfig(pilot_name=profile.pilot_name, strength=PilotStrength.STRONG),

@@ -34,7 +34,9 @@ def test_every_workflow_has_executable_jobs_mapping(repo_root: Path) -> None:
 
 
 def test_every_job_declares_runner_and_steps(repo_root: Path) -> None:
-    for path in _workflow_files(repo_root):
+    checked = list(_workflow_files(repo_root))
+    assert checked, "nothing was checked: _workflow_files(repo_root) is empty"
+    for path in checked:
         workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
         jobs = workflow.get("jobs") or {}
         for job_id, job in jobs.items():

@@ -37,7 +37,9 @@ def records() -> dict[str, dict]:
 
 
 def test_every_generic_lane_record_requires_construction_equality(records) -> None:
-    for fixture_id, record in records.items():
+    checked = list(records.items())
+    assert checked, "nothing was checked: records.items() is empty"
+    for fixture_id, record in checked:
         construction = record["construction_validation"]
         assert construction["required"] is True, fixture_id
         assert (

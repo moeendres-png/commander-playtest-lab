@@ -720,7 +720,9 @@ def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Pat
     # The pointer and the ledger now name 1.0.31, so the historical generator
     # reproduces only its own contract and schema bytes; the pointer and ledger
     # it writes are checked for determinism below.
-    for relative in targets[:2]:
+    checked = list(targets[:2])
+    assert checked, "nothing was checked: targets[:2] is empty"
+    for relative in checked:
         assert first[relative] == before[relative], relative
     subprocess.run(
         [sys.executable, str(GENERATOR), str(root)],
@@ -728,9 +730,13 @@ def test_generator_is_deterministic_and_never_mutates_the_checkout(tmp_path: Pat
         capture_output=True,
         text=True,
     )
-    for relative in targets:
+    checked_2 = list(targets)
+    assert checked_2, "nothing was checked: targets is empty"
+    for relative in checked_2:
         assert (root / relative).read_bytes() == first[relative], relative
-    for relative in targets:
+    checked_3 = list(targets)
+    assert checked_3, "nothing was checked: targets is empty"
+    for relative in checked_3:
         assert (REPO_ROOT / relative).read_bytes() == before[relative], (
             f"REPO_ROOT was mutated: {relative}"
         )

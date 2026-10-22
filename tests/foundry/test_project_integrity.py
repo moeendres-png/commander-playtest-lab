@@ -168,7 +168,9 @@ def test_recovered_donor_receipts_bind_the_actual_transplanted_content():
     receipts = json.loads(
         (ROOT / "docs/project_integrity_20260928/LEGACY_PORT_RECEIPTS.json").read_text()
     )
-    for donor in receipts:
+    checked = list(receipts)
+    assert checked, "nothing was checked: receipts is empty"
+    for donor in checked:
         assert set(donor["ported_paths"]) == set(donor["source_blobs"])
         for name, expected in donor["source_blobs"].items():
             # Git text content is LF; Windows checkout conversion is not drift.
@@ -184,7 +186,9 @@ def test_downstream_git_guidance_defers_to_root_boundaries():
         ".opencode/agents/foundry-implementer.md",
         "docs/foundry-execution/FULL_PROJECT_EXECUTION_AUTHORITY_2026-09-27.md",
     )
-    for name in paths:
+    checked = list(paths)
+    assert checked, "nothing was checked: paths is empty"
+    for name in checked:
         text = (ROOT / name).read_text()
         assert "`AGENTS.md` sections 10-11" in text
         assert "no additional rebase, history-rewrite, destructive branch/worktree deletion" in text

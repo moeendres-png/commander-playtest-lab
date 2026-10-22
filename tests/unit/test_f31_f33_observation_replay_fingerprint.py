@@ -145,7 +145,9 @@ def test_public_exile_top_and_reveal_change_public_and_principal_digests() -> No
     changed = deepcopy(baseline)
     changed["revealed"][0]["cards"][0]["name"] = "Shock"
     variants.append(changed)
-    for variant in variants:
+    checked = list(variants)
+    assert checked, "nothing was checked: variants is empty"
+    for variant in checked:
         assert principal_observation_digest(baseline) != principal_observation_digest(variant)
         assert public_state_digest(baseline) != public_state_digest(variant)
 

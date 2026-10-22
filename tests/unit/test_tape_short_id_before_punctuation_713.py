@@ -95,7 +95,9 @@ def test_parity_with_the_full_game_runner_on_the_710_shapes() -> None:
         "<font color='x'>Llanowar Elves</font> [0b1c2d3e] attacks",
         "Sacrifice Goblin [abc], then draw",
     ]
-    for sample in samples:
+    checked = list(samples)
+    assert checked, "nothing was checked: samples is empty"
+    for sample in checked:
         assert redact_text(sample) == XmageFullGameRunner._semantic_text(sample), sample
 
 

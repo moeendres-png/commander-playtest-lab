@@ -127,9 +127,13 @@ def test_killed_holder_releases(tmp_path: Path) -> None:
     holder = _start_holder(wt, tmp_path / "locks")
     holder.send_signal(signal.SIGKILL)
     holder.wait(timeout=10)
+    assert holder.returncode == -signal.SIGKILL, "the holder died by the signal, it did not exit"
     # Kernel releases flock on process death: re-acquire must succeed.
     replacement = _start_holder(wt, tmp_path / "locks", workstream="ws-next")
-    _stop_holder(replacement)
+    try:
+        assert replacement.poll() is None, "the replacement holds the lock"
+    finally:
+        _stop_holder(replacement)
 
 
 def test_stale_metadata_cannot_brick_worktree(tmp_path: Path) -> None:

@@ -185,7 +185,9 @@ def test_cli_failures_are_nonzero_without_stdout_identity(repo_root: Path) -> No
         ["--provider", "upstream"],
         ["--provider", "xmage", "--manifest", str(repo_root / "does-not-exist.json")],
     ]
-    for args in cases:
+    checked = list(cases)
+    assert checked, "nothing was checked: cases is empty"
+    for args in checked:
         completed = subprocess.run(
             [sys.executable, str(script), *args],
             capture_output=True,
@@ -552,7 +554,11 @@ def _entrypoint_negative_cases(tmp_path: Path, repo_root: Path) -> dict:
 def test_entrypoint_never_starts_engine_without_proven_authority(
     tmp_path: Path, repo_root: Path
 ) -> None:
-    for name, extra_env in _entrypoint_negative_cases(tmp_path, repo_root).items():
+    checked = list(_entrypoint_negative_cases(tmp_path, repo_root).items())
+    assert checked, (
+        "nothing was checked: _entrypoint_negative_cases(tmp_path, repo_root).items() is empty"
+    )
+    for name, extra_env in checked:
         completed, started = _run_entrypoint(repo_root, tmp_path, extra_env)
         assert completed.returncode != 0, name
         assert not started, name
@@ -651,7 +657,9 @@ def test_wrapper_never_invokes_docker_without_authority(
             {"PIN_MANIFEST_PATH": str(missing_section)},
         ),
     ]
-    for args, extra_env in cases:
+    checked = list(cases)
+    assert checked, "nothing was checked: cases is empty"
+    for args, extra_env in checked:
         for log in (argv_log, env_log):
             if log.exists():
                 log.unlink()

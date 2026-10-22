@@ -146,7 +146,9 @@ def test_corpus_is_derived_from_the_frozen_manifests() -> None:
 
 def test_every_row_binds_the_effective_record_and_its_digests() -> None:
     corpus = campaign.derive_corpus(REPO_ROOT)
-    for row in corpus.rows:
+    checked = list(corpus.rows)
+    assert checked, "nothing was checked: corpus.rows is empty"
+    for row in checked:
         binding = row.record["card_authority_binding"]
         assert binding["card_identity"] == row.card_identity
         assert row.record["fixture_family"] == "actual_card"
@@ -262,7 +264,9 @@ def test_executor_requirements_are_derived_from_script_and_procedure() -> None:
 
 def test_every_plan_covers_its_effective_record_exactly() -> None:
     corpus = campaign.derive_corpus(REPO_ROOT)
-    for fixture_id, plan in campaign.PLANS.items():
+    checked = list(campaign.PLANS.items())
+    assert checked, "nothing was checked: campaign.PLANS.items() is empty"
+    for fixture_id, plan in checked:
         row = corpus.row(fixture_id)
         assert plan.fixture_id == fixture_id
         assert plan.stale_reasons(row.record) == ()

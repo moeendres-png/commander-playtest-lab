@@ -86,7 +86,9 @@ def test_runner_imports_resolve_against_the_real_package() -> None:
     if str(REPO / "src") not in sys.path:
         sys.path.insert(0, str(REPO / "src"))
     module = importlib.import_module(PACKAGE)
-    for name in sorted(_imported_names()):
+    checked = list(sorted(_imported_names()))
+    assert checked, "nothing was checked: sorted(_imported_names()) is empty"
+    for name in checked:
         assert hasattr(module, name), f"{name} is not present on the package"
 
 
@@ -97,8 +99,11 @@ def test_submodule_imports_are_resolvable() -> None:
 
     if str(REPO / "src") not in sys.path:
         sys.path.insert(0, str(REPO / "src"))
-    for name in sorted(_submodule_names()):
-        assert importlib.import_module(f"{PACKAGE}.{name}") is not None
+    names = sorted(_submodule_names())
+    assert len(names) >= 1, "the runner imports no submodule alias, so nothing is checked"
+    for name in names:
+        module = importlib.import_module(f"{PACKAGE}.{name}")
+        assert module.__name__ == f"{PACKAGE}.{name}"
 
 
 def _module_level_bound_names() -> set[str]:

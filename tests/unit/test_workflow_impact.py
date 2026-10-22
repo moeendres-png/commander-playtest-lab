@@ -52,8 +52,12 @@ def test_every_executed_source_is_covered_by_the_gates_of_its_job(workflow: Path
 
 
 def test_every_exemption_names_a_real_workflow() -> None:
-    for name in AUDIT.NOT_REWRITTEN:
-        assert (ROOT / ".github" / "workflows" / name).is_file(), name
+    missing = [
+        name
+        for name in AUDIT.NOT_REWRITTEN
+        if not (ROOT / ".github" / "workflows" / name).is_file()
+    ]
+    assert missing == []
 
 
 def test_the_meta_qualification_gate_covers_the_semantic_replay_comparator() -> None:

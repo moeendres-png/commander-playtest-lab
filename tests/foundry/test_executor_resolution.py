@@ -63,7 +63,9 @@ def test_profile_is_pinned_to_its_native_variant_never_below_high() -> None:
     """One highest native variant per profile, exactly as its provider lists."""
     registry = _registry()
     expected = {"deepseek": "max"}
-    for name in registry.logical_profiles:
+    checked = list(registry.logical_profiles)
+    assert checked, "nothing was checked: registry.logical_profiles is empty"
+    for name in checked:
         spec = registry.profiles[name]
         assert spec.native_variant == expected[name], name
         assert spec.native_variant not in ("none", "off", "minimal", "low", "medium")

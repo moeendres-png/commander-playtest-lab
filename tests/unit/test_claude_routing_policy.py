@@ -94,7 +94,9 @@ def test_dispatch_templates_carry_the_workstream_delta_contract():
         "Exact next action",
         "Out of scope",
     )
-    for path in sorted(root.glob("*.md")):
+    checked = list(sorted(root.glob("*.md")))
+    assert checked, "nothing was checked: sorted(root.glob('*.md')) is empty"
+    for path in checked:
         text = read(path)
         for heading in required:
             assert heading in text, f"{path.name} missing {heading}"
