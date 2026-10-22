@@ -155,6 +155,19 @@ python scripts/pilot_decision_report.py run --jar engine-bridge/target/xmage-eng
 python scripts/pilot_decision_report.py compare /tmp/before.json /tmp/after.json
 ```
 
+Before the games, a pilot change gets a first look that needs no JVM and takes seconds:
+
+```bash
+python scripts/pilot_request_corpus.py diff
+```
+
+It answers 400+ requests that real games of the real pod put to the pilot
+(`tests/fixtures/pilot_real_requests/real_pod_v1.jsonl.gz`) and counts, per decision class,
+the answers that differ from the recorded ones. It exits non-zero when the pilot raises or
+gives an illegal answer on a real request shape. Quote its last line next to the report
+comparison: it shows where a change acts, not whether the change is good. Record a new
+corpus after a bridge change (`pilot_request_corpus.py record --jar ... --seeds 1-2`).
+
 Reading the per-card and per-seat figures of a report (`per_card_version` 3):
 
 - `cast_rate` is the casts inside a counted window per counted window, so it never
