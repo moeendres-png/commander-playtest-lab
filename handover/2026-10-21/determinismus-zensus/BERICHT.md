@@ -109,6 +109,22 @@ Einzelnachläufe der failed Pods (alte Linie):
 
 Rohdaten: `sweep_p21g21_x/y.json`, `sweep_p22g22_x/y.json`, `sweep_p23g23_x/y.json` in diesem Ordner. Damit ist die alte Linie abgeschlossen; es folgen keine weiteren Seeds auf diesem Stand (Nachtrag 1).
 
+## Umstieg auf Pin v11 (Nachtrag 1) + p6g6-Vergleich (LOCAL_OBSERVED)
+
+- Lab-Worktree: `84e245ace2eddf3a5c0e3befca216ad753fb0ba6` (main; enthält #956; der Nachtrag nannte 43158793beaa ‚oder neuer‘).
+- Pin in `config/rules_engines.json` (`primary_engine.commit`): `456b0e227cc09a90e9d485b9d932f3717ef9e2be` — verifiziert.
+- Eigenes JAR neu gebaut, sha256 `69aa31ebf15dc47c29234a711026c2caa3eb8d29efe5921a63991c22e8cd34e8` (siehe `jar_sha256.txt`).
+- Kalibrierung: **182/195 Import OK, 31 distinkte fehlende Karten** — Erwartung exakt erfüllt (`imports_v11.json`).
+
+p6g6 auf v11 (workers 1, 1 Spiel/JVM): **46/46 ok, 0 failed.** Gegen die Referenz der alten Linie: 44 Pods hashgleich, 2 abweichend:
+
+| Pod | Referenz alte Linie | v11 | Entscheidungen alt → v11 | Einordnung |
+|---|---|---|---|---|---|
+| pod-006 | `d704ac9fdd6a` | `218c154149f0` | 4376 → 4659 | Auf v11 in sich stabil: Solo-Nachlauf reproduziert Hash und Entscheidungszahl exakt. Differenz ist ein Stand-Unterschied (Pilot-/Bridge-Änderungen zwischen den Lab-Ständen), keine Instabilität. |
+| pod-022 | `a993ad769217` | `904820b4f5b0` | 3524 → 3524 | Erwartung aus Nachtrag 1 (`904820b4f5b0`) exakt getroffen — der Tempt-with-Reflections-Fix hält in der unabhängigen Nachmessung. |
+
+Rohdaten: `sweep_p6g6_v11_muse.json`. Der Zensus Seeds 24–30 auf v11 läuft; Zwischenbericht nach Seed 26.
+
 ## Nächste Schritte
 
 Schritt B (Zensus Seeds 21–30, je zwei Läufe mit `--games-per-jvm 6 --fast`), Schritt C (erste abweichende Entscheidung + Quelltext-Ursache je instabilem Pod, beginnend mit pod-022 und pod-044), Schritt D (statischer Audit). Zwischenberichte nach je drei Seeds; Endbericht ersetzt diese Datei.
