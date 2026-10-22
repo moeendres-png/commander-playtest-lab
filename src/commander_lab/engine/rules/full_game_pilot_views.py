@@ -1075,7 +1075,9 @@ def priority_view_fields(
             label, str(meta.get("source_object_id") or ""), state, actor_id
         ) or single_counter_cost_unpayable(label, state, actor_id):
             return {**fields, "metadata": extra}, "remove_counters_cost_unpayable"
-        if ninjutsu_card_outside_hand(label, str(meta.get("source_object_id") or ""), state):
+        if ninjutsu_card_outside_hand(
+            label, str(meta.get("source_object_id") or ""), state, actor_id
+        ):
             return {**fields, "metadata": extra}, "ninjutsu_card_outside_hand_and_command_zone"
         if _ENCORE_LABEL.search(label) and not all(
             _alive(player) for player in players(state) if str(player.get("player_id")) != actor_id
@@ -1188,23 +1190,40 @@ def tap_creature_cost_unpayable(
 
 
 def ninjutsu_card_outside_hand(
-    label: str, source_object_id: str, state: Mapping[str, object]
+    label: str, source_object_id: str, state: Mapping[str, object], actor_id: str = ""
 ) -> bool:
-    """True for a (commander) ninjutsu offer whose card lies on the battlefield, in a graveyard or in exile.
+    """True for a (commander) ninjutsu offer whose card is not in the actor's hand or command zone.
 
     Commander ninjutsu is a Zone.ALL ability in XMage, so the engine offers it for the ninja
-    wherever it is. The cost that reveals the card only pays from the hand or the command zone, so
-    after the mana is spent the activation fails and with it the game (precon pods, plan seeds 7
-    and 9, Yuriko, the Tiger's Shadow on the battlefield and in the graveyard).
+    wherever it is: on the battlefield, in a graveyard, in exile or still in the library. The cost
+    that reveals the card only pays from the hand or the command zone, so after the mana is spent
+    the activation fails and with it the game (precon pods, plan seeds 7 and 9, Yuriko on the
+    battlefield and in the graveyard; game seed 501, Yuriko in the library). The actor's hand and
+    command zone are listed in the state, so the card has to be found there; without the actor's
+    private view only the public zones can rule the offer out.
     """
     ability = label.casefold().split(" — ", 1)[-1]
     if not source_object_id or not ability.startswith(("ninjutsu", "commander ninjutsu")):
         return False
-    return any(
+    if any(
         str(item.get("object_id")) == source_object_id
         for player in players(state)
         for zone in ("battlefield", "graveyard", "exile")
         for item in _items(player.get(zone))
+    ):
+        return True
+    actor = next(
+        (
+            player
+            for player in players(state)
+            if str(player.get("player_id")) == actor_id and "hand" in player
+        ),
+        None,
+    )
+    return actor is not None and not any(
+        str(item.get("object_id")) == source_object_id
+        for zone in ("hand", "command")
+        for item in _items(actor.get(zone))
     )
 
 

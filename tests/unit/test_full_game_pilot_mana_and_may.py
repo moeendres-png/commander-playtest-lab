@@ -1225,6 +1225,25 @@ def test_ninjutsu_is_not_activated_for_a_card_that_is_not_in_hand_or_command_zon
     assert response["selected_option_ids"] == ["pass"]
 
 
+def test_ninjutsu_is_not_activated_for_a_card_that_is_in_no_visible_zone() -> None:
+    # The ninja lies in the library (or anywhere else the state does not list), XMage still
+    # offers its Zone.ALL ability and the reveal cost fails after the mana is spent (precon pod
+    # 010, game seed 501, Yuriko was neither in hand nor in the command zone).
+    state = _state(step="declare_blockers")
+    response = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _ninjutsu("ninja")], state=state)
+    )
+    assert response["selected_option_ids"] == ["pass"]
+
+
+def test_ninjutsu_from_the_command_zone_is_still_activated() -> None:
+    state = _ninjutsu_state(ninja_in="command")
+    response = _policy().decide(
+        _request("priority", [_PASS, *_TAPS, _ninjutsu("ninja")], state=state)
+    )
+    assert response["selected_option_ids"] == ["ninjutsu"]
+
+
 def test_ninjutsu_from_the_hand_is_still_activated() -> None:
     # Control: the same offer with the ninja in hand is chosen as before.
     state = _ninjutsu_state(ninja_in="hand")
