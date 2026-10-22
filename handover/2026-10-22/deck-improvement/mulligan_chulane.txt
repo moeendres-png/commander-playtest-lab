@@ -1,0 +1,16 @@
+deck: /home/hatch/workspace/tmp/m4/chulane.json
+strength: average, mode: deterministic, hands: 4000, seed: 7, free_first: True
+
+| lands | hands | kept |
+|-------|-------|------|
+| 0     | 153   |  0.0% |
+| 1     | 640   |  0.0% |
+| 2     | 1203  | 70.7% |
+| 3     | 1137  | 99.8% |
+| 4     | 635   | 100.0% |
+| 5     | 201   | 75.1% |
+| 6     | 28    |  0.0% |
+| 7     | 3     |  0.0% |
+
+overall keep rate: 69.3%
+expected mulligans: 0.43
