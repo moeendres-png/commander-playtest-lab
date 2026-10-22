@@ -451,6 +451,22 @@ die anderen sechs Karten sind neu.
   Verhaltenszähler identisch (36268 Entscheidungen); `wall_s` und `pilot_s` unterscheiden sich nur durch
   Maschinenrauschen (`pilot_s` +0,29 s je Spiel bei vier parallel laufenden Sweeps; die neuen Prüfungen
   kosten unter einer Mikrosekunde je Aufruf).
+- Familiensuche Plan-Seeds 18 und 19 mit Spiel-Seed +100 (118, 119) auf dem Live-Pin `456b0e22` (Repin v11,
+  `LOCAL_OBSERVED`, Jar aus dem Tempt-Jar, den Klassen des Pins und den Bridge-Klassen von `main` `f14a191`,
+  Pilot von `main` `84e245a`): Seed 118 läuft mit 46 von 46 Pods durch, Seed 119 mit 45 von 46. Der Abbruch
+  liegt im Piloten (Bridge und Engine unverändert):
+  - Seed 119, Pod 013 (Necron Overlord): `XMAGE_ACTION_EXECUTION_FAILED`. „{X}, {T}, Tap an artifact you
+    control" bezahlte der Pilot zuerst mit dem Sceptre of Eternal Glory; danach fragt die Engine „Select an
+    artifact you control" (Kontext `outcome` `tap`) und bietet auch die schon getappten Artefakte an (das
+    Sceptre, dazu das Overlord selbst, das sein eigenes `{T}` getappt hat). Der Pilot wählte das Sceptre, die
+    Tap-Kosten schlugen fehl und die Aktivierung wurde umgekehrt. `_without_tapped_objects`
+    (`full_game_pilot/state.py`) nimmt bei `outcome` `tap` die Permanents aus der Auswahl, die in der Sicht
+    des Spielers getappt sind; bleibt keines übrig oder weniger als das Minimum, bleibt die Liste unverändert.
+    Neue Datei `test_tap_cost_untapped_920.py` (ein Test rot ohne, grün mit der Änderung; Gegenproben: nichts
+    getappt, alles getappt, Minimum zwei, anderer Ausgang). Pod 013 läuft mit der Änderung durch (4714
+    Entscheidungen, Gewinner Sitz 1). Pilotvergleich auf zehn Seeds (1–10, gleiches Jar, Pilot von `main`
+    `84e245a` gegen diesen Stand): alle Entscheidungs- und Verhaltenszähler identisch (4095 Entscheidungen im
+    ersten Spiel, 36268 insgesamt), nur `wall_s` und `pilot_s` unterscheiden sich durch Maschinenrauschen.
 - Determinismus-Zensus Plan-Seed 21 (Spiel-Seed 21) auf dem Pin `769e6ebb` (Lab `f50a1f754`, Muses eigenes
   Jar, `--games-per-jvm 6 --fast`, zwei Läufe, `LOCAL_OBSERVED`): 43 Pods laufen in beiden Läufen durch
   und liefern denselben Hash, Pod 010 fällt in beiden Läufen mit `BLOCK_DECLARATION_REJECTED` aus.

@@ -206,14 +206,19 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                     runtime,
                     pilot_state,
                     request,
-                    self._without_payment_source(
-                        seat,
-                        decision_class,
+                    self._without_tapped_objects(
+                        pilot_state,
                         context,
-                        [option for option in options if option.get("option_id") not in picked],
-                        asking=str(asking_source.get("source_object_id", ""))
-                        if isinstance(asking_source, dict)
-                        else "",
+                        self._without_payment_source(
+                            seat,
+                            decision_class,
+                            context,
+                            [option for option in options if option.get("option_id") not in picked],
+                            asking=str(asking_source.get("source_object_id", ""))
+                            if isinstance(asking_source, dict)
+                            else "",
+                            minimum=min_selections,
+                        ),
                         minimum=min_selections,
                     ),
                     min_selections,
