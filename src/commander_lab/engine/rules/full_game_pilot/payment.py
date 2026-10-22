@@ -34,6 +34,7 @@ from .common import (
     offers_mana_ability,
     option_x_counter_cap,
     option_x_tap_cap,
+    tap_cost_needs_permanent,
     x_tap_prompt_cap,
 )
 from .state import _PolicyState
@@ -257,6 +258,34 @@ class _PaymentDecisions(_PolicyState):
             return False
         cost = self._last_priority_label.get(seat, "").casefold().split(" — ", 1)[-1]
         return "{t}" in cost.partition(":")[0]
+
+    def _spends_a_permanent_the_tap_cost_needs(
+        self, seat: int, option: Mapping[str, object], state: dict[str, object]
+    ) -> bool:
+        """Whether this mana ability taps a permanent the activation's tap cost still needs (#920).
+
+        The ability's mana is paid before its "Tap X untapped artifacts you control" part, so the
+        artifacts kept untapped are the ones that cost can use (Trazyn the Infinite, plan seed 3,
+        game seed 203, pod 026). The announced X comes from the seat's own announce frame.
+        """
+        payer = self._payment_source.get(seat)
+        metadata = option.get("metadata")
+        if (
+            not payer
+            or self._last_priority_source.get(seat) != payer
+            or not isinstance(metadata, dict)
+        ):
+            return False
+        candidate = str(metadata.get("source_object_id") or "")
+        if not candidate or candidate == payer:
+            return False
+        return tap_cost_needs_permanent(
+            self._last_priority_label.get(seat, ""),
+            self._failed_x_announcements.get(seat, {}).get(payer),
+            payer,
+            candidate,
+            self._actor(state).get("battlefield"),
+        )
 
     @staticmethod
     def _floats_mana_only(meta: dict[str, Any]) -> bool:
@@ -535,6 +564,7 @@ class _PaymentDecisions(_PolicyState):
             if self._required_text(option, "option_type") == "mana_ability" and (
                 not self._priority_action_affordable(option, state)
                 or self._spends_the_activations_own_source(seat, option)
+                or self._spends_a_permanent_the_tap_cost_needs(seat, option, state)
             ):
                 continue
             selectable.append(option)

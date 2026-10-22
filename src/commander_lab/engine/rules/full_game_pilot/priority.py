@@ -202,7 +202,7 @@ class _PriorityDecisions(_CombatDecisions):
             capped = [
                 option
                 for option in (*affordable, *needs_mana_first)
-                if tried[1][str(option.get("label", ""))] >= self._turn_action_cap(option)
+                if tried[1][str(option.get("label", ""))] >= self._turn_action_cap(option, state)
             ]
             if capped:
                 capped_ids = {id(option) for option in capped}
