@@ -647,7 +647,7 @@ def _af11_measure(
 
 
 AF11_ADJUDICATION = (
-    "qualification/af11-xmage-only-topology-20261021-v11/AF11_COORDINATOR_ADJUDICATION.json"
+    "qualification/af11-xmage-only-topology-20261022-v12/AF11_COORDINATOR_ADJUDICATION.json"
 )
 AF11_ADJUDICATION_SCHEMA = "commander-lab.af11-coordinator-adjudication/1.0.0"
 _AF11_DECISIONS = (
