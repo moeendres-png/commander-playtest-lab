@@ -14,7 +14,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
-from typing import Any
 
 from commander_lab.agents.card_knowledge import card_facts as pilot_card_facts
 from commander_lab.engine.structural.card_facts import (
@@ -168,7 +167,7 @@ def compare_readiness(baseline: DeckReadiness, variant: DeckReadiness) -> Varian
 
 def readiness_payload(
     contenders: Sequence[RulesDeckInput], opponents: Sequence[RulesDeckInput]
-) -> dict[str, Any]:
+) -> dict[str, dict[str, dict[str, object]]]:
     """The readiness of every deck of a comparison and what it means for each variant verdict.
 
     The first contender is the baseline. ``variants`` lists, per other contender, the cards
@@ -179,7 +178,7 @@ def readiness_payload(
     def card_rows(cards: Sequence[CardReadiness]) -> list[dict[str, str]]:
         return [{"name": card.name, "status": card.status.value} for card in cards]
 
-    decks = {
+    decks: dict[str, dict[str, object]] = {
         deck.deck_id: {
             "role": "contender" if index < len(contenders) else "opponent",
             "ready": reports[deck.deck_id].ready,
@@ -190,7 +189,7 @@ def readiness_payload(
         }
         for index, deck in enumerate((*contenders, *opponents))
     }
-    variants: dict[str, Any] = {}
+    variants: dict[str, dict[str, object]] = {}
     if contenders:
         baseline = reports[contenders[0].deck_id]
         for deck in contenders[1:]:
@@ -223,6 +222,9 @@ __all__ = [
     "CardReadiness",
     "CardReadinessStatus",
     "DeckReadiness",
+    "VariantReadiness",
     "check_deck",
+    "compare_readiness",
     "format_deck_report",
+    "readiness_payload",
 ]
