@@ -45,6 +45,7 @@ _FREE_CAST_CONTINUE_PROMPT = re.compile(
     r"You can cast \d+ more spells? for free\. Continue casting"
 )
 _COPY_CAST_CONTINUE_PROMPT = re.compile(r"Continue to choose copies and cast\?")
+_INFINITE_LOOP_PROMPT = re.compile(r"Draw game because of infinite looping\?")
 # Lim-Dul's Vault: "As many times as you choose, you may pay 1 life, put those cards on the bottom
 # of your library, then look at the top five cards." The pilot cannot judge the five cards it
 # digs past, so it answered Yes every time (precon pod, plan seed 5: thousands of times, one game
@@ -449,6 +450,16 @@ class _ChoiceDecisions(_PaymentDecisions):
         if seat in self._selection_ended or seat in self._selection_reopened:
             self._selection_ended.discard(seat)
             self._selection_reopened.discard(seat)
+            kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
+            if kept:
+                selectable = kept
+        # Infinite-loop guard (liveness only). After fifteen turns of the stack that never empties
+        # XMage asks every player in range "Draw game because of infinite looping?" and re-asks every
+        # fifteen rounds after a No. Flourishing Defenses ("may" create an Elf Warrior for each -1/-1
+        # counter) against Blowfly Infestation (a -1/-1 counter on the new token) looped 50000
+        # decisions with a stack of 199 abilities, answered No each time (plan seed 1, game seed
+        # 401, pod 017). CR 104.4b ends such a game as a draw; the Yes is kept.
+        if _INFINITE_LOOP_PROMPT.match(prompt):
             kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept

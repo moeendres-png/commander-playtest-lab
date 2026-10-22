@@ -504,6 +504,33 @@ die anderen sechs Karten sind neu.
   auf demselben Jar). Pilotvergleich auf zehn Seeds (1–10, gleiches Jar, `main` `8b74950` gegen diesen Stand):
   alle Entscheidungs- und Verhaltenszähler identisch (36268 Entscheidungen); `wall_s` und `pilot_s`
   unterscheiden sich nur durch Maschinenrauschen.
+- Familiensuche Plan-Seeds 1 bis 4 mit Spiel-Seed +400 (401 bis 404) und +500 (501 bis 504) auf dem Live-Pin
+  `456b0e22` (gleiches Jar wie oben, Pilot von `main` `981a4f8`, `LOCAL_OBSERVED`, je ein Spiel je Pod): Seed 402,
+  403, 404, 406, 502, 503 und 504 laufen mit 46 von 46 Pods durch, Seed 401, 405 und 501 mit je 45 von 46. Bridge
+  und Engine unverändert; zwei der drei Abbrüche liegen im Piloten, einer ist ein Lastflake:
+  - Seed 405, Pod 012: `INVALID_RESPONSE` unter mehreren gleichzeitigen Sweeps; einzeln läuft der Pod durch,
+    nicht reproduzierbar, kein Pilotfall.
+  - Seed 501, Pod 010 (Yuriko, the Tiger's Shadow): `XMAGE_ACTION_EXECUTION_FAILED`. Das Commander ninjutsu
+    wurde für eine Yuriko angeboten, die weder in der Hand noch in der Befehlszone lag (Aminatou war der
+    Commander des Spielers, Yuriko lag in der Bibliothek). Die Fähigkeit ist in XMage eine `Zone.ALL`-Fähigkeit,
+    die Aufdeckkosten scheitern nach dem Bezahlen des Manas. `ninjutsu_card_outside_hand`
+    (`full_game_pilot_views.py`) kennt jetzt auch diesen Fall: Karten, die die Sicht des Spielers weder in Hand
+    noch Befehlszone führt, werden nicht aktiviert (bisher nur Schlachtfeld, Friedhof, Exil). Zwei neue Tests in
+    `test_full_game_pilot_mana_and_may.py` (einer rot ohne, grün mit der Änderung; Gegenprobe: Ninja in der
+    Befehlszone wird weiter aktiviert).
+  - Seed 401, Pod 017 (Flourishing Defenses gegen Blowfly Infestation): `ENGINE_FAILURE` durch das Limit von
+    50000 Entscheidungen. „Whenever a -1/-1 counter is put on a creature, you may create a 1/1 Elf Warrior"
+    und die Gegenkarte, die den nächsten -1/-1-Marker auf den neuen Token legt, ergeben eine Schleife mit
+    bis zu 199 Fähigkeiten auf dem Stapel. XMage fragt alle fünfzehn Runden „Draw game because of infinite
+    looping?"; der Pilot antwortete jedes Mal Nein. Die Fortführung ist eine Wahl des Piloten (die Schleife
+    ließe sich mit einem Nein auf den Elf-Trigger brechen), die Frage der Engine ist aber der regelgemäße
+    Ausgang (CR 104.4b): `_INFINITE_LOOP_PROMPT` (`full_game_pilot/choices.py`) behält die Ja-Option, das
+    Spiel endet als Remis. Neue Datei `test_infinite_loop_draw_920.py` (zwei Tests rot ohne, grün mit der
+    Änderung; Gegenprobe: andere Detriment-Fragen bleiben unverändert).
+  Beide Pods laufen mit den Fixes durch (Pod 501/010: 2948 Entscheidungen; Pod 401/017: 5820 Entscheidungen,
+  Remis, einzeln auf demselben Jar). Pilotvergleich auf zehn Seeds (1–10, gleiches Jar, `main` `981a4f8` gegen
+  diesen Stand): alle Entscheidungs- und Verhaltenszähler identisch (36268 Entscheidungen); `wall_s` und
+  `pilot_s` unterscheiden sich nur durch Maschinenrauschen.
 - Determinismus-Zensus Plan-Seed 21 (Spiel-Seed 21) auf dem Pin `769e6ebb` (Lab `f50a1f754`, Muses eigenes
   Jar, `--games-per-jvm 6 --fast`, zwei Läufe, `LOCAL_OBSERVED`): 43 Pods laufen in beiden Läufen durch
   und liefern denselben Hash, Pod 010 fällt in beiden Läufen mit `BLOCK_DECLARATION_REJECTED` aus.
