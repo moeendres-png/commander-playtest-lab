@@ -70,7 +70,7 @@ concurrency:
 
 env:
   PYTHONHASHSEED: "0"
-  XMAGE_COMMIT: 456b0e227cc09a90e9d485b9d932f3717ef9e2be
+  XMAGE_COMMIT: 4da83f6267907798e5527c3e5f8a0bd3579ff993
 
 jobs:
   mutation-detection:

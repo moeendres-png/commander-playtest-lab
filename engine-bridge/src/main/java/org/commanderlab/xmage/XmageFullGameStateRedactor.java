@@ -443,10 +443,13 @@ final class XmageFullGameStateRedactor {
             p.add("graveyard", graveyard);
 
             JsonArray command = new JsonArray();
-            Collection<Card> commanderCards = game.getCommanderCardsFromCommandZone(
+            // The engine keeps the command zone in a hash order (random UUIDs); Rules-visible
+            // content orders the list so the pilot sees the same state in every replay.
+            List<Card> commanderCards = new ArrayList<>(game.getCommanderCardsFromCommandZone(
                     player,
                     CommanderCardType.COMMANDER_OR_OATHBREAKER
-            );
+            ));
+            commanderCards.sort(Comparator.comparing(Card::getId, XmageStableOrder.objects(game)));
             for (Card card : commanderCards) {
                 command.add(publicCard(card));
             }
@@ -695,7 +698,9 @@ final class XmageFullGameStateRedactor {
 
     private static JsonArray exileView(Game game, Player viewer, Player owner) {
         JsonArray result = new JsonArray();
-        for (Card card : game.getExile().getCardsOwned(game, owner.getId())) {
+        List<Card> exiled = new ArrayList<>(game.getExile().getCardsOwned(game, owner.getId()));
+        exiled.sort(Comparator.comparing(Card::getId, XmageStableOrder.objects(game)));
+        for (Card card : exiled) {
             if (!card.isFaceDown(game)) {
                 result.add(publicCard(card));
             } else if (mayLookAtFaceDown(game, viewer, card)) {
@@ -775,7 +780,7 @@ final class XmageFullGameStateRedactor {
                 // Registry source above already attempted.
             }
             List<UUID> ordered = new ArrayList<>(commanders.values());
-            ordered.sort(java.util.Comparator.comparing(UUID::toString));
+            ordered.sort(XmageStableOrder.objects(game));
             for (UUID commanderId : ordered) {
                 JsonObject entry = new JsonObject();
                 entry.addProperty("owner_id", ActorSafeIdentity.forSeat(game, viewer, player));
@@ -787,7 +792,8 @@ final class XmageFullGameStateRedactor {
                 JsonArray damage = new JsonArray();
                 if (damageWatcher != null) {
                     List<UUID> damaged = new ArrayList<>(damageWatcher.getDamageToPlayer().keySet());
-                    damaged.sort(java.util.Comparator.comparing(UUID::toString));
+                    damaged.sort(Comparator.comparingInt((UUID id) -> seat(game, id))
+                            .thenComparing(UUID::toString));
                     for (UUID damagedId : damaged) {
                         if (seat(game, damagedId) < 0) {
                             continue;
