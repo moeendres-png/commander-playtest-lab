@@ -28,7 +28,7 @@ draws from a per-thread xorshift whose start depends on thread creation order an
 Details: `fork-fixes-2026-10-21/DETERMINISMUS_TOKENREIHENFOLGE.md` in the project files.
 
 `-XX:hashCode=0` is therefore a weak trigger: it draws from one generator that all threads
-share, so it reproduced the divergence in some runs and not in others. Repeat plain games
+share, so it gave the second hash in 4 of 5 runs against 9 of 16 plain games, and not every time. Repeat plain games
 (`--mode none --runs N`) when you look for run-to-run instability, and perturb when you look for
 a dependency on iteration order.
 
