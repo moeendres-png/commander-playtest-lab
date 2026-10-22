@@ -26,7 +26,7 @@ from commander_lab.engine.structural.xmage_calibration import (
     split_pods,
     structural_win_probabilities,
 )
-from commander_lab.models import CardRole, RulesDeckInput, StructuralCardProfile
+from commander_lab.models import CardRole, Color, RulesDeckInput, StructuralCardProfile
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -41,6 +41,7 @@ def _facts(name: str, **values: Any) -> CardFacts:
         power=values.get("power"),
         toughness=values.get("toughness"),
         rules=tuple(values.get("rules", ())),
+        mana_cost=str(values.get("mana_cost", "")),
     )
 
 
@@ -127,6 +128,64 @@ def test_commander_stats_stay_unknown_when_the_facts_have_no_power() -> None:
     profile, report = fact_deck_profile(deck, known={}, facts=catalog, snapshot_hash="test")
     assert report.without_facts == [f"Filler {index}" for index in range(99)]
     assert profile.commander_base_power["Quintorius, History Chaser"] == 2.0
+
+
+def test_uncurated_lands_and_mana_rocks_take_their_colours_from_the_rules() -> None:
+    temple = _facts(
+        "Test Temple",
+        mana_value=0.0,
+        types=("LAND",),
+        rules=("{this} enters tapped.", "{T}: Add {U}.", "{T}: Add {R}."),
+    )
+    painland = _facts(
+        "Test Painland",
+        mana_value=0.0,
+        types=("LAND",),
+        rules=("{T}: Add {C}.", "{T}: Add {W}. {this} deals 1 damage to you."),
+    )
+    rock = _facts(
+        "Test Signet",
+        mana_value=2.0,
+        types=("ARTIFACT",),
+        rules=("{1}, {T}: Add {G}{U}.",),
+    )
+    any_color = _facts(
+        "Test Gem",
+        mana_value=2.0,
+        types=("ARTIFACT",),
+        rules=("{T}: Add one mana of any color.",),
+    )
+    assert profile_from_facts("Test Temple", temple).produces_colors == {Color.BLUE, Color.RED}
+    assert profile_from_facts("Test Painland", painland).produces_colors == {Color.WHITE}
+    assert profile_from_facts("Test Signet", rock).produces_colors == {Color.GREEN, Color.BLUE}
+    assert profile_from_facts("Test Gem", any_color).produces_colors == set(Color)
+    curated = StructuralCardProfile(oracle_name="Test Temple", is_land=True, roles=frozenset())
+    assert apply_card_facts(curated, temple).produces_colors == frozenset()
+
+
+def test_a_commander_without_curated_pips_takes_its_colour_cost_from_the_facts() -> None:
+    chulane = _facts("Chulane", mana_value=5.0, power=4.0, toughness=5.0, mana_cost="{2}{G}{W}{U}")
+    catalog = CardFactsCatalog({"Chulane": chulane, "Bears": _facts("Bears", mana_cost="{1}{G}")})
+    curated = StructuralCardProfile(oracle_name="Chulane", roles=frozenset())
+    deck = RulesDeckInput(
+        deck_id="d",
+        name="Commander pips",
+        deck_hash=None,
+        commander_names=("Chulane",),
+        mainboard=("Bears",) * 99,
+    )
+    profile, _ = fact_deck_profile(
+        deck, known={"Chulane": curated}, facts=catalog, snapshot_hash="test"
+    )
+    by_name = {card.oracle_name: card for card in profile.cards}
+    assert {
+        color.value: count for color, count in by_name["Chulane"].color_requirements.items()
+    } == {
+        "G": 1,
+        "U": 1,
+        "W": 1,
+    }
+    assert by_name["Bears"].color_requirements == {}
 
 
 def test_facts_mark_finishers_from_their_text() -> None:
