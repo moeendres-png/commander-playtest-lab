@@ -40,7 +40,7 @@ from .common import (
 _CREW_POWER_PROMPT = re.compile(r"\(selected power (?P<have>-?\d+) of (?P<need>\d+)\)")
 
 
-def _crews_by_toughness(item: Mapping[str, Any] | None) -> bool:
+def _crews_by_toughness(item: Mapping[str, object] | None) -> bool:
     """Whether the permanent crews or saddles with its toughness (or extra power) instead."""
     abilities = item.get("abilities") if item is not None else None
     return isinstance(abilities, list) and any(
