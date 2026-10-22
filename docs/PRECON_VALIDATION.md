@@ -516,6 +516,30 @@ die anderen sechs Karten sind neu.
     die ersten drei Antworten sind unverändert. Neuer Test in `test_full_game_pilot_judgment.py` (rot
     ohne, grün mit der Änderung). Einzeln nachgespielt (Muses Jar-Stand, `main`-Pilot ohne Pod-Wechsel):
     vorher `BLOCK_DECLARATION_REJECTED` in Zug 45, mit dem Fix 2880 Entscheidungen, Sitz 2 gewinnt.
+- Determinismus-Zensus Plan-Seeds 24 bis 30 (Spiel-Seed gleich) auf dem Pin v11 `456b0e22` (Lab `84e245ace`,
+  Muses v11-Jar, `--games-per-jvm 6 --fast`, zwei Läufe je Seed, `LOCAL_OBSERVED`): 644 Pod-Läufe, 636 ok,
+  8 failed. Vier Pods liefern in den zwei Läufen verschiedene Hashes (Seed 24 Pod 030, Seed 27 Pod 028,
+  Seed 30 Pod 005 und 036); Ursache `CODE_DERIVED` aus Muses Schritt C: `HashMap<Player, Integer>`
+  (Wave of Vitriol) und `HashMap<UUID, Integer>` (From the Ashes) iterieren je Spiel in anderer
+  Reihenfolge, behoben erst mit einem Fork-Patch (`LinkedHashMap`), nicht in diesem PR. Drei Pods
+  fielen echt aus und liefen vorher nicht, alle drei einzeln nachgespielt (`main`-Pilot, v11-Jar):
+  - Seed 30 Pod 045 (`XMAGE_ACTION_EXECUTION_FAILED`, The Prydwen, Steel Flagship, Crew 2): Die Engine
+    fragt Crew und Saddle eine Kreatur nach der anderen ("selected power S of N") und beendet die
+    Zahlung bei einer leeren Antwort. Der Pilot wählte bei jeder Frage eine Kreatur: Rex (Kraft 0),
+    Brotherhood Scribe (-1), Sentinel Sarah Lyons (2) und Dr. Madison Li (0) kamen auf 1, die Kosten
+    scheiterten, obwohl Sarah allein gereicht hätte. Jetzt kommen nur Kreaturen mit Kraft über 0 in
+    Frage (Kreaturen, die mit Zähigkeit crewen, bleiben), und bei erreichter Kraft wählt der Pilot
+    keine weitere. Neue Datei `test_crew_power_selection.py`. Vorher Abbruch, jetzt 3011 Entscheidungen.
+  - Seed 29 Pod 000 (`XMAGE_ACTION_EXECUTION_FAILED`, Hierophant Bio-Titan): Der Pilot kündigte X = 3
+    Zählermarken an (zwei bei The Swarmlord, eine bei Haruspex) und zahlte das gesenkte `{4}{G}{G}` zum Teil
+    mit Haruspex' "Remove X +1/+1 counters from {this}: Add X mana". Für die Kosten blieben zwei Marken,
+    der Zauber wurde zurückgesetzt. Die angekündigten Marken gehören jetzt den Kosten des Zaubers: Keine
+    Manafähigkeit entfernt sie, und die Kosten nehmen die größten Stapel, bis die Zahl gedeckt ist.
+    Neue Datei `test_cast_counter_cost_reserved.py`. Vorher Abbruch, jetzt 2538 Entscheidungen.
+  - Seed 30 Pod 026 (`ENGINE_FAILURE`): Auf Muses Lab-Stand `84e245ace` bricht das Spiel bei
+    `max_decisions=50000` ab (335 s), eine Pilot-Schleife. Auf `main` läuft der Pod durch (5940
+    Entscheidungen, Sitz 2 gewinnt, gleicher Hash mit dem v10-Jar); behoben durch einen der Pilot-Fixes
+    seit `84e245ace`, ohne eigene Änderung hier.
 - Alter Pin `348b37db`, Stichprobe (25 Pods aus je vier verschiedenen Decks, Seed 1, nur Decks
   ohne fehlende Karten, `LOCAL_OBSERVED`): 19 Pods liefen durch, 6 scheiterten in vier Familien:
   Kosten mit Auswahl (Ghave, Necron Overlord, Grim Hireling: die Engine bietet die Aktivierung

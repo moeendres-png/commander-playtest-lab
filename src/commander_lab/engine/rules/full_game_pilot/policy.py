@@ -165,6 +165,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             self._priority_cost_facts.pop(seat, None)
             self._priority_x_counter_caps.pop(seat, None)
             self._failed_x_announcements.pop(seat, None)
+            self._reserved_counters.pop(seat, None)
             self._last_priority_label.pop(seat, None)
             self._last_priority_source.pop(seat, None)
             # A priority window means the effect that was asking has resolved.
@@ -200,9 +201,18 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                 if decision_class == "choose_object"
                 else None
             )
+            crew_options = (
+                self._crew_selection(
+                    pilot_state, context, prompt, list(options), minimum=min_selections
+                )
+                if decision_class == "choose_object"
+                else None
+            )
             selected = (
                 paying_counters
                 if paying_counters is not None
+                else []  # the crew's power is reached: choose no further creature
+                if crew_options == []
                 else self._decide_targets(
                     runtime,
                     pilot_state,
@@ -214,7 +224,11 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                             seat,
                             decision_class,
                             context,
-                            [option for option in options if option.get("option_id") not in picked],
+                            [
+                                option
+                                for option in (options if crew_options is None else crew_options)
+                                if option.get("option_id") not in picked
+                            ],
                             asking=str(asking_source.get("source_object_id", ""))
                             if isinstance(asking_source, dict)
                             else "",

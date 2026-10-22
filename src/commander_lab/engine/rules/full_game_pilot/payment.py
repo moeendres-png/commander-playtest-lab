@@ -45,6 +45,9 @@ _UNSUPPORTED_ENERGY_PAYMENT_SOURCES = frozenset({"vault 112: sadistic simulation
 # "Choose how many counters (+1/+1) to remove from <name> as payment": the engine's question
 # when a "remove N counters" cost takes several counters from one permanent.
 _COUNTER_COUNT_PROMPT = re.compile(r"Choose how many counters \(")
+# "Announce the value for {X} (+1/+1 counters to remove)": the X of a cost that removes that many
+# counters (Hierophant Bio-Titan's Frenzied Metabolism, Haruspex's mana ability).
+_COUNTERS_TO_REMOVE_PROMPT = re.compile(r"\((?P<kind>[^()]+?) counters? to remove\)")
 
 
 class _PaymentDecisions(_PolicyState):
@@ -54,11 +57,46 @@ class _PaymentDecisions(_PolicyState):
         if label is None:
             return None
         number = counter_cost_number(label)
-        if number is None and is_x_counter_pile_cost(label):
+        if number is not None:
+            return number
+        if is_x_counter_pile_cost(label):
             # The cost takes the X this seat announced for the activation.
             announced = self._failed_x_announcements.get(seat, {})
             return next(iter(announced.values())) if len(announced) == 1 else None
-        return number
+        # A cast's own additional cost takes the counters its announced X names.
+        reserved = self._reserved_counters.get(seat, {}).get(
+            self._last_priority_source.get(seat, "")
+        )
+        return reserved[1] if reserved is not None else None
+
+    def _reserve_counters(self, seat: int, source_object: object, prompt: str, chosen: int) -> None:
+        """Keep the counters an announced "(K counters to remove)" X sets aside for the cast."""
+        found = _COUNTERS_TO_REMOVE_PROMPT.search(prompt)
+        if found is None or chosen <= 0 or not isinstance(source_object, dict):
+            return
+        source = str(source_object.get("source_object_id") or "")
+        if source:
+            self._reserved_counters.setdefault(seat, {})[source] = (
+                found.group("kind").casefold(),
+                chosen,
+            )
+
+    def _spends_counters_the_cast_reserves(self, seat: int, option: Mapping[str, object]) -> bool:
+        """Whether this mana ability removes the counters the cast being paid for still has to remove.
+
+        Hierophant Bio-Titan announced X = 3 counters to remove (3 of them on The Swarmlord and
+        Haruspex), then paid {1} with Haruspex's "Remove X +1/+1 counters from {this}: Add X
+        mana". The cost found only the Swarmlord's 2 counters left and the cast was reversed
+        (plan seed 29, game seed 29, pod 000). The counters pay the cost; mana comes from
+        elsewhere or the payment is cancelled.
+        """
+        reserved = self._reserved_counters.get(seat, {}).get(
+            self._last_priority_source.get(seat, "")
+        )
+        if reserved is None:
+            return False
+        label = str(option.get("label", "")).casefold()
+        return "remove" in label and f"{reserved[0]} counter" in label
 
     def _paying_counter_kind(self, seat: int, state: dict[str, object]) -> str | None:
         """The counter kind a "remove a K counter from a permanent you control" cost takes now."""
@@ -564,6 +602,7 @@ class _PaymentDecisions(_PolicyState):
             if self._required_text(option, "option_type") == "mana_ability" and (
                 not self._priority_action_affordable(option, state)
                 or self._spends_the_activations_own_source(seat, option)
+                or self._spends_counters_the_cast_reserves(seat, option)
                 or self._spends_a_permanent_the_tap_cost_needs(seat, option, state)
             ):
                 continue
@@ -858,6 +897,7 @@ class _PaymentDecisions(_PolicyState):
             # source sees the failed value and caps below it instead of
             # re-announcing the same unpayable X forever.
             self._remember_announced_x(runtime.binding.seat, source_object, chosen)
+            self._reserve_counters(runtime.binding.seat, source_object, prompt, chosen)
         return chosen
 
     @staticmethod
