@@ -117,6 +117,18 @@ means the run could not have seen an effect, not that the decks play the same.
 A single-card swap will not move win share at feasible game counts; judge it
 by the structural filter in step 2 and per-card figures, not by win share.
 
+The report also carries `pilot_readiness`: the state of every deck, and per variant the
+cards it adds or removes that the pilot is not ready for. The pilot plays such a card as a
+spell without cost or role, so when a variant differs from the baseline by one the summary
+adds a `PARTIAL:` line under the verdict: the verdict compares that, not the card. Without
+`--require-ready` the run still plays; the line is how the result says what it measured.
+In a pilot report, `spell_offers_without_pilot_knowledge` counts the spell options for cards
+without pilot knowledge (1.6 % on the real pod, 9 of 571 in two games; roughly half of the
+card slots of the 195 precon decks have no pilot knowledge), and `compare` prints the share
+of both arms and warns from 5 %. `bad_attacks_into_killer` and `bad_needless_chump_blocks`
+are counted with the pilot's own score (0 of 928 attacks and 0 of 145 blocks in 24 real
+games), so `compare` leaves them out.
+
 Faster runs: `--games-per-jvm N` plays up to N games in one bridge process (default 1).
 On 36 seeds of the real pod, N=4 gave the same transcript hashes and winners as one
 game per JVM and took about 25 % less time (89 to 119 games/hour at the same worker

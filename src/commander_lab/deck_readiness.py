@@ -10,9 +10,11 @@ a variant comparison from silently measuring "unknown card" instead of the card.
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+from typing import Any
 
 from commander_lab.agents.card_knowledge import card_facts as pilot_card_facts
 from commander_lab.engine.structural.card_facts import (
@@ -123,6 +125,83 @@ def check_deck(
         counts=counts,
         ready=all(card.status is CardReadinessStatus.OK for card in cards),
     )
+
+
+@dataclass(frozen=True)
+class VariantReadiness:
+    """The cards a variant adds or removes that the pilots cannot play well.
+
+    A verdict about a variant measures the difference between the two decks. When a card
+    that differs is not ready, the pilot plays it as a spell without cost or role, so the
+    verdict compares "unknown card" with the card it replaces, not the two cards.
+    """
+
+    variant_id: str
+    baseline_id: str
+    added: tuple[CardReadiness, ...]
+    removed: tuple[CardReadiness, ...]
+
+    @property
+    def comparable(self) -> bool:
+        return not self.added and not self.removed
+
+
+def compare_readiness(baseline: DeckReadiness, variant: DeckReadiness) -> VariantReadiness:
+    """Which cards of *variant* that differ from *baseline* are not ready (and vice versa)."""
+    in_baseline = {card.name for card in baseline.cards}
+    in_variant = {card.name for card in variant.cards}
+    return VariantReadiness(
+        variant_id=variant.deck_id,
+        baseline_id=baseline.deck_id,
+        added=tuple(
+            card
+            for card in variant.cards
+            if card.name not in in_baseline and card.status is not CardReadinessStatus.OK
+        ),
+        removed=tuple(
+            card
+            for card in baseline.cards
+            if card.name not in in_variant and card.status is not CardReadinessStatus.OK
+        ),
+    )
+
+
+def readiness_payload(
+    contenders: Sequence[RulesDeckInput], opponents: Sequence[RulesDeckInput]
+) -> dict[str, Any]:
+    """The readiness of every deck of a comparison and what it means for each variant verdict.
+
+    The first contender is the baseline. ``variants`` lists, per other contender, the cards
+    it adds or removes that are not ready; ``comparable`` is false when there is one.
+    """
+    reports = {deck.deck_id: check_deck(deck) for deck in (*contenders, *opponents)}
+
+    def card_rows(cards: Sequence[CardReadiness]) -> list[dict[str, str]]:
+        return [{"name": card.name, "status": card.status.value} for card in cards]
+
+    decks = {
+        deck.deck_id: {
+            "role": "contender" if index < len(contenders) else "opponent",
+            "ready": reports[deck.deck_id].ready,
+            "counts": {s.value: n for s, n in reports[deck.deck_id].counts.items()},
+            "not_ready": card_rows(
+                [c for c in reports[deck.deck_id].cards if c.status is not CardReadinessStatus.OK]
+            ),
+        }
+        for index, deck in enumerate((*contenders, *opponents))
+    }
+    variants: dict[str, Any] = {}
+    if contenders:
+        baseline = reports[contenders[0].deck_id]
+        for deck in contenders[1:]:
+            compared = compare_readiness(baseline, reports[deck.deck_id])
+            variants[deck.deck_id] = {
+                "baseline": compared.baseline_id,
+                "comparable": compared.comparable,
+                "added_not_ready": card_rows(compared.added),
+                "removed_not_ready": card_rows(compared.removed),
+            }
+    return {"decks": decks, "variants": variants}
 
 
 def format_deck_report(label: str, report: DeckReadiness) -> str:

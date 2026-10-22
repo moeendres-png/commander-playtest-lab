@@ -44,7 +44,7 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from commander_lab.deck_readiness import check_deck, format_deck_report
+from commander_lab.deck_readiness import check_deck, format_deck_report, readiness_payload
 from commander_lab.engine.rules.full_game import XmageFullGameRunner
 from commander_lab.engine.rules.full_game_batch import (
     FullGameBatchCase,
@@ -254,6 +254,29 @@ def _placement_lines(row: dict[str, Any]) -> list[str]:
     ]
 
 
+def _readiness_lines(report_json: dict[str, Any], variant_id: str) -> list[str]:
+    """A PARTIAL line for a variant that differs from the baseline by cards the pilot is not ready for.
+
+    Read with ``.get``: payloads stored before the readiness block print unchanged.
+    """
+    entry = ((report_json.get("pilot_readiness") or {}).get("variants") or {}).get(variant_id)
+    if not isinstance(entry, dict) or entry.get("comparable", True):
+        return []
+
+    def names(rows: list[dict[str, str]]) -> str:
+        return ", ".join(f"{row['name']} ({row['status']})" for row in rows)
+
+    parts = []
+    if entry.get("added_not_ready"):
+        parts.append(f"adds {names(entry['added_not_ready'])}")
+    if entry.get("removed_not_ready"):
+        parts.append(f"removes {names(entry['removed_not_ready'])}")
+    return [
+        f"PARTIAL: {variant_id} {'; '.join(parts)}: the pilot plays a card it is not ready for "
+        "as a spell without cost or role, so this verdict compares that, not the card"
+    ]
+
+
 def _summary_lines(report_json: dict[str, Any]) -> list[str]:
     lines: list[str] = []
     for row in report_json["contenders"]:
@@ -278,6 +301,7 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
         )
         lines.extend(_precision_lines(row))
         lines.extend(_placement_lines(row))
+        lines.extend(_readiness_lines(report_json, row["variant_deck_id"]))
     sequential = report_json.get("sequential")
     if sequential is not None:
         lines.append(
@@ -516,6 +540,7 @@ def main(argv: list[str] | None = None) -> int:
         payload["swaps"] = {
             variant.deck_id: text for variant, text in zip(swapped, args.swap, strict=True)
         }
+    payload["pilot_readiness"] = readiness_payload(contenders, opponents)
     payload["engine"] = {
         "xmage_commit": spec.xmage_commit,
         "execution_identity": execution_identity_of(runner),

@@ -171,6 +171,8 @@ _SEAT_KEYS = (
     "pilot_s",
     "by_class",
     "spells_cast",
+    "spell_offers",
+    "spell_offers_without_pilot_knowledge",
     "own_turns",
     "bad_idle_main_with_castable_spell",
     "bad_idle_main_with_unplayed_land",
@@ -214,6 +216,8 @@ def summarize(
     commander_turn: dict[int, int] = {}
     commander_round: dict[int, int] = {}
     commander_round_by_name: dict[int, dict[str, int]] = defaultdict(dict)
+    spell_offers = 0
+    spell_offers_unknown = 0
     idle_main_with_spell = 0
     idle_main_with_land = 0
     own_turns: set[tuple[int, int]] = set()
@@ -268,6 +272,18 @@ def summarize(
             picked = chosen[0] if chosen else {}
             picked_type = str(picked.get("option_type", ""))
             meta = _meta(picked)
+            # Spell options the pilot saw, and how many of them are for a card it has no
+            # knowledge of (it then plays the card as a spell without cost or role). The
+            # lookup is the pilot's own: the option's source name.
+            for option in options:
+                if _meta(option).get("ability_type") != "spell":
+                    continue
+                spell_offers += 1
+                if (
+                    card_facts(str(_meta(option).get("source_name") or option.get("label") or ""))
+                    is None
+                ):
+                    spell_offers_unknown += 1
             # Per-card cast tracking. A cast counts in every priority window
             # of the actor (any turn, any phase). An offer counts for
             # sorcery-speed cards only in own main-phase windows (the old
@@ -438,6 +454,8 @@ def summarize(
         "by_class": dict(sorted(by_class.items())),
         "pilot_s": round(pilot_s, 2),
         "spells_cast": sum(spells.values()),
+        "spell_offers": spell_offers,
+        "spell_offers_without_pilot_knowledge": spell_offers_unknown,
         "spells_per_player_round": round(sum(spells.values()) / players / rounds, 2),
         # The game turn counter at the first commander cast. It counts every player's
         # turns, so it depends on the seat; commander_first_cast_round is the round.
@@ -573,6 +591,23 @@ _TOTALS = (
 )
 
 
+# Counted for every report but never compared as a metric: how much of what the pilot was
+# offered it had no knowledge of says what a verdict is about, not whether a pilot is better.
+_CONTEXT_TOTALS = ("spell_offers", "spell_offers_without_pilot_knowledge")
+
+# Counted with the pilot's own scoring function on the state it decided on (``attack_score``,
+# ``block_score``). A pilot that follows its score cannot produce one, so a 0 here is not a
+# measurement. The rows keep the keys; ``compare`` leaves them out.
+_NOT_MEASURED = {
+    "bad_attacks_into_killer": "counted with the pilot's own attack score",
+    "bad_needless_chump_blocks": "counted with the pilot's own block score",
+}
+
+# Above this share of spell options without pilot knowledge, a report is flagged: any value is
+# a convention, 1.6 % is what the real pod shows, half of the precon card slots lack knowledge.
+_UNKNOWN_SHARE_WARN = 0.05
+
+
 def totals(report: dict[str, Any]) -> dict[str, float]:
     games = [g for g in report["games"] if g["status"] == "ok"]
     out: dict[str, float] = {
@@ -581,6 +616,13 @@ def totals(report: dict[str, Any]) -> dict[str, float]:
     }
     for key in _TOTALS:
         out[key] = round(sum(float(g.get(key, 0)) for g in games), 2)
+    if any("spell_offers" in g for g in games):
+        for key in _CONTEXT_TOTALS:
+            out[key] = round(sum(float(g.get(key, 0)) for g in games), 2)
+        if out["spell_offers"]:
+            out["share_spell_offers_without_pilot_knowledge"] = round(
+                out["spell_offers_without_pilot_knowledge"] / out["spell_offers"], 4
+            )
     if games:
         # Batched games (--games-per-jvm > 1) carry no decision record; they count
         # for the wall time but not for the per-decision figures.
@@ -619,7 +661,7 @@ def totals_by_seat(report: dict[str, Any]) -> dict[str, dict[str, float]]:
         for seat, counters in (game.get("by_seat") or {}).items():
             row = out.setdefault(seat, {"games_ok": 0.0})
             row["games_ok"] += 1
-            for key in _TOTALS:
+            for key in (*_TOTALS, *_CONTEXT_TOTALS):
                 if key in counters:
                     row[key] = round(row.get(key, 0.0) + float(counters[key]), 2)
     return out
@@ -665,6 +707,7 @@ def run(args: argparse.Namespace) -> int:
         "elapsed_s": elapsed_s,
         "games": rows,
     }
+    report["not_measured"] = dict(_NOT_MEASURED)
     report["totals"] = totals(report)
     report["totals_by_seat"] = totals_by_seat(report)
     report["cards"] = aggregate_cards(report)
@@ -840,7 +883,9 @@ _ALPHA = 0.05
 _POWER_FACTOR = 2.8
 _MIN_PAIRED_SEEDS_PER_POD = 10
 
-_COMPARE_METRICS = (*_TOTALS, "spells_per_player_round")
+_COMPARE_METRICS = tuple(
+    key for key in (*_TOTALS, "spells_per_player_round") if key not in _NOT_MEASURED
+)
 
 
 def _game_key(game: dict[str, Any]) -> tuple[Any, Any]:
@@ -973,6 +1018,24 @@ def minimum_detectable_change(deltas: list[float]) -> float:
     return _POWER_FACTOR * sd / math.sqrt(n)
 
 
+def knowledge_share(games: list[dict[str, Any]]) -> dict[str, Any] | None:
+    """Spell options the pilot saw in ``games`` and how many were for a card it knows nothing about.
+
+    None when no game carries the counters (a report written before they existed).
+    """
+    counted = [g for g in games if "spell_offers" in g]
+    if not counted:
+        return None
+    offers = sum(int(g["spell_offers"]) for g in counted)
+    unknown = sum(int(g.get("spell_offers_without_pilot_knowledge", 0)) for g in counted)
+    return {
+        "spell_offers": offers,
+        "without_pilot_knowledge": unknown,
+        "share": (unknown / offers) if offers else None,
+        "games": len(counted),
+    }
+
+
 def compare_reports(
     report_a: dict[str, Any],
     report_b: dict[str, Any],
@@ -1042,6 +1105,18 @@ def compare_reports(
     # Per-card figures are never compared across different per_card_version
     # values: version 2 changed which windows count as offers/casts for
     # instant-speed cards, so the figures mean different things.
+    knowledge = {
+        "before": knowledge_share([game_a for _, game_a, _ in paired]),
+        "after": knowledge_share([game_b for _, _, game_b in paired]),
+    }
+    for arm, figures in knowledge.items():
+        share = figures["share"] if figures else None
+        if share is not None and share >= _UNKNOWN_SHARE_WARN:
+            warnings.append(
+                f"WARNING: {share:.1%} of the spell options the pilot saw ({arm}) are for cards "
+                "it has no knowledge of; it plays them as spells without cost or role, so "
+                "figures about those cards measure that"
+            )
     versions = sorted((_per_card_versions(report_a) | _per_card_versions(report_b)), key=repr)
     if len(versions) > 1:
         warnings.append(
@@ -1054,9 +1129,35 @@ def compare_reports(
         "primary": primary,
         "family_size": len(family),
         "metrics": metrics,
+        "pilot_knowledge": knowledge,
         "unpaired_games": unpaired,
         "warnings": warnings,
     }
+
+
+def _knowledge_line(result: dict[str, Any]) -> str | None:
+    """One line: the share of spell options without pilot knowledge in each arm."""
+    knowledge = result.get("pilot_knowledge") or {}
+    parts = []
+    for arm in ("before", "after"):
+        figures = knowledge.get(arm)
+        if not figures or figures["share"] is None:
+            continue
+        parts.append(
+            f"{arm} {figures['share']:.1%} ({figures['without_pilot_knowledge']} of "
+            f"{figures['spell_offers']})"
+        )
+    if not parts:
+        return None
+    return "spell options for cards without pilot knowledge: " + ", ".join(parts)
+
+
+def _not_compared_line() -> str:
+    return (
+        "not compared: "
+        + ", ".join(sorted(_NOT_MEASURED))
+        + " (counted with the pilot's own score, so a pilot that follows it never shows one)"
+    )
 
 
 def _verdict(metric: dict[str, Any]) -> str:
@@ -1098,6 +1199,10 @@ def format_comparison(result: dict[str, Any]) -> list[str]:
     )
     if not primary:
         lines.append("no primary metric named: every metric above is exploratory (--primary)")
+    knowledge_line = _knowledge_line(result)
+    if knowledge_line:
+        lines.append(knowledge_line)
+    lines.append(_not_compared_line())
     for game in result["unpaired_games"]:
         lines.append(
             f"unpaired: report={game['report']} pod={game['pod']} "
@@ -1141,6 +1246,10 @@ def format_markdown(result: dict[str, Any], path_a: Path, path_b: Path) -> list[
         }. 'detectable' is the smallest "
         "mean change these pairs detect with 80 % power."
     )
+    knowledge_line = _knowledge_line(result)
+    if knowledge_line:
+        lines.append(f"- {knowledge_line}")
+    lines.append(f"- {_not_compared_line()}")
     lines.extend(f"- {w}" for w in result["warnings"])
     return lines
 
@@ -1171,6 +1280,8 @@ def comparison_payload(result: dict[str, Any], path_a: Path, path_b: Path) -> di
         "primary": result.get("primary"),
         "family_size": result["family_size"],
         "metrics": metrics,
+        "pilot_knowledge": result.get("pilot_knowledge"),
+        "not_compared": dict(_NOT_MEASURED),
         "unpaired_games": result["unpaired_games"],
         "warnings": result["warnings"],
     }
