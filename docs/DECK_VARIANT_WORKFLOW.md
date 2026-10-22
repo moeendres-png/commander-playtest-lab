@@ -189,6 +189,22 @@ gives an illegal answer on a real request shape. Quote its last line next to the
 comparison: it shows where a change acts, not whether the change is good. Record a new
 corpus after a bridge change (`pilot_request_corpus.py record --jar ... --seeds 1-2`).
 
+"0 answers changed" counts only where a recorded request enters the changed code. Ask which of
+your lines that is before you quote it:
+
+```bash
+python scripts/pilot_reach_report.py
+```
+
+It replays the corpus under the interpreter's line events and lists, for every function-body
+line the working tree changed against the merge base, whether a request ran it and which
+decision classes did. It exits 1 when a changed line is not reached: the footprint above says
+nothing about that line, so it needs a unit test that enters the branch or a game that
+reaches it. `--dump FILE` adds a full dump of whole games (`pilot_request_corpus.py record
+--all`, replayed as played, several MB, kept out of the repository), `--whole` reports the
+reach of the pilot as it is. In the five pilot fixes since #952 (measured 2026-10-22) the corpus alone reaches 86 of the
+176 changed function-body lines, and two full games raise that to 96.
+
 Reading the per-card and per-seat figures of a report (`per_card_version` 3):
 
 - `cast_rate` is the casts inside a counted window per counted window, so it never
