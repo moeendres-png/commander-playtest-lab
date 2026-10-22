@@ -1,0 +1,123 @@
+{
+ "pod": "s24_p030",
+ "runs": [
+  "a",
+  "f"
+ ],
+ "first_divergent_decision_index": 2857,
+ "context_before": [
+  {
+   "cls": "priority",
+   "seat": 3,
+   "src": null,
+   "opts": [
+    "Pass priority",
+    "Rogue's Passage — {T}: Add {C}.",
+    "Swamp — {T}: Add {B}.",
+    "Swamp — {T}: Add {B}."
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  },
+  {
+   "cls": "priority",
+   "seat": 0,
+   "src": null,
+   "opts": [
+    "Pass priority",
+    "Kykar, Wind's Fury — Sacrifice a Spirit: Add {R}."
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  },
+  {
+   "cls": "priority",
+   "seat": 1,
+   "src": null,
+   "opts": [
+    "Pass priority",
+    "Swamp — {T}: Add {B}."
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  }
+ ],
+ "divergent_a": {
+  "cls": "choose_use",
+  "seat": 3,
+  "src": "Wave of Vitriol",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to 4 basic lands?"
+ },
+ "divergent_b": {
+  "cls": "choose_use",
+  "seat": 1,
+  "src": "Wave of Vitriol",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to 4 basic lands?"
+ },
+ "context_after": [
+  {
+   "cls": "target",
+   "seat": 3,
+   "src": "Wave of Vitriol",
+   "opts": [
+    "Swamp",
+    "Swamp",
+    "Plains",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Plains",
+    "Plains",
+    "Plains",
+    "Plains",
+    "Swamp",
+    "Swamp",
+    "Plains"
+   ],
+   "sel": [
+    "Swamp"
+   ]
+  },
+  {
+   "cls": "target",
+   "seat": 3,
+   "src": "Wave of Vitriol",
+   "opts": [
+    "Swamp",
+    "Swamp",
+    "Plains",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Plains",
+    "Plains",
+    "Plains",
+    "Plains",
+    "Swamp",
+    "Swamp",
+    "Plains"
+   ],
+   "sel": [
+    "Swamp"
+   ]
+  }
+ ]
+}

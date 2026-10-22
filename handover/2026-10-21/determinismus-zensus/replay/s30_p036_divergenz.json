@@ -1,0 +1,106 @@
+{
+ "pod": "s30_p036",
+ "runs": [
+  "a",
+  "b"
+ ],
+ "first_divergent_decision_index": 1614,
+ "context_before": [
+  {
+   "cls": "priority",
+   "seat": 0,
+   "src": null,
+   "opts": [
+    "Pass priority"
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  },
+  {
+   "cls": "priority",
+   "seat": 1,
+   "src": null,
+   "opts": [
+    "Pass priority"
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  },
+  {
+   "cls": "priority",
+   "seat": 2,
+   "src": null,
+   "opts": [
+    "Pass priority",
+    "Mountain — {T}: Add {R}.",
+    "Rootbound Crag — {T}: Add {G}.",
+    "Rootbound Crag — {T}: Add {R}.",
+    "Sol Ring — {T}: Add {C}{C}.",
+    "Sulfur Falls — {T}: Add {R}.",
+    "Sulfur Falls — {T}: Add {U}."
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  }
+ ],
+ "divergent_a": {
+  "cls": "choose_use",
+  "seat": 1,
+  "src": "Wave of Vitriol",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to 3 basic lands?"
+ },
+ "divergent_b": {
+  "cls": "choose_use",
+  "seat": 0,
+  "src": "Wave of Vitriol",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to 1 basic lands?"
+ },
+ "context_after": [
+  {
+   "cls": "target",
+   "seat": 1,
+   "src": "Wave of Vitriol",
+   "opts": [
+    "Forest",
+    "Island",
+    "Forest",
+    "Forest",
+    "Island"
+   ],
+   "sel": [
+    "Island"
+   ]
+  },
+  {
+   "cls": "target",
+   "seat": 1,
+   "src": "Wave of Vitriol",
+   "opts": [
+    "Forest",
+    "Island",
+    "Forest",
+    "Forest"
+   ],
+   "sel": [
+    "Island"
+   ]
+  }
+ ]
+}

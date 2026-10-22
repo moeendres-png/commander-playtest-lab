@@ -1,0 +1,103 @@
+{
+ "pod": "s30_p005",
+ "runs": [
+  "a",
+  "b"
+ ],
+ "first_divergent_decision_index": 2349,
+ "context_before": [
+  {
+   "cls": "priority",
+   "seat": 2,
+   "src": null,
+   "opts": [
+    "Pass priority",
+    "Mountain — {T}: Add {R}.",
+    "Mountain — {T}: Add {R}.",
+    "Temple of the False God — {T}: Add {C}{C}. Activate only if you control five or more lands."
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  },
+  {
+   "cls": "priority",
+   "seat": 3,
+   "src": null,
+   "opts": [
+    "Pass priority",
+    "Darkwater Catacombs — {1}, {T}: Add {U}{B}.",
+    "Port Town — {T}: Add {U}.",
+    "Port Town — {T}: Add {W}.",
+    "Scoured Barrens — {T}: Add {B}.",
+    "Scoured Barrens — {T}: Add {W}."
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  },
+  {
+   "cls": "priority",
+   "seat": 0,
+   "src": null,
+   "opts": [
+    "Pass priority",
+    "Tidechannel Pathway — {T}: Add {U}."
+   ],
+   "sel": [
+    "Pass priority"
+   ]
+  }
+ ],
+ "divergent_a": {
+  "cls": "choose_use",
+  "seat": 0,
+  "src": "Wave of Vitriol",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to 4 basic lands?"
+ },
+ "divergent_b": {
+  "cls": "choose_use",
+  "seat": 2,
+  "src": "Wave of Vitriol",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to 4 basic lands?"
+ },
+ "context_after": [
+  {
+   "cls": "target",
+   "seat": 0,
+   "src": "Wave of Vitriol",
+   "opts": [
+    "Island",
+    "Mountain"
+   ],
+   "sel": [
+    "Mountain"
+   ]
+  },
+  {
+   "cls": "target",
+   "seat": 0,
+   "src": "Wave of Vitriol",
+   "opts": [
+    "Island"
+   ],
+   "sel": [
+    "Island"
+   ]
+  }
+ ]
+}

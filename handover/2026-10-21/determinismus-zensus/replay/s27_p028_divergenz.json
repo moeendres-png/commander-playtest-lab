@@ -1,0 +1,128 @@
+{
+ "pod": "s27_p028",
+ "runs": [
+  "a",
+  "b"
+ ],
+ "first_divergent_decision_index": 2321,
+ "context_before": [
+  {
+   "cls": "choose_use",
+   "seat": 2,
+   "src": "From the Ashes",
+   "opts": [
+    "Yes",
+    "No"
+   ],
+   "sel": [
+    "Yes"
+   ]
+  },
+  {
+   "cls": "target",
+   "seat": 2,
+   "src": "From the Ashes",
+   "opts": [
+    "Mountain",
+    "Mountain",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Mountain",
+    "Mountain"
+   ],
+   "sel": [
+    "Swamp"
+   ]
+  },
+  {
+   "cls": "target",
+   "seat": 2,
+   "src": "From the Ashes",
+   "opts": [
+    "Mountain",
+    "Mountain",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Swamp",
+    "Mountain",
+    "Mountain"
+   ],
+   "sel": [
+    "Swamp"
+   ]
+  }
+ ],
+ "divergent_a": {
+  "cls": "choose_use",
+  "seat": 3,
+  "src": "From the Ashes",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to four basic land cards?"
+ },
+ "divergent_b": {
+  "cls": "choose_use",
+  "seat": 1,
+  "src": "From the Ashes",
+  "opts": [
+   "Yes",
+   "No"
+  ],
+  "sel": [
+   "Yes"
+  ],
+  "prompt": "Search your library for up to four basic land cards?"
+ },
+ "context_after": [
+  {
+   "cls": "target",
+   "seat": 3,
+   "src": "From the Ashes",
+   "opts": [
+    "Forest",
+    "Island",
+    "Island",
+    "Plains",
+    "Forest",
+    "Island",
+    "Island",
+    "Island",
+    "Plains",
+    "Forest"
+   ],
+   "sel": [
+    "Plains"
+   ]
+  },
+  {
+   "cls": "target",
+   "seat": 3,
+   "src": "From the Ashes",
+   "opts": [
+    "Forest",
+    "Island",
+    "Island",
+    "Plains",
+    "Forest",
+    "Island",
+    "Island",
+    "Island",
+    "Forest"
+   ],
+   "sel": [
+    "Plains"
+   ]
+  }
+ ]
+}
