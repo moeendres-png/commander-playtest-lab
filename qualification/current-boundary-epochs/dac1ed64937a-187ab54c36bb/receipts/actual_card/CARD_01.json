@@ -1,0 +1,69 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be",
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_01",
+  "obligation_exercised": {
+    "obligation_digest": "a84169db6afcd5cebf7d9d06ebe7d2ed7e3f8ccd4b4f88e0a2057c7e2f3cdf5b",
+    "requested_state_digest": "019e0f0ad7b10bf360fc3ebd49bf26db750e09ec5169bdfb4cb4bebee546d356",
+    "required_events": [
+      "spell_cast:P2",
+      "trigger:Ishai",
+      "counter_change:+1/+1:+1"
+    ],
+    "terminal_checks": [
+      "every Ishai, Ojutai Dragonspeaker on P1's battlefield has counters {'+1/+1': 1}"
+    ],
+    "terminal_postconditions": [
+      "obj:card01-ishai has exactly one +1/+1 counter."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.62/mage-1.4.62.jar",
+      "sha256": "92d5c2eea7ebf59dc5547717811d9769386655d224bec1ed90d7ca1fa7014ae3",
+      "size": 7192280
+    },
+    "postcondition_proofs": [
+      {
+        "check": "every Ishai, Ojutai Dragonspeaker on P1's battlefield has counters {'+1/+1': 1}",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "obj:card01-ishai has exactly one +1/+1 counter."
+      }
+    ],
+    "terminal_facts": {
+      "every Ishai, Ojutai Dragonspeaker on P1's battlefield has counters {'+1/+1': 1}": true
+    },
+    "token_evidence": {
+      "counter_change:+1/+1:+1": {
+        "binding": "exactly 1 COUNTER_ADDED event(s) with target_object=obj:card01-ishai, data=+1/+1, amount=1",
+        "events": [
+          10
+        ]
+      },
+      "spell_cast:P2": {
+        "binding": "at least one SPELL_CAST event(s) with player_player=P2",
+        "events": [
+          8
+        ]
+      },
+      "trigger:Ishai": {
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "2f97583a6d27ae791edb684f4e9a78eb5d1753639ebbaaa9c6e09b92a447a5bd",
+  "runner_digest": "e45c78e9587371dea26ba832529724cc091bf714ec0c3b79c489dcf11e214bac",
+  "runtime_receipt_digest": "e585fc844d5394275f2a36b1ad98a9593d278d81ebf1f8115c87a91f602ad64f",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_01"
+}
