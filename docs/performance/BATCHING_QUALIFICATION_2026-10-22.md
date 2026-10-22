@@ -135,7 +135,7 @@ Evidence that this, and nothing else, is the growth:
 The patch is not applied here. It changes the bridge, so it needs PB-03, the AF11 decision, a
 seal and a new `current_qualification` epoch, which is not worth doing for 2 MiB per game
 alone (same rule as stage 2 of the efficiency offensive); it belongs in the next bridge
-change. Until then the memory property fails on purpose, and the on-demand workflow below
+change (#975). Until then the memory property fails on purpose, and the on-demand workflow below
 will show it red; after the release it passes without a change to the criteria.
 
 ## 5. What this does not show
