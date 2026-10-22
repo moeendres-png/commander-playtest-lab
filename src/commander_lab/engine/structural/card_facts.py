@@ -11,6 +11,7 @@ its curated values and only gains what the facts know and the profile does not.
 from __future__ import annotations
 
 import json
+import re
 import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
@@ -19,11 +20,12 @@ from pathlib import Path
 from commander_lab.models import (
     CardIdentity,
     CardRole,
+    Color,
     StructuralCardProfile,
     StructuralDeckProfile,
 )
 
-from .profiles import build_default_profile
+from .profiles import ALL_COLORS, build_default_profile
 
 CARD_FACTS_PATH = "data/cards/xmage_card_facts.json"
 CARD_FACTS_SCHEMA_VERSION = "xmage-card-facts-1.0.0"
@@ -35,6 +37,9 @@ _FINISHER_TEXT = (
     "you win the game",
     "double the damage",
 )
+_TAP_MANA_ABILITY = re.compile(r"\{T\}[^.:]*:\s*add\b([^.]*)", re.IGNORECASE)
+_MANA_SYMBOL = re.compile(r"\{([WUBRG])\}")
+_ANY_COLOR_TEXT = ("any color", "any one color", "any combination of colors", "any type")
 _EVASION_TEXT = ("flying", "trample", "menace", "can't be blocked", "double strike")
 
 
@@ -54,6 +59,7 @@ class CardFacts:
     power: float | None
     toughness: float | None
     rules: tuple[str, ...]
+    mana_cost: str = ""
 
     @property
     def is_creature(self) -> bool:
@@ -105,6 +111,7 @@ class CardFactsCatalog:
                 power=row.get("power"),
                 toughness=row.get("toughness"),
                 rules=tuple(row.get("rules", ())),
+                mana_cost=str(row.get("mana_cost") or ""),
             )
             for name, row in payload["cards"].items()
         }
@@ -128,6 +135,17 @@ def load_card_facts(root: str | Path) -> CardFactsCatalog | None:
     """The project's card facts, or None when they have not been exported."""
     path = Path(root) / CARD_FACTS_PATH
     return CardFactsCatalog.from_json(path) if path.is_file() else None
+
+
+def produced_colors_from_rules(rules: tuple[str, ...]) -> frozenset[Color]:
+    """Colours added by the card's tap mana abilities (spells and triggers do not count)."""
+    produced: set[Color] = set()
+    for line in rules:
+        for clause in _TAP_MANA_ABILITY.findall(line):
+            produced.update(Color(symbol) for symbol in _MANA_SYMBOL.findall(clause.upper()))
+            if any(phrase in clause.casefold() for phrase in _ANY_COLOR_TEXT):
+                produced.update(ALL_COLORS)
+    return frozenset(produced)
 
 
 def apply_card_facts(
@@ -166,7 +184,13 @@ def profile_from_facts(name: str, facts: CardFacts) -> StructuralCardProfile:
         oracle_text=facts.text,
         is_basic_land=facts.is_land and "BASIC" in facts.supertypes,
     )
-    return apply_card_facts(build_default_profile(identity), facts)
+    profile = build_default_profile(identity)
+    if not profile.produces_colors:
+        # An uncurated land or mana rock would otherwise count as a colourless source.
+        produced = produced_colors_from_rules(facts.rules)
+        if produced:
+            profile = profile.model_copy(update={"produces_colors": produced})
+    return apply_card_facts(profile, facts)
 
 
 def apply_facts_to_deck(

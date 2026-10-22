@@ -34,6 +34,7 @@ from commander_lab.models import (
 from commander_lab.storage import sha256_value
 
 from .card_facts import CardFactsCatalog, apply_card_facts, commander_stats, profile_from_facts
+from .fact_fidelity import simple_color_requirements
 
 _PLACEHOLDER_MARK = " role card "
 
@@ -141,6 +142,12 @@ def fact_deck_profile(
             card_profile = StructuralCardProfile(oracle_name=name, roles=frozenset())
         if card_facts is not None:
             card_profile = apply_card_facts(card_profile, card_facts)
+            if name in deck.commander_names and not card_profile.color_requirements:
+                # A curated profile taken from a deck where the card was not the commander can
+                # carry no colour cost; the castability of a commander needs its coloured pips.
+                pips = simple_color_requirements(card_facts.mana_cost)
+                if pips:
+                    card_profile = card_profile.model_copy(update={"color_requirements": pips})
         if card_profile.oracle_name != name:
             card_profile = card_profile.model_copy(update={"oracle_name": name})
         cards.append(card_profile)
