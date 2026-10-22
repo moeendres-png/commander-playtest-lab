@@ -224,7 +224,9 @@ Commanders cannot be swapped, and a card the baseline does not play, a card that
 already in the deck (basic lands excepted) or a swap that changes nothing is refused.
 
 Runs are reproducible per seed: the same seed, decks, pilot policy, bridge jar and pin
-play the same game, and the batch keys each finished record by all of them.
+play the same game, and the batch keys each finished record by all of them. If two games
+of one seed still differ, `scripts/determinism_probe.py` names the first request on which
+they part ways (`docs/performance/DETERMINISM_PROBE.md`).
 
 The engine shuffles each library in decklist order with the game seed. A variant is
 therefore played with its unchanged cards in the baseline's library slots and its added

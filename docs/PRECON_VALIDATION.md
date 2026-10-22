@@ -1,6 +1,9 @@
 # Precon-Decks: gemessener Stand
 
-Stand: 2026-10-20, Pin `043579bb` (XMage 1.4.62, Repin v9). Evidenzklassen nach `AGENTS.md` §4.
+Fortlaufend geführt: jeder Abschnitt nennt den Pin, an dem er gemessen wurde (Import- und
+Sweep-Zahlen unten zuerst am Pin `043579bb`, XMage 1.4.62, Repin v9, 2026-10-20; spätere
+Sweeps an den Pins `769e6ebb`, `456b0e22` und danach). Der aktuelle Pin steht allein in
+`config/rules_engines.json`. Evidenzklassen nach `AGENTS.md` §4.
 Alle Läufe sind lokal (`LOCAL_OBSERVED`), kein CI-Kredit.
 
 ## Bestand

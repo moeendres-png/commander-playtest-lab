@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 
 import pytest
@@ -299,3 +300,68 @@ def test_render_shows_only_the_live_decision(tmp_path, fake_env):
     text = handoff.render(tmp_path, "2026-10-16T00:00Z")
     assert "WS-LIVE: Live gate" in text
     assert "WS-STALE" not in text
+
+
+def _write_engines(tmp_path: Path, *, pin: str, qualified: str, epoch: str = "e1-f1") -> None:
+    (tmp_path / "config").mkdir(exist_ok=True)
+    (tmp_path / "config" / "rules_engines.json").write_text(
+        json.dumps(
+            {
+                "primary_engine": {"commit": pin},
+                "architecture_freeze": {
+                    "current_qualification": {
+                        "evidence_epoch": f"qualification/current-boundary-epochs/{epoch}",
+                        "engine_commit": qualified,
+                        "lab_commit": "c" * 40,
+                        "freeze_eligible": True,
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+def test_pin_section_is_read_from_the_pin_authority(tmp_path):
+    _write_engines(tmp_path, pin="a" * 40, qualified="a" * 40, epoch="9bbc62c3cdb5-b9a1026d0fe0")
+    assert handoff.pin_lines(tmp_path) == [
+        "engine pin aaaaaaaa; current_qualification epoch 9bbc62c3cdb5-b9a1026d0fe0"
+        " on engine aaaaaaaa and lab cccccccc (freeze_eligible=True)"
+    ]
+
+
+def test_a_pin_ahead_of_the_sealed_qualification_is_flagged(tmp_path):
+    _write_engines(tmp_path, pin="b" * 40, qualified="a" * 40)
+    lines = handoff.pin_lines(tmp_path)
+    assert lines[0].startswith("engine pin bbbbbbbb;")
+    assert "on engine aaaaaaaa" in lines[0]
+    assert lines[1].startswith("PIN AHEAD OF QUALIFICATION")
+
+
+def test_an_unreadable_pin_authority_is_reported_not_fatal(tmp_path):
+    assert handoff.pin_lines(tmp_path) == [
+        "(config/rules_engines.json: pin or current_qualification unreadable)"
+    ]
+    (tmp_path / "config").mkdir()
+    (tmp_path / "config" / "rules_engines.json").write_text("{}", encoding="utf-8")
+    assert handoff.pin_lines(tmp_path) == [
+        "(config/rules_engines.json: pin or current_qualification unreadable)"
+    ]
+
+
+def test_render_leads_with_the_pin_and_stays_within_the_cap(tmp_path, fake_env):
+    _write_engines(tmp_path, pin="d" * 40, qualified="d" * 40)
+    text = handoff.render(tmp_path, "2026-10-22T21:00Z")
+    assert "## Engine pin and qualification (config/rules_engines.json)" in text
+    assert text.index("## Engine pin") < text.index("## Lanes and owners")
+    assert "- engine pin dddddddd; current_qualification epoch e1-f1" in text
+    assert len(text.splitlines()) <= handoff.MAX_LINES
+
+
+def test_the_checked_in_pin_authority_renders_a_current_pin_line():
+    """Negative control: the real config must yield a pin line, not the fallback."""
+    lines = handoff.pin_lines(ROOT)
+    engines = json.loads((ROOT / "config" / "rules_engines.json").read_text(encoding="utf-8"))
+    pin = engines["primary_engine"]["commit"]
+    assert lines[0].startswith(f"engine pin {pin[:8]};")
+    assert not any("unreadable" in line for line in lines)

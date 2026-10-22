@@ -5,8 +5,9 @@
                               [--repo O/R] [--now 2026-10-06T00:00Z] [--dry-run]
 
 The file is assembled from local git (HEAD, worktrees, dirty/unpushed state),
-the GitHub API (`gh api`: open issues and PRs, lane baton comments) and the
-`.foundry/*.yaml|*.json` workstream decision ledger. It is an operational index,
+the GitHub API (`gh api`: open issues and PRs, lane baton comments), the
+`.foundry/*.yaml|*.json` workstream decision ledger and the engine pin and newest
+sealed epoch in `config/rules_engines.json`. It is an operational index,
 not Source Authority: Git, tests and GitHub stay canonical, and a fresh session
 starts here instead of re-reading a compacted conversation. Only the one output
 file is written.
@@ -99,6 +100,36 @@ def worktree_lines(repo_dir: Path) -> list[str]:
         elif unpushed == "no-remote":
             lines.append(f"{path} [{branch}] dirty={dirty} unpushed=no-remote")
     return lines[:6] or ["(none dirty or unpushed)"]
+
+
+def pin_lines(repo_dir: Path) -> list[str]:
+    """The live engine pin and the newest sealed epoch, read from the pin authority.
+
+    ``config/rules_engines.json`` is the sole machine-readable pin authority, so the index
+    reads it instead of carrying the values in prose, where they went stale at every repin.
+    A pin that is ahead of the sealed qualification is flagged: a merged repin is not done
+    until PB-03, the AF11 decision and both seals have caught up.
+    """
+    path = repo_dir / "config" / "rules_engines.json"
+    try:
+        config = json.loads(path.read_text(encoding="utf-8"))
+        pin = str(config["primary_engine"]["commit"])
+        qualification = config["architecture_freeze"]["current_qualification"]
+        qualified = str(qualification["engine_commit"])
+        epoch = str(qualification["evidence_epoch"]).rsplit("/", 1)[-1]
+    except (OSError, ValueError, KeyError, TypeError, AttributeError):
+        return ["(config/rules_engines.json: pin or current_qualification unreadable)"]
+    lines = [
+        f"engine pin {pin[:8]}; current_qualification epoch {epoch} on engine {qualified[:8]}"
+        f" and lab {str(qualification.get('lab_commit', '?'))[:8]}"
+        f" (freeze_eligible={qualification.get('freeze_eligible', '?')})"
+    ]
+    if qualified != pin:
+        lines.append(
+            "PIN AHEAD OF QUALIFICATION: requalify (PB-03 on main, AF11 decision, seals)"
+            " per docs/claude/REPIN_RUNBOOK.md"
+        )
+    return lines
 
 
 def repo_head_lines(repo_dir: Path) -> list[str]:
@@ -316,6 +347,7 @@ def render(repo_dir: Path, now: str) -> str:
     states = load_states(repo_dir)
     lanes = lane_issues()
     sections = [
+        ("Engine pin and qualification (config/rules_engines.json)", pin_lines(repo_dir)),
         (
             "Lanes and owners (open issues"
             + ("; baton comments: " + ", ".join(f"#{n}" for n in lanes) if lanes else "")
@@ -331,6 +363,7 @@ def render(repo_dir: Path, now: str) -> str:
         "",
         "Fresh session: start here instead of a compacted conversation. Operational index, not",
         "Source Authority; regenerate with `python3 scripts/claude_handoff.py`. Git wins.",
+        "Know-how: `docs/claude/SESSION_PLAYBOOK.md`; repin procedure: `docs/claude/REPIN_RUNBOOK.md`.",
         "",
     ]
     for title, lines in sections:

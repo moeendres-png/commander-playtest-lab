@@ -18,6 +18,8 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 | How is a Foundry workstream started? | `../.opencode/skills/workstream-bootstrap/SKILL.md` |
 | How do I resume an interrupted one? | `../.opencode/skills/continuation/SKILL.md` |
 | Which PRs / issues / branches are live? | `REPOSITORY_TRIAGE_INDEX.md` |
+| Where do I resume, and how is the engine pin moved? | `claude/state/HANDOFF.md` (generated continuation index, not authority), `claude/SESSION_PLAYBOOK.md`, `claude/REPIN_RUNBOOK.md` |
+| Where are the speed and determinism measurements? | `performance/` (start with `performance/DETERMINISM_PROBE.md`) |
 | What counts as PASS? | `AGENTS.md` §4 |
 
 ## Governing documents in this directory
@@ -37,6 +39,8 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 |---|---|
 | `foundry-execution/` | **Canonical** Foundry execution system. Start at its `README.md`. |
 | `architecture/` | Architecture decision records and design direction. |
+| `claude/` | Session playbook, repin runbook and the generated `state/HANDOFF.md` for a fresh Claude session. Tooling guidance, not policy. |
+| `performance/` | Dated measurements of speed and determinism (CI shards, efficiency offensive, determinism probe, repin v12 report). Read each file's own header for the pin and commit it was measured on. |
 | `archive/` | **Historical provenance only** (not current instruction): dated workstream packets, `J_P*` phase records, `NEXT_STEP_HANDOFF_*`, `PROJECT_UPDATE_*`. See `archive/README.md`. Includes `archive/legacy_phase_artifacts/` (Phase 2–9 reports). |
 | `project_integrity_20260928/` | Repository/PR/branch/ownership integrity records and dispositions. |
 | `project_integration_hygiene_20260927/` | Prior integration/hygiene workstream packets. Dated. |
