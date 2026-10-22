@@ -1,0 +1,131 @@
+{
+ "rogshai_RA": {
+  "deck": "rogshai",
+  "achse": "Manabasis",
+  "swaps": [
+   [
+    "Adarkar Wastes",
+    "Temple of Epiphany"
+   ],
+   [
+    "Prairie Stream",
+    "Restless Spire"
+   ],
+   [
+    "Skycloud Expanse",
+    "Swiftwater Cliffs"
+   ]
+  ],
+  "prefilter": "WARN (Ishai T4 play 0.589 -> 0.535)",
+  "nachweisgrenze": 0.125
+ },
+ "rogshai_RB": {
+  "deck": "rogshai",
+  "achse": "Schwaechste nicht reaktive, gleiche MV",
+  "swaps": [
+   [
+    "Mana Geyser",
+    "Pyromancer's Goggles"
+   ],
+   [
+    "Veyran, Voice of Duality",
+    "Rootha, Mercurial Artist"
+   ],
+   [
+    "Kediss, Emberclaw Familiar",
+    "Sram, Senior Edificer"
+   ]
+  ],
+  "prefilter": "WARN (R -1, alte Zaehlung; Wiederholung nach #968 offen)",
+  "nachweisgrenze": 0.125
+ },
+ "rogshai_RC": {
+  "deck": "rogshai",
+  "achse": "Kurve",
+  "swaps": [
+   [
+    "Furygale Flocking",
+    "Goldspan Dragon"
+   ],
+   [
+    "Dig Through Time",
+    "Jace's Ingenuity"
+   ],
+   [
+    "Mana Geyser",
+    "Izzet Signet"
+   ]
+  ],
+  "prefilter": "PASS_TO_GAMES",
+  "nachweisgrenze": 0.125
+ },
+ "chulane_CA": {
+  "deck": "chulane",
+  "achse": "Manabasis",
+  "swaps": [
+   [
+    "Mechanized Production",
+    "Simic Signet"
+   ],
+   [
+    "Noxious Newt",
+    "Azorius Signet"
+   ],
+   [
+    "Wilderness Reclamation",
+    "Talisman of Unity"
+   ],
+   [
+    "Azorius Chancery",
+    "Tranquil Cove"
+   ]
+  ],
+  "prefilter": "PASS_TO_GAMES",
+  "nachweisgrenze": 0.125
+ },
+ "chulane_CB": {
+  "deck": "chulane",
+  "achse": "Schwaechste nicht reaktive, gleiche MV",
+  "swaps": [
+   [
+    "Whirler Rogue",
+    "Solemn Simulacrum"
+   ],
+   [
+    "Adrix and Nev, Twincasters",
+    "Alandra, Sky Dreamer"
+   ],
+   [
+    "Wood Elves",
+    "Selvala, Explorer Returned"
+   ],
+   [
+    "Wilderness Reclamation",
+    "Teferi's Ageless Insight"
+   ]
+  ],
+  "prefilter": "PASS_TO_GAMES",
+  "nachweisgrenze": 0.125
+ },
+ "chulane_CC": {
+  "deck": "chulane",
+  "achse": "Kurve",
+  "swaps": [
+   [
+    "Rampaging Baloths",
+    "Augur of Autumn"
+   ],
+   [
+    "Aerial Extortionist",
+    "Morska, Undersea Sleuth"
+   ],
+   [
+    "Psychosis Crawler",
+    "Mischievous Mystic"
+   ]
+  ],
+  "prefilter": "PASS_TO_GAMES",
+  "nachweisgrenze": 0.125
+ },
+ "frei_status": "vorlaeufig (Chat-Sammlungsliste des Owners); Endpruefung gegen sammlung-2026-09-19-flach.txt ausstehend (Datei nicht angekommen)"
+}

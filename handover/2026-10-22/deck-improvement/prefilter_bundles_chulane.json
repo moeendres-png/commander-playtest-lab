@@ -1,0 +1,352 @@
+{
+  "baseline": {
+    "deck_id": "custom/chulane",
+    "name": "Chulane (Ist-Stand 2026-10-22)"
+  },
+  "detectable_win_share_difference": 0.125,
+  "games_per_hour": 120.0,
+  "planned_games": 800,
+  "planned_pairs_per_variant": 200,
+  "players": 4,
+  "rotate": true,
+  "seed": 20261016,
+  "seed_count": 50,
+  "time_hours": 6.7,
+  "trials": 20000,
+  "variants": [
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Azorius Signet"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Simic Signet"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Talisman of Unity"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Tranquil Cove"
+        }
+      ],
+      "baseline_deck_id": "custom/chulane",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 5.93,
+            "play": 6.24
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.019,
+              "4": 0.153,
+              "5": 0.45,
+              "6": 0.645
+            },
+            "play": {
+              "3": 0.012,
+              "4": 0.113,
+              "5": 0.36,
+              "6": 0.546
+            }
+          },
+          "expected_turn_delta": {
+            "draw": -0.13,
+            "play": -0.12
+          },
+          "name": "Chulane, Teller of Tales",
+          "probability_delta": {
+            "draw": {
+              "3": 0.01,
+              "4": 0.041,
+              "5": 0.031,
+              "6": 0.02
+            },
+            "play": {
+              "3": 0.006,
+              "4": 0.029,
+              "5": 0.031,
+              "6": 0.024
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 5.8,
+            "play": 6.12
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.029,
+              "4": 0.194,
+              "5": 0.481,
+              "6": 0.665
+            },
+            "play": {
+              "3": 0.018,
+              "4": 0.142,
+              "5": 0.391,
+              "6": 0.57
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {
+        "U": 1,
+        "W": 1
+      },
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": 1,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Azorius Chancery"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Mechanized Production"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Noxious Newt"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Wilderness Reclamation"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/chulane",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "PASS_TO_GAMES",
+      "verdict_reason": "no red flags in card diff, readiness, mana or castability. This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    },
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Alandra, Sky Dreamer"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Selvala, Explorer Returned"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Solemn Simulacrum"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Teferi's Ageless Insight"
+        }
+      ],
+      "baseline_deck_id": "custom/chulane",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 5.93,
+            "play": 6.24
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.019,
+              "4": 0.153,
+              "5": 0.45,
+              "6": 0.645
+            },
+            "play": {
+              "3": 0.012,
+              "4": 0.113,
+              "5": 0.36,
+              "6": 0.546
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.01,
+            "play": 0.01
+          },
+          "name": "Chulane, Teller of Tales",
+          "probability_delta": {
+            "draw": {
+              "3": -0.002,
+              "4": -0.004,
+              "5": -0.004,
+              "6": -0.005
+            },
+            "play": {
+              "3": -0.001,
+              "4": -0.005,
+              "5": -0.001,
+              "6": -0.001
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 5.94,
+            "play": 6.25
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.017,
+              "4": 0.149,
+              "5": 0.446,
+              "6": 0.64
+            },
+            "play": {
+              "3": 0.011,
+              "4": 0.108,
+              "5": 0.359,
+              "6": 0.545
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {},
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": 0,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Adrix and Nev, Twincasters"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Whirler Rogue"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Wilderness Reclamation"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Wood Elves"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/chulane",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "PASS_TO_GAMES",
+      "verdict_reason": "no red flags in card diff, readiness, mana or castability. This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    },
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Augur of Autumn"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Mischievous Mystic"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Morska, Undersea Sleuth"
+        }
+      ],
+      "baseline_deck_id": "custom/chulane",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 5.93,
+            "play": 6.24
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.019,
+              "4": 0.153,
+              "5": 0.45,
+              "6": 0.645
+            },
+            "play": {
+              "3": 0.012,
+              "4": 0.113,
+              "5": 0.36,
+              "6": 0.546
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Chulane, Teller of Tales",
+          "probability_delta": {
+            "draw": {
+              "3": -0.001,
+              "4": -0.004,
+              "5": -0.004,
+              "6": -0.003
+            },
+            "play": {
+              "3": -0.001,
+              "4": -0.007,
+              "5": -0.003,
+              "6": 0.002
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 5.93,
+            "play": 6.24
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.018,
+              "4": 0.149,
+              "5": 0.446,
+              "6": 0.642
+            },
+            "play": {
+              "3": 0.011,
+              "4": 0.106,
+              "5": 0.357,
+              "6": 0.548
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {},
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": 0,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Aerial Extortionist"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Psychosis Crawler"
+        },
+        {
+          "count": 1,
+          "oracle_name": "Rampaging Baloths"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/chulane",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "PASS_TO_GAMES",
+      "verdict_reason": "no red flags in card diff, readiness, mana or castability. This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    }
+  ]
+}
