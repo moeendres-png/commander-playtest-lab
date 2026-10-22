@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import random
+import re
 from collections import Counter
 from collections.abc import Mapping
 from typing import Any, Literal, cast
@@ -34,6 +35,20 @@ from .common import (
     FullGameProtocolError,
     _RuntimePilot,
 )
+
+# Crew and Saddle ask for one creature at a time and show the power chosen so far.
+_CREW_POWER_PROMPT = re.compile(r"\(selected power (?P<have>-?\d+) of (?P<need>\d+)\)")
+
+
+def _crews_by_toughness(item: Mapping[str, Any] | None) -> bool:
+    """Whether the permanent crews or saddles with its toughness (or extra power) instead."""
+    abilities = item.get("abilities") if item is not None else None
+    return isinstance(abilities, list) and any(
+        isinstance(text, str)
+        and ("crew" in text.casefold() or "saddle" in text.casefold())
+        and ("toughness" in text.casefold() or "power" in text.casefold())
+        for text in abilities
+    )
 
 
 class _PolicyState:
@@ -177,6 +192,10 @@ class _PolicyState:
         # re-announce the same unpayable value forever. Cleared on the seat's
         # next priority decision (a different action) like _priority_cost_facts.
         self._failed_x_announcements: dict[int, dict[str, int]] = {}
+        # An X announced as "(K counters to remove)" for a cast's own cost, per seat and the
+        # announcing source: the counter kind and how many. The cast keeps them until its cost
+        # takes them; cleared on the seat's next priority decision like the failed X.
+        self._reserved_counters: dict[int, dict[str, tuple[str, int]]] = {}
         # #732: names of the spells each seat itself cast recently, so the
         # pilot does not counter or target its own stack objects, and the
         # mana this seat's current payment still needs (for colour picks).
@@ -704,6 +723,50 @@ class _PolicyState:
                 continue
             kept.append(option)
         return kept if kept and len(kept) >= minimum else options
+
+    def _crew_selection(
+        self,
+        pilot_state: dict[str, object],
+        context: Mapping[str, object],
+        prompt: str,
+        options: list[dict[str, object]],
+        *,
+        minimum: int,
+    ) -> list[dict[str, object]] | None:
+        """The creatures that still help a Crew or Saddle payment; ``[]`` once it is paid.
+
+        The engine asks for one creature at a time ("Select another untapped creature you
+        control (selected power S of N)") and ends the payment when none is chosen. A creature
+        of power 0 or less adds nothing, and one of negative power takes from the total: the
+        pilot tapped everything in turn, so The Prydwen's Crew 2 (plan seed 30, pod 045) was
+        paid with Rex 0, Scribe -1, Sarah 2 and Madison Li 0, reached 1 and failed, although
+        Sarah alone had paid it. ``[]`` stops the payment at the power asked for; otherwise
+        only the creatures of power above zero stay, with the ones that crew by toughness.
+        ``None`` means the prompt is not that payment, or no creature would be left.
+        """
+        found = _CREW_POWER_PROMPT.search(prompt)
+        if found is None or str(context.get("outcome", "")).casefold() != "tap" or minimum > 0:
+            return None
+        if int(found.group("have")) >= int(found.group("need")):
+            return []
+        battlefield = self._actor(pilot_state).get("battlefield")
+        if not isinstance(battlefield, list):
+            return None
+        by_id = {
+            str(item.get("object_id", "")): item for item in battlefield if isinstance(item, dict)
+        }
+        kept = []
+        for option in options:
+            metadata = option.get("metadata")
+            item = (
+                by_id.get(str(metadata.get("object_id", "")))
+                if isinstance(metadata, dict)
+                else None
+            )
+            power = item.get("power") if item is not None else None
+            if not isinstance(power, int) or power > 0 or _crews_by_toughness(item):
+                kept.append(option)
+        return kept or None
 
     def _cheapest_object(self, options: list[dict[str, Any]]) -> str:
         def key(option: dict[str, Any]) -> tuple[float, str]:
