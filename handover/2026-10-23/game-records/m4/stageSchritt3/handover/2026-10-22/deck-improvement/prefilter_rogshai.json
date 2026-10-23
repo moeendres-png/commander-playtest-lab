@@ -1,0 +1,905 @@
+{
+  "baseline": {
+    "deck_id": "custom/rogshai",
+    "name": "RogShai (Ist-Stand 2026-10-22)"
+  },
+  "detectable_win_share_difference": 0.177,
+  "games_per_hour": 120.0,
+  "planned_games": 700,
+  "planned_pairs_per_variant": 100,
+  "players": 4,
+  "rotate": true,
+  "seed": 20261016,
+  "seed_count": 25,
+  "time_hours": 5.8,
+  "trials": 20000,
+  "variants": [
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Temple of Epiphany"
+        }
+      ],
+      "baseline_deck_id": "custom/rogshai",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 4.41,
+            "play": 4.73
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.314,
+              "4": 0.682,
+              "5": 0.789,
+              "6": 0.851
+            },
+            "play": {
+              "3": 0.245,
+              "4": 0.589,
+              "5": 0.715,
+              "6": 0.793
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "probability_delta": {
+            "draw": {
+              "3": 0.0,
+              "4": 0.001,
+              "5": 0.001,
+              "6": -0.002
+            },
+            "play": {
+              "3": -0.001,
+              "4": -0.001,
+              "5": -0.002,
+              "6": -0.001
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 4.41,
+            "play": 4.73
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.314,
+              "4": 0.683,
+              "5": 0.79,
+              "6": 0.849
+            },
+            "play": {
+              "3": 0.244,
+              "4": 0.588,
+              "5": 0.713,
+              "6": 0.792
+            }
+          }
+        },
+        {
+          "baseline_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Rograkh, Son of Rohgahh",
+          "probability_delta": {
+            "draw": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            },
+            "play": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {
+        "U": -1,
+        "W": -1
+      },
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": -1,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Irrigated Farmland"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/rogshai",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "WARN",
+      "verdict_reason": "color(s) lose mana source(s): U (-1), W (-1). This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    },
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Izzet Signet"
+        }
+      ],
+      "baseline_deck_id": "custom/rogshai",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 4.41,
+            "play": 4.73
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.314,
+              "4": 0.682,
+              "5": 0.789,
+              "6": 0.851
+            },
+            "play": {
+              "3": 0.245,
+              "4": 0.589,
+              "5": 0.715,
+              "6": 0.793
+            }
+          },
+          "expected_turn_delta": {
+            "draw": -0.09,
+            "play": -0.1
+          },
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "probability_delta": {
+            "draw": {
+              "3": 0.039,
+              "4": 0.023,
+              "5": 0.019,
+              "6": 0.015
+            },
+            "play": {
+              "3": 0.032,
+              "4": 0.022,
+              "5": 0.018,
+              "6": 0.018
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 4.32,
+            "play": 4.63
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.353,
+              "4": 0.705,
+              "5": 0.808,
+              "6": 0.866
+            },
+            "play": {
+              "3": 0.277,
+              "4": 0.611,
+              "5": 0.733,
+              "6": 0.811
+            }
+          }
+        },
+        {
+          "baseline_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Rograkh, Son of Rohgahh",
+          "probability_delta": {
+            "draw": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            },
+            "play": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {
+        "U": 1
+      },
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": 1,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Mana Geyser"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/rogshai",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "PASS_TO_GAMES",
+      "verdict_reason": "no red flags in card diff, readiness, mana or castability. This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    },
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Mana Leak"
+        }
+      ],
+      "baseline_deck_id": "custom/rogshai",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 4.41,
+            "play": 4.73
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.314,
+              "4": 0.682,
+              "5": 0.789,
+              "6": 0.851
+            },
+            "play": {
+              "3": 0.245,
+              "4": 0.589,
+              "5": 0.715,
+              "6": 0.793
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.02,
+            "play": 0.02
+          },
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "probability_delta": {
+            "draw": {
+              "3": -0.008,
+              "4": -0.001,
+              "5": 0.001,
+              "6": -0.001
+            },
+            "play": {
+              "3": -0.003,
+              "4": -0.006,
+              "5": -0.001,
+              "6": -0.001
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 4.43,
+            "play": 4.75
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.306,
+              "4": 0.681,
+              "5": 0.79,
+              "6": 0.85
+            },
+            "play": {
+              "3": 0.242,
+              "4": 0.583,
+              "5": 0.714,
+              "6": 0.792
+            }
+          }
+        },
+        {
+          "baseline_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Rograkh, Son of Rohgahh",
+          "probability_delta": {
+            "draw": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            },
+            "play": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {},
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": 0,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Counterspell"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/rogshai",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "PASS_TO_GAMES",
+      "verdict_reason": "no red flags in card diff, readiness, mana or castability. This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    },
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Make a Stand"
+        }
+      ],
+      "baseline_deck_id": "custom/rogshai",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 4.41,
+            "play": 4.73
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.314,
+              "4": 0.682,
+              "5": 0.789,
+              "6": 0.851
+            },
+            "play": {
+              "3": 0.245,
+              "4": 0.589,
+              "5": 0.715,
+              "6": 0.793
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.01,
+            "play": 0.0
+          },
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "probability_delta": {
+            "draw": {
+              "3": -0.001,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            },
+            "play": {
+              "3": -0.001,
+              "4": -0.001,
+              "5": -0.001,
+              "6": -0.002
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 4.42,
+            "play": 4.73
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.313,
+              "4": 0.682,
+              "5": 0.789,
+              "6": 0.851
+            },
+            "play": {
+              "3": 0.244,
+              "4": 0.588,
+              "5": 0.714,
+              "6": 0.791
+            }
+          }
+        },
+        {
+          "baseline_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Rograkh, Son of Rohgahh",
+          "probability_delta": {
+            "draw": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            },
+            "play": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {},
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": 0,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Winds of Rath"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/rogshai",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "PASS_TO_GAMES",
+      "verdict_reason": "no red flags in card diff, readiness, mana or castability. This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    },
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Rootborn Defenses"
+        }
+      ],
+      "baseline_deck_id": "custom/rogshai",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 4.41,
+            "play": 4.73
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.314,
+              "4": 0.682,
+              "5": 0.789,
+              "6": 0.851
+            },
+            "play": {
+              "3": 0.245,
+              "4": 0.589,
+              "5": 0.715,
+              "6": 0.793
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.02,
+            "play": 0.02
+          },
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "probability_delta": {
+            "draw": {
+              "3": -0.009,
+              "4": -0.004,
+              "5": -0.002,
+              "6": -0.003
+            },
+            "play": {
+              "3": -0.005,
+              "4": -0.006,
+              "5": -0.004,
+              "6": -0.003
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 4.43,
+            "play": 4.75
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.305,
+              "4": 0.678,
+              "5": 0.787,
+              "6": 0.848
+            },
+            "play": {
+              "3": 0.24,
+              "4": 0.583,
+              "5": 0.711,
+              "6": 0.79
+            }
+          }
+        },
+        {
+          "baseline_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Rograkh, Son of Rohgahh",
+          "probability_delta": {
+            "draw": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            },
+            "play": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {},
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 0,
+      "flexible_source_delta": 0,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Chain Reaction"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {},
+      "trials": 20000,
+      "variant_deck_id": "custom/rogshai",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "PASS_TO_GAMES",
+      "verdict_reason": "no red flags in card diff, readiness, mana or castability. This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    },
+    {
+      "added": [
+        {
+          "count": 1,
+          "oracle_name": "Restless Spire"
+        }
+      ],
+      "baseline_deck_id": "custom/rogshai",
+      "baseline_not_ready_cards": [],
+      "baseline_ready": true,
+      "castability": [
+        {
+          "baseline_expected_turn": {
+            "draw": 4.41,
+            "play": 4.73
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 0.314,
+              "4": 0.682,
+              "5": 0.789,
+              "6": 0.851
+            },
+            "play": {
+              "3": 0.245,
+              "4": 0.589,
+              "5": 0.715,
+              "6": 0.793
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.05,
+            "play": 0.05
+          },
+          "name": "Ishai, Ojutai Dragonspeaker",
+          "probability_delta": {
+            "draw": {
+              "3": -0.019,
+              "4": -0.021,
+              "5": -0.007,
+              "6": -0.005
+            },
+            "play": {
+              "3": -0.014,
+              "4": -0.02,
+              "5": -0.01,
+              "6": -0.008
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 4.46,
+            "play": 4.78
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 0.295,
+              "4": 0.661,
+              "5": 0.782,
+              "6": 0.846
+            },
+            "play": {
+              "3": 0.231,
+              "4": 0.569,
+              "5": 0.705,
+              "6": 0.785
+            }
+          }
+        },
+        {
+          "baseline_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "baseline_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          },
+          "expected_turn_delta": {
+            "draw": 0.0,
+            "play": 0.0
+          },
+          "name": "Rograkh, Son of Rohgahh",
+          "probability_delta": {
+            "draw": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            },
+            "play": {
+              "3": 0.0,
+              "4": 0.0,
+              "5": 0.0,
+              "6": 0.0
+            }
+          },
+          "variant_expected_turn": {
+            "draw": 1.0,
+            "play": 1.0
+          },
+          "variant_probability": {
+            "draw": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            },
+            "play": {
+              "3": 1.0,
+              "4": 1.0,
+              "5": 1.0,
+              "6": 1.0
+            }
+          }
+        }
+      ],
+      "colored_source_delta": {
+        "U": -1,
+        "W": -1
+      },
+      "conditionally_tapped_land_delta": 0,
+      "definitely_tapped_land_delta": 1,
+      "flexible_source_delta": -1,
+      "land_count_delta": 0,
+      "removed": [
+        {
+          "count": 1,
+          "oracle_name": "Adarkar Wastes"
+        }
+      ],
+      "seed": 20261016,
+      "t1_untapped_source_delta": {
+        "U": -1,
+        "W": -1
+      },
+      "trials": 20000,
+      "variant_deck_id": "custom/rogshai",
+      "variant_not_ready_cards": [],
+      "variant_ready": true,
+      "verdict": "WARN",
+      "verdict_reason": "color(s) lose mana source(s): U (-1), W (-1). This verdict is a prefilter: go/no-go screening before real games, not a ranking of deck variants."
+    }
+  ]
+}

@@ -1,0 +1,596 @@
+{
+ "deck_id": "custom/chulane",
+ "name": "Chulane (Ist-Stand 2026-10-22)",
+ "commander": {
+  "commanders": [
+   "Chulane, Teller of Tales"
+  ],
+  "uses_partner": false,
+  "commander_identity_override": null
+ },
+ "cards": [
+  {
+   "oracle_name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "zone": "commander",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Academy Manufactor",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Aerial Extortionist",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Aether Adept",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Angel of Finality",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Arcane Denial",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Arcane Signet",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Arbor Elf",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Azorius Chancery",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Bennie Bracks, Zoologist",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Brazen Borrower",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Canopy Vista",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Cloudblazer",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Command Tower",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Crop Rotation",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Detective of the Month",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Environmental Scientist",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Erdwal Illuminator",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Ethereal Investigator",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Evolving Wilds",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Exotic Orchard",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Fabled Passage",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Farewell",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Felidar Retreat",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Fellwar Stone",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Fleetfoot Panther",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Fumigate",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Helpful Hunter",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Horizon Explorer",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Killer Service",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Koma, Cosmos Serpent",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Kor Skyfisher",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Lightning Greaves",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Llanowar Elves",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Lonis, Cryptozoologist",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Loran of the Third Path",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Mechanized Production",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Nature's Lore",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Negate",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Noxious Newt",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Open the Armory",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Oracle of Mul Daya",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Path of Ancestry",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Prairie Stream",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Psychosis Crawler",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Rampaging Baloths",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Seaside Citadel",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Serene Sleuth",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Shattered Acolyte",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Shimmer Dragon",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Shrieking Drake",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Silence",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Simic Growth Chamber",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Sol Ring",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Spectral Sailor",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Springbloom Druid",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Studious First-Year",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Sungrass Prairie",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Swiftfoot Boots",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Swords to Plowshares",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Talisman of Curiosity",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Tangletrove Kelp",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Temple of Enlightenment",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Temple of Mystery",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Temple of Plenty",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Terramorphic Expanse",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Tezzeret, Betrayer of Flesh",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Tireless Provisioner",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Tireless Tracker",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Tyvar's Stand",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Veil of Summer",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Voracious Greatshark",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Wavesifter",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Forest",
+   "quantity": 8,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Island",
+   "quantity": 8,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Plains",
+   "quantity": 4,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": null
+  },
+  {
+   "oracle_name": "Solemn Simulacrum",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": "M4-Buendel chulane_CB: ersetzt Whirler Rogue"
+  },
+  {
+   "oracle_name": "Alandra, Sky Dreamer",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": "M4-Buendel chulane_CB: ersetzt Adrix and Nev, Twincasters"
+  },
+  {
+   "oracle_name": "Selvala, Explorer Returned",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": "M4-Buendel chulane_CB: ersetzt Wood Elves"
+  },
+  {
+   "oracle_name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "zone": "main",
+   "physical_copy_ids": [],
+   "notes": "M4-Buendel chulane_CB: ersetzt Wilderness Reclamation"
+  }
+ ],
+ "source": "user_import",
+ "total_cards": 100
+}

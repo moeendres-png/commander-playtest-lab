@@ -1,0 +1,415 @@
+{
+ "games": 100,
+ "rows": [
+  {
+   "card": "Negate",
+   "cast_games": 5,
+   "offered_games": 20
+  },
+  {
+   "card": "Whirler Rogue",
+   "cast_games": 7,
+   "offered_games": 23
+  },
+  {
+   "card": "Adrix and Nev, Twincasters",
+   "cast_games": 10,
+   "offered_games": 24
+  },
+  {
+   "card": "Wood Elves",
+   "cast_games": 11,
+   "offered_games": 27
+  },
+  {
+   "card": "Arcane Denial",
+   "cast_games": 11,
+   "offered_games": 28
+  },
+  {
+   "card": "Fumigate",
+   "cast_games": 12,
+   "offered_games": 24
+  },
+  {
+   "card": "Wilderness Reclamation",
+   "cast_games": 12,
+   "offered_games": 31
+  },
+  {
+   "card": "Farewell",
+   "cast_games": 14,
+   "offered_games": 16
+  },
+  {
+   "card": "Command Tower",
+   "cast_games": 14,
+   "offered_games": 21
+  },
+  {
+   "card": "Fabled Passage",
+   "cast_games": 14,
+   "offered_games": 22
+  },
+  {
+   "card": "Mechanized Production",
+   "cast_games": 14,
+   "offered_games": 30
+  },
+  {
+   "card": "Noxious Newt",
+   "cast_games": 14,
+   "offered_games": 31
+  },
+  {
+   "card": "Shrieking Drake",
+   "cast_games": 17,
+   "offered_games": 20
+  },
+  {
+   "card": "Cloudblazer",
+   "cast_games": 17,
+   "offered_games": 26
+  },
+  {
+   "card": "Rampaging Baloths",
+   "cast_games": 18,
+   "offered_games": 22
+  },
+  {
+   "card": "Temple of Mystery",
+   "cast_games": 18,
+   "offered_games": 22
+  },
+  {
+   "card": "Studious First-Year",
+   "cast_games": 18,
+   "offered_games": 24
+  },
+  {
+   "card": "Open the Armory",
+   "cast_games": 18,
+   "offered_games": 25
+  },
+  {
+   "card": "Kor Skyfisher",
+   "cast_games": 18,
+   "offered_games": 30
+  },
+  {
+   "card": "Selesnya Sanctuary",
+   "cast_games": 19,
+   "offered_games": 21
+  },
+  {
+   "card": "Tezzeret, Betrayer of Flesh",
+   "cast_games": 19,
+   "offered_games": 21
+  },
+  {
+   "card": "Canopy Vista",
+   "cast_games": 19,
+   "offered_games": 24
+  },
+  {
+   "card": "Angel of Finality",
+   "cast_games": 19,
+   "offered_games": 25
+  },
+  {
+   "card": "Aether Adept",
+   "cast_games": 19,
+   "offered_games": 30
+  },
+  {
+   "card": "Felidar Retreat",
+   "cast_games": 19,
+   "offered_games": 33
+  },
+  {
+   "card": "Wavesifter",
+   "cast_games": 20,
+   "offered_games": 27
+  },
+  {
+   "card": "Evolving Wilds",
+   "cast_games": 20,
+   "offered_games": 29
+  },
+  {
+   "card": "Azorius Chancery",
+   "cast_games": 20,
+   "offered_games": 30
+  },
+  {
+   "card": "Oracle of Mul Daya",
+   "cast_games": 21,
+   "offered_games": 25
+  },
+  {
+   "card": "Tangletrove Kelp",
+   "cast_games": 21,
+   "offered_games": 26
+  },
+  {
+   "card": "Shattered Acolyte",
+   "cast_games": 21,
+   "offered_games": 27
+  },
+  {
+   "card": "Shimmer Dragon",
+   "cast_games": 22,
+   "offered_games": 22
+  },
+  {
+   "card": "Erdwal Illuminator",
+   "cast_games": 22,
+   "offered_games": 26
+  },
+  {
+   "card": "Tatyova, Benthic Druid",
+   "cast_games": 22,
+   "offered_games": 27
+  },
+  {
+   "card": "Horizon Explorer",
+   "cast_games": 22,
+   "offered_games": 28
+  },
+  {
+   "card": "Sakura-Tribe Elder",
+   "cast_games": 22,
+   "offered_games": 31
+  },
+  {
+   "card": "Lonis, Cryptozoologist",
+   "cast_games": 22,
+   "offered_games": 33
+  },
+  {
+   "card": "Exotic Orchard",
+   "cast_games": 22,
+   "offered_games": 34
+  },
+  {
+   "card": "Tireless Provisioner",
+   "cast_games": 23,
+   "offered_games": 24
+  },
+  {
+   "card": "Temple of Plenty",
+   "cast_games": 23,
+   "offered_games": 25
+  },
+  {
+   "card": "Arbor Elf",
+   "cast_games": 23,
+   "offered_games": 26
+  },
+  {
+   "card": "Springbloom Druid",
+   "cast_games": 23,
+   "offered_games": 28
+  },
+  {
+   "card": "Sol Ring",
+   "cast_games": 24,
+   "offered_games": 25
+  },
+  {
+   "card": "Ethereal Investigator",
+   "cast_games": 24,
+   "offered_games": 29
+  },
+  {
+   "card": "Killer Service",
+   "cast_games": 24,
+   "offered_games": 35
+  },
+  {
+   "card": "Arcane Signet",
+   "cast_games": 24,
+   "offered_games": 38
+  },
+  {
+   "card": "Koma, Cosmos Serpent",
+   "cast_games": 25,
+   "offered_games": 26
+  },
+  {
+   "card": "Loran of the Third Path",
+   "cast_games": 25,
+   "offered_games": 29
+  },
+  {
+   "card": "Aerial Extortionist",
+   "cast_games": 25,
+   "offered_games": 30
+  },
+  {
+   "card": "Environmental Scientist",
+   "cast_games": 25,
+   "offered_games": 33
+  },
+  {
+   "card": "Nature's Lore",
+   "cast_games": 25,
+   "offered_games": 36
+  },
+  {
+   "card": "Talisman of Curiosity",
+   "cast_games": 25,
+   "offered_games": 41
+  },
+  {
+   "card": "Swords to Plowshares",
+   "cast_games": 26,
+   "offered_games": 26
+  },
+  {
+   "card": "Prairie Stream",
+   "cast_games": 26,
+   "offered_games": 27
+  },
+  {
+   "card": "Temple of Enlightenment",
+   "cast_games": 26,
+   "offered_games": 27
+  },
+  {
+   "card": "Simic Growth Chamber",
+   "cast_games": 26,
+   "offered_games": 29
+  },
+  {
+   "card": "Detective of the Month",
+   "cast_games": 26,
+   "offered_games": 30
+  },
+  {
+   "card": "Voracious Greatshark",
+   "cast_games": 27,
+   "offered_games": 27
+  },
+  {
+   "card": "Sungrass Prairie",
+   "cast_games": 27,
+   "offered_games": 28
+  },
+  {
+   "card": "Fellwar Stone",
+   "cast_games": 27,
+   "offered_games": 34
+  },
+  {
+   "card": "Psychosis Crawler",
+   "cast_games": 28,
+   "offered_games": 33
+  },
+  {
+   "card": "Terramorphic Expanse",
+   "cast_games": 29,
+   "offered_games": 30
+  },
+  {
+   "card": "Bennie Bracks, Zoologist",
+   "cast_games": 30,
+   "offered_games": 30
+  },
+  {
+   "card": "Brazen Borrower",
+   "cast_games": 30,
+   "offered_games": 30
+  },
+  {
+   "card": "Tireless Tracker",
+   "cast_games": 30,
+   "offered_games": 31
+  },
+  {
+   "card": "Helpful Hunter",
+   "cast_games": 30,
+   "offered_games": 33
+  },
+  {
+   "card": "Path of Ancestry",
+   "cast_games": 30,
+   "offered_games": 34
+  },
+  {
+   "card": "Crop Rotation",
+   "cast_games": 31,
+   "offered_games": 31
+  },
+  {
+   "card": "Academy Manufactor",
+   "cast_games": 31,
+   "offered_games": 36
+  },
+  {
+   "card": "Lightning Greaves",
+   "cast_games": 32,
+   "offered_games": 33
+  },
+  {
+   "card": "Llanowar Elves",
+   "cast_games": 32,
+   "offered_games": 35
+  },
+  {
+   "card": "Tyvar's Stand",
+   "cast_games": 33,
+   "offered_games": 33
+  },
+  {
+   "card": "Spectral Sailor",
+   "cast_games": 34,
+   "offered_games": 34
+  },
+  {
+   "card": "Veil of Summer",
+   "cast_games": 34,
+   "offered_games": 34
+  },
+  {
+   "card": "Fleetfoot Panther",
+   "cast_games": 36,
+   "offered_games": 36
+  },
+  {
+   "card": "Serene Sleuth",
+   "cast_games": 38,
+   "offered_games": 40
+  },
+  {
+   "card": "Swiftfoot Boots",
+   "cast_games": 38,
+   "offered_games": 40
+  },
+  {
+   "card": "Seaside Citadel",
+   "cast_games": 39,
+   "offered_games": 40
+  },
+  {
+   "card": "Silence",
+   "cast_games": 41,
+   "offered_games": 41
+  },
+  {
+   "card": "Plains",
+   "cast_games": 78,
+   "offered_games": 82
+  },
+  {
+   "card": "Forest",
+   "cast_games": 84,
+   "offered_games": 86
+  },
+  {
+   "card": "Island",
+   "cast_games": 89,
+   "offered_games": 92
+  }
+ ]
+}
