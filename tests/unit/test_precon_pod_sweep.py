@@ -90,6 +90,7 @@ def test_the_summary_counts_failures_by_family() -> None:
         "pods_ok": 1,
         "pods_failed": 2,
         "pods_with_synthetic_decks": 0,
+        "pods_failed_with_synthetic_decks": 0,
         "families": {"COST_FAILED": 2},
     }
 
@@ -114,3 +115,37 @@ def test_pods_are_chunked_consecutively_per_bridge_jvm() -> None:
     assert chunk(5, 2, reverse=True) == [[4, 3], [2, 1], [0]]
     with pytest.raises(ValueError):
         chunk(3, 0)
+
+
+def test_the_summary_counts_pods_with_a_proxy_and_how_they_ended() -> None:
+    pods = [
+        {"status": "ok", "synthetic_decks": []},
+        {"status": "ok", "synthetic_decks": ["b"]},
+        {"status": "failed", "error": "X: boom", "synthetic_decks": ["b", "a"]},
+        {"status": "ok"},
+    ]
+    summary = _module().summarize(pods)
+    assert summary["pods_with_synthetic_decks"] == 2
+    assert summary["pods_failed_with_synthetic_decks"] == 1
+
+
+def test_a_proxy_and_the_original_it_stands_in_for_are_never_both_selected(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # without an import report every precon is selected, including the 13 the engine cannot
+    # import: their proxies would then sit next to the originals
+    code = _module().main(
+        ["--jar", "x.jar", "--out", str(tmp_path / "o.json"), "--synthetic-proxies"]
+    )
+    assert code == 2
+    assert "an original and its proxy are both selected" in capsys.readouterr().err
+
+
+def test_the_committed_proxy_decks_are_read_as_synthetic_and_the_originals_as_real() -> None:
+    module = _module()
+    proxies = {p.stem: p for p in module.PROXY_DIR.glob("*.json")}
+    assert len(proxies) == 13
+    labels = module.provenance_by_path(proxies)
+    assert set(labels.values()) == {module.SYNTHETIC}
+    real = {p.stem: p for p in sorted(module.PRECON_DIR.glob("*.json"))[:20]}
+    assert set(module.provenance_by_path(real).values()) == {"REAL"}

@@ -16,6 +16,10 @@ the shuffled list. A pod always seats four decks: the full-game scenario is a fo
     python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json \\
         --deck-dir data/decks/custom
 
+    # the 182 real precons plus the 13 SYNTHETIC proxies of the decks the engine cannot import
+    python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json \\
+        --import-report imports.json --synthetic-proxies
+
 A failed pod is a result row, not a crash. The game is played by ``benchmark_xmage_full_games``
 (same pilots, private card repository, bridge command). Local runs are measurements, not
 qualification evidence; only one sweep should run at a time, because CPU contention turns slow
@@ -45,9 +49,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from precon_provenance import SYNTHETIC, count_by_provenance, provenance_by_stem  # noqa: E402
+from precon_provenance import SYNTHETIC, count_by_provenance, provenance_by_path  # noqa: E402
 
 PRECON_DIR = ROOT / "data/decks/precons"
+PROXY_DIR = ROOT / "data/decks/precon_variants"
 POD_SIZE = 4
 _FAMILY = re.compile(r"\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b")
 _CODE_LIST = re.compile(r"\[([A-Z][A-Z0-9_]*(?:, [A-Z][A-Z0-9_]*)*)\]")
@@ -113,6 +118,9 @@ def summarize(pods: Sequence[dict[str, Any]]) -> dict[str, Any]:
         "pods_ok": ok,
         "pods_failed": len(pods) - ok,
         "pods_with_synthetic_decks": sum(1 for p in pods if p.get("synthetic_decks")),
+        "pods_failed_with_synthetic_decks": sum(
+            1 for p in pods if p.get("synthetic_decks") and p["status"] != "ok"
+        ),
         "families": dict(families),
     }
 
@@ -130,8 +138,15 @@ def run(args: argparse.Namespace) -> int:
         names = importable_decks(args.import_report)
     else:
         names = sorted(p.stem for p in deck_dir.glob("*.json"))
-    provenance = provenance_by_stem(deck_dir, names)
-    pods = plan_pods(names, POD_SIZE, args.plan_seed)
+    deck_files = {name: deck_dir / f"{name}.json" for name in names}
+    if args.synthetic_proxies:
+        for path in sorted(PROXY_DIR.glob("*.json")):
+            if path.stem in deck_files:
+                print(f"{path.stem}: an original and its proxy are both selected", file=sys.stderr)
+                return 2
+            deck_files[path.stem] = path
+    provenance = provenance_by_path(deck_files)
+    pods = plan_pods(sorted(deck_files), POD_SIZE, args.plan_seed)
     if args.limit:
         pods = pods[: args.limit]
     jvm_options = list(args.jvm_option)
@@ -141,8 +156,7 @@ def run(args: argparse.Namespace) -> int:
         jvm_options.append(f"-D{bench.GAMES_PER_JVM_PROPERTY}={args.games_per_jvm}")
     command = bench.bridge_command(args.jar, jvm_options)
     setups = [
-        bench._setup(tuple((deck_dir / f"{name}.json").relative_to(ROOT) for name in decks))
-        for decks in pods
+        bench._setup(tuple(deck_files[name].relative_to(ROOT) for name in decks)) for decks in pods
     ]
     rows: list[dict[str, Any]] = []
     lock = threading.Lock()
@@ -182,6 +196,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--import-report", type=Path, default=None)
     parser.add_argument("--deck-dir", type=Path, default=PRECON_DIR)
+    parser.add_argument(
+        "--synthetic-proxies",
+        action="store_true",
+        help="add the SYNTHETIC proxy decks of data/decks/precon_variants (use with "
+        "--import-report, which leaves out the decks they stand in for)",
+    )
     parser.add_argument("--plan-seed", type=int, default=1, help="shuffle seed of the pod plan")
     parser.add_argument("--game-seed", type=int, default=1, help="Rules seed of every game")
     parser.add_argument("--workers", type=int, default=2)

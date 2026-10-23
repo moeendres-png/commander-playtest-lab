@@ -1,6 +1,6 @@
 {
-  "deck_id": "precon-variant/2023/masters_of_evil",
-  "name": "Masters of Evil (variant, replacement cards)",
+  "deck_id": "precon-synthetic/2023/masters_of_evil",
+  "name": "Masters of Evil (SYNTHETIC proxy)",
   "commander": {
     "commanders": [
       "Davros, Dalek Creator"
@@ -21,7 +21,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Missy, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Missy, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Auton Soldier",
@@ -42,7 +42,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Cyber Conversion, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Cyber Conversion, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Hunted by The Family",
@@ -77,7 +77,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Doomsday Confluence, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Doomsday Confluence, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "The Toymaker's Trap",
@@ -112,7 +112,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Death in Heaven, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Death in Heaven, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Delete",
@@ -154,7 +154,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Rassilon, the War President, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Rassilon, the War President, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "The Master, Gallifrey's End",
@@ -203,7 +203,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces The Cyber-Controller, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces The Cyber-Controller, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Cult of Skaro",
@@ -252,7 +252,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Cybership, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Cybership, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Wound Reflection",
@@ -462,7 +462,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Don't Blink, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Don't Blink, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Exterminate!",
@@ -713,5 +713,10 @@
   "source": "MTGJSON",
   "release_date": "2023-10-13",
   "mtgjson_file": "MastersOfEvil_WHO",
-  "format": "commander"
+  "format": "commander",
+  "tags": [
+    "SYNTHETIC",
+    "precon-proxy"
+  ],
+  "notes": "SYNTHETIC proxy of precon/2023/masters_of_evil: cards the engine does not know at the pin are replaced by real engine cards. Not the printed precon: no rules evidence, no qualification evidence, never ranked next to real decks without the label (data/decks/precon_synthetic_proxies.json)."
 }

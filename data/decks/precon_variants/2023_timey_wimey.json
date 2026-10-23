@@ -1,6 +1,6 @@
 {
-  "deck_id": "precon-variant/2023/timey_wimey",
-  "name": "Timey-Wimey (variant, replacement cards)",
+  "deck_id": "precon-synthetic/2023/timey_wimey",
+  "name": "Timey-Wimey (SYNTHETIC proxy)",
   "commander": {
     "commanders": [
       "The Tenth Doctor",
@@ -57,7 +57,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces The Pandorica, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces The Pandorica, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "The Wedding of River Song",
@@ -211,7 +211,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces The War Doctor, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces The War Doctor, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Regenerations Restored",
@@ -281,7 +281,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces The Moment, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces The Moment, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Trenzalore Clocktower",
@@ -512,7 +512,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Psychic Paper, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Psychic Paper, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "TARDIS",
@@ -693,5 +693,10 @@
   "source": "MTGJSON",
   "release_date": "2023-10-13",
   "mtgjson_file": "TimeyWimey_WHO",
-  "format": "commander"
+  "format": "commander",
+  "tags": [
+    "SYNTHETIC",
+    "precon-proxy"
+  ],
+  "notes": "SYNTHETIC proxy of precon/2023/timey_wimey: cards the engine does not know at the pin are replaced by real engine cards. Not the printed precon: no rules evidence, no qualification evidence, never ranked next to real decks without the label (data/decks/precon_synthetic_proxies.json)."
 }
