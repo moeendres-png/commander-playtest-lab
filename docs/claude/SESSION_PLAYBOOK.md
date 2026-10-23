@@ -1,8 +1,9 @@
 # Claude session playbook (Commander Playtest Lab)
 
 Operational know-how for a fresh Claude Code session working on this repository and its
-engine forks (`moeendres-png/mage`, `moeendres-png/forge`). It is tooling guidance only:
+engine fork (`moeendres-png/mage`; Forge was removed on 2026-10-13). It is tooling guidance only:
 `AGENTS.md` stays the policy source, and current lane state lives in the GitHub issues, never here.
+Moving the engine pin has its own procedure: `docs/claude/REPIN_RUNBOOK.md`.
 
 ## First ten minutes
 
@@ -17,6 +18,10 @@ engine forks (`moeendres-png/mage`, `moeendres-png/forge`). It is tooling guidan
    every lane (PRs, `/oc` and `/assure` runs, PB-03, newest sealed epoch).
 3. The SessionStart hook has built `~/.cache/commander-lab-venv` (CI's hash-pinned lock plus an
    editable install) and put it first on `PATH`.
+   - If the hook did not run (a bare container), build one by hand:
+     `python3 -m venv <dir> && <dir>/bin/pip install --require-hashes -r requirements/lock.txt`
+     (1 to 2 minutes), then call `<dir>/bin/python -m pytest …`. A bare `pytest` on `PATH` can
+     belong to another interpreter.
    - In a git worktree, run tests with `PYTHONPATH=$PWD/src` so the worktree's sources win.
    - Delete `src/*.egg-info` if an editable install recreates it. The PB-03 trigger-completeness
      tests count it as an unlisted input.
@@ -55,13 +60,39 @@ engine forks (`moeendres-png/mage`, `moeendres-png/forge`). It is tooling guidan
   - Fix the producer at its source; never add exclusions for evidence values.
   - Example: #550 renamed `keyed_digest` to `hmac_sha256` after gitleaks flagged 88 digests.
 - **PB-03 dispatch:** PB-03 has no push trigger. Dispatch `pb03-runtime-qualification.yml` on
-  `main` and wait with `gh_ops.py run RUN_ID` in the background (about 60 minutes).
+  `main` and wait with `gh_ops.py run RUN_ID` in the background (the two repin v12 runs took
+  32 and 21 minutes). A `workflow_dispatch` run does not wake a session by itself; a subscribed
+  pull request does.
 - **Non-claims:** UNKNOWN is never PASS, LOCAL_OBSERVED is never credit.
 - **Current status:** ARCHITECTURE_FREEZE = CLAIMED (2026-10-10, Owner-signed),
   PRODUCTION_PROVIDER = XMAGE; the machine-readable status is config/rules_engines.json
   (architecture_freeze, provider_decision) and AGENTS.md section 1.
 
-## Engine forks (Mage C12, Forge D17)
+## Container and tooling pitfalls
+
+- **Commit before running tests.** Tests that build a wheel from the commit
+  (`tests/unit/test_packaging_smoke.py`) fail with `wheel_file_differs_from_source` on
+  uncommitted edits.
+- **`artifacts/` is tracked.** Delete only `artifacts/security/` (output of
+  `scripts/run_broad_secret_scan.py`), never the whole directory; `git checkout -- artifacts`
+  restores a mistake. Remove `pytest-shard-*.log` from the repository root before committing.
+- **Very long lines.** `config/rules_engines.json` has lines of more than 12 000 characters
+  (the `known_stale_pointers` paragraph). Never grep it broadly: read or replace keys with
+  Python, and anchor a replacement on the last occurrence (`rindex`), because paragraph
+  anchors repeat. Large MCP results (job logs) arrive as a file; query it with Python.
+- **`gh auth status` can report an invalid token** while the lab-ops scripts (`gh_ops.py`,
+  `seal.py`, `pb03_packet.py`) work through the agent proxy. Trust the scripts. MCP servers
+  disconnect now and then and come back; reload the tools afterwards.
+- **Waiting.** No foreground `sleep`. Start long jobs in the background with a marker file
+  and wait on the marker. A container restart kills background jobs; files under the scratch
+  directory and the shared project folder survive, so long measurements run in parts with
+  result files.
+- **Measuring.** Compare speed only interleaved (ABBA, cold first run not counted), prefer CPU
+  time to wall time, and keep a long sweep in a fixed worktree (see the repin runbook).
+  `scripts/determinism_probe.py locate` stops at the first deviating run, so "two hashes" is
+  not a frequency.
+
+## Engine fork (Mage C12)
 
 - **JDK version for local runs.** The trusted-qualification containment is a SecurityManager.
   - JDK 18+ refuses it unless `-Djava.security.manager=allow` is passed, and CI pins Java 17.
@@ -89,7 +120,7 @@ Use this decision order for each new unit of work:
    test commands when they can answer the question without model judgement.
 2. **Execution → DeepSeek V4.1 Flash MAX.** Implementation, bugfixes, debugging, CI repair, test/fix
    loops, qualification execution, evidence production, deterministic tooling, multi-file
-   refactors and long Forge/Mage/Lab campaigns go to `/oc`, which runs DeepSeek V4.1 Flash
+   refactors and long Mage/Lab campaigns go to `/oc`, which runs DeepSeek V4.1 Flash
    (`opencode/deepseek-v4.1-flash-free`, native `max`) since 2026-10-16. `/assure` (verifier) and
    `/ro-review` (read-only reviewer) run the same model with other agents. Write each
    dispatch per `docs/foundry-execution/EXECUTOR_PROMPTING.md`.

@@ -94,7 +94,9 @@ About 100 files. Referenced by CI workflows (`.github/workflows/`, 24 files) or 
 | `verify_packaging_smoke.py`, `verify_container_provenance.py`, `verify_engine.sh`, `run_broad_secret_scan.py`, `security_evidence.py` | Packaging, provenance, engine and security checks |
 | `bootstrap_engine_*.sh`, `start_engine.sh`, `stop_engine.sh`, `docker_*` | Engine setup and lifecycle |
 | `run_isolated_pytest_suite.py`, `audit_workflow_impact.py` | Test isolation and workflow-impact auditing |
-| `claude_handoff.py` | Regenerates `docs/claude/state/HANDOFF.md` |
+| `determinism_probe.py`, `precon_pod_sweep.py`, `benchmark_xmage_full_games.py`, `measure_precon_imports.py`, `pilot_decision_report.py` | Real-game measurement: determinism, precon pod sweeps, speed and identity benchmarks, import coverage, pilot decision reports (`docs/performance/`) |
+| `regenerate_hash_manifests.py` | Rebuilds `qualification/SHA256SUMS` and `WS17_SHA256SUMS` (run after every change under `qualification/`) |
+| `claude_handoff.py` | Regenerates `docs/claude/state/HANDOFF.md` (engine pin and newest sealed epoch from `config/rules_engines.json`, open lanes, heads) |
 
 Likely historical (not referenced by workflows; guess from names): `run_external_b3/b4*_regression.py`,
 `run_j_p4_*`, `run_j_p5_*`, `run_j_p6_*`, `run_phase8_validation.py`. Note some `run_external_b4*`
@@ -117,8 +119,9 @@ Current / governing (start here):
   `docs/README.md`, `docs/REPOSITORY_TRIAGE_INDEX.md`, `docs/EVIDENCE_INDEX_REQUIREMENTS.md`,
   `docs/RETENTION_AND_LIFECYCLE_POLICY.md`, `docs/OPERATIONAL_SIMULATION_POLICY.md`.
 - `docs/foundry-execution/` - canonical Foundry execution system (start at its `README.md`).
-- `docs/claude/` - session playbook; `docs/claude/state/HANDOFF.md` is a continuation index only
-  (git, tests and sealed evidence remain source truth).
+- `docs/claude/` - session playbook and repin runbook; `docs/claude/state/HANDOFF.md` is a
+  continuation index only (git, tests and sealed evidence remain source truth).
+- `docs/performance/` - dated speed and determinism measurements; each file's header names the pin and commit.
 - `docs/architecture/` and `docs/architecture.md` - design direction; `docs/engine_*.md`,
   `docs/rules-engine-bridge-protocol.md`, `docs/validation_levels.md`, `docs/installation.md`,
   `docs/known_limitations.md` - reference/how-to (guess: current, check dates).
