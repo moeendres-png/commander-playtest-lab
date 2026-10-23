@@ -47,7 +47,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XMAGE_COMMIT: 4da83f6267907798e5527c3e5f8a0bd3579ff993
+  XMAGE_COMMIT: 90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e
   PYTHONHASHSEED: "0"
   COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD: >-
     java -jar ${{ github.workspace }}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game
