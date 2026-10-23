@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-precon-commander-cards-repin-v13-20261023",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head of the fork branch cards/precon-commander-decks (moeendres-png/mage, draft PR #71): the v12 pin 4da83f62 plus two commits that build ten Commander precon cards for real, each with Mage.Tests cases: Winter, Cynical Opportunist; Zinnia, Valley's Voice; Aminatou, Veil Piercer; Jace, Multiverse Architect; Dack Fayden, Helping Hand; Jhoira, Weatherlight Corsair; Tamiyo, Upriser Crowned; Teferi's Reproach; The Ur-Sphinx; Venser, Fervent Forger (Lab #979). The pin adds ten card classes, one test file per card (32 cases) and the SetCardInfo lines of three Commander sets; it changes no engine class, no dependency and not the engine version (1.4.62). The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the repin (Owner's go: 2026-10-23 12:44 UTC for the fork push and 13:01 UTC for the fast-forward and the repin). The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite stays PENDING until its Actions run is complete; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head of the fork branch cards/precon-commander-decks (moeendres-png/mage, draft PR #71): the v12 pin 4da83f62 plus two commits that build ten Commander precon cards for real, each with Mage.Tests cases: Winter, Cynical Opportunist; Zinnia, Valley's Voice; Aminatou, Veil Piercer; Jace, Multiverse Architect; Dack Fayden, Helping Hand; Jhoira, Weatherlight Corsair; Tamiyo, Upriser Crowned; Teferi's Reproach; The Ur-Sphinx; Venser, Fervent Forger (Lab #979). The pin adds ten card classes, one test file per card (32 cases) and the SetCardInfo lines of three Commander sets; it changes no engine class, no dependency and not the engine version (1.4.62). The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the repin (Owner's go: 2026-10-23 12:44 UTC for the fork push and 13:01 UTC for the fast-forward and the repin). The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite is bound under lab_runtime_qualification (Actions run 39959452547); current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -181,11 +181,27 @@
  },
  "lab_runtime_qualification": {
   "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite once it is complete (XMage built and installed from exactly 90f5c4d3f8 for that job; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "installed_artifacts_commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 755fc9219574e9e6de2298d2b9df48eb88f194583ee2dd1239feb28d6d88f6b9",
+   "org.mage:mage-sets:1.4.62": "sha256 366599545b5be67e4b7900c5ecfb28254f5e86949009ae8302be26553f70d7eb"
+  },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=90f5c4d3, checked in the job): engine-bridge mvn verify against XMage built from the exact pin",
-   "status": "PENDING"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head bcbdd864903bec6c8af2323a879cf3c860bdb757 (XMAGE_COMMIT=90f5c4d3, checked in the job): engine-bridge mvn verify against XMage built from exact 90f5c4d3f8",
+   "run": 2209,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 39959452547,
+   "job": 120433530163,
+   "artifact": {
+    "id": 12504489044,
+    "zip_sha256": "75edf950d19ce9d6c6c56829e1d88bef55155224cdc02a8a10159f1b905923ea"
+   },
+   "tests_run": 1154,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest and the v6, v7 and v8 hooks stay checked."
  },
