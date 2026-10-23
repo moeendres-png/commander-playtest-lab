@@ -1,0 +1,440 @@
+{
+ "games": 100,
+ "rows": [
+  {
+   "card": "Irrigated Farmland",
+   "cast_games": 2,
+   "offered_games": 13
+  },
+  {
+   "card": "Veyran, Voice of Duality",
+   "cast_games": 12,
+   "offered_games": 15
+  },
+  {
+   "card": "Chain Reaction",
+   "cast_games": 12,
+   "offered_games": 17
+  },
+  {
+   "card": "Mana Geyser",
+   "cast_games": 12,
+   "offered_games": 17
+  },
+  {
+   "card": "Winds of Rath",
+   "cast_games": 12,
+   "offered_games": 23
+  },
+  {
+   "card": "Counterspell",
+   "cast_games": 13,
+   "offered_games": 17
+  },
+  {
+   "card": "Furygale Flocking",
+   "cast_games": 14,
+   "offered_games": 19
+  },
+  {
+   "card": "Wash Away",
+   "cast_games": 14,
+   "offered_games": 19
+  },
+  {
+   "card": "Adarkar Wastes",
+   "cast_games": 15,
+   "offered_games": 18
+  },
+  {
+   "card": "Brush Off",
+   "cast_games": 15,
+   "offered_games": 21
+  },
+  {
+   "card": "Dovin's Veto",
+   "cast_games": 15,
+   "offered_games": 23
+  },
+  {
+   "card": "Dig Through Time",
+   "cast_games": 16,
+   "offered_games": 16
+  },
+  {
+   "card": "Kediss, Emberclaw Familiar",
+   "cast_games": 16,
+   "offered_games": 16
+  },
+  {
+   "card": "An Offer You Can't Refuse",
+   "cast_games": 16,
+   "offered_games": 20
+  },
+  {
+   "card": "Cursed Mirror",
+   "cast_games": 16,
+   "offered_games": 20
+  },
+  {
+   "card": "Negate",
+   "cast_games": 16,
+   "offered_games": 21
+  },
+  {
+   "card": "Guttersnipe",
+   "cast_games": 17,
+   "offered_games": 18
+  },
+  {
+   "card": "Kykar, Wind's Fury",
+   "cast_games": 17,
+   "offered_games": 18
+  },
+  {
+   "card": "Flow State",
+   "cast_games": 17,
+   "offered_games": 20
+  },
+  {
+   "card": "Blasphemous Act",
+   "cast_games": 17,
+   "offered_games": 21
+  },
+  {
+   "card": "Relic of Legends",
+   "cast_games": 17,
+   "offered_games": 23
+  },
+  {
+   "card": "Wear // Tear",
+   "cast_games": 18,
+   "offered_games": 20
+  },
+  {
+   "card": "Loyal Drake",
+   "cast_games": 18,
+   "offered_games": 21
+  },
+  {
+   "card": "Combat Research",
+   "cast_games": 19,
+   "offered_games": 19
+  },
+  {
+   "card": "Vandalblast",
+   "cast_games": 19,
+   "offered_games": 20
+  },
+  {
+   "card": "Whirlwind Denial",
+   "cast_games": 19,
+   "offered_games": 23
+  },
+  {
+   "card": "Chaos Warp",
+   "cast_games": 20,
+   "offered_games": 20
+  },
+  {
+   "card": "Mystic Monastery",
+   "cast_games": 20,
+   "offered_games": 20
+  },
+  {
+   "card": "Turbulent Springs",
+   "cast_games": 20,
+   "offered_games": 20
+  },
+  {
+   "card": "Flare of Duplication",
+   "cast_games": 20,
+   "offered_games": 22
+  },
+  {
+   "card": "Harmonic Prodigy",
+   "cast_games": 20,
+   "offered_games": 22
+  },
+  {
+   "card": "Manaform Hellkite",
+   "cast_games": 20,
+   "offered_games": 22
+  },
+  {
+   "card": "Frostboil Snarl",
+   "cast_games": 20,
+   "offered_games": 23
+  },
+  {
+   "card": "Talisman of Progress",
+   "cast_games": 20,
+   "offered_games": 24
+  },
+  {
+   "card": "Treasure Cruise",
+   "cast_games": 20,
+   "offered_games": 25
+  },
+  {
+   "card": "Mica, Reader of Ruins",
+   "cast_games": 20,
+   "offered_games": 26
+  },
+  {
+   "card": "Azorius Signet",
+   "cast_games": 21,
+   "offered_games": 21
+  },
+  {
+   "card": "Consider",
+   "cast_games": 21,
+   "offered_games": 21
+  },
+  {
+   "card": "Faerie Mastermind",
+   "cast_games": 21,
+   "offered_games": 21
+  },
+  {
+   "card": "Loran's Escape",
+   "cast_games": 21,
+   "offered_games": 21
+  },
+  {
+   "card": "Prismari Command",
+   "cast_games": 21,
+   "offered_games": 21
+  },
+  {
+   "card": "Swords to Plowshares",
+   "cast_games": 21,
+   "offered_games": 21
+  },
+  {
+   "card": "Chandra, Torch of Defiance",
+   "cast_games": 21,
+   "offered_games": 22
+  },
+  {
+   "card": "Sol Ring",
+   "cast_games": 21,
+   "offered_games": 22
+  },
+  {
+   "card": "Talisman of Creativity",
+   "cast_games": 21,
+   "offered_games": 23
+  },
+  {
+   "card": "Fabled Passage",
+   "cast_games": 21,
+   "offered_games": 26
+  },
+  {
+   "card": "Boros Charm",
+   "cast_games": 22,
+   "offered_games": 22
+  },
+  {
+   "card": "Jeska, Thrice Reborn",
+   "cast_games": 22,
+   "offered_games": 22
+  },
+  {
+   "card": "Boros Signet",
+   "cast_games": 22,
+   "offered_games": 23
+  },
+  {
+   "card": "Rootha, Mastering the Moment",
+   "cast_games": 22,
+   "offered_games": 23
+  },
+  {
+   "card": "Command Tower",
+   "cast_games": 22,
+   "offered_games": 26
+  },
+  {
+   "card": "Evolving Wilds",
+   "cast_games": 22,
+   "offered_games": 26
+  },
+  {
+   "card": "Louisoix's Sacrifice",
+   "cast_games": 22,
+   "offered_games": 27
+  },
+  {
+   "card": "Thunderclap Drake",
+   "cast_games": 22,
+   "offered_games": 28
+  },
+  {
+   "card": "Shivan Reef",
+   "cast_games": 23,
+   "offered_games": 23
+  },
+  {
+   "card": "Arcane Signet",
+   "cast_games": 23,
+   "offered_games": 25
+  },
+  {
+   "card": "Exotic Orchard",
+   "cast_games": 24,
+   "offered_games": 24
+  },
+  {
+   "card": "Whirlwind of Thought",
+   "cast_games": 24,
+   "offered_games": 25
+  },
+  {
+   "card": "Skycloud Expanse",
+   "cast_games": 25,
+   "offered_games": 25
+  },
+  {
+   "card": "Slip Out the Back",
+   "cast_games": 25,
+   "offered_games": 25
+  },
+  {
+   "card": "Springleaf Drum",
+   "cast_games": 25,
+   "offered_games": 25
+  },
+  {
+   "card": "Fellwar Stone",
+   "cast_games": 25,
+   "offered_games": 26
+  },
+  {
+   "card": "Thunderdrum Soloist",
+   "cast_games": 25,
+   "offered_games": 26
+  },
+  {
+   "card": "Clifftop Retreat",
+   "cast_games": 25,
+   "offered_games": 27
+  },
+  {
+   "card": "Storm-Kiln Artist",
+   "cast_games": 25,
+   "offered_games": 27
+  },
+  {
+   "card": "Blacksmith's Skill",
+   "cast_games": 26,
+   "offered_games": 26
+  },
+  {
+   "card": "Curiosity",
+   "cast_games": 26,
+   "offered_games": 26
+  },
+  {
+   "card": "Mystic Sanctuary",
+   "cast_games": 26,
+   "offered_games": 26
+  },
+  {
+   "card": "Port Town",
+   "cast_games": 26,
+   "offered_games": 26
+  },
+  {
+   "card": "Prairie Stream",
+   "cast_games": 26,
+   "offered_games": 26
+  },
+  {
+   "card": "Swiftfoot Boots",
+   "cast_games": 26,
+   "offered_games": 26
+  },
+  {
+   "card": "Cascade Bluffs",
+   "cast_games": 28,
+   "offered_games": 28
+  },
+  {
+   "card": "Preordain",
+   "cast_games": 28,
+   "offered_games": 28
+  },
+  {
+   "card": "Sulfur Falls",
+   "cast_games": 28,
+   "offered_games": 28
+  },
+  {
+   "card": "Temple of Enlightenment",
+   "cast_games": 28,
+   "offered_games": 28
+  },
+  {
+   "card": "Psychotic Fury",
+   "cast_games": 28,
+   "offered_games": 29
+  },
+  {
+   "card": "Battlefield Forge",
+   "cast_games": 28,
+   "offered_games": 32
+  },
+  {
+   "card": "Archmage Emeritus",
+   "cast_games": 29,
+   "offered_games": 29
+  },
+  {
+   "card": "Reality Shift",
+   "cast_games": 29,
+   "offered_games": 29
+  },
+  {
+   "card": "Path to Exile",
+   "cast_games": 30,
+   "offered_games": 30
+  },
+  {
+   "card": "Scorched Geyser",
+   "cast_games": 30,
+   "offered_games": 30
+  },
+  {
+   "card": "Glacial Fortress",
+   "cast_games": 31,
+   "offered_games": 31
+  },
+  {
+   "card": "Leitmotif Composer",
+   "cast_games": 32,
+   "offered_games": 33
+  },
+  {
+   "card": "Mind Stone",
+   "cast_games": 33,
+   "offered_games": 34
+  },
+  {
+   "card": "Plains",
+   "cast_games": 54,
+   "offered_games": 54
+  },
+  {
+   "card": "Mountain",
+   "cast_games": 65,
+   "offered_games": 65
+  },
+  {
+   "card": "Island",
+   "cast_games": 87,
+   "offered_games": 88
+  }
+ ]
+}

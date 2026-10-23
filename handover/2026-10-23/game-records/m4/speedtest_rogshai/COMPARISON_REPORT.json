@@ -1,0 +1,656 @@
+{
+  "batch": {
+    "completed_cases": 16,
+    "failed_cases": 0,
+    "games_per_jvm": 6,
+    "one_isolated_jvm_per_executed_game": false,
+    "parallelism": "thread",
+    "resumed_cases": 11,
+    "state_isolation_basis": "SHUTDOWN_GAME_ONLY_NOT_A_PROCESS_BOUNDARY",
+    "total_cases": 16,
+    "workers": 1
+  },
+  "canonical_data_mutated": false,
+  "comparison_id": "deck-comparison:custom/rogshai",
+  "contenders": [
+    {
+      "deck_id": "custom/rogshai",
+      "failure_classes": {},
+      "games_completed": 8,
+      "games_failed": 0,
+      "games_planned": 8,
+      "games_without_winner": 0,
+      "mean_decisions": 2548.125,
+      "mean_finishing_score": 0.47916666666666663,
+      "mean_turns": 41.125,
+      "win_share": 0.125,
+      "win_share_interval_95": {
+        "high": 0.4708881822128535,
+        "low": 0.02241749145005667
+      },
+      "wins": 1.0
+    },
+    {
+      "deck_id": "custom/rogshai#variant1",
+      "failure_classes": {},
+      "games_completed": 8,
+      "games_failed": 0,
+      "games_planned": 8,
+      "games_without_winner": 0,
+      "mean_decisions": 2548.125,
+      "mean_finishing_score": 0.47916666666666663,
+      "mean_turns": 41.125,
+      "win_share": 0.125,
+      "win_share_interval_95": {
+        "high": 0.4708881822128535,
+        "low": 0.02241749145005667
+      },
+      "wins": 1.0
+    }
+  ],
+  "engine": {
+    "execution_identity": {
+      "bridge_artifacts": {
+        "3": "69aa31ebf15dc47c29234a711026c2caa3eb8d29efe5921a63991c22e8cd34e8"
+      },
+      "decision_protocol_version": "xmage-external-decision-protocol-1.0.0",
+      "execution_identity_version": 2,
+      "result_schema_version": "xmage-full-game-conformance-result-1.2.0",
+      "runner_configuration_sha256": "9aac21d429874400a34ce8fc713f40e379f145accfcb81a696e160ff10d92033"
+    },
+    "max_decisions": 50000,
+    "xmage_commit": "456b0e227cc09a90e9d485b9d932f3717ef9e2be"
+  },
+  "evidence_class": "exploratory_xmage_full_game",
+  "holdout_consumed": false,
+  "official_campaign_eligible": false,
+  "paired": [
+    {
+      "baseline_deck_id": "custom/rogshai",
+      "baseline_only_wins": 0,
+      "baseline_win_share": 0.125,
+      "detectable_difference_80pct_power": null,
+      "identical_pairs": 8,
+      "pairs_censored": 0,
+      "pairs_completed": 8,
+      "placement_difference": 0.0,
+      "placement_difference_interval_95": null,
+      "placement_pairs": 8,
+      "sign_test_p_value": 1.0,
+      "underpowered": false,
+      "variant_deck_id": "custom/rogshai#variant1",
+      "variant_only_wins": 0,
+      "variant_win_share": 0.125,
+      "verdict": "NO_CLEAR_DIFFERENCE",
+      "win_share_difference": 0.0,
+      "win_share_difference_interval_95": null
+    }
+  ],
+  "pilot_readiness": {
+    "decks": {
+      "custom/rogshai": {
+        "counts": {
+          "KNOWN_MISSING_IN_XMAGE": 0,
+          "NO_CARD_FACTS": 0,
+          "NO_PILOT_KNOWLEDGE": 0,
+          "OK": 89
+        },
+        "not_ready": [],
+        "ready": true,
+        "role": "contender"
+      },
+      "custom/rogshai#variant1": {
+        "counts": {
+          "KNOWN_MISSING_IN_XMAGE": 0,
+          "NO_CARD_FACTS": 0,
+          "NO_PILOT_KNOWLEDGE": 0,
+          "OK": 89
+        },
+        "not_ready": [],
+        "ready": true,
+        "role": "contender"
+      },
+      "precon/2021/elven_empire": {
+        "counts": {
+          "KNOWN_MISSING_IN_XMAGE": 0,
+          "NO_CARD_FACTS": 57,
+          "NO_PILOT_KNOWLEDGE": 1,
+          "OK": 15
+        },
+        "not_ready": [
+          {
+            "name": "Lathril, Blade of the Elves",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Abomination of Llanowar",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Beast Whisperer",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Canopy Tactician",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Cultivator of Blades",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Dwynen, Gilt-Leaf Daen",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Elderfang Ritualist",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Elvish Archdruid",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Elvish Mystic",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Elvish Rejuvenator",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "End-Raze Forerunners",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Eyeblight Cullers",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Farhaven Elf",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Golgari Findbroker",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Harald, King of Skemfar",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Jagged-Scar Archers",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Jaspera Sentinel",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Llanowar Tribe",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Lys Alana Huntmaster",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Lys Alana Scarblade",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Marwyn, the Nurturer",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Masked Admirers",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Miara, Thorn of the Glade",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Nullmage Shepherd",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Numa, Joraga Chieftain",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Poison-Tip Archer",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Rhys the Exiled",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Ruthless Winnower",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Shaman of the Pack",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Skemfar Shadowsage",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Sylvan Messenger",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Timberwatch Elf",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Twinblade Assassins",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Voice of Many",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Voice of the Woods",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Wirewood Channeler",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Wolverine Riders",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Elven Ambush",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Poison the Cup",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Tergrid's Shadow",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Ambition's Cost",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Bounty of Skemfar",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Casualties of War",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Eyeblight Massacre",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Elvish Promenade",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Harvest Season",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Pact of the Serpent",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Return Upon the Tide",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Roots of Wisdom",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Serpent's Soul-Jar",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Crown of Skemfar",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Elderfang Venom",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Pride of the Perfect",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Prowess of the Fair",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Moldervine Reclamation",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Foul Orchard",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Golgari Rot Farm",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Skemfar Elderhall",
+            "status": "NO_CARD_FACTS"
+          }
+        ],
+        "ready": false,
+        "role": "opponent"
+      },
+      "precon/2022/painbow": {
+        "counts": {
+          "KNOWN_MISSING_IN_XMAGE": 0,
+          "NO_CARD_FACTS": 51,
+          "NO_PILOT_KNOWLEDGE": 9,
+          "OK": 34
+        },
+        "not_ready": [
+          {
+            "name": "Jared Carthalion",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Archelos, Lagoon Mystic",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Atla Palani, Nest Tender",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Chromanticore",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Coiling Oracle",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "O-Kagachi, Vengeful Kami",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Faeburrow Elder",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Fusion Elemental",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Zaxara, the Exemplary",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Hero of Precinct One",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Illuna, Apex of Wishes",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Knight of New Alara",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Maelstrom Archangel",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Nethroi, Apex of Death",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Rienne, Angel of Rebirth",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Surrak Dragonclaw",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Transguild Courier",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Glint-Eye Nephilim",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Xyris, the Writhing Storm",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Duneblast",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Explosive Vegetation",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Kodama's Reach",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Lavalanche",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Merciless Eviction",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Migration Path",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Painful Truths",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Radiant Flames",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Search for Tomorrow",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Time Wipe",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Abzan Charm",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Echoing Truth",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Growth Spiral",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Sultai Charm",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Sylvan Reclamation",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Coalition Relic",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Prophetic Prism",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Abundant Growth",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Maelstrom Nexus",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Path to the World Tree",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Bad River",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Cascading Cataracts",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Crystal Quarry",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Flood Plain",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Frontier Bivouac",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Grasslands",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Jungle Shrine",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Murmuring Bosk",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Nomad Outpost",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Opulent Palace",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Sandsteppe Citadel",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Savage Lands",
+            "status": "NO_PILOT_KNOWLEDGE"
+          },
+          {
+            "name": "Jenson Carthalion, Druid Exile",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Two-Headed Hellkite",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Tiller Engine",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Unite the Coalition",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Fallaji Wayfarer",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Iridian Maelstrom",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Mana Cannons",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Primeval Spawn",
+            "status": "NO_CARD_FACTS"
+          },
+          {
+            "name": "Obsidian Obelisk",
+            "status": "NO_CARD_FACTS"
+          }
+        ],
+        "ready": false,
+        "role": "opponent"
+      },
+      "precon/2026/doom_prevails": {
+        "counts": {
+          "KNOWN_MISSING_IN_XMAGE": 0,
+          "NO_CARD_FACTS": 0,
+          "NO_PILOT_KNOWLEDGE": 0,
+          "OK": 88
+        },
+        "not_ready": [],
+        "ready": true,
+        "role": "opponent"
+      }
+    },
+    "variants": {
+      "custom/rogshai#variant1": {
+        "added_not_ready": [],
+        "baseline": "custom/rogshai",
+        "comparable": true,
+        "removed_not_ready": []
+      }
+    }
+  },
+  "player_count": 4,
+  "rules_authority": "xmage",
+  "schema_version": "xmage-full-game-deck-comparison-1.0.0",
+  "seeds": [
+    1,
+    2
+  ],
+  "significance_level": 0.05,
+  "slot_alignment": [
+    {
+      "appended": 0,
+      "baseline_deck_id": "custom/rogshai",
+      "deck_id": "custom/rogshai#variant1",
+      "dropped": 0,
+      "played_mainboard_sha256": "870f1d60bfa219afa5c7324d0ffcc8f8adf15370739b262f7d2f640f0e4a0a5f",
+      "swapped_slots": 0
+    }
+  ],
+  "structural_decision_authority": false,
+  "tested_seats": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "truth_boundary": "Paired real XMage full games under the Commander Lab pilot policy; failed games are censored, never losses. Exploratory deck-building evidence for this pilot and engine pin only."
+}

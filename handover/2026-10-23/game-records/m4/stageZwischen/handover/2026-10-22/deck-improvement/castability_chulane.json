@@ -1,0 +1,39 @@
+{
+  "deck_id": "custom/chulane",
+  "expected_turn": {
+    "Chulane, Teller of Tales": {
+      "draw": 5.93,
+      "play": 6.24
+    }
+  },
+  "name": "Chulane (Ist-Stand 2026-10-22)",
+  "probability": {
+    "Chulane, Teller of Tales": {
+      "draw": {
+        "10": 0.892,
+        "2": 0.0,
+        "3": 0.019,
+        "4": 0.153,
+        "5": 0.45,
+        "6": 0.645,
+        "7": 0.725,
+        "8": 0.792,
+        "9": 0.849
+      },
+      "play": {
+        "10": 0.849,
+        "2": 0.0,
+        "3": 0.012,
+        "4": 0.113,
+        "5": 0.36,
+        "6": 0.546,
+        "7": 0.645,
+        "8": 0.725,
+        "9": 0.792
+      }
+    }
+  },
+  "seed": 20261016,
+  "structural_profile_source": "XMage card facts (30 curated, 70 inferred)",
+  "trials": 20000
+}
