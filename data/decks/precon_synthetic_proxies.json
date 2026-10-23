@@ -10,11 +10,11 @@
     "folder": "handover/2026-10-20/ersatzkarten-vorlage/",
     "set": 1
   },
-  "commander_rule": "A legendary creature with exactly the original commander's colour identity, legal as a commander, known to the engine at the pin (import proof) and not already in the deck. Among those: cards that are no other precon's commander first, then the nearest mana value, then the nearest power plus toughness, then the name. 2026_multiverse_reforged is the one deck without such a card: Breya, Etherium Shaper (commander of 2016_invent_superiority) is the only WUBR commander not already in its 99.",
+  "commander_rule": "A legendary creature with exactly the original commander's colour identity, legal as a commander, known to the engine at the pin (import proof) and not already in the deck. Among those: cards that are no other precon's commander first, then the nearest mana value, then the nearest power plus toughness, then the name. The four decks whose commander the engine did not know have real decks again since repin v13, so no proxy commander is in use.",
   "pool": {
     "decks": 195,
-    "real": 182,
-    "synthetic": 13
+    "real": 186,
+    "synthetic": 9
   },
   "decks": {
     "2023_blast_from_the_past": {
@@ -129,36 +129,6 @@
       ],
       "commander_replacement": null
     },
-    "2024_death_toll": {
-      "original_deck_id": "precon/2024/death_toll",
-      "proxy_deck_id": "precon-synthetic/2024/death_toll",
-      "proxy_file": "data/decks/precon_variants/2024_death_toll.json",
-      "main_deck_replacements": [],
-      "commander_replacement": {
-        "original": "Winter, Cynical Opportunist",
-        "proxy": "Carth the Lion"
-      }
-    },
-    "2024_family_matters": {
-      "original_deck_id": "precon/2024/family_matters",
-      "proxy_deck_id": "precon-synthetic/2024/family_matters",
-      "proxy_file": "data/decks/precon_variants/2024_family_matters.json",
-      "main_deck_replacements": [],
-      "commander_replacement": {
-        "original": "Zinnia, Valley's Voice",
-        "proxy": "Director Nick Fury"
-      }
-    },
-    "2024_miracle_worker": {
-      "original_deck_id": "precon/2024/miracle_worker",
-      "proxy_deck_id": "precon-synthetic/2024/miracle_worker",
-      "proxy_file": "data/decks/precon_variants/2024_miracle_worker.json",
-      "main_deck_replacements": [],
-      "commander_replacement": {
-        "original": "Aminatou, Veil Piercer",
-        "proxy": "Jin Sakai, Ghost of Tsushima"
-      }
-    },
     "2024_revenant_recon": {
       "original_deck_id": "precon/2024/revenant_recon",
       "proxy_deck_id": "precon-synthetic/2024/revenant_recon",
@@ -194,41 +164,6 @@
         }
       ],
       "commander_replacement": null
-    },
-    "2026_multiverse_reforged": {
-      "original_deck_id": "precon/2026/multiverse_reforged",
-      "proxy_deck_id": "precon-synthetic/2026/multiverse_reforged",
-      "proxy_file": "data/decks/precon_variants/2026_multiverse_reforged.json",
-      "main_deck_replacements": [
-        {
-          "original": "Dack Fayden, Helping Hand",
-          "proxy": "Sun Titan"
-        },
-        {
-          "original": "Teferi's Reproach",
-          "proxy": "Chaos Warp"
-        },
-        {
-          "original": "Jhoira, Weatherlight Corsair",
-          "proxy": "Steel Hellkite"
-        },
-        {
-          "original": "Venser, Fervent Forger",
-          "proxy": "Inferno Titan"
-        },
-        {
-          "original": "Tamiyo, Upriser Crowned",
-          "proxy": "Brudiclad, Telchor Engineer"
-        },
-        {
-          "original": "The Ur-Sphinx",
-          "proxy": "Cavern-Hoard Dragon"
-        }
-      ],
-      "commander_replacement": {
-        "original": "Jace, Multiverse Architect",
-        "proxy": "Breya, Etherium Shaper"
-      }
     },
     "2026_odds_and_ends": {
       "original_deck_id": "precon/2026/odds_and_ends",

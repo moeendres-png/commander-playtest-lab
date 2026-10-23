@@ -25,20 +25,16 @@ def _module() -> Any:
 
 MODULE = _module()
 STEMS = sorted(MODULE.SUBSTITUTIONS)
-# The 13 precons the engine cannot import at the pin (docs/PRECON_VALIDATION.md).
+# The 9 precons the engine cannot import at the pin 90f5c4d3f8 (docs/PRECON_VALIDATION.md).
 UNIMPORTABLE = {
     "2023_blast_from_the_past",
     "2023_masters_of_evil",
     "2023_paradox_power",
     "2023_timey_wimey",
     "2024_blame_game",
-    "2024_death_toll",
-    "2024_family_matters",
-    "2024_miracle_worker",
     "2024_revenant_recon",
     "2024_tricky_terrain",
     "2024_tricky_terrain_collector_s_edition",
-    "2026_multiverse_reforged",
     "2026_odds_and_ends",
 }
 COMMANDER_STEMS = sorted(MODULE.COMMANDER_PROXIES)
@@ -65,13 +61,18 @@ def test_every_deck_the_engine_cannot_import_has_a_proxy_and_no_other_deck_has()
     assert {p.stem for p in MODULE.VARIANT_DIR.glob("*.json")} == UNIMPORTABLE
 
 
-def test_the_four_decks_with_an_unknown_commander_get_a_proxy_commander() -> None:
-    assert set(COMMANDER_STEMS) == {
+def test_no_deck_needs_a_proxy_commander_since_repin_v13() -> None:
+    # The four decks whose commander the engine did not know import with the real commander at
+    # the pin 90f5c4d3f8; their proxies are retired and the real decks count.
+    assert COMMANDER_STEMS == []
+    retired = {
         "2024_death_toll",
         "2024_family_matters",
         "2024_miracle_worker",
         "2026_multiverse_reforged",
     }
+    assert not retired & set(STEMS)
+    assert not any((MODULE.VARIANT_DIR / f"{stem}.json").exists() for stem in retired)
 
 
 @pytest.mark.parametrize("stem", STEMS)
@@ -123,13 +124,13 @@ def test_originals_are_left_untouched(stem: str) -> None:
     assert not any((e["notes"] or "").startswith("SYNTHETIC") for e in original["cards"])
 
 
-def test_the_pool_stays_at_195_with_13_synthetic() -> None:
+def test_the_pool_stays_at_195_with_9_synthetic() -> None:
     listing = _load(MODULE.MANIFEST)
     originals = list(MODULE.PRECON_DIR.glob("*.json"))
     assert listing["pool"] == {
         "decks": len(originals),
-        "real": len(originals) - 13,
-        "synthetic": 13,
+        "real": len(originals) - 9,
+        "synthetic": 9,
     }
     assert listing["pool"]["decks"] == 195
     assert set(listing["decks"]) == UNIMPORTABLE
@@ -154,10 +155,9 @@ def test_a_proxy_commander_is_no_other_precon_s_commander_and_not_in_its_own_dec
         if path.stem in UNIMPORTABLE:
             continue
         commanders.update(_load(path)["commander"]["commanders"])
-    # Breya, Etherium Shaper (the only WUBR commander the engine knows) is the single exception
-    # and is named as such in the proxy list rule; every other proxy commander is unique.
+    # Every proxy commander (none since repin v13) is no other precon's commander.
     shared = {n for n in MODULE.COMMANDER_PROXIES.values() if commanders[n]}
-    assert shared == {"Breya, Etherium Shaper"}
+    assert shared == set()
 
 
 def test_a_proxy_commander_already_in_the_deck_is_rejected() -> None:

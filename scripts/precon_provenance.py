@@ -3,7 +3,7 @@
 A variant in ``data/decks/precon_variants/`` replaces cards the engine pin does not know with
 real, importable cards. It is a test deck, not the printed precon: it says nothing about how the
 original plays. Import and sweep reports therefore carry this label per deck and count REAL and
-SYNTHETIC decks apart, so a figure such as "182 of 195" is never read as one population.
+SYNTHETIC decks apart, so a figure such as "186 of 195" is never read as one population.
 
 The marker is the ``deck_id`` prefix that ``build_precon_variants.py`` writes (the generator also
 sets the ``SYNTHETIC`` deck tag; ``precon-variant/`` is the prefix of the first nine copies).
