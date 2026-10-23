@@ -116,12 +116,13 @@ def test_land_play_is_not_counted_as_cast() -> None:
 
 def test_opponent_turn_window_not_attributed() -> None:
     # Opponent's main phase: the actor may still get priority (instants), but
-    # offered_castable only counts own main-phase windows.
+    # offered_castable only counts own main-phase windows. A sorcery stands for
+    # the card here; an instant is counted in these windows on purpose.
     records = [
         _priority_record(
             active_player_id="p2",  # not the actor's turn
             options=[
-                _option("bolt", source_name="Lightning Bolt"),
+                _option("ramp", source_name="Rampant Growth"),
                 _pass_option(),
             ],
             picked_id="pass",
