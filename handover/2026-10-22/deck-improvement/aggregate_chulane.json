@@ -1,0 +1,91 @@
+{
+ "deck": "chulane",
+ "base_arm": "custom/chulane",
+ "arms": {
+  "custom/chulane": {
+   "games": 200,
+   "wins": 19,
+   "turns_mean": 48.16,
+   "mulligan_games": 70,
+   "commander_cast_games": {
+    "Chulane, Teller of Tales": 176
+   }
+  },
+  "custom/chulane#variant1": {
+   "games": 200,
+   "wins": 19,
+   "turns_mean": 47.93,
+   "mulligan_games": 63,
+   "commander_cast_games": {
+    "Chulane, Teller of Tales": 181
+   }
+  },
+  "custom/chulane#variant2": {
+   "games": 200,
+   "wins": 19,
+   "turns_mean": 48.03,
+   "mulligan_games": 70,
+   "commander_cast_games": {
+    "Chulane, Teller of Tales": 174
+   }
+  },
+  "custom/chulane#variant3": {
+   "games": 200,
+   "wins": 14,
+   "turns_mean": 48.02,
+   "mulligan_games": 68,
+   "commander_cast_games": {
+    "Chulane, Teller of Tales": 173
+   }
+  }
+ },
+ "bundles": {
+  "custom/chulane#variant1": {
+   "pairs_planned": 200,
+   "pairs_analysed": 200,
+   "baseline_wins": 19,
+   "variant_wins": 19,
+   "discordant_pairs": 16,
+   "baseline_only_wins": 8,
+   "variant_only_wins": 8,
+   "effect": 0.0,
+   "ci95": [
+    -0.0392,
+    0.0392
+   ],
+   "sign_test_p": 1.0
+  },
+  "custom/chulane#variant2": {
+   "pairs_planned": 200,
+   "pairs_analysed": 200,
+   "baseline_wins": 19,
+   "variant_wins": 19,
+   "discordant_pairs": 16,
+   "baseline_only_wins": 8,
+   "variant_only_wins": 8,
+   "effect": 0.0,
+   "ci95": [
+    -0.0392,
+    0.0392
+   ],
+   "sign_test_p": 1.0
+  },
+  "custom/chulane#variant3": {
+   "pairs_planned": 200,
+   "pairs_analysed": 200,
+   "baseline_wins": 19,
+   "variant_wins": 14,
+   "discordant_pairs": 19,
+   "baseline_only_wins": 12,
+   "variant_only_wins": 7,
+   "effect": -0.025,
+   "ci95": [
+    -0.0677,
+    0.0177
+   ],
+   "sign_test_p": 0.3593
+  }
+ },
+ "duplicates_checked": 100,
+ "duplicates_agree": 100
+}
