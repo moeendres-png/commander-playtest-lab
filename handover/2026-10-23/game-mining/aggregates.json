@@ -1,0 +1,845 @@
+{
+ "games": 2033,
+ "cls_stats": {
+  "choose_object": {
+   "n": 64743,
+   "mean_opts": 5.41,
+   "idx_hist": {
+    "0": 25279,
+    "1": 11952,
+    "2": 6929,
+    "3": 4680,
+    "4": 3460,
+    "5": 2434,
+    "6": 2337,
+    "7": 2263
+   },
+   "idx0_rate": 0.3905,
+   "multi": 15343
+  },
+  "mulligan": {
+   "n": 14175,
+   "mean_opts": 2.0,
+   "idx_hist": {
+    "0": 7884,
+    "1": 6291
+   },
+   "idx0_rate": 0.5562,
+   "multi": 0
+  },
+  "priority": {
+   "n": 4373551,
+   "mean_opts": 3.99,
+   "idx_hist": {
+    "0": 4065714,
+    "1": 41528,
+    "2": 30691,
+    "3": 24866,
+    "4": 22892,
+    "5": 20573,
+    "6": 18514,
+    "7": 17464
+   },
+   "idx0_rate": 0.9296,
+   "multi": 0
+  },
+  "mana_payment": {
+   "n": 1123371,
+   "mean_opts": 7.88,
+   "idx_hist": {
+    "0": 26010,
+    "1": 880694,
+    "2": 80429,
+    "3": 41434,
+    "4": 26052,
+    "5": 17964,
+    "6": 11952,
+    "7": 8539
+   },
+   "idx0_rate": 0.0232,
+   "multi": 0
+  },
+  "announce_x": {
+   "n": 3099,
+   "mean_opts": 0.0,
+   "idx_hist": {},
+   "idx0_rate": 0.0,
+   "multi": 0
+  },
+  "target": {
+   "n": 116674,
+   "mean_opts": 7.24,
+   "idx_hist": {
+    "0": 48541,
+    "1": 20248,
+    "2": 12578,
+    "3": 8475,
+    "4": 5647,
+    "5": 4469,
+    "6": 3189,
+    "7": 2192
+   },
+   "idx0_rate": 0.416,
+   "multi": 637
+  },
+  "declare_attacker": {
+   "n": 115581,
+   "mean_opts": 3.3,
+   "idx_hist": {
+    "0": 33888,
+    "1": 21237,
+    "2": 25486,
+    "3": 29595,
+    "4": 5309,
+    "5": 66
+   },
+   "idx0_rate": 0.2932,
+   "multi": 0
+  },
+  "declare_blocker": {
+   "n": 44419,
+   "mean_opts": 2.23,
+   "idx_hist": {
+    "0": 7708,
+    "1": 2401,
+    "2": 917,
+    "3": 451,
+    "4": 253,
+    "5": 212,
+    "6": 106,
+    "7": 279
+   },
+   "idx0_rate": 0.1735,
+   "multi": 0
+  },
+  "choose_use": {
+   "n": 52768,
+   "mean_opts": 2.0,
+   "idx_hist": {
+    "0": 51301,
+    "1": 1467
+   },
+   "idx0_rate": 0.9722,
+   "multi": 0
+  },
+  "choice": {
+   "n": 97920,
+   "mean_opts": 12.93,
+   "idx_hist": {
+    "0": 32844,
+    "1": 26963,
+    "2": 12217,
+    "3": 9677,
+    "4": 14070,
+    "399": 2149
+   },
+   "idx0_rate": 0.3354,
+   "multi": 0
+  },
+  "trigger_order": {
+   "n": 25647,
+   "mean_opts": 4.64,
+   "idx_hist": {
+    "0": 13970,
+    "1": 8569,
+    "2": 1581,
+    "3": 527,
+    "4": 236,
+    "5": 132,
+    "6": 172,
+    "7": 37
+   },
+   "idx0_rate": 0.5447,
+   "multi": 0
+  },
+  "mode": {
+   "n": 15490,
+   "mean_opts": 2.99,
+   "idx_hist": {
+    "0": 5681,
+    "1": 5121,
+    "2": 4397,
+    "3": 150,
+    "4": 29
+   },
+   "idx0_rate": 0.3668,
+   "multi": 0
+  },
+  "replacement_effect": {
+   "n": 1048,
+   "mean_opts": 2.04,
+   "idx_hist": {
+    "0": 153,
+    "1": 886,
+    "2": 9
+   },
+   "idx0_rate": 0.146,
+   "multi": 0
+  },
+  "multi_amount": {
+   "n": 2381,
+   "mean_opts": 0.0,
+   "idx_hist": {},
+   "idx0_rate": 0.0,
+   "multi": 0
+  },
+  "target_amount": {
+   "n": 894,
+   "mean_opts": 12.55,
+   "idx_hist": {
+    "0": 344,
+    "1": 177,
+    "2": 69,
+    "3": 31,
+    "4": 27,
+    "5": 13,
+    "6": 16,
+    "7": 27
+   },
+   "idx0_rate": 0.3848,
+   "multi": 0
+  },
+  "amount": {
+   "n": 108,
+   "mean_opts": 0.0,
+   "idx_hist": {},
+   "idx0_rate": 0.0,
+   "multi": 0
+  }
+ },
+ "cls_by_family": {
+  "step4b_chulane": {
+   "choose_object": {
+    "n": 29803,
+    "idx0_rate": 0.3929
+   },
+   "mulligan": {
+    "n": 5660,
+    "idx0_rate": 0.5654
+   },
+   "priority": {
+    "n": 1845252,
+    "idx0_rate": 0.9249
+   },
+   "mana_payment": {
+    "n": 468415,
+    "idx0_rate": 0.0224
+   },
+   "announce_x": {
+    "n": 1578,
+    "idx0_rate": 0.0
+   },
+   "target": {
+    "n": 53202,
+    "idx0_rate": 0.4171
+   },
+   "declare_attacker": {
+    "n": 49107,
+    "idx0_rate": 0.2893
+   },
+   "declare_blocker": {
+    "n": 20001,
+    "idx0_rate": 0.1837
+   },
+   "choose_use": {
+    "n": 23745,
+    "idx0_rate": 0.9831
+   },
+   "choice": {
+    "n": 40796,
+    "idx0_rate": 0.3352
+   },
+   "trigger_order": {
+    "n": 11487,
+    "idx0_rate": 0.5329
+   },
+   "mode": {
+    "n": 6970,
+    "idx0_rate": 0.3812
+   },
+   "replacement_effect": {
+    "n": 609,
+    "idx0_rate": 0.0854
+   },
+   "multi_amount": {
+    "n": 1173,
+    "idx0_rate": 0.0
+   },
+   "target_amount": {
+    "n": 404,
+    "idx0_rate": 0.3292
+   },
+   "amount": {
+    "n": 84,
+    "idx0_rate": 0.0
+   }
+  },
+  "step4b_rogshai": {
+   "choose_object": {
+    "n": 21324,
+    "idx0_rate": 0.3871
+   },
+   "mulligan": {
+    "n": 5219,
+    "idx0_rate": 0.548
+   },
+   "priority": {
+    "n": 1545565,
+    "idx0_rate": 0.9348
+   },
+   "mana_payment": {
+    "n": 402437,
+    "idx0_rate": 0.0238
+   },
+   "declare_attacker": {
+    "n": 39607,
+    "idx0_rate": 0.2942
+   },
+   "target": {
+    "n": 37952,
+    "idx0_rate": 0.4201
+   },
+   "choose_use": {
+    "n": 17246,
+    "idx0_rate": 0.9585
+   },
+   "choice": {
+    "n": 35018,
+    "idx0_rate": 0.3318
+   },
+   "declare_blocker": {
+    "n": 14580,
+    "idx0_rate": 0.1577
+   },
+   "mode": {
+    "n": 4940,
+    "idx0_rate": 0.335
+   },
+   "multi_amount": {
+    "n": 709,
+    "idx0_rate": 0.0
+   },
+   "trigger_order": {
+    "n": 7994,
+    "idx0_rate": 0.5851
+   },
+   "announce_x": {
+    "n": 721,
+    "idx0_rate": 0.0
+   },
+   "target_amount": {
+    "n": 239,
+    "idx0_rate": 0.4351
+   },
+   "replacement_effect": {
+    "n": 168,
+    "idx0_rate": 0.3571
+   }
+  },
+  "baseline_rogshai": {
+   "choose_object": {
+    "n": 5724,
+    "idx0_rate": 0.3896
+   },
+   "mulligan": {
+    "n": 1320,
+    "idx0_rate": 0.5576
+   },
+   "priority": {
+    "n": 393644,
+    "idx0_rate": 0.9347
+   },
+   "mana_payment": {
+    "n": 101720,
+    "idx0_rate": 0.0224
+   },
+   "target": {
+    "n": 9704,
+    "idx0_rate": 0.4211
+   },
+   "choice": {
+    "n": 8788,
+    "idx0_rate": 0.3293
+   },
+   "choose_use": {
+    "n": 4442,
+    "idx0_rate": 0.9617
+   },
+   "declare_attacker": {
+    "n": 10342,
+    "idx0_rate": 0.3208
+   },
+   "mode": {
+    "n": 1442,
+    "idx0_rate": 0.3218
+   },
+   "trigger_order": {
+    "n": 2096,
+    "idx0_rate": 0.5802
+   },
+   "declare_blocker": {
+    "n": 3564,
+    "idx0_rate": 0.1403
+   },
+   "multi_amount": {
+    "n": 168,
+    "idx0_rate": 0.0
+   },
+   "announce_x": {
+    "n": 182,
+    "idx0_rate": 0.0
+   },
+   "target_amount": {
+    "n": 44,
+    "idx0_rate": 0.3182
+   },
+   "replacement_effect": {
+    "n": 64,
+    "idx0_rate": 0.2188
+   }
+  },
+  "baseline_chulane": {
+   "choose_object": {
+    "n": 6680,
+    "idx0_rate": 0.3919
+   },
+   "mulligan": {
+    "n": 1402,
+    "idx0_rate": 0.5706
+   },
+   "target": {
+    "n": 12612,
+    "idx0_rate": 0.4044
+   },
+   "priority": {
+    "n": 456096,
+    "idx0_rate": 0.9258
+   },
+   "choice": {
+    "n": 9968,
+    "idx0_rate": 0.3343
+   },
+   "mana_payment": {
+    "n": 114032,
+    "idx0_rate": 0.0216
+   },
+   "declare_attacker": {
+    "n": 12846,
+    "idx0_rate": 0.3092
+   },
+   "choose_use": {
+    "n": 5816,
+    "idx0_rate": 0.9876
+   },
+   "declare_blocker": {
+    "n": 4908,
+    "idx0_rate": 0.1948
+   },
+   "mode": {
+    "n": 1806,
+    "idx0_rate": 0.4086
+   },
+   "announce_x": {
+    "n": 368,
+    "idx0_rate": 0.0
+   },
+   "trigger_order": {
+    "n": 3272,
+    "idx0_rate": 0.4786
+   },
+   "multi_amount": {
+    "n": 240,
+    "idx0_rate": 0.0
+   },
+   "target_amount": {
+    "n": 88,
+    "idx0_rate": 0.3409
+   },
+   "replacement_effect": {
+    "n": 200,
+    "idx0_rate": 0.1
+   },
+   "amount": {
+    "n": 24,
+    "idx0_rate": 0.0
+   }
+  },
+  "step4_rogshai": {
+   "choose_object": {
+    "n": 952,
+    "idx0_rate": 0.3929
+   },
+   "mulligan": {
+    "n": 444,
+    "idx0_rate": 0.5045
+   },
+   "target": {
+    "n": 2504,
+    "idx0_rate": 0.3762
+   },
+   "priority": {
+    "n": 104124,
+    "idx0_rate": 0.9337
+   },
+   "declare_attacker": {
+    "n": 2823,
+    "idx0_rate": 0.2009
+   },
+   "mana_payment": {
+    "n": 28589,
+    "idx0_rate": 0.0314
+   },
+   "choose_use": {
+    "n": 1191,
+    "idx0_rate": 0.9312
+   },
+   "choice": {
+    "n": 2600,
+    "idx0_rate": 0.3919
+   },
+   "declare_blocker": {
+    "n": 1044,
+    "idx0_rate": 0.2079
+   },
+   "announce_x": {
+    "n": 190,
+    "idx0_rate": 0.0
+   },
+   "multi_amount": {
+    "n": 69,
+    "idx0_rate": 0.0
+   },
+   "trigger_order": {
+    "n": 608,
+    "idx0_rate": 0.4901
+   },
+   "mode": {
+    "n": 262,
+    "idx0_rate": 0.5
+   },
+   "target_amount": {
+    "n": 87,
+    "idx0_rate": 0.5172
+   },
+   "replacement_effect": {
+    "n": 5,
+    "idx0_rate": 1.0
+   }
+  },
+  "speedtest_rogshai": {
+   "choose_object": {
+    "n": 260,
+    "idx0_rate": 0.3538
+   },
+   "mulligan": {
+    "n": 130,
+    "idx0_rate": 0.4923
+   },
+   "target": {
+    "n": 700,
+    "idx0_rate": 0.3943
+   },
+   "priority": {
+    "n": 28870,
+    "idx0_rate": 0.9327
+   },
+   "choose_use": {
+    "n": 328,
+    "idx0_rate": 0.9207
+   },
+   "mana_payment": {
+    "n": 8178,
+    "idx0_rate": 0.035
+   },
+   "choice": {
+    "n": 750,
+    "idx0_rate": 0.408
+   },
+   "declare_attacker": {
+    "n": 856,
+    "idx0_rate": 0.2009
+   },
+   "declare_blocker": {
+    "n": 322,
+    "idx0_rate": 0.1925
+   },
+   "mode": {
+    "n": 70,
+    "idx0_rate": 0.5143
+   },
+   "multi_amount": {
+    "n": 22,
+    "idx0_rate": 0.0
+   },
+   "trigger_order": {
+    "n": 190,
+    "idx0_rate": 0.4842
+   },
+   "announce_x": {
+    "n": 60,
+    "idx0_rate": 0.0
+   },
+   "target_amount": {
+    "n": 32,
+    "idx0_rate": 0.5625
+   },
+   "replacement_effect": {
+    "n": 2,
+    "idx0_rate": 1.0
+   }
+  }
+ },
+ "top_prompts": [
+  {
+   "prompt": "Choose priority action",
+   "n": 4373551,
+   "idx0_rate": 0.9296,
+   "mean_opts": 3.99
+  },
+  {
+   "prompt": "Pick a mana color",
+   "n": 54166,
+   "idx0_rate": 0.3385,
+   "mean_opts": 3.73
+  },
+  {
+   "prompt": "Choose next triggered ability",
+   "n": 25647,
+   "idx0_rate": 0.5447,
+   "mean_opts": 4.64
+  },
+  {
+   "prompt": "Choose color",
+   "n": 23566,
+   "idx0_rate": 0.4418,
+   "mean_opts": 5.0
+  },
+  {
+   "prompt": "Choose attack for Elf Warrior Token",
+   "n": 20555,
+   "idx0_rate": 0.2985,
+   "mean_opts": 3.22
+  },
+  {
+   "prompt": "Select a creature you control",
+   "n": 18906,
+   "idx0_rate": 0.3433,
+   "mean_opts": 5.16
+  },
+  {
+   "prompt": "Select a card to discard",
+   "n": 14386,
+   "idx0_rate": 0.099,
+   "mean_opts": 5.36
+  },
+  {
+   "prompt": "Keep or mulligan",
+   "n": 14175,
+   "idx0_rate": 0.5562,
+   "mean_opts": 2.0
+  },
+  {
+   "prompt": "Select a Villain you control",
+   "n": 9902,
+   "idx0_rate": 0.7685,
+   "mean_opts": 3.42
+  },
+  {
+   "prompt": "Select a creature",
+   "n": 8739,
+   "idx0_rate": 0.3201,
+   "mean_opts": 11.42
+  },
+  {
+   "prompt": "Choose creatures blocked by Elf Warrior Token",
+   "n": 8172,
+   "idx0_rate": 0.1022,
+   "mean_opts": 1.7
+  },
+  {
+   "prompt": "Select untapped Elves you control (selected 0 of 10, min 10)",
+   "n": 6972,
+   "idx0_rate": 0.3698,
+   "mean_opts": 10.32
+  },
+  {
+   "prompt": "Put a land card from your hand onto the battlefield?",
+   "n": 6600,
+   "idx0_rate": 1.0,
+   "mean_opts": 2.0
+  },
+  {
+   "prompt": "Select up to one card to PUT on the BOTTOM of your library (Scry)",
+   "n": 6346,
+   "idx0_rate": 1.0,
+   "mean_opts": 1.0
+  },
+  {
+   "prompt": "Select a basic land card",
+   "n": 6258,
+   "idx0_rate": 0.2911,
+   "mean_opts": 11.99
+  },
+  {
+   "prompt": "Choose attack for Rograkh, Son of Rohgahh",
+   "n": 6074,
+   "idx0_rate": 0.7074,
+   "mean_opts": 3.85
+  },
+  {
+   "prompt": "Choose attack for Lathril, Blade of the Elves",
+   "n": 5967,
+   "idx0_rate": 0.1403,
+   "mean_opts": 3.6
+  },
+  {
+   "prompt": "Select creatures (selected 0 of 2)",
+   "n": 5341,
+   "idx0_rate": 0.2477,
+   "mean_opts": 10.7
+  },
+  {
+   "prompt": "Choose attack for Doctor Doom, King of Latveria",
+   "n": 5339,
+   "idx0_rate": 0.0987,
+   "mean_opts": 3.55
+  },
+  {
+   "prompt": "Select a creature to tap for convoke",
+   "n": 5168,
+   "idx0_rate": 0.5977,
+   "mean_opts": 4.44
+  },
+  {
+   "prompt": "Select creatures (selected 1 of 2)",
+   "n": 5129,
+   "idx0_rate": 0.2418,
+   "mean_opts": 10.11
+  },
+  {
+   "prompt": "Select a color of mana to add 1 of it Treasure Token [#]",
+   "n": 4959,
+   "idx0_rate": 0.3235,
+   "mean_opts": 5.0
+  },
+  {
+   "prompt": "Select another untapped creature you control (selected 0) (selected power 0 of 3)",
+   "n": 4405,
+   "idx0_rate": 0.4776,
+   "mean_opts": 2.84
+  },
+  {
+   "prompt": "choose one or more &mdash;<br>&bull <i>Sell Contraband</i> &mdash; Create a Treasure token. You lose 1 life.<br>&bull <i>Buy Information</i> &mdash; Draw a card. You lose 2 life.<br>&bull <i>Hire a Mercenary</i> &mdash; Create a 3/2 colorless Shapeshifter creature token with changeling. You lose 3 life.<br>",
+   "n": 4137,
+   "idx0_rate": 0.6667,
+   "mean_opts": 2.0
+  },
+  {
+   "prompt": "Select a land card",
+   "n": 4052,
+   "idx0_rate": 0.6814,
+   "mean_opts": 3.62
+  },
+  {
+   "prompt": "Choose attack for Elemental Token",
+   "n": 3767,
+   "idx0_rate": 0.3693,
+   "mean_opts": 2.62
+  },
+  {
+   "prompt": "Choose attack for Snake Token",
+   "n": 3703,
+   "idx0_rate": 0.7216,
+   "mean_opts": 2.58
+  },
+  {
+   "prompt": "choose five. You may choose the same mode more than once.<br>&bull Target permanent phases out.<br>&bull Target player draws a card.<br>&bull Exile target player's graveyard.<br>&bull {this} deals 2 damage to any target.<br>&bull Destroy target artifact or enchantment.<br>",
+   "n": 3650,
+   "idx0_rate": 0.0,
+   "mean_opts": 5.0
+  },
+  {
+   "prompt": "Select a player (to have their graveyard exiled)",
+   "n": 3630,
+   "idx0_rate": 0.3044,
+   "mean_opts": 3.55
+  },
+  {
+   "prompt": "Choose creatures blocked by Snake Token",
+   "n": 3357,
+   "idx0_rate": 0.0935,
+   "mean_opts": 4.71
+  },
+  {
+   "prompt": "Select an artifact or enchantment",
+   "n": 3045,
+   "idx0_rate": 0.4315,
+   "mean_opts": 4.93
+  },
+  {
+   "prompt": "Select up to one cards from your graveyard",
+   "n": 2989,
+   "idx0_rate": 0.4112,
+   "mean_opts": 4.83
+  },
+  {
+   "prompt": "Whenever you discard a card, you may exile that card from your graveyard.",
+   "n": 2830,
+   "idx0_rate": 1.0,
+   "mean_opts": 2.0
+  },
+  {
+   "prompt": "Select a color of mana to add 1 of it Prophetic Prism [#]",
+   "n": 2828,
+   "idx0_rate": 0.0428,
+   "mean_opts": 5.0
+  },
+  {
+   "prompt": "Select a card (1 more) to put on the bottom of your library",
+   "n": 2519,
+   "idx0_rate": 0.0766,
+   "mean_opts": 6.79
+  },
+  {
+   "prompt": "Choose attack for Villain Token",
+   "n": 2479,
+   "idx0_rate": 0.0553,
+   "mean_opts": 3.1
+  },
+  {
+   "prompt": "Select an opponent",
+   "n": 2454,
+   "idx0_rate": 0.5086,
+   "mean_opts": 2.32
+  },
+  {
+   "prompt": "Choose creatures blocked by Rograkh, Son of Rohgahh",
+   "n": 2435,
+   "idx0_rate": 0.0341,
+   "mean_opts": 1.91
+  },
+  {
+   "prompt": "Select untapped creatures you control (selected 0 of 4, min 4)",
+   "n": 2397,
+   "idx0_rate": 0.5603,
+   "mean_opts": 9.4
+  },
+  {
+   "prompt": "Select untapped Elves you control (selected 0 of 5, min 5)",
+   "n": 2286,
+   "idx0_rate": 0.4164,
+   "mean_opts": 11.61
+  }
+ ],
+ "mulligan_selections": {
+  "('Keep opening hand',)": 7884,
+  "('Take mulligan',)": 6291
+ },
+ "startpick": {
+  "(1, 'Full Game Seat 2')": 534,
+  "(2, 'Full Game Seat 3')": 512,
+  "(3, 'Full Game Seat 4')": 471,
+  "(0, 'Full Game Seat 1')": 454
+ },
+ "pass_stats": {}
+}
