@@ -1,0 +1,1502 @@
+{
+  "pin": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+  "upstream_ref": "upstream/master",
+  "upstream_head": "c74ac92cb2a4213b1b5ed442c9d1102842dc08bb",
+  "merge_base": "fab0f23b78ddd755102cebfe20d618be87af59d0",
+  "commits_total": 40,
+  "commits_by_kind": {
+    "engine": 10,
+    "card": 25,
+    "set": 26,
+    "test": 13,
+    "data": 7
+  },
+  "engine_commits": [
+    {
+      "sha": "e18157de1712d0ebd0fe587ceb51b9695ee0944f",
+      "date": "2026-10-22",
+      "subject": "Use LKI of phased-out permanents in the remaining battlefield lookups (#16576)",
+      "files": [
+        "Mage.Sets/src/mage/cards/a/AetherCharge.java",
+        "Mage.Sets/src/mage/cards/a/AetherVial.java",
+        "Mage.Sets/src/mage/cards/e/EliteArcanist.java",
+        "Mage.Sets/src/mage/cards/f/FlayerOfTheHatebound.java",
+        "Mage.Sets/src/mage/cards/f/Flickerform.java",
+        "Mage.Sets/src/mage/cards/g/GreatbowDoyen.java",
+        "Mage.Sets/src/mage/cards/k/KusariGama.java",
+        "Mage.Sets/src/mage/cards/l/LiegeOfThePit.java",
+        "Mage.Sets/src/mage/cards/l/LordOfThePit.java",
+        "Mage.Sets/src/mage/cards/m/MurderousRedcap.java",
+        "Mage.Sets/src/mage/cards/o/OathkeeperTakenosDaisho.java",
+        "Mage.Sets/src/mage/cards/p/PanopticMirror.java",
+        "Mage.Sets/src/mage/cards/q/QuestForTheNihilStone.java",
+        "Mage.Sets/src/mage/cards/s/ShapeOfTheWiitigo.java",
+        "Mage.Sets/src/mage/cards/s/ShellOfTheLastKappa.java",
+        "Mage.Sets/src/mage/cards/s/SludgeStrider.java",
+        "Mage.Sets/src/mage/cards/s/SpikeshotElder.java",
+        "Mage.Sets/src/mage/cards/s/SpikeshotGoblin.java",
+        "Mage.Sets/src/mage/cards/s/SpitefulShadows.java",
+        "Mage.Sets/src/mage/cards/s/SpittingImage.java",
+        "Mage.Sets/src/mage/cards/s/SwordOfTheParuns.java",
+        "Mage.Sets/src/mage/cards/t/TrostaniSelesnyasVoice.java",
+        "Mage.Sets/src/mage/cards/v/VerdantSunsAvatar.java",
+        "Mage.Sets/src/mage/cards/w/WingPuncture.java",
+        "Mage.Sets/src/mage/cards/x/XathridDemon.java",
+        "Mage.Tests/src/test/java/org/mage/test/cards/abilities/keywords/PhasingLastKnownInformationTest.java",
+        "Mage/src/main/java/mage/abilities/AbilityImpl.java",
+        "Mage/src/main/java/mage/abilities/condition/common/AttachedToMatchesFilterCondition.java",
+        "Mage/src/main/java/mage/abilities/condition/common/EquippedHasSubtypeCondition.java",
+        "Mage/src/main/java/mage/abilities/condition/common/EquippedHasSupertypeCondition.java",
+        "Mage/src/main/java/mage/abilities/dynamicvalue/common/AttachedPermanentPowerCount.java",
+        "Mage/src/main/java/mage/abilities/dynamicvalue/common/AttachedPermanentToughnessCount.java",
+        "Mage/src/main/java/mage/abilities/effects/common/DamageEachOtherEffect.java",
+        "Mage/src/main/java/mage/abilities/effects/common/counter/AddPlusOneCountersAttachedEffect.java",
+        "Mage/src/main/java/mage/target/targetpointer/EachTargetPointer.java",
+        "Mage/src/main/java/mage/target/targetpointer/FixedTarget.java",
+        "Mage/src/main/java/mage/target/targetpointer/NthTargetPointer.java"
+      ]
+    },
+    {
+      "sha": "39d426476a8a0c0108fcca6ca3d1c3c9b6fdd4a7",
+      "date": "2026-10-21",
+      "subject": "[TRC] Implement Koloth, Tribble Hunter (#16569)",
+      "files": [
+        "Mage.Sets/src/mage/cards/k/KolothTribbleHunter.java",
+        "Mage.Sets/src/mage/sets/StarTrekCommander.java",
+        "Mage/src/main/java/mage/game/permanent/token/TribbleToken.java"
+      ]
+    },
+    {
+      "sha": "859591d006b2a8d5dfd2049869b5550101d09a22",
+      "date": "2026-10-21",
+      "subject": "Use getSpellOrLKIStack in CantBeCopiedSourceEffect like Twinning Staff (#16575)",
+      "files": [
+        "Mage/src/main/java/mage/abilities/effects/common/CantBeCopiedSourceEffect.java"
+      ]
+    },
+    {
+      "sha": "12be750f98131be75481a32dd37da2d854085f9a",
+      "date": "2026-10-21",
+      "subject": "Fix \"this spell can't be copied\" never applying (#16521)",
+      "files": [
+        "Mage.Tests/src/test/java/org/mage/test/cards/copy/CantBeCopiedTest.java",
+        "Mage/src/main/java/mage/abilities/effects/common/CantBeCopiedSourceEffect.java"
+      ]
+    },
+    {
+      "sha": "5f04616c6c9369a06dc2635a62caeebcd13125a5",
+      "date": "2026-10-21",
+      "subject": "Melded permanents can't be turned face down (712.16) (#16562)",
+      "files": [
+        "Mage.Tests/src/test/java/org/mage/test/cards/facedown/FaceDownDoubleFacedTest.java",
+        "Mage/src/main/java/mage/abilities/effects/common/continuous/BecomesFaceDownCreatureAllEffect.java",
+        "Mage/src/main/java/mage/abilities/effects/common/continuous/BecomesFaceDownCreatureEffect.java"
+      ]
+    },
+    {
+      "sha": "4dc8f311d4049cbd06068774f24666a2cc98fe82",
+      "date": "2026-10-21",
+      "subject": "Use last known information of phased-out permanents for damage sources (#16561)",
+      "files": [
+        "Mage.Tests/src/test/java/org/mage/test/cards/abilities/keywords/PhasingLastKnownInformationTest.java",
+        "Mage/src/main/java/mage/game/GameImpl.java",
+        "Mage/src/main/java/mage/game/permanent/PermanentImpl.java"
+      ]
+    },
+    {
+      "sha": "22fca32e3a948d4e1dbe75ece1f04e50e0318e46",
+      "date": "2026-10-21",
+      "subject": "Payment cancel - fixed that some spells can lost activation status on impossible payment or cancel (example: Convoke, Delve, Improvise,  #16509)",
+      "files": [
+        "Mage.Sets/src/mage/cards/c/CelestialReunion.java",
+        "Mage.Tests/src/test/java/org/mage/test/cards/abilities/keywords/GiftTest.java",
+        "Mage.Tests/src/test/java/org/mage/test/rollback/CanceledCost.java",
+        "Mage.Tests/src/test/java/org/mage/test/rollback/PaymentRollbackTest.java",
+        "Mage/src/main/java/mage/abilities/Ability.java",
+        "Mage/src/main/java/mage/abilities/AbilityImpl.java",
+        "Mage/src/main/java/mage/abilities/costs/AlternativeSourceCostsImpl.java",
+        "Mage/src/main/java/mage/abilities/costs/common/ExileFromHandCost.java",
+        "Mage/src/main/java/mage/abilities/costs/common/TeamworkCost.java",
+        "Mage/src/main/java/mage/abilities/keyword/BargainAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/BeholdAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/BlightAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/BlitzAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/CollectEvidenceAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/ConvokeAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/EmergeAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/EntwineAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/GiftAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/KickerAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/MayhemAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/OffspringAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/ReplicateAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/SneakAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/SpectacleAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/SquadAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/SurgeAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/TeamworkAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/WarpAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/WaterbendAbility.java",
+        "Mage/src/main/java/mage/abilities/keyword/WebSlingingAbility.java",
+        "Mage/src/main/java/mage/game/Game.java",
+        "Mage/src/main/java/mage/game/GameImpl.java",
+        "Mage/src/main/java/mage/game/GameState.java",
+        "Mage/src/main/java/mage/players/Player.java",
+        "Mage/src/main/java/mage/players/PlayerImpl.java",
+        "Mage/src/main/java/mage/util/CardUtil.java"
+      ]
+    },
+    {
+      "sha": "e6edddc37bd4eb4647b71950dc294e12da695ed2",
+      "date": "2026-10-21",
+      "subject": "Update Thriving lands to the new enters tapped and choose a color template (#16560)",
+      "files": [
+        "Mage.Sets/src/mage/cards/t/ThrivingBluff.java",
+        "Mage.Sets/src/mage/cards/t/ThrivingGrove.java",
+        "Mage.Sets/src/mage/cards/t/ThrivingHeath.java",
+        "Mage.Sets/src/mage/cards/t/ThrivingIsle.java",
+        "Mage.Sets/src/mage/cards/t/ThrivingMoor.java",
+        "Mage.Tests/src/test/java/org/mage/test/cards/single/jmp/ThrivingMoorTest.java",
+        "Mage/src/main/java/mage/abilities/common/EntersBattlefieldTappedAsItEntersChooseColorAbility.java"
+      ]
+    },
+    {
+      "sha": "463dba35a539cf4ef62aa64e7dd8df21b8b64585",
+      "date": "2026-10-21",
+      "subject": "Add BlocksAllTriggeredAbility and use it for whenever a creature blocks cards (#16559)",
+      "files": [
+        "Mage.Sets/src/mage/cards/b/BattleStrain.java",
+        "Mage.Sets/src/mage/cards/c/CarnageGladiator.java",
+        "Mage.Sets/src/mage/cards/h/HeatOfBattle.java",
+        "Mage.Sets/src/mage/cards/n/NobleStand.java",
+        "Mage.Sets/src/mage/cards/p/PerimeterCaptain.java",
+        "Mage.Sets/src/mage/cards/t/TetsukoUmezawaPursuer.java",
+        "Mage.Tests/src/test/java/org/mage/test/cards/triggers/BlocksAllTriggeredAbilityTest.java",
+        "Mage/src/main/java/mage/abilities/common/BlocksAllTriggeredAbility.java"
+      ]
+    },
+    {
+      "sha": "3f4223aadef662633e07c956cff3ce814db3a544",
+      "date": "2026-10-20",
+      "subject": "[FRC] Implement Tamiyo, Upriser Crowned (#16408)",
+      "files": [
+        "Mage.Sets/src/mage/cards/n/NornsDecree.java",
+        "Mage.Sets/src/mage/cards/t/TamiyoUpriserCrowned.java",
+        "Mage.Sets/src/mage/sets/RealityFractureCommander.java",
+        "Mage.Tests/src/test/java/org/mage/test/cards/triggers/damage/TamiyoUpriserCrownedTest.java",
+        "Mage/src/main/java/mage/abilities/common/CombatDamageDealtToYouTriggeredAbility.java"
+      ]
+    }
+  ],
+  "card_classes": {
+    "added": 29,
+    "modified": 40,
+    "deleted": 0,
+    "name_unresolved": 0
+  },
+  "changed_cards": [
+    {
+      "class": "AetherCharge",
+      "status": "modified",
+      "name": "Aether Charge",
+      "precon_decks": []
+    },
+    {
+      "class": "AetherVial",
+      "status": "modified",
+      "name": "Aether Vial",
+      "precon_decks": []
+    },
+    {
+      "class": "Andoria",
+      "status": "added",
+      "name": "Andoria",
+      "precon_decks": []
+    },
+    {
+      "class": "Avenge",
+      "status": "added",
+      "name": "Avenge",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    },
+    {
+      "class": "Bajor",
+      "status": "added",
+      "name": "Bajor",
+      "precon_decks": []
+    },
+    {
+      "class": "BattleStrain",
+      "status": "modified",
+      "name": "Battle Strain",
+      "precon_decks": []
+    },
+    {
+      "class": "BeastEruditeAerialist",
+      "status": "modified",
+      "name": "Beast, Erudite Aerialist",
+      "precon_decks": []
+    },
+    {
+      "class": "CardassiaPrime",
+      "status": "added",
+      "name": "Cardassia Prime",
+      "precon_decks": []
+    },
+    {
+      "class": "CarnageGladiator",
+      "status": "modified",
+      "name": "Carnage Gladiator",
+      "precon_decks": []
+    },
+    {
+      "class": "CelestialReunion",
+      "status": "modified",
+      "name": "Celestial Reunion",
+      "precon_decks": []
+    },
+    {
+      "class": "CommandChair",
+      "status": "added",
+      "name": "Command Chair",
+      "precon_decks": []
+    },
+    {
+      "class": "EarthSector001",
+      "status": "added",
+      "name": "Earth, Sector 001",
+      "precon_decks": []
+    },
+    {
+      "class": "EliteArcanist",
+      "status": "modified",
+      "name": "Elite Arcanist",
+      "precon_decks": []
+    },
+    {
+      "class": "Ferenginar",
+      "status": "added",
+      "name": "Ferenginar",
+      "precon_decks": []
+    },
+    {
+      "class": "FlayerOfTheHatebound",
+      "status": "modified",
+      "name": "Flayer of the Hatebound",
+      "precon_decks": [
+        "2019_merciless_rage",
+        "2025_revival_trance__final_fantasy_vi_",
+        "2025_revival_trance_collector_s_edition__final_fantasy_vi_"
+      ]
+    },
+    {
+      "class": "Flickerform",
+      "status": "modified",
+      "name": "Flickerform",
+      "precon_decks": [
+        "2013_evasive_maneuvers",
+        "2017_evasive_maneuvers"
+      ]
+    },
+    {
+      "class": "GreatbowDoyen",
+      "status": "modified",
+      "name": "Greatbow Doyen",
+      "precon_decks": []
+    },
+    {
+      "class": "HeatOfBattle",
+      "status": "modified",
+      "name": "Heat of Battle",
+      "precon_decks": []
+    },
+    {
+      "class": "HeroicReturn",
+      "status": "added",
+      "name": "Heroic Return",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    },
+    {
+      "class": "JeanLucPicardLuminary",
+      "status": "added",
+      "name": "Jean-Luc Picard, Luminary",
+      "precon_decks": []
+    },
+    {
+      "class": "KolothTribbleHunter",
+      "status": "added",
+      "name": "Koloth, Tribble Hunter",
+      "precon_decks": []
+    },
+    {
+      "class": "KusariGama",
+      "status": "modified",
+      "name": "Kusari-Gama",
+      "precon_decks": []
+    },
+    {
+      "class": "LiegeOfThePit",
+      "status": "modified",
+      "name": "Liege of the Pit",
+      "precon_decks": []
+    },
+    {
+      "class": "LocutusOfBorg",
+      "status": "added",
+      "name": "Locutus of Borg",
+      "precon_decks": []
+    },
+    {
+      "class": "LordOfThePit",
+      "status": "modified",
+      "name": "Lord of the Pit",
+      "precon_decks": []
+    },
+    {
+      "class": "MrSpockScienceOfficer",
+      "status": "added",
+      "name": "Mr. Spock, Science Officer",
+      "precon_decks": []
+    },
+    {
+      "class": "MurderousRedcap",
+      "status": "modified",
+      "name": "Murderous Redcap",
+      "precon_decks": []
+    },
+    {
+      "class": "NobleStand",
+      "status": "modified",
+      "name": "Noble Stand",
+      "precon_decks": []
+    },
+    {
+      "class": "NornsDecree",
+      "status": "modified",
+      "name": "Norn's Decree",
+      "precon_decks": [
+        "2023_corrupting_influence"
+      ]
+    },
+    {
+      "class": "OathkeeperTakenosDaisho",
+      "status": "modified",
+      "name": "Oathkeeper, Takeno's Daisho",
+      "precon_decks": []
+    },
+    {
+      "class": "OriginOfIronMan",
+      "status": "added",
+      "name": "Origin of Iron Man",
+      "precon_decks": []
+    },
+    {
+      "class": "Orion",
+      "status": "added",
+      "name": "Orion",
+      "precon_decks": []
+    },
+    {
+      "class": "PanopticMirror",
+      "status": "modified",
+      "name": "Panoptic Mirror",
+      "precon_decks": []
+    },
+    {
+      "class": "PantherHabit",
+      "status": "added",
+      "name": "Panther Habit",
+      "precon_decks": [
+        "2026_wakanda_forever",
+        "2026_wakanda_forever_collector_s_edition"
+      ]
+    },
+    {
+      "class": "PerimeterCaptain",
+      "status": "modified",
+      "name": "Perimeter Captain",
+      "precon_decks": []
+    },
+    {
+      "class": "QonoS",
+      "status": "added",
+      "name": "Qo'noS",
+      "precon_decks": []
+    },
+    {
+      "class": "QuestForTheNihilStone",
+      "status": "modified",
+      "name": "Quest for the Nihil Stone",
+      "precon_decks": []
+    },
+    {
+      "class": "Risa",
+      "status": "added",
+      "name": "Risa",
+      "precon_decks": []
+    },
+    {
+      "class": "Romulus",
+      "status": "added",
+      "name": "Romulus",
+      "precon_decks": []
+    },
+    {
+      "class": "ShapeOfTheWiitigo",
+      "status": "modified",
+      "name": "Shape of the Wiitigo",
+      "precon_decks": []
+    },
+    {
+      "class": "ShellOfTheLastKappa",
+      "status": "modified",
+      "name": "Shell of the Last Kappa",
+      "precon_decks": []
+    },
+    {
+      "class": "SilverSurferGalactussHerald",
+      "status": "added",
+      "name": "Silver Surfer, Galactus's Herald",
+      "precon_decks": [
+        "2026_the_fantastic_four",
+        "2026_the_fantastic_four_collector_s_edition"
+      ]
+    },
+    {
+      "class": "SludgeStrider",
+      "status": "modified",
+      "name": "Sludge Strider",
+      "precon_decks": []
+    },
+    {
+      "class": "SpikeshotElder",
+      "status": "modified",
+      "name": "Spikeshot Elder",
+      "precon_decks": []
+    },
+    {
+      "class": "SpikeshotGoblin",
+      "status": "modified",
+      "name": "Spikeshot Goblin",
+      "precon_decks": []
+    },
+    {
+      "class": "SpitefulShadows",
+      "status": "modified",
+      "name": "Spiteful Shadows",
+      "precon_decks": []
+    },
+    {
+      "class": "SpittingImage",
+      "status": "modified",
+      "name": "Spitting Image",
+      "precon_decks": [
+        "2016_breed_lethality",
+        "2018_breed_lethality",
+        "2020_reap_the_tides",
+        "2021_quantum_quandrix"
+      ]
+    },
+    {
+      "class": "SpotFelisCatus",
+      "status": "added",
+      "name": "Spot, Felis catus",
+      "precon_decks": []
+    },
+    {
+      "class": "StarshipEnterprise",
+      "status": "added",
+      "name": "Starship Enterprise",
+      "precon_decks": []
+    },
+    {
+      "class": "SwordOfTheParuns",
+      "status": "modified",
+      "name": "Sword of the Paruns",
+      "precon_decks": [
+        "2013_evasive_maneuvers",
+        "2017_evasive_maneuvers"
+      ]
+    },
+    {
+      "class": "TamiyoUpriserCrowned",
+      "status": "added",
+      "name": "Tamiyo, Upriser Crowned",
+      "precon_decks": [
+        "2026_multiverse_reforged"
+      ]
+    },
+    {
+      "class": "TeaEarlGreyHot",
+      "status": "added",
+      "name": "Tea, Earl Grey, Hot",
+      "precon_decks": []
+    },
+    {
+      "class": "TetsukoUmezawaPursuer",
+      "status": "modified",
+      "name": "Tetsuko Umezawa, Pursuer",
+      "precon_decks": []
+    },
+    {
+      "class": "TheDurasSisters",
+      "status": "added",
+      "name": "The Duras Sisters",
+      "precon_decks": []
+    },
+    {
+      "class": "ThoughtReflection",
+      "status": "modified",
+      "name": "Thought Reflection",
+      "precon_decks": [
+        "2015_seize_control"
+      ]
+    },
+    {
+      "class": "ThrivingBluff",
+      "status": "modified",
+      "name": "Thriving Bluff",
+      "precon_decks": [
+        "2022_cabaretti_cacophony",
+        "2022_maestros_massacre",
+        "2022_riveteers_rampage",
+        "2023_ahoy_mateys",
+        "2023_timey_wimey",
+        "2023_veloci_ramp_tor",
+        "2024_family_matters",
+        "2026_dance_of_the_elements"
+      ]
+    },
+    {
+      "class": "ThrivingGrove",
+      "status": "modified",
+      "name": "Thriving Grove",
+      "precon_decks": [
+        "2021_aura_of_courage",
+        "2022_cabaretti_cacophony",
+        "2022_riveteers_rampage",
+        "2023_blast_from_the_past",
+        "2023_veloci_ramp_tor",
+        "2024_peace_offering",
+        "2026_dance_of_the_elements",
+        "2026_turtle_power_"
+      ]
+    },
+    {
+      "class": "ThrivingHeath",
+      "status": "modified",
+      "name": "Thriving Heath",
+      "precon_decks": [
+        "2021_aura_of_courage",
+        "2021_dungeons_of_death",
+        "2022_cabaretti_cacophony",
+        "2022_obscura_operation",
+        "2023_blast_from_the_past",
+        "2023_cavalry_charge",
+        "2023_veloci_ramp_tor",
+        "2024_family_matters",
+        "2024_miracle_worker",
+        "2024_peace_offering",
+        "2026_dance_of_the_elements"
+      ]
+    },
+    {
+      "class": "ThrivingIsle",
+      "status": "modified",
+      "name": "Thriving Isle",
+      "precon_decks": [
+        "2021_aura_of_courage",
+        "2021_dungeons_of_death",
+        "2022_maestros_massacre",
+        "2022_obscura_operation",
+        "2023_ahoy_mateys",
+        "2023_blast_from_the_past",
+        "2023_cavalry_charge",
+        "2024_family_matters",
+        "2024_miracle_worker",
+        "2024_peace_offering",
+        "2026_dance_of_the_elements",
+        "2026_turtle_power_"
+      ]
+    },
+    {
+      "class": "ThrivingMoor",
+      "status": "modified",
+      "name": "Thriving Moor",
+      "precon_decks": [
+        "2021_dungeons_of_death",
+        "2022_maestros_massacre",
+        "2022_obscura_operation",
+        "2022_riveteers_rampage",
+        "2023_ahoy_mateys",
+        "2023_cavalry_charge",
+        "2023_masters_of_evil",
+        "2024_miracle_worker",
+        "2026_dance_of_the_elements",
+        "2026_turtle_power_"
+      ]
+    },
+    {
+      "class": "TrostaniSelesnyasVoice",
+      "status": "modified",
+      "name": "Trostani, Selesnya's Voice",
+      "precon_decks": [
+        "2019_primal_genesis",
+        "2026_hatsune_miku"
+      ]
+    },
+    {
+      "class": "TroublingTribbles",
+      "status": "added",
+      "name": "Troubling Tribbles",
+      "precon_decks": []
+    },
+    {
+      "class": "UnexploredTerritory",
+      "status": "added",
+      "name": "Unexplored Territory",
+      "precon_decks": []
+    },
+    {
+      "class": "VerdantSunsAvatar",
+      "status": "modified",
+      "name": "Verdant Sun's Avatar",
+      "precon_decks": [
+        "2020_reap_the_tides",
+        "2021_witherbloom_witchcraft",
+        "2023_veloci_ramp_tor",
+        "2026_tramplesaurus_rex"
+      ]
+    },
+    {
+      "class": "VexingDrone",
+      "status": "added",
+      "name": "Vexing Drone",
+      "precon_decks": []
+    },
+    {
+      "class": "Vulcan",
+      "status": "added",
+      "name": "Vulcan",
+      "precon_decks": []
+    },
+    {
+      "class": "WarpCore",
+      "status": "added",
+      "name": "Warp Core",
+      "precon_decks": []
+    },
+    {
+      "class": "WingPuncture",
+      "status": "modified",
+      "name": "Wing Puncture",
+      "precon_decks": []
+    },
+    {
+      "class": "XathridDemon",
+      "status": "modified",
+      "name": "Xathrid Demon",
+      "precon_decks": [
+        "2014_sworn_to_darkness"
+      ]
+    }
+  ],
+  "changed_cards_in_precons": [
+    {
+      "class": "Avenge",
+      "status": "added",
+      "name": "Avenge",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    },
+    {
+      "class": "FlayerOfTheHatebound",
+      "status": "modified",
+      "name": "Flayer of the Hatebound",
+      "precon_decks": [
+        "2019_merciless_rage",
+        "2025_revival_trance__final_fantasy_vi_",
+        "2025_revival_trance_collector_s_edition__final_fantasy_vi_"
+      ]
+    },
+    {
+      "class": "Flickerform",
+      "status": "modified",
+      "name": "Flickerform",
+      "precon_decks": [
+        "2013_evasive_maneuvers",
+        "2017_evasive_maneuvers"
+      ]
+    },
+    {
+      "class": "HeroicReturn",
+      "status": "added",
+      "name": "Heroic Return",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    },
+    {
+      "class": "NornsDecree",
+      "status": "modified",
+      "name": "Norn's Decree",
+      "precon_decks": [
+        "2023_corrupting_influence"
+      ]
+    },
+    {
+      "class": "PantherHabit",
+      "status": "added",
+      "name": "Panther Habit",
+      "precon_decks": [
+        "2026_wakanda_forever",
+        "2026_wakanda_forever_collector_s_edition"
+      ]
+    },
+    {
+      "class": "SilverSurferGalactussHerald",
+      "status": "added",
+      "name": "Silver Surfer, Galactus's Herald",
+      "precon_decks": [
+        "2026_the_fantastic_four",
+        "2026_the_fantastic_four_collector_s_edition"
+      ]
+    },
+    {
+      "class": "SpittingImage",
+      "status": "modified",
+      "name": "Spitting Image",
+      "precon_decks": [
+        "2016_breed_lethality",
+        "2018_breed_lethality",
+        "2020_reap_the_tides",
+        "2021_quantum_quandrix"
+      ]
+    },
+    {
+      "class": "SwordOfTheParuns",
+      "status": "modified",
+      "name": "Sword of the Paruns",
+      "precon_decks": [
+        "2013_evasive_maneuvers",
+        "2017_evasive_maneuvers"
+      ]
+    },
+    {
+      "class": "TamiyoUpriserCrowned",
+      "status": "added",
+      "name": "Tamiyo, Upriser Crowned",
+      "precon_decks": [
+        "2026_multiverse_reforged"
+      ]
+    },
+    {
+      "class": "ThoughtReflection",
+      "status": "modified",
+      "name": "Thought Reflection",
+      "precon_decks": [
+        "2015_seize_control"
+      ]
+    },
+    {
+      "class": "ThrivingBluff",
+      "status": "modified",
+      "name": "Thriving Bluff",
+      "precon_decks": [
+        "2022_cabaretti_cacophony",
+        "2022_maestros_massacre",
+        "2022_riveteers_rampage",
+        "2023_ahoy_mateys",
+        "2023_timey_wimey",
+        "2023_veloci_ramp_tor",
+        "2024_family_matters",
+        "2026_dance_of_the_elements"
+      ]
+    },
+    {
+      "class": "ThrivingGrove",
+      "status": "modified",
+      "name": "Thriving Grove",
+      "precon_decks": [
+        "2021_aura_of_courage",
+        "2022_cabaretti_cacophony",
+        "2022_riveteers_rampage",
+        "2023_blast_from_the_past",
+        "2023_veloci_ramp_tor",
+        "2024_peace_offering",
+        "2026_dance_of_the_elements",
+        "2026_turtle_power_"
+      ]
+    },
+    {
+      "class": "ThrivingHeath",
+      "status": "modified",
+      "name": "Thriving Heath",
+      "precon_decks": [
+        "2021_aura_of_courage",
+        "2021_dungeons_of_death",
+        "2022_cabaretti_cacophony",
+        "2022_obscura_operation",
+        "2023_blast_from_the_past",
+        "2023_cavalry_charge",
+        "2023_veloci_ramp_tor",
+        "2024_family_matters",
+        "2024_miracle_worker",
+        "2024_peace_offering",
+        "2026_dance_of_the_elements"
+      ]
+    },
+    {
+      "class": "ThrivingIsle",
+      "status": "modified",
+      "name": "Thriving Isle",
+      "precon_decks": [
+        "2021_aura_of_courage",
+        "2021_dungeons_of_death",
+        "2022_maestros_massacre",
+        "2022_obscura_operation",
+        "2023_ahoy_mateys",
+        "2023_blast_from_the_past",
+        "2023_cavalry_charge",
+        "2024_family_matters",
+        "2024_miracle_worker",
+        "2024_peace_offering",
+        "2026_dance_of_the_elements",
+        "2026_turtle_power_"
+      ]
+    },
+    {
+      "class": "ThrivingMoor",
+      "status": "modified",
+      "name": "Thriving Moor",
+      "precon_decks": [
+        "2021_dungeons_of_death",
+        "2022_maestros_massacre",
+        "2022_obscura_operation",
+        "2022_riveteers_rampage",
+        "2023_ahoy_mateys",
+        "2023_cavalry_charge",
+        "2023_masters_of_evil",
+        "2024_miracle_worker",
+        "2026_dance_of_the_elements",
+        "2026_turtle_power_"
+      ]
+    },
+    {
+      "class": "TrostaniSelesnyasVoice",
+      "status": "modified",
+      "name": "Trostani, Selesnya's Voice",
+      "precon_decks": [
+        "2019_primal_genesis",
+        "2026_hatsune_miku"
+      ]
+    },
+    {
+      "class": "VerdantSunsAvatar",
+      "status": "modified",
+      "name": "Verdant Sun's Avatar",
+      "precon_decks": [
+        "2020_reap_the_tides",
+        "2021_witherbloom_witchcraft",
+        "2023_veloci_ramp_tor",
+        "2026_tramplesaurus_rex"
+      ]
+    },
+    {
+      "class": "XathridDemon",
+      "status": "modified",
+      "name": "Xathrid Demon",
+      "precon_decks": [
+        "2014_sworn_to_darkness"
+      ]
+    }
+  ],
+  "changed_cards_in_collection": 1,
+  "hazards": [
+    {
+      "file": "Mage.Sets/src/mage/cards/a/Avenge.java",
+      "category": "unordered",
+      "line": "private final Map<UUID, Set<UUID>> attackedPlayers = new HashMap<>();",
+      "card": "Avenge",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    },
+    {
+      "file": "Mage.Sets/src/mage/cards/a/Avenge.java",
+      "category": "unordered",
+      "line": ".computeIfAbsent(event.getPlayerId(), x -> new HashSet<>())",
+      "card": "Avenge",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    },
+    {
+      "file": "Mage.Sets/src/mage/cards/b/BeastEruditeAerialist.java",
+      "category": "unordered",
+      "line": "private final Map<UUID, Set<MageObjectReference>> map = new HashMap<>();",
+      "card": "Beast, Erudite Aerialist",
+      "precon_decks": []
+    },
+    {
+      "file": "Mage.Sets/src/mage/cards/b/BeastEruditeAerialist.java",
+      "category": "unordered",
+      "line": "map.computeIfAbsent(event.getPlayerId(), x -> new HashSet<>())",
+      "card": "Beast, Erudite Aerialist",
+      "precon_decks": []
+    },
+    {
+      "file": "Mage/src/main/java/mage/abilities/common/CombatDamageDealtToYouTriggeredAbility.java",
+      "category": "unordered",
+      "line": ".collect(Collectors.toSet());",
+      "card": null,
+      "precon_decks": []
+    },
+    {
+      "file": "Mage/src/main/java/mage/abilities/costs/common/TeamworkCost.java",
+      "category": "unordered",
+      "line": "ability.setCostsTag(TeamworkAbility.TEAMWORK_CREATURES_KEY, new HashSet<MageObjectReference>());",
+      "card": null,
+      "precon_decks": []
+    }
+  ],
+  "hazards_in_precons": [
+    {
+      "file": "Mage.Sets/src/mage/cards/a/Avenge.java",
+      "category": "unordered",
+      "line": "private final Map<UUID, Set<UUID>> attackedPlayers = new HashMap<>();",
+      "card": "Avenge",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    },
+    {
+      "file": "Mage.Sets/src/mage/cards/a/Avenge.java",
+      "category": "unordered",
+      "line": ".computeIfAbsent(event.getPlayerId(), x -> new HashSet<>())",
+      "card": "Avenge",
+      "precon_decks": [
+        "2026_avengers_assemble",
+        "2026_avengers_assemble_collector_s_edition"
+      ]
+    }
+  ],
+  "signature_changes": [
+    {
+      "file": "Mage/src/main/java/mage/abilities/common/CombatDamageDealtToYouTriggeredAbility.java",
+      "name": "CombatDamageDealtToYouTriggeredAbility",
+      "kind": "changed",
+      "old_parameters": "Zone,Effect,boolean,boolean",
+      "new_parameters": [
+        "Effect,SetTargetPointer",
+        "Zone,Effect,SetTargetPointer,boolean"
+      ],
+      "fork_callers": []
+    },
+    {
+      "file": "Mage/src/main/java/mage/game/GameState.java",
+      "name": "restore",
+      "kind": "changed",
+      "old_parameters": "GameState",
+      "new_parameters": [
+        "GameState,boolean"
+      ],
+      "fork_callers": [
+        "Mage.Tests/src/test/java/org/mage/test/cards/commander/CommanderPlaysCountStateRestoreTest.java",
+        "Mage.Tests/src/test/java/org/mage/test/serverside/rg02/RG02CommanderDamageRestoreTest.java",
+        "Mage/src/main/java/mage/game/GameImpl.java",
+        "Mage/src/main/java/mage/players/PlayerImpl.java"
+      ]
+    },
+    {
+      "file": "Mage/src/main/java/mage/util/CardUtil.java",
+      "name": "setSourceCostsTag",
+      "kind": "removed",
+      "old_parameters": "Game,Ability,String,Object",
+      "new_parameters": [],
+      "fork_callers": []
+    }
+  ],
+  "signature_changes_with_fork_callers": [
+    {
+      "file": "Mage/src/main/java/mage/game/GameState.java",
+      "name": "restore",
+      "kind": "changed",
+      "old_parameters": "GameState",
+      "new_parameters": [
+        "GameState,boolean"
+      ],
+      "fork_callers": [
+        "Mage.Tests/src/test/java/org/mage/test/cards/commander/CommanderPlaysCountStateRestoreTest.java",
+        "Mage.Tests/src/test/java/org/mage/test/serverside/rg02/RG02CommanderDamageRestoreTest.java",
+        "Mage/src/main/java/mage/game/GameImpl.java",
+        "Mage/src/main/java/mage/players/PlayerImpl.java"
+      ]
+    }
+  ],
+  "missing_precon_cards_source": "import report",
+  "missing_precon_cards_total": 31,
+  "missing_precon_cards_now_implemented": [
+    {
+      "name": "Tamiyo, Upriser Crowned",
+      "decks": [
+        "2026_multiverse_reforged"
+      ]
+    }
+  ],
+  "missing_precon_cards_with_pull_request": [],
+  "merge": {
+    "status": "CONFLICTS",
+    "conflicted_files": [
+      "Mage.Sets/src/mage/cards/a/Avenge.java",
+      "Mage.Sets/src/mage/cards/h/HeroicReturn.java",
+      "Mage.Sets/src/mage/cards/p/PantherHabit.java",
+      "Mage.Sets/src/mage/cards/s/SilverSurferGalactussHerald.java",
+      "Mage.Tests/src/test/java/org/mage/test/cards/single/msc/AvengeTest.java",
+      "Mage.Tests/src/test/java/org/mage/test/cards/single/msc/HeroicReturnTest.java",
+      "Mage.Tests/src/test/java/org/mage/test/cards/single/msc/PantherHabitTest.java",
+      "Mage.Tests/src/test/java/org/mage/test/cards/single/msc/SilverSurferGalactussHeraldTest.java"
+    ]
+  },
+  "commits": [
+    {
+      "sha": "c74ac92cb2a4213b1b5ed442c9d1102842dc08bb",
+      "date": "2026-10-22",
+      "author": "Muz Ali",
+      "subject": "[TRK] Update mtg-cards-data.txt",
+      "kinds": [
+        "data"
+      ]
+    },
+    {
+      "sha": "5ccb0af24015f15cff637e4270f718c220c4da49",
+      "date": "2026-10-22",
+      "author": "Darío Barrabino",
+      "subject": "[MSC] Implement Panther Habit (#16488)",
+      "kinds": [
+        "card",
+        "set",
+        "test"
+      ]
+    },
+    {
+      "sha": "7d700df67374c866bbe7be8c6b3ca608a189c813",
+      "date": "2026-10-22",
+      "author": "Darío Barrabino",
+      "subject": "[MSC] Implement Avenge (#16500)",
+      "kinds": [
+        "card",
+        "set",
+        "test"
+      ]
+    },
+    {
+      "sha": "e18157de1712d0ebd0fe587ceb51b9695ee0944f",
+      "date": "2026-10-22",
+      "author": "Darío Barrabino",
+      "subject": "Use LKI of phased-out permanents in the remaining battlefield lookups (#16576)",
+      "kinds": [
+        "engine",
+        "card",
+        "test"
+      ]
+    },
+    {
+      "sha": "4d60b894c188644b56c3e5c2026e52aa1393e9ff",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRC] Implement Spot, Felis catus (#16563)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "1c432a317f7c803f3bc6bc299e47c57796a7b975",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRC] Implement Starship Enterprise (#16567)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "6aa3f49b5aa7fc80406e7ac7fa2e2fa8e582d164",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRC] Implement Locutus of Borg (#16568)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "39d426476a8a0c0108fcca6ca3d1c3c9b6fdd4a7",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRC] Implement Koloth, Tribble Hunter (#16569)",
+      "kinds": [
+        "engine",
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "ece7fe3c09dd82fa7fa08130f9bd6fc89fb2ac51",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRC] Implement Jean-Luc Picard, Luminary (#16570)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "eed8df999e508ef451f7e16413977b1f26d7b04a",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRC] Implement Command Chair (#16571)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "cea8fdc7eaab9216de59c23f14f61d4b30c3a2af",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "[MSC] Implement Heroic Return (#16501)",
+      "kinds": [
+        "card",
+        "set",
+        "test"
+      ]
+    },
+    {
+      "sha": "d538182f077acace3770688ef2b69d2f63b797d2",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "[MSC] Implement Origin of Iron Man (#16502)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "90cf75adba9f55b0f4fa6e5b439023b852d75aa9",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "[HOB] Add missing printings",
+      "kinds": [
+        "set"
+      ]
+    },
+    {
+      "sha": "716ac135e21ed0d29e034d258b2d92c326448442",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "[FRC] Add missing printings",
+      "kinds": [
+        "set"
+      ]
+    },
+    {
+      "sha": "6133c52e4c330b683403af2509e546c9ad3b80e0",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[dev] Script to check for a given set code which implemented cards are missing printing information from their set (#16564)",
+      "kinds": [
+        "data"
+      ]
+    },
+    {
+      "sha": "bbb2ae29e8640f0655fdf51ac203d5e6c67a3612",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRK] Implement Troubling Tribbles (#16565)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "030e3121cab6869911032da8255627b17d84063e",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRK] Implement The Duras Sisters (#16566)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "2273b8224590eef5b561f654746ce96faa5e1381",
+      "date": "2026-10-21",
+      "author": "Muz",
+      "subject": "[TRK] Implement Mr. Spock, Science Officer (#16572)",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "33cfc699b690dbd8dac616b79e27afaec55e1716",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "[TRK] Implement Warp Core",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "a9d2721bcc85128ca26ed75cf114867d85ebdf31",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "[TRK] Implement Tea, Earl Grey, Hot",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "d46190c0de220d94dcd32b87cfcde6787e203156",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "[TRK] Implement Unexplored Territory",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "369bfeb2742e990ab772349510b8915bb7b8eebd",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "[TRK] Implement Vexing Drone",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "afb585aea1aae190f272e3117c689feeb8457242",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "Update mtg-cards-data.txt",
+      "kinds": [
+        "data"
+      ]
+    },
+    {
+      "sha": "119be8634b7be54efd4f377621bf0a4e62a3ff05",
+      "date": "2026-10-21",
+      "author": "Muz Ali",
+      "subject": "[TRK] Update mtg-cards-data.txt",
+      "kinds": [
+        "data"
+      ]
+    },
+    {
+      "sha": "859591d006b2a8d5dfd2049869b5550101d09a22",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "Use getSpellOrLKIStack in CantBeCopiedSourceEffect like Twinning Staff (#16575)",
+      "kinds": [
+        "engine"
+      ]
+    },
+    {
+      "sha": "6bc989ffc880c185b6190cae4ace40338f1b55f4",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "[MSC] Implement Silver Surfer, Galactus's Herald (#16518)",
+      "kinds": [
+        "card",
+        "set",
+        "test"
+      ]
+    },
+    {
+      "sha": "12be750f98131be75481a32dd37da2d854085f9a",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "Fix \"this spell can't be copied\" never applying (#16521)",
+      "kinds": [
+        "engine",
+        "test"
+      ]
+    },
+    {
+      "sha": "8d9d204bc4372fe9a197668721964e7eeb69222b",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "[MSH] Fix Beast, Erudite Aerialist flying for copies of Beast (#16522)",
+      "kinds": [
+        "card",
+        "test"
+      ]
+    },
+    {
+      "sha": "5f04616c6c9369a06dc2635a62caeebcd13125a5",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "Melded permanents can't be turned face down (712.16) (#16562)",
+      "kinds": [
+        "engine",
+        "test"
+      ]
+    },
+    {
+      "sha": "4dc8f311d4049cbd06068774f24666a2cc98fe82",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "Use last known information of phased-out permanents for damage sources (#16561)",
+      "kinds": [
+        "engine",
+        "test"
+      ]
+    },
+    {
+      "sha": "22fca32e3a948d4e1dbe75ece1f04e50e0318e46",
+      "date": "2026-10-21",
+      "author": "ssk97",
+      "subject": "Payment cancel - fixed that some spells can lost activation status on impossible payment or cancel (example: Convoke, Delve, Improvise,  #16509)",
+      "kinds": [
+        "engine",
+        "card",
+        "test"
+      ]
+    },
+    {
+      "sha": "e6edddc37bd4eb4647b71950dc294e12da695ed2",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "Update Thriving lands to the new enters tapped and choose a color template (#16560)",
+      "kinds": [
+        "engine",
+        "card",
+        "test"
+      ]
+    },
+    {
+      "sha": "463dba35a539cf4ef62aa64e7dd8df21b8b64585",
+      "date": "2026-10-21",
+      "author": "Darío Barrabino",
+      "subject": "Add BlocksAllTriggeredAbility and use it for whenever a creature blocks cards (#16559)",
+      "kinds": [
+        "engine",
+        "card",
+        "test"
+      ]
+    },
+    {
+      "sha": "297d2d209b6df2e269cbdd8475f909098c28531d",
+      "date": "2026-10-20",
+      "author": "Muz Ali",
+      "subject": "[FRA] Add missing printings for Carnivorous Cultivator and Sphinx's Approach",
+      "kinds": [
+        "set"
+      ]
+    },
+    {
+      "sha": "cb0f8c0be18dc1490a2d11d6da5cf4f3c9f8f64e",
+      "date": "2026-10-20",
+      "author": "Muz Ali",
+      "subject": "[FRA] Add missing printings for Carnivorous Cultivator and Sphinx's Approach",
+      "kinds": [
+        "set",
+        "data"
+      ]
+    },
+    {
+      "sha": "abbabbf450e37cfa27975c26c4c64ba38a85ea8b",
+      "date": "2026-10-20",
+      "author": "Muz Ali",
+      "subject": "[TRK] Add spoiled reprints",
+      "kinds": [
+        "set"
+      ]
+    },
+    {
+      "sha": "077666617be331422174f161690ca77c34501bf0",
+      "date": "2026-10-20",
+      "author": "Muz Ali",
+      "subject": "[TRK] Add new Planet lands",
+      "kinds": [
+        "card",
+        "set"
+      ]
+    },
+    {
+      "sha": "d64984916f807d7210e7b368f9afc74751655921",
+      "date": "2026-10-20",
+      "author": "Muz Ali",
+      "subject": "Update mtg-cards-data.txt with TRK and TRC spoilers",
+      "kinds": [
+        "data"
+      ]
+    },
+    {
+      "sha": "45ce1cb79e3afc49fd5d34025426eb68fe43bb2b",
+      "date": "2026-10-20",
+      "author": "Muz Ali",
+      "subject": "[SDS] Update Stardates spoiled cards",
+      "kinds": [
+        "set",
+        "data"
+      ]
+    },
+    {
+      "sha": "3f4223aadef662633e07c956cff3ce814db3a544",
+      "date": "2026-10-20",
+      "author": "PurpleCrowbar",
+      "subject": "[FRC] Implement Tamiyo, Upriser Crowned (#16408)",
+      "kinds": [
+        "engine",
+        "card",
+        "set",
+        "test"
+      ]
+    }
+  ],
+  "triggers": {
+    "T1 rule fix touching the lab": {
+      "status": "REVIEW",
+      "detail": "10 engine commits, 19 changed card classes are in precon decks; read the commits against the deck lists"
+    },
+    "T2 release 1.4.63 or POM above 1.4.62": {
+      "status": "NOT_MET",
+      "detail": "upstream POM 1.4.62"
+    },
+    "T3 at least 2 blocked decks become importable": {
+      "status": "NOT_MET",
+      "detail": "13 decks lack a card at the pin, 0 would be complete with upstream's registrations"
+    },
+    "T4 the fork's own need": {
+      "status": "OWNER",
+      "detail": "fork patch backlog or an engine bug only the fork can fix; not in the repo"
+    },
+    "T5 conflict pressure on core": {
+      "status": "REVIEW",
+      "detail": "0 core conflict files; hot files changed upstream: GameImpl.java, GameState.java, PlayerImpl.java"
+    },
+    "T6 more than 6 weeks since the last merge": {
+      "status": "NOT_MET",
+      "detail": "merge base 2026-10-19, 0 weeks before 2026-10-23"
+    }
+  }
+}
