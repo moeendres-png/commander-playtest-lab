@@ -71,6 +71,8 @@ def credit(row: dict[str, Any]) -> dict[str, float]:
     winners: list[int] = row["winners"]
     out = dict.fromkeys(decks, 0.0)
     for seat in winners:
+        if not 0 <= seat < len(decks):
+            raise ValueError(f"winner index {seat} outside the {len(decks)} seats of the game")
         out[decks[seat]] += 1.0 / len(winners)
     return out
 
@@ -345,12 +347,54 @@ def format_markdown(result: dict[str, Any]) -> list[str]:
     return lines
 
 
+def complete_blocks(
+    tables: dict[str, list[dict[str, Any]]], rotations_per_block: int = 4
+) -> tuple[dict[str, list[dict[str, Any]]], dict[str, int]]:
+    """Keep only blocks whose rotations all finished in every variant.
+
+    A block with a failed game would otherwise average fewer than four seats, and a seat
+    advantage would leak into the deck shares of the variant that fails more often. The counts
+    say how many blocks were played, kept and dropped; dropped blocks are reported, not hidden.
+    """
+    played: set[Block] = set()
+    full: list[set[Block]] = []
+    for rows in tables.values():
+        seats: dict[Block, set[int]] = defaultdict(set)
+        for row in rows:
+            block = (row["pod"], int(row["seed"]))
+            played.add(block)
+            if row.get("status", "ok") == "ok":
+                seats[block].add(int(row["rotation"]))
+        full.append({block for block, done in seats.items() if len(done) >= rotations_per_block})
+    keep = set.intersection(*full) if full else set()
+    kept = {
+        name: [
+            row
+            for row in rows
+            if row.get("status", "ok") == "ok" and (row["pod"], int(row["seed"])) in keep
+        ]
+        for name, rows in tables.items()
+    }
+    counts = {
+        "blocks_played": len(played),
+        "blocks_kept": len(keep),
+        "blocks_dropped": len(played) - len(keep),
+    }
+    return kept, counts
+
+
 def analyze_command(args: argparse.Namespace) -> int:
-    variants: dict[str, list[dict[str, Any]]] = {}
+    tables: dict[str, list[dict[str, Any]]] = {}
     for path in args.tables:
         table = json.loads(path.read_text(encoding="utf-8"))
-        variants[table["variant"]] = [g for g in table["games"] if g.get("status", "ok") == "ok"]
+        tables[table["variant"]] = table["games"]
+    variants, counts = complete_blocks(tables)
     result = analyze(variants)
+    result["incomplete_blocks"] = counts
+    print(
+        f"blocks played {counts['blocks_played']}, kept {counts['blocks_kept']}, "
+        f"dropped {counts['blocks_dropped']} (a rotation failed in some variant)"
+    )
     for line in format_markdown(result):
         print(line)
     if args.json:
@@ -406,7 +450,8 @@ def play_command(args: argparse.Namespace) -> int:
                 "seed": row["seed"],
                 "rotation": int(rot),
                 "decks": seat_decks[row["pod"]],
-                "winners": row.get("winners", []),
+                # The engine numbers seats from 1; the table indexes into ``decks`` from 0.
+                "winners": [int(seat) - 1 for seat in row.get("winners", [])],
                 "status": row.get("status", "ok"),
                 "semantic": row.get("semantic"),
             }

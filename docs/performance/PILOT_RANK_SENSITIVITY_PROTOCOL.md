@@ -4,10 +4,10 @@ The question behind F3 (a one-step search that improves a deck): if the ranking 
 share depends on which pilot plays them, a search over card swaps optimises the pilot as much
 as the deck, and its result is only as good as the pilot. S-1 turns that from `UNKNOWN` into a
 number. This note fixes the design and the verdicts before any game is played, and calibrates the
-test on simulated games. It contains no game result.
+test on simulated games. Section 6 holds the first measurement.
 
 Tool: `scripts/rank_sensitivity.py` (`play` and `analyze`), tests in
-`tests/unit/test_rank_sensitivity.py` (17 tests; the reversal condition, the Holm adjustment, the
+`tests/unit/test_rank_sensitivity.py` (20 tests; the reversal condition, the Holm adjustment, the
 pairing of blocks, the resolution check and the draw credit each make a test fail when mutated).
 
 ## 1. Design
@@ -22,7 +22,11 @@ pairing of blocks, the resolution check and the draw credit each make a test fai
 - **Variants.** A variant is a checkout of the lab. `play` uses the pilot of the checkout it runs
   from; run it once per variant from a git worktree of that commit, with the same bridge jar,
   pods and seeds. A game without a winner counts as played with no credit; a failed game stays in
-  the table, is left out by `analyze`, and makes `play` exit non-zero.
+  the table and makes `play` exit non-zero. `analyze` keeps only blocks whose four rotations
+  finished in every variant (a block with a failed seat would average fewer than four seats and
+  let the seat advantage into the deck shares of the variant that fails more often) and prints
+  how many blocks were played, kept and dropped. A variant that fails in many blocks is reported
+  as such; its comparison then rests on the blocks that survive.
 - **Win share.** Credit per game is 1 for a sole winner, shared if several won, 0 for no winner.
   A deck's share is its mean credit over the blocks.
 
@@ -84,9 +88,61 @@ not evidence. Cost: about 1 CPU-minute per game; 40 seeds x 4 rotations x 2 vari
 320 games, roughly 1.3 h on 4 cores. One run at a time (CPU starvation turns slow decisions into
 timeouts).
 
+## 6. First measurement (2026-10-23, `LOCAL_OBSERVED`)
+
+Bridge jar `c5c019a2` (pin `4da83f62`, built from the first revision of #977), SerialGC, 6 games
+per JVM, 4 workers, one run at a time. Two pods of real precons, 40 seeds each from the master
+seeds `s1-pod1` and `s1-pod2` (`hash:`-style, SHA-256), four rotations: 160 games per pod and
+variant. Raw tables and the analysis are in `measurements-2026-10-23/s1/`
+(`pod1-*` is pod 1; `pod2-*` is pod 2, which the merged `result.json` calls `pod1`).
+
+- Pod 1: 2016 Breed Lethality, 2019 Primal Genesis, 2022 Necron Dynasties, 2022 Buckle Up.
+- Pod 2: 2022 Draconic Destruction, 2022 Grave Danger, 2022 Token Triumph, 2022 Urza's Iron Alliance.
+- Variant `a`: the pilot of main (`681f019a`). Variant `d`: the pilot of `d012424b` (2026-10-21,
+  before the card-level pilot fixes of #944 to #970). Both ran from a git worktree with the same
+  jar. `d`'s `config/rules_engines.json` pin line was set to `4da83f62` in the worktree so that
+  the handshake accepts the jar; nothing else of `d` was changed.
+- A third variant (the pilot of 2026-10-17, after the mulligan and bottoming changes, before the
+  card-level fixes) was planned. It could not be played with batching (its report tool has no
+  batch entry point) and failed one game in four unbatched, so it is not part of this result.
+
+| | Pod 1 | Pod 2 |
+|---|---:|---:|
+| Games not played to the end, `a` / `d` | 0 / 8 | 0 / 0 |
+| Games with the same semantic hash in `a` and `d` (both finished) | 19 of 152 | 159 of 160 |
+| Complete blocks compared (of 40) | 33 | 40 |
+| Kendall tau-b, `a` against `d` | 1.0 | 1.0 |
+| Reversed pairs (Holm-adjusted sign-flip test, 5 %) | 0 | 0 |
+| Split-half tau, `a` / `d` | (merged: 0.90 / 0.91) | |
+| Verdict | `NOT_DETECTED` | `NOT_DETECTED` |
+
+The eight failed games of `d` are all `ENGINE_FAILURE (XMAGE_ACTION_EXECUTION_FAILED)`: the older
+pilot offers an action the engine rejects; main's pilot had none in 320 games. They cost seven
+blocks, which `analyze` dropped from both variants.
+
+What the numbers allow:
+
+- **Pod 1** is a real test: the two pilots played 133 of 152 finished games differently, and the
+  win shares moved by at most 2.3 points (Breed Lethality 0.462 to 0.485, Primal Genesis 0.349 to
+  0.341, Necron Dynasties 0.152 to 0.152, Buckle Up 0.030 to 0.023). The order stayed. The decks
+  are far apart (0.46, 0.35, 0.15, 0.03), so the order is easy to keep: the top two decks are 11 points apart, and only a shift of
+  that size between them would reverse them.
+- **Pod 2 says nothing about the pilots**: they played the same game in 159 of 160 cases, because
+  the card-level fixes between `d` and `a` touch cards this pod does not play. `NOT_DETECTED`
+  there only repeats that the games were identical.
+- **Not tested**: a larger change of the pilot (mulligan, bottoming and stack policy together),
+  pods of close decks, other seeds. The question behind F3 stays open for those; this result
+  gives no reason to expect a reversal from card-level pilot fixes on decks that are far apart,
+  and no evidence either way for larger pilot changes.
+- A bug found by the first real table: the engine numbers seats from 1 and the first version of
+  `play` stored those numbers as indexes (`IndexError` in `analyze`). `play` now stores indexes,
+  `analyze` refuses an index outside the seats, and the tables in `measurements-2026-10-23/s1/`
+  hold indexes (the pod 1 tables and the `d` table of pod 2 were converted after the run, by
+  subtracting 1; the `a` table of pod 2 was written by the fixed tool).
+
 ## 5. Not claimed
 
-- Nothing about the pilots yet: this is the instrument. A result is `LOCAL_OBSERVED` for the
+- Nothing beyond section 6 about the pilots. A result is `LOCAL_OBSERVED` for the
   pods, seeds and variants it names.
 - Pods of other decks, other seed sets or other variants may behave differently.
 - Win share is the only outcome. Turn of win, life or card metrics are not ranked.
