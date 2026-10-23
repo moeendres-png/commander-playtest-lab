@@ -22,12 +22,13 @@ The semantic transcript hashes of all 24 games are identical with and without th
 
 ## Why it is dropped for the evidence lanes
 
-- The wall gain, 0.7 s per game, is below the 3 % bar the repin runbook applies to a lever
-  (T-1 was dropped at -2 % wall). The CPU gain, 5 CPU-seconds per game, goes to idle cores, not to
+- The wall gain, 0.7 s per game, is below the 3 % bar of T-1 (dropped at -2 % wall; the runbook
+  says a lever below the agreed bar is dropped and written down). The CPU gain, 5 CPU-seconds per game, goes to idle cores, not to
   the time a lane takes.
-- The archive has to be trained once per jar: 36 s of build in the measurement above. PB-03 starts
-  one bridge JVM per scenario (the authoritative runner takes about 23 of its 32 minutes), so
-  107 starts at 0.7 s save about 75 s and the build costs 36 s: a net gain of about 40 s of 32 minutes.
+- The archive has to be trained once per jar: 36 s of build in the measurement above. If PB-03 started one
+  bridge JVM for each of its 107 scenarios (not checked here; the authoritative runner takes about
+  23 of the 32 minutes of run 39927923126), 107 starts at 0.7 s would save about 75 s and the build
+  would cost 36 s: a net gain of about 40 s of 32 minutes, as an upper bound.
 - It adds a failure mode to the lane that decides qualification. The JVM recognises a changed jar
   by path, size and modification time only; a mismatch makes it run without the archive and write a
   warning, which must be kept off the protocol's stdout (`build_xmage_cds_archive.py` documents
