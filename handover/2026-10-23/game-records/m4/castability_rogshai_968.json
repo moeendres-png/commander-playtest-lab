@@ -1,0 +1,67 @@
+{
+  "deck_id": "custom/rogshai",
+  "expected_turn": {
+    "Ishai, Ojutai Dragonspeaker": {
+      "draw": 4.41,
+      "play": 4.72
+    },
+    "Rograkh, Son of Rohgahh": {
+      "draw": 1.0,
+      "play": 1.0
+    }
+  },
+  "name": "RogShai (Ist-Stand 2026-10-22)",
+  "probability": {
+    "Ishai, Ojutai Dragonspeaker": {
+      "draw": {
+        "10": 0.969,
+        "2": 0.0,
+        "3": 0.314,
+        "4": 0.682,
+        "5": 0.79,
+        "6": 0.852,
+        "7": 0.896,
+        "8": 0.927,
+        "9": 0.951
+      },
+      "play": {
+        "10": 0.951,
+        "2": 0.0,
+        "3": 0.245,
+        "4": 0.589,
+        "5": 0.715,
+        "6": 0.793,
+        "7": 0.852,
+        "8": 0.897,
+        "9": 0.927
+      }
+    },
+    "Rograkh, Son of Rohgahh": {
+      "draw": {
+        "10": 1.0,
+        "2": 1.0,
+        "3": 1.0,
+        "4": 1.0,
+        "5": 1.0,
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0,
+        "9": 1.0
+      },
+      "play": {
+        "10": 1.0,
+        "2": 1.0,
+        "3": 1.0,
+        "4": 1.0,
+        "5": 1.0,
+        "6": 1.0,
+        "7": 1.0,
+        "8": 1.0,
+        "9": 1.0
+      }
+    }
+  },
+  "seed": 20261016,
+  "structural_profile_source": "XMage card facts (80 curated, 20 inferred)",
+  "trials": 20000
+}

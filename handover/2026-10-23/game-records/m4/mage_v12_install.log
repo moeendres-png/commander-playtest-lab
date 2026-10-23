@@ -1,0 +1,14 @@
+[INFO] Scanning for projects...
+Downloading from jboss-public-repository: https://repository.jboss.org/nexus/content/groups/public/org/junit/junit-bom/5.8.1/junit-bom-5.8.1.pom
+Downloading from local-project-repo: file:///home/hatch/workspace/github/wt-mage-v12/repository/org/junit/junit-bom/5.8.1/junit-bom-5.8.1.pom
+Downloading from central: https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.8.1/junit-bom-5.8.1.pom
+Progress (1): 907 BProgress (1): 1.0 kBProgress (1): 5.3 kBProgress (1): 5.6 kB                    Downloaded from central: https://repo.maven.apache.org/maven2/org/junit/junit-bom/5.8.1/junit-bom-5.8.1.pom (5.6 kB at 9.9 kB/s)
+[ERROR] [ERROR] Could not find the selected project in the reactor: Mage.DeCK.Constructed @ 
+[ERROR] Could not find the selected project in the reactor: Mage.DeCK.Constructed -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MavenExecutionException
+MAGE-V12-INSTALL-EXIT=1

@@ -1,0 +1,90 @@
+{
+ "rogshai": [
+  {
+   "id": "R1",
+   "out": "Irrigated Farmland",
+   "in": "Temple of Epiphany",
+   "why": "Farmland nur 2x ausgespielt in 100 Baseline-Spielen (seltenste Karte des Decks). Beide Slots sind Taplands; Epiphany liefert U/R statt W/U - die zwei engsten Farben (Pip-Bedarf U32/R31 gegenueber W12, Schritt 1) - und Scry 1 statt Cycling."
+  },
+  {
+   "id": "R2",
+   "out": "Mana Geyser",
+   "in": "Izzet Signet",
+   "why": "Geyser 12 Casts; MV5-Einmal-Ritual ohne Combo-Payoff in Spielen von im Schnitt 46,6 Zuegen. Signet ist eine permanente U/R-Quelle fuer MV2 (Farbbedarf U32/R31) und glaettet die Kurve."
+  },
+  {
+   "id": "R3",
+   "out": "Counterspell",
+   "in": "Mana Leak",
+   "why": "Counterspell 13 Casts; {U}{U} ist im 3-Farben-Deck der haerteste Pip (23 U-Quellen, Bedarf U32). Mana Leak {1}{U} ist flexibler haltbar (weicher Counter als bewusster Trade-off)."
+  },
+  {
+   "id": "R4",
+   "out": "Winds of Rath",
+   "in": "Make a Stand",
+   "why": "Rath 12 Casts; der MV5-Wipe zerstoert das eigene Board um Ishai (in 95/100 Spielen gewirkt, der Gewinnplan). Make a Stand (MV3) schuetzt das eigene Board (Unzerstoerbar) statt es zurueckzusetzen."
+  },
+  {
+   "id": "R5",
+   "out": "Chain Reaction",
+   "in": "Rootborn Defenses",
+   "why": "Zweiter Wipe (15 Casts, MV4) mit demselben Zielkonflikt wie R4. Rootborn Defenses (MV3) schuetzt das Board und populiert (Kykar-Geister-Token profitieren)."
+  },
+  {
+   "id": "R6",
+   "out": "Adarkar Wastes",
+   "in": "Restless Spire",
+   "why": "Wastes 15 Plays; Painland fuer W/U (W ist die satteste Farbe, Bedarf 12). Spire liefert U/R (Bedarf 32/31) und wird spaet zur 2/1-Kreatur mit Erstschlag im eigenen Zug (plus Scry beim Angriff) - Utility statt Schmerz."
+  }
+ ],
+ "chulane": [
+  {
+   "id": "C1",
+   "out": "Negate",
+   "in": "Azorius Signet",
+   "why": "Negate nur 5 Casts in 100 Spielen (seltenste Karte, schmales Fenster). Das Deck hat nur 4 Nichtland-Manaquellen (Schritt 1) und der MV5-Kommandant wurde in 11/100 Spielen nie gewirkt - eine 5. Quelle (W/U) adressiert die Kernschwaeche."
+  },
+  {
+   "id": "C2",
+   "out": "Arcane Denial",
+   "in": "Simic Signet",
+   "why": "Denial 11 Casts und laesst Gegner Karten ziehen - bei 8 % Baseline-Siegquote kontraproduktiv. Simic Signet ist die 6. Quelle (G/U) auf derselben Ramp-Achse wie C1."
+  },
+  {
+   "id": "C3",
+   "out": "Whirler Rogue",
+   "in": "Solemn Simulacrum",
+   "why": "Beide MV4-Kreaturen. Rogue nur 7 Casts, ohne Ramp-/Draw-Beitrag. Simulacrum rampt beim ETB, zieht beim Tod eine Karte und loest als Kreaturen-Cast Chulanes Trigger aus - Funktionsvergleich auf demselben Slot."
+  },
+  {
+   "id": "C4",
+   "out": "Adrix and Nev, Twincasters",
+   "in": "Morska, Undersea Sleuth",
+   "why": "Adrix 10 Casts; Token-Verdopplung bei kaum Token-Quellen im Deck (Fehlpassung). Morska ist MV3 statt MV4, Clue-Motor passend zum Detective-Unterthema des Decks und als Kreatur ein Chulane-Trigger."
+  },
+  {
+   "id": "C5",
+   "out": "Wood Elves",
+   "in": "Selvala, Explorer Returned",
+   "why": "Beide MV3-Kreaturen mit Ramp-Bezug; Wood Elves 11 Casts (einmaliges getapptes Forest). Selvala liefert wiederholbar Mana und Karten (Parley) und bleibt als Kreatur ein Trigger."
+  },
+  {
+   "id": "C6",
+   "out": "Fumigate",
+   "in": "Faerie Mastermind",
+   "why": "Fumigate 12 Casts; MV5-Wipe gegen ein Deck, dessen Motor ein volles eigenes Kreaturen-Board ist. Mastermind ist eine MV2-Kreatur mit Draw in Gegner-Zuegen; Kurve MV5 ist mit 8 Karten ueberbesetzt (Schritt 1)."
+  },
+  {
+   "id": "C7",
+   "out": "Simic Growth Chamber",
+   "in": "Glacial Fortress",
+   "why": "Bounce-Land kostet Tempo (zwei Land-Slots faktisch einer, ein Land muss zurueck auf die Hand). Fortress ist ein Checkland (meist ungetappt) fuer W/U - Manabasis-Tempo statt Bounce."
+  },
+  {
+   "id": "C8",
+   "out": "Azorius Chancery",
+   "in": "Scattered Groves",
+   "why": "Zweites Bounce-Land, gleiche Tempo-Begründung wie C7. Groves liefert G/W und kann spaet fuer {2} gecyclet werden statt als toter zweiter Bounce zu liegen."
+  }
+ ]
+}
