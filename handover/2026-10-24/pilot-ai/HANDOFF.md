@@ -63,11 +63,13 @@ Pilot-Anteil daran ist die Auswertung (`evaluate_action` × Kandidaten +
 State-View-Aufbau); selbst eine Verdopplung der Pilot-Rechenzeit bewegte die
 Spielzeit nur im einstelligen Prozentbereich. **Fazit: Qualität ist der Hebel,
 Geschwindigkeit ist Hygienefaktor.** Budget-Regel für alle Phasen unten:
-**+1,5 ms Mediane Entscheidungszeit ist die Richtgröße** (≈ +10 % Wandzeit
-am Korpus-Median), gemessen im A/B-Vergleich (§6); die gemessene
-Zeit-Zerlegung und die Begründung stehen im Nachtrag (§8) — der Pilot ist
-mit ~1 % der Simulationszeit der kleinste Kostenblock, Qualität darf
-Rechenzeit kaufen, nur keine Größenordnungen. Suchverfahren sind raus: Die Recherche (RESEARCH.md B1/B3)
+**Owner-Entscheidung 24.10.: Kein Zeitbudget für den Piloten.** Die
+Pilot-Verbesserungen werden ausschließlich auf Entscheidungsqualität
+optimiert; Rechenzeit des Piloten ist kein Akzeptanzkriterium (Messwerte
+zur Einordnung in §8: Pilot ≈ 1 % der Simulationszeit). Einzige verbleibende
+Schranke: Per-Entscheidungs-Suche (MCTS & Co.) bleibt draußen, weil sie die
+ENGINE-Zeit — den dominanten Block — vervielfachen würde, nicht die
+Pilot-Zeit; das Effizienz-Programm für die Engine ist ein separates Paket. Suchverfahren sind raus: Die Recherche (RESEARCH.md B1/B3)
 zeigt, dass jede ausgelieferte Magic-KI in Sekunden pro Entscheidung rechnet
 (Magarena, XMage-MCTS, Forge-Forks bis 60 s); das einzige bei Millisekunden
 bewährte Muster ist greedy 1-ply über vorgefilterte Optionen mit linearer
