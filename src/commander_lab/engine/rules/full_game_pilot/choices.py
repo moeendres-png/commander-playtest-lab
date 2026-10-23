@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import random
 import re
+from collections.abc import Mapping
 from typing import Any
 
 from commander_lab.agents.card_knowledge import card_facts
@@ -70,10 +71,10 @@ _COUNTER_CHOICE_PROMPT = re.compile(
 )
 
 
-def _targets_own_spell(option: dict[str, Any], own_ids: set[str]) -> bool:
+def _targets_own_spell(option: Mapping[str, object], own_ids: set[str]) -> bool:
     """Whether a stack-zone target option is the spell that is choosing its targets."""
     metadata = option.get("metadata")
-    meta = metadata if isinstance(metadata, dict) else {}
+    meta = metadata if isinstance(metadata, Mapping) else {}
     if meta.get("zone") != "stack":
         return False
     return bool({str(meta.get("object_id") or ""), str(meta.get("source_card_id") or "")} & own_ids)
