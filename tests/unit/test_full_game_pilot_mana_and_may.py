@@ -1803,13 +1803,15 @@ def _lock_choice(state: dict[str, Any], option: dict[str, Any]) -> str:
 
 
 _BRISELA = "Brisela, Voice of Nightmares"
+# The lock tests name a card the catalog does not know, so the cost the engine offers decides;
+# a known card (Prosperous Bandit, printed mana value 3) would be judged by its printed value.
 
 
 def test_brisela_holds_back_the_spells_it_forbids() -> None:
     # Brisela forbids opponents' spells with mana value 3 or less, but only once the spell is on
     # the stack, so the engine still offers the cast and then refuses it after the first
     # question (plan seed 19, Prosperous Bandit, "priority cast failed"). The pilot passes.
-    bandit = _lock_cast("Prosperous Bandit", red=1, generic=2)
+    bandit = _lock_cast("Lock Test Bandit", red=1, generic=2)
     assert _lock_choice(_locked_state(None), bandit) == "cast"
     assert _lock_choice(_locked_state(_BRISELA), bandit) == "pass"
 
@@ -1817,14 +1819,14 @@ def test_brisela_holds_back_the_spells_it_forbids() -> None:
 def test_brisela_leaves_other_casts_alone() -> None:
     # Controls: Brisela on the actor's own side, with its holder out of the game, or a spell
     # of mana value 4 or more (a four-mana cast with a fourth land to pay for it).
-    bandit = _lock_cast("Prosperous Bandit", red=1, generic=2)
+    bandit = _lock_cast("Lock Test Bandit", red=1, generic=2)
     assert _lock_choice(_locked_state(_BRISELA, holder="actor"), bandit) == "cast"
     assert _lock_choice(_locked_state(_BRISELA, lost=True), bandit) == "cast"
     state = _locked_state(_BRISELA)
     state["players"][0]["battlefield"].append(
         {"object_id": "land-3", "name": "Plains", "tapped": False}
     )
-    four = _lock_cast("Prosperous Bandit", red=1, generic=3)
+    four = _lock_cast("Lock Test Bandit", red=1, generic=3)
     request = _request("priority", [_PASS, *_TAPS, four], state=state)
     assert _policy().decide(request)["selected_option_ids"] == ["cast"]
 
@@ -1833,8 +1835,8 @@ def test_void_winnower_holds_back_even_and_x_spells() -> None:
     # Void Winnower forbids even mana values through the same late check. Odd values stay
     # castable; a spell with {X} is held back because its value depends on the X chosen.
     winnower = "Void Winnower"
-    two = _lock_cast("Prosperous Bandit", red=1, generic=1)
-    three = _lock_cast("Prosperous Bandit", red=1, generic=2)
+    two = _lock_cast("Lock Test Bandit", red=1, generic=1)
+    three = _lock_cast("Lock Test Bandit", red=1, generic=2)
     assert _lock_choice(_locked_state(winnower), two) == "pass"
     assert _lock_choice(_locked_state(winnower), three) == "cast"
     fireball = _lock_cast("Fireball", red=1, generic=0)
