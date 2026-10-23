@@ -45,6 +45,8 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
+from precon_provenance import SYNTHETIC, count_by_provenance, provenance_by_stem  # noqa: E402
+
 PRECON_DIR = ROOT / "data/decks/precons"
 POD_SIZE = 4
 _FAMILY = re.compile(r"\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b")
@@ -110,6 +112,7 @@ def summarize(pods: Sequence[dict[str, Any]]) -> dict[str, Any]:
         "pods": len(pods),
         "pods_ok": ok,
         "pods_failed": len(pods) - ok,
+        "pods_with_synthetic_decks": sum(1 for p in pods if p.get("synthetic_decks")),
         "families": dict(families),
     }
 
@@ -127,6 +130,7 @@ def run(args: argparse.Namespace) -> int:
         names = importable_decks(args.import_report)
     else:
         names = sorted(p.stem for p in deck_dir.glob("*.json"))
+    provenance = provenance_by_stem(deck_dir, names)
     pods = plan_pods(names, POD_SIZE, args.plan_seed)
     if args.limit:
         pods = pods[: args.limit]
@@ -152,6 +156,7 @@ def run(args: argparse.Namespace) -> int:
             played = bench._play_batch(command, jobs, True)
         for i, row in zip(indices, played, strict=True):
             row["decks"] = list(pods[i])
+            row["synthetic_decks"] = [d for d in pods[i] if provenance[d] == SYNTHETIC]
         with lock:
             rows.extend(played)
             report = {
@@ -160,6 +165,7 @@ def run(args: argparse.Namespace) -> int:
                 "games_per_jvm": args.games_per_jvm,
                 "game_seed": args.game_seed,
                 "plan_seed": args.plan_seed,
+                "decks_by_provenance": count_by_provenance(provenance.values()),
             }
             report |= summarize(rows) | {"rows": sorted(rows, key=lambda r: r["pod"])}
             args.out.write_text(json.dumps(report, indent=1) + "\n", encoding="utf-8")
