@@ -676,6 +676,56 @@ def test_delve_payment_exiles_a_card_instead_of_looping() -> None:
     assert exiled["selected_option_ids"] == ["g-2"]  # Silence costs 1, Arcane Denial 2
 
 
+def _convoke_payment_options(*land_labels: str) -> list[dict[str, Any]]:
+    options: list[dict[str, Any]] = [
+        {
+            "option_id": "cancel",
+            "label": "Cancel mana payment",
+            "option_type": "cancel_mana_payment",
+            "metadata": {},
+        }
+    ]
+    for index, label in enumerate(land_labels):
+        options.append(
+            {
+                "option_id": f"land-{index}",
+                "label": label,
+                "option_type": "mana_ability",
+                "metadata": {},
+            }
+        )
+    options.append(
+        {
+            "option_id": "convoke",
+            "label": "Bennie Bracks, Zoologist — Convoke (Your creatures can help cast this spell.)",
+            "option_type": "special_mana_action",
+            "metadata": {},
+        }
+    )
+    return options
+
+
+def test_convoke_waits_until_the_lands_have_paid() -> None:
+    # The engine shuts every mana ability off after the first convoke tap, so a pilot that
+    # convokes first strands the lands it still has (Bennie Bracks, four lands, cancelled).
+    state = _state(hand=["Bennie Bracks, Zoologist"])
+    options = _convoke_payment_options("Plains — {T}: Add {W}.", "Island — {T}: Add {U}.")
+    response = _policy().decide(
+        _request("mana_payment", options, state, context={"unpaid_mana": "{3}"})
+    )
+    assert response["selected_option_ids"][0].startswith("land-")
+
+
+def test_convoke_pays_what_no_land_can() -> None:
+    # Control: with only a Swamp left, the {W} owed is the creature's to pay.
+    state = _state(hand=["Bennie Bracks, Zoologist"])
+    options = _convoke_payment_options("Swamp — {T}: Add {B}.")
+    response = _policy().decide(
+        _request("mana_payment", options, state, context={"unpaid_mana": "{W}"})
+    )
+    assert response["selected_option_ids"] == ["convoke"]
+
+
 def test_mana_repeat_guard_sees_through_re_minted_option_ids() -> None:
     policy = _policy()
     state = _state(hand=["Dig Through Time"])
