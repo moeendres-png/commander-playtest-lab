@@ -1,6 +1,6 @@
 {
-  "deck_id": "precon-variant/2023/paradox_power",
-  "name": "Paradox Power (variant, replacement cards)",
+  "deck_id": "precon-synthetic/2023/paradox_power",
+  "name": "Paradox Power (SYNTHETIC proxy)",
   "commander": {
     "commanders": [
       "The Thirteenth Doctor",
@@ -155,7 +155,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces The Foretold Soldier, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces The Foretold Soldier, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Fugitive of the Judoon",
@@ -246,7 +246,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces River Song's Diary, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces River Song's Diary, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Confession Dial",
@@ -407,7 +407,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Psychic Paper, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Psychic Paper, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "TARDIS",
@@ -679,5 +679,10 @@
   "source": "MTGJSON",
   "release_date": "2023-10-13",
   "mtgjson_file": "ParadoxPower_WHO",
-  "format": "commander"
+  "format": "commander",
+  "tags": [
+    "SYNTHETIC",
+    "precon-proxy"
+  ],
+  "notes": "SYNTHETIC proxy of precon/2023/paradox_power: cards the engine does not know at the pin are replaced by real engine cards. Not the printed precon: no rules evidence, no qualification evidence, never ranked next to real decks without the label (data/decks/precon_synthetic_proxies.json)."
 }

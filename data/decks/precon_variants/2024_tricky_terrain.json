@@ -1,6 +1,6 @@
 {
-  "deck_id": "precon-variant/2024/tricky_terrain",
-  "name": "Tricky Terrain (variant, replacement cards)",
+  "deck_id": "precon-synthetic/2024/tricky_terrain",
+  "name": "Tricky Terrain (SYNTHETIC proxy)",
   "commander": {
     "commanders": [
       "Omo, Queen of Vesuva"
@@ -49,7 +49,7 @@
       "quantity": 1,
       "zone": "main",
       "physical_copy_ids": [],
-      "notes": "VARIANT: replaces Desert Warfare, which the engine does not know at the pin. Not the printed card."
+      "notes": "SYNTHETIC: replaces Desert Warfare, which the engine does not know at the pin. Not the printed card."
     },
     {
       "oracle_name": "Trenchpost",
@@ -692,5 +692,10 @@
   "source": "MTGJSON",
   "release_date": "2024-06-14",
   "mtgjson_file": "TrickyTerrain_M3C",
-  "format": "commander"
+  "format": "commander",
+  "tags": [
+    "SYNTHETIC",
+    "precon-proxy"
+  ],
+  "notes": "SYNTHETIC proxy of precon/2024/tricky_terrain: cards the engine does not know at the pin are replaced by real engine cards. Not the printed precon: no rules evidence, no qualification evidence, never ranked next to real decks without the label (data/decks/precon_synthetic_proxies.json)."
 }

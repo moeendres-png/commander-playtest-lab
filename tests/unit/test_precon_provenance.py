@@ -27,6 +27,7 @@ def _script(name: str):
 
 def test_the_variant_prefix_marks_synthetic_and_everything_else_is_real() -> None:
     assert pp.deck_provenance({"deck_id": "precon-variant/2023/masters_of_evil"}) == pp.SYNTHETIC
+    assert pp.deck_provenance({"deck_id": "precon-synthetic/2023/masters_of_evil"}) == pp.SYNTHETIC
     assert pp.deck_provenance({"deck_id": "precon/2023/masters_of_evil"}) == pp.REAL
     assert pp.deck_provenance({}) == pp.REAL
 

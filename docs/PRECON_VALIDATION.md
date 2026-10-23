@@ -11,6 +11,11 @@ Alle Läufe sind lokal (`LOCAL_OBSERVED`), kein CI-Kredit.
 `data/decks/precons/` enthält **195** Decks (2011–2026, je 100 Karten). Drei Decks mit gebannten
 Karten wurden entfernt. Frühere Texte nannten 198 Decks; das stimmt nicht mehr.
 
+Der Pool bleibt bei 195 Decks, aufgeteilt in **182 echte** (am Pin importierbar) und **13
+SYNTHETIC** (`data/decks/precon_variants/`, Abschnitt „SYNTHETIC-Proxies“). Aussagen über echte
+Decks zählen nur die 182; ein Deck der 13 steht in keiner Zahl, ohne dass es als SYNTHETIC
+genannt ist.
+
 ## Import über den produktiven Pfad (`DIRECTLY_VERIFIED`)
 
 Gemessen mit `scripts/measure_precon_imports.py`: jedes Deck läuft über
@@ -53,32 +58,73 @@ dieselbe Liste wie die frühere Handover-Messung, jetzt mit einem Befehl reprodu
 Vereinfachte Ersatzkarten (`SYNTHETIC`) aus den früheren Fork-Patches schließen diese Lücke nur
 beim Import. Sie spielen nicht wie gedruckt und sind keine Regelevidenz.
 
-## Ersatzdecks (Variante, `data/decks/precon_variants/`)
+## SYNTHETIC-Proxies (13 Decks, `data/decks/precon_variants/`)
 
-Für neun der 13 Decks gibt es eine klar benannte Kopie, in der jede dem Engine-Pin unbekannte
-Hauptdeckkarte durch eine echte, importierbare Karte ersetzt ist (`scripts/build_precon_variants.py`,
-`--check` prüft, dass die eingecheckten Dateien dem Generator entsprechen). Die Originale in
-`data/decks/precons/` bleiben unverändert; kein Skript liest die Varianten von selbst.
+Owner-Entscheidung (2026-10-23, #920 Punkt 1): die 13 nicht importierbaren Precons bekommen
+SYNTHETIC-Proxies, jetzt; der echte Nachbau der fehlenden Karten im Fork löst sie später ab
+(#979, Fork-Push nur mit Owner-Go). Ein Proxy ist ein Testdeck, kein gedrucktes Precon, und hat
+die Evidenzklasse `SYNTHETIC` (`AGENTS.md` §4): keine Regelevidenz, keine Qualifikationsevidenz,
+kein Eintrag in einem Ranking neben echten Decks ohne die Kennzeichnung. Die Originale in
+`data/decks/precons/` bleiben unverändert.
 
-- Kennzeichnung: `deck_id` beginnt mit `precon-variant/`, der Name endet auf
-  „(variant, replacement cards)“, jede ersetzte Karte trägt die Notiz „VARIANT: replaces …“.
-- Ersatzkarten stammen aus der Muse-Vorlage (M2, 2026-10-20): am Pin importierbar, Commander-legal,
-  in der Farbidentität des Decks, noch nicht im Deck; gegen Scryfall und die Deckdateien nachgeprüft.
-- Nicht ersetzt werden vier Decks, deren **Commander** unbekannt ist (`2024_death_toll`,
-  `2024_family_matters`, `2024_miracle_worker`, `2026_multiverse_reforged`): ein anderer Commander
-  wäre ein anderes Deck.
-- Herkunft in den Berichten: `measure_precon_imports.py` schreibt je Deck `provenance` (`REAL` oder
-  `SYNTHETIC`, aus dem `deck_id`-Präfix, `scripts/precon_provenance.py`) und `decks_by_provenance`;
-  `precon_pod_sweep.py` schreibt `decks_by_provenance`, je Pod `synthetic_decks` und
-  `pods_with_synthetic_decks`. Zahlen über gedruckte Precons und über Varianten werden getrennt
-  genannt (Stand 2026-10-23: 182 echte Precons importierbar; neun Varianten zusätzlich, aber ohne
-  Aussage über die Originale). Vier Decks bleiben ohne Ersatz, bis ihre Commander-Karten im Fork
-  existieren (#979).
-- Eine Variante ist ein Testdeck, nicht das gedruckte Precon. Sie sagt nichts über dessen Stärke
-  und gehört weder in Qualifikationsevidenz noch in Rankings oder Stärkevergleiche.
-- Einsatz: Kartenfunktions- und Bridge-Tests, Abdeckung zusätzlicher Karten im Sweep
-  (`precon_pod_sweep.py --deck-dir data/decks/precon_variants` nach dem Importlauf mit
-  `measure_precon_imports.py --deck-dir data/decks/precon_variants`).
+**Was ersetzt wird** (`scripts/build_precon_variants.py`, `--check` prüft, dass die eingecheckten
+Dateien dem Generator entsprechen):
+
+- 29 Hauptdeck-Slots in 10 Decks: eine echte, am Pin importierbare Karte statt der unbekannten,
+  Commander-legal, in der Farbidentität des Decks, noch nicht im Deck. Quelle ist Satz 1 der
+  Muse-Vorlage M2 (Branch `muse/claude-handover`, Commit `5138666f`, Ordner
+  `handover/2026-10-20/ersatzkarten-vorlage/`; je Slot drei geprüfte Kandidaten, 30 von 30
+  Ersatz-Sätzen importierten dort mit Status OK).
+- 4 Decks mit unbekanntem Commander (`2024_death_toll`, `2024_family_matters`,
+  `2024_miracle_worker`, `2026_multiverse_reforged`): ein Proxy-Commander. Die Vorlage liefert
+  dafür nur das Importgerüst Breya; die Wahl folgt hier einer festen Regel (eine Entscheidung
+  dieses Repos, nicht der Vorlage): legendäre Kreatur mit genau der Farbidentität des Originals
+  (die übrigen 99 Karten bleiben legal), Commander-legal, am Pin importierbar und nicht schon im
+  Deck; unter diesen zuerst Karten, die kein anderes Precon anführen, dann der nächste Manawert,
+  dann die nächste Summe aus Kraft und Zähigkeit, dann der Name (Scryfall-Abfrage 2026-10-23,
+  `EXTERNAL_DATA`; der erste Treffer jeder Rangliste importierte).
+
+| Deck | Original-Commander | Proxy-Commander | Hauptdeck-Slots ersetzt |
+|---|---|---|---|
+| `2024_death_toll` | Winter, Cynical Opportunist (BG) | Carth the Lion | 0 |
+| `2024_family_matters` | Zinnia, Valley's Voice (URW) | Director Nick Fury | 0 |
+| `2024_miracle_worker` | Aminatou, Veil Piercer (WUB) | Jin Sakai, Ghost of Tsushima | 0 |
+| `2026_multiverse_reforged` | Jace, Multiverse Architect (WUBR) | Breya, Etherium Shaper | 6 |
+
+Bei `2026_multiverse_reforged` gibt es keine Karte, die die Regel ganz erfüllt: genau WUBR haben nur
+Breya, Etherium Shaper und Nissa, Leyline Tamer, und Nissa steht schon im Deck (Import: „Too many:
+2“). Breya führt außerdem `2016_invent_superiority` an; beide Decks können im selben Pod sitzen.
+Der Commander-Proxy ist die am stärksten abweichende Ersetzung (ein anderes Deck führt an), die
+Slot-Ersetzung die kleinste (1 % je Slot). Eine andere Wahl ist ein Eintrag in
+`COMMANDER_PROXIES`; der Neubau ändert nur dieses Deck.
+
+**Kennzeichnung** (alles vom Generator erzeugt, ein Test prüft jede Stelle):
+
+- Deck-Daten: Tag `SYNTHETIC` (und `precon-proxy`), `deck_id` beginnt mit `precon-synthetic/`,
+  Name endet auf „(SYNTHETIC proxy)“, Deck-Notiz „SYNTHETIC proxy of …“, jede ersetzte Karte und
+  jeder ersetzte Commander trägt die Notiz „SYNTHETIC: replaces … / stands in for …“.
+- Liste: `data/decks/precon_synthetic_proxies.json` nennt je Deck, was für was steht, die Quelle
+  der Ersatzkarten, die Commander-Regel und die Pool-Aufteilung (195 = 182 echt + 13 SYNTHETIC).
+- Auswertung (`scripts/precon_provenance.py`, Marker ist das `deck_id`-Präfix):
+  `measure_precon_imports.py` schreibt je Deck `provenance` (`REAL` oder `SYNTHETIC`) und
+  `decks_by_provenance`; `precon_pod_sweep.py` schreibt `decks_by_provenance`, je Pod
+  `synthetic_decks` und im Bericht `pods_with_synthetic_decks` und
+  `pods_failed_with_synthetic_decks`. Zahlen über gedruckte Precons und über Proxies werden getrennt
+  genannt. Ein Sweep über 182 echte plus 13 Proxies:
+  `--import-report imports.json --synthetic-proxies` (der Import-Report enthält nur die 182
+  Originale; wer ohne ihn alle 195 Originale wählt, bekommt keinen Proxy daneben, der Aufruf
+  bricht mit Exit-Code 2 ab).
+
+**Import** (Bridge-JAR `c5c019a2…`, Engine 1.4.62, Pin `4da83f62`, `LOCAL_OBSERVED`,
+`measure_precon_imports.py --deck-dir data/decks/precon_variants`): **13 von 13 importieren**.
+Das beweist die Existenz der Karten am Pin, nicht ihre Funktion im Spiel; die Ersatzkarten sind
+nicht einzeln auf Funktion geprüft.
+
+**Nicht belegt:** wie nah ein Proxy am gedruckten Deck spielt. Die Ersetzung ändert 0 bis 8 von 99
+Karten und bei vier Decks den Commander; Stärkevergleiche zwischen einem Proxy und dem Original
+oder einem echten Deck sind damit keine Aussage über das Precon. Stand der Sweeps mit Proxies:
+siehe „Spielbarkeit“. Der formale Import- und Pod-Lauf der Varianten liegt in #978 (Muse, nach M4),
+der Fork-Nachbau in #979.
 
 ## Spielbarkeit
 
@@ -86,6 +132,60 @@ Hauptdeckkarte durch eine echte, importierbare Karte ersetzt ist (`scripts/build
 aufgelöst werden. Ob ein Deck in einem echten 4er-Pod durchspielt, zeigt `scripts/precon_pod_sweep.py`:
 Pods aus vier verschiedenen Decks (derselbe Aufbau wie ein echtes Spiel; ein Deck auf mehreren
 Plätzen lehnt der Validator vor dem Start ab).
+
+**Stand 2026-10-23 (maßgeblich; die Chronologie darunter bleibt als Nachweis).**
+
+Zählung auf den 182 echten Decks: drei frische Pläne, die vorher nie gespielt wurden (Plan-Seed
+gleich Spiel-Seed 41, 42, 43), je alle 182 importierbaren Decks in 46 Pods, Pin `4da83f62`
+(Engine 1.4.62), Pilot und Lab von `main` `b9936e94`, sechs Pods je Bridge-JVM, serieller GC,
+`LOCAL_OBSERVED`, ein Lauf je Plan:
+
+| Plan-Seed | Pods | liefen durch | Abbrüche | Entscheidungen je Pod (min / Median / max) | Pods ohne Sieger |
+|---|---:|---:|---:|---|---:|
+| 41 | 46 | 46 | 0 | 1565 / 3169 / 7200 | 0 |
+| 42 | 46 | 46 | 0 | 1849 / 2982 / 6295 | 1 (Pod 043) |
+| 43 | 46 | 46 | 0 | 1650 / 2873 / 4793 | 0 |
+
+Das sind 138 Pods ohne Abbruch; jedes der 182 Decks sass in jedem Plan mindestens einmal an einem
+Tisch. Das ist eine Zählung und keine Passquote: ein Spiel je Pod, drei Pläne, und die Pods sind
+keine unabhängigen Ziehungen (jedes Deck kommt in jedem Plan vor). Als Größenordnung bei null
+Abbrüchen in 138 Pods liegt die Obergrenze der Abbruchrate je Pod für Pläne dieser Art bei rund
+2,2 % (Dreisatz-Regel, 95 %). Das verwendete Bridge-JAR (`c5c019a2…`) ist aus der ersten Fassung von
+#977 gebaut; die gemergte Bridge unterscheidet sich davon nur darin, welche Deck-Handles sie
+zwischen Spielen freigibt (`retainOnly` statt `forget`), nicht im Spielablauf.
+
+Pod 043 des Plans 42 (`2024_scrappy_survivors`, `2026_silverquill_influence`,
+`2017_evasive_maneuvers`, `2018_devour_for_power`) endete ohne Sieger: Status `ok`, 3269 Entscheidungen,
+`terminal`, kein Engine-Fehler, Zug 46. Allein nachgespielt kommt dasselbe heraus (gleicher
+Semantic-Hash). Ob es ein Remis oder ein gleichzeitiges Ausscheiden war, unterscheidet das Ergebnis
+nicht.
+
+**Stopp-Kriterium für die Familiensuche in #920.** Drei aufeinanderfolgende frische Pläne ohne Abbruch
+über alle 182 echten Decks beenden die Suche nach Abbruchfamilien in den echten Decks. Das ist hier
+mit den Plänen 41 bis 43 erreicht. Ein später gefundener Abbruch ist ein eigenes Issue mit eigener
+Familie und setzt die Zählung nicht zurück. Das Kriterium ist eine Festlegung dieses Repos, nicht
+des Owners; er kann eine größere Zahl verlangen.
+
+**Mit den 13 SYNTHETIC-Proxies** (Plan-Seed 44, Spiel-Seed 44, 182 echte plus 13 Proxies = 195 Decks
+in 49 Pods; `--import-report … --synthetic-proxies`, dasselbe JAR, `LOCAL_OBSERVED`, ein Lauf):
+**48 von 49 Pods liefen durch**, ein Abbruch. Alle 13 Proxies saßen in je einem Pod
+(`pods_with_synthetic_decks` 13), der Abbruch ist ein Pod mit einem Proxy
+(`pods_failed_with_synthetic_decks` 1): `2024_tricky_terrain_collector_s_edition` mit
+`2023_eldrazi_unbound`, `2023_angels__they_re_just_like_us_but_cooler_and_with_wings` und
+`2025_mardu_surge`, `XMAGE_ACTION_EXECUTION_FAILED`, allein in einer JVM reproduziert (3 von 3).
+Ursache (lokal nachgespielt mit einem nicht eingecheckten Debug-JAR, `LOCAL_OBSERVED`): Sage of the
+Maze, „Tap an untapped Gate you control: Untap {this}“. Die Engine-Implementierung der Karte
+(`SageOfTheMaze.java` im Fork) nutzt für die Kosten einen Filter ohne Gate- und ohne
+Untapped-Prädikat (`new FilterControlledPermanent("untapped Gate you control")`, nur Text). Die
+Engine bietet die Aktivierung deshalb auch an, wenn alles Getappte ist, fragt „Select an untapped
+Gate you control“ mit lauter getappten Permanenten (Zug 31: Omo, Queen of Vesuva macht jedes Land
+zum Gate), der Pilot wählt eine, `tap()` liefert false, die Kosten bleiben unbezahlt, die Engine
+spult zurück und die Bridge bricht fail-closed ab. Das ist ein Kartenfehler der Engine, kein Fehler
+des Proxys (Sage steht im Original und ist nicht ersetzt) und keiner des Piloten oder der Bridge.
+Die Karte steht nur in den beiden Tricky-Terrain-Decks, also in keinem der 182 echten Decks. Behebung:
+zwei Prädikate an der Karte im Fork (nächster Fork-Push, Owner-Go); bis dahin bricht ein Spiel mit
+diesen zwei Proxies ab, sobald der Pilot die Aktivierung bei lauter getappten Permanenten wählt.
+Das steht als Punkt in #979.
 
 Stand der Messung:
 
@@ -590,6 +690,10 @@ die anderen sechs Karten sind neu.
 ```
 python scripts/measure_precon_imports.py --jar <bridge.jar> --workdir <leeres Verzeichnis> --out imports.json --enumerate-missing
 python scripts/precon_pod_sweep.py --jar <bridge.jar> --out sweep.json --import-report imports.json
+# die 13 SYNTHETIC-Proxies: erzeugen, prüfen, importieren, zusammen mit den 182 echten spielen
+python scripts/build_precon_variants.py --check
+python scripts/measure_precon_imports.py --jar <bridge.jar> --workdir <leeres Verzeichnis> --out proxies.json --deck-dir data/decks/precon_variants
+python scripts/precon_pod_sweep.py --jar <bridge.jar> --out sweep.json --import-report imports.json --synthetic-proxies
 ```
 
 `--enumerate-missing` kostet eine Minute und listet je Deck alle fehlenden Namen. Beide Skripte
@@ -603,6 +707,12 @@ Immer nur ein Sweep gleichzeitig: bei CPU-Mangel werden langsame Entscheidungen 
 
 ## Nicht belegt
 
+- „Ein SYNTHETIC-Proxy spielt wie das gedruckte Precon“: nicht belegt und nicht gemeint. Er ersetzt 0 bis
+  8 Hauptdeck-Karten, bei vier Decks den Commander; die Ersatzkarten sind importbewiesen, nicht
+  funktionsgeprüft.
+- „Alle 195 Decks laufen im Pod“: im gemischten Lauf (Plan-Seed 44) liefen 48 von 49 Pods; der
+  Abbruch ist der Kartenfehler von Sage of the Maze (siehe „Spielbarkeit“), er trifft nur die zwei
+  Tricky-Terrain-Proxies.
 - „Alle Precon-Karten sind in XMage implementiert und spielbar“ (frühere Fassung dieser Datei):
   widerlegt, 31 Kartennamen fehlen am Pin, und Import beweist keine Kartenfunktion.
 - „Alle 182 importierbaren Decks laufen im Pod“: ohne die Fixes (#928, Crew/Marath) widerlegt (9 von 46

@@ -1,0 +1,250 @@
+{
+  "schema": "commander-lab.synthetic-precon-proxies/1",
+  "evidence_class": "SYNTHETIC",
+  "statement": "Each proxy deck replaces cards the engine does not know at the pin by real engine cards. It is a test deck, not the printed precon; it is not rules evidence and not qualification evidence, and results on it are reported apart from the real decks.",
+  "decision": "Owner, 2026-10-23: proxies now (#920), real rebuild of the cards in the fork later (#979)",
+  "replacement_source": {
+    "repository": "moeendres-png/commander-playtest-lab",
+    "branch": "muse/claude-handover",
+    "commit": "5138666f6184ca6ea185509519639c273b1e370f",
+    "folder": "handover/2026-10-20/ersatzkarten-vorlage/",
+    "set": 1
+  },
+  "commander_rule": "A legendary creature with exactly the original commander's colour identity, legal as a commander, known to the engine at the pin (import proof) and not already in the deck. Among those: cards that are no other precon's commander first, then the nearest mana value, then the nearest power plus toughness, then the name. 2026_multiverse_reforged is the one deck without such a card: Breya, Etherium Shaper (commander of 2016_invent_superiority) is the only WUBR commander not already in its 99.",
+  "pool": {
+    "decks": 195,
+    "real": 182,
+    "synthetic": 13
+  },
+  "decks": {
+    "2023_blast_from_the_past": {
+      "original_deck_id": "precon/2023/blast_from_the_past",
+      "proxy_deck_id": "precon-synthetic/2023/blast_from_the_past",
+      "proxy_file": "data/decks/precon_variants/2023_blast_from_the_past.json",
+      "main_deck_replacements": [
+        {
+          "original": "Susan Foreman",
+          "proxy": "Sakura-Tribe Elder"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2023_masters_of_evil": {
+      "original_deck_id": "precon/2023/masters_of_evil",
+      "proxy_deck_id": "precon-synthetic/2023/masters_of_evil",
+      "proxy_file": "data/decks/precon_variants/2023_masters_of_evil.json",
+      "main_deck_replacements": [
+        {
+          "original": "Missy",
+          "proxy": "Steel Hellkite"
+        },
+        {
+          "original": "Cyber Conversion",
+          "proxy": "Arcane Denial"
+        },
+        {
+          "original": "Doomsday Confluence",
+          "proxy": "Faithless Looting"
+        },
+        {
+          "original": "Death in Heaven",
+          "proxy": "Kang Dynasty"
+        },
+        {
+          "original": "Rassilon, the War President",
+          "proxy": "Mulldrifter"
+        },
+        {
+          "original": "The Cyber-Controller",
+          "proxy": "Burnished Hart"
+        },
+        {
+          "original": "Cybership",
+          "proxy": "N'Yami-Class Mother Ship"
+        },
+        {
+          "original": "Don't Blink",
+          "proxy": "Terminate"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2023_paradox_power": {
+      "original_deck_id": "precon/2023/paradox_power",
+      "proxy_deck_id": "precon-synthetic/2023/paradox_power",
+      "proxy_file": "data/decks/precon_variants/2023_paradox_power.json",
+      "main_deck_replacements": [
+        {
+          "original": "The Foretold Soldier",
+          "proxy": "Solemn Simulacrum"
+        },
+        {
+          "original": "River Song's Diary",
+          "proxy": "Commander's Sphere"
+        },
+        {
+          "original": "Psychic Paper",
+          "proxy": "Swiftfoot Boots"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2023_timey_wimey": {
+      "original_deck_id": "precon/2023/timey_wimey",
+      "proxy_deck_id": "precon-synthetic/2023/timey_wimey",
+      "proxy_file": "data/decks/precon_variants/2023_timey_wimey.json",
+      "main_deck_replacements": [
+        {
+          "original": "The Pandorica",
+          "proxy": "Commander's Sphere"
+        },
+        {
+          "original": "The War Doctor",
+          "proxy": "Solemn Simulacrum"
+        },
+        {
+          "original": "The Moment",
+          "proxy": "Swiftfoot Boots"
+        },
+        {
+          "original": "Psychic Paper",
+          "proxy": "Hero's Blade"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2024_blame_game": {
+      "original_deck_id": "precon/2024/blame_game",
+      "proxy_deck_id": "precon-synthetic/2024/blame_game",
+      "proxy_file": "data/decks/precon_variants/2024_blame_game.json",
+      "main_deck_replacements": [
+        {
+          "original": "Feather, Radiant Arbiter",
+          "proxy": "Burnished Hart"
+        },
+        {
+          "original": "Immortal Obligation",
+          "proxy": "Abrade"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2024_death_toll": {
+      "original_deck_id": "precon/2024/death_toll",
+      "proxy_deck_id": "precon-synthetic/2024/death_toll",
+      "proxy_file": "data/decks/precon_variants/2024_death_toll.json",
+      "main_deck_replacements": [],
+      "commander_replacement": {
+        "original": "Winter, Cynical Opportunist",
+        "proxy": "Carth the Lion"
+      }
+    },
+    "2024_family_matters": {
+      "original_deck_id": "precon/2024/family_matters",
+      "proxy_deck_id": "precon-synthetic/2024/family_matters",
+      "proxy_file": "data/decks/precon_variants/2024_family_matters.json",
+      "main_deck_replacements": [],
+      "commander_replacement": {
+        "original": "Zinnia, Valley's Voice",
+        "proxy": "Director Nick Fury"
+      }
+    },
+    "2024_miracle_worker": {
+      "original_deck_id": "precon/2024/miracle_worker",
+      "proxy_deck_id": "precon-synthetic/2024/miracle_worker",
+      "proxy_file": "data/decks/precon_variants/2024_miracle_worker.json",
+      "main_deck_replacements": [],
+      "commander_replacement": {
+        "original": "Aminatou, Veil Piercer",
+        "proxy": "Jin Sakai, Ghost of Tsushima"
+      }
+    },
+    "2024_revenant_recon": {
+      "original_deck_id": "precon/2024/revenant_recon",
+      "proxy_deck_id": "precon-synthetic/2024/revenant_recon",
+      "proxy_file": "data/decks/precon_variants/2024_revenant_recon.json",
+      "main_deck_replacements": [
+        {
+          "original": "Eye of Duskmantle",
+          "proxy": "Meteor Golem"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2024_tricky_terrain": {
+      "original_deck_id": "precon/2024/tricky_terrain",
+      "proxy_deck_id": "precon-synthetic/2024/tricky_terrain",
+      "proxy_file": "data/decks/precon_variants/2024_tricky_terrain.json",
+      "main_deck_replacements": [
+        {
+          "original": "Desert Warfare",
+          "proxy": "Reconnaissance Mission"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2024_tricky_terrain_collector_s_edition": {
+      "original_deck_id": "precon/2024/tricky_terrain_collector_s_edition",
+      "proxy_deck_id": "precon-synthetic/2024/tricky_terrain_collector_s_edition",
+      "proxy_file": "data/decks/precon_variants/2024_tricky_terrain_collector_s_edition.json",
+      "main_deck_replacements": [
+        {
+          "original": "Desert Warfare",
+          "proxy": "Reconnaissance Mission"
+        }
+      ],
+      "commander_replacement": null
+    },
+    "2026_multiverse_reforged": {
+      "original_deck_id": "precon/2026/multiverse_reforged",
+      "proxy_deck_id": "precon-synthetic/2026/multiverse_reforged",
+      "proxy_file": "data/decks/precon_variants/2026_multiverse_reforged.json",
+      "main_deck_replacements": [
+        {
+          "original": "Dack Fayden, Helping Hand",
+          "proxy": "Sun Titan"
+        },
+        {
+          "original": "Teferi's Reproach",
+          "proxy": "Chaos Warp"
+        },
+        {
+          "original": "Jhoira, Weatherlight Corsair",
+          "proxy": "Steel Hellkite"
+        },
+        {
+          "original": "Venser, Fervent Forger",
+          "proxy": "Inferno Titan"
+        },
+        {
+          "original": "Tamiyo, Upriser Crowned",
+          "proxy": "Brudiclad, Telchor Engineer"
+        },
+        {
+          "original": "The Ur-Sphinx",
+          "proxy": "Cavern-Hoard Dragon"
+        }
+      ],
+      "commander_replacement": {
+        "original": "Jace, Multiverse Architect",
+        "proxy": "Breya, Etherium Shaper"
+      }
+    },
+    "2026_odds_and_ends": {
+      "original_deck_id": "precon/2026/odds_and_ends",
+      "proxy_deck_id": "precon-synthetic/2026/odds_and_ends",
+      "proxy_file": "data/decks/precon_variants/2026_odds_and_ends.json",
+      "main_deck_replacements": [
+        {
+          "original": "Exchange of Words",
+          "proxy": "Propaganda"
+        },
+        {
+          "original": "Space Beleren",
+          "proxy": "Tezzeret, Betrayer of Flesh"
+        }
+      ],
+      "commander_replacement": null
+    }
+  }
+}

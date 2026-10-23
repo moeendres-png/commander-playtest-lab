@@ -5,7 +5,8 @@ real, importable cards. It is a test deck, not the printed precon: it says nothi
 original plays. Import and sweep reports therefore carry this label per deck and count REAL and
 SYNTHETIC decks apart, so a figure such as "182 of 195" is never read as one population.
 
-The marker is the ``deck_id`` prefix that ``build_precon_variants.py`` writes.
+The marker is the ``deck_id`` prefix that ``build_precon_variants.py`` writes (the generator also
+sets the ``SYNTHETIC`` deck tag; ``precon-variant/`` is the prefix of the first nine copies).
 """
 
 from __future__ import annotations
@@ -17,12 +18,13 @@ from pathlib import Path
 
 REAL = "REAL"
 SYNTHETIC = "SYNTHETIC"
-SYNTHETIC_DECK_ID_PREFIX = "precon-variant/"
+SYNTHETIC_DECK_ID_PREFIXES = ("precon-synthetic/", "precon-variant/")
 
 
 def deck_provenance(deck: Mapping[str, object]) -> str:
     """SYNTHETIC for a variant copy (by ``deck_id`` prefix), REAL for everything else."""
-    return SYNTHETIC if str(deck.get("deck_id", "")).startswith(SYNTHETIC_DECK_ID_PREFIX) else REAL
+    deck_id = str(deck.get("deck_id", ""))
+    return SYNTHETIC if deck_id.startswith(SYNTHETIC_DECK_ID_PREFIXES) else REAL
 
 
 def deck_file_provenance(path: Path) -> str:
@@ -32,6 +34,11 @@ def deck_file_provenance(path: Path) -> str:
 def provenance_by_stem(deck_dir: Path, stems: Iterable[str]) -> dict[str, str]:
     """Provenance of ``deck_dir/<stem>.json`` for each stem."""
     return {stem: deck_file_provenance(deck_dir / f"{stem}.json") for stem in stems}
+
+
+def provenance_by_path(paths: Mapping[str, Path]) -> dict[str, str]:
+    """Provenance of each deck file, keyed by stem."""
+    return {stem: deck_file_provenance(path) for stem, path in paths.items()}
 
 
 def count_by_provenance(labels: Iterable[str]) -> dict[str, int]:
