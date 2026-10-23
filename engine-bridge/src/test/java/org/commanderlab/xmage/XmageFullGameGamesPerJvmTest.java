@@ -58,6 +58,19 @@ class XmageFullGameGamesPerJvmTest {
     }
 
     @Test
+    void theNextGameReleasesTheDecksOfThePreviousGame() {
+        System.setProperty(XmageFullGameJsonlBridge.GAMES_PER_JVM_PROPERTY, "3");
+        XmageFullGameJsonlBridge bridge = engine();
+        playAndShutDown(bridge, "decks-1");
+        assertEquals(2, bridge.storedDeckCount(), "the two decks of the first game");
+        playAndShutDown(bridge, "decks-2");
+        assertEquals(2, bridge.storedDeckCount(),
+                "the first game's decks are gone once the second game starts");
+        playAndShutDown(bridge, "decks-3");
+        assertEquals(2, bridge.storedDeckCount(), "a batch holds the decks of one game, not of all");
+    }
+
+    @Test
     void forgetGameRemovesTheRngTapePreShuffleAndResultsEntries() {
         String id = "tape-forget-test";
         XmageRulesRngResultTape.seedRecordsForTest(id);

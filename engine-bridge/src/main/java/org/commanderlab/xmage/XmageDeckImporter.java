@@ -11,6 +11,7 @@ import mage.deck.Commander;
 
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -254,6 +255,14 @@ public final class XmageDeckImporter {
         }
 
         return deck;
+    }
+
+    /** Drops decks whose game is over; a handle is never used by a later game. */
+    void forget(Collection<String> deckHandles) {
+        for (String handle : deckHandles) {
+            decksByHandle.remove(handle);
+            requestsByHandle.remove(handle);
+        }
     }
 
     int storedDeckCount() {
