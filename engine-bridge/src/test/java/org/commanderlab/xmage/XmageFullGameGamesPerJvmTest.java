@@ -62,12 +62,51 @@ class XmageFullGameGamesPerJvmTest {
         System.setProperty(XmageFullGameJsonlBridge.GAMES_PER_JVM_PROPERTY, "3");
         XmageFullGameJsonlBridge bridge = engine();
         playAndShutDown(bridge, "decks-1");
-        assertEquals(2, bridge.storedDeckCount(), "the two decks of the first game");
+        assertHeldDecks(bridge, 2, "the two decks of the first game");
         playAndShutDown(bridge, "decks-2");
-        assertEquals(2, bridge.storedDeckCount(),
-                "the first game's decks are gone once the second game starts");
+        assertHeldDecks(bridge, 2, "the first game's decks are gone once the second game starts");
         playAndShutDown(bridge, "decks-3");
-        assertEquals(2, bridge.storedDeckCount(), "a batch holds the decks of one game, not of all");
+        assertHeldDecks(bridge, 2, "a batch holds the decks of one game, not of all");
+    }
+
+    @Test
+    void importsThatNeverBecameAGameAreReleasedWithTheNextGame() {
+        System.setProperty(XmageFullGameJsonlBridge.GAMES_PER_JVM_PROPERTY, "3");
+        XmageFullGameJsonlBridge bridge = engine();
+        assertTrue(create(bridge, "stray-1").get("success").getAsBoolean());
+        ok(bridge, "start_full_game");
+        // Refused while the first game runs, but its two decks were imported.
+        assertRefused(create(bridge, "stray-early"));
+        assertHeldDecks(bridge, 4, "the running game's decks and the refused attempt's");
+        ok(bridge, "shutdown_game");
+        playAndShutDown(bridge, "stray-2");
+        assertHeldDecks(bridge, 2, "only the decks of the game that was created are kept");
+    }
+
+    @Test
+    void aLaterGameMayUseTheHandlesOfAnEarlierOne() {
+        System.setProperty(XmageFullGameJsonlBridge.GAMES_PER_JVM_PROPERTY, "2");
+        XmageFullGameJsonlBridge bridge = engine();
+        JsonArray handles = importDecks(bridge, "reuse");
+        assertTrue(createWith(bridge, "reuse-1", handles).get("success").getAsBoolean());
+        ok(bridge, "start_full_game");
+        ok(bridge, "shutdown_game");
+        JsonObject second = createWith(bridge, "reuse-2", handles);
+        assertTrue(second.get("success").getAsBoolean(), second.toString());
+        assertHeldDecks(bridge, 2, "the handles the second game names stay");
+    }
+
+    @Test
+    void aFailedCreateDoesNotUseUpAGameSlot() {
+        System.setProperty(XmageFullGameJsonlBridge.GAMES_PER_JVM_PROPERTY, "2");
+        XmageFullGameJsonlBridge bridge = engine();
+        JsonArray unknown = new JsonArray();
+        unknown.add("no-such-deck-1");
+        unknown.add("no-such-deck-2");
+        assertFalse(createWith(bridge, "slot-failed", unknown).get("success").getAsBoolean());
+        playAndShutDown(bridge, "slot-1");
+        playAndShutDown(bridge, "slot-2");
+        assertRefused(create(bridge, "slot-3"));
     }
 
     @Test
@@ -100,6 +139,10 @@ class XmageFullGameGamesPerJvmTest {
     }
 
     private static JsonObject create(XmageFullGameJsonlBridge bridge, String gameId) {
+        return createWith(bridge, gameId, importDecks(bridge, gameId));
+    }
+
+    private static JsonArray importDecks(XmageFullGameJsonlBridge bridge, String gameId) {
         JsonArray handles = new JsonArray();
         for (int seat = 0; seat < 2; seat++) {
             JsonObject deckPayload = new JsonObject();
@@ -108,6 +151,11 @@ class XmageFullGameGamesPerJvmTest {
             handles.add(imported.getAsJsonObject("payload").getAsJsonObject("deck_handle")
                     .get("handle_id").getAsString());
         }
+        return handles;
+    }
+
+    private static JsonObject createWith(
+            XmageFullGameJsonlBridge bridge, String gameId, JsonArray handles) {
         JsonObject create = new JsonObject();
         create.addProperty("game_id", gameId);
         create.add("deck_handles", handles);
@@ -115,6 +163,11 @@ class XmageFullGameGamesPerJvmTest {
         create.addProperty("starting_player_seat", 0);
         create.addProperty("starting_life", 40);
         return response(bridge.handle(request("create_full_game", create)).json());
+    }
+
+    private static void assertHeldDecks(XmageFullGameJsonlBridge bridge, int expected, String why) {
+        assertEquals(expected, bridge.storedDeckCount(), why);
+        assertEquals(expected, bridge.storedImportRequestCount(), why + " (import requests)");
     }
 
     private static JsonObject deck(String deckId) {

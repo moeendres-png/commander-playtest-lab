@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -257,16 +258,23 @@ public final class XmageDeckImporter {
         return deck;
     }
 
-    /** Drops decks whose game is over; a handle is never used by a later game. */
-    void forget(Collection<String> deckHandles) {
-        for (String handle : deckHandles) {
-            decksByHandle.remove(handle);
-            requestsByHandle.remove(handle);
-        }
+    /**
+     * Drops every stored deck whose handle is not in {@code keep}. A batch calls this when
+     * the next game is created: the decks of the games before it (and any import that never
+     * became a game) are not used again, the decks the new game names stay.
+     */
+    void retainOnly(Collection<String> keep) {
+        Set<String> handles = Set.copyOf(keep);
+        decksByHandle.keySet().retainAll(handles);
+        requestsByHandle.keySet().retainAll(handles);
     }
 
     int storedDeckCount() {
         return decksByHandle.size();
+    }
+
+    int storedRequestCount() {
+        return requestsByHandle.size();
     }
 
     private static DeckCardInfo resolveMechanicalCard(
