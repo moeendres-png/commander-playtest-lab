@@ -52,6 +52,14 @@ _INFINITE_LOOP_PROMPT = re.compile(r"Draw game because of infinite looping\?")
 # of nearly an hour). A seat stops after a few digs, like a player who does not find what it wants.
 _LIFE_DIG_PROMPT = re.compile(r"Pay 1 life and look at the next 5 cards\?")
 _LIFE_DIG_CAP = 3
+# Wild Ricochet ("copy target instant or sorcery spell, you may choose new targets for the copy"):
+# the engine asks "Change this 1 of 1 target: <spell>?" for every copy. The pilot said Yes and
+# aimed the copy at another Wild Ricochet each time, so every copy made another copy and the
+# stack grew without end (precon pod 031, plan seed 1, game seed 1: 6000 decisions at turn 21,
+# 4363 spells alive, each priority window slower than the last). A seat re-aims a few copies a
+# turn, like a player who has a reason to; the rest keep the targets they were copied with.
+_RETARGET_PROMPT = re.compile(r"\AChange this \d+ of \d+ targets?: ")
+_RETARGET_TURN_CAP = 4
 _CONTINUE_SELECTION_LABEL = "continue the selection"
 
 # "Choose a counter to remove from <name>": the pick among the counter types of a permanent that
@@ -60,6 +68,15 @@ _COUNTER_KIND_PROMPT = re.compile(r"Remove an? .+ counter from an? permanent you
 _COUNTER_CHOICE_PROMPT = re.compile(
     r"Choose a counter to remove from (?:<[^>]*>)?(?P<name>[^<\[]+)"
 )
+
+
+def _targets_own_spell(option: dict[str, Any], own_ids: set[str]) -> bool:
+    """Whether a stack-zone target option is the spell that is choosing its targets."""
+    metadata = option.get("metadata")
+    meta = metadata if isinstance(metadata, dict) else {}
+    if meta.get("zone") != "stack":
+        return False
+    return bool({str(meta.get("object_id") or ""), str(meta.get("source_card_id") or "")} & own_ids)
 
 
 class _ChoiceDecisions(_PaymentDecisions):
@@ -171,6 +188,18 @@ class _ChoiceDecisions(_PaymentDecisions):
             options = [
                 option for option in options if not is_unsuspendable_target(source_name, option)
             ]
+            # CR 115.5: a spell cannot target itself. XMage still lists the spell being cast among
+            # "target instant or sorcery spell" (Wild Ricochet, Expansion), the pilot picked it,
+            # and the copies of a Wild Ricochet aimed at itself copied one another for ever
+            # (precon pod 031, plan seed 1, game seed 1: 6000 decisions at turn 21).
+            if source.get("ability_type") == "spell":
+                own = {
+                    str(source.get("source_object_id") or ""),
+                    str(source.get("ability_original_id") or ""),
+                } - {""}
+                spared = [option for option in options if not _targets_own_spell(option, own)]
+                if spared or min_selections == 0:
+                    options = spared
             if not options and min_selections == 0:
                 return []
         outcome = str((request.get("context") or {}).get("outcome", "neutral")).casefold()
@@ -475,8 +504,25 @@ class _ChoiceDecisions(_PaymentDecisions):
             ]
             if kept:
                 selectable = kept
+        # Re-target guard (liveness only): after a few re-aimed copies this turn the seat keeps the
+        # targets (CR 707.10c: a copy keeps its original targets unless its controller changes them).
+        retarget = _RETARGET_PROMPT.match(prompt) is not None
+        retargeted_turn, retargeted = self._retarget_yes.get(seat, (None, 0))
+        if retargeted_turn != turn:
+            retargeted = 0
+        retarget_blocked = retarget and retargeted >= _RETARGET_TURN_CAP
+        if retarget_blocked:
+            kept = [o for o in selectable if not values[self._required_text(o, "option_id")]]
+            if kept:
+                selectable = kept
         if selectable and len(selectable) != len(options):
-            if life_yes_blocked:
+            if retarget_blocked:
+                _LOG.info(
+                    "re-target guard: %d copies re-aimed this turn; keeping the targets of %r",
+                    retargeted,
+                    prompt,
+                )
+            elif life_yes_blocked:
                 _LOG.info(
                     "phyrexian life guard: %d life already promised in this payment; declining %r",
                     life_promised,
@@ -533,6 +579,8 @@ class _ChoiceDecisions(_PaymentDecisions):
             if last_yes is not None:
                 failed.add(last_yes)
         self._free_cast_failed[seat] = (turn, failed)
+        if retarget and values[raw_id]:
+            self._retarget_yes[seat] = (turn, retargeted + 1)
         if _LIFE_DIG_PROMPT.match(prompt) and values[raw_id]:
             self._life_dig_yes[seat] = (dig_key, dug + 1)
         if life_prompt is not None and values[raw_id]:

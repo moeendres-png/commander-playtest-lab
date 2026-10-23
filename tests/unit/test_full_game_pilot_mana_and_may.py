@@ -569,6 +569,81 @@ def test_declined_copy_cast_ends_the_continue_chain() -> None:
     assert answer(cont, 4) == "yes"  # the refusal is spent: a later chain is not capped
 
 
+def _copy_spell_target(source_name: str, *stack: tuple[str, str]) -> dict[str, Any]:
+    """Target choice of a copy-a-spell spell; ``stack`` is (object id, name), top of stack first."""
+    options = [
+        _option(
+            object_id,
+            "target",
+            name,
+            object_id=object_id,
+            name=name,
+            zone="stack",
+            zone_index=index,
+            source_card_id=f"card-{object_id}",
+        )
+        for index, (object_id, name) in enumerate(stack)
+    ]
+    request = _request(
+        "target",
+        options,
+        context={"targeted": True, "outcome": "benefit", "required": True},
+        prompt="Select an instant or sorcery spell",
+        state=_state(step="precombat_main"),
+    )
+    request["source_object"] = {
+        "source_object_id": "card-own",
+        "ability_original_id": "own",
+        "ability_type": "spell",
+        "source_name": source_name,
+    }
+    return request
+
+
+def test_a_spell_never_targets_itself() -> None:
+    # CR 115.5. XMage lists the Wild Ricochet being cast among its own "target instant or sorcery
+    # spell" options; the pilot took it and the copies copied one another for ever (precon pod
+    # 031, plan seed 1, game seed 1: 6000 decisions at turn 21, one priority window slower than
+    # the one before).
+    own_first = _copy_spell_target(
+        "Wild Ricochet", ("own", "Wild Ricochet"), ("swords", "Swords to Plowshares")
+    )
+    assert _policy().decide(own_first)["selected_option_ids"] == ["swords"]
+    # Control: the same spell is a legal choice for another spell that stands on the stack.
+    other = _copy_spell_target("Expansion", ("own", "Wild Ricochet"))
+    other["source_object"]["ability_original_id"] = "expansion"
+    other["source_object"]["source_object_id"] = "card-expansion"
+    assert _policy().decide(other)["selected_option_ids"] == ["own"]
+
+
+def test_a_seat_re_aims_only_a_few_copies_a_turn() -> None:
+    # Wild Ricochet copies: the engine asks "Change this 1 of 1 target: X?" for every copy and the
+    # pilot aimed each at another Wild Ricochet, so the stack grew without end (precon pod 031,
+    # 6000 decisions at turn 21). Four re-aims a turn are allowed, the next ones keep the targets.
+    policy = _policy()
+    ask = "Change this 1 of 1 target: Wild Ricochet [1cc]?"
+
+    def answer(prompt: str, offset: int) -> str:
+        return policy.decide(_boolean("neutral", prompt, offset=offset))["selected_option_ids"][0]
+
+    first = [answer(ask, offset) for offset in range(1, 5)]
+    assert first == ["yes"] * 4  # control: the guard does not touch the first re-aims
+    assert answer(ask, 5) == "no"
+    assert answer(ask, 6) == "no"
+    # Other may-prompts of the same seat are not affected by the spent count.
+    assert answer("Pay {1}?", 7) == "yes"
+
+
+def test_the_re_aim_count_starts_over_with_the_turn() -> None:
+    policy = _policy()
+    ask = "Change this 1 of 1 target: Wild Ricochet [1cc]?"
+    for offset in range(1, 6):
+        policy.decide(_boolean("neutral", ask, offset=offset))
+    request = _boolean("neutral", ask, offset=6)
+    request["pilot_state"]["turn_number"] = request["pilot_state"]["turn_number"] + 1
+    assert policy.decide(request)["selected_option_ids"][0] == "yes"
+
+
 _FILTER_FACTS: dict[str, Any] = {
     "mana_cost_white": 0,
     "mana_cost_blue": 0,

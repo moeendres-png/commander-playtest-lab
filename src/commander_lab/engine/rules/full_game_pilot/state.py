@@ -153,6 +153,8 @@ class _PolicyState:
         # Lim-Dul's Vault: per seat, the ability that asked and how many times in a row the seat
         # has paid a life to look at five more cards.
         self._life_dig_yes: dict[int, tuple[str, int]] = {}
+        # Wild Ricochet: per seat, the turn and how many copies the seat re-aimed that turn.
+        self._retarget_yes: dict[int, tuple[object, int]] = {}
         self._selection_ended: set[int] = set()
         # Seats that just answered "Continue the selection" and have not been asked to pick since.
         self._selection_reopened: set[int] = set()
