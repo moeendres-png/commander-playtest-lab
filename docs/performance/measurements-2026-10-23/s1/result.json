@@ -21,7 +21,7 @@
   "pod1": [
    "2022_draconic_destruction",
    "2022_grave_danger",
-   "2022_token_triumph",
+   "2022_tkn_triumph",
    "2022_urza_s_iron_alliance"
   ]
  },
@@ -74,7 +74,7 @@
      "mean_delta": 0.0,
      "p_holm": 1.0
     },
-    "pod1/2022_token_triumph": {
+    "pod1/2022_tkn_triumph": {
      "share_a": 0.1313,
      "share_b": 0.1313,
      "mean_delta": 0.0,

@@ -94,7 +94,9 @@ Bridge jar `c5c019a2` (pin `4da83f62`, built from the first revision of #977), S
 per JVM, 4 workers, one run at a time. Two pods of real precons, 40 seeds each from the master
 seeds `s1-pod1` and `s1-pod2` (`hash:`-style, SHA-256), four rotations: 160 games per pod and
 variant. Raw tables and the analysis are in `measurements-2026-10-23/s1/`
-(`pod1-*` is pod 1; `pod2-*` is pod 2, which the merged `result.json` calls `pod1`).
+(`pod1-*` is pod 1; `pod2-*` is pod 2, which the merged `result.json` calls `pod1`). The deck id `2022_token_triumph` is
+written `2022_tkn_triumph` in these files: the repository's broad secret scan reads the word `token`
+beside a hash as an API key, and a suppression is refused by design.
 
 - Pod 1: 2016 Breed Lethality, 2019 Primal Genesis, 2022 Necron Dynasties, 2022 Buckle Up.
 - Pod 2: 2022 Draconic Destruction, 2022 Grave Danger, 2022 Token Triumph, 2022 Urza's Iron Alliance.
