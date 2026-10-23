@@ -25,6 +25,16 @@ final class XmageFullGameJsonlBridge {
     private final int gamesPerJvm = Math.max(1, Integer.getInteger(GAMES_PER_JVM_PROPERTY, 1));
     private int gamesCreated;
 
+    /** Decks the importer still holds; for tests. */
+    int storedDeckCount() {
+        return deckImporter.storedDeckCount();
+    }
+
+    /** Import requests the importer still holds; for tests. */
+    int storedImportRequestCount() {
+        return deckImporter.storedRequestCount();
+    }
+
     /** Engine game id of the current session, or null; for tests. */
     String currentEngineGameId() {
         return session == null ? null : session.engineGameId();
@@ -156,8 +166,8 @@ final class XmageFullGameJsonlBridge {
         try {
             if (session != null && session.isShutDown() && gamesCreated < gamesPerJvm) {
                 // Batch opt-in: the previous game was shut down, so the next may start.
-                // Its records in the bridge's static, game-keyed maps go with it;
-                // a long-lived JVM would otherwise keep every finished game's.
+                // Its records in the bridge's static, game-keyed maps go with it; a
+                // long-lived JVM would otherwise keep every finished game's.
                 session.releaseStaticGameRecords();
                 session = null;
             }
@@ -216,7 +226,12 @@ final class XmageFullGameJsonlBridge {
             int startingPlayerSeat = requiredInt(payload, "starting_player_seat");
             int startingLife = optionalInt(payload, "starting_life", 40);
 
-            gamesCreated++;
+            if (gamesCreated > 0) {
+                // Batch: the decks of the earlier games (about 2 MiB per four-player game),
+                // and imports that never became a game, are not used again; the decks this
+                // game names stay. A long-lived JVM would otherwise keep all of them.
+                deckImporter.retainOnly(deckHandles);
+            }
             session = new XmageFullGameSession(
                     gameId,
                     new ArrayList<>(deckHandles),
@@ -225,6 +240,8 @@ final class XmageFullGameJsonlBridge {
                     seed,
                     deckImporter
             );
+            // Counted once the game exists: a create that fails does not use up a game slot.
+            gamesCreated++;
 
             JsonObject responsePayload = new JsonObject();
             responsePayload.addProperty("game_id", gameId);
