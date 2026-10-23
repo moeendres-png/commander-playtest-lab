@@ -1,0 +1,184 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2026/silverquill_influence",
+ "guide_slug": "precon_2026_silverquill_influence",
+ "deck_name": "Silverquill Influence",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Killian, Decisive Mentor"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Killian, Decisive Mentor": 3
+ },
+ "haupt_commander": "Killian, Decisive Mentor",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 37,
+  "laender_nach_farbe": {
+   "B": 21,
+   "W": 20
+  },
+  "farbquellen_nichtland": 4,
+  "pip_bedarf_frueh": {
+   "W": 38,
+   "B": 22
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 6,
+  "2": 18,
+  "3": 21,
+  "4": 11,
+  "5": 6,
+  "6": 0,
+  "7+": 1,
+  "durchschnitt_nonland": 2.97
+ },
+ "rollen": {
+  "mana_source": 38,
+  "ramp": 4,
+  "draw": 14,
+  "selection": 1,
+  "removal": 7,
+  "counter": 0,
+  "protection": 5,
+  "wipe": 1,
+  "recursion": 3,
+  "graveyard_hate": 1,
+  "engine": 35,
+  "enabler": 0,
+  "payoff": 1,
+  "finisher": 0,
+  "combat_payoff": 18,
+  "token_source": 6,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "enchantments",
+  "value_engine"
+ ],
+ "win_plan": "Verzauberungen sind die Wertachse: Enchantress-Effekte und Payoffs aufbauen und das Board darüber schließen.",
+ "schluesselkarten": [
+  "Killian, Decisive Mentor",
+  "Doomwake Giant",
+  "Eldrazi Conscription",
+  "Shadrix Silverquill",
+  "Archon of Sun's Grace",
+  "Firemane Commando"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.0,
+  "engine_development": 0.3,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Killian, Decisive Mentor",
+   "Doomwake Giant",
+   "Eldrazi Conscription"
+  ],
+  "gegner_overrides": [],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Shadrix Silverquill"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2026_silverquill_influence-kern",
+   "karten": [
+    "Killian, Decisive Mentor",
+    "Doomwake Giant",
+    "Eldrazi Conscription",
+    "Shadrix Silverquill",
+    "Archon of Sun's Grace",
+    "Firemane Commando"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

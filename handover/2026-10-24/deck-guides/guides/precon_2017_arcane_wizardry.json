@@ -1,0 +1,200 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2017/arcane_wizardry",
+ "guide_slug": "precon_2017_arcane_wizardry",
+ "deck_name": "Arcane Wizardry",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Inalla, Archmage Ritualist"
+ ],
+ "commander_mana_value": [
+  5.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "R",
+  "U"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Inalla, Archmage Ritualist": 5
+ },
+ "haupt_commander": "Inalla, Archmage Ritualist",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "U": 17,
+   "B": 12,
+   "R": 9
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "U": 17,
+   "R": 12,
+   "B": 8
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 2,
+  "2": 12,
+  "3": 16,
+  "4": 9,
+  "5": 10,
+  "6": 8,
+  "7+": 5,
+  "durchschnitt_nonland": 3.97
+ },
+ "rollen": {
+  "mana_source": 43,
+  "ramp": 7,
+  "draw": 13,
+  "selection": 3,
+  "removal": 17,
+  "counter": 1,
+  "protection": 0,
+  "wipe": 4,
+  "recursion": 5,
+  "graveyard_hate": 1,
+  "engine": 14,
+  "enabler": 0,
+  "payoff": 1,
+  "finisher": 1,
+  "combat_payoff": 16,
+  "token_source": 4,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "tribal:Wizard",
+  "value_engine"
+ ],
+ "win_plan": "Ausgewogenes Wert-Deck: solide Kurve, Interaktion und Drohungen — über Kartenqualität statt über eine einzelne Synergie-Achse gewinnen.",
+ "schluesselkarten": [
+  "Inalla, Archmage Ritualist",
+  "Niv-Mizzet, the Firemind",
+  "Galecaster Colossus",
+  "Vela the Night-Clad",
+  "Puppeteer Clique",
+  "Taigam, Sidisi's Hand"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 5,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.1,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.2,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Inalla, Archmage Ritualist",
+   "Niv-Mizzet, the Firemind",
+   "Galecaster Colossus"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Inalla, Archmage Ritualist",
+    "Puppeteer Clique"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2017_arcane_wizardry-kern",
+   "karten": [
+    "Inalla, Archmage Ritualist",
+    "Niv-Mizzet, the Firemind",
+    "Galecaster Colossus",
+    "Vela the Night-Clad",
+    "Puppeteer Clique",
+    "Taigam, Sidisi's Hand"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

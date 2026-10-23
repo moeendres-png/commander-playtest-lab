@@ -1,0 +1,425 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "custom/rogshai",
+ "guide_slug": "rogshai",
+ "deck_name": "RogShai (Ist-Stand 2026-10-22)",
+ "deck_klasse": "FOKUS",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)",
+  "fokus_zusatz": "Spezialisten-Code (pilots.py) CODE_DERIVED; Pakete aus package_registry.json (auf aktuelle Deckliste eingeschraenkt); Messwerte DIRECTLY_VERIFIED (M4)"
+ },
+ "commander": [
+  "Ishai, Ojutai Dragonspeaker",
+  "Rograkh, Son of Rohgahh"
+ ],
+ "commander_mana_value": [
+  4.0,
+  0.0
+ ],
+ "farbidentitaet": [
+  "R",
+  "U",
+  "W"
+ ],
+ "partner": true,
+ "commander_soll_zug": {
+  "Rograkh, Son of Rohgahh": 1,
+  "Ishai, Ojutai Dragonspeaker": 4
+ },
+ "haupt_commander": "Ishai, Ojutai Dragonspeaker",
+ "commander_soll_zug_basis": "handgesetzt: Rograkh kostet {0} -> Zug 1. Ishai MV 4, aber die Pilot-Doktrin (RogShaiPilot.specialist_bonus) spielt sie nur mit Schutzfenster (>= 1 Mana Reserve + Protection/Counter auf der Hand) -> Soll-Zug 4 mit Reserve, nicht 3 ohne.",
+ "manabasis": {
+  "laender_gesamt": 35,
+  "laender_nach_farbe": {
+   "U": 22,
+   "W": 13,
+   "R": 13
+  },
+  "farbquellen_nichtland": 16,
+  "pip_bedarf_frueh": {
+   "U": 22,
+   "W": 7,
+   "R": 15
+  }
+ },
+ "kurve": {
+  "0": 1,
+  "1": 15,
+  "2": 20,
+  "3": 12,
+  "4": 11,
+  "5": 2,
+  "6": 0,
+  "7+": 4,
+  "durchschnitt_nonland": 2.77
+ },
+ "rollen": {
+  "mana_source": 38,
+  "ramp": 14,
+  "draw": 11,
+  "selection": 5,
+  "removal": 8,
+  "counter": 7,
+  "protection": 5,
+  "wipe": 4,
+  "recursion": 0,
+  "graveyard_hate": 0,
+  "engine": 13,
+  "enabler": 5,
+  "payoff": 3,
+  "finisher": 3,
+  "combat_payoff": 11,
+  "token_source": 6,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "voltron_commander_schaden",
+  "spellslinger",
+  "control_tempo"
+ ],
+ "win_plan": "Zwei Achsen: (A) Ishai waechst an jedem Gegner-Zauber (+1/+1) und gewinnt ueber Commander-Schaden — gebuendelt auf einen Spieler, mit Kediss als Tisch-Schaden, Double-Strike (Psychotic Fury, Boros Charm) und Jeska (Schaden x3) als Finisher. (B) Commander-unabhaengige Spellslinger-Achse (Kykar, Veyran, Harmonic Prodigy, Storm-Kiln Artist, Guttersnipe, Whirlwind of Thought) als Plan B und Wiederaufbau. Winds of Rath ist der asymmetrische Wipe: Er trifft nur nicht-verzauberte Kreaturen — eine verzauberte Ishai (Curiosity/Combat Research/Staggering Insight) ueberlebt ihn.",
+ "schluesselkarten": [
+  "Manaform Hellkite",
+  "Mica, Reader of Ruins",
+  "Kykar, Wind's Fury",
+  "Rootha, Mastering the Moment",
+  "Chandra, Torch of Defiance",
+  "Storm-Kiln Artist"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 4,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ],
+  "rogshai_zusatz": {
+   "handgesetzt": true,
+   "mana_achsen": "2-3 effektive fruehe Mana-Quellen (Enrichment mulligan_contract, shared_reasonable_policy); Rograkh + Springleaf Drum / Relic of Legends zaehlt als Mana-Quelle",
+   "hand_bonus_muster": "RogShaiPilot.opening_hand_specialist_bonus: billige Nichtkreaturen (MV<=2) +0.22 je (Cap 1.3); Protection+Counter +0.3 je Staerke (Cap 0.9); Combat-Draw-Aura OHNE Protection/Counter -0.35",
+   "nie_keep": "Hand ohne W/U-Quelle fuer Ishai UND ohne Plan B (Spellslinger-Engine) — Ishai ist die Hauptachse"
+  }
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.1,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.35,
+  "commander_value": 0.3,
+  "threat_reduction": 0.0,
+  "win_progress": 0.25,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0,
+  "handgesetzt": true,
+  "basis": "CODE_DERIVED: RogShaiPilot.default_weights (pilots.py, wt-m4-Lock d48bbe5f2). Die fuenf Unter-Piloten (Tempo/Voltron/Spellslinger/Control/ProtectedFinish) variieren diese Basis; siehe rogshai.md."
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw",
+   "selection"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "handgesetzt": true,
+  "eigene_schutzkarten": [
+   "Ishai, Ojutai Dragonspeaker",
+   "Kykar, Wind's Fury",
+   "Whirlwind of Thought"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "rule_of_law_effekte",
+    "delta_stufe": 3,
+    "grund": "Beide Achsen spielen viele Zauber pro Zug; 'one spell per turn' sperrt Deck komplett"
+   },
+   {
+    "kategorie": "aura_enchantment_removal",
+    "delta_stufe": 2,
+    "grund": "Combat-Draw-Auren sind Plan-Achse (Registry failure_mode 'aura exposed to removal')"
+   },
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 0,
+    "grund": "Eigene asymmetrische Wipes + Spellslinger-Wiederaufbau-Achse: neutral"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln (nur Ishai; Zielwechsel bei Uhren-/Bedrohungswechsel)",
+  "kediss_warnung": "Kediss-Schaden ist KEIN Commander-Schaden (Registry failure_mode) — fuer die 21-Uhr zaehlt nur Ishais direkter Treffer",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr; bei Ishai-Angriffen: der Spieler ohne Flieger-Blocker / mit der laengsten eigenen Gewinn-Uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default"
+  },
+  {
+   "regel": "ishai_nur_mit_schutzfenster",
+   "karten": [
+    "Ishai, Ojutai Dragonspeaker"
+   ],
+   "grund": "RogShaiPilot-Doktrin: Ishai nicht ohne >= 1 Reserve-Mana + Protection/Counter spielen, ausser die Bedrohung erzwingt Tempo (max_opponent_threat-Regel im Code)"
+  },
+  {
+   "regel": "combat_tricks_im_kampf_nicht_postcombat",
+   "karten": [
+    "Psychotic Fury",
+    "Boros Charm"
+   ],
+   "grund": "Double-Strike-Tricks wirken nur im Kampf — Ausnahme vom Postcombat-Default (Handoff §4.1 benannte Ausnahme)"
+  },
+  {
+   "regel": "winds_of_rath_nur_asymmetrisch",
+   "karten": [
+    "Winds of Rath"
+   ],
+   "grund": "Nur wirken, wenn Ishai verzaubert ist oder die Spellslinger-Achse das Spiel traegt; sonst eigener Wipe frisst die Hauptachse (Registry failure_mode von wipe-protection)"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Dig Through Time / Treasure Cruise / Flow State ans spaete Fenster (Mana offen = Interaktions-Drohung)"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "rogshai-combat-draw",
+   "karten": [
+    "Combat Research",
+    "Curiosity",
+    "Swiftfoot Boots"
+   ],
+   "bonus": 0.4,
+   "komponente": "card_advantage",
+   "registry_status": "rejected",
+   "drift_notiz": "Registry + RogShaiPilot-Code fuehren 'Staggering Insight' als dritte Combat-Draw-Aura — sie ist NICHT im aktuellen Deck (Foto-Liste 2026-10-22). Hier entfernt.",
+   "failure_modes": [
+    "aura exposed to removal",
+    "no safe combat connection"
+   ]
+  },
+  {
+   "id": "rogshai-commander-damage",
+   "karten": [
+    "Ishai, Ojutai Dragonspeaker",
+    "Psychotic Fury",
+    "Boros Charm",
+    "Jeska, Thrice Reborn"
+   ],
+   "bonus": 0.45,
+   "komponente": "win_progress",
+   "registry_status": "curated",
+   "failure_modes": [
+    "Ishai removed before combat",
+    "double strike shown without protection"
+   ]
+  },
+  {
+   "id": "rogshai-double-strike",
+   "karten": [
+    "Psychotic Fury",
+    "Boros Charm"
+   ],
+   "bonus": 0.4,
+   "komponente": "win_progress",
+   "registry_status": "curated",
+   "failure_modes": [
+    "combat trick without lethal power",
+    "protection unavailable"
+   ]
+  },
+  {
+   "id": "rogshai-jeska-finish",
+   "karten": [
+    "Jeska, Thrice Reborn",
+    "Ishai, Ojutai Dragonspeaker",
+    "Dovin's Veto",
+    "An Offer You Can't Refuse",
+    "Psychotic Fury"
+   ],
+   "bonus": 0.45,
+   "komponente": "win_progress",
+   "registry_status": "curated",
+   "failure_modes": [
+    "Jeska cast outside lethal window",
+    "Ishai lacks sufficient power"
+   ]
+  },
+  {
+   "id": "rogshai-kediss-table-damage",
+   "karten": [
+    "Kediss, Emberclaw Familiar",
+    "Ishai, Ojutai Dragonspeaker",
+    "Psychotic Fury",
+    "Boros Charm",
+    "Jeska, Thrice Reborn"
+   ],
+   "bonus": 0.4,
+   "komponente": "win_progress",
+   "registry_status": "curated",
+   "failure_modes": [
+    "Kediss splash damage is not commander damage",
+    "single-target lethal may be preferable"
+   ]
+  },
+  {
+   "id": "rogshai-protection-counter",
+   "karten": [
+    "Counterspell",
+    "Dovin's Veto",
+    "An Offer You Can't Refuse",
+    "Negate",
+    "Wash Away",
+    "Boros Charm",
+    "Blacksmith's Skill",
+    "Loran's Escape",
+    "Slip Out the Back",
+    "Louisoix's Sacrifice"
+   ],
+   "bonus": 0.4,
+   "komponente": "interaction_reserve",
+   "registry_status": "curated",
+   "failure_modes": [
+    "counter spent on harmless value",
+    "protection density stranded without threat"
+   ]
+  },
+  {
+   "id": "rogshai-independent-spellslinger",
+   "karten": [
+    "Kykar, Wind's Fury",
+    "Whirlwind of Thought",
+    "Guttersnipe",
+    "Storm-Kiln Artist",
+    "Chandra, Torch of Defiance",
+    "Faerie Mastermind",
+    "Veyran, Voice of Duality",
+    "Harmonic Prodigy",
+    "Archmage Emeritus",
+    "Thunderdrum Soloist",
+    "Mica, Reader of Ruins",
+    "Rootha, Mastering the Moment",
+    "Manaform Hellkite",
+    "Leitmotif Composer"
+   ],
+   "bonus": 0.45,
+   "komponente": "engine_development",
+   "registry_status": "curated",
+   "failure_modes": [
+    "engine creature removed before spell chain",
+    "insufficient noncreature spell density"
+   ]
+  },
+  {
+   "id": "rogshai-independent-draw",
+   "karten": [
+    "Whirlwind of Thought",
+    "Faerie Mastermind",
+    "Loyal Drake",
+    "Chandra, Torch of Defiance",
+    "Consider",
+    "Preordain"
+   ],
+   "bonus": 0.35,
+   "komponente": "card_advantage",
+   "registry_status": "rejected",
+   "failure_modes": [
+    "combat draw counted as independent when Ishai is absent",
+    "draw engines exposed into wipe"
+   ]
+  },
+  {
+   "id": "rogshai-wipe-protection",
+   "karten": [
+    "Winds of Rath",
+    "Boros Charm",
+    "Blasphemous Act",
+    "Chain Reaction",
+    "Dovin's Veto",
+    "An Offer You Can't Refuse",
+    "Slip Out the Back"
+   ],
+   "bonus": 0.35,
+   "komponente": "survival",
+   "registry_status": "rejected",
+   "failure_modes": [
+    "wipe removes own independent engines",
+    "protection does not cover exile effects"
+   ]
+  },
+  {
+   "id": "rogshai-rograkh-resource",
+   "karten": [
+    "Rograkh, Son of Rohgahh",
+    "Springleaf Drum",
+    "Relic of Legends",
+    "Kykar, Wind's Fury",
+    "Flare of Duplication"
+   ],
+   "bonus": 0.35,
+   "komponente": "tempo",
+   "registry_status": "rejected",
+   "failure_modes": [
+    "Rograkh committed without conversion",
+    "resource card weak after commander tax escalation"
+   ]
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ },
+ "messung_m4": {
+  "evidenz": "DIRECTLY_VERIFIED (M4-Lauefe, Pin v11, Pilot 1.0.0)",
+  "baseline_spiele": 200,
+  "siegquote_basis_arm": "35/200 = 17.5 % (ENDBERICHT gerundet 17 %)",
+  "commander_cast_quote": {
+   "Ishai, Ojutai Dragonspeaker": "189/200 = 94.5 %",
+   "Rograkh, Son of Rohgahh": "200/200 = 100 %"
+  },
+  "casts_pro_100_spiele": {
+   "Ishai, Ojutai Dragonspeaker": 210,
+   "Rograkh, Son of Rohgahh": 310
+  },
+  "mulligan_spiele_anteil": "73/200 = 36.5 % mit >= 1 Mulligan",
+  "mittlere_zuege": 47.48,
+  "warnung_aus_m4": "Buendel R-A senkte den Ishai-Cast-Anteil auf 87.5 % — Deckveraenderungen, die die Ishai-Verfuegbarkeit senken, sind ein eigenes Risiko (alle 6 Buendel UNDECIDED)"
+ }
+}

@@ -1,0 +1,190 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2022/heads_i_win__tails_you_lose",
+ "guide_slug": "precon_2022_heads_i_win__tails_you_lose",
+ "deck_name": "Heads I Win, Tails You Lose",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Zndrsplt, Eye of Wisdom // Zndrsplt, Eye of Wisdom",
+  "Okaun, Eye of Chaos // Okaun, Eye of Chaos"
+ ],
+ "commander_mana_value": [
+  5.0,
+  5.0
+ ],
+ "farbidentitaet": [
+  "R",
+  "U"
+ ],
+ "partner": true,
+ "commander_soll_zug": {
+  "Zndrsplt, Eye of Wisdom // Zndrsplt, Eye of Wisdom": 4,
+  "Okaun, Eye of Chaos // Okaun, Eye of Chaos": 4
+ },
+ "haupt_commander": "Zndrsplt, Eye of Wisdom // Zndrsplt, Eye of Wisdom",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 37,
+  "laender_nach_farbe": {
+   "U": 17,
+   "R": 19
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "R": 18,
+   "U": 23
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 10,
+  "2": 18,
+  "3": 15,
+  "4": 11,
+  "5": 3,
+  "6": 5,
+  "7+": 1,
+  "durchschnitt_nonland": 3.0
+ },
+ "rollen": {
+  "mana_source": 40,
+  "ramp": 7,
+  "draw": 11,
+  "selection": 4,
+  "removal": 8,
+  "counter": 3,
+  "protection": 4,
+  "wipe": 3,
+  "recursion": 2,
+  "graveyard_hate": 0,
+  "engine": 18,
+  "enabler": 1,
+  "payoff": 1,
+  "finisher": 1,
+  "combat_payoff": 10,
+  "token_source": 4,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "voltron",
+  "value_engine"
+ ],
+ "win_plan": "Der Commander ist die Waffe: Auren/Equipment und Schutz auf einen Commander laden und über Commander-Schaden gewinnen.",
+ "schluesselkarten": [
+  "Niv-Mizzet, Parun",
+  "The Locust God",
+  "Okaun, Eye of Chaos",
+  "Karplusan Minotaur",
+  "Zndrsplt, Eye of Wisdom",
+  "Risky Move"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 4,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.0,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Niv-Mizzet, Parun",
+   "The Locust God",
+   "Okaun, Eye of Chaos"
+  ],
+  "gegner_overrides": [],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "The Locust God",
+    "Okaun, Eye of Chaos",
+    "Zndrsplt, Eye of Wisdom"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2022_heads_i_win__tails_you_lose-kern",
+   "karten": [
+    "Niv-Mizzet, Parun",
+    "The Locust God",
+    "Okaun, Eye of Chaos",
+    "Karplusan Minotaur",
+    "Zndrsplt, Eye of Wisdom",
+    "Risky Move"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

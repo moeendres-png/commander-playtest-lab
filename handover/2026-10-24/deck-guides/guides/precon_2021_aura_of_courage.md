@@ -1,0 +1,5 @@
+# Guide: Aura of Courage
+
+Commander: Galea, Kindler of Hope (Farbidentität GUW). Der Commander ist die Waffe: Auren/Equipment und Schutz auf einen Commander laden und über Commander-Schaden gewinnen. Zweite Achse: artifacts. Manabasis: 38 Länder, Kurvenschnitt (Nonland) 2.79. Schlüsselkarten (Engine/Finisher nach Board-Wert): Storvald, Frost Giant Jarl, Realm-Cloaked Giant, Prognostic Sphinx, Fey Steed. Der Haupt-Commander (Galea, Kindler of Hope) soll bis Zug 3 liegen (Mana-Wert minus Ramp-Beschleunigung des Decks). Keep-Test: 2–4 Länder (aus 7 gezogen 2–5, Überschuss bottomen), dazu mindestens ein spielbarer Frühspielzug (MV ≤ 3) an zwei der ersten drei Züge und die Farben für die frühen Pips (G:20, U:13, W:14). Latte fällt je Mulligan, nie unter 5 Karten. Angriffe: Commander-Schaden auf einen Spieler bündeln (Uhren-Regel), übrige Angriffe nach Zweck verteilen; alles, was den Kampf nicht verändert, postcombat spielen (Defaults aus Handoff §4.1/§4.3).
+
+_Generiert aus der Deckliste + Oracle-Fakten (Scryfall/Repo-Cache); Rollen über die Repo-Heuristik `card_roles()`. Parameter: MODELED/CODE_DERIVED — kein Messwert. Unbekannte Karten: 0._

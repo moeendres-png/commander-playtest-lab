@@ -1,0 +1,193 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2014/built_from_scratch",
+ "guide_slug": "precon_2014_built_from_scratch",
+ "deck_name": "Built From Scratch",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Daretti, Scrap Savant"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "R"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Daretti, Scrap Savant": 3
+ },
+ "haupt_commander": "Daretti, Scrap Savant",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 41,
+  "laender_nach_farbe": {
+   "R": 34
+  },
+  "farbquellen_nichtland": 11,
+  "pip_bedarf_frueh": {
+   "R": 15
+  }
+ },
+ "kurve": {
+  "0": 1,
+  "1": 5,
+  "2": 14,
+  "3": 13,
+  "4": 5,
+  "5": 5,
+  "6": 9,
+  "7+": 7,
+  "durchschnitt_nonland": 3.8
+ },
+ "rollen": {
+  "mana_source": 51,
+  "ramp": 15,
+  "draw": 12,
+  "selection": 2,
+  "removal": 10,
+  "counter": 0,
+  "protection": 1,
+  "wipe": 4,
+  "recursion": 4,
+  "graveyard_hate": 0,
+  "engine": 7,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 8,
+  "combat_payoff": 5,
+  "token_source": 7,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "artifacts",
+  "go_wide"
+ ],
+ "win_plan": "Artefakt-Synergien tragen den Plan: Engines und Payoffs rund um Artefakte aufbauen und schützen.",
+ "schluesselkarten": [
+  "Daretti, Scrap Savant",
+  "Bosh, Iron Golem",
+  "Tyrant's Familiar",
+  "Bogardan Hellkite",
+  "Myr Battlesphere",
+  "Wurmcoil Engine"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Daretti, Scrap Savant",
+   "Bosh, Iron Golem",
+   "Tyrant's Familiar"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Tyrant's Familiar"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2014_built_from_scratch-kern",
+   "karten": [
+    "Daretti, Scrap Savant",
+    "Bosh, Iron Golem",
+    "Tyrant's Familiar",
+    "Bogardan Hellkite",
+    "Myr Battlesphere",
+    "Wurmcoil Engine"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}
