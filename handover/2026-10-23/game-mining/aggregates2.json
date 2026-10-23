@@ -1,0 +1,168 @@
+{
+ "prio_actor": {
+  "other": {
+   "n": 3580266,
+   "act_rate": 0.0706
+  },
+  "focal": {
+   "n": 793285,
+   "act_rate": 0.0696
+  }
+ },
+ "prio_third": {
+  "0": {
+   "n": 1685348,
+   "act_rate": 0.0541
+  },
+  "1": {
+   "n": 1438425,
+   "act_rate": 0.0662
+  },
+  "2": {
+   "n": 1249778,
+   "act_rate": 0.0971
+  }
+ },
+ "target_idx0_kind": {
+  "permanent": 104801,
+  "player": 11873
+ },
+ "target_sel_kind": {
+  "permanent": 107120,
+  "player": 9554
+ },
+ "mana_idx_types": {
+  "0": {
+   "other_mana": 26010
+  },
+  "1": {
+   "land_tap": 348712,
+   "pool_spend": 525130,
+   "other_mana": 4214,
+   "other": 2638
+  },
+  "2": {
+   "land_tap": 66818,
+   "pool_spend": 12005,
+   "other_mana": 1446,
+   "other": 160
+  },
+  "3": {
+   "land_tap": 38814,
+   "pool_spend": 1301,
+   "other_mana": 1231,
+   "other": 88
+  },
+  "4": {
+   "land_tap": 24360,
+   "pool_spend": 563,
+   "other_mana": 1053,
+   "other": 76
+  }
+ },
+ "chooseuse_top": [
+  {
+   "prompt": "Put a land card from your hand onto the battlefield?",
+   "n": 6600,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Whenever you discard a card, you may exile that card from your graveyard.",
+   "n": 2830,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay {1} and create a 2/2 colorless Robot Villain artifact creature token?",
+   "n": 1352,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay {1} and 1 life and draw a card?",
+   "n": 1317,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Create a Food token or a Treasure token?",
+   "n": 1195,
+   "yes_rate": 0.0
+  },
+  {
+   "prompt": "Pay {X}{X}?",
+   "n": 1148,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Whenever another nontoken Elf is put into your graveyard from the battlefield, you may create a 1/1 green Elf Warrior creature token.",
+   "n": 1094,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay 1 time Multikicker {2} ?",
+   "n": 1026,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay 2 times Multikicker {2} ?",
+   "n": 1026,
+   "yes_rate": 0.409
+  },
+  {
+   "prompt": "Pay {1}{B} and return this card from your graveyard to your hand?",
+   "n": 959,
+   "yes_rate": 1.0
+  }
+ ],
+ "combat": {
+  "attacker_decisions": 115581,
+  "attacker_selected_total": 115581,
+  "blocker_decisions": 44419,
+  "no_block": 31682,
+  "block_assigned": 12737
+ },
+ "determinism": {
+  "distinct_case_seed_seat": 1627,
+  "hashset_sizes": {
+   "1": 1480,
+   "2": 146,
+   "3": 1
+  }
+ },
+ "slow_vs_mid_mix": {
+  "slow": {
+   "priority": 2585.6,
+   "mana_payment": 736.4,
+   "declare_attacker": 76.2,
+   "target": 74.7,
+   "choice": 64.8,
+   "choose_object": 40.9
+  },
+  "mid": {
+   "priority": 2176.2,
+   "mana_payment": 550.5,
+   "target": 57.4,
+   "declare_attacker": 56.6,
+   "choice": 47.9,
+   "choose_object": 31.9
+  }
+ },
+ "win_by_len": {
+  "lang>55": {
+   "0": 96,
+   "2": 87,
+   "3": 116,
+   "1": 87
+  },
+  "mittel41-55": {
+   "0": 281,
+   "1": 271,
+   "2": 260,
+   "3": 253
+  },
+  "kurz<=40": {
+   "1": 163,
+   "2": 145,
+   "3": 93,
+   "0": 119
+  }
+ }
+}

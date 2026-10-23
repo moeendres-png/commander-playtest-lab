@@ -1,0 +1,122 @@
+{
+ "rogshai": {
+  "games": 971,
+  "baseline": 0.1596,
+  "top": [
+   {
+    "card": "Scorched Geyser",
+    "games_cast": 174,
+    "win_rate_when_cast": 0.2126,
+    "delta": 0.053
+   },
+   {
+    "card": "Swiftfoot Boots",
+    "games_cast": 182,
+    "win_rate_when_cast": 0.2088,
+    "delta": 0.0492
+   },
+   {
+    "card": "Vandalblast",
+    "games_cast": 149,
+    "win_rate_when_cast": 0.2081,
+    "delta": 0.0484
+   },
+   {
+    "card": "Arcane Signet",
+    "games_cast": 158,
+    "win_rate_when_cast": 0.1329,
+    "delta": -0.0267
+   },
+   {
+    "card": "Exotic Orchard",
+    "games_cast": 216,
+    "win_rate_when_cast": 0.1389,
+    "delta": -0.0207
+   },
+   {
+    "card": "Sulfur Falls",
+    "games_cast": 152,
+    "win_rate_when_cast": 0.1776,
+    "delta": 0.018
+   },
+   {
+    "card": "Sol Ring",
+    "games_cast": 171,
+    "win_rate_when_cast": 0.1754,
+    "delta": 0.0158
+   },
+   {
+    "card": "Mountain",
+    "games_cast": 556,
+    "win_rate_when_cast": 0.1493,
+    "delta": -0.0103
+   },
+   {
+    "card": "Island",
+    "games_cast": 501,
+    "win_rate_when_cast": 0.1697,
+    "delta": 0.01
+   },
+   {
+    "card": "Command Tower",
+    "games_cast": 153,
+    "win_rate_when_cast": 0.1634,
+    "delta": 0.0038
+   }
+  ]
+ },
+ "chulane": {
+  "games": 1000,
+  "baseline": 0.086,
+  "top": [
+   {
+    "card": "Path of Ancestry",
+    "games_cast": 178,
+    "win_rate_when_cast": 0.1292,
+    "delta": 0.0432
+   },
+   {
+    "card": "Terramorphic Expanse",
+    "games_cast": 181,
+    "win_rate_when_cast": 0.1215,
+    "delta": 0.0355
+   },
+   {
+    "card": "Command Tower",
+    "games_cast": 176,
+    "win_rate_when_cast": 0.0625,
+    "delta": -0.0235
+   },
+   {
+    "card": "Sol Ring",
+    "games_cast": 211,
+    "win_rate_when_cast": 0.109,
+    "delta": 0.023
+   },
+   {
+    "card": "Exotic Orchard",
+    "games_cast": 244,
+    "win_rate_when_cast": 0.1025,
+    "delta": 0.0165
+   },
+   {
+    "card": "Arcane Signet",
+    "games_cast": 168,
+    "win_rate_when_cast": 0.1012,
+    "delta": 0.0152
+   },
+   {
+    "card": "Island",
+    "games_cast": 519,
+    "win_rate_when_cast": 0.0751,
+    "delta": -0.0109
+   },
+   {
+    "card": "Swiftfoot Boots",
+    "games_cast": 198,
+    "win_rate_when_cast": 0.0808,
+    "delta": -0.0052
+   }
+  ]
+ }
+}

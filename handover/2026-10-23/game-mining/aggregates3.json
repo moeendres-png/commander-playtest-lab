@@ -1,0 +1,273 @@
+{
+ "land_missed": {
+  "land_spielbar_andere_wahl": 86870,
+  "land_spielbar_pass_gewaehlt": 138
+ },
+ "x_choices": {
+  "announce_x": {
+   "0": 843,
+   "1": 547,
+   "2": 322,
+   "3": 226,
+   "4": 173,
+   "40": 157,
+   "5": 128,
+   "38": 100
+  },
+  "target_amount": {
+   "1": 743,
+   "2": 127,
+   "3": 18,
+   "4": 4,
+   "6": 2
+  },
+  "amount": {
+   "2": 108
+  }
+ },
+ "multi_sel_counts": {
+  "9": 5039,
+  "2": 3701,
+  "4": 2527,
+  "5": 2368,
+  "10": 1949,
+  "3": 225,
+  "6": 50,
+  "7": 45
+ },
+ "mull_chain": {
+  "0": {
+   "Keep opening hand": 4112,
+   "Take mulligan": 3772
+  },
+  "1": {
+   "Keep opening hand": 1778,
+   "Take mulligan": 1994
+  },
+  "2": {
+   "Keep opening hand": 1469,
+   "Take mulligan": 525
+  },
+  "3": {
+   "Keep opening hand": 525
+  }
+ },
+ "determinism_strict": {
+  "keys": 1627,
+  "hashset_sizes": {
+   "1": 1480,
+   "2": 146,
+   "3": 1
+  }
+ },
+ "determinism_loose": {
+  "keys": 1627,
+  "hashset_sizes": {
+   "1": 1480,
+   "2": 146,
+   "3": 1
+  }
+ },
+ "discard_top": [
+  [
+   "Swamp",
+   635
+  ],
+  [
+   "Mountain",
+   432
+  ],
+  [
+   "Tri-Sentinel, Act of Vengeance",
+   411
+  ],
+  [
+   "The Squadron Sinister",
+   409
+  ],
+  [
+   "Tombstone, Career Criminal",
+   368
+  ],
+  [
+   "Titan of Littjara",
+   366
+  ],
+  [
+   "Spark Double",
+   365
+  ],
+  [
+   "Syphon Mind",
+   358
+  ],
+  [
+   "Titania, Proud Pummeler",
+   357
+  ],
+  [
+   "Propaganda",
+   326
+  ]
+ ],
+ "fam_baseline": {
+  "chulane": {
+   "games": 1000,
+   "win_rate": 0.086
+  },
+  "rogshai": {
+   "games": 971,
+   "win_rate": 0.1596
+  }
+ },
+ "cast_correlation": {
+  "rogshai": [
+   {
+    "card": "Tri-Sentinel, Act of Vengeance",
+    "games_cast": 89,
+    "win_rate_when_cast": 0.3146,
+    "delta_vs_deck_baseline": 0.155
+   },
+   {
+    "card": "Prowler, Clawed Thief",
+    "games_cast": 105,
+    "win_rate_when_cast": 0.019,
+    "delta_vs_deck_baseline": -0.1406
+   },
+   {
+    "card": "Toxic Deluge",
+    "games_cast": 101,
+    "win_rate_when_cast": 0.297,
+    "delta_vs_deck_baseline": 0.1374
+   },
+   {
+    "card": "Extract Power",
+    "games_cast": 53,
+    "win_rate_when_cast": 0.0566,
+    "delta_vs_deck_baseline": -0.103
+   },
+   {
+    "card": "Killmonger, Ruthless Usurper",
+    "games_cast": 153,
+    "win_rate_when_cast": 0.0588,
+    "delta_vs_deck_baseline": -0.1008
+   },
+   {
+    "card": "Scavenger Grounds",
+    "games_cast": 183,
+    "win_rate_when_cast": 0.071,
+    "delta_vs_deck_baseline": -0.0886
+   },
+   {
+    "card": "Age of Ultron",
+    "games_cast": 168,
+    "win_rate_when_cast": 0.0714,
+    "delta_vs_deck_baseline": -0.0882
+   },
+   {
+    "card": "Moonstone, Harsh Mistress",
+    "games_cast": 77,
+    "win_rate_when_cast": 0.0779,
+    "delta_vs_deck_baseline": -0.0817
+   },
+   {
+    "card": "Syphon Mind",
+    "games_cast": 74,
+    "win_rate_when_cast": 0.0811,
+    "delta_vs_deck_baseline": -0.0785
+   },
+   {
+    "card": "Unclaimed Territory",
+    "games_cast": 165,
+    "win_rate_when_cast": 0.2364,
+    "delta_vs_deck_baseline": 0.0768
+   },
+   {
+    "card": "Red Ghost, Intangible Genius",
+    "games_cast": 59,
+    "win_rate_when_cast": 0.0847,
+    "delta_vs_deck_baseline": -0.0749
+   },
+   {
+    "card": "Baron Strucker, HYDRA Overlord",
+    "games_cast": 151,
+    "win_rate_when_cast": 0.2318,
+    "delta_vs_deck_baseline": 0.0722
+   }
+  ],
+  "chulane": [
+   {
+    "card": "Moonstone, Harsh Mistress",
+    "games_cast": 72,
+    "win_rate_when_cast": 0.2222,
+    "delta_vs_deck_baseline": 0.1362
+   },
+   {
+    "card": "Toxic Deluge",
+    "games_cast": 92,
+    "win_rate_when_cast": 0.1848,
+    "delta_vs_deck_baseline": 0.0988
+   },
+   {
+    "card": "Glorious Purpose",
+    "games_cast": 154,
+    "win_rate_when_cast": 0.1753,
+    "delta_vs_deck_baseline": 0.0893
+   },
+   {
+    "card": "Vandalblast",
+    "games_cast": 150,
+    "win_rate_when_cast": 0.1733,
+    "delta_vs_deck_baseline": 0.0873
+   },
+   {
+    "card": "Blasphemous Act",
+    "games_cast": 113,
+    "win_rate_when_cast": 0.1681,
+    "delta_vs_deck_baseline": 0.0821
+   },
+   {
+    "card": "Scorched Geyser",
+    "games_cast": 158,
+    "win_rate_when_cast": 0.1646,
+    "delta_vs_deck_baseline": 0.0786
+   },
+   {
+    "card": "Tri-Sentinel, Act of Vengeance",
+    "games_cast": 56,
+    "win_rate_when_cast": 0.1607,
+    "delta_vs_deck_baseline": 0.0747
+   },
+   {
+    "card": "Lethal Scheme",
+    "games_cast": 170,
+    "win_rate_when_cast": 0.1588,
+    "delta_vs_deck_baseline": 0.0728
+   },
+   {
+    "card": "Kindred Dominance",
+    "games_cast": 67,
+    "win_rate_when_cast": 0.0149,
+    "delta_vs_deck_baseline": -0.0711
+   },
+   {
+    "card": "Coastal Peak",
+    "games_cast": 193,
+    "win_rate_when_cast": 0.1554,
+    "delta_vs_deck_baseline": 0.0694
+   },
+   {
+    "card": "Syphon Mind",
+    "games_cast": 56,
+    "win_rate_when_cast": 0.0179,
+    "delta_vs_deck_baseline": -0.0681
+   },
+   {
+    "card": "Damocles Base, Sword of Kang",
+    "games_cast": 158,
+    "win_rate_when_cast": 0.1519,
+    "delta_vs_deck_baseline": 0.0659
+   }
+  ]
+ }
+}
