@@ -248,7 +248,7 @@ class _PolicyState:
         return self._TURN_ABILITY_CAP
 
     def _equipped_this_turn(
-        self, seat: int, option: dict[str, Any], turn: object, standing: set[str]
+        self, seat: int, option: Mapping[str, object], turn: object, standing: set[str]
     ) -> bool:
         """Whether this equip option is for an equipment the seat attached this turn to a creature
         that is still on the battlefield."""
