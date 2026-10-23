@@ -1,0 +1,120 @@
+name: Batching Qualification
+
+# On-demand only (issue #961, T-2). Plays about 210 real games on the pinned engine to check
+# that batched play (--games-per-jvm) leaves every game as it is played alone: positions in a
+# JVM, permutations and chunking, memory over 56 games in one JVM, and the isolation of a
+# failing game (scripts/qualify_game_batching.py). Run it after every repin or bridge change
+# before a sweep or comparison lane batches games on the new pin. About 45 minutes on 4 cores.
+#
+# This workflow is deliberately never a gate: it is not triggered by a pull request or a push,
+# it is not a required check, and it writes no evidence file. Batched games are measurements,
+# never qualification evidence (Owner decision 2026-10-15); the evidence lanes, PB-03 and the
+# mid-game lanes keep one game per JVM and never run through it.
+
+on:
+  workflow_dispatch:
+    inputs:
+      workers:
+        description: Batches played in parallel (one bridge JVM each); the runner has 4 cores
+        required: false
+        default: "4"
+
+permissions:
+  contents: read
+
+concurrency:
+  # Dispatch-only, and each dispatch is its own run: two qualifications of one head must never
+  # cancel or displace each other, and each keeps its own artifact.
+  group: batching-qualification-${{ github.sha }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+env:
+  PYTHONHASHSEED: "0"
+  QUALIFICATION_WORKERS: ${{ inputs.workers }}
+
+jobs:
+  batching-qualification:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    steps:
+      - name: Checkout lab
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Resolve the current XMage identity
+        run: |
+          set -euo pipefail
+          # config/rules_engines.json is the sole machine-readable authority for
+          # the engine pin; a second literal copy of it here would drift.
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json
+          config = json.load(open("config/rules_engines.json"))
+          values = {"XMAGE_COMMIT": config["primary_engine"]["commit"]}
+          for env_name, commit in values.items():
+              assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
+              print(f"{env_name}={commit}")
+          PY
+
+      - name: Checkout pinned XMage
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+
+      - name: Verify immutable XMage pin
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
+
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+
+      - name: Package XMage bridge
+        working-directory: engine-bridge
+        run: mvn -B -ntp -DskipTests package
+
+      - name: Build the AppCDS archive
+        # The sweeps run with serial GC and the jar's archive (--fast), so the qualification
+        # does too; the reference games of the evidence lanes run without either.
+        run: python scripts/build_xmage_cds_archive.py --jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar
+
+      - name: Run the batching qualification
+        run: |
+          set -euo pipefail
+          python scripts/qualify_game_batching.py run \
+            --jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
+            --out batching-qualification.json \
+            --fast \
+            --workers "$QUALIFICATION_WORKERS"
+
+      - name: Upload the qualification report
+        # A difference or an inconclusive property is a finding, not a crashed workflow: the
+        # step above already fails the job on those, so the report is still published.
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: batching-qualification-${{ github.run_id }}
+          path: batching-qualification.json
+          if-no-files-found: warn

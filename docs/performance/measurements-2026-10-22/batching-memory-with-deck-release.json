@@ -1,0 +1,1686 @@
+{
+ "schema": 1,
+ "batches": {
+  "memory": {
+   "name": "memory",
+   "phase": "memory",
+   "games": [
+    "coverage-4:1",
+    "real:2",
+    "coverage-1:1",
+    "real:1",
+    "coverage-3:1",
+    "coverage-0:1",
+    "coverage-2:1",
+    "real:3",
+    "coverage-2:1",
+    "real:1",
+    "coverage-0:1",
+    "real:3",
+    "coverage-4:1",
+    "real:2",
+    "coverage-3:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:1",
+    "coverage-2:1",
+    "real:3",
+    "coverage-1:1",
+    "coverage-0:1",
+    "coverage-0:1",
+    "real:3",
+    "coverage-1:1",
+    "coverage-4:1",
+    "real:2",
+    "coverage-3:1",
+    "real:1",
+    "coverage-2:1"
+   ],
+   "games_per_jvm": 32,
+   "fast": true,
+   "fault": null,
+   "sample_memory": true,
+   "rows": [
+    {
+     "position": 0,
+     "game": "coverage-4:1",
+     "status": "ok",
+     "semantic": "ea27cc431ad5a9c83e4617ce37bd72253d6cac8e48dd0be3bfff8f5055079b6d",
+     "decisions": 2613,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 1,
+     "game": "real:2",
+     "status": "ok",
+     "semantic": "e3196abea7c5a5d6e1082ca644feeb00ef8749eb7f0c4be07d2dabd0e9ecd629",
+     "decisions": 2436,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 2,
+     "game": "coverage-1:1",
+     "status": "ok",
+     "semantic": "ae27d5f9f05c708b83eda9baac53508ad83217001e3bb9d28a3f806997f40b89",
+     "decisions": 5882,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 3,
+     "game": "real:1",
+     "status": "ok",
+     "semantic": "45556bdb7c61f256d5abb6430351dc0eb0c86f0bc3be864a61cf11254907672b",
+     "decisions": 4095,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 4,
+     "game": "coverage-3:1",
+     "status": "ok",
+     "semantic": "6f2b0184da5ee850b59b9a1a7ff827d452825d81e736185013946c7cdb3396ae",
+     "decisions": 2572,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 5,
+     "game": "coverage-0:1",
+     "status": "ok",
+     "semantic": "8be25d699329861cd2eb5ebbfd308aefb364588a27d034d51fab4f54221f63ba",
+     "decisions": 3963,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 6,
+     "game": "coverage-2:1",
+     "status": "ok",
+     "semantic": "26056277f79a8304345d719ab59d854e4092a8e202c070c880b166c3d05f93e8",
+     "decisions": 3250,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 7,
+     "game": "real:3",
+     "status": "ok",
+     "semantic": "cfae05a4388fb7bbe5a0c8d5306ca76782c018b908c5c51ad781fa54cbac6e6d",
+     "decisions": 4098,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 8,
+     "game": "coverage-2:1",
+     "status": "ok",
+     "semantic": "26056277f79a8304345d719ab59d854e4092a8e202c070c880b166c3d05f93e8",
+     "decisions": 3250,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 9,
+     "game": "real:1",
+     "status": "ok",
+     "semantic": "45556bdb7c61f256d5abb6430351dc0eb0c86f0bc3be864a61cf11254907672b",
+     "decisions": 4095,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 10,
+     "game": "coverage-0:1",
+     "status": "ok",
+     "semantic": "8be25d699329861cd2eb5ebbfd308aefb364588a27d034d51fab4f54221f63ba",
+     "decisions": 3963,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 11,
+     "game": "real:3",
+     "status": "ok",
+     "semantic": "cfae05a4388fb7bbe5a0c8d5306ca76782c018b908c5c51ad781fa54cbac6e6d",
+     "decisions": 4098,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 12,
+     "game": "coverage-4:1",
+     "status": "ok",
+     "semantic": "ea27cc431ad5a9c83e4617ce37bd72253d6cac8e48dd0be3bfff8f5055079b6d",
+     "decisions": 2613,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 13,
+     "game": "real:2",
+     "status": "ok",
+     "semantic": "e3196abea7c5a5d6e1082ca644feeb00ef8749eb7f0c4be07d2dabd0e9ecd629",
+     "decisions": 2436,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 14,
+     "game": "coverage-3:1",
+     "status": "ok",
+     "semantic": "6f2b0184da5ee850b59b9a1a7ff827d452825d81e736185013946c7cdb3396ae",
+     "decisions": 2572,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 15,
+     "game": "coverage-1:1",
+     "status": "ok",
+     "semantic": "ae27d5f9f05c708b83eda9baac53508ad83217001e3bb9d28a3f806997f40b89",
+     "decisions": 5882,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 16,
+     "game": "real:2",
+     "status": "ok",
+     "semantic": "e3196abea7c5a5d6e1082ca644feeb00ef8749eb7f0c4be07d2dabd0e9ecd629",
+     "decisions": 2436,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 17,
+     "game": "coverage-3:1",
+     "status": "ok",
+     "semantic": "6f2b0184da5ee850b59b9a1a7ff827d452825d81e736185013946c7cdb3396ae",
+     "decisions": 2572,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 18,
+     "game": "coverage-4:1",
+     "status": "ok",
+     "semantic": "ea27cc431ad5a9c83e4617ce37bd72253d6cac8e48dd0be3bfff8f5055079b6d",
+     "decisions": 2613,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 19,
+     "game": "real:1",
+     "status": "ok",
+     "semantic": "45556bdb7c61f256d5abb6430351dc0eb0c86f0bc3be864a61cf11254907672b",
+     "decisions": 4095,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 20,
+     "game": "coverage-2:1",
+     "status": "ok",
+     "semantic": "26056277f79a8304345d719ab59d854e4092a8e202c070c880b166c3d05f93e8",
+     "decisions": 3250,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 21,
+     "game": "real:3",
+     "status": "ok",
+     "semantic": "cfae05a4388fb7bbe5a0c8d5306ca76782c018b908c5c51ad781fa54cbac6e6d",
+     "decisions": 4098,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 22,
+     "game": "coverage-1:1",
+     "status": "ok",
+     "semantic": "ae27d5f9f05c708b83eda9baac53508ad83217001e3bb9d28a3f806997f40b89",
+     "decisions": 5882,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 23,
+     "game": "coverage-0:1",
+     "status": "ok",
+     "semantic": "8be25d699329861cd2eb5ebbfd308aefb364588a27d034d51fab4f54221f63ba",
+     "decisions": 3963,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 24,
+     "game": "coverage-0:1",
+     "status": "ok",
+     "semantic": "8be25d699329861cd2eb5ebbfd308aefb364588a27d034d51fab4f54221f63ba",
+     "decisions": 3963,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 25,
+     "game": "real:3",
+     "status": "ok",
+     "semantic": "cfae05a4388fb7bbe5a0c8d5306ca76782c018b908c5c51ad781fa54cbac6e6d",
+     "decisions": 4098,
+     "winners": [
+      2
+     ]
+    },
+    {
+     "position": 26,
+     "game": "coverage-1:1",
+     "status": "ok",
+     "semantic": "ae27d5f9f05c708b83eda9baac53508ad83217001e3bb9d28a3f806997f40b89",
+     "decisions": 5882,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 27,
+     "game": "coverage-4:1",
+     "status": "ok",
+     "semantic": "ea27cc431ad5a9c83e4617ce37bd72253d6cac8e48dd0be3bfff8f5055079b6d",
+     "decisions": 2613,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 28,
+     "game": "real:2",
+     "status": "ok",
+     "semantic": "e3196abea7c5a5d6e1082ca644feeb00ef8749eb7f0c4be07d2dabd0e9ecd629",
+     "decisions": 2436,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 29,
+     "game": "coverage-3:1",
+     "status": "ok",
+     "semantic": "6f2b0184da5ee850b59b9a1a7ff827d452825d81e736185013946c7cdb3396ae",
+     "decisions": 2572,
+     "winners": [
+      1
+     ]
+    },
+    {
+     "position": 30,
+     "game": "real:1",
+     "status": "ok",
+     "semantic": "45556bdb7c61f256d5abb6430351dc0eb0c86f0bc3be864a61cf11254907672b",
+     "decisions": 4095,
+     "winners": [
+      3
+     ]
+    },
+    {
+     "position": 31,
+     "game": "coverage-2:1",
+     "status": "ok",
+     "semantic": "26056277f79a8304345d719ab59d854e4092a8e202c070c880b166c3d05f93e8",
+     "decisions": 3250,
+     "winners": [
+      1
+     ]
+    }
+   ],
+   "wall_s": 1370.4,
+   "child_cpu_s": 1244.7,
+   "memory": [
+    {
+     "game": 1,
+     "when": "start",
+     "rss_kib": 531884,
+     "hwm_kib": 531884,
+     "live_kib": 59569,
+     "metaspace_kib": 268698
+    },
+    {
+     "game": 1,
+     "when": "end",
+     "rss_kib": 632012,
+     "hwm_kib": 632012,
+     "live_kib": 75925,
+     "metaspace_kib": 274208
+    },
+    {
+     "game": 2,
+     "when": "start",
+     "rss_kib": 714600,
+     "hwm_kib": 714600,
+     "live_kib": 153530,
+     "metaspace_kib": 276043
+    },
+    {
+     "game": 2,
+     "when": "end",
+     "rss_kib": 789288,
+     "hwm_kib": 789288,
+     "live_kib": 164207,
+     "metaspace_kib": 276964
+    },
+    {
+     "game": 3,
+     "when": "start",
+     "rss_kib": 790172,
+     "hwm_kib": 790172,
+     "live_kib": 156935,
+     "metaspace_kib": 277796
+    },
+    {
+     "game": 3,
+     "when": "end",
+     "rss_kib": 936096,
+     "hwm_kib": 940428,
+     "live_kib": 177026,
+     "metaspace_kib": 278668
+    },
+    {
+     "game": 4,
+     "when": "start",
+     "rss_kib": 936116,
+     "hwm_kib": 940428,
+     "live_kib": 158297,
+     "metaspace_kib": 278669
+    },
+    {
+     "game": 4,
+     "when": "end",
+     "rss_kib": 964440,
+     "hwm_kib": 986572,
+     "live_kib": 173651,
+     "metaspace_kib": 279266
+    },
+    {
+     "game": 5,
+     "when": "start",
+     "rss_kib": 965436,
+     "hwm_kib": 986572,
+     "live_kib": 144436,
+     "metaspace_kib": 280240
+    },
+    {
+     "game": 5,
+     "when": "end",
+     "rss_kib": 968996,
+     "hwm_kib": 986572,
+     "live_kib": 166785,
+     "metaspace_kib": 280753
+    },
+    {
+     "game": 6,
+     "when": "start",
+     "rss_kib": 974204,
+     "hwm_kib": 986572,
+     "live_kib": 154907,
+     "metaspace_kib": 281312
+    },
+    {
+     "game": 6,
+     "when": "end",
+     "rss_kib": 983348,
+     "hwm_kib": 986572,
+     "live_kib": 173912,
+     "metaspace_kib": 281770
+    },
+    {
+     "game": 7,
+     "when": "start",
+     "rss_kib": 985076,
+     "hwm_kib": 986572,
+     "live_kib": 145954,
+     "metaspace_kib": 282626
+    },
+    {
+     "game": 7,
+     "when": "end",
+     "rss_kib": 978488,
+     "hwm_kib": 986572,
+     "live_kib": 171178,
+     "metaspace_kib": 282997
+    },
+    {
+     "game": 8,
+     "when": "start",
+     "rss_kib": 978496,
+     "hwm_kib": 986572,
+     "live_kib": 159165,
+     "metaspace_kib": 283003
+    },
+    {
+     "game": 8,
+     "when": "end",
+     "rss_kib": 978600,
+     "hwm_kib": 986572,
+     "live_kib": 175181,
+     "metaspace_kib": 283105
+    },
+    {
+     "game": 9,
+     "when": "start",
+     "rss_kib": 978608,
+     "hwm_kib": 986572,
+     "live_kib": 146007,
+     "metaspace_kib": 283110
+    },
+    {
+     "game": 9,
+     "when": "end",
+     "rss_kib": 978664,
+     "hwm_kib": 986572,
+     "live_kib": 170218,
+     "metaspace_kib": 283136
+    },
+    {
+     "game": 10,
+     "when": "start",
+     "rss_kib": 978668,
+     "hwm_kib": 986572,
+     "live_kib": 158259,
+     "metaspace_kib": 283140
+    },
+    {
+     "game": 10,
+     "when": "end",
+     "rss_kib": 974104,
+     "hwm_kib": 995716,
+     "live_kib": 176025,
+     "metaspace_kib": 283254
+    },
+    {
+     "game": 11,
+     "when": "start",
+     "rss_kib": 974104,
+     "hwm_kib": 995716,
+     "live_kib": 145979,
+     "metaspace_kib": 283255
+    },
+    {
+     "game": 11,
+     "when": "end",
+     "rss_kib": 975036,
+     "hwm_kib": 995716,
+     "live_kib": 174797,
+     "metaspace_kib": 283296
+    },
+    {
+     "game": 12,
+     "when": "start",
+     "rss_kib": 975064,
+     "hwm_kib": 995716,
+     "live_kib": 155161,
+     "metaspace_kib": 283297
+    },
+    {
+     "game": 12,
+     "when": "end",
+     "rss_kib": 975332,
+     "hwm_kib": 995716,
+     "live_kib": 173901,
+     "metaspace_kib": 283338
+    },
+    {
+     "game": 13,
+     "when": "start",
+     "rss_kib": 975380,
+     "hwm_kib": 995716,
+     "live_kib": 146011,
+     "metaspace_kib": 283356
+    },
+    {
+     "game": 13,
+     "when": "end",
+     "rss_kib": 976116,
+     "hwm_kib": 995716,
+     "live_kib": 156470,
+     "metaspace_kib": 283374
+    },
+    {
+     "game": 14,
+     "when": "start",
+     "rss_kib": 976172,
+     "hwm_kib": 995716,
+     "live_kib": 158722,
+     "metaspace_kib": 283382
+    },
+    {
+     "game": 14,
+     "when": "end",
+     "rss_kib": 976364,
+     "hwm_kib": 995716,
+     "live_kib": 169751,
+     "metaspace_kib": 283393
+    },
+    {
+     "game": 15,
+     "when": "start",
+     "rss_kib": 976384,
+     "hwm_kib": 995716,
+     "live_kib": 146082,
+     "metaspace_kib": 283395
+    },
+    {
+     "game": 15,
+     "when": "end",
+     "rss_kib": 976840,
+     "hwm_kib": 995716,
+     "live_kib": 169099,
+     "metaspace_kib": 283417
+    },
+    {
+     "game": 16,
+     "when": "start",
+     "rss_kib": 976868,
+     "hwm_kib": 995716,
+     "live_kib": 155865,
+     "metaspace_kib": 283421
+    },
+    {
+     "game": 16,
+     "when": "end",
+     "rss_kib": 993660,
+     "hwm_kib": 995716,
+     "live_kib": 168011,
+     "metaspace_kib": 283452
+    },
+    {
+     "game": 17,
+     "when": "start",
+     "rss_kib": 993696,
+     "hwm_kib": 995716,
+     "live_kib": 159784,
+     "metaspace_kib": 283454
+    },
+    {
+     "game": 17,
+     "when": "end",
+     "rss_kib": 993776,
+     "hwm_kib": 995716,
+     "live_kib": 170268,
+     "metaspace_kib": 283467
+    },
+    {
+     "game": 18,
+     "when": "start",
+     "rss_kib": 993784,
+     "hwm_kib": 995716,
+     "live_kib": 161331,
+     "metaspace_kib": 283471
+    },
+    {
+     "game": 18,
+     "when": "end",
+     "rss_kib": 994064,
+     "hwm_kib": 995716,
+     "live_kib": 155421,
+     "metaspace_kib": 283490
+    },
+    {
+     "game": 19,
+     "when": "start",
+     "rss_kib": 994072,
+     "hwm_kib": 995716,
+     "live_kib": 157396,
+     "metaspace_kib": 283493
+    },
+    {
+     "game": 19,
+     "when": "end",
+     "rss_kib": 994240,
+     "hwm_kib": 995716,
+     "live_kib": 167806,
+     "metaspace_kib": 283503
+    },
+    {
+     "game": 20,
+     "when": "start",
+     "rss_kib": 994248,
+     "hwm_kib": 995716,
+     "live_kib": 159556,
+     "metaspace_kib": 283511
+    },
+    {
+     "game": 20,
+     "when": "end",
+     "rss_kib": 994528,
+     "hwm_kib": 995716,
+     "live_kib": 161574,
+     "metaspace_kib": 283547
+    },
+    {
+     "game": 21,
+     "when": "start",
+     "rss_kib": 994528,
+     "hwm_kib": 995716,
+     "live_kib": 156224,
+     "metaspace_kib": 283550
+    },
+    {
+     "game": 21,
+     "when": "end",
+     "rss_kib": 994796,
+     "hwm_kib": 995716,
+     "live_kib": 171245,
+     "metaspace_kib": 283583
+    },
+    {
+     "game": 22,
+     "when": "start",
+     "rss_kib": 994804,
+     "hwm_kib": 995716,
+     "live_kib": 160989,
+     "metaspace_kib": 283591
+    },
+    {
+     "game": 22,
+     "when": "end",
+     "rss_kib": 994896,
+     "hwm_kib": 995716,
+     "live_kib": 160536,
+     "metaspace_kib": 283602
+    },
+    {
+     "game": 23,
+     "when": "start",
+     "rss_kib": 994908,
+     "hwm_kib": 995716,
+     "live_kib": 159372,
+     "metaspace_kib": 283609
+    },
+    {
+     "game": 23,
+     "when": "end",
+     "rss_kib": 1014596,
+     "hwm_kib": 1014596,
+     "live_kib": 184188,
+     "metaspace_kib": 283622
+    },
+    {
+     "game": 24,
+     "when": "start",
+     "rss_kib": 1014596,
+     "hwm_kib": 1014596,
+     "live_kib": 146002,
+     "metaspace_kib": 283622
+    },
+    {
+     "game": 24,
+     "when": "end",
+     "rss_kib": 1019748,
+     "hwm_kib": 1019748,
+     "live_kib": 175583,
+     "metaspace_kib": 283640
+    },
+    {
+     "game": 25,
+     "when": "start",
+     "rss_kib": 1019756,
+     "hwm_kib": 1019756,
+     "live_kib": 156413,
+     "metaspace_kib": 283642
+    },
+    {
+     "game": 25,
+     "when": "end",
+     "rss_kib": 1019892,
+     "hwm_kib": 1019892,
+     "live_kib": 175010,
+     "metaspace_kib": 283653
+    },
+    {
+     "game": 26,
+     "when": "start",
+     "rss_kib": 1019936,
+     "hwm_kib": 1019936,
+     "live_kib": 146305,
+     "metaspace_kib": 283694
+    },
+    {
+     "game": 26,
+     "when": "end",
+     "rss_kib": 1019980,
+     "hwm_kib": 1019980,
+     "live_kib": 176356,
+     "metaspace_kib": 283703
+    },
+    {
+     "game": 27,
+     "when": "start",
+     "rss_kib": 1020000,
+     "hwm_kib": 1020000,
+     "live_kib": 148279,
+     "metaspace_kib": 283712
+    },
+    {
+     "game": 27,
+     "when": "end",
+     "rss_kib": 1020204,
+     "hwm_kib": 1020204,
+     "live_kib": 184016,
+     "metaspace_kib": 283725
+    },
+    {
+     "game": 28,
+     "when": "start",
+     "rss_kib": 1020224,
+     "hwm_kib": 1020224,
+     "live_kib": 146030,
+     "metaspace_kib": 283736
+    },
+    {
+     "game": 28,
+     "when": "end",
+     "rss_kib": 1020312,
+     "hwm_kib": 1020312,
+     "live_kib": 156427,
+     "metaspace_kib": 283749
+    },
+    {
+     "game": 29,
+     "when": "start",
+     "rss_kib": 1020316,
+     "hwm_kib": 1020316,
+     "live_kib": 158673,
+     "metaspace_kib": 283755
+    },
+    {
+     "game": 29,
+     "when": "end",
+     "rss_kib": 1020356,
+     "hwm_kib": 1020356,
+     "live_kib": 170939,
+     "metaspace_kib": 283761
+    },
+    {
+     "game": 30,
+     "when": "start",
+     "rss_kib": 1020356,
+     "hwm_kib": 1020356,
+     "live_kib": 146090,
+     "metaspace_kib": 283764
+    },
+    {
+     "game": 30,
+     "when": "end",
+     "rss_kib": 1020488,
+     "hwm_kib": 1020488,
+     "live_kib": 167042,
+     "metaspace_kib": 283771
+    },
+    {
+     "game": 31,
+     "when": "start",
+     "rss_kib": 1020496,
+     "hwm_kib": 1020496,
+     "live_kib": 154408,
+     "metaspace_kib": 283781
+    },
+    {
+     "game": 31,
+     "when": "end",
+     "rss_kib": 1022368,
+     "hwm_kib": 1022368,
+     "live_kib": 177750,
+     "metaspace_kib": 283796
+    },
+    {
+     "game": 32,
+     "when": "start",
+     "rss_kib": 1022388,
+     "hwm_kib": 1022388,
+     "live_kib": 146041,
+     "metaspace_kib": 283799
+    },
+    {
+     "game": 32,
+     "when": "end",
+     "rss_kib": 1022460,
+     "hwm_kib": 1022460,
+     "live_kib": 171856,
+     "metaspace_kib": 283808
+    }
+   ],
+   "attempts": 1
+  }
+ },
+ "pool": [
+  "real:1",
+  "coverage-0:1",
+  "coverage-1:1",
+  "real:2",
+  "coverage-2:1",
+  "coverage-3:1",
+  "coverage-4:1",
+  "real:3"
+ ],
+ "plan": [
+  {
+   "name": "ref-a-real:1",
+   "phase": "reference",
+   "games": [
+    "real:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-a-coverage-0:1",
+   "phase": "reference",
+   "games": [
+    "coverage-0:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-a-coverage-1:1",
+   "phase": "reference",
+   "games": [
+    "coverage-1:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-a-real:2",
+   "phase": "reference",
+   "games": [
+    "real:2"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-a-coverage-2:1",
+   "phase": "reference",
+   "games": [
+    "coverage-2:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-a-coverage-3:1",
+   "phase": "reference",
+   "games": [
+    "coverage-3:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-a-coverage-4:1",
+   "phase": "reference",
+   "games": [
+    "coverage-4:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-a-real:3",
+   "phase": "reference",
+   "games": [
+    "real:3"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-real:1",
+   "phase": "reference",
+   "games": [
+    "real:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-coverage-0:1",
+   "phase": "reference",
+   "games": [
+    "coverage-0:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-coverage-1:1",
+   "phase": "reference",
+   "games": [
+    "coverage-1:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-real:2",
+   "phase": "reference",
+   "games": [
+    "real:2"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-coverage-2:1",
+   "phase": "reference",
+   "games": [
+    "coverage-2:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-coverage-3:1",
+   "phase": "reference",
+   "games": [
+    "coverage-3:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-coverage-4:1",
+   "phase": "reference",
+   "games": [
+    "coverage-4:1"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "ref-b-real:3",
+   "phase": "reference",
+   "games": [
+    "real:3"
+   ],
+   "games_per_jvm": 1,
+   "fast": false,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-0",
+   "phase": "positions",
+   "games": [
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:3"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-1",
+   "phase": "positions",
+   "games": [
+    "coverage-0:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:3",
+    "real:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-2",
+   "phase": "positions",
+   "games": [
+    "coverage-1:1",
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:3",
+    "real:1",
+    "coverage-0:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-3",
+   "phase": "positions",
+   "games": [
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:3",
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-4",
+   "phase": "positions",
+   "games": [
+    "coverage-2:1",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:3",
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1",
+    "real:2"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-5",
+   "phase": "positions",
+   "games": [
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:3",
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-2:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-6",
+   "phase": "positions",
+   "games": [
+    "coverage-4:1",
+    "real:3",
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "rotation-7",
+   "phase": "positions",
+   "games": [
+    "real:3",
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1",
+    "coverage-4:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "reverse",
+   "phase": "permutations",
+   "games": [
+    "real:3",
+    "coverage-4:1",
+    "coverage-3:1",
+    "coverage-2:1",
+    "real:2",
+    "coverage-1:1",
+    "coverage-0:1",
+    "real:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "shuffle-1",
+   "phase": "permutations",
+   "games": [
+    "coverage-4:1",
+    "coverage-2:1",
+    "coverage-1:1",
+    "coverage-0:1",
+    "real:2",
+    "coverage-3:1",
+    "real:1",
+    "real:3"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "shuffle-2",
+   "phase": "permutations",
+   "games": [
+    "real:3",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:2",
+    "coverage-2:1",
+    "real:1",
+    "coverage-1:1",
+    "coverage-0:1"
+   ],
+   "games_per_jvm": 8,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "chunk3-0",
+   "phase": "permutations",
+   "games": [
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "chunk3-1",
+   "phase": "permutations",
+   "games": [
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "chunk3-2",
+   "phase": "permutations",
+   "games": [
+    "coverage-4:1",
+    "real:3"
+   ],
+   "games_per_jvm": 2,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "chunk5-0",
+   "phase": "permutations",
+   "games": [
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-2:1"
+   ],
+   "games_per_jvm": 5,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "chunk5-1",
+   "phase": "permutations",
+   "games": [
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:3"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "repeat-real:1",
+   "phase": "permutations",
+   "games": [
+    "real:1",
+    "real:1",
+    "real:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "repeat-coverage-0:1",
+   "phase": "permutations",
+   "games": [
+    "coverage-0:1",
+    "coverage-0:1",
+    "coverage-0:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "memory",
+   "phase": "memory",
+   "games": [
+    "coverage-4:1",
+    "real:2",
+    "coverage-1:1",
+    "real:1",
+    "coverage-3:1",
+    "coverage-0:1",
+    "coverage-2:1",
+    "real:3",
+    "coverage-2:1",
+    "real:1",
+    "coverage-0:1",
+    "real:3",
+    "coverage-4:1",
+    "real:2",
+    "coverage-3:1",
+    "coverage-1:1",
+    "real:2",
+    "coverage-3:1",
+    "coverage-4:1",
+    "real:1",
+    "coverage-2:1",
+    "real:3",
+    "coverage-1:1",
+    "coverage-0:1",
+    "coverage-0:1",
+    "real:3",
+    "coverage-1:1",
+    "coverage-4:1",
+    "real:2",
+    "coverage-3:1",
+    "real:1",
+    "coverage-2:1"
+   ],
+   "games_per_jvm": 32,
+   "fast": true,
+   "fault": null,
+   "sample_memory": true
+  },
+  {
+   "name": "isolation-bad-deck-0",
+   "phase": "isolation",
+   "games": [
+    "real:1!bad-deck",
+    "coverage-0:1",
+    "coverage-1:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-bad-deck-1",
+   "phase": "isolation",
+   "games": [
+    "real:1",
+    "coverage-0:1!bad-deck",
+    "coverage-1:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-bad-deck-2",
+   "phase": "isolation",
+   "games": [
+    "real:1",
+    "coverage-0:1",
+    "coverage-1:1!bad-deck"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": null,
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-kill-0",
+   "phase": "isolation",
+   "games": [
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": {
+    "kind": "kill",
+    "position": 0,
+    "after_decisions": 400
+   },
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-kill-1",
+   "phase": "isolation",
+   "games": [
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": {
+    "kind": "kill",
+    "position": 1,
+    "after_decisions": 400
+   },
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-kill-2",
+   "phase": "isolation",
+   "games": [
+    "real:2",
+    "coverage-2:1",
+    "coverage-3:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": {
+    "kind": "kill",
+    "position": 2,
+    "after_decisions": 400
+   },
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-stop-0",
+   "phase": "isolation",
+   "games": [
+    "coverage-4:1",
+    "real:3",
+    "real:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": {
+    "kind": "stop",
+    "position": 0,
+    "after_decisions": 400
+   },
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-stop-1",
+   "phase": "isolation",
+   "games": [
+    "coverage-4:1",
+    "real:3",
+    "real:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": {
+    "kind": "stop",
+    "position": 1,
+    "after_decisions": 400
+   },
+   "sample_memory": false
+  },
+  {
+   "name": "isolation-stop-2",
+   "phase": "isolation",
+   "games": [
+    "coverage-4:1",
+    "real:3",
+    "real:1"
+   ],
+   "games_per_jvm": 3,
+   "fast": true,
+   "fault": {
+    "kind": "stop",
+    "position": 2,
+    "after_decisions": 400
+   },
+   "sample_memory": false
+  }
+ ],
+ "identity": {
+  "jar": "bridge-patched.jar",
+  "jar_sha256": "84792679aca8e879fafcb00120ba0370b7dc0927e0e45cc42cd970b0a80218f6",
+  "archive": false,
+  "fast_options": [
+   "-XX:+UseSerialGC"
+  ],
+  "java": "openjdk version \"21.0.12.1\" 2026-08-18",
+  "cpus": 4,
+  "python": "3.13.16",
+  "lab_head": "eef2fca77635c646df4dca808f5bb132f90433bc"
+ },
+ "workers": 1,
+ "total_wall_s": 1370.5,
+ "verdict": {
+  "reference": {
+   "status": "INCONCLUSIVE",
+   "stable_games": 0,
+   "different": [],
+   "open": [
+    "real:1: not played twice to the end",
+    "coverage-0:1: not played twice to the end",
+    "coverage-1:1: not played twice to the end",
+    "real:2: not played twice to the end",
+    "coverage-2:1: not played twice to the end",
+    "coverage-3:1: not played twice to the end",
+    "coverage-4:1: not played twice to the end",
+    "real:3: not played twice to the end"
+   ]
+  },
+  "positions": {
+   "status": "INCONCLUSIVE",
+   "identical": 0,
+   "different": [],
+   "open": [
+    "real:1: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]",
+    "coverage-0:1: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]",
+    "coverage-1:1: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]",
+    "real:2: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]",
+    "coverage-2:1: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]",
+    "coverage-3:1: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]",
+    "coverage-4:1: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]",
+    "real:3: never compared at position(s) [0, 1, 2, 3, 4, 5, 6, 7]"
+   ],
+   "unplayed": [
+    "rotation-0",
+    "rotation-1",
+    "rotation-2",
+    "rotation-3",
+    "rotation-4",
+    "rotation-5",
+    "rotation-6",
+    "rotation-7"
+   ]
+  },
+  "permutations": {
+   "status": "INCONCLUSIVE",
+   "identical": 0,
+   "different": [],
+   "open": [],
+   "unplayed": [
+    "reverse",
+    "shuffle-1",
+    "shuffle-2",
+    "chunk3-0",
+    "chunk3-1",
+    "chunk3-2",
+    "chunk5-0",
+    "chunk5-1",
+    "repeat-real:1",
+    "repeat-coverage-0:1"
+   ]
+  },
+  "memory": {
+   "status": "INCONCLUSIVE",
+   "games": 32,
+   "identical": 0,
+   "live_slope_mib_per_game": -0.104,
+   "live_first_pass_mean_mib": 148.0,
+   "live_last_pass_mean_mib": 146.8,
+   "live_max_mib": 157.5,
+   "rss_peak_gib": 0.98,
+   "different": [],
+   "grows": [],
+   "open": [
+    "memory[0] coverage-4:1: no reference",
+    "memory[1] real:2: no reference",
+    "memory[2] coverage-1:1: no reference",
+    "memory[3] real:1: no reference",
+    "memory[4] coverage-3:1: no reference",
+    "memory[5] coverage-0:1: no reference",
+    "memory[6] coverage-2:1: no reference",
+    "memory[7] real:3: no reference",
+    "memory[8] coverage-2:1: no reference",
+    "memory[9] real:1: no reference",
+    "memory[10] coverage-0:1: no reference",
+    "memory[11] real:3: no reference",
+    "memory[12] coverage-4:1: no reference",
+    "memory[13] real:2: no reference",
+    "memory[14] coverage-3:1: no reference",
+    "memory[15] coverage-1:1: no reference",
+    "memory[16] real:2: no reference",
+    "memory[17] coverage-3:1: no reference",
+    "memory[18] coverage-4:1: no reference",
+    "memory[19] real:1: no reference",
+    "memory[20] coverage-2:1: no reference",
+    "memory[21] real:3: no reference",
+    "memory[22] coverage-1:1: no reference",
+    "memory[23] coverage-0:1: no reference",
+    "memory[24] coverage-0:1: no reference",
+    "memory[25] real:3: no reference",
+    "memory[26] coverage-1:1: no reference",
+    "memory[27] coverage-4:1: no reference",
+    "memory[28] real:2: no reference",
+    "memory[29] coverage-3:1: no reference",
+    "memory[30] real:1: no reference",
+    "memory[31] coverage-2:1: no reference",
+    "only 32 games in one JVM (at least 50 are required)"
+   ]
+  },
+  "isolation": {
+   "status": "INCONCLUSIVE",
+   "identical": 0,
+   "failed_as_planned": 0,
+   "different": [],
+   "open": [
+    "isolation-bad-deck-0: not played",
+    "isolation-bad-deck-1: not played",
+    "isolation-bad-deck-2: not played",
+    "isolation-kill-0: not played",
+    "isolation-kill-1: not played",
+    "isolation-kill-2: not played",
+    "isolation-stop-0: not played",
+    "isolation-stop-1: not played",
+    "isolation-stop-2: not played"
+   ]
+  },
+  "overall": "INCONCLUSIVE"
+ }
+}

@@ -114,6 +114,9 @@ with `-Xshare:on`).
 Batching stays measurement-only (Owner decision 2026-10-15): the bridge needs
 `-Dcommanderlab.fullGame.gamesPerJvm=N` and the runner shuts each game down before the next.
 
+The qualification of batched play (positions, permutations, memory over 56 games, failure isolation)
+is in `BATCHING_QUALIFICATION_2026-10-22.md`.
+
 ## 6. Why the games are still the same games: checks
 
 | Check | Result |
