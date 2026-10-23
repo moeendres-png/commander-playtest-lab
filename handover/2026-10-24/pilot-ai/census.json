@@ -1,0 +1,736 @@
+{
+ "total_decisions": 6051869,
+ "classes": {
+  "priority": {
+   "n": 4373551,
+   "share": 0.7227,
+   "one_option_rate": 0.3514,
+   "mean_opts": 3.99,
+   "idx0_rate": 0.9296,
+   "top_prompts": [
+    [
+     "Choose priority action",
+     4373551
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Pass priority"
+     ],
+     4065714
+    ],
+    [
+     [
+      "Forest \u2014 Play Forest"
+     ],
+     10673
+    ],
+    [
+     [
+      "Swamp \u2014 Play Swamp"
+     ],
+     10406
+    ],
+    [
+     [
+      "Swiftfoot Boots \u2014 Equip {1} <i>({1}: Attach to target creature you control. Equip only as a sorcery.)</i>"
+     ],
+     7365
+    ]
+   ]
+  },
+  "mana_payment": {
+   "n": 1123371,
+   "share": 0.1856,
+   "one_option_rate": 0.0119,
+   "mean_opts": 7.88,
+   "idx0_rate": 0.0232,
+   "top_prompts": [
+    [
+     "{W}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='18ea4863-7b9a-46b2-b432-f77f8e3ddf13'>Abzan Charm</font> [18e]</div>",
+     165
+    ],
+    [
+     "{W}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='3ae441bd-01e3-46bd-a150-37181d182eb1'>Abzan Charm</font> [3ae]</div>",
+     165
+    ],
+    [
+     "{W}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='80a6cc1e-37c9-4991-b3c5-eab4df11dc79'>Abzan Charm</font> [80a]</div>",
+     165
+    ],
+    [
+     "{W}{G}<div style='font-size:11pt'><font color='#DAA520' object_id='2719de9c-2189-4898-8e75-e82f8dc2c07a'>Abzan Charm</font> [271]</div>",
+     165
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Spend black mana from pool"
+     ],
+     147410
+    ],
+    [
+     [
+      "Spend green mana from pool"
+     ],
+     132454
+    ],
+    [
+     [
+      "Spend blue mana from pool"
+     ],
+     100262
+    ],
+    [
+     [
+      "Swamp \u2014 {T}: Add {B}."
+     ],
+     87869
+    ]
+   ]
+  },
+  "target": {
+   "n": 116674,
+   "share": 0.0193,
+   "one_option_rate": 0.1805,
+   "mean_opts": 7.24,
+   "idx0_rate": 0.416,
+   "top_prompts": [
+    [
+     "Select a creature you control",
+     18530
+    ],
+    [
+     "Select a Villain you control",
+     9902
+    ],
+    [
+     "Select a creature",
+     8607
+    ],
+    [
+     "Select up to one card to PUT on the BOTTOM of your library (Scry)",
+     6346
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Doctor Doom, King of Latveria"
+     ],
+     14985
+    ],
+    [
+     [
+      "Swamp"
+     ],
+     7688
+    ],
+    [
+     [
+      "Lathril, Blade of the Elves"
+     ],
+     6904
+    ],
+    [
+     [
+      "Plains"
+     ],
+     4588
+    ]
+   ]
+  },
+  "declare_attacker": {
+   "n": 115581,
+   "share": 0.0191,
+   "one_option_rate": 0.0001,
+   "mean_opts": 3.3,
+   "idx0_rate": 0.2932,
+   "top_prompts": [
+    [
+     "Choose attack for Elf Warrior Token",
+     20555
+    ],
+    [
+     "Choose attack for Rograkh, Son of Rohgahh",
+     6074
+    ],
+    [
+     "Choose attack for Lathril, Blade of the Elves",
+     5967
+    ],
+    [
+     "Choose attack for Doctor Doom, King of Latveria",
+     5339
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Do not attack with Elf Warrior Token"
+     ],
+     6135
+    ],
+    [
+     [
+      "Do not attack with Rograkh, Son of Rohgahh"
+     ],
+     4297
+    ],
+    [
+     [
+      "Elf Warrior Token attacks Full Game Seat 3"
+     ],
+     3490
+    ],
+    [
+     [
+      "Elf Warrior Token attacks Full Game Seat 4"
+     ],
+     3478
+    ]
+   ]
+  },
+  "choice": {
+   "n": 97920,
+   "share": 0.0162,
+   "one_option_rate": 0.0005,
+   "mean_opts": 12.93,
+   "idx0_rate": 0.3354,
+   "top_prompts": [
+    [
+     "Pick a mana color",
+     54166
+    ],
+    [
+     "Choose color",
+     23566
+    ],
+    [
+     "Select a color of mana to add 1 of it Treasure Token [#]",
+     4959
+    ],
+    [
+     "Select a color of mana to add 1 of it Prophetic Prism [#]",
+     2828
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Black"
+     ],
+     28520
+    ],
+    [
+     [
+      "Blue"
+     ],
+     20634
+    ],
+    [
+     [
+      "White"
+     ],
+     16534
+    ],
+    [
+     [
+      "Green"
+     ],
+     15375
+    ]
+   ]
+  },
+  "choose_object": {
+   "n": 64743,
+   "share": 0.0107,
+   "one_option_rate": 0.1857,
+   "mean_opts": 5.41,
+   "idx0_rate": 0.4054,
+   "top_prompts": [
+    [
+     "Select a card to discard",
+     14386
+    ],
+    [
+     "Select untapped Elves you control (selected 0 of 10, min 10)",
+     6972
+    ],
+    [
+     "Select another untapped creature you control (selected 0) (selected power 0 of 3)",
+     4405
+    ],
+    [
+     "Select a land card",
+     3691
+    ]
+   ],
+   "top_selections": [
+    [
+     [],
+     2388
+    ],
+    [
+     [
+      "Swamp"
+     ],
+     1738
+    ],
+    [
+     [
+      "Rograkh, Son of Rohgahh"
+     ],
+     1681
+    ],
+    [
+     [
+      "Elf Warrior Token"
+     ],
+     1588
+    ]
+   ]
+  },
+  "choose_use": {
+   "n": 52768,
+   "share": 0.0087,
+   "one_option_rate": 0.0,
+   "mean_opts": 2.0,
+   "idx0_rate": 0.9722,
+   "top_prompts": [
+    [
+     "Put a land card from your hand onto the battlefield?",
+     6600
+    ],
+    [
+     "Whenever you discard a card, you may exile that card from your graveyard.",
+     2830
+    ],
+    [
+     "Pay {1} and create a 2/2 colorless Robot Villain artifact creature token?",
+     1352
+    ],
+    [
+     "Pay {1} and 1 life and draw a card?",
+     1317
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Yes"
+     ],
+     34508
+    ],
+    [
+     [
+      "Move to command"
+     ],
+     14881
+    ],
+    [
+     [
+      "Food"
+     ],
+     1195
+    ],
+    [
+     [
+      "No"
+     ],
+     1142
+    ]
+   ]
+  },
+  "declare_blocker": {
+   "n": 44419,
+   "share": 0.0073,
+   "one_option_rate": 0.5767,
+   "mean_opts": 2.23,
+   "idx0_rate": 0.6052,
+   "top_prompts": [
+    [
+     "Choose creatures blocked by Elf Warrior Token",
+     8172
+    ],
+    [
+     "Choose creatures blocked by Snake Token",
+     3357
+    ],
+    [
+     "Choose creatures blocked by Rograkh, Son of Rohgahh",
+     2435
+    ],
+    [
+     "Choose creatures blocked by Lathril, Blade of the Elves",
+     1395
+    ]
+   ],
+   "top_selections": [
+    [
+     [],
+     31682
+    ],
+    [
+     [
+      "Snake Token blocks Elf Warrior Token"
+     ],
+     288
+    ],
+    [
+     [
+      "Elf Warrior Token blocks Containment Construct"
+     ],
+     144
+    ],
+    [
+     [
+      "Snake Token blocks Reclamation Sage"
+     ],
+     127
+    ]
+   ]
+  },
+  "trigger_order": {
+   "n": 25647,
+   "share": 0.0042,
+   "one_option_rate": 0.0,
+   "mean_opts": 4.64,
+   "idx0_rate": 0.5447,
+   "top_prompts": [
+    [
+     "Choose next triggered ability",
+     25647
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Wolverine Riders \u2014 Whenever another Elf you control enters, you gain life equal to its toughness."
+     ],
+     1682
+    ],
+    [
+     [
+      "Currency Converter \u2014 Whenever you discard a card, you may exile that card from your graveyard."
+     ],
+     1474
+    ],
+    [
+     [
+      "Poison-Tip Archer \u2014 Whenever another creature dies, each opponent loses 1 life."
+     ],
+     1438
+    ],
+    [
+     [
+      "Moldervine Reclamation \u2014 Whenever a creature you control dies, you gain 1 life and draw a card."
+     ],
+     1376
+    ]
+   ]
+  },
+  "mode": {
+   "n": 15490,
+   "share": 0.0026,
+   "one_option_rate": 0.1065,
+   "mean_opts": 2.99,
+   "idx0_rate": 0.3694,
+   "top_prompts": [
+    [
+     "choose one or more &mdash;<br>&bull <i>Sell Contraband</i> &mdash; Create a Treasure token. You lose 1 life.<br>&bull <i>Buy Information</i> &mdash; Draw a card. You lose 2 life.<br>&bull <i>Hire a Mercenary</i> &mdash; Create a 3/2 colorless Shapeshifter creature token with changeling. You lose 3 life.<br>",
+     4137
+    ],
+    [
+     "choose five. You may choose the same mode more than once.<br>&bull Target permanent phases out.<br>&bull Target player draws a card.<br>&bull Exile target player's graveyard.<br>&bull {this} deals 2 damage to any target.<br>&bull Destroy target artifact or enchantment.<br>",
+     3650
+    ],
+    [
+     "choose one &mdash;<br>&bull Tap target permanent. Its activated abilities can't be activated this turn.<br>&bull {this} gains indestructible until end of turn.<br>",
+     1222
+    ],
+    [
+     "choose one &mdash;<br>&bull Create a 2/2 white Cat Beast creature token.<br>&bull Put a +1/+1 counter on each creature you control. Those creatures gain vigilance until end of turn.<br>",
+     1063
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "exile target player's graveyard."
+     ],
+     3630
+    ],
+    [
+     [
+      "draw a card. You lose 2 life."
+     ],
+     1379
+    ],
+    [
+     [
+      "create a Treasure token. You lose 1 life."
+     ],
+     1379
+    ],
+    [
+     [
+      "create a 3/2 colorless Shapeshifter creature token with changeling. You lose 3 life."
+     ],
+     1379
+    ]
+   ]
+  },
+  "mulligan": {
+   "n": 14175,
+   "share": 0.0023,
+   "one_option_rate": 0.0,
+   "mean_opts": 2.0,
+   "idx0_rate": 0.5562,
+   "top_prompts": [
+    [
+     "Keep or mulligan",
+     14175
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Keep opening hand"
+     ],
+     7884
+    ],
+    [
+     [
+      "Take mulligan"
+     ],
+     6291
+    ]
+   ]
+  },
+  "announce_x": {
+   "n": 3099,
+   "share": 0.0005,
+   "one_option_rate": 0.0,
+   "mean_opts": 0.0,
+   "idx0_rate": 0.0,
+   "top_prompts": [
+    [
+     "Announce the value for {X} (pay to distribute counters)",
+     1148
+    ],
+    [
+     "Announce the value for {X}",
+     884
+    ],
+    [
+     "Announce the value for {X} (life to pay)",
+     552
+    ],
+    [
+     "Announce the value for {X} (Clues to sacrifice)",
+     513
+    ]
+   ],
+   "top_selections": [
+    [
+     [],
+     3099
+    ]
+   ]
+  },
+  "multi_amount": {
+   "n": 2381,
+   "share": 0.0004,
+   "one_option_rate": 0.0,
+   "mean_opts": 0.0,
+   "idx0_rate": 0.0,
+   "top_prompts": [
+    [
+     "Assign amounts (2 legs)",
+     1120
+    ],
+    [
+     "Assign amounts (3 legs)",
+     413
+    ],
+    [
+     "Assign amounts (4 legs)",
+     221
+    ],
+    [
+     "Assign amounts (5 legs)",
+     203
+    ]
+   ],
+   "top_selections": [
+    [
+     [],
+     2381
+    ]
+   ]
+  },
+  "replacement_effect": {
+   "n": 1048,
+   "share": 0.0002,
+   "one_option_rate": 0.0,
+   "mean_opts": 2.04,
+   "idx0_rate": 0.146,
+   "top_prompts": [
+    [
+     "Choose replacement effect",
+     1048
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Adrix and Nev, Twincasters [2e1]: if one or more tokens would be created under your control, twice that many of those tokens are created instead."
+     ],
+     53
+    ],
+    [
+     [
+      "Adrix and Nev, Twincasters [a3e]: if one or more tokens would be created under your control, twice that many of those tokens are created instead."
+     ],
+     34
+    ],
+    [
+     [
+      "Adrix and Nev, Twincasters [833]: if one or more tokens would be created under your control, twice that many of those tokens are created instead."
+     ],
+     28
+    ],
+    [
+     [
+      "Adrix and Nev, Twincasters [cac]: if one or more tokens would be created under your control, twice that many of those tokens are created instead."
+     ],
+     28
+    ]
+   ]
+  },
+  "target_amount": {
+   "n": 894,
+   "share": 0.0001,
+   "one_option_rate": 0.0391,
+   "mean_opts": 12.55,
+   "idx0_rate": 0.3848,
+   "top_prompts": [
+    [
+     "Select up to one Elves",
+     318
+    ],
+    [
+     "Select Elves (selected 0 of 2)",
+     127
+    ],
+    [
+     "Select Elves (selected 1 of 2)",
+     119
+    ],
+    [
+     "Select Elves (selected 0 of 3)",
+     64
+    ]
+   ],
+   "top_selections": [
+    [
+     [
+      "Elf Warrior Token"
+     ],
+     438
+    ],
+    [
+     [
+      "Prowess of the Fair"
+     ],
+     82
+    ],
+    [
+     [
+      "Numa, Joraga Chieftain"
+     ],
+     57
+    ],
+    [
+     [
+      "Selvala, Explorer Returned"
+     ],
+     38
+    ]
+   ]
+  },
+  "amount": {
+   "n": 108,
+   "share": 0.0,
+   "one_option_rate": 0.0,
+   "mean_opts": 0.0,
+   "idx0_rate": 0.0,
+   "top_prompts": [
+    [
+     "Draw how many cards?",
+     108
+    ]
+   ],
+   "top_selections": [
+    [
+     [],
+     108
+    ]
+   ]
+  }
+ },
+ "attackers_per_combat_run": {
+  "1": 15645,
+  "2": 7835,
+  "3": 4929,
+  "4": 2981,
+  "5": 1876,
+  "6": 1173,
+  "7": 944,
+  "8": 800,
+  "9": 516,
+  "10": 419,
+  "11": 220,
+  "12": 178,
+  "13": 136,
+  "14": 112,
+  "15": 51,
+  "16": 46,
+  "17": 46,
+  "18": 36,
+  "19": 31,
+  "20": 36,
+  "21": 14,
+  "22": 31,
+  "23": 24,
+  "24": 15,
+  "25": 20,
+  "26": 5,
+  "27": 7,
+  "28": 10,
+  "29": 23,
+  "30": 4,
+  "31": 13,
+  "33": 10,
+  "35": 11,
+  "36": 1,
+  "38": 10,
+  "39": 5,
+  "41": 1,
+  "43": 1,
+  "44": 6,
+  "45": 2,
+  "46": 1,
+  "52": 1,
+  "57": 4,
+  "58": 1,
+  "63": 4,
+  "67": 4,
+  "74": 1,
+  "77": 2,
+  "90": 1
+ }
+}
