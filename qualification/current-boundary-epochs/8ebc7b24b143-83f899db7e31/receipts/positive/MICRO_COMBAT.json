@@ -1,0 +1,98 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_COMBAT",
+  "obligation_exercised": {
+    "obligation_digest": "98b838058cf8b62f9b8e1cafaac15dbaa2a951b3b1f6f4d0fd2e6829735c182d",
+    "requested_state_digest": "31e22b2213cf61a055ee3c0c05e43fe1f9dfdb21e57adae5014d91de41f590d6",
+    "required_events": [
+      "combat_damage:attacker_to_blocker:2",
+      "combat_damage:blocker_to_attacker:2",
+      "state_based_actions",
+      "both_creatures_die"
+    ],
+    "terminal_checks": [
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "Both 2/2 creatures are in their owners graveyards after simultaneous combat damage and SBA."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "both_creatures_die": {
+        "binding": [
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-attacker, from=BATTLEFIELD, to=GRAVEYARD",
+          "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-blocker, from=BATTLEFIELD, to=GRAVEYARD"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-attacker, from=BATTLEFIELD, to=GRAVEYARD",
+            "events": [
+              13
+            ]
+          },
+          {
+            "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-blocker, from=BATTLEFIELD, to=GRAVEYARD",
+            "events": [
+              14
+            ]
+          }
+        ]
+      },
+      "combat_damage:attacker_to_blocker:2": {
+        "binding": "exactly 1 DAMAGED_PERMANENT event(s) with source_object=obj:micro-attacker, target_object=obj:micro-blocker, amount=2, combat=True",
+        "events": [
+          10
+        ]
+      },
+      "combat_damage:blocker_to_attacker:2": {
+        "binding": "exactly 1 DAMAGED_PERMANENT event(s) with source_object=obj:micro-blocker, target_object=obj:micro-attacker, amount=2, combat=True",
+        "events": [
+          9
+        ]
+      },
+      "state_based_actions": {
+        "binding": [
+          "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:micro-attacker, source_object=None",
+          "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:micro-blocker, source_object=None",
+          "every DAMAGED_PERMANENT event with combat=True precedes the first DESTROYED_PERMANENT event with "
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:micro-attacker, source_object=None",
+            "events": [
+              11
+            ]
+          },
+          {
+            "binding": "exactly 1 DESTROYED_PERMANENT event(s) with target_object=obj:micro-blocker, source_object=None",
+            "events": [
+              12
+            ]
+          },
+          {
+            "binding": "every DAMAGED_PERMANENT event with combat=True precedes the first DESTROYED_PERMANENT event with ",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "bfc9da3d39bc107ffbdba64d6b10a3182b9abd7e007e58ce71f0a4eb1251a43a",
+  "runner_digest": "5556bbda04d4f42aaea788f77300343818ae498a4f0aa31461826b210eac6625",
+  "runtime_receipt_digest": "089df5150db666b1791e23c7006092ee07103d24fa80f507d00b7eb2bcf25729",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_COMBAT",
+  "variance_source": null
+}

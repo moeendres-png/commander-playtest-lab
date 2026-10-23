@@ -1,0 +1,78 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-TRIG-5",
+  "obligation_exercised": {
+    "obligation_digest": "fd03437056ab8a210b72c94a693644426f898e44c3ae019fec947026eb6c92d6",
+    "requested_state_digest": "484ca8c635becce5427c33c4ec07e195c1c4ebf6207b19fcb628abd255b5c3c2",
+    "required_events": [
+      "simultaneous_trigger_event",
+      "APNAP_stack_order"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Trigger generation is simultaneous; stack placement follows APNAP without fabricating a generation order."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "APNAP_stack_order": {
+        "binding": [
+          "the TRIGGERED_ABILITY events with source_name=Soul Warden carry player_player ['P1', 'P2', 'P3', 'P4', 'P5'] in tape order",
+          "the GAINED_LIFE events with source_name=Soul Warden carry target_player ['P5', 'P4', 'P3', 'P2', 'P1'] in tape order"
+        ],
+        "parts": [
+          {
+            "binding": "the TRIGGERED_ABILITY events with source_name=Soul Warden carry player_player ['P1', 'P2', 'P3', 'P4', 'P5'] in tape order",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "the GAINED_LIFE events with source_name=Soul Warden carry target_player ['P5', 'P4', 'P3', 'P2', 'P1'] in tape order",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "simultaneous_trigger_event": {
+        "binding": [
+          "exactly 5 TRIGGERED_ABILITY event(s) with source_name=Soul Warden",
+          "every ZONE_CHANGE event with target_object=obj:mp-enter, to=BATTLEFIELD precedes the first TRIGGERED_ABILITY event with source_name=Soul Warden",
+          "every TRIGGERED_ABILITY event with source_name=Soul Warden precedes the first GAINED_LIFE event with source_name=Soul Warden"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 5 TRIGGERED_ABILITY event(s) with source_name=Soul Warden",
+            "events": [
+              11,
+              12,
+              13,
+              14,
+              15
+            ]
+          },
+          {
+            "binding": "every ZONE_CHANGE event with target_object=obj:mp-enter, to=BATTLEFIELD precedes the first TRIGGERED_ABILITY event with source_name=Soul Warden",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "every TRIGGERED_ABILITY event with source_name=Soul Warden precedes the first GAINED_LIFE event with source_name=Soul Warden",
+            "observation": "engine terminal observation"
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "ba58aff5af8e11d8fa01174f6f9bd399b6826dd834e4214f3c65a6f56e2ce21c",
+  "runner_digest": "5556bbda04d4f42aaea788f77300343818ae498a4f0aa31461826b210eac6625",
+  "runtime_receipt_digest": "31c88ca6b9a9d8562fc5abef48a53fff811a924b1dc17ad40f01971bea724b8b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-TRIG-5",
+  "variance_source": null
+}

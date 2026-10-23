@@ -1,0 +1,102 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_22",
+  "obligation_exercised": {
+    "obligation_digest": "ce5c5131b4d4c3bef7df235f65782d9db4a40ef9bf22aa8cd2a736192088b778",
+    "requested_state_digest": "68663026e3a7d16515ef4fd75f592a3f0a47d02c87ce79f168b49f522b270a54",
+    "required_events": [
+      "cost_reduction:3",
+      "Bolt_Bend_cast",
+      "change_single_target"
+    ],
+    "terminal_checks": [
+      "P1 is at 40 life",
+      "P3 is at 37 life",
+      "exactly 0 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P1",
+      "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P3, amount=3"
+    ],
+    "terminal_postconditions": [
+      "The target spell has P3 as target; mode and other decisions are unchanged."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.62/mage-1.4.62.jar",
+      "sha256": "7dbc02c14a47ca88979f3de35cdc4bf98add5ccaee9385944d69d1a0ee625c4e",
+      "size": 7192481
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 0 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P1",
+          "P3 is at 37 life",
+          "P1 is at 40 life"
+        ],
+        "check": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P3, amount=3",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "The target spell has P3 as target; mode and other decisions are unchanged."
+      }
+    ],
+    "terminal_facts": {
+      "P1 is at 40 life": true,
+      "P3 is at 37 life": true,
+      "exactly 0 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P1": true,
+      "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P3, amount=3": true
+    },
+    "token_evidence": {
+      "Bolt_Bend_cast": {
+        "binding": "at least one SPELL_CAST event(s) with source_object=obj:card_22-subject",
+        "events": [
+          10
+        ]
+      },
+      "change_single_target": {
+        "binding": [
+          "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P3",
+          "exactly 0 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P1"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P3",
+            "events": [
+              13
+            ]
+          },
+          {
+            "binding": "exactly 0 DAMAGED_PLAYER event(s) with source_object=obj:card22-bolt, target_player=P1",
+            "events": []
+          }
+        ]
+      },
+      "cost_reduction:3": {
+        "base_mana": "{3}{R}",
+        "binding": "engine-verified cost_determined:base_minus_3_generic",
+        "charged_mana": 1,
+        "decision_ids": [
+          "a17b8bfffa344a6f1c0614bfb21895d0ab46c164796c7ec4c3b53c5d994299b3",
+          "fb96d6ddd08ab0e8ec29df0dc8ceb9413dce66d34d893e733f72138547c89dd2"
+        ],
+        "determined_mana": "{R}",
+        "payment_frames": [
+          5,
+          6
+        ],
+        "unpaid_mana": "{R}"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "56c0505e535e1925f9ff7b9eb39543603a8b0da8bcf1bcab335988eb1588171f",
+  "runner_digest": "5556bbda04d4f42aaea788f77300343818ae498a4f0aa31461826b210eac6625",
+  "runtime_receipt_digest": "4307881e61ac9c05b3931f8302c265b94c5e30ca9040fd0ed3cf727d1826f759",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_22"
+}
