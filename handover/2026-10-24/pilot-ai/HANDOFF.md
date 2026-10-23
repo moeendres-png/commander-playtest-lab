@@ -90,11 +90,20 @@ VERTIEFUNG (eigene Messung). Umsetzung jeweils als neue/veränderte
 Utility-Komponente oder Regel im bestehenden Gerüst.
 
 ### 4.1 priority / Reaktionen (größter Hebel, VERTIEFUNG P2)
-- Timing-Gates nach RESEARCH A5: Standard = alles, was Kampf nicht verändert,
+- Timing-Gates nach RESEARCH A5 — **Default mit benannten Ausnahmen, keine
+  Pauschalregel**: Standard = alles, was den Kampf nicht verändert,
   **postcombat** spielen; Instants ans letztmögliche Fenster; Draw auf den
-  End Step des letzten Gegners. Als Gate-Komponente vor der Utility
-  (Optionen außerhalb ihres Fensters werden abgewertet, nicht verboten —
-  die Engine bleibt Autorität, der Pilot darf sie nur schlecht finden).
+  End Step des letzten Gegners (Begründung: volle Information über alle drei
+  Gegnerzüge, offenes Mana repräsentiert über den ganzen Zyklus Interaktion,
+  Karten sind zum direkt folgenden eigenen Zug verfügbar). Ausnahmen, die
+  den Default schlagen: precombat alles, was Kampf verändert oder die
+  Angriffsentscheidung informiert (Haste, Anthem, Equip, Blocker-Entfernung,
+  Hand-Disruption); Draw im eigenen Zug, wenn Gezogenes diesen Zug noch
+  spielbar wäre (Land-Drop, Kampf-Antwort); feuern, wenn der relevante
+  Gegner ausgetappt ist; Schadens-Removal früh gegen Pump/Hexproof/Bounce.
+  Als Gate-Komponente vor der Utility (Optionen außerhalb ihres Fensters
+  werden abgewertet, nicht verboten — die Engine bleibt Autorität, der
+  Pilot darf sie nur schlecht finden).
 - Reaktions-Schwelle (`should_take_reaction`) an die Removal-Feuerregel
   koppeln (A3): reagieren, wenn das Ziel sonst gewinnt oder uns aussperrt;
   sonst halten (letzter Akteur in der Reihenfolge darf eine gewinnende
@@ -103,13 +112,22 @@ Utility-Komponente oder Regel im bestehenden Gerüst.
   sondern: Reaktionen in fremden Zügen existieren messbar (Folgemetrik §6).
 
 ### 4.2 target (VERTIEFUNG P1)
-- `target_threat` um die **Bedrohungs-Stufenleiter** (A2) verfeinern:
-  gewinnt-sofort > Mana-Engine > Draw-Engine > gefährlicher Commander >
-  Kombo-Teil > wiederholte Interaktion > breites Board > groß+Schutz >
-  groß+Ausweichen > Stax (nur hoch, wenn es UNS sperrt).
+- `target_threat` um die **Bedrohungs-Stufenleiter** (A2) verfeinern —
+  universeller Prior über Kartenfunktionen: gewinnt-sofort > Mana-Engine >
+  Draw-Engine > gefährlicher Commander > Kombo-Teil > wiederholte
+  Interaktion > breites Board > groß+Schutz > groß+Ausweichen > Stax.
+  Die Leiter allein ist zu starr; der Score ist ein Produkt:
+  `Stufenwert × Besitzer-Uhr-Faktor × Betrifft-mich-Faktor × Unmittelbarkeit`.
+  Der Betrifft-mich-Faktor macht Situationsabhängigkeit explizit (Stax nur
+  hoch, wenn es UNS sperrt; Rest in Peace tödlich gegen Friedhof-Decks,
+  sonst nahe null).
 - Multiplikator: Bedrohung **des Besitzers** (dessen Uhren: Lebens-Uhr,
   Commander-Schaden-Uhr `ceil((21−Schaden dieses Commanders)/Stärke)`,
-  Kombo-Uhr = fehlende Teile; Minimum zählt).
+  Kombo-Uhr = fehlende Teile; Minimum zählt). Lebenspunkte gehen
+  **ausschließlich über die Lebens-Uhr (Züge bis Lethal)** ein, nie als
+  Rohwert: Bei 40 vs. 35 ist Leben fast egal, bei 8 vs. 30 entscheidend;
+  dazu ist Leben eine Ressource bestimmter Decks (Ad Nauseam/Necropotence/
+  Citadel — deren Besitzer sind Angriffsziele, §4.3).
 - **Kein Trotz-/Vergeltungsterm** (Kingmaking-Verbot, A3): Eine Aktion, die
   die eigene Gewinnwahrscheinlichkeit nicht erhöht, wird nicht gespielt.
 - Gemessener Startpunkt: Index-0 in 42 %, Spieler werden ggü. ihrem Angebot
@@ -118,8 +136,13 @@ Utility-Komponente oder Regel im bestehenden Gerüst.
 ### 4.3 Kampf (VERTIEFUNG P8)
 - Die Engine zerlegt Angriffe bereits binär je Kreatur (RESEARCH B3 nennt
   genau das die wirksame Zerlegung) — daran andocken:
-- **Angriffs-Fokus:** Commander-Angriffe auf EINEN Spieler konzentrieren
-  (21-Commander-Schaden-Uhr); Nicht-Commander für Trigger verteilen ok.
+- **Angriffs-Fokus — nur für Commander-Schaden:** Commander-Angriffe auf
+  EINEN Spieler bündeln, weil Commander-Schaden je Commander-Spieler-Paar
+  gezählt wird (Aufteilen verschenkt Fortschritt auf die 21); Zielwechsel
+  bei Uhr-/Bedrohungswechsel (ein Spieler steht vor der Kombo, ein anderer
+  ist offen lethal). Nicht-Commander-Angriffe dagegen nach Zweck
+  **verteilen**: Angriffs-Trigger ernten, mehrere Uhren parallel drücken,
+  Crackback-Risiko streuen. Pauschale Bündelung aller Angriffe ist falsch.
   Angriffs-Priorität (A4): lethal/commander-lethal > Leben-als-Ressource-
   Spieler > Snowballer (wenn offen) > Interaktions-Spieler, der unseren
   Gewinn blockt (mit Externalitäts-Check: dessen Antworten gegen den Rest
@@ -135,10 +158,17 @@ Utility-Komponente oder Regel im bestehenden Gerüst.
   nicht als Fehler wertbar, aber die Regel macht das Verhalten prüfbar.
 
 ### 4.4 mulligan (VERTIEFUNG P11; Paket `mulligan/` existiert)
-- **Keep-Test** (A1, Konjunktion): 2–4 Länder + Farben/Fixierung + ein
-  Spielzug an ≥2 der Züge 1–3 + benennbarer Plan; in Mehrspieler fällt die
-  Latte je Mulligan (erster ist frei), nie unter 5 Karten; Payoffs ohne Gas
-  und 2-Land-„Kartenhäuser" ablehnen.
+- **Keep-Test** (A1, Konjunktion) — als **universeller Algorithmus über der
+  Deckliste**, nicht als Handregel je Deck: 2–4 Länder + Farben/Fixierung
+  (Pips der Hand gegen die Manabasis) + ein Spielzug an ≥2 der Züge 1–3
+  (Mana-Simulation wie in der M4-Castability) + **Development Score** statt
+  Freitext-„Plan": Die Simulation sucht eine mit dem Mana der Hand
+  kurvenspielbare Zugfolge Richtung Deckziel (Commander bis zu seinem
+  Soll-Zug, Engine-Teile, Rollenabdeckung). Das Deck geht über automatisch
+  abgeleitete Parameter ein (Commander-Kosten/Soll-Zug, Rollengewichte,
+  Kurve); ein Pod-Profil (casual/cEDH) stellt die Strenge ein. In
+  Mehrspieler fällt die Latte je Mulligan (erster ist frei), nie unter 5
+  Karten; Payoffs ohne Gas und 2-Land-„Kartenhäuser" ablehnen.
 - **Bottoming-Reihenfolge** (A1): überschüssige Länder >4 > teuerste
   unspielbare Karte > situative/tote Karten > doppelte Engines; nie die
   einzige Interaktion/Farbquelle/den einzigen Frühspielzug.
