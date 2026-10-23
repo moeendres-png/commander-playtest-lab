@@ -1,0 +1,101 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "3d721f024e970b212d221ef7acfc4d9d593cb24b4a06eec41bf8a04c5acdb04c",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "MICRO_ZONE_CHANGES-causal-obj:micro-bolt-stack-mana"
+      },
+      {
+        "actor": "P1",
+        "decision_id": "85088a7f4318b7018959d9dba002f86f60fb21f2b54454d03ec935ac0b473508",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "MICRO_ZONE_CHANGES-causal-obj:micro-bolt-stack-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:micro-bolt-stack"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p1"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:micro-bolt-stack"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_ZONE_CHANGES",
+  "obligation_exercised": {
+    "obligation_digest": "d4263d061a028c7f672e4d8610c4e65202f95128a42866e6004be59d984d5a2c",
+    "requested_state_digest": "358d1908752e5dc47a5ed27a2a13601596fa892a35d66d171266aab294f8b79a",
+    "required_events": [
+      "resolve:obj:micro-bolt-stack",
+      "zone_change:stack->graveyard",
+      "new_object_incarnation:line:micro-bolt"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "The physical/card lineage is continuous but the graveyard object is a new object incarnation; provider-local UUID is ignored."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "new_object_incarnation:line:micro-bolt": {
+        "events": [
+          11
+        ],
+        "from": "STACK",
+        "to": "GRAVEYARD"
+      },
+      "resolve:obj:micro-bolt-stack": {
+        "binding": [
+          "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-bolt-stack, target_player=P2, amount=3",
+          "every DAMAGED_PLAYER event with source_object=obj:micro-bolt-stack precedes the first ZONE_CHANGE event with target_object=obj:micro-bolt-stack, from=STACK"
+        ],
+        "parts": [
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-bolt-stack, target_player=P2, amount=3",
+            "events": [
+              10
+            ]
+          },
+          {
+            "binding": "every DAMAGED_PLAYER event with source_object=obj:micro-bolt-stack precedes the first ZONE_CHANGE event with target_object=obj:micro-bolt-stack, from=STACK",
+            "observation": "engine terminal observation"
+          }
+        ]
+      },
+      "zone_change:stack->graveyard": {
+        "binding": "exactly 1 ZONE_CHANGE event(s) with target_object=obj:micro-bolt-stack, from=STACK, to=GRAVEYARD",
+        "events": [
+          11
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "c150fdae99f8d7cd093567ba5f164f786c93e1ade238a07e0b7931edcdceeb53",
+  "runner_digest": "3707293adcf533d9d2f930edb7ab723a609eb859cda4be705c0a441071ee14fe",
+  "runtime_receipt_digest": "1108771f3d3568da33e4306fc898f6520661183c25a8bcebcc9105477cbe0e7b",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_ZONE_CHANGES",
+  "variance_source": null
+}
