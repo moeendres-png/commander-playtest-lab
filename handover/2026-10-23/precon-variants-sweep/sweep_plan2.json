@@ -1,0 +1,91 @@
+{
+ "jar": "/home/hatch/workspace/tmp/978/bridge_v12.jar",
+ "jvm_options": [
+  "-Dcommanderlab.fullGame.gamesPerJvm=4"
+ ],
+ "games_per_jvm": 4,
+ "game_seed": 1,
+ "plan_seed": 2,
+ "pods": 4,
+ "pods_ok": 4,
+ "pods_failed": 0,
+ "families": {},
+ "rows": [
+  {
+   "pod": "pod-000",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "9e3b431ad10593dd0e724746e3463ce652904cb1759e8b01cabaf512fe7ad452",
+   "decisions": 3127,
+   "winners": [
+    1
+   ],
+   "wall_s": 34.44,
+   "child_cpu_s": 39.32,
+   "batched": 4,
+   "decks": [
+    "2024_revenant_recon",
+    "2024_blame_game",
+    "2023_blast_from_the_past",
+    "2024_tricky_terrain"
+   ]
+  },
+  {
+   "pod": "pod-001",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "200935b114962df52a2ee91458bd2eee8c9c4b8f0cf73ed21016abd9591fd162",
+   "decisions": 2272,
+   "winners": [
+    2
+   ],
+   "wall_s": 34.44,
+   "child_cpu_s": 39.32,
+   "batched": 4,
+   "decks": [
+    "2022_maestros_massacre",
+    "2017_vampiric_bloodlust",
+    "2023_masters_of_evil",
+    "2021_lorehold_legacies"
+   ]
+  },
+  {
+   "pod": "pod-002",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "2ae3e33499d66947f78c93fe053ac6c68fbb50eb80a4b34fd1b442232808f98e",
+   "decisions": 1662,
+   "winners": [
+    4
+   ],
+   "wall_s": 34.44,
+   "child_cpu_s": 39.32,
+   "batched": 4,
+   "decks": [
+    "2023_paradox_power",
+    "2021_prismari_performance",
+    "2023_timey_wimey",
+    "2020_symbiotic_swarm"
+   ]
+  },
+  {
+   "pod": "pod-003",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "d7f135b583896ecd8cd2d76334d9b312611aff9e2844362d34fe052a2e47dcac",
+   "decisions": 2473,
+   "winners": [
+    1
+   ],
+   "wall_s": 34.44,
+   "child_cpu_s": 39.32,
+   "batched": 4,
+   "decks": [
+    "2022_bedecked_brokers",
+    "2024_tricky_terrain_collector_s_edition",
+    "2026_odds_and_ends",
+    "2019_primal_genesis"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,67 @@
+{
+  "jar": "/home/hatch/workspace/tmp/978/bridge_v12.jar",
+  "jar_sha256": "f27e6546e7a204c99129bb2fcab9872ed6ca420ae6287206d7e4f26921975b97",
+  "engine_version": "1.4.62",
+  "deck_dir": "data/decks/precon_variants",
+  "decks_total": 9,
+  "decks_ok": 9,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 79.1,
+  "results": [
+    {
+      "deck": "2023_blast_from_the_past",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-36acf97f-d1a1-4b9d-863d-3f1fbc986412' deck_id='precon-variant/2023/blast_from_the_past' deck_hash='5d6c32e880fe616acb62eb4e0063c843cf1ef0760",
+      "status": "OK",
+      "wall_s": 77.35
+    },
+    {
+      "deck": "2023_masters_of_evil",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-03afd1d0-4f2f-447f-8a1d-958ae33b822e' deck_id='precon-variant/2023/masters_of_evil' deck_hash='adcc3221b8391c7d7da36e05e91fb3b972ec2f47b5faa",
+      "status": "OK",
+      "wall_s": 0.17
+    },
+    {
+      "deck": "2023_paradox_power",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3fec1aa6-4b43-43dd-9dd0-847901b7761a' deck_id='precon-variant/2023/paradox_power' deck_hash='64f863309a7acb6f827c5473165b5a189f8347aea2120bd",
+      "status": "OK",
+      "wall_s": 0.1
+    },
+    {
+      "deck": "2023_timey_wimey",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-c352b9eb-3a6c-4feb-add5-ed6001adccdc' deck_id='precon-variant/2023/timey_wimey' deck_hash='716267199ab4f4cac99a891c3a1f8862f8ca1a6edb02f36cb",
+      "status": "OK",
+      "wall_s": 0.06
+    },
+    {
+      "deck": "2024_blame_game",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1f4f1a42-edd0-4392-996d-7aa48b0ecf45' deck_id='precon-variant/2024/blame_game' deck_hash='2370e8ff2b57f30712963ad498e2ff3ed66962b1fa88ae9490",
+      "status": "OK",
+      "wall_s": 0.09
+    },
+    {
+      "deck": "2024_revenant_recon",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-80857db1-a3c3-43fc-94b9-4954bfb161ab' deck_id='precon-variant/2024/revenant_recon' deck_hash='3faa2f2307512a9087c92bfd9f15c92c082ede2c6fe7cb",
+      "status": "OK",
+      "wall_s": 0.05
+    },
+    {
+      "deck": "2024_tricky_terrain",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-8a07689b-0fdf-4424-94ac-43c3fee8f7e2' deck_id='precon-variant/2024/tricky_terrain' deck_hash='934128ee58dbb5f4ad41371d6c16f9436f25418990243c",
+      "status": "OK",
+      "wall_s": 0.06
+    },
+    {
+      "deck": "2024_tricky_terrain_collector_s_edition",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e474c925-c13c-40b9-8877-9f08cf09e8df' deck_id='precon-variant/2024/tricky_terrain_collector_s_edition' deck_hash='0dd444dcd620d4043ddecc68d4",
+      "status": "OK",
+      "wall_s": 0.03
+    },
+    {
+      "deck": "2026_odds_and_ends",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-49f2c37a-2502-42f4-81dc-4f0a92a334fe' deck_id='precon-variant/2026/odds_and_ends' deck_hash='434f23249c9abbd58a2905b950716bdbb3949a5f736bfdd",
+      "status": "OK",
+      "wall_s": 0.06
+    }
+  ]
+}

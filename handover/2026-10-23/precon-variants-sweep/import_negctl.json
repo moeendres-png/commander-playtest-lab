@@ -1,0 +1,19 @@
+{
+  "jar": "/home/hatch/workspace/tmp/978/bridge_v12.jar",
+  "jar_sha256": "f27e6546e7a204c99129bb2fcab9872ed6ca420ae6287206d7e4f26921975b97",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/hatch/workspace/tmp/978/negctl",
+  "decks_total": 1,
+  "decks_ok": 0,
+  "decks_failed": 1,
+  "decks_infrastructure_error": 0,
+  "total_wall_s": 56.4,
+  "results": [
+    {
+      "deck": "2024_blame_game",
+      "error": "RulesEngineProtocolError: bridge message 'import_deck' failed: deck_import_failed: UNKNOWN_CARD_NAME: Definitely Not A Real Card Zzz",
+      "status": "FAILED",
+      "wall_s": 55.35
+    }
+  ]
+}
