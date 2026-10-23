@@ -264,6 +264,7 @@ _BATCH_CALLERS = {
     "scripts/precon_pod_sweep.py",  # pod sweep, plays chunks through the benchmark's batch
     "scripts/check_batch_failure_isolation.py",  # measurement check of a failing batch game
     "scripts/qualify_game_batching.py",  # the qualification of batched play itself
+    "scripts/rank_sensitivity.py",  # measurement (S-1); one game per JVM unless asked
     "src/commander_lab/engine/rules/full_game_batch.py",
     "src/commander_lab/engine/rules/full_game.py",
 }
