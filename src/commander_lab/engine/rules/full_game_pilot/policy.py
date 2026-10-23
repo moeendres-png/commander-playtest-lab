@@ -241,6 +241,23 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
                     rng,
                 )
             )
+            equipment_id = (
+                str(asking_source.get("source_object_id") or "")
+                if isinstance(asking_source, dict)
+                else ""
+            )
+            if (
+                decision_class == "target"
+                and equipment_id
+                and selected
+                and "equip" in self._last_priority_label.get(seat, "").casefold()
+            ):
+                # Remembered so the equipment is not moved again this turn while that creature
+                # still stands (Swiftfoot Boots hopped between tokens eight times a turn).
+                self._equipped_to[(seat, equipment_id)] = (
+                    pilot_state.get("turn_number"),
+                    selected[0],
+                )
             if decision_class == "target_amount":
                 numeric_choice = self._decide_numeric(
                     runtime,
