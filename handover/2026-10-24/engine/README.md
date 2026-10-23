@@ -11,10 +11,11 @@ Nachtrag in diesen Ordner.
 - Zeit-Zerlegung einer Simulation (Pod, 3.588 Entscheidungen, Pin v11):
   Engine (Java-Bridge) ~96 %, Pilot ~1 % (0,43 ms/Entscheidung),
   JSON/Protokoll ~0,2 %, Start/JVM-Boot ~3 % (batch-amortisiert ~0).
-- Repo-Befund: `fast_jvm_options` existiert (Serial GC, laut Code-Kommentar
-  gemessen −10 % CPU bei identischen Transkripten); das AppCDS-Archiv wird
-  nur genutzt, wenn `<jar>.jsa` neben dem JAR liegt — bei den aktuellen
-  JARs liegt keins, AppCDS lief also nie.
+- Repo-Befund: `fast_jvm_options` existiert (Serial GC, gemessen −10 % CPU
+  bei identischen Transkripten; Gegenprobe der Mess-Lane: −9 %). AppCDS ist
+  von T-3 gemessen (−1,4 % Wand bei 1 Spiel/JVM, unter der 3-%-Schwelle)
+  und läuft in `--fast`-Sweeps mit, sofern `<jar>.jsa` liegt; die Läufe der
+  Mess-Lane hatten keins. Details und Korrektur-Einordnung: DOSSIER.md.
 - Falle für Profiling: JVM-Logausgaben auf stdout (z. B. JFR-Starttext)
   vergiften das JSONL-Protokoll (INVALID_RESPONSE) — Recorder per jcmd
   an den laufenden Prozess hängen statt `-XX:StartFlightRecording`.
