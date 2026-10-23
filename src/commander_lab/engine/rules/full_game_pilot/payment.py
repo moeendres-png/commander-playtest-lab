@@ -617,7 +617,9 @@ class _PaymentDecisions(_PolicyState):
                 "withheld %d unaffordable mana abilit(ies) from payment selection",
                 len(non_pool) - len(selectable),
             )
-        options = selectable
+        options = self._mana_before_alternate_payments(
+            selectable, str(context.get("unpaid_mana", ""))
+        )
 
         planned = self._planned_mana_source(options, str(context.get("unpaid_mana", "")))
         if planned is not None:
@@ -746,6 +748,43 @@ class _PaymentDecisions(_PolicyState):
         failed[1][label] = self._last_priority_visible_mana.get(
             seat, self._available_mana(self._actor(state))
         )
+
+    def _mana_before_alternate_payments(
+        self, options: list[dict[str, object]], unpaid_mana: str
+    ) -> list[dict[str, object]]:
+        """Leave convoke, delve and improvise out while a mana ability can still pay.
+
+        The pinned engine pays those three after every mana ability: the first
+        creature tapped for convoke (or card exiled for delve) shuts the
+        lands off for the rest of the spell (``ActivationManaAbilityStep.AFTER``,
+        Spell.setCurrentActivatingManaAbilitiesStep). The pilot used to pick the
+        special action first on the tie with a generic payer, so a Bennie Bracks
+        with four untapped lands lost them after one convoke and was cancelled
+        short by one {1}. Taking the lands first costs nothing: the special
+        action is back as soon as no ability can pay a part of what is left
+        (a {W} owed with only Swamps untapped is a convoke by a white creature).
+        Assist, which the engine wants before the mana abilities, stays offered.
+        """
+        specials = [
+            option
+            for option in options
+            if self._required_text(option, "option_type") == "special_mana_action"
+            and "assist" not in str(option.get("label", "")).casefold()
+        ]
+        if not specials:
+            return options
+        payable = any(
+            self._required_text(option, "option_type") == "mana_ability"
+            and mana_payment_fit(str(option.get("label", "")), unpaid_mana) > 0
+            for option in options
+        )
+        if not payable:
+            return options
+        _LOG.info(
+            "paying with mana abilities before %d alternate payment(s) (convoke, delve)",
+            len(specials),
+        )
+        return [option for option in options if option not in specials]
 
     def _planned_mana_source(self, options: list[dict[str, Any]], unpaid_mana: str) -> str | None:
         """Pay the way a player taps lands: scarcest color first, flexible sources last.
