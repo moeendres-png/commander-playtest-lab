@@ -1,0 +1,203 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-precon-commander-cards-repin-v13-20261023",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the head of the fork branch cards/precon-commander-decks (moeendres-png/mage, draft PR #71): the v12 pin 4da83f62 plus two commits that build ten Commander precon cards for real, each with Mage.Tests cases: Winter, Cynical Opportunist; Zinnia, Valley's Voice; Aminatou, Veil Piercer; Jace, Multiverse Architect; Dack Fayden, Helping Hand; Jhoira, Weatherlight Corsair; Tamiyo, Upriser Crowned; Teferi's Reproach; The Ur-Sphinx; Venser, Fervent Forger (Lab #979). The pin adds ten card classes, one test file per card (32 cases) and the SetCardInfo lines of three Commander sets; it changes no engine class, no dependency and not the engine version (1.4.62). The candidate branch claude/xmage-mp-candidate-20260929 is fast-forwarded to the pin with the repin (Owner's go: 2026-10-23 12:44 UTC for the fork push and 13:01 UTC for the fast-forward and the repin). The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite stays PENDING until its Actions run is complete; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "owner_go": {
+  "decision": "Owner ordered on 2026-10-23 11:26 UTC that the cards of the Winter, Zinnia, Aminatou and Jace precons and six cards of the Multiverse deck are built for real in the fork (#979); he chose 'Ja, pushen' on the decision card 'Fork-Zweig mit den 10 neuen Karten jetzt pushen und Fork-CI starten?' at 2026-10-23 12:44 UTC and 'Ja, Repin' on the decision card 'Kandidatenzweig auf die neuen Karten vorziehen und den Repin starten?' at 2026-10-23 13:01 UTC (fast-forward of the candidate line, repin, PB-03, seals and AF11 adjudication)",
+  "scope": "push the line to the fork, run the fork CI, fast-forward the candidate line, open the repin, PB-03 and both seals"
+ },
+ "prior_live_pin": {
+  "commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+  "tree": "64106e3ce6f537bc0f3fda83910abb569b23e34b",
+  "role": "prior live XMage pin (repin v12, order collections, engine 1.4.62); stays historical and is the engine of the current_qualification epoch b9936e94db5f-041fb5779d5c until this repin is requalified",
+  "successor_locks": [
+   "qualification/xmage-determinism-line-repin-v10-20261020/SUCCESSOR_SOURCE_LOCK.json",
+   "qualification/xmage-lazy-triggers-repin-v11-20261021/SUCCESSOR_SOURCE_LOCK.json",
+   "qualification/xmage-order-collections-repin-v12-20261022/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+   "tree": "64106e3ce6f537bc0f3fda83910abb569b23e34b"
+  },
+  "candidate_line_head": {
+   "commit": "4da83f6267907798e5527c3e5f8a0bd3579ff993",
+   "branch": "claude/xmage-mp-candidate-20260929",
+   "content": "fast-forwarded to the v12 pin on 2026-10-22; fast-forwarded to this pin with the repin (done 2026-10-23 after the Owner's go of 13:01 UTC)"
+  },
+  "final_integrated_candidate": {
+   "commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+   "tree": "9d6c810ab1266598fc436298f7caa49668c4b2bc",
+   "content": "v12 pin plus ten Commander precon cards with their tests and set lines; no engine change, no upstream merge"
+  },
+  "identity_rule": "the pin is the head commit of the fork branch cards/precon-commander-decks (mage#71 is the CI carrier); its parent fe4fd1c4 is the card commit on the v12 pin 4da83f62"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "cards/precon-commander-decks",
+  "commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "tree": "9d6c810ab1266598fc436298f7caa49668c4b2bc",
+  "parents": [
+   "fe4fd1c44b69224918fd7ab9fae7b8a52c416f3d"
+  ],
+  "committed_at": "2026-10-23T12:34:53+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e.tar.gz",
+  "fork_ref_note": "the commit is the head of cards/precon-commander-decks and, after the fast-forward, of claude/xmage-mp-candidate-20260929"
+ },
+ "donors": [
+  {
+   "finding": "PRECON-COMMANDER-CARDS-10",
+   "branch": "cards/precon-commander-decks (moeendres-png/mage), draft PR #71",
+   "head": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+   "observation": "Ten Commander precon cards were missing from the engine, so four precon decks (Winter, Zinnia, Aminatou, Jace) and part of the Multiverse deck did not import with real cards; the pool of 195 precon decks had 182 real importable decks.",
+   "fix": "ten card classes, 32 Mage.Tests cases, three SetCardInfo edits; the measured import with the candidate jar rises to 186 of 195 real decks (see local_observed)"
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --shortstat 4da83f62 90f5c4d3f8 in moeendres-png/mage; blob ids from git rev-parse 90f5c4d3f8:path",
+  "commits": [
+   {
+    "commit": "fe4fd1c44b69224918fd7ab9fae7b8a52c416f3d",
+    "title": "Build ten Commander precon cards (Winter, Zinnia, Aminatou, Dack Fayden, Jhoira, Tamiyo, Teferi's Reproach, The Ur-Sphinx, Venser) with tests",
+    "files": [
+     "see post_pin_edits"
+    ]
+   },
+   {
+    "commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+    "title": "Add the Jace, Multiverse Architect test file",
+    "files": [
+     "Mage.Tests/src/test/java/org/mage/test/cards/single/frc/JaceMultiverseArchitectTest.java"
+    ]
+   }
+  ],
+  "commit_count": 2,
+  "files_changed": 24,
+  "insertions": 2398,
+  "deletions": 0,
+  "post_pin_edits": [
+   {
+    "path": "Mage.Sets/src/mage/cards/a/AminatouVeilPiercer.java",
+    "blob": "45834f942e956b3de495cb3f33936b65335f3d7b"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/d/DackFaydenHelpingHand.java",
+    "blob": "11a21f0114457945709564a93045fdd9094fb412"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/j/JaceMultiverseArchitect.java",
+    "blob": "1e961cb884905e24f7eb544a9a3c77e4915b0d46"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/j/JhoiraWeatherlightCorsair.java",
+    "blob": "424e4331cc6ff8070510400aa0ed247bb3478a22"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TamiyoUpriserCrowned.java",
+    "blob": "e82b724cb0f2d85253947df98dba9115b9869987"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TeferisReproach.java",
+    "blob": "97f9982be5d441e6fcd1377fc3f8c37793e00610"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TheUrSphinx.java",
+    "blob": "863e4fc00cc207b6114e1ba22c17a73891c37991"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/v/VenserFerventForger.java",
+    "blob": "55887e9c5e342b14db5dc60f33dde70564ed4728"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/w/WinterCynicalOpportunist.java",
+    "blob": "ea28aaf3e6459c0dd42e79990851dcec426a07f7"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/z/ZinniaValleysVoice.java",
+    "blob": "ee44da9553a5e1e5904f003ed9bd26ac06e2bc18"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/BloomburrowCommander.java",
+    "blob": "5425702c9a1d8017a3a924c83b2508e2342ba700"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/DuskmournHouseOfHorrorCommander.java",
+    "blob": "b456a91962494c0066540892fcaf42fad257d942"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/RealityFractureCommander.java",
+    "blob": "9385f88f2628ccb2655e3b183593358c47486253"
+   }
+  ],
+  "dependency_change": false,
+  "version_change": {
+   "from": "1.4.62",
+   "to": "1.4.62",
+   "note": "unchanged; the engine version string does not move with this repin"
+  },
+  "build_files_changed": []
+ },
+ "not_in_pin": [
+  "the perf port 0c0132a2ef and the 35-commit Muse handover patch set stay out as before (see the v12 lock); no engine class changes in this pin",
+  "the 31 further missing precon cards of #979 (non-priority) and the Sage of the Maze fix"
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch cards/precon-commander-decks of moeendres-png/mage (the draft PR targets a non-master base, so the push trigger does not run)",
+   "commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+   "run_id": 39955832247,
+   "job": "build (17, temurin, jdk)",
+   "job_id": 120421316577,
+   "run": 7499,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 126,
+   "status": "COMPLETE"
+  },
+  "mage_verify": {
+   "result": "PASS",
+   "detail": "same job, same commit: Mage.Verify ran 28 tests, 0 failures, 0 errors, 8 skipped, BUILD SUCCESS. Mage.Tests ran 7499 tests: the 7467 of the v12 pin plus the 32 new card tests, same 126 skipped."
+  }
+ },
+ "local_observed": {
+  "status": "LOCAL_OBSERVED (no CI-level credit)",
+  "jar": "bridge jar built from the Lab bridge of main 48c60329 against the exact pin 90f5c4d3f8, sha256 2e65e12e0fc579f2d7774fa709d0f2f1bfa680bf25fa5940072cdb5e425c6573",
+  "precon_import": "all 195 decks of data/decks/precons imported with the candidate jar (49.5 s wall): 186 import, 9 do not (Susan Foreman; Missy and others; The Foretold Soldier and others; The Pandorica and others; Feather, Radiant Arbiter and Immortal Obligation; Eye of Duskmantle; Desert Warfare twice; Exchange of Words and Space Beleren); the four decks of this repin import (2024_death_toll, 2024_family_matters, 2024_miracle_worker, 2026_multiverse_reforged); the 13 SYNTHETIC proxy decks of #982 are counted apart",
+  "report": "docs/performance/PRECON_IMPORT_V13_2026-10-23.md",
+  "bridge_identity_tests": "the engine-bridge suite runs in Actions against XMage built from the exact pin (lab_runtime_qualification.bridge_suite); not repeated locally"
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite once it is complete (XMage built and installed from exactly 90f5c4d3f8 for that job; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=90f5c4d3, checked in the job): engine-bridge mvn verify against XMage built from the exact pin",
+   "status": "PENDING"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest and the v6, v7 and v8 hooks stay checked."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names (b9936e94db5f-041fb5779d5c, engine 4da83f62) until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the epoch is sealed."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "Repin-time record; the status field keeps the value the repin was merged with. Sealed epoch of the v12 pin: qualification/current-boundary-epochs/b9936e94db5f-041fb5779d5c (PB-03 run 39927923126 on main b9936e94, FULL107 107/107, AF00-AF11 PASS; AF11 under qualification/af11-xmage-only-topology-20261022-v12/). The next steps are PB-03 on the Lab main merge commit of this repin, the AF11 adjudication for 90f5c4d3f8 (qualification/af11-xmage-only-topology-20261023-v13/) and the seals."
+ }
+}
