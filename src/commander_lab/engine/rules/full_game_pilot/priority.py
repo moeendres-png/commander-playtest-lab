@@ -209,6 +209,24 @@ class _PriorityDecisions(_CombatDecisions):
                 affordable = [o for o in affordable if id(o) not in capped_ids]
                 needs_mana_first = [o for o in needs_mana_first if id(o) not in capped_ids]
                 self_defeating += len(capped)
+        # An equipment the seat already attached this turn to a creature that is still on the table
+        # stays where it is: moving it again only spends mana and decisions (a Swiftfoot Boots
+        # was re-equipped eight times a turn, 56 decisions, the whole per-turn cap).
+        standing = {
+            str(item.get("object_id"))
+            for item in self._actor(state).get("battlefield") or []
+            if isinstance(item, dict)
+        }
+        stays = [
+            option
+            for option in (*affordable, *needs_mana_first)
+            if self._equipped_this_turn(seat, option, turn, standing)
+        ]
+        if stays:
+            stays_ids = {id(option) for option in stays}
+            affordable = [o for o in affordable if id(o) not in stays_ids]
+            needs_mana_first = [o for o in needs_mana_first if id(o) not in stays_ids]
+            self_defeating += len(stays)
         failed = self._failed_payments.get(seat)
         if failed is not None and failed[0] == turn and failed[1]:
             visible = self._available_mana(self._actor(state))

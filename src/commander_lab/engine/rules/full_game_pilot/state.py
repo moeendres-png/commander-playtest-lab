@@ -153,6 +153,8 @@ class _PolicyState:
         # Lim-Dul's Vault: per seat, the ability that asked and how many times in a row the seat
         # has paid a life to look at five more cards.
         self._life_dig_yes: dict[int, tuple[str, int]] = {}
+        # Equipment: per (seat, equipment id), the turn and the creature the seat last equipped it to.
+        self._equipped_to: dict[tuple[int, str], tuple[object, str]] = {}
         # Wild Ricochet: per seat, the turn and how many copies the seat re-aimed that turn.
         self._retarget_yes: dict[int, tuple[object, int]] = {}
         self._selection_ended: set[int] = set()
@@ -244,6 +246,21 @@ class _PolicyState:
         ):
             return self._TURN_OPPOSING_ABILITY_CAP
         return self._TURN_ABILITY_CAP
+
+    def _equipped_this_turn(
+        self, seat: int, option: Mapping[str, object], turn: object, standing: set[str]
+    ) -> bool:
+        """Whether this equip option is for an equipment the seat attached this turn to a creature
+        that is still on the battlefield."""
+        label = str(option.get("label", "")).casefold()
+        if not (label.split(" — ")[-1].startswith("equip") or " equip " in f" {label} "):
+            return False
+        metadata = option.get("metadata")
+        source_id = (
+            str(metadata.get("source_object_id") or "") if isinstance(metadata, dict) else ""
+        )
+        placed = self._equipped_to.get((seat, source_id))
+        return placed is not None and placed[0] == turn and placed[1] in standing
 
     @staticmethod
     def _on_an_opponents_battlefield(state: Mapping[str, object], object_id: str) -> bool:

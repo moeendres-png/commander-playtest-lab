@@ -569,6 +569,67 @@ def test_declined_copy_cast_ends_the_continue_chain() -> None:
     assert answer(cont, 4) == "yes"  # the refusal is spent: a later chain is not capped
 
 
+def _equip_option() -> dict[str, Any]:
+    return _option(
+        "equip",
+        "activated_ability",
+        "Swiftfoot Boots — Equip {1} (Attach to target creature you control.)",
+        source_name="Swiftfoot Boots",
+        source_object_id="boots",
+        ability_type="activated",
+    )
+
+
+def _equip_target(creature: str) -> dict[str, Any]:
+    request = _request(
+        "target",
+        [_option(creature, "target", "Bear", object_id=creature, name="Bear")],
+        context={"targeted": True, "outcome": "benefit", "required": True},
+        prompt="Select target creature you control",
+        state=_state(step="precombat_main"),
+    )
+    request["source_object"] = {
+        "source_object_id": "boots",
+        "ability_original_id": "equip-ability",
+        "ability_type": "activated_nonmana",
+        "source_name": "Swiftfoot Boots",
+    }
+    return request
+
+
+def _window_with_bears(*bears: str, turn: int = 5) -> dict[str, Any]:
+    state = _state(step="precombat_main")
+    state["turn_number"] = turn
+    state["players"][0]["battlefield"] += [
+        {"object_id": bear, "name": "Bear", "tapped": False} for bear in bears
+    ]
+    return _request("priority", [_PASS, *_TAPS, _equip_option()], state=state)
+
+
+def test_an_equipment_stays_on_the_creature_it_was_attached_to_this_turn() -> None:
+    # A Swiftfoot Boots hopped between Villain Tokens eight times a turn (the whole per-turn cap,
+    # 56 decisions and 8 mana) because nothing told the pilot where it had put the equipment.
+    policy = _policy()
+    window = _window_with_bears("bear-1", "bear-2")
+    assert policy.decide(window)["selected_option_ids"] == ["equip"]  # control: first equip
+    assert policy.decide(_equip_target("bear-1"))["selected_option_ids"] == ["bear-1"]
+    again = policy.decide(_window_with_bears("bear-1", "bear-2"))
+    assert again["selected_option_ids"] == ["pass"]
+
+
+def test_an_equipment_is_moved_again_when_its_creature_is_gone_or_the_turn_is_new() -> None:
+    policy = _policy()
+    policy.decide(_window_with_bears("bear-1"))
+    policy.decide(_equip_target("bear-1"))
+    # the creature died: the equipment can be attached again
+    gone = policy.decide(_window_with_bears("bear-2"))
+    assert gone["selected_option_ids"] == ["equip"]
+    # a later turn starts over
+    policy.decide(_equip_target("bear-2"))
+    later = policy.decide(_window_with_bears("bear-2", turn=6))
+    assert later["selected_option_ids"] == ["equip"]
+
+
 def _copy_spell_target(source_name: str, *stack: tuple[str, str]) -> dict[str, Any]:
     """Target choice of a copy-a-spell spell; ``stack`` is (object id, name), top of stack first."""
     options = [
