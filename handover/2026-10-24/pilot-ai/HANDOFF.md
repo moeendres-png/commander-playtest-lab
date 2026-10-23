@@ -63,8 +63,11 @@ Pilot-Anteil daran ist die Auswertung (`evaluate_action` × Kandidaten +
 State-View-Aufbau); selbst eine Verdopplung der Pilot-Rechenzeit bewegte die
 Spielzeit nur im einstelligen Prozentbereich. **Fazit: Qualität ist der Hebel,
 Geschwindigkeit ist Hygienefaktor.** Budget-Regel für alle Phasen unten:
-**+1 ms Mediane Entscheidungszeit ist die Obergrenze**, gemessen im
-A/B-Vergleich (§6). Suchverfahren sind raus: Die Recherche (RESEARCH.md B1/B3)
+**+1,5 ms Mediane Entscheidungszeit ist die Richtgröße** (≈ +10 % Wandzeit
+am Korpus-Median), gemessen im A/B-Vergleich (§6); die gemessene
+Zeit-Zerlegung und die Begründung stehen im Nachtrag (§8) — der Pilot ist
+mit ~1 % der Simulationszeit der kleinste Kostenblock, Qualität darf
+Rechenzeit kaufen, nur keine Größenordnungen. Suchverfahren sind raus: Die Recherche (RESEARCH.md B1/B3)
 zeigt, dass jede ausgelieferte Magic-KI in Sekunden pro Entscheidung rechnet
 (Magarena, XMage-MCTS, Forge-Forks bis 60 s); das einzige bei Millisekunden
 bewährte Muster ist greedy 1-ply über vorgefilterte Optionen mit linearer
@@ -271,3 +274,53 @@ als Deck-Effekte.
   gemessen/publiziert, teils dokumentiertes Verhalten offener Projekte;
   kein publiziertes System spielt volles 4er-Commander im ms-Budget — die
   Übertragung ist begründete Schlussfolgerung, kein Messwert).
+
+
+## 8. Nachtrag (24.10., Owner-Rückfrage): Zeit-Zerlegung und weitere Befunde
+
+**Gemessene Zeit-Zerlegung einer Simulation** (ein Pod, 3.588 Entscheidungen,
+Pin v11, games-per-jvm 1, cProfile; Pod-Wandzeit 161,4 s, Prozess gesamt
+165,7 s; `LOCAL_OBSERVED`, ein Spiel auf dieser Box — Anteile, keine
+Universalkonstanten):
+
+| Block | Zeit | Anteil |
+|---|---|---|
+| Engine (Java-Bridge-Kindprozess, CPU) | 158,3 s | **~96 %** |
+| Pilot-Bewertung (`choose_action`/`evaluate_action` kumulativ) | 1,5 s | **~1 %** (0,43 ms/Entscheidung) |
+| JSON/Protokoll (Python-Seite, Eigenzeit) | 0,3 s | ~0,2 % |
+| Start/Skript/JVM-Boot (außerhalb der Pod-Wandzeit) | ~4,3 s | ~3 % (per Batch amortisiert → ~0) |
+
+Der Python-Elternprozess wartet den Rest der Zeit auf das Kind (Lock-Wartezeit
+129 s im Profil). cProfile bläht die Python-Werte eher auf — der Pilot-Anteil
+ist also eine Obergrenze. **Konsequenz:** Selbst ein zehnmal so rechenintensiver
+Pilot kostete <10 % Wandzeit; ein doppelt so teurer ~1 %. Effizienz-Arbeit
+gehört an die Engine-/JVM-Seite (Fork-Lane: Zustands-Kopien in XMage,
+Repository-Scan je JVM, GC) — nicht an den Piloten. Suchverfahren bleiben
+trotzdem raus: Sie kosten das 100- bis 1000-Fache des Pilot-Budgets, nicht
+das 2- bis 4-Fache (§3). Transkript-Schreiben ist zeitlich vernachlässigbar
+(0,2 %), bleibt aber ein Speicher-Thema (P7: 3,8 MB/Spiel).
+
+**Weitere Befunde zu Pilot-Intelligenz (aus Zensus + Code-Lektüre):**
+
+- **Gleichstands-Verborgenheit:** `_select` rundet die Utility auf
+  `policy.precision` und bricht Gleichstände per `action_id` (= Engine-
+  Reihenfolge). Wie oft der Sieg dadurch an die Reihenfolge fällt, ist aus
+  Transkripten nicht messbar (Utilities stehen nicht drin) — Instrumentierung:
+  Top-2-Utility-Marge je Entscheidung mitschreiben (ergänzt §5).
+- **Shortlist-Abschneiden:** `choose_action` kürzt die sortierten Kandidaten
+  auf `policy.shortlist`, bevor `_select` wählt. Alles jenseits der Shortlist
+  ist unerreichbar — Shortlist-Größe ist ein Qualitätsparameter, Audit lohnt.
+- **Konfigurations-Audit:** Der Pilot besitzt `mistake_rate` und einen
+  Softmax-Modus; im DETERMINISTIC-Modus sind beide wirkungslos. Welche
+  Konfiguration die Produktionsläufe (M4-Korpus) fuhr, ist aus den
+  Transkripten nicht ablesbar — vor Phase 1 festhalten und einfrieren.
+- **Modus-Wahlen:** `mode` nimmt in 37 % die erste Option; es gibt keinen
+  modus-spezifischen Utility-Term (Top-Modus: „exile target player's
+  graveyard.", 3.630×). In §4.5 mitbehandeln.
+- **Leerwahlen bei `choose_object`:** Häufigste „Wahl" ist die leere Auswahl
+  (2.388×) — kann bei optionalen Effekten korrekt sein, gehört aber auf die
+  Audit-Liste von §4.5 (May-Verhalten).
+- **Erzwungene Entscheidungen sind Protokoll-Overhead, kein Pilot-Thema:**
+  26,6 % aller Entscheidungen haben genau eine legale Option; der Fast-Path
+  (§3) gehört in den Protokoll-Client (ohne Pilot-Aufruf beantworten), nicht
+  in die Bewertungslogik.
