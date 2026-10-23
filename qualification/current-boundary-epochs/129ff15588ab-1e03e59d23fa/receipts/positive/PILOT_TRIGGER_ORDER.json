@@ -1,0 +1,53 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_TRIGGER_ORDER",
+  "obligation_exercised": {
+    "obligation_digest": "2b6c086f60b3fe245561d51df3206d3996f2b445acee75c09c03de67ac498f25",
+    "requested_state_digest": "fa36e45437c78b7e1b7e84a2f6348d896e3a81c37128439c032b19beb2b1e4cc",
+    "required_events": [
+      "simultaneous_triggers:P1:2",
+      "trigger_order_frame:P1"
+    ],
+    "terminal_checks": [
+      "P1's triggered abilities went on the stack in the order ('Phyrexian Arena', 'Mystic Remora')"
+    ],
+    "terminal_postconditions": [
+      "Both triggers are on stack in the selected relative order; trigger creation itself remains simultaneous."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P1's triggered abilities went on the stack in the order ('Phyrexian Arena', 'Mystic Remora')": true
+    },
+    "token_evidence": {
+      "simultaneous_triggers:P1:2": {
+        "decision_frames": [
+          0
+        ],
+        "events": [
+          6,
+          7
+        ]
+      },
+      "trigger_order_frame:P1": {
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "4a5bdbd82c5fbcaa17c13388d6a5513907e71008e9fbf79c8985180c59323d89",
+  "runner_digest": "a1a2a3105da79ee72fa347855bf447c7015d31d6c88adcba78007a3c952c18a8",
+  "runtime_receipt_digest": "e2b9a73f29c4da540c1b9b2c87a3957afaa64deb4bbec4473270027e08487d83",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_TRIGGER_ORDER",
+  "variance_source": null
+}
