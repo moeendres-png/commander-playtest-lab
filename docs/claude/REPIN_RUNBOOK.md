@@ -82,6 +82,14 @@ Build the fork jar and add the Lab bridge classes of `main` (`engine-bridge/` bu
    artifact digest and the Lab commit of that run). Merge, then regenerate
    `docs/claude/state/HANDOFF.md`: the pin line must show no `PIN AHEAD OF QUALIFICATION`.
 
+**Without a pin move (a bridge Java change on the same pin) one run is enough.** The AF11
+adjudication of the pin already exists, so PB-03 no. 1 reports AF11 PASS (check the seal output)
+and steps 3 and 4 add nothing: seal that run once, and in the same PR point
+`architecture_freeze.current_qualification` at the new epoch (`evidence_epoch`,
+`engine_artifact_sha256` from the epoch files, `lab_commit` of the run, note) and regenerate the
+HANDOFF. `derive_rules_engines_capabilities.py --check` must still pass. Done this way for the
+batching leak fix (#977, run 39927923126). With AF11 UNKNOWN, or a moved pin, run the full chain.
+
 Repin v12 took 1 h 40 min from the merge of the repin PR (#969) to the merge of the second seal
 (#972), most of it waiting for the two PB-03 runs. A `workflow_dispatch` run does not wake a
 session by itself; a subscribed pull request does.
