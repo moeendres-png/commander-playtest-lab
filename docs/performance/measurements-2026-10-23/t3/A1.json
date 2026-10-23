@@ -1,0 +1,59 @@
+{
+ "jar": "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar",
+ "jvm_options": [
+  "-XX:+UseSerialGC"
+ ],
+ "games_per_jvm": 1,
+ "workers": 1,
+ "total_wall_s": 208.8,
+ "games": [
+  {
+   "pod": "real",
+   "seed": 1,
+   "status": "ok",
+   "semantic": "45556bdb7c61f256d5abb6430351dc0eb0c86f0bc3be864a61cf11254907672b",
+   "decisions": 4095,
+   "winners": [
+    3
+   ],
+   "wall_s": 52.28,
+   "child_cpu_s": 93.22
+  },
+  {
+   "pod": "real",
+   "seed": 2,
+   "status": "ok",
+   "semantic": "e3196abea7c5a5d6e1082ca644feeb00ef8749eb7f0c4be07d2dabd0e9ecd629",
+   "decisions": 2436,
+   "winners": [
+    1
+   ],
+   "wall_s": 35.26,
+   "child_cpu_s": 69.84
+  },
+  {
+   "pod": "real",
+   "seed": 3,
+   "status": "ok",
+   "semantic": "cfae05a4388fb7bbe5a0c8d5306ca76782c018b908c5c51ad781fa54cbac6e6d",
+   "decisions": 4098,
+   "winners": [
+    2
+   ],
+   "wall_s": 52.55,
+   "child_cpu_s": 86.43
+  },
+  {
+   "pod": "real",
+   "seed": 4,
+   "status": "ok",
+   "semantic": "a9e50cd5121dd41ed0432a19e481b8960a604f79e34afc43e22441a4e25e6b38",
+   "decisions": 4392,
+   "winners": [
+    4
+   ],
+   "wall_s": 68.69,
+   "child_cpu_s": 110.0
+  }
+ ]
+}

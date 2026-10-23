@@ -181,3 +181,24 @@ Batching in the sweep, comparison and pilot-measurement lanes rests on tested gr
 keep every evidence lane at one game per JVM, and bundle the deck release of section 4 with the
 next bridge change, after which the memory property passes. Whether to also use batching
 somewhere that is not a measurement stays the Owner's decision.
+
+## 8. After the deck release (2026-10-23, #975)
+
+The release shipped in #977 as `XmageDeckImporter.retainOnly(handles)`: the bridge keeps the decks
+a new game names and drops the rest; the first design (forget the previous session's handles) failed
+its review because it missed decks of failed creates and deleted handles the next game reuses.
+The bridge change was requalified by one PB-03 run on main and one seal (#980; the AF11
+adjudication of the pin already existed, `docs/claude/REPIN_RUNBOOK.md` section 4).
+
+`Batching Qualification` on main after the requalification (run 39948490426, CI runner, JDK 17):
+**PASS** on all five criteria, and the criteria did not change.
+
+| Criterion | Result |
+|---|---|
+| reference | PASS, stable games 8, different 0 |
+| positions | PASS, identical 64, different 0 |
+| permutations | PASS, identical 46, different 0 |
+| memory | PASS, 56 games, identical 56, live-set slope -0.133 MiB per game (was 1.92), first pass 201.4 MiB, last pass 195.6 MiB, RSS peak 1.09 GiB |
+| isolation | PASS, identical 18, failed as planned 9, different 0 |
+
+Section 7 stands: batching stays a measurement lane. Using it anywhere else is the Owner's decision.
