@@ -1,0 +1,61 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "CARD_02",
+  "obligation_exercised": {
+    "obligation_digest": "1e3ff8d01c230cbcbbdf261d922cec01d34d9da67ac31db523e721abf9380bd7",
+    "requested_state_digest": "8553b0408730f93d6358706ab04cf4aa61666b32063767c9e3e37e7ee51cce56",
+    "required_events": [
+      "commander_cast",
+      "spell_resolved",
+      "creature_entered"
+    ],
+    "terminal_checks": [
+      "P1's commander cast count is 1",
+      "Rograkh, Son of Rohgahh is on P1's battlefield",
+      "no mana payment was asked"
+    ],
+    "terminal_postconditions": [
+      "Rograkh is on P1 battlefield.",
+      "commander cast count cmd:P1-A = 1.",
+      "No commander-tax increment was charged."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P1's commander cast count is 1": true,
+      "Rograkh, Son of Rohgahh is on P1's battlefield": true,
+      "no mana payment was asked": true
+    },
+    "token_evidence": {
+      "commander_cast": {
+        "events": [
+          7
+        ]
+      },
+      "creature_entered": {
+        "events": [
+          9
+        ]
+      },
+      "spell_resolved": {
+        "events": [
+          9
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "5e9d257618e55a997ce82ba1bed84cc27e8429bd43f8e9f9e554c9c511988c44",
+  "runner_digest": "5556bbda04d4f42aaea788f77300343818ae498a4f0aa31461826b210eac6625",
+  "runtime_receipt_digest": "d5bd04e036ec0b3da0a263d1488951505e30dfe9f1168a5691a288e509b5f590",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#CARD_02",
+  "variance_source": null
+}
