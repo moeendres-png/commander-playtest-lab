@@ -132,7 +132,7 @@ def test_the_summary_counts_pods_with_a_proxy_and_how_they_ended() -> None:
 def test_a_proxy_and_the_original_it_stands_in_for_are_never_both_selected(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    # without an import report every precon is selected, including the 13 the engine cannot
+    # without an import report every precon is selected, including the 9 the engine cannot
     # import: their proxies would then sit next to the originals
     code = _module().main(
         ["--jar", "x.jar", "--out", str(tmp_path / "o.json"), "--synthetic-proxies"]
@@ -144,7 +144,7 @@ def test_a_proxy_and_the_original_it_stands_in_for_are_never_both_selected(
 def test_the_committed_proxy_decks_are_read_as_synthetic_and_the_originals_as_real() -> None:
     module = _module()
     proxies = {p.stem: p for p in module.PROXY_DIR.glob("*.json")}
-    assert len(proxies) == 13
+    assert len(proxies) == 9
     labels = module.provenance_by_path(proxies)
     assert set(labels.values()) == {module.SYNTHETIC}
     real = {p.stem: p for p in sorted(module.PRECON_DIR.glob("*.json"))[:20]}

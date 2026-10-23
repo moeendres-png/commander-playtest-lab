@@ -16,7 +16,7 @@ the shuffled list. A pod always seats four decks: the full-game scenario is a fo
     python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json \\
         --deck-dir data/decks/custom
 
-    # the 182 real precons plus the 13 SYNTHETIC proxies of the decks the engine cannot import
+    # the 186 real precons plus the 9 SYNTHETIC proxies of the decks the engine cannot import
     python scripts/precon_pod_sweep.py --jar bridge.jar --out sweep.json \\
         --import-report imports.json --synthetic-proxies
 

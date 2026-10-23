@@ -1,10 +1,13 @@
-"""Build the SYNTHETIC proxy decks of the 13 precons the engine cannot import.
+"""Build the SYNTHETIC proxy decks of the 9 precons the engine cannot import.
 
-At the engine pin 13 precons contain card names the engine does not know, so they do not
+At the engine pin 13 precons contained card names the engine did not know, so they did not
 import (docs/PRECON_VALIDATION.md). Owner decision 2026-10-23: each of them gets a proxy deck in
 which every engine-unknown card is replaced by a real card the engine knows; four decks whose
-commander is unknown also get a proxy commander. The originals in ``data/decks/precons/`` stay
-untouched, so the pool stays at 195 decks: 182 real and 13 SYNTHETIC.
+commander was unknown also got a proxy commander. Since the pin 90f5c4d3f8 (repin v13, #979) the
+engine knows the cards of four of them (2024_death_toll, 2024_family_matters,
+2024_miracle_worker, 2026_multiverse_reforged); their proxies are retired and the real decks
+count. The originals in ``data/decks/precons/`` stay untouched, so the pool stays at 195 decks:
+186 real and 9 SYNTHETIC.
 
 A proxy is evidence class SYNTHETIC. It is not the printed precon, says nothing about how the
 original plays, and must not appear in qualification evidence or be ranked next to real decks
@@ -13,8 +16,8 @@ deck tag, ``precon-synthetic/`` deck ids, a name suffix, a note on every replace
 list ``data/decks/precon_synthetic_proxies.json``. The sweep and the import measurement read the
 tag and report real and SYNTHETIC decks separately.
 
-A later fork rebuild of the missing cards (#979) replaces the proxies; until then the proxies
-carry the 13 decks.
+A later fork rebuild of the remaining missing cards (#979) replaces the other proxies; until
+then the proxies carry the 9 decks.
 
     python scripts/build_precon_variants.py          # write the decks and the list
     python scripts/build_precon_variants.py --check  # exit 1 when a file is out of date
@@ -78,9 +81,6 @@ SUBSTITUTIONS: dict[str, dict[str, str]] = {
         "Feather, Radiant Arbiter": "Burnished Hart",
         "Immortal Obligation": "Abrade",
     },
-    "2024_death_toll": {},
-    "2024_family_matters": {},
-    "2024_miracle_worker": {},
     "2024_revenant_recon": {
         "Eye of Duskmantle": "Meteor Golem",
     },
@@ -89,14 +89,6 @@ SUBSTITUTIONS: dict[str, dict[str, str]] = {
     },
     "2024_tricky_terrain_collector_s_edition": {
         "Desert Warfare": "Reconnaissance Mission",
-    },
-    "2026_multiverse_reforged": {
-        "Dack Fayden, Helping Hand": "Sun Titan",
-        "Teferi's Reproach": "Chaos Warp",
-        "Jhoira, Weatherlight Corsair": "Steel Hellkite",
-        "Venser, Fervent Forger": "Inferno Titan",
-        "Tamiyo, Upriser Crowned": "Brudiclad, Telchor Engineer",
-        "The Ur-Sphinx": "Cavern-Hoard Dragon",
     },
     "2026_odds_and_ends": {
         "Exchange of Words": "Propaganda",
@@ -108,20 +100,17 @@ COMMANDER_PROXY_RULE = (
     "A legendary creature with exactly the original commander's colour identity, legal as a "
     "commander, known to the engine at the pin (import proof) and not already in the deck. "
     "Among those: cards that are no other precon's commander first, then the nearest mana "
-    "value, then the nearest power plus toughness, then the name. 2026_multiverse_reforged is "
-    "the one deck without such a card: Breya, Etherium Shaper (commander of "
-    "2016_invent_superiority) is the only WUBR commander not already in its 99."
+    "value, then the nearest power plus toughness, then the name. The four decks whose commander "
+    "the engine did not know have real decks again since repin v13, so no proxy commander is "
+    "in use."
 )
 
-# deck stem -> proxy commander, for the four decks whose commander the engine does not know
-# (rule above; a choice of this repository, not of the M2 template). Changing an entry and
-# rebuilding changes only that deck.
-COMMANDER_PROXIES: dict[str, str] = {
-    "2024_death_toll": "Carth the Lion",
-    "2024_family_matters": "Director Nick Fury",
-    "2024_miracle_worker": "Jin Sakai, Ghost of Tsushima",
-    "2026_multiverse_reforged": "Breya, Etherium Shaper",
-}
+# deck stem -> proxy commander, for decks whose commander the engine does not know (rule above;
+# a choice of this repository, not of the M2 template). Empty since repin v13: the four decks
+# that needed one (2024_death_toll, 2024_family_matters, 2024_miracle_worker,
+# 2026_multiverse_reforged) import with their real commanders. Changing an entry and rebuilding
+# changes only that deck.
+COMMANDER_PROXIES: dict[str, str] = {}
 
 
 def build_variant(
