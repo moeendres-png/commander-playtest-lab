@@ -89,6 +89,7 @@ def test_the_summary_counts_failures_by_family() -> None:
         "pods": 3,
         "pods_ok": 1,
         "pods_failed": 2,
+        "pods_with_synthetic_decks": 0,
         "families": {"COST_FAILED": 2},
     }
 

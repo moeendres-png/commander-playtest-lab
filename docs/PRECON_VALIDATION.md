@@ -67,6 +67,13 @@ Hauptdeckkarte durch eine echte, importierbare Karte ersetzt ist (`scripts/build
 - Nicht ersetzt werden vier Decks, deren **Commander** unbekannt ist (`2024_death_toll`,
   `2024_family_matters`, `2024_miracle_worker`, `2026_multiverse_reforged`): ein anderer Commander
   wäre ein anderes Deck.
+- Herkunft in den Berichten: `measure_precon_imports.py` schreibt je Deck `provenance` (`REAL` oder
+  `SYNTHETIC`, aus dem `deck_id`-Präfix, `scripts/precon_provenance.py`) und `decks_by_provenance`;
+  `precon_pod_sweep.py` schreibt `decks_by_provenance`, je Pod `synthetic_decks` und
+  `pods_with_synthetic_decks`. Zahlen über gedruckte Precons und über Varianten werden getrennt
+  genannt (Stand 2026-10-23: 182 echte Precons importierbar; neun Varianten zusätzlich, aber ohne
+  Aussage über die Originale). Vier Decks bleiben ohne Ersatz, bis ihre Commander-Karten im Fork
+  existieren (#979).
 - Eine Variante ist ein Testdeck, nicht das gedruckte Precon. Sie sagt nichts über dessen Stärke
   und gehört weder in Qualifikationsevidenz noch in Rankings oder Stärkevergleiche.
 - Einsatz: Kartenfunktions- und Bridge-Tests, Abdeckung zusätzlicher Karten im Sweep

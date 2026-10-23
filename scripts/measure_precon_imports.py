@@ -35,6 +35,7 @@ REPO = Path(__file__).parent.parent
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "scripts"))
 
+from precon_provenance import REAL, SYNTHETIC, deck_file_provenance  # noqa: E402
 from run_real_4p_full_game_smoke import _ensure_deck_hash  # noqa: E402
 
 from commander_lab.engine.rules.bridge import ExternalRulesAdapter  # noqa: E402
@@ -102,6 +103,15 @@ def enumerate_missing(
     return {"missing_cards": missing, "final_status": "STEP_LIMIT"}
 
 
+def by_provenance(results: list[dict[str, Any]]) -> dict[str, dict[str, int]]:
+    """Total and OK decks per provenance: REAL precons and SYNTHETIC variants never share a figure."""
+    out: dict[str, dict[str, int]] = {}
+    for label in (REAL, SYNTHETIC):
+        rows = [r for r in results if r.get("provenance") == label]
+        out[label] = {"total": len(rows), "ok": sum(1 for r in rows if r["status"] == "OK")}
+    return out
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--jar", required=True)
@@ -157,7 +167,7 @@ def main() -> int:
             return 2
         for path in deck_paths:
             t0 = time.monotonic()
-            row: dict[str, Any] = {"deck": path.stem}
+            row: dict[str, Any] = {"deck": path.stem, "provenance": deck_file_provenance(path)}
             try:
                 deck, _ = _ensure_deck_hash(load_rules_deck_snapshot(path))
                 row["handle"] = str(adapter.import_deck(deck))[:200]
@@ -188,6 +198,7 @@ def main() -> int:
         "decks_ok": count["OK"],
         "decks_failed": count["FAILED"],
         "decks_infrastructure_error": count["INFRASTRUCTURE_ERROR"],
+        "decks_by_provenance": by_provenance(results),
         "total_wall_s": round(time.monotonic() - started, 1),
         "results": results,
     }
