@@ -1,0 +1,20 @@
+contender custom/chulane: custom/chulane is READY
+contender custom/chulane#variant1: custom/chulane#variant1 is READY
+opponent precon/2026/doom_prevails: precon/2026/doom_prevails is READY
+opponent precon/2021/elven_empire: precon/2021/elven_empire is NOT READY
+  NO_CARD_FACTS (57): Lathril, Blade of the Elves, Abomination of Llanowar, Beast Whisperer, Canopy Tactician, Cultivator of Blades, Dwynen, Gilt-Leaf Daen, Elderfang Ritualist, Elvish Archdruid, Elvish Mystic, Elvish Rejuvenator, End-Raze Forerunners, Eyeblight Cullers, Farhaven Elf, Golgari Findbroker, Harald, King of Skemfar, Jagged-Scar Archers, Jaspera Sentinel, Llanowar Tribe, Lys Alana Huntmaster, Lys Alana Scarblade, Marwyn, the Nurturer, Masked Admirers, Miara, Thorn of the Glade, Nullmage Shepherd, Numa, Joraga Chieftain, Poison-Tip Archer, Rhys the Exiled, Ruthless Winnower, Shaman of the Pack, Skemfar Shadowsage, Sylvan Messenger, Timberwatch Elf, Twinblade Assassins, Voice of Many, Voice of the Woods, Wirewood Channeler, Wolverine Riders, Elven Ambush, Poison the Cup, Tergrid's Shadow, Ambition's Cost, Bounty of Skemfar, Casualties of War, Eyeblight Massacre, Elvish Promenade, Harvest Season, Pact of the Serpent, Return Upon the Tide, Roots of Wisdom, Serpent's Soul-Jar, Crown of Skemfar, Elderfang Venom, Pride of the Perfect, Prowess of the Fair, Moldervine Reclamation, Foul Orchard, Skemfar Elderhall
+    fix: re-export the XMage card facts: python scripts/export_xmage_card_facts.py
+  NO_PILOT_KNOWLEDGE (1): Golgari Rot Farm
+    fix: teach the pilots this card: python scripts/build_pilot_card_knowledge.py
+opponent precon/2022/painbow: precon/2022/painbow is NOT READY
+  NO_CARD_FACTS (51): Jared Carthalion, Archelos, Lagoon Mystic, Atla Palani, Nest Tender, Chromanticore, Coiling Oracle, O-Kagachi, Vengeful Kami, Fusion Elemental, Zaxara, the Exemplary, Hero of Precinct One, Illuna, Apex of Wishes, Knight of New Alara, Maelstrom Archangel, Nethroi, Apex of Death, Rienne, Angel of Rebirth, Surrak Dragonclaw, Transguild Courier, Glint-Eye Nephilim, Xyris, the Writhing Storm, Duneblast, Explosive Vegetation, Lavalanche, Merciless Eviction, Migration Path, Radiant Flames, Search for Tomorrow, Time Wipe, Abzan Charm, Echoing Truth, Growth Spiral, Sultai Charm, Sylvan Reclamation, Coalition Relic, Prophetic Prism, Maelstrom Nexus, Path to the World Tree, Bad River, Cascading Cataracts, Crystal Quarry, Flood Plain, Grasslands, Murmuring Bosk, Nomad Outpost, Jenson Carthalion, Druid Exile, Two-Headed Hellkite, Tiller Engine, Unite the Coalition, Fallaji Wayfarer, Iridian Maelstrom, Mana Cannons, Primeval Spawn, Obsidian Obelisk
+    fix: re-export the XMage card facts: python scripts/export_xmage_card_facts.py
+  NO_PILOT_KNOWLEDGE (9): Faeburrow Elder, Kodama's Reach, Painful Truths, Abundant Growth, Frontier Bivouac, Jungle Shrine, Opulent Palace, Sandsteppe Citadel, Savage Lands
+    fix: teach the pilots this card: python scripts/build_pilot_card_knowledge.py
+40 games: 2 contenders x 5 seeds x 4 seats, 4 players, 2 workers
+Time estimate at 40 games/hour: 1.0 h
+Detectable win-share difference per variant (80% power, 20 pairs): ± 0.39. This figure assumes independent games (per-pair sd 0.63); pairs that end identically make the real figure smaller, and the run prints its own figure at the end.
+games per JVM: 6. State isolation between the games of a batch is by shutdown_game, not by a process boundary.
+custom/chulane: 3.0/19 wins (15.8%, 95% 5.5%-37.6%), failed 1
+custom/chulane#variant1: 3.0/20 wins (15.0%, 95% 5.2%-36.0%), failed 0
+custom/chulane#variant1 vs custom/chulane: NO_CLEAR_DIFFERENCE (pairs 19, variant-only 0, baseline-only 0, identical pairs 19, p=1)

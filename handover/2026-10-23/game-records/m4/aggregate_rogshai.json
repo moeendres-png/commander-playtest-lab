@@ -1,0 +1,95 @@
+{
+ "deck": "rogshai",
+ "base_arm": "custom/rogshai",
+ "arms": {
+  "custom/rogshai": {
+   "games": 200,
+   "wins": 35,
+   "turns_mean": 47.48,
+   "mulligan_games": 73,
+   "commander_cast_games": {
+    "Ishai, Ojutai Dragonspeaker": 189,
+    "Rograkh, Son of Rohgahh": 200
+   }
+  },
+  "custom/rogshai#variant1": {
+   "games": 200,
+   "wins": 35,
+   "turns_mean": 46.68,
+   "mulligan_games": 73,
+   "commander_cast_games": {
+    "Ishai, Ojutai Dragonspeaker": 175,
+    "Rograkh, Son of Rohgahh": 200
+   }
+  },
+  "custom/rogshai#variant2": {
+   "games": 200,
+   "wins": 35,
+   "turns_mean": 47.88,
+   "mulligan_games": 72,
+   "commander_cast_games": {
+    "Ishai, Ojutai Dragonspeaker": 188,
+    "Rograkh, Son of Rohgahh": 200
+   }
+  },
+  "custom/rogshai#variant3": {
+   "games": 200,
+   "wins": 25,
+   "turns_mean": 48.38,
+   "mulligan_games": 71,
+   "commander_cast_games": {
+    "Ishai, Ojutai Dragonspeaker": 191,
+    "Rograkh, Son of Rohgahh": 200
+   }
+  }
+ },
+ "bundles": {
+  "custom/rogshai#variant1": {
+   "pairs_planned": 200,
+   "pairs_analysed": 200,
+   "baseline_wins": 35,
+   "variant_wins": 35,
+   "discordant_pairs": 22,
+   "baseline_only_wins": 11,
+   "variant_only_wins": 11,
+   "effect": 0.0,
+   "ci95": [
+    -0.046,
+    0.046
+   ],
+   "sign_test_p": 1.0
+  },
+  "custom/rogshai#variant2": {
+   "pairs_planned": 200,
+   "pairs_analysed": 200,
+   "baseline_wins": 35,
+   "variant_wins": 35,
+   "discordant_pairs": 12,
+   "baseline_only_wins": 6,
+   "variant_only_wins": 6,
+   "effect": 0.0,
+   "ci95": [
+    -0.0339,
+    0.0339
+   ],
+   "sign_test_p": 1.0
+  },
+  "custom/rogshai#variant3": {
+   "pairs_planned": 200,
+   "pairs_analysed": 200,
+   "baseline_wins": 35,
+   "variant_wins": 25,
+   "discordant_pairs": 24,
+   "baseline_only_wins": 17,
+   "variant_only_wins": 7,
+   "effect": -0.05,
+   "ci95": [
+    -0.098,
+    -0.002
+   ],
+   "sign_test_p": 0.0639
+  }
+ },
+ "duplicates_checked": 15,
+ "duplicates_agree": 15
+}
