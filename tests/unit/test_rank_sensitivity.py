@@ -218,7 +218,7 @@ def test_play_rotates_every_pod_over_all_seats_and_labels_the_rows(
         @staticmethod
         def _play(command: Any, pod: str, setup: Any, seed: int) -> dict[str, Any]:
             played.append((pod, seed))
-            return {"pod": pod, "seed": seed, "status": "ok", "winners": [0], "semantic": "h"}
+            return {"pod": pod, "seed": seed, "status": "ok", "winners": [1], "semantic": "h"}
 
     monkeypatch.setitem(sys.modules, "benchmark_xmage_full_games", Bench)
     monkeypatch.setitem(sys.modules, "pilot_decision_report", Report)
@@ -245,6 +245,13 @@ def test_play_rotates_every_pod_over_all_seats_and_labels_the_rows(
     assert rotation_two["pod"] == "pod0"
     assert rotation_two["decks"] == ["y", "z", "w", "x"]
     assert {seed for _pod, seed in played} == {1, 2}
+    # The engine reports seat 1 as the winner; the table holds the index 0 into the seat order.
+    assert all(g["winners"] == [0] for g in table["games"])
+
+
+def test_a_winner_index_outside_the_seats_is_refused() -> None:
+    with pytest.raises(ValueError, match="outside"):
+        rank.credit({"decks": DECKS, "winners": [4]})
 
 
 def test_two_neighbours_that_swap_places_are_found_as_that_pair() -> None:
@@ -266,3 +273,22 @@ def test_a_shift_in_strength_that_keeps_the_order_is_not_a_reversal() -> None:
     assert pair["reversed_pairs"] == []
     assert pair["verdict"] != rank.RANK_SENSITIVE
     assert pair["tau_observed"] == 1.0
+
+
+def test_a_block_with_a_failed_rotation_is_dropped_from_every_variant() -> None:
+    games_a = _games([0.4, 0.3, 0.2, 0.1], 10, 31)
+    games_b = _games([0.4, 0.3, 0.2, 0.1], 10, 32)
+    games_b[5]["status"] = "failed"  # seed 2, rotation 1
+    tables = {"a": games_a, "b": games_b}
+    kept, counts = rank.complete_blocks(tables)
+    assert counts == {"blocks_played": 10, "blocks_kept": 9, "blocks_dropped": 1}
+    for rows in kept.values():
+        assert len(rows) == 36  # nine blocks of four rotations, seed 2 gone from both
+        assert all(row["seed"] != 2 for row in rows)
+
+
+def test_complete_blocks_keeps_everything_when_nothing_failed() -> None:
+    games = _games([0.4, 0.3, 0.2, 0.1], 5, 33)
+    kept, counts = rank.complete_blocks({"a": games, "b": [dict(g) for g in games]})
+    assert counts["blocks_dropped"] == 0
+    assert len(kept["a"]) == 20

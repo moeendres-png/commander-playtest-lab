@@ -1,0 +1,104 @@
+{
+ "variants": {
+  "a": {
+   "games": 292,
+   "blocks": 73,
+   "split_half_tau": 0.8973
+  },
+  "d": {
+   "games": 292,
+   "blocks": 73,
+   "split_half_tau": 0.911
+  }
+ },
+ "pods": {
+  "pod0": [
+   "2016_breed_lethality",
+   "2019_primal_genesis",
+   "2022_buckle_up",
+   "2022_necron_dynasties"
+  ],
+  "pod1": [
+   "2022_draconic_destruction",
+   "2022_grave_danger",
+   "2022_tkn_triumph",
+   "2022_urza_s_iron_alliance"
+  ]
+ },
+ "pairs": {
+  "a vs d": {
+   "blocks_per_pod": {
+    "pod0": 33,
+    "pod1": 40
+   },
+   "tau_by_pod": {
+    "pod0": 1.0,
+    "pod1": 1.0
+   },
+   "tau_observed": 1.0,
+   "reversed_pairs": [],
+   "deck_changes": {
+    "pod0/2016_breed_lethality": {
+     "share_a": 0.4621,
+     "share_b": 0.4848,
+     "mean_delta": 0.0227,
+     "p_holm": 1.0
+    },
+    "pod0/2019_primal_genesis": {
+     "share_a": 0.3485,
+     "share_b": 0.3409,
+     "mean_delta": -0.0076,
+     "p_holm": 1.0
+    },
+    "pod0/2022_buckle_up": {
+     "share_a": 0.0303,
+     "share_b": 0.0227,
+     "mean_delta": -0.0076,
+     "p_holm": 1.0
+    },
+    "pod0/2022_necron_dynasties": {
+     "share_a": 0.1515,
+     "share_b": 0.1515,
+     "mean_delta": 0.0,
+     "p_holm": 1.0
+    },
+    "pod1/2022_draconic_destruction": {
+     "share_a": 0.2375,
+     "share_b": 0.2375,
+     "mean_delta": 0.0,
+     "p_holm": 1.0
+    },
+    "pod1/2022_grave_danger": {
+     "share_a": 0.175,
+     "share_b": 0.175,
+     "mean_delta": 0.0,
+     "p_holm": 1.0
+    },
+    "pod1/2022_tkn_triumph": {
+     "share_a": 0.1313,
+     "share_b": 0.1313,
+     "mean_delta": 0.0,
+     "p_holm": 1.0
+    },
+    "pod1/2022_urza_s_iron_alliance": {
+     "share_a": 0.4562,
+     "share_b": 0.4562,
+     "mean_delta": 0.0,
+     "p_holm": 1.0
+    }
+   },
+   "verdict": "NOT_DETECTED"
+  }
+ },
+ "thresholds": {
+  "resolved_tau": 0.5,
+  "alpha": 0.05,
+  "min_blocks_per_pod": 20,
+  "flips": 2000
+ },
+ "incomplete_blocks": {
+  "blocks_played": 80,
+  "blocks_kept": 73,
+  "blocks_dropped": 7
+ }
+}
