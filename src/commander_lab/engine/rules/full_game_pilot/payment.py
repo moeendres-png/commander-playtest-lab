@@ -12,6 +12,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_payment_plan import completing_options
 from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
@@ -496,7 +497,62 @@ class _PaymentDecisions(_PolicyState):
             raise FullGameProtocolError(
                 "mana-payment no-progress guard tripped with no cancel offered"
             )
+        return self._complete_payment(runtime, state, options, context, rng)
 
+    def _complete_payment(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, object],
+        options: list[dict[str, object]],
+        context: dict[str, object],
+        rng: random.Random,
+    ) -> str:
+        """The usual choice, unless it strands a payment that another option would finish.
+
+        #989 phase 5: the choice below knows colours when it orders sources, but the check that
+        feeds the pool into a filter land only counts mana. A Mountain's {R} spent on the {1} of a
+        {1}{W} left the Rugged Prairie unable to pay its own {R/W}, and Hall of Oracles was tapped
+        for {C} while the Swamp that pays its {1} stayed untapped: 56 of the 136 cancelled
+        payments in 24 real games could still be paid at their first prompt. The model of
+        ``full_game_pilot_payment_plan`` only reads the engine's own text; where it cannot read an
+        offer, or the usual choice keeps the payment completable, nothing changes here.
+        """
+        choice = self._choose_mana_option(runtime, state, options, context, rng)
+        completing = completing_options(options, str(context.get("unpaid_mana", "")))
+        if not completing or choice in completing:
+            return choice
+        chosen = next((o for o in options if o.get("option_id") == choice), None)
+        if chosen is None or chosen.get("option_type") == "cancel_mana_payment":
+            return choice
+        cancels = {
+            option.get("option_id")
+            for option in options
+            if option.get("option_type") == "cancel_mana_payment"
+        }
+        narrowed = [
+            option
+            for option in options
+            if option.get("option_id") in completing or option.get("option_id") in cancels
+        ]
+        _LOG.info(
+            "mana payment: %r would strand the cost, paying with %d completing option(s)",
+            chosen.get("label"),
+            len(narrowed) - len(cancels),
+        )
+        alternative = self._choose_mana_option(runtime, state, narrowed, context, rng)
+        # cancelling is the dead end this steers away from, never what it steers towards: the
+        # pilot's own rules may withhold every option the model found
+        return choice if alternative in cancels else alternative
+
+    def _choose_mana_option(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, object],
+        options: list[dict[str, object]],
+        context: dict[str, object],
+        rng: random.Random,
+    ) -> str:
+        seat = runtime.binding.seat
         pool_options = [
             option
             for option in options
