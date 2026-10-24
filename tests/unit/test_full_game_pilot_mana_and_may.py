@@ -1074,11 +1074,17 @@ def _ward_cast(name: str = "Timely Ward") -> dict[str, Any]:
     )
 
 
-def _ward_target(name: str, stack: tuple[str, ...], *, lookalike: bool = False) -> dict[str, Any]:
+def _ward_target(
+    name: str, stack: tuple[str, ...], *, lookalike: bool = False, big: bool = False
+) -> dict[str, Any]:
     options = [
         _option("token", "target", "Saproling Token", object_id="token", zone="battlefield"),
         _option("commander", "target", _COMMANDER, object_id="commander", zone="battlefield"),
     ]
+    if big:
+        options.append(
+            _option("big", "target", "Bronze Guardian", object_id="big", zone="battlefield")
+        )
     if lookalike:
         options.insert(
             0, _option("lookalike", "target", _COMMANDER, object_id="lookalike", zone="battlefield")
@@ -1090,6 +1096,16 @@ def _ward_target(name: str, stack: tuple[str, ...], *, lookalike: bool = False) 
         prompt="Select a creature",
         state=_ward_state(stack=stack, lookalike=lookalike),
     )
+    if big:
+        request["pilot_state"]["players"][0]["battlefield"].append(
+            {
+                "object_id": "big",
+                "name": "Bronze Guardian",
+                "power": 11,
+                "toughness": 5,
+                "tapped": False,
+            }
+        )
     request["source_object"] = {
         "source_object_id": "spell",
         "ability_original_id": "ward",
@@ -1144,12 +1160,16 @@ def test_commander_only_cast_is_not_offered_when_only_a_lookalike_stands_on_the_
 
 def test_commander_only_target_rule_is_limited_to_that_card_and_timing() -> None:
     # Controls: the identical frame from another spell, or from Timely Ward in a sorcery
-    # window (the spell alone on the stack), keeps the pilot's own ranking.
+    # window (the spell alone on the stack), keeps the pilot's own ranking: a boost goes to the
+    # creature of most value, here a creature that is no commander.
     stack = ("Timely Ward", "Unfinished Business")
-    other = _policy().decide(_ward_target("Savannah Lions", stack))
-    assert other["selected_option_ids"] == ["token"]
-    sorcery = _policy().decide(_ward_target("Timely Ward", ("Timely Ward",)))
-    assert sorcery["selected_option_ids"] == ["token"]
+    other = _policy().decide(_ward_target("Savannah Lions", stack, big=True))
+    assert other["selected_option_ids"] == ["big"]
+    sorcery = _policy().decide(_ward_target("Timely Ward", ("Timely Ward",), big=True))
+    assert sorcery["selected_option_ids"] == ["big"]
+    # Cast at instant speed, the same card is held to its commander.
+    held = _policy().decide(_ward_target("Timely Ward", stack, big=True))
+    assert held["selected_option_ids"] == ["commander"]
 
 
 def _concierge_target(source_name: str, *names: str) -> dict[str, Any]:

@@ -31,6 +31,8 @@ from commander_lab.agents.card_knowledge import (
 )
 from commander_lab.models import CardRole
 
+from .full_game_pilot_targets import target_side
+
 _COLOR_SYMBOL = {word.casefold(): symbol for symbol, word in COLOR_WORDS.items()}
 _PIP = re.compile(r"\{([WUBRG])(?:/[WUBRGP])?\}")
 
@@ -1011,6 +1013,8 @@ def priority_view_fields(
             )
             extra["instant_timing"] = timing
         withhold = _spell_withhold_reason(facts, roles, state, actor_id, own_stack_names)
+        if withhold is None:
+            withhold = _life_cost_withhold_reason(facts, label, state, actor_id)
         if CardRole.WIPE in roles and withhold is None:
             withhold = _wipe_withhold_reason(facts, state, actor_id)
         if CardRole.COUNTER in roles and withhold is None:
@@ -1104,6 +1108,31 @@ def priority_view_fields(
         return {**fields, "metadata": extra}, None
 
     return {**fields, "metadata": extra}, None
+
+
+# "Flashback—{1}{U}, Pay 3 life." (Deep Analysis) and "As an additional cost to cast this spell, pay
+# 3 life." A cast whose life cost takes the actor to zero ends the game for the actor, and the
+# engine fails the action instead of offering it as lost (real pod, game seed 9: Deep Analysis
+# flashed back at 3 life).
+_FLASHBACK_LIFE_COST = re.compile(r"flashback[^.\n]*?pay (\d+) life", re.IGNORECASE)
+_ADDITIONAL_LIFE_COST = re.compile(
+    r"as an additional cost to cast this spell,[^.\n]*?pay (\d+) life", re.IGNORECASE
+)
+
+
+def _life_cost_withhold_reason(
+    facts: CardFacts, label: str, state: Mapping[str, object], actor_id: str
+) -> str | None:
+    """A cast that costs as much life as the actor has left is not made."""
+    text = facts.oracle_text
+    costs = [int(match.group(1)) for match in _ADDITIONAL_LIFE_COST.finditer(text)]
+    if "flashback" in label:
+        costs += [int(match.group(1)) for match in _FLASHBACK_LIFE_COST.finditer(text)]
+    actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), {})
+    life = actor.get("life")
+    if not costs or not isinstance(life, int | float) or isinstance(life, bool):
+        return None
+    return "life_cost_would_kill_the_actor" if life <= max(costs) else None
 
 
 def _spell_withhold_reason(
@@ -1364,6 +1393,7 @@ def target_object_bonus(
     outcome: str,
     *,
     own_stack_names: frozenset[str] = frozenset(),
+    source_name: str = "",
 ) -> float:
     """How good a specific object is as this target, beyond whose it is.
 
@@ -1377,7 +1407,7 @@ def target_object_bonus(
     object_id = str(meta.get("object_id") or option.get("option_id") or "")
     found = permanent_owner(object_id, state)
     actor_id = str(state.get("actor_id", ""))
-    beneficial = outcome in {"benefit", "benefit_to_controller"}
+    beneficial = target_side(outcome, source_name) == "own"
     if found is None:
         name = str(meta.get("name") or option.get("label") or "").casefold()
         stack_item = next(
