@@ -77,6 +77,16 @@ class CardFacts:
         wanted = keyword.casefold()
         return any(word.casefold() == wanted for word in self.keywords)
 
+    @cached_property
+    def colours_made(self) -> frozenset[str]:
+        """The colours of mana this card makes; a land that fetches a basic fixes any colour."""
+        if self.produced_mana:
+            return self.produced_mana
+        text = self.oracle_text.casefold()
+        if self.is_land and "search your library for a basic land" in text:
+            return frozenset("WUBRG")
+        return frozenset()
+
     def pips(self) -> dict[str, int]:
         counts: dict[str, int] = {}
         for symbol in _PIP.findall(self.mana_cost):

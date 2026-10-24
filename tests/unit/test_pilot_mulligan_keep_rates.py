@@ -82,21 +82,23 @@ def _keep_rates(deck_path: Path, *, seed: int = SEED, hands: int = HANDS):
 
 
 def test_average_keep_rate_ranges_on_seeded_deck_samples() -> None:
-    """(a) Per-land keep-rate bands from #850 hold on every repo deck."""
+    """(a) Per-land keep-rate bands hold on every repo deck.
+
+    The hand is judged by what its lands can cast, not by the land count alone (#989 phase 2):
+    ordinary three- and four-land hands are kept, dead hands are not, and a 2-land hand is kept
+    when it can use its lands.
+    """
     for deck_path in DECKS:
         rates, overall = _keep_rates(deck_path)
-        assert rates[3] >= 0.90, f"{deck_path.name}: 3-land kept {rates[3]:.1%}"
+        assert rates[3] >= 0.70, f"{deck_path.name}: 3-land kept {rates[3]:.1%}"
         assert rates[4] >= 0.85, f"{deck_path.name}: 4-land kept {rates[4]:.1%}"
-        assert 0.40 <= rates[2] <= 0.80, f"{deck_path.name}: 2-land kept {rates[2]:.1%}"
-        assert 0.40 <= rates[5] <= 0.80, f"{deck_path.name}: 5-land kept {rates[5]:.1%}"
-        dead = max(rates[0], rates[1], rates[6], rates[7])
+        assert 0.25 <= rates[2] <= 0.90, f"{deck_path.name}: 2-land kept {rates[2]:.1%}"
+        assert rates[5] >= 0.60, f"{deck_path.name}: 5-land kept {rates[5]:.1%}"
+        dead = max(rates[0], rates[1], rates[7])
         assert dead <= 0.05, f"{deck_path.name}: dead-hand kept {dead:.1%}"
-        # Note: #850 asks for 70-90% overall, but that band is mathematically
-        # out of reach together with the per-land bands above: ~21% of hands
-        # have 0/1/6/7 lands (kept ~0%) and 2-/5-land hands are capped at 80%,
-        # so the theoretical maximum overall is ~72%. The achieved 60%+ is a
-        # large step up from the pre-fix 22-49% with correct per-land behavior.
-        assert 0.60 <= overall <= 0.90, f"{deck_path.name}: overall {overall:.1%}"
+        assert rates[6] <= 0.35, f"{deck_path.name}: 6-land kept {rates[6]:.1%}"
+        # Of every 100 hands about 20 hold 0, 1, 6 or 7 lands and are sent back.
+        assert 0.55 <= overall <= 0.85, f"{deck_path.name}: overall {overall:.1%}"
 
 
 def test_strength_selectivity_order() -> None:
@@ -250,18 +252,21 @@ def test_old_formula_fails_the_keep_rate_ranges() -> None:
 
 
 def test_extra_mulligans_lower_the_threshold() -> None:
-    """(d) The -0.55 per mulligan behavior is unchanged by #850."""
+    """(d) After the free first mulligan a fresh seven is worth less, so the bar falls."""
     pilot = _pilot(PilotStrength.AVERAGE)
-    # 2 lands + vanilla spells: score 2.225, between the mulligan-2 threshold
-    # (2.55 - 0.55 = 2.00) and the fresh-hand threshold (2.55).
+    # 2 lands, one cheap spell and four expensive ones: worth about 1.9 mana less than a fresh
+    # seven. The fresh-hand bar allows a margin of 1.0; once a mulligan has cost a card the bar
+    # falls by 1.2 more.
     hand = [
         _land("Plains", 0),
         _land("Island", 1),
-        *(_spell(f"spell-{i}", i + 2, cost=3.0) for i in range(5)),
+        _spell("cheap", 2, cost=3.0),
+        *(_spell(f"big-{i}", i + 3, cost=6.0) for i in range(4)),
     ]
     decisions = []
+    scores = []
     for mulligans in (0, 1, 2, 3):
-        keep, _score = pilot.should_keep_opening_hand(
+        keep, score = pilot.should_keep_opening_hand(
             hand,
             mulligans=mulligans,
             free_first=True,
@@ -269,6 +274,28 @@ def test_extra_mulligans_lower_the_threshold() -> None:
             rng=random.Random(0),
         )
         decisions.append(keep)
-    # mulligans=0 (thr 2.55) and mulligans=1 (free first, thr 2.55): mulligan;
-    # mulligans=2 (thr 2.00) and mulligans=3 (thr 1.45): keep.
-    assert decisions == [False, False, True, True]
+        scores.append(score)
+    assert len(set(scores)) == 1
+    assert -2.2 < scores[0] < -1.0
+    # mulligans=0: a fresh seven is worth more; from the first mulligan on, keep.
+    assert decisions == [False, True, True, True]
+
+
+def test_colourless_lands_for_coloured_spells_are_sent_back() -> None:
+    """A hand whose lands cannot make the colours of its spells is worse than a fresh seven.
+
+    Three lands and cheap spells look like a keep to a land counter; the colours say the
+    spells cannot be cast.
+    """
+    pilot = _pilot(PilotStrength.AVERAGE)
+    forests = [_land("Forest", i) for i in range(3)]
+    blue = [
+        _view(f"spell-{i}", name, **card_view_fields(name))
+        for i, name in enumerate(("Counterspell", "Mana Leak", "Brainstorm", "Opt"))
+    ]
+    green = [
+        _view(f"spell-{i}", name, **card_view_fields(name))
+        for i, name in enumerate(("Rampant Growth", "Cultivate", "Llanowar Elves", "Farseek"))
+    ]
+    assert not _decide(pilot, forests + blue)
+    assert _decide(pilot, forests + green)
