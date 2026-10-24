@@ -1121,7 +1121,7 @@ _ADDITIONAL_LIFE_COST = re.compile(
 
 
 def _life_cost_withhold_reason(
-    facts: CardFacts, label: str, state: Mapping[str, Any], actor_id: str
+    facts: CardFacts, label: str, state: Mapping[str, object], actor_id: str
 ) -> str | None:
     """A cast that costs as much life as the actor has left is not made."""
     text = facts.oracle_text

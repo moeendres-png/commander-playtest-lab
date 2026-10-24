@@ -215,7 +215,7 @@ class _ChoiceDecisions(_PaymentDecisions):
         occurrences: dict[str, int] = {}
         source_name = str(source.get("source_name") or "") if isinstance(source, dict) else ""
         actor_id = self._required_text(state, "actor_id")
-        built: list[tuple[dict[str, Any], PilotActionView]] = []
+        built: list[tuple[dict[str, object], PilotActionView]] = []
         for option in options:
             metadata = option.get("metadata")
             meta = metadata if isinstance(metadata, dict) else {}

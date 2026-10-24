@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import re
 from collections.abc import Mapping
-from typing import Any, Literal
+from typing import Literal
 
 from commander_lab.agents.card_knowledge import card_facts
 
@@ -127,11 +127,11 @@ def has_life_clock(outcome: str) -> bool:
     return outcome in _LIFE_OUTCOMES
 
 
-def _items(value: object) -> list[dict[str, Any]]:
+def _items(value: object) -> list[dict[str, object]]:
     return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
 
 
-def commander_damage_taken(state: Mapping[str, Any], actor_id: str, owner_id: str) -> float:
+def commander_damage_taken(state: Mapping[str, object], actor_id: str, owner_id: str) -> float:
     """The most commander damage one commander of ``owner_id`` has dealt to the actor."""
     taken = 0.0
     for entry in _items(state.get("commander_status")):
@@ -149,7 +149,7 @@ def commander_damage_taken(state: Mapping[str, Any], actor_id: str, owner_id: st
 
 
 def commander_damage_dealt(
-    state: Mapping[str, Any], actor_id: str, player_id: str
+    state: Mapping[str, object], actor_id: str, player_id: str
 ) -> dict[str, float]:
     """Commander damage the actor's commanders have dealt to one player, by commander name."""
     dealt: dict[str, float] = {}
@@ -169,9 +169,9 @@ def commander_damage_dealt(
 
 
 def commander_clock_bonus(
-    item: Mapping[str, Any],
+    item: Mapping[str, object],
     controller_id: str,
-    state: Mapping[str, Any],
+    state: Mapping[str, object],
     actor_id: str,
     outcome: str,
 ) -> float:
