@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import itertools
+import math
 import random
 import re
 from collections.abc import Mapping
@@ -12,7 +14,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
-from ..full_game_pilot_payment_plan import completing_options
+from ..full_game_pilot_payment_plan import colour_letter, completing_options, completing_outcomes
 from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
@@ -505,6 +507,73 @@ class _PaymentDecisions(_PolicyState):
                 "mana-payment no-progress guard tripped with no cancel offered"
             )
         return self._complete_payment(runtime, state, options, context, rng)
+
+    def _colours_that_complete(
+        self, seat: int, options: list[dict[str, object]]
+    ) -> list[dict[str, object]]:
+        """The colour options of a mana pick after which the payment can still be finished.
+
+        An any-colour ability asks for its colour in a prompt of its own; the cost ranking of
+        that prompt does not know what the other sources can make (Spire of Industry for a
+        {B}{R} cost, with only black sources left, was set to black). Anything the model cannot
+        read, and a pick every colour of which completes or none, leaves the options as offered.
+        """
+        offer = self._last_payment_offer.get(seat)
+        letters = {
+            str(option.get("option_id")): colour_letter(str(option.get("label", "")))
+            for option in options
+        }
+        if offer is None or not letters or None in letters.values():
+            return options
+        outcomes = [(letter,) for letter in letters.values() if letter is not None]
+        good = completing_outcomes(offer[0], offer[1], offer[2], outcomes)
+        if not good:
+            return options
+        kept = [o for o in options if (letters[str(o.get("option_id"))] or "",) in good]
+        return kept if 0 < len(kept) < len(options) else options
+
+    def _vector_that_completes(
+        self, seat: int, legs: list[tuple[int, int, str]], total: tuple[int, int], values: list[int]
+    ) -> list[int]:
+        """The pilot's mana split, or the nearest one that keeps the payment completable.
+
+        The legs of a "any combination of" ability are its colours; the split decides which of
+        the colours the rest of the payment gets.
+        """
+        offer = self._last_payment_offer.get(seat)
+        letters = [colour_letter(prompt) for _low, _high, prompt in legs]
+        if (
+            offer is None
+            or None in letters
+            or math.prod(high - low + 1 for low, high, _ in legs) > 4096
+        ):
+            return values
+        vectors = [
+            vector
+            for vector in itertools.product(*(range(low, high + 1) for low, high, _ in legs))
+            if total[0] <= sum(vector) <= total[1]
+        ]
+
+        def outcome(vector: tuple[int, ...]) -> tuple[str, ...]:
+            return tuple(
+                sorted(
+                    letter
+                    for letter, count in zip(letters, vector, strict=True)
+                    if letter
+                    for _ in range(count)
+                )
+            )
+
+        good = completing_outcomes(
+            offer[0], offer[1], offer[2], sorted({outcome(v) for v in vectors})
+        )
+        if not good or outcome(tuple(values)) in good:
+            return values
+        near = min(
+            (v for v in vectors if outcome(v) in good),
+            key=lambda v: (sum(abs(a - b) for a, b in zip(v, values, strict=True)), v),
+        )
+        return list(near)
 
     def _complete_payment(
         self,
@@ -1384,5 +1453,12 @@ class _PaymentDecisions(_PolicyState):
             raise FullGameProtocolError(
                 f"pilot joint numeric total {sum(values)} outside authoritative band "
                 f"{total_min}..{total_max}"
+            )
+        if outcome == "putmanainpool":
+            values = self._vector_that_completes(
+                runtime.binding.seat,
+                [(leg["min"], leg["max"], leg["prompt"]) for leg in legs],
+                (total_min, total_max),
+                values,
             )
         return values

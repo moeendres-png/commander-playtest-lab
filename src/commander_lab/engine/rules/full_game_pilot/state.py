@@ -212,6 +212,10 @@ class _PolicyState:
         # mana this seat's current payment still needs (for colour picks).
         self._own_cast_names: dict[int, list[str]] = {}
         self._last_unpaid_mana: dict[int, str] = {}
+        # The mana-payment offer a seat last answered (options, unpaid cost, chosen option id),
+        # kept while only its own follow-up prompts come back, so that a colour pick for the
+        # mana ability it just chose can see what the rest of the payment still needs.
+        self._last_payment_offer: dict[int, tuple[list[dict[str, object]], str, str]] = {}
         self._turn_actions: dict[int, tuple[object, Counter[str]]] = {}
         # A cast whose payment this seat cancelled is not retried in the same
         # turn until more mana is visible: label -> mana visible at the cancel.

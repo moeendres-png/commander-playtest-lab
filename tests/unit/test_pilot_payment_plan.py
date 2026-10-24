@@ -20,6 +20,7 @@ import pytest
 from commander_lab.engine.rules import full_game_pilot_payment_plan as plan
 from commander_lab.engine.rules.full_game_pilot_payment_plan import (
     completing_options,
+    completing_outcomes,
     parse_ability,
     parse_unpaid,
 )
@@ -277,3 +278,133 @@ def test_an_unreadable_offer_keeps_the_usual_choice() -> None:
     options = [_CANCEL, _pool("red"), drum]
     response = _policy().decide(_request("mana_payment", options, context={"unpaid_mana": "{1}"}))
     assert response["selected_option_ids"] == ["pool-red"]
+
+
+# --- colour picks inside a payment -------------------------------------------------------------
+
+
+def _spire() -> Any:
+    return _option(
+        "spire-any",
+        "mana_ability",
+        "Spire of Industry — {T}, Pay 1 life: Add one mana of any color.",
+        source_name="Spire of Industry",
+        source_object_id="spire",
+        requires_tap_source=True,
+        source_tapped=False,
+        pool_covers_mana_cost=True,
+    )
+
+
+def _terminate_offer() -> list[Any]:
+    """Terminate ({B}{R}) with the Spire, two black sources and two colourless ones (seed 8)."""
+    return [
+        _CANCEL,
+        _spire(),
+        _tap("swamp-b", "Swamp", "{B}"),
+        _tap("myr-b", "Leaden Myr", "{B}"),
+        _tap("hedron-cc", "Hedron Archive", "{C}{C}"),
+        _tap("ring-cc", "Sol Ring", "{C}{C}"),
+    ]
+
+
+def _colour_pick(*, offset: int = 2) -> dict[str, Any]:
+    names = ["Black", "Blue", "Green", "Red", "White"]
+    return _request(
+        "choice",
+        [_option(f"c-{name.lower()}", "choice", name) for name in names],
+        context={"outcome": "putmanainpool"},
+        prompt="Select a color of mana to add 1 of it Spire of Industry [#]",
+        offset=offset,
+    )
+
+
+def test_outcomes_name_the_colour_the_rest_of_the_payment_needs() -> None:
+    options = _terminate_offer()
+    black, red = ("b",), ("r",)
+    assert completing_outcomes(options, "{B}{R}", "spire-any", [black, red]) == frozenset({red})
+
+
+def test_outcomes_are_not_judged_for_a_pool_spend() -> None:
+    options = [_CANCEL, _pool("red")]
+    assert completing_outcomes(options, "{R}", "pool-red", [("r",)]) is None
+
+
+def test_the_pilot_picks_the_colour_the_payment_still_needs() -> None:
+    # Negative control (fails without the change): the cost ranking scores {B} and {R} alike and
+    # the label order took Black, leaving a {R} no source could make; the payment was cancelled.
+    policy = _policy()
+    first = policy.decide(
+        _request("mana_payment", _terminate_offer(), context={"unpaid_mana": "{B}{R}"})
+    )
+    assert first["selected_option_ids"] == ["spire-any"]
+    pick = policy.decide(_colour_pick())
+    assert pick["selected_option_ids"] == ["c-red"]
+
+
+def test_a_colour_pick_outside_a_payment_is_unchanged() -> None:
+    # Control: nothing is being paid, so the cost ranking and the label order decide as before.
+    pick = _policy().decide(_colour_pick(offset=1))
+    assert pick["selected_option_ids"] == ["c-white"]
+
+
+def test_a_pick_every_colour_of_which_completes_is_unchanged() -> None:
+    # Control: {1} is paid by whatever colour the Spire makes; the usual ranking decides.
+    policy = _policy()
+    policy.decide(_request("mana_payment", [_CANCEL, _spire()], context={"unpaid_mana": "{1}"}))
+    pick = policy.decide(_colour_pick())
+    assert pick["selected_option_ids"] == ["c-white"]
+
+
+def test_a_later_priority_window_forgets_the_offer() -> None:
+    policy = _policy()
+    policy.decide(_request("mana_payment", _terminate_offer(), context={"unpaid_mana": "{B}{R}"}))
+    policy.decide(
+        _request("priority", [_option("pass", "pass_priority", "Pass priority")], offset=2)
+    )
+    pick = policy.decide(_colour_pick(offset=3))
+    # the stale cost still ranks {B} and {R} alike, as before; the offer's colours are not used
+    assert pick["selected_option_ids"] == ["c-black"]
+
+
+def _combination_request() -> dict[str, Any]:
+    request = _request(
+        "multi_amount",
+        [],
+        context={
+            "numeric_legs": [
+                {"min": 0, "max": 2, "prompt": "U"},
+                {"min": 0, "max": 2, "prompt": "B"},
+                {"min": 0, "max": 2, "prompt": "R"},
+            ],
+            "numeric_total_min": 2,
+            "numeric_total_max": 2,
+            "outcome": "putmanainpool",
+        },
+        offset=2,
+    )
+    request["minimum_selections"] = request["maximum_selections"] = 0
+    return request
+
+
+def test_the_pilot_splits_a_combination_towards_the_colour_still_owed() -> None:
+    relic = _option(
+        "relic",
+        "mana_ability",
+        "Relic of Sauron — {T}: Add two mana in any combination of {U}, {B}, {R}.",
+        source_name="Relic of Sauron",
+        source_object_id="relic",
+        requires_tap_source=True,
+        source_tapped=False,
+        pool_covers_mana_cost=True,
+    )
+    policy = _policy()
+    policy.decide(_request("mana_payment", [_CANCEL, relic], context={"unpaid_mana": "{1}{R}"}))
+    split = policy.decide(_combination_request())["numeric_choices"]
+    assert split[2] >= 1
+    assert sum(split) == 2
+
+
+def test_a_combination_outside_a_payment_is_left_to_the_pilot() -> None:
+    split = _policy().decide(_combination_request())["numeric_choices"]
+    assert sum(split) == 2

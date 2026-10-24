@@ -76,6 +76,14 @@ def _cost_symbol(symbol: str) -> tuple[int, Pip | None] | None:
     return None
 
 
+def colour_letter(label: str) -> str | None:
+    """The mana letter ("wubrgc") a colour name or symbol stands for: "Red", "{R}" or "R"."""
+    text = label.strip().strip("{}").casefold()
+    if text in _TYPES and len(text) == 1:
+        return text
+    return _POOL_TYPES.get(text)
+
+
 def parse_unpaid(unpaid_mana: str) -> tuple[int, tuple[Pip, ...]] | None:
     """The generic amount and pips of an unpaid cost, or None for X, snow, energy and the like."""
     generic = 0
@@ -259,15 +267,18 @@ def _completes(start: _State, abilities: Sequence[Ability], useful: frozenset[st
     return solve(start)
 
 
-def completing_options(
-    options: Sequence[Mapping[str, object]], unpaid_mana: str
-) -> frozenset[str] | None:
-    """Ids of the offered options after which the rest of the cost can still be paid.
+@dataclass(frozen=True)
+class _Offer:
+    """A payment offer as the model reads it."""
 
-    None when the offer cannot be judged (an unreadable cost or ability, a special payment such
-    as delve or convoke, an unknown pool type, or a search that grew too large). An empty set
-    means no option leads to a full payment; the cancel option is never part of the answer.
-    """
+    owed: tuple[int, tuple[Pip, ...]]
+    pool: tuple[int, ...]
+    pool_options: tuple[tuple[str, str], ...]
+    abilities: dict[str, Ability]
+    unfunded: frozenset[str]
+
+
+def _read_offer(options: Sequence[Mapping[str, object]], unpaid_mana: str) -> _Offer | None:
     owed = parse_unpaid(unpaid_mana)
     if owed is None:
         return None
@@ -302,28 +313,86 @@ def completing_options(
                 unfunded.add(option_id)
         else:
             return None
-    useful = frozenset("c").union(*owed[1]) if owed[1] else frozenset("c")
-    for ability in abilities.values():
+    return _Offer(owed, tuple(pool), tuple(pool_options), abilities, frozenset(unfunded))
+
+
+def _useful(offer: _Offer) -> frozenset[str]:
+    useful = frozenset("c").union(*offer.owed[1]) if offer.owed[1] else frozenset("c")
+    for ability in offer.abilities.values():
         for pip in ability.pips:
             useful |= pip
-    everything = list(abilities.values())
-    start: _State = (owed[0], owed[1], tuple(pool), frozenset())
+    return useful
+
+
+def completing_options(
+    options: Sequence[Mapping[str, object]], unpaid_mana: str
+) -> frozenset[str] | None:
+    """Ids of the offered options after which the rest of the cost can still be paid.
+
+    None when the offer cannot be judged (an unreadable cost or ability, a special payment such
+    as delve or convoke, an unknown pool type, or a search that grew too large). An empty set
+    means no option leads to a full payment; the cancel option is never part of the answer.
+    """
+    offer = _read_offer(options, unpaid_mana)
+    if offer is None:
+        return None
+    useful = _useful(offer)
+    everything = list(offer.abilities.values())
+    start: _State = (offer.owed[0], offer.owed[1], offer.pool, frozenset())
     completing: set[str] = set()
     try:
-        for option_id, kind in pool_options:
+        for option_id, kind in offer.pool_options:
             paid = _spend(start[0], start[1], kind)
             if paid is not None and _completes(
                 (paid[0], paid[1], _take(start[2], kind), start[3]), everything, useful
             ):
                 completing.add(option_id)
-        for option_id, ability in abilities.items():
+        for option_id, ability in offer.abilities.items():
             # the engine's own verdict on the pool as it is now; later prompts see a fuller pool
-            if option_id in unfunded:
+            if option_id in offer.unfunded:
                 continue
             if any(
                 _completes(after, everything, useful) for after in _activate(start, ability, useful)
             ):
                 completing.add(option_id)
+    except _Capped:
+        return None
+    return frozenset(completing)
+
+
+def completing_outcomes(
+    options: Sequence[Mapping[str, object]],
+    unpaid_mana: str,
+    activated_id: str,
+    outcomes: Sequence[tuple[str, ...]],
+) -> frozenset[tuple[str, ...]] | None:
+    """Which colour outcomes of an activated ability keep the payment completable.
+
+    An ability that adds mana of a colour the player picks (any colour, any combination) asks
+    for it in a prompt of its own, after the activation. Each outcome is the sorted letters of
+    the mana it would add ("wubrgc"). None when the offer or the activated ability cannot be
+    judged; otherwise the outcomes after which the rest of the cost can still be paid.
+    """
+    offer = _read_offer(options, unpaid_mana)
+    ability = None if offer is None else offer.abilities.get(activated_id)
+    if offer is None or ability is None:
+        return None
+    useful = _useful(offer).union(*(frozenset(outcome) for outcome in outcomes))
+    everything = list(offer.abilities.values())
+    wanted = frozenset().union(*offer.owed[1]) if offer.owed[1] else frozenset()
+    completing: set[tuple[str, ...]] = set()
+    try:
+        for paid in _pay_cost(ability, offer.pool, wanted):
+            after = (
+                offer.owed[0],
+                offer.owed[1],
+                paid,
+                frozenset({ability.source}),
+            )
+            for outcome in outcomes:
+                state = (after[0], after[1], _give(after[2], outcome), after[3])
+                if _completes(state, everything, useful):
+                    completing.add(outcome)
     except _Capped:
         return None
     return frozenset(completing)
