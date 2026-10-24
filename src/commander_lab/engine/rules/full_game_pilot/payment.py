@@ -1123,7 +1123,7 @@ class _PaymentDecisions(_PolicyState):
             return None
         return self._priority_x_counter_caps.get(seat, {}).pop(source, None)
 
-    def _x_spell_without_x(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
+    def _x_spell_without_x(self, option: dict[str, object], state: dict[str, object]) -> bool:
         """True for a cast of an X spell whose visible mana leaves nothing for X.
 
         The rest of the cost is paid out of the same mana as X, so a budget that

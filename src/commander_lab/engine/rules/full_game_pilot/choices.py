@@ -635,7 +635,7 @@ class _ChoiceDecisions(_PaymentDecisions):
         return f"instance:{instance}" if instance else ""
 
     def _boolean_yes_cap(
-        self, offer: _MultikickerOffer, actor: dict[str, Any], source_object: Any = None
+        self, offer: _MultikickerOffer, actor: dict[str, Any], source_object: object = None
     ) -> int:
         """How many multikicker payments the pilot's mana can fund in all.
 
@@ -655,7 +655,7 @@ class _ChoiceDecisions(_PaymentDecisions):
         )
 
     @staticmethod
-    def _spell_base_cost(source_object: Any) -> int:
+    def _spell_base_cost(source_object: object) -> int:
         """Mana value of the spell a cost prompt belongs to; 0 when it is not a known spell."""
         if not isinstance(source_object, dict) or source_object.get("ability_type") != "spell":
             return 0
