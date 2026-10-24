@@ -59,7 +59,7 @@ def _view(action_id: str, name: str, **fields) -> PilotActionView:
 def _keep_rates(deck_path: Path, *, seed: int = SEED, hands: int = HANDS):
     deck = load_rules_deck_snapshot(deck_path)
     library = list(deck.mainboard)
-    pilot = _pilot(PilotStrength.AVERAGE)
+    pilot = _pilot(PilotStrength.NEAR_OPTIMAL_HEURISTIC)
     rng = random.Random(seed)
     kept = [0] * 8
     total = [0] * 8
@@ -81,8 +81,8 @@ def _keep_rates(deck_path: Path, *, seed: int = SEED, hands: int = HANDS):
     return rates, sum(kept) / sum(total)
 
 
-def test_average_keep_rate_ranges_on_seeded_deck_samples() -> None:
-    """(a) Per-land keep-rate bands hold on every repo deck.
+def test_keep_rate_ranges_on_seeded_deck_samples() -> None:
+    """(a) Per-land keep-rate bands hold on every repo deck, for the pilot the games use.
 
     The hand is judged by what its lands can cast, not by the land count alone (#989 phase 2):
     ordinary three- and four-land hands are kept, dead hands are not, and a 2-land hand is kept

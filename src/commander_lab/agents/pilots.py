@@ -345,12 +345,12 @@ class BasePilot:
     # One land or none: cheap ramp needs lands to cast, so it cannot make up for them.
     _OPENING_LAND_LIGHT = -3.0
     _OPENING_FRESH_SEVEN = 15.18  # expected mana of a fresh seven under the same model
-    # Mana a kept hand may fall short of a fresh seven (average pilot).
+    # Mana a kept hand may fall short of a fresh seven (near-optimal pilot).
     _OPENING_KEEP_MARGIN = 1.0
     # Mana lost per card bottomed after the free mulligan (measured 1.6 to 2.0); the keep
     # rate and the mana spent are flat between 0.5 and 1.2, so the bar falls by 1.2.
     _OPENING_MULLIGAN_STEP = 1.2
-    _OPENING_STRENGTH_STEP = 0.8  # selectivity offset between pilot strengths
+    _OPENING_STRENGTH_STEP = 0.4  # selectivity offset between pilot strengths
 
     def opening_hand_score(
         self,
@@ -430,14 +430,14 @@ class BasePilot:
         rng: random.Random,
     ) -> tuple[bool, float]:
         score = self.opening_hand_score(cards, commander_names=commander_names)
-        # Selectivity order: WEAK keeps the most, NEAR_OPTIMAL_HEURISTIC the fewest. A hand is kept
-        # when it is worth at least a fresh seven less the margin; the offsets are in the score's
-        # own unit (mana over the first turns, see opening_hand_score).
+        # The margin is the measured optimum, which the strongest pilot plays; weaker pilots keep
+        # more marginal hands (WEAK the most). Offsets are in the score's own unit (mana over the
+        # first turns, see opening_hand_score).
         offsets = {
-            PilotStrength.WEAK: -self._OPENING_STRENGTH_STEP,
-            PilotStrength.AVERAGE: 0.0,
-            PilotStrength.STRONG: self._OPENING_STRENGTH_STEP / 2,
-            PilotStrength.NEAR_OPTIMAL_HEURISTIC: self._OPENING_STRENGTH_STEP,
+            PilotStrength.WEAK: -3 * self._OPENING_STRENGTH_STEP,
+            PilotStrength.AVERAGE: -2 * self._OPENING_STRENGTH_STEP,
+            PilotStrength.STRONG: -self._OPENING_STRENGTH_STEP,
+            PilotStrength.NEAR_OPTIMAL_HEURISTIC: 0.0,
         }
         threshold = -self._OPENING_KEEP_MARGIN + offsets[self.config.strength]
         # A mulligan that costs a card makes a fresh seven worth less: the bar falls by the
