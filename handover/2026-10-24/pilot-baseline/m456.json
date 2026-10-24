@@ -1,0 +1,185 @@
+{
+ "m4_totals": {
+  "n": 64901,
+  "nonmana": 8077,
+  "pass_all": 60153,
+  "pass_nonmana": 3386
+ },
+ "m4_by_phase_step": {
+  "beginning|upkeep": {
+   "n": 12040,
+   "nonmana": 2921,
+   "pass_all": 10320,
+   "pass_nonmana": 1248
+  },
+  "beginning|draw": {
+   "n": 5600,
+   "nonmana": 442,
+   "pass_all": 5504,
+   "pass_nonmana": 346
+  },
+  "precombat_main|precombat_main": {
+   "n": 16190,
+   "nonmana": 3437,
+   "pass_all": 13385,
+   "pass_nonmana": 642
+  },
+  "combat|begin_combat": {
+   "n": 5618,
+   "nonmana": 193,
+   "pass_all": 5613,
+   "pass_nonmana": 188
+  },
+  "combat|declare_attackers": {
+   "n": 5681,
+   "nonmana": 203,
+   "pass_all": 5666,
+   "pass_nonmana": 188
+  },
+  "combat|end_combat": {
+   "n": 4766,
+   "nonmana": 146,
+   "pass_all": 4766,
+   "pass_nonmana": 146
+  },
+  "postcombat_main|postcombat_main": {
+   "n": 4938,
+   "nonmana": 287,
+   "pass_all": 4865,
+   "pass_nonmana": 214
+  },
+  "end|end_turn": {
+   "n": 5562,
+   "nonmana": 260,
+   "pass_all": 5548,
+   "pass_nonmana": 246
+  },
+  "combat|declare_blockers": {
+   "n": 1836,
+   "nonmana": 65,
+   "pass_all": 1833,
+   "pass_nonmana": 62
+  },
+  "combat|combat_damage": {
+   "n": 2446,
+   "nonmana": 117,
+   "pass_all": 2433,
+   "pass_nonmana": 104
+  },
+  "combat|first_combat_damage": {
+   "n": 216,
+   "nonmana": 6,
+   "pass_all": 212,
+   "pass_nonmana": 2
+  },
+  "end|cleanup": {
+   "n": 8,
+   "nonmana": 0,
+   "pass_all": 8,
+   "pass_nonmana": 0
+  }
+ },
+ "priority_option_types": {
+  "pass_priority": 64901,
+  "activated_ability": 21224,
+  "mana_ability": 138911
+ },
+ "m5": {
+  "attacker_decisions": 3716,
+  "with_attack": 1436,
+  "declared_attackers": 1436,
+  "blocker_decisions": 598,
+  "blocks_full_pt": 270,
+  "kills_without_loss": 73,
+  "blocker_dies": 152,
+  "blocker_dies_def_above_20": 44,
+  "trades": 45
+ },
+ "m6": {
+  "priority": {
+   "n": 48042,
+   "median_ms": 0.718,
+   "p90_ms": 1.581
+  },
+  "mana_payment": {
+   "n": 12245,
+   "median_ms": 0.191,
+   "p90_ms": 0.479
+  },
+  "declare_attacker": {
+   "n": 3154,
+   "median_ms": 2.077,
+   "p90_ms": 6.636
+  },
+  "target": {
+   "n": 1164,
+   "median_ms": 1.511,
+   "p90_ms": 8.82
+  },
+  "choice": {
+   "n": 1018,
+   "median_ms": 7.671,
+   "p90_ms": 27.585
+  },
+  "choose_use": {
+   "n": 994,
+   "median_ms": 0.897,
+   "p90_ms": 1.754
+  },
+  "trigger_order": {
+   "n": 899,
+   "median_ms": 10.18,
+   "p90_ms": 29.333
+  },
+  "choose_object": {
+   "n": 504,
+   "median_ms": 1.201,
+   "p90_ms": 3.631
+  },
+  "declare_blocker": {
+   "n": 452,
+   "median_ms": 0.168,
+   "p90_ms": 0.28
+  },
+  "announce_x": {
+   "n": 128,
+   "median_ms": 0.606,
+   "p90_ms": 2.413
+  },
+  "mulligan": {
+   "n": 121,
+   "median_ms": 0.515,
+   "p90_ms": 0.671
+  },
+  "multi_amount": {
+   "n": 92,
+   "median_ms": 0.578,
+   "p90_ms": 0.949
+  },
+  "mode": {
+   "n": 64,
+   "median_ms": 0.829,
+   "p90_ms": 1.074
+  },
+  "target_amount": {
+   "n": 13,
+   "median_ms": 2.667,
+   "p90_ms": 6.669
+  },
+  "replacement_effect": {
+   "n": 10,
+   "median_ms": 0.772,
+   "p90_ms": 1.368
+  },
+  "amount": {
+   "n": 7,
+   "median_ms": 0.672,
+   "p90_ms": 3.668
+  },
+  "pile": {
+   "n": 6,
+   "median_ms": 0.63,
+   "p90_ms": 0.87
+  }
+ }
+}

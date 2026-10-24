@@ -1,0 +1,181 @@
+{
+ "games_files": 100,
+ "games_completed": 100,
+ "games_aborted": 0,
+ "abort_causes": {},
+ "decisions_total": 317212,
+ "classes": {
+  "priority": {
+   "n": 230087,
+   "idx0_rate": 0.9248,
+   "one_option_rate": 0.4119
+  },
+  "mana_payment": {
+   "n": 55302,
+   "idx0_rate": 0.0217,
+   "one_option_rate": 0.0167
+  },
+  "declare_attacker": {
+   "n": 8590,
+   "idx0_rate": 0.4654,
+   "one_option_rate": 0.0002
+  },
+  "target": {
+   "n": 5281,
+   "idx0_rate": 0.3761,
+   "one_option_rate": 0.1818
+  },
+  "choice": {
+   "n": 4535,
+   "idx0_rate": 0.2077,
+   "one_option_rate": 0.0002
+  },
+  "choose_use": {
+   "n": 3448,
+   "idx0_rate": 0.9081,
+   "one_option_rate": 0.0
+  },
+  "choose_object": {
+   "n": 2772,
+   "idx0_rate": 0.329,
+   "one_option_rate": 0.1652
+  },
+  "trigger_order": {
+   "n": 2239,
+   "idx0_rate": 0.6378,
+   "one_option_rate": 0.0
+  },
+  "declare_blocker": {
+   "n": 2160,
+   "idx0_rate": 0.306,
+   "one_option_rate": 0.6241
+  },
+  "announce_x": {
+   "n": 995,
+   "idx0_rate": 0.0,
+   "one_option_rate": 0.0
+  },
+  "mulligan": {
+   "n": 676,
+   "idx0_rate": 0.5917,
+   "one_option_rate": 0.0
+  },
+  "multi_amount": {
+   "n": 629,
+   "idx0_rate": 0.0,
+   "one_option_rate": 0.0
+  },
+  "mode": {
+   "n": 346,
+   "idx0_rate": 0.4942,
+   "one_option_rate": 0.1561
+  },
+  "target_amount": {
+   "n": 58,
+   "idx0_rate": 0.0517,
+   "one_option_rate": 0.0172
+  },
+  "replacement_effect": {
+   "n": 50,
+   "idx0_rate": 0.68,
+   "one_option_rate": 0.0
+  },
+  "amount": {
+   "n": 25,
+   "idx0_rate": 0.0,
+   "one_option_rate": 0.0
+  },
+  "pile": {
+   "n": 19,
+   "idx0_rate": 0.0,
+   "one_option_rate": 0.0
+  }
+ },
+ "mulligan_by_position": {
+  "0": {
+   "keep": 219,
+   "total": 400,
+   "keep_rate": 0.5475
+  },
+  "1": {
+   "keep": 104,
+   "total": 181,
+   "keep_rate": 0.5746
+  },
+  "2": {
+   "keep": 59,
+   "total": 77,
+   "keep_rate": 0.7662
+  },
+  "3": {
+   "keep": 18,
+   "total": 18,
+   "keep_rate": 1.0
+  }
+ },
+ "announce_x_top": [],
+ "choose_use_top10": [
+  {
+   "prompt": "Pay {2} to attack?",
+   "yes": 262,
+   "total": 262,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Graft 1 <i>(This land enters the battlefield with a +1/+1 counter on it. Whenever a creature enters the battlefield, you may move a +1/+1 counter from this land onto it.)</i>",
+   "yes": 0,
+   "total": 79,
+   "yes_rate": 0.0
+  },
+  {
+   "prompt": "Put a land card from your hand onto the battlefield?",
+   "yes": 71,
+   "total": 71,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay 1 time Squad {2} ?",
+   "yes": 55,
+   "total": 55,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay 2 times Squad {2} ?",
+   "yes": 48,
+   "total": 55,
+   "yes_rate": 0.8727
+  },
+  {
+   "prompt": "Heads or tails?",
+   "yes": 0,
+   "total": 49,
+   "yes_rate": 0.0
+  },
+  {
+   "prompt": "Pay 3 times Squad {2} ?",
+   "yes": 34,
+   "total": 48,
+   "yes_rate": 0.7083
+  },
+  {
+   "prompt": "Pay 1 time Multikicker {2} ?",
+   "yes": 44,
+   "total": 44,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay 2 times Multikicker {2} ?",
+   "yes": 8,
+   "total": 44,
+   "yes_rate": 0.1818
+  },
+  {
+   "prompt": "Search your library for a basic land card?",
+   "yes": 36,
+   "total": 36,
+   "yes_rate": 1.0
+  }
+ ],
+ "cancelled_payments": 1201,
+ "cancelled_per_1000": 3.786
+}

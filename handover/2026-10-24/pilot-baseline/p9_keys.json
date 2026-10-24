@@ -1,0 +1,2061 @@
+[
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 10,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "a4880b726dfa68da6858426625a1195976359104f97003260fd3a499a4fcfbac",
+   "c5d4827a2e73ab2a61de6238f11c3cf98c34ce505be4a555757ab1d82684c5cd"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 13,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "5a45a9e3ddbf1caeb6190067b66ad52453026221134e420d709d18ef4e813102",
+   "c5fa6755b27a97ea8931a3f8d9dd7ca23af518c17da38fee01dcb6ffcc5385e3"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 7,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "3d43288a98e73e6ed8f3fcc1836adecebc08208fc5337e8b33c00a2f2f35c63a",
+   "f596202e142a4a94662f1934c3b31cb429acc8be9b955056f3862966875fd736"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 9,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "5c3e4bc01ff625960a3a86562613f678d8551e3b867742c8c576b0e834590fc4",
+   "f27a136c2819cadb45959f0c8bdc03e30b4f9efbdc38ce7762aece69c4e5db76"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 24,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "103b60c72950eddaeacbdd130b67b9d0cde4f9789b19beeffa01cc891e630018",
+   "4f75a61c4075b2bab3ba81b074b9d03d52ba1c9971984affcb28f677a52664d8"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 5,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "ad0ead3042bfcbac92455bd90f5529acdaa7a28ee31df60be7ac8fd3f72a77b4",
+   "d64fa371dca2f8122d99e553440845394179b85a0037bf45b0155ee802e67ef1"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 20,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "4cede58fe71e5db5f001b9db2a1dbf67776eea29f5b94a2fd15135c9d8389ba5",
+   "bc511b907b4e656ab1da2a2fe9ae58fb775ff0ab36c7252510abd2caba4d4983"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 1,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "44caa97a23f58f66fafa3e02dba79778d5fa5d1b66985b4b8ae215b94d4116af",
+   "cb51c664e58ec3905befa09665937cb7105930167998ab82204d2560e29961fa"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 14,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "424e36dc991a355a5af091bd93540641e391d4fe9d7bbbe533234a7b036e3e9a",
+   "5ed9a92b6be38d84f04baa41c4010cb3922bcc69177e341eb673da37b2610a8f"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 21,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "bd58600588807c9649d2f7161c1ffa6d0fe0a23c3bdc4b9c2b34a70a35970639",
+   "f46617bbe1c7279aa0550bca7982d4d5dbdd06b16b93ccaa7c061c57313c37f6"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 3,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "90b86b57c49d3465dc4318fc2cd3480b802b720fba52e9a659dffa1a11a9b34e",
+   "f4d067f5dec52dfb14c01d2379ea020cb54c23bd6304c26c4a35e482b532a18a"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 17,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0b2de39a7aa5f11394145abab4ef387cbdb96c689a29ecd9329f2dd109ed0f1b",
+   "e29b08f43b06b725ac555592db2bd20f29a2da60b6362ae41551d0fd66e742ef"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 17,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "393869632964a31290108c51737f187c23c650fc27bb8478445188d26a58558b",
+   "6fe81cd7e531e97b0fa43f6a03fe7a2158ee4516121bc397e0a30ab07bf180aa"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 13,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "7993637779fe17945886beec956d258deff1e87a6bd4ba57c269e3252e694d05",
+   "9f2fd3a4167490e1b6f6edf7f1b3579c9496c4a9010de7fe669746181ef2cc92"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 5,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "7225b884dbeff832280102c702f9259b6807f909d3e905542c6d430effbf85d5",
+   "8317fdd8fed6cf0c14e57db91d8db1cd4e39360c7dc99f5137a41e6f5485f37d"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 20,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "5c34f789f618235f3da650aa72c7dfb9c0fdd10a2488b1c8ad026f240f5d4f71",
+   "ae54f936571e9eeb40201d10aecdee90fb57ca8b4fb7619fd978f17595584930"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 23,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "189027a860269e6b1a76a58313029962150ed524fce03702370dd64e3e7f6d15",
+   "fadacb68a87175175ee123c7aafb384d898a466033d1ff4394de59d0050b466c"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 6,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "344329d18333908720e94915105333be78115bbd5214dcc0cc4d9f2c1630dd78",
+   "99c90eb386a843435f0c7aad9cf16849513cd17d9b48df4e836872f90bc982dd"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 9,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "bb95de60a34d2812736cfa224403255080fcb757c2ae5c913c3c2c153db36861",
+   "dfd3d683f07a43703d71182abcf1b819330e9c47b6d790b76f1291a35558780d"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 18,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "86cddfd2078f24c9a64a7d10048ed68c4a1bc74486f7023ac0a2b8bfff9661a1",
+   "9c7f5348b0b8a7efb03dc531a44e2bde937983629a67e6c4cb3dda09894bf88c"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 7,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "26153326630a4c86be718e1bf461867544958903ce37ff90433d4c677045bc57",
+   "651673d1e798f1eb61660205208ef08c361f1f33a6188145fa2f6be2a841d554"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 2,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "37640f11029964d8d17318fd7ed37f447862cf2e891222b9a7ff84d0f8eaf681",
+   "c9ab1e37d275d7ef8df174001a270e327c7111fc14debf1529da496d66834db0"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 21,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "f4270d3d4d03a99947b9b96d11168a837a8597a99666115d40ef8c6171310aea",
+   "fa4d72b5f21f976072716617cb90987c6cb5f3682e4f4214e159c150096c80a0"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 17,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "3319074cbd04eef26396f2e6c165e3e1bc3aff725643d3c4cc284387471907b0",
+   "5bdefa47dee85ae94b92e9a940132c9b1ec21fd1a61ce64510790cfa379dcdaa"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 25,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "6d6e50d8d1579feeaeb23ceab933e04b84bd4910f2e8850576fd177de1bb6ccf",
+   "fc405d7f11f97b437fccc3f7ac2b4e0484fdecd65c0a806d2ada031a8d8d9448"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 18,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "76f793e8a84fb7219f1d1ba4c14267cc3d00337b08679fac86bc3be1cd0951cf",
+   "99d72d576b2e38cf76850ccfe17e000b168fffd380b1cd9d5ca39beafdef8b82"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 1,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "6d3df19f70f99a0f1fc3a87c95b0472b381fe47314b83ac000e655b64f832ce0",
+   "b136e142a7664e37dc670677512bd4f79d6c48efc4482606ba434b3ec8376b3f"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 18,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "25e483b676efb201be42e2ae9ee3bcbb8feef85302885e5ba4bbe7308ef10f30",
+   "9f33dd1308bf1aff36e42e32f14dd79666de23967f41cae9537b35413c9a8097"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 4,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "3d0e9259dca9f2d5ca95ff57b718d6d423e0a822507b4835285470a47dee940f",
+   "707941e083f696109125502a826567a5959019c781501e109394be096c7bf12f"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 8,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "34ee0bec76d562f2cca99696775ff2598bcb736f864fc6be31bd0952c06082ed",
+   "649f8ae97b5d604286ff1d46199a9d434a584a26f8f975a48941bc110d2eb638"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 2,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "50381839cd86fc13acbcda5c25828e308b0994b3f37f8d79d5bde08d693a9c15",
+   "ab0ee1c0aa46f9f180ce25f38d797c9c3fe57acc71ee5090bebedf76f8defaeb"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 17,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "44791263e9757d448d0131a57e4c3d8dab7a4e9b7bd9cd12469d13d90224d674",
+   "b6e4cee86a9bb6297484834309f7f3e0749d71e72d9e00818791293e0b3e1f28"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 6,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "5e67476dceada3d9e8541fce4df6d6c18db6f11f1eb380cafa5899bab4e7581c",
+   "aecae7bf0184bcd84be078ca597faaf86f320cb2fa50abe097f65e6d6de6d747"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 5,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "377660b735707157f0121e718a3b95066ab969c51db713390642ab032c8fb106",
+   "e63166713d60f0cde99e12d7856c192eb90902a68070422523bb650a1b3fd51c"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 21,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "4b04150c9b20a6924d050478a9db682ce221b383f20e3178b50138e38367faf4",
+   "9bc3d7e753c2158f2a2347bf5d898cc9fa3e39075a03088e45c91d932784bf26"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 15,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "67f956eb3d2902f66abc88f07be8c9b5aab77e69266f394cb33b913c2cb8d419",
+   "af7ce9ff1568ea1841b5aa6a2b492248daed0d0c92a720fe4c088517a6deca23"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 11,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "3ac376ae3b9c4d1f886a407b21f8b9f875c09d227447b842b82811768839183d",
+   "4242a744e3773219278df737aef4ed0baa519b628974ef5faa82902279234d0f"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 25,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0dc8f934344ebe3e8d5b229b096b2d6b5f0d78b645936ae6dbbdb4dc72fb0c15",
+   "469bb67f8b11fd459862ff1f1423edd7f6219b0d0aa34ccf347e56c74d7b0aa9"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 11,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "82fe8398617f0bd984fdaadf7e2b9ec3d9e12360b63c34c5f0cc62c277ad6804",
+   "c47fa7b6ba4b5f6350a70e9c37f1e3b98a6eee39705e5c81836d3d656f4c926c"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant2",
+  "seed": 2,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "6360391bc09b43248ff0bba1235da27ace832ec88327197029d4ed486fc0d79a",
+   "9676bc34fc18c7a5826c607fc3db6677b21e1807d9832492b87635b1e09e40df"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 1,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "8c175b16cfe99b78d336cc277af4f1dfd85d1f78592dd54d342477d3ce1dc9f1",
+   "d2280ba4fd4f4ee7067fbd643164cf5b9b2d145cd5af16f7065e9259126708df"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 6,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0b26ff04c24d43107e5c864cbd2281ca70c8d83ed229cf9677c5864fcf1dfbba",
+   "dec6f6f27e911df451f4043427a27689bb06dfb9a0adfd627fb3406159d1cf73"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 7,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "967910885e8617ba9c5554fc57cc336fb30a761265e2f0f7c04e2d7c73882232",
+   "a1a370536e99e2225c5adf9a7ff76bbec0efc17cf312cd907f61569ee61aa5bd"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 1,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "100d47f4ba57a8b22aaf2af10da9377fe217d012607ef8068ac249499d618041",
+   "e9f7083f90df464e1fb858af1e2f8a8db7d8ae2ed814fdd0f3506a16d50c6eb7"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 5,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "7c97874f2b241f2e4ca914fe76823d546eb54b1a785a70c550b22ce5a921b665",
+   "e64a27139c3ef34acce94b9ba15aeccdb6a37d55c780480102b9d20e4cc87536"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 19,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "7281c36b21b5340ed05c7c90bb5ad19aad1fae01707164d96dfd1a4db144bdbf",
+   "b0c671984213c4d0d197787af0db29d817d3f008444c3840eb97cc64c1897479"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 8,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "111f6b516fe247b1abfc723d43fc0ada0317c8b287661adef95ccfac4f1d6593",
+   "cfcc1005bc8addc01a589a6598ae234a136b75b4fe6481dffde08ad347a960dc"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 1,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "1751163f14262aeec5d2819d2982d2431ecd8080da26d9bad3252d92cf26c729",
+   "755aba1caa9516e83fe2221cd8b90ab457fd5d8978f90739b5bee3db8f3660eb"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 18,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0d5e9916b7e29de3ed4cc3722bb687f0b53c653535e2de69025c0b1c56ddb7e2",
+   "e6fbf5479a106b206b62125d601162cca209da96902b2383bee8ef52e0712bee"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 22,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "26c0579631d3386ed353575ae55b06be0ddf63588d878fb197c525b2521c0978",
+   "b221b2d905a23f4c04d8849a248161152e6996b39aa7e9bc2aa0c12561e9cd03"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 11,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "567acdd7ac3258795bfa8bf052191b2b3a6cdb423ee6d7c8a6c73f348a8dda32",
+   "5c4c11316a7809fbd57b2daaffeeece152ca874c31dbf26ccb534c25d659488c"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 25,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "2b1c4827ec45b9e3594c49cfb04a27343e9d02ac95cdde90b48dac3083ea9992",
+   "3ebd88a8ff57e92e6a28c378f2887cdfd6f8df8dd0cde36256609085d3079efa"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 25,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "402b05d0761b59f4d6c6ada142a2b3effc14abb98bac80512e75e95a0820c295",
+   "cf6476be77aa7f320b7d5007c23687877b41d6fef4f89c5c5850408a03eef596"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 10,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "2012a4d4a641b4feb6d260034a29c401eb63d62691c142f4a0070c889cf05c3f",
+   "cb41660ae7705d3a3542cba76b6769fe0285eab3f143cf4e9bf6e008fa87a132"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant2",
+  "seed": 1,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0acb08c56b183a648875482a845b0aa8c531b067aaab7b822cd87600c26d39d9",
+   "8436ad5be5f45b663aaf5f4392f98f92e4da96fd7a26bb072bcd05871fb108e3"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 9,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "3429f4c032109520a7a9623777dc14cddc09dabca6ebd82c8c50e13d4a3b5a03",
+   "72af32d0d3ac29547f71c45794f57565018bce163d47197a5075f352da81ca3d"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 21,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "783dfdf7da569a36dc3aaae4b13c31b5a4395ec830c62afc72ba1b0c52230687",
+   "f563d18f5bbe8e45c2727b98848c4552df1db43cf9a9967afe0cf76509e88b8b"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 16,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "68c464ddd4bdedcc85b1893e478682b476fd698d0c236cfab4c4798e475283ac",
+   "b9ecc34509e9ff1c5c5c61fb9a4cdee88559287f37d8c0f377ad3aea5edc2de3"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 16,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "a8d61e7714d584df1a5628ae38fa26bb62023c24d48fcf6d50e8cb54c09fb40d",
+   "c0725c503fdaac00e116f539cd954a0d29d7f209c30a2d40759f43a29b4fbd5f"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 23,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "692372bd363dfda9e2396783108a2919aa61a9acffb986a5fe86b181d3823d84",
+   "bb2035ce90569a16c4d5ea11a85a25572fcc945229c1205f7afa5b76c8d44705"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 21,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "19456ae5ce5873ac53440f009ddb4c913bdc92a0407d5fa3d47f0ed3db993625",
+   "5a8ab21790573efcdc935a8cb56e4b3a2621f8e2452ecac22c65ac9a1d9d35ee"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 17,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "087d1e5ece3649b6585f4a7802fb7d826a2c242bd4de179af642217b7d8bdce0",
+   "373f1ad1b76a076ad01594e535be27a1889e8d099a24a438670dec95dee93caf"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 10,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "32b5f5e362242d0ffe683fe3dfbe287e734f13de04803cc0210c4df7d5f07991",
+   "8fdbd8e5696cd84e6c8440c5f388911f55a411f8c15aa49295ef9913a43a24c4"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 1,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "26c307be5fdc1e6d918d85254eefd73478bf54ad8f3c19dd2c69803e7614e6ed",
+   "4f82911fa84ae9e2ef2ac7da894cb827af98601801e93bafcc3fa1a3a6c1fce3"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 6,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "41eee80e8466b8a1a7fe09ed3511e11b9669274c082284fa935806141c3696da",
+   "bd0ae64296e01c26ee2bcb41b7268eb81586fc4bce825890560efd6157af57c1"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 13,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "1501a18f5a41e739632def8804f26a95e7766c1f6fadd9f1e30b50dbafe9fa44",
+   "1988572c76717471d72ccbdd6c56ac23fd31fd468e84a26c9cd81a6c303e17a5"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 8,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "08732a9fb4657cab9ce179a59d0ae038b61414bfbf7083938af04c1a0f9161a4",
+   "c51d2e6d4c710722ec3ecbf159dbe885c53aa741b900ba7b348870218df6d8c3"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 21,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "264cc14c43035562700bca4195e62e8f6b7c50589e9f17437397f8270386e349",
+   "e7809cbddefc49451d774b9b19e9f143bedfaf0d20a460fc47e3a3dbe2f0a7a4"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 4,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "e58386180123e0da3209a2f32d62b7b9cbbe55df5ca9aeb2d99d67c376368fcd",
+   "f7039bea7e186f87ccafaac7df4682d5854147a876f09ba0af3f21a399c447f0"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 7,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "933a720230b41675b243c467539cbc84798fec71706ffedc1fc00126338861fc",
+   "af528690c9b6ee7c7882164f3412778ce0d8de51ac9b2a77ebef8a2152c1623b"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 14,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "04aa615e72e4ce47ec4b7b56f7a0b0d09506ef3c818f56db850895cc53a8d84d",
+   "eea14d35e91fad8a513fbc9aa889f2693102c191218fd85f15dcce83c6d10d13"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 23,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "937624bbbd4179fee15b493466abe2610f4655393aa46d726bad38306e61d85f",
+   "d4a8f565d5ac9ab1c9e6669a11284d61d25b219b488d705a3c8fafcd97cdf5ad"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 17,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "a0a93b6bdde04518d96495b041038998749afe8bdb90b193bdebf35307675c8d",
+   "e9b9336bf9910638be952e32adbce82782d6e241dc8e5dbcffd22a292930a201"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant3",
+  "seed": 2,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "50381839cd86fc13acbcda5c25828e308b0994b3f37f8d79d5bde08d693a9c15",
+   "ba9ab1c93d773b3b8d55e0a053c4e489cece0dcd9b2c6cdd30d17e05dbf2377b"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant2",
+  "seed": 1,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "4f82911fa84ae9e2ef2ac7da894cb827af98601801e93bafcc3fa1a3a6c1fce3",
+   "ee2d45c2c9bf6d609f837af807b7bf7e76133c2f8b2dc11733adb9fb8db09fdd"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 12,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "629960792ac4d2458b3c2893abe4583dc8658a875075c16ae413b4e0760a00f2",
+   "9060580cb1e8510aa8dbf6cd0ef4da0ee4699f829dac753e0ee9b06057f28c9c"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 22,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "4d261f00a6ef64b74431402d19d6fdb300c2601311bdc2082bee4295be4c6f94",
+   "89ec8d3dfbb29d86964604a0a05c1a410d48daebcb8be0aae368aabcdd18caeb"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 2,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0676f04c0621033a83708c83a52af76832e20009601b615ab07340570f346362",
+   "69ec9ac815add6b53c4d8f6b6600044969b764e8167bd991c6a39cd551e2e8fe"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 15,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "2ab911a07df3db47ba882fc5378d70866c82575f572a24984af6e3850acd66c4",
+   "e5b5f263f846fc910ad9e61fe75220981c2f770669d92fc506fe31fe71df727a"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 15,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "ade579a5895b76200ede34fc2da840d41353aa7fbf294415cc8f9d73bfa8d178",
+   "b465df27901c1988eafd15f50a784de5129e83045e023e2920017a60d7559b80"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 15,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "2f38b93f4298fc1922b8d4b79ddf18ed4388a8b130304d4e6d0c76dbc7c5e5a1",
+   "e29278b1d1fa802aa3538da13125af046baf819652bf7445d0df2c6090a06539"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 10,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "31b8e30018d7ce7abdbed5edf748730e09c05daefecbe80ece4442f7f1fded94",
+   "59a2b92e099839f3025df5a2399b26fb958bd47d24e05351c1e28916f482bc0a"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 15,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "47ffc51bf0110b6bcafae5ea9a3899323dda567ad001206310d4cadf702c78f9",
+   "5d0d7512ddbec441a3a3fb9087b39621d73311baf38717dd53dc99ae0d6e8906"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant2",
+  "seed": 2,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "7379ff9739f1f6aaa539250c802ff821f918cf2ed5e843b6320be730b8a79bcf",
+   "fe020222d528b35345dc7e293699c22e6e9282c34b8025be826a3282c62e9d33"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 21,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "8831c495a63daa941ed5038c4d97e46ea40bd205c0443eb7d43e42825bd6cf4c",
+   "fb0acce8caa6e6b54dc117d32f954ef9887694c7a0f79f016eb600922d171964"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 23,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "17508f6590a05b712ef2ea432cb544439bd413eb7fd9de8b9184c03364be4ccd",
+   "edf58d7c7409eb3c6e5af1b909ebf66797c9bd27c7ebcc6107cc9a5b867f028c"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 6,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "68ec8356240cbdb5c42faf1ae31e30fb355c57670555696b0e26d85eed0443a8",
+   "7f1cd967f6885abef2985fcdaf7e1a478fd143cc17f5af9024113507d67eaa97"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 15,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "2f3e372e016a8ecd9f52998e318ff3752b7ace7563d6ce168ae47492c6e3a52f",
+   "dbcc03ad02e40364e7607a1d197a51e65980082cb4c78449edf74da3b8d2de84"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 12,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "1e9175daeb3098f44ae85d6b9753bf8905451f229a0b1dfc27de01a29be8c84d",
+   "2c0f8d1f9af1e46e931c406816ae1d78e2c48fb17e72459dd94a560116937310"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 14,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "22bd77bed21eecb5b2ff4218ff6d4c579de6c91c291f1426a74b329a80eb9bd0",
+   "34168fcc079693746b8c1b7aae0d6557c4f64d5b4a18ce61305cba37863e98a3"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 6,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "44ae958c171f9e8949c06a252b2155bfeb172d5b8f9ae3dfbd0329aa23136267",
+   "b42da16f5fef0f93d0875cd41d6a109f90041ef669a29392e7898c8b2c8d70ed"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant3",
+  "seed": 1,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "908453bff36306c0dcaac10cda1e4690d136d9d6a4fb9df72c5290887518fceb",
+   "fc0b8d6ff7ebb2f4f9cba1d611d1ad0a22631fe44b0d53db79a79bbffa10aa40"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 11,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "123dd8b8419e3c2ee723e08cdbbe5f991e42f241fc9b8134c79a1c25cf11362d",
+   "5b7fbec1416758391f152cf45f1d8c7dfcd570c0d266d7c039f7a7cce566f993"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 12,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "502d93a2f2bbc68d6ce404d09cdab6476a8ad32da9f0e7e78f3f29cf88bd8ea4",
+   "fb4b948df4173a560f415649768706ddfadce10bb4d630767f19123e0d9ee7f6"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 3,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "c131008d203ec0bbbf56ec14563b5ce29af902b2d750b2b01b82d251c057ded6",
+   "de5010a5c550e75e71661dbbaaeea3bc5174c0699c0d2341147f10fb31f8394f"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 22,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "752f7f96752f890028c745687761d3d664ac986f662716e4411569e07efea3d6",
+   "ac471d6ac3b349ceefbf143fe5e14166b4cf0b50b07e830d656eae730870c6b8"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 14,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "43f8b94d8fafb57a226aea6d845abe5e92e854a74cfe0bf9288522f01ffcc0bd",
+   "6e27fa0007321e2aefaba91853c367676ced716afc7d8a22df1787ffd60a06a3"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 20,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "07504500f7fad0ca9344f9c9efd79681c872e7998db6dabe5056fdefc3d5c40d",
+   "340eaa9886bd24f1bc6969ba202ee9793f5eba4f7e04cf658efc0b6a9b1cca77"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 8,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "c8e61a23e1636721c5b3b3f5b4a7e8b4f6486e64134a6d9c2829a083c9b464cc",
+   "db02d58029258f0e870d5998a132d96d43734f2c650867cf46ec5b7d9bca34b2"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 25,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "a19b5879912bbc6751333a4c69c28752df951a9f2ee5a37c4aad296a53e1e7a4",
+   "b9d6c7c01c63be72696945aed5ff6eaf5562398ad469a8c8372888a0bfe1e2ec"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 8,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "23c24fe103cfe6eddd743e1457a2929772c6560d2b2a8c19d52e4d88b046df00",
+   "4d8cf61ee7f76ffb98afad0535ca728741212ff599b11767f7a6351ab90602a7"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 24,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "f45539e84e7ceb20d97a273552a6d1f0f9491489bf3b5a0a9293bf70e608de1f",
+   "ffbbe5a9ffc606e68a25e9433b203b9ee5014d3d27ee409255a3f470a4a57097"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 12,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "2807ef733effaae4c11d736ce77095b11533e6fbad7d5fb9e340975b402d0b3a",
+   "31652bcd225cd61a9407a8e9d8d489a38c274f53ac4c52316805125846580391"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 4,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "5cafc91804500ffd3375d19eb06a00883d49678008b1fc4ca405de9ebcfeaa66",
+   "b2ecb449e2b4c53244e862a03f221c18fdc6ec0248a19aea9c3e07fc261ed226"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 16,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "975001000c0ed09eee0f0838c678fc550faa35c9086559f02680bde51254109a",
+   "dc17b333aeae20d8c65b31458d852c0eb96c652dcfcfe320a2dc2a34b25ddfbb"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 11,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "c45a0febdd14f73e9e899b2015d365aab792d72df99f275fbf58789c024c919e",
+   "d059386d285a553700caa6f1f98d973a0d9f4959cea92dcccf67b05bacd6ea37"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 3,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "14903c41b9503319f5050f28dded2eca8d00c08a12596a419260e94d51a2f14b",
+   "a4d3cd4d1d5e1b0a575a2e8df3e084cfcfd01bdc544cb493996ec2713263ed7e"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 24,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "588b56f5ff083415c9f2142488aa84fee36f3f0c16f6544889ab089c030bc8a9",
+   "95e6cf31b881ad8570a7999adc89ed795ee6f3b2cb315985b617396da67abe19"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 4,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "4a385130f1a1b97df2c0e06570ad7ffa34c1dacaf32ee6d903dc50ddfde636a9",
+   "d1479b08444ce10891a06e72f8cc57cec0b57e150c9237ca36bfbc34bf90f469"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 5,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "312f61fcd1b2d4599646f51728e173a8a7fd07ebdedc5ed78331eaeb64bd7763",
+   "9646c7180491ebe65c9a600c773d0a67872475e6ac261f5e733ed18b6ba98cad"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant3",
+  "seed": 1,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "86687112c9ce60b552024ea26fabdb2b8eab2f03dd6a1825440126a90e65ce46",
+   "b136e142a7664e37dc670677512bd4f79d6c48efc4482606ba434b3ec8376b3f"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 13,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0ccb00a025282ef254302d6e4f241d28bb23ce065ffac05d66aa428521fb9348",
+   "eb1957eb9769bbf9c51d4923ed100de423b42659214a5df75bcd0e603341c0ec"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 8,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "f11d560404fc40b5f3bf11b107963d7704f696389eee7741aa8f214bc173f389",
+   "f53069645f1cc8fb369d1b62ccdc654b3a67bdc153c02846f2d2f00273fd27b1"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant3",
+  "seed": 3,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "4a2e2328bb5e4e887f03f6257898a2c2e5ca54867523118b60149adc33882fad",
+   "5a9c0c021256a6cb4c99da19801fcb14f6e399f6d4e64d87a8d8ddb7370a5862"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 7,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "9818fd91b40a19102a6f2deaacda5c3b1a836cf9cb463a0206ed6299e62c1e09",
+   "fb6ea98023ccf463b882356944cbf9eda9e4dca3a3f97fba6853a6cd7fd5922e"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 14,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "00d0d707ecfe8bf22be35bb2535ddedce9649cd2b51d9459fb1162710fc56099",
+   "541a6fd250ac79e14e79ba6ee1a5388dfe753f40ba25af20760e6a2aaaba6e64"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 5,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0db41abffc9f7cf104fba96ab83c3f3e61e7c058fac3763e2b7b9dd634d16db4",
+   "ff7cd110633ea772e50b774c67878e2e1cdf89a8b6280fb5e0e5c0ef9a69787a"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 15,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "4421bfbf5a7ead45147993d8be3ab9a4f126cde5da842051c3de199b8e07356f",
+   "50ea124abc6ed3bd3b6dc9904c90fbf8fbea9a6e0b1626b4aeb85c8d87803aa5"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 3,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "013ef52086628187f49d82f3760c2fa0f9474968d07fc30163bfd82e6df1c465",
+   "c0d66a36e512ea867ddef5c4a2a24b86bb824100223774a260d0bf71a11d805e"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 23,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0effe29d7cd8dbf361793b754ff5fdac472bc025ef20146368d8d2fa82f795b0",
+   "15bdd3704da987c31ed181136281784c020db358f434689bd0063bd2c1a35273"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 3,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "a2be432347f7bb37721064cd120af3571c63c8247301a6deb12d35b3ef9ff3b5",
+   "ebb5d80a7315ef724c1bffd929e85b98c7764ab3888571b046e8dfce7ec68ebd",
+   "f08430d51e32f795d4c0ffefa64d32d5612f99013669f180a79953fdea74a773"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 16,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "49eb3f0ff08135f25d3ee8ec3ceca5ac300fe1d6cd66f32e7146ccceaf6dd494",
+   "8541d2da34e4230fbaac7a6d2fcea5396be758280e9fcf96af2af613cebadb94"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 7,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "28f0e1ca02b11c1d95760eb33bf85579324eaf774695fc08cc6f78d50954a5e2",
+   "880b84234536de18f22e1a7b624b3c662c6e8fc20344a290c3046502cfa26bc0"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 4,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "203dc84f38373736280bcc8820b813a3f4797072b683ae841b1228f456b53d49",
+   "80e2d27c2139fb7b1cfdbd2a534f4a96b3993c434a5435a75dbe103be78fcbc6"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 8,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "236bb52ad4e9f676f37db39203b02421a033ce9f92cc4985885d060304fa7365",
+   "e926b0f7b26ac6edc4a966828261cd903864e908f60df027ffbd4b3e672a8ebb"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 10,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "344504fb7bade2685aa851e4b7d8712ed4f6e5ad7f701434789c464afd9b5845",
+   "902faa9099295f3ecc6487b7184e7ac76087b21b12e56495ed955b8898c19560"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 13,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "7776b20d107d60e599c9c3aa6f0b9df7831076c4e96357e87af6f3e97e519dc9",
+   "daed975135ad260e712427bd7fd6529d9e75ecd9d8e39e965c0c47161fabf270"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 2,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "49678d5a9bc6eff7b96106ce3b0f4cf6b0b8e7931e23b53640cff3aa58d009bd",
+   "536dafd075a9592ce29cf09d9802d936122cf52bb228aae9cc9fdf50fe94238b"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 6,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "3d7ef867d43793ad4f76ffac4163737e191cd1db647d05bfbe67e7273ca5881d",
+   "ba6c2024494fbc90e0bf3b2fe45451725748553f25942491ef9c9c1820c66430"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 10,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "66026d1f9c4de5940e340edc235ff056aa95828b27f3570c7b7d84e5719fa3b9",
+   "b8aa6f05b54fd040c69eb7939a47c185f86167639d5d7df15cd42ea62091eb8a"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 16,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "15cf784f13f74d2d100af09f163573c4d8852048a51c3b292d0e562ed8fa68cb",
+   "e35c284ea6f7435a0d1c915fe0b055d560bc935a120c1b600eb4125bf406026a"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 20,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0b9770c7a7e0c112ab65dd002ec990d27016aaed128f4b16f09c0d9f232ae9e8",
+   "ecd58cb1cbc4995199dddd59a3382c507c6a34c2f8a24f6439adf3fb302ce29c"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 19,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "55566a352256ab40b217536a1e9f16bd1d2030298bbdbfddb95deb9101decd1c",
+   "e398d625987697163488fbabcd1a4c45ec3bb6601213f275f0f3c81a471291b7"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 7,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "00e6a94dd95720b070018424001306a645631e30866e0b95bf368e7318030f56",
+   "83e173b237bbe7042dfcc778fcca5e559f0b00c1447956e8ab59dab4b469bab4"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 23,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "1649a35b3d3d126e75694793b05ddbb8b36908f5c0d1a769a6eb6e19eabe43be",
+   "2f263fbda7bce7338bf4fb76518f273a334b915b14c059665e8b6ca0d54b24da"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 18,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "d0bb1e648c6e9f58b89852a63091bfafa1b5b6d8724d803fc13f90bbddf6b6ed",
+   "f6576f7cb3561967033e59451485649be40ab7a48e8f183e47a02a64691200a2"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 1,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "93309e030b7ec514facd31e66107804370cdbda6ac040db94c7137dfc7b779b7",
+   "e2a969c4c80c5211d44bfe5638e443490b7b2a0d820c441b21d78712e56671e5"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 3,
+  "seat": 4,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "3d93ca150f8a3b8aa44c8525d1874d871c54089c18255a4a76303c39f235155f",
+   "bc149f76260a99abd67f1b983bc66493b9c2bcefc23a0b7a22b48f8feee23bda"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 9,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "03aa49bef4653719a60719bce510b3e2d3d9fbb226599342dc56cc2461cd70bc",
+   "1e28caba3e748e89962aba23e37ed72c43efc3fbbf4445d520fe3f95445c7bed"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 3,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "0c4ca56eea0dc32275d2db1cc93addbe9bfd9477a1ff214180adb2617e4ea7a1",
+   "fe526bc7a07fc3f53e217221be16e9bc97e4c47937f02197236c12cd2373bac9"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 5,
+  "seat": 2,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "b0de51816bb6854bf883653d0d8539ababfce8020de3d909faca1d657643a366",
+   "d69a7aeac70dddac7a65a0c9a96199f3e405e9b937256edf307d4e430a4726b3"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant1",
+  "seed": 25,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "538d65e3d1809197b7ba8b5076e48bfa5491547cbe86c5d3e1bf1e233934357c",
+   "bf41874ceeffec654bc0e31bdfdf093c17f1cecae23bbe09620fc134aeddc3f4"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 14,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "2742b7d6f852c5d9ed1d38e7b1f435f88d60d140bb310e0b78cf65dd2acb79fc",
+   "a73115f7e6fcfdbd0751407d6ba1d0a13a57202c687dfafcd3d07117e55adf36"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 11,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "684e8dfcca510709c91a0351962ca915d3974187ba2ad9bf6eb78f20fcfbca3c",
+   "9368aaef61f2553d8c98f45d27c8f6d18b6fe841d68c571ceaa97232280a9059"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 11,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "73a1a1cb7947fba7532bd98299d6f94dd9aa6392c17ccb968091ff934c0ed751",
+   "ec2557245d93d01d3b69b2c48f2bd9240b5d6748525ce879bb9940fac7e9374d"
+  ]
+ },
+ {
+  "candidate_id": "custom/chulane#variant1",
+  "seed": 12,
+  "seat": 1,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "13805990bc1780150a0c140265503cb8223c05348050e986e2ac727ab79a9f56",
+   "fc365c9292b37550c1ee1a80b759d2a86e5825f807207c5f9bdbc258194a6383"
+  ]
+ },
+ {
+  "candidate_id": "custom/rogshai#variant3",
+  "seed": 2,
+  "seat": 3,
+  "opponents": [
+   "precon/2021/elven_empire",
+   "precon/2022/painbow",
+   "precon/2026/doom_prevails"
+  ],
+  "v11_hashes": [
+   "720d21ea3a2966a491f0ffb8a7faf8e3fab595efec16d9d2e5d70b1f91d490bb",
+   "d8992e56f8136b953375cc4916563c83028b55f715398d94c5c6ba6f587bdaf1"
+  ]
+ }
+]

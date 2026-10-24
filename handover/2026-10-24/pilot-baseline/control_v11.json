@@ -1,0 +1,178 @@
+{
+ "games_files": 2033,
+ "games_completed": 1971,
+ "games_aborted": 62,
+ "abort_causes": {
+  "failed": 62
+ },
+ "decisions_total": 6051869,
+ "classes": {
+  "priority": {
+   "n": 4373551,
+   "idx0_rate": 0.9296,
+   "one_option_rate": 0.3514
+  },
+  "mana_payment": {
+   "n": 1123371,
+   "idx0_rate": 0.0232,
+   "one_option_rate": 0.0119
+  },
+  "target": {
+   "n": 116674,
+   "idx0_rate": 0.416,
+   "one_option_rate": 0.1805
+  },
+  "declare_attacker": {
+   "n": 115581,
+   "idx0_rate": 0.2932,
+   "one_option_rate": 0.0001
+  },
+  "choice": {
+   "n": 97920,
+   "idx0_rate": 0.3354,
+   "one_option_rate": 0.0005
+  },
+  "choose_object": {
+   "n": 64743,
+   "idx0_rate": 0.3905,
+   "one_option_rate": 0.1857
+  },
+  "choose_use": {
+   "n": 52768,
+   "idx0_rate": 0.9722,
+   "one_option_rate": 0.0
+  },
+  "declare_blocker": {
+   "n": 44419,
+   "idx0_rate": 0.1735,
+   "one_option_rate": 0.5767
+  },
+  "trigger_order": {
+   "n": 25647,
+   "idx0_rate": 0.5447,
+   "one_option_rate": 0.0
+  },
+  "mode": {
+   "n": 15490,
+   "idx0_rate": 0.3668,
+   "one_option_rate": 0.1065
+  },
+  "mulligan": {
+   "n": 14175,
+   "idx0_rate": 0.5562,
+   "one_option_rate": 0.0
+  },
+  "announce_x": {
+   "n": 3099,
+   "idx0_rate": 0.0,
+   "one_option_rate": 0.0
+  },
+  "multi_amount": {
+   "n": 2381,
+   "idx0_rate": 0.0,
+   "one_option_rate": 0.0
+  },
+  "replacement_effect": {
+   "n": 1048,
+   "idx0_rate": 0.146,
+   "one_option_rate": 0.0
+  },
+  "target_amount": {
+   "n": 894,
+   "idx0_rate": 0.3848,
+   "one_option_rate": 0.0391
+  },
+  "amount": {
+   "n": 108,
+   "idx0_rate": 0.0,
+   "one_option_rate": 0.0
+  }
+ },
+ "mulligan_by_position": {
+  "0": {
+   "keep": 0,
+   "total": 7884,
+   "keep_rate": 0.0
+  },
+  "1": {
+   "keep": 0,
+   "total": 3772,
+   "keep_rate": 0.0
+  },
+  "2": {
+   "keep": 0,
+   "total": 1994,
+   "keep_rate": 0.0
+  },
+  "3": {
+   "keep": 0,
+   "total": 525,
+   "keep_rate": 0.0
+  }
+ },
+ "announce_x_top": [],
+ "choose_use_top10": [
+  {
+   "prompt": "Put a land card from your hand onto the battlefield?",
+   "yes": 6600,
+   "total": 6600,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Whenever you discard a card, you may exile that card from your graveyard.",
+   "yes": 2830,
+   "total": 2830,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay {1} and create a 2/2 colorless Robot Villain artifact creature token?",
+   "yes": 1352,
+   "total": 1352,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay {1} and 1 life and draw a card?",
+   "yes": 1317,
+   "total": 1317,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Create a Food token or a Treasure token?",
+   "yes": 0,
+   "total": 1195,
+   "yes_rate": 0.0
+  },
+  {
+   "prompt": "Pay {X}{X}?",
+   "yes": 1148,
+   "total": 1148,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Whenever another nontoken Elf is put into your graveyard from the battlefield, you may create a 1/1 green Elf Warrior creature token.",
+   "yes": 1094,
+   "total": 1094,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay 1 time Multikicker {2} ?",
+   "yes": 1026,
+   "total": 1026,
+   "yes_rate": 1.0
+  },
+  {
+   "prompt": "Pay 2 times Multikicker {2} ?",
+   "yes": 420,
+   "total": 1026,
+   "yes_rate": 0.4094
+  },
+  {
+   "prompt": "Pay {1}{B} and return this card from your graveyard to your hand?",
+   "yes": 959,
+   "total": 959,
+   "yes_rate": 1.0
+  }
+ ],
+ "cancelled_payments": 26010,
+ "cancelled_per_1000": 4.298
+}

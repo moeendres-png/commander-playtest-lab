@@ -1,0 +1,86 @@
+{
+ "validation_ci_halfwidths": [
+  {
+   "bundle": "RogShai:variant1",
+   "pairs": 200,
+   "discordant": 22,
+   "q": 0.11,
+   "ci_half_reported": 0.046,
+   "ci_half_formula": 0.046
+  },
+  {
+   "bundle": "RogShai:variant2",
+   "pairs": 200,
+   "discordant": 12,
+   "q": 0.06,
+   "ci_half_reported": 0.0339,
+   "ci_half_formula": 0.0339
+  },
+  {
+   "bundle": "RogShai:variant3",
+   "pairs": 200,
+   "discordant": 24,
+   "q": 0.12,
+   "ci_half_reported": 0.098,
+   "ci_half_formula": 0.048
+  },
+  {
+   "bundle": "Chulane:variant1",
+   "pairs": 200,
+   "discordant": 16,
+   "q": 0.08,
+   "ci_half_reported": 0.0392,
+   "ci_half_formula": 0.0392
+  },
+  {
+   "bundle": "Chulane:variant2",
+   "pairs": 200,
+   "discordant": 16,
+   "q": 0.08,
+   "ci_half_reported": 0.0392,
+   "ci_half_formula": 0.0392
+  },
+  {
+   "bundle": "Chulane:variant3",
+   "pairs": 200,
+   "discordant": 19,
+   "q": 0.095,
+   "ci_half_reported": 0.0677,
+   "ci_half_formula": 0.0427
+  }
+ ],
+ "known_m4_range_points": [
+  3.4,
+  4.8
+ ],
+ "formula_range_points": [
+  3.4,
+  4.8
+ ],
+ "q_pooled": 0.0908,
+ "discordant_total": 109,
+ "pairs_total": 1200,
+ "table_pooled": {
+  "2_points": 1783,
+  "3_points": 793,
+  "5_points": 286
+ },
+ "table_per_deck": {
+  "RogShai": {
+   "q": 0.0967,
+   "pairs": {
+    "2_points": 1897,
+    "3_points": 844,
+    "5_points": 304
+   }
+  },
+  "Chulane": {
+   "q": 0.085,
+   "pairs": {
+    "2_points": 1668,
+    "3_points": 742,
+    "5_points": 267
+   }
+  }
+ }
+}
