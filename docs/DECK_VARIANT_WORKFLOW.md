@@ -73,7 +73,7 @@ figure assumes independent games (per-pair sd 0.63); pairs that end identically
 make the real figure smaller, and the run prints its own figure at the end.
 
 ```bash
-export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
+export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -XX:+UseSerialGC -jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
 python scripts/run_full_game_deck_comparison.py \
     --baseline data/decks/rogshai_current.json \
     --variant /tmp/my_variant.json \
@@ -240,6 +240,9 @@ Reading the per-card and per-seat figures of a report (`per_card_version` 3):
   built from the pinned engine (`config/rules_engines.json`), or step 4 fails.
 - One worker needs about 2 GB RAM and one CPU core; more workers than cores
   is slower, not faster.
+- `-XX:+UseSerialGC` in the command is deliberate: with several JVMs side by side the
+  collector threads of the default G1 cost CPU (measured -12 % wall time, identical
+  transcripts). It does not change a game.
 - Resume a run by repeating the same `--out` — finished games are reused.
 - Failed games are censored (excluded), not counted as losses; check the
   report for how many games actually finished.
