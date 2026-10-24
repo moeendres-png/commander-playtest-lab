@@ -7,6 +7,7 @@ import re
 from collections.abc import Mapping
 from typing import Any
 
+from commander_lab.agents.card_knowledge import card_facts
 from commander_lab.models import (
     PilotActionView,
 )
@@ -48,6 +49,15 @@ _COUNTER_COUNT_PROMPT = re.compile(r"Choose how many counters \(")
 # "Announce the value for {X} (+1/+1 counters to remove)": the X of a cost that removes that many
 # counters (Hierophant Bio-Titan's Frenzied Metabolism, Haruspex's mana ability).
 _COUNTERS_TO_REMOVE_PROMPT = re.compile(r"\((?P<kind>[^()]+?) counters? to remove\)")
+# "you may pay any amount of mana" (Minds Aglow, Mana-Charged Dragon) and the "pays {X}" of a
+# counter-unless or reward clause: ``ManaUtil.playerPaysXGenericMana`` announces the amount with
+# the engine's 2147483647 ceiling and no cost. An amount the seat cannot fund fails at the
+# payment, the whole payment reverses and nothing was paid, so a seat that asks for the ceiling
+# never paid anything.
+_PAY_ANY_AMOUNT_PROMPT = re.compile(r"\AChoose how much mana to pay\Z")
+# Spells that do something at X = 0, so a cast with nothing left for X is a real play: Chalice of
+# the Void (counters {0} spells), Engineered Explosives (destroys tokens and {0} permanents).
+_ZERO_X_SPELLS = frozenset({"chalice of the void", "engineered explosives"})
 
 
 class _PaymentDecisions(_PolicyState):
@@ -908,6 +918,8 @@ class _PaymentDecisions(_PolicyState):
                 affordable_max = x_tap_prompt_cap(
                     prompt, source_object, self._actor(state).get("battlefield")
                 )
+            if affordable_max is None and _PAY_ANY_AMOUNT_PROMPT.match(prompt):
+                affordable_max = self._mana_budget(state)
             if affordable_max is not None:
                 domain["affordable_max"] = affordable_max
         if self._declines_unsupported_energy_payment(decision_class, prompt, source_object):
@@ -1110,6 +1122,29 @@ class _PaymentDecisions(_PolicyState):
         if not source:
             return None
         return self._priority_x_counter_caps.get(seat, {}).pop(source, None)
+
+    def _x_spell_without_x(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
+        """True for a cast of an X spell whose visible mana leaves nothing for X.
+
+        The rest of the cost is paid out of the same mana as X, so a budget that
+        covers only that rest announces X = 0: a Goblin Negotiation cast for
+        {R}{R} deals no damage and makes no token, and the card is gone. The
+        window withholds such a cast; a spell that does something at X = 0 is
+        the exception, and a cost the engine did not break down is left to the
+        engine.
+        """
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict) or metadata.get("ability_type") != "spell":
+            return False
+        name = str(metadata.get("source_name") or "").strip()
+        facts = card_facts(name)
+        if facts is None or name.casefold() in _ZERO_X_SPELLS:
+            return False
+        symbols = facts.mana_cost.upper().count("{X}")
+        non_x = _option_non_x_mana_value(metadata)
+        if symbols < 1 or non_x is None:
+            return False
+        return (self._mana_budget(state) - non_x) // symbols < 1
 
     def _mana_budget(self, state: dict[str, Any]) -> int:
         """Mana the actor can see it could produce right now.

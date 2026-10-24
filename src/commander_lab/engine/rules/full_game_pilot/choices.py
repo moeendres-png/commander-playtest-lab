@@ -419,7 +419,7 @@ class _ChoiceDecisions(_PaymentDecisions):
             and prior[1] == offer.ordinal - 1
         ):
             answered_yes = prior[2]
-            cap = self._boolean_yes_cap(offer, self._actor(state))
+            cap = self._boolean_yes_cap(offer, self._actor(state), source_object)
         dig_key = self._boolean_source_key(source_object)
         dug = 0
         if _LIFE_DIG_PROMPT.match(prompt):
@@ -634,16 +634,33 @@ class _ChoiceDecisions(_PaymentDecisions):
         instance = str(source_object.get("source_object_id") or "").strip()
         return f"instance:{instance}" if instance else ""
 
-    def _boolean_yes_cap(self, offer: _MultikickerOffer, actor: dict[str, Any]) -> int:
-        """How many further multikicker payments the pilot's mana can fund.
+    def _boolean_yes_cap(
+        self, offer: _MultikickerOffer, actor: dict[str, Any], source_object: Any = None
+    ) -> int:
+        """How many multikicker payments the pilot's mana can fund in all.
 
         The engine's affordability check covers a single payment, so the Lab
-        reads the pilot-visible total instead: available mana divided by what
-        one payment of the cost the prompt prints is worth. A prompt that
+        reads the pilot-visible total instead: available mana less the cost of
+        the spell itself, divided by what one payment of the cost the prompt
+        prints is worth. The spell's own cost is paid out of the same mana, so
+        leaving it out let a chain promise more payments than the mana could
+        fund and the whole cast was reversed at the payment. A prompt that
         prints no mana symbol states no per-payment value to divide by, so one
         further payment is assumed -- the minimum a bound needs to hold.
         """
-        return max(1, self._available_mana(actor) // (offer.per_payment or 1))
+        return max(
+            1,
+            (self._available_mana(actor) - self._spell_base_cost(source_object))
+            // (offer.per_payment or 1),
+        )
+
+    @staticmethod
+    def _spell_base_cost(source_object: Any) -> int:
+        """Mana value of the spell a cost prompt belongs to; 0 when it is not a known spell."""
+        if not isinstance(source_object, dict) or source_object.get("ability_type") != "spell":
+            return 0
+        facts = card_facts(str(source_object.get("source_name") or ""))
+        return int(facts.mana_value) if facts is not None else 0
 
     def _decide_pile(
         self,

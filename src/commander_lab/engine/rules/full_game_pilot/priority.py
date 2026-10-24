@@ -170,6 +170,12 @@ class _PriorityDecisions(_CombatDecisions):
                 "withheld %d priority action(s) the actor cannot fund from free resources at all",
                 unreachable,
             )
+        # An X spell whose visible mana leaves nothing for X would be cast for X = 0 and lost.
+        no_x = [option for option in affordable if self._x_spell_without_x(option, state)]
+        if no_x:
+            _LOG.info("withheld %d X spell(s) with no mana left for X", len(no_x))
+            no_x_ids = {id(option) for option in no_x}
+            affordable = [o for o in affordable if id(o) not in no_x_ids]
         # #732: pilot judgment, like affordability above: an action a player
         # would not take because it only hurts themselves (countering only
         # their own spells, removal with no opposing target, a wipe that
