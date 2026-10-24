@@ -201,7 +201,7 @@ git clone https://github.com/moeendres-png/mage ../xmage && git -C ../xmage chec
 Mage.Server.Plugins/Mage.Deck.Constructed,Mage.Server.Plugins/Mage.Game.CommanderFreeForAll,\
 Mage.Server.Plugins/Mage.Game.CommanderDuel)
 (cd engine-bridge && mvn -B -ntp verify)       # bridge tests + jar, as in CI
-export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -jar $PWD/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
+export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -XX:+UseSerialGC -jar $PWD/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
 ```
 
 Then compare decks on real four-player games (finished games are reused when the command
