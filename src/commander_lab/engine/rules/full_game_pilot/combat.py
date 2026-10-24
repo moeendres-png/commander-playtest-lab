@@ -9,6 +9,14 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_blocks import (
+    BlockRound,
+    fresh_round,
+    note_attackers,
+    record_blocks,
+    settled_scores,
+    urgent_scores,
+)
 from ..full_game_pilot_views import (
     attack_score,
     block_score,
@@ -95,6 +103,9 @@ class _CombatDecisions(_ChoiceDecisions):
         ranked: list[tuple[float, str]] = []
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[str, int] = {}
+        stable_ids: list[str] = []
+        ordinary: list[float] = []
+        chump: list[bool] = []
         for option in options:
             label = str(option.get("label", "Block"))
             base = f"block:{label.casefold()}"
@@ -102,9 +113,27 @@ class _CombatDecisions(_ChoiceDecisions):
             occurrences[base] = occurrence + 1
             stable_id = f"{base}:{occurrence}"
             # The board decides blocks: the generic evaluator has no P/T.
-            score, _facts = block_score(option, state)
-            ranked.append((score, stable_id))
+            score, facts = block_score(option, state)
+            stable_ids.append(stable_id)
+            ordinary.append(score)
+            chump.append(not facts.get("block_survives") and not facts.get("block_kills"))
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
+        # #989 phase 3: one attacker at a time never calls for a chump block, so five
+        # attackers that are lethal together went unblocked. The round remembers what the
+        # earlier blockers of this declaration took off the table; while the rest is lethal,
+        # this blocker takes the most damage it can.
+        seat = runtime.binding.seat
+        round_ = fresh_round(self._block_round.get(seat), state.get("turn_number"))
+        self._block_round[seat] = round_
+        note_attackers(round_, options, state)
+        blocker_id = self._block_blocker_id(options)
+        urgent = urgent_scores(round_, blocker_id, options, ordinary, state)
+        scores = (
+            settled_scores(round_, blocker_id, options, ordinary, chump)
+            if urgent is None
+            else urgent
+        )
+        ranked = list(zip(scores, stable_ids, strict=True))
         ranked.sort(key=lambda item: (item[0], item[1]), reverse=True)
         # #732: block only where it pays (the blocker survives, trades up, or
         # a chump block prevents lethal or near-lethal damage); the old rule
@@ -134,9 +163,9 @@ class _CombatDecisions(_ChoiceDecisions):
         # makes no legality claim - the engine still accepts or rejects what is
         # submitted.
         if asks == 1:
-            return judged_pick
+            return self._remember_blocks(round_, blocker_id, options, judged_pick, state)
         if asks == 2:
-            return maximal_pick
+            return self._remember_blocks(round_, blocker_id, options, maximal_pick, state)
         # From ask 3 on: the empty declaration (it can violate no blocking
         # restriction, but it cannot satisfy a mandatory block either), then
         # each single block the earlier asks did not declare, best first. A
@@ -159,7 +188,34 @@ class _CombatDecisions(_ChoiceDecisions):
                 f"frames={len(options)}",
                 code="BLOCK_DECLARATION_REJECTED",
             )
-        return ladder[asks - 3]
+        return self._remember_blocks(round_, blocker_id, options, ladder[asks - 3], state)
+
+    @staticmethod
+    def _block_blocker_id(options: list[dict[str, object]]) -> str:
+        """The engine id of the creature these options let block (one per decision)."""
+        for option in options:
+            metadata = option.get("metadata")
+            blocker_id = metadata.get("blocker_id") if isinstance(metadata, dict) else None
+            if isinstance(blocker_id, str) and blocker_id.strip():
+                return blocker_id
+        return ""
+
+    @staticmethod
+    def _remember_blocks(
+        round_: BlockRound,
+        blocker_id: str,
+        options: list[dict[str, object]],
+        picked_ids: list[str],
+        state: dict[str, object],
+    ) -> list[str]:
+        """Record what this answer takes off the table for the blockers asked after it."""
+        record_blocks(
+            round_,
+            blocker_id,
+            [option for option in options if option.get("option_id") in picked_ids],
+            state,
+        )
+        return picked_ids
 
     @staticmethod
     def _block_frame_key(options: list[dict[str, object]]) -> tuple[str, ...]:

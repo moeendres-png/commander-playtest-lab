@@ -18,6 +18,7 @@ from commander_lab.models import (
     PilotStateView,
 )
 
+from ..full_game_pilot_blocks import BlockRound
 from ..full_game_pilot_targets import (
     commander_damage_dealt,
     has_life_clock,
@@ -230,6 +231,9 @@ class _PolicyState:
         # declaration -- and by every new turn, or extra combats would read as
         # rejections (review P1).
         self._block_frame_asks: dict[int, tuple[object, dict[tuple[str, ...], int]]] = {}
+        # #989 phase 3: per seat, what the blockers asked so far in this declaration took off
+        # the table; dropped with the frame counts above.
+        self._block_round: dict[int, BlockRound] = {}
 
     def _turn_action_cap(
         self, option: dict[str, Any], state: Mapping[str, object] | None = None
