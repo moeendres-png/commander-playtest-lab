@@ -6,6 +6,7 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from typing import Any
 
+from commander_lab.agents.card_knowledge import card_facts
 from commander_lab.models import (
     CardRole,
     PilotActionView,
@@ -313,6 +314,44 @@ class BasePilot:
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         return _GENERIC_WEIGHTS[strength]
 
+    # The opening hand is judged by what it is expected to do in the first six turns, against
+    # what a fresh seven would do (the first Commander mulligan is free). The model is a least
+    # squares fit of the mana a greedy six-turn play spends (scripts/mulligan_policy_eval.py) on
+    # 58,500 seeded hands of the 195 precon decks; a quarter of the decks were held out and fit as
+    # well as the rest (R2 0.33 on both). The score is in mana: expected mana minus that of a
+    # fresh seven. What the hand can do matters more than how many lands it holds: the cells
+    # below are the mean mana by lands (0-6) and by cheap spells (mana value 1-3) the hand's
+    # lands can pay for (0-3); colours the lands cannot make, a commander whose colours they
+    # cannot make, cheap ramp and card flow are added on top.
+    _OPENING_CELLS = (
+        # castable cheap spells:  0      1      2      3
+        (8.60, 9.49, 10.03, 9.74),  # 0 lands
+        (10.15, 11.49, 11.20, 11.86),  # 1 land
+        (11.77, 13.36, 14.38, 14.99),  # 2 lands
+        (13.57, 15.65, 16.53, 16.68),  # 3 lands
+        (15.27, 16.63, 17.15, 17.04),  # 4 lands
+        (15.84, 16.78, 16.58, 16.58),  # 5 lands (3 cheap castable cannot occur)
+        (15.31, 15.85, 15.85, 15.85),  # 6 lands (2 or more cannot occur)
+    )
+    _OPENING_COLOUR_GAP = -0.66  # share of the coloured spells up to value 4 the lands cannot pay
+    _OPENING_COMMANDER_GAP = -3.85  # share of the commander's colours the lands cannot make
+    _OPENING_FIRST_RAMP = 2.93  # one ramp card of value 2 or less
+    _OPENING_SECOND_RAMP = 1.71  # a second one
+    _OPENING_EARLY_VELOCITY = 0.09  # per draw or selection card of value 2 or less (max 2)
+    _OPENING_EXPENSIVE = -0.03  # per card of value 5 or more
+    # Six or seven lands leave one spell at most; the fit rates such a hand near a fresh seven
+    # because it draws into spells, but a player with a free mulligan sends it back.
+    _OPENING_FLOOD = -3.0
+    # One land or none: cheap ramp needs lands to cast, so it cannot make up for them.
+    _OPENING_LAND_LIGHT = -3.0
+    _OPENING_FRESH_SEVEN = 15.18  # expected mana of a fresh seven under the same model
+    # Mana a kept hand may fall short of a fresh seven (near-optimal pilot).
+    _OPENING_KEEP_MARGIN = 1.0
+    # Mana lost per card bottomed after the free mulligan (measured 1.6 to 2.0); the keep
+    # rate and the mana spent are flat between 0.5 and 1.2, so the bar falls by 1.2.
+    _OPENING_MULLIGAN_STEP = 1.2
+    _OPENING_STRENGTH_STEP = 0.4  # selectivity offset between pilot strengths
+
     def opening_hand_score(
         self,
         cards: Iterable[PilotActionView],
@@ -320,35 +359,56 @@ class BasePilot:
         commander_names: tuple[str, ...] = (),
     ) -> float:
         card_list = list(cards)
-        lands = sum(bool(card.metadata.get("is_land", False)) for card in card_list)
-        early_ramp = sum(card.strength(CardRole.RAMP) for card in card_list if card.mana_cost <= 2)
-        early_velocity = sum(
-            card.strength(CardRole.DRAW) + card.strength(CardRole.SELECTION)
-            for card in card_list
-            if card.mana_cost <= 2
+        made: set[str] = set()
+        lands = 0
+        for card in card_list:
+            if bool(card.metadata.get("is_land", False)):
+                lands += 1
+                facts = card_facts(card.card_name)
+                if facts is not None:
+                    made |= facts.colours_made
+        coloured = blocked = castable = 0
+        early_ramp = early_velocity = expensive = 0
+        for card in card_list:
+            if bool(card.metadata.get("is_land", False)):
+                continue
+            if card.mana_cost >= 5:
+                expensive += 1
+            if card.mana_cost <= 2:
+                early_ramp += card.strength(CardRole.RAMP) > 0
+                early_velocity += (
+                    card.strength(CardRole.DRAW) + card.strength(CardRole.SELECTION)
+                ) > 0
+            facts = card_facts(card.card_name)
+            # A card the catalog does not know has no colours here: its cost is the view's.
+            pips = (
+                {colour for colour in facts.pips() if colour in "WUBRG"}
+                if facts is not None
+                else set()
+            )
+            if pips and card.mana_cost <= 4:
+                coloured += 1
+                blocked += not pips <= made
+            if 0 < card.mana_cost <= 3 and pips <= made:
+                castable += 1
+        commander_gap = 0.0
+        commander = card_facts(commander_names[0]) if commander_names else None
+        if commander is not None:
+            needed = {colour for colour in commander.pips() if colour in "WUBRG"}
+            if needed:
+                commander_gap = len(needed - made) / len(needed)
+        expected = (
+            self._OPENING_CELLS[min(lands, 6)][min(castable, 3)]
+            + self._OPENING_COLOUR_GAP * (blocked / coloured if coloured else 0.0)
+            + self._OPENING_COMMANDER_GAP * commander_gap
+            + self._OPENING_FIRST_RAMP * (early_ramp >= 1)
+            + self._OPENING_SECOND_RAMP * (early_ramp >= 2)
+            + self._OPENING_EARLY_VELOCITY * min(early_velocity, 2)
+            + self._OPENING_EXPENSIVE * expensive
+            + self._OPENING_FLOOD * (lands >= 6)
+            + self._OPENING_LAND_LIGHT * (lands <= 1)
         )
-        expensive = sum(card.mana_cost >= 5 for card in card_list)
-        # #850: land term recentered on 3.5 (Commander wants 3-4 lands, not
-        # exactly 3). The falloff is gentler above 3.5 than below: a 5-land
-        # hand is mana-rich and will draw into action, while a 2-land hand
-        # risks missing land drops -- and the spell bonus below
-        # systematically favors the 2-land hand (more spells), so the land
-        # term compensates in the other direction.
-        land_score = 3.5 - (3.5 - lands) * 0.85 if lands <= 3 else 3.5 - (lands - 3.5) * 0.55
-        if lands < 2 or lands > 5:
-            land_score -= 2.5
-        score = land_score
-        score += min(2.0, early_ramp * 0.8)
-        score += min(1.5, early_velocity * 0.55)
-        # #850: no cheap-interaction bonus here. The mulligan decision is
-        # about mana development -- whether the hand can hit its land drops.
-        # Cheap ramp and card draw answer that; removal/counters/protection
-        # do not fix a mana-poor hand. (The per-pilot specialist bonuses
-        # below still value interaction where the archetype wants it.)
-        # The expensive-card penalty is lowered (was 0.45): Commander decks
-        # run many 5+ drops, and the old penalty mulliganed good 4-land
-        # hands for holding a single 5-drop.
-        score -= expensive * 0.15
+        score = expected - self._OPENING_FRESH_SEVEN
         score += self.opening_hand_specialist_bonus(card_list, commander_names)
         return score
 
@@ -370,18 +430,21 @@ class BasePilot:
         rng: random.Random,
     ) -> tuple[bool, float]:
         score = self.opening_hand_score(cards, commander_names=commander_names)
-        # #850: recalibrated for the recentered land term. Selectivity order
-        # is unchanged (WEAK keeps the most, NEAR_OPTIMAL_HEURISTIC the
-        # fewest); every strength keeps a realistic share of openers.
-        thresholds = {
-            PilotStrength.WEAK: 2.35,
-            PilotStrength.AVERAGE: 2.55,
-            PilotStrength.STRONG: 2.65,
-            PilotStrength.NEAR_OPTIMAL_HEURISTIC: 2.75,
+        # The margin is the measured optimum, which the strongest pilot plays; weaker pilots keep
+        # more marginal hands (WEAK the most). Offsets are in the score's own unit (mana over the
+        # first turns, see opening_hand_score).
+        offsets = {
+            PilotStrength.WEAK: -3 * self._OPENING_STRENGTH_STEP,
+            PilotStrength.AVERAGE: -2 * self._OPENING_STRENGTH_STEP,
+            PilotStrength.STRONG: -self._OPENING_STRENGTH_STEP,
+            PilotStrength.NEAR_OPTIMAL_HEURISTIC: 0.0,
         }
-        threshold = thresholds[self.config.strength]
-        effective_mulligans = max(0, mulligans - (1 if free_first and mulligans > 0 else 0))
-        threshold -= effective_mulligans * 0.55
+        threshold = -self._OPENING_KEEP_MARGIN + offsets[self.config.strength]
+        # A mulligan that costs a card makes a fresh seven worth less: the bar falls by the
+        # cost of the extra bottomed card. The first Commander mulligan is free, so a hand seen
+        # before any mulligan is compared with a full fresh seven.
+        if mulligans >= 1 or not free_first:
+            threshold -= self._OPENING_MULLIGAN_STEP
         if self.config.mode == PilotDecisionMode.DETERMINISTIC:
             return score >= threshold, score
         probability = self._logistic((score - threshold) / max(0.1, self.temperature))
