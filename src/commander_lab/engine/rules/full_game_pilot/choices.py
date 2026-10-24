@@ -12,6 +12,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_targets import commander_clock_bonus, target_side
 from ..full_game_pilot_views import (
     color_choice_rank,
     commander_creature_ids,
@@ -22,6 +23,7 @@ from ..full_game_pilot_views import (
     needs_commander_target,
     own_counter_stacks,
     own_counters_by_kind,
+    permanent_owner,
     sweep_mode_net,
     target_object_bonus,
 )
@@ -211,7 +213,9 @@ class _ChoiceDecisions(_PaymentDecisions):
         # Raw engine ids never order or identify pilot inputs.
         raw_by_stable_id: dict[str, str] = {}
         occurrences: dict[str, int] = {}
-        ranked: list[tuple[float, str, str]] = []
+        source_name = str(source.get("source_name") or "") if isinstance(source, dict) else ""
+        actor_id = self._required_text(state, "actor_id")
+        built: list[tuple[dict[str, Any], PilotActionView]] = []
         for option in options:
             metadata = option.get("metadata")
             meta = metadata if isinstance(metadata, dict) else {}
@@ -240,21 +244,49 @@ class _ChoiceDecisions(_PaymentDecisions):
             occurrences[base] = occurrence + 1
             stable_id = f"{base}:{occurrence}"
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
-            action = self._target_action(option, state, outcome).model_copy(
-                update={"action_id": stable_id}
-            )
-            breakdown = runtime.pilot.evaluate_action(pilot_state, action)
-            score = (
-                breakdown.total_utility
-                + self._target_alignment(action, state, outcome)
-                + target_object_bonus(
+            built.append(
+                (
                     option,
-                    state,
-                    outcome,
-                    own_stack_names=self._own_stack_names(runtime.binding.seat),
+                    self._target_action(option, state, outcome).model_copy(
+                        update={"action_id": stable_id}
+                    ),
                 )
             )
-            ranked.append((score, action.card_name, stable_id))
+        # A gift ("target opponent draws a card", Humble Defector's "gains control of this
+        # creature"): the opponent offered is the one that gets it, so it goes to the weakest,
+        # not to the one a removal ranking would aim at. Gifts only ever offer opponents.
+        gift = outcome == "drawcard" and all(
+            action.metadata.get("target_is_player") is True and action.target_player_id != actor_id
+            for _option, action in built
+        )
+        strongest = max((action.target_threat for _option, action in built), default=0.0)
+        side = target_side(outcome, source_name)
+        mixed = len({action.target_player_id == actor_id for _option, action in built}) > 1
+        ranked: list[tuple[float, str, str]] = []
+        for option, action in built:
+            if gift:
+                score = strongest - action.target_threat
+            else:
+                breakdown = runtime.pilot.evaluate_action(pilot_state, action)
+                score = (
+                    breakdown.total_utility
+                    + self._target_alignment(action, state, outcome, source_name, mixed=mixed)
+                    + target_object_bonus(
+                        option,
+                        state,
+                        outcome,
+                        own_stack_names=self._own_stack_names(runtime.binding.seat),
+                        source_name=source_name,
+                    )
+                )
+                metadata = option.get("metadata")
+                object_id = (metadata.get("object_id") if isinstance(metadata, dict) else None) or (
+                    option.get("option_id")
+                )
+                found = permanent_owner(str(object_id), state)
+                if side == "opponent" and found is not None:
+                    score += commander_clock_bonus(found[1], found[0], state, actor_id, outcome)
+            ranked.append((score, action.card_name, action.action_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
 
         if max_selections <= 0:

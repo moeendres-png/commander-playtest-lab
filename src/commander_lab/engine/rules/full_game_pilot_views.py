@@ -31,6 +31,8 @@ from commander_lab.agents.card_knowledge import (
 )
 from commander_lab.models import CardRole
 
+from .full_game_pilot_targets import target_side
+
 _COLOR_SYMBOL = {word.casefold(): symbol for symbol, word in COLOR_WORDS.items()}
 _PIP = re.compile(r"\{([WUBRG])(?:/[WUBRGP])?\}")
 
@@ -1364,6 +1366,7 @@ def target_object_bonus(
     outcome: str,
     *,
     own_stack_names: frozenset[str] = frozenset(),
+    source_name: str = "",
 ) -> float:
     """How good a specific object is as this target, beyond whose it is.
 
@@ -1377,7 +1380,7 @@ def target_object_bonus(
     object_id = str(meta.get("object_id") or option.get("option_id") or "")
     found = permanent_owner(object_id, state)
     actor_id = str(state.get("actor_id", ""))
-    beneficial = outcome in {"benefit", "benefit_to_controller"}
+    beneficial = target_side(outcome, source_name) == "own"
     if found is None:
         name = str(meta.get("name") or option.get("label") or "").casefold()
         stack_item = next(

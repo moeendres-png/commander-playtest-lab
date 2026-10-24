@@ -18,6 +18,12 @@ from commander_lab.models import (
     PilotStateView,
 )
 
+from ..full_game_pilot_targets import (
+    commander_damage_dealt,
+    has_life_clock,
+    life_clock,
+    target_side,
+)
 from ..full_game_pilot_views import (
     archenemy,
     board_summary,
@@ -347,6 +353,9 @@ class _PolicyState:
                     engine_value=summary["nonland_permanents"] * 0.35,
                     graveyard_size=graveyard_count,
                     hand_size=int(raw.get("hand_count", 0)),
+                    commander_damage_from_actor=commander_damage_dealt(
+                        state, actor_id, self._required_text(raw, "player_id")
+                    ),
                 )
             )
         battlefield = actor.get("battlefield")
@@ -481,12 +490,16 @@ class _PolicyState:
         outcome: str,
     ) -> PilotActionView:
         option_id = self._required_text(option, "option_id")
+        raw_meta = option.get("metadata")
+        option_meta = raw_meta if isinstance(raw_meta, dict) else {}
         owner_id = self._object_owner(option_id, state)
+        is_player = False
         if owner_id is None:
             # A player target: the option carries the engine's player id, the
             # state the seat token; the seat in the label joins them.
             player = resolve_player(option_id, str(option.get("label", "")), state)
             owner_id = str(player.get("player_id")) if player is not None else None
+            is_player = owner_id is not None
         actor_id = self._required_text(state, "actor_id")
         target_threat = self._player_threat(owner_id, state)
         # Card-level threat: how dangerous is this specific permanent?
@@ -509,7 +522,12 @@ class _PolicyState:
             target_player_id=owner_id,
             target_threat=target_threat,
             threat_score=combined_threat,
-            metadata={"target_is_actor_controlled": owner_id == actor_id},
+            metadata={
+                "target_is_actor_controlled": owner_id == actor_id,
+                "target_is_player": is_player,
+                "target_life": self._player_life(owner_id, state),
+                "target_zone": str(option_meta.get("zone") or ""),
+            },
         )
 
     def _combat_action(self, option: dict[str, Any], state: dict[str, Any]) -> PilotActionView:
@@ -574,14 +592,38 @@ class _PolicyState:
         action: PilotActionView,
         state: dict[str, Any],
         outcome: str,
+        source_name: str = "",
+        *,
+        mixed: bool = True,
     ) -> float:
+        """Which side a target belongs on, and for damage how close the player is to dead.
+
+        The side comes from the engine's name for the effect (``target_side``) and only ranks
+        when the choice offers both sides: a cost that taps one of the pilot's own creatures is
+        tagged ``tap`` like the effect that taps an opponent's, and has only its own to pick
+        from. A card in a graveyard, hand or exile is a card to take, not a side, so only the
+        two generic outcomes ("benefit", "detriment") align it.
+        """
         actor_id = self._required_text(state, "actor_id")
         same = action.target_player_id == actor_id
-        if outcome in {"benefit", "benefit_to_controller"}:
-            return 8.0 if same else -8.0
-        if outcome in {"detriment", "detriment_to_controller"}:
-            return -8.0 if same else 8.0
-        return 0.0
+        side = target_side(outcome, source_name)
+        generic = outcome in {
+            "benefit",
+            "benefit_to_controller",
+            "detriment",
+            "detriment_to_controller",
+        }
+        if side is None:
+            return 0.0
+        ranks_sides = generic or (
+            mixed and action.metadata.get("target_zone") in ("", "battlefield")
+        )
+        if side == "own":
+            return (8.0 if same else -8.0) if ranks_sides else 0.0
+        aligned = (-8.0 if same else 8.0) if ranks_sides else 0.0
+        if not same and has_life_clock(outcome) and action.metadata.get("target_is_player") is True:
+            aligned += life_clock(float(action.metadata.get("target_life", 40.0)))
+        return aligned
 
     def _object_owner(self, object_id: str, state: dict[str, Any]) -> str | None:
         players = state.get("players")
