@@ -294,7 +294,11 @@ def completing_options(
             if ability is None:
                 return None
             abilities[option_id] = ability
-            if meta.get("pool_covers_mana_cost") is False:
+            # The flag counts a hybrid pip as both of its colours ({R/W} "needs" R and W), so a
+            # pool holding one of them reads as short; the pool is read here instead.
+            if meta.get("pool_covers_mana_cost") is False and all(
+                len(pip) == 1 for pip in ability.pips
+            ):
                 unfunded.add(option_id)
         else:
             return None

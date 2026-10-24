@@ -35,6 +35,9 @@ def _tap(option_id: str, name: str, effect: str, *, cost: str = "{T}", source: s
         f"{name} — {cost}: Add {effect}.",
         source_name=name,
         source_object_id=source or option_id.split("-")[0],
+        requires_tap_source=True,
+        source_tapped=False,
+        pool_covers_mana_cost=True,
     )
 
 
@@ -143,18 +146,31 @@ def test_a_mana_that_cannot_help_is_not_a_completing_one() -> None:
     assert completing_options(options, "{R}") == frozenset({"hall-any"})
 
 
-def test_an_ability_the_engine_calls_unfunded_is_not_chosen_now() -> None:
-    # The engine's verdict on the pool as it is: the Prairie cannot be activated before the red
-    # mana is in the pool, however well it would finish the payment afterwards.
-    unfunded = [
+def _unfunded(options: list[Any]) -> list[Any]:
+    """The same options with the engine's pool verdict set to "short"."""
+    return [
         option | {"metadata": {**option["metadata"], "pool_covers_mana_cost": False}}
-        for option in _prairie()
+        for option in options
     ]
-    options = [_CANCEL, _pool("red"), *unfunded]
-    assert completing_options(options, "{1}{W}") == frozenset()
-    assert completing_options(
-        [_CANCEL, _tap("mountain-r", "Mountain", "{R}"), *unfunded], "{1}{W}"
-    ) == frozenset({"mountain-r"})
+
+
+def test_an_ability_the_engine_calls_unfunded_is_not_chosen_now() -> None:
+    # The engine's verdict on the pool as it is: a floating red would pay the Skycloud Expanse's
+    # {1}, but the engine says the pool does not cover it, so it is not an option now.
+    expanse = _tap("expanse-wu", "Skycloud Expanse", "{W}{U}", cost="{1}, {T}", source="expanse")
+    assert completing_options([_CANCEL, _pool("red"), expanse], "{W}{U}") == frozenset(
+        {"expanse-wu"}
+    )
+    assert (
+        completing_options([_CANCEL, _pool("red"), *_unfunded([expanse])], "{W}{U}") == frozenset()
+    )
+
+
+def test_a_hybrid_cost_the_flag_calls_short_is_read_from_the_pool() -> None:
+    # The flag counts {R/W} as red and white, so a pool holding only red reads as short for the
+    # Rugged Prairie. The pool pays it, and the model says so.
+    options = [_CANCEL, _pool("red"), *_unfunded(_prairie())]
+    assert completing_options(options, "{1}{W}") == frozenset({"prairie-rw", "prairie-ww"})
 
 
 def test_cancel_is_never_part_of_the_answer() -> None:
@@ -206,6 +222,29 @@ def test_the_pilot_pays_the_filter_instead_of_spending_the_pool() -> None:
             _request("mana_payment", options, context={"unpaid_mana": "{1}{W}"})
         )
         assert response["selected_option_ids"][0] in {"prairie-rw", "prairie-ww"}
+
+
+def test_the_pilot_pays_the_filter_the_engine_flags_as_short_when_the_pool_covers_it() -> None:
+    # The engine's own offer in a real game (seed 2, Selfless Spirit): every filter outcome of
+    # the Prairie carries pool_covers_mana_cost=False while a red mana floats. Without the model's
+    # own reading the pilot withheld them and spent the red on the {1}, then cancelled.
+    options = [_CANCEL, _pool("red"), *_unfunded(_prairie()[:3]), _prairie()[3]]
+    response = _policy().decide(
+        _request("mana_payment", options, context={"unpaid_mana": "{1}{W}"})
+    )
+    assert response["selected_option_ids"][0] in {"prairie-rw", "prairie-ww"}
+
+
+def test_a_filter_with_a_plain_cost_the_engine_flags_as_short_stays_withheld() -> None:
+    # Control: the flag is still authoritative for a cost that is not hybrid.
+    expanse = _unfunded(
+        [_tap("expanse-wu", "Skycloud Expanse", "{W}{U}", cost="{1}, {T}", source="expanse")]
+    )
+    options = [_CANCEL, _pool("red"), *expanse]
+    response = _policy().decide(
+        _request("mana_payment", options, context={"unpaid_mana": "{1}{W}"})
+    )
+    assert response["selected_option_ids"] == ["pool-red"]
 
 
 def test_the_pilot_taps_the_swamp_not_the_hall_for_a_red_cost() -> None:

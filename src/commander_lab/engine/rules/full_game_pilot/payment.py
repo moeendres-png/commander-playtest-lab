@@ -220,7 +220,9 @@ class _PaymentDecisions(_PolicyState):
         )
         return chosen
 
-    def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
+    def _priority_action_affordable(
+        self, option: dict[str, Any], state: dict[str, Any], *, pool_verified: bool = False
+    ) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
 
         Returns False only when engine-native cost facts prove the action
@@ -252,6 +254,11 @@ class _PaymentDecisions(_PolicyState):
         intent. Any other False result (a tapped source, a Crew the other
         creatures cannot pay, a tap-creature cost with nothing to tap) stays
         withheld.
+
+        ``pool_verified`` is set by the payment model once it has read the pool itself and found
+        the ability's cost covered: the flag counts a hybrid pip such as ``{R/W}`` as both of its
+        colours, so a pool holding one of them reads as short (Rugged Prairie with a red mana
+        floating). It lifts only that flag verdict, never a tapped source or a Crew check.
         """
         metadata = option.get("metadata")
         if not isinstance(metadata, dict):
@@ -280,7 +287,7 @@ class _PaymentDecisions(_PolicyState):
         # Vehicle's own power would pay for it, which no crew can ever use.
         if metadata.get("crew_payable_without_source") is False:
             return False
-        if metadata.get("pool_covers_mana_cost") is not False:
+        if metadata.get("pool_covers_mana_cost") is not False or pool_verified:
             return True
         return not (
             metadata.get("requires_tap_source") is True
@@ -539,7 +546,9 @@ class _PaymentDecisions(_PolicyState):
             chosen.get("label"),
             len(narrowed) - len(cancels),
         )
-        alternative = self._choose_mana_option(runtime, state, narrowed, context, rng)
+        alternative = self._choose_mana_option(
+            runtime, state, narrowed, context, rng, payable=frozenset(map(str, completing))
+        )
         # cancelling is the dead end this steers away from, never what it steers towards: the
         # pilot's own rules may withhold every option the model found
         return choice if alternative in cancels else alternative
@@ -551,6 +560,7 @@ class _PaymentDecisions(_PolicyState):
         options: list[dict[str, object]],
         context: dict[str, object],
         rng: random.Random,
+        payable: frozenset[str] = frozenset(),
     ) -> str:
         seat = runtime.binding.seat
         pool_options = [
@@ -666,7 +676,9 @@ class _PaymentDecisions(_PolicyState):
         selectable: list[dict[str, Any]] = []
         for option in non_pool:
             if self._required_text(option, "option_type") == "mana_ability" and (
-                not self._priority_action_affordable(option, state)
+                not self._priority_action_affordable(
+                    option, state, pool_verified=str(option.get("option_id")) in payable
+                )
                 or self._spends_the_activations_own_source(seat, option)
                 or self._spends_counters_the_cast_reserves(seat, option)
                 or self._spends_a_permanent_the_tap_cost_needs(seat, option, state)
