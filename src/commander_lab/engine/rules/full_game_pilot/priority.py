@@ -247,7 +247,7 @@ class _PriorityDecisions(_CombatDecisions):
                 needs_mana_first = [o for o in needs_mana_first if id(o) not in unpaid_ids]
                 self_defeating += len(unpaid)
         if self_defeating:
-            _LOG.info("withheld %d self-defeating priority action(s)", self_defeating)
+            _LOG.info("withheld %d self-defeating or too early priority action(s)", self_defeating)
         if needs_mana_first:
             _LOG.info(
                 "offered %d pool-shortfall priority action(s) as needing mana first",
