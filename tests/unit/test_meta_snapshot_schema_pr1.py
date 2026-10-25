@@ -88,6 +88,7 @@ def test_old_snapshot_files_still_validate(repo_root: Path) -> None:
         ("meta-2026-08-05-phase12-1", 9, 8),
         ("meta-2026-08-13-whole-deck-phase2-1", 5, 4),
     ]
+    assert cases
     for snapshot_id, source_count, deck_count in cases:
         path = repo_root / "data" / "meta" / "snapshots" / f"{snapshot_id}.json"
         snapshot = MetaKnowledgeBaseSnapshot.model_validate_json(path.read_text(encoding="utf-8"))
