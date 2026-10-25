@@ -310,6 +310,33 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _slim_record_for_aggregate(record: FullGameBatchRecord) -> FullGameBatchRecord:
+    """Drop everything ``aggregate_comparison`` never reads (#992).
+
+    A real batch record carries the multi-MB game transcript in
+    ``result.result_payload`` (measured on an M4 record file: 1.58 MB of
+    2.30 MB total); the sequential runner retained every record, so RSS
+    grew with the game count (5.25 GB at 495 records, #992). The aggregate
+    reads exactly: ``case_id``, ``status``, ``failure_class``, the resumed
+    flag (for the report counts), and, for completed records,
+    ``result.winner_seats``, ``result.semantic_transcript_sha256``,
+    ``result.decision_count`` and ``result.result_payload``'s ``outcomes``
+    and ``turn_number``. Everything else is dropped at ingest; the full
+    records stay on disk, one file per game, written by the batch layer.
+    The byte-identity test in ``test_sequential_runner_memory.py`` guards
+    this whitelist: if the aggregate ever reads more, that test fails.
+    """
+    if record.result is None:
+        return record
+    payload = record.result.result_payload
+    slim_payload = {k: payload[k] for k in ("outcomes", "turn_number") if k in payload}
+    return record.model_copy(
+        update={
+            "result": record.result.model_copy(update={"result_payload": slim_payload}),
+        }
+    )
+
+
 def run_sequential_blocks(
     spec: DeckComparisonSpec,
     cases: tuple[FullGameBatchCase, ...],
@@ -327,6 +354,12 @@ def run_sequential_blocks(
     uses the same threshold. Returns the comparison report, the combined batch
     report over the blocks played, and the ``sequential`` payload for the
     report JSON.
+
+    Memory (#992): the combined report's records are slimmed at ingest by
+    ``_slim_record_for_aggregate`` to the aggregate inputs only, so retained
+    memory grows with a small constant per record instead of with the game
+    transcripts. The comparison report written to COMPARISON_REPORT.json is
+    unchanged: it holds counts, not records.
     """
     looks_planned = sequential_looks_planned(len(spec.seeds), look_every)
     per_look_alpha = sequential_look_alpha(significance_level, looks_planned)
@@ -337,7 +370,7 @@ def run_sequential_blocks(
     for start in range(0, len(seed_list), look_every):
         block = tuple(seed_list[start : start + look_every])
         report = run_block(tuple(case for case in cases if case.scenario.seed in block))
-        records.extend(report.records)
+        records.extend(_slim_record_for_aggregate(record) for record in report.records)
         looks_used += 1
         seeds_played += len(block)
         counts: dict[str, Any] = {
