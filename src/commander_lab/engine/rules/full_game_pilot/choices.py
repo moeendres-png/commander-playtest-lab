@@ -12,6 +12,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_lands import choose_lands_to_fetch
 from ..full_game_pilot_targets import commander_clock_bonus, target_side
 from ..full_game_pilot_views import (
     color_choice_rank,
@@ -289,6 +290,7 @@ class _ChoiceDecisions(_PaymentDecisions):
                     score += commander_clock_bonus(found[1], found[0], state, actor_id, outcome)
             ranked.append((score, action.card_name, action.action_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
+        ranked = self._rank_land_search(ranked, built, state, rng, max_selections)
 
         if max_selections <= 0:
             return []
@@ -303,6 +305,37 @@ class _ChoiceDecisions(_PaymentDecisions):
             return [raw_by_stable_id[stable_id] for _score, _label, stable_id in ranked[:take]]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable target action") from None
+
+    @staticmethod
+    def _rank_land_search(
+        ranked: list[tuple[float, str, str]],
+        built: list[tuple[dict[str, object], PilotActionView]],
+        state: Mapping[str, object],
+        rng: random.Random,
+        max_selections: int,
+    ) -> list[tuple[float, str, str]]:
+        """A search of the library for lands is ranked by the colours the actor still needs.
+
+        All the lands of one search scored alike, so the one that sorted last by name was taken:
+        Swamp 79 times, Plains 64 and Island never in 24 recorded games (#989 phase 6).
+        """
+        names: dict[str, str] = {}
+        for option, action in built:
+            meta = option.get("metadata")
+            if not isinstance(meta, dict) or meta.get("zone") != "library":
+                return ranked
+            name = str(meta.get("name") or option.get("label") or "")
+            facts = card_facts(name)
+            if facts is None or not facts.is_land:
+                return ranked
+            names[action.action_id] = name
+        if len(set(names.values())) < 2:
+            return ranked
+        order = choose_lands_to_fetch(
+            list(names.values()), state, rng, count=max(1, max_selections)
+        )
+        position = {name: index for index, name in enumerate(dict.fromkeys(order))}
+        return sorted(ranked, key=lambda item: position.get(names.get(item[2], ""), len(position)))
 
     def _decide_semantic_option(
         self,
