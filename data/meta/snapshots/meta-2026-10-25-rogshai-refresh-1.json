@@ -11,7 +11,7 @@
       "local-target-deck-ref-2026-10-25"
     ],
     "deck_hashes": [
-      "1a1b68e480395019faee8d3f000cba2a5e349435a64d96bf12a2e6c844a44e0b",
+      "26cf22555cecb084ac245da26709d6f0cb49139ad90c1b4a9ec3a4f1d9885412",
       "6b884f15c9334fed1b6a853e41d6847561e63a343f481047d395657fdefb530d",
       "cedfdde207357b8dbc436abd56445d83aeffa17e444cb609f83d8cc288ad67f8"
     ],
@@ -131,7 +131,7 @@
     {
       "source_id": "local-target-deck-ref-2026-10-25",
       "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
-      "deck_hash": "1a1b68e480395019faee8d3f000cba2a5e349435a64d96bf12a2e6c844a44e0b",
+      "deck_hash": "26cf22555cecb084ac245da26709d6f0cb49139ad90c1b4a9ec3a4f1d9885412",
       "retrieved_at": "2026-10-25T00:00:00Z",
       "published_at": null,
       "format_band": "local_meta",
@@ -154,7 +154,7 @@
       "interaction_profile": {},
       "provenance": {
         "anchor_only": true,
-        "note": "Commander pair + target_deck_ref only; NOT a decklist extract and NOT a deck. local_meta is the owner's target-deck context; no external data."
+        "note": "Commander pair + target_deck_ref only; NOT a decklist extract and NOT a deck. local_meta is the owner's target-deck context; no external data. deck_hash is stable_deck_hash of the 100-card target deck referenced by target_deck_ref, not of the anchor list."
       },
       "confidence": 0.5,
       "license_notes": "reference metadata and card-name extraction only",

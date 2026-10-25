@@ -1,0 +1,273 @@
+{
+  "manifest": {
+    "snapshot_id": "meta-2026-10-25-chulane-refresh-1",
+    "created_at": "2026-10-25T00:00:00Z",
+    "schema_version": "1.0.0",
+    "source_ids": [
+      "edhrec-chulane-2026-10-25",
+      "spellbook-chulane-2026-10-25",
+      "primer-coolstuff-chulane-2025",
+      "local-target-deck-ref-2026-10-25"
+    ],
+    "deck_hashes": [
+      "e9b07dbff8bc74b2f0ced8c7b270ed21112649ae04df091db53e89eb5da033bd",
+      "05d1b09cac2bb1ae04790c60fe556c18eb4df77dab947e1414e43eff20eb54cd",
+      "869261a5961f3c553c04f2c5d63cafa649919e3310fdd5095798d07bcd6a7313"
+    ],
+    "categories": [
+      "local_meta",
+      "high_power",
+      "normal_four_player"
+    ],
+    "immutable": true,
+    "supersedes": [],
+    "notes": "Chulane refresh 2026-10-25 (Meta-Lane PR3, Hans-Go 2026-10-25 PR1–PR6, PR7 NOT included). First Chulane snapshot ever: previously NOTHING in data/meta/ for Chulane. Parity with RogShai in source types, freshness and schema — NOT in content. Refresh, NOT replacement: no old snapshot is touched; this file adds no cedh_tournament band and no cedh_tournament source entry BY DESIGN: EDHTop16 is EMPTY as a finding (3 searches, 0 hits, 2026-10-25) and no substitute data is stuffed in (Playgroup.gg tracking, 2,061 games / 36% win rate, is NOT tournament data and is NOT used as such). Primer: 0 genuine build primers found (Archidekt/Moxfield/Draftsim/Herald); the only Tier-B entry is the CoolStuff counter-guide, marked as such, never sold as a build primer. EDHREC is list-level only (rank order, NO percentages, NO total n, NO win rates). Spellbook: 7 of 8 lines carried as metadata; the Dockside line is EXCLUDED pending a ban check (Dockside banned in Commander per project record 2026-10-19). Packages are DATA only (suggestions, no bans, no strength claims); wiring them into deck building is PR5. No scoring change: manifests/latest.json untouched, scoring pins remain as before. No external_prior (PR7). Retrieval dates are day-precision (drafts date only). Open follow-ups (not invented here): EDHREC percentage view, a curated build primer if one exists, local_meta data from the owner. Packages held back until PR5 (this snapshot carries none, matching the RogShai refresh)."
+  },
+  "sources": [
+    {
+      "license_notes": "reference metadata and short structured extraction only",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "expires_at": "2027-10-25T00:00:00Z",
+      "sample_size": null,
+      "small_sample": null,
+      "source_id": "edhrec-chulane-2026-10-25",
+      "title": "EDHREC Chulane average deck and variants, refresh 2026-10-25",
+      "url": "https://edhrec.com/commanders/chulane-teller-of-tales",
+      "author": "EDHREC",
+      "source_type": "aggregator",
+      "categories": [
+        "high_power",
+        "normal_four_player"
+      ],
+      "evidence_quality": "aggregator",
+      "tier": "A",
+      "band": null,
+      "notes": "Average deck (unfiltered, all brackets): 37 creatures, 10 instants, 5 sorceries, 5 artifacts, 6 enchantments, 1 planeswalker, 35 lands. Variant samples: Card Draw 101, Upgraded Combo 17, Mill 14, Budget 9, Birds 3, Advisors 2 (ranks in drafts). Bracket-mixed text retrieval: rank order of cards ONLY — NO total n, NO percentages, NO win rates. Tag counts (Combo 292, Lands Matter 240, Ramp 204, Landfall 150) are tag counts, NOT a sample size. Popularity is not strength. Band is None because the source spans bands; deck entries file it per band."
+    },
+    {
+      "license_notes": "reference metadata and short structured extraction only",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "expires_at": "2027-10-25T00:00:00Z",
+      "sample_size": null,
+      "small_sample": null,
+      "source_id": "spellbook-chulane-2026-10-25",
+      "title": "Commander Spellbook lines for Chulane, refresh 2026-10-25",
+      "url": "https://commanderspellbook.com/",
+      "author": "Commander Spellbook (partly via mtgdecks.net mirror)",
+      "source_type": "aggregator",
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "aggregator",
+      "tier": "A",
+      "band": "high_power",
+      "notes": "8 lines in drafts; 7 carried here. The Dockside Extortionist line is EXCLUDED pending a ban check (Hans condition + design: Dockside is banned in Commander per project record 2026-10-19; the line is NOT in this snapshot in any form). Lines are metadata/suggestions, NEVER rules knowledge: whether a line resolves legally is decided by the engine alone. Lines 1-2 read directly on Spellbook; Aluren, Intruder Alarm, Sage of Hours and Quirion Ranger lines via mtgdecks.net mirror only (weaker evidence, marked in drafts). Bracket tags are platform estimates; the Drake+Overburden tag contradicts itself across Spellbook versions (Ruthless Bracket 4+ vs Exhibition Bracket 1+) and must not be used as a band claim. Per-line URLs and deck counts in drafts/chulane/spellbook_combos_2026-10-25.md."
+    },
+    {
+      "license_notes": "reference metadata and short structured extraction only",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "expires_at": "2027-10-25T00:00:00Z",
+      "sample_size": null,
+      "small_sample": null,
+      "source_id": "primer-coolstuff-chulane-2025",
+      "title": "Commander Kryptonite: How to Beat Chulane, Teller of Tales (Levi Perry, CoolStuffInc)",
+      "url": "http://coolstuffinc.com/a/leviperry-seo-05082025-commander-kryptonite-how-to-beat-chulane-teller-of-tales",
+      "author": "Levi Perry (CoolStuffInc)",
+      "source_type": "primer",
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "established_primer",
+      "tier": "B",
+      "band": "high_power",
+      "notes": "Tier B WITH RESTRICTION: this is a COUNTER-guide ('how to beat'), NOT a build primer — usable for mechanics/strategy only, never sold as a build recommendation. No genuine build primer was found (0 at Archidekt/Moxfield/Draftsim/Herald, searched 2026-10-25). published_at is intentionally null: the URL slug 05082025 gives year 2025 but day/month order is unverified, so no date is asserted. Author estimate 'Bracket Four combo deck' is editorial, not a measurement. The Aluren/Bell-Ringer axis it describes is NOT in the target deck; the guide supports the diagnosis 'value deck without a combo finisher', not a combo rebuild."
+    },
+    {
+      "license_notes": "reference metadata and short structured extraction only",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "expires_at": "2027-10-25T00:00:00Z",
+      "sample_size": null,
+      "small_sample": null,
+      "source_id": "local-target-deck-ref-2026-10-25",
+      "title": "Handover target deck reference (Chulane, 2026-10-22) — reference only",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/blob/muse/claude-handover/handover/2026-10-22/chulane-deck/current-chulane-deck.txt",
+      "author": "Owner / project (handover)",
+      "source_type": "local_context",
+      "categories": [
+        "local_meta"
+      ],
+      "evidence_quality": "local_project_context",
+      "tier": null,
+      "band": "local_meta",
+      "notes": "Reference only: anchors the refresh to the owner's target deck. NO decklist is copied into this snapshot (see target_deck_ref on the local_meta entry; blob SHA 4e74acf2d589a458b99cea4819cbc39ffeec6d66). local_meta describes the owner's playgroup/target-deck context, never external data; this refresh adds no external local_meta claim."
+    }
+  ],
+  "deck_snapshots": [
+    {
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "pod_size": 4,
+      "packages": [],
+      "secondary_plan": null,
+      "win_conditions": [],
+      "interaction_profile": {},
+      "license_notes": "reference metadata and card-name extraction only",
+      "source_id": "local-target-deck-ref-2026-10-25",
+      "commander": "Chulane, Teller of Tales",
+      "deck_hash": "e9b07dbff8bc74b2f0ced8c7b270ed21112649ae04df091db53e89eb5da033bd",
+      "format_band": "local_meta",
+      "categories": [
+        "local_meta"
+      ],
+      "decklist": [
+        "Chulane, Teller of Tales"
+      ],
+      "primary_plan": null,
+      "confidence": 0.5,
+      "band": "local_meta",
+      "target_deck_ref": {
+        "path": "handover/2026-10-22/chulane-deck/current-chulane-deck.txt",
+        "commit": "0879b996ad0e140c2b11bd50766e0180686c074d",
+        "branch": "muse/claude-handover"
+      },
+      "provenance": {
+        "anchor_only": true,
+        "note": "Commander + target_deck_ref only; NOT a decklist extract and NOT a deck. local_meta is the owner's target-deck context; no external data. deck_hash is stable_deck_hash of the 100-card target deck referenced by target_deck_ref, not of the anchor list."
+      }
+    },
+    {
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "pod_size": 4,
+      "packages": [],
+      "secondary_plan": null,
+      "win_conditions": [],
+      "interaction_profile": {},
+      "license_notes": "reference metadata and card-name extraction only",
+      "source_id": "edhrec-chulane-2026-10-25",
+      "commander": "Chulane, Teller of Tales",
+      "deck_hash": "05d1b09cac2bb1ae04790c60fe556c18eb4df77dab947e1414e43eff20eb54cd",
+      "format_band": "normal_four_player",
+      "categories": [
+        "normal_four_player"
+      ],
+      "decklist": [
+        "Shrieking Drake",
+        "Kor Skyfisher",
+        "Whitemane Lion",
+        "Dream Stalker",
+        "Tatyova, Benthic Druid",
+        "Tireless Provisioner",
+        "Felidar Retreat",
+        "Rampaging Baloths",
+        "Scute Swarm",
+        "Avenger of Zendikar",
+        "Beast Whisperer",
+        "Guardian Project",
+        "Mulldrifter",
+        "Coiling Oracle",
+        "Birds of Paradise",
+        "Llanowar Elves",
+        "Arbor Elf",
+        "Cultivate",
+        "Kodama's Reach",
+        "Farseek",
+        "Rampant Growth",
+        "Swords to Plowshares",
+        "Path to Exile",
+        "Counterspell",
+        "Beast Within",
+        "Cyclonic Rift",
+        "Arcane Signet",
+        "Sol Ring",
+        "Azorius Chancery",
+        "Selesnya Sanctuary",
+        "Simic Growth Chamber"
+      ],
+      "primary_plan": "Bant ETB/value: bounce engine + landfall + ETB draw, fair value, no combo finisher (target-deck plan as described against the average)",
+      "confidence": 0.3,
+      "band": "normal_four_player",
+      "target_deck_ref": null,
+      "provenance": {
+        "decklist_completeness": 0.31,
+        "decklist_extraction": "EDHREC average (bracket-mixed) card names in displayed order, grouped by function (bounce, landfall, draw, ramp, interaction, rocks, bounce lands); rank order only, NO frequencies, NO percentages; NOT a literal deck, NOT a recommendation."
+      }
+    },
+    {
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "pod_size": 4,
+      "packages": [],
+      "secondary_plan": null,
+      "win_conditions": [],
+      "interaction_profile": {},
+      "license_notes": "reference metadata and card-name extraction only",
+      "source_id": "spellbook-chulane-2026-10-25",
+      "commander": "Chulane, Teller of Tales",
+      "deck_hash": "869261a5961f3c553c04f2c5d63cafa649919e3310fdd5095798d07bcd6a7313",
+      "format_band": "high_power",
+      "categories": [
+        "high_power"
+      ],
+      "decklist": [
+        "Shrieking Drake",
+        "Overburden",
+        "Village Bell-Ringer",
+        "Laboratory Maniac",
+        "Aluren",
+        "Intruder Alarm",
+        "Whitemane Lion",
+        "Stonecloaker",
+        "Man-o'-War",
+        "Ethereal Forager",
+        "Walk the Aeons",
+        "Capture of Jingzhou",
+        "Sage of Hours",
+        "Altered Ego",
+        "Quirion Ranger",
+        "Wirewood Symbiote"
+      ],
+      "primary_plan": "Combo axes documented in Spellbook lines (Aluren / Intruder Alarm / extra turns) — documented lines only, NOT in the target deck (except Shrieking Drake), NOT a recommendation",
+      "confidence": 0.25,
+      "band": "high_power",
+      "target_deck_ref": null,
+      "provenance": {
+        "decklist_completeness": 0.16,
+        "decklist_extraction": "Union of cards named by the 7 carried Spellbook lines (Dockside line excluded); metadata only, NOT a deck, NOT a recommendation; several lines mirror-only (see source notes); Capture of Jingzhou is the alternative to Walk the Aeons."
+      }
+    }
+  ],
+  "tournament_results": [],
+  "primer_references": [
+    {
+      "source_id": "primer-coolstuff-chulane-2025",
+      "commander": "Chulane, Teller of Tales",
+      "title": "Commander Kryptonite: How to Beat Chulane, Teller of Tales",
+      "key_points": [
+        "Engine: every creature cast draws a card and may put a land into play via Chulane; Chulane activation (3 mana, tap) bounces an own creature for recasting",
+        "Combo axis: Aluren (creatures MV <= 3 free) + Shrieking Drake (bounces itself) draws the whole deck, plays all lands, builds storm count",
+        "Plan B: Village Bell-Ringer / Intruder Alarm as second loop axis with mana dorks",
+        "Strengths per author: overwhelming resource engine, resilient against board wipes/removal; weaknesses: commander-dependent (repeated removal stalls the deck), few large threats, 'spinning wheels' without a real finisher",
+        "Cards the author warns about: Destiny Spinner, Scute Swarm, Aura Shards, Village Bell-Ringer, Oko, Thief of Crowns"
+      ],
+      "sequencing_notes": [],
+      "categories": [
+        "high_power"
+      ],
+      "evidence_quality": "established_primer",
+      "transfer_limitations": [
+        "COUNTER-guide only, never a build primer: usable for mechanics/strategy, not as a recommendation",
+        "Author estimate 'Bracket Four combo deck' is editorial, not a measurement",
+        "Aluren/Bell-Ringer axis NOT in the target deck; the guide supports the diagnosis 'value deck without combo finisher', not a combo rebuild",
+        "Publication date unverified beyond year 2025 (URL slug 05082025, day/month order unknown); published_at left null rather than guessed"
+      ]
+    }
+  ],
+  "archetypes": [],
+  "packages": [],
+  "card_frequencies": []
+}
