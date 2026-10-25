@@ -1,0 +1,198 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2020/symbiotic_swarm",
+ "guide_slug": "precon_2020_symbiotic_swarm",
+ "deck_name": "Symbiotic Swarm",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Kathril, Aspect Warper"
+ ],
+ "commander_mana_value": [
+  5.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "G",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Kathril, Aspect Warper": 5
+ },
+ "haupt_commander": "Kathril, Aspect Warper",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "G": 14,
+   "W": 16,
+   "B": 15
+  },
+  "farbquellen_nichtland": 4,
+  "pip_bedarf_frueh": {
+   "B": 11,
+   "W": 12,
+   "G": 11
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 1,
+  "2": 9,
+  "3": 16,
+  "4": 10,
+  "5": 12,
+  "6": 8,
+  "7+": 6,
+  "durchschnitt_nonland": 4.23
+ },
+ "rollen": {
+  "mana_source": 40,
+  "ramp": 9,
+  "draw": 7,
+  "selection": 0,
+  "removal": 6,
+  "counter": 0,
+  "protection": 1,
+  "wipe": 1,
+  "recursion": 8,
+  "graveyard_hate": 1,
+  "engine": 14,
+  "enabler": 1,
+  "payoff": 0,
+  "finisher": 8,
+  "combat_payoff": 17,
+  "token_source": 3,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "graveyard"
+ ],
+ "win_plan": "Der Friedhof ist die zweite Hand: Recursion-Schleifen erzeugen den Wert, Friedhof-Hate ist die größte Schwachstelle.",
+ "schluesselkarten": [
+  "Titanoth Rex",
+  "Void Beckoner",
+  "Akroma, Angel of Wrath",
+  "Karametra, God of Harvests",
+  "Soul of Innistrad",
+  "Archon of Valor's Reach"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 5,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Titanoth Rex",
+   "Void Beckoner",
+   "Akroma, Angel of Wrath"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Akroma, Angel of Wrath"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2020_symbiotic_swarm-kern",
+   "karten": [
+    "Titanoth Rex",
+    "Void Beckoner",
+    "Akroma, Angel of Wrath",
+    "Karametra, God of Harvests",
+    "Soul of Innistrad",
+    "Archon of Valor's Reach"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

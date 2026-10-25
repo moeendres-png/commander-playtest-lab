@@ -1,0 +1,186 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2023/eldrazi_unbound",
+ "guide_slug": "precon_2023_eldrazi_unbound",
+ "deck_name": "Eldrazi Unbound",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Zhulodok, Void Gorger"
+ ],
+ "commander_mana_value": [
+  6.0
+ ],
+ "farbidentitaet": [],
+ "partner": false,
+ "commander_soll_zug": {
+  "Zhulodok, Void Gorger": 5
+ },
+ "haupt_commander": "Zhulodok, Void Gorger",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {},
+  "farbquellen_nichtland": 13,
+  "pip_bedarf_frueh": {}
+ },
+ "kurve": {
+  "0": 5,
+  "1": 1,
+  "2": 11,
+  "3": 10,
+  "4": 9,
+  "5": 2,
+  "6": 9,
+  "7+": 15,
+  "durchschnitt_nonland": 4.61
+ },
+ "rollen": {
+  "mana_source": 50,
+  "ramp": 16,
+  "draw": 10,
+  "selection": 2,
+  "removal": 11,
+  "counter": 3,
+  "protection": 2,
+  "wipe": 4,
+  "recursion": 4,
+  "graveyard_hate": 0,
+  "engine": 13,
+  "enabler": 1,
+  "payoff": 0,
+  "finisher": 14,
+  "combat_payoff": 6,
+  "token_source": 6,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "artifacts"
+ ],
+ "win_plan": "Artefakt-Synergien tragen den Plan: Engines und Payoffs rund um Artefakte aufbauen und schützen.",
+ "schluesselkarten": [
+  "It That Betrays",
+  "Kozilek, the Great Distortion",
+  "Flayer of Loyalties",
+  "Ancient Stone Idol",
+  "Metalwork Colossus",
+  "Artisan of Kozilek"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 5,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "It That Betrays",
+   "Kozilek, the Great Distortion",
+   "Flayer of Loyalties"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   },
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Flayer of Loyalties"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2023_eldrazi_unbound-kern",
+   "karten": [
+    "It That Betrays",
+    "Kozilek, the Great Distortion",
+    "Flayer of Loyalties",
+    "Ancient Stone Idol",
+    "Metalwork Colossus",
+    "Artisan of Kozilek"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

@@ -1,0 +1,203 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2023/food_and_fellowship",
+ "guide_slug": "precon_2023_food_and_fellowship",
+ "deck_name": "Food and Fellowship",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Frodo, Adventurous Hobbit",
+  "Sam, Loyal Attendant"
+ ],
+ "commander_mana_value": [
+  2.0,
+  3.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "G",
+  "W"
+ ],
+ "partner": true,
+ "commander_soll_zug": {
+  "Frodo, Adventurous Hobbit": 1,
+  "Sam, Loyal Attendant": 2
+ },
+ "haupt_commander": "Sam, Loyal Attendant",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "G": 18,
+   "W": 15,
+   "B": 11
+  },
+  "farbquellen_nichtland": 10,
+  "pip_bedarf_frueh": {
+   "W": 19,
+   "B": 14,
+   "G": 18
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 6,
+  "2": 16,
+  "3": 20,
+  "4": 7,
+  "5": 7,
+  "6": 4,
+  "7+": 2,
+  "durchschnitt_nonland": 3.26
+ },
+ "rollen": {
+  "mana_source": 45,
+  "ramp": 16,
+  "draw": 12,
+  "selection": 1,
+  "removal": 7,
+  "counter": 0,
+  "protection": 1,
+  "wipe": 5,
+  "recursion": 3,
+  "graveyard_hate": 0,
+  "engine": 24,
+  "enabler": 1,
+  "payoff": 3,
+  "finisher": 5,
+  "combat_payoff": 8,
+  "token_source": 21,
+  "sacrifice_outlet": 0,
+  "land_synergy": 1
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "tribal:Halfling",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Ausgewogenes Wert-Deck: solide Kurve, Interaktion und Drohungen — über Kartenqualität statt über eine einzelne Synergie-Achse gewinnen.",
+ "schluesselkarten": [
+  "Woodfall Primus",
+  "Sam, Loyal Attendant",
+  "Gwaihir, Greatest of the Eagles",
+  "Frodo, Adventurous Hobbit",
+  "Orchard Strider",
+  "Generous Ent"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 2,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.25,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Woodfall Primus",
+   "Sam, Loyal Attendant",
+   "Gwaihir, Greatest of the Eagles"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Sam, Loyal Attendant"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2023_food_and_fellowship-kern",
+   "karten": [
+    "Woodfall Primus",
+    "Sam, Loyal Attendant",
+    "Gwaihir, Greatest of the Eagles",
+    "Frodo, Adventurous Hobbit",
+    "Orchard Strider",
+    "Generous Ent"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

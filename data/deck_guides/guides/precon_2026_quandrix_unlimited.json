@@ -1,0 +1,189 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2026/quandrix_unlimited",
+ "guide_slug": "precon_2026_quandrix_unlimited",
+ "deck_name": "Quandrix Unlimited",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Zimone, Infinite Analyst"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "G",
+  "U"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Zimone, Infinite Analyst": 2
+ },
+ "haupt_commander": "Zimone, Infinite Analyst",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 37,
+  "laender_nach_farbe": {
+   "U": 20,
+   "G": 20
+  },
+  "farbquellen_nichtland": 9,
+  "pip_bedarf_frueh": {
+   "G": 51,
+   "U": 29
+  }
+ },
+ "kurve": {
+  "0": 3,
+  "1": 12,
+  "2": 21,
+  "3": 16,
+  "4": 6,
+  "5": 5,
+  "6": 0,
+  "7+": 0,
+  "durchschnitt_nonland": 2.4
+ },
+ "rollen": {
+  "mana_source": 44,
+  "ramp": 13,
+  "draw": 14,
+  "selection": 3,
+  "removal": 10,
+  "counter": 3,
+  "protection": 3,
+  "wipe": 1,
+  "recursion": 0,
+  "graveyard_hate": 0,
+  "engine": 20,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 0,
+  "combat_payoff": 4,
+  "token_source": 6,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "spellslinger",
+  "value_engine"
+ ],
+ "win_plan": "Das Deck will viele Instants/Sorceries pro Zug spielen und über Magecraft-/Prodigy-Engines und Schadens-Payoffs gewinnen.",
+ "schluesselkarten": [
+  "Zimone, Infinite Analyst",
+  "Tanazir Quandrix",
+  "Deekah, Fractal Theorist",
+  "Owlin Spiralmancer",
+  "Yavimaya Bloomsage",
+  "Nev, the Practical Dean"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 2,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": -0.1,
+  "card_advantage": 0.0,
+  "tempo": 0.2,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Zimone, Infinite Analyst",
+   "Tanazir Quandrix",
+   "Deekah, Fractal Theorist"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "rule_of_law_effekte",
+    "delta_stufe": 3,
+    "grund": "Spellslinger-Deck: 'can't cast more than one spell'-Effekte sperren die Hauptachse"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2026_quandrix_unlimited-kern",
+   "karten": [
+    "Zimone, Infinite Analyst",
+    "Tanazir Quandrix",
+    "Deekah, Fractal Theorist",
+    "Owlin Spiralmancer",
+    "Yavimaya Bloomsage",
+    "Nev, the Practical Dean"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

@@ -1,0 +1,241 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2023/masters_of_evil",
+ "guide_slug": "precon_2023_masters_of_evil",
+ "deck_name": "Masters of Evil",
+ "deck_klasse": "ORIGINAL_MIT_PROXY",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Davros, Dalek Creator"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "R",
+  "U"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Davros, Dalek Creator": 3
+ },
+ "haupt_commander": "Davros, Dalek Creator",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 37,
+  "laender_nach_farbe": {
+   "U": 16,
+   "B": 21,
+   "R": 15
+  },
+  "farbquellen_nichtland": 8,
+  "pip_bedarf_frueh": {
+   "U": 10,
+   "B": 10,
+   "R": 5
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 3,
+  "2": 14,
+  "3": 12,
+  "4": 18,
+  "5": 5,
+  "6": 7,
+  "7+": 4,
+  "durchschnitt_nonland": 3.75
+ },
+ "rollen": {
+  "mana_source": 43,
+  "ramp": 10,
+  "draw": 13,
+  "selection": 2,
+  "removal": 5,
+  "counter": 0,
+  "protection": 1,
+  "wipe": 2,
+  "recursion": 1,
+  "graveyard_hate": 0,
+  "engine": 27,
+  "enabler": 1,
+  "payoff": 2,
+  "finisher": 4,
+  "combat_payoff": 19,
+  "token_source": 12,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "artifacts",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Artefakt-Synergien tragen den Plan: Engines und Payoffs rund um Artefakte aufbauen und schützen.",
+ "schluesselkarten": [
+  "Davros, Dalek Creator",
+  "The Dalek Emperor",
+  "Cybermen Squadron",
+  "Sontaran General",
+  "Missy",
+  "Time Reaper"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.15,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Davros, Dalek Creator",
+   "The Dalek Emperor",
+   "Cybermen Squadron"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "The Dalek Emperor",
+    "Sontaran General",
+    "Time Reaper"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2023_masters_of_evil-kern",
+   "karten": [
+    "Davros, Dalek Creator",
+    "The Dalek Emperor",
+    "Cybermen Squadron",
+    "Sontaran General",
+    "Missy",
+    "Time Reaper"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "proxy_deck_id": "precon-synthetic/2023/masters_of_evil",
+  "ersetzungen": [
+   {
+    "original": "Missy",
+    "proxy": "Steel Hellkite"
+   },
+   {
+    "original": "Cyber Conversion",
+    "proxy": "Arcane Denial"
+   },
+   {
+    "original": "Doomsday Confluence",
+    "proxy": "Faithless Looting"
+   },
+   {
+    "original": "Death in Heaven",
+    "proxy": "Kang Dynasty"
+   },
+   {
+    "original": "Rassilon, the War President",
+    "proxy": "Mulldrifter"
+   },
+   {
+    "original": "The Cyber-Controller",
+    "proxy": "Burnished Hart"
+   },
+   {
+    "original": "Cybership",
+    "proxy": "N'Yami-Class Mother Ship"
+   },
+   {
+    "original": "Don't Blink",
+    "proxy": "Terminate"
+   }
+  ]
+ }
+}

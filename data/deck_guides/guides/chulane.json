@@ -1,0 +1,329 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "custom/chulane",
+ "guide_slug": "chulane",
+ "deck_name": "Chulane (Ist-Stand 2026-10-22)",
+ "deck_klasse": "FOKUS",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)",
+  "fokus_zusatz": "Erster Spezialisten-Entwurf fuer dieses Deck (bisher nur GenericCommanderPilot); Parameter MODELED aus Deckliste + Oracle-Fakten, Messwerte DIRECTLY_VERIFIED (M4)"
+ },
+ "commander": [
+  "Chulane, Teller of Tales"
+ ],
+ "commander_mana_value": [
+  5.0
+ ],
+ "farbidentitaet": [
+  "G",
+  "U",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Chulane, Teller of Tales": 4
+ },
+ "haupt_commander": "Chulane, Teller of Tales",
+ "commander_soll_zug_basis": "handgesetzt: Chulane MV 5; das Deck fuehrt 36 Laender und 16 Ramp-Rollen (u. a. Arbor Elf, Llanowar Elves, Sakura-Tribe Elder, Nature's Lore) -> Soll-Zug 4 ist die reale Linie, Zug 5 die späte.",
+ "manabasis": {
+  "laender_gesamt": 36,
+  "laender_nach_farbe": {
+   "U": 14,
+   "W": 12,
+   "G": 15
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "U": 12,
+   "G": 19,
+   "W": 10
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 11,
+  "2": 18,
+  "3": 12,
+  "4": 10,
+  "5": 8,
+  "6": 3,
+  "7+": 2,
+  "durchschnitt_nonland": 3.05
+ },
+ "rollen": {
+  "mana_source": 38,
+  "ramp": 16,
+  "draw": 16,
+  "selection": 3,
+  "removal": 7,
+  "counter": 4,
+  "protection": 7,
+  "wipe": 2,
+  "recursion": 0,
+  "graveyard_hate": 2,
+  "engine": 22,
+  "enabler": 6,
+  "payoff": 2,
+  "finisher": 6,
+  "combat_payoff": 6,
+  "token_source": 13,
+  "sacrifice_outlet": 0,
+  "land_synergy": 6
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "value_engine_kreaturen",
+  "lands",
+  "go_wide_clue"
+ ],
+ "win_plan": "Chulane ist die Engine: Jede Kreatur zieht eine Karte und legt ggf. ein Land — das Deck spielt billige Kreaturen in Serie, Bounce-Kreaturen (Shrieking Drake, Fleetfoot Panther, Kor Skyfisher) holen sie zurueck und wiederholen die Trigger. Zweite Achse: Clues (Lonis, Tireless Tracker, Ethereal Investigator), die Academy Manufactor verdreifacht (Clue+Food+Treasure). Finisher: Psychosis Crawler (jede gezogene Karte = 1 Leben je Gegner), Mechanized Production (Alternativ-Sieg ueber 8 gleichnamige Artefakte), Koma als Top-End; Landfall (Tatyova, Felidar Retreat, Rampaging Baloths) konvertiert die extra Land-Drops in Board.",
+ "schluesselkarten": [
+  "Chulane, Teller of Tales",
+  "Tangletrove Kelp",
+  "Koma, Cosmos Serpent",
+  "Rampaging Baloths",
+  "Shimmer Dragon",
+  "Tatyova, Benthic Druid"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 4,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ],
+  "chulane_zusatz": {
+   "handgesetzt": true,
+   "drei_laender_bevorzugt": "5-MV-Commander: 2-Laender-Haende nur mit >= 2 Ramp-Karten (Dork/Rock/Land-Ramp)",
+   "bounce_kreaturen_brauchen_chulane": "Shrieking Drake / Fleetfoot Panther / Kor Skyfisher ohne Chulane-Linie sind Wert-Verlust — in der Eröffnung abwerten, bis Chulane projiziert ist",
+   "clue_achse_ist_plan_b": "Hand mit Lonis / Tireless Tracker + Kreaturen ist auch ohne sofortigen Chulane keepbar"
+  }
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.25,
+  "tempo": 0.0,
+  "engine_development": 0.3,
+  "interaction_reserve": 0.1,
+  "commander_value": 0.3,
+  "threat_reduction": 0.0,
+  "win_progress": 0.1,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.1,
+  "handgesetzt": true,
+  "basis": "MODELED (handgesetzt): Chulane ist die Engine des Decks — ohne ihn sind die Bounce-Kreaturen Kartennachteil. commander_value/engine_development/card_advantage hoch; Interaktion ist duenn (4 Counter-Rollen, Schutz ueber Veil of Summer / Tyvar's Stand / Silence), daher nur +0.1 Reserve."
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "handgesetzt": true,
+  "eigene_schutzkarten": [
+   "Chulane, Teller of Tales",
+   "Academy Manufactor",
+   "Lonis, Cryptozoologist"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastig (Recursion 0): Wipe setzt das Deck auf null zurueck; eigene Wipes (Farewell, Fumigate) asymmetrisch timen"
+   },
+   {
+    "kategorie": "artifact_hate",
+    "delta_stufe": 2,
+    "grund": "Clue-/Artefakt-Achse (Manufactor, Mechanized Production, Tezzeret) ist Plan B und Alternativ-Sieg"
+   },
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": -2,
+    "grund": "Deck nutzt den Friedhof praktisch nicht (Recursion 0) — gegnerisches Grave-Hate ist fast egal (A2 Betrifft-mich, negativ)"
+   },
+   {
+    "kategorie": "commander_removal_dichte",
+    "delta_stufe": 2,
+    "grund": "Ohne Chulane kollabiert die Kartenökonomie; Gegner-Removal auf Chulane ist der kritische Pfad"
+   }
+  ],
+  "angriffs_fokus": "zweckverteilt (kein Commander-Schaden-Plan; Chulane ist 2/4 Value-Engine, kein Voltron)",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr; Removal bevorzugt auf gegnerische Engines, die schneller sind als die eigene Chulane-Uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "kreaturen_im_eigenen_zug_mit_chulane",
+   "aktiv": true,
+   "grund": "Gegen den Draw-Endstep-Default: Chulane-Trigger ziehen Karten UND legen Laender — Kreaturen gehoeren in die eigene Hauptphase, solange Chulane liegt (gezogene Laender sind sofort spielbar)"
+  },
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Fuer Nichtkreaturen ohne Kampf-Relevanz gilt der Handoff-Default weiter"
+  },
+  {
+   "regel": "instants_mit_wilderness_reclamation",
+   "karten": [
+    "Arcane Denial",
+    "Negate",
+    "Voracious Greatshark",
+    "Brazen Borrower"
+   ],
+   "grund": "Wilderness Reclamation enttappt alle Laender im eigenen End Step -> Interaktion im Gegnerzug mit vollem Mana"
+  },
+  {
+   "regel": "bounce_nur_mit_trigger_oder_schutzgrund",
+   "karten": [
+    "Shrieking Drake",
+    "Fleetfoot Panther",
+    "Kor Skyfisher",
+    "Chulane, Teller of Tales (Fähigkeit)"
+   ],
+   "grund": "Bounce ist Trigger-Wiederholung oder Schutz (ETB eines Gegners/Removal ausweichen), nie Selbstzweck"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "chulane-bounce-engine",
+   "karten": [
+    "Chulane, Teller of Tales",
+    "Shrieking Drake",
+    "Fleetfoot Panther",
+    "Kor Skyfisher",
+    "Whirler Rogue",
+    "Aether Adept"
+   ],
+   "bonus": 0.45,
+   "komponente": "engine_development",
+   "failure_modes": [
+    "bounce without Chulane online = card disadvantage",
+    "Chulane removed -> bounce creatures stranded"
+   ]
+  },
+  {
+   "id": "chulane-clue-engine",
+   "karten": [
+    "Lonis, Cryptozoologist",
+    "Academy Manufactor",
+    "Tireless Tracker",
+    "Ethereal Investigator",
+    "Erdwal Illuminator",
+    "Detective of the Month",
+    "Serene Sleuth",
+    "Tangletrove Kelp"
+   ],
+   "bonus": 0.4,
+   "komponente": "card_advantage",
+   "failure_modes": [
+    "manufactor removed -> clue axis halves",
+    "clues hoarded without payoff"
+   ]
+  },
+  {
+   "id": "chulane-landfall",
+   "karten": [
+    "Tatyova, Benthic Druid",
+    "Tireless Tracker",
+    "Felidar Retreat",
+    "Rampaging Baloths",
+    "Oracle of Mul Daya",
+    "Horizon Explorer"
+   ],
+   "bonus": 0.35,
+   "komponente": "engine_development",
+   "failure_modes": [
+    "extra land drops without landfall payoff are just ramp"
+   ]
+  },
+  {
+   "id": "chulane-finish",
+   "karten": [
+    "Psychosis Crawler",
+    "Mechanized Production",
+    "Koma, Cosmos Serpent",
+    "Tangletrove Kelp",
+    "Tezzeret, Betrayer of Flesh"
+   ],
+   "bonus": 0.4,
+   "komponente": "win_progress",
+   "failure_modes": [
+    "crawler needs draw volume to matter",
+    "mechanized production is slow without manufactor"
+   ]
+  },
+  {
+   "id": "chulane-schutz-interaktion",
+   "karten": [
+    "Veil of Summer",
+    "Tyvar's Stand",
+    "Silence",
+    "Arcane Denial",
+    "Negate",
+    "Swords to Plowshares",
+    "Farewell",
+    "Fumigate",
+    "Angel of Finality"
+   ],
+   "bonus": 0.35,
+   "komponente": "interaction_reserve",
+   "failure_modes": [
+    "thin interaction density — cannot answer everything",
+    "silence is a turn-shield, not an answer"
+   ]
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ },
+ "messung_m4": {
+  "evidenz": "DIRECTLY_VERIFIED (M4-Lauefe, Pin v11, Pilot 1.0.0)",
+  "baseline_spiele": 200,
+  "siegquote_basis_arm": "19/200 = 9.5 % (100-Spiele-Analyse-Slice: 8 %; ENDBERICHT gerundet 8 %)",
+  "commander_cast_quote": {
+   "Chulane, Teller of Tales": "176/200 = 88 %"
+  },
+  "casts_pro_100_spiele": {
+   "Chulane, Teller of Tales": 217,
+   "Fleetfoot Panther": 113,
+   "Shrieking Drake": 48
+  },
+  "mulligan_spiele_anteil": "70/200 = 35 % mit >= 1 Mulligan",
+  "mittlere_zuege": 48.16,
+  "befund": "Fleetfoot Panther ist die am haeufigsten gespielte Kreatur (113/100 Spiele) — die Bounce-Achse laeuft; Chulane wird 2.17x pro Spiel gespielt (Entfernung frisst Zuege). Alle 6 Buendel UNDECIDED."
+ }
+}

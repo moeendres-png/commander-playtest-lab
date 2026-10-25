@@ -1,0 +1,200 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2020/ruthless_regiment",
+ "guide_slug": "precon_2020_ruthless_regiment",
+ "deck_name": "Ruthless Regiment",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Jirina Kudro"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "R",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Jirina Kudro": 3
+ },
+ "haupt_commander": "Jirina Kudro",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 36,
+  "laender_nach_farbe": {
+   "R": 13,
+   "W": 15,
+   "B": 12
+  },
+  "farbquellen_nichtland": 8,
+  "pip_bedarf_frueh": {
+   "R": 9,
+   "W": 25,
+   "B": 11
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 2,
+  "2": 15,
+  "3": 23,
+  "4": 16,
+  "5": 6,
+  "6": 2,
+  "7+": 0,
+  "durchschnitt_nonland": 3.23
+ },
+ "rollen": {
+  "mana_source": 41,
+  "ramp": 9,
+  "draw": 10,
+  "selection": 1,
+  "removal": 13,
+  "counter": 1,
+  "protection": 6,
+  "wipe": 3,
+  "recursion": 1,
+  "graveyard_hate": 1,
+  "engine": 25,
+  "enabler": 0,
+  "payoff": 3,
+  "finisher": 2,
+  "combat_payoff": 23,
+  "token_source": 10,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "tribal:Human",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Ausgewogenes Wert-Deck: solide Kurve, Interaktion und Drohungen — über Kartenqualität statt über eine einzelne Synergie-Achse gewinnen.",
+ "schluesselkarten": [
+  "Dearly Departed",
+  "Titan of Eternal Fire",
+  "Titan Hunter",
+  "Adriana, Captain of the Guard",
+  "Frontier Warmonger",
+  "Fireflux Squad"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.0,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Dearly Departed",
+   "Titan of Eternal Fire",
+   "Titan Hunter"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Fireflux Squad"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2020_ruthless_regiment-kern",
+   "karten": [
+    "Dearly Departed",
+    "Titan of Eternal Fire",
+    "Titan Hunter",
+    "Adriana, Captain of the Guard",
+    "Frontier Warmonger",
+    "Fireflux Squad"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}
