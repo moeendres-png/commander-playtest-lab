@@ -194,7 +194,12 @@ def test_package_veto_defaults_to_false() -> None:
 def test_new_fields_do_not_change_functional_profile() -> None:
     """PR1 promises no scoring change: profiles built from a snapshot with
     all new fields populated must equal profiles from the same snapshot
-    without them (only new fields differ)."""
+    without them (only new fields differ).
+
+    PR4 keeps that promise for every new field except tier, which now
+    rides the profile so the guardrail caps can apply; the profile hash
+    and all dimensions stay identical.
+    """
 
     plain = _snapshot(_source(), _deck())
     enriched = _snapshot(
@@ -218,7 +223,12 @@ def test_new_fields_do_not_change_functional_profile() -> None:
     enriched_profile = build_meta_functional_profile(
         enriched, commander=COMMANDER, format_band=FormatBand.HIGH_POWER, profiles={}
     )
-    assert plain_profile.model_dump(mode="json") == enriched_profile.model_dump(mode="json")
+    plain_dump = plain_profile.model_dump(mode="json")
+    enriched_dump = enriched_profile.model_dump(mode="json")
+    assert plain_dump.pop("source_tier") is None
+    assert enriched_dump.pop("source_tier") == "A"
+    assert plain_dump == enriched_dump
+    assert plain_profile.profile_hash == enriched_profile.profile_hash
 
 
 def test_card_frequency_fields_unchanged() -> None:
