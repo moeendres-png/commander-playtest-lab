@@ -33,6 +33,7 @@ from .common import (
     FullGameProtocolError,
     _multikicker_offer,
     _MultikickerOffer,
+    _optional_mana_cost,
     _RuntimePilot,
 )
 from .payment import _PaymentDecisions
@@ -458,8 +459,20 @@ class _ChoiceDecisions(_PaymentDecisions):
             prior_dig = self._life_dig_yes.get(seat)
             dug = prior_dig[1] if prior_dig is not None and prior_dig[0] == dig_key else 0
         dig_yes_blocked = dug >= _LIFE_DIG_CAP
+        # Optional-cost guard (payment, #989 phase 5b). The engine asks "Pay Kicker {3}{B} ?" after
+        # checking that one cost, not that cost on top of the spell, and a "you may pay" trigger
+        # after the same single check. A Yes the seat's own mana provably cannot fund only cancels
+        # the payment, and the spell is not cast either (the unkicked Nullpriest of Oblivion
+        # stayed in hand). Cost text the model cannot read is never withheld.
+        optional_cost = _optional_mana_cost(prompt)
+        cost_yes_blocked = optional_cost is not None and self._cost_cannot_be_paid(
+            state, optional_cost * (offer.ordinal if offer is not None else 1), source_object
+        )
         yes_withheld = (
-            life_yes_blocked or dig_yes_blocked or (cap is not None and answered_yes >= cap)
+            life_yes_blocked
+            or dig_yes_blocked
+            or cost_yes_blocked
+            or (cap is not None and answered_yes >= cap)
         )
         selectable = [
             option
@@ -566,6 +579,13 @@ class _ChoiceDecisions(_PaymentDecisions):
                     "life-dig guard: %d consecutive digs for %s; declining %r",
                     dug,
                     dig_key or "<unidentified source>",
+                    prompt,
+                )
+            elif cost_yes_blocked:
+                _LOG.info(
+                    "optional-cost guard: the seat's mana cannot pay %s on top of the cost it "
+                    "already owes; declining %r",
+                    optional_cost,
                     prompt,
                 )
             elif cap is not None:
@@ -859,6 +879,7 @@ class _ChoiceDecisions(_PaymentDecisions):
         paying = self._counter_type_for_cost(seat, state, options, prompt)
         if paying is not None:
             return paying
+        options = self._alternative_costs_that_pay(state, options, prompt)
         actor = self._actor(state)
         hand = actor.get("hand")
         battlefield = actor.get("battlefield")

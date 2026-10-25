@@ -14,7 +14,12 @@ from commander_lab.models import (
     PilotActionView,
 )
 
-from ..full_game_pilot_payment_plan import colour_letter, completing_options, completing_outcomes
+from ..full_game_pilot_payment_plan import (
+    can_pay,
+    colour_letter,
+    completing_options,
+    completing_outcomes,
+)
 from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
@@ -27,9 +32,12 @@ from .common import (
     _MANA_COST_COLORS,
     _MANA_SYMBOL,
     FullGameProtocolError,
+    _alternative_cost_of,
+    _alternative_cost_spell,
     _cost_amount,
     _mana_cost_text,
     _option_non_x_mana_value,
+    _printed_spell_cost,
     _RuntimePilot,
     mana_needed_letters,
     mana_payment_fit,
@@ -61,6 +69,8 @@ _PAY_ANY_AMOUNT_PROMPT = re.compile(r"\AChoose how much mana to pay\Z")
 # Spells that do something at X = 0, so a cast with nothing left for X is a real play: Chalice of
 # the Void (counters {0} spells), Engineered Explosives (destroys tokens and {0} permanents).
 _ZERO_X_SPELLS = frozenset({"chalice of the void", "engineered explosives"})
+# An activated ability that adds mana ("{T}: Add {R}.", "+1: Add {R}{R}."): the cost, a colon, "Add".
+_ADDS_MANA_RULE = re.compile(r":\s*add\s", re.IGNORECASE)
 
 
 class _PaymentDecisions(_PolicyState):
@@ -450,6 +460,103 @@ class _PaymentDecisions(_PolicyState):
                 for rule in rules
             )
         return None
+
+    @staticmethod
+    def _visible_mana_offer(actor: Mapping[str, object]) -> list[dict[str, object]] | None:
+        """The seat's pool and untapped mana abilities laid out like an engine payment prompt.
+
+        Read from the public text of the seat's own board, the same facts ``_mana_budget`` counts.
+        None when the board is not reported, or an untapped permanent states no abilities at all.
+        A summoning-sick creature counts as usable, so the picture errs towards more mana.
+        """
+        battlefield = actor.get("battlefield")
+        if not isinstance(battlefield, list):
+            return None
+        offer: list[dict[str, object]] = []
+        pool = actor.get("mana_pool")
+        if isinstance(pool, Mapping):
+            for kind, amount in pool.items():
+                if isinstance(amount, int) and amount > 0:
+                    offer.append(
+                        {
+                            "option_type": "mana_pool",
+                            "option_id": f"pool:{kind}",
+                            "metadata": {"mana_type": str(kind), "mana_available": amount},
+                        }
+                    )
+        for item in battlefield:
+            if not isinstance(item, dict) or item.get("tapped") is True:
+                continue
+            if item.get("face_down") is True:
+                continue
+            rules = item.get("abilities")
+            if not isinstance(rules, list):
+                # A permanent that states no abilities may still make mana: not judged.
+                return None
+            name = str(item.get("name") or "")
+            source = str(item.get("object_id") or name)
+            for index, rule in enumerate(rules):
+                # Not ``offers_mana_ability``: that reader is conservative for a budget (it misses
+                # "three mana of any one color"), and a missed source reads as a shortfall here.
+                if isinstance(rule, str) and _ADDS_MANA_RULE.search(rule):
+                    offer.append(
+                        {
+                            "option_type": "mana_ability",
+                            "option_id": f"{source}:{index}",
+                            "label": f"{name} — {rule.replace('{this}', 'this permanent')}",
+                            "metadata": {"source_object_id": source},
+                        }
+                    )
+        return offer
+
+    def _cost_cannot_be_paid(
+        self, state: dict[str, object], extra: str, source_object: object = None
+    ) -> bool:
+        """Whether paying ``extra`` (an optional cost) can only fail the payment it joins.
+
+        A kicker, a multikicker or a "you may pay" trigger is answered Yes by the pilot's ranking
+        alone; the engine checks the one cost it prints, not that plus the spell it belongs to.
+        A Nullpriest of Oblivion kicked with three lands is cast for {1}{B}{3}{B}, the payment
+        is cancelled, and the unkicked creature is not cast either. True only when the seat's
+        own mana provably falls short of the whole cost while the spell itself could be paid:
+        anything the model cannot read, and a spell whose cost can change (convoke, delve, "costs
+        {2} less"), is left to the pilot.
+        """
+        offer = self._visible_mana_offer(self._actor(state))
+        if offer is None:
+            return False
+        base = ""
+        if isinstance(source_object, dict) and source_object.get("ability_type") == "spell":
+            printed = _printed_spell_cost(str(source_object.get("source_name") or ""))
+            if printed is None or can_pay(offer, printed) is not True:
+                return False
+            base = printed
+        return can_pay(offer, base + extra) is False
+
+    def _alternative_costs_that_pay(
+        self, state: dict[str, object], options: list[dict[str, object]], prompt: str
+    ) -> list[dict[str, object]]:
+        """The options of an alternative-cost question the seat's mana can still pay.
+
+        "You may choose an alternative cost for casting Shriekmaw" offers Evoke {1}{B} beside the
+        full {4}{B}. The cast was offered at priority because the cheaper way is payable; with
+        four sources the pilot chose the full cost, the payment was cancelled, and the spell was
+        not cast at all. Options whose cost the model cannot read stay, and a question every
+        option of which can be paid, or none, is left as offered.
+        """
+        spell = _alternative_cost_spell(prompt)
+        if spell is None:
+            return options
+        offer = self._visible_mana_offer(self._actor(state))
+        if offer is None:
+            return options
+        kept = [
+            option
+            for option in options
+            if (cost := _alternative_cost_of(str(option.get("label", "")))) is None
+            or can_pay(offer, cost) is not False
+        ]
+        return kept if 0 < len(kept) < len(options) else options
 
     def _decide_mana(
         self,
