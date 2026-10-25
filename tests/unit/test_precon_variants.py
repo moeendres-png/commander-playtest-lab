@@ -124,7 +124,7 @@ def test_originals_are_left_untouched(stem: str) -> None:
     assert not any((e["notes"] or "").startswith("SYNTHETIC") for e in original["cards"])
 
 
-def test_the_pool_stays_at_195_with_9_synthetic() -> None:
+def test_the_pool_is_174_with_9_synthetic() -> None:
     listing = _load(MODULE.MANIFEST)
     originals = list(MODULE.PRECON_DIR.glob("*.json"))
     assert listing["pool"] == {
@@ -132,7 +132,7 @@ def test_the_pool_stays_at_195_with_9_synthetic() -> None:
         "real": len(originals) - 9,
         "synthetic": 9,
     }
-    assert listing["pool"]["decks"] == 195
+    assert listing["pool"]["decks"] == 174  # 195 until the sort-out of 21 decks on 2026-10-25
     assert set(listing["decks"]) == UNIMPORTABLE
     assert listing["evidence_class"] == "SYNTHETIC"
 
