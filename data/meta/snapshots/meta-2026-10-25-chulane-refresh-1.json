@@ -10,7 +10,7 @@
       "local-target-deck-ref-2026-10-25"
     ],
     "deck_hashes": [
-      "0995fe9fea140831bc369760fbb0b17f6e6064d281987e5ce91bafc1ad873a5b",
+      "e9b07dbff8bc74b2f0ced8c7b270ed21112649ae04df091db53e89eb5da033bd",
       "05d1b09cac2bb1ae04790c60fe556c18eb4df77dab947e1414e43eff20eb54cd",
       "869261a5961f3c553c04f2c5d63cafa649919e3310fdd5095798d07bcd6a7313"
     ],
@@ -21,7 +21,7 @@
     ],
     "immutable": true,
     "supersedes": [],
-    "notes": "Chulane refresh 2026-10-25 (Meta-Lane PR3, Hans-Go 2026-10-25 PR1–PR6, PR7 NOT included). First Chulane snapshot ever: previously NOTHING in data/meta/ for Chulane. Parity with RogShai in source types, freshness and schema — NOT in content. Refresh, NOT replacement: no old snapshot is touched; this file adds no cedh_tournament band and no cedh_tournament source entry BY DESIGN: EDHTop16 is EMPTY as a finding (3 searches, 0 hits, 2026-10-25) and no substitute data is stuffed in (Playgroup.gg tracking, 2,061 games / 36% win rate, is NOT tournament data and is NOT used as such). Primer: 0 genuine build primers found (Archidekt/Moxfield/Draftsim/Herald); the only Tier-B entry is the CoolStuff counter-guide, marked as such, never sold as a build primer. EDHREC is list-level only (rank order, NO percentages, NO total n, NO win rates). Spellbook: 7 of 8 lines carried as metadata; the Dockside line is EXCLUDED pending a ban check (Dockside banned in Commander per project record 2026-10-19). Packages are DATA only (suggestions, no bans, no strength claims); wiring them into deck building is PR5. No scoring change: manifests/latest.json untouched, scoring pins remain as before. No external_prior (PR7). Retrieval dates are day-precision (drafts date only). Open follow-ups (not invented here): EDHREC percentage view, a curated build primer if one exists, local_meta data from the owner."
+    "notes": "Chulane refresh 2026-10-25 (Meta-Lane PR3, Hans-Go 2026-10-25 PR1–PR6, PR7 NOT included). First Chulane snapshot ever: previously NOTHING in data/meta/ for Chulane. Parity with RogShai in source types, freshness and schema — NOT in content. Refresh, NOT replacement: no old snapshot is touched; this file adds no cedh_tournament band and no cedh_tournament source entry BY DESIGN: EDHTop16 is EMPTY as a finding (3 searches, 0 hits, 2026-10-25) and no substitute data is stuffed in (Playgroup.gg tracking, 2,061 games / 36% win rate, is NOT tournament data and is NOT used as such). Primer: 0 genuine build primers found (Archidekt/Moxfield/Draftsim/Herald); the only Tier-B entry is the CoolStuff counter-guide, marked as such, never sold as a build primer. EDHREC is list-level only (rank order, NO percentages, NO total n, NO win rates). Spellbook: 7 of 8 lines carried as metadata; the Dockside line is EXCLUDED pending a ban check (Dockside banned in Commander per project record 2026-10-19). Packages are DATA only (suggestions, no bans, no strength claims); wiring them into deck building is PR5. No scoring change: manifests/latest.json untouched, scoring pins remain as before. No external_prior (PR7). Retrieval dates are day-precision (drafts date only). Open follow-ups (not invented here): EDHREC percentage view, a curated build primer if one exists, local_meta data from the owner. Packages held back until PR5 (this snapshot carries none, matching the RogShai refresh)."
   },
   "sources": [
     {
@@ -118,7 +118,7 @@
       "license_notes": "reference metadata and card-name extraction only",
       "source_id": "local-target-deck-ref-2026-10-25",
       "commander": "Chulane, Teller of Tales",
-      "deck_hash": "0995fe9fea140831bc369760fbb0b17f6e6064d281987e5ce91bafc1ad873a5b",
+      "deck_hash": "e9b07dbff8bc74b2f0ced8c7b270ed21112649ae04df091db53e89eb5da033bd",
       "format_band": "local_meta",
       "categories": [
         "local_meta"
@@ -136,7 +136,7 @@
       },
       "provenance": {
         "anchor_only": true,
-        "note": "Commander + target_deck_ref only; NOT a decklist extract and NOT a deck. local_meta is the owner's target-deck context; no external data."
+        "note": "Commander + target_deck_ref only; NOT a decklist extract and NOT a deck. local_meta is the owner's target-deck context; no external data. deck_hash is stable_deck_hash of the 100-card target deck referenced by target_deck_ref, not of the anchor list."
       }
     },
     {
@@ -268,174 +268,6 @@
     }
   ],
   "archetypes": [],
-  "packages": [
-    {
-      "package_id": "chulane-bounce-engine",
-      "name": "Bounce-Engine",
-      "cards": [
-        "Shrieking Drake",
-        "Kor Skyfisher",
-        "Fleetfoot Panther"
-      ],
-      "roles": [
-        "engine",
-        "value"
-      ],
-      "categories": [
-        "normal_four_player",
-        "high_power"
-      ],
-      "description": "Suggestion only: core of the target deck, already present. Expansion candidates (Whitemane Lion, Dream Stalker, Man-o'-War) are suggestions, not requirements. No strength claim.",
-      "vetoed_by_games": false
-    },
-    {
-      "package_id": "chulane-landfall",
-      "name": "Landfall-/Lands-Matter-Paket",
-      "cards": [
-        "Tatyova, Benthic Druid",
-        "Tireless Provisioner",
-        "Felidar Retreat",
-        "Rampaging Baloths",
-        "Azorius Chancery",
-        "Selesnya Sanctuary",
-        "Simic Growth Chamber"
-      ],
-      "roles": [
-        "value",
-        "ramp"
-      ],
-      "categories": [
-        "normal_four_player"
-      ],
-      "description": "Suggestion only: core of the target deck, already present. Expansion (Aesi, Avenger of Zendikar, Scute Swarm, Seedborn Muse, Lotus Cobra) only as density increase. No strength claim.",
-      "vetoed_by_games": false
-    },
-    {
-      "package_id": "chulane-etb-draw",
-      "name": "ETB-Draw-/Value-Paket",
-      "cards": [
-        "Cloudblazer",
-        "Koma, Cosmos Serpent",
-        "Beast Whisperer",
-        "Guardian Project",
-        "Mulldrifter",
-        "Coiling Oracle",
-        "Eternal Witness",
-        "Dour Port-Mage"
-      ],
-      "roles": [
-        "draw",
-        "value"
-      ],
-      "categories": [
-        "normal_four_player"
-      ],
-      "description": "Suggestion only: partly present (Cloudblazer, Koma); the rest are average-backed amplifiers of the draw motor, no plan change, no strength claim.",
-      "vetoed_by_games": false
-    },
-    {
-      "package_id": "chulane-aluren-loop",
-      "name": "Aluren-Loop",
-      "cards": [
-        "Aluren",
-        "Shrieking Drake",
-        "Laboratory Maniac",
-        "Thassa's Oracle"
-      ],
-      "roles": [
-        "combo",
-        "finisher"
-      ],
-      "categories": [
-        "high_power"
-      ],
-      "description": "Suggestion only, explicitly NOT recommended as a rebuild: combo finisher NOT in the target deck; adopting it would change the target plan (value without combo finisher) into a combo plan. Decision lies with the owner.",
-      "vetoed_by_games": false
-    },
-    {
-      "package_id": "chulane-intruder-loop",
-      "name": "Intruder-Alarm-Loop",
-      "cards": [
-        "Intruder Alarm",
-        "Shrieking Drake",
-        "Whitemane Lion",
-        "Stonecloaker"
-      ],
-      "roles": [
-        "combo",
-        "engine"
-      ],
-      "categories": [
-        "high_power"
-      ],
-      "description": "Suggestion only: NOT in the target deck except Shrieking Drake. Intruder Alarm untaps all creatures on every ETB, opponents' included — a feel/politics argument against casual adoption, not a measurement.",
-      "vetoed_by_games": false
-    },
-    {
-      "package_id": "chulane-combat-finisher",
-      "name": "Combat-Finisher",
-      "cards": [
-        "Craterhoof Behemoth",
-        "Finale of Devastation",
-        "Avenger of Zendikar",
-        "Scute Swarm"
-      ],
-      "roles": [
-        "finisher"
-      ],
-      "categories": [
-        "normal_four_player",
-        "high_power"
-      ],
-      "description": "Suggestion only: addresses the CoolStuff guide's 'spinning wheels without a real finisher' weakness as a gap description against the average, NOT a measured weakness. Target top-end today is Koma + Rampaging Baloths.",
-      "vetoed_by_games": false
-    },
-    {
-      "package_id": "chulane-protection-interaction",
-      "name": "Schutz / Interaktion",
-      "cards": [
-        "Swords to Plowshares",
-        "Arcane Denial",
-        "Negate",
-        "Farewell",
-        "Fumigate",
-        "Path to Exile",
-        "Counterspell",
-        "Cyclonic Rift",
-        "Beast Within",
-        "Heroic Intervention"
-      ],
-      "roles": [
-        "interaction",
-        "protection"
-      ],
-      "categories": [
-        "normal_four_player",
-        "high_power"
-      ],
-      "description": "Suggestion only: basis present in the target deck (Swords, Denial, Negate, Farewell, Fumigate); the rest are average-backed additions without a plan change. No strength claim.",
-      "vetoed_by_games": false
-    },
-    {
-      "package_id": "chulane-elf-dork-ramp",
-      "name": "Elfen-/Dork-Ramp",
-      "cards": [
-        "Arbor Elf",
-        "Llanowar Elves",
-        "Birds of Paradise",
-        "Noble Hierarch",
-        "Bloom Tender",
-        "Faeburrow Elder"
-      ],
-      "roles": [
-        "ramp"
-      ],
-      "categories": [
-        "normal_four_player"
-      ],
-      "description": "Suggestion only: target deck has thin 1-mana ramp (Arbor Elf, Llanowar Elves); the rest are average-backed additions. Combo deepening (Priest of Titania, Quirion Ranger, Wirewood Symbiote) belongs to the combo lines, not to this fair package. Prices not checked (UNKNOWN).",
-      "vetoed_by_games": false
-    }
-  ],
+  "packages": [],
   "card_frequencies": []
 }
