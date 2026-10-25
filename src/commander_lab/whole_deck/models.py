@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import Field, model_validator
 
-from commander_lab.models import DataQuality, FormatBand, FrozenModel
+from commander_lab.models import DataQuality, FormatBand, FrozenModel, MetaTier
 
 POLICY_SCHEMA_VERSION = "1.0.0"
 POLICY_SET_VERSION = "2026-08-13.1"
@@ -129,6 +129,12 @@ class MetaFunctionalProfile(FrozenModel):
     profile_id: str
     format_band: FormatBand
     source_snapshot_id: str
+    # Meta-Lane PR4: tier of the external sources backing this reference
+    # (None = untiered legacy snapshot or candidate profile, never a
+    # reference built from tiered sources). Set only by
+    # build_meta_functional_profile and deliberately excluded from the
+    # profile_hash payload, so existing hashes do not change.
+    source_tier: MetaTier | None = None
     reference_deck_count: int = Field(ge=1)
     dimensions: dict[str, FunctionalDimension]
     package_density: dict[str, FunctionalDimension] = Field(default_factory=dict)
