@@ -1742,6 +1742,11 @@ _PILOT_TYPES: dict[str, type[BasePilot]] = {
 }
 
 
+def generic_weights(strength: PilotStrength) -> PilotUtilityWeights:
+    """The utility weights the generic pilot uses at this strength."""
+    return _GENERIC_WEIGHTS[strength]
+
+
 def auto_pilot_name(strategy: str) -> str:
     normalized = strategy.casefold()
     if normalized == "korvold":
@@ -1803,4 +1808,5 @@ __all__ = [
     "RogShaiVoltronPilot",
     "auto_pilot_name",
     "build_pilot",
+    "generic_weights",
 ]
