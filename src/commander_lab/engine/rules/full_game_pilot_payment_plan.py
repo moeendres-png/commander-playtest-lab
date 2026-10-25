@@ -298,6 +298,10 @@ def _read_offer(options: Sequence[Mapping[str, object]], unpaid_mana: str) -> _O
             amount = meta.get("mana_available")
             if kind is None:
                 return None
+            # The engine says this spend advances the payment and the model finds nothing it
+            # can pay: the model misreads the cost or the mana, so it does not judge the offer.
+            if meta.get("advances_payment") is True and _spend(owed[0], owed[1], kind) is None:
+                return None
             pool[_TYPES.index(kind)] += amount if isinstance(amount, int) and amount > 0 else 1
             pool_options.append((option_id, kind))
         elif option_type == "mana_ability":

@@ -42,14 +42,14 @@ def _tap(option_id: str, name: str, effect: str, *, cost: str = "{T}", source: s
     )
 
 
-def _pool(kind: str, amount: int = 1) -> Any:
+def _pool(kind: str, amount: int = 1, *, advances: bool = True) -> Any:
     return _option(
         f"pool-{kind}",
         "mana_pool",
         f"Spend {kind} mana from pool",
         mana_type=kind,
         mana_available=amount,
-        advances_payment=True,
+        advances_payment=advances,
     )
 
 
@@ -142,7 +142,7 @@ def test_hall_of_oracles_needs_a_mana_to_pay_its_own_cost() -> None:
 
 
 def test_a_mana_that_cannot_help_is_not_a_completing_one() -> None:
-    options = [_CANCEL, _pool("black"), *_hall()]
+    options = [_CANCEL, _pool("black", advances=False), *_hall()]
     # {R} from the Hall paid with the floating {B}
     assert completing_options(options, "{R}") == frozenset({"hall-any"})
 
@@ -159,11 +159,12 @@ def test_an_ability_the_engine_calls_unfunded_is_not_chosen_now() -> None:
     # The engine's verdict on the pool as it is: a floating red would pay the Skycloud Expanse's
     # {1}, but the engine says the pool does not cover it, so it is not an option now.
     expanse = _tap("expanse-wu", "Skycloud Expanse", "{W}{U}", cost="{1}, {T}", source="expanse")
-    assert completing_options([_CANCEL, _pool("red"), expanse], "{W}{U}") == frozenset(
-        {"expanse-wu"}
-    )
+    assert completing_options(
+        [_CANCEL, _pool("red", advances=False), expanse], "{W}{U}"
+    ) == frozenset({"expanse-wu"})
     assert (
-        completing_options([_CANCEL, _pool("red"), *_unfunded([expanse])], "{W}{U}") == frozenset()
+        completing_options([_CANCEL, _pool("red", advances=False), *_unfunded([expanse])], "{W}{U}")
+        == frozenset()
     )
 
 
@@ -187,7 +188,7 @@ def test_a_payment_nothing_can_finish_has_no_completing_option() -> None:
 
 def test_a_second_ability_of_a_used_source_is_not_extra_mana() -> None:
     # The Prairie's filter outcomes are alternatives of one tap, never two sources.
-    options = [_CANCEL, _pool("red", 2), *_prairie()]
+    options = [_CANCEL, _pool("red", 2, advances=False), *_prairie()]
     assert completing_options(options, "{W}{W}{W}{W}") == frozenset()
 
 
@@ -207,6 +208,20 @@ def test_a_second_ability_of_a_used_source_is_not_extra_mana() -> None:
 def test_an_offer_it_cannot_read_is_not_judged(extra: Any) -> None:
     options = [_CANCEL, _tap("mountain-r", "Mountain", "{R}"), extra]
     assert completing_options(options, "{1}") is None
+
+
+def test_a_pool_spend_the_engine_calls_advancing_but_the_model_cannot_use_is_not_judged() -> None:
+    # The engine's flag and the model disagree on an elementary fact (a blue mana on a {W} cost),
+    # so the model keeps out of it and the engine's verdict stands.
+    options = [_CANCEL, _tap("plains-w", "Plains", "{W}"), _pool("blue")]
+    assert completing_options(options, "{W}") is None
+    advancing = [
+        option | {"metadata": {**option["metadata"], "advances_payment": False}}
+        for option in [_pool("blue")]
+    ]
+    assert completing_options(
+        [_CANCEL, _tap("plains-w", "Plains", "{W}"), *advancing], "{W}"
+    ) == frozenset({"plains-w"})
 
 
 def test_a_search_that_outgrows_its_budget_is_not_judged(monkeypatch: pytest.MonkeyPatch) -> None:
