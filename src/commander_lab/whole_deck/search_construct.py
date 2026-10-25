@@ -11,13 +11,16 @@ from .search_base import SearchEngineBase
 from .search_context import SearchCard
 
 WHOLE_DECK_META_SNAPSHOT_ID = "meta-2026-08-13-whole-deck-phase2-1"
+# Meta-Lane PR5: snapshot packages for the RogShai search path, kept in a
+# separate immutable file so the PR2 refresh snapshot stays untouched.
+ROGSHAI_PR5_PACKAGE_FILE = "data/meta/packages/rogshai-2026-10-25.json"
 
 
 class _ConstructMixin(SearchEngineBase):
     def _load_project_meta_references(self) -> dict[FormatBand, MetaFunctionalProfile]:
         from commander_lab.meta.store import MetaKnowledgeBase
 
-        from .meta import build_meta_functional_profile
+        from .meta import build_meta_functional_profile, load_snapshot_packages
 
         if self.context.root is None:
             return {}
@@ -26,12 +29,19 @@ class _ConstructMixin(SearchEngineBase):
             name: card.profile for name, card in self.context.cards.items() if card.semantic_known
         }
         commander = "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
+        try:
+            packages = load_snapshot_packages(self.context.root / ROGSHAI_PR5_PACKAGE_FILE)
+        except (OSError, ValueError):
+            # A missing or malformed package file must not break the
+            # search: without packages the scoring behaves exactly as
+            # before PR5. The PR5 tests pin the file's presence.
+            packages = ()
         result: dict[FormatBand, MetaFunctionalProfile] = {}
         for band, weight in self.policy.meta_band_weights.items():
             if weight <= 0.0:
                 continue
             try:
-                result[band] = build_meta_functional_profile(
+                profile = build_meta_functional_profile(
                     snapshot,
                     commander=commander,
                     format_band=band,
@@ -39,6 +49,12 @@ class _ConstructMixin(SearchEngineBase):
                 )
             except ValueError:
                 continue
+            band_packages = tuple(
+                package
+                for package in packages
+                if band.value in {category.value for category in package.categories}
+            )
+            result[band] = profile.model_copy(update={"snapshot_packages": band_packages})
         return result
 
     def _build_utility_map(self) -> dict[str, float]:

@@ -1,14 +1,18 @@
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 from commander_lab.models import (
     CardRole,
     FormatBand,
+    MetaComboLine,
     MetaDeckSnapshot,
     MetaKnowledgeBaseSnapshot,
+    MetaPackage,
     MetaTier,
     StructuralCardProfile,
     StructuralDeckProfile,
@@ -122,6 +126,97 @@ def mark_package_vetoed(
             packages[index] = package.model_copy(update={"vetoed_by_games": True})
             return snapshot.model_copy(update={"packages": tuple(packages)})
     raise ValueError(f"unknown package_id in snapshot: {package_id}")
+
+
+def _normalized_card_name(name: str) -> str:
+    return name.strip().casefold()
+
+
+def load_snapshot_packages(path: str | Path) -> tuple[MetaPackage, ...]:
+    """Load the packages of a snapshot-shaped file (Meta-Lane PR5).
+
+    The PR5 package files are snapshots with empty deck_snapshots; they
+    validate through the same model as the refresh snapshots, so a
+    malformed file fails here, not in scoring.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    snapshot = MetaKnowledgeBaseSnapshot.model_validate(data)
+    return snapshot.packages
+
+
+def load_spellbook_combos(path: str | Path) -> tuple[MetaComboLine, ...]:
+    """Load known combo lines from an offline JSON file (Meta-Lane PR5).
+
+    The file carries a free-form provenance block plus a "combos" list;
+    only the combos validate. Nothing here touches the network: the
+    Spellbook sync module is deliberately not imported on this path.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    combos = data.get("combos") if isinstance(data, dict) else None
+    if not isinstance(combos, list):
+        raise ValueError(f"spellbook combos file has no combos list: {path}")
+    return tuple(MetaComboLine.model_validate(item) for item in combos)
+
+
+def known_combos_in_deck(
+    deck: Sequence[str],
+    combos: Sequence[MetaComboLine],
+    *,
+    band: FormatBand | None = None,
+) -> tuple[MetaComboLine, ...]:
+    """Combo lines fully contained in a deck (metadata only, PR5).
+
+    A line counts only when every named card is present and every
+    any_of group has at least one card present. A partial line never
+    counts. When band is given, only lines covering that band count:
+    a cEDH line never reports for a casual band. This says nothing
+    about whether the line is legal or good in a real game — that is
+    the engine's call, not this function's.
+    """
+    present = {_normalized_card_name(name) for name in deck}
+    found = []
+    for combo in combos:
+        if band is not None and band not in combo.bands:
+            continue
+        if not all(_normalized_card_name(card) in present for card in combo.cards):
+            continue
+        if not all(
+            any(_normalized_card_name(option) in present for option in group)
+            for group in combo.any_of
+        ):
+            continue
+        found.append(combo)
+    return tuple(found)
+
+
+def snapshot_package_term(
+    packages: Sequence[MetaPackage],
+    deck: Sequence[str],
+    band: FormatBand,
+) -> float:
+    """Package enrichment term for one band (Meta-Lane PR5, <= 0).
+
+    For each non-vetoed package covering this band, an overlap of at
+    least 2 cards contributes -0.01 * (overlap - 1) ** 2 — the same
+    shape as the internal package bonus, but as a reduction of the
+    band's meta distance. The caller clamps the band total at zero,
+    so packages can at most cancel a band's meta penalty, never push
+    a score above its internal value (PR4 floor semantics). Vetoed
+    packages (§5.3: paired games overruled them) contribute exactly 0:
+    the veto is live in scoring from PR5 on.
+    """
+    present = {_normalized_card_name(name) for name in deck}
+    term = 0.0
+    for package in packages:
+        if package.vetoed_by_games:
+            continue
+        package_bands = {category.value for category in package.categories}
+        if band.value not in package_bands:
+            continue
+        overlap = sum(1 for card in package.cards if _normalized_card_name(card) in present)
+        if overlap >= 2:
+            term -= 0.01 * (overlap - 1) ** 2
+    return term
 
 
 def _quality(profiled: int, fallback: int, total: int) -> FunctionalEvidenceQuality:

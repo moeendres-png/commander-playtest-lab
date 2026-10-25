@@ -38,7 +38,7 @@ class _MetaScoreMixin(SearchEngineBase):
     def _meta_distance(self, mainboard: tuple[str, ...]) -> dict[str, float | None]:
         if not self.meta_references or self.policy.functional_meta_weight <= 0.0:
             return {}
-        from .meta import functional_meta_distance, profile_card_names
+        from .meta import functional_meta_distance, profile_card_names, snapshot_package_term
 
         profiles = {
             name: card.profile for name, card in self.context.cards.items() if card.semantic_known
@@ -59,7 +59,16 @@ class _MetaScoreMixin(SearchEngineBase):
             distance = functional_meta_distance(
                 candidate, reference, policy=self.policy, source_tier=reference.source_tier
             )
-            result[band.value] = distance.policy_weighted_distance
+            value = distance.policy_weighted_distance
+            if value is not None:
+                # PR5: snapshot packages reduce this band's meta distance,
+                # clamped at zero so they can at most cancel the penalty
+                # (PR4 floor semantics). Vetoed packages contribute 0.
+                value = max(
+                    0.0,
+                    value + snapshot_package_term(reference.snapshot_packages, mainboard, band),
+                )
+            result[band.value] = value
         return dict(sorted(result.items()))
 
     def _objective(
