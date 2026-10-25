@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SCANNED = (
     "data/canonical_import",
     "data/collections",
+    "data/deck_guides",
     "data/decks",
     "data/rules",
     "data/opponents",

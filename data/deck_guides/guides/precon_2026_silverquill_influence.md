@@ -1,0 +1,5 @@
+# Guide: Silverquill Influence
+
+Commander: Killian, Decisive Mentor (Farbidentität BW). Verzauberungen sind die Wertachse: Enchantress-Effekte und Payoffs aufbauen und das Board darüber schließen. Zweite Achse: value_engine. Manabasis: 37 Länder, Kurvenschnitt (Nonland) 2.97. Schlüsselkarten (Engine/Finisher nach Board-Wert): Killian, Decisive Mentor, Doomwake Giant, Eldrazi Conscription, Shadrix Silverquill. Der Haupt-Commander (Killian, Decisive Mentor) soll bis Zug 3 liegen (Mana-Wert minus Ramp-Beschleunigung des Decks). Keep-Test: 2–4 Länder (aus 7 gezogen 2–5, Überschuss bottomen), dazu mindestens ein spielbarer Frühspielzug (MV ≤ 3) an zwei der ersten drei Züge und die Farben für die frühen Pips (B:22, W:38). Latte fällt je Mulligan, nie unter 5 Karten. Angriffe: Commander-Schaden auf einen Spieler bündeln (Uhren-Regel), übrige Angriffe nach Zweck verteilen; alles, was den Kampf nicht verändert, postcombat spielen (Defaults aus Handoff §4.1/§4.3).
+
+_Generiert aus der Deckliste + Oracle-Fakten (Scryfall/Repo-Cache); Rollen über die Repo-Heuristik `card_roles()`. Parameter: MODELED/CODE_DERIVED — kein Messwert. Unbekannte Karten: 0._

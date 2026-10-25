@@ -1,0 +1,203 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2024/scrappy_survivors",
+ "guide_slug": "precon_2024_scrappy_survivors",
+ "deck_name": "Scrappy Survivors",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Dogmeat, Ever Loyal"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "G",
+  "R",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Dogmeat, Ever Loyal": 2
+ },
+ "haupt_commander": "Dogmeat, Ever Loyal",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "R": 14,
+   "W": 13,
+   "G": 15
+  },
+  "farbquellen_nichtland": 11,
+  "pip_bedarf_frueh": {
+   "R": 15,
+   "G": 16,
+   "W": 16
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 11,
+  "2": 18,
+  "3": 19,
+  "4": 5,
+  "5": 6,
+  "6": 2,
+  "7+": 1,
+  "durchschnitt_nonland": 2.82
+ },
+ "rollen": {
+  "mana_source": 47,
+  "ramp": 13,
+  "draw": 8,
+  "selection": 5,
+  "removal": 6,
+  "counter": 0,
+  "protection": 7,
+  "wipe": 2,
+  "recursion": 6,
+  "graveyard_hate": 0,
+  "engine": 23,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 1,
+  "combat_payoff": 19,
+  "token_source": 18,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "voltron",
+  "tribal:Human",
+  "artifacts",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Der Commander ist die Waffe: Auren/Equipment und Schutz auf einen Commander laden und über Commander-Schaden gewinnen.",
+ "schluesselkarten": [
+  "Dogmeat, Ever Loyal",
+  "Preston Garvey, Minuteman",
+  "Super Mutant Scavenger",
+  "Duchess, Wayward Tavernkeep",
+  "Cass, Hand of Vengeance",
+  "Veronica, Dissident Scribe"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 2,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.0,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw",
+   "selection"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Dogmeat, Ever Loyal",
+   "Preston Garvey, Minuteman",
+   "Super Mutant Scavenger"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Preston Garvey, Minuteman"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2024_scrappy_survivors-kern",
+   "karten": [
+    "Dogmeat, Ever Loyal",
+    "Preston Garvey, Minuteman",
+    "Super Mutant Scavenger",
+    "Duchess, Wayward Tavernkeep",
+    "Cass, Hand of Vengeance",
+    "Veronica, Dissident Scribe"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

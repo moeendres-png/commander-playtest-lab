@@ -1,0 +1,187 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2014/guided_by_nature",
+ "guide_slug": "precon_2014_guided_by_nature",
+ "deck_name": "Guided By Nature",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Freyalise, Llanowar's Fury"
+ ],
+ "commander_mana_value": [
+  5.0
+ ],
+ "farbidentitaet": [
+  "G"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Freyalise, Llanowar's Fury": 4
+ },
+ "haupt_commander": "Freyalise, Llanowar's Fury",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 37,
+  "laender_nach_farbe": {
+   "G": 30
+  },
+  "farbquellen_nichtland": 8,
+  "pip_bedarf_frueh": {
+   "G": 30
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 9,
+  "2": 8,
+  "3": 13,
+  "4": 12,
+  "5": 7,
+  "6": 9,
+  "7+": 5,
+  "durchschnitt_nonland": 3.78
+ },
+ "rollen": {
+  "mana_source": 43,
+  "ramp": 12,
+  "draw": 12,
+  "selection": 0,
+  "removal": 6,
+  "counter": 0,
+  "protection": 2,
+  "wipe": 4,
+  "recursion": 3,
+  "graveyard_hate": 0,
+  "engine": 13,
+  "enabler": 1,
+  "payoff": 1,
+  "finisher": 9,
+  "combat_payoff": 13,
+  "token_source": 11,
+  "sacrifice_outlet": 1,
+  "land_synergy": 2
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "tribal:Elf",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Ausgewogenes Wert-Deck: solide Kurve, Interaktion und Drohungen — über Kartenqualität statt über eine einzelne Synergie-Achse gewinnen.",
+ "schluesselkarten": [
+  "Freyalise, Llanowar's Fury",
+  "Terastodon",
+  "Soul of the Harvest",
+  "Rampaging Baloths",
+  "Siege Behemoth",
+  "Tornado Elemental"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 4,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Freyalise, Llanowar's Fury",
+   "Terastodon",
+   "Soul of the Harvest"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2014_guided_by_nature-kern",
+   "karten": [
+    "Freyalise, Llanowar's Fury",
+    "Terastodon",
+    "Soul of the Harvest",
+    "Rampaging Baloths",
+    "Siege Behemoth",
+    "Tornado Elemental"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

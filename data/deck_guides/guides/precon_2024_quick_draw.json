@@ -1,0 +1,195 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2024/quick_draw",
+ "guide_slug": "precon_2024_quick_draw",
+ "deck_name": "Quick Draw",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Stella Lee, Wild Card"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "R",
+  "U"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Stella Lee, Wild Card": 3
+ },
+ "haupt_commander": "Stella Lee, Wild Card",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "U": 21,
+   "R": 20
+  },
+  "farbquellen_nichtland": 9,
+  "pip_bedarf_frueh": {
+   "U": 31,
+   "R": 19
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 9,
+  "2": 20,
+  "3": 11,
+  "4": 9,
+  "5": 5,
+  "6": 4,
+  "7+": 4,
+  "durchschnitt_nonland": 3.27
+ },
+ "rollen": {
+  "mana_source": 43,
+  "ramp": 9,
+  "draw": 18,
+  "selection": 7,
+  "removal": 6,
+  "counter": 1,
+  "protection": 0,
+  "wipe": 2,
+  "recursion": 0,
+  "graveyard_hate": 0,
+  "engine": 18,
+  "enabler": 1,
+  "payoff": 2,
+  "finisher": 4,
+  "combat_payoff": 2,
+  "token_source": 9,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "spellslinger",
+  "value_engine"
+ ],
+ "win_plan": "Das Deck will viele Instants/Sorceries pro Zug spielen und über Magecraft-/Prodigy-Engines und Schadens-Payoffs gewinnen.",
+ "schluesselkarten": [
+  "Octavia, Living Thesis",
+  "Eris, Roar of the Storm",
+  "Stella Lee, Wild Card",
+  "Niv-Mizzet, Parun",
+  "Shark Typhoon",
+  "Arcane Bombardment"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.25,
+  "tempo": 0.0,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw",
+   "selection"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Octavia, Living Thesis",
+   "Eris, Roar of the Storm",
+   "Stella Lee, Wild Card"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "rule_of_law_effekte",
+    "delta_stufe": 3,
+    "grund": "Spellslinger-Deck: 'can't cast more than one spell'-Effekte sperren die Hauptachse"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2024_quick_draw-kern",
+   "karten": [
+    "Octavia, Living Thesis",
+    "Eris, Roar of the Storm",
+    "Stella Lee, Wild Card",
+    "Niv-Mizzet, Parun",
+    "Shark Typhoon",
+    "Arcane Bombardment"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

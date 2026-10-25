@@ -1,0 +1,196 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2020/arm_for_battle",
+ "guide_slug": "precon_2020_arm_for_battle",
+ "deck_name": "Arm for Battle",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Wyleth, Soul of Steel"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "R",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Wyleth, Soul of Steel": 3
+ },
+ "haupt_commander": "Wyleth, Soul of Steel",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 40,
+  "laender_nach_farbe": {
+   "R": 17,
+   "W": 21
+  },
+  "farbquellen_nichtland": 2,
+  "pip_bedarf_frueh": {
+   "R": 18,
+   "W": 27
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 7,
+  "2": 23,
+  "3": 18,
+  "4": 8,
+  "5": 3,
+  "6": 0,
+  "7+": 1,
+  "durchschnitt_nonland": 2.68
+ },
+ "rollen": {
+  "mana_source": 40,
+  "ramp": 3,
+  "draw": 5,
+  "selection": 1,
+  "removal": 9,
+  "counter": 1,
+  "protection": 8,
+  "wipe": 3,
+  "recursion": 1,
+  "graveyard_hate": 0,
+  "engine": 11,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 0,
+  "combat_payoff": 17,
+  "token_source": 2,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "voltron",
+  "spellslinger"
+ ],
+ "win_plan": "Der Commander ist die Waffe: Auren/Equipment und Schutz auf einen Commander laden und über Commander-Schaden gewinnen.",
+ "schluesselkarten": [
+  "Wyleth, Soul of Steel",
+  "Tiana, Ship's Caretaker",
+  "Odric, Lunarch Marshal",
+  "Flickerwisp",
+  "Sram, Senior Edificer",
+  "Ring of Valkas"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.0,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Wyleth, Soul of Steel",
+   "Tiana, Ship's Caretaker",
+   "Odric, Lunarch Marshal"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "rule_of_law_effekte",
+    "delta_stufe": 3,
+    "grund": "Spellslinger-Deck: 'can't cast more than one spell'-Effekte sperren die Hauptachse"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Odric, Lunarch Marshal",
+    "Ring of Valkas"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2020_arm_for_battle-kern",
+   "karten": [
+    "Wyleth, Soul of Steel",
+    "Tiana, Ship's Caretaker",
+    "Odric, Lunarch Marshal",
+    "Flickerwisp",
+    "Sram, Senior Edificer",
+    "Ring of Valkas"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

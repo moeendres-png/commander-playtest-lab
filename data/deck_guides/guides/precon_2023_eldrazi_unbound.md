@@ -1,0 +1,5 @@
+# Guide: Eldrazi Unbound
+
+Commander: Zhulodok, Void Gorger (Farbidentität farblos). Artefakt-Synergien tragen den Plan: Engines und Payoffs rund um Artefakte aufbauen und schützen. Manabasis: 38 Länder, Kurvenschnitt (Nonland) 4.61. Schlüsselkarten (Engine/Finisher nach Board-Wert): It That Betrays, Kozilek, the Great Distortion, Flayer of Loyalties, Ancient Stone Idol. Der Haupt-Commander (Zhulodok, Void Gorger) soll bis Zug 5 liegen (Mana-Wert minus Ramp-Beschleunigung des Decks). Keep-Test: 2–4 Länder (aus 7 gezogen 2–5, Überschuss bottomen), dazu mindestens ein spielbarer Frühspielzug (MV ≤ 3) an zwei der ersten drei Züge und die Farben für die frühen Pips (keine). Latte fällt je Mulligan, nie unter 5 Karten. Bedrohungs-Korrekturen: graveyard_hate (+3); boardwipe (+2). Angriffe: Commander-Schaden auf einen Spieler bündeln (Uhren-Regel), übrige Angriffe nach Zweck verteilen; alles, was den Kampf nicht verändert, postcombat spielen (Defaults aus Handoff §4.1/§4.3).
+
+_Generiert aus der Deckliste + Oracle-Fakten (Scryfall/Repo-Cache); Rollen über die Repo-Heuristik `card_roles()`. Parameter: MODELED/CODE_DERIVED — kein Messwert. Unbekannte Karten: 0._

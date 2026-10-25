@@ -1,0 +1,5 @@
+# Guide: Adaptive Enchantment
+
+Commander: Estrid, the Masked (Farbidentität GUW). Verzauberungen sind die Wertachse: Enchantress-Effekte und Payoffs aufbauen und das Board darüber schließen. Zweite Achse: go_wide. Manabasis: 39 Länder, Kurvenschnitt (Nonland) 3.9. Schlüsselkarten (Engine/Finisher nach Board-Wert): Arixmethes, Slumbering Isle, Hydra Omnivore, Estrid, the Masked, Nylea's Colossus. Der Haupt-Commander (Estrid, the Masked) soll bis Zug 4 liegen (Mana-Wert minus Ramp-Beschleunigung des Decks). Keep-Test: 2–4 Länder (aus 7 gezogen 2–5, Überschuss bottomen), dazu mindestens ein spielbarer Frühspielzug (MV ≤ 3) an zwei der ersten drei Züge und die Farben für die frühen Pips (G:22, U:11, W:10). Latte fällt je Mulligan, nie unter 5 Karten. Angriffe: Commander-Schaden auf einen Spieler bündeln (Uhren-Regel), übrige Angriffe nach Zweck verteilen; alles, was den Kampf nicht verändert, postcombat spielen (Defaults aus Handoff §4.1/§4.3).
+
+_Generiert aus der Deckliste + Oracle-Fakten (Scryfall/Repo-Cache); Rollen über die Repo-Heuristik `card_roles()`. Parameter: MODELED/CODE_DERIVED — kein Messwert. Unbekannte Karten: 0._

@@ -1,0 +1,188 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2021/silverquill_statement",
+ "guide_slug": "precon_2021_silverquill_statement",
+ "deck_name": "Silverquill Statement",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Breena, the Demagogue"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Breena, the Demagogue": 2
+ },
+ "haupt_commander": "Breena, the Demagogue",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 40,
+  "laender_nach_farbe": {
+   "B": 17,
+   "W": 20
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "W": 20,
+   "B": 8
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 2,
+  "2": 9,
+  "3": 18,
+  "4": 12,
+  "5": 10,
+  "6": 4,
+  "7+": 5,
+  "durchschnitt_nonland": 3.87
+ },
+ "rollen": {
+  "mana_source": 45,
+  "ramp": 11,
+  "draw": 9,
+  "selection": 0,
+  "removal": 5,
+  "counter": 0,
+  "protection": 2,
+  "wipe": 4,
+  "recursion": 2,
+  "graveyard_hate": 1,
+  "engine": 22,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 5,
+  "combat_payoff": 16,
+  "token_source": 6,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "value_engine"
+ ],
+ "win_plan": "Das Deck gewinnt über Karten- und Mana-Engines: Es baut Zug für Zug Vorsprung auf und konvertiert ihn spät in einen Finisher.",
+ "schluesselkarten": [
+  "Necropolis Regent",
+  "Breena, the Demagogue",
+  "Teysa, Envoy of Ghosts",
+  "Deathbringer Regent",
+  "Angel of Serenity",
+  "Guardian Archon"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 2,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Necropolis Regent",
+   "Breena, the Demagogue",
+   "Teysa, Envoy of Ghosts"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2021_silverquill_statement-kern",
+   "karten": [
+    "Necropolis Regent",
+    "Breena, the Demagogue",
+    "Teysa, Envoy of Ghosts",
+    "Deathbringer Regent",
+    "Angel of Serenity",
+    "Guardian Archon"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

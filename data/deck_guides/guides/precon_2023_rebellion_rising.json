@@ -1,0 +1,194 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2023/rebellion_rising",
+ "guide_slug": "precon_2023_rebellion_rising",
+ "deck_name": "Rebellion Rising",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Neyali, Suns' Vanguard"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "R",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Neyali, Suns' Vanguard": 3
+ },
+ "haupt_commander": "Neyali, Suns' Vanguard",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "R": 18,
+   "W": 18
+  },
+  "farbquellen_nichtland": 8,
+  "pip_bedarf_frueh": {
+   "R": 10,
+   "W": 25
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 4,
+  "2": 16,
+  "3": 16,
+  "4": 13,
+  "5": 8,
+  "6": 2,
+  "7+": 3,
+  "durchschnitt_nonland": 3.39
+ },
+ "rollen": {
+  "mana_source": 42,
+  "ramp": 9,
+  "draw": 9,
+  "selection": 0,
+  "removal": 5,
+  "counter": 0,
+  "protection": 3,
+  "wipe": 4,
+  "recursion": 1,
+  "graveyard_hate": 1,
+  "engine": 23,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 1,
+  "combat_payoff": 15,
+  "token_source": 30,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "voltron",
+  "tribal:Human",
+  "artifacts",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Der Commander ist die Waffe: Auren/Equipment und Schutz auf einen Commander laden und über Commander-Schaden gewinnen.",
+ "schluesselkarten": [
+  "Neyali, Suns' Vanguard",
+  "Myr Battlesphere",
+  "Otharri, Suns' Glory",
+  "Adriana, Captain of the Guard",
+  "Jor Kadeen, the Prevailer",
+  "Elspeth Tirel"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.0,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Neyali, Suns' Vanguard",
+   "Myr Battlesphere",
+   "Otharri, Suns' Glory"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Otharri, Suns' Glory"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2023_rebellion_rising-kern",
+   "karten": [
+    "Neyali, Suns' Vanguard",
+    "Myr Battlesphere",
+    "Otharri, Suns' Glory",
+    "Adriana, Captain of the Guard",
+    "Jor Kadeen, the Prevailer",
+    "Elspeth Tirel"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

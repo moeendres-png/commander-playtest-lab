@@ -1,0 +1,202 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2014/sworn_to_darkness",
+ "guide_slug": "precon_2014_sworn_to_darkness",
+ "deck_name": "Sworn To Darkness",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Ob Nixilis of the Black Oath"
+ ],
+ "commander_mana_value": [
+  5.0
+ ],
+ "farbidentitaet": [
+  "B"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Ob Nixilis of the Black Oath": 5
+ },
+ "haupt_commander": "Ob Nixilis of the Black Oath",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 40,
+  "laender_nach_farbe": {
+   "B": 37
+  },
+  "farbquellen_nichtland": 8,
+  "pip_bedarf_frueh": {
+   "B": 26
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 4,
+  "2": 13,
+  "3": 8,
+  "4": 11,
+  "5": 15,
+  "6": 5,
+  "7+": 4,
+  "durchschnitt_nonland": 3.87
+ },
+ "rollen": {
+  "mana_source": 47,
+  "ramp": 9,
+  "draw": 14,
+  "selection": 1,
+  "removal": 13,
+  "counter": 0,
+  "protection": 1,
+  "wipe": 3,
+  "recursion": 4,
+  "graveyard_hate": 1,
+  "engine": 13,
+  "enabler": 0,
+  "payoff": 7,
+  "finisher": 9,
+  "combat_payoff": 10,
+  "token_source": 10,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "spellslinger",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Das Deck will viele Instants/Sorceries pro Zug spielen und über Magecraft-/Prodigy-Engines und Schadens-Payoffs gewinnen.",
+ "schluesselkarten": [
+  "Ob Nixilis of the Black Oath",
+  "Xathrid Demon",
+  "Pestilence Demon",
+  "Overseer of the Damned",
+  "Butcher of Malakir",
+  "Reaper from the Abyss"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 5,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.1,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.2,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Ob Nixilis of the Black Oath",
+   "Xathrid Demon",
+   "Pestilence Demon"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   },
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   },
+   {
+    "kategorie": "rule_of_law_effekte",
+    "delta_stufe": 3,
+    "grund": "Spellslinger-Deck: 'can't cast more than one spell'-Effekte sperren die Hauptachse"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2014_sworn_to_darkness-kern",
+   "karten": [
+    "Ob Nixilis of the Black Oath",
+    "Xathrid Demon",
+    "Pestilence Demon",
+    "Overseer of the Damned",
+    "Butcher of Malakir",
+    "Reaper from the Abyss"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

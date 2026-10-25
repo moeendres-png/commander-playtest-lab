@@ -1,0 +1,206 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2025/living_energy",
+ "guide_slug": "precon_2025_living_energy",
+ "deck_name": "Living Energy",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Saheeli, Radiant Creator"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "G",
+  "R",
+  "U"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Saheeli, Radiant Creator": 3
+ },
+ "haupt_commander": "Saheeli, Radiant Creator",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "U": 16,
+   "R": 14,
+   "G": 16
+  },
+  "farbquellen_nichtland": 11,
+  "pip_bedarf_frueh": {
+   "G": 7,
+   "U": 13,
+   "R": 6
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 4,
+  "2": 13,
+  "3": 15,
+  "4": 15,
+  "5": 5,
+  "6": 6,
+  "7+": 4,
+  "durchschnitt_nonland": 3.68
+ },
+ "rollen": {
+  "mana_source": 47,
+  "ramp": 15,
+  "draw": 15,
+  "selection": 3,
+  "removal": 6,
+  "counter": 2,
+  "protection": 1,
+  "wipe": 3,
+  "recursion": 0,
+  "graveyard_hate": 1,
+  "engine": 22,
+  "enabler": 1,
+  "payoff": 1,
+  "finisher": 7,
+  "combat_payoff": 7,
+  "token_source": 14,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "artifacts",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Artefakt-Synergien tragen den Plan: Engines und Payoffs rund um Artefakte aufbauen und schützen.",
+ "schluesselkarten": [
+  "Triplicate Titan",
+  "Saheeli, Radiant Creator",
+  "Aetherwind Basker",
+  "Aethersquall Ancient",
+  "Elder Gargaroth",
+  "Territorial Aetherkite"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.35,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Triplicate Titan",
+   "Saheeli, Radiant Creator",
+   "Aetherwind Basker"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Saheeli, Radiant Creator",
+    "Territorial Aetherkite"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2025_living_energy-kern",
+   "karten": [
+    "Triplicate Titan",
+    "Saheeli, Radiant Creator",
+    "Aetherwind Basker",
+    "Aethersquall Ancient",
+    "Elder Gargaroth",
+    "Territorial Aetherkite"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}
