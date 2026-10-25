@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from calendar import monthrange
 from collections import Counter
 from datetime import datetime
 from enum import StrEnum
@@ -10,6 +11,45 @@ from pydantic import Field, field_validator, model_validator
 from .common import FrozenModel, MutableModel
 
 META_SCHEMA_VERSION = "1.0.0"
+
+
+class MetaTier(StrEnum):
+    """Evidence tier of a meta source (Meta-Lane design §2.1).
+
+    A: tracked/aggregated primary data with stated sample and date.
+    B: established guide (primer/strategy article with decklist and reasoning).
+    C: single opinion without a data basis — never a strength claim, never scored.
+    """
+
+    A = "A"
+    B = "B"
+    C = "C"
+
+
+def expires_at_for(retrieved_at: datetime) -> datetime:
+    """Stale boundary of a meta record: retrieval date + 12 calendar months.
+
+    PR1 defines the field and this computation only. Enforcement (weight 0
+    after expiry) belongs to PR6 and must not be added here.
+    """
+
+    month = retrieved_at.month + 12
+    year = retrieved_at.year + (month - 1) // 12
+    month = (month - 1) % 12 + 1
+    last_day = monthrange(year, month)[1]
+    return retrieved_at.replace(year=year, month=month, day=min(retrieved_at.day, last_day))
+
+
+class MetaTargetDeckRef(FrozenModel):
+    """Reference to a handover target deck (path + commit), never a list copy.
+
+    PR1 defines only the reference. Populating it for RogShai/Chulane
+    belongs to PR2/PR3.
+    """
+
+    path: str = Field(min_length=1)
+    commit: str = Field(pattern=r"^[0-9a-f]{7,40}$")
+    branch: str | None = None
 
 
 class MetaCategory(StrEnum):
@@ -68,11 +108,49 @@ class MetaSource(FrozenModel):
     evidence_quality: MetaEvidenceRating
     license_notes: str = "reference metadata and short structured extraction only"
     notes: str | None = None
+    # PR1 provenance fields (all optional; see docs/meta/PROVENANCE_HEADER.md).
+    # Tier C never enters scoring (PR4 enforces the caps); band pins the single
+    # band of this source when it has exactly one, otherwise it stays None.
+    tier: MetaTier | None = None
+    band: MetaCategory | None = None
+    sample_size: int | None = Field(default=None, ge=1)
+    small_sample: bool | None = None
+    # Stale boundary (retrieved_at + 12 months). Defined here; enforcement
+    # (weight 0 after expiry) belongs to PR6, not PR1.
+    expires_at: datetime | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _derive_small_sample(cls, data: object) -> object:
+        if not isinstance(data, dict):
+            return data
+        sample = data.get("sample_size")
+        if (
+            isinstance(sample, int)
+            and not isinstance(sample, bool)
+            and data.get("small_sample") is None
+        ):
+            return {**data, "small_sample": sample < 5}
+        return data
 
     @model_validator(mode="after")
     def validate_categories(self) -> MetaSource:
         if not self.categories:
             raise ValueError("at least one meta category is required")
+        return self
+
+    @model_validator(mode="after")
+    def validate_provenance_fields(self) -> MetaSource:
+        if self.band is not None and self.band not in self.categories:
+            raise ValueError("source band must be one of its categories")
+        if self.expires_at is not None and self.expires_at <= self.retrieved_at:
+            raise ValueError("expires_at must be after retrieved_at")
+        if (
+            self.sample_size is not None
+            and self.small_sample is not None
+            and self.small_sample != (self.sample_size < 5)
+        ):
+            raise ValueError("small_sample must agree with sample_size (< 5)")
         return self
 
 
@@ -83,6 +161,11 @@ class MetaPackage(FrozenModel):
     roles: tuple[str, ...]
     categories: tuple[MetaCategory, ...]
     description: str | None = None
+    # PR1: veto note (design §5.3). True only when paired games overruled this
+    # package; the contradiction itself is documented in the PR/artifact, not
+    # silently overwritten. A card-level prior veto belongs to the profile
+    # prior fields and is deliberately not modeled here.
+    vetoed_by_games: bool = False
 
 
 class MetaArchetype(FrozenModel):
@@ -154,6 +237,12 @@ class MetaDeckSnapshot(FrozenModel):
     provenance: dict[str, Any] = Field(default_factory=dict)
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
     license_notes: str = "reference metadata and card-name extraction only"
+    # PR1 provenance fields (all optional; see docs/meta/PROVENANCE_HEADER.md).
+    # band duplicates format_band as the single-band view; it must equal
+    # format_band when set. target_deck_ref is a reference only, never a copy
+    # of the target decklist; populating it belongs to PR2/PR3.
+    band: FormatBand | None = None
+    target_deck_ref: MetaTargetDeckRef | None = None
 
     @field_validator("decklist")
     @classmethod
@@ -181,6 +270,8 @@ class MetaDeckSnapshot(FrozenModel):
             raise ValueError(
                 "local meta and cEDH tournament must not be collapsed into one context"
             )
+        if self.band is not None and self.band != self.format_band:
+            raise ValueError("deck snapshot band must equal its format_band")
         return self
 
 
