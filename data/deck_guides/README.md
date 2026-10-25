@@ -9,8 +9,12 @@ replaced by `_` (`rogshai` and `chulane` for the two Owner decks).
 **Status: hypotheses, not measurements.** Card facts (costs, types, oracle text, colour
 identity, land count, curve) come from the printed cards. Everything derived from them (roles,
 commander target turn, utility deltas, keep-test windows, threat overrides, packages) is
-`MODELED` or `CODE_DERIVED` and carries that label in the file. No pilot reads a guide yet; whether
-a guide makes a pilot play better is decided only by paired real-game runs, never by this data.
+`MODELED` or `CODE_DERIVED` and carries that label in the file. Only the measurement switch
+`scripts/pilot_decision_report.py run --guides` reads a guide (its `utility_deltas`, added to the
+generic weights of a seat); no pilot uses one by default. Whether a guide makes a pilot play better
+is decided only by paired real-game runs, never by this data. First run (48 real games, three
+guided seats and one unguided control): no detectable effect on spells per player round (1.34 ->
+1.33), win rate undecided; the deltas are at most 0.35, so that is the expected size of effect.
 
 **Origin.** Generated on 2026-10-24 from the deck lists, a Scryfall card cache and the repository's
 own `card_roles()` and `permanent_value()`, then adjusted by hand for the two Owner decks (fields
