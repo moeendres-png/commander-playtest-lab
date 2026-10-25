@@ -922,11 +922,11 @@ _TUTOR_TO_TOP = re.compile(
 )
 
 
-def _own_turn(state: Mapping[str, Any]) -> bool:
+def _own_turn(state: Mapping[str, object]) -> bool:
     return str(state.get("active_player_id", "")) == str(state.get("actor_id", ""))
 
 
-def _timing_withhold_reason(facts: CardFacts, state: Mapping[str, Any]) -> str | None:
+def _timing_withhold_reason(facts: CardFacts, state: Mapping[str, object]) -> str | None:
     """An instant that has a better window later this turn cycle waits for it.
 
     On the seat's own turn, before the main phase, the mana is still needed for the main phase,
@@ -948,7 +948,7 @@ def _timing_withhold_reason(facts: CardFacts, state: Mapping[str, Any]) -> str |
 
 
 def _ability_timing_withhold_reason(
-    engine_cost: float | None, state: Mapping[str, Any]
+    engine_cost: float | None, state: Mapping[str, object]
 ) -> str | None:
     """Mana is spent in the main phase, not before it: the seat sees its draw first."""
     if state.get("stack") or not engine_cost or not _own_turn(state):
