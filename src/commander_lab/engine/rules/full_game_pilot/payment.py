@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import itertools
+import math
 import random
 import re
 from collections.abc import Mapping
@@ -12,6 +14,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_payment_plan import colour_letter, completing_options, completing_outcomes
 from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
@@ -219,7 +222,9 @@ class _PaymentDecisions(_PolicyState):
         )
         return chosen
 
-    def _priority_action_affordable(self, option: dict[str, Any], state: dict[str, Any]) -> bool:
+    def _priority_action_affordable(
+        self, option: dict[str, Any], state: dict[str, Any], *, pool_verified: bool = False
+    ) -> bool:
         """Pilot-side discretionary ranking among engine-authorized options.
 
         Returns False only when engine-native cost facts prove the action
@@ -251,6 +256,11 @@ class _PaymentDecisions(_PolicyState):
         intent. Any other False result (a tapped source, a Crew the other
         creatures cannot pay, a tap-creature cost with nothing to tap) stays
         withheld.
+
+        ``pool_verified`` is set by the payment model once it has read the pool itself and found
+        the ability's cost covered: the flag counts a hybrid pip such as ``{R/W}`` as both of its
+        colours, so a pool holding one of them reads as short (Rugged Prairie with a red mana
+        floating). It lifts only that flag verdict, never a tapped source or a Crew check.
         """
         metadata = option.get("metadata")
         if not isinstance(metadata, dict):
@@ -279,7 +289,7 @@ class _PaymentDecisions(_PolicyState):
         # Vehicle's own power would pay for it, which no crew can ever use.
         if metadata.get("crew_payable_without_source") is False:
             return False
-        if metadata.get("pool_covers_mana_cost") is not False:
+        if metadata.get("pool_covers_mana_cost") is not False or pool_verified:
             return True
         return not (
             metadata.get("requires_tap_source") is True
@@ -496,7 +506,132 @@ class _PaymentDecisions(_PolicyState):
             raise FullGameProtocolError(
                 "mana-payment no-progress guard tripped with no cancel offered"
             )
+        return self._complete_payment(runtime, state, options, context, rng)
 
+    def _colours_that_complete(
+        self, seat: int, options: list[dict[str, object]]
+    ) -> list[dict[str, object]]:
+        """The colour options of a mana pick after which the payment can still be finished.
+
+        An any-colour ability asks for its colour in a prompt of its own; the cost ranking of
+        that prompt does not know what the other sources can make (Spire of Industry for a
+        {B}{R} cost, with only black sources left, was set to black). Anything the model cannot
+        read, and a pick every colour of which completes or none, leaves the options as offered.
+        """
+        offer = self._last_payment_offer.get(seat)
+        letters = {
+            str(option.get("option_id")): colour_letter(str(option.get("label", "")))
+            for option in options
+        }
+        if offer is None or not letters or None in letters.values():
+            return options
+        outcomes = [(letter,) for letter in letters.values() if letter is not None]
+        good = completing_outcomes(offer[0], offer[1], offer[2], outcomes)
+        if not good:
+            return options
+        kept = [o for o in options if (letters[str(o.get("option_id"))] or "",) in good]
+        return kept if 0 < len(kept) < len(options) else options
+
+    def _vector_that_completes(
+        self, seat: int, legs: list[tuple[int, int, str]], total: tuple[int, int], values: list[int]
+    ) -> list[int]:
+        """The pilot's mana split, or the nearest one that keeps the payment completable.
+
+        The legs of a "any combination of" ability are its colours; the split decides which of
+        the colours the rest of the payment gets.
+        """
+        offer = self._last_payment_offer.get(seat)
+        letters = [colour_letter(prompt) for _low, _high, prompt in legs]
+        if (
+            offer is None
+            or None in letters
+            or math.prod(high - low + 1 for low, high, _ in legs) > 4096
+        ):
+            return values
+        vectors = [
+            vector
+            for vector in itertools.product(*(range(low, high + 1) for low, high, _ in legs))
+            if total[0] <= sum(vector) <= total[1]
+        ]
+
+        def outcome(vector: tuple[int, ...]) -> tuple[str, ...]:
+            return tuple(
+                sorted(
+                    letter
+                    for letter, count in zip(letters, vector, strict=True)
+                    if letter
+                    for _ in range(count)
+                )
+            )
+
+        good = completing_outcomes(
+            offer[0], offer[1], offer[2], sorted({outcome(v) for v in vectors})
+        )
+        if not good or outcome(tuple(values)) in good:
+            return values
+        near = min(
+            (v for v in vectors if outcome(v) in good),
+            key=lambda v: (sum(abs(a - b) for a, b in zip(v, values, strict=True)), v),
+        )
+        return list(near)
+
+    def _complete_payment(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, object],
+        options: list[dict[str, object]],
+        context: dict[str, object],
+        rng: random.Random,
+    ) -> str:
+        """The usual choice, unless it strands a payment that another option would finish.
+
+        #989 phase 5: the choice below knows colours when it orders sources, but the check that
+        feeds the pool into a filter land only counts mana. A Mountain's {R} spent on the {1} of a
+        {1}{W} left the Rugged Prairie unable to pay its own {R/W}, and Hall of Oracles was tapped
+        for {C} while the Swamp that pays its {1} stayed untapped: 56 of the 136 cancelled
+        payments in 24 real games could still be paid at their first prompt. The model of
+        ``full_game_pilot_payment_plan`` only reads the engine's own text; where it cannot read an
+        offer, or the usual choice keeps the payment completable, nothing changes here.
+        """
+        choice = self._choose_mana_option(runtime, state, options, context, rng)
+        completing = completing_options(options, str(context.get("unpaid_mana", "")))
+        if not completing or choice in completing:
+            return choice
+        chosen = next((o for o in options if o.get("option_id") == choice), None)
+        if chosen is None or chosen.get("option_type") == "cancel_mana_payment":
+            return choice
+        cancels = {
+            option.get("option_id")
+            for option in options
+            if option.get("option_type") == "cancel_mana_payment"
+        }
+        narrowed = [
+            option
+            for option in options
+            if option.get("option_id") in completing or option.get("option_id") in cancels
+        ]
+        _LOG.info(
+            "mana payment: %r would strand the cost, paying with %d completing option(s)",
+            chosen.get("label"),
+            len(narrowed) - len(cancels),
+        )
+        alternative = self._choose_mana_option(
+            runtime, state, narrowed, context, rng, payable=frozenset(map(str, completing))
+        )
+        # cancelling is the dead end this steers away from, never what it steers towards: the
+        # pilot's own rules may withhold every option the model found
+        return choice if alternative in cancels else alternative
+
+    def _choose_mana_option(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, object],
+        options: list[dict[str, object]],
+        context: dict[str, object],
+        rng: random.Random,
+        payable: frozenset[str] = frozenset(),
+    ) -> str:
+        seat = runtime.binding.seat
         pool_options = [
             option
             for option in options
@@ -610,7 +745,9 @@ class _PaymentDecisions(_PolicyState):
         selectable: list[dict[str, Any]] = []
         for option in non_pool:
             if self._required_text(option, "option_type") == "mana_ability" and (
-                not self._priority_action_affordable(option, state)
+                not self._priority_action_affordable(
+                    option, state, pool_verified=str(option.get("option_id")) in payable
+                )
                 or self._spends_the_activations_own_source(seat, option)
                 or self._spends_counters_the_cast_reserves(seat, option)
                 or self._spends_a_permanent_the_tap_cost_needs(seat, option, state)
@@ -1316,5 +1453,12 @@ class _PaymentDecisions(_PolicyState):
             raise FullGameProtocolError(
                 f"pilot joint numeric total {sum(values)} outside authoritative band "
                 f"{total_min}..{total_max}"
+            )
+        if outcome == "putmanainpool":
+            values = self._vector_that_completes(
+                runtime.binding.seat,
+                [(leg["min"], leg["max"], leg["prompt"]) for leg in legs],
+                (total_min, total_max),
+                values,
             )
         return values

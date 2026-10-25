@@ -869,6 +869,7 @@ class _ChoiceDecisions(_PaymentDecisions):
         ]
         text = f"{prompt} {context.get('outcome', '')}".casefold()
         if "mana" in text:
+            options = self._colours_that_complete(seat, options)
             identity: set[str] = set()
             own_id = str(state.get("actor_id", ""))
             status = state.get("commander_status")
