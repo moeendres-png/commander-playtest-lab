@@ -78,7 +78,9 @@ def test_every_pool_deck_has_exactly_one_guide_and_nothing_else_does() -> None:
 
 
 def test_every_json_guide_has_its_markdown_partner_and_a_matching_slug() -> None:
-    for slug, guide in _guides().items():
+    guides = _guides()
+    assert guides, "no deck guides found"
+    for slug, guide in guides.items():
         assert guide["guide_slug"] == slug
         expected = guide["deck_id"].removeprefix("custom/").replace("/", "_")
         assert expected == slug
@@ -87,7 +89,9 @@ def test_every_json_guide_has_its_markdown_partner_and_a_matching_slug() -> None
 
 
 def test_every_guide_carries_the_required_fields_and_a_known_class() -> None:
-    for slug, guide in _guides().items():
+    guides = _guides()
+    assert guides, "no deck guides found"
+    for slug, guide in guides.items():
         assert guide["schema"] == "deck-guide/1", slug
         assert guide.keys() >= REQUIRED_KEYS, (slug, sorted(REQUIRED_KEYS - guide.keys()))
         assert guide["deck_klasse"] in CLASSES, slug
@@ -96,7 +100,9 @@ def test_every_guide_carries_the_required_fields_and_a_known_class() -> None:
 
 def test_the_class_follows_the_deck_it_describes() -> None:
     pool = _pool()
-    for slug, guide in _guides().items():
+    guides = _guides()
+    assert guides, "no deck guides found"
+    for slug, guide in guides.items():
         deck_id = guide["deck_id"]
         if deck_id in OWNER_DECKS:
             assert guide["deck_klasse"] == "FOKUS", slug
@@ -109,7 +115,9 @@ def test_the_class_follows_the_deck_it_describes() -> None:
 
 def test_the_commander_and_the_named_cards_belong_to_the_deck() -> None:
     pool = _pool()
-    for slug, guide in _guides().items():
+    guides = _guides()
+    assert guides, "no deck guides found"
+    for slug, guide in guides.items():
         deck = pool.get(guide["deck_id"])
         if deck is None:
             continue  # the Owner decks are not part of the precon pool
@@ -125,7 +133,9 @@ def test_the_commander_and_the_named_cards_belong_to_the_deck() -> None:
 
 def test_utility_deltas_are_weight_names_inside_their_bounds() -> None:
     weights = set(PilotUtilityWeights.model_fields)
-    for slug, guide in _guides().items():
+    guides = _guides()
+    assert guides, "no deck guides found"
+    for slug, guide in guides.items():
         numbers = {
             name: value
             for name, value in guide["utility_deltas"].items()
@@ -137,7 +147,9 @@ def test_utility_deltas_are_weight_names_inside_their_bounds() -> None:
 
 @pytest.mark.parametrize("field", ["keep_test", "manabasis", "kurve"])
 def test_the_mulligan_window_and_the_mana_base_are_consistent(field: str) -> None:
-    for slug, guide in _guides().items():
+    guides = _guides()
+    assert guides, "no deck guides found"
+    for slug, guide in guides.items():
         section = guide[field]
         if field == "keep_test":
             assert 0 <= section["laender_min"] <= section["laender_max"], slug
