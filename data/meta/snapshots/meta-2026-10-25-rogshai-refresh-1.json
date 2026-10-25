@@ -1,0 +1,321 @@
+{
+  "manifest": {
+    "snapshot_id": "meta-2026-10-25-rogshai-refresh-1",
+    "created_at": "2026-10-25T00:00:00Z",
+    "schema_version": "1.0.0",
+    "source_ids": [
+      "edhrec-rogshai-2026-10-25",
+      "edhtop16-scorespell-rogshai-2026-10-25",
+      "primer-rogishai-cedh-2026-05-26",
+      "primer-rograkh-guide-2026-06-30",
+      "local-target-deck-ref-2026-10-25"
+    ],
+    "deck_hashes": [
+      "1a1b68e480395019faee8d3f000cba2a5e349435a64d96bf12a2e6c844a44e0b",
+      "6b884f15c9334fed1b6a853e41d6847561e63a343f481047d395657fdefb530d",
+      "cedfdde207357b8dbc436abd56445d83aeffa17e444cb609f83d8cc288ad67f8"
+    ],
+    "categories": [
+      "local_meta",
+      "high_power",
+      "cedh_tournament"
+    ],
+    "immutable": true,
+    "supersedes": [],
+    "notes": "RogShai refresh 2026-10-25 (Meta-Lane PR2, Hans-Go 2026-10-25, PR7 NOT included). Refresh, NOT replacement: snapshots 2026-08-05 and 2026-08-13 remain unchanged and remain the reference for normal_four_player and for the full 100-card cEDH average list; this file adds NO normal_four_player deck entry because the Bracket-3 view was not re-fetched as text (drafts Gap 7). EDHREC for the exact pairing yields no robust average (variants n=1, Polymorph n=5; no percentages/win rates in text retrieval): list-level update, NOT a frequency claim. EDHTop16 numbers for RogShai itself are UNKNOWN (ScoreSpell rank #7 only); live-browser follow-up open. No secured casual primer exists for the target band. Packages deferred to PR5; tournament_results empty (no invented numbers). No scoring change: manifests/latest.json untouched and scoring pins meta-2026-08-13-whole-deck-phase2-1. No external_prior (PR7). Retrieval dates are day-precision (drafts date only)."
+  },
+  "sources": [
+    {
+      "source_id": "edhrec-rogshai-2026-10-25",
+      "title": "EDHREC RogShai Commander page (Control/Budget) and average variants, refresh 2026-10-25",
+      "url": "https://edhrec.com/commanders/ishai-ojutai-dragonspeaker-rograkh-son-of-rohgahh/control/budget",
+      "author": "EDHREC",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "source_type": "aggregator",
+      "categories": [
+        "high_power",
+        "cedh_tournament"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "No robust average for the exact pairing: variants n=1 (Tokens, Exhibition, +1/+1 Counters, Expensive Optimized, Anthems), Polymorph n=5; Budget-Control page gives displayed order only, NO percentages, NO win rates in text retrieval. Filters predominantly cEDH-near: do NOT read as casual/high-power recommendation. Popularity is not strength. Per-variant samples vary, so no single sample_size is claimed (see drafts/rogshai/edhrec_average_2026-10-25.md).",
+      "tier": "A",
+      "band": null,
+      "sample_size": null,
+      "small_sample": null,
+      "expires_at": "2027-10-25T00:00:00Z"
+    },
+    {
+      "source_id": "edhtop16-scorespell-rogshai-2026-10-25",
+      "title": "ScoreSpell cEDH rankings (EDHTop16 public dataset) — RogShai rank #7",
+      "url": "https://scorespell.com/cedh-rankings/sisay-weatherlight-captain",
+      "author": "ScoreSpell (secondary; EDHTop16 dataset)",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "source_type": "tournament",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "aggregator",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "Secondary source only: ScoreSpell ranks RogShai #7 (90-day window, events with 64+ players). NO meta share, NO conversion, NO entries, NO top-16 finishes for RogShai itself in this retrieval: all UNKNOWN. The EDHTop16 commander page for RogShai was not retrievable as text (exact URL absent from search hits; URLs are not guessed) — live-browser follow-up open. RogThras numbers (18.12% conversion, 118 top cuts, 651 entries) belong to Rograkh/Thrasios, NOT RogShai, and must never appear as RogShai numbers. Tier intentionally unclaimed: no RogShai sample is stated, so Tier A sample criterion fails; not a guide (not B); not mere opinion (not C).",
+      "tier": null,
+      "band": "cedh_tournament",
+      "sample_size": null,
+      "small_sample": null,
+      "expires_at": "2027-10-25T00:00:00Z"
+    },
+    {
+      "source_id": "primer-rogishai-cedh-2026-05-26",
+      "title": "Building a RogIshai (Rograkh and Ishai) cEDH Deck",
+      "url": "https://edhrec.com/articles/building-a-rogishai-rograkh-and-ishai-cedh-deck",
+      "author": "EDHREC",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": "2026-05-26T00:00:00Z",
+      "source_type": "primer",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "cEDH tempo-control primer (Tier B, within 12 months at retrieval). NOT a casual recommendation: Breach/LED finish and engine-spam are cEDH identity, not target-deck advice. Shared cards with the target deck limited to Springleaf Drum and Flare of Duplication.",
+      "tier": "B",
+      "band": "cedh_tournament",
+      "sample_size": null,
+      "small_sample": null,
+      "expires_at": "2027-10-25T00:00:00Z"
+    },
+    {
+      "source_id": "primer-rograkh-guide-2026-06-30",
+      "title": "A cEDH Guide to Rograkh, Son of Rohgahh",
+      "url": "https://edhrec.com/articles/a-cedh-guide-to-rograkh-son-of-rohgahh",
+      "author": "EDHREC",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": "2026-06-30T00:00:00Z",
+      "source_type": "primer",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "established_primer",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "cEDH guide (Tier B, within 12 months at retrieval); Ishai presented as Jeskai toolbox partner. Mox Amber / Infernal Plunge are band-shift proposals, not target-deck recommendations.",
+      "tier": "B",
+      "band": "cedh_tournament",
+      "sample_size": null,
+      "small_sample": null,
+      "expires_at": "2027-10-25T00:00:00Z"
+    },
+    {
+      "source_id": "local-target-deck-ref-2026-10-25",
+      "title": "Handover target deck reference (RogShai, 2026-10-22) — reference only",
+      "url": "https://github.com/moeendres-png/commander-playtest-lab/blob/muse/claude-handover/handover/2026-10-22/rogshai-deck/current-rogshai-deck.txt",
+      "author": "Owner / project (handover)",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "source_type": "local_context",
+      "categories": [
+        "local_meta"
+      ],
+      "evidence_quality": "local_project_context",
+      "license_notes": "reference metadata and short structured extraction only",
+      "notes": "Reference only: anchors the refresh to the owner's target deck. NO decklist is copied into this snapshot (see target_deck_ref on the local_meta entry). local_meta describes the owner's playgroup/target-deck context, never external data; this refresh adds no external local_meta claim.",
+      "tier": null,
+      "band": "local_meta",
+      "sample_size": null,
+      "small_sample": null,
+      "expires_at": "2027-10-25T00:00:00Z"
+    }
+  ],
+  "deck_snapshots": [
+    {
+      "source_id": "local-target-deck-ref-2026-10-25",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "deck_hash": "1a1b68e480395019faee8d3f000cba2a5e349435a64d96bf12a2e6c844a44e0b",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "format_band": "local_meta",
+      "categories": [
+        "local_meta"
+      ],
+      "pod_size": 4,
+      "budget_band": "unknown",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Ishai, Ojutai Dragonspeaker",
+        "Rograkh, Son of Rohgahh"
+      ],
+      "packages": [],
+      "primary_plan": null,
+      "secondary_plan": null,
+      "win_conditions": [],
+      "interaction_profile": {},
+      "provenance": {
+        "anchor_only": true,
+        "note": "Commander pair + target_deck_ref only; NOT a decklist extract and NOT a deck. local_meta is the owner's target-deck context; no external data."
+      },
+      "confidence": 0.5,
+      "license_notes": "reference metadata and card-name extraction only",
+      "band": "local_meta",
+      "target_deck_ref": {
+        "path": "handover/2026-10-22/rogshai-deck/current-rogshai-deck.txt",
+        "commit": "5101f1065f3fa07386f88debb2a896e1313defe5",
+        "branch": "muse/claude-handover"
+      }
+    },
+    {
+      "source_id": "edhrec-rogshai-2026-10-25",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "deck_hash": "6b884f15c9334fed1b6a853e41d6847561e63a343f481047d395657fdefb530d",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "format_band": "high_power",
+      "categories": [
+        "high_power"
+      ],
+      "pod_size": 4,
+      "budget_band": "unknown",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Polymorph",
+        "Divergent Transformations",
+        "Jeska's Will",
+        "Mystic Reflection"
+      ],
+      "packages": [],
+      "primary_plan": "Polymorph line (EDHREC average variant, thin basis)",
+      "secondary_plan": null,
+      "win_conditions": [],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_completeness": 0.04,
+        "decklist_extraction": "EDHREC average-variant 'Polymorph' (n=5) card names only; thin basis, NOT a deck, NOT a recommendation; band range high_power to cedh_tournament per draft, filed under high_power as the variant's lower band.",
+        "sample_size_note": "n=5 (variant average)"
+      },
+      "confidence": 0.25,
+      "license_notes": "reference metadata and card-name extraction only",
+      "band": "high_power",
+      "target_deck_ref": null
+    },
+    {
+      "source_id": "edhrec-rogshai-2026-10-25",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "deck_hash": "cedfdde207357b8dbc436abd56445d83aeffa17e444cb609f83d8cc288ad67f8",
+      "retrieved_at": "2026-10-25T00:00:00Z",
+      "published_at": null,
+      "format_band": "cedh_tournament",
+      "categories": [
+        "cedh_tournament"
+      ],
+      "pod_size": 4,
+      "budget_band": "unknown",
+      "event_name": null,
+      "placement": null,
+      "player_count": null,
+      "decklist": [
+        "Sol Ring",
+        "Arcane Signet",
+        "Mox Amber",
+        "Springleaf Drum",
+        "Paradise Mantle",
+        "Lotus Petal",
+        "Relic of Legends",
+        "Mystic Remora",
+        "Rhystic Study",
+        "Esper Sentinel",
+        "Faerie Mastermind",
+        "Smothering Tithe",
+        "The One Ring",
+        "Archivist of Oghma",
+        "Wan Shi Tong, Librarian",
+        "Whirlwind of Thought",
+        "Swords to Plowshares",
+        "Path to Exile",
+        "Counterspell",
+        "Dovin's Veto",
+        "An Offer You Can't Refuse",
+        "Swan Song",
+        "Flusterstorm",
+        "Force of Will",
+        "Fierce Guardianship",
+        "Deflecting Swat",
+        "Flare of Duplication",
+        "Cyclonic Rift",
+        "Chain of Vapor",
+        "Pact of Negation",
+        "Silence",
+        "Underworld Breach",
+        "Thassa's Oracle",
+        "Walking Ballista",
+        "Hullbreaker Horror",
+        "Jeska's Will",
+        "Brain Freeze",
+        "Storm-Kiln Artist",
+        "Birgi, God of Storytelling",
+        "Dualcaster Mage",
+        "Ledger Shredder",
+        "Dragon's Rage Channeler",
+        "Displacer Kitten"
+      ],
+      "packages": [],
+      "primary_plan": null,
+      "secondary_plan": null,
+      "win_conditions": [],
+      "interaction_profile": {},
+      "provenance": {
+        "decklist_completeness": 0.43,
+        "decklist_extraction": "EDHREC Commander page Control/Budget top-cards in displayed order, grouped by function (ramp/draw/removal/wincons/spellslinger creatures); rank order only, NO frequencies, NO percentages; filters predominantly cEDH-near; NOT a literal deck."
+      },
+      "confidence": 0.3,
+      "license_notes": "reference metadata and card-name extraction only",
+      "band": "cedh_tournament",
+      "target_deck_ref": null
+    }
+  ],
+  "tournament_results": [],
+  "primer_references": [
+    {
+      "source_id": "primer-rogishai-cedh-2026-05-26",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "title": "Building a RogIshai (Rograkh and Ishai) cEDH Deck",
+      "key_points": [
+        "Rograkh as 0-mana color/free-spell enabler (Mox Amber, Deflecting Swat, Fierce Guardianship, Flare of Duplication free with commander in play)",
+        "Ishai often color provider (white/blue), occasionally early threat growing through opponent spells",
+        "Midrange-control loving the long game; engine-spam, then a single finish: Underworld Breach"
+      ],
+      "sequencing_notes": [],
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "established_primer",
+      "transfer_limitations": [
+        "cEDH only; Breach/LED finish and engine-spam NOT transferable to the high_power/casual target deck; shared cards limited to Springleaf Drum and Flare of Duplication"
+      ]
+    },
+    {
+      "source_id": "primer-rograkh-guide-2026-06-30",
+      "commander": "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh",
+      "title": "A cEDH Guide to Rograkh, Son of Rohgahh",
+      "key_points": [
+        "Rograkh alone does nothing — that is the strength: guaranteed legendary creature from turn 1 for 0 mana",
+        "Red color identity (Underworld Breach, Gamble, Deflecting Swat, Jeska's Will)",
+        "Mox Amber / Springleaf Drum / Infernal Plunge as tier-zero synergies"
+      ],
+      "sequencing_notes": [],
+      "categories": [
+        "cedh_tournament"
+      ],
+      "evidence_quality": "established_primer",
+      "transfer_limitations": [
+        "cEDH guide; Ishai presented as Jeskai toolbox partner; Mox Amber / Infernal Plunge are band-shift proposals, not target-deck recommendations"
+      ]
+    }
+  ],
+  "archetypes": [],
+  "packages": [],
+  "card_frequencies": []
+}
