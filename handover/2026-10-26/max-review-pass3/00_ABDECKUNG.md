@@ -1,0 +1,51 @@
+# Pass 3 — Abdeckung (Pass A) — Stand 2026-10-26 15:24
+
+Stand (per GitHub-API + Worktree verifiziert, NICHT aus alten Pässen übernommen):
+- Lab-main: `6fb26071ba66176335ddc65d352797721212c51d` (Merge PR #1026, 2026-10-26 12:30:20Z)
+- Engine-Pin: `90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e` (v13, `config/rules_engines.json` @ main)
+- Worktree: `~/workspace/github/wt-maxreview3` @ 6fb26071, sauber
+- Bridge-Jar: FERTIG 2026-10-26 15:15 Uhr, sha256 `ab179c88b75e51a86a7bba22806280773a8417e89b4c4f87db6a6d75a5f3a39b`, 79.535.050 Bytes. Fork-Install BUILD SUCCESS, Bridge-Package BUILD SUCCESS, Tests 1081 run / 0 Failures / 0 Errors / 1 Skipped (205 Surefire-Reports). EINSCHRÄNKUNG: `XmageFullGameReplayExportTest` hat keine "Tests run"-Zeile und einen leeren Report — für diese Klasse kein Einzelnachweis, nur Gesamt-BUILD SUCCESS → in 02_BEFUNDE.md als UNKNOWN, nicht PASS.
+- Smoke: PASS 2026-10-26 15:20 Uhr, 40 Entscheidungen, alle 4 Decks importiert, clean_shutdown, Seed 20260923, Pin v13, Klassen choose_object/mulligan/priority. Erster Smoke-Versuch FAILED (BRIDGE_CLOSED) wegen relativen Jar-Pfads in der Bridge-Umgebungsvariable — die Bridge läuft in `.runtime/engine`, dort löst sich der Pfad nicht auf; mit absolutem Pfad PASS (benchmark_xmage_full_games.py:187-194 dokumentiert die absolute-Pfad-Regel selbst).
+
+## Gezählt (Befehl: find/wc in wt-maxreview3, 2026-10-26)
+
+- `src/` Python: 346 Dateien
+- `tests/` Python: 488 Dateien (Inventar: 495 Dateien gesamt inkl. 7 Nicht-Python, 115.066 Zeilen)
+- `scripts/`: 100 `.py`, 33.862 Zeilen, plus 10 Shell-Helfer
+- `docs/`: 446 `.md`-Dateien
+- `engine-bridge/src/main`: 39 Java-Dateien; `engine-bridge/src/test`: 209 Java-Dateien
+
+## Gelesen (vollständig, CODE_DERIVED, nicht laufzeitverifiziert)
+
+- `docs/PROJECT_MISSION.md` (71 Zeilen): praktischer Simulator für Deckbau-Entscheidungen, regelkorrekt soweit vernünftig erreichbar, kein neuer Rules Core wenn eine qualifizierbare Lösung besser ist, Reuse-first.
+- `docs/performance/REFERENCE_36_SEEDS_2026-10-26.md` (66 Zeilen): 36-Seed-Referenz für `b528082d5` (main nach #1023), Pin v13, Twin `identical 36/36`, Sieger Sitz 1:3 / 2:2 / 3:21 / 4:10, Median 2.767 Entscheidungen/Spiel. WICHTIG: Diese Referenz gilt nach ihrer eigenen Regel nur, solange Pilot-Code, Bridge-Quellen und Pin unverändert sind — am HEAD 6fb26071 ist sie damit bereits stale (u. a. #1027 Pilot-Fix danach). Das ist ein Pass-3-Befund-Kandidat, kein Rechenfehler der Datei.
+- Repo-`AGENTS.md` (390 Zeilen, wt-maxreview3): Rules-Autorität nur XMage, keine zweite Engine, UNKNOWN ≠ PASS, kein Force-Push/Rebase, kein Push auf main, keine Merges ohne Gates — Pass 3 hält sich daran (nur lesen, nur tmp-Dateien, nur Handover-Push am Ende).
+- Pilot-Kern (Subagent, Details in `notes_pilot_core.md`): `full_game.py` (1.751 Z.), `full_game_batch.py` (783 Z.), `full_game_comparison.py` (855 Z.), `full_game_pilot/` (policy 329, state 921, priority 442, choices 962, combat 308, common 752, payment 1.636 Z.), `full_game_pilot_views.py` (1.808 Z.), `targets.py` (202 Z.), `target_discount.py` (110 Z.), `lands.py` (406 Z.), `walkers.py` (259 Z.), `payment_plan.py` (419 Z.), `full_game_pilot_blocks.py` (233 Z.). 17 Entscheidungsklassen. Kernlücken aus der Lesung: kein Mehrzug-Plan, Mana-Budget = 1 je Quelle (im Code als Residual vermerkt), Text-/Regex-Abhängigkeit, heuristische Caps.
+- BasePilot (direkt gelesen, Details in `notes_basepilot.md`): `pilots.py` Z. 290–710 — Utility = `_base_components` × Gewichte + `specialist_bonus`, deterministisches `_select` (gerundete Utility, dann −Mana-Kosten, dann action_id) oder Softmax; `choose_number`/`choose_numbers` in BasePilot = NotImplementedError (fail closed). Opening-Hand-Modell Z. 314–454: Least-Squares-Fit auf 58.500 Händen der **195** Precon-Decks (R² 0,33) — Pool ist inzwischen 173 (164 + 9 SYNTHETIC, nach #1026). Ob das Modell nach dem Pool-Schrumpfen neu gefittet wurde, ist aus dem gelesenen Code NICHT ersichtlich → Pass-B-Prüfpunkt.
+- Pilot-Rest (Subagent, Details in `notes_pilot_rest.md`, vollständig): `pilots.py` Rest von `_base_components` (670–910), `_NumericStrategyMixin` (248–288) + Helfer (109–247), KorvoldPilot (919–1080), RogShaiPilot (1081–1301), Korvold-/RogShai-Varianten (1302–1623), Archetype-/Generic-Piloten (1624–1743), Strength-Policies (25–107), Routing/Selektion, `build_pilot` (1777). `card_knowledge.py` (389 Z., vollständig), `deck_guides.py` (81 Z., vollständig — Parameter, aber NICHT in Live-Piloten verdrahtet, per Subagent), `ensemble.py` (568 Z., vollständig). Zwei harte Deck-Hashes in ensemble.py (Staleness NICHT verifiziert).
+- Inventar (Subagent, Dateilisten + grep, Details in `notes_inventory.md`): scripts nach Zweck gruppiert (16 echte Spiele/Benchmarks, 12 Analyse, 9 Deck-/Precon-Aufbau, 19 Qualifikation, 13 B3/B4, 9 J/Meta, 12 Engine/Container, 10 Hygiene/Doku), `mulligan/` 3 Dateien / 1.343 Z., `decision/` 5 / 1.621 Z., `optimization/` 5 / 1.374 Z., `engine/structural/` 14 / 5.915 Z., `agents/` 12 / 4.239 Z. (pilots.py 1.812 Z.). Auffällig: zwei gleichnamige `StructuralSimulator`-Klassen (`simulator.py` vs. `simulator_fidelity.py`, öffentlich exportiert wird die Fidelity-Variante) — Adjudizierung aus dem Haupt-Chat (Claude, 2026-10-26): Structural Simulator verträglich mit "XMage = einzige Rules Engine" unter 3 Auflagen (Zahlen nie als Spiel-/Gewinnrate, nur Filter kein Ranking, kein Pilotpfad in XMage-Spiele).
+- Bridge (Subagent, Details in `notes_bridge.md`): 39 Dateien / 25.033 Zeilen inventarisiert; kleine Dateien vollständig, die 7 größten nur abschnittsweise + gezielte Protokoll-/Fehlerauswertung — keine Zeile-für-Zeile-Vollbehauptung für diese 7. Protokoll 2.0.0, 17 Entscheidungsklassen, Full-Game-/Midgame-Lane je 1 Spiel pro JVM, Kompatibilitätslane historisch. `commander_damage_visible` und `commander_tax_visible` = false in beiden Lanes; `starting_state_injection_supported=false` in der Full-Game-Lane.
+- DeckImporter (Subagent, Details in `notes_deckimporter_fork.md`, VOLLSTÄNDIG, 504 Zeilen): Validierung in Reihenfolge blank deck_id/hash → INVALID_FIELD, null mainboard/commanders → INVALID_DECK, Commander 1–2 → INVALID_COMMANDER_COUNT, total ≠ 100 → INVALID_DECK_SIZE, dann Repository, per-card Resolution (`findCard(oracleName, true)`, Diakritik-Fallback, UNKNOWN_CARD_NAME / CARD_IDENTITY_MISMATCH), `Deck.load(..., false, false)`, `Commander.validate()`. Repository: statisch, einmal pro Prozess, Zustände NEW/READY/POISONED (sticky, nur Prozess-Neustart hilft), 3 Poison-Trigger (PREINITIALIZED_UNVERIFIED / INIT_FAILED / SCAN_ERRORS). 13 Fehlercodes insgesamt. NICHT in dieser Datei geprüft: Duplikate, Banned-Liste, Colour-Identity — das ruht allein auf dem XMage-`Commander`-Validator, dessen Code NICHT gelesen wurde. Deck-Hash wird nur auf non-blank geprüft, nie gegen Inhalt verifiziert.
+- Fork (Subagent, Details in `notes_deckimporter_fork.md`): wt-mage-v13, HEAD = Pin v13, detached, shallow clone (259 Commits erreichbar, älteste 2026-09-14). Diff gegen den letzten Upstream-Merge `fab0f23b` (2026-10-20) → HEAD berechenbar: 620 Dateien (+36.739/−520), Java 509 Dateien (+21.557/−520), 199 neu / 310 geändert / 0 gelöscht — überwiegend neue Kartenimplementierungen (Jace, Heroic Sacrifice, Zinnia, Aminatou u. a.) plus Determinismus-Fixes (LinkedHashSet, Spielerreihenfolge in 18 Karten, Token-Reihenfolge, Rules-RNG für technischen Sieger) und Einzelfixes (Protector of the Wastes, Tempt with Reflections). Eine Nicht-Sets-/Nicht-Tests-Engine-Datei geändert: `Mage.Player.AIMCTS/SimulatedPlayerMCTS.java` — NICHT gelesen, Bridge-Relevanz offen.
+
+## Teilweise gelesen
+
+- `docs/MODULE_MAP.md` (149 Z.), `docs/CURRENT_EXECUTION_AUTHORITY.md` (52 Z.), Repo-`CLAUDE.md` (66 Z.): als Dateien gelesen (Zeilen verifiziert); eine inhaltliche Auswertung für Pass 3 steht in der finalen Fassung hier, ohne dass daraus Arbeitsanweisungen übernommen werden — maßgeblich bleibt allein der Auftrag von Hans.
+- `docs/claude/` (REPIN_RUNBOOK 96 Z., SESSION_PLAYBOOK 167 Z., state/HANDOFF 2026-10-25, handoffs/STRUCTURAL_CALIBRATION…): nur Überschriften/Verzeichnis, nicht tief gelesen.
+- `docs/performance/` (außer der 36-Seed-Referenz): nur Verzeichnisliste + Dateiheader; Mess-JSONs und der `xmage-card-scan-bulk-lookup.patch` NICHT gelesen.
+- Bridge, die 7 größten Java-Dateien (`XmageFullGamePlayer` 4.216 Z., `XmageNativeStateRestoration` 2.913 Z., `XmageMidgameJsonlBridge` 1.711 Z., `XmageGameManager` 1.683 Z., `XmageFullGameSession` 1.367 Z., `JsonlBridge` 1.200 Z., `XmageFullGameDecisionController` 1.071 Z.): nur abschnittsweise + gezielte Protokoll-/Fehlerauswertung.
+
+## NICHT gelesen / NICHT geprüft (ehrlich)
+
+- XMage-`Commander`-Validator (Duplikate/Banned/Colour-Identity): NICHT gelesen — DeckImporter-Befund dazu ist CODE_DERIVED aus der Bridge-Seite, nicht aus dem Validator.
+- `Mage.Player.AIMCTS/SimulatedPlayerMCTS.java` (Fork-Änderung): NICHT gelesen.
+- Fork-Diff gegen AKTUELLES Upstream (remote HEAD `8a0cc931` per ls-remote gesehen, nicht gefetcht): NICHT berechenbar ohne Fetch — nicht gemacht; für den Pin-Stand (fab0f23b-Merge als Basis) nicht nötig, in 99_OFFEN.md vermerkt.
+- Fork-Historie vor 2026-09-14: im shallow Clone NICHT verfügbar.
+- `data/` außer oberster Verzeichnisliste: NICHT gelesen; `data/collections` und `data/coverage_decks/collection` sind tabu und werden in Pass 3 weder gelesen noch zitiert.
+- Alle gemergten PRs seit 2026-10-10 im Detail: Inventar steht (Lab 255 + Fork 12, Dateien `pr_inventory_lab.json` / `pr_inventory_fork.json`, offene Issues nur 4: #1030, #1029, #1028, #979) — die Zeilen-für-Zeilen-Prüfung ist Pass B und läuft noch.
+- Pass-3-Messungen über den Smoke hinaus (36-Seed-Repro am HEAD, #1027 23→0-Repro, Payment-/Abort-Bild nach #1007/#1009/#1027): NICHT gelaufen — jede Zahl dazu steht bis dahin als NICHT GEPRÜFT.
+
+## Methode
+
+- Jede Aussage in der finalen Fassung trägt Datei:Zeile, Commit/PR oder Befehl. Was nicht gesehen oder laufen gelassen wurde, steht als NICHT GEPRÜFT da. Nie „passes", „fixed", „merged" für etwas, das nicht gesehen wurde (Merge-Status oben stammt aus der API-Antwort, Feld `merged_at`, nicht aus Vermutung).
+- Neue Dateien nur unter `~/workspace/tmp/max-review-pass3/`; alte Pass-1/2-Dateien werden NICHT ergänzt oder überschrieben.
