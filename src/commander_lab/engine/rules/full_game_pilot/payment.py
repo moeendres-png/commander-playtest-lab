@@ -6,7 +6,7 @@ import itertools
 import math
 import random
 import re
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from commander_lab.agents.card_knowledge import card_facts
@@ -14,6 +14,14 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_mana_hold import (
+    HOLD_TURNS_IN_A_ROW,
+    held_instants,
+    holds_in_a_row,
+    is_plan_of_the_turn,
+    own_main_phase,
+    thin_board,
+)
 from ..full_game_pilot_payment_plan import (
     can_pay,
     colour_letter,
@@ -29,6 +37,7 @@ from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
     is_x_counter_pile_cost,
+    players,
     tap_creature_cost_unpayable,
     x_counter_pile_cap,
 )
@@ -597,6 +606,71 @@ class _PaymentDecisions(_PolicyState):
             if isinstance(metadata, dict) and str(metadata.get("object_id") or "") in damaged:
                 kept.append(option)
         return kept or options
+
+    def _mana_hold_run(self, seat: int, state: dict[str, object]) -> int | None:
+        """How many own turns in a row before this one the seat held mana back; None if no turn."""
+        turn = state.get("turn_number")
+        if not isinstance(turn, int) or isinstance(turn, bool):
+            return None
+        return holds_in_a_row(self._mana_hold.get(seat), turn, len(players(state)))
+
+    def _note_mana_hold(self, seat: int, state: dict[str, object]) -> None:
+        """Count this turn as one the seat held mana back."""
+        turn = state.get("turn_number")
+        run = self._mana_hold_run(seat, state)
+        if isinstance(turn, int) and run is not None:
+            self._mana_hold[seat] = (run + 1, turn)
+
+    def _casts_that_break_the_mana_hold(
+        self, options: Sequence[Mapping[str, object]], state: dict[str, object], seat: int
+    ) -> list[Mapping[str, object]]:
+        """The casts that would leave a counterspell or removal in hand without the mana for it.
+
+        In its own main phase a seat that holds an instant to answer an opponent keeps the mana
+        for it open when the cast it is weighing would spend it, the way a player does: the
+        instant is then cast on an opponent's turn. Only an optional extra waits. Left alone are
+        a seat with a thin board, its commander, mana, wipes, instants, a spell whose cost the
+        model cannot read, a board with a cost reducer, a seat that has already held mana back
+        two turns in a row, and every cast when the instant would not be payable anyway.
+        """
+        actor_id = str(state.get("actor_id") or "")
+        run = self._mana_hold_run(seat, state)
+        if (
+            run is None
+            or run >= HOLD_TURNS_IN_A_ROW
+            or not own_main_phase(state)
+            or thin_board(state, actor_id)
+            or board_lowers_costs(state, actor_id)
+        ):
+            return []
+        held = held_instants(state, actor_id)
+        offer = self._visible_mana_offer(self._actor(state)) if held else None
+        if offer is None:
+            return []
+        reserve = [
+            cost
+            for instant in held
+            if (cost := _printed_spell_cost(instant.name)) is not None
+            and can_pay(offer, cost) is True
+        ]
+        if not reserve:
+            return []
+        breaking: list[Mapping[str, object]] = []
+        for option in options:
+            metadata = option.get("metadata")
+            if not isinstance(metadata, dict) or metadata.get("ability_type") != "spell":
+                continue
+            name = str(metadata.get("source_name") or "")
+            if is_plan_of_the_turn(
+                state, actor_id, name, str(metadata.get("source_object_id") or "")
+            ):
+                continue
+            cost = _printed_spell_cost(name)
+            if cost is None or "{x}" in cost.casefold():
+                continue
+            if all(can_pay(offer, cost + kept) is False for kept in reserve):
+                breaking.append(option)
+        return breaking
 
     def _alternative_costs_that_pay(
         self, state: dict[str, object], options: list[dict[str, object]], prompt: str
