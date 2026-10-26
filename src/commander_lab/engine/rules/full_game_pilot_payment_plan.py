@@ -4,7 +4,7 @@ The pilot pays one engine prompt at a time. Its source order knows colours (scar
 the check that feeds pooled mana into a costed ability (a filter land, a signet) only counts
 mana, not colours. A Mountain tapped for {R} and spent on the {1} of a {1}{W} cost leaves the
 Rugged Prairie unable to pay its own {R/W}, and the payment is cancelled: in 24 recorded real
-games 136 of 3,599 payments ended in "Cancel mana payment".
+games 136 of 2,948 payments ended in "Cancel mana payment".
 
 This module answers one question about an offer: after which of the offered options can the
 rest of the cost still be paid? It reads only what the engine shows (the unpaid cost, the pool
@@ -362,6 +362,23 @@ def completing_options(
     except _Capped:
         return None
     return frozenset(completing)
+
+
+def can_pay(options: Sequence[Mapping[str, object]], unpaid_mana: str) -> bool | None:
+    """Whether the whole cost can be paid from the offered sources, before any of it is.
+
+    The offer is the player's own pool and untapped mana abilities, laid out like an engine
+    payment prompt. None when it cannot be judged (see ``completing_options``); True is
+    optimistic where the model is unsure, so a False is a proven shortfall.
+    """
+    offer = _read_offer(options, unpaid_mana)
+    if offer is None:
+        return None
+    start: _State = (offer.owed[0], offer.owed[1], offer.pool, frozenset())
+    try:
+        return _completes(start, list(offer.abilities.values()), _useful(offer))
+    except _Capped:
+        return None
 
 
 def completing_outcomes(

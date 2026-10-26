@@ -1,0 +1,194 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon-synthetic/2024/blame_game",
+ "guide_slug": "precon-synthetic_2024_blame_game",
+ "deck_name": "Blame Game (variant, replacement cards)",
+ "deck_klasse": "SYNTHETIC",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Nelly Borca, Impulsive Accuser"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "R",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Nelly Borca, Impulsive Accuser": 3
+ },
+ "haupt_commander": "Nelly Borca, Impulsive Accuser",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 37,
+  "laender_nach_farbe": {
+   "W": 16,
+   "R": 14
+  },
+  "farbquellen_nichtland": 8,
+  "pip_bedarf_frueh": {
+   "R": 12,
+   "W": 16
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 5,
+  "2": 13,
+  "3": 15,
+  "4": 13,
+  "5": 7,
+  "6": 6,
+  "7+": 4,
+  "durchschnitt_nonland": 3.65
+ },
+ "rollen": {
+  "mana_source": 42,
+  "ramp": 13,
+  "draw": 9,
+  "selection": 1,
+  "removal": 8,
+  "counter": 0,
+  "protection": 2,
+  "wipe": 3,
+  "recursion": 2,
+  "graveyard_hate": 0,
+  "engine": 22,
+  "enabler": 0,
+  "payoff": 1,
+  "finisher": 8,
+  "combat_payoff": 17,
+  "token_source": 8,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Das Deck geht in die Breite: Tokens und viele kleine Kreaturen erzeugen ein Board, das über Anthems/Payoffs oder schiere Anzahl gewinnt.",
+ "schluesselkarten": [
+  "Ancient Stone Idol",
+  "Nelly Borca, Impulsive Accuser",
+  "Sun Titan",
+  "Etali, Primal Storm",
+  "Angel of the Ruins",
+  "Gisela, Blade of Goldnight"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Ancient Stone Idol",
+   "Nelly Borca, Impulsive Accuser",
+   "Sun Titan"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon-synthetic_2024_blame_game-kern",
+   "karten": [
+    "Ancient Stone Idol",
+    "Nelly Borca, Impulsive Accuser",
+    "Sun Titan",
+    "Etali, Primal Storm",
+    "Angel of the Ruins",
+    "Gisela, Blade of Goldnight"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": true,
+  "original_deck_id": "precon/2024/blame_game",
+  "proxy_deck_id_alias": "precon-synthetic/2024/blame_game",
+  "ersetzungen": [
+   {
+    "original": "Feather, Radiant Arbiter",
+    "proxy": "Burnished Hart"
+   },
+   {
+    "original": "Immortal Obligation",
+    "proxy": "Abrade"
+   }
+  ]
+ }
+}

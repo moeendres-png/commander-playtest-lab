@@ -20,11 +20,25 @@ def _mapping(value: object) -> Mapping[object, object]:
     return value if isinstance(value, Mapping) else {}
 
 
+def apply_meta_floor(base_score: float, meta_penalty: float) -> float:
+    """Floor the external meta deduction (design §5.2, PR4 definition).
+
+    The design names the rule but no value; PR4 fixes the floor at zero
+    on the objective: external evidence may reduce a positive internal
+    score at most to zero, and never worsens an already non-positive
+    internal score. Without a meta term the result is exactly the base
+    score, so the floor only binds where external evidence would
+    otherwise dominate the internal score.
+    """
+    deduction = min(max(meta_penalty, 0.0), max(base_score, 0.0))
+    return base_score - deduction
+
+
 class _MetaScoreMixin(SearchEngineBase):
     def _meta_distance(self, mainboard: tuple[str, ...]) -> dict[str, float | None]:
         if not self.meta_references or self.policy.functional_meta_weight <= 0.0:
             return {}
-        from .meta import functional_meta_distance, profile_card_names
+        from .meta import functional_meta_distance, profile_card_names, snapshot_package_term
 
         profiles = {
             name: card.profile for name, card in self.context.cards.items() if card.semantic_known
@@ -42,8 +56,19 @@ class _MetaScoreMixin(SearchEngineBase):
                     f"{band.value}"
                 ),
             )
-            distance = functional_meta_distance(candidate, reference, policy=self.policy)
-            result[band.value] = distance.policy_weighted_distance
+            distance = functional_meta_distance(
+                candidate, reference, policy=self.policy, source_tier=reference.source_tier
+            )
+            value = distance.policy_weighted_distance
+            if value is not None:
+                # PR5: snapshot packages reduce this band's meta distance,
+                # clamped at zero so they can at most cancel the penalty
+                # (PR4 floor semantics). Vetoed packages contribute 0.
+                value = max(
+                    0.0,
+                    value + snapshot_package_term(reference.snapshot_packages, mainboard, band),
+                )
+            result[band.value] = value
         return dict(sorted(result.items()))
 
     def _objective(
@@ -94,5 +119,6 @@ class _MetaScoreMixin(SearchEngineBase):
             sum((count - 1) ** 2 for count in package_counts.values() if count >= 2) * 0.01
         )
         mana_score = mana_soft_score(mana, self.mana_policy)
+        base_score = card_prior + package_bonus + mana_score - penalty
         meta_penalty = sum(value for value in meta.values() if value is not None)
-        return card_prior + package_bonus + mana_score - penalty - meta_penalty
+        return apply_meta_floor(base_score, meta_penalty)

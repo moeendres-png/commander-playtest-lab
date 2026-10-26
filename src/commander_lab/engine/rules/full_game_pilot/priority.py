@@ -3,21 +3,36 @@
 from __future__ import annotations
 
 import random
+from collections.abc import Mapping, Sequence
 from typing import Any
 
 from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_lands import choose_land_to_play
 from ..full_game_pilot_views import (
     priority_view_fields,
 )
+from ..full_game_pilot_walkers import LOYALTY_FLOOR, choose_loyalty_ability, loyalty_option_value
 from .combat import _CombatDecisions
 from .common import (
     _LOG,
     FullGameProtocolError,
     _RuntimePilot,
 )
+
+
+def _metadata(option: Mapping[str, object]) -> Mapping[str, object]:
+    meta = option.get("metadata")
+    return meta if isinstance(meta, dict) else {}
+
+
+def _is_land_play(option: Mapping[str, object]) -> bool:
+    return (
+        option.get("option_type") == "play_land"
+        or _metadata(option).get("ability_type") == "play_land"
+    )
 
 
 class _PriorityDecisions(_CombatDecisions):
@@ -189,6 +204,17 @@ class _PriorityDecisions(_CombatDecisions):
                 kept.append(option)
             else:
                 self_defeating += 1
+        # #989 phase 6: a loyalty ability whose cost buys nothing the actor can use is not put up
+        # (Quintorius for -4 with no Spirit to give double strike): the planeswalker keeps its
+        # loyalty and the pilot picks another ability or passes.
+        worthless = [
+            option
+            for option in kept
+            if (value := loyalty_option_value(option, state)) is not None and value < LOYALTY_FLOOR
+        ]
+        if worthless:
+            self_defeating += len(worthless)
+            kept = [option for option in kept if all(option is not bad for bad in worthless)]
         affordable = kept
         kept = []
         for option in needs_mana_first:
@@ -247,7 +273,7 @@ class _PriorityDecisions(_CombatDecisions):
                 needs_mana_first = [o for o in needs_mana_first if id(o) not in unpaid_ids]
                 self_defeating += len(unpaid)
         if self_defeating:
-            _LOG.info("withheld %d self-defeating priority action(s)", self_defeating)
+            _LOG.info("withheld %d self-defeating or too early priority action(s)", self_defeating)
         if needs_mana_first:
             _LOG.info(
                 "offered %d pool-shortfall priority action(s) as needing mana first",
@@ -359,6 +385,49 @@ class _PriorityDecisions(_CombatDecisions):
         if deferred is not None:
             return self._priority_mana_for(deferred, affordable_mana, pass_id)
         try:
-            return raw_by_stable_id[decision.selected_action_id]
+            chosen_id = raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable priority action") from None
+        return self._refine_priority_choice(chosen_id, affordable, state, rng)
+
+    @staticmethod
+    def _refine_priority_choice(
+        chosen_id: str,
+        affordable: Sequence[Mapping[str, object]],
+        state: Mapping[str, object],
+        rng: random.Random,
+    ) -> str:
+        """Which land or which loyalty ability, once the pilot has chosen to play or use one.
+
+        The pilot scores every land and every ability of one planeswalker alike, so its pick
+        among them was the last by name (#989 phase 6). The choice between them is made here
+        from the actor's hand, board and commander colours; every other choice stays the pilot's.
+        """
+        chosen = next((o for o in affordable if o.get("option_id") == chosen_id), None)
+        if chosen is None:
+            return chosen_id
+        meta = _metadata(chosen)
+        if _is_land_play(chosen):
+            lands = [option for option in affordable if _is_land_play(option)]
+            names = [str(_metadata(option).get("source_name") or "") for option in lands]
+            if len(set(names)) < 2:
+                return chosen_id
+            name = choose_land_to_play(names, state, rng)
+            if name == str(meta.get("source_name") or ""):
+                return chosen_id
+            for option, option_name in zip(lands, names, strict=True):
+                if option_name == name:
+                    return str(option.get("option_id", chosen_id))
+            return chosen_id
+        source = str(meta.get("source_object_id") or "")
+        if not source or loyalty_option_value(chosen, state) is None:
+            return chosen_id
+        siblings = [
+            option
+            for option in affordable
+            if str(_metadata(option).get("source_object_id") or "") == source
+        ]
+        best = choose_loyalty_ability(siblings, state, rng)
+        if best is None or all(best is not option for option in siblings):
+            return chosen_id
+        return str(best.get("option_id", chosen_id))

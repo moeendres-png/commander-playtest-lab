@@ -1,0 +1,192 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2021/dungeons_of_death",
+ "guide_slug": "precon_2021_dungeons_of_death",
+ "deck_name": "Dungeons of Death",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Sefris of the Hidden Ways"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "U",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Sefris of the Hidden Ways": 2
+ },
+ "haupt_commander": "Sefris of the Hidden Ways",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 39,
+  "laender_nach_farbe": {
+   "U": 15,
+   "B": 14,
+   "W": 14
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "W": 12,
+   "U": 14,
+   "B": 12
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 4,
+  "2": 12,
+  "3": 20,
+  "4": 8,
+  "5": 8,
+  "6": 3,
+  "7+": 6,
+  "durchschnitt_nonland": 3.62
+ },
+ "rollen": {
+  "mana_source": 43,
+  "ramp": 11,
+  "draw": 14,
+  "selection": 4,
+  "removal": 13,
+  "counter": 0,
+  "protection": 1,
+  "wipe": 2,
+  "recursion": 10,
+  "graveyard_hate": 0,
+  "engine": 15,
+  "enabler": 1,
+  "payoff": 1,
+  "finisher": 3,
+  "combat_payoff": 11,
+  "token_source": 6,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "graveyard",
+  "value_engine"
+ ],
+ "win_plan": "Der Friedhof ist die zweite Hand: Recursion-Schleifen erzeugen den Wert, Friedhof-Hate ist die größte Schwachstelle.",
+ "schluesselkarten": [
+  "Ashen Rider",
+  "Sefris of the Hidden Ways",
+  "Sun Titan",
+  "Eternal Dragon",
+  "Radiant Solar",
+  "Murder of Crows"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 2,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Ashen Rider",
+   "Sefris of the Hidden Ways",
+   "Sun Titan"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2021_dungeons_of_death-kern",
+   "karten": [
+    "Ashen Rider",
+    "Sefris of the Hidden Ways",
+    "Sun Titan",
+    "Eternal Dragon",
+    "Radiant Solar",
+    "Murder of Crows"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

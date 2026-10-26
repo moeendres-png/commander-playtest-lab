@@ -12,6 +12,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_lands import choose_lands_to_fetch
 from ..full_game_pilot_targets import commander_clock_bonus, target_side
 from ..full_game_pilot_views import (
     color_choice_rank,
@@ -33,6 +34,7 @@ from .common import (
     FullGameProtocolError,
     _multikicker_offer,
     _MultikickerOffer,
+    _optional_mana_cost,
     _RuntimePilot,
 )
 from .payment import _PaymentDecisions
@@ -288,6 +290,7 @@ class _ChoiceDecisions(_PaymentDecisions):
                     score += commander_clock_bonus(found[1], found[0], state, actor_id, outcome)
             ranked.append((score, action.card_name, action.action_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
+        ranked = self._rank_land_search(ranked, built, state, rng, max_selections)
 
         if max_selections <= 0:
             return []
@@ -302,6 +305,37 @@ class _ChoiceDecisions(_PaymentDecisions):
             return [raw_by_stable_id[stable_id] for _score, _label, stable_id in ranked[:take]]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable target action") from None
+
+    @staticmethod
+    def _rank_land_search(
+        ranked: list[tuple[float, str, str]],
+        built: list[tuple[dict[str, object], PilotActionView]],
+        state: Mapping[str, object],
+        rng: random.Random,
+        max_selections: int,
+    ) -> list[tuple[float, str, str]]:
+        """A search of the library for lands is ranked by the colours the actor still needs.
+
+        All the lands of one search scored alike, so the one that sorted last by name was taken:
+        Swamp 79 times, Plains 64 and Island never in 24 recorded games (#989 phase 6).
+        """
+        names: dict[str, str] = {}
+        for option, action in built:
+            meta = option.get("metadata")
+            if not isinstance(meta, dict) or meta.get("zone") != "library":
+                return ranked
+            name = str(meta.get("name") or option.get("label") or "")
+            facts = card_facts(name)
+            if facts is None or not facts.is_land:
+                return ranked
+            names[action.action_id] = name
+        if len(set(names.values())) < 2:
+            return ranked
+        order = choose_lands_to_fetch(
+            list(names.values()), state, rng, count=max(1, max_selections)
+        )
+        position = {name: index for index, name in enumerate(dict.fromkeys(order))}
+        return sorted(ranked, key=lambda item: position.get(names.get(item[2], ""), len(position)))
 
     def _decide_semantic_option(
         self,
@@ -458,8 +492,20 @@ class _ChoiceDecisions(_PaymentDecisions):
             prior_dig = self._life_dig_yes.get(seat)
             dug = prior_dig[1] if prior_dig is not None and prior_dig[0] == dig_key else 0
         dig_yes_blocked = dug >= _LIFE_DIG_CAP
+        # Optional-cost guard (payment, #989 phase 5b). The engine asks "Pay Kicker {3}{B} ?" after
+        # checking that one cost, not that cost on top of the spell, and a "you may pay" trigger
+        # after the same single check. A Yes the seat's own mana provably cannot fund only cancels
+        # the payment, and the spell is not cast either (the unkicked Nullpriest of Oblivion
+        # stayed in hand). Cost text the model cannot read is never withheld.
+        optional_cost = _optional_mana_cost(prompt)
+        cost_yes_blocked = optional_cost is not None and self._cost_cannot_be_paid(
+            state, optional_cost * (offer.ordinal if offer is not None else 1), source_object
+        )
         yes_withheld = (
-            life_yes_blocked or dig_yes_blocked or (cap is not None and answered_yes >= cap)
+            life_yes_blocked
+            or dig_yes_blocked
+            or cost_yes_blocked
+            or (cap is not None and answered_yes >= cap)
         )
         selectable = [
             option
@@ -566,6 +612,13 @@ class _ChoiceDecisions(_PaymentDecisions):
                     "life-dig guard: %d consecutive digs for %s; declining %r",
                     dug,
                     dig_key or "<unidentified source>",
+                    prompt,
+                )
+            elif cost_yes_blocked:
+                _LOG.info(
+                    "optional-cost guard: the seat's mana cannot pay %s on top of the cost it "
+                    "already owes; declining %r",
+                    optional_cost,
                     prompt,
                 )
             elif cap is not None:
@@ -859,6 +912,7 @@ class _ChoiceDecisions(_PaymentDecisions):
         paying = self._counter_type_for_cost(seat, state, options, prompt)
         if paying is not None:
             return paying
+        options = self._alternative_costs_that_pay(state, options, prompt)
         actor = self._actor(state)
         hand = actor.get("hand")
         battlefield = actor.get("battlefield")

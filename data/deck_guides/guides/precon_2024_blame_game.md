@@ -1,0 +1,7 @@
+# Guide: Blame Game
+
+> **Original mit SYNTHETIC-Proxy:** Die Engine kennt einzelne Karten dieses Decks am Pin nicht; gespielt wird die Proxy-Version (siehe JSON-Feld `proxy`). Dieser Guide beschreibt das Original.
+
+Commander: Nelly Borca, Impulsive Accuser (Farbidentität RW). Das Deck geht in die Breite: Tokens und viele kleine Kreaturen erzeugen ein Board, das über Anthems/Payoffs oder schiere Anzahl gewinnt. Zweite Achse: value_engine. Manabasis: 37 Länder, Kurvenschnitt (Nonland) 3.65. Schlüsselkarten (Engine/Finisher nach Board-Wert): Ancient Stone Idol, Nelly Borca, Impulsive Accuser, Sun Titan, Etali, Primal Storm. Der Haupt-Commander (Nelly Borca, Impulsive Accuser) soll bis Zug 3 liegen (Mana-Wert minus Ramp-Beschleunigung des Decks). Keep-Test: 2–4 Länder (aus 7 gezogen 2–5, Überschuss bottomen), dazu mindestens ein spielbarer Frühspielzug (MV ≤ 3) an zwei der ersten drei Züge und die Farben für die frühen Pips (R:12, W:19). Latte fällt je Mulligan, nie unter 5 Karten. Bedrohungs-Korrekturen: token_hate_minus_pump (+2). Angriffe: Commander-Schaden auf einen Spieler bündeln (Uhren-Regel), übrige Angriffe nach Zweck verteilen; alles, was den Kampf nicht verändert, postcombat spielen (Defaults aus Handoff §4.1/§4.3).
+
+_Generiert aus der Deckliste + Oracle-Fakten (Scryfall/Repo-Cache); Rollen über die Repo-Heuristik `card_roles()`. Parameter: MODELED/CODE_DERIVED — kein Messwert. Unbekannte Karten: 0._

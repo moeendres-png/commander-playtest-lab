@@ -7,6 +7,7 @@ from typing import Any
 
 from commander_lab.models import (
     PilotActionView,
+    PilotStateView,
 )
 
 from ..full_game_pilot_blocks import (
@@ -47,6 +48,7 @@ class _CombatDecisions(_ChoiceDecisions):
         pilot_state = self._pilot_state(runtime, state)
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
+        attack_scores: dict[str, float] = {}
         occurrences: dict[str, int] = {}
         # #732: board-aware attack judgment. An attack into a blocker that
         # kills the attacker and survives, or with a zero-power creature, is
@@ -69,6 +71,7 @@ class _CombatDecisions(_ChoiceDecisions):
                 }
             )
             actions.append(action)
+            attack_scores[stable_id] = score
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
         if not actions:
             return self._required_text(hold, "option_id")
@@ -84,10 +87,49 @@ class _CombatDecisions(_ChoiceDecisions):
         decision = runtime.pilot.choose_combat_target(pilot_state, actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no attack decision")
+        chosen_id = self._break_attack_tie(
+            runtime, pilot_state, actions, attack_scores, decision.selected_action_id, rng
+        )
         try:
-            return raw_by_stable_id[decision.selected_action_id]
+            return raw_by_stable_id[chosen_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable attack action") from None
+
+    @staticmethod
+    def _break_attack_tie(
+        runtime: _RuntimePilot,
+        pilot_state: PilotStateView,
+        actions: list[PilotActionView],
+        attack_scores: dict[str, float],
+        chosen_id: str,
+        rng: random.Random,
+    ) -> str:
+        """Among defenders the pilot scored alike, the one the board makes most worth hitting.
+
+        The pilot ranks equal scores by action id, which is built from the label: of the four
+        seats the highest label and any planeswalker whose name sorts after "Full Game Seat"
+        were attacked first, in 435 of 435 tied attack decisions of 24 recorded games (#989
+        phase 6). The attack score (lethal, focus on the weakest defender, crack-back) tells the
+        tied defenders apart; what it cannot tell apart is left to the seeded rng.
+        """
+        if chosen_id not in attack_scores:
+            return chosen_id
+        pilot = runtime.pilot
+        precision = pilot.policy.precision
+        utility = {
+            action.action_id: round(
+                pilot.evaluate_action(pilot_state, action).total_utility, precision
+            )
+            for action in actions
+            if action.action_id in attack_scores
+        }
+        tied = [action_id for action_id, value in utility.items() if value == utility[chosen_id]]
+        if len(tied) < 2:
+            return chosen_id
+        best = max(round(attack_scores[action_id], 3) for action_id in tied)
+        return rng.choice(
+            sorted(action_id for action_id in tied if round(attack_scores[action_id], 3) == best)
+        )
 
     def _decide_blocks(
         self,

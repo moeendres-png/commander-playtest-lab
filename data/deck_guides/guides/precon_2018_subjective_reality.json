@@ -1,0 +1,193 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2018/subjective_reality",
+ "guide_slug": "precon_2018_subjective_reality",
+ "deck_name": "Subjective Reality",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Aminatou, the Fateshifter"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "U",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Aminatou, the Fateshifter": 2
+ },
+ "haupt_commander": "Aminatou, the Fateshifter",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 40,
+  "laender_nach_farbe": {
+   "W": 20,
+   "U": 18,
+   "B": 15
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "W": 13,
+   "U": 15,
+   "B": 10
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 4,
+  "2": 10,
+  "3": 17,
+  "4": 8,
+  "5": 8,
+  "6": 6,
+  "7+": 7,
+  "durchschnitt_nonland": 3.93
+ },
+ "rollen": {
+  "mana_source": 45,
+  "ramp": 8,
+  "draw": 14,
+  "selection": 8,
+  "removal": 7,
+  "counter": 0,
+  "protection": 0,
+  "wipe": 2,
+  "recursion": 2,
+  "graveyard_hate": 0,
+  "engine": 16,
+  "enabler": 0,
+  "payoff": 3,
+  "finisher": 6,
+  "combat_payoff": 10,
+  "token_source": 2,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "spellslinger",
+  "value_engine"
+ ],
+ "win_plan": "Das Deck will viele Instants/Sorceries pro Zug spielen und über Magecraft-/Prodigy-Engines und Schadens-Payoffs gewinnen.",
+ "schluesselkarten": [
+  "Silent-Blade Oni",
+  "Sower of Discord",
+  "Aminatou, the Fateshifter",
+  "Sphinx of Uthuun",
+  "Enigma Sphinx",
+  "Geode Golem"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 2,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw",
+   "selection"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Silent-Blade Oni",
+   "Sower of Discord",
+   "Aminatou, the Fateshifter"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "rule_of_law_effekte",
+    "delta_stufe": 3,
+    "grund": "Spellslinger-Deck: 'can't cast more than one spell'-Effekte sperren die Hauptachse"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2018_subjective_reality-kern",
+   "karten": [
+    "Silent-Blade Oni",
+    "Sower of Discord",
+    "Aminatou, the Fateshifter",
+    "Sphinx of Uthuun",
+    "Enigma Sphinx",
+    "Geode Golem"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

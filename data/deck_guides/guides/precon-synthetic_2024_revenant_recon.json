@@ -1,0 +1,202 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon-synthetic/2024/revenant_recon",
+ "guide_slug": "precon-synthetic_2024_revenant_recon",
+ "deck_name": "Revenant Recon (variant, replacement cards)",
+ "deck_klasse": "SYNTHETIC",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Mirko, Obsessive Theorist"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "U"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Mirko, Obsessive Theorist": 2
+ },
+ "haupt_commander": "Mirko, Obsessive Theorist",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 37,
+  "laender_nach_farbe": {
+   "U": 18,
+   "B": 18
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "U": 22,
+   "B": 20
+  }
+ },
+ "kurve": {
+  "0": 1,
+  "1": 7,
+  "2": 18,
+  "3": 11,
+  "4": 8,
+  "5": 7,
+  "6": 5,
+  "7+": 6,
+  "durchschnitt_nonland": 3.49
+ },
+ "rollen": {
+  "mana_source": 42,
+  "ramp": 7,
+  "draw": 14,
+  "selection": 29,
+  "removal": 11,
+  "counter": 1,
+  "protection": 0,
+  "wipe": 2,
+  "recursion": 5,
+  "graveyard_hate": 1,
+  "engine": 23,
+  "enabler": 0,
+  "payoff": 3,
+  "finisher": 7,
+  "combat_payoff": 6,
+  "token_source": 5,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "value_engine"
+ ],
+ "win_plan": "Das Deck gewinnt über Karten- und Mana-Engines: Es baut Zug für Zug Vorsprung auf und konvertiert ihn spät in einen Finisher.",
+ "schluesselkarten": [
+  "Sphinx of the Second Sun",
+  "Overseer of the Damned",
+  "Watcher of Hours",
+  "Grave Titan",
+  "Mirko, Obsessive Theorist",
+  "Doom Whisperer"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 2,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw",
+   "selection"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Sphinx of the Second Sun",
+   "Overseer of the Damned",
+   "Watcher of Hours"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Watcher of Hours"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon-synthetic_2024_revenant_recon-kern",
+   "karten": [
+    "Sphinx of the Second Sun",
+    "Overseer of the Damned",
+    "Watcher of Hours",
+    "Grave Titan",
+    "Mirko, Obsessive Theorist",
+    "Doom Whisperer"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": true,
+  "original_deck_id": "precon/2024/revenant_recon",
+  "proxy_deck_id_alias": "precon-synthetic/2024/revenant_recon",
+  "ersetzungen": [
+   {
+    "original": "Eye of Duskmantle",
+    "proxy": "Meteor Golem"
+   }
+  ]
+ }
+}

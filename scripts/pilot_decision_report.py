@@ -51,6 +51,7 @@ from commander_lab.agents.card_knowledge import (  # noqa: E402
     card_facts,
     card_roles,
 )
+from commander_lab.agents.deck_guides import find_guide, guided_weights  # noqa: E402
 from commander_lab.engine.rules import full_game_pilot_views as views  # noqa: E402
 from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
 from commander_lab.engine.rules.full_game_pilot import (  # noqa: E402
@@ -667,6 +668,27 @@ def totals_by_seat(report: dict[str, Any]) -> dict[str, dict[str, float]]:
     return out
 
 
+def _guided(setup: tuple[Any, Any, Any]) -> tuple[Any, Any, tuple[Any, ...]]:
+    """The setup with each seat's utility weights taken from its deck guide (a measurement arm).
+
+    Seats whose deck has no guide keep the generic weights.
+    """
+    scenario, decks, pilots = setup
+    guided = []
+    for binding in pilots:
+        guide = find_guide(binding.deck_id, binding.commander_names)
+        if guide is None:
+            guided.append(binding)
+            continue
+        weights = guided_weights(guide, binding.config.strength)
+        guided.append(
+            binding.model_copy(
+                update={"config": binding.config.model_copy(update={"weights": weights})}
+            )
+        )
+    return scenario, decks, tuple(guided)
+
+
 def run(args: argparse.Namespace) -> int:
     # Validate games_per_jvm (measurement only; evidence lane stays at 1)
     if args.games_per_jvm < 1:
@@ -676,6 +698,8 @@ def run(args: argparse.Namespace) -> int:
         jvm_options.append(f"-Dcommanderlab.fullGame.gamesPerJvm={args.games_per_jvm}")
     command = bench.bridge_command(args.jar, jvm_options)
     setups = {pod: bench._setup(paths) for pod, paths in bench._pods(args.coverage_pods)}
+    if args.guides:
+        setups = {pod: _guided(setup) for pod, setup in setups.items()}
     jobs = [(pod, setup, seed) for pod, setup in setups.items() for seed in args.seeds]
     run_started = time.monotonic()
     rows: list[dict[str, Any]]
@@ -704,6 +728,7 @@ def run(args: argparse.Namespace) -> int:
         "jar": str(args.jar),
         "games_per_jvm": args.games_per_jvm,
         "workers": args.workers,
+        "guides": bool(args.guides),
         "elapsed_s": elapsed_s,
         "games": rows,
     }
@@ -1386,6 +1411,11 @@ def main(argv: list[str] | None = None) -> int:
     play.add_argument("--coverage-pods", action="store_true")
     play.add_argument("--jvm-option", action="append", default=[])
     play.add_argument("--workers", type=int, default=1)
+    play.add_argument(
+        "--guides",
+        action="store_true",
+        help="measurement arm: seats whose deck has a guide take its utility deltas as weights",
+    )
     play.add_argument(
         "--games-per-jvm",
         type=int,

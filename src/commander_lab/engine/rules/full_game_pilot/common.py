@@ -326,6 +326,54 @@ def _multikicker_offer(prompt: str) -> _MultikickerOffer | None:
     return _MultikickerOffer(ordinal=ordinal, per_payment=_prompt_mana_value(prompt))
 
 
+# The mana a Yes commits the seat to: "Pay Kicker {3}{B} ?", "Pay 2 times Multikicker {2} ?", the
+# may-trigger "Pay {5} and tap all creatures ...?" and "{3}, Pay 3 life?". "Pay 2 life instead of
+# {B}?" and "Pay 1 life and look ...?" name no mana first and do not match.
+_OPTIONAL_COST_RE = re.compile(
+    r"\A\s*(?:Pay\s+(?:\d+\s+times?\s+)?(?:Kicker\s+|Multikicker\s+)?)?(?P<cost>(?:\{[^{}]+\})+)"
+)
+_HTML_TAG_RE = re.compile(r"<[^>]*>")
+# "Cast with Evoke alternative cost: {1}{B} (source: ...)" and "Cast with no alternative cost:
+# {4}{B}": the options of "You may choose an alternative cost for casting <spell>".
+_ALTERNATIVE_COST_PROMPT_RE = re.compile(
+    r"\AYou may choose an alternative cost for casting (?:<[^>]*>)?(?P<spell>[^<\[]+)"
+)
+_ALTERNATIVE_COST_LABEL_RE = re.compile(r"alternative cost: (?P<cost>(?:\{[^{}]+\})+)")
+# What changes a spell's cost beyond the printed one: the model reads the printed cost only for
+# a spell none of this applies to.
+_COST_CHANGING_TEXT_RE = re.compile(
+    r"\b(?:convoke|delve|improvise|affinity|emerge|assist|undaunted)\b|costs? [^.]*\bless\b"
+    r"|without paying",
+    re.IGNORECASE,
+)
+
+
+def _optional_mana_cost(prompt: str) -> str | None:
+    """The mana cost a may-prompt asks the seat to pay, or None for any other prompt."""
+    match = _OPTIONAL_COST_RE.match(_HTML_TAG_RE.sub("", prompt or ""))
+    return match["cost"] if match else None
+
+
+def _alternative_cost_spell(prompt: str) -> str | None:
+    """The spell an alternative-cost question is about, or None for any other prompt."""
+    match = _ALTERNATIVE_COST_PROMPT_RE.match(prompt or "")
+    return match["spell"].strip() if match else None
+
+
+def _alternative_cost_of(label: str) -> str | None:
+    """The mana cost an alternative-cost option prints."""
+    match = _ALTERNATIVE_COST_LABEL_RE.search(_HTML_TAG_RE.sub("", label or ""))
+    return match["cost"] if match else None
+
+
+def _printed_spell_cost(name: str) -> str | None:
+    """The printed mana cost of a spell, or None when anything can change what it costs."""
+    facts = card_facts(name)
+    if facts is None or not facts.mana_cost or _COST_CHANGING_TEXT_RE.search(facts.oracle_text):
+        return None
+    return facts.mana_cost
+
+
 class FullGameProtocolError(RuntimeError):
     """Fail-closed full-game bridge or external-pilot protocol error.
 

@@ -1,13 +1,19 @@
 from __future__ import annotations
 
+import json
 import math
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 from commander_lab.models import (
     CardRole,
     FormatBand,
+    MetaComboLine,
+    MetaDeckSnapshot,
     MetaKnowledgeBaseSnapshot,
+    MetaPackage,
+    MetaTier,
     StructuralCardProfile,
     StructuralDeckProfile,
 )
@@ -37,6 +43,180 @@ ROLE_DIMENSIONS: tuple[CardRole, ...] = (
     CardRole.FINISHER,
     CardRole.COMBAT_PAYOFF,
 )
+
+# Meta-Lane PR4 guardrails (design §5.1-§5.3). Tier caps bound the weight of
+# an external meta signal: Tier A caps at 0.45 (META_MEDIUM level), Tier B
+# at 0.30, Tier C at 0.0: Tier C appears in read lists only, never in
+# scoring. The floor (§5.2) lives in search_meta_score._objective; the veto
+# (§5.3) is set and queried below.
+META_TIER_WEIGHT_CAPS: dict[MetaTier, float] = {
+    MetaTier.A: 0.45,
+    MetaTier.B: 0.30,
+    MetaTier.C: 0.0,
+}
+
+_TIER_STRENGTH: dict[MetaTier, int] = {
+    MetaTier.C: 0,
+    MetaTier.B: 1,
+    MetaTier.A: 2,
+}
+
+
+def capped_meta_weight(weight: float, tier: MetaTier | None) -> float:
+    """Cap an external meta weight by source tier (design §5.1).
+
+    An untiered (legacy/internal) reference keeps the policy weight
+    unchanged, so the pinned pre-PR1 snapshot scores exactly as before.
+    In particular MAX_FEASIBLE_META_SHAPE (1.0) stays reserved for
+    internal references: a tiered external reference never runs at 1.0.
+    """
+    if tier is None:
+        return weight
+    return min(weight, META_TIER_WEIGHT_CAPS[tier])
+
+
+def reference_source_tier(
+    snapshot: MetaKnowledgeBaseSnapshot,
+    refs: Sequence[MetaDeckSnapshot],
+) -> MetaTier | None:
+    """Weakest tier among the tiered sources backing the given decks.
+
+    Decks link to sources via source_id. Untiered sources are ignored;
+    when no backing source carries a tier, the result is None (uncapped
+    legacy behavior). Weakest wins: a reference is only as strong as its
+    weakest tiered source, so a Tier-C source in the mix zeroes it.
+    """
+    tiers = {
+        source.tier
+        for ref in refs
+        for source in snapshot.sources
+        if source.source_id == ref.source_id and source.tier is not None
+    }
+    if not tiers:
+        return None
+    return min(tiers, key=lambda tier: _TIER_STRENGTH[tier])
+
+
+def vetoed_package_ids(snapshot: MetaKnowledgeBaseSnapshot) -> frozenset[str]:
+    """Package ids whose external endorsement paired games overruled (§5.3)."""
+    return frozenset(package.package_id for package in snapshot.packages if package.vetoed_by_games)
+
+
+def mark_package_vetoed(
+    snapshot: MetaKnowledgeBaseSnapshot, package_id: str
+) -> MetaKnowledgeBaseSnapshot:
+    """Return a copy of the snapshot with the package vetoed by games (§5.3).
+
+    Own paired games beat any external prior; the contradiction itself must
+    still be documented in the PR/artifact that records it — this function
+    only sets the flag, it does not write that documentation. Unknown
+    package ids raise ValueError; re-marking is idempotent. The input
+    snapshot is left unchanged.
+
+    Deliberate limit: no live scoring consumer reads snapshot packages
+    today (package_density is informational; the distance compares
+    dimensions), so this flag is set and queryable, but its enforcement in
+    live scoring lands with PR5's package enrichment, which first makes
+    snapshot packages a scoring input. PR4 invents no package-to-dimension
+    mapping to pretend otherwise.
+    """
+    packages = list(snapshot.packages)
+    for index, package in enumerate(packages):
+        if package.package_id == package_id:
+            packages[index] = package.model_copy(update={"vetoed_by_games": True})
+            return snapshot.model_copy(update={"packages": tuple(packages)})
+    raise ValueError(f"unknown package_id in snapshot: {package_id}")
+
+
+def _normalized_card_name(name: str) -> str:
+    return name.strip().casefold()
+
+
+def load_snapshot_packages(path: str | Path) -> tuple[MetaPackage, ...]:
+    """Load the packages of a snapshot-shaped file (Meta-Lane PR5).
+
+    The PR5 package files are snapshots with empty deck_snapshots; they
+    validate through the same model as the refresh snapshots, so a
+    malformed file fails here, not in scoring.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    snapshot = MetaKnowledgeBaseSnapshot.model_validate(data)
+    return snapshot.packages
+
+
+def load_spellbook_combos(path: str | Path) -> tuple[MetaComboLine, ...]:
+    """Load known combo lines from an offline JSON file (Meta-Lane PR5).
+
+    The file carries a free-form provenance block plus a "combos" list;
+    only the combos validate. Nothing here touches the network: the
+    Spellbook sync module is deliberately not imported on this path.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    combos = data.get("combos") if isinstance(data, dict) else None
+    if not isinstance(combos, list):
+        raise ValueError(f"spellbook combos file has no combos list: {path}")
+    return tuple(MetaComboLine.model_validate(item) for item in combos)
+
+
+def known_combos_in_deck(
+    deck: Sequence[str],
+    combos: Sequence[MetaComboLine],
+    *,
+    band: FormatBand | None = None,
+) -> tuple[MetaComboLine, ...]:
+    """Combo lines fully contained in a deck (metadata only, PR5).
+
+    A line counts only when every named card is present and every
+    any_of group has at least one card present. A partial line never
+    counts. When band is given, only lines covering that band count:
+    a cEDH line never reports for a casual band. This says nothing
+    about whether the line is legal or good in a real game — that is
+    the engine's call, not this function's.
+    """
+    present = {_normalized_card_name(name) for name in deck}
+    found = []
+    for combo in combos:
+        if band is not None and band not in combo.bands:
+            continue
+        if not all(_normalized_card_name(card) in present for card in combo.cards):
+            continue
+        if not all(
+            any(_normalized_card_name(option) in present for option in group)
+            for group in combo.any_of
+        ):
+            continue
+        found.append(combo)
+    return tuple(found)
+
+
+def snapshot_package_term(
+    packages: Sequence[MetaPackage],
+    deck: Sequence[str],
+    band: FormatBand,
+) -> float:
+    """Package enrichment term for one band (Meta-Lane PR5, <= 0).
+
+    For each non-vetoed package covering this band, an overlap of at
+    least 2 cards contributes -0.01 * (overlap - 1) ** 2 — the same
+    shape as the internal package bonus, but as a reduction of the
+    band's meta distance. The caller clamps the band total at zero,
+    so packages can at most cancel a band's meta penalty, never push
+    a score above its internal value (PR4 floor semantics). Vetoed
+    packages (§5.3: paired games overruled them) contribute exactly 0:
+    the veto is live in scoring from PR5 on.
+    """
+    present = {_normalized_card_name(name) for name in deck}
+    term = 0.0
+    for package in packages:
+        if package.vetoed_by_games:
+            continue
+        package_bands = {category.value for category in package.categories}
+        if band.value not in package_bands:
+            continue
+        overlap = sum(1 for card in package.cards if _normalized_card_name(card) in present)
+        if overlap >= 2:
+            term -= 0.01 * (overlap - 1) ** 2
+    return term
 
 
 def _quality(profiled: int, fallback: int, total: int) -> FunctionalEvidenceQuality:
@@ -290,7 +470,15 @@ def build_meta_functional_profile(
         "missing_profile_cards": tuple(sorted(missing)),
         "name_fallback_cards": tuple(sorted(fallback)),
     }
-    return MetaFunctionalProfile.model_validate({**payload, "profile_hash": sha256_value(payload)})
+    # The tier rides outside the hash payload, so existing profile hashes
+    # do not change when a reference gains tiered sources.
+    return MetaFunctionalProfile.model_validate(
+        {
+            **payload,
+            "profile_hash": sha256_value(payload),
+            "source_tier": reference_source_tier(snapshot, refs),
+        }
+    )
 
 
 def functional_meta_distance(
@@ -298,6 +486,7 @@ def functional_meta_distance(
     reference: MetaFunctionalProfile,
     *,
     policy: DeckDesignPolicy,
+    source_tier: MetaTier | None = None,
 ) -> FunctionalMetaDistance:
     if candidate.format_band != reference.format_band:
         raise ValueError("functional meta distance cannot collapse format bands")
@@ -321,7 +510,7 @@ def functional_meta_distance(
         )
     raw = math.sqrt(sum(value * value for value in components.values()) / len(components))
     band_weight = policy.meta_band_weights.get(candidate.format_band, 0.0)
-    weighted = raw * policy.functional_meta_weight * band_weight
+    weighted = raw * capped_meta_weight(policy.functional_meta_weight, source_tier) * band_weight
     if evidence_qualities == {FunctionalEvidenceQuality.STRUCTURAL}:
         quality = FunctionalEvidenceQuality.STRUCTURAL
     elif evidence_qualities <= {

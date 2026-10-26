@@ -1,0 +1,186 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2014/peer_through_time",
+ "guide_slug": "precon_2014_peer_through_time",
+ "deck_name": "Peer Through Time",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Teferi, Temporal Archmage"
+ ],
+ "commander_mana_value": [
+  6.0
+ ],
+ "farbidentitaet": [
+  "U"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Teferi, Temporal Archmage": 6
+ },
+ "haupt_commander": "Teferi, Temporal Archmage",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "U": 34
+  },
+  "farbquellen_nichtland": 10,
+  "pip_bedarf_frueh": {
+   "U": 24
+  }
+ },
+ "kurve": {
+  "0": 2,
+  "1": 2,
+  "2": 11,
+  "3": 14,
+  "4": 9,
+  "5": 8,
+  "6": 9,
+  "7+": 7,
+  "durchschnitt_nonland": 4.1
+ },
+ "rollen": {
+  "mana_source": 47,
+  "ramp": 10,
+  "draw": 17,
+  "selection": 3,
+  "removal": 6,
+  "counter": 2,
+  "protection": 1,
+  "wipe": 2,
+  "recursion": 2,
+  "graveyard_hate": 1,
+  "engine": 9,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 12,
+  "combat_payoff": 4,
+  "token_source": 4,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "value_engine"
+ ],
+ "win_plan": "Das Deck gewinnt über Karten- und Mana-Engines: Es baut Zug für Zug Vorsprung auf und konvertiert ihn spät in einen Finisher.",
+ "schluesselkarten": [
+  "Artisan of Kozilek",
+  "Deep-Sea Kraken",
+  "Breaching Leviathan",
+  "Teferi, Temporal Archmage",
+  "Lorthos, the Tidemaker",
+  "Hoverguard Sweepers"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 6,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.35,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.3,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Artisan of Kozilek",
+   "Deep-Sea Kraken",
+   "Breaching Leviathan"
+  ],
+  "gegner_overrides": [],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "Deep-Sea Kraken"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2014_peer_through_time-kern",
+   "karten": [
+    "Artisan of Kozilek",
+    "Deep-Sea Kraken",
+    "Breaching Leviathan",
+    "Teferi, Temporal Archmage",
+    "Lorthos, the Tidemaker",
+    "Hoverguard Sweepers"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

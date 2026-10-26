@@ -1,0 +1,201 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2024/squirreled_away",
+ "guide_slug": "precon_2024_squirreled_away",
+ "deck_name": "Squirreled Away",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Hazel of the Rootbloom"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "G"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Hazel of the Rootbloom": 3
+ },
+ "haupt_commander": "Hazel of the Rootbloom",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 1 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 38,
+  "laender_nach_farbe": {
+   "B": 21,
+   "G": 22
+  },
+  "farbquellen_nichtland": 10,
+  "pip_bedarf_frueh": {
+   "B": 14,
+   "G": 19
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 7,
+  "2": 14,
+  "3": 16,
+  "4": 12,
+  "5": 8,
+  "6": 2,
+  "7+": 3,
+  "durchschnitt_nonland": 3.32
+ },
+ "rollen": {
+  "mana_source": 44,
+  "ramp": 10,
+  "draw": 13,
+  "selection": 1,
+  "removal": 13,
+  "counter": 0,
+  "protection": 0,
+  "wipe": 2,
+  "recursion": 0,
+  "graveyard_hate": 1,
+  "engine": 29,
+  "enabler": 3,
+  "payoff": 5,
+  "finisher": 2,
+  "combat_payoff": 16,
+  "token_source": 27,
+  "sacrifice_outlet": 1,
+  "land_synergy": 1
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Das Deck geht in die Breite: Tokens und viele kleine Kreaturen erzeugen ein Board, das über Anthems/Payoffs oder schiere Anzahl gewinnt.",
+ "schluesselkarten": [
+  "Hazel of the Rootbloom",
+  "End-Raze Forerunners",
+  "Beledros Witherbloom",
+  "The Odd Acorn Gang",
+  "Moonstone Eulogist",
+  "Garruk, Cursed Huntsman"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.0,
+  "tempo": 0.0,
+  "engine_development": 0.15,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.0
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Hazel of the Rootbloom",
+   "End-Raze Forerunners",
+   "Beledros Witherbloom"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "boardwipe",
+    "delta_stufe": 2,
+    "grund": "Kreaturlastiges Deck mit schwachem Wiederaufbau — Wipes treffen überproportional"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "precombat_ausnahme",
+   "karten": [
+    "End-Raze Forerunners"
+   ],
+   "grund": "Kampfbeginn-Trigger/Haste im Oracle-Text — vor dem Kampf spielen"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2024_squirreled_away-kern",
+   "karten": [
+    "Hazel of the Rootbloom",
+    "End-Raze Forerunners",
+    "Beledros Witherbloom",
+    "The Odd Acorn Gang",
+    "Moonstone Eulogist",
+    "Garruk, Cursed Huntsman"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

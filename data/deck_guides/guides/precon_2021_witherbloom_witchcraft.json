@@ -1,0 +1,189 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2021/witherbloom_witchcraft",
+ "guide_slug": "precon_2021_witherbloom_witchcraft",
+ "deck_name": "Witherbloom Witchcraft",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Willowdusk, Essence Seer"
+ ],
+ "commander_mana_value": [
+  3.0
+ ],
+ "farbidentitaet": [
+  "B",
+  "G"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Willowdusk, Essence Seer": 3
+ },
+ "haupt_commander": "Willowdusk, Essence Seer",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 40,
+  "laender_nach_farbe": {
+   "B": 17,
+   "G": 20
+  },
+  "farbquellen_nichtland": 7,
+  "pip_bedarf_frueh": {
+   "B": 19,
+   "G": 12
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 4,
+  "2": 7,
+  "3": 17,
+  "4": 11,
+  "5": 12,
+  "6": 6,
+  "7+": 3,
+  "durchschnitt_nonland": 3.87
+ },
+ "rollen": {
+  "mana_source": 45,
+  "ramp": 9,
+  "draw": 9,
+  "selection": 0,
+  "removal": 8,
+  "counter": 0,
+  "protection": 1,
+  "wipe": 4,
+  "recursion": 4,
+  "graveyard_hate": 0,
+  "engine": 24,
+  "enabler": 0,
+  "payoff": 2,
+  "finisher": 5,
+  "combat_payoff": 13,
+  "token_source": 8,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Das Deck geht in die Breite: Tokens und viele kleine Kreaturen erzeugen ein Board, das über Anthems/Payoffs oder schiere Anzahl gewinnt.",
+ "schluesselkarten": [
+  "Sproutback Trudge",
+  "Verdant Sun's Avatar",
+  "Defiant Bloodlord",
+  "Yedora, Grave Gardener",
+  "Noxious Gearhulk",
+  "Tivash, Gloom Summoner"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 3,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.1,
+  "tempo": -0.15,
+  "engine_development": 0.0,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.2,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Sproutback Trudge",
+   "Verdant Sun's Avatar",
+   "Defiant Bloodlord"
+  ],
+  "gegner_overrides": [
+   {
+    "kategorie": "graveyard_hate",
+    "delta_stufe": 3,
+    "grund": "Deck rekuriert stark (Recursion-Anteil >= 6 %) — Friedhof-Hate sperrt den Plan (A2 Betrifft-mich)"
+   },
+   {
+    "kategorie": "token_hate_minus_pump",
+    "delta_stufe": 2,
+    "grund": "Go-wide-Deck: -1/-1- und Anti-Token-Effekte sind überdurchschnittlich wirksam"
+   }
+  ],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2021_witherbloom_witchcraft-kern",
+   "karten": [
+    "Sproutback Trudge",
+    "Verdant Sun's Avatar",
+    "Defiant Bloodlord",
+    "Yedora, Grave Gardener",
+    "Noxious Gearhulk",
+    "Tivash, Gloom Summoner"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

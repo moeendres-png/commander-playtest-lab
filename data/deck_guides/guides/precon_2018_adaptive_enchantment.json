@@ -1,0 +1,187 @@
+{
+ "schema": "deck-guide/1",
+ "deck_id": "precon/2018/adaptive_enchantment",
+ "guide_slug": "precon_2018_adaptive_enchantment",
+ "deck_name": "Adaptive Enchantment",
+ "deck_klasse": "REAL",
+ "evidenz": {
+  "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
+  "rollen": "CODE_DERIVED (repo card_roles)",
+  "parameter": "MODELED (Formeln FORMAT.md §3)"
+ },
+ "commander": [
+  "Estrid, the Masked"
+ ],
+ "commander_mana_value": [
+  4.0
+ ],
+ "farbidentitaet": [
+  "G",
+  "U",
+  "W"
+ ],
+ "partner": false,
+ "commander_soll_zug": {
+  "Estrid, the Masked": 4
+ },
+ "haupt_commander": "Estrid, the Masked",
+ "commander_soll_zug_basis": "Mana-Wert minus Ramp-Beschleunigung 0 (FORMAT.md §3)",
+ "manabasis": {
+  "laender_gesamt": 39,
+  "laender_nach_farbe": {
+   "W": 16,
+   "U": 13,
+   "G": 16
+  },
+  "farbquellen_nichtland": 6,
+  "pip_bedarf_frueh": {
+   "G": 22,
+   "W": 10,
+   "U": 11
+  }
+ },
+ "kurve": {
+  "0": 0,
+  "1": 3,
+  "2": 5,
+  "3": 23,
+  "4": 9,
+  "5": 10,
+  "6": 8,
+  "7+": 3,
+  "durchschnitt_nonland": 3.9
+ },
+ "rollen": {
+  "mana_source": 44,
+  "ramp": 6,
+  "draw": 15,
+  "selection": 0,
+  "removal": 4,
+  "counter": 1,
+  "protection": 1,
+  "wipe": 3,
+  "recursion": 3,
+  "graveyard_hate": 0,
+  "engine": 31,
+  "enabler": 0,
+  "payoff": 0,
+  "finisher": 4,
+  "combat_payoff": 20,
+  "token_source": 7,
+  "sacrifice_outlet": 0,
+  "land_synergy": 0
+ },
+ "rollen_unbekannt": 0,
+ "archetypen": [
+  "enchantments",
+  "go_wide",
+  "value_engine"
+ ],
+ "win_plan": "Verzauberungen sind die Wertachse: Enchantress-Effekte und Payoffs aufbauen und das Board darüber schließen.",
+ "schluesselkarten": [
+  "Arixmethes, Slumbering Isle",
+  "Hydra Omnivore",
+  "Estrid, the Masked",
+  "Nylea's Colossus",
+  "Silent Sentinel",
+  "Bruna, Light of Alabaster"
+ ],
+ "keep_test": {
+  "laender_min": 2,
+  "laender_max": 4,
+  "laender_max_gezogen": 5,
+  "fruehspiel_mindestanzahl": 1,
+  "fruehspiel_zuege": [
+   1,
+   2,
+   3
+  ],
+  "commander_projektion_zug": 4,
+  "mulligan_latte": [
+   {
+    "mulligans": 0,
+    "schwelle_delta": 0.0
+   },
+   {
+    "mulligans": 1,
+    "schwelle_delta": -0.55
+   },
+   {
+    "mulligans": 2,
+    "schwelle_delta": -1.1,
+    "nur_laender_und_fruehspiel": true
+   }
+  ],
+  "nie_unter_karten": 5,
+  "bottoming_prioritaet": [
+   "land_ueber_max",
+   "teuerste_unspielbare",
+   "situative_karte",
+   "doppelte_engine",
+   "nie: einzige_interaktion | einzige_farbquelle | einziger_fruehspielzug"
+  ]
+ },
+ "utility_deltas": {
+  "survival": 0.0,
+  "mana_efficiency": 0.0,
+  "card_advantage": 0.35,
+  "tempo": -0.15,
+  "engine_development": 0.3,
+  "interaction_reserve": 0.0,
+  "commander_value": 0.0,
+  "threat_reduction": 0.0,
+  "win_progress": 0.0,
+  "political_visibility": 0.0,
+  "rebuild_capacity": 0.3
+ },
+ "eroeffnung": {
+  "wertvolle_fruehe_karten_rollen": [
+   "ramp",
+   "engine",
+   "draw"
+  ],
+  "halte_interaktion_ab_zug": 3
+ },
+ "bedrohung": {
+  "eigene_schutzkarten": [
+   "Arixmethes, Slumbering Isle",
+   "Hydra Omnivore",
+   "Estrid, the Masked"
+  ],
+  "gegner_overrides": [],
+  "angriffs_fokus": "commander_schaden_buendeln",
+  "zuerst_bedrohen": "spieler_mit_kuerzester_uhr"
+ },
+ "sequenzierung": [
+  {
+   "regel": "postcombat_standard",
+   "aktiv": true,
+   "grund": "Handoff §4.1 Default: alles, was den Kampf nicht verändert, nach dem Kampf"
+  },
+  {
+   "regel": "draw_endstep_letzter_gegner",
+   "aktiv": true,
+   "grund": "Instant-Draw vorhanden (Handoff §4.1): ans letztmögliche Fenster"
+  }
+ ],
+ "pakete": [
+  {
+   "id": "precon_2018_adaptive_enchantment-kern",
+   "karten": [
+    "Arixmethes, Slumbering Isle",
+    "Hydra Omnivore",
+    "Estrid, the Masked",
+    "Nylea's Colossus",
+    "Silent Sentinel",
+    "Bruna, Light of Alabaster"
+   ],
+   "bonus": 0.4,
+   "komponente": "engine_development"
+  }
+ ],
+ "proxy": {
+  "ist_proxy_deck": false,
+  "original_deck_id": null,
+  "ersetzungen": []
+ }
+}

@@ -8,12 +8,14 @@ Alle Läufe sind lokal (`LOCAL_OBSERVED`), kein CI-Kredit.
 
 ## Bestand
 
-`data/decks/precons/` enthält **195** Decks (2011–2026, je 100 Karten). Drei Decks mit gebannten
-Karten wurden entfernt. Frühere Texte nannten 198 Decks; das stimmt nicht mehr.
+`data/decks/precons/` enthält **174** Decks (2011–2026, je 100 Karten). Drei Decks mit gebannten
+Karten wurden entfernt (195 Decks), danach am 2026-10-25 21 schwache Precons aussortiert (externe
+Spielbarkeits-Einschätzungen, #1014). Frühere Texte nannten 198 oder 195 Decks; die Messungen
+weiter unten tragen den Pool-Stand, auf dem sie entstanden sind (195).
 
-Der Pool bleibt bei 195 Decks, aufgeteilt in **186 echte** (am Pin `90f5c4d3f8` importierbar) und
+Der Pool (174 Decks seit dem Aussortieren, vorher 195) teilt sich in **165 echte** (am Pin `90f5c4d3f8` importierbar, vorher 186) und
 **9 SYNTHETIC** (`data/decks/precon_variants/`, Abschnitt „SYNTHETIC-Proxies“). Aussagen über
-echte Decks zählen nur die 186; ein Deck der 9 steht in keiner Zahl, ohne dass es als SYNTHETIC
+echte Decks zählen nur die 165; ein Deck der 9 steht in keiner Zahl, ohne dass es als SYNTHETIC
 genannt ist. Bis zum Pin `4da83f62` waren es 182 echte und 13 SYNTHETIC; die Zahlen und
 Messungen weiter unten tragen den Pin, auf dem sie entstanden sind.
 

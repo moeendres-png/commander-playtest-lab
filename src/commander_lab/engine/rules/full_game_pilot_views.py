@@ -911,6 +911,53 @@ def _instant_timing(
     return 0.0
 
 
+# Steps in which the seat has priority before its own main phase, and the steps of an opponent's
+# turn that come before combat. Every one is followed by a window the seat is certain to get: its
+# own main phase, or the opponent's declare-attackers and end steps.
+_OWN_PRE_MAIN_STEPS = frozenset({"upkeep", "draw"})
+_OPPONENT_EARLY_STEPS = frozenset({"upkeep", "draw", "precombat_main", "begin_combat"})
+# Vampiric Tutor, Mystical Tutor: cast before the draw step, the card is in hand for the main phase.
+_TUTOR_TO_TOP = re.compile(
+    r"search your library[^.]*\b(?:on top|top of your library)\b", re.IGNORECASE
+)
+
+
+def _own_turn(state: Mapping[str, object]) -> bool:
+    return str(state.get("active_player_id", "")) == str(state.get("actor_id", ""))
+
+
+def _timing_withhold_reason(facts: CardFacts, state: Mapping[str, object]) -> str | None:
+    """An instant that has a better window later this turn cycle waits for it.
+
+    On the seat's own turn, before the main phase, the mana is still needed for the main phase,
+    and the draw is still to come. On an opponent's turn, before combat, nothing has been
+    committed yet: removal does more once attackers are declared, and the end step is the last
+    window that costs no mana the seat needs. With something on the stack the card answers it
+    and timing does not apply.
+    """
+    if state.get("stack") or not facts.is_instant_speed:
+        return None
+    step = str(state.get("step", "")).casefold()
+    if _own_turn(state):
+        if step in _OWN_PRE_MAIN_STEPS and not _TUTOR_TO_TOP.search(facts.oracle_text):
+            return "instant_before_own_main"
+        return None
+    if step in _OPPONENT_EARLY_STEPS:
+        return "instant_waits_for_combat_or_end_step"
+    return None
+
+
+def _ability_timing_withhold_reason(
+    engine_cost: float | None, state: Mapping[str, object]
+) -> str | None:
+    """Mana is spent in the main phase, not before it: the seat sees its draw first."""
+    if state.get("stack") or not engine_cost or not _own_turn(state):
+        return None
+    if str(state.get("step", "")).casefold() in _OWN_PRE_MAIN_STEPS:
+        return "ability_mana_cost_before_own_main"
+    return None
+
+
 def _curve_bonus(cost: float, state: Mapping[str, Any]) -> float:
     """Reward spending this turn's mana in the actor's own main phase.
 
@@ -1014,6 +1061,8 @@ def priority_view_fields(
             extra["instant_timing"] = timing
         withhold = _spell_withhold_reason(facts, roles, state, actor_id, own_stack_names)
         if withhold is None:
+            withhold = _timing_withhold_reason(facts, state)
+        if withhold is None:
             withhold = _life_cost_withhold_reason(facts, label, state, actor_id)
         if CardRole.WIPE in roles and withhold is None:
             withhold = _wipe_withhold_reason(facts, state, actor_id)
@@ -1087,6 +1136,9 @@ def priority_view_fields(
             _alive(player) for player in players(state) if str(player.get("player_id")) != actor_id
         ):
             return {**fields, "metadata": extra}, "encore_with_departed_opponent"
+        too_early = _ability_timing_withhold_reason(engine_cost, state)
+        if too_early is not None:
+            return {**fields, "metadata": extra}, too_early
         if _SELF_DOUBLING_COUNTERS.search(label):
             # #817: "Put X +1/+1 counters on this, where X is its power"
             # doubles the permanent on every activation. Past lethal damage

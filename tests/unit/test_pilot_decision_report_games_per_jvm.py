@@ -43,6 +43,7 @@ def test_games_per_jvm_adds_property_to_command(monkeypatch: Any, tmp_path: Path
         jvm_option=["-Xmx1g"],
         workers=1,
         games_per_jvm=4,
+        guides=False,
     )
     pdr.run(args)
 
@@ -74,6 +75,7 @@ def test_games_per_jvm_defaults_to_one(monkeypatch: Any, tmp_path: Path) -> None
         jvm_option=[],
         workers=1,
         games_per_jvm=1,
+        guides=False,
     )
     pdr.run(args)
 
@@ -97,6 +99,7 @@ def test_games_per_jvm_rejects_zero(monkeypatch: Any, tmp_path: Path) -> None:
         jvm_option=[],
         workers=1,
         games_per_jvm=0,
+        guides=False,
     )
     with pytest.raises(ValueError, match="must be positive"):
         pdr.run(args)
@@ -171,6 +174,7 @@ def test_a_batched_run_writes_its_report(monkeypatch: Any, tmp_path: Path) -> No
         jvm_option=[],
         workers=1,
         games_per_jvm=2,
+        guides=False,
     )
     pdr.run(args)
 
