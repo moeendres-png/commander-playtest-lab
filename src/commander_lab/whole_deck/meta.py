@@ -4,6 +4,7 @@ import json
 import math
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
 
 from commander_lab.models import (
@@ -13,10 +14,12 @@ from commander_lab.models import (
     MetaDeckSnapshot,
     MetaKnowledgeBaseSnapshot,
     MetaPackage,
+    MetaSource,
     MetaTier,
     StructuralCardProfile,
     StructuralDeckProfile,
 )
+from commander_lab.models.meta import expires_at_for
 from commander_lab.storage import sha256_value
 
 from .models import (
@@ -97,6 +100,54 @@ def reference_source_tier(
     return min(tiers, key=lambda tier: _TIER_STRENGTH[tier])
 
 
+def _aware(value: datetime) -> datetime:
+    """Treat a naive timestamp as UTC (old records carry no offset)."""
+    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+
+
+def is_source_stale(source: MetaSource, now: datetime | None = None) -> bool:
+    """Whether a meta source is past its 12-month validity (Meta-Lane PR6).
+
+    A set expires_at wins (PR1 field, carried by the 2026-10-25 refresh
+    snapshots); otherwise the boundary is retrieved_at + 12 calendar
+    months (expires_at_for). A source is stale from its boundary instant
+    on: the 12 months are over then. Stale means weight 0 in scoring
+    (design §5.6) — the source stays readable for reports, it only
+    stops contributing.
+    """
+    boundary = (
+        source.expires_at if source.expires_at is not None else expires_at_for(source.retrieved_at)
+    )
+    current = now if now is not None else datetime.now(UTC)
+    return _aware(current) >= _aware(boundary)
+
+
+def stale_source_ids(
+    snapshot: MetaKnowledgeBaseSnapshot,
+    now: datetime | None = None,
+) -> frozenset[str]:
+    """Source ids of a snapshot that are stale at `now` (Meta-Lane PR6)."""
+    return frozenset(
+        source.source_id for source in snapshot.sources if is_source_stale(source, now)
+    )
+
+
+def all_sources_stale(
+    snapshot: MetaKnowledgeBaseSnapshot,
+    now: datetime | None = None,
+) -> bool:
+    """Whether a snapshot contributes nothing at `now` (Meta-Lane PR6).
+
+    True when every source is stale — and, fail closed, when the
+    snapshot carries no sources at all: sourceless endorsement is no
+    endorsement. The PR5 package attach step uses this to drop a
+    fully stale package file instead of scoring it.
+    """
+    if not snapshot.sources:
+        return True
+    return len(stale_source_ids(snapshot, now)) == len(snapshot.sources)
+
+
 def vetoed_package_ids(snapshot: MetaKnowledgeBaseSnapshot) -> frozenset[str]:
     """Package ids whose external endorsement paired games overruled (§5.3)."""
     return frozenset(package.package_id for package in snapshot.packages if package.vetoed_by_games)
@@ -132,6 +183,17 @@ def _normalized_card_name(name: str) -> str:
     return name.strip().casefold()
 
 
+def load_snapshot(path: str | Path) -> MetaKnowledgeBaseSnapshot:
+    """Validate a snapshot-shaped file (Meta-Lane PR6).
+
+    The PR5 package files are snapshots with empty deck_snapshots; the
+    refresh script and the search attach step read them through this
+    loader so a malformed file fails here, not in scoring.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    return MetaKnowledgeBaseSnapshot.model_validate(data)
+
+
 def load_snapshot_packages(path: str | Path) -> tuple[MetaPackage, ...]:
     """Load the packages of a snapshot-shaped file (Meta-Lane PR5).
 
@@ -139,9 +201,7 @@ def load_snapshot_packages(path: str | Path) -> tuple[MetaPackage, ...]:
     validate through the same model as the refresh snapshots, so a
     malformed file fails here, not in scoring.
     """
-    data = json.loads(Path(path).read_text(encoding="utf-8"))
-    snapshot = MetaKnowledgeBaseSnapshot.model_validate(data)
-    return snapshot.packages
+    return load_snapshot(path).packages
 
 
 def load_spellbook_combos(path: str | Path) -> tuple[MetaComboLine, ...]:
@@ -379,6 +439,7 @@ def build_meta_functional_profile(
     format_band: FormatBand,
     profiles: Mapping[str, StructuralCardProfile],
     allow_name_fallback: bool = False,
+    now: datetime | None = None,
 ) -> MetaFunctionalProfile:
     refs = [
         deck
@@ -387,6 +448,13 @@ def build_meta_functional_profile(
     ]
     if not refs:
         raise ValueError("no matching meta snapshots")
+    # PR6 (design §5.6): refs backed by a stale source contribute
+    # nothing — the profile is built from fresh refs only. When every
+    # matching ref is stale, there is no profile, not a stale one.
+    stale = stale_source_ids(snapshot, now)
+    refs = [deck for deck in refs if deck.source_id not in stale]
+    if not refs:
+        raise ValueError("all matching meta snapshots stale")
 
     values: dict[str, list[tuple[float, float, FunctionalEvidenceQuality]]] = defaultdict(list)
     package_values: dict[str, list[tuple[float, float, FunctionalEvidenceQuality]]] = defaultdict(

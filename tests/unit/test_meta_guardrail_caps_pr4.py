@@ -248,6 +248,7 @@ def test_pinned_snapshot_reference_stays_untiered(repo_root: Path) -> None:
         commander=ROGSHAI,
         format_band=FormatBand.HIGH_POWER,
         profiles=profiles,
+        now=datetime(2026, 10, 26, tzinfo=UTC),
     )
     assert profile.source_tier is None
 
@@ -271,6 +272,7 @@ def test_build_meta_functional_profile_attaches_tier() -> None:
         commander="Test Commander",
         format_band=FormatBand.HIGH_POWER,
         profiles={},
+        now=datetime(2026, 10, 26, tzinfo=UTC),
     )
     assert profile.source_tier == MetaTier.B
     assert profile.reference_deck_count == 2
@@ -279,6 +281,7 @@ def test_build_meta_functional_profile_attaches_tier() -> None:
         commander="Test Commander",
         format_band=FormatBand.HIGH_POWER,
         profiles={},
+        now=datetime(2026, 10, 26, tzinfo=UTC),
     )
     assert rebuilt.profile_hash == profile.profile_hash
 
