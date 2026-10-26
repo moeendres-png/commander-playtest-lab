@@ -46,7 +46,7 @@ python scripts/import_deck.py \
 
 ## Precon-Decks
 
-174 offizielle Commander Precons (2011–2026) liegen im Projekt (195, bis am 2026-10-25 21 schwache aussortiert wurden):
+173 offizielle Commander Precons (2011–2026) liegen im Projekt (195, bis am 2026-10-25 21 schwache und am 2026-10-26 Nature of the Beast (2013) aussortiert wurden):
 - Verzeichnis: `data/decks/precons/`
 - Format: `{jahr}_{deckname}.json`
 - Beispiel: `data/decks/precons/2011_counterpunch.json`
