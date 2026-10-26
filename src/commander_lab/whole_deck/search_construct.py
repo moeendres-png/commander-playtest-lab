@@ -20,7 +20,7 @@ class _ConstructMixin(SearchEngineBase):
     def _load_project_meta_references(self) -> dict[FormatBand, MetaFunctionalProfile]:
         from commander_lab.meta.store import MetaKnowledgeBase
 
-        from .meta import build_meta_functional_profile, load_snapshot_packages
+        from .meta import all_sources_stale, build_meta_functional_profile, load_snapshot
 
         if self.context.root is None:
             return {}
@@ -30,7 +30,12 @@ class _ConstructMixin(SearchEngineBase):
         }
         commander = "Ishai, Ojutai Dragonspeaker / Rograkh, Son of Rohgahh"
         try:
-            packages = load_snapshot_packages(self.context.root / ROGSHAI_PR5_PACKAGE_FILE)
+            package_snapshot = load_snapshot(self.context.root / ROGSHAI_PR5_PACKAGE_FILE)
+            packages = package_snapshot.packages
+            # PR6: a package file whose every source is stale contributes
+            # nothing — stale external endorsement must not score.
+            if all_sources_stale(package_snapshot):
+                packages = ()
         except (OSError, ValueError):
             # A missing or malformed package file must not break the
             # search: without packages the scoring behaves exactly as
