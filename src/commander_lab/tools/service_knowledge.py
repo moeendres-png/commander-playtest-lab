@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from commander_lab.agents.pilots import build_pilot
 from commander_lab.meta.store import stable_deck_hash
@@ -88,7 +88,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return tuple(PilotRule.model_validate(row) for row in rows)
 
     def import_primer(self, request: ImportPrimerInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             document = self._primer_compiler().import_primer(
                 source_path=request.source_path,
                 primer_id=request.primer_id,
@@ -109,7 +109,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("import_primer", request, work)
 
     def extract_primer_rules(self, request: ExtractPrimerRulesInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             compiler = self._primer_compiler()
             registry = compiler.load_registry()
             document = next(
@@ -140,7 +140,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("extract_primer_rules", request, work)
 
     def validate_pilot_rules(self, request: ValidatePilotRulesInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             rules = self._load_primer_rules(request.rules_path)
             report = self._primer_compiler().validate_rules(
                 rules,
@@ -156,7 +156,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("validate_pilot_rules", request, work)
 
     def compile_pilot_policy(self, request: CompilePilotPolicyInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             rules = tuple(
                 rule for path in request.rule_paths for rule in self._load_primer_rules(path)
             )
@@ -182,7 +182,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("compile_pilot_policy", request, work)
 
     def compare_policy_versions(self, request: ComparePolicyVersionsInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             older = CompiledPilotPolicy.model_validate_json(
                 self._project_path(request.older_policy_path).read_text(encoding="utf-8")
             )
@@ -194,7 +194,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("compare_policy_versions", request, work)
 
     def run_policy_eval(self, request: RunPolicyEvalInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             policy = CompiledPilotPolicy.model_validate_json(
                 self._project_path(request.policy_path).read_text(encoding="utf-8")
             )
@@ -255,7 +255,7 @@ class ServiceKnowledgeMixin(ServiceCore):
     def generate_primer_conflict_report(
         self, request: GeneratePrimerConflictReportInput
     ) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             rules = tuple(
                 rule for path in request.rule_paths for rule in self._load_primer_rules(path)
             )
@@ -279,7 +279,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("generate_primer_conflict_report", request, work)
 
     def import_meta_deck(self, request: ImportMetaDeckInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             # Validate via the production snapshot model; write only to data/meta/provenance.
             deck = MetaDeckSnapshot(
                 source_id=request.source_id,
@@ -308,7 +308,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         )
 
     def import_tournament_result(self, request: ImportTournamentResultInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             result = TournamentResult(
                 source_id=request.source_id,
                 event_name=request.event_name,
@@ -328,7 +328,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("import_tournament_result", request, work)
 
     def import_primer_reference(self, request: ImportPrimerReferenceInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             primer = PrimerReference(
                 source_id=request.source_id,
                 commander=request.commander,
@@ -351,7 +351,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("import_primer_reference", request, work)
 
     def create_meta_snapshot(self, request: CreateMetaSnapshotInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             kb = self._meta_kb()
             seed_path = self.root / request.seed_file
             if not seed_path.exists():
@@ -405,7 +405,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("create_meta_snapshot", request, work)
 
     def query_meta_cards(self, request: QueryMetaCardsInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return self._meta_kb().query_cards(
                 request.commander, request.format_band, request.min_frequency
             )
@@ -413,13 +413,13 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("query_meta_cards", request, work)
 
     def query_meta_packages(self, request: QueryMetaPackagesInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return self._meta_kb().query_packages(request.commander, request.category)
 
         return self._invoke("query_meta_packages", request, work)
 
     def compare_deck_to_meta(self, request: CompareDeckToMetaInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             deck = self._deck(request.deck_id)
             cards = tuple(
                 card.oracle_name
@@ -443,7 +443,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("compare_deck_to_meta", request, work, deck_ids=(request.deck_id,))
 
     def compare_meta_periods(self, request: CompareMetaPeriodsInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return self._meta_kb().compare_periods(
                 request.older_snapshot_id, request.newer_snapshot_id, commander=request.commander
             )
@@ -451,7 +451,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("compare_meta_periods", request, work)
 
     def generate_meta_report(self, request: GenerateMetaReportInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             snapshot = self._meta_kb().load_snapshot()
             lines = [
                 "# Meta Knowledge Base Report",
@@ -490,7 +490,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("generate_meta_report", request, work)
 
     def extract_archetypes(self, request: ExtractArchetypesInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return (
                 self._package_extractor()
                 .extract_archetypes(request.deck_id)
@@ -500,7 +500,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("extract_archetypes", request, work, deck_ids=(request.deck_id,))
 
     def extract_packages(self, request: ExtractPackagesInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return self._package_extractor().packages_for_deck(
                 request.deck_id, include_machine_candidates=request.include_machine_candidates
             )
@@ -508,7 +508,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("extract_packages", request, work, deck_ids=(request.deck_id,))
 
     def inspect_package(self, request: InspectPackageInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             extractor = self._package_extractor()
             package = extractor.inspect(request.package_id, request.version)
             payload = {
@@ -529,7 +529,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         )
 
     def compare_package_versions(self, request: ComparePackageVersionsInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return (
                 self._package_extractor()
                 .compare_versions(request.package_id, request.older_version, request.newer_version)
@@ -539,7 +539,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("compare_package_versions", request, work)
 
     def evaluate_package_density(self, request: EvaluatePackageDensityInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return (
                 self._package_extractor()
                 .evaluate(request.deck_id, request.package_id, version=request.version)
@@ -549,13 +549,13 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("evaluate_package_density", request, work, deck_ids=(request.deck_id,))
 
     def detect_orphaned_cards(self, request: DetectOrphanedCardsInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return self._package_extractor().detect_orphans(request.deck_id)
 
         return self._invoke("detect_orphaned_cards", request, work, deck_ids=(request.deck_id,))
 
     def generate_package_report(self, request: GeneratePackageReportInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             report = self._package_extractor().generate_report(request.deck_id)
             target = self.root / "data/runs/package_reports" / request.output_name
             atomic_write_text(target, report)
@@ -568,7 +568,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("generate_package_report", request, work, deck_ids=(request.deck_id,))
 
     def create_opponent_ensemble(self, request: CreateOpponentEnsembleInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             ensemble = OpponentEnsemble.model_validate_json(
                 self._project_path(request.source_path).read_text(encoding="utf-8")
             )
@@ -583,7 +583,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("create_opponent_ensemble", request, work)
 
     def add_opponent_variant(self, request: AddOpponentVariantInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             variant = OpponentVariant.model_validate_json(
                 self._project_path(request.variant_path).read_text(encoding="utf-8")
             )
@@ -607,7 +607,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         )
 
     def run_ensemble_matchups(self, request: RunEnsembleMatchupsInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return (
                 self._opponent_ensembles()
                 .run_matchups(self._deck(request.deck_id), request.ensemble_id, request.seed)
@@ -635,7 +635,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         )
 
     def evaluate_robust_upgrade(self, request: EvaluateRobustUpgradeInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             return self._opponent_ensembles().evaluate_robust_upgrade(
                 self._deck(request.baseline_deck_id),
                 self._deck(request.candidate_deck_id),
@@ -652,7 +652,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         )
 
     def generate_ensemble_report(self, request: GenerateEnsembleReportInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             target = self.root / "data/opponent_ensembles" / Path(request.output_name).name
             atomic_write_text(target, self._opponent_ensembles().report(request.ensemble_id))
             return {
@@ -699,7 +699,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         )
 
     def generate_provenance_report(self, request: GenerateProvenanceReportInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             store = self._provenance()
             graph = store.load()
             store.validate(graph)
@@ -730,7 +730,7 @@ class ServiceKnowledgeMixin(ServiceCore):
         return self._invoke("generate_provenance_report", request, work)
 
     def audit_unreferenced_claims(self, request: AuditUnreferencedClaimsInput) -> ToolResponse:
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             result = self._provenance().audit_claims()
             if request.fail_on_unreferenced and not result["passed"]:
                 raise ToolExecutionError("unreferenced claims detected")
