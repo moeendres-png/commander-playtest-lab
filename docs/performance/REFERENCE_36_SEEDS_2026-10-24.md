@@ -1,5 +1,8 @@
 # Reference run of the 36-seed acceptance (2026-10-24)
 
+Superseded on 2026-10-26 by `REFERENCE_36_SEEDS_2026-10-26.md`: the pilot answers changed in
+the combat, payment, timing and tie-break steps after `053708e56`. Kept as history.
+
 Result of #996. Tooling and a measurement only: two run files and this note. No bridge, fork,
 pin or sealed record changes, so nothing here needs requalification.
 
