@@ -218,10 +218,18 @@ def test_new_fields_do_not_change_functional_profile() -> None:
         ),
     )
     plain_profile = build_meta_functional_profile(
-        plain, commander=COMMANDER, format_band=FormatBand.HIGH_POWER, profiles={}
+        plain,
+        commander=COMMANDER,
+        format_band=FormatBand.HIGH_POWER,
+        profiles={},
+        now=datetime(2026, 10, 26, tzinfo=UTC),
     )
     enriched_profile = build_meta_functional_profile(
-        enriched, commander=COMMANDER, format_band=FormatBand.HIGH_POWER, profiles={}
+        enriched,
+        commander=COMMANDER,
+        format_band=FormatBand.HIGH_POWER,
+        profiles={},
+        now=datetime(2026, 10, 26, tzinfo=UTC),
     )
     plain_dump = plain_profile.model_dump(mode="json")
     enriched_dump = enriched_profile.model_dump(mode="json")
