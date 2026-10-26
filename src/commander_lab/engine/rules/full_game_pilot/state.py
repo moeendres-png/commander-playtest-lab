@@ -546,6 +546,15 @@ class _PolicyState:
         if player is not None:
             target_id = str(player.get("player_id"))
         target_threat = self._player_threat(target_id, state)
+        facts: dict[str, float | int | str | bool] = {
+            "target_life": self._player_life(target_id, state)
+        }
+        # The second clock: commander damage this seat's commanders already dealt to the
+        # defender. The pilot's win-progress term has always read this key; the structural
+        # simulator sets it, the full-game path never did (#989 P0-1).
+        dealt = commander_damage_dealt(state, str(state.get("actor_id") or ""), target_id or "")
+        if dealt:
+            facts["commander_damage_pressure"] = min(21.0, max(dealt.values()))
         return PilotActionView(
             action_id=self._required_text(option, "option_id"),
             action_kind="combat_target",
@@ -555,7 +564,7 @@ class _PolicyState:
             target_player_id=target_id,
             target_threat=target_threat,
             threat_score=target_threat,
-            metadata={"target_life": self._player_life(target_id, state)},
+            metadata=facts,
         )
 
     def _semantic_action(self, option: dict[str, Any]) -> PilotActionView:
