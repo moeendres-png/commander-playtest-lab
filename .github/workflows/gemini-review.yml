@@ -1,0 +1,147 @@
+name: gemini-review
+
+# Gemini 3.8 Flash review lane (Google AI Studio free tier, $0).
+# One lane only:
+#   /gemini-review - read-only review lane (foundry-reviewer)
+#
+# Purpose (Owner 2026-10-26): independent first-pass reviews of PRs while
+# Claude has no quota until Thursday evening 2026-10-29. Groq was explicitly
+# ruled out the same day, so this lane is Gemini-only.
+# NOT a replacement for the Dirigent review: this lane never approves or
+# merges, and its comments are advisory only.
+# Free-tier terms to be aware of: Google may use free-tier content to improve
+# its products (public repo, but stated here deliberately), and free-tier
+# limits are per project, visible only in the AI Studio rate-limit console.
+# The GEMINI_API_KEY secret must exist before first use; the preflight below
+# fails closed when it is empty. Creating the secret is an Owner step.
+# Note: issue_comment workflows run from the default branch, so this lane
+# takes effect only after this file is merged to main.
+#
+# Trust gate: same as opencode-zai - only OWNER/MEMBER/COLLABORATOR may trigger.
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+jobs:
+  gemini-review:
+    # Read-only independent review lane. Triggered only by /gemini-review.
+    # Runs foundry-reviewer on Gemini 3.8 Flash.
+    if: |
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association) &&
+      contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.issue.author_association || github.event.pull_request.author_association) && (
+        github.event.comment.body == '/gemini-review' ||
+        startsWith(github.event.comment.body, '/gemini-review ') ||
+        startsWith(github.event.comment.body, format('/gemini-review{0}', fromJSON('"\n"'))) ||
+        startsWith(github.event.comment.body, format('/gemini-review{0}', fromJSON('"\r\n"')))
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+      issues: read
+    env:
+      # Merge the Gemini provider config with the read-only reviewer agent.
+      # Gemini is reached through its OpenAI-compatible endpoint, mirroring
+      # the opencode-zai provider injection (same mechanism, other provider).
+      OPENCODE_CONFIG_CONTENT: >-
+        {"enabled_providers":["gemini"],"provider":{"gemini":{"npm":"@ai-sdk/openai-compatible","name":"Google Gemini","env":["GEMINI_API_KEY"],"options":{"baseURL":"https://generativelanguage.googleapis.com/v1beta/openai/"},"models":{"gemini-3.8-flash":{"name":"Gemini 3.8 Flash"}}}} ,"model":"gemini/gemini-3.8-flash","small_model":"gemini/gemini-3.8-flash","default_agent":"foundry-reviewer","experimental":{"policies":[{"action":"provider.use","effect":"deny","resource":"*"},{"action":"provider.use","effect":"allow","resource":"gemini"}]}}
+    steps:
+      - name: Refuse fork pull requests as agent targets
+        if: github.event.issue.pull_request || github.event.pull_request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.issue.number || github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          head_repo="$(gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}" --jq '.head.repo.full_name')"
+          if [ "$head_repo" != "$GITHUB_REPOSITORY" ]; then
+            echo "Refusing: PR head repository '${head_repo}' is not ${GITHUB_REPOSITORY}." >&2
+            exit 1
+          fi
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned OpenCode CLI v1.18.30
+        env:
+          VERSION: 1.18.30
+          OPENCODE_X64_SHA256: 55007246858165496ff85ba1c2b648f7421e8e2013bf4189a680c9ff8e699d17
+          OPENCODE_ARM64_SHA256: 4111a55c2a02c0fac314bd51e9a2330280e6d29d2b85b9554fff6d62612566ed
+        run: |
+          set -euo pipefail
+          ARCH="$(uname -m)"
+          case "${ARCH}" in
+            x86_64) ASSET="opencode-linux-x64.tar.gz"; SHA="${OPENCODE_X64_SHA256}" ;;
+            aarch64|arm64) ASSET="opencode-linux-arm64.tar.gz"; SHA="${OPENCODE_ARM64_SHA256}" ;;
+            *) echo "unsupported arch ${ARCH} (fail closed)"; exit 1 ;;
+          esac
+          URL="https://github.com/sst/opencode/releases/download/v${VERSION}/${ASSET}"
+          curl -fsSL -o "/tmp/${ASSET}" "${URL}"
+          echo "${SHA}  /tmp/${ASSET}" | sha256sum -c -
+          mkdir -p "$HOME/.opencode/bin"
+          tar -xzf "/tmp/${ASSET}" -C "$HOME/.opencode/bin"
+          rm -f "/tmp/${ASSET}"
+          echo "$HOME/.opencode/bin" >> "$GITHUB_PATH"
+
+      - name: Assert OpenCode CLI is exactly v1.18.30
+        run: |
+          set -euo pipefail
+          BIN="$HOME/.opencode/bin/opencode"
+          test -x "$BIN"
+          RESOLVED="$(command -v opencode)"
+          echo "opencode path: ${RESOLVED}"
+          test "${RESOLVED}" = "${BIN}"
+          INSTALLED="$("${BIN}" --version)"
+          echo "opencode --version (path): ${INSTALLED}"
+          test "${INSTALLED}" = "1.18.30"
+          INSTALLED_PATH="$(opencode --version)"
+          echo "opencode --version (PATH): ${INSTALLED_PATH}"
+          test "${INSTALLED_PATH}" = "1.18.30"
+
+      # Preflight: the resolved default agent must be the read-only reviewer
+      # and the model must be the Gemini lane model. Fails closed otherwise.
+      - name: Preflight reviewer runtime identity
+        run: |
+          set -euo pipefail
+          test -n "${GEMINI_API_KEY:-}" || { echo "GEMINI_API_KEY secret is empty (fail closed before spending quota)" >&2; exit 1; }
+          opencode debug config > "$RUNNER_TEMP/gemini-review-config.json"
+          opencode debug agent foundry-reviewer > "$RUNNER_TEMP/gemini-reviewer.json" 2>&1 || true
+          python3 - <<'PYTHON'
+          import json, os, sys
+          tmp = os.environ["RUNNER_TEMP"]
+          cfg = json.load(open(os.path.join(tmp, "gemini-review-config.json")))
+          model = cfg.get("model", "")
+          agent = cfg.get("default_agent", "")
+          print(f"resolved model: {model}")
+          print(f"default agent: {agent}")
+          assert model == "gemini/gemini-3.8-flash", f"unexpected model: {model}"
+          assert agent == "foundry-reviewer", f"unexpected agent: {agent}"
+          # The custom provider only reads its key from the variable it names.
+          assert cfg["provider"]["gemini"].get("env") == ["GEMINI_API_KEY"], "gemini provider has no key source"
+          print("preflight OK")
+          PYTHON
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Run opencode review (Gemini)
+        timeout-minutes: 55
+        run: |
+          set -euo pipefail
+          watchdog="$RUNNER_TEMP/quota_watchdog.py"
+          git -C "$GITHUB_WORKSPACE" show "${GITHUB_SHA}:tools/foundry/quota_watchdog.py" > "$watchdog"
+          python3 -I "$watchdog" --log "$RUNNER_TEMP/opencode-gemini-review.log" -- opencode github run
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          MODEL: gemini/gemini-3.8-flash
+          AGENT: foundry-reviewer
+          SHARE: 'false'
+          PROMPT: ''
+          USE_GITHUB_TOKEN: 'false'
+          MENTIONS: '/gemini-review'
+          VARIANT: max
+          OIDC_BASE_URL: ''
