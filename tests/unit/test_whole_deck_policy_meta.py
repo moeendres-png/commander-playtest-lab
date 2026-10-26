@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -162,12 +163,14 @@ def test_whole_deck_research_meta_snapshot_bands_are_not_collapsed(repo_root: Pa
         commander=ROGSHAI,
         format_band=FormatBand.HIGH_POWER,
         profiles=profiles,
+        now=datetime(2026, 10, 26, tzinfo=UTC),
     )
     cedh = build_meta_functional_profile(
         snapshot,
         commander=ROGSHAI,
         format_band=FormatBand.CEDH_TOURNAMENT,
         profiles=profiles,
+        now=datetime(2026, 10, 26, tzinfo=UTC),
     )
     assert high.format_band == FormatBand.HIGH_POWER
     assert cedh.format_band == FormatBand.CEDH_TOURNAMENT
