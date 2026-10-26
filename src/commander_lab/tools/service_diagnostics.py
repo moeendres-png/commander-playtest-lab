@@ -1,9 +1,21 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from commander_lab.models import (
+    ClassifyFailureCauseInput,
+    CompareCounterfactualsInput,
+    CompareDeckAndPilotEffectsInput,
+    DiagnoseCardPerformanceInput,
+    DiagnosePilotBehaviorInput,
+    ExportMinimalCounterfactualFixtureInput,
+    FindCounterfactualBranchpointsInput,
+    GenerateDecisionRegretReportInput,
+    GenerateDiagnosticReportInput,
+    ListAlternativeActionsInput,
+    RecommendNextExperimentInput,
+    RunCounterfactualInput,
     ToolResponse,
 )
 from commander_lab.storage import (
@@ -25,8 +37,10 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return CounterfactualReplayLab(self.root, external_engine_available=False)
 
-    def find_counterfactual_branchpoints(self, request: Any) -> ToolResponse:
-        def work() -> dict[str, Any]:
+    def find_counterfactual_branchpoints(
+        self, request: FindCounterfactualBranchpointsInput
+    ) -> ToolResponse:
+        def work() -> dict[str, object]:
             rows = self._counterfactual_lab().find_branchpoints(
                 request.source_path, actor_id=request.actor_id, phase=request.phase
             )
@@ -38,8 +52,8 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("find_counterfactual_branchpoints", request, work)
 
-    def list_alternative_actions(self, request: Any) -> ToolResponse:
-        def work() -> dict[str, Any]:
+    def list_alternative_actions(self, request: ListAlternativeActionsInput) -> ToolResponse:
+        def work() -> dict[str, object]:
             lab = self._counterfactual_lab()
             branch = lab.branchpoint_at(request.source_path, request.event_offset)
             lab.verify_branchpoint(branch, request.expected_state_hash)
@@ -55,14 +69,14 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("list_alternative_actions", request, work)
 
-    def run_counterfactual(self, request: Any) -> ToolResponse:
+    def run_counterfactual(self, request: RunCounterfactualInput) -> ToolResponse:
         from commander_lab.models import (
             CounterfactualEngineMode,
             HiddenInformationPolicy,
             SeedPolicy,
         )
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             lab = self._counterfactual_lab()
             branch = lab.branchpoint_at(request.source_path, request.event_offset)
             result = lab.run(
@@ -92,11 +106,11 @@ class ServiceDiagnosticsMixin(ServiceCore):
             iterations=request.future_samples,
         )
 
-    def compare_counterfactuals(self, request: Any) -> ToolResponse:
+    def compare_counterfactuals(self, request: CompareCounterfactualsInput) -> ToolResponse:
         from commander_lab.counterfactual import CounterfactualReplayLab
         from commander_lab.models import CounterfactualResult
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             rows = [
                 CounterfactualResult.model_validate_json(
                     self._project_path(path).read_text(encoding="utf-8")
@@ -112,11 +126,13 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("compare_counterfactuals", request, work)
 
-    def generate_decision_regret_report(self, request: Any) -> ToolResponse:
+    def generate_decision_regret_report(
+        self, request: GenerateDecisionRegretReportInput
+    ) -> ToolResponse:
         from commander_lab.counterfactual import CounterfactualReplayLab
         from commander_lab.models import CounterfactualResult
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             result = CounterfactualResult.model_validate_json(
                 self._project_path(request.result_path).read_text(encoding="utf-8")
             )
@@ -131,8 +147,10 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("generate_decision_regret_report", request, work)
 
-    def export_minimal_counterfactual_fixture(self, request: Any) -> ToolResponse:
-        def work() -> dict[str, Any]:
+    def export_minimal_counterfactual_fixture(
+        self, request: ExportMinimalCounterfactualFixtureInput
+    ) -> ToolResponse:
+        def work() -> dict[str, object]:
             lab = self._counterfactual_lab()
             branch = lab.branchpoint_at(request.source_path, request.event_offset)
             lab.verify_branchpoint(branch, request.expected_state_hash)
@@ -147,10 +165,10 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return DecisionDiagnosticEngine()
 
-    def diagnose_card_performance(self, request: Any) -> ToolResponse:
+    def diagnose_card_performance(self, request: DiagnoseCardPerformanceInput) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
             diagnosis = self._diagnostic_engine().classify(dataset, request.card_name)
             target = self.root / "data/runs/diagnostics" / Path(request.output_name).name
@@ -161,10 +179,10 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("diagnose_card_performance", request, work)
 
-    def diagnose_pilot_behavior(self, request: Any) -> ToolResponse:
+    def diagnose_pilot_behavior(self, request: DiagnosePilotBehaviorInput) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
             diagnosis = self._diagnostic_engine().classify(dataset, request.pilot_name)
             target = self.root / "data/runs/diagnostics" / Path(request.output_name).name
@@ -175,20 +193,22 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("diagnose_pilot_behavior", request, work)
 
-    def compare_deck_and_pilot_effects(self, request: Any) -> ToolResponse:
+    def compare_deck_and_pilot_effects(
+        self, request: CompareDeckAndPilotEffectsInput
+    ) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
             result = self._diagnostic_engine().compare_effects(dataset)
             return result.model_dump(mode="json") | {"causal_identification": False}
 
         return self._invoke("compare_deck_and_pilot_effects", request, work)
 
-    def classify_failure_cause(self, request: Any) -> ToolResponse:
+    def classify_failure_cause(self, request: ClassifyFailureCauseInput) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             dataset = DecisionDiagnosticEngine.load(self._project_path(request.dataset_path))
             diagnosis = self._diagnostic_engine().classify(dataset, request.subject)
             target = self.root / "data/runs/diagnostics" / Path(request.output_name).name
@@ -199,11 +219,11 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("classify_failure_cause", request, work)
 
-    def recommend_next_experiment(self, request: Any) -> ToolResponse:
+    def recommend_next_experiment(self, request: RecommendNextExperimentInput) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
         from commander_lab.models import DiagnosisRecord
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             diagnosis = DiagnosisRecord.model_validate_json(
                 self._project_path(request.diagnosis_path).read_text(encoding="utf-8")
             )
@@ -211,11 +231,11 @@ class ServiceDiagnosticsMixin(ServiceCore):
 
         return self._invoke("recommend_next_experiment", request, work)
 
-    def generate_diagnostic_report(self, request: Any) -> ToolResponse:
+    def generate_diagnostic_report(self, request: GenerateDiagnosticReportInput) -> ToolResponse:
         from commander_lab.diagnostics import DecisionDiagnosticEngine
         from commander_lab.models import DiagnosisRecord
 
-        def work() -> dict[str, Any]:
+        def work() -> dict[str, object]:
             diagnoses = [
                 DiagnosisRecord.model_validate_json(
                     self._project_path(path).read_text(encoding="utf-8")

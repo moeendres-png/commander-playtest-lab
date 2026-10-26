@@ -1,4 +1,4 @@
 {
   "definition": "ast.Name/ast.Attribute nodes named Any in src/commander_lab/**/*.py (see tests/unit/test_any_usage_ratchet.py)",
-  "max_any_uses": 2159
+  "max_any_uses": 2135
 }
