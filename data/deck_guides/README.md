@@ -1,6 +1,6 @@
 # Deck guides
 
-One guide per deck the project plays: 183 precon decks (165 real, 9 originals the engine cannot
+One guide per deck the project plays: 182 precon decks (164 real, 9 originals the engine cannot
 fully play, 9 synthetic replacement decks) and the two Owner decks (`custom/rogshai`,
 `custom/chulane`). Each guide is a pair in `guides/`: `<slug>.json` (parameters, schema in
 `FORMAT.md`) and `<slug>.md` (the short plan a person reads). The slug is the `deck_id` with `/`

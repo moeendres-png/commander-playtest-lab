@@ -1,5 +1,0 @@
-# Guide: Nature of the Beast
-
-Commander: Marath, Will of the Wild (Farbidentität GRW). Ausgewogenes Wert-Deck: solide Kurve, Interaktion und Drohungen — über Kartenqualität statt über eine einzelne Synergie-Achse gewinnen. Zweite Achse: lands. Manabasis: 42 Länder, Kurvenschnitt (Nonland) 4.19. Schlüsselkarten (Engine/Finisher nach Board-Wert): Rampaging Baloths, Avenger of Zendikar, Crater Hellion, Krosan Tusker. Der Haupt-Commander (Marath, Will of the Wild) soll bis Zug 3 liegen (Mana-Wert minus Ramp-Beschleunigung des Decks). Keep-Test: 2–4 Länder (aus 7 gezogen 2–5, Überschuss bottomen), dazu mindestens ein spielbarer Frühspielzug (MV ≤ 3) an zwei der ersten drei Züge und die Farben für die frühen Pips (G:15, R:13, W:9). Latte fällt je Mulligan, nie unter 5 Karten. Angriffe: Commander-Schaden auf einen Spieler bündeln (Uhren-Regel), übrige Angriffe nach Zweck verteilen; alles, was den Kampf nicht verändert, postcombat spielen (Defaults aus Handoff §4.1/§4.3).
-
-_Generiert aus der Deckliste + Oracle-Fakten (Scryfall/Repo-Cache); Rollen über die Repo-Heuristik `card_roles()`. Parameter: MODELED/CODE_DERIVED — kein Messwert. Unbekannte Karten: 0._
