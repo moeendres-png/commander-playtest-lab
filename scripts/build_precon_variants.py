@@ -7,7 +7,7 @@ commander was unknown also got a proxy commander. Since the pin 90f5c4d3f8 (repi
 engine knows the cards of four of them (2024_death_toll, 2024_family_matters,
 2024_miracle_worker, 2026_multiverse_reforged); their proxies are retired and the real decks
 count. The originals in ``data/decks/precons/`` stay untouched, so the pool is the precons that
-are left there (174 since the sort-out of 21 weak decks on 2026-10-25): 165 real and 9 SYNTHETIC.
+are left there (173 since the sort-out of 21 weak decks on 2026-10-25 and of Nature of the Beast (2013) on 2026-10-26): 164 real and 9 SYNTHETIC.
 
 A proxy is evidence class SYNTHETIC. It is not the printed precon, says nothing about how the
 original plays, and must not appear in qualification evidence or be ranked next to real decks

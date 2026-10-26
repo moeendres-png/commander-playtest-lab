@@ -12,8 +12,8 @@
   },
   "commander_rule": "A legendary creature with exactly the original commander's colour identity, legal as a commander, known to the engine at the pin (import proof) and not already in the deck. Among those: cards that are no other precon's commander first, then the nearest mana value, then the nearest power plus toughness, then the name. The four decks whose commander the engine did not know have real decks again since repin v13, so no proxy commander is in use.",
   "pool": {
-    "decks": 174,
-    "real": 165,
+    "decks": 173,
+    "real": 164,
     "synthetic": 9
   },
   "decks": {
