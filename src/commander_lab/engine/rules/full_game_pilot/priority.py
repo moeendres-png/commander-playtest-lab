@@ -200,6 +200,17 @@ class _PriorityDecisions(_CombatDecisions):
             _LOG.info("withheld %d discounted spell(s) with no damaged target", len(no_target))
             no_target_ids = {id(option) for option in no_target}
             affordable = [o for o in affordable if id(o) not in no_target_ids]
+        # #989 phase 4a-2: an optional cast that would spend the mana kept for a counterspell or
+        # removal in hand waits, so the instant can be cast on an opponent's turn.
+        spends_hold = self._casts_that_break_the_mana_hold(affordable, state, seat)
+        if spends_hold:
+            _LOG.info(
+                "withheld %d cast(s) that would spend the mana held for an instant",
+                len(spends_hold),
+            )
+            spends_hold_ids = {id(option) for option in spends_hold}
+            affordable = [o for o in affordable if id(o) not in spends_hold_ids]
+            self._note_mana_hold(seat, state)
         # #732: pilot judgment, like affordability above: an action a player
         # would not take because it only hurts themselves (countering only
         # their own spells, removal with no opposing target, a wipe that

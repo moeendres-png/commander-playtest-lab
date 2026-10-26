@@ -224,6 +224,9 @@ class _PolicyState:
         self._last_priority_source: dict[int, str] = {}
         self._last_priority_visible_mana: dict[int, int] = {}
         self._failed_payments: dict[int, tuple[object, dict[str, int]]] = {}
+        # #989 phase 4a-2: per seat, how many own turns in a row it held mana back for an
+        # instant, and the turn number of the last one.
+        self._mana_hold: dict[int, tuple[int, int]] = {}
         # #802: per seat, the turn it belongs to and how often the engine asked
         # each block frame (blocker -> offered attackers) within that turn. The
         # engine re-asks the whole declaration when its own check rejects the
