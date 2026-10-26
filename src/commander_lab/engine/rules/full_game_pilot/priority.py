@@ -191,6 +191,15 @@ class _PriorityDecisions(_CombatDecisions):
             _LOG.info("withheld %d X spell(s) with no mana left for X", len(no_x))
             no_x_ids = {id(option) for option in no_x}
             affordable = [o for o in affordable if id(o) not in no_x_ids]
+        # #989 phase 5c: a spell offered for its target discount (Bitter Downfall) is not cast
+        # while no creature can give the discount and the full price is out of reach.
+        no_target = [
+            option for option in affordable if self._discount_cast_without_target(option, state)
+        ]
+        if no_target:
+            _LOG.info("withheld %d discounted spell(s) with no damaged target", len(no_target))
+            no_target_ids = {id(option) for option in no_target}
+            affordable = [o for o in affordable if id(o) not in no_target_ids]
         # #732: pilot judgment, like affordability above: an action a player
         # would not take because it only hurts themselves (countering only
         # their own spells, removal with no opposing target, a wipe that

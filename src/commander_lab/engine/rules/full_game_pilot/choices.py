@@ -198,6 +198,7 @@ class _ChoiceDecisions(_PaymentDecisions):
             # and the copies of a Wild Ricochet aimed at itself copied one another for ever
             # (precon pod 031, plan seed 1, game seed 1: 6000 decisions at turn 21).
             if source.get("ability_type") == "spell":
+                options = self._targets_the_discount_pays_for(state, source_name, options)
                 own = {
                     str(source.get("source_object_id") or ""),
                     str(source.get("ability_original_id") or ""),

@@ -20,6 +20,11 @@ from ..full_game_pilot_payment_plan import (
     completing_options,
     completing_outcomes,
 )
+from ..full_game_pilot_target_discount import (
+    board_lowers_costs,
+    damaged_opposing_creatures,
+    damaged_target_discount,
+)
 from ..full_game_pilot_views import (
     best_cost_counter_kind,
     counter_cost_number,
@@ -532,6 +537,66 @@ class _PaymentDecisions(_PolicyState):
                 return False
             base = printed
         return can_pay(offer, base + extra) is False
+
+    def _discount_cast_without_target(
+        self, option: Mapping[str, object], state: dict[str, object]
+    ) -> bool:
+        """Whether a cast is offered only for a discount no creature on the table can give.
+
+        Bitter Downfall costs {3} less against a creature dealt damage this turn, and the engine
+        offers it whenever that price is payable. With the full {3}{B} out of reach and no
+        opposing creature damaged, the target can only be an undamaged one, and the payment
+        is cancelled after the pilot spent decisions on it. True only when the model proves the
+        full price short and finds no damaged target; a cost it cannot read is left to the pilot.
+        """
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict) or metadata.get("ability_type") != "spell":
+            return False
+        discount = damaged_target_discount(str(metadata.get("source_name") or ""))
+        if discount is None:
+            return False
+        actor_id = str(state.get("actor_id") or "")
+        offer = self._visible_mana_offer(self._actor(state))
+        if (
+            offer is None
+            or board_lowers_costs(state, actor_id)
+            or can_pay(offer, discount.full) is not False
+        ):
+            return False
+        return not damaged_opposing_creatures(state, actor_id) or (
+            can_pay(offer, discount.reduced) is False
+        )
+
+    def _targets_the_discount_pays_for(
+        self,
+        state: dict[str, object],
+        source_name: str,
+        options: list[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        """The targets of a discounted spell that keep its price payable.
+
+        With the full price out of the seat's reach, only an opposing creature that was dealt
+        damage this turn makes the spell cost what the seat can pay. Without such a target among
+        the options, or when the full price is payable or unreadable, the options stay as offered.
+        """
+        discount = damaged_target_discount(source_name)
+        if discount is None:
+            return options
+        actor_id = str(state.get("actor_id") or "")
+        offer = self._visible_mana_offer(self._actor(state))
+        if (
+            offer is None
+            or board_lowers_costs(state, actor_id)
+            or can_pay(offer, discount.full) is not False
+        ):
+            return options
+        damaged = damaged_opposing_creatures(state, actor_id)
+        kept: list[dict[str, object]] = []
+        for option in options:
+            metadata = option.get("metadata")
+            if isinstance(metadata, dict) and str(metadata.get("object_id") or "") in damaged:
+                kept.append(option)
+        return kept or options
 
     def _alternative_costs_that_pay(
         self, state: dict[str, object], options: list[dict[str, object]], prompt: str
