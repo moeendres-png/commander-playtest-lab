@@ -168,6 +168,37 @@ class MetaPackage(FrozenModel):
     vetoed_by_games: bool = False
 
 
+class MetaComboLine(FrozenModel):
+    """One known combo line as metadata (Meta-Lane PR5, design §5.4).
+
+    This is NOT rules knowledge: it records that a source (Commander
+    Spellbook or a primer/article) lists these cards as a combo. Whether
+    the line actually goes through in a concrete game is decided by the
+    XMage engine alone. Containment in a deck never justifies an
+    inclusion, and absence never justifies a cut.
+    """
+
+    combo_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._:-]{1,127}$")
+    commander: str
+    cards: tuple[str, ...] = Field(min_length=1)
+    # Alternative slots: each group needs at least one card present
+    # (e.g. a bounce creature that may be one of several cards).
+    any_of: tuple[tuple[str, ...], ...] = ()
+    bands: tuple[FormatBand, ...] = Field(min_length=1)
+    tier: MetaTier | None = None
+    source: str
+    source_url: str | None = None
+    edhrec_decks: int | None = Field(default=None, ge=0)
+    result: str
+    notes: str | None = None
+
+    @model_validator(mode="after")
+    def _nonempty_any_of_groups(self) -> MetaComboLine:
+        if any(not group for group in self.any_of):
+            raise ValueError("any_of groups must not be empty")
+        return self
+
+
 class MetaArchetype(FrozenModel):
     archetype_id: str = Field(pattern=r"^[a-z0-9][a-z0-9._:-]{1,127}$")
     name: str
