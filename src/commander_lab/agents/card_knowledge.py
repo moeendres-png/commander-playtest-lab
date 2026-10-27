@@ -29,6 +29,12 @@ _BASIC_LANDS = frozenset(
 )
 COLOR_WORDS = {"W": "White", "U": "Blue", "B": "Black", "R": "Red", "G": "Green"}
 _PIP = re.compile(r"\{([WUBRGC])(?:/[WUBRGP])?\}")
+_PRECONS_DIR = Path(__file__).resolve().parents[3] / "data/decks/precons"
+MIN_POOL_COVERAGE_RATIO = 0.50
+
+
+class CardCatalogError(RuntimeError):
+    """Raised when the printed card catalog or curated profile store is unreadable, corrupt or below pool coverage."""
 
 
 @dataclass(frozen=True)
@@ -101,9 +107,14 @@ def is_basic_land_name(name: str) -> bool:
 @lru_cache(maxsize=4)
 def _catalog(path: str) -> dict[str, CardFacts]:
     try:
-        raw = json.loads(Path(path).read_text(encoding="utf-8")).get("cards", {})
-    except (OSError, ValueError):
-        return {}
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise CardCatalogError(f"failed to load card catalog from {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise CardCatalogError(f"card catalog root must be a JSON object in {path}")
+    raw = payload.get("cards")
+    if not isinstance(raw, dict):
+        raise CardCatalogError(f"card catalog 'cards' mapping missing or invalid in {path}")
     catalog: dict[str, CardFacts] = {}
     for name, item in raw.items():
         if not isinstance(item, dict):
@@ -124,6 +135,8 @@ def _catalog(path: str) -> dict[str, CardFacts]:
         catalog[name.casefold()] = facts
         front = name.split(" // ")[0].casefold()
         catalog.setdefault(front, facts)
+    if not catalog:
+        raise CardCatalogError(f"card catalog is empty in {path}")
     return catalog
 
 
@@ -214,14 +227,57 @@ _PROFILES_PATH = _DEFAULT_PATH.parent / "structural_role_profiles.json"
 @lru_cache(maxsize=2)
 def _curated_profiles(path: str) -> dict[str, dict[str, object]]:
     try:
-        raw = json.loads(Path(path).read_text(encoding="utf-8")).get("profiles", [])
-    except (OSError, ValueError):
-        return {}
-    return {
+        payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise CardCatalogError(f"failed to load curated role profiles from {path}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise CardCatalogError(f"curated role profiles root must be a JSON object in {path}")
+    raw = payload.get("profiles")
+    if not isinstance(raw, list):
+        raise CardCatalogError(f"curated role profiles 'profiles' list missing in {path}")
+    profiles = {
         str(item["oracle_name"]).casefold(): item
         for item in raw
         if isinstance(item, dict) and item.get("oracle_name")
     }
+    if not profiles:
+        raise CardCatalogError(f"curated role profiles list is empty in {path}")
+    return profiles
+
+
+def verify_catalog_pool_coverage(
+    *,
+    catalog_path: Path | None = None,
+    precons_dir: Path | None = None,
+    min_coverage_ratio: float = MIN_POOL_COVERAGE_RATIO,
+) -> float:
+    """Startup gate: fail closed if the catalog covers fewer than *min_coverage_ratio* of pool cards."""
+    resolved_catalog_path = catalog_path or _DEFAULT_PATH
+    resolved_precons = precons_dir or _PRECONS_DIR
+    _catalog(str(resolved_catalog_path))
+    if not resolved_precons.is_dir():
+        raise CardCatalogError(f"precon pool directory not found: {resolved_precons}")
+    pool_cards: set[str] = set()
+    for deck_path in sorted(resolved_precons.glob("*.json")):
+        try:
+            deck_data = json.loads(deck_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            raise CardCatalogError(f"failed to read precon deck {deck_path}: {exc}") from exc
+        cards = deck_data.get("cards") if isinstance(deck_data, dict) else None
+        if isinstance(cards, list):
+            for entry in cards:
+                if isinstance(entry, dict) and entry.get("oracle_name"):
+                    pool_cards.add(str(entry["oracle_name"]).strip())
+    if not pool_cards:
+        raise CardCatalogError(f"no precon pool cards found in {resolved_precons}")
+    covered = sum(1 for name in pool_cards if card_facts(name, resolved_catalog_path) is not None)
+    ratio = covered / len(pool_cards)
+    if ratio < min_coverage_ratio:
+        raise CardCatalogError(
+            f"card catalog coverage {covered}/{len(pool_cards)} ({ratio:.1%}) is below "
+            f"minimum threshold {min_coverage_ratio:.1%}"
+        )
+    return ratio
 
 
 def curated_profile(name: str | None) -> dict[str, object] | None:
@@ -379,6 +435,8 @@ def evasion(facts: CardFacts | None, abilities: list[str] | tuple[str, ...] = ()
 
 __all__ = [
     "COLOR_WORDS",
+    "MIN_POOL_COVERAGE_RATIO",
+    "CardCatalogError",
     "CardFacts",
     "card_facts",
     "card_roles",
@@ -386,4 +444,5 @@ __all__ = [
     "evasion",
     "is_basic_land_name",
     "permanent_value",
+    "verify_catalog_pool_coverage",
 ]
