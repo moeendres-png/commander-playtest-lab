@@ -23,6 +23,7 @@ from typing import Any, Literal, TextIO, TypedDict, cast
 from pydantic import Field, model_validator
 
 from commander_lab.agents import build_pilot
+from commander_lab.agents.card_knowledge import assert_catalog_ready
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.base import resolve_engine_working_directory
 from commander_lab.engine.rules.failure_privacy import (
@@ -972,6 +973,9 @@ class XmageFullGameRunner:
         private_card_repository: bool = False,
         shutdown_grace_seconds: float = 5.0,
     ) -> None:
+        # #1037 startup gate: a corrupt or under-covering pilot card catalog stops the run
+        # here (CardCatalogError) instead of silently degrading pilot decisions.
+        assert_catalog_ready()
         self.command = command or self.command_from_environment()
         self.cwd = cwd
         # #739: run each bridge JVM with its own copy of the card repository
