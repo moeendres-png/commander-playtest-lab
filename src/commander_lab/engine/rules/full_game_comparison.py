@@ -414,6 +414,42 @@ def _paired_difference_stats(
     )
 
 
+def cluster_difference_stats(
+    clustered_differences: Sequence[tuple[int, float]],
+) -> tuple[DifferenceInterval | None, float | None, float | None]:
+    """One-way cluster-robust 95% interval and 80%-power detectable difference (#1043).
+
+    Treats each distinct seed as an independent cluster of seat-rotation pairs.
+    Uses Liang-Zeger / CR1 degrees-of-freedom correction G / (G - 1).
+    When every cluster has size 1 (G == N), this is bit-identical to the i.i.d.
+    paired standard error sd / sqrt(N), and for balanced clusters of size m
+    it equals SD(mean(d_c)) / sqrt(G).
+    Returns (None, None, None) for N < 2 or G < 2.
+    Returns (None, None, 0.0) when se_cluster == 0.0.
+    """
+    n = len(clustered_differences)
+    if n < 2:
+        return None, None, None
+    clusters: dict[int, list[float]] = {}
+    for seed, diff in clustered_differences:
+        clusters.setdefault(seed, []).append(diff)
+    g = len(clusters)
+    if g < 2:
+        return None, None, None
+    mean = sum(diff for _, diff in clustered_differences) / n
+    sum_u_sq = sum(sum(d - mean for d in diffs) ** 2 for diffs in clusters.values())
+    se_cluster_sq = (g / (g - 1)) * (sum_u_sq / (n * n))
+    se_cluster = math.sqrt(se_cluster_sq)
+    if se_cluster == 0.0:
+        return None, None, 0.0
+    half_width = DIFFERENCE_Z95 * se_cluster
+    return (
+        DifferenceInterval(low=mean - half_width, high=mean + half_width),
+        (DIFFERENCE_Z95 + DIFFERENCE_Z80) * se_cluster,
+        se_cluster,
+    )
+
+
 def planned_detectable_difference(pairs: int, sd: float = PLANNED_PAIR_SD) -> float:
     """Win-share difference ``pairs`` planned pairs can detect at 80% power (#873).
 
@@ -439,6 +475,53 @@ def pairs_needed(difference: float, sd: float, alpha: float = 0.05, power: float
     if sd < 0.0:
         raise ValueError("sd must be non-negative")
     return math.ceil(((DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / difference) ** 2)
+
+
+class PowerTableRow(_StrictModel):
+    difference: float = Field(gt=0.0)
+    discordant_share_q: float = Field(gt=0.0, le=1.0)
+    pair_sd: float = Field(gt=0.0)
+    pairs_needed_iid: int = Field(ge=1)
+    seeds_needed_4_seats_iid: int = Field(ge=1)
+    seeds_needed_4_seats_rho_025: int = Field(ge=1)
+
+
+POWER_TABLE_DIFFERENCES: tuple[float, ...] = (0.05, 0.10, 0.20)
+POWER_TABLE_DISCORDANT_SHARES: tuple[float, ...] = (0.09, 0.20, 0.40)
+
+
+def power_table(
+    differences: Sequence[float] = POWER_TABLE_DIFFERENCES,
+    discordant_shares: Sequence[float] = POWER_TABLE_DISCORDANT_SHARES,
+    cluster_size: int = 4,
+    icc_rho: float = 0.25,
+) -> tuple[PowerTableRow, ...]:
+    """Design-effect power table across effect sizes and discordant shares (#1043).
+
+    Calculates i.i.d. and cluster-adjusted sample size requirements.
+    For q == 0.40, pair_sd uses PLANNED_PAIR_SD (0.63) to anchor to the
+    established planning numbers; for other q, pair_sd is round(sqrt(q), 4).
+    """
+    rows: list[PowerTableRow] = []
+    deff = 1.0 + (cluster_size - 1) * icc_rho
+    for diff in differences:
+        for q in discordant_shares:
+            sd = PLANNED_PAIR_SD if q == 0.40 else round(math.sqrt(q), 4)
+            n_iid = pairs_needed(diff, sd)
+            seeds_iid = math.ceil(n_iid / cluster_size)
+            n_cluster = math.ceil(n_iid * deff)
+            seeds_rho = math.ceil(n_cluster / cluster_size)
+            rows.append(
+                PowerTableRow(
+                    difference=diff,
+                    discordant_share_q=q,
+                    pair_sd=sd,
+                    pairs_needed_iid=n_iid,
+                    seeds_needed_4_seats_iid=seeds_iid,
+                    seeds_needed_4_seats_rho_025=seeds_rho,
+                )
+            )
+    return tuple(rows)
 
 
 def sequential_looks_planned(seed_count: int, look_every: int) -> int:
@@ -515,14 +598,21 @@ class PairedVariantResult(_StrictModel):
     identical_pairs: int = Field(default=0, ge=0)
     sign_test_p_value: float = Field(ge=0.0, le=1.0)
     verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER", "NO_CLEAR_DIFFERENCE", "INSUFFICIENT"]
+    # Number of distinct seeds (clusters) with at least one completed pair (#1043).
+    seed_clusters_completed: int = Field(default=0, ge=0)
     # 95% normal interval of the mean paired win-share difference (#870).
     # The pairs are treated as independent although the seat rotations of one
-    # seed share a shuffle, so the interval is slightly narrow; the sign-test
-    # verdict is unchanged. None for fewer than 2 pairs or zero spread.
+    # seed share a shuffle, so the interval is slightly narrow; see
+    # cluster_difference_interval_95 (#1043) for the cluster-robust interval.
+    # The sign-test verdict is unchanged. None for fewer than 2 pairs or zero spread.
     win_share_difference_interval_95: DifferenceInterval | None = None
+    # Cluster-robust 95% normal interval treating each seed as one cluster (#1043).
+    cluster_difference_interval_95: DifferenceInterval | None = None
     # Smallest win-share difference this run could have detected at 80% power
     # (#870). None when the interval is None.
     detectable_difference_80pct_power: float | None = None
+    # Smallest win-share difference detectable at 80% power under seed clustering (#1043).
+    cluster_detectable_difference_80pct_power: float | None = None
     # True exactly when the verdict is NO_CLEAR_DIFFERENCE or INSUFFICIENT and
     # the detectable difference is above UNDERPOWERED_ABOVE (#870): the run
     # was too small to rule out a meaningful edge, so the verdict is not
@@ -733,6 +823,7 @@ def aggregate_comparison(
     paired: list[PairedVariantResult] = []
     for variant in spec.contenders[1:]:
         pairs: list[tuple[float, float]] = []
+        clustered_differences: list[tuple[int, float]] = []
         place_pairs: list[tuple[float, float]] = []
         censored = identical = 0
         for seed in spec.seeds:
@@ -743,6 +834,7 @@ def aggregate_comparison(
                     censored += 1
                     continue
                 pairs.append((left, right))
+                clustered_differences.append((seed, right - left))
                 identical += int(
                     transcript_of[(baseline, seed, seat)]
                     == transcript_of[(variant.deck_id, seed, seat)]
@@ -758,6 +850,8 @@ def aggregate_comparison(
         # fractional, and they narrow the interval like any other pair (#870).
         differences = [right - left for left, right in pairs]
         interval_95, detectable = _paired_difference_stats(differences)
+        cluster_interval_95, cluster_detectable, _ = cluster_difference_stats(clustered_differences)
+        seed_clusters = len({seed for seed, _ in clustered_differences})
         # Finishing-order differences on the same pairs (#875): a pair joins
         # only when both games have a score.
         place_differences = [right - left for left, right in place_pairs]
@@ -800,8 +894,11 @@ def aggregate_comparison(
                 identical_pairs=identical,
                 sign_test_p_value=p_value,
                 verdict=verdict,
+                seed_clusters_completed=seed_clusters,
                 win_share_difference_interval_95=interval_95,
+                cluster_difference_interval_95=cluster_interval_95,
                 detectable_difference_80pct_power=detectable,
+                cluster_detectable_difference_80pct_power=cluster_detectable,
                 underpowered=underpowered,
                 placement_difference=(sum(place_differences) / len(place_differences))
                 if place_differences
@@ -833,6 +930,7 @@ __all__ = [
     "DeckComparisonSpec",
     "DifferenceInterval",
     "PairedVariantResult",
+    "PowerTableRow",
     "SlotAlignment",
     "SwapSpecError",
     "WinInterval",
@@ -841,11 +939,13 @@ __all__ = [
     "aligned_contenders",
     "apply_swaps",
     "case_id",
+    "cluster_difference_stats",
     "finishing_scores",
     "pairs_needed",
     "parse_swaps",
     "plan_comparison_cases",
     "pod_decks",
+    "power_table",
     "sequential_look_alpha",
     "sequential_look_decided",
     "sequential_looks_planned",
