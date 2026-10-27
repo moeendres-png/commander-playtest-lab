@@ -12,6 +12,7 @@ from commander_lab.agents import (
     KorvoldPilot,
     RogShaiPilot,
 )
+from commander_lab.agents.pilots import _is_artifact_action
 from commander_lab.models import (
     CardRole,
     PilotActionView,
@@ -1003,3 +1004,69 @@ def test_paired_12_seed_archetype_comparison_changes_decisions_only_on_matching_
         assert dec_a_art == "skullclamp"
         assert dec_g_art == "bmc"
         assert dec_g_art == dec_e_art
+
+
+def test_is_artifact_action_uses_card_type_not_oracle_text() -> None:
+    # Regression for the Weg-A finding on PR #1050: the old substring check
+    # on oracle text classified every card mentioning artifacts as an
+    # artifact action, although none of these is an artifact card.
+    assert _is_artifact_action(_action("farewell", "Farewell", cost=6)) is False
+    assert _is_artifact_action(_action("shriekmaw", "Shriekmaw", cost=5)) is False
+    assert _is_artifact_action(_action("skill", "Blacksmith's Skill", cost=1)) is False
+    # Genuine artifacts stay classified, via their type line alone.
+    assert _is_artifact_action(_action("boots", "Swiftfoot Boots", cost=2)) is True
+    assert _is_artifact_action(_action("ring", "Sol Ring", cost=1)) is True
+    # Tag and metadata signals are unchanged.
+    assert (
+        _is_artifact_action(
+            _action(
+                "tagged",
+                "Unknown Card",
+                cost=2,
+                tags={StructuralMechanic.ARTIFACT_ENGINE},
+            )
+        )
+        is True
+    )
+    assert (
+        _is_artifact_action(_action("meta", "Unknown Card", cost=2, metadata={"is_artifact": True}))
+        is True
+    )
+    assert _is_artifact_action(_action("plain", "Unknown Card", cost=2)) is False
+
+
+def test_artifact_pilot_gives_no_bonus_to_text_match_spells() -> None:
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    artifact_pilot = ArtifactPilot(config)
+    state = _state()
+    for name in ("Farewell", "Shriekmaw", "Blacksmith's Skill"):
+        action = _action("spell", name, cost=3)
+        assert (
+            artifact_pilot.evaluate_action(state, action).specialist_bonus
+            == engine_pilot.evaluate_action(state, action).specialist_bonus
+        )
+    boots = _action("boots", "Swiftfoot Boots", cost=2)
+    assert (
+        artifact_pilot.evaluate_action(state, boots).specialist_bonus
+        == engine_pilot.evaluate_action(state, boots).specialist_bonus + 0.45
+    )
+
+
+def test_artifact_opening_hand_ignores_text_match_spells() -> None:
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    artifact_pilot = ArtifactPilot(config)
+    unrelated = [
+        _action("bear", "Grizzly Bears", cost=2, roles={CardRole.MANA_SOURCE}),
+        _action("bolt", "Lightning Bolt", cost=1, roles={CardRole.REMOVAL}),
+        _action("forest", "Forest", cost=0, roles={CardRole.MANA_SOURCE}),
+    ]
+    text_match_hand = [*unrelated, _action("skill", "Blacksmith's Skill", cost=1)]
+    assert artifact_pilot.opening_hand_score(
+        text_match_hand, commander_names=("Test Commander",)
+    ) == engine_pilot.opening_hand_score(text_match_hand, commander_names=("Test Commander",))
+    artifact_hand = [*unrelated, _action("ring", "Sol Ring", cost=1)]
+    assert artifact_pilot.opening_hand_score(
+        artifact_hand, commander_names=("Test Commander",)
+    ) > engine_pilot.opening_hand_score(artifact_hand, commander_names=("Test Commander",))

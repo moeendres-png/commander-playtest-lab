@@ -1708,10 +1708,13 @@ def _is_artifact_action(action: PilotActionView) -> bool:
     facts = card_facts(action.card_name)
     if facts is None:
         return False
-    if "artifact" in facts.types:
-        return True
-    text = facts.oracle_text.casefold()
-    return "artifact" in text or "equip" in text
+    # Only the card's own type line counts. Oracle-text mentions are not
+    # artifact actions: Farewell ("exile all artifacts"), Shriekmaw
+    # ("nonartifact creature") and Blacksmith's Skill ("artifact creature")
+    # all matched the old substring check although none of them is an
+    # artifact. Equipment is covered by its type line, no "equip" text
+    # check is needed.
+    return "artifact" in facts.types
 
 
 class GraveyardPilot(EnginePilot):
@@ -1817,18 +1820,7 @@ class ArtifactPilot(EnginePilot):
         bonus = super().opening_hand_specialist_bonus(list(cards), tuple(commander_names))
         artifact_cards: list[PilotActionView] = []
         for card in cards:
-            if StructuralMechanic.ARTIFACT_ENGINE in card.mechanic_tags:
-                artifact_cards.append(card)
-                continue
-            if bool(card.metadata.get("is_artifact", False)):
-                artifact_cards.append(card)
-                continue
-            facts = card_facts(card.card_name)
-            if facts is not None and (
-                "artifact" in facts.types
-                or "artifact" in facts.oracle_text.casefold()
-                or "equip" in facts.oracle_text.casefold()
-            ):
+            if _is_artifact_action(card):
                 artifact_cards.append(card)
 
         if not artifact_cards:
