@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 from pathlib import Path
 from typing import Any
@@ -12,6 +13,7 @@ from commander_lab.engine.rules.full_game import (
     FULL_GAME_DECISION_PROTOCOL_VERSION,
     FULL_GAME_EVIDENCE_CLASS,
     ExternalPilotDecisionPolicy,
+    FullGameConformanceError,
     FullGameConformanceResult,
     FullGamePilotBinding,
     FullGameProtocolError,
@@ -25,6 +27,7 @@ from commander_lab.engine.rules.full_game_batch import (
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
+from commander_lab.semantic_replay.recorder import deck_content_digest
 
 # Residual-campaign forward repin: cumulative M1-M4 Mage candidate.
 # G1: the live pin is read from config/rules_engines.json, never restated here.
@@ -140,13 +143,18 @@ def _boolean_request(*, decision_id: str, offset: int) -> dict[str, Any]:
 
 def _decks() -> tuple[RulesDeckInput, RulesDeckInput, RulesDeckInput, RulesDeckInput]:
     mainboard = tuple("Plains" for _ in range(99))
+    commander_names = ("Isamaru, Hound of Konda",)
     return tuple(
         RulesDeckInput(
             deck_id=f"fixture-{seat}",
             name=f"Full-game fixture {seat}",
-            commander_names=("Isamaru, Hound of Konda",),
+            commander_names=commander_names,
             mainboard=mainboard,
-            deck_hash=(f"{seat:x}" * 64)[:64],
+            deck_hash=deck_content_digest(
+                deck_id=f"fixture-{seat}",
+                commander_names=commander_names,
+                mainboard=mainboard,
+            ),
         )
         for seat in range(1, 5)
     )  # type: ignore[return-value]
@@ -512,3 +520,128 @@ def test_failed_batch_record_is_classified_and_not_silently_retried(tmp_path: Pa
     assert first.failed_cases == 1
     assert second.records[0].failure_class is FullGameFailureClass.PROTOCOL
     assert second.records[0].official_campaign_eligible is False
+
+
+def test_deck_gate_rejects_wrong_hash_only_before_import() -> None:
+    decks = list(_decks())
+    bad_hash = "f" * 64
+    bad_deck = decks[0].model_copy(update={"deck_hash": bad_hash})
+    decks[0] = bad_deck
+    scenario = _scenario(tuple(decks)).model_copy(update={"deck_hash": bad_hash})
+    pilots = tuple(_binding(seat, decks[seat - 1].deck_id) for seat in range(1, 5))
+
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_HASH_MISMATCH,
+    ):
+        XmageFullGameRunner._validate_inputs(scenario, tuple(decks), pilots)
+
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_HASH_MISMATCH,
+    ):
+        XmageFullGameRunner._deck_payload(bad_deck)
+
+
+def test_deck_gate_rejects_duplicate_non_basic_card_before_import() -> None:
+    base = _decks()[0]
+    new_mainboard = ("Sol Ring", "Sol Ring", *base.mainboard[2:])
+    correct_hash = deck_content_digest(
+        deck_id=base.deck_id,
+        commander_names=base.commander_names,
+        mainboard=new_mainboard,
+    )
+    bad_deck = base.model_copy(update={"mainboard": new_mainboard, "deck_hash": correct_hash})
+
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_DUPLICATE_CARD,
+    ):
+        XmageFullGameRunner._deck_payload(bad_deck)
+
+    decks = (bad_deck, *_decks()[1:])
+    scenario = _scenario(decks)
+    pilots = tuple(_binding(seat, decks[seat - 1].deck_id) for seat in range(1, 5))
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_DUPLICATE_CARD,
+    ):
+        XmageFullGameRunner._validate_inputs(scenario, decks, pilots)
+
+
+def test_deck_gate_rejects_off_color_card_before_import() -> None:
+    base = _decks()[0]
+    new_mainboard = ("Counterspell", *base.mainboard[1:])
+    correct_hash = deck_content_digest(
+        deck_id=base.deck_id,
+        commander_names=base.commander_names,
+        mainboard=new_mainboard,
+    )
+    bad_deck = base.model_copy(update={"mainboard": new_mainboard, "deck_hash": correct_hash})
+
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_COLOR_IDENTITY_VIOLATION,
+    ):
+        XmageFullGameRunner._deck_payload(bad_deck)
+
+    decks = (bad_deck, *_decks()[1:])
+    scenario = _scenario(decks)
+    pilots = tuple(_binding(seat, decks[seat - 1].deck_id) for seat in range(1, 5))
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_COLOR_IDENTITY_VIOLATION,
+    ):
+        XmageFullGameRunner._validate_inputs(scenario, decks, pilots)
+
+
+def test_deck_gate_accepts_valid_real_4p_smoke_decks(repo_root: Path) -> None:
+    smoke_path = repo_root / "scripts/run_real_4p_full_game_smoke.py"
+    spec = importlib.util.spec_from_file_location("run_real_4p_full_game_smoke", smoke_path)
+    assert spec is not None and spec.loader is not None
+    smoke_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(smoke_mod)
+
+    scenario, decks, pilots, _provenance = smoke_mod.build_real_4p_setup(repo_root)
+    assert XmageFullGameRunner._validate_inputs(scenario, decks, pilots) is None
+    payloads = [XmageFullGameRunner._deck_payload(d) for d in decks]
+    assert len(payloads) == 4
+    for payload, deck in zip(payloads, decks, strict=True):
+        assert payload["deck_id"] == deck.deck_id
+        assert payload["deck_hash"] == deck.deck_hash
+
+
+def test_deck_gate_kaervek_legacy_pair_is_pinned_to_unchanged_content(
+    repo_root: Path,
+) -> None:
+    """Legacy pair (#1039 review follow-up): kaervek's stored hash is accepted
+    only for the unchanged deck, never as a general bypass.
+
+    The stored hash below is the independent value from
+    data/decks/opponents/kaervek/current/deck.json (via the smoke setup),
+    not a copy of the code constant: if the code constant were mistyped,
+    this test fails. Changing one mainboard card must remove the legacy
+    hash from the valid set, so the same stored hash then fails the gate.
+    """
+    smoke_path = repo_root / "scripts/run_real_4p_full_game_smoke.py"
+    spec = importlib.util.spec_from_file_location("run_real_4p_full_game_smoke", smoke_path)
+    assert spec is not None and spec.loader is not None
+    smoke_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(smoke_mod)
+
+    _scenario, decks, _pilots, _provenance = smoke_mod.build_real_4p_setup(repo_root)
+    kaervek = next(d for d in decks if d.deck_id == "kaervek/current")
+    stored_hash = "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a"
+    assert kaervek.deck_hash == stored_hash
+    assert stored_hash in XmageFullGameRunner._valid_deck_hashes(kaervek)
+    assert XmageFullGameRunner._deck_payload(kaervek)["deck_hash"] == stored_hash
+
+    first = kaervek.mainboard[0]
+    replacement = "Forest" if first != "Forest" else "Plains"
+    mutated = kaervek.model_copy(update={"mainboard": (replacement, *kaervek.mainboard[1:])})
+    assert stored_hash not in XmageFullGameRunner._valid_deck_hashes(mutated)
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_HASH_MISMATCH,
+    ):
+        XmageFullGameRunner._deck_payload(mutated)

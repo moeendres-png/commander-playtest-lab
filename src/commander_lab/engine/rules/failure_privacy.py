@@ -101,6 +101,9 @@ _FULL_GAME_SITES = (
     "semantic tape replay requires",
     "actor-scoped hidden-information audit",
     "hidden information not actor-scoped",
+    "deck_hash_mismatch",
+    "deck_duplicate_card",
+    "deck_color_identity_violation",
 )
 _PUBLIC_ERROR_REASONS = (
     "wrong vector length",

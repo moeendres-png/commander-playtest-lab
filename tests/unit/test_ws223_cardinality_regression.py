@@ -41,6 +41,7 @@ from commander_lab.engine.rules.full_game import (
 )
 from commander_lab.models import PilotConfig, PilotDecisionMode, PilotStrength, RulesDeckInput
 from commander_lab.qualification.current_boundary.bridge_launcher import canonical_xmage_engine_pin
+from commander_lab.semantic_replay.recorder import deck_content_digest
 
 # G1: the live pin is read from config/rules_engines.json, never restated here.
 XMAGE_COMMIT = canonical_xmage_engine_pin()
@@ -76,12 +77,19 @@ def _binding(seat: int, deck_id: str) -> FullGamePilotBinding:
 
 
 def _deck(seat: int) -> RulesDeckInput:
+    mainboard = tuple("Plains" for _ in range(99))
+    commander_names = ("Isamaru, Hound of Konda",)
+    deck_id = f"fixture-{seat}"
     return RulesDeckInput(
-        deck_id=f"fixture-{seat}",
+        deck_id=deck_id,
         name=f"Full-game fixture {seat}",
-        commander_names=("Isamaru, Hound of Konda",),
-        mainboard=tuple("Plains" for _ in range(99)),
-        deck_hash=(f"{seat:x}" * 64)[:64],
+        commander_names=commander_names,
+        mainboard=mainboard,
+        deck_hash=deck_content_digest(
+            deck_id=deck_id,
+            commander_names=commander_names,
+            mainboard=mainboard,
+        ),
     )
 
 
