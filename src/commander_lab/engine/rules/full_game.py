@@ -23,7 +23,11 @@ from typing import Any, Literal, TextIO, TypedDict, cast
 from pydantic import Field, model_validator
 
 from commander_lab.agents import build_pilot
-from commander_lab.agents.card_knowledge import card_facts, is_basic_land_name
+from commander_lab.agents.card_knowledge import (
+    assert_catalog_ready,
+    card_facts,
+    is_basic_land_name,
+)
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.cards.normalize import oracle_lookup_key
 from commander_lab.engine.rules.base import resolve_engine_working_directory
@@ -966,6 +970,19 @@ DECK_GATE_HASH_MISMATCH = "deck_hash_mismatch"
 DECK_GATE_DUPLICATE_CARD = "deck_duplicate_card"
 DECK_GATE_COLOR_IDENTITY_VIOLATION = "deck_color_identity_violation"
 
+# Legacy stored hash for the real kaervek/current deck (#1039, review follow-up):
+# data/decks/opponents/kaervek/current/deck.json stores deck_hash
+# LEGACY_KAERVEK_DECK_HASH, computed from the snapshot format rather than from
+# RulesDeckInput fields, so none of the formulas above reproduce it. For the
+# same transformed deck, the gate's rules_hash is LEGACY_KAERVEK_RULES_HASH.
+# Accepting this one pair is therefore not a general bypass: it pins exactly
+# one deck_id to exactly one deck content (any changed content yields a
+# different rules_hash and does not get the legacy hash added). Without the
+# pair, the unchanged real-4p smoke deck would fail the gate.
+LEGACY_KAERVEK_DECK_ID = "kaervek/current"
+LEGACY_KAERVEK_RULES_HASH = "6d9b9f72fa9658f21e7f9b49a3e7cdbce6e89a2dac357b16b3147f385d4063ce"
+LEGACY_KAERVEK_DECK_HASH = "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a"
+
 
 def _valid_deck_hashes(deck: RulesDeckInput) -> set[str]:
     grouped: dict[tuple[str, str], int] = {}
@@ -1013,11 +1030,8 @@ def _valid_deck_hashes(deck: RulesDeckInput) -> set[str]:
                     mainboard=tuple(candidate_main),
                 )
             )
-    if (
-        deck.deck_id == "kaervek/current"
-        and rules_hash == "6d9b9f72fa9658f21e7f9b49a3e7cdbce6e89a2dac357b16b3147f385d4063ce"
-    ):
-        valid_hashes.add("aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a")
+    if deck.deck_id == LEGACY_KAERVEK_DECK_ID and rules_hash == LEGACY_KAERVEK_RULES_HASH:
+        valid_hashes.add(LEGACY_KAERVEK_DECK_HASH)
     return valid_hashes
 
 
@@ -1124,6 +1138,9 @@ class XmageFullGameRunner:
         private_card_repository: bool = False,
         shutdown_grace_seconds: float = 5.0,
     ) -> None:
+        # #1037 startup gate: a corrupt or under-covering pilot card catalog stops the run
+        # here (CardCatalogError) instead of silently degrading pilot decisions.
+        assert_catalog_ready()
         self.command = command or self.command_from_environment()
         self.cwd = cwd
         # #739: run each bridge JVM with its own copy of the card repository

@@ -609,3 +609,39 @@ def test_deck_gate_accepts_valid_real_4p_smoke_decks(repo_root: Path) -> None:
     for payload, deck in zip(payloads, decks, strict=True):
         assert payload["deck_id"] == deck.deck_id
         assert payload["deck_hash"] == deck.deck_hash
+
+
+def test_deck_gate_kaervek_legacy_pair_is_pinned_to_unchanged_content(
+    repo_root: Path,
+) -> None:
+    """Legacy pair (#1039 review follow-up): kaervek's stored hash is accepted
+    only for the unchanged deck, never as a general bypass.
+
+    The stored hash below is the independent value from
+    data/decks/opponents/kaervek/current/deck.json (via the smoke setup),
+    not a copy of the code constant: if the code constant were mistyped,
+    this test fails. Changing one mainboard card must remove the legacy
+    hash from the valid set, so the same stored hash then fails the gate.
+    """
+    smoke_path = repo_root / "scripts/run_real_4p_full_game_smoke.py"
+    spec = importlib.util.spec_from_file_location("run_real_4p_full_game_smoke", smoke_path)
+    assert spec is not None and spec.loader is not None
+    smoke_mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(smoke_mod)
+
+    _scenario, decks, _pilots, _provenance = smoke_mod.build_real_4p_setup(repo_root)
+    kaervek = next(d for d in decks if d.deck_id == "kaervek/current")
+    stored_hash = "aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a"
+    assert kaervek.deck_hash == stored_hash
+    assert stored_hash in XmageFullGameRunner._valid_deck_hashes(kaervek)
+    assert XmageFullGameRunner._deck_payload(kaervek)["deck_hash"] == stored_hash
+
+    first = kaervek.mainboard[0]
+    replacement = "Forest" if first != "Forest" else "Plains"
+    mutated = kaervek.model_copy(update={"mainboard": (replacement, *kaervek.mainboard[1:])})
+    assert stored_hash not in XmageFullGameRunner._valid_deck_hashes(mutated)
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_HASH_MISMATCH,
+    ):
+        XmageFullGameRunner._deck_payload(mutated)

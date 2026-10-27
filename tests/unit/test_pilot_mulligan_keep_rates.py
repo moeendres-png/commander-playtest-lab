@@ -11,7 +11,9 @@ time). These tests pin the fixed behavior: ordinary Commander hands are kept.
 
 from __future__ import annotations
 
+import importlib.util
 import random
+import sys
 from pathlib import Path
 
 from commander_lab.agents.pilots import build_pilot
@@ -299,3 +301,104 @@ def test_colourless_lands_for_coloured_spells_are_sent_back() -> None:
     ]
     assert not _decide(pilot, forests + blue)
     assert _decide(pilot, forests + green)
+
+
+def test_wrong_reason_control_current_model_reproduces_historical_keep_rates_and_refit_differs() -> (
+    None
+):
+    """Wrong-reason control (#1038): current productive model reproduces historical keep rates and 173-refit differs."""
+    spec = importlib.util.spec_from_file_location(
+        "mulligan_policy_eval", ROOT / "scripts/mulligan_policy_eval.py"
+    )
+    assert spec is not None and spec.loader is not None
+    mull_eval = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = mull_eval
+    spec.loader.exec_module(mull_eval)
+    refit_173: dict[str, object] = mull_eval.REFIT_173
+
+    pilot_cls = type(_pilot(PilotStrength.AVERAGE))
+
+    class Refit173Pilot(pilot_cls):
+        _OPENING_CELLS = refit_173["cells"]
+        _OPENING_COLOUR_GAP = refit_173["colour_gap"]
+        _OPENING_COMMANDER_GAP = refit_173["commander_gap"]
+        _OPENING_FIRST_RAMP = refit_173["first_ramp"]
+        _OPENING_SECOND_RAMP = refit_173["second_ramp"]
+        _OPENING_EARLY_VELOCITY = refit_173["early_velocity"]
+        _OPENING_EXPENSIVE = refit_173["expensive"]
+        _OPENING_FRESH_SEVEN = refit_173["fresh_seven"]
+
+    pilot_current = _pilot(PilotStrength.AVERAGE)
+    pilot_refit = Refit173Pilot(
+        PilotConfig(strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.DETERMINISTIC)
+    )
+
+    kept_current = 0
+    kept_refit = 0
+    total = 0
+    two_land_total = 0
+    two_land_current = 0
+    two_land_refit = 0
+    kept_by_land_current = [0] * 8
+    kept_by_land_refit = [0] * 8
+
+    loaded = [(p, load_rules_deck_snapshot(p)) for p in DECKS]
+    for seed in range(1, 13):
+        for path, deck in loaded:
+            rng = random.Random(f"{seed}:{path.stem}")
+            for _ in range(50):
+                hand = rng.sample(list(deck.mainboard), 7)
+                views = [_view(f"hand-{i}", name) for i, name in enumerate(hand)]
+                lands = sum(bool(v.metadata.get("is_land")) for v in views)
+                total += 1
+                if lands == 2:
+                    two_land_total += 1
+
+                k_cur, _ = pilot_current.should_keep_opening_hand(
+                    views,
+                    mulligans=0,
+                    free_first=True,
+                    commander_names=deck.commander_names,
+                    rng=random.Random(0),
+                )
+                k_ref, _ = pilot_refit.should_keep_opening_hand(
+                    views,
+                    mulligans=0,
+                    free_first=True,
+                    commander_names=deck.commander_names,
+                    rng=random.Random(0),
+                )
+                if k_cur:
+                    kept_current += 1
+                    kept_by_land_current[lands] += 1
+                    if lands == 2:
+                        two_land_current += 1
+                if k_ref:
+                    kept_refit += 1
+                    kept_by_land_refit[lands] += 1
+                    if lands == 2:
+                        two_land_refit += 1
+
+    assert total == 2400
+    assert two_land_total == 712
+
+    # (1) Productive model exact historical keep rates (wrong-reason control)
+    assert kept_current == 1771
+    assert round(kept_current / total, 4) == 0.7379
+    assert two_land_current == 525
+    assert round(two_land_current / two_land_total, 4) == 0.7374
+
+    # (2) 173-refit on same 12 paired seeds
+    assert kept_refit == 1766
+    assert round(kept_refit / total, 4) == 0.7358
+    assert two_land_refit == 523
+    assert round(two_land_refit / two_land_total, 4) == 0.7346
+
+    # Extreme and middle land counts comparison
+    assert kept_by_land_refit[0] == kept_by_land_current[0]
+    assert kept_by_land_refit[5] == kept_by_land_current[5]
+    assert kept_by_land_refit[6] == kept_by_land_current[6]
+    assert kept_by_land_refit[7] == kept_by_land_current[7]
+
+    # (3) Discriminating: models demonstrably differ
+    assert kept_refit != kept_current
