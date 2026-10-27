@@ -12,6 +12,8 @@ import json
 import os
 from pathlib import Path
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -229,3 +231,60 @@ def test_failure_isolation_check_reads_only_ok_games_of_a_reference(tmp_path: Pa
     for plan in check.PLANS.values():
         assert len({seed for seed, _ in plan}) == len(plan)
         assert any(bad for _, bad in plan) and not all(bad for _, bad in plan)
+
+
+def test_parse_reference_metadata_reads_commit_and_pin() -> None:
+    module = _module()
+    meta = module.parse_reference_metadata(module.REFERENCE_DOC)
+    assert meta == {"lab_commit": "b528082d5", "xmage_pin": "90f5c4d3f8"}
+
+
+def test_parse_reference_metadata_fails_closed_without_commit_row(tmp_path: Path) -> None:
+    module = _module()
+    doc = tmp_path / "ref.md"
+    doc.write_text(
+        "| XMage pin | `90f5c4d3f8` (`config/rules_engines.json`, v13) |\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(ValueError, match="missing required"):
+        module.parse_reference_metadata(doc)
+
+
+def test_reference_is_current_at_its_own_commit() -> None:
+    module = _module()
+    res = module.check_reference_staleness(target_ref="b528082d5")
+    assert res["stale"] is False
+    assert res["changed_files"] == ()
+    assert res["pin_matches"] is True
+    assert "current at b528082d5" in str(res["message"])
+
+
+def test_reference_is_stale_after_pilot_changes() -> None:
+    module = _module()
+    res = module.check_reference_staleness(target_ref="a8d6e54a5")
+    assert res["stale"] is True
+    assert res["changed_files"] == (
+        "src/commander_lab/engine/rules/full_game_pilot/choices.py",
+        "src/commander_lab/engine/rules/full_game_pilot/payment.py",
+        "src/commander_lab/engine/rules/full_game_pilot/priority.py",
+        "src/commander_lab/engine/rules/full_game_pilot/state.py",
+    )
+    assert "stale" in str(res["message"])
+
+
+def test_unknown_reference_commit_fails_closed(tmp_path: Path) -> None:
+    module = _module()
+    doc = tmp_path / "ref.md"
+    doc.write_text(
+        "| Lab commit | `deadbeef0` (unknown) |\n"
+        "| XMage pin | `90f5c4d3f8` (`config/rules_engines.json`, v13) |\n",
+        encoding="utf-8",
+    )
+    with pytest.raises(RuntimeError):
+        module.check_reference_staleness(doc_path=doc)
+
+
+def test_check_reference_cli_exit_codes() -> None:
+    module = _module()
+    assert module.main(["check-reference", "--target", "b528082d5"]) == 0
+    assert module.main(["check-reference", "--target", "a8d6e54a5"]) == 1
