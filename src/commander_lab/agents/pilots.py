@@ -917,6 +917,8 @@ class BasePilot:
 
 
 class KorvoldPilot(_NumericStrategyMixin, BasePilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1300,6 +1302,8 @@ class RogShaiPilot(_NumericStrategyMixin, BasePilot):
 
 
 class KorvoldValuePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldValuePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1322,6 +1326,8 @@ class KorvoldValuePilot(KorvoldPilot):
 
 
 class KorvoldSacrificePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldSacrificePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1353,6 +1359,8 @@ class KorvoldSacrificePilot(KorvoldPilot):
 
 
 class KorvoldLandRebuildPilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldLandRebuildPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1379,6 +1387,8 @@ class KorvoldLandRebuildPilot(KorvoldPilot):
 
 
 class KorvoldAggressivePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldAggressivePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1410,6 +1420,8 @@ class KorvoldAggressivePilot(KorvoldPilot):
 
 
 class KorvoldConservativePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldConservativePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:

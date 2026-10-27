@@ -23,6 +23,8 @@ from commander_lab.models import (
 )
 from commander_lab.storage import atomic_write_json
 
+# Legacy builder allowed here: PilotRegistry / ensemble profile hashing inspects
+# canonical profile definitions directly rather than live game routing (#1036).
 from .pilots import build_pilot
 
 ESTIMATE_TYPE = "structural_model_estimates"
