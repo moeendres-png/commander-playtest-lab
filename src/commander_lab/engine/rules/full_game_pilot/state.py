@@ -191,6 +191,9 @@ class _PolicyState:
         # that follows carries no cost at all, so this is where that cost
         # survives the hop. It is consumed by the announce it was kept for.
         self._priority_cost_facts: dict[int, dict[str, int]] = {}
+        # #1041: source object ids of priority activations that tap or sacrifice
+        # their own source permanent, same key and lifetime as ``_priority_cost_facts``.
+        self._priority_spends_source: dict[int, set[str]] = {}
         # #920: the counters the seat's chosen activation can still remove, or
         # the untapped permanents it can still tap, for its X (see
         # ``option_x_counter_cap`` and ``option_x_tap_cap``), same key and
