@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 import random
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
@@ -1660,12 +1660,186 @@ class EnginePilot(_NumericStrategyMixin, BasePilot):
         return PilotUtilityWeights(**base)
 
 
+def _is_graveyard_action(action: PilotActionView) -> bool:
+    if action.action_kind == "graveyard_target":
+        return True
+    if bool(
+        action.roles
+        & {
+            CardRole.RECURSION,
+            CardRole.GRAVEYARD_HATE,
+            CardRole.SACRIFICE_OUTLET,
+        }
+    ):
+        return True
+    if bool(
+        action.mechanic_tags
+        & {
+            StructuralMechanic.GRAVEYARD_RECURSION,
+            StructuralMechanic.LAND_RECURSION,
+            StructuralMechanic.REBUILD,
+        }
+    ):
+        return True
+    facts = card_facts(action.card_name)
+    return facts is not None and "graveyard" in facts.oracle_text.casefold()
+
+
+def _is_artifact_action(action: PilotActionView) -> bool:
+    if StructuralMechanic.ARTIFACT_ENGINE in action.mechanic_tags:
+        return True
+    if bool(action.metadata.get("is_artifact", False)):
+        return True
+    facts = card_facts(action.card_name)
+    if facts is None:
+        return False
+    if "artifact" in facts.types:
+        return True
+    text = facts.oracle_text.casefold()
+    return "artifact" in text or "equip" in text
+
+
 class GraveyardPilot(EnginePilot):
+    """Visible-state structural policy evaluating the graveyard as an active resource.
+
+    Biases toward recursion, graveyard synergy, sacrifice outlets when the graveyard
+    is small, and targeted graveyard hate against opponent graveyards. Non-graveyard
+    actions receive an identical score to EnginePilot (wrong-reason invariant: no noise
+    on decks without graveyard interaction).
+    """
+
     pilot_name = "GraveyardPilot"
+
+    def opening_hand_specialist_bonus(
+        self,
+        cards: Sequence[PilotActionView],
+        commander_names: Sequence[str],
+    ) -> float:
+        bonus = super().opening_hand_specialist_bonus(list(cards), tuple(commander_names))
+        early_fuel = sum(
+            1
+            for card in cards
+            if card.mana_cost <= 3
+            and bool(card.roles & {CardRole.ENABLER, CardRole.SACRIFICE_OUTLET})
+        )
+        recursion_pieces = 0
+        has_sacrifice_outlet = False
+        for card in cards:
+            if CardRole.SACRIFICE_OUTLET in card.roles:
+                has_sacrifice_outlet = True
+            is_recursion = (
+                CardRole.RECURSION in card.roles
+                or bool(
+                    card.mechanic_tags
+                    & {
+                        StructuralMechanic.GRAVEYARD_RECURSION,
+                        StructuralMechanic.LAND_RECURSION,
+                    }
+                )
+                or (
+                    (facts := card_facts(card.card_name)) is not None
+                    and "graveyard" in facts.oracle_text.casefold()
+                )
+            )
+            if is_recursion:
+                recursion_pieces += 1
+
+        if recursion_pieces == 0 and not has_sacrifice_outlet:
+            return bonus
+
+        return bonus + min(0.6, early_fuel * 0.25) + min(0.5, recursion_pieces * 0.25)
+
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
+        bonus = super().specialist_bonus(state, action, components)
+        if not _is_graveyard_action(action):
+            return bonus
+
+        matched = False
+        if CardRole.RECURSION in action.roles or bool(
+            action.mechanic_tags
+            & {
+                StructuralMechanic.GRAVEYARD_RECURSION,
+                StructuralMechanic.LAND_RECURSION,
+                StructuralMechanic.REBUILD,
+            }
+        ):
+            bonus += 0.45 + min(1.5, state.graveyard_size * 0.12)
+            matched = True
+
+        if CardRole.SACRIFICE_OUTLET in action.roles:
+            bonus += 0.35 if state.graveyard_size < 6 else 0.15
+            matched = True
+
+        if action.action_kind == "graveyard_target" or CardRole.GRAVEYARD_HATE in action.roles:
+            bonus += 0.30 + min(
+                0.8, max(action.threat_score, float(state.max_graveyard_pressure)) * 0.08
+            )
+            matched = True
+
+        if not matched:
+            bonus += 0.30 + min(0.9, state.graveyard_size * 0.08)
+
+        return bonus
 
 
 class ArtifactPilot(EnginePilot):
+    """Visible-state structural policy evaluating artifact and equipment synergies.
+
+    Biases toward artifact engines, mana rocks, payoffs, and equipment. Non-artifact
+    actions receive an identical score to EnginePilot (wrong-reason invariant: no noise
+    on decks without artifact interaction).
+    """
+
     pilot_name = "ArtifactPilot"
+
+    def opening_hand_specialist_bonus(
+        self,
+        cards: Sequence[PilotActionView],
+        commander_names: Sequence[str],
+    ) -> float:
+        bonus = super().opening_hand_specialist_bonus(list(cards), tuple(commander_names))
+        artifact_cards: list[PilotActionView] = []
+        for card in cards:
+            if StructuralMechanic.ARTIFACT_ENGINE in card.mechanic_tags:
+                artifact_cards.append(card)
+                continue
+            if bool(card.metadata.get("is_artifact", False)):
+                artifact_cards.append(card)
+                continue
+            facts = card_facts(card.card_name)
+            if facts is not None and (
+                "artifact" in facts.types
+                or "artifact" in facts.oracle_text.casefold()
+                or "equip" in facts.oracle_text.casefold()
+            ):
+                artifact_cards.append(card)
+
+        if not artifact_cards:
+            return bonus
+
+        cheap_artifacts = sum(1 for card in artifact_cards if card.mana_cost <= 3)
+        synergy = min(0.75, cheap_artifacts * 0.25)
+        if len(artifact_cards) >= 2:
+            synergy += 0.20
+        return bonus + synergy
+
+    def specialist_bonus(
+        self, state: PilotStateView, action: PilotActionView, components: dict[str, float]
+    ) -> float:
+        bonus = super().specialist_bonus(state, action, components)
+        if not _is_artifact_action(action):
+            return bonus
+
+        bonus += 0.45
+        if (
+            bool(action.roles & {CardRole.RAMP, CardRole.ENGINE, CardRole.PAYOFF})
+            or StructuralMechanic.ARTIFACT_ENGINE in action.mechanic_tags
+        ):
+            bonus += 0.30
+
+        return bonus
 
 
 class GenericCommanderPilot(_NumericStrategyMixin, BasePilot):
