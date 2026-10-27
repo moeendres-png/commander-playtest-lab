@@ -28,7 +28,9 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import resource
+import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -46,6 +48,15 @@ from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E4
 COVERAGE_DIR = ROOT / "data/coverage_decks/collection"
 # Five disjoint-as-possible pods over the 18 coverage decks (sorted file order).
 COVERAGE_PODS = ((0, 1, 2, 3), (4, 5, 6, 7), (8, 9, 10, 11), (12, 13, 14, 15), (16, 17, 0, 5))
+
+REFERENCE_DOC = ROOT / "docs/performance/REFERENCE_36_SEEDS_2026-10-26.md"
+# Paths whose changes affect pilot decisions or engine behavior and thus invalidate the reference.
+REFERENCE_WATCHED_PATHS: tuple[str, ...] = (
+    "src/commander_lab/engine/rules/full_game_pilot",
+    "src/commander_lab/agents",
+    "engine-bridge/src/main",
+    "config/rules_engines.json",
+)
 
 
 def master_seeds(master: str, count: int) -> list[int]:
@@ -267,6 +278,116 @@ def compare(args: argparse.Namespace) -> int:
     return 1 if differ or missing else 0
 
 
+def parse_reference_metadata(doc_path: Path) -> dict[str, str]:
+    if not doc_path.is_file():
+        raise ValueError(f"Reference doc does not exist: {doc_path}")
+    content = doc_path.read_text(encoding="utf-8")
+    lab_commit: str | None = None
+    xmage_pin: str | None = None
+    for line in content.splitlines():
+        parts = [p.strip() for p in line.split("|")]
+        if len(parts) >= 3:
+            key_cell = parts[1]
+            val_cell = parts[2]
+            if key_cell == "Lab commit":
+                m = re.search(r"`([^`]+)`", val_cell)
+                if m:
+                    lab_commit = m.group(1).strip()
+            elif key_cell == "XMage pin":
+                m = re.search(r"`([^`]+)`", val_cell)
+                if m:
+                    xmage_pin = m.group(1).strip()
+    if not lab_commit or not xmage_pin:
+        raise ValueError(
+            f"Reference doc {doc_path} is missing required 'Lab commit' or 'XMage pin' metadata"
+        )
+    return {"lab_commit": lab_commit, "xmage_pin": xmage_pin}
+
+
+def check_reference_staleness(
+    doc_path: Path = REFERENCE_DOC,
+    *,
+    target_ref: str = "HEAD",
+    repo_root: Path = ROOT,
+) -> dict[str, object]:
+    metadata = parse_reference_metadata(doc_path)
+    reference_commit = metadata["lab_commit"]
+    reference_pin = metadata["xmage_pin"]
+
+    diff_cmd = [
+        "git",
+        "-C",
+        str(repo_root),
+        "diff",
+        "--name-only",
+        f"{reference_commit}..{target_ref}",
+        "--",
+        *REFERENCE_WATCHED_PATHS,
+    ]
+    proc_diff = subprocess.run(diff_cmd, check=False, capture_output=True, text=True)
+    if proc_diff.returncode != 0:
+        raise RuntimeError(
+            f"git diff failed with exit code {proc_diff.returncode}: {proc_diff.stderr.strip()}"
+        )
+    changed_files = tuple(
+        sorted(line.strip() for line in proc_diff.stdout.splitlines() if line.strip())
+    )
+
+    show_cmd = [
+        "git",
+        "-C",
+        str(repo_root),
+        "show",
+        f"{target_ref}:config/rules_engines.json",
+    ]
+    proc_show = subprocess.run(show_cmd, check=False, capture_output=True, text=True)
+    if proc_show.returncode != 0:
+        raise RuntimeError(
+            f"git show failed with exit code {proc_show.returncode}: {proc_show.stderr.strip()}"
+        )
+    raw_rules = json.loads(proc_show.stdout)
+    full_pin = raw_rules.get("primary_engine", {}).get("commit", "")
+    pin_matches = bool(isinstance(full_pin, str) and full_pin.startswith(reference_pin))
+
+    stale = bool(changed_files or not pin_matches)
+    if stale:
+        reasons: list[str] = []
+        if changed_files:
+            reasons.append(
+                f"{len(changed_files)} watched file(s) changed: {', '.join(changed_files)}"
+            )
+        if not pin_matches:
+            reasons.append(
+                f"XMage pin diverged (target: {full_pin[:10] if isinstance(full_pin, str) else full_pin}, expected prefix: {reference_pin})"
+            )
+        reason_text = "; ".join(reasons)
+        message = (
+            f"reference {doc_path.name} (lab {reference_commit}) is stale at "
+            f"{target_ref}: {reason_text}; rerun the 36-seed reference before comparing"
+        )
+    else:
+        message = f"reference {doc_path.name} (lab {reference_commit}) is current at {target_ref}"
+
+    return {
+        "reference_commit": reference_commit,
+        "target_ref": target_ref,
+        "reference_pin": reference_pin,
+        "pin_matches": pin_matches,
+        "changed_files": changed_files,
+        "stale": stale,
+        "message": message,
+    }
+
+
+def check_reference_cli(args: argparse.Namespace) -> int:
+    result = check_reference_staleness(
+        doc_path=args.doc,
+        target_ref=args.target,
+    )
+    print(result["message"])
+    return 1 if result["stale"] else 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -287,6 +408,10 @@ def main(argv: list[str] | None = None) -> int:
     diff.add_argument("a", type=Path)
     diff.add_argument("b", type=Path)
     diff.set_defaults(func=compare)
+    check_ref = sub.add_parser("check-reference")
+    check_ref.add_argument("--doc", type=Path, default=REFERENCE_DOC)
+    check_ref.add_argument("--target", default="HEAD")
+    check_ref.set_defaults(func=check_reference_cli)
     args = parser.parse_args(argv)
     if args.cmd == "run" and args.games_per_jvm < 1:
         parser.error("--games-per-jvm must be positive")
