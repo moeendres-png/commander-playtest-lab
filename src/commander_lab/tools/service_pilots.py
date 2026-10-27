@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from commander_lab.agents.ensemble import PilotEnsembleRunner, PilotRegistry
-from commander_lab.agents.pilots import build_pilot
+from commander_lab.agents.pilots import (
+    build_pilot,
+)  # Legacy builder: profile comes from PilotRegistry (#1036)
 from commander_lab.models import (
     ComparePilotsInput,
     GeneratePilotRobustnessReportInput,
