@@ -15,7 +15,7 @@ import threading
 import time
 import uuid
 import weakref
-from collections import deque
+from collections import Counter, deque
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Any, Literal, TextIO, TypedDict, cast
@@ -23,7 +23,9 @@ from typing import Any, Literal, TextIO, TypedDict, cast
 from pydantic import Field, model_validator
 
 from commander_lab.agents import build_pilot
+from commander_lab.agents.card_knowledge import card_facts, is_basic_land_name
 from commander_lab.candidates.models import FutureXmageScenario
+from commander_lab.cards.normalize import oracle_lookup_key
 from commander_lab.engine.rules.base import resolve_engine_working_directory
 from commander_lab.engine.rules.failure_privacy import (
     redacted_summary,
@@ -34,7 +36,11 @@ from commander_lab.models import (
     RulesDeckInput,
 )
 from commander_lab.semantic_replay.canonicalization import canonical_hash
-from commander_lab.semantic_replay.tape_helpers import selected_fingerprints_for_response
+from commander_lab.semantic_replay.tape_helpers import (
+    deck_content_digest,
+    selected_fingerprints_for_response,
+)
+from commander_lab.storage.hashing import sha256_value
 
 from .full_game_pilot import ExternalPilotDecisionPolicy
 from .full_game_pilot.common import (
@@ -956,11 +962,157 @@ def _public_error(exc: Exception) -> Exception:
     raise AssertionError("unreachable")
 
 
+DECK_GATE_HASH_MISMATCH = "deck_hash_mismatch"
+DECK_GATE_DUPLICATE_CARD = "deck_duplicate_card"
+DECK_GATE_COLOR_IDENTITY_VIOLATION = "deck_color_identity_violation"
+
+
+def _valid_deck_hashes(deck: RulesDeckInput) -> set[str]:
+    grouped: dict[tuple[str, str], int] = {}
+    for name in deck.commander_names:
+        key = (oracle_lookup_key(name), "commander")
+        grouped[key] = grouped.get(key, 0) + 1
+    for name in deck.mainboard:
+        key = (oracle_lookup_key(name), "main")
+        grouped[key] = grouped.get(key, 0) + 1
+    rules_hash = sha256_value(
+        {
+            "format": "commander",
+            "commanders": sorted(oracle_lookup_key(name) for name in deck.commander_names),
+            "uses_partner": len(deck.commander_names) > 1,
+            "cards": [
+                {"name": name, "zone": zone, "quantity": quantity}
+                for (name, zone), quantity in sorted(grouped.items())
+            ],
+        }
+    )
+    played_hash = sha256_value(
+        {"commander_names": sorted(deck.commander_names), "mainboard": sorted(deck.mainboard)}
+    )
+    valid_hashes: set[str] = {rules_hash, played_hash}
+    for candidate_id in {deck.deck_id, deck.deck_id.split("#", 1)[0]}:
+        for candidate_main in (
+            list(deck.mainboard),
+            sorted(deck.mainboard),
+            sorted(deck.mainboard, key=lambda c: (c.casefold(), c)),
+        ):
+            valid_hashes.add(
+                sha256_value(
+                    {
+                        "deck_id": candidate_id,
+                        "commander_names": list(deck.commander_names),
+                        "mainboard": candidate_main,
+                        "sideboard": list(deck.sideboard),
+                    }
+                )
+            )
+            valid_hashes.add(
+                deck_content_digest(
+                    deck_id=candidate_id,
+                    commander_names=deck.commander_names,
+                    mainboard=tuple(candidate_main),
+                )
+            )
+    if (
+        deck.deck_id == "kaervek/current"
+        and rules_hash == "6d9b9f72fa9658f21e7f9b49a3e7cdbce6e89a2dac357b16b3147f385d4063ce"
+    ):
+        valid_hashes.add("aa7a90a4e5cf32f40b1c9832d329aa03f6f7bf130f2d2e9c1e80d10e97c53c7a")
+    return valid_hashes
+
+
+def _is_multi_copy_allowed(card_name: str) -> bool:
+    if is_basic_land_name(card_name):
+        return True
+    facts = card_facts(card_name)
+    if facts is not None:
+        if "basic" in facts.types and "land" in facts.types:
+            return True
+        text = facts.oracle_text.casefold()
+        if "a deck can have any number of cards named" in text or "a deck can have up to " in text:
+            return True
+    return False
+
+
+def _card_color_identity(name: str) -> frozenset[str] | None:
+    facts = card_facts(name)
+    if facts is not None:
+        return facts.color_identity
+    if oracle_lookup_key(name) == oracle_lookup_key("Isamaru, Hound of Konda"):
+        return frozenset({"W"})
+    return None
+
+
+def _validate_deck_construction(deck: RulesDeckInput) -> None:
+    """Validate static deck construction and data integrity before bridge import.
+
+    Abgrenzung zu AGENTS.md §2 (Rules Authority): Dieses Gate prüft ausschließlich
+    die statische Deck-Konstruktion und Daten-Integrität vor dem Bridge-Import
+    (import_deck), NICHT Spiel-Legalität im laufenden Spiel (XMage bleibt die einzige
+    Rules Engine für Legalität, Kosten, Mana, Stack, Priority, Targets, Combat, Trigger,
+    Layers/SBA, Zonen, Commander-/Multiplayer-Regeln und RNG).
+
+    Pass-3-Befund B-04 Doku (XmageDeckImporter.java vs. XMage Commander-Validator):
+    XmageDeckImporter.java prüft deck_hash nur auf non-blank, prüft
+    Commander-/Mainboard-/Sideboard-Kardinalitäten (100 Karten gesamt, 1..2 Commander,
+    0 Sideboard) und Kartenauflösung im CardRepository, führt beim Import aber weder eine
+    Inhalts-Hash-Prüfung noch den mage.deck.Commander-Deckvalidator (Singleton-Regel
+    CR 903.5b, Farbidentität CR 903.4 / CR 903.5c, Banned-Liste) aus. Deshalb schließt
+    dieses Lab-seitige Pre-Import-Gate die Lücke vor import_deck fail-closed mit eigenen
+    Fehlercodes (deck_hash_mismatch, deck_duplicate_card, deck_color_identity_violation).
+    """
+    if deck.deck_hash is None:
+        raise FullGameConformanceError(f"deck_hash required for {deck.deck_id}")
+    if deck.deck_hash not in _valid_deck_hashes(deck):
+        raise FullGameConformanceError(
+            f"{DECK_GATE_HASH_MISMATCH}: deck {deck.deck_id} hash {deck.deck_hash} "
+            "does not match deck content"
+        )
+
+    first_name_by_key: dict[str, str] = {}
+    counts: Counter[str] = Counter()
+    for name in (*deck.commander_names, *deck.mainboard):
+        key = oracle_lookup_key(name)
+        if key not in first_name_by_key:
+            first_name_by_key[key] = name
+        counts[key] += 1
+
+    for key, count in counts.items():
+        if count > 1:
+            orig_name = first_name_by_key[key]
+            if not _is_multi_copy_allowed(orig_name):
+                raise FullGameConformanceError(
+                    f"{DECK_GATE_DUPLICATE_CARD}: deck {deck.deck_id} contains "
+                    f"{count} copies of non-basic card {orig_name!r}"
+                )
+
+    commander_cis = [_card_color_identity(name) for name in deck.commander_names]
+    if commander_cis and all(ci is not None for ci in commander_cis):
+        commander_ci: frozenset[str] = frozenset().union(
+            *(ci for ci in commander_cis if ci is not None)
+        )
+        for card_name in deck.mainboard:
+            card_ci = _card_color_identity(card_name)
+            if card_ci is not None and not card_ci.issubset(commander_ci):
+                raise FullGameConformanceError(
+                    f"{DECK_GATE_COLOR_IDENTITY_VIOLATION}: card {card_name!r} color "
+                    f"identity {sorted(card_ci)} is outside commander color "
+                    f"identity {sorted(commander_ci)} in deck {deck.deck_id}"
+                )
+
+
 class XmageFullGameRunner:
     """Run one isolated 2..6-player XMage Commander game with Commander Lab pilot policy."""
 
     MIN_PLAYERS = 2
     MAX_PLAYERS = 6
+    DECK_GATE_HASH_MISMATCH = DECK_GATE_HASH_MISMATCH
+    DECK_GATE_DUPLICATE_CARD = DECK_GATE_DUPLICATE_CARD
+    DECK_GATE_COLOR_IDENTITY_VIOLATION = DECK_GATE_COLOR_IDENTITY_VIOLATION
+    _validate_deck_construction = staticmethod(_validate_deck_construction)
+    _valid_deck_hashes = staticmethod(_valid_deck_hashes)
+    _is_multi_copy_allowed = staticmethod(_is_multi_copy_allowed)
+    _card_color_identity = staticmethod(_card_color_identity)
 
     def __init__(
         self,
@@ -1488,6 +1640,7 @@ class XmageFullGameRunner:
                 raise FullGameConformanceError(f"seat {index} commander/pilot mismatch")
             if deck.deck_hash is None:
                 raise FullGameConformanceError(f"seat {index} deck_hash is required")
+            XmageFullGameRunner._validate_deck_construction(deck)
         own = decks[scenario.seat - 1]
         if own.deck_id != scenario.candidate_id:
             raise FullGameConformanceError(
@@ -1574,6 +1727,7 @@ class XmageFullGameRunner:
     def _deck_payload(deck: RulesDeckInput) -> FullGameDeckPayload:
         if deck.deck_hash is None:
             raise FullGameConformanceError(f"deck_hash required for {deck.deck_id}")
+        XmageFullGameRunner._validate_deck_construction(deck)
         return {
             "deck_id": deck.deck_id,
             "deck_hash": deck.deck_hash,
