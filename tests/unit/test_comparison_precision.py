@@ -348,3 +348,152 @@ def test_plan_only_games_per_hour_flag(tmp_path: Path, capsys: pytest.CaptureFix
     )
     assert code == 0
     assert "Time estimate at 100 games/hour: 2.0 h" in capsys.readouterr().out
+
+
+def test_cluster_difference_stats_matches_iid_when_one_pair_per_seed() -> None:
+    diffs = [1.0, 0.0, 0.0, -1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0]
+    clustered = [(i, d) for i, d in enumerate(diffs, start=1)]
+    interval, detectable, se = fgc.cluster_difference_stats(clustered)
+    iid_interval, iid_detectable = fgc._paired_difference_stats(diffs)
+    assert interval is not None and detectable is not None and se is not None
+    assert iid_interval is not None and iid_detectable is not None
+    assert interval.low == pytest.approx(iid_interval.low)
+    assert interval.high == pytest.approx(iid_interval.high)
+    assert detectable == pytest.approx(iid_detectable)
+    assert round(se, 4) == 0.1795
+    assert round(interval.low, 3) == -0.252
+    assert round(interval.high, 3) == 0.452
+    assert round(detectable, 3) == 0.503
+
+
+def test_cluster_difference_stats_recovers_true_cluster_spread_wrong_reason_control() -> None:
+    clustered: list[tuple[int, float]] = []
+    for seed in range(1, 7):
+        for _ in range(4):
+            clustered.append((seed, 1.0))
+    for seed in range(7, 11):
+        for _ in range(4):
+            clustered.append((seed, -1.0))
+
+    assert len(clustered) == 40
+    diffs = [d for _, d in clustered]
+
+    interval, detectable, se_cluster = fgc.cluster_difference_stats(clustered)
+    iid_interval, iid_detectable = fgc._paired_difference_stats(diffs)
+
+    assert interval is not None and detectable is not None and se_cluster is not None
+    assert iid_interval is not None and iid_detectable is not None
+
+    expected_se = math.sqrt(9.6 / 90)
+    assert round(se_cluster, 6) == round(expected_se, 6) == 0.326599
+    assert detectable > 2.0 * iid_detectable
+    assert (interval.high - interval.low) > 2.0 * (iid_interval.high - iid_interval.low)
+
+
+def test_reanalysis_of_recorded_comparisons_with_cluster_intervals() -> None:
+    # Fall A (M4 / #1008-Typ: 25 Seeds x 4 Sitze = 100 Paare, moderate Seed-Korrelation)
+    def winner_fall_a(contender_id: str, seed: int, seat: int) -> tuple[int, ...]:
+        if seed in (1, 2, 3) and seat in (1, 2):
+            return (seat,) if contender_id == "variant" else (_other_seat(seat),)
+        if seed in (4, 5) and seat in (1, 2):
+            return (seat,) if contender_id == "base" else (_other_seat(seat),)
+        return (_other_seat(seat),)
+
+    spec_a = _spec(tuple(range(1, 26)), rotate=True)
+    cases_a = plan_comparison_cases(spec_a)
+    comp_a = aggregate_comparison(spec_a, _report(_records_for(cases_a, winner_fall_a)))
+    paired_a = comp_a.paired[0]
+
+    assert paired_a.pairs_completed == 100
+    assert paired_a.seed_clusters_completed == 25
+    assert paired_a.verdict == "NO_CLEAR_DIFFERENCE"
+    assert paired_a.win_share_difference_interval_95 is not None
+    assert paired_a.cluster_difference_interval_95 is not None
+    assert paired_a.detectable_difference_80pct_power is not None
+    assert paired_a.cluster_detectable_difference_80pct_power is not None
+
+    width_iid_a = (
+        paired_a.win_share_difference_interval_95.high
+        - paired_a.win_share_difference_interval_95.low
+    )
+    width_cluster_a = (
+        paired_a.cluster_difference_interval_95.high - paired_a.cluster_difference_interval_95.low
+    )
+    assert width_cluster_a > width_iid_a
+    assert (
+        paired_a.cluster_detectable_difference_80pct_power
+        > paired_a.detectable_difference_80pct_power
+    )
+
+    # Fall B (Schein-Signifikanz: 8 Seeds x 4 Sitze = 32 Paare, 5 Seeds +1, 3 Seeds -1)
+    def winner_fall_b(contender_id: str, seed: int, seat: int) -> tuple[int, ...]:
+        if seed in (1, 2, 3, 4, 5):
+            return (seat,) if contender_id == "variant" else (_other_seat(seat),)
+        return (seat,) if contender_id == "base" else (_other_seat(seat),)
+
+    spec_b = _spec(tuple(range(1, 9)), rotate=True)
+    cases_b = plan_comparison_cases(spec_b)
+    comp_b = aggregate_comparison(spec_b, _report(_records_for(cases_b, winner_fall_b)))
+    paired_b = comp_b.paired[0]
+
+    assert paired_b.pairs_completed == 32
+    assert paired_b.seed_clusters_completed == 8
+    assert paired_b.variant_only_wins == 20
+    assert paired_b.baseline_only_wins == 12
+    assert paired_b.verdict == "NO_CLEAR_DIFFERENCE"
+    assert paired_b.underpowered is True
+    assert paired_b.cluster_detectable_difference_80pct_power is not None
+    assert paired_b.cluster_detectable_difference_80pct_power > 0.90
+
+
+def test_power_table_anchors_and_monotonicity() -> None:
+    table = fgc.power_table()
+    assert len(table) == 9
+
+    # Anker 1: diff=0.10, q=0.40
+    row_010_040 = next(r for r in table if r.difference == 0.10 and r.discordant_share_q == 0.40)
+    assert row_010_040.pair_sd == 0.63
+    assert row_010_040.pairs_needed_iid == 312
+    assert row_010_040.seeds_needed_4_seats_iid == 78
+    assert row_010_040.seeds_needed_4_seats_rho_025 == 137
+
+    # Anker 2: diff=0.05, q=0.40
+    row_005_040 = next(r for r in table if r.difference == 0.05 and r.discordant_share_q == 0.40)
+    assert row_005_040.pair_sd == 0.63
+    assert row_005_040.pairs_needed_iid == 1247
+    assert row_005_040.seeds_needed_4_seats_iid == 312
+    assert row_005_040.seeds_needed_4_seats_rho_025 == 546
+
+    # Anker 3: diff=0.10, q=0.09 (M4-Anker)
+    row_010_009 = next(r for r in table if r.difference == 0.10 and r.discordant_share_q == 0.09)
+    assert row_010_009.pair_sd == 0.30
+    assert row_010_009.pairs_needed_iid == 71
+    assert row_010_009.seeds_needed_4_seats_iid == 18
+
+    # Cluster vs i.i.d. Verhältnis
+    for row in table:
+        assert row.seeds_needed_4_seats_rho_025 > row.seeds_needed_4_seats_iid
+
+    # Monotonie über effect size
+    for q in fgc.POWER_TABLE_DISCORDANT_SHARES:
+        r_005 = next(r for r in table if r.difference == 0.05 and r.discordant_share_q == q)
+        r_010 = next(r for r in table if r.difference == 0.10 and r.discordant_share_q == q)
+        r_020 = next(r for r in table if r.difference == 0.20 and r.discordant_share_q == q)
+        assert r_005.pairs_needed_iid > r_010.pairs_needed_iid > r_020.pairs_needed_iid
+        assert (
+            r_005.seeds_needed_4_seats_rho_025
+            > r_010.seeds_needed_4_seats_rho_025
+            > r_020.seeds_needed_4_seats_rho_025
+        )
+
+    # Monotonie über q
+    for diff in fgc.POWER_TABLE_DIFFERENCES:
+        r_009 = next(r for r in table if r.difference == diff and r.discordant_share_q == 0.09)
+        r_020 = next(r for r in table if r.difference == diff and r.discordant_share_q == 0.20)
+        r_040 = next(r for r in table if r.difference == diff and r.discordant_share_q == 0.40)
+        assert r_040.pairs_needed_iid > r_020.pairs_needed_iid > r_009.pairs_needed_iid
+        assert (
+            r_040.seeds_needed_4_seats_rho_025
+            > r_020.seeds_needed_4_seats_rho_025
+            > r_009.seeds_needed_4_seats_rho_025
+        )

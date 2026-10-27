@@ -323,6 +323,9 @@ class BasePilot:
     # below are the mean mana by lands (0-6) and by cheap spells (mana value 1-3) the hand's
     # lands can pay for (0-3); colours the lands cannot make, a commander whose colours they
     # cannot make, cheap ramp and card flow are added on top.
+    # Refit on the 173-deck pool (#1038, 2026-10-26: 51,900 hands, 164 real + 9 SYNTHETIC decks,
+    # 25% deck holdout): R2 0.3314 train / 0.3385 holdout vs 0.3298 / 0.3409 for these coefficients;
+    # the holdout fit did not improve, so the coefficients stay (the linear model is at its limit; see scripts/mulligan_policy_eval.py fit_opening_hand_model).
     _OPENING_CELLS = (
         # castable cheap spells:  0      1      2      3
         (8.60, 9.49, 10.03, 9.74),  # 0 lands
@@ -917,6 +920,8 @@ class BasePilot:
 
 
 class KorvoldPilot(_NumericStrategyMixin, BasePilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1300,6 +1305,8 @@ class RogShaiPilot(_NumericStrategyMixin, BasePilot):
 
 
 class KorvoldValuePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldValuePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1322,6 +1329,8 @@ class KorvoldValuePilot(KorvoldPilot):
 
 
 class KorvoldSacrificePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldSacrificePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1353,6 +1362,8 @@ class KorvoldSacrificePilot(KorvoldPilot):
 
 
 class KorvoldLandRebuildPilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldLandRebuildPilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1379,6 +1390,8 @@ class KorvoldLandRebuildPilot(KorvoldPilot):
 
 
 class KorvoldAggressivePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldAggressivePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
@@ -1410,6 +1423,8 @@ class KorvoldAggressivePilot(KorvoldPilot):
 
 
 class KorvoldConservativePilot(KorvoldPilot):
+    """Retired former-own-deck pilot; rejected by live routing (`live_routing.build_pilot`) and retained only for legacy/ensemble paths."""
+
     pilot_name = "KorvoldConservativePilot"
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:

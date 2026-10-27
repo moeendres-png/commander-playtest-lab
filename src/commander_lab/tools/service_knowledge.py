@@ -5,7 +5,9 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from commander_lab.agents.pilots import build_pilot
+from commander_lab.agents.pilots import (
+    build_pilot,
+)  # Legacy builder: primer policy compilation (#1036)
 from commander_lab.meta.store import stable_deck_hash
 from commander_lab.models import (
     AddOpponentVariantInput,

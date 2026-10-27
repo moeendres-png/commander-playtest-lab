@@ -35,10 +35,11 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from commander_lab.agents.card_knowledge import CardFacts, card_facts
-from commander_lab.agents.pilots import build_pilot
+from commander_lab.agents.pilots import BasePilot, build_pilot
 from commander_lab.engine.rules.full_game_pilot_views import card_view_fields
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 from commander_lab.models import (
+    CardRole,
     PilotActionView,
     PilotConfig,
     PilotDecisionMode,
@@ -51,6 +52,28 @@ TURNS = 6  # the horizon of the fit behind BasePilot.opening_hand_score
 MISSED_DROP_TURNS = 3
 ANY_COLOUR = frozenset("WUBRG")
 _CHEAP_RAMP_VALUE = 3.0
+
+# Refit on the 173-deck pool (#1038, 2026-10-26: 51,900 hands, 164 real + 9 SYNTHETIC decks,
+# 25% deck holdout). Source: fit_opening_hand_model(pool_173_deck_paths(ROOT), hands_per_deck=300, seed=7),
+# 2026-10-26; measured, not adopted.
+REFIT_173: dict[str, object] = {
+    "cells": (
+        (7.88, 8.61, 8.52, 8.42),
+        (9.52, 10.56, 11.27, 11.60),
+        (11.48, 13.22, 14.14, 14.75),
+        (13.51, 15.22, 16.28, 16.42),
+        (14.96, 16.59, 17.12, 16.71),
+        (15.51, 16.66, 16.34, 16.34),
+        (15.29, 15.35, 15.35, 15.35),
+    ),
+    "colour_gap": -0.51,
+    "commander_gap": -3.52,
+    "first_ramp": 2.96,
+    "second_ramp": 1.94,
+    "early_velocity": 0.07,
+    "expensive": -0.03,
+    "fresh_seven": 15.10,
+}
 
 
 @dataclass
@@ -328,6 +351,228 @@ def evaluate(
     }
 
 
+def pool_173_deck_paths(root: Path) -> list[Path]:
+    precon_dir = root / "data/decks/precons"
+    variants_dir = root / "data/decks/precon_variants"
+    paths: list[Path] = []
+    for precon_path in sorted(precon_dir.glob("*.json")):
+        variant_path = variants_dir / precon_path.name
+        if variant_path.is_file():
+            paths.append(variant_path)
+        else:
+            paths.append(precon_path)
+    return paths
+
+
+def _extract_opening_features(
+    cards: list[PilotActionView],
+    commander_names: tuple[str, ...],
+) -> tuple[int, int, float, float, float, float, float, float]:
+    made: set[str] = set()
+    lands = 0
+    for card in cards:
+        if bool(card.metadata.get("is_land", False)):
+            lands += 1
+            facts = card_facts(card.card_name)
+            if facts is not None:
+                made |= facts.colours_made
+    coloured = blocked = castable = 0
+    early_ramp = early_velocity = expensive = 0
+    for card in cards:
+        if bool(card.metadata.get("is_land", False)):
+            continue
+        if card.mana_cost >= 5:
+            expensive += 1
+        if card.mana_cost <= 2:
+            early_ramp += card.strength(CardRole.RAMP) > 0
+            early_velocity += (card.strength(CardRole.DRAW) + card.strength(CardRole.SELECTION)) > 0
+        facts = card_facts(card.card_name)
+        pips = (
+            {colour for colour in facts.pips() if colour in "WUBRG"} if facts is not None else set()
+        )
+        if pips and card.mana_cost <= 4:
+            coloured += 1
+            blocked += not pips <= made
+        if 0 < card.mana_cost <= 3 and pips <= made:
+            castable += 1
+    commander_gap = 0.0
+    commander = card_facts(commander_names[0]) if commander_names else None
+    if commander is not None:
+        needed = {colour for colour in commander.pips() if colour in "WUBRG"}
+        if needed:
+            commander_gap = len(needed - made) / len(needed)
+    return (
+        min(lands, 6),
+        min(castable, 3),
+        blocked / coloured if coloured else 0.0,
+        commander_gap,
+        float(early_ramp >= 1),
+        float(early_ramp >= 2),
+        float(min(early_velocity, 2)),
+        float(expensive),
+    )
+
+
+def _solve_linear_system(a_mat: list[list[float]], b_vec: list[float]) -> list[float]:
+    n = len(a_mat)
+    matrix = [[*row, b_vec[i]] for i, row in enumerate(a_mat)]
+    for i in range(n):
+        pivot_row = i
+        max_val = abs(matrix[i][i])
+        for r in range(i + 1, n):
+            if abs(matrix[r][i]) > max_val:
+                max_val = abs(matrix[r][i])
+                pivot_row = r
+        if max_val < 1e-12:
+            continue
+        if pivot_row != i:
+            matrix[i], matrix[pivot_row] = matrix[pivot_row], matrix[i]
+        pivot = matrix[i][i]
+        for c in range(i, n + 1):
+            matrix[i][c] /= pivot
+        for r in range(n):
+            if r != i and abs(matrix[r][i]) > 1e-12:
+                factor = matrix[r][i]
+                for c in range(i, n + 1):
+                    matrix[r][c] -= factor * matrix[i][c]
+    return [matrix[i][n] for i in range(n)]
+
+
+def fit_opening_hand_model(
+    decks: list[Path], hands_per_deck: int = 300, seed: int = 7
+) -> dict[str, object]:
+    """Fit a linear model of opening-hand mana against greedy 6-turn play.
+
+    A looser tolerance applies to small sub-pools to absorb sampling noise;
+    the conclusion that the linear model is at its limit originates from the full 173-deck pool.
+    """
+    reachable_cells = [
+        (lands, castable) for lands in range(7) for castable in range(4) if lands + castable <= 7
+    ]
+    cell_idx_map = {cell: i for i, cell in enumerate(reachable_cells)}
+    dim = len(reachable_cells) + 6
+
+    train_samples: list[tuple[tuple[int, int, float, float, float, float, float, float], int]] = []
+    holdout_samples: list[
+        tuple[tuple[int, int, float, float, float, float, float, float], int]
+    ] = []
+    train_deck_count = 0
+    holdout_deck_count = 0
+    all_mana: list[int] = []
+
+    for idx, deck_path in enumerate(decks):
+        is_holdout = idx % 4 == 3
+        if is_holdout:
+            holdout_deck_count += 1
+        else:
+            train_deck_count += 1
+        deck = load_rules_deck_snapshot(deck_path)
+        library = list(deck.mainboard)
+        rng = random.Random(f"{seed}:{deck_path.stem}")
+        commander_name = deck.commander_names[0] if deck.commander_names else None
+        for _ in range(hands_per_deck):
+            shuffled = library[:]
+            rng.shuffle(shuffled)
+            hand = shuffled[:HAND_SIZE]
+            rest = shuffled[HAND_SIZE:]
+            run = _Run()
+            _play_turns(hand, list(reversed(rest)), commander_name, run)
+            all_mana.append(run.mana_spent)
+            views = _views(hand)
+            feat = _extract_opening_features(views, deck.commander_names)
+            sample = (feat, run.mana_spent)
+            if is_holdout:
+                holdout_samples.append(sample)
+            else:
+                train_samples.append(sample)
+
+    xtx = [[0.0] * dim for _ in range(dim)]
+    xty = [0.0] * dim
+
+    for feat, y in train_samples:
+        l_cap, c_cap, col_gap, cmd_gap, r1, r2, vel, exp = feat
+        c_idx = cell_idx_map[(l_cap, c_cap)]
+        x = [0.0] * dim
+        x[c_idx] = 1.0
+        x[25] = col_gap
+        x[26] = cmd_gap
+        x[27] = r1
+        x[28] = r2
+        x[29] = vel
+        x[30] = exp
+        for i in range(dim):
+            xi = x[i]
+            if xi != 0.0:
+                xty[i] += xi * y
+                for j in range(dim):
+                    if x[j] != 0.0:
+                        xtx[i][j] += xi * x[j]
+
+    for i in range(dim):
+        xtx[i][i] += 1e-6
+
+    beta = _solve_linear_system(xtx, xty)
+
+    def pred_new(f: tuple[int, int, float, float, float, float, float, float]) -> float:
+        l_cap, c_cap, col_gap, cmd_gap, r1, r2, vel, exp = f
+        c_idx = cell_idx_map[(l_cap, c_cap)]
+        return (
+            beta[c_idx]
+            + beta[25] * col_gap
+            + beta[26] * cmd_gap
+            + beta[27] * r1
+            + beta[28] * r2
+            + beta[29] * vel
+            + beta[30] * exp
+        )
+
+    def pred_current(f: tuple[int, int, float, float, float, float, float, float]) -> float:
+        l_cap, c_cap, col_gap, cmd_gap, r1, r2, vel, exp = f
+        return float(
+            BasePilot._OPENING_CELLS[l_cap][c_cap]
+            + BasePilot._OPENING_COLOUR_GAP * col_gap
+            + BasePilot._OPENING_COMMANDER_GAP * cmd_gap
+            + BasePilot._OPENING_FIRST_RAMP * r1
+            + BasePilot._OPENING_SECOND_RAMP * r2
+            + BasePilot._OPENING_EARLY_VELOCITY * vel
+            + BasePilot._OPENING_EXPENSIVE * exp
+        )
+
+    def calc_r2(
+        samples: list[tuple[tuple[int, int, float, float, float, float, float, float], int]],
+        predict_fn: Callable[[tuple[int, int, float, float, float, float, float, float]], float],
+    ) -> float:
+        if not samples:
+            return 0.0
+        y_true = [s[1] for s in samples]
+        y_pred = [predict_fn(s[0]) for s in samples]
+        mean_y = statistics.fmean(y_true)
+        ss_tot = sum((y - mean_y) ** 2 for y in y_true)
+        ss_res = sum((y - yp) ** 2 for y, yp in zip(y_true, y_pred, strict=True))
+        return 1.0 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
+
+    r2_train_new = calc_r2(train_samples, pred_new)
+    r2_holdout_new = calc_r2(holdout_samples, pred_new)
+    r2_train_current = calc_r2(train_samples, pred_current)
+    r2_holdout_current = calc_r2(holdout_samples, pred_current)
+
+    tol = 0.01 if len(decks) >= 100 else 0.06
+    model_at_limit = bool(r2_holdout_new <= r2_holdout_current + tol)
+
+    return {
+        "decks_total": len(decks),
+        "train_decks": train_deck_count,
+        "holdout_decks": holdout_deck_count,
+        "hands_per_deck": hands_per_deck,
+        "r2_train_new": r2_train_new,
+        "r2_holdout_new": r2_holdout_new,
+        "r2_train_current": r2_train_current,
+        "r2_holdout_current": r2_holdout_current,
+        "fresh_seven_mean_mana": statistics.fmean(all_mana) if all_mana else 0.0,
+        "model_at_limit": model_at_limit,
+    }
+
+
 def format_report(report: dict[str, object]) -> str:
     lines = [
         f"policy={report['policy']} strength={report['strength']} decks={report['decks']} "
@@ -349,7 +594,12 @@ def format_report(report: dict[str, object]) -> str:
 def main(argv: list[str] | None = None) -> int:
     global TURNS
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--decks", type=Path, required=True, help="a deck JSON or a folder of them")
+    parser.add_argument("--decks", type=Path, default=None, help="a deck JSON or a folder of them")
+    parser.add_argument(
+        "--fit",
+        action="store_true",
+        help="run fit_opening_hand_model on pool_173_deck_paths and output JSON",
+    )
     parser.add_argument("--hands", type=int, default=100, help="seeded hands per deck")
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--policy", default="pilot", choices=("pilot", "always_keep", "lands_3_4"))
@@ -365,6 +615,22 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--json", type=Path, default=None, help="also write the report here")
     args = parser.parse_args(argv)
     TURNS = args.turns
+
+    if args.fit:
+        root = Path(__file__).resolve().parents[1]
+        fit_decks = pool_173_deck_paths(root)
+        if args.limit:
+            fit_decks = fit_decks[: args.limit]
+        result = fit_opening_hand_model(fit_decks, hands_per_deck=args.hands, seed=args.seed)
+        output = json.dumps(result, indent=2, sort_keys=True)
+        print(output)
+        if args.json:
+            args.json.write_text(output + "\n", encoding="utf-8")
+        return 0
+
+    if args.decks is None:
+        parser.error("--decks is required unless --fit is passed")
+
     paths = sorted(args.decks.glob("*.json")) if args.decks.is_dir() else [args.decks]
     if args.limit:
         paths = paths[: args.limit]
