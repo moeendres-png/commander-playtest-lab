@@ -44,6 +44,35 @@ def test_missing_or_corrupt_or_empty_catalog_fails_closed(tmp_path: Path) -> Non
     with pytest.raises(CardCatalogError, match="card catalog is empty"):
         card_facts("Sol Ring", empty_cards)
 
+    zero_bytes = tmp_path / "zero_bytes.json"
+    zero_bytes.write_bytes(b"")
+    with pytest.raises(CardCatalogError, match="failed to load card catalog"):
+        card_facts("Sol Ring", zero_bytes)
+
+
+def test_full_game_runner_construction_is_gated_by_catalog_health(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Wrong-Reason-Kontrolle: a deliberately corrupt catalog must stop the runner start."""
+    from commander_lab.engine.rules.full_game import XmageFullGameRunner
+
+    _clear_caches()
+    ck.assert_catalog_ready.cache_clear()
+    XmageFullGameRunner(command=("bridge-not-started",))  # healthy catalog: constructs
+
+    corrupt = tmp_path / "corrupt_catalog.json"
+    corrupt.write_text("{not valid json", encoding="utf-8")
+    monkeypatch.setattr(ck, "_DEFAULT_PATH", corrupt)
+    _clear_caches()
+    ck.assert_catalog_ready.cache_clear()
+    with pytest.raises(CardCatalogError, match="failed to load card catalog"):
+        XmageFullGameRunner(command=("bridge-not-started",))
+
+    monkeypatch.undo()
+    _clear_caches()
+    ck.assert_catalog_ready.cache_clear()
+    XmageFullGameRunner(command=("bridge-not-started",))  # healthy again: constructs
+
 
 def test_missing_or_corrupt_or_empty_curated_profiles_fails_closed(tmp_path: Path) -> None:
     _clear_caches()

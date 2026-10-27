@@ -280,6 +280,17 @@ def verify_catalog_pool_coverage(
     return ratio
 
 
+@lru_cache(maxsize=1)
+def assert_catalog_ready() -> float:
+    """Run the startup gate once per process against the default catalog and precon pool.
+
+    Called by the full-game runner on construction, so a corrupt or under-covering catalog
+    stops the run before any game starts instead of silently degrading pilot decisions.
+    A failure is not cached; the next call checks again.
+    """
+    return verify_catalog_pool_coverage()
+
+
 def curated_profile(name: str | None) -> dict[str, object] | None:
     """The project's curated structural profile of a card, when it has one.
 
