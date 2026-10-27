@@ -178,6 +178,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # #815: same for failed X announcements — a new priority action
             # starts with a clean retry slate.
             self._priority_cost_facts.pop(seat, None)
+            self._priority_spends_source.pop(seat, None)
             self._priority_x_counter_caps.pop(seat, None)
             self._failed_x_announcements.pop(seat, None)
             self._reserved_counters.pop(seat, None)
