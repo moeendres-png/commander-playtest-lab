@@ -117,6 +117,43 @@ means the run could not have seen an effect, not that the decks play the same.
 A single-card swap will not move win share at feasible game counts; judge it
 by the structural filter in step 2 and per-card figures, not by win share.
 
+Because the four seat rotations of one seed share the same library shuffle,
+pairs within a seed are correlated rather than independent. The report
+therefore includes both the i.i.d. paired interval and the one-way
+cluster-robust interval (`cluster_difference_interval_95` and
+`cluster_detectable_difference_80pct_power`), which treats each distinct seed
+as one cluster ($G$ clusters) using the Liang-Zeger CR1 correction $G / (G - 1)$
+and Student's $t$-quantiles with $G - 1$ degrees of freedom when $N > G$.
+
+For upfront run planning (`power_table()`), the i.i.d. pair count and the
+cluster-adjusted seed count for a 4-seat rotation ($m = 4$, assumed intracluster
+correlation $\rho = 0.25$, design effect $\text{DEFF} = 1 + (m - 1)\rho = 1.75$)
+follow:
+
+$$N_{\text{iid}} = \left\lceil \left(\frac{(z_{0.975} + z_{0.80}) \cdot \sigma_d}{\Delta}\right)^2 \right\rceil, \qquad N_{\text{cluster}} = \left\lceil N_{\text{iid}} \cdot (1 + (m - 1)\rho) \right\rceil, \qquad G = \left\lceil \frac{N}{m} \right\rceil$$
+
+where $z_{0.975} = 1.96$, $z_{0.80} = 0.8416$, and $\sigma_d$ is the assumed
+per-pair standard deviation derived from the discordant pair share $q$
+($\sigma_d = \text{round}(\sqrt{q}, 4)$ for $q \in \{0.09, 0.20\}$, and the
+established planning anchor $\sigma_d = 0.63$ for $q = 0.40$):
+
+| Win-share difference $\Delta$ | Discordant share $q$ | Assumed pair SD $\sigma_d$ | Pairs needed (i.i.d.) | Seeds needed (4 seats, i.i.d.) | Seeds needed (4 seats, $\rho = 0.25$) |
+| --- | --- | --- | --- | --- | --- |
+| 5 % (`0.05`) | `0.09` | `0.30` | 283 | 71 | 124 |
+| 5 % (`0.05`) | `0.20` | `0.4472` | 628 | 157 | 275 |
+| 5 % (`0.05`) | `0.40` | `0.63` | 1247 | 312 | 546 |
+| 10 % (`0.10`) | `0.09` | `0.30` | 71 | 18 | 32 |
+| 10 % (`0.10`) | `0.20` | `0.4472` | 157 | 40 | 69 |
+| 10 % (`0.10`) | `0.40` | `0.63` | 312 | 78 | 137 |
+| 20 % (`0.20`) | `0.09` | `0.30` | 18 | 5 | 8 |
+| 20 % (`0.20`) | `0.20` | `0.4472` | 40 | 10 | 18 |
+| 20 % (`0.20`) | `0.40` | `0.63` | 78 | 20 | 35 |
+
+> **Planning note:** All numbers in this power table are prior planning values
+> based on assumed discordant shares $q$ and an assumed intracluster correlation
+> $\rho = 0.25$, not empirical measurements from a specific deck comparison.
+
+
 The report also carries `pilot_readiness`: the state of every deck, and per variant the
 cards it adds or removes that the pilot is not ready for. The pilot plays such a card as a
 spell without cost or role, so when a variant differs from the baseline by one the summary

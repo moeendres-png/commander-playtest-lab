@@ -357,6 +357,8 @@ def test_cluster_difference_stats_matches_iid_when_one_pair_per_seed() -> None:
     iid_interval, iid_detectable = fgc._paired_difference_stats(diffs)
     assert interval is not None and detectable is not None and se is not None
     assert iid_interval is not None and iid_detectable is not None
+    assert interval == iid_interval
+    assert detectable == iid_detectable
     assert interval.low == pytest.approx(iid_interval.low)
     assert interval.high == pytest.approx(iid_interval.high)
     assert detectable == pytest.approx(iid_detectable)
@@ -364,6 +366,119 @@ def test_cluster_difference_stats_matches_iid_when_one_pair_per_seed() -> None:
     assert round(interval.low, 3) == -0.252
     assert round(interval.high, 3) == 0.452
     assert round(detectable, 3) == 0.503
+
+
+def test_student_t_quantile_reference_values_and_validation() -> None:
+    # Cauchy (df=1): F_1^-1(0.975) = tan(0.475 * pi) = 12.706204736...
+    assert fgc.student_t_quantile(0.975, 1) == pytest.approx(math.tan(0.475 * math.pi))
+    # df=3 (G=4): t_0.975,3 = 3.182446..., t_0.80,3 = 0.978472...
+    assert round(fgc.student_t_quantile(0.975, 3), 4) == 3.1824
+    assert round(fgc.student_t_quantile(0.80, 3), 4) == 0.9785
+    # df=9 (G=10): t_0.975,9 = 2.262157..., t_0.80,9 = 0.883360...
+    assert round(fgc.student_t_quantile(0.975, 9), 4) == 2.2622
+    assert round(fgc.student_t_quantile(0.80, 9), 4) == 0.8834
+    # Symmetry and median
+    assert fgc.student_t_quantile(0.5, 5) == 0.0
+    assert fgc.student_t_quantile(0.025, 3) == pytest.approx(-fgc.student_t_quantile(0.975, 3))
+    with pytest.raises(ValueError, match="p must be within"):
+        fgc.student_t_quantile(1.0, 3)
+    with pytest.raises(ValueError, match="df must be at least 1"):
+        fgc.student_t_quantile(0.975, 0)
+
+
+def _assert_cluster_t_quantile_hand_arithmetic() -> None:
+    # Hand arithmetic for G=4 seeds x 4 seats = 16 pairs (df = G - 1 = 3):
+    # Seeds 1, 2, 3 have 4 pairs of +1.0; seed 4 has 4 pairs of -1.0.
+    # mean = (12 - 4) / 16 = 0.5.
+    # Cluster residual sums: u_1 = u_2 = u_3 = 4*(1.0 - 0.5) = +2.0 (u^2 = 4);
+    # u_4 = 4*(-1.0 - 0.5) = -6.0 (u^2 = 36). sum(u^2) = 3*4 + 36 = 48.
+    # se_cluster^2 = (4/3) * (48 / 256) = 0.25 -> se_cluster = 0.5 (exact).
+    # With z=1.96 (wrong): width = 2*1.96*0.5 = 1.9600, detectable = (1.96+0.8416)*0.5 = 1.4008.
+    # With t_df=3 (correct): t_0.975,3 = 3.1824463..., t_0.80,3 = 0.9784723...
+    # half_width = 3.1824463... * 0.5 = 1.59122315... -> [-1.0912, +2.0912], width = 3.1824.
+    # detectable = (3.1824463... + 0.9784723...) * 0.5 = 2.0804593... -> 2.0805.
+    clustered_g4: list[tuple[int, float]] = [
+        *((seed, 1.0) for seed in (1, 2, 3) for _ in range(4)),
+        *((4, -1.0) for _ in range(4)),
+    ]
+    interval_g4, detectable_g4, se_g4 = fgc.cluster_difference_stats(clustered_g4)
+    assert interval_g4 is not None and detectable_g4 is not None and se_g4 is not None
+    assert se_g4 == pytest.approx(0.5)
+    assert round(interval_g4.low, 4) == -1.0912
+    assert round(interval_g4.high, 4) == 2.0912
+    assert round(interval_g4.high - interval_g4.low, 4) == 3.1824
+    assert round(detectable_g4, 4) == 2.0805
+
+    # Hand arithmetic for G=10 seeds x 4 seats = 40 pairs (df = G - 1 = 9):
+    # 6 seeds at +1.0, 4 seeds at -1.0 -> mean = 0.2, se_cluster = sqrt(9.6 / 90) = 0.3265986...
+    # With z (wrong): width = 2 * 1.96 * 0.3265986... = 1.2803, detectable = 0.9150.
+    # With t_df=9 (correct): width = 2 * 2.262157... * 0.3265986... = 1.4776, detectable = 1.0273.
+    clustered_g10: list[tuple[int, float]] = [
+        *((seed, 1.0) for seed in range(1, 7) for _ in range(4)),
+        *((seed, -1.0) for seed in range(7, 11) for _ in range(4)),
+    ]
+    interval_g10, detectable_g10, se_g10 = fgc.cluster_difference_stats(clustered_g10)
+    assert interval_g10 is not None and detectable_g10 is not None and se_g10 is not None
+    assert round(se_g10, 6) == 0.326599
+    assert round(interval_g10.low, 4) == -0.5388
+    assert round(interval_g10.high, 4) == 0.9388
+    assert round(interval_g10.high - interval_g10.low, 4) == 1.4776
+    assert round(detectable_g10, 4) == 1.0273
+
+
+def test_cluster_t_quantile_hand_arithmetic_and_wrong_reason_control(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _assert_cluster_t_quantile_hand_arithmetic()
+    # Wrong-reason control: falling back to normal quantiles z95 / z80 must fail the test.
+    monkeypatch.setattr(
+        fgc,
+        "student_t_quantile",
+        lambda p, df: fgc.DIFFERENCE_Z95 if p > 0.9 else fgc.DIFFERENCE_Z80,
+    )
+    with pytest.raises(AssertionError):
+        _assert_cluster_t_quantile_hand_arithmetic()
+
+
+def test_reanalyze_paired_variant_compares_old_z_and_new_t() -> None:
+    # Synthetic report recorded under old z quantiles with G=4, N=16, se_cluster=0.5, mean=1.1:
+    # Under z=1.96: interval is 1.1 +/- 0.98 = [+0.12, +2.08] (excludes 0.0).
+    # Under t_df=3 (3.1824): interval is 1.1 +/- 1.5912 = [-0.4912, +2.6912] (includes 0.0).
+    old_paired = fgc.PairedVariantResult(
+        variant_deck_id="variant",
+        baseline_deck_id="base",
+        pairs_completed=16,
+        pairs_censored=0,
+        variant_win_share=0.80,
+        baseline_win_share=0.25,
+        win_share_difference=1.10,
+        variant_only_wins=11,
+        baseline_only_wins=5,
+        identical_pairs=0,
+        sign_test_p_value=fgc.sign_test_p_value(11, 5),
+        verdict="NO_CLEAR_DIFFERENCE",
+        seed_clusters_completed=4,
+        win_share_difference_interval_95=fgc.DifferenceInterval(low=0.60, high=1.60),
+        cluster_difference_interval_95=fgc.DifferenceInterval(low=0.12, high=2.08),
+        detectable_difference_80pct_power=0.70,
+        cluster_detectable_difference_80pct_power=1.4008,
+        underpowered=True,
+    )
+    reanalyzed = fgc.reanalyze_paired_variant(old_paired, source_quantiles="z")
+    assert reanalyzed.cluster_se == pytest.approx(0.5)
+    assert reanalyzed.z_cluster_interval_95 is not None
+    assert reanalyzed.t_cluster_interval_95 is not None
+    assert round(reanalyzed.z_cluster_interval_95.low, 4) == 0.1200
+    assert round(reanalyzed.t_cluster_interval_95.low, 4) == -0.4912
+    assert round(reanalyzed.t_cluster_interval_95.high, 4) == 2.6912
+    assert reanalyzed.old_interval_excludes_zero is True
+    assert reanalyzed.new_interval_excludes_zero is False
+    assert reanalyzed.interval_zero_crossing_changed is True
+    assert reanalyzed.verdict_changed is False
+    summary = fgc.format_reanalysis_summary(reanalyzed)
+    assert "variant vs base" in summary
+    assert "verdict_changed=False" in summary
+    assert "zero_crossing_changed=True" in summary
 
 
 def test_cluster_difference_stats_recovers_true_cluster_spread_wrong_reason_control() -> None:
