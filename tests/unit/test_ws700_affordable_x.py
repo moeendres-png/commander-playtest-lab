@@ -305,6 +305,8 @@ def _priority_request(
     label: str = "{X}{1}{B}",
     offset: int = 1,
     state: dict[str, Any] | None = None,
+    requires_tap_source: bool = False,
+    requires_sacrifice_source: bool = False,
 ) -> dict[str, Any]:
     """A priority window whose option carries the bridge's own cost facts.
 
@@ -338,9 +340,9 @@ def _priority_request(
                     "source_name": source_name,
                     "ability_type": "activated",
                     "mana_ability": False,
-                    "requires_tap_source": True,
+                    "requires_tap_source": requires_tap_source,
                     "requires_untap_source": False,
-                    "requires_sacrifice_source": False,
+                    "requires_sacrifice_source": requires_sacrifice_source,
                     **mana_cost,
                 },
             },
@@ -815,3 +817,200 @@ def test_failed_x_cap_clears_on_next_priority_decision() -> None:
     policy._failed_x_announcements.clear()
     # Next announce for the same source starts fresh (no cap).
     assert _announced(policy, _announce_x_request_with_source(offset=3)) == 3
+
+
+# --- #1041: self-tap / self-sacrifice mana source excluded from X budget -----
+
+
+def test_self_tap_mana_source_is_excluded_from_x_mana_budget() -> None:
+    # 4 untapped Swamps + The Mycosynth Gardens (an untapped mana-producing land).
+    # Activating Gardens's "{X}, {T}" ability taps Gardens as cost, so Gardens
+    # cannot contribute mana to its own X.
+    # Without #1041, _mana_budget would be 5 (4 Swamps + Gardens) -> X=5.
+    # With #1041, Gardens is excluded from the budget -> X=4.
+    state = _state(untapped_lands=4)
+    gardens = {
+        "object_id": "land-gardens",
+        "name": "The Mycosynth Gardens",
+        "tapped": False,
+        "face_down": False,
+        "abilities": [
+            "{T}: Add {C}.",
+            "{X}, {T}: This land becomes a copy of target nontoken artifact you control with mana value X.",
+        ],
+    }
+    state["players"][0]["battlefield"].append(gardens)
+    policy = _policy()
+    chosen = policy.decide(
+        _priority_request(
+            source_id="land-gardens",
+            source_name="The Mycosynth Gardens",
+            mana_cost=ZERO_COST_FACTS,
+            label="{X}, {T}: This land becomes a copy of target nontoken artifact you control with mana value X.",
+            state=state,
+            requires_tap_source=True,
+        )
+    )
+    assert chosen["selected_option_ids"] != ["priority-pass"]
+    assert (
+        _announced(
+            policy,
+            _announce_x_request(
+                context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+                source_object={
+                    "source_object_id": "land-gardens",
+                    "source_name": "The Mycosynth Gardens",
+                },
+                state=state,
+                prompt="Announce the value for {X}",
+            ),
+        )
+        == 4
+    )
+
+
+def test_self_sacrifice_mana_source_is_excluded_from_x_mana_budget() -> None:
+    # 5 untapped Swamps + Treasure Vault (an untapped mana-producing land).
+    # Activating Vault's "{X}{X}, {T}, Sacrifice Treasure Vault: ..." ability sacrifices Vault.
+    # Without #1041, budget is 6 (5 Swamps + Vault) // 2 symbols -> X=3.
+    # With #1041, Vault is excluded from budget (5 Swamps // 2 symbols) -> X=2.
+    state = _state(untapped_lands=5)
+    vault = {
+        "object_id": "land-vault",
+        "name": "Treasure Vault",
+        "tapped": False,
+        "face_down": False,
+        "abilities": [
+            "{T}: Add {C}.",
+            "{X}{X}, {T}, Sacrifice Treasure Vault: Create X Treasure tokens.",
+        ],
+    }
+    state["players"][0]["battlefield"].append(vault)
+    policy = _policy()
+    chosen = policy.decide(
+        _priority_request(
+            source_id="land-vault",
+            source_name="Treasure Vault",
+            mana_cost=ZERO_COST_FACTS,
+            label="{X}{X}, {T}, Sacrifice Treasure Vault: Create X Treasure tokens.",
+            state=state,
+            requires_tap_source=True,
+            requires_sacrifice_source=True,
+        )
+    )
+    assert chosen["selected_option_ids"] != ["priority-pass"]
+    assert (
+        _announced(
+            policy,
+            _announce_x_request(
+                context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+                source_object={"source_object_id": "land-vault", "source_name": "Treasure Vault"},
+                state=state,
+                prompt="Announce the value for {X}{X}",
+            ),
+        )
+        == 2
+    )
+
+
+def test_non_self_spending_x_ability_keeps_full_mana_budget_bit_identical() -> None:
+    # Wrong-reason control: An X ability that does NOT tap or sacrifice its source
+    # keeps its full budget unchanged and yields an identical announcement.
+    state = _state(untapped_lands=4)
+    shaman = {
+        "object_id": "creature-shaman",
+        "name": "Elvish Shaman",
+        "tapped": False,
+        "face_down": False,
+        "abilities": [
+            "{T}: Add {G}.",
+            "{X}: Target creature gets +X/+X until end of turn.",
+        ],
+    }
+    state["players"][0]["battlefield"].append(shaman)
+    policy = _policy()
+    chosen = policy.decide(
+        _priority_request(
+            source_id="creature-shaman",
+            source_name="Elvish Shaman",
+            mana_cost=ZERO_COST_FACTS,
+            label="{X}: Target creature gets +X/+X until end of turn.",
+            state=state,
+            requires_tap_source=False,
+            requires_sacrifice_source=False,
+        )
+    )
+    assert chosen["selected_option_ids"] != ["priority-pass"]
+    announce_req = _announce_x_request(
+        context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+        source_object={"source_object_id": "creature-shaman", "source_name": "Elvish Shaman"},
+        state=state,
+        prompt="Announce the value for {X}",
+    )
+    # 4 Swamps + Shaman itself = 5 visible mana sources -> X=5.
+    assert _announced(policy, announce_req) == 5
+
+
+def test_remembered_spends_source_is_consumed_once_and_cleared_on_next_priority() -> None:
+    # Verifies that _priority_spends_source is consumed on announce_x and cleared on next priority.
+    state = _state(untapped_lands=4)
+    gardens = {
+        "object_id": "land-gardens",
+        "name": "The Mycosynth Gardens",
+        "tapped": False,
+        "face_down": False,
+        "abilities": [
+            "{T}: Add {C}.",
+            "{X}, {T}: This land becomes a copy of target nontoken artifact you control with mana value X.",
+        ],
+    }
+    state["players"][0]["battlefield"].append(gardens)
+    policy = _policy()
+
+    # Step 1: priority activation records the source spend fact
+    chosen = policy.decide(
+        _priority_request(
+            source_id="land-gardens",
+            source_name="The Mycosynth Gardens",
+            mana_cost=ZERO_COST_FACTS,
+            label="{X}, {T}: This land becomes a copy of target nontoken artifact you control with mana value X.",
+            state=state,
+            requires_tap_source=True,
+        )
+    )
+    assert chosen["selected_option_ids"] != ["priority-pass"]
+    assert policy._priority_spends_source.get(1) == {"land-gardens"}
+
+    # Step 2: announce_x consumes the fact
+    announce_req = _announce_x_request(
+        context={"numeric_min": 0, "numeric_max": INT_MAX, "outcome": "benefit"},
+        source_object={"source_object_id": "land-gardens", "source_name": "The Mycosynth Gardens"},
+        state=state,
+        prompt="Announce the value for {X}",
+    )
+    assert _announced(policy, announce_req) == 4
+    assert "land-gardens" not in policy._priority_spends_source.get(1, set())
+
+    # Step 3: next priority clears any leftover state
+    policy._priority_spends_source[1] = {"dummy-source"}
+    pass_request = {
+        "decision_id": "opaque-priority-pass",
+        "decision_offset": 3,
+        "actor_id": "actor",
+        "decision_class": "priority",
+        "pilot_state": state,
+        "context": {},
+        "minimum_selections": 1,
+        "maximum_selections": 1,
+        "legal_options": [
+            {
+                "option_id": "priority-pass",
+                "option_type": "pass_priority",
+                "label": "Pass priority",
+                "metadata": {},
+            }
+        ],
+        "prompt": "Choose priority action",
+    }
+    policy.decide(pass_request)
+    assert 1 not in policy._priority_spends_source

@@ -87,6 +87,30 @@ _ZERO_X_SPELLS = frozenset({"chalice of the void", "engineered explosives"})
 _ADDS_MANA_RULE = re.compile(r":\s*add\s", re.IGNORECASE)
 
 
+def _option_spends_own_source(label: str, metadata: Mapping[str, object]) -> bool:
+    """True if this priority activation taps or sacrifices its own source (#1041).
+
+    Derived from engine-reported flags (requires_tap_source, requires_sacrifice_source)
+    or from the ability's cost prefix before the colon.
+    """
+    if (
+        metadata.get("requires_tap_source") is True
+        or metadata.get("requires_sacrifice_source") is True
+    ):
+        return True
+    cost = label.casefold().split(" — ", 1)[-1].split("&mdash;", 1)[-1].partition(":")[0]
+    if "{t}" in cost or "sacrifice {this}" in cost or "sacrifice this " in cost:
+        return True
+    if "sacrifice " in cost:
+        source_name = str(metadata.get("source_name") or "").strip().casefold()
+        if source_name and (
+            f"sacrifice {source_name}" in cost
+            or f"sacrifice {source_name.split(',')[0].strip()}" in cost
+        ):
+            return True
+    return False
+
+
 class _PaymentDecisions(_PolicyState):
     def _paying_counters(self, seat: int) -> int | None:
         """How many counters the "remove N counters ..." cost this seat is paying takes."""
@@ -1406,7 +1430,10 @@ class _PaymentDecisions(_PolicyState):
             metadata = option.get("metadata")
             if not isinstance(metadata, dict):
                 return
+            label = str(option.get("label") or "")
             source = str(metadata.get("source_object_id") or "")
+            if source and _option_spends_own_source(label, metadata):
+                self._priority_spends_source[seat] = {source}
             non_x = _option_non_x_mana_value(metadata)
             if source and non_x is not None:
                 self._priority_cost_facts[seat] = {source: non_x}
@@ -1414,7 +1441,6 @@ class _PaymentDecisions(_PolicyState):
                 # #920: an X paid by removing counters from the source can use
                 # no more counters than the source has, and an X paid by
                 # tapping untapped permanents no more than the seat has.
-                label = str(option.get("label") or "")
                 battlefield = self._actor(state).get("battlefield")
                 caps = [
                     cap
@@ -1506,6 +1532,36 @@ class _PaymentDecisions(_PolicyState):
             return None
         return self._priority_x_counter_caps.get(seat, {}).pop(source, None)
 
+    def _take_remembered_spends_source(
+        self, seat: int, context: Mapping[str, object], source_object: object
+    ) -> str:
+        """Consume this seat's remembered spends-own-source fact for this source (#1041).
+
+        Taken like ``_take_remembered_priority_cost_facts``: belongs to the
+        announcement of the action it was kept for.
+        """
+        source = (
+            str(source_object.get("source_object_id") or "")
+            if isinstance(source_object, dict)
+            else ""
+        )
+        if not source:
+            return ""
+        remembered = self._priority_spends_source.get(seat, set())
+        was_remembered = source in remembered
+        remembered.discard(source)
+        direct = (
+            (
+                isinstance(source_object, dict)
+                and _option_spends_own_source(str(source_object.get("label") or ""), source_object)
+            )
+            or context.get("requires_tap_source") is True
+            or context.get("requires_sacrifice_source") is True
+        )
+        if was_remembered or direct:
+            return source
+        return ""
+
     def _x_spell_without_x(self, option: dict[str, object], state: dict[str, object]) -> bool:
         """True for a cast of an X spell whose visible mana leaves nothing for X.
 
@@ -1529,7 +1585,7 @@ class _PaymentDecisions(_PolicyState):
             return False
         return (self._mana_budget(state) - non_x) // symbols < 1
 
-    def _mana_budget(self, state: dict[str, Any]) -> int:
+    def _mana_budget(self, state: dict[str, Any], *, excluded_source_id: str = "") -> int:
         """Mana the actor can see it could produce right now.
 
         Its own floating pool plus each untapped permanent on its own
@@ -1538,6 +1594,10 @@ class _PaymentDecisions(_PolicyState):
         under-states rather than over-states what the pilot believes it has.
         Only the acting principal's own zones are read, so this is
         pilot-visible by construction.
+
+        When ``excluded_source_id`` is given (because the announced ability
+        spends its own source via {T} or self-sacrifice, #1041), that permanent
+        is not counted as an available mana source.
         """
         actor = self._actor(state)
         budget = int(self._actor_mana(actor))
@@ -1546,6 +1606,8 @@ class _PaymentDecisions(_PolicyState):
             return budget
         for item in battlefield:
             if not isinstance(item, dict):
+                continue
+            if excluded_source_id and str(item.get("object_id") or "") == excluded_source_id:
                 continue
             if item.get("tapped") is not False:
                 continue
@@ -1593,10 +1655,11 @@ class _PaymentDecisions(_PolicyState):
         of the cost clamps to 0, and the band never drops below the Core's own
         minimum.
 
-        Residual, not repaired here: the budget ignores the announced
-        ability's own tap or sacrifice cost, so a source that spends itself
-        can leave this an over-estimate by one, and one permanent is counted
-        as one mana. Both are already documented on ``_mana_budget``.
+        Residual, not repaired here: a source that spends itself via {T} or
+        self-sacrifice (#1041) is excluded from ``_mana_budget`` via
+        ``excluded_source_id``, leaving only the "one permanent is counted as
+        one mana" understatement as a conservative residual. Both are
+        documented on ``_mana_budget``.
 
         #815: if a previous X announced for this source was reversed by the
         engine (unpayable), the cap is lowered below that failed value. A
@@ -1615,7 +1678,11 @@ class _PaymentDecisions(_PolicyState):
         non_x, symbols = facts if facts is not None else (0, None)
         if symbols is None:
             symbols = prompt_symbols
-        affordable = max(0, (self._mana_budget(state) - non_x) // symbols)
+        excluded_source = self._take_remembered_spends_source(seat, context, source_object)
+        affordable = max(
+            0,
+            (self._mana_budget(state, excluded_source_id=excluded_source) - non_x) // symbols,
+        )
         # #920: an X that is also paid by removing counters from its source,
         # or by tapping X untapped permanents.
         counter_cap = self._take_remembered_x_counter_cap(seat, source_object)
