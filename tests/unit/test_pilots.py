@@ -1,8 +1,18 @@
 from __future__ import annotations
 
+import json
 import random
+from pathlib import Path
 
-from commander_lab.agents import GenericCommanderPilot, KorvoldPilot, RogShaiPilot
+from commander_lab.agents import (
+    ArtifactPilot,
+    EnginePilot,
+    GenericCommanderPilot,
+    GraveyardPilot,
+    KorvoldPilot,
+    RogShaiPilot,
+)
+from commander_lab.agents.pilots import _is_artifact_action
 from commander_lab.models import (
     CardRole,
     PilotActionView,
@@ -13,6 +23,7 @@ from commander_lab.models import (
     PilotStateView,
     PilotStrength,
 )
+from commander_lab.models.roles import StructuralMechanic
 
 
 def _state(
@@ -27,6 +38,7 @@ def _state(
     opponents: tuple[PilotOpponentView, ...] | None = None,
     resources: float = 0.0,
     tokens: float = 0.0,
+    graveyard_size: int = 5,
 ) -> PilotStateView:
     if opponents is None:
         opponents = (
@@ -64,7 +76,7 @@ def _state(
         tokens=tokens,
         board_power=4,
         engine_value=1,
-        graveyard_size=5,
+        graveyard_size=graveyard_size,
         battlefield_names=battlefield,
         hand_names=hand_names,
         role_counts=role_counts or {},
@@ -80,6 +92,7 @@ def _action(
     cost: float,
     roles: set[CardRole] | None = None,
     strengths: dict[CardRole, float] | None = None,
+    tags: set[StructuralMechanic] | None = None,
     remaining: float = 0.0,
     power: float = 0.0,
     kind: str = "card",
@@ -97,6 +110,7 @@ def _action(
         mana_cost=cost,
         roles=role_set,
         role_strengths=strengths or {role: 1.0 for role in role_set},
+        mechanic_tags=frozenset(tags or set()),
         remaining_mana=remaining,
         base_power=power,
         immediate_impact=immediate,
@@ -702,3 +716,357 @@ def test_pilot_graveyard_target_prefers_larger_recursion_resource() -> None:
     assert (
         pilot.choose_target(state, (small, large), random.Random(1)).selected_action_id == "large"
     )
+
+
+def test_graveyard_pilot_prefers_recursion_over_generic_engine_when_graveyard_is_stocked() -> None:
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    graveyard_pilot = GraveyardPilot(config)
+    state = _state(graveyard_size=8, mana=4.0)
+    generic = _action(
+        "generic_engine",
+        "Generic Value Engine",
+        cost=3,
+        roles={CardRole.ENGINE},
+        immediate=0.9,
+        floor=0.9,
+    )
+    recursion = _action(
+        "recursion",
+        "Graveyard Reclamation",
+        cost=3,
+        roles={CardRole.RECURSION},
+        immediate=0.8,
+        floor=0.8,
+    )
+    rng = random.Random(42)
+    assert (
+        engine_pilot.choose_action(state, (generic, recursion), rng).selected_action_id
+        == "generic_engine"
+    )
+    assert (
+        graveyard_pilot.choose_action(state, (generic, recursion), rng).selected_action_id
+        == "recursion"
+    )
+
+
+def test_artifact_pilot_prefers_artifact_engine_over_generic_engine() -> None:
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    artifact_pilot = ArtifactPilot(config)
+    state = _state(mana=4.0)
+    generic = _action(
+        "generic_engine",
+        "Generic Value Engine",
+        cost=3,
+        roles={CardRole.ENGINE},
+        immediate=0.8,
+        floor=0.8,
+    )
+    artifact = _action(
+        "artifact_engine",
+        "Sol Ring",
+        cost=2,
+        roles={CardRole.RAMP},
+        tags={StructuralMechanic.ARTIFACT_ENGINE},
+        immediate=0.7,
+        floor=0.7,
+        metadata={"is_artifact": True},
+    )
+    rng = random.Random(42)
+    assert (
+        engine_pilot.choose_action(state, (generic, artifact), rng).selected_action_id
+        == "generic_engine"
+    )
+    assert (
+        artifact_pilot.choose_action(state, (generic, artifact), rng).selected_action_id
+        == "artifact_engine"
+    )
+
+
+def test_graveyard_and_artifact_pilots_are_bit_identical_to_engine_pilot_on_unrelated_actions() -> (
+    None
+):
+    # Wrong-Reason-Kontrolle: Über mindestens 15 gepaarte Seeds dürfen GraveyardPilot
+    # und ArtifactPilot auf friedhofs- und artefaktfremden Aktionen und Händen keinerlei
+    # Rauschen oder Deltas gegenüber EnginePilot erzeugen.
+    config_det = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config_det)
+    graveyard_pilot = GraveyardPilot(config_det)
+    artifact_pilot = ArtifactPilot(config_det)
+
+    config_stoch = PilotConfig(strength=PilotStrength.AVERAGE, mode=PilotDecisionMode.STOCHASTIC)
+    engine_stoch = EnginePilot(config_stoch)
+    graveyard_stoch = GraveyardPilot(config_stoch)
+    artifact_stoch = ArtifactPilot(config_stoch)
+
+    state = _state(graveyard_size=5, mana=4.0)
+    unrelated_actions = (
+        _action(
+            "bear", "Grizzly Bears", cost=2, roles={CardRole.MANA_SOURCE}, immediate=0.5, floor=0.5
+        ),
+        _action(
+            "bolt", "Lightning Bolt", cost=1, roles={CardRole.REMOVAL}, immediate=0.8, floor=0.7
+        ),
+        _action(
+            "counter", "Counterspell", cost=2, roles={CardRole.COUNTER}, immediate=0.7, floor=0.6
+        ),
+        _action("draw", "Divination", cost=3, roles={CardRole.DRAW}, immediate=0.6, floor=0.6),
+    )
+    unrelated_hand = [
+        _action("bear", "Grizzly Bears", cost=2, roles={CardRole.MANA_SOURCE}),
+        _action("bolt", "Lightning Bolt", cost=1, roles={CardRole.REMOVAL}),
+        _action("counter", "Counterspell", cost=2, roles={CardRole.COUNTER}),
+        _action("draw", "Divination", cost=3, roles={CardRole.DRAW}),
+        _action("forest", "Forest", cost=0, roles={CardRole.MANA_SOURCE}),
+        _action("island", "Island", cost=0, roles={CardRole.MANA_SOURCE}),
+        _action("mountain", "Mountain", cost=0, roles={CardRole.MANA_SOURCE}),
+    ]
+
+    for action in unrelated_actions:
+        score_e = engine_pilot.evaluate_action(state, action)
+        score_g = graveyard_pilot.evaluate_action(state, action)
+        score_a = artifact_pilot.evaluate_action(state, action)
+        assert score_e.total_utility == score_g.total_utility == score_a.total_utility
+        assert score_g.specialist_bonus == 0.0
+        assert score_a.specialist_bonus == 0.0
+
+    eval_e = engine_pilot.opening_hand_score(unrelated_hand, commander_names=("Test Commander",))
+    eval_g = graveyard_pilot.opening_hand_score(unrelated_hand, commander_names=("Test Commander",))
+    eval_a = artifact_pilot.opening_hand_score(unrelated_hand, commander_names=("Test Commander",))
+    assert eval_e == eval_g == eval_a
+
+    for seed in range(1, 16):
+        # Deterministische Auswahl identisch
+        dec_e = engine_pilot.choose_action(state, unrelated_actions, random.Random(seed))
+        dec_g = graveyard_pilot.choose_action(state, unrelated_actions, random.Random(seed))
+        dec_a = artifact_pilot.choose_action(state, unrelated_actions, random.Random(seed))
+        assert dec_e.selected_action_id == dec_g.selected_action_id == dec_a.selected_action_id
+
+        # Stochastische Auswahl identisch (Softmax bit-identisch)
+        sdec_e = engine_stoch.choose_action(state, unrelated_actions, random.Random(seed))
+        sdec_g = graveyard_stoch.choose_action(state, unrelated_actions, random.Random(seed))
+        sdec_a = artifact_stoch.choose_action(state, unrelated_actions, random.Random(seed))
+        assert sdec_e.selected_action_id == sdec_g.selected_action_id == sdec_a.selected_action_id
+
+        # Mulligans / Opening-Hand-Entscheidungen identisch
+        keep_e = engine_pilot.should_keep_opening_hand(
+            unrelated_hand,
+            mulligans=0,
+            free_first=True,
+            commander_names=("Test Commander",),
+            rng=random.Random(seed),
+        )
+        keep_g = graveyard_pilot.should_keep_opening_hand(
+            unrelated_hand,
+            mulligans=0,
+            free_first=True,
+            commander_names=("Test Commander",),
+            rng=random.Random(seed),
+        )
+        keep_a = artifact_pilot.should_keep_opening_hand(
+            unrelated_hand,
+            mulligans=0,
+            free_first=True,
+            commander_names=("Test Commander",),
+            rng=random.Random(seed),
+        )
+        assert keep_e == keep_g == keep_a
+
+
+def test_paired_12_seed_archetype_comparison_changes_decisions_only_on_matching_archetypes(
+    repo_root: Path,
+) -> None:
+    profiles_path = repo_root / "data/opponents/current_structural_profiles.json"
+    profiles_data = json.loads(profiles_path.read_text(encoding="utf-8"))
+    profile_map = {p["deck_id"]: p for p in profiles_data["profiles"]}
+
+    blight_profile = profile_map["opponent/blight-curse-precon"]
+    doom_profile = profile_map["opponent/doom-prevails-precon"]
+
+    # Graveyard-Entscheidungsfenster aus Blight Curse Precon
+    # Necroskitter (Rekursion) vs. Hapatra (Engine/Token/Payoff)
+    blight_cards = {c["oracle_name"]: c for c in blight_profile["native_cards"]}
+    necroskitter_data = blight_cards["Necroskitter"]
+    hapatra_data = blight_cards["Hapatra, Vizier of Poisons"]
+
+    graveyard_action = _action(
+        "necroskitter",
+        "Necroskitter",
+        cost=float(necroskitter_data["mana_value"]),
+        roles={CardRole(r) for r in necroskitter_data["roles"] if r in set(CardRole)},
+        tags={
+            StructuralMechanic(m)
+            for m in necroskitter_data["mechanic_tags"]
+            if m in set(StructuralMechanic)
+        },
+        immediate=0.75,
+        floor=0.75,
+    )
+    non_graveyard_engine = _action(
+        "hapatra",
+        "Hapatra, Vizier of Poisons",
+        cost=float(hapatra_data["mana_value"]),
+        roles={CardRole(r) for r in hapatra_data["roles"] if r in set(CardRole)},
+        tags={
+            StructuralMechanic(m)
+            for m in hapatra_data["mechanic_tags"]
+            if m in set(StructuralMechanic)
+        },
+        immediate=1.40,
+        floor=1.40,
+    )
+    graveyard_state = _state(
+        strategy=blight_profile["strategy"],
+        graveyard_size=8,
+        mana=5.0,
+        tokens=8.0,
+    )
+    graveyard_window = (non_graveyard_engine, graveyard_action)
+
+    # Artefakt-Entscheidungsfenster aus Doom Prevails Precon
+    # Skullclamp (Artefakt) vs. Black Market Connections (Nicht-Artefakt-Engine)
+    doom_cards = {c["oracle_name"]: c for c in doom_profile["native_cards"]}
+    skullclamp_data = doom_cards["Skullclamp"]
+    bmc_data = doom_cards["Black Market Connections"]
+
+    artifact_action = _action(
+        "skullclamp",
+        "Skullclamp",
+        cost=float(skullclamp_data["mana_value"]),
+        roles={CardRole(r) for r in skullclamp_data["roles"] if r in set(CardRole)},
+        tags={
+            StructuralMechanic(m)
+            for m in skullclamp_data["mechanic_tags"]
+            if m in set(StructuralMechanic)
+        },
+        immediate=0.72,
+        floor=0.72,
+        metadata={"is_artifact": True},
+    )
+    non_artifact_engine = _action(
+        "bmc",
+        "Black Market Connections",
+        cost=float(bmc_data["mana_value"]),
+        roles={
+            CardRole(r)
+            for r in bmc_data["roles"]
+            if r in set(CardRole) and r != CardRole.TOKEN_SOURCE
+        },
+        tags={
+            StructuralMechanic(m) for m in bmc_data["mechanic_tags"] if m in set(StructuralMechanic)
+        },
+        immediate=0.95,
+        floor=0.95,
+    )
+    artifact_state = _state(
+        strategy=doom_profile["strategy"],
+        mana=5.0,
+    )
+    artifact_window = (non_artifact_engine, artifact_action)
+
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    graveyard_pilot = GraveyardPilot(config)
+    artifact_pilot = ArtifactPilot(config)
+
+    for seed in range(1, 13):
+        rng_gy = random.Random(seed)
+        dec_e_gy = engine_pilot.choose_action(
+            graveyard_state, graveyard_window, rng_gy
+        ).selected_action_id
+        dec_g_gy = graveyard_pilot.choose_action(
+            graveyard_state, graveyard_window, rng_gy
+        ).selected_action_id
+        dec_a_gy = artifact_pilot.choose_action(
+            graveyard_state, graveyard_window, rng_gy
+        ).selected_action_id
+
+        # Im Graveyard-Fenster wählt GraveyardPilot die Rekursion; ArtifactPilot verhält sich wie EnginePilot
+        assert dec_e_gy == "hapatra"
+        assert dec_g_gy == "necroskitter"
+        assert dec_a_gy == "hapatra"
+        assert dec_a_gy == dec_e_gy
+
+        rng_art = random.Random(seed)
+        dec_e_art = engine_pilot.choose_action(
+            artifact_state, artifact_window, rng_art
+        ).selected_action_id
+        dec_g_art = graveyard_pilot.choose_action(
+            artifact_state, artifact_window, rng_art
+        ).selected_action_id
+        dec_a_art = artifact_pilot.choose_action(
+            artifact_state, artifact_window, rng_art
+        ).selected_action_id
+
+        # Im Artifact-Fenster wählt ArtifactPilot das Artefakt; GraveyardPilot verhält sich wie EnginePilot
+        assert dec_e_art == "bmc"
+        assert dec_a_art == "skullclamp"
+        assert dec_g_art == "bmc"
+        assert dec_g_art == dec_e_art
+
+
+def test_is_artifact_action_uses_card_type_not_oracle_text() -> None:
+    # Regression for the Weg-A finding on PR #1050: the old substring check
+    # on oracle text classified every card mentioning artifacts as an
+    # artifact action, although none of these is an artifact card.
+    assert _is_artifact_action(_action("farewell", "Farewell", cost=6)) is False
+    assert _is_artifact_action(_action("shriekmaw", "Shriekmaw", cost=5)) is False
+    assert _is_artifact_action(_action("skill", "Blacksmith's Skill", cost=1)) is False
+    # Genuine artifacts stay classified, via their type line alone.
+    assert _is_artifact_action(_action("boots", "Swiftfoot Boots", cost=2)) is True
+    assert _is_artifact_action(_action("ring", "Sol Ring", cost=1)) is True
+    # Tag and metadata signals are unchanged.
+    assert (
+        _is_artifact_action(
+            _action(
+                "tagged",
+                "Unknown Card",
+                cost=2,
+                tags={StructuralMechanic.ARTIFACT_ENGINE},
+            )
+        )
+        is True
+    )
+    assert (
+        _is_artifact_action(_action("meta", "Unknown Card", cost=2, metadata={"is_artifact": True}))
+        is True
+    )
+    assert _is_artifact_action(_action("plain", "Unknown Card", cost=2)) is False
+
+
+def test_artifact_pilot_gives_no_bonus_to_text_match_spells() -> None:
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    artifact_pilot = ArtifactPilot(config)
+    state = _state()
+    for name in ("Farewell", "Shriekmaw", "Blacksmith's Skill"):
+        action = _action("spell", name, cost=3)
+        assert (
+            artifact_pilot.evaluate_action(state, action).specialist_bonus
+            == engine_pilot.evaluate_action(state, action).specialist_bonus
+        )
+    boots = _action("boots", "Swiftfoot Boots", cost=2)
+    assert (
+        artifact_pilot.evaluate_action(state, boots).specialist_bonus
+        == engine_pilot.evaluate_action(state, boots).specialist_bonus + 0.45
+    )
+
+
+def test_artifact_opening_hand_ignores_text_match_spells() -> None:
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    artifact_pilot = ArtifactPilot(config)
+    unrelated = [
+        _action("bear", "Grizzly Bears", cost=2, roles={CardRole.MANA_SOURCE}),
+        _action("bolt", "Lightning Bolt", cost=1, roles={CardRole.REMOVAL}),
+        _action("forest", "Forest", cost=0, roles={CardRole.MANA_SOURCE}),
+    ]
+    text_match_hand = [*unrelated, _action("skill", "Blacksmith's Skill", cost=1)]
+    assert artifact_pilot.opening_hand_score(
+        text_match_hand, commander_names=("Test Commander",)
+    ) == engine_pilot.opening_hand_score(text_match_hand, commander_names=("Test Commander",))
+    artifact_hand = [*unrelated, _action("ring", "Sol Ring", cost=1)]
+    assert artifact_pilot.opening_hand_score(
+        artifact_hand, commander_names=("Test Commander",)
+    ) > engine_pilot.opening_hand_score(artifact_hand, commander_names=("Test Commander",))
