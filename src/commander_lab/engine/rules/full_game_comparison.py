@@ -414,16 +414,65 @@ def _paired_difference_stats(
     )
 
 
+def _student_t_cdf_positive(t: float, df: int) -> float:
+    """Exact Student's t CDF for t >= 0 and integer df >= 1 (A&S 26.7.3/26.7.4)."""
+    if t == 0.0:
+        return 0.5
+    x = df / (df + t * t)
+    cos_theta = math.sqrt(x)
+    sin_theta = t / math.sqrt(df + t * t)
+    if df % 2 == 1:
+        theta = math.atan2(t, math.sqrt(df))
+        if df == 1:
+            return 0.5 + theta / math.pi
+        total = 1.0
+        term = 1.0
+        for k in range(2, df - 1, 2):
+            term *= (k / (k + 1)) * x
+            total += term
+        return 0.5 + (theta + sin_theta * cos_theta * total) / math.pi
+    total = 1.0
+    term = 1.0
+    for k in range(1, df - 1, 2):
+        term *= (k / (k + 1)) * x
+        total += term
+    return 0.5 + 0.5 * sin_theta * total
+
+
+def student_t_quantile(p: float, df: int) -> float:
+    """Student's t quantile F_df^-1(p) for 0 < p < 1 and integer df >= 1 (#1043)."""
+    if not 0.0 < p < 1.0:
+        raise ValueError("p must be within (0, 1)")
+    if df < 1:
+        raise ValueError("df must be at least 1")
+    if p == 0.5:
+        return 0.0
+    if p < 0.5:
+        return -student_t_quantile(1.0 - p, df)
+    low = 0.0
+    high = 1.0
+    while _student_t_cdf_positive(high, df) < p:
+        low = high
+        high *= 2.0
+    for _ in range(64):
+        mid = 0.5 * (low + high)
+        if _student_t_cdf_positive(mid, df) < p:
+            low = mid
+        else:
+            high = mid
+    return 0.5 * (low + high)
+
+
 def cluster_difference_stats(
     clustered_differences: Sequence[tuple[int, float]],
 ) -> tuple[DifferenceInterval | None, float | None, float | None]:
     """One-way cluster-robust 95% interval and 80%-power detectable difference (#1043).
 
     Treats each distinct seed as an independent cluster of seat-rotation pairs.
-    Uses Liang-Zeger / CR1 degrees-of-freedom correction G / (G - 1).
-    When every cluster has size 1 (G == N), this is bit-identical to the i.i.d.
-    paired standard error sd / sqrt(N), and for balanced clusters of size m
-    it equals SD(mean(d_c)) / sqrt(G).
+    Uses Liang-Zeger / CR1 degrees-of-freedom correction G / (G - 1) and Student's t
+    quantiles with G - 1 degrees of freedom when clusters hold multiple pairs (N > G).
+    When every cluster has size 1 (G == N), there is no within-seed clustering and
+    this is bit-identical to the i.i.d. paired interval and standard error sd / sqrt(N).
     Returns (None, None, None) for N < 2 or G < 2.
     Returns (None, None, 0.0) when se_cluster == 0.0.
     """
@@ -442,10 +491,20 @@ def cluster_difference_stats(
     se_cluster = math.sqrt(se_cluster_sq)
     if se_cluster == 0.0:
         return None, None, 0.0
-    half_width = DIFFERENCE_Z95 * se_cluster
+    if g == n:
+        sd = math.sqrt(sum_u_sq / (n - 1))
+        half_width = DIFFERENCE_Z95 * sd / math.sqrt(n)
+        return (
+            DifferenceInterval(low=mean - half_width, high=mean + half_width),
+            (DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / math.sqrt(n),
+            sd / math.sqrt(n),
+        )
+    q95 = student_t_quantile(0.975, g - 1)
+    q80 = student_t_quantile(0.80, g - 1)
+    half_width = q95 * se_cluster
     return (
         DifferenceInterval(low=mean - half_width, high=mean + half_width),
-        (DIFFERENCE_Z95 + DIFFERENCE_Z80) * se_cluster,
+        (q95 + q80) * se_cluster,
         se_cluster,
     )
 
@@ -606,7 +665,7 @@ class PairedVariantResult(_StrictModel):
     # cluster_difference_interval_95 (#1043) for the cluster-robust interval.
     # The sign-test verdict is unchanged. None for fewer than 2 pairs or zero spread.
     win_share_difference_interval_95: DifferenceInterval | None = None
-    # Cluster-robust 95% normal interval treating each seed as one cluster (#1043).
+    # Cluster-robust 95% t-interval (df = G - 1) treating each seed as one cluster (#1043).
     cluster_difference_interval_95: DifferenceInterval | None = None
     # Smallest win-share difference this run could have detected at 80% power
     # (#870). None when the interval is None.
@@ -627,6 +686,160 @@ class PairedVariantResult(_StrictModel):
     placement_difference: float | None = None
     placement_difference_interval_95: DifferenceInterval | None = None
     placement_pairs: int = Field(default=0, ge=0)
+
+
+VerdictLiteral = Literal["VARIANT_BETTER", "BASELINE_BETTER", "NO_CLEAR_DIFFERENCE", "INSUFFICIENT"]
+
+
+class ClusterReanalysisResult(_StrictModel):
+    """Comparison of a paired result under old (z) vs. new (t, df=G-1) cluster quantiles (#1043)."""
+
+    variant_deck_id: str
+    baseline_deck_id: str
+    pairs_completed: int = Field(ge=0)
+    seed_clusters_completed: int = Field(ge=0)
+    win_share_difference: float | None
+    cluster_se: float | None = Field(default=None, ge=0.0)
+    iid_interval_95: DifferenceInterval | None = None
+    iid_detectable_80pct_power: float | None = None
+    z_cluster_interval_95: DifferenceInterval | None = None
+    z_cluster_detectable_80pct_power: float | None = None
+    t_cluster_interval_95: DifferenceInterval | None = None
+    t_cluster_detectable_80pct_power: float | None = None
+    old_verdict: VerdictLiteral
+    new_verdict: VerdictLiteral
+    verdict_changed: bool
+    old_interval_excludes_zero: bool
+    new_interval_excludes_zero: bool
+    interval_zero_crossing_changed: bool
+    old_underpowered: bool
+    new_underpowered: bool
+    underpowered_changed: bool
+
+
+def _interval_excludes_zero(interval: DifferenceInterval | None) -> bool:
+    if interval is None:
+        return False
+    return interval.low > 0.0 or interval.high < 0.0
+
+
+def reanalyze_paired_variant(
+    paired: PairedVariantResult,
+    *,
+    clustered_differences: Sequence[tuple[int, float]] | None = None,
+    seed_clusters: int | None = None,
+    source_quantiles: Literal["z", "t"] = "z",
+) -> ClusterReanalysisResult:
+    """Re-evaluate a PairedVariantResult with old (z) and new (t, df=G-1) cluster quantiles (#1043).
+
+    Accepts either raw ``clustered_differences`` or an already-aggregated
+    :class:`PairedVariantResult` (where ``cluster_se`` is recovered from
+    ``cluster_difference_interval_95`` according to ``source_quantiles``).
+    """
+    g = (
+        len({seed for seed, _ in clustered_differences})
+        if clustered_differences is not None
+        else (seed_clusters if seed_clusters is not None else paired.seed_clusters_completed)
+    )
+    n = len(clustered_differences) if clustered_differences is not None else paired.pairs_completed
+    mean = paired.win_share_difference
+    se_cluster: float | None = None
+
+    if clustered_differences is not None:
+        _, _, se_cluster = cluster_difference_stats(clustered_differences)
+        if n > 0 and mean is None:
+            mean = sum(diff for _, diff in clustered_differences) / n
+    elif paired.cluster_difference_interval_95 is not None and mean is not None and g >= 2:
+        half = 0.5 * (
+            paired.cluster_difference_interval_95.high - paired.cluster_difference_interval_95.low
+        )
+        if source_quantiles == "z" or g == n:
+            se_cluster = half / DIFFERENCE_Z95
+        else:
+            se_cluster = half / student_t_quantile(0.975, g - 1)
+
+    z_interval: DifferenceInterval | None = None
+    z_detectable: float | None = None
+    t_interval: DifferenceInterval | None = None
+    t_detectable: float | None = None
+
+    if se_cluster is not None and se_cluster > 0.0 and mean is not None and g >= 2:
+        z_half = DIFFERENCE_Z95 * se_cluster
+        z_interval = DifferenceInterval(low=mean - z_half, high=mean + z_half)
+        z_detectable = (DIFFERENCE_Z95 + DIFFERENCE_Z80) * se_cluster
+        if g == n:
+            t_q95 = DIFFERENCE_Z95
+            t_q80 = DIFFERENCE_Z80
+        else:
+            t_q95 = student_t_quantile(0.975, g - 1)
+            t_q80 = student_t_quantile(0.80, g - 1)
+        t_half = t_q95 * se_cluster
+        t_interval = DifferenceInterval(low=mean - t_half, high=mean + t_half)
+        t_detectable = (t_q95 + t_q80) * se_cluster
+
+    old_verdict = paired.verdict
+    new_verdict = paired.verdict
+    old_excludes_zero = _interval_excludes_zero(z_interval)
+    new_excludes_zero = _interval_excludes_zero(t_interval)
+    old_underpowered = paired.underpowered
+    new_underpowered = (
+        new_verdict in ("NO_CLEAR_DIFFERENCE", "INSUFFICIENT")
+        and t_detectable is not None
+        and t_detectable > UNDERPOWERED_ABOVE
+    )
+    return ClusterReanalysisResult(
+        variant_deck_id=paired.variant_deck_id,
+        baseline_deck_id=paired.baseline_deck_id,
+        pairs_completed=n,
+        seed_clusters_completed=g,
+        win_share_difference=mean,
+        cluster_se=se_cluster,
+        iid_interval_95=paired.win_share_difference_interval_95,
+        iid_detectable_80pct_power=paired.detectable_difference_80pct_power,
+        z_cluster_interval_95=z_interval,
+        z_cluster_detectable_80pct_power=z_detectable,
+        t_cluster_interval_95=t_interval,
+        t_cluster_detectable_80pct_power=t_detectable,
+        old_verdict=old_verdict,
+        new_verdict=new_verdict,
+        verdict_changed=(old_verdict != new_verdict),
+        old_interval_excludes_zero=old_excludes_zero,
+        new_interval_excludes_zero=new_excludes_zero,
+        interval_zero_crossing_changed=(old_excludes_zero != new_excludes_zero),
+        old_underpowered=old_underpowered,
+        new_underpowered=new_underpowered,
+        underpowered_changed=(old_underpowered != new_underpowered),
+    )
+
+
+def format_reanalysis_summary(result: ClusterReanalysisResult) -> str:
+    """Format a human-readable comparison of old (z) vs. new (t) cluster metrics (#1043)."""
+    diff_txt = (
+        f"{result.win_share_difference:+.3f}" if result.win_share_difference is not None else "n/a"
+    )
+    z_txt = (
+        f"[{result.z_cluster_interval_95.low:+.3f}, {result.z_cluster_interval_95.high:+.3f}] "
+        f"(det={result.z_cluster_detectable_80pct_power:.3f})"
+        if result.z_cluster_interval_95 is not None
+        and result.z_cluster_detectable_80pct_power is not None
+        else "n/a"
+    )
+    t_txt = (
+        f"[{result.t_cluster_interval_95.low:+.3f}, {result.t_cluster_interval_95.high:+.3f}] "
+        f"(det={result.t_cluster_detectable_80pct_power:.3f})"
+        if result.t_cluster_interval_95 is not None
+        and result.t_cluster_detectable_80pct_power is not None
+        else "n/a"
+    )
+    return (
+        f"{result.variant_deck_id} vs {result.baseline_deck_id} "
+        f"(pairs={result.pairs_completed}, clusters={result.seed_clusters_completed}, "
+        f"diff={diff_txt}): z-cluster={z_txt} -> t-cluster={t_txt}; "
+        f"verdict={result.old_verdict}->{result.new_verdict} "
+        f"(verdict_changed={result.verdict_changed}, "
+        f"zero_crossing_changed={result.interval_zero_crossing_changed}, "
+        f"underpowered_changed={result.underpowered_changed})"
+    )
 
 
 class DeckComparisonReport(_StrictModel):
@@ -925,6 +1138,7 @@ __all__ = [
     "DIFFERENCE_Z80",
     "DIFFERENCE_Z95",
     "UNDERPOWERED_ABOVE",
+    "ClusterReanalysisResult",
     "ContenderSummary",
     "DeckComparisonReport",
     "DeckComparisonSpec",
@@ -941,15 +1155,18 @@ __all__ = [
     "case_id",
     "cluster_difference_stats",
     "finishing_scores",
+    "format_reanalysis_summary",
     "pairs_needed",
     "parse_swaps",
     "plan_comparison_cases",
     "pod_decks",
     "power_table",
+    "reanalyze_paired_variant",
     "sequential_look_alpha",
     "sequential_look_decided",
     "sequential_looks_planned",
     "sequential_stop_now",
     "sign_test_p_value",
+    "student_t_quantile",
     "wilson_interval",
 ]
