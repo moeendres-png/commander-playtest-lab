@@ -1,0 +1,324 @@
+{
+ "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
+ "workstream": "xmage-precon-commander-cards-2-repin-v14-20261029",
+ "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
+ "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
+ "status_note": "the pin is the head of the fork branch claude/project-thread-md70sq (moeendres-png/mage, PR #72, fast-forwarded into the candidate line claude/xmage-mp-candidate-20260929): the v13 pin 90f5c4d3f8 plus four commits that build the 21 Commander precon cards the engine did not know for real, each with Mage.Tests cases (fifteen Doctor Who cards: Susan Foreman, Missy, The Foretold Soldier, The Pandorica, Cybership, Cyber Conversion, Death in Heaven, Don't Blink, Doomsday Confluence, The Cyber-Controller, Psychic Paper, Rassilon the War President, River Song's Diary, The Moment, The War Doctor; Feather, Radiant Arbiter; Immortal Obligation; Eye of Duskmantle; Desert Warfare; Exchange of Words; Space Beleren), plus three fixes: the untap cost of Sage of the Maze (an untapped Gate is required) and two object orders that follow the insertion order (SacrificeAllEffect, Chaos Mutation). Unlike v13 the pin changes engine classes in Mage/ (new effects, a counter type, a game event and small edits to GameState, PermanentImpl, PlayerImpl and ForetellAbility), but no dependency and not the engine version (1.4.62). Owner's go: see owner_go. The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite stays PENDING until the XMage Full Game Conformance run on the repin branch is bound; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
+ "not_a": [
+  "PRODUCTION_PROVIDER_SELECTION",
+  "ARCHITECTURE_FREEZE",
+  "ARCHITECTURE_FREEZE_REBIND",
+  "DENOMINATOR_CHANGE"
+ ],
+ "rules_authority": {
+  "effective_date": "2026-09-25",
+  "official_txt_sha256": "8d860e451f20f38865b725b42d82feb714c725373dd8f3b32b8652b3eeb070ca"
+ },
+ "owner_go": {
+  "decision": "Owner gave his go for #979 (the 31 cards the engine did not know, built for real in the fork) with 'Hier mein go für #979 wenn das deine Empfehlung ist', answering the note that the batch waited on his go; on 2026-10-29 he chose 'Pushen' on the decision card 'Die 21 Fork-Karten jetzt in den Fork pushen und Fork-CI starten?' at 2026-10-29 20:46:02 UTC, wrote 'Hier mein Go' in the thread at 2026-10-29 20:46:28 UTC and chose 'Mergen' on the decision card 'Fork-PR #72 mergen und damit die Kandidatenlinie vorziehen?' at 2026-10-29 21:25:00 UTC. The consequence lines of these cards named the fast-forward of the candidate line and the follow-up repin v14 with PB-03, seals and the AF11 adjudication.",
+  "scope": "push the line to the fork, run the fork CI, fast-forward the candidate line, open the repin, PB-03 and both seals"
+ },
+ "prior_live_pin": {
+  "commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+  "tree": "9d6c810ab1266598fc436298f7caa49668c4b2bc",
+  "role": "prior live XMage pin (repin v13, ten precon cards, engine 1.4.62); stays historical and is the engine of the current_qualification epoch 129ff15588ab-1e03e59d23fa until this repin is requalified",
+  "successor_locks": [
+   "qualification/xmage-determinism-line-repin-v10-20261020/SUCCESSOR_SOURCE_LOCK.json",
+   "qualification/xmage-lazy-triggers-repin-v11-20261021/SUCCESSOR_SOURCE_LOCK.json",
+   "qualification/xmage-order-collections-repin-v12-20261022/SUCCESSOR_SOURCE_LOCK.json",
+   "qualification/xmage-precon-commander-cards-repin-v13-20261023/SUCCESSOR_SOURCE_LOCK.json"
+  ]
+ },
+ "lineage": {
+  "prior_pin": {
+   "commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+   "tree": "9d6c810ab1266598fc436298f7caa49668c4b2bc"
+  },
+  "candidate_line_head": {
+   "commit": "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e",
+   "branch": "claude/xmage-mp-candidate-20260929",
+   "content": "fast-forwarded to the v13 pin on 2026-10-23; fast-forwarded to this pin on 2026-10-29 with the merge of Mage PR #72 (Owner's tap of 21:25 UTC)"
+  },
+  "final_integrated_candidate": {
+   "commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+   "tree": "35c73726235ddc9897b19fa7b28df038b7a5c196",
+   "content": "v13 pin plus 21 Commander precon cards with their tests and set lines, the Sage of the Maze fix and two insertion-order fixes; no upstream merge"
+  },
+  "identity_rule": "the pin is the head commit of the fork branch claude/project-thread-md70sq (mage#72 is the CI carrier); its parent 34aa449aa8 is the Feather/Immortal Obligation/Eye of Duskmantle/Desert Warfare/Exchange of Words/Space Beleren commit"
+ },
+ "new_live_pin": {
+  "repository": "https://github.com/moeendres-png/mage.git",
+  "branch": "claude/project-thread-md70sq",
+  "commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "tree": "35c73726235ddc9897b19fa7b28df038b7a5c196",
+  "parents": [
+   "34aa449aa8ebae5e9bca11a672d52ed4c9f1796b"
+  ],
+  "committed_at": "2026-10-29T20:55:59+00:00",
+  "source_archive": "https://github.com/moeendres-png/mage/archive/2ec507b721ac04834eaa4d553b494681c46d996f.tar.gz",
+  "fork_ref_note": "the commit is the head of claude/project-thread-md70sq and, after the fast-forward, of claude/xmage-mp-candidate-20260929"
+ },
+ "donors": [
+  {
+   "finding": "PRECON-COMMANDER-CARDS-21",
+   "branch": "claude/project-thread-md70sq (moeendres-png/mage), PR #72",
+   "head": "2ec507b721ac04834eaa4d553b494681c46d996f",
+   "observation": "21 Commander precon cards were still missing from the engine after repin v13, so nine precon decks did not import with real cards (Susan Foreman; Missy and others; The Foretold Soldier and others; The Pandorica and others; Feather, Radiant Arbiter and Immortal Obligation; Eye of Duskmantle; Desert Warfare twice; Exchange of Words and Space Beleren); Sage of the Maze untapped without the Gate cost; two sacrifice/exile orders depended on hash order.",
+   "fix": "21 card classes with 87 Mage.Tests cases, new engine pieces for the Doctor Who mechanics, four SetCardInfo edits, the Sage fix and two LinkedHashSet orders (Lab #979)"
+  }
+ ],
+ "engine_delta": {
+  "method": "git diff --shortstat 90f5c4d3f8 2ec507b721 in moeendres-png/mage; blob ids from git rev-parse 2ec507b721:path (card, set and Mage/ files; test files are counted in the shortstat but not listed)",
+  "commits": [
+   {
+    "commit": "bf5a6e8bca9da8753b668166112ec2ec7a162a15",
+    "title": "Fix Sage of the Maze untap cost and two nondeterministic sacrifice/exile orders",
+    "files": [
+     "see post_pin_edits"
+    ]
+   },
+   {
+    "commit": "fcf9b1a3ef1bf0bd95803cf17048477d7106f4be",
+    "title": "Add 15 missing Doctor Who commander cards with tests",
+    "files": [
+     "see post_pin_edits"
+    ]
+   },
+   {
+    "commit": "34aa449aa8ebae5e9bca11a672d52ed4c9f1796b",
+    "title": "Add Feather, Immortal Obligation, Eye of Duskmantle, Desert Warfare, Exchange of Words and Space Beleren",
+    "files": [
+     "see post_pin_edits"
+    ]
+   },
+   {
+    "commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+    "title": "The War Doctor: attack trigger carries the leaves-the-battlefield flag Mage.Verify asks for",
+    "files": [
+     "see post_pin_edits"
+    ]
+   }
+  ],
+  "commit_count": 4,
+  "files_changed": 62,
+  "insertions": 5435,
+  "deletions": 63,
+  "post_pin_edits": [
+   {
+    "path": "Mage.Sets/src/mage/cards/c/ChaosMutation.java",
+    "blob": "7b20f248b9b2772a499e5c57733f2d5dcd9ebd25"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/CyberConversion.java",
+    "blob": "9efa8556dab1eb7f9c4edb3aa8e173bf1fa2dd11"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/c/Cybership.java",
+    "blob": "307b8938cc59ecd863d6b3838fa38b4753ad3746"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/d/DeathInHeaven.java",
+    "blob": "f254c9d29fa09da6853f430e8101d653cfac39bb"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/d/DesertWarfare.java",
+    "blob": "cd17eceebbd4e3348050741478e00dc82f6ec57e"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/d/DontBlink.java",
+    "blob": "4952d6c2822c20cbfddcffe900557f572ea55fc2"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/d/DoomsdayConfluence.java",
+    "blob": "a2d17aa11394e524068d9db2b222d49125e67924"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/e/ExchangeOfWords.java",
+    "blob": "d7a5f401006d94c842d9d49e9eaeeffc736e5425"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/e/EyeOfDuskmantle.java",
+    "blob": "878a42a098317346a7cee87c5b58fc0d666ccc38"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/f/FeatherRadiantArbiter.java",
+    "blob": "c279c6090be2087fc8a58da16107555b1cd41998"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/i/ImmortalObligation.java",
+    "blob": "4cbb019896073ed0e059d6d701bb8366ef0d46f7"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/m/Missy.java",
+    "blob": "3737b7ba176328e8d382dddc91a6c71970fdc02f"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/p/PsychicPaper.java",
+    "blob": "20be6b375630b8ebe59dddb57357fa5d414a2b50"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/r/RassilonTheWarPresident.java",
+    "blob": "9104df5702b4e2621c59187e2ad1f23fc6a8b7e1"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/r/RiverSongsDiary.java",
+    "blob": "1c546c0e897e2c82f0345e18994e927f3297abae"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/s/SageOfTheMaze.java",
+    "blob": "f1b4e546c8e8d40c065b629ba5c69302bd9a0ba0"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/s/SpaceBeleren.java",
+    "blob": "60c33077e1ac5acf9b58848c218cef979d5dede9"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/s/SusanForeman.java",
+    "blob": "44da1f46cd482fdd4059fb15af6824a681e48d03"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TheCyberController.java",
+    "blob": "2aec993dd61b9aec2704c58e65e662398c2ac387"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TheForetoldSoldier.java",
+    "blob": "94d9f826ac8c7cd1c56b9cba6de6731f7481cffa"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TheMoment.java",
+    "blob": "ea3f6dd73f083449cdc56f60b04567246a5b0d36"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/ThePandorica.java",
+    "blob": "78d3f1d4b546f403fbcd80ea8d6651db98d77370"
+   },
+   {
+    "path": "Mage.Sets/src/mage/cards/t/TheWarDoctor.java",
+    "blob": "f35614b611983bb9a20a3a66910209908c07ddda"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/DoctorWho.java",
+    "blob": "6b8c1ad47fdbb0deb147448ffc1de3ffc03aac1d"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/ModernHorizons3Commander.java",
+    "blob": "2809d030bd2036704ad3c73cc50ca22917cb5374"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/MurdersAtKarlovManorCommander.java",
+    "blob": "426a0d690d49a63539b8218c02ac4c048954f628"
+   },
+   {
+    "path": "Mage.Sets/src/mage/sets/Unfinity.java",
+    "blob": "45f53e8b9e70b0957265ff43f4ed3b27a113094d"
+   },
+   {
+    "path": "Mage/src/main/java/mage/MageIdentifier.java",
+    "blob": "7d63d91d63c909d89a99c62eaff32a09b0522718"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/common/PhaseOutHeldBySourceEffect.java",
+    "blob": "e9228a87fb2bf2cfa92282eef6e57cccceaf7dbb"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/common/SacrificeAllEffect.java",
+    "blob": "197c5cd22f81840276ecc3a30a51a65fcc641128"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/common/continuous/BecomesCybermanArtifactEffect.java",
+    "blob": "620255426c7f37c9d929b187a2a76044f2b23a75"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/effects/keyword/CybermanFaceDown.java",
+    "blob": "03a0e5ebce1f933d0afc975040772e8693f19838"
+   },
+   {
+    "path": "Mage/src/main/java/mage/abilities/keyword/ForetellAbility.java",
+    "blob": "25409d7856974fcfb3fa6537e5d51892cc12dfb9"
+   },
+   {
+    "path": "Mage/src/main/java/mage/counters/CounterType.java",
+    "blob": "1da964c77634f1490f63211f8d640be22ebcaae3"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/GameState.java",
+    "blob": "a97b4593cdaa3f041920621a58e8031dc97d2778"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/events/GameEvent.java",
+    "blob": "4a7b45c69a858a3265ac8435841b3b503ee3b17f"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/events/PhasedOutBatchEvent.java",
+    "blob": "1f6dbd172b2a5fa8c445b49f6e5c23737df35fa2"
+   },
+   {
+    "path": "Mage/src/main/java/mage/game/permanent/PermanentImpl.java",
+    "blob": "e6a4a485fabcdae4b1bb3723b27826311488d4fc"
+   },
+   {
+    "path": "Mage/src/main/java/mage/players/PlayerImpl.java",
+    "blob": "dd750505676f5c040e01e53b81ab79a4ef2a14b8"
+   }
+  ],
+  "engine_classes_changed": true,
+  "engine_classes_note": "Mage/ files changed: MageIdentifier, PhaseOutHeldBySourceEffect (new), SacrificeAllEffect, BecomesCybermanArtifactEffect (new), CybermanFaceDown (new), ForetellAbility, CounterType, GameState, GameEvent, PhasedOutBatchEvent (new), PermanentImpl, PlayerImpl. The bridge protocol, the pilot interface and the engine version are unchanged; behaviour that can move: object order in SacrificeAllEffect/Chaos Mutation, Sage of the Maze, phasing events. Identity of the 36 real-pod seeds and 46 precon pods versus v13 is measured under local_observed.",
+  "dependency_change": false,
+  "version_change": {
+   "from": "1.4.62",
+   "to": "1.4.62",
+   "note": "unchanged; the engine version string does not move with this repin"
+  },
+  "build_files_changed": []
+ },
+ "not_in_pin": [
+  "the perf port 0c0132a2ef and the 35-commit Muse handover patch set stay out as before (see the v12 lock)",
+  "the Java speed lever is not bundled in this repin",
+  "the upstream XMage delta (see the U-1 check) is not merged"
+ ],
+ "native_qualification": {
+  "full_mage_tests": {
+   "command": "maven.yml workflow_dispatch on branch claude/project-thread-md70sq of moeendres-png/mage (PR #72 targets a non-master base, so the push trigger does not run)",
+   "commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+   "run_id": 40953393372,
+   "job": "build (17, temurin, jdk)",
+   "job_id": 123727119605,
+   "run": 7586,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 126,
+   "status": "COMPLETE"
+  },
+  "mage_verify": {
+   "result": "FAIL (pre-existing, baseline-attributed)",
+   "detail": "same job, same commit: Mage.Verify reports two failures that are not caused by this pin: the set BCHR is missing from the card database and the card Vox carries a unicode name. The identical two failures appear on the v13 pin 90f5c4d3f8 today (maven.yml run 40954766376, Mage.Tests 7499/0/0/126), while the same pin had Verify PASS on 2026-10-23 (run 39955832247): the drift is external data (the card database source), not the code of either pin. The War Doctor reported six Verify errors in an earlier run (missing leaves-the-battlefield flag) and was fixed in the pin. Mage.Tests ran 7586 tests: the 7499 of the v13 pin plus 87 new card tests, same 126 skipped."
+  }
+ },
+ "local_observed": {
+  "status": "LOCAL_OBSERVED (no CI-level credit)",
+  "jar": "PENDING",
+  "identity_vs_v13": "PENDING",
+  "precon_import": "PENDING"
+ },
+ "lab_runtime_qualification": {
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite once it is complete (XMage built and installed from exactly 2ec507b721 for that job; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
+  "installed_artifacts_commit": null,
+  "installed_artifacts": {},
+  "bridge_suite": {
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=2ec507b7, checked in the job): engine-bridge mvn verify against XMage built from exact 2ec507b721",
+   "status": "PENDING"
+  },
+  "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest and the v6, v7 and v8 hooks stay checked."
+ },
+ "architecture_freeze_binding": {
+  "status": "UNCHANGED_BY_THIS_REPIN",
+  "engine_commit": "b479fe74fd1eaf899ff16c6a9203e74a91c0f339",
+  "engine_artifact_sha256": "ebcb7006e4e90237e82a5e27eca5dd260dfc4e9f1cf7aa851de9356740c02f2d",
+  "evidence_epoch": "qualification/current-boundary-epochs/f881d56fb33f-aef9f7f660b4",
+  "why": "the Owner-signed Architecture Freeze (2026-10-10) is bound to the epoch it was signed against; a pin move is not a re-signing. architecture_freeze.current_qualification stays on the epoch it names (129ff15588ab-1e03e59d23fa, engine 90f5c4d3f8) until PB-03 runs on the Lab main merge commit of this repin, AF11 is re-adjudicated for this pin and the epoch is sealed."
+ },
+ "current_boundary": {
+  "status": "REQUALIFICATION_REQUIRED",
+  "how": "Repin-time record; the status field keeps the value the repin was merged with. Sealed epoch of the v13 pin: qualification/current-boundary-epochs/129ff15588ab-1e03e59d23fa (PB-03 run 39979653240 on main 129ff155, FULL107 107/107, AF00-AF11 PASS; AF11 under qualification/af11-xmage-only-topology-20261023-v13/). The next steps are PB-03 on the Lab main merge commit of this repin, the AF11 adjudication for 2ec507b721 (qualification/af11-xmage-only-topology-20261029-v14/) and the seals."
+ }
+}

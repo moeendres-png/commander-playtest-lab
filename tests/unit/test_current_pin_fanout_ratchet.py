@@ -44,7 +44,7 @@ ALLOWED_LITERAL_CONSUMERS = frozenset(
         "engine-bridge/src/test/java/org/commanderlab/xmage/JsonlBridgeTest.java",
         "engine-bridge/src/test/java/org/commanderlab/xmage/XmageCandidateEngineFingerprintTest.java",
         # Deliberate pin-authority guards: a repin must change them consciously.
-        "tests/qualification/test_xmage_precon_commander_cards_repin_v13_20261023.py",
+        "tests/qualification/test_xmage_precon_commander_cards_2_repin_v14_20261029.py",
         "tests/unit/test_ws_a1d_docker_pin_authority.py",
         "tests/unit/test_ws_a1r_pin_authority.py",
         "tests/unit/test_ws_arclose_d1_authority_drift.py",

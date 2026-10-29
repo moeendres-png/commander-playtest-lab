@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class XmageCandidateEngineFingerprintTest {
 
-    static final String CANDIDATE = "90f5c4d3f8d3b799b15b6675fcce40bb0dd4738e";
+    static final String CANDIDATE = "2ec507b721ac04834eaa4d553b494681c46d996f";
 
     @Test
     void declaredEngineCommitIsTheCandidate() {
