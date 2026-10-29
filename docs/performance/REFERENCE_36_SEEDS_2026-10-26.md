@@ -1,5 +1,9 @@
 # Reference run of the 36-seed acceptance (2026-10-26)
 
+Superseded on 2026-10-29 by `REFERENCE_36_SEEDS_2026-10-29.md`: 22 of the 36 seeds of this
+reference no longer reproduce on `main` after the pilot changes of #1041 and #1044 (the staleness
+check did not watch the sibling pilot modules at the time). Kept as history.
+
 Measurement only: two run files and this note. No bridge, fork, pin, pilot or sealed record
 changes, so nothing here needs requalification. It replaces `REFERENCE_36_SEEDS_2026-10-24.md`
 as the reference of the current pilot, which is the state after the combat, payment, timing,
