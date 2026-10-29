@@ -97,7 +97,8 @@ def test_valid_catalog_and_startup_pool_coverage_gate_succeed() -> None:
     assert sol_ring is not None
     assert sol_ring.mana_value == 1.0
     ratio = verify_catalog_pool_coverage()
-    assert ratio >= 0.50
+    # The shipped catalog covers the whole pool today; the gate must sit just below that.
+    assert ratio >= 0.98
 
 
 def test_startup_pool_coverage_gate_fails_closed_below_threshold(tmp_path: Path) -> None:
@@ -139,3 +140,23 @@ def test_startup_pool_coverage_gate_fails_closed_below_threshold(tmp_path: Path)
             precons_dir=precons_dir,
             min_coverage_ratio=0.50,
         )
+
+
+def test_the_default_threshold_rejects_a_catalog_that_lost_one_card_in_ten(tmp_path: Path) -> None:
+    """A catalog that has lost 10 % of the pool passed the old 50 % gate and now stops the run (#1037)."""
+    _clear_caches()
+    catalog = tmp_path / "catalog.json"
+    cards = {
+        f"Card {index}": {"name": f"Card {index}", "mana_value": 1.0, "type_line": "Artifact"}
+        for index in range(9)
+    }
+    catalog.write_text(json.dumps({"cards": cards}), encoding="utf-8")
+    precons_dir = tmp_path / "precons"
+    precons_dir.mkdir()
+    pool = [{"oracle_name": f"Card {index}"} for index in range(10)]
+    (precons_dir / "deck1.json").write_text(json.dumps({"cards": pool}), encoding="utf-8")
+    with pytest.raises(CardCatalogError, match="below minimum threshold"):
+        verify_catalog_pool_coverage(catalog_path=catalog, precons_dir=precons_dir)
+    assert verify_catalog_pool_coverage(
+        catalog_path=catalog, precons_dir=precons_dir, min_coverage_ratio=0.50
+    ) == pytest.approx(0.9)

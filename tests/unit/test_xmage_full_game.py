@@ -645,3 +645,46 @@ def test_deck_gate_kaervek_legacy_pair_is_pinned_to_unchanged_content(
         match=XmageFullGameRunner.DECK_GATE_HASH_MISMATCH,
     ):
         XmageFullGameRunner._deck_payload(mutated)
+
+
+def test_deck_gate_accepts_every_precon_pool_deck(repo_root: Path) -> None:
+    """The gate must not refuse a deck of the pool the pod runs are drawn from (#1039 review)."""
+    from commander_lab.engine.rules.full_game import _validate_deck_construction
+    from commander_lab.engine.rules.project import load_rules_deck_snapshot
+    from commander_lab.semantic_replay.recorder import deck_content_digest as digest
+
+    paths = sorted((repo_root / "data/decks/precons").glob("*.json"))
+    assert len(paths) >= 100  # the pool, not an empty glob
+    refused: list[str] = []
+    for path in paths:
+        deck = load_rules_deck_snapshot(path)
+        deck = deck.model_copy(
+            update={
+                "deck_hash": digest(
+                    deck_id=deck.deck_id,
+                    commander_names=deck.commander_names,
+                    mainboard=tuple(deck.mainboard),
+                )
+            }
+        )
+        try:
+            _validate_deck_construction(deck)
+        except FullGameConformanceError as exc:
+            refused.append(f"{path.name}: {str(exc)[:120]}")
+    assert refused == []
+
+
+def test_deck_gate_refuses_a_card_without_a_known_color_identity() -> None:
+    base = _decks()[0]
+    new_mainboard = ("A Card Nobody Printed", *base.mainboard[1:])
+    correct_hash = deck_content_digest(
+        deck_id=base.deck_id,
+        commander_names=base.commander_names,
+        mainboard=new_mainboard,
+    )
+    deck = base.model_copy(update={"mainboard": new_mainboard, "deck_hash": correct_hash})
+    with pytest.raises(
+        FullGameConformanceError,
+        match=XmageFullGameRunner.DECK_GATE_COLOR_IDENTITY_UNKNOWN,
+    ):
+        XmageFullGameRunner._deck_payload(deck)
