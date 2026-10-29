@@ -10,6 +10,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import warnings
 from pathlib import Path
 
 import pytest
@@ -236,7 +237,7 @@ def test_failure_isolation_check_reads_only_ok_games_of_a_reference(tmp_path: Pa
 def test_parse_reference_metadata_reads_commit_and_pin() -> None:
     module = _module()
     meta = module.parse_reference_metadata(module.REFERENCE_DOC)
-    assert meta == {"lab_commit": "b528082d5", "xmage_pin": "90f5c4d3f8"}
+    assert meta == {"lab_commit": "5d85d2dc4", "xmage_pin": "90f5c4d3f8"}
 
 
 def test_parse_reference_metadata_fails_closed_without_commit_row(tmp_path: Path) -> None:
@@ -252,16 +253,29 @@ def test_parse_reference_metadata_fails_closed_without_commit_row(tmp_path: Path
 
 def test_reference_is_current_at_its_own_commit() -> None:
     module = _module()
-    res = module.check_reference_staleness(target_ref="b528082d5")
+    res = module.check_reference_staleness(target_ref="5d85d2dc4")
     assert res["stale"] is False
     assert res["changed_files"] == ()
     assert res["pin_matches"] is True
-    assert "current at b528082d5" in str(res["message"])
+    assert "current at 5d85d2dc4" in str(res["message"])
 
 
-def test_reference_is_stale_after_pilot_changes() -> None:
+def _old_reference_doc(tmp_path: Path) -> Path:
+    """A note at the commit of the 2026-10-26 reference (before the pilot steps of #1041/#1044)."""
+    doc = tmp_path / "old_reference.md"
+    doc.write_text(
+        "| Lab commit | `b528082d5` (main after #1023) |\n"
+        "| XMage pin | `90f5c4d3f8` (`config/rules_engines.json`, v13) |\n",
+        encoding="utf-8",
+    )
+    return doc
+
+
+def test_reference_is_stale_after_pilot_changes(tmp_path: Path) -> None:
     module = _module()
-    res = module.check_reference_staleness(target_ref="a8d6e54a5")
+    res = module.check_reference_staleness(
+        doc_path=_old_reference_doc(tmp_path), target_ref="a8d6e54a5"
+    )
     assert res["stale"] is True
     assert res["changed_files"] == (
         "src/commander_lab/engine/rules/full_game_pilot/choices.py",
@@ -273,6 +287,17 @@ def test_reference_is_stale_after_pilot_changes() -> None:
         "src/commander_lab/engine/rules/full_game_pilot_target_discount.py",
     )
     assert "stale" in str(res["message"])
+
+
+def test_reference_staleness_at_head_is_reported_not_enforced() -> None:
+    """A stale reference is a warning, not a failure: pilot work is allowed to outrun the note."""
+    module = _module()
+    try:
+        res = module.check_reference_staleness(target_ref="HEAD")
+    except RuntimeError as exc:  # a shallow checkout does not hold the reference commit
+        pytest.skip(f"reference commit not available in this checkout: {exc}")
+    if res["stale"]:
+        warnings.warn(str(res["message"]), stacklevel=1)
 
 
 def test_unknown_reference_commit_fails_closed(tmp_path: Path) -> None:
@@ -287,10 +312,11 @@ def test_unknown_reference_commit_fails_closed(tmp_path: Path) -> None:
         module.check_reference_staleness(doc_path=doc)
 
 
-def test_check_reference_cli_exit_codes() -> None:
+def test_check_reference_cli_exit_codes(tmp_path: Path) -> None:
     module = _module()
-    assert module.main(["check-reference", "--target", "b528082d5"]) == 0
-    assert module.main(["check-reference", "--target", "a8d6e54a5"]) == 1
+    assert module.main(["check-reference", "--target", "5d85d2dc4"]) == 0
+    old = _old_reference_doc(tmp_path)
+    assert module.main(["check-reference", "--doc", str(old), "--target", "a8d6e54a5"]) == 1
 
 
 def _git(repo: Path, *args: str) -> str:
