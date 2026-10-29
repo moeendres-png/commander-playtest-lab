@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-precon-commander-cards-2-repin-v14-20261029",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head of the fork branch claude/project-thread-md70sq (moeendres-png/mage, PR #72, fast-forwarded into the candidate line claude/xmage-mp-candidate-20260929): the v13 pin 90f5c4d3f8 plus four commits that build the 21 Commander precon cards the engine did not know for real, each with Mage.Tests cases (fifteen Doctor Who cards: Susan Foreman, Missy, The Foretold Soldier, The Pandorica, Cybership, Cyber Conversion, Death in Heaven, Don't Blink, Doomsday Confluence, The Cyber-Controller, Psychic Paper, Rassilon the War President, River Song's Diary, The Moment, The War Doctor; Feather, Radiant Arbiter; Immortal Obligation; Eye of Duskmantle; Desert Warfare; Exchange of Words; Space Beleren), plus three fixes: the untap cost of Sage of the Maze (an untapped Gate is required) and two object orders that follow the insertion order (SacrificeAllEffect, Chaos Mutation). Unlike v13 the pin changes engine classes in Mage/ (new effects, a counter type, a game event and small edits to GameState, PermanentImpl, PlayerImpl and ForetellAbility), but no dependency and not the engine version (1.4.62). Owner's go: see owner_go. The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite stays PENDING until the XMage Full Game Conformance run on the repin branch is bound; current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head of the fork branch claude/project-thread-md70sq (moeendres-png/mage, PR #72, fast-forwarded into the candidate line claude/xmage-mp-candidate-20260929): the v13 pin 90f5c4d3f8 plus four commits that build the 21 Commander precon cards the engine did not know for real, each with Mage.Tests cases (fifteen Doctor Who cards: Susan Foreman, Missy, The Foretold Soldier, The Pandorica, Cybership, Cyber Conversion, Death in Heaven, Don't Blink, Doomsday Confluence, The Cyber-Controller, Psychic Paper, Rassilon the War President, River Song's Diary, The Moment, The War Doctor; Feather, Radiant Arbiter; Immortal Obligation; Eye of Duskmantle; Desert Warfare; Exchange of Words; Space Beleren), plus three fixes: the untap cost of Sage of the Maze (an untapped Gate is required) and two object orders that follow the insertion order (SacrificeAllEffect, Chaos Mutation). Unlike v13 the pin changes engine classes in Mage/ (new effects, a counter type, a game event and small edits to GameState, PermanentImpl, PlayerImpl and ForetellAbility), but no dependency and not the engine version (1.4.62). Owner's go: see owner_go. The native maven.yml run on the exact commit is bound under native_qualification; the Lab bridge suite is bound under lab_runtime_qualification (Actions run 40970660400); current_boundary keeps its repin-time status REQUALIFICATION_REQUIRED.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -303,12 +303,28 @@
   "bridge_identity_tests": "the engine-bridge suite runs in Actions against XMage built from the exact pin (lab_runtime_qualification.bridge_suite); not repeated locally"
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite once it is complete (XMage built and installed from exactly 2ec507b721 for that job; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite (XMage built and installed from exactly 2ec507b721 for that job; the step 'Record engine artifact identity' printed the sha256 of the installed jars)",
+  "installed_artifacts_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 14e87c69778501c0a87156fcfa4f48721ac6518c055f49f6de45cc8e9b5660f4",
+   "org.mage:mage-sets:1.4.62": "sha256 af0bedadf4998688151ca9610d2168622b50ae962da26aebcd817d7634dbb49b"
+  },
   "bridge_suite": {
-   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=2ec507b7, checked in the job): engine-bridge mvn verify against XMage built from exact 2ec507b721",
-   "status": "PENDING"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head 81d62886bfe1a2eca9ef86b7822b8d7dafed51e0 (XMAGE_COMMIT=2ec507b721, checked in the job): engine-bridge mvn verify against XMage built from exact 2ec507b721",
+   "run": 2328,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 40970660400,
+   "job": 123786353343,
+   "artifact": {
+    "id": 12941191358,
+    "zip_sha256": "90bc233e07e3c090a6c4a1160f9de04de09eab9dfb8dd398ded8cb157f3a91c0"
+   },
+   "tests_run": 1154,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest and the v6, v7 and v8 hooks stay checked."
  },
