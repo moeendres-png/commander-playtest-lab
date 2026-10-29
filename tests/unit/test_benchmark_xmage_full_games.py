@@ -268,6 +268,9 @@ def test_reference_is_stale_after_pilot_changes() -> None:
         "src/commander_lab/engine/rules/full_game_pilot/payment.py",
         "src/commander_lab/engine/rules/full_game_pilot/priority.py",
         "src/commander_lab/engine/rules/full_game_pilot/state.py",
+        # Sibling modules: the first version of the watcher did not see them (#1035 review).
+        "src/commander_lab/engine/rules/full_game_pilot_mana_hold.py",
+        "src/commander_lab/engine/rules/full_game_pilot_target_discount.py",
     )
     assert "stale" in str(res["message"])
 
@@ -288,3 +291,62 @@ def test_check_reference_cli_exit_codes() -> None:
     module = _module()
     assert module.main(["check-reference", "--target", "b528082d5"]) == 0
     assert module.main(["check-reference", "--target", "a8d6e54a5"]) == 1
+
+
+def _git(repo: Path, *args: str) -> str:
+    import subprocess
+
+    done = subprocess.run(
+        ["git", "-C", str(repo), "-c", "user.name=t", "-c", "user.email=t@t", *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return done.stdout.strip()
+
+
+def _reference_repo(tmp_path: Path) -> tuple[Path, Path]:
+    """A throw-away repo that has a reference commit, a pilot sibling module and an unrelated file."""
+    repo = tmp_path / "repo"
+    (repo / "config").mkdir(parents=True)
+    rules = repo / "src/commander_lab/engine/rules"
+    (rules / "full_game_pilot").mkdir(parents=True)
+    (repo / "config/rules_engines.json").write_text(
+        json.dumps({"primary_engine": {"commit": "90f5c4d3f8" + "0" * 30}}), encoding="utf-8"
+    )
+    (rules / "full_game_pilot/payment.py").write_text("x = 1\n", encoding="utf-8")
+    (rules / "full_game_pilot_mana_hold.py").write_text("y = 1\n", encoding="utf-8")
+    (rules / "full_game.py").write_text("z = 1\n", encoding="utf-8")
+    _git(repo, "init", "-q")
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-q", "-m", "reference")
+    commit = _git(repo, "rev-parse", "--short", "HEAD")
+    doc = tmp_path / "ref.md"
+    doc.write_text(
+        f"| Lab commit | `{commit}` |\n| XMage pin | `90f5c4d3f8` |\n",
+        encoding="utf-8",
+    )
+    return repo, doc
+
+
+def test_a_change_only_in_a_sibling_pilot_module_makes_the_reference_stale(tmp_path: Path) -> None:
+    module = _module()
+    repo, doc = _reference_repo(tmp_path)
+    kwargs = {"doc_path": doc, "repo_root": repo}
+    assert module.check_reference_staleness(**kwargs)["stale"] is False
+
+    sibling = repo / "src/commander_lab/engine/rules/full_game_pilot_mana_hold.py"
+    sibling.write_text("y = 2\n", encoding="utf-8")
+    _git(repo, "commit", "-q", "-am", "sibling")
+    res = module.check_reference_staleness(**kwargs)
+    assert res["stale"] is True
+    assert res["changed_files"] == ("src/commander_lab/engine/rules/full_game_pilot_mana_hold.py",)
+
+
+def test_a_change_outside_the_pilot_paths_keeps_the_reference_current(tmp_path: Path) -> None:
+    module = _module()
+    repo, doc = _reference_repo(tmp_path)
+    other = repo / "src/commander_lab/engine/rules/full_game.py"
+    other.write_text("z = 2\n", encoding="utf-8")
+    _git(repo, "commit", "-q", "-am", "unrelated")
+    assert module.check_reference_staleness(doc_path=doc, repo_root=repo)["stale"] is False

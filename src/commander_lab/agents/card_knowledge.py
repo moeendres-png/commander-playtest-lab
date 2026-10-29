@@ -30,7 +30,7 @@ _BASIC_LANDS = frozenset(
 COLOR_WORDS = {"W": "White", "U": "Blue", "B": "Black", "R": "Red", "G": "Green"}
 _PIP = re.compile(r"\{([WUBRGC])(?:/[WUBRGP])?\}")
 _PRECONS_DIR = Path(__file__).resolve().parents[3] / "data/decks/precons"
-MIN_POOL_COVERAGE_RATIO = 0.50
+MIN_POOL_COVERAGE_RATIO = 0.98
 
 
 class CardCatalogError(RuntimeError):

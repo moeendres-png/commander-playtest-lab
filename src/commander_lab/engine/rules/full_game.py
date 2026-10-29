@@ -969,6 +969,7 @@ def _public_error(exc: Exception) -> Exception:
 DECK_GATE_HASH_MISMATCH = "deck_hash_mismatch"
 DECK_GATE_DUPLICATE_CARD = "deck_duplicate_card"
 DECK_GATE_COLOR_IDENTITY_VIOLATION = "deck_color_identity_violation"
+DECK_GATE_COLOR_IDENTITY_UNKNOWN = "deck_color_identity_unknown"
 
 # Legacy stored hash for the real kaervek/current deck (#1039, review follow-up):
 # data/decks/opponents/kaervek/current/deck.json stores deck_hash
@@ -1100,19 +1101,31 @@ def _validate_deck_construction(deck: RulesDeckInput) -> None:
                     f"{count} copies of non-basic card {orig_name!r}"
                 )
 
-    commander_cis = [_card_color_identity(name) for name in deck.commander_names]
-    if commander_cis and all(ci is not None for ci in commander_cis):
-        commander_ci: frozenset[str] = frozenset().union(
-            *(ci for ci in commander_cis if ci is not None)
+    unknown = sorted(
+        {
+            name
+            for name in (*deck.commander_names, *deck.mainboard)
+            if _card_color_identity(name) is None
+        }
+    )
+    if unknown:
+        # A card the catalog does not know cannot be checked: refuse instead of skipping it.
+        shown = ", ".join(repr(name) for name in unknown[:5])
+        raise FullGameConformanceError(
+            f"{DECK_GATE_COLOR_IDENTITY_UNKNOWN}: deck {deck.deck_id} has {len(unknown)} "
+            f"card(s) without a known color identity, e.g. {shown}"
         )
-        for card_name in deck.mainboard:
-            card_ci = _card_color_identity(card_name)
-            if card_ci is not None and not card_ci.issubset(commander_ci):
-                raise FullGameConformanceError(
-                    f"{DECK_GATE_COLOR_IDENTITY_VIOLATION}: card {card_name!r} color "
-                    f"identity {sorted(card_ci)} is outside commander color "
-                    f"identity {sorted(commander_ci)} in deck {deck.deck_id}"
-                )
+    commander_ci: frozenset[str] = frozenset().union(
+        *(ci for ci in map(_card_color_identity, deck.commander_names) if ci is not None)
+    )
+    for card_name in deck.mainboard:
+        card_ci = _card_color_identity(card_name)
+        if card_ci is not None and not card_ci.issubset(commander_ci):
+            raise FullGameConformanceError(
+                f"{DECK_GATE_COLOR_IDENTITY_VIOLATION}: card {card_name!r} color "
+                f"identity {sorted(card_ci)} is outside commander color "
+                f"identity {sorted(commander_ci)} in deck {deck.deck_id}"
+            )
 
 
 class XmageFullGameRunner:
@@ -1123,6 +1136,7 @@ class XmageFullGameRunner:
     DECK_GATE_HASH_MISMATCH = DECK_GATE_HASH_MISMATCH
     DECK_GATE_DUPLICATE_CARD = DECK_GATE_DUPLICATE_CARD
     DECK_GATE_COLOR_IDENTITY_VIOLATION = DECK_GATE_COLOR_IDENTITY_VIOLATION
+    DECK_GATE_COLOR_IDENTITY_UNKNOWN = DECK_GATE_COLOR_IDENTITY_UNKNOWN
     _validate_deck_construction = staticmethod(_validate_deck_construction)
     _valid_deck_hashes = staticmethod(_valid_deck_hashes)
     _is_multi_copy_allowed = staticmethod(_is_multi_copy_allowed)

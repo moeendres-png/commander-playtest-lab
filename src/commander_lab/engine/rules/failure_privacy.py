@@ -104,6 +104,7 @@ _FULL_GAME_SITES = (
     "deck_hash_mismatch",
     "deck_duplicate_card",
     "deck_color_identity_violation",
+    "deck_color_identity_unknown",
 )
 _PUBLIC_ERROR_REASONS = (
     "wrong vector length",

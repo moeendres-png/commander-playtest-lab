@@ -53,6 +53,9 @@ REFERENCE_DOC = ROOT / "docs/performance/REFERENCE_36_SEEDS_2026-10-26.md"
 # Paths whose changes affect pilot decisions or engine behavior and thus invalidate the reference.
 REFERENCE_WATCHED_PATHS: tuple[str, ...] = (
     "src/commander_lab/engine/rules/full_game_pilot",
+    # The sibling modules ``full_game_pilot_*.py`` are pilot code too; the directory above does
+    # not contain them (a pathspec matches whole path components), so they are listed by glob.
+    "src/commander_lab/engine/rules/full_game_pilot_*.py",
     "src/commander_lab/agents",
     "engine-bridge/src/main",
     "config/rules_engines.json",
