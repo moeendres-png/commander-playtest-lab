@@ -296,9 +296,11 @@
  },
  "local_observed": {
   "status": "LOCAL_OBSERVED (no CI-level credit)",
-  "jar": "PENDING",
-  "identity_vs_v13": "PENDING",
-  "precon_import": "PENDING"
+  "jar": "bridge jar built from the Lab bridge of the repin branch against the exact pin 2ec507b721 (ENGINE_COMMIT checked in the class file), sha256 035a5b4e6ff6ff2911d0b49ff070e4c9e9b0df501539bcc32462b832f3fef3a0",
+  "precon_import": "all 173 decks of data/decks/precons import with the candidate jar (36.8 s wall): 173 real, 0 failed (v13: 164 of 173); the nine decks that import now are 2023_blast_from_the_past, 2023_masters_of_evil, 2023_paradox_power, 2023_timey_wimey, 2024_blame_game, 2024_revenant_recon, 2024_tricky_terrain (and its collector's edition) and 2026_odds_and_ends",
+  "identity_vs_v13": "36 real-pod seeds: identical 36/36 (compare against real36_main_5d85d2dc4_run1.json); 44 precon pods of the v13 pool (164 real plus 9 SYNTHETIC proxies): semantic hash and winner equal in 44 of 44; 44 pods of the 173 real decks: 44 of 44 ok",
+  "report": "docs/performance/PRECON_IMPORT_V14_2026-10-29.md",
+  "bridge_identity_tests": "the engine-bridge suite runs in Actions against XMage built from the exact pin (lab_runtime_qualification.bridge_suite); not repeated locally"
  },
  "lab_runtime_qualification": {
   "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite once it is complete (XMage built and installed from exactly 2ec507b721 for that job; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
