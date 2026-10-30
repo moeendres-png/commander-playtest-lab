@@ -14,6 +14,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_additional_cost import additional_mana_cost, reveal_alternative_in_hand
 from ..full_game_pilot_mana_hold import (
     HOLD_TURNS_IN_A_ROW,
     held_instants,
@@ -599,6 +600,37 @@ class _PaymentDecisions(_PolicyState):
         return not damaged_opposing_creatures(state, actor_id) or (
             can_pay(offer, discount.reduced) is False
         )
+
+    def _extra_cost_cast_unpayable(
+        self, option: Mapping[str, object], state: dict[str, object]
+    ) -> bool:
+        """Whether a cast is offered although its mandatory extra mana cannot be paid (#1067).
+
+        Louisoix's Sacrifice ({U}, "sacrifice a legendary creature or pay {2}") is offered while
+        the {U} is payable; the {2} is asked afterwards, and the payment is cancelled with the
+        first mana gone. True only when the model proves the printed price plus the extra mana
+        short and the hand holds no card to reveal in its place; a cost it cannot read, a cast
+        for another price (flashback, an alternative cost) and a board with a cost reducer are
+        left to the pilot.
+        """
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict) or metadata.get("ability_type") != "spell":
+            return False
+        label = str(option.get("label") or "").casefold()
+        if "cast " not in label or any(word in label for word in ("flashback", " using ", "free")):
+            return False
+        name = str(metadata.get("source_name") or "")
+        extra = additional_mana_cost(name)
+        printed = _printed_spell_cost(name) if extra is not None else None
+        actor_id = str(state.get("actor_id") or "")
+        offer = self._visible_mana_offer(self._actor(state))
+        if extra is None or printed is None or offer is None or board_lowers_costs(state, actor_id):
+            return False
+        if can_pay(offer, printed + extra.mana) is not False:
+            return False
+        if extra.reveal_kind is None:
+            return True
+        return reveal_alternative_in_hand(state, actor_id, name, extra.reveal_kind) is False
 
     def _targets_the_discount_pays_for(
         self,
