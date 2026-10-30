@@ -81,5 +81,7 @@ The 12-month rule of the meta lane (PR6) takes sources with weight 0 from their 
 `whole_deck/search_construct.py` loads `WHOLE_DECK_META_SNAPSHOT_ID = meta-2026-08-13-whole-deck-phase2-1`,
 so from 2027-08-13 the deck search finds no fresh meta reference (`build_meta_functional_profile`
 raises, the search skips the band) and runs without meta references; the packages follow on
-2027-10-25. Nothing fails; the search result changes. A refresh and a repoint of that constant before
+2027-10-25. Measured for the commander the search uses (Ishai / Rograkh, 4 matching meta references):
+4 of 4 fresh on 2027-08-04, 3 of 4 on 2027-08-06 (the `local_meta` band is gone), 0 of 4 on
+2027-08-14. Nothing fails; the search result changes. A refresh and a repoint of that constant before
 then keeps it. This is a planning date, not a defect.
