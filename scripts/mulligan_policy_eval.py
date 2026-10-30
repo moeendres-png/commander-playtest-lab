@@ -352,16 +352,7 @@ def evaluate(
 
 
 def pool_173_deck_paths(root: Path) -> list[Path]:
-    precon_dir = root / "data/decks/precons"
-    variants_dir = root / "data/decks/precon_variants"
-    paths: list[Path] = []
-    for precon_path in sorted(precon_dir.glob("*.json")):
-        variant_path = variants_dir / precon_path.name
-        if variant_path.is_file():
-            paths.append(variant_path)
-        else:
-            paths.append(precon_path)
-    return paths
+    return sorted((root / "data/decks/precons").glob("*.json"))
 
 
 def _extract_opening_features(

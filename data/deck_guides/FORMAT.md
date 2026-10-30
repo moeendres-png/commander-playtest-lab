@@ -139,7 +139,7 @@ Fokus-Decks: `rogshai`, `chulane`.
      "komponente": "engine_development"}
   ],
 
-  // nur SYNTHETIC / ORIGINAL_MIT_PROXY: aus data/decks/precon_synthetic_proxies.json
+  // seit Repin v14 leer (kein Proxy-Deck mehr im Pool); frühere Guides trugen hier die Ersetzungen
   "proxy": {"ist_proxy_deck": false, "original_deck_id": null,
             "ersetzungen": [{"original": "…", "proxy": "…"}]}
 }

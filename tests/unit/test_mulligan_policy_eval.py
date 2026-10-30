@@ -65,8 +65,7 @@ def test_refit_on_173_pool_documents_r2_and_paired_12_seed_comparison(
     """Refit on 173 pool (#1038): pool provenance, deterministic OLS fit, and paired 12-seed ruler."""
     pool = ruler.pool_173_deck_paths(ROOT)
     assert len(pool) == 173
-    variant_proxies = [p for p in pool if p.parent.name == "precon_variants"]
-    assert len(variant_proxies) == 9
+    assert {p.parent.name for p in pool} == {"precons"}
 
     # Fast deterministic sub-pool fit (< 2s)
     fit = ruler.fit_opening_hand_model(pool[:24], hands_per_deck=25, seed=7)

@@ -3,7 +3,7 @@
  "deck_id": "precon/2023/masters_of_evil",
  "guide_slug": "precon_2023_masters_of_evil",
  "deck_name": "Masters of Evil",
- "deck_klasse": "ORIGINAL_MIT_PROXY",
+ "deck_klasse": "REAL",
  "evidenz": {
   "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
   "rollen": "CODE_DERIVED (repo card_roles)",
@@ -202,40 +202,6 @@
  "proxy": {
   "ist_proxy_deck": false,
   "original_deck_id": null,
-  "proxy_deck_id": "precon-synthetic/2023/masters_of_evil",
-  "ersetzungen": [
-   {
-    "original": "Missy",
-    "proxy": "Steel Hellkite"
-   },
-   {
-    "original": "Cyber Conversion",
-    "proxy": "Arcane Denial"
-   },
-   {
-    "original": "Doomsday Confluence",
-    "proxy": "Faithless Looting"
-   },
-   {
-    "original": "Death in Heaven",
-    "proxy": "Kang Dynasty"
-   },
-   {
-    "original": "Rassilon, the War President",
-    "proxy": "Mulldrifter"
-   },
-   {
-    "original": "The Cyber-Controller",
-    "proxy": "Burnished Hart"
-   },
-   {
-    "original": "Cybership",
-    "proxy": "N'Yami-Class Mother Ship"
-   },
-   {
-    "original": "Don't Blink",
-    "proxy": "Terminate"
-   }
-  ]
+  "ersetzungen": []
  }
 }

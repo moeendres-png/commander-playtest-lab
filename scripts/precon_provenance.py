@@ -1,12 +1,13 @@
 """Provenance of a precon deck file: REAL (the printed deck) or SYNTHETIC (a variant copy).
 
-A variant in ``data/decks/precon_variants/`` replaces cards the engine pin does not know with
-real, importable cards. It is a test deck, not the printed precon: it says nothing about how the
+A variant copy (the directory ``data/decks/precon_variants/`` held nine of them until repin v14
+retired it) replaces cards the engine pin does not know with real, importable cards. It is a test deck, not the printed precon: it says nothing about how the
 original plays. Import and sweep reports therefore carry this label per deck and count REAL and
 SYNTHETIC decks apart, so a figure such as "186 of 195" is never read as one population.
 
-The marker is the ``deck_id`` prefix that ``build_precon_variants.py`` writes (the generator also
-sets the ``SYNTHETIC`` deck tag; ``precon-variant/`` is the prefix of the first nine copies).
+The marker is the ``deck_id`` prefix (``precon-synthetic/``; ``precon-variant/`` was the prefix of
+the first nine copies). The checked-in pool has no such deck since repin v14, so old reports stay
+readable and a future replacement set would again be counted apart.
 """
 
 from __future__ import annotations

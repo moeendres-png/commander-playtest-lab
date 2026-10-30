@@ -32,12 +32,11 @@ def test_the_variant_prefix_marks_synthetic_and_everything_else_is_real() -> Non
     assert pp.deck_provenance({}) == pp.REAL
 
 
-def test_every_checked_in_variant_is_synthetic_and_no_original_is() -> None:
-    variants = sorted((ROOT / "data/decks/precon_variants").glob("*.json"))
+def test_every_checked_in_precon_is_real() -> None:
     originals = sorted((ROOT / "data/decks/precons").glob("*.json"))
-    assert variants and originals
-    assert {pp.deck_file_provenance(p) for p in variants} == {pp.SYNTHETIC}
+    assert len(originals) == 173
     assert {pp.deck_file_provenance(p) for p in originals} == {pp.REAL}
+    assert not (ROOT / "data/decks/precon_variants").exists()
 
 
 def test_counts_keep_both_labels_even_when_one_is_absent() -> None:

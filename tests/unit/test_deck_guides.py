@@ -17,7 +17,7 @@ from commander_lab.models.pilots import PilotUtilityWeights
 
 ROOT = Path(__file__).resolve().parents[2]
 GUIDES = ROOT / "data" / "deck_guides" / "guides"
-POOL_DIRECTORIES = ("precons", "precon_variants")
+POOL_DIRECTORIES = ("precons",)
 OWNER_DECKS = {"custom/rogshai", "custom/chulane"}
 CLASSES = {"REAL", "SYNTHETIC", "ORIGINAL_MIT_PROXY", "FOKUS"}
 REQUIRED_KEYS = frozenset(
@@ -46,8 +46,6 @@ REQUIRED_KEYS = frozenset(
 )
 # FORMAT.md section 3: the generator caps every delta at this size.
 MAX_DELTA = 0.5
-# The synthetic replacement decks live in precon_variants/ under this id prefix.
-SYNTHETIC_PREFIX = "precon-synthetic/"
 
 
 def _guides() -> dict[str, dict[str, Any]]:
@@ -106,10 +104,8 @@ def test_the_class_follows_the_deck_it_describes() -> None:
         deck_id = guide["deck_id"]
         if deck_id in OWNER_DECKS:
             assert guide["deck_klasse"] == "FOKUS", slug
-        elif deck_id.startswith(SYNTHETIC_PREFIX):
-            assert guide["deck_klasse"] == "SYNTHETIC", slug
         else:
-            assert guide["deck_klasse"] in {"REAL", "ORIGINAL_MIT_PROXY"}, slug
+            assert guide["deck_klasse"] == "REAL", slug
             assert deck_id in pool, slug
 
 

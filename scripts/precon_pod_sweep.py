@@ -52,7 +52,6 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from precon_provenance import SYNTHETIC, count_by_provenance, provenance_by_path  # noqa: E402
 
 PRECON_DIR = ROOT / "data/decks/precons"
-PROXY_DIR = ROOT / "data/decks/precon_variants"
 POD_SIZE = 4
 _FAMILY = re.compile(r"\b[A-Z][A-Z0-9]+(?:_[A-Z0-9]+)+\b")
 _CODE_LIST = re.compile(r"\[([A-Z][A-Z0-9_]*(?:, [A-Z][A-Z0-9_]*)*)\]")
@@ -139,12 +138,6 @@ def run(args: argparse.Namespace) -> int:
     else:
         names = sorted(p.stem for p in deck_dir.glob("*.json"))
     deck_files = {name: deck_dir / f"{name}.json" for name in names}
-    if args.synthetic_proxies:
-        for path in sorted(PROXY_DIR.glob("*.json")):
-            if path.stem in deck_files:
-                print(f"{path.stem}: an original and its proxy are both selected", file=sys.stderr)
-                return 2
-            deck_files[path.stem] = path
     provenance = provenance_by_path(deck_files)
     pods = plan_pods(sorted(deck_files), POD_SIZE, args.plan_seed)
     if args.limit:
@@ -196,12 +189,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--import-report", type=Path, default=None)
     parser.add_argument("--deck-dir", type=Path, default=PRECON_DIR)
-    parser.add_argument(
-        "--synthetic-proxies",
-        action="store_true",
-        help="add the SYNTHETIC proxy decks of data/decks/precon_variants (use with "
-        "--import-report, which leaves out the decks they stand in for)",
-    )
     parser.add_argument("--plan-seed", type=int, default=1, help="shuffle seed of the pod plan")
     parser.add_argument("--game-seed", type=int, default=1, help="Rules seed of every game")
     parser.add_argument("--workers", type=int, default=2)

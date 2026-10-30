@@ -3,7 +3,7 @@
  "deck_id": "precon/2023/blast_from_the_past",
  "guide_slug": "precon_2023_blast_from_the_past",
  "deck_name": "Blast from the Past",
- "deck_klasse": "ORIGINAL_MIT_PROXY",
+ "deck_klasse": "REAL",
  "evidenz": {
   "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
   "rollen": "CODE_DERIVED (repo card_roles)",
@@ -186,12 +186,6 @@
  "proxy": {
   "ist_proxy_deck": false,
   "original_deck_id": null,
-  "proxy_deck_id": "precon-synthetic/2023/blast_from_the_past",
-  "ersetzungen": [
-   {
-    "original": "Susan Foreman",
-    "proxy": "Sakura-Tribe Elder"
-   }
-  ]
+  "ersetzungen": []
  }
 }
