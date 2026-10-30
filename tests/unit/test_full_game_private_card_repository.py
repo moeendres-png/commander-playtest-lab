@@ -12,6 +12,7 @@ import json
 import os
 import sys
 import threading
+import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -216,9 +217,13 @@ def test_orphans_older_than_a_day_are_removed_and_slots_and_young_ones_kept(
     old, young, slot, other = (root / name for name in ("a" * 32, "b" * 32, "slot-7", "keep-me"))
     for directory in (old, young, slot, other):
         (directory / "db").mkdir(parents=True)
-    two_days_ago = os.stat(old).st_mtime - 2 * 24 * 3600
+    # Anchor "now" and "young" to the same clock the cleanup reads (time.time), not to the file
+    # system's, so the test means the same on any date.
+    now = time.time()
+    two_days_ago = now - 2 * 24 * 3600
     for directory in (old, slot, other):
         os.utime(directory, (two_days_ago, two_days_ago))
+    os.utime(young, (now, now))
 
     client = _slot_client(shared)
     client._prepare_private_directory()
