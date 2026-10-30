@@ -111,3 +111,23 @@ def test_a_cost_reducer_on_the_board_is_left_alone() -> None:
 
 def test_a_card_without_an_extra_cost_is_left_alone() -> None:
     assert not _unpayable(_board(0), _cast("Lightning Bolt"))
+
+
+def test_a_loyalty_ability_that_adds_mana_is_no_source_of_a_payment() -> None:
+    """Chandra's "+1: Add {R}{R}." paid for a Louisoix's Sacrifice that could not be paid (seed 22)."""
+    chandra = {
+        "object_id": "chandra",
+        "name": "Chandra, Torch of Defiance",
+        "tapped": False,
+        "abilities": ["+1: Add {R}{R}.", "-3: Chandra deals 4 damage to target creature."],
+    }
+    option = _cast("Louisoix's Sacrifice")
+    assert _unpayable(_board(1, extra=[chandra]), option)
+    # A mana ability of a permanent still counts: the same board with a Mountain beside it.
+    mountain = {
+        "object_id": "mountain",
+        "name": "Mountain",
+        "tapped": False,
+        "abilities": ["{T}: Add {R}."],
+    }
+    assert not _unpayable(_board(2, extra=[mountain]), option)

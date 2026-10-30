@@ -84,8 +84,12 @@ _PAY_ANY_AMOUNT_PROMPT = re.compile(r"\AChoose how much mana to pay\Z")
 # Spells that do something at X = 0, so a cast with nothing left for X is a real play: Chalice of
 # the Void (counters {0} spells), Engineered Explosives (destroys tokens and {0} permanents).
 _ZERO_X_SPELLS = frozenset({"chalice of the void", "engineered explosives"})
-# An activated ability that adds mana ("{T}: Add {R}.", "+1: Add {R}{R}."): the cost, a colon, "Add".
+# An activated ability that adds mana ("{T}: Add {R}."): the cost, a colon, "Add".
 _ADDS_MANA_RULE = re.compile(r":\s*add\s", re.IGNORECASE)
+# A loyalty ability ("+1: Add {R}{R}.", Chandra, Torch of Defiance) is never a mana ability (CR
+# 605.1a): the engine does not offer it inside a payment, so it is no source for one (#1067; 0 of
+# 10,539 recorded payment prompts offered one).
+_LOYALTY_COST = re.compile(r"^\s*(?:[+\u2212\u2013-]\s*)?(?:\d+|x)\s*:", re.IGNORECASE)
 
 
 def _option_spends_own_source(label: str, metadata: Mapping[str, object]) -> bool:
@@ -537,7 +541,11 @@ class _PaymentDecisions(_PolicyState):
             for index, rule in enumerate(rules):
                 # Not ``offers_mana_ability``: that reader is conservative for a budget (it misses
                 # "three mana of any one color"), and a missed source reads as a shortfall here.
-                if isinstance(rule, str) and _ADDS_MANA_RULE.search(rule):
+                if (
+                    isinstance(rule, str)
+                    and _ADDS_MANA_RULE.search(rule)
+                    and not _LOYALTY_COST.match(rule)
+                ):
                     offer.append(
                         {
                             "option_type": "mana_ability",
