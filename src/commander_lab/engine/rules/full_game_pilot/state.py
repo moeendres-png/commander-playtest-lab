@@ -503,7 +503,7 @@ class _PolicyState:
             **view,
         )
 
-    def _commander_casts(self, state: dict[str, Any], name: str) -> int:
+    def _commander_casts(self, state: Mapping[str, object], name: str) -> int:
         """Casts from the command zone so far of the actor's commander ``name`` (0 if unknown)."""
         actor_id = str(state.get("actor_id") or "")
         status = state.get("commander_status")
