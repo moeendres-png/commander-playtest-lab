@@ -1,0 +1,78 @@
+{
+  "assertion_class": "TYPED_FAIL_CLOSED_REFUSAL",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "NEGATIVE_RANDOM_OPTION",
+  "obligation_exercised": {
+    "obligation_digest": "59c7af9880a1611f6f272dfe26b817dd13adf2a5e8428619d46917f3d41a27d4",
+    "requested_state_digest": "12182b3f18f0744a72bee410365e57936660063d329d1c31cfb204155d172b2c",
+    "required_events": [
+      "decision_frame:target",
+      "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "No random_option behavior selected an option.",
+      "Session/fixture terminates with typed unsupported discretionary-decision failure."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "decision_frame:target": {
+        "decision_frames": [
+          1
+        ]
+      },
+      "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+        "decision_frames": [
+          1
+        ],
+        "refusal_frame_digests": [
+          "34465b6866bb9d8cd65d3735cf9f4586b1dcf7bc6c567a4313fd6a348b24dc43"
+        ]
+      }
+    },
+    "typed_refusals": [
+      {
+        "actor_id": "7ce446ad-2d8d-48f6-8bc8-9ca9ad747a95",
+        "decision_class": "target",
+        "decision_id": "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239",
+        "decision_id_after": "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239",
+        "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of target (actor 7ce446ad-2d8d-48f6-8bc8-9ca9ad747a95, revision/decision e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239): no action submitted; the same frame is still pending and the public event offset is unchanged",
+        "event_offset_after": 7,
+        "event_offset_before": 7,
+        "frame_digest": "34465b6866bb9d8cd65d3735cf9f4586b1dcf7bc6c567a4313fd6a348b24dc43",
+        "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+        "offered_option_ids": [
+          "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239:7ce446ad-2d8d-48f6-8bc8-9ca9ad747a95",
+          "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239:98a27564-ea12-42c7-b8a4-af4890ac7128",
+          "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239:7b86f5c2-ba4d-4a64-80aa-6048d8bacdcc",
+          "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239:97f17de0-3178-43d6-a3f0-14ee1d79ad1c",
+          "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239:934865fe-0cf6-43f9-b929-1467d4fcfa06",
+          "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239:225d7f65-3a12-4c3c-b48b-04f775be9360",
+          "e1bbae52fcc5edbc3e6cb98f504d7baddc39efecee352c03121fd73e8eaee239:aeb13fe7-5167-4a78-9a72-a67a4ea59d03"
+        ],
+        "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+        "state_mutated": false,
+        "submissions_in_window": [],
+        "transport_window": [
+          "get_midgame_decision",
+          "get_midgame_events"
+        ],
+        "well_formed": true
+      }
+    ]
+  },
+  "outcome": "PASS",
+  "receipt_digest": "8f8ac303f8970db0163fd69198baedf5a6a4d6fd6d80b9a5c56f87441282c7d7",
+  "runner_digest": "9393c1e47e8151b2fafd1aa38da54eea9195c260bb1e6265964e9570f75b7eb0",
+  "runtime_receipt_digest": "12261a09c707c573c4d74ecfcc983de230b909dd9f80fac1306bd271f906c9df",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#NEGATIVE_RANDOM_OPTION",
+  "variance_source": null
+}
