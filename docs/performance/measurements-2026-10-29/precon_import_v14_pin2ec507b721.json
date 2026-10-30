@@ -1,0 +1,1234 @@
+{
+  "jar": "<scratch>/bridge_v14.jar",
+  "jar_sha256": "035a5b4e6ff6ff2911d0b49ff070e4c9e9b0df501539bcc32462b832f3fef3a0",
+  "engine_version": "1.4.62",
+  "deck_dir": "/home/user/commander-playtest-lab/data/decks/precons",
+  "decks_total": 173,
+  "decks_ok": 173,
+  "decks_failed": 0,
+  "decks_infrastructure_error": 0,
+  "decks_by_provenance": {
+    "REAL": {
+      "total": 173,
+      "ok": 173
+    },
+    "SYNTHETIC": {
+      "total": 0,
+      "ok": 0
+    }
+  },
+  "total_wall_s": 36.8,
+  "results": [
+    {
+      "deck": "2011_counterpunch",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3c819367-227b-416d-9fcc-1889c967f169' deck_id='precon/2011/counterpunch' deck_hash='955d2c29f715fa90990966b2bc068e16daf455f7b252a6c1ebfbd7d0",
+      "status": "OK",
+      "wall_s": 32.28
+    },
+    {
+      "deck": "2011_devour_for_power",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2025bd36-1213-4717-be54-6c0eaa76f0f1' deck_id='precon/2011/devour_for_power' deck_hash='0237a5f1b2e2344ad41a54adb58372d5fc6cef2ea3fc84b55294",
+      "status": "OK",
+      "wall_s": 0.07
+    },
+    {
+      "deck": "2011_heavenly_inferno",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-895c4a2e-429a-4170-a2ad-12af660195ee' deck_id='precon/2011/heavenly_inferno' deck_hash='eecd875cb31e04a331504fdec98ef64a07b253a892a95502e737",
+      "status": "OK",
+      "wall_s": 0.04
+    },
+    {
+      "deck": "2011_mirror_mastery",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3c3678d2-8196-49e4-857e-19410629cdf3' deck_id='precon/2011/mirror_mastery' deck_hash='0be253cbadf8b995ae4973304127e2b57a58dceb0e464e8151b908",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2013_eternal_bargain",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-bb453997-7a0a-4d25-94cd-0d5ce7813924' deck_id='precon/2013/eternal_bargain' deck_hash='5147134160eb42b8d6a770af8090906cedfdd64759873ff77f81d",
+      "status": "OK",
+      "wall_s": 0.16
+    },
+    {
+      "deck": "2013_evasive_maneuvers",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-509d1844-46c5-4964-b408-57c3b45a7a8e' deck_id='precon/2013/evasive_maneuvers' deck_hash='3281ae848a012dc0bc111493711c9d091ded32d6b211df93db9",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2013_mind_seize",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-a30f5d1d-0b3f-49da-9d9f-f3af056cf5b1' deck_id='precon/2013/mind_seize' deck_hash='efa699b5978a0e0b15eade7c135dcc110383015ad4c875c609da6cb459",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2013_power_hungry",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-95da5b57-1319-4a07-a56e-28f464b5ab31' deck_id='precon/2013/power_hungry' deck_hash='60be49bc4f04c3dd5d738d27446de933c75311384f378074df6324e9",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2014_built_from_scratch",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-7c92126d-d79f-4b8b-bdf4-ea0881f83cf0' deck_id='precon/2014/built_from_scratch' deck_hash='22e593b1ed6d667a15bf98d00e9298df6b0e38e22ecd821ace",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2014_guided_by_nature",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9e880ec2-ec5b-42bf-a3f9-ab38f46ee4b9' deck_id='precon/2014/guided_by_nature' deck_hash='7241d5929e586ea8535b8eb6357739bd77b8cfe1aa4e5f13eaf4",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2014_peer_through_time",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-d3c93b24-19c6-448d-a806-eacc9d5369f6' deck_id='precon/2014/peer_through_time' deck_hash='78b5f77a18d7180811f726480d9b516129863825c87cdbfa989",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2014_sworn_to_darkness",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-ace578a9-83d6-4c96-a34a-ce9ce7a7c237' deck_id='precon/2014/sworn_to_darkness' deck_hash='f2d537ed5590aca64c9385d10255b752eb5ee470b5b406eec6c",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2015_call_the_spirits",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-f8dba5d0-de77-46fd-adeb-f62d3901ae50' deck_id='precon/2015/call_the_spirits' deck_hash='f843c47b96768c46584a52b9058f47661ab41484de76222963c6",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2015_plunder_the_graves",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-75667a0c-407a-47d3-b859-628bb9a1b2b7' deck_id='precon/2015/plunder_the_graves' deck_hash='b006abfb920006b65fdfc101b36e4e3a88e47e87c69f4fbe16",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2015_seize_control",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-f2ade83d-3e63-415a-983b-f514644484ed' deck_id='precon/2015/seize_control' deck_hash='292c89503c7d1f19d21e6a1bf2a71411c9d4f3b173385f417e985cf",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2015_swell_the_host",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e8d81f9b-a03b-4493-b74d-860b2181ee91' deck_id='precon/2015/swell_the_host' deck_hash='3d8eab565c28b897a38eb013281d83df7c0f582bee6c66e40e591a",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2015_wade_into_battle",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-51d04201-b10e-4251-9a5f-3515cf3273ca' deck_id='precon/2015/wade_into_battle' deck_hash='a1ddb9fb5bf27b9a6dedc5a32179c02274515497d0ff8a23c840",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2016_breed_lethality",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-634d0bed-ac70-4120-ae10-848fb1cda42a' deck_id='precon/2016/breed_lethality' deck_hash='32b418874e6f4f301a923ef9e69bc7cbfaa150b90d8a74b818cb5",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2016_entropic_uprising",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3c5a5d2b-5743-4ddc-931f-89ff9c800c7a' deck_id='precon/2016/entropic_uprising' deck_hash='383e3ba5fe7245e696bdb0ac47732bcfdf0381bb9b4567d71da",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2016_invent_superiority",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-aa488fe6-6a39-4e01-beb2-aae56efedbfb' deck_id='precon/2016/invent_superiority' deck_hash='4641280e889d132a4572ccbf67e10b4434d984416eda83f60f",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2016_open_hostility",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9913d132-900c-48fd-b081-05138d24dc6c' deck_id='precon/2016/open_hostility' deck_hash='6715a686b9119ec654aede7faccd0c56f439701c91aa73ec98ba80",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2016_stalwart_unity",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-72740558-7255-4e90-a82e-aeb6a9bb0838' deck_id='precon/2016/stalwart_unity' deck_hash='960cff8a10e990b080099096b5a30db2f39d972091c6296a2e9b85",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_arcane_wizardry",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-55ca1624-fa82-4be1-a5b4-5cb8d2a44e92' deck_id='precon/2017/arcane_wizardry' deck_hash='4b51e332f33e659f52ed9eca63cd50d951c78f1c02b7cf002dd6b",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_draconic_domination",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-7494b152-dac4-44cd-8e6a-24fbac5b0017' deck_id='precon/2017/draconic_domination' deck_hash='6120fa60f947891a07af2bc77a84981faa4b8c49c48fd3e66",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_evasive_maneuvers",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-d9772644-4844-4556-aba8-89e8b6a64a79' deck_id='precon/2017/evasive_maneuvers' deck_hash='5b70ca4a16f41acb742acbfbadf98eaddd2fc0c7badf6766d41",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_feline_ferocity",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-598c8019-e41e-41c8-ae0e-213746980ebb' deck_id='precon/2017/feline_ferocity' deck_hash='3c9e88f893f9a3f0538dac658d0343cc80092536dab66f302eae8",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_guided_by_nature",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-7a374197-8a3f-4d8e-b144-6988490afa5e' deck_id='precon/2017/guided_by_nature' deck_hash='ffe77b8e04cf912b9211c34ff7b9a23535db40a3c028c77efdc1",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_heavenly_inferno",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1dc4a6ea-9689-45e2-a227-636d77d2b0e7' deck_id='precon/2017/heavenly_inferno' deck_hash='f751c1c54cb8057ffd40a5cb519cfb6285ee771f2b5af1f80b9e",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_plunder_the_graves",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e3927e1d-3467-4b76-b2e7-86bf4de91056' deck_id='precon/2017/plunder_the_graves' deck_hash='ea0e1de65cacd05f42627c0fb010c0e8ecf41db42ebc7f2106",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2017_vampiric_bloodlust",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3b347364-ab91-44fa-a8b0-c9d54fa08a3b' deck_id='precon/2017/vampiric_bloodlust' deck_hash='1e072c233ff781b895d9e2914d3a82f4e97744b206fcdf39a0",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2018_adaptive_enchantment",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2056f883-b70d-4673-9b1d-99f11d3ceb86' deck_id='precon/2018/adaptive_enchantment' deck_hash='bd1bdca9baa1a86df4a4adae1515990fca90761c43609a5b",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2018_breed_lethality",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-ab7775ac-f4f1-4eeb-83ee-958f70075edf' deck_id='precon/2018/breed_lethality' deck_hash='5d11b1a7f5a68c9fba7bb1a8ffb4c9fdc5f0e638daba6c3d31ede",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2018_built_from_scratch",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1c7b447f-750a-4bdd-b688-f843f5f54627' deck_id='precon/2018/built_from_scratch' deck_hash='d4aaba1ebaef0d636944af555da18404bad8a274d9358f03f2",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2018_devour_for_power",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9ea0e42a-8dfa-4e2d-8f30-c854bf2f8a74' deck_id='precon/2018/devour_for_power' deck_hash='971f3ca564d343fe7586671c5aeb70ebd86ce44e5c31fbfd50c1",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2018_exquisite_invention",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9ee79f15-a988-4e3a-8c47-de8531ca9f64' deck_id='precon/2018/exquisite_invention' deck_hash='6812de90cf700a9c28774ff17004f1591c7333c47b502e676",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2018_nature_s_vengeance",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-85c67e96-8c7a-48df-bd13-eebf833a6b34' deck_id='precon/2018/nature_s_vengeance' deck_hash='722e6a9068d3895733bf26c2bca4a0b101185d48141f5151d9",
+      "status": "OK",
+      "wall_s": 0.06
+    },
+    {
+      "deck": "2018_subjective_reality",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b3088de2-3ccc-4c39-af39-d8dea00865b6' deck_id='precon/2018/subjective_reality' deck_hash='60d625e7ebfd836eb584f17eb816180f38445b92e8d595dce0",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2018_wade_into_battle",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-59784f59-98a4-4f99-a185-782a985c1e7d' deck_id='precon/2018/wade_into_battle' deck_hash='84bf0b69a9b9195ad5b22405b16d42dd8fa70d5ff49194467df7",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2019_faceless_menace",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-0a413f8a-0d55-4daf-8b21-e9d52e9c6153' deck_id='precon/2019/faceless_menace' deck_hash='eb1ff13e7c8281fba3cf41b4bf0a9b52ad11be18e94cf396bbc07",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2019_merciless_rage",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9e390428-c84b-4ee8-93cd-76d54e22326b' deck_id='precon/2019/merciless_rage' deck_hash='587400b002f2848ad1359c5776e0833835004f1c746723ac3712b0",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2019_primal_genesis",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-df6448f4-511e-4323-8fc4-37b97c329d55' deck_id='precon/2019/primal_genesis' deck_hash='e6a780ec9370ed86312ebe76bdb35cbd8b02879066ba288c609d62",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_arcane_maelstrom",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-7fa77067-d7d3-4be3-836c-f051aa8596ed' deck_id='precon/2020/arcane_maelstrom' deck_hash='2eadbe75ccb7f0e4737ae42997f39f2983158cb503649b59317d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_arm_for_battle",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-52625228-01b3-45ce-b18e-9a53537d4841' deck_id='precon/2020/arm_for_battle' deck_hash='590411ba6d3abd71f9339ee52ba23c5ff6bf3c79a3f0aa945b1735",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_land_s_wrath",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-43b7c413-06b2-48eb-af18-3581213724cd' deck_id='precon/2020/land_s_wrath' deck_hash='af66fecc0be361310de8acb54b4f14f2ae7bb8a841e84527c2695be6",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_reap_the_tides",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-81c2dcc6-5d08-436c-b6df-e88606a85a8d' deck_id='precon/2020/reap_the_tides' deck_hash='135f6f22a170a26110752193070b8adfe6955da4b26730c6399464",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_ruthless_regiment",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6e01f519-433a-4376-8d66-95d6c17c2a96' deck_id='precon/2020/ruthless_regiment' deck_hash='5c1ed647763348cc359278009725d439b34d4b1faeb97a6becd",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_sneak_attack",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-f71cd6d5-7d9a-4c78-a57f-c347c1a03fb8' deck_id='precon/2020/sneak_attack' deck_hash='796d0c90d35ff7f7efe1579bc782493bbbc3e798e56ba96d24181472",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_symbiotic_swarm",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b2c2b761-1ddd-42ac-9af3-3bf20f7f2103' deck_id='precon/2020/symbiotic_swarm' deck_hash='034d5f2cc4952aa16527e51be8d80725af115073ff2c9cf475102",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2020_timeless_wisdom",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-784c8e66-b6fa-4358-a5b2-4100684a7b4f' deck_id='precon/2020/timeless_wisdom' deck_hash='4bd628879f9e7ed0e88c52f12afaa2c5f1443bd27878af4c9ee61",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_aura_of_courage",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e8a295ca-a7ca-4db7-aeb2-ba24c6c4bcdd' deck_id='precon/2021/aura_of_courage' deck_hash='26ef5377104c80a903c2ce6e6b16820bf0e684a1d66b3046ba44e",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_coven_counters",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b5fdec28-8bf7-42c0-911e-ad8d32f90596' deck_id='precon/2021/coven_counters' deck_hash='d60c984f4f0cb066b21091f8c636ebc7c07b5214174ef60f7ea604",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_draconic_rage",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-14abd1d3-cbd9-425f-88be-ffb745b1ad91' deck_id='precon/2021/draconic_rage' deck_hash='18db3e24ebce834f6aef4f73fb2069f57acfe90aaea6c5e8af22910",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_dungeons_of_death",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-a93f3100-a4b4-4478-8770-ebe74157b415' deck_id='precon/2021/dungeons_of_death' deck_hash='084d7ad51940600310c90e8cc894bd5749a5630eb6f0e4c4a84",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2021_elven_empire",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-00905fcc-e2f9-498c-b9b0-1b98829507e9' deck_id='precon/2021/elven_empire' deck_hash='952ee9702c606d62ace2c0a5fc54a4900b04a461f574e71a12c8a010",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2021_lorehold_legacies",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-98fffb7d-b749-4e75-abaf-63b9f54aa064' deck_id='precon/2021/lorehold_legacies' deck_hash='0f3adf5bf5819b128524908b826e9c1f5fe2e698c20963dde53",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2021_phantom_premonition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e8ead427-8943-4685-b5cb-2381b3aabe6f' deck_id='precon/2021/phantom_premonition' deck_hash='97c3baaa4550b552da465229c5a6b624a6f2621b6c9e190aa",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2021_planar_portal",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-47466776-290b-4043-a839-6959438e05b0' deck_id='precon/2021/planar_portal' deck_hash='b06fa414e2bdda8389f8cf7196e8a630142f86fc998798f15759795",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_prismari_performance",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-d2f3bfa7-a1d4-414a-8f08-1f29152bf2f9' deck_id='precon/2021/prismari_performance' deck_hash='3fe84458a37b7035a58c15a0eae096ca85887c360c700a36",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_quantum_quandrix",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-d0bd5218-b98b-42df-b20e-599f03016800' deck_id='precon/2021/quantum_quandrix' deck_hash='2d315afb7aa6c6b3a5c4b0f27611b1b3a04ba63e8cab0bd86cba",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_silverquill_statement",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-dfb9e157-1c8a-482c-9765-16fac029a6b8' deck_id='precon/2021/silverquill_statement' deck_hash='bdf8c10a13c5ffe2d7343201d0a3081252d6687985cab42",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_undead_unleashed",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-f2407fc5-d06c-4244-85a3-16100e91aa61' deck_id='precon/2021/undead_unleashed' deck_hash='c79e084eeccec193c307a08bbc4f5cf0fde76c24f666434fd07e",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_vampiric_bloodline",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-491518a4-45ed-4453-872f-9ff6f050fb19' deck_id='precon/2021/vampiric_bloodline' deck_hash='9f639737069cbae2f67bd0a07f5acc759d333c4c5b11395995",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2021_witherbloom_witchcraft",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-00f67a09-80a0-4aac-8535-1a855686ffb6' deck_id='precon/2021/witherbloom_witchcraft' deck_hash='26e8e168ab30f004e707aef3be6309c29b6d8813019837",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_buckle_up",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-0b99a3fd-2278-4b03-9e42-8e645f3d0e91' deck_id='precon/2022/buckle_up' deck_hash='ec8905203224e11c914f8fbd46f4e6845b2a51edb08f856ab0f173bff2d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_cabaretti_cacophony",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-5cf5fb60-5607-4f51-9d05-5c732c34b082' deck_id='precon/2022/cabaretti_cacophony' deck_hash='c8b4c978b1cae9b46cda7dea744de8c33693bd45daa0c80b4",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_chaos_incarnate",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-a55c6932-aa64-4398-a8c1-a825868238d4' deck_id='precon/2022/chaos_incarnate' deck_hash='c2419527b4fbe96d9c414bafff9d4f20a75b4adfeba3464b291fb",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_draconic_destruction",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b5760a6e-3c5e-45ba-a34f-7fecf7844a4c' deck_id='precon/2022/draconic_destruction' deck_hash='999651ad560ac18c4313aa4fc369bcbcb5f4b2661a5ec1c0",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_exit_from_exile",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6fe58f6f-03f8-4b26-a842-eb638cfec468' deck_id='precon/2022/exit_from_exile' deck_hash='3213439bbec5774f14cdb7fa6fb513afba9b7bbf0d660ced940aa",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_first_flight",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-73467715-f8e4-4f4d-869f-d99a71d36d83' deck_id='precon/2022/first_flight' deck_hash='8a9c08821b15face398b20e5737bb769107666272ea58feacfc5afbb",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_forces_of_the_imperium",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-c31b6f65-d0cf-46fc-9867-0eed1ca32509' deck_id='precon/2022/forces_of_the_imperium' deck_hash='553fccf7b65e2358d712a253fdf365cad39bd3b6daf15d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_forces_of_the_imperium_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-931e28a6-d1f5-4f04-93b0-e5c7b5ae524a' deck_id='precon/2022/forces_of_the_imperium_collector_s_edition' deck_hash='75ccce3e0c6f9ac48e0fa5dbc7",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_grave_danger",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-834e8274-2f6d-48a8-8a13-f081cf427c82' deck_id='precon/2022/grave_danger' deck_hash='fcc294dac5e5d34a4212d9f178e756424b1edecdb197397f8cd34523",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_heads_i_win__tails_you_lose",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-112256ac-ae22-462d-985c-734dd3ae3aa7' deck_id='precon/2022/heads_i_win__tails_you_lose' deck_hash='eea013c84edd77b5084f3cd62b7c0b1a039c318ba",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2022_legends__legacy",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1fc3b5aa-ca52-4776-88c2-6a79921340a5' deck_id='precon/2022/legends__legacy' deck_hash='f66d008715d3d34e7cb475a3716dd2a613d857af2c1c5d20a15af",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_maestros_massacre",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-93e5a973-464e-4a04-a273-ab411e4e5fba' deck_id='precon/2022/maestros_massacre' deck_hash='141ee71d5150f23ad6645a7133c34161e18af3bddc6639ee8fe",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_mind_flayarrrs",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6b2584a1-8356-49f6-aba6-b1a9f391cacf' deck_id='precon/2022/mind_flayarrrs' deck_hash='10fbb3190e43e9c3473b173a86f395f3150b61902e67134c7dd2fb",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_mishra_s_burnished_banner",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-c3d0bed6-8ff4-4d39-bc48-7b690dd3d8ad' deck_id='precon/2022/mishra_s_burnished_banner' deck_hash='fb7e360e2546a8fee44e8b0dcd2f3610aeda213c58a",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_necron_dynasties",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-8176d062-a9f6-4cd9-a557-4788d34bcf1a' deck_id='precon/2022/necron_dynasties' deck_hash='c69a34237ef5f30fe7524130967143ed5be829ed351311c3657a",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_necron_dynasties_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-8d47bcf1-d626-4814-ba0f-08d845545e0e' deck_id='precon/2022/necron_dynasties_collector_s_edition' deck_hash='acfcbe65633f76cdc81b12d91fbc50a2",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_party_time",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-4cf42ce1-dd1c-4241-bb8f-f336d5e0c773' deck_id='precon/2022/party_time' deck_hash='1b79b344587ef56711b77e10fc30a9dcb3312fabe6db12c8e627cd3801",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_the_ruinous_powers",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-a24e125f-2d1a-463f-af54-98945bcb13e0' deck_id='precon/2022/the_ruinous_powers' deck_hash='3ec42b1994c8408d13b3f51704f837b4cbc9fdbb69c4d27a9f",
+      "status": "OK",
+      "wall_s": 0.1
+    },
+    {
+      "deck": "2022_the_ruinous_powers_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-a524a855-2d85-4e88-9e76-e2ceefa5c0a3' deck_id='precon/2022/the_ruinous_powers_collector_s_edition' deck_hash='f35defd0f14dd8a9c9ef28dfbbb0f2",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_token_triumph",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-dd0c936f-1cd9-4ae0-a294-4d85743d3b82' deck_id='precon/2022/token_triumph' deck_hash='e74f3aa36c21e40d1d7285ab9e2faf8bb9d330fdde840f245e94a5e",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_tyranid_swarm",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-76e3e896-92a2-4b0c-b3b2-44b3e58e8c9a' deck_id='precon/2022/tyranid_swarm' deck_hash='c069215e66d71ca2bf64f7062b384a85c571f624acbca6c9bc47d02",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2022_tyranid_swarm_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-50393b74-5ca0-4f3c-b5a9-87ee6310a6e4' deck_id='precon/2022/tyranid_swarm_collector_s_edition' deck_hash='928960d06eea96f5fdbaf3c29226fada38b",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2022_urza_s_iron_alliance",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-5338971e-5ec8-4ddf-ba80-65e73c639bc6' deck_id='precon/2022/urza_s_iron_alliance' deck_hash='9e09be0506c4b6279e1a61f04b7900d7114152abc36ccdd1",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2023_ahoy_mateys",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-17a4d8ef-f6cc-41d8-b5e7-0ef57ae416c0' deck_id='precon/2023/ahoy_mateys' deck_hash='3d584cf05e53382391cc3071b5f9cc2a56ba5077e727585e9cf0c18de",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2023_angels__they_re_just_like_us_but_cooler_and_with_wings",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-c062e35d-b072-4d0a-b987-cf0d3c2b3c7c' deck_id='precon/2023/angels__they_re_just_like_us_but_cooler_and_with_wings' deck_hash='dcc31679b808b9",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_blast_from_the_past",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-c342dc2c-9b11-4431-88be-2931a90aca57' deck_id='precon/2023/blast_from_the_past' deck_hash='d54bdcde4383f23de48a203619855a399c27b29636464b3e2",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_blood_rites",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1fc6ed60-2a1b-4f0b-9865-9ef08204f137' deck_id='precon/2023/blood_rites' deck_hash='6c3f4e345a15f9f7ef9ff575522d7fbd39199ac214685b595e142152f",
+      "status": "OK",
+      "wall_s": 0.18
+    },
+    {
+      "deck": "2023_call_for_backup",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b51854ab-a9a5-4cb7-a200-b93087a64f6d' deck_id='precon/2023/call_for_backup' deck_hash='eacb5191a406c9e93e6a3a6d363cb3fb0ebf2436b8c383234091d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_cavalry_charge",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6b358324-0999-4d98-b920-d1bd3a656ebd' deck_id='precon/2023/cavalry_charge' deck_hash='18747e8e9bb5e3d3f53852a6d4bca55a1fcc689c6dae644b145c1b",
+      "status": "OK",
+      "wall_s": 0.08
+    },
+    {
+      "deck": "2023_corrupting_influence",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-71d9f3ff-c052-4e08-9c63-057af2959042' deck_id='precon/2023/corrupting_influence' deck_hash='c2c9503f7794d9b3b4704cd0be3f54e1ea85769c245208c3",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_divine_convocation",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-bfb17a59-b009-4998-8ea0-9ab90b6fe157' deck_id='precon/2023/divine_convocation' deck_hash='1a9b06a25e663e8f0dc0ec756b5f405eb2cd41bb0fc02af9b3",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_eldrazi_unbound",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-105bd7d4-b847-44e1-bc27-ac5cda0d958d' deck_id='precon/2023/eldrazi_unbound' deck_hash='a84dd587a5e0efed26d6f310b4d59c4a055ff553c9ce4f9b3167c",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_enduring_enchantments",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-df306fe6-088d-4927-b712-5d8ae1ad4955' deck_id='precon/2023/enduring_enchantments' deck_hash='1dbc274c3fb7a069baea64bf1357766114c6d9eada280bc",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_explorers_of_the_deep",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-ea4ecd3e-7953-4cfb-8d5e-c841530e2575' deck_id='precon/2023/explorers_of_the_deep' deck_hash='e6a618260e7f80b3f38ca8be04d46794713a629ae37c09b",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_fae_dominion",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b64c2cdf-b322-4b12-b4a5-ef6811bf6618' deck_id='precon/2023/fae_dominion' deck_hash='e771cdafda73c706062b5afebee40421287ff2f668a95324830bde65",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_food_and_fellowship",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-4085462d-b42a-47e8-9793-cf487070d672' deck_id='precon/2023/food_and_fellowship' deck_hash='c9031e9158ddf4111db0bafa576373de36d2bd2ab5407456d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_from_cute_to_brute",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-f4f915d4-4e78-4304-8d97-30e091bc05d5' deck_id='precon/2023/from_cute_to_brute' deck_hash='cfcbd9d6236b473c21aee69351ce71a4ace358c9509e46deae",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_masters_of_evil",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2f10836c-eabd-4540-9b5e-299be2eb2729' deck_id='precon/2023/masters_of_evil' deck_hash='d78b987d2c3471f34e2a51ec05e357c5b6b5ecb86aeb44c094702",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_paradox_power",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-57f9c052-ec8c-41a5-a09b-911a4ee600ac' deck_id='precon/2023/paradox_power' deck_hash='9f0be06f960514af402fdd995acea42bf9062c3ae34f0d1452b5616",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2023_planeswalker_party",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-86962d37-0ce1-4edd-a148-e35a402014bb' deck_id='precon/2023/planeswalker_party' deck_hash='dc71e78cfbbd270c48c7c47bff5e8bc9a3489bbf534b9f2e67",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_rebellion_rising",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-943df426-afef-468a-a427-aeb26edf3857' deck_id='precon/2023/rebellion_rising' deck_hash='58075d8bd2cba69aeffcf44afa496c23b011c6d0fd7e8e392878",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_riders_of_rohan",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1ab84fe2-22a6-47f1-b304-f3be1059ea5d' deck_id='precon/2023/riders_of_rohan' deck_hash='c9910493b72dc7abfb1d73ce0eba1c90bf5705fedfcc542de7157",
+      "status": "OK",
+      "wall_s": 0.38
+    },
+    {
+      "deck": "2023_sliver_swarm",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1c562e3d-28b5-4502-8d73-cf76b7683a61' deck_id='precon/2023/sliver_swarm' deck_hash='26644918fbcc1b1096e9a2f9f6034688871870d00c7c0f54808d772f",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_the_hosts_of_mordor",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-bef920f3-8e04-4250-a1e6-03384245a3f4' deck_id='precon/2023/the_hosts_of_mordor' deck_hash='a3c1ed4ef0805adb39ace46660426a8dfc3f64385b51c5100",
+      "status": "OK",
+      "wall_s": 0.33
+    },
+    {
+      "deck": "2023_timey_wimey",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e1e74ee3-f668-407c-a29a-f988fb3b2dd7' deck_id='precon/2023/timey_wimey' deck_hash='16b5784279d011320382ebbda17cca63020289a77dfaad4689241c987",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_tinker_time",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9e305dd8-65b2-411f-a9cf-22fd3bc0bc43' deck_id='precon/2023/tinker_time' deck_hash='0cfd0cb4c6988ed085d411dfe118d95cf87a8a98cae3b8c3b09225ee0",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2023_veloci_ramp_tor",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9ecacc46-e6f3-4ac7-a491-839c61bd2190' deck_id='precon/2023/veloci_ramp_tor' deck_hash='66719bcde7e75cb50f706938a4a7d700de5aec99ab9d7c36e12ce",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_20_ways_to_win",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-a065a173-e8fa-4a46-8718-58d807c6d24e' deck_id='precon/2024/20_ways_to_win' deck_hash='f5bc785691bdeede982149f41e399267d2b8b8287c62b5698cb17a",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_animated_army",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-58374016-6362-4cdc-b080-c42056a3d57a' deck_id='precon/2024/animated_army' deck_hash='ef0d57182cb778d3aa8cfa30681d482559f8515fdd91bf60ebe1065",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_blame_game",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e2e29051-f514-445c-b734-fab6921fdb71' deck_id='precon/2024/blame_game' deck_hash='ed3c2ad1e2349fd2d1f0491ab7cc6546e40017ca29da5ab725d6f5927d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_creative_energy",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-37aad88b-400e-4488-a29c-1e44e6cab0b1' deck_id='precon/2024/creative_energy' deck_hash='6854a7292fb8a34b8aa86b32a75da22a93b9576943fe15c799afc",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_creative_energy_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-0838a5b8-b3d9-4c1a-b616-11ec27eccd22' deck_id='precon/2024/creative_energy_collector_s_edition' deck_hash='c865c63d4e54b32c4efc44ffa98e2facc",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_death_toll",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-910b8ae8-0dec-46c0-bec2-90b1b78e9ec2' deck_id='precon/2024/death_toll' deck_hash='a143a9d5d27e6559326b356958f4a3782564a91978e33993b2d75309a1",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_deep_clue_sea",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-4e2e9388-a3ec-4184-acf4-03de9c630c0e' deck_id='precon/2024/deep_clue_sea' deck_hash='b168e9454fea29164cbf797c1a582d985aec139e067e1908e7b8b6e",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_desert_bloom",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-5f8c2e9c-b52b-4ba4-b804-81082a219731' deck_id='precon/2024/desert_bloom' deck_hash='209cadb8632cbccaadf7a178f532ff7c5fed5b1c8e43b0b70dcd6208",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_eldrazi_incursion",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-564e986a-22a2-4124-9391-a3c0d2542eda' deck_id='precon/2024/eldrazi_incursion' deck_hash='113c44e1f572951bbd8fabb4c005b9485908db93b0f36c49e00",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2024_eldrazi_incursion_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-0050b4f7-8893-4d20-99ae-5ef86e8c2c63' deck_id='precon/2024/eldrazi_incursion_collector_s_edition' deck_hash='da611c82c1631e6929bf2ae736e10dd",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_endless_punishment",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b87a554b-ba0e-4e2d-94a4-15cb14b7bede' deck_id='precon/2024/endless_punishment' deck_hash='c9f02a66bf06683ba5fd7b1b78c849a98d0244538b24e8aca0",
+      "status": "OK",
+      "wall_s": 0.09
+    },
+    {
+      "deck": "2024_family_matters",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6759f914-dc73-4641-b197-e1a68c46001e' deck_id='precon/2024/family_matters' deck_hash='146b50251443d14597e53f995289b5dd045783950da14cc01fc746",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_graveyard_overdrive",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-db98dd1e-6729-4e55-826e-8354d1a95deb' deck_id='precon/2024/graveyard_overdrive' deck_hash='8a72f9282b4df3dee6a9e15e7f43ad92f19e375bb41a54b02",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_graveyard_overdrive_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-bef3ae04-4f25-453c-b7ef-76d998a05044' deck_id='precon/2024/graveyard_overdrive_collector_s_edition' deck_hash='6d3650a267fda3c00af882693e177",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_hail__caesar",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-84aebc14-4975-4db5-936a-b35bfd62b285' deck_id='precon/2024/hail__caesar' deck_hash='ba202587d0acf870f90ee96a0692dce1fd0c5b86ab54cf905dd220d9",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_jump_scare_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-b799800d-2cdc-4c61-ae0a-55e095fadc7a' deck_id='precon/2024/jump_scare_' deck_hash='ff3f8c8020004391a61faf45511ae40da73940bfc7fa0ff7bb1da6a40",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_miracle_worker",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-4a8ab925-3f87-4d52-bd40-f4d5b4f9abe2' deck_id='precon/2024/miracle_worker' deck_hash='6ba6f5c03e495ced26342a2489d2a1ede5c7afdcb44a2098668d78",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_peace_offering",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-5b3d5afc-0f40-4b14-8cd8-63b205d530fb' deck_id='precon/2024/peace_offering' deck_hash='9fb8c7cb9b6a9b7f2538aaebf05e54f2324f4b62f7d4b6f724d461",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_quick_draw",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-4144cb56-6ac9-4eb1-8469-a13ee8b626fe' deck_id='precon/2024/quick_draw' deck_hash='d4b48ccce810c2147dcb9abe30ebb32eaed2e17e5f398a48b236756128",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_raining_cats_and_dogs",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-97461b40-a990-4484-82c4-ef8ad63f1e2f' deck_id='precon/2024/raining_cats_and_dogs' deck_hash='c5439c337beaa4ddd39f80b584f134f400d634a9aacc37e",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_revenant_recon",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-d0a23713-8b8b-45fe-af08-de51ab67c85c' deck_id='precon/2024/revenant_recon' deck_hash='e4092a3570af71f3ebd2e5da5e0cbb7b95a8e2d34580e63fd31b7e",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_science_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-cb9757aa-ea18-46bd-9c1f-0d25746cc441' deck_id='precon/2024/science_' deck_hash='2c0eff6ca4792eb6005daf572347711603e8089e88552b301e5951620728",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2024_squirreled_away",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-290fecfe-3799-4494-87d0-6ad79bf8efe9' deck_id='precon/2024/squirreled_away' deck_hash='8feaf4640b59445aa9e86b25358ad0aaf302384a664f463b73606",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2024_tricky_terrain",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-6722a7aa-d09f-4ef9-8944-bcb488c4e1cd' deck_id='precon/2024/tricky_terrain' deck_hash='ba6cab1845f43132ec6ac04eaa277615c090d86df7a3dc4d359b78",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2024_tricky_terrain_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-bc4a9ca3-9a51-4baa-ba16-81153b0c7428' deck_id='precon/2024/tricky_terrain_collector_s_edition' deck_hash='30acb949edd0db3d43b6dd850f85188bf4",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_abzan_armor",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-4765620f-35bc-44d7-b5eb-3bcf69116bea' deck_id='precon/2025/abzan_armor' deck_hash='c28425f35477775f941c0375037f75c1fbafb1f3ad4681aefd61da586",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2025_counter_blitz__final_fantasy_x_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-239ccc03-6aee-47e2-a58b-a8374292ced5' deck_id='precon/2025/counter_blitz__final_fantasy_x_' deck_hash='a154b51b00c2f6968266ad78f9894bbd06231",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2025_counter_blitz_collector_s_edition__final_fantasy_x_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-33782f61-3d4a-4177-9744-12cbcd807f6d' deck_id='precon/2025/counter_blitz_collector_s_edition__final_fantasy_x_' deck_hash='c4491ee0ac012a1fa",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2025_counter_intelligence",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2ea9e93f-c011-469d-94bc-43611cc46d9e' deck_id='precon/2025/counter_intelligence' deck_hash='3d026983b1cae7773e956e05d71d0285e7c928b2caae5ccc",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_eternal_might",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-dc002d5d-2e45-4b45-8ae5-944653d6e936' deck_id='precon/2025/eternal_might' deck_hash='7c1d689e273a42fedc4e125cafd5afa01d517bbc4a2e55bf3f9a798",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_everyone_s_invited_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-8f02795a-409d-4977-a705-9bcbf2c3401f' deck_id='precon/2025/everyone_s_invited_' deck_hash='751e95aa97df5271a616cf5ffc9fa8329efc4674075dd5236",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_jeskai_striker",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-07e6732f-78d7-4f06-8b59-d686e47f070d' deck_id='precon/2025/jeskai_striker' deck_hash='edc22f15667b69118938e65f5e7dae17ad0d06da30065c1c9eeee7",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_limit_break__final_fantasy_vii_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-47d1a24d-0c2a-4319-998a-eec13ce26be1' deck_id='precon/2025/limit_break__final_fantasy_vii_' deck_hash='710088ee8eaf8d02dcc766c10e60b0950f0d7",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_limit_break_collector_s_edition__final_fantasy_vii_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9a8b5eae-6b41-4e59-810a-db71383d5400' deck_id='precon/2025/limit_break_collector_s_edition__final_fantasy_vii_' deck_hash='db10ad38b136b38f5",
+      "status": "OK",
+      "wall_s": 0.06
+    },
+    {
+      "deck": "2025_mardu_surge",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3fcb3ee2-609b-4ee0-8ed1-355026723243' deck_id='precon/2025/mardu_surge' deck_hash='666b4572be32635d9b6c78c4b93ffd945d1e9f414bab84ee501c6b168",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_revival_trance__final_fantasy_vi_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2156acd6-fcb3-48bb-a1a8-426e9b52dadb' deck_id='precon/2025/revival_trance__final_fantasy_vi_' deck_hash='ed2a7a516c4c8c3023897253830388615b4",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_revival_trance_collector_s_edition__final_fantasy_vi_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-0475f1e3-da1b-4aa4-a08f-8a9e3a174c73' deck_id='precon/2025/revival_trance_collector_s_edition__final_fantasy_vi_' deck_hash='f3b23be82e3d1f0",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_scions___spellcraft__final_fantasy_xiv_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e985e96e-f709-4ec7-9a9c-aa498f6c63c1' deck_id='precon/2025/scions___spellcraft__final_fantasy_xiv_' deck_hash='02821d39618eac31a94136322a1a3",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_scions___spellcraft_collector_s_edition__final_fantasy_xiv_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3acbac01-f54f-48e4-9157-9e127a9a9da9' deck_id='precon/2025/scions___spellcraft_collector_s_edition__final_fantasy_xiv_' deck_hash='1a93b225d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_sultai_arisen",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2f846237-ac6a-4b38-a6d4-36806de4c423' deck_id='precon/2025/sultai_arisen' deck_hash='de3b0a38cd4deded016f4764525c33ca187f4b28127cabb69ebe373",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_temur_roar",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-dcceef97-da2e-4be6-970c-307801891622' deck_id='precon/2025/temur_roar' deck_hash='177186022ff82f3e032921b3c036b78ba5d1f237a0c6f6a53af7810cc4",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2025_world_shaper",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-74ae2c60-a47b-4c39-94f8-6f947d8a8911' deck_id='precon/2025/world_shaper' deck_hash='70751f87dbf9377583b97e1710eba16ddcb2b7e100fcb230aedd185a",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_avengers_assemble",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-69bec3b7-0847-4ba0-b042-6a997da0a89d' deck_id='precon/2026/avengers_assemble' deck_hash='603df463a3237ba68aefb8108a35f865f74d580925a5ed7b73b",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_avengers_assemble_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-dc04845d-db55-4b4c-ac7d-8439f23d486b' deck_id='precon/2026/avengers_assemble_collector_s_edition' deck_hash='25896431c81503e0fbef31bbe889088",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_blight_curse",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-4abc7c24-cdb1-49ef-8822-25e1569cb2b1' deck_id='precon/2026/blight_curse' deck_hash='8dfb473f29361d8e5bf60dd807efb69b80b150aa40e8d3bab1fc7267",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_calling_all_angels",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-55e4fa3d-e08c-4fb1-9ec1-aef71516c0d3' deck_id='precon/2026/calling_all_angels' deck_hash='e9b58127d9d57c788e01cdaeef8dafe462c336d8d978c80431",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_dance_of_the_elements",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-9f5cfcee-2e61-462b-975b-b60953016f37' deck_id='precon/2026/dance_of_the_elements' deck_hash='04fc7391d6f76161147be39e05e1d4ad0e054c8055946fa",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_doom_prevails",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-26f3c755-757d-458b-87ce-9b1cb52763c6' deck_id='precon/2026/doom_prevails' deck_hash='08aebdbc8233ab94059a4f0cc245b9fe18d86f818b7fffb360dce32",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_doom_prevails_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-3ed6d0f3-db89-4830-bf7c-72d05c7c233d' deck_id='precon/2026/doom_prevails_collector_s_edition' deck_hash='fa40c42841d809b3f89a4734fadaebdc00d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_goblin_storm",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1e266dc5-4486-4e5d-bbe1-a19120d5c63c' deck_id='precon/2026/goblin_storm' deck_hash='4fae554ee5e789e20348b398a233519c24dda1055df858bc7086d46e",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_hatsune_miku",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-59142000-130f-4aba-8f3a-0ca4d7aa4b3e' deck_id='precon/2026/hatsune_miku' deck_hash='38c1b04440aca1360ccf753791ccb9d8367018538c03a689ca95899c",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_lorehold_spirit",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-77b36641-6531-4aef-a6f2-8131168d048b' deck_id='precon/2026/lorehold_spirit' deck_hash='dd038be0d31ef87f402d289858087014d1bb64a643b49d70fa794",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_multiverse_reforged",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-0fe65272-7238-46d4-a8ad-008007393649' deck_id='precon/2026/multiverse_reforged' deck_hash='a0bc6834c8a1ee619b5098827fd9427586e52f588f17597fd",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_odds_and_ends",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-e9326f15-8ca1-476d-8418-6ab95e5b28b2' deck_id='precon/2026/odds_and_ends' deck_hash='f9e5d2a275903d594561f611af290860e7f08cc158763d8591e105e",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_prismari_artistry",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-7d650175-1119-4a5c-8560-c1a6c71fce55' deck_id='precon/2026/prismari_artistry' deck_hash='5281961c76e8facbce35aa53295357d66663ba55b6764119863",
+      "status": "OK",
+      "wall_s": 0.02
+    },
+    {
+      "deck": "2026_quandrix_unlimited",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-8f2712d5-6c09-4065-aa41-fdb0a8241add' deck_id='precon/2026/quandrix_unlimited' deck_hash='f278c08ae4102dfc69d61d016f83c29eb310de502285473f7d",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_silverquill_influence",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-f0dd51ac-459b-447a-807e-4a0e818cca10' deck_id='precon/2026/silverquill_influence' deck_hash='b07fc0314e9c9ddaa1311f8be21d6f15f7ed2bc6e6ab3a6",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_the_fantastic_four",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-2aebb49e-d0e4-4389-a4b1-1dff962b3739' deck_id='precon/2026/the_fantastic_four' deck_hash='1683923dbafd8e3c830c6f613046131bf72eb4f481029d0f71",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_the_fantastic_four_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-04450a38-050c-461c-b1ca-b7c0eabf04a0' deck_id='precon/2026/the_fantastic_four_collector_s_edition' deck_hash='25e4b4da8de355c483f8450ef61561",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_tramplesaurus_rex",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-1b7ac68c-4edf-48b4-9a57-06b32f34ae54' deck_id='precon/2026/tramplesaurus_rex' deck_hash='909186bce339731c3383cc808f8e3376f2f5172b3aee42620ed",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_turtle_power_",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-ec5be564-8d6e-4501-ba88-6a880cc11a0d' deck_id='precon/2026/turtle_power_' deck_hash='1d3bb915e0dd0054a040b1507a5d0fde1d7d9d20fdd42547d7ef45b",
+      "status": "OK",
+      "wall_s": 0.01
+    },
+    {
+      "deck": "2026_wakanda_forever",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-38aae8d7-dab4-42b8-bc71-9cb5821d24f5' deck_id='precon/2026/wakanda_forever' deck_hash='4edef60ec57b97db1c4d0b40649088bc3924456e8a198d25ef40e",
+      "status": "OK",
+      "wall_s": 0.12
+    },
+    {
+      "deck": "2026_wakanda_forever_collector_s_edition",
+      "provenance": "REAL",
+      "handle": "backend=<RulesBackend.XMAGE: 'xmage'> handle_id='xmage-deck-211080d4-4614-47c9-b1c2-dacf786cd5d0' deck_id='precon/2026/wakanda_forever_collector_s_edition' deck_hash='e9a46526af0d9dc61565e98d41fc30cdf",
+      "status": "OK",
+      "wall_s": 0.01
+    }
+  ]
+}
