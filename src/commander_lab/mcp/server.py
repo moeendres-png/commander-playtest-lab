@@ -43,6 +43,12 @@ _CLIENT_INFO_META_KEY = "io.modelcontextprotocol/clientInfo"
 _SERVER_INFO_META_KEY = "io.modelcontextprotocol/serverInfo"
 
 
+# Seconds a call still running at EOF (or already cancelled) may finish before it is dropped.
+_EOF_GRACE_SECONDS = 2.0
+# Seconds the calls made before an explicit "shutdown" may take to answer.
+_SHUTDOWN_DRAIN_SECONDS = 30.0
+
+
 class McpProtocolError(Exception):
     def __init__(self, code: int, message: str, data: object | None = None) -> None:
         super().__init__(message)
@@ -625,8 +631,16 @@ class CommanderMcpServer:
 
         # Let protocol wrappers finish briefly. Their underlying tool workers are daemon
         # threads, so cancellation/timeout/EOF never pins process shutdown indefinitely.
+        # A client that asked for shutdown is still owed the answers to the calls it made
+        # before: those get the drain budget (a slow tool on a loaded host used to lose its
+        # reply after 2 s), while EOF and cancelled calls keep the short grace period.
+        drain_deadline = time.monotonic() + _SHUTDOWN_DRAIN_SECONDS
         for event, thread in list(inflight.values()):
-            thread.join(timeout=2.0)
+            if self.session.shutdown_requested and not event.is_set():
+                budget = max(_EOF_GRACE_SECONDS, drain_deadline - time.monotonic())
+            else:
+                budget = _EOF_GRACE_SECONDS
+            thread.join(timeout=budget)
             if thread.is_alive():
                 event.set()
         return 0

@@ -10,6 +10,7 @@ from commander_lab.mcp import (
     LEGACY_MCP_PROTOCOL_VERSION,
     CommanderMcpServer,
 )
+from commander_lab.mcp import server as mcp_server
 from commander_lab.mcp.server import SERVER_VERSION
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -188,3 +189,56 @@ def test_stdio_cancellation_interrupts_protocol_wrapper_without_waiting_for_tool
     assert 77 not in by_id
     assert by_id[78]["result"]["_meta"][SERVER_META]["version"] == SERVER_VERSION
     assert elapsed < 0.75, f"cancellation wrapper blocked for {elapsed:.3f}s"
+
+
+def _legacy_session_with_slow_tool(monkeypatch, *, shutdown: bool) -> dict[object, dict]:
+    """Run a legacy stdio session whose one tool call outlives the (shortened) grace period."""
+    monkeypatch.setattr(mcp_server, "_EOF_GRACE_SECONDS", 0.05)
+    server = CommanderMcpServer(ROOT)
+    original = server.registry.invoke
+
+    def slow_invoke(name, arguments):
+        if name == "deck_decision_diagnose":
+            time.sleep(0.4)
+        return original(name, arguments)
+
+    monkeypatch.setattr(server.registry, "invoke", slow_invoke)
+    rows = [
+        {
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": "initialize",
+            "params": {
+                "protocolVersion": LEGACY_MCP_PROTOCOL_VERSION,
+                "capabilities": {},
+                "clientInfo": {"name": "pytest-legacy", "version": "1"},
+            },
+        },
+        {"jsonrpc": "2.0", "method": "notifications/initialized"},
+        {
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "tools/call",
+            "params": {
+                "name": "deck_decision_diagnose",
+                "arguments": {"comparison": {"status": "rejected"}},
+            },
+        },
+    ]
+    if shutdown:
+        rows.append({"jsonrpc": "2.0", "id": 8, "method": "shutdown", "params": {}})
+    stdin = io.StringIO("\n".join(json.dumps(row) for row in rows) + "\n")
+    stdout = io.StringIO()
+    assert server.serve_stdio(stdin, stdout) == 0
+    return {row.get("id"): row for row in map(json.loads, stdout.getvalue().splitlines()) if row}
+
+
+def test_a_call_made_before_shutdown_is_answered_even_when_the_tool_is_slow(monkeypatch) -> None:
+    by_id = _legacy_session_with_slow_tool(monkeypatch, shutdown=True)
+    assert by_id[3]["result"]["isError"] is False
+    assert by_id[8]["result"] == {}
+
+
+def test_a_call_still_running_at_eof_is_dropped_after_the_grace_period(monkeypatch) -> None:
+    by_id = _legacy_session_with_slow_tool(monkeypatch, shutdown=False)
+    assert 3 not in by_id
