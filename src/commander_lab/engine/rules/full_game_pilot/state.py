@@ -487,6 +487,12 @@ class _PolicyState:
             "immediate_impact": 0.45,
             **fields,
         }
+        if action_kind == "commander":
+            # #1040: the engine's cost facts leave out the commander tax, so the pilot priced a
+            # third cast like the first. The tax is 2 generic per earlier cast from the command zone.
+            view["mana_cost"] = float(view["mana_cost"]) + 2.0 * self._commander_casts(
+                state, source_name
+            )
         return PilotActionView(
             action_id=self._required_text(option, "option_id"),
             action_kind=action_kind,
@@ -496,6 +502,19 @@ class _PolicyState:
             metadata=view_metadata,
             **view,
         )
+
+    def _commander_casts(self, state: Mapping[str, object], name: str) -> int:
+        """Casts from the command zone so far of the actor's commander ``name`` (0 if unknown)."""
+        actor_id = str(state.get("actor_id") or "")
+        status = state.get("commander_status")
+        for entry in status if isinstance(status, list) else ():
+            if (
+                isinstance(entry, dict)
+                and str(entry.get("owner_id")) == actor_id
+                and str(entry.get("name") or "").casefold() == name.casefold()
+            ):
+                return max(0, int(entry.get("casts_from_command", 0) or 0))
+        return 0
 
     def _target_action(
         self,

@@ -1010,3 +1010,39 @@ def test_self_doubling_counter_ability_is_withheld_once_saturated() -> None:
     assert priority_view_fields(option, small)[1] is None
     huge = _state(actor_board=[_card("hb", "Heroes' Bane", 4096, 4096)])
     assert priority_view_fields(option, huge)[1] == "self_doubling_counters_saturated"
+
+
+def _commander_cast(object_id: str = "cmd-esior") -> dict[str, Any]:
+    option = _cast("cmd", "Esior, Wardwing Familiar", blue=1, generic=2)
+    option["metadata"]["source_object_id"] = object_id
+    return option
+
+
+def test_commander_cast_view_carries_the_tax_of_earlier_casts() -> None:
+    """#1040: the engine's cost facts leave out the tax; the pilot's view adds 2 per earlier cast."""
+    policy = _policy()
+    state = _state()
+    state["players"][0]["command"] = [
+        {"object_id": "cmd-esior", "name": "Esior, Wardwing Familiar"}
+    ]
+    taxed = policy._priority_action(_commander_cast(), state)
+    assert taxed.action_kind == "commander"
+    assert taxed.mana_cost == 3.0 + 2.0  # one earlier cast from the command zone
+    state["commander_status"][0]["casts_from_command"] = 3
+    assert policy._priority_action(_commander_cast(), state).mana_cost == 3.0 + 6.0
+
+
+def test_commander_cast_view_has_no_tax_before_the_first_cast_or_for_other_cards() -> None:
+    policy = _policy()
+    state = _state()
+    state["players"][0]["command"] = [
+        {"object_id": "cmd-esior", "name": "Esior, Wardwing Familiar"}
+    ]
+    state["commander_status"][0]["casts_from_command"] = 0
+    assert policy._priority_action(_commander_cast(), state).mana_cost == 3.0
+    state["commander_status"][0]["casts_from_command"] = 2
+    other = _cast("claim", "Claim Jumper", white=1, generic=2)
+    assert policy._priority_action(other, state).mana_cost == 3.0
+    # a commander of another owner never taxes this actor's view
+    state["commander_status"][0]["owner_id"] = "opponent-1"
+    assert policy._priority_action(_commander_cast(), state).mana_cost == 3.0

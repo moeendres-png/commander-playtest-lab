@@ -1,0 +1,42 @@
+{
+  "requests_total": 37144,
+  "priority_requests": 28083,
+  "requests_with_own_commander_damage": 5993,
+  "requests_with_commander_damage_ge_14": 1073,
+  "commander_zone_cast_options": 176,
+  "commander_zone_cast_options_taxed": 110,
+  "requests_with_taxed_commander_option": 99,
+  "answers_changed_by_tax": 25,
+  "answers_changed_without_taxed_option": 0,
+  "evidence": {
+    "source": [
+      "dump-1.jsonl.gz",
+      "dump-10.jsonl.gz",
+      "dump-11.jsonl.gz",
+      "dump-12.jsonl.gz",
+      "dump-2.jsonl.gz",
+      "dump-3.jsonl.gz",
+      "dump-4.jsonl.gz",
+      "dump-5.jsonl.gz",
+      "dump-6.jsonl.gz",
+      "dump-7.jsonl.gz",
+      "dump-8.jsonl.gz",
+      "dump-9.jsonl.gz"
+    ],
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "classification": "DIRECTLY_VERIFIED on the given dumps; a stratified 2-seed corpus is not the >=10-seed real-game measurement the issue asks for"
+  }
+}

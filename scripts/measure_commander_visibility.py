@@ -19,7 +19,7 @@ Counting rules:
 - ``requests_with_taxed_commander_option``: priority requests containing at least one taxed
   command zone cast option.
 - ``answers_changed_by_tax``: priority requests whose answered key differs under the
-  counterfactual taxed policy.
+  tax-visible pilot than under the same pilot with the tax hidden (the pilot before #1040).
 - ``answers_changed_without_taxed_option``: negative control / wrong-reason check: requests
   where the answer changed even though no taxed commander cast was offered (must be 0).
 - ``evidence``: source files, sorted seeds, and evidence classification.
@@ -34,10 +34,11 @@ To produce full-game dumps and run the >=10-seed measurement on the host VM:
     python scripts/measure_commander_visibility.py dump-*.jsonl.gz --json visibility_results.json
 
 Rules Authority note:
-The counterfactual commander tax lives strictly in this measurement script via a local
-policy subclass modifying ``PilotActionView.mana_cost`` for observation evaluation. No rules
-or pilot logic are altered here; XMage remains the single authoritative rules engine for
-costs, legality, and execution.
+Since #1040 the pilot's view of a commander cast carries the tax (2 per earlier cast). The
+counterfactual of this script is now the pilot with the tax hidden, a local subclass that
+reports 0 earlier casts; the live pilot is the tax-visible side. No rules or pilot logic are
+altered here; XMage remains the single authoritative rules engine for costs, legality, and
+execution.
 """
 
 from __future__ import annotations
@@ -58,8 +59,6 @@ if str(ROOT / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "src"))
 if str(ROOT / "scripts") not in sys.path:
     sys.path.insert(0, str(ROOT / "scripts"))
-
-from commander_lab.models.pilots import PilotActionView  # noqa: E402
 
 
 class CorpusToolProtocol(Protocol):
@@ -84,32 +83,15 @@ def _load_corpus_tool() -> CorpusToolProtocol:
     return cast(CorpusToolProtocol, tool)
 
 
-def _build_taxed_policy(base_policy: object) -> DecidingPolicyProtocol:
+def _build_tax_blind_policy(base_policy: object) -> DecidingPolicyProtocol:
+    """The pilot as it was before #1040: a commander cast is priced without the tax."""
     base_class = type(base_policy)
 
-    class TaxedPolicy(base_class):  # type: ignore[valid-type,misc]
-        def _priority_action(
-            self, option: dict[str, object], state: dict[str, object]
-        ) -> PilotActionView:
-            view = super()._priority_action(option, state)  # type: ignore[misc]
-            if not isinstance(view, PilotActionView):
-                return view
-            if view.action_kind == "commander":
-                actor_id = str(state.get("actor_id") or "")
-                casts = 0
-                cmd_status = state.get("commander_status")
-                if isinstance(cmd_status, list):
-                    for entry in cmd_status:
-                        if isinstance(entry, dict) and str(entry.get("owner_id")) == actor_id:
-                            entry_name = str(entry.get("name") or "")
-                            if entry_name.casefold() == str(view.card_name).casefold():
-                                casts = int(entry.get("casts_from_command", 0) or 0)
-                                break
-                if casts > 0:
-                    view = view.model_copy(update={"mana_cost": view.mana_cost + 2.0 * casts})
-            return view
+    class TaxBlindPolicy(base_class):  # type: ignore[valid-type,misc]
+        def _commander_casts(self, state: dict[str, object], name: str) -> int:
+            return 0
 
-    base_policy.__class__ = TaxedPolicy
+    base_policy.__class__ = TaxBlindPolicy
     return cast(DecidingPolicyProtocol, base_policy)
 
 
@@ -258,11 +240,11 @@ def measure(paths: Sequence[Path]) -> dict[str, object]:
             if req_has_taxed_option:
                 requests_with_taxed_commander_option += 1
 
-            p_orig = cast(DecidingPolicyProtocol, corpus_tool.fresh_policy(seed))
-            ans_orig = p_orig.decide(copy.deepcopy(request))
-            key_orig = corpus_tool.answer_key(ans_orig)
+            p_blind = _build_tax_blind_policy(corpus_tool.fresh_policy(seed))
+            ans_blind = p_blind.decide(copy.deepcopy(request))
+            key_orig = corpus_tool.answer_key(ans_blind)
 
-            p_tax = _build_taxed_policy(corpus_tool.fresh_policy(seed))
+            p_tax = cast(DecidingPolicyProtocol, corpus_tool.fresh_policy(seed))
             ans_tax = p_tax.decide(copy.deepcopy(request))
             key_tax = corpus_tool.answer_key(ans_tax)
 
