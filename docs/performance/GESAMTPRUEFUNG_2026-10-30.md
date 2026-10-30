@@ -40,8 +40,8 @@ not reproduced again. Those rows keep the status that review and the cross-check
 | F-8 | low | `docs/claude/state/HANDOFF.md` was stale (closed issues listed). | file header | regenerated |
 
 Not a finding: `choose_use` answers follow the card text. "Pay {2}{W} and return this card"
-(Vanguard of the Restless) is declined 25 of 25 times because the seat's mana was tapped each time
-(checked on the first case); other may-prompts were answered Yes where they are free.
+(Vanguard of the Restless) is declined 25 of 25 times because the seat could not pay the cost
+(checked on the first case: one untapped land for a {2}{W} cost); other may-prompts were answered Yes where they are free.
 
 ## 3. Fixes and their measurement
 
