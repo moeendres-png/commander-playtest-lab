@@ -1,0 +1,48 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-MP-BLOCK-4",
+  "obligation_exercised": {
+    "obligation_digest": "66ec06a25c6e3c151607879a033a3e11e42bcf982615d659eafd389c83792b56",
+    "requested_state_digest": "dc9b4247ca1363943130771f6afa2ce81ff4f1168b5c19ae87783271974add89",
+    "required_events": [
+      "legal_blocker_partition:P2",
+      "blocker_declared:obj:mp-p2-blocker->obj:mp-a2"
+    ],
+    "terminal_checks": [
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "P2 blocker options contain only attackers for which P2 is defending player."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "blocker_declared:obj:mp-p2-blocker->obj:mp-a2": {
+        "events": [
+          9
+        ]
+      },
+      "legal_blocker_partition:P2": {
+        "binding": "every block the engine offered P2 names an attacker attacking P2",
+        "observation": "engine terminal observation"
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "a5684985844fcdf1707f4164ef4aa923a2c99f2b9793a837d3001ebd28bd86c5",
+  "runner_digest": "d85df0354be6f4d5473d41efc37ac9ff38f9ab7726ed120124fb15fca7f48813",
+  "runtime_receipt_digest": "87430b2c77b2ec9b1f685a6b1305ef8118a624d0f24bee4d795cd8ce818dd170",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-MP-BLOCK-4",
+  "variance_source": null
+}

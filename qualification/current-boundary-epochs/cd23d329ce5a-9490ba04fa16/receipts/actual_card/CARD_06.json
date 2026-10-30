@@ -1,0 +1,70 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "construction_verdict": "EXACT",
+  "execution_mode": "AF07_ACTUAL_CARD_CURRENT_BOUNDARY",
+  "fixture_id": "CARD_06",
+  "obligation_exercised": {
+    "obligation_digest": "cfc6dffe6d378157bba917be3fb2e7b5101007335cd962e969ccec0a90dfe357",
+    "requested_state_digest": "47c0136ab96cd663ba34750031020943d6a9196cbd37e9cfb91f36fc2352412d",
+    "required_events": [
+      "Wizard_trigger_event",
+      "additional_trigger"
+    ],
+    "terminal_checks": [
+      "exactly 1 SPELL_CAST event(s) with source_object=obj:card06-bolt",
+      "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card06-wizard"
+    ],
+    "terminal_postconditions": [
+      "Exactly two Talrand, Sky Summoner trigger instances are created for the single instant cast."
+    ]
+  },
+  "observed_assertion": {
+    "engine_artifact": {
+      "kind": "file",
+      "path": "file:/home/runner/.m2/repository/org/mage/mage/1.4.62/mage-1.4.62.jar",
+      "sha256": "6889c6ef60553ec175f351505fcd7d81dc780be70f835e290f3c2756d63834db",
+      "size": 7202785
+    },
+    "postcondition_proofs": [
+      {
+        "also": [
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:card06-bolt"
+        ],
+        "check": "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card06-wizard",
+        "held": true,
+        "kind": "terminal_check",
+        "postcondition": "Exactly two Talrand, Sky Summoner trigger instances are created for the single instant cast."
+      }
+    ],
+    "terminal_facts": {
+      "exactly 1 SPELL_CAST event(s) with source_object=obj:card06-bolt": true,
+      "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card06-wizard": true
+    },
+    "token_evidence": {
+      "Wizard_trigger_event": {
+        "binding": "at least one TRIGGERED_ABILITY event(s) with source_object=obj:card06-wizard",
+        "events": [
+          9,
+          10
+        ]
+      },
+      "additional_trigger": {
+        "binding": "exactly 2 TRIGGERED_ABILITY event(s) with source_object=obj:card06-wizard",
+        "events": [
+          9,
+          10
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "37e8a7393e804b1686ddb6e404ca908d73343e2617f09c08881f7261adda7378",
+  "runner_digest": "d85df0354be6f4d5473d41efc37ac9ff38f9ab7726ed120124fb15fca7f48813",
+  "runtime_receipt_digest": "0e4cee47f5c5ef517ccd9dc566d019d2f8015f588f0a2835058a5ec4009ff4cf",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "af07-actual-card-campaign#CARD_06"
+}
