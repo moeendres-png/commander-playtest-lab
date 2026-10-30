@@ -1,0 +1,81 @@
+{
+  "assertion_class": "TYPED_FAIL_CLOSED_REFUSAL",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "NEGATIVE_PARENT_CLASS_FALLBACK",
+  "obligation_exercised": {
+    "obligation_digest": "bf42a01771a1e9d4b999f209229e009692f2e4e8ac6bfd9b059a6144b51609a9",
+    "requested_state_digest": "0b29fb7790fbbec3f906c688f03cfe4afcdd9394d8d958dc3600249c56e06b70",
+    "required_events": [
+      "decision_frame:choose_object",
+      "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "No parent_class_fallback behavior selected an option.",
+      "Session/fixture terminates with typed unsupported discretionary-decision failure."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "decision_frame:choose_object": {
+        "decision_frames": [
+          0,
+          5
+        ]
+      },
+      "fail_closed:UNSUPPORTED_DISCRETIONARY_DECISION": {
+        "decision_frames": [
+          5
+        ],
+        "refusal_frame_digests": [
+          "14eb4da44871e4cbf95e739677a8d4bf51bda92b56da52aeeb68c05684667a65"
+        ]
+      }
+    },
+    "typed_refusals": [
+      {
+        "actor_id": "ffe02a14-27db-443b-8509-d44feea255d9",
+        "decision_class": "choose_object",
+        "decision_id": "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621",
+        "decision_id_after": "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621",
+        "detail": "typed refusal UNSUPPORTED_DISCRETIONARY_DECISION of choose_object (actor ffe02a14-27db-443b-8509-d44feea255d9, revision/decision 6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621): no action submitted; the same frame is still pending and the public event offset is unchanged",
+        "event_offset_after": 9,
+        "event_offset_before": 9,
+        "frame_digest": "14eb4da44871e4cbf95e739677a8d4bf51bda92b56da52aeeb68c05684667a65",
+        "kind": "UNSUPPORTED_DISCRETIONARY_DECISION",
+        "offered_option_ids": [
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:494b2f41-1dbb-4276-91ed-290e1624e787",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:2669cfd8-3f78-4e72-9719-ab8a7e7025e9",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:fa08369e-0b56-41b7-8109-709cd238991f",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:5578cf57-6c32-46c9-8309-e4a72773fcc1",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:82642477-27d0-49c3-b497-c99b9d73e8ad",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:5c10edc3-6b45-4532-9722-ba213a81214d",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:3da57fd8-5701-48a6-94f3-544d541b8036",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:7c70f40b-903d-4d92-a996-6964bd63a5f2",
+          "6ffbf83c96b2ddebbc5b6cc103778196e278762c5bbeb2c851a2a8e078902621:11c17488-5407-4ca4-908d-8036f21d7af3"
+        ],
+        "schema_version": "commander-lab.typed-decision-refusal/1.0.0",
+        "state_mutated": false,
+        "submissions_in_window": [],
+        "transport_window": [
+          "get_midgame_decision",
+          "get_midgame_events"
+        ],
+        "well_formed": true
+      }
+    ]
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e29225580fe1e3ece2c4db9736dbd7366045187b3ce50c508cc3fed2ddf6aa70",
+  "runner_digest": "9393c1e47e8151b2fafd1aa38da54eea9195c260bb1e6265964e9570f75b7eb0",
+  "runtime_receipt_digest": "68e2d5c832187c1003b114a5db1eae7f165ea799b85c6297dff01df266cb7072",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#NEGATIVE_PARENT_CLASS_FALLBACK",
+  "variance_source": null
+}

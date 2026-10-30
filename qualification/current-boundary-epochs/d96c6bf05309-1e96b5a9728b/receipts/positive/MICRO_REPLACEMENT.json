@@ -1,0 +1,76 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "MICRO_REPLACEMENT",
+  "obligation_exercised": {
+    "obligation_digest": "afd395236e1930860436037bfde2a2de45e1567e2cf99438dc9f06695f761528",
+    "requested_state_digest": "dda405e286b67c7d5a5ac4c831adc6d13fa14fd5cf4814c664cb9332abd8b0bc",
+    "required_events": [
+      "damage_would_be:P2:3",
+      "replacement_effect:double",
+      "damage:P2:6"
+    ],
+    "terminal_checks": [
+      "P2 is at 34 life",
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state"
+    ],
+    "terminal_postconditions": [
+      "Single applicable replacement changes 3 damage to 6 before the damage event occurs."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "P2 is at 34 life": true,
+      "the engine's declared attacks (and blocks, when requested) are exactly the record's combat_state": true
+    },
+    "token_evidence": {
+      "damage:P2:6": {
+        "events": [
+          9
+        ]
+      },
+      "damage_would_be:P2:3": {
+        "binding": "every Hill Giant on P1's battlefield is 3/3",
+        "observation": "engine terminal observation"
+      },
+      "replacement_effect:double": {
+        "binding": [
+          "Gratuitous Violence is on P1's battlefield",
+          "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-3power, target_player=P2, amount=6, combat=True",
+          "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2"
+        ],
+        "parts": [
+          {
+            "binding": "Gratuitous Violence is on P1's battlefield",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with source_object=obj:micro-3power, target_player=P2, amount=6, combat=True",
+            "events": [
+              9
+            ]
+          },
+          {
+            "binding": "exactly 1 DAMAGED_PLAYER event(s) with target_player=P2",
+            "events": [
+              9
+            ]
+          }
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "e813df73741e132956555459f90e63698f62c681cebad730e5f8f183fa715307",
+  "runner_digest": "9393c1e47e8151b2fafd1aa38da54eea9195c260bb1e6265964e9570f75b7eb0",
+  "runtime_receipt_digest": "259dfe1c2e88ed120ca330ccda5462bbf2aebf565cf6ffbfd0ab39264fb435e7",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#MICRO_REPLACEMENT",
+  "variance_source": null
+}
