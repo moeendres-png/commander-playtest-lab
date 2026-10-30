@@ -13,11 +13,11 @@ Karten wurden entfernt (195 Decks), danach am 2026-10-25 21 schwache Precons aus
 Spielbarkeits-Einschätzungen, #1014) und am 2026-10-26 Nature of the Beast (2013, Deepdive-überwiegend-negativ). Frühere Texte nannten 198 oder 195 Decks; die Messungen
 weiter unten tragen den Pool-Stand, auf dem sie entstanden sind (195).
 
-Der Pool (173 Decks seit dem Aussortieren, vorher 195) teilt sich in **164 echte** (am Pin `90f5c4d3f8` importierbar, vorher 186) und
-**9 SYNTHETIC** (`data/decks/precon_variants/`, Abschnitt „SYNTHETIC-Proxies“). Aussagen über
-echte Decks zählen nur die 164; ein Deck der 9 steht in keiner Zahl, ohne dass es als SYNTHETIC
-genannt ist. Bis zum Pin `4da83f62` waren es 182 echte und 13 SYNTHETIC; die Zahlen und
-Messungen weiter unten tragen den Pin, auf dem sie entstanden sind.
+Der Pool (173 Decks seit dem Aussortieren, vorher 195) besteht seit Repin v14 (Pin `2ec507b721`,
+2026-10-30) aus **173 echten** Decks, die alle importieren. Davor teilte er sich in 164 echte (am
+Pin `90f5c4d3f8`) und 9 SYNTHETIC (Abschnitt „SYNTHETIC-Proxies“, abgelöst); bis zum Pin `4da83f62`
+waren es 182 echte und 13 SYNTHETIC. Die Zahlen und Messungen weiter unten tragen den Pin, auf dem
+sie entstanden sind.
 
 **Stand seit Repin v13 (2026-10-23, #979):** Der Fork baut die Karten der Decks `2024_death_toll`
 (Winter), `2024_family_matters` (Zinnia), `2024_miracle_worker` (Aminatou) und
@@ -69,73 +69,22 @@ dieselbe Liste wie die frühere Handover-Messung, jetzt mit einem Befehl reprodu
 Vereinfachte Ersatzkarten (`SYNTHETIC`) aus den früheren Fork-Patches schließen diese Lücke nur
 beim Import. Sie spielen nicht wie gedruckt und sind keine Regelevidenz.
 
-## SYNTHETIC-Proxies (9 Decks seit Repin v13, vorher 13; `data/decks/precon_variants/`)
+## SYNTHETIC-Proxies (abgelöst seit Repin v14, 2026-10-30; früher 13, dann 9 Decks)
 
-Owner-Entscheidung (2026-10-23, #920 Punkt 1): die 13 nicht importierbaren Precons bekommen
-SYNTHETIC-Proxies, jetzt; der echte Nachbau der fehlenden Karten im Fork löst sie später ab
-(#979, Fork-Push nur mit Owner-Go). Ein Proxy ist ein Testdeck, kein gedrucktes Precon, und hat
-die Evidenzklasse `SYNTHETIC` (`AGENTS.md` §4): keine Regelevidenz, keine Qualifikationsevidenz,
-kein Eintrag in einem Ranking neben echten Decks ohne die Kennzeichnung. Die Originale in
-`data/decks/precons/` bleiben unverändert.
+Bis Repin v14 standen für die Precons, deren Karten der Fork nicht kannte, SYNTHETIC-Proxies im
+Pool (Owner-Entscheidung 2026-10-23, #920 Punkt 1; zuletzt 9 Decks in `data/decks/precon_variants/`,
+Liste `data/decks/precon_synthetic_proxies.json`, Generator `scripts/build_precon_variants.py`).
+Ein Proxy war ein Testdeck, kein gedrucktes Precon, und trug die Evidenzklasse `SYNTHETIC`
+(`AGENTS.md` §4). Mit Repin v14 (#979, Pin `2ec507b721`) importieren alle 173 gedruckten Decks
+(`docs/performance/PRECON_IMPORT_V14_2026-10-29.md`); die Proxies, ihre Liste, der Generator und
+die zugehörigen Tests und Guides sind entfernt. Der Pool hat 173 Decks, alle REAL.
 
-**Was ersetzt wird** (`scripts/build_precon_variants.py`, `--check` prüft, dass die eingecheckten
-Dateien dem Generator entsprechen):
-
-- 29 Hauptdeck-Slots in 10 Decks: eine echte, am Pin importierbare Karte statt der unbekannten,
-  Commander-legal, in der Farbidentität des Decks, noch nicht im Deck. Quelle ist Satz 1 der
-  Muse-Vorlage M2 (Branch `muse/claude-handover`, Commit `5138666f`, Ordner
-  `handover/2026-10-20/ersatzkarten-vorlage/`; je Slot drei geprüfte Kandidaten, 30 von 30
-  Ersatz-Sätzen importierten dort mit Status OK).
-- 4 Decks mit unbekanntem Commander (`2024_death_toll`, `2024_family_matters`,
-  `2024_miracle_worker`, `2026_multiverse_reforged`): ein Proxy-Commander. Die Vorlage liefert
-  dafür nur das Importgerüst Breya; die Wahl folgt hier einer festen Regel (eine Entscheidung
-  dieses Repos, nicht der Vorlage): legendäre Kreatur mit genau der Farbidentität des Originals
-  (die übrigen 99 Karten bleiben legal), Commander-legal, am Pin importierbar und nicht schon im
-  Deck; unter diesen zuerst Karten, die kein anderes Precon anführen, dann der nächste Manawert,
-  dann die nächste Summe aus Kraft und Zähigkeit, dann der Name (Scryfall-Abfrage 2026-10-23,
-  `EXTERNAL_DATA`; der erste Treffer jeder Rangliste importierte).
-
-| Deck | Original-Commander | Proxy-Commander | Hauptdeck-Slots ersetzt |
-|---|---|---|---|
-| `2024_death_toll` | Winter, Cynical Opportunist (BG) | Carth the Lion | 0 |
-| `2024_family_matters` | Zinnia, Valley's Voice (URW) | Director Nick Fury | 0 |
-| `2024_miracle_worker` | Aminatou, Veil Piercer (WUB) | Jin Sakai, Ghost of Tsushima | 0 |
-| `2026_multiverse_reforged` | Jace, Multiverse Architect (WUBR) | Breya, Etherium Shaper | 6 |
-
-Bei `2026_multiverse_reforged` gibt es keine Karte, die die Regel ganz erfüllt: genau WUBR haben nur
-Breya, Etherium Shaper und Nissa, Leyline Tamer, und Nissa steht schon im Deck (Import: „Too many:
-2“). Breya führt außerdem `2016_invent_superiority` an; beide Decks können im selben Pod sitzen.
-Der Commander-Proxy ist die am stärksten abweichende Ersetzung (ein anderes Deck führt an), die
-Slot-Ersetzung die kleinste (1 % je Slot). Eine andere Wahl ist ein Eintrag in
-`COMMANDER_PROXIES`; der Neubau ändert nur dieses Deck.
-
-**Kennzeichnung** (alles vom Generator erzeugt, ein Test prüft jede Stelle):
-
-- Deck-Daten: Tag `SYNTHETIC` (und `precon-proxy`), `deck_id` beginnt mit `precon-synthetic/`,
-  Name endet auf „(SYNTHETIC proxy)“, Deck-Notiz „SYNTHETIC proxy of …“, jede ersetzte Karte und
-  jeder ersetzte Commander trägt die Notiz „SYNTHETIC: replaces … / stands in for …“.
-- Liste: `data/decks/precon_synthetic_proxies.json` nennt je Deck, was für was steht, die Quelle
-  der Ersatzkarten, die Commander-Regel und die Pool-Aufteilung (195 = 186 echt + 9 SYNTHETIC).
-- Auswertung (`scripts/precon_provenance.py`, Marker ist das `deck_id`-Präfix):
-  `measure_precon_imports.py` schreibt je Deck `provenance` (`REAL` oder `SYNTHETIC`) und
-  `decks_by_provenance`; `precon_pod_sweep.py` schreibt `decks_by_provenance`, je Pod
-  `synthetic_decks` und im Bericht `pods_with_synthetic_decks` und
-  `pods_failed_with_synthetic_decks`. Zahlen über gedruckte Precons und über Proxies werden getrennt
-  genannt. Ein Sweep über 186 echte plus 9 Proxies:
-  `--import-report imports.json --synthetic-proxies` (der Import-Report enthält nur die 186
-  Originale; wer ohne ihn alle 195 Originale wählt, bekommt keinen Proxy daneben, der Aufruf
-  bricht mit Exit-Code 2 ab).
-
-**Import** (Bridge-JAR `c5c019a2…`, Engine 1.4.62, Pin `4da83f62`, `LOCAL_OBSERVED`,
-`measure_precon_imports.py --deck-dir data/decks/precon_variants`): **13 von 13 importieren**.
-Das beweist die Existenz der Karten am Pin, nicht ihre Funktion im Spiel; die Ersatzkarten sind
-nicht einzeln auf Funktion geprüft.
-
-**Nicht belegt:** wie nah ein Proxy am gedruckten Deck spielt. Die Ersetzung ändert 0 bis 8 von 99
-Karten und bei vier Decks den Commander; Stärkevergleiche zwischen einem Proxy und dem Original
-oder einem echten Deck sind damit keine Aussage über das Precon. Stand der Sweeps mit Proxies:
-siehe „Spielbarkeit“. Der formale Import- und Pod-Lauf der Varianten liegt in #978 (Muse, nach M4),
-der Fork-Nachbau in #979.
+Messungen aus der Zeit davor tragen den Pool-Stand, auf dem sie entstanden sind (164 echte plus 9
+SYNTHETIC, am Pin `90f5c4d3f8`), und nennen die Proxies als SYNTHETIC; sie werden nicht
+umgerechnet. Die Herkunftsmarkierung in `scripts/precon_provenance.py` (`deck_id`-Präfix
+`precon-synthetic/`) bleibt, damit alte Berichte lesbar bleiben und eine künftige Ersatzmenge
+wieder getrennt gezählt würde. Die Einzelheiten der alten Ersetzungen stehen in der Git-Historie
+(Commit vor der Entfernung, `data/decks/precon_synthetic_proxies.json`).
 
 ## Spielbarkeit
 
@@ -701,10 +650,6 @@ die anderen sechs Karten sind neu.
 ```
 python scripts/measure_precon_imports.py --jar <bridge.jar> --workdir <leeres Verzeichnis> --out imports.json --enumerate-missing
 python scripts/precon_pod_sweep.py --jar <bridge.jar> --out sweep.json --import-report imports.json
-# die 13 SYNTHETIC-Proxies: erzeugen, prüfen, importieren, zusammen mit den 182 echten spielen
-python scripts/build_precon_variants.py --check
-python scripts/measure_precon_imports.py --jar <bridge.jar> --workdir <leeres Verzeichnis> --out proxies.json --deck-dir data/decks/precon_variants
-python scripts/precon_pod_sweep.py --jar <bridge.jar> --out sweep.json --import-report imports.json --synthetic-proxies
 ```
 
 `--enumerate-missing` kostet eine Minute und listet je Deck alle fehlenden Namen. Beide Skripte

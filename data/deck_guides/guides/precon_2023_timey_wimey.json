@@ -3,7 +3,7 @@
  "deck_id": "precon/2023/timey_wimey",
  "guide_slug": "precon_2023_timey_wimey",
  "deck_name": "Timey-Wimey",
- "deck_klasse": "ORIGINAL_MIT_PROXY",
+ "deck_klasse": "REAL",
  "evidenz": {
   "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
   "rollen": "CODE_DERIVED (repo card_roles)",
@@ -195,24 +195,6 @@
  "proxy": {
   "ist_proxy_deck": false,
   "original_deck_id": null,
-  "proxy_deck_id": "precon-synthetic/2023/timey_wimey",
-  "ersetzungen": [
-   {
-    "original": "The Pandorica",
-    "proxy": "Commander's Sphere"
-   },
-   {
-    "original": "The War Doctor",
-    "proxy": "Solemn Simulacrum"
-   },
-   {
-    "original": "The Moment",
-    "proxy": "Swiftfoot Boots"
-   },
-   {
-    "original": "Psychic Paper",
-    "proxy": "Hero's Blade"
-   }
-  ]
+  "ersetzungen": []
  }
 }

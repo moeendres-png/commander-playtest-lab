@@ -19,8 +19,9 @@ guided seats and one unguided control): no detectable effect on spells per playe
 **Origin.** Generated on 2026-10-24 from the deck lists, a Scryfall card cache and the repository's
 own `card_roles()` and `permanent_value()`, then adjusted by hand for the two Owner decks (fields
 marked `"handgesetzt": true`). The generator and the card-cache fetcher are not part of the
-repository; the output is the source of record. The synthetic replacement decks keep the id the
-deck files use (`precon-synthetic/...`).
+repository; the output is the source of record. The synthetic replacement decks of earlier pins
+(`precon-synthetic/...`) are retired since repin v14; their guides are gone and the guides of the
+original nine decks are class REAL.
 
 **Guards.** `tests/unit/test_deck_guides.py` checks that every deck of the pool has exactly one
 guide, that commanders and listed cards belong to the deck, that every delta stays inside the

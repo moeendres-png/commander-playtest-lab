@@ -3,7 +3,7 @@
  "deck_id": "precon/2024/blame_game",
  "guide_slug": "precon_2024_blame_game",
  "deck_name": "Blame Game",
- "deck_klasse": "ORIGINAL_MIT_PROXY",
+ "deck_klasse": "REAL",
  "evidenz": {
   "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
   "rollen": "CODE_DERIVED (repo card_roles)",
@@ -179,16 +179,6 @@
  "proxy": {
   "ist_proxy_deck": false,
   "original_deck_id": null,
-  "proxy_deck_id": "precon-synthetic/2024/blame_game",
-  "ersetzungen": [
-   {
-    "original": "Feather, Radiant Arbiter",
-    "proxy": "Burnished Hart"
-   },
-   {
-    "original": "Immortal Obligation",
-    "proxy": "Abrade"
-   }
-  ]
+  "ersetzungen": []
  }
 }

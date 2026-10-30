@@ -1,7 +1,0 @@
-# Guide: Paradox Power (variant, replacement cards)
-
-> **SYNTHETIC-Proxy-Deck** — ersetzt Karten, die die Engine am Pin nicht kennt, durch echte Engine-Karten. Kein Regels-/Qualifikations-Beleg; Ergebnisse separat ausweisen.
-
-Commander: The Thirteenth Doctor + Yasmin Khan (Farbidentität GRU). Das Deck geht in die Breite: Tokens und viele kleine Kreaturen erzeugen ein Board, das über Anthems/Payoffs oder schiere Anzahl gewinnt. Zweite Achse: value_engine. Manabasis: 36 Länder, Kurvenschnitt (Nonland) 3.44. Schlüsselkarten (Engine/Finisher nach Board-Wert): Flaming Tyrannosaurus, Frost Fair Lure Fish, The Thirteenth Doctor, Lunar Hatchling. Der Haupt-Commander (Yasmin Khan) soll bis Zug 3 liegen (Mana-Wert minus Ramp-Beschleunigung des Decks). Keep-Test: 2–4 Länder (aus 7 gezogen 2–5, Überschuss bottomen), dazu mindestens ein spielbarer Frühspielzug (MV ≤ 3) an zwei der ersten drei Züge und die Farben für die frühen Pips (G:12, R:11, U:13). Latte fällt je Mulligan, nie unter 5 Karten. Bedrohungs-Korrekturen: token_hate_minus_pump (+2). Angriffe: Commander-Schaden auf einen Spieler bündeln (Uhren-Regel), übrige Angriffe nach Zweck verteilen; alles, was den Kampf nicht verändert, postcombat spielen (Defaults aus Handoff §4.1/§4.3).
-
-_Generiert aus der Deckliste + Oracle-Fakten (Scryfall/Repo-Cache); Rollen über die Repo-Heuristik `card_roles()`. Parameter: MODELED/CODE_DERIVED — kein Messwert. Unbekannte Karten: 0._
