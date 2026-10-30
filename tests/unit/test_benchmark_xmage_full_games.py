@@ -237,7 +237,7 @@ def test_failure_isolation_check_reads_only_ok_games_of_a_reference(tmp_path: Pa
 def test_parse_reference_metadata_reads_commit_and_pin() -> None:
     module = _module()
     meta = module.parse_reference_metadata(module.REFERENCE_DOC)
-    assert meta == {"lab_commit": "5d85d2dc4", "xmage_pin": "90f5c4d3f8"}
+    assert meta == {"lab_commit": "6db6934f5", "xmage_pin": "2ec507b721"}
 
 
 def test_parse_reference_metadata_fails_closed_without_commit_row(tmp_path: Path) -> None:
@@ -253,11 +253,11 @@ def test_parse_reference_metadata_fails_closed_without_commit_row(tmp_path: Path
 
 def test_reference_is_current_at_its_own_commit() -> None:
     module = _module()
-    res = module.check_reference_staleness(target_ref="5d85d2dc4")
+    res = module.check_reference_staleness(target_ref="6db6934f5")
     assert res["stale"] is False
     assert res["changed_files"] == ()
     assert res["pin_matches"] is True
-    assert "current at 5d85d2dc4" in str(res["message"])
+    assert "current at 6db6934f5" in str(res["message"])
 
 
 def _old_reference_doc(tmp_path: Path) -> Path:
@@ -314,7 +314,7 @@ def test_unknown_reference_commit_fails_closed(tmp_path: Path) -> None:
 
 def test_check_reference_cli_exit_codes(tmp_path: Path) -> None:
     module = _module()
-    assert module.main(["check-reference", "--target", "5d85d2dc4"]) == 0
+    assert module.main(["check-reference", "--target", "6db6934f5"]) == 0
     old = _old_reference_doc(tmp_path)
     assert module.main(["check-reference", "--doc", str(old), "--target", "a8d6e54a5"]) == 1
 
