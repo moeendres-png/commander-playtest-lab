@@ -1,5 +1,7 @@
 # Reference run of the 36-seed acceptance (2026-10-30)
 
+> Superseded by `REFERENCE_36_SEEDS_2026-10-30b.md` (after #1068, 2026-10-30).
+
 Refs #1040. Measurement only: two run files and this note. No bridge, fork, pin, pilot or sealed
 record changes, so nothing here needs requalification. It replaces
 `REFERENCE_36_SEEDS_2026-10-29.md` as the reference of the current pilot and pin.
