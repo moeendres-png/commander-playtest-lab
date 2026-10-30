@@ -1,0 +1,107 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "causal_reconstruction": {
+    "declared_transport": [
+      {
+        "actor": "P1",
+        "decision_id": "e45f75c9712b5b9c3d0c5afb6505095806b994ac1d8ee791a42c595ad767aa13",
+        "kind": "priority_pass",
+        "scope": "decision_script[8]",
+        "tag": "PILOT_MANA_PAYMENT-causal-obj:opp-bolt"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "7f4532805499bf547f35b49b0e60b434cc4e21181f4d5d82ad4f12181f4cb729",
+        "kind": "mana_tap",
+        "scope": "declared_fuel[0]",
+        "tag": "PILOT_MANA_PAYMENT-causal-obj:opp-bolt-mana"
+      },
+      {
+        "actor": "P2",
+        "decision_id": "3afddabc1aa716d1dcfe7597d9d2a2e70791c83c53a08abfc11af357a8ff560b",
+        "kind": "pool_spend",
+        "scope": "single_advancing_spend",
+        "tag": "PILOT_MANA_PAYMENT-causal-obj:opp-bolt-mana"
+      }
+    ],
+    "entry_mode": "causal_stack",
+    "frames_bottom_to_top": [
+      "obj:opp-bolt"
+    ],
+    "fuel": [
+      "obj:fuel-mountain-p2"
+    ],
+    "verdict": {
+      "causal_match": true,
+      "frames_requested": 1,
+      "frames_verified": 1,
+      "mismatches": [],
+      "stack_order_top_to_bottom": [
+        "obj:opp-bolt"
+      ]
+    }
+  },
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_MANA_PAYMENT",
+  "obligation_exercised": {
+    "obligation_digest": "393f327ecec0dbe5e7a5ff65fd8acf6ed52f9737e8f15fd19ee6d82bc46e50ce",
+    "requested_state_digest": "9e69dbcdb9ef748ac126cb1af7e45cfd8fdf05145a3a3035f0469f4d208272ed",
+    "required_events": [
+      "mana_payment_frame:P1",
+      "mana_paid:UU"
+    ],
+    "terminal_checks": [],
+    "terminal_postconditions": [
+      "Exactly the selected provider-legal mana payment is consumed."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {},
+    "token_evidence": {
+      "mana_paid:UU": {
+        "binding": [
+          "the engine charged exactly 2 mana",
+          "a mana payment spent blue mana from the pool",
+          "exactly 1 SPELL_CAST event(s) with source_object=obj:counterspell, player_player=P1"
+        ],
+        "parts": [
+          {
+            "binding": "the engine charged exactly 2 mana",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "a mana payment spent blue mana from the pool",
+            "observation": "engine terminal observation"
+          },
+          {
+            "binding": "exactly 1 SPELL_CAST event(s) with source_object=obj:counterspell, player_player=P1",
+            "events": [
+              10
+            ]
+          }
+        ]
+      },
+      "mana_payment_frame:P1": {
+        "decision_frames": [
+          5,
+          6,
+          7,
+          8
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "68822ce1b12b5204def899bb3ba72afc01a3207865c5e45293ec4bede0f05eb1",
+  "runner_digest": "d85df0354be6f4d5473d41efc37ac9ff38f9ab7726ed120124fb15fca7f48813",
+  "runtime_receipt_digest": "029e622bd36ebd9ef9b18c78fc7992eb964bd23edf93da4ee59adb0d862ea017",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_MANA_PAYMENT",
+  "variance_source": null
+}
