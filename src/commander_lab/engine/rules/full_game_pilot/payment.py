@@ -14,6 +14,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
+from ..full_game_pilot_additional_cost import additional_mana_cost, reveal_alternative_in_hand
 from ..full_game_pilot_mana_hold import (
     HOLD_TURNS_IN_A_ROW,
     held_instants,
@@ -83,8 +84,12 @@ _PAY_ANY_AMOUNT_PROMPT = re.compile(r"\AChoose how much mana to pay\Z")
 # Spells that do something at X = 0, so a cast with nothing left for X is a real play: Chalice of
 # the Void (counters {0} spells), Engineered Explosives (destroys tokens and {0} permanents).
 _ZERO_X_SPELLS = frozenset({"chalice of the void", "engineered explosives"})
-# An activated ability that adds mana ("{T}: Add {R}.", "+1: Add {R}{R}."): the cost, a colon, "Add".
+# An activated ability that adds mana ("{T}: Add {R}."): the cost, a colon, "Add".
 _ADDS_MANA_RULE = re.compile(r":\s*add\s", re.IGNORECASE)
+# A loyalty ability ("+1: Add {R}{R}.", Chandra, Torch of Defiance) is never a mana ability (CR
+# 605.1a): the engine does not offer it inside a payment, so it is no source for one (#1067; 0 of
+# 10,539 recorded payment prompts offered one).
+_LOYALTY_COST = re.compile(r"^\s*(?:[+\u2212\u2013-]\s*)?(?:\d+|x)\s*:", re.IGNORECASE)
 
 
 def _option_spends_own_source(label: str, metadata: Mapping[str, object]) -> bool:
@@ -536,7 +541,11 @@ class _PaymentDecisions(_PolicyState):
             for index, rule in enumerate(rules):
                 # Not ``offers_mana_ability``: that reader is conservative for a budget (it misses
                 # "three mana of any one color"), and a missed source reads as a shortfall here.
-                if isinstance(rule, str) and _ADDS_MANA_RULE.search(rule):
+                if (
+                    isinstance(rule, str)
+                    and _ADDS_MANA_RULE.search(rule)
+                    and not _LOYALTY_COST.match(rule)
+                ):
                     offer.append(
                         {
                             "option_type": "mana_ability",
@@ -599,6 +608,37 @@ class _PaymentDecisions(_PolicyState):
         return not damaged_opposing_creatures(state, actor_id) or (
             can_pay(offer, discount.reduced) is False
         )
+
+    def _extra_cost_cast_unpayable(
+        self, option: Mapping[str, object], state: dict[str, object]
+    ) -> bool:
+        """Whether a cast is offered although its mandatory extra mana cannot be paid (#1067).
+
+        Louisoix's Sacrifice ({U}, "sacrifice a legendary creature or pay {2}") is offered while
+        the {U} is payable; the {2} is asked afterwards, and the payment is cancelled with the
+        first mana gone. True only when the model proves the printed price plus the extra mana
+        short and the hand holds no card to reveal in its place; a cost it cannot read, a cast
+        for another price (flashback, an alternative cost) and a board with a cost reducer are
+        left to the pilot.
+        """
+        metadata = option.get("metadata")
+        if not isinstance(metadata, dict) or metadata.get("ability_type") != "spell":
+            return False
+        label = str(option.get("label") or "").casefold()
+        if "cast " not in label or any(word in label for word in ("flashback", " using ", "free")):
+            return False
+        name = str(metadata.get("source_name") or "")
+        extra = additional_mana_cost(name)
+        printed = _printed_spell_cost(name) if extra is not None else None
+        actor_id = str(state.get("actor_id") or "")
+        offer = self._visible_mana_offer(self._actor(state))
+        if extra is None or printed is None or offer is None or board_lowers_costs(state, actor_id):
+            return False
+        if can_pay(offer, printed + extra.mana) is not False:
+            return False
+        if extra.reveal_kind is None:
+            return True
+        return reveal_alternative_in_hand(state, actor_id, name, extra.reveal_kind) is False
 
     def _targets_the_discount_pays_for(
         self,

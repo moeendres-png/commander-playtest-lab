@@ -200,6 +200,15 @@ class _PriorityDecisions(_CombatDecisions):
             _LOG.info("withheld %d discounted spell(s) with no damaged target", len(no_target))
             no_target_ids = {id(option) for option in no_target}
             affordable = [o for o in affordable if id(o) not in no_target_ids]
+        # #1067: a spell with a mandatory extra mana cost (Louisoix's Sacrifice) is not cast
+        # while the printed price plus the extra mana is out of reach.
+        no_extra = [
+            option for option in affordable if self._extra_cost_cast_unpayable(option, state)
+        ]
+        if no_extra:
+            _LOG.info("withheld %d cast(s) whose extra mana cost cannot be paid", len(no_extra))
+            no_extra_ids = {id(option) for option in no_extra}
+            affordable = [o for o in affordable if id(o) not in no_extra_ids]
         # #989 phase 4a-2: an optional cast that would spend the mana kept for a counterspell or
         # removal in hand waits, so the instant can be cast on an opponent's turn.
         spends_hold = self._casts_that_break_the_mana_hold(affordable, state, seat)

@@ -287,8 +287,10 @@ def test_a_source_that_adds_three_mana_of_one_colour_is_counted() -> None:
     assert _answer(_ask("Pay {3}{W}{W}?", board, trigger, outcome="benefit", offset=1)) == "yes"
 
 
-def test_a_loyalty_ability_that_adds_mana_leaves_the_question_to_the_pilot() -> None:
+def test_a_loyalty_ability_that_adds_mana_is_no_source_of_the_payment() -> None:
+    # CR 605.1a: a loyalty ability is no mana ability, and the engine never offers one inside a
+    # payment (0 of 10,539 recorded prompts), so two Swamps and Chandra do not pay {5}.
     board = _board(*[_SWAMP] * 2, "+1: Add {R}{R}.")
     trigger = {"ability_type": "triggered_nonmana", "source_name": "Monstrosity of the Lake"}
     prompt = "Pay {5} and tap all creatures your opponents control?"
-    assert _answer(_ask(prompt, board, trigger, outcome="benefit", offset=1)) == "yes"
+    assert _answer(_ask(prompt, board, trigger, outcome="benefit", offset=1)) == "no"
