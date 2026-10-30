@@ -1,0 +1,142 @@
+{
+ "games": 24,
+ "seeds": [
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24
+ ],
+ "decisions": 66699,
+ "decisions_per_game": 2779.1,
+ "classes": {
+  "amount": 11,
+  "announce_x": 55,
+  "choice": 691,
+  "choose_object": 539,
+  "choose_use": 656,
+  "declare_attacker": 1283,
+  "declare_blocker": 514,
+  "mana_payment": 10539,
+  "mode": 57,
+  "mulligan": 139,
+  "multi_amount": 41,
+  "pile": 3,
+  "priority": 50791,
+  "target": 1089,
+  "target_amount": 49,
+  "trigger_order": 242
+ },
+ "size_mb": 54.96,
+ "phase4a": {
+  "rule": "chosen spell option with is_instant_speed (catalog); early = step upkeep or draw and actor == active player; unknown card types counted apart and left out",
+  "instant_casts_total": 206,
+  "instant_casts_own_upkeep_draw": 14,
+  "instant_casts_unknown_type": 15,
+  "early_share_pct": 6.8
+ },
+ "reach": {
+  "P0-2_threat_ladder": {
+   "rule": "target decisions, and those with >= 2 options",
+   "target_total": 1089,
+   "target_multi_option": 842
+  },
+  "P0-3_trigger_order": {
+   "rule": "trigger_order decisions, and those with >= 2 options",
+   "trigger_total": 242,
+   "trigger_multi_option": 242
+  },
+  "P1-1_combo_recognition": {
+   "rule": "NOT_COUNTABLE directly (needs a package match); proxy: priority decisions with an opponent permanent on the board",
+   "proxy_opponent_board_nonempty": 50327
+  },
+  "P1-2_timing_remainder": {
+   "rule": "postcombat candidates: non-instant spells chosen in the own precombat main; wipes: offered spells whose oracle text has 'destroy all' or 'exile all'",
+   "precombat_noninstant_casts": 1135,
+   "wipe_options_offered": 50
+  },
+  "P1-3_interaction_discipline": {
+   "rule": "opponent turns on which the actor passes although an instant-speed spell was offered (the P2 remainder shares these windows)",
+   "opp_turn_pass_with_instant_offered": 366
+  },
+  "P1-4_P10_x_breakpoints": {
+   "rule": "announce_x and multi_amount decisions; announce_x with X > 0",
+   "announce_x": 55,
+   "multi_amount": 41,
+   "announce_x_positive": 38
+  },
+  "P1-5_P11_mulligan_devscore": {
+   "rule": "mulligan decisions",
+   "mulligan": 139
+  },
+  "P1-6_noise": {
+   "rule": "NOT_COUNTABLE directly (relative model); proxy: declare_attacker",
+   "declare_attacker": 1283
+  },
+  "P2-1_roles": {
+   "rule": "NOT_COUNTABLE (meta policy, no decision class)"
+  },
+  "P2-2_external_priors": {
+   "rule": "NOT_COUNTABLE (deck-building time)"
+  },
+  "P2-3_risk_quantification": {
+   "rule": "NOT_COUNTABLE directly (model inputs)"
+  },
+  "P4_fast_path": {
+   "rule": "mana_payment decisions (volume a fixed rule would not evaluate)",
+   "mana_payment": 10539,
+   "share_pct": 15.8
+  },
+  "P5_profiling": {
+   "rule": "NOT_COUNTABLE from a dump (no wall time per decision); size as proxy",
+   "size_mb": 54.96,
+   "decisions_per_game": 2779.1
+  },
+  "P6_instrumentation": {
+   "rule": "NOT_COUNTABLE (future runs)"
+  },
+  "P7_transcript_schema": {
+   "rule": "bytes per decision of the dump as the transcript volume",
+   "bytes_per_decision": 824.1,
+   "decisions_per_game": 2779.1
+  },
+  "P8_combat_remainder": {
+   "rule": "declare_attacker and declare_blocker decisions (an upper bound)",
+   "declare_attacker": 1283,
+   "declare_blocker": 514
+  },
+  "P9_replication_remainder": {
+   "rule": "NOT_COUNTABLE from one dump (needs duplicate keys across runs)"
+  },
+  "P3_costed_may_remainder": {
+   "rule": "choose_use decisions whose prompt has pay, life or sacrifice",
+   "choose_use_total": 656,
+   "choose_use_costed_prompt": 101
+  },
+  "P0-1_remainder": {
+   "rule": "NOT_COUNTABLE directly (the unset inputs are missing by definition)"
+  },
+  "mana_hold": {
+   "rule": "NOT_COUNTABLE (hand contents are not in the dump, only hand_count)"
+  }
+ }
+}
