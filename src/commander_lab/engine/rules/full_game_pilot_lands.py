@@ -115,7 +115,7 @@ def board_sources(state: Mapping[str, object], identity: frozenset[str]) -> list
     return [source for source in found if source is not None]
 
 
-def _lands_on_board(actor: Mapping[str, object] | None) -> int:
+def lands_on_board(actor: Mapping[str, object] | None) -> int:
     if actor is None:
         return 0
     found = (card_facts(str(item.get("name") or "")) for item in _entries(actor.get("battlefield")))
@@ -316,7 +316,7 @@ def land_verdicts(
     actor = _actor(state)
     sources = board_sources(state, identity)
     have = _colour_totals(sources)
-    plan = _plan_cards(state, identity, _lands_on_board(actor))
+    plan = _plan_cards(state, identity, lands_on_board(actor))
     demand = _demand(plan)
     mana_now = sum(source.mana for source in sources if source.untapped)
     mana_now += _pool_mana(actor) if actor is not None else 0
@@ -379,7 +379,7 @@ def choose_lands_to_fetch(
     identity = commander_identity(state)
     actor = _actor(state)
     have = _colour_totals(board_sources(state, identity))
-    demand = _demand(_plan_cards(state, identity, _lands_on_board(actor)))
+    demand = _demand(_plan_cards(state, identity, lands_on_board(actor)))
     remaining = list(names)
     chosen: list[str] = []
     while remaining and len(chosen) < max(1, count):

@@ -11,6 +11,8 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -253,3 +255,32 @@ def test_a_full_dump_is_replayed_with_one_policy_per_seed(
     assert len(outcomes) == len(rows) and all(o["answer"] is not None for o in outcomes)
     assert made == sorted({int(r["seed"]) for r in rows})
     assert len(made) < len(rows)
+
+
+def test_engine_keys_are_redacted_so_the_secret_scan_has_nothing_to_flag() -> None:
+    """The engine's ``xmage_key`` (two UUIDs) reads as a generic API key to the broad secret scan."""
+    request = {
+        "decision_class": "priority",
+        "legal_options": [
+            {"option_id": "o1", "metadata": {"xmage_key": "89f4d02a_2f7da8a4", "name": "Rage"}},
+            {"option_id": "o2", "metadata": {"nested": [{"xmage_key": "x"}]}},
+        ],
+    }
+    redacted = corpus_tool.redact_engine_keys(request)
+    first, second = redacted["legal_options"]
+    assert first["metadata"] == {"xmage_key": corpus_tool.REDACTED_ENGINE_KEY, "name": "Rage"}
+    assert second["metadata"]["nested"][0]["xmage_key"] == corpus_tool.REDACTED_ENGINE_KEY
+    # Control: the input is copied, not changed, and other fields keep their values.
+    assert request["legal_options"][0]["metadata"]["xmage_key"] == "89f4d02a_2f7da8a4"
+    assert first["option_id"] == "o1"
+
+
+def test_the_committed_corpus_carries_no_raw_engine_keys(
+    corpus: tuple[dict[str, Any], list[dict[str, Any]]],
+) -> None:
+    values = {
+        match
+        for row in corpus[1]
+        for match in re.findall(r'"xmage_key":"([^"]*)"', json.dumps(row, separators=(",", ":")))
+    }
+    assert values <= {corpus_tool.REDACTED_ENGINE_KEY}

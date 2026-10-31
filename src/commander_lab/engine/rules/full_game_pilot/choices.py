@@ -12,7 +12,7 @@ from commander_lab.models import (
     PilotActionView,
 )
 
-from ..full_game_pilot_lands import choose_lands_to_fetch
+from ..full_game_pilot_lands import choose_lands_to_fetch, lands_on_board
 from ..full_game_pilot_targets import commander_clock_bonus, target_side
 from ..full_game_pilot_views import (
     color_choice_rank,
@@ -293,6 +293,7 @@ class _ChoiceDecisions(_PaymentDecisions):
             ranked.append((score, action.card_name, action.action_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
         ranked = self._rank_land_search(ranked, built, state, rng, max_selections)
+        ranked = self._rank_own_hand_discard(runtime, state, outcome, built, ranked)
 
         if max_selections <= 0:
             return []
@@ -307,6 +308,67 @@ class _ChoiceDecisions(_PaymentDecisions):
             return [raw_by_stable_id[stable_id] for _score, _label, stable_id in ranked[:take]]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable target action") from None
+
+    def _rank_own_hand_discard(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, object],
+        outcome: str,
+        built: list[tuple[dict[str, object], PilotActionView]],
+        ranked: list[tuple[float, str, str]],
+    ) -> list[tuple[float, str, str]]:
+        """A discard from the actor's own hand gives up the card the hand values least.
+
+        The generic ranking scores the offered cards as targets, and every card of a hand scored
+        alike, so the one that sorted last by name went: in 24 recorded games Quintorius,
+        History Chaser discarded the alphabetically last card 146 times of 146 (Inferno Titan
+        among Field of Ruin and Fact or Fiction). The hand valuation of a London bottom (lands
+        beyond the fourth are surplus, ramp and draw are cheap, dear cards are a liability) decides
+        instead, with the lands on the battlefield counted into the land total.
+        """
+        if outcome != "discard":
+            return ranked
+        offered: dict[str, dict[str, object]] = {}
+        for option, action in built:
+            meta = option.get("metadata")
+            if not isinstance(meta, dict) or meta.get("zone") != "hand":
+                return ranked
+            name, object_id = meta.get("name") or option.get("label"), meta.get("object_id")
+            if not name or not object_id:
+                return ranked
+            offered[action.action_id] = {"name": str(name), "object_id": str(object_id)}
+        if len(offered) < 2:
+            return ranked
+        actor = self._actor(state)
+        hand = actor.get("hand")
+        offered_objects = {card["object_id"] for card in offered.values()}
+        held_back = [
+            card
+            for card in (hand if isinstance(hand, list) else [])
+            if isinstance(card, dict) and str(card.get("object_id")) not in offered_objects
+        ]
+        views = [
+            self._hand_action(card).model_copy(update={"action_id": stable_id})
+            for stable_id, card in offered.items()
+        ]
+        extra_lands = lands_on_board(actor) + sum(
+            1
+            for card in held_back
+            if (facts := card_facts(str(card.get("name") or ""))) is not None and facts.is_land
+        )
+        order = runtime.pilot.choose_bottom_cards(
+            views,
+            len(views),
+            commander_names=runtime.binding.commander_names,
+            extra_lands=extra_lands,
+        )
+        label = {stable_id: lab for _score, lab, stable_id in ranked}
+        # Positive and falling, so an "up to" discard (take one unless every score is negative)
+        # still discards.
+        return [
+            (float(len(order) - index), label[stable_id], stable_id)
+            for index, stable_id in enumerate(order)
+        ]
 
     @staticmethod
     def _rank_land_search(

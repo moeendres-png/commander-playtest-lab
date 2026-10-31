@@ -56,15 +56,15 @@ def test_counts_on_the_recorded_fixture(tmp_path: Path) -> None:
     full = _full_slice(tmp_path / "full.jsonl.gz", fixture_rows)
     _, rows, size = module.load_slices([full])
     result = module.analyze(rows, size)
-    assert result["games"] == 2 and result["decisions"] == 424
+    assert result["games"] == 2 and result["decisions"] == 446
     assert result["classes"]["priority"] == 80 and result["classes"]["mana_payment"] == 60
     reach = result["reach"]
     assert reach["P0-2_threat_ladder"]["target_total"] == 40
     assert reach["P0-2_threat_ladder"]["target_multi_option"] == 26
-    assert reach["P0-3_trigger_order"]["trigger_multi_option"] == 13
-    assert reach["P1-2_timing_remainder"]["precombat_noninstant_casts"] == 13
-    assert reach["P3_costed_may_remainder"]["choose_use_costed_prompt"] == 4
-    assert reach["P4_fast_path"]["share_pct"] == 14.2
+    assert reach["P0-3_trigger_order"]["trigger_multi_option"] == 16
+    assert reach["P1-2_timing_remainder"]["precombat_noninstant_casts"] == 11
+    assert reach["P3_costed_may_remainder"]["choose_use_costed_prompt"] == 5
+    assert reach["P4_fast_path"]["share_pct"] == 13.5
     assert result["phase4a"]["instant_casts_total"] == 1
     # what a dump cannot count is named, never zero
     assert "NOT_COUNTABLE" in reach["P6_instrumentation"]["rule"]

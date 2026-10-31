@@ -125,6 +125,27 @@ def select_corpus(
     return [records[i] for i in sorted(set(chosen))]
 
 
+REDACTED_ENGINE_KEY = "redacted-engine-key"
+
+
+def redact_engine_keys(value: Any) -> Any:
+    """Copy of ``value`` with every engine ``xmage_key`` replaced by a fixed placeholder.
+
+    The bridge puts the engine's per-run ability key (two UUIDs joined by ``_``) into option
+    metadata. The pilot never reads it, but the broad secret scan reads a ``key`` field next to
+    a high-entropy value as a generic API key and fails the build on it (#1071). The repository
+    corpus keeps the placeholder instead.
+    """
+    if isinstance(value, dict):
+        return {
+            key: REDACTED_ENGINE_KEY if key == "xmage_key" else redact_engine_keys(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [redact_engine_keys(item) for item in value]
+    return value
+
+
 def load_corpus(path: Path = DEFAULT_CORPUS) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """The header and the rows of a corpus file."""
     with gzip.open(path, "rt", encoding="utf-8") as handle:
@@ -257,7 +278,7 @@ def record(args: argparse.Namespace) -> int:
         write_corpus(args.out, header, full)
         print(json.dumps(header, indent=1))
         return 0
-    rows = select_corpus(records)
+    rows = [redact_engine_keys(row) for row in select_corpus(records)]
     replayed = replay(rows)
     for row, outcome in zip(rows, replayed, strict=True):
         answer = outcome["answer"]

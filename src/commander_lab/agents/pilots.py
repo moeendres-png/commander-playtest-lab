@@ -461,7 +461,14 @@ class BasePilot:
         count: int,
         *,
         commander_names: tuple[str, ...],
+        extra_lands: int = 0,
     ) -> tuple[str, ...]:
+        """The ``count`` least valuable cards, worst first.
+
+        ``extra_lands`` are lands the actor holds outside ``cards`` (on the battlefield or in
+        the rest of the hand): a discard picks among a subset, but the sixth land is surplus
+        whether or not the offered cards show it.
+        """
         if count <= 0:
             return ()
         # #851: remove one card at a time against the shrinking hand, so
@@ -471,7 +478,9 @@ class BasePilot:
         remaining = list(cards)
         bottomed: list[str] = []
         for _ in range(min(count, len(remaining))):
-            land_count = sum(1 for card in remaining if bool(card.metadata.get("is_land", False)))
+            land_count = extra_lands + sum(
+                1 for card in remaining if bool(card.metadata.get("is_land", False))
+            )
             scored = sorted(
                 remaining,
                 # Twin-stable tiebreak: Rules-visible card name, never engine
