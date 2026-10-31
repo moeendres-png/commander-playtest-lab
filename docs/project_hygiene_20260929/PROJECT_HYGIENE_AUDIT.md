@@ -19,7 +19,7 @@ Companion documents: [`CLEANUP_LEDGER.json`](CLEANUP_LEDGER.json) ·
 | Repository | `moeendres-png/commander-playtest-lab` |
 | `origin/main` at campaign start | `a13db63dcd8baefba9966aa42c704133bdb5c6d8` (tree `79a29b248d044aba393d8db35bf013c6f579eae7`) |
 | `origin/main` at campaign end | `72665dcea00d3c74b3272586a9b2794bb86fd93c` (tree `bc16a510b2ff120298035af61372354b9dac422a`) |
-| Worktree | `/home/moeen/code/lab-project-hygiene-20260929` |
+| Worktree | `/home/owner/code/lab-project-hygiene-20260929` |
 | Branch | `maintenance/project-hygiene-canonicalization-20260929` |
 | Cross-repo | `moeendres-png/forge` and `moeendres-png/mage` treated as **read-only**; not modified |
 
@@ -176,7 +176,7 @@ Recorded as a reusable finding for future agents.
 
 ## 6. Local disk findings
 
-`/home/moeen/code` is **104 GB**. The Git object store for this repository is only **273 MB**
+`/home/owner/code` is **104 GB**. The Git object store for this repository is only **273 MB**
 and is healthy (24 packs, 0 garbage, 0 prunable worktrees, 0 orphan metadata, 0 tags).
 **Storage is not a Git-maintenance problem — it is duplicated worktrees and build output.**
 

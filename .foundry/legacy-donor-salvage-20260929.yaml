@@ -18,7 +18,7 @@ observed_main_history:
 - sha: f7bbeb934007407d5ec88b16ef5f9f23cd07f2f1
   note: current origin/main; delta is 1 Java XMage-MP overload test, NO_RELEVANT_OVERLAP; PR344 CLEAN/MERGEABLE
 branch: integration/legacy-donor-salvage-20260929
-worktree: /home/moeen/code/lab-legacy-donor-salvage-20260929
+worktree: /home/owner/code/lab-legacy-donor-salvage-20260929
 owned_files:
 - src/commander_lab/engine/rules/base.py
 - src/commander_lab/engine/rules/bridge.py

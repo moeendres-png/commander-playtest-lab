@@ -4,7 +4,7 @@
 
 - Repo `moeendres-png/commander-playtest-lab`, branch
   `cpl/xmage-successor-integration-20260919`, base `aebcfda3`.
-- Worktree `/home/moeen/code/ws-successor-integration-20260919`.
+- Worktree `/home/owner/code/ws-successor-integration-20260919`.
 - Donor (read-only) `fa4cd8d1`; engine pin `xmage-1.4.61` unchanged.
 
 ## Work Completed

@@ -3,7 +3,7 @@
 ## Source Lock
 
 - Implementation base at merge: `origin/main` `24b355b7f864364f4c7a7e6137c1947d1b231c1b`
-- Worktree: `/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929`
+- Worktree: `/home/owner/code/lab-pb03-fresh-main-reconciliation-20260929`
 - Branch: `integration/pb03-fresh-main-reconciliation-20260929`
 - PR: #381 (Draft, base `main`)
 - Source-lock chain: `72665dce` (audit base) → `7cb9e56a` → `12d3e1ac` → `23977253` → `b126249e` → `174696d15` → `9afa9538` → `24b355b7` (all merged normally, never rebased)

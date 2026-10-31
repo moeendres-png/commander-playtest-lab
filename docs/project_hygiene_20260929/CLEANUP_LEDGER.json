@@ -619,7 +619,7 @@
     {
       "id": "L10",
       "surface": "local_disk",
-      "location": "/tmp/pytest-of-moeen",
+      "location": "/tmp/pytest-of-owner",
       "category": "storage",
       "current_role": "local storage consumer",
       "evidence": "329 MB; mtime equals audit time; a live pytest process is writing to it",
@@ -653,7 +653,7 @@
     {
       "id": "L12",
       "surface": "local_disk",
-      "location": "/home/moeen/code/pb09-forge-bridge-current-20260929",
+      "location": "/home/owner/code/pb09-forge-bridge-current-20260929",
       "category": "storage",
       "current_role": "local storage consumer",
       "evidence": "1075 MB; forge clone with NO origin remote and 276 dirty files",

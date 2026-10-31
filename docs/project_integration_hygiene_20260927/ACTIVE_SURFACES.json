@@ -23,7 +23,7 @@
       "state": "ACTIVE",
       "title": "Final current-boundary provider qualification",
       "unpublished_local_commits": 2,
-      "worktree": "/home/moeen/code/wsr22-final-current-boundary-freeze",
+      "worktree": "/home/owner/code/wsr22-final-current-boundary-freeze",
       "wsr23_treatment": "READ_ONLY - not inspected beyond the above, not modified, not pushed"
     },
     {
@@ -105,7 +105,7 @@
       "repo": "moeendres-png/commander-playtest-lab",
       "state": "ACTIVE",
       "title": "Project integration, hygiene, and publication closure",
-      "worktree": "/home/moeen/code/wsr23-project-integration-hygiene",
+      "worktree": "/home/owner/code/wsr23-project-integration-hygiene",
       "wsr23_treatment": "SELF - the only surface WSR23 mutated"
     },
     {
@@ -154,12 +154,12 @@
     "method": "/proc/<pid>/cwd and /proc/<pid>/cmdline; no process was killed or signalled",
     "running_opencode_processes": [
       {
-        "cwd": "/home/moeen/code/wsr22-final-current-boundary-freeze",
+        "cwd": "/home/owner/code/wsr22-final-current-boundary-freeze",
         "pid": 71804,
         "verdict": "WSR22 ACTIVE_OWNER"
       },
       {
-        "cwd": "/home/moeen/code",
+        "cwd": "/home/owner/code",
         "pid": 77022,
         "verdict": "the WSR23 opencode session itself (not a workstream writer)"
       }
@@ -180,5 +180,5 @@
   "observed_main_sha": "bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719",
   "observed_main_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
   "workstream": "WSR23",
-  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
+  "worktree": "/home/owner/code/wsr23-project-integration-hygiene"
 }

@@ -2,7 +2,7 @@
 
 - Workstream: `cpl/xmage-six-player-20260921`
 - Branch: `cpl/xmage-six-player-20260921`
-- Worktree: `/home/moeen/code/ws-lab-six-player-20260921`
+- Worktree: `/home/owner/code/ws-lab-six-player-20260921`
 - Base: `faffab8493c45469adf61824a582cf1ba7637fa0`
 - Contract: `docs/workstream_lab_sixplayer_20260921/WORKSTREAM_CONTRACT.md`
 - Verdicts (live): `ENGINE_6P=CAPABLE` · `GATE=2-6` ·

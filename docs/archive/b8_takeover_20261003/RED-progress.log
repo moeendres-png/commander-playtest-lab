@@ -36,8 +36,8 @@ tests/unit/test_real_4p_progress_execution.py:101: AssertionError
 _________________ test_script_checks_the_second_twin_contract __________________
 
 monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de011035e10>
-repo_root = PosixPath('/home/moeen/work/takeover-pr518-20261003')
-tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-20/test_script_checks_the_second_0')
+repo_root = PosixPath('/home/owner/work/takeover-pr518-20261003')
+tmp_path = PosixPath('/tmp/pytest-of-owner/pytest-20/test_script_checks_the_second_0')
 
     def test_script_checks_the_second_twin_contract(monkeypatch, repo_root, tmp_path) -> None:
         first, _ = _run(monkeypatch, _round())
@@ -50,8 +50,8 @@ tests/unit/test_real_4p_progress_execution.py:142: Failed
 __________________ test_script_rejects_a_missing_twin_digest ___________________
 
 monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x7de010df07c0>
-repo_root = PosixPath('/home/moeen/work/takeover-pr518-20261003')
-tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-20/test_script_rejects_a_missing_0')
+repo_root = PosixPath('/home/owner/work/takeover-pr518-20261003')
+tmp_path = PosixPath('/tmp/pytest-of-owner/pytest-20/test_script_rejects_a_missing_0')
 
     def test_script_rejects_a_missing_twin_digest(monkeypatch, repo_root, tmp_path) -> None:
         result, _ = _run(monkeypatch, _round())

@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/lab-forge-scenario-lane-20261001
+worktree: /home/owner/code/lab-forge-scenario-lane-20261001
 branch: hardening/forge-scenario-lane-20261001
 audit_base_sha: bcd903f20d511c4aad0a8ebfbfbe89d801219ec9
 audit_base_tree: b7d44a0b49222fde62157a6a18867b34b6a39552

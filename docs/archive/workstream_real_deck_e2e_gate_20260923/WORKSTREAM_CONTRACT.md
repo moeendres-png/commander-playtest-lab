@@ -17,7 +17,7 @@ or identify/repair the first genuine production blocker in scope.
   verified list). Seats: 2× RogShai + 2× Kaervek, labeled
   REAL_CARD_TECHNICAL_USABILITY_GATE (not matchup evidence).
 - This branch: `opencode/real-deck-e2e-gate-20260923`.
-- This worktree: `/home/moeen/code/ws-real-deck-e2e-gate-20260923`.
+- This worktree: `/home/owner/code/ws-real-deck-e2e-gate-20260923`.
 
 ## In Scope
 

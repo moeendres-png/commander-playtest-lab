@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/work/worktrees/claude-quota-efficiency-20261006
+worktree: /home/owner/work/worktrees/claude-quota-efficiency-20261006
 branch: tooling/claude-quota-efficiency-20261006
 audit_base_sha: e793f7f5285f95a2b2cadade3584447d697d868f
 audit_base_tree: 4420b76f5ba9d583c20db1d065a3884f09368d9c

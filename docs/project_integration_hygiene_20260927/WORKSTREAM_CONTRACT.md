@@ -3,7 +3,7 @@
 **Workstream:** WSR23 — Project integration, hygiene, and publication closure
 **Issue:** [#263](https://github.com/moeendres-png/commander-playtest-lab/issues/263)
 **Branch:** `wsr23/project-integration-hygiene-20260927`
-**Worktree:** `/home/moeen/code/wsr23-project-integration-hygiene`
+**Worktree:** `/home/owner/code/wsr23-project-integration-hygiene`
 **Execution:** `opencode-go/space-bunny-free`, native `max` reasoning, effort field `high`
 
 ## 1. Source Lock
@@ -24,7 +24,7 @@
 
 ## 2. Objective
 
-Inventory the whole `/home/moeen/code` Commander Simulator Next workspace; separate active
+Inventory the whole `/home/owner/code` Commander Simulator Next workspace; separate active
 from stale work; classify every open PR; adjudicate every local branch whose tip is
 unpublished; repair only free, non-overlapping Lab integration/hygiene defects; validate;
 publish what is provably publishable; and leave a durable ledger that lets the Coordinator see
@@ -33,7 +33,7 @@ exactly what remains.
 ## 3. In scope
 
 - Read-only inventory of repositories, worktrees, branches, locks, processes, state files,
-  PRs, issues, and CI under `/home/moeen/code`.
+  PRs, issues, and CI under `/home/owner/code`.
 - Classification of dirty work and unpublished branches, with preservation.
 - Repair of free, non-overlapping Lab documentation/integration defects on the WSR23 branch.
 - Validation (pytest, ruff, mypy strict, state validation, compile).
@@ -50,7 +50,7 @@ exactly what remains.
   evidence promotion, FULL107, WS232 or any requalification matrix.
 - Force push, history rewrite, branch deletion, worktree deletion, repository settings,
   protection changes, auto-merge, PR merges, credential inspection.
-- Any repository under `/home/moeen/code` that carries no Commander Simulator Next remote.
+- Any repository under `/home/owner/code` that carries no Commander Simulator Next remote.
 
 ## 5. Ownership
 

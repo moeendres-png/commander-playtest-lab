@@ -12,7 +12,7 @@ Mirrors R16 scope on the successor-integration line.
 
 - Base: `faffab8493c45469adf61824a582cf1ba7637fa0` (successor tip).
 - This branch: `cpl/xmage-six-player-20260921`.
-- This worktree: `/home/moeen/code/ws-lab-six-player-20260921`.
+- This worktree: `/home/owner/code/ws-lab-six-player-20260921`.
 - Repo `moeendres-png/commander-playtest-lab`. No Forge/mage edits.
   No push/merge.
 

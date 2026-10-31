@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/lab-midgame-multiselect-amount-closure-20261001
+worktree: /home/owner/code/lab-midgame-multiselect-amount-closure-20261001
 branch: hardening/midgame-multiselect-amount-closure-20261001
 audit_base_sha: 4e41bde6fd4f27dc448ae8c44f7af9212e3198fe
 audit_base_tree: 09e139d4bebfd3cb960b692c66297ab9385674df

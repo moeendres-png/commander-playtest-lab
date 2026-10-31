@@ -27,13 +27,13 @@
       "local_short": "044abb72c",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "astra/replay-validation-integrity: strict semantic replay validation and debugger determinism gate",
       "tip_contained_in_default": false,
       "tree": "4e8061ff11ddf5185bf7762aedf62ff7363c82e2",
       "worktree_paths": [
-        "/home/moeen/code/ws-replay-validation-integrity"
+        "/home/owner/code/ws-replay-validation-integrity"
       ]
     },
     {
@@ -76,13 +76,13 @@
       "local_short": "47f591e5c",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-foundry-wave1: port sealed capsule error-privacy fix from bef7e18b (3 paths byte-identical)",
       "tip_contained_in_default": false,
       "tree": "22eaa4919be4d6a531b08c3c8bb56b7b0091bcf9",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r4-python312-full-tests"
+        "/home/owner/code/ws-csn-r4-python312-full-tests"
       ]
     },
     {
@@ -123,13 +123,13 @@
       "local_short": "ca8950e59",
       "merge_base": "c491528cd851edc26d6f9f5f830d0ee6d4fd807f",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "RG closure campaign handoff doc",
       "tip_contained_in_default": false,
       "tree": "c04b9f1ff116541b4a4412d5cf28d6ee4b0a1d56",
       "worktree_paths": [
-        "/home/moeen/code/ws-rg-closure-20260925"
+        "/home/owner/code/ws-rg-closure-20260925"
       ]
     },
     {
@@ -149,13 +149,13 @@
       "local_short": "aebcfda37",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "Merge pull request #203 from moeendres-png/ws240/source-lock-multivalue-identity-20260916",
       "tip_contained_in_default": true,
       "tree": "bf003afc0c0b71535094b6b96e3b1184d6dd0f1f",
       "worktree_paths": [
-        "/home/moeen/code/coord-legacy-recovery-preflight-aebcfda3"
+        "/home/owner/code/coord-legacy-recovery-preflight-aebcfda3"
       ]
     },
     {
@@ -187,13 +187,13 @@
       "local_short": "07696f99d",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "astra: port artifact-index integrity candidate onto aebcfda3 (10 files byte-identical to sealed output; 66 passed)",
       "tip_contained_in_default": false,
       "tree": "29e0f4403193d9d698c7b57d1716b66b19916db3",
       "worktree_paths": [
-        "/home/moeen/code/ws-astra-artifact-index-intake"
+        "/home/owner/code/ws-astra-artifact-index-intake"
       ]
     },
     {
@@ -218,13 +218,13 @@
       "local_short": "bef7e18ba",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-astra-capsule-intake: port sealed capsule error-privacy fix (3 paths, tree 4761666b)",
       "tip_contained_in_default": false,
       "tree": "4761666b09d2889c787ab2d15c7e628a881629ec",
       "worktree_paths": [
-        "/home/moeen/code/ws-cpl-astra-capsule-intake-20260917"
+        "/home/owner/code/ws-cpl-astra-capsule-intake-20260917"
       ]
     },
     {
@@ -250,13 +250,13 @@
       "local_short": "0053a6d43",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl: port Astra failure-cluster integrity candidate onto current main",
       "tip_contained_in_default": false,
       "tree": "0be824b59c18d45053f118daac882961150f3866",
       "worktree_paths": [
-        "/home/moeen/code/ws-astra-failure-cluster-intake"
+        "/home/owner/code/ws-astra-failure-cluster-intake"
       ]
     },
     {
@@ -282,13 +282,13 @@
       "local_short": "8d2c0ac1a",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl: port Astra session-stats integrity candidate onto current main",
       "tip_contained_in_default": false,
       "tree": "e15b5cc55af03f7fc1cc4bb3b898cdf418e4d066",
       "worktree_paths": [
-        "/home/moeen/code/ws-astra-session-stats-intake"
+        "/home/owner/code/ws-astra-session-stats-intake"
       ]
     },
     {
@@ -314,13 +314,13 @@
       "local_short": "e1b9ad378",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "astra-test-impact: port sealed inventory implementation to aebcfda3",
       "tip_contained_in_default": false,
       "tree": "1eee6eadcfbc45dbea9eb3c8f2ceaa2acdaf54e8",
       "worktree_paths": [
-        "/home/moeen/code/ws-astra-test-impact-intake"
+        "/home/owner/code/ws-astra-test-impact-intake"
       ]
     },
     {
@@ -360,13 +360,13 @@
       "local_short": "11822e99b",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-astra-triport: gate 3/3 artifact-index port from 07696f99 (10 paths byte-identical; 13 focused pass)",
       "tip_contained_in_default": false,
       "tree": "9f5ac2641e4b6394d1c2acf8c337bb0ba3d30790",
       "worktree_paths": [
-        "/home/moeen/code/ws-cpl-astra-triport-integration-20260917"
+        "/home/owner/code/ws-cpl-astra-triport-integration-20260917"
       ]
     },
     {
@@ -424,13 +424,13 @@
       "local_short": "a21d44040",
       "merge_base": "62f74ee6755cf473d04cddf18a21a0fe9150ed32",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl: migrate active card consumers to versioned 2026-09-19 snapshot loader + PHOTO63 layer",
       "tip_contained_in_default": false,
       "tree": "00f63dbef35cb6dc6ac1ad1c6e9e55afbff400fc",
       "worktree_paths": [
-        "/home/moeen/code/ws-consumer-migration-integration-20260921"
+        "/home/owner/code/ws-consumer-migration-integration-20260921"
       ]
     },
     {
@@ -473,13 +473,13 @@
       "local_short": "47f591e5c",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-foundry-wave1: port sealed capsule error-privacy fix from bef7e18b (3 paths byte-identical)",
       "tip_contained_in_default": false,
       "tree": "22eaa4919be4d6a531b08c3c8bb56b7b0091bcf9",
       "worktree_paths": [
-        "/home/moeen/code/ws-cpl-foundry-wave1-integration-20260917"
+        "/home/owner/code/ws-cpl-foundry-wave1-integration-20260917"
       ]
     },
     {
@@ -507,13 +507,13 @@
       "local_short": "5820ce8b7",
       "merge_base": "69d6beb8bc43a2cb578820e23270db3308502c65",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "WIP: commander-damage capability (model+restore+readback+compare, unqualified)",
       "tip_contained_in_default": false,
       "tree": "155d969d82fba1d747c069181c10038e85cf002a",
       "worktree_paths": [
-        "/home/moeen/code/ws-full107-commander-damage-20260922"
+        "/home/owner/code/ws-full107-commander-damage-20260922"
       ]
     },
     {
@@ -533,13 +533,13 @@
       "local_short": "ca7fd4a4d",
       "merge_base": "ca7fd4a4d76cac1bfd645d332347e066940f119f",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "Policy: add bounded reuse-first gate to active OpenCode instructions",
       "tip_contained_in_default": true,
       "tree": "d44716c4e6577f74611c9a69f1933842d823c115",
       "worktree_paths": [
-        "/home/moeen/code/ws-c4-full107-execution-first-20260923"
+        "/home/owner/code/ws-c4-full107-execution-first-20260923"
       ]
     },
     {
@@ -587,13 +587,13 @@
       "local_short": "380134e4f",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl: three-deck parity gate, interaction register, independent RogShai/Chulane/Koma 100s",
       "tip_contained_in_default": false,
       "tree": "6082ab800b6536cf68866849d5eeb2bf13a56232",
       "worktree_paths": [
-        "/home/moeen/code/ws-physical-pool-20260919"
+        "/home/owner/code/ws-physical-pool-20260919"
       ]
     },
     {
@@ -651,13 +651,13 @@
       "local_short": "fee0e1f1d",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl: migrate active card consumers to versioned 2026-09-19 snapshot loader + PHOTO63 layer",
       "tip_contained_in_default": false,
       "tree": "d5b566a9a60a5e3aa5804af0b6333e22839ef133",
       "worktree_paths": [
-        "/home/moeen/code/ws-physical-pool-verify-20260921"
+        "/home/owner/code/ws-physical-pool-verify-20260921"
       ]
     },
     {
@@ -692,13 +692,13 @@
       "local_short": "9f07905ed",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "pub-recovery: milestone E evidence seal (closure docs, no prod edit)",
       "tip_contained_in_default": false,
       "tree": "d9ea447ec39008a02352a50dba15b4e3d6460eab",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-pub-recovery-portability-20260918"
+        "/home/owner/code/ws-csn-pub-recovery-portability-20260918"
       ]
     },
     {
@@ -778,13 +778,13 @@
       "local_short": "b048d682a",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "r10: integrate WS241 final closure 80abaae6 onto R7 (oldC->finalC delta; 5 paths byte-identical, launcher/ws75 merged over WS196 hunks; artifact index already byte-identical, no-op",
       "tip_contained_in_default": false,
       "tree": "5a4f38d24cf153f993cb3539a080e067556ef401",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r10-cpl-publisher-artifact-integration-20260917"
+        "/home/owner/code/ws-csn-r10-cpl-publisher-artifact-integration-20260917"
       ]
     },
     {
@@ -871,13 +871,13 @@
       "local_short": "7ad4e9445",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "r11: carry R9 strict replay + Astra paired schema-v2, close full/prefix cache bypass",
       "tip_contained_in_default": false,
       "tree": "b5da6b83624ac5036b3a3330bc1cb1ba4659ecd9",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r11-replay-paired-cumulative-integration-20260917"
+        "/home/owner/code/ws-csn-r11-replay-paired-cumulative-integration-20260917"
       ]
     },
     {
@@ -976,13 +976,13 @@
       "local_short": "7943eb4dc",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "r12: independent R11 review + historical/Astra/WS220 ledgers + provenance verifier (R12-only paths)",
       "tip_contained_in_default": false,
       "tree": "8e5fab98d8baef5d91a8c709c1651024d76e541e",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r12-integration-assurance-20260917"
+        "/home/owner/code/ws-csn-r12-integration-assurance-20260917"
       ]
     },
     {
@@ -1088,13 +1088,13 @@
       "local_short": "3a262d1db",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "r13: source-bound adoption report with exact credit flags and pins",
       "tip_contained_in_default": false,
       "tree": "1bdf36aa70ba5056e687a921d84aff21ba87d0e1",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r13-autonomous-qualification-hardening-20260917"
+        "/home/owner/code/ws-csn-r13-autonomous-qualification-hardening-20260917"
       ]
     },
     {
@@ -1202,13 +1202,13 @@
       "local_short": "87caae2c0",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "r14: adjudicator gh-api write-deny restoration + denial taxonomy + diagnostic gate (96-probe battery; 28 new tests)",
       "tip_contained_in_default": false,
       "tree": "22837c844dd25ed5fd9647f24953fc5f99d17f4f",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r14-foundry-permission-hardening-20260917"
+        "/home/owner/code/ws-csn-r14-foundry-permission-hardening-20260917"
       ]
     },
     {
@@ -1236,13 +1236,13 @@
       "local_short": "0b6649edc",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "ws241-C: adjudicated final remediation (reject any pushurl, fetch==push equality, mirror/receivepack guards, fail-closed rewrite inspection, exact test counts)",
       "tip_contained_in_default": false,
       "tree": "f80ed699dd14768ae2c937eb7a74a3ef1beacbd5",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r6-publisher204-runtime-closure-20260917"
+        "/home/owner/code/ws-csn-r6-publisher204-runtime-closure-20260917"
       ]
     },
     {
@@ -1299,13 +1299,13 @@
       "local_short": "be3e8df46",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "R6 WS199: STRICT session_stats reconciliation onto B1 authority",
       "tip_contained_in_default": false,
       "tree": "58aa9e7c57411411571721aa0031f82b6256a2b9",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r6-ws199-strict-reconciliation-20260917"
+        "/home/owner/code/ws-csn-r6-ws199-strict-reconciliation-20260917"
       ]
     },
     {
@@ -1389,13 +1389,13 @@
       "local_short": "ff4302793",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "r7-g6: apply STRICT test conversion (test_ws199 byte-identical to be3e8df4 plus ruff-format normalization; WS199 sources format-normalized; G5+G6 unit 234 passed/1 env skip)",
       "tip_contained_in_default": false,
       "tree": "da6508f774133470124a0a364ad9492c542c1042",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r7-cpl-cumulative-integration-20260917"
+        "/home/owner/code/ws-csn-r7-cpl-cumulative-integration-20260917"
       ]
     },
     {
@@ -1482,13 +1482,13 @@
       "local_short": "d7742dd33",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "r9: integrate source-reconciled replay validation integrity (R7 plus 044 plus Astra strict merge; 75 passed; ruff clean)",
       "tip_contained_in_default": false,
       "tree": "972a1e5625c7331a3c088bc448873367dc5b4806",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r9-replay-integrity-integration-20260917"
+        "/home/owner/code/ws-csn-r9-replay-integrity-integration-20260917"
       ]
     },
     {
@@ -1512,13 +1512,13 @@
       "local_short": "b12b21fdb",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "ws-p: harden safe_push effective push-target identity + diagnostic confidentiality",
       "tip_contained_in_default": false,
       "tree": "c6785c96eb61b3d7ed90fb182cd63aea48fe7b7e",
       "worktree_paths": [
-        "/home/moeen/code/ws-p-publisher-hardening"
+        "/home/owner/code/ws-p-publisher-hardening"
       ]
     },
     {
@@ -1566,7 +1566,7 @@
       "local_short": "380134e4f",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl: three-deck parity gate, interaction register, independent RogShai/Chulane/Koma 100s",
       "tip_contained_in_default": false,
@@ -1599,7 +1599,7 @@
       "local_short": "26409b932",
       "merge_base": "c83e52ae79ff2242578757c0f517badbb1a2621c",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "docs: add harness portability to agent policy",
       "tip_contained_in_default": false,
@@ -1695,7 +1695,7 @@
       "local_short": "22e2a20fe",
       "merge_base": "c83e52ae79ff2242578757c0f517badbb1a2621c",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "ops: loosen Muse policy to project-relevance privacy boundary",
       "tip_contained_in_default": false,
@@ -1727,7 +1727,7 @@
       "local_short": "633f51ae6",
       "merge_base": "c83e52ae79ff2242578757c0f517badbb1a2621c",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "docs: align architecture routing with XHigh default",
       "tip_contained_in_default": false,
@@ -1751,7 +1751,7 @@
       "local_short": "aa772f9f0",
       "merge_base": "aa772f9f083cd1c0f50c81a819546688682121c2",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "docs: make Commander mission outcome-first and player-count neutral",
       "tip_contained_in_default": true,
@@ -1817,13 +1817,13 @@
       "local_short": "4ab50ced2",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "phase2-20260917 job8-phaseA: ownership findings, STOP shared-code gate (no charter path)",
       "tip_contained_in_default": false,
       "tree": "a0fdae4121bec2eb28c42271ade6038ed3041e58",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-autonomous-phase2-20260917"
+        "/home/owner/code/ws-csn-autonomous-phase2-20260917"
       ]
     },
     {
@@ -1854,13 +1854,13 @@
       "local_short": "79a9a790d",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "night-coord milestones C+D+E: dependency DAG, adoption matrix, qualification path, charters, validator, handoff",
       "tip_contained_in_default": false,
       "tree": "2318de03cd6e9c47cad97f34711eb23eef39a67f",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-night-coordination-20260917"
+        "/home/owner/code/ws-csn-night-coordination-20260917"
       ]
     },
     {
@@ -1894,13 +1894,13 @@
       "local_short": "6ee34cdcf",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "overnight-20260917 job5: XMage WS226/229/232 integration authority (read-only, 80 green)",
       "tip_contained_in_default": false,
       "tree": "5cce5ce0ad95712cf5e99551085476bfbf7fa2ea",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-overnight-qualification-20260917"
+        "/home/owner/code/ws-csn-overnight-qualification-20260917"
       ]
     },
     {
@@ -1932,13 +1932,13 @@
       "local_short": "07696f99d",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "astra: port artifact-index integrity candidate onto aebcfda3 (10 files byte-identical to sealed output; 66 passed)",
       "tip_contained_in_default": false,
       "tree": "29e0f4403193d9d698c7b57d1716b66b19916db3",
       "worktree_paths": [
-        "/home/moeen/code/ws-astra-artifact-index-review"
+        "/home/owner/code/ws-astra-artifact-index-review"
       ]
     },
     {
@@ -1963,13 +1963,13 @@
       "local_short": "bef7e18ba",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-astra-capsule-intake: port sealed capsule error-privacy fix (3 paths, tree 4761666b)",
       "tip_contained_in_default": false,
       "tree": "4761666b09d2889c787ab2d15c7e628a881629ec",
       "worktree_paths": [
-        "/home/moeen/code/ws-cpl-astra-capsule-review-20260917"
+        "/home/owner/code/ws-cpl-astra-capsule-review-20260917"
       ]
     },
     {
@@ -1995,13 +1995,13 @@
       "local_short": "8d2c0ac1a",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl: port Astra session-stats integrity candidate onto current main",
       "tip_contained_in_default": false,
       "tree": "e15b5cc55af03f7fc1cc4bb3b898cdf418e4d066",
       "worktree_paths": [
-        "/home/moeen/code/ws-astra-session-stats-review"
+        "/home/owner/code/ws-astra-session-stats-review"
       ]
     },
     {
@@ -2027,13 +2027,13 @@
       "local_short": "e1b9ad378",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "astra-test-impact: port sealed inventory implementation to aebcfda3",
       "tip_contained_in_default": false,
       "tree": "1eee6eadcfbc45dbea9eb3c8f2ceaa2acdaf54e8",
       "worktree_paths": [
-        "/home/moeen/code/ws-astra-test-impact-review"
+        "/home/owner/code/ws-astra-test-impact-review"
       ]
     },
     {
@@ -2073,13 +2073,13 @@
       "local_short": "11822e99b",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-astra-triport: gate 3/3 artifact-index port from 07696f99 (10 paths byte-identical; 13 focused pass)",
       "tip_contained_in_default": false,
       "tree": "9f5ac2641e4b6394d1c2acf8c337bb0ba3d30790",
       "worktree_paths": [
-        "/home/moeen/code/ws-cpl-triport-env-audit-20260917"
+        "/home/owner/code/ws-cpl-triport-env-audit-20260917"
       ]
     },
     {
@@ -2122,13 +2122,13 @@
       "local_short": "47f591e5c",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-foundry-wave1: port sealed capsule error-privacy fix from bef7e18b (3 paths byte-identical)",
       "tip_contained_in_default": false,
       "tree": "22eaa4919be4d6a531b08c3c8bb56b7b0091bcf9",
       "worktree_paths": [
-        "/home/moeen/code/ws-cpl-wave1-independent-review-20260917"
+        "/home/owner/code/ws-cpl-wave1-independent-review-20260917"
       ]
     },
     {
@@ -2171,13 +2171,13 @@
       "local_short": "47f591e5c",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-foundry-wave1: port sealed capsule error-privacy fix from bef7e18b (3 paths byte-identical)",
       "tip_contained_in_default": false,
       "tree": "22eaa4919be4d6a531b08c3c8bb56b7b0091bcf9",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r4-foundry-successor-impact"
+        "/home/owner/code/ws-csn-r4-foundry-successor-impact"
       ]
     },
     {
@@ -2205,13 +2205,13 @@
       "local_short": "0b6649edc",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "ws241-C: adjudicated final remediation (reject any pushurl, fetch==push equality, mirror/receivepack guards, fail-closed rewrite inspection, exact test counts)",
       "tip_contained_in_default": false,
       "tree": "f80ed699dd14768ae2c937eb7a74a3ef1beacbd5",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r4-ws241-publication-preflight"
+        "/home/owner/code/ws-csn-r4-ws241-publication-preflight"
       ]
     },
     {
@@ -2239,13 +2239,13 @@
       "local_short": "0b6649edc",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "ws241-C: adjudicated final remediation (reject any pushurl, fetch==push equality, mirror/receivepack guards, fail-closed rewrite inspection, exact test counts)",
       "tip_contained_in_default": false,
       "tree": "f80ed699dd14768ae2c937eb7a74a3ef1beacbd5",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r5-publisher-tip-20260917"
+        "/home/owner/code/ws-csn-r5-publisher-tip-20260917"
       ]
     },
     {
@@ -2288,13 +2288,13 @@
       "local_short": "47f591e5c",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "cpl-foundry-wave1: port sealed capsule error-privacy fix from bef7e18b (3 paths byte-identical)",
       "tip_contained_in_default": false,
       "tree": "22eaa4919be4d6a531b08c3c8bb56b7b0091bcf9",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r5-ws199-authority-20260917"
+        "/home/owner/code/ws-csn-r5-ws199-authority-20260917"
       ]
     },
     {
@@ -2314,13 +2314,13 @@
       "local_short": "6baa24d46",
       "merge_base": "6baa24d465d43eb10456fc846efb44f7c42dfc66",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "Merge PR #189: integrate D1 current-main Foundry authority hardening",
       "tip_contained_in_default": true,
       "tree": "8bd3c86d48511e1c66838f6cb9ef31d371ef8ca3",
       "worktree_paths": [
-        "/home/moeen/code/ws-arclose-d1-p1p2"
+        "/home/owner/code/ws-arclose-d1-p1p2"
       ]
     },
     {
@@ -2340,13 +2340,13 @@
       "local_short": "2231ff4bd",
       "merge_base": "2231ff4bdd30753a127133e51a0d3657c668532d",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "Merge PR #239: real-deck 4P technical smoke lane",
       "tip_contained_in_default": true,
       "tree": "f759ed34d35fdf76ebbb04814edf4a470f960e27",
       "worktree_paths": [
-        "/home/moeen/code/ws-opencode-11832-qualification"
+        "/home/owner/code/ws-opencode-11832-qualification"
       ]
     },
     {
@@ -2392,13 +2392,13 @@
       "local_short": "22f542a12",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "WS204B: native choose_targets runtime closure (COM-5 successor, new files only; Maven 89/89; WS203 baseline exact)",
       "tip_contained_in_default": false,
       "tree": "8a210958e8e7a4205b48af6210bfd2cb6c6aea38",
       "worktree_paths": [
-        "/home/moeen/code/ws204b-xmage-target-offer-closure"
+        "/home/owner/code/ws204b-xmage-target-offer-closure"
       ]
     },
     {
@@ -2421,13 +2421,13 @@
       "local_short": "ca804a19f",
       "merge_base": "aebcfda37d61eb435dde6cd11792ef80019dcd10",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "ws241: cover scp-like userinfo redaction in effective-target suite",
       "tip_contained_in_default": false,
       "tree": "844635b42116aa7f1a9fedf13fa9670cae8c848e",
       "worktree_paths": [
-        "/home/moeen/code/ws241-publisher-effective-target-security"
+        "/home/owner/code/ws241-publisher-effective-target-security"
       ]
     },
     {
@@ -2455,13 +2455,13 @@
       "local_short": "4bec4eec8",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "WS92: seal non-scoring actual-card 20-kind census (2 observed reachability-only, 18 blocked on B4-D action submission; zero behavior credit)",
       "tip_contained_in_default": false,
       "tree": "58de7457230a02576fee1fbf363dcabfbaad4864",
       "worktree_paths": [
-        "/home/moeen/code/ws92r-xmage-p1-current-main"
+        "/home/owner/code/ws92r-xmage-p1-current-main"
       ]
     },
     {
@@ -2489,13 +2489,13 @@
       "local_short": "c830ca929",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "WS92: seal non-scoring actual-card 20-kind census (2 observed reachability-only, 18 blocked on B4-D action submission; zero behavior credit)",
       "tip_contained_in_default": false,
       "tree": "58de7457230a02576fee1fbf363dcabfbaad4864",
       "worktree_paths": [
-        "/home/moeen/code/ws92r-xmage-p1-current-main-zen"
+        "/home/owner/code/ws92r-xmage-p1-current-main-zen"
       ]
     },
     {
@@ -2637,13 +2637,13 @@
       "local_short": "77d4c09b1",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "JOB08: offered-domain bottom selection in ExternalPilotDecisionPolicy (Dig rest fix, London preserved)",
       "tip_contained_in_default": false,
       "tree": "1a3d85f9fa736f766fcf5f8ef73318a7027e6e52",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-job08-pilot-bottom-domain-20260917"
+        "/home/owner/code/ws-csn-job08-pilot-bottom-domain-20260917"
       ]
     },
     {
@@ -2785,13 +2785,13 @@
       "local_short": "4facef149",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "JOB09: proper-subset offered-only London views plus zero-path validation (16 adversarial tests, 212 impacted green, retention matrix, R7 lineage bound, CARD_12 BLOCKED)",
       "tip_contained_in_default": false,
       "tree": "7d68b9349102d53d30eb93363e308b167ad7d9c2",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-job09-bottom-domain-integration-20260917"
+        "/home/owner/code/ws-csn-job09-bottom-domain-integration-20260917"
       ]
     },
     {
@@ -2933,13 +2933,13 @@
       "local_short": "7e641fc7c",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "JOB10: runtime-admission evidence, pin/successor/card12 tooling + tests (backend BLOCKED, tallies honest)",
       "tip_contained_in_default": false,
       "tree": "8437e2fc72f022a194322d67fd62f2f962bc1795",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-job10-xmage-runtime-admission-20260917"
+        "/home/owner/code/ws-csn-job10-xmage-runtime-admission-20260917"
       ]
     },
     {
@@ -3081,13 +3081,13 @@
       "local_short": "1effc01f8",
       "merge_base": "7725570b6b8690daed6e645dc1611f5e196de8c5",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "JOB11: redact bridge command value from CARD_12 evidence (LOCAL_ONLY policy)",
       "tip_contained_in_default": false,
       "tree": "ab990bc8d44478521ffd958d77371ba1f68efa65",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-job11-pinned-xmage-backend-live-20260917"
+        "/home/owner/code/ws-csn-job11-pinned-xmage-backend-live-20260917"
       ]
     },
     {
@@ -3139,13 +3139,13 @@
       "local_short": "8e30dda06",
       "merge_base": "c5f9418e755a02ffec0e02c34b4a739baf10f5f0",
       "repo_key": "cpl",
-      "repo_path": "/home/moeen/code/commander-playtest-lab",
+      "repo_path": "/home/owner/code/commander-playtest-lab",
       "state": "NO_REMOTE_BRANCH",
       "subject": "WSR22: current-boundary runner + AF01/cardinality/START-2 execution on both candidates",
       "tip_contained_in_default": false,
       "tree": "be8825d56c277c845ae07aaa3c1b3ede8f2ed945",
       "worktree_paths": [
-        "/home/moeen/code/wsr22-final-current-boundary-freeze"
+        "/home/owner/code/wsr22-final-current-boundary-freeze"
       ]
     },
     {
@@ -3165,13 +3165,13 @@
       "local_short": "9a1e3fe94",
       "merge_base": "9a1e3fe94975dba3e81a3079ad9a9d123c141775",
       "repo_key": "forge",
-      "repo_path": "/home/moeen/code/forge",
+      "repo_path": "/home/owner/code/forge",
       "state": "NO_REMOTE_BRANCH",
       "subject": "WS234: S3 evidence package (census, verdicts, impacts, seal)",
       "tip_contained_in_default": true,
       "tree": "d1cb6ce47db3472409dd61d1159777cc42998fec",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r4-forge-s2s3-audit"
+        "/home/owner/code/ws-csn-r4-forge-s2s3-audit"
       ]
     },
     {
@@ -3191,13 +3191,13 @@
       "local_short": "1f1393021",
       "merge_base": "1f1393021c47f764bdf237fafac0133a758eced7",
       "repo_key": "forge",
-      "repo_path": "/home/moeen/code/forge",
+      "repo_path": "/home/owner/code/forge",
       "state": "NO_REMOTE_BRANCH",
       "subject": "WS236: F4 You-filtered SpellCast-family discriminator (HARNESS_DEFECT, Veyran/Harmonic PASS with actual-card behavior)",
       "tip_contained_in_default": true,
       "tree": "ad4a637b334c12a1c1301be726b27e6c9bcb0425",
       "worktree_paths": [
-        "/home/moeen/code/ws-csn-r5-forge205-runtime-20260917"
+        "/home/owner/code/ws-csn-r5-forge205-runtime-20260917"
       ]
     },
     {
@@ -3231,13 +3231,13 @@
       "local_short": "b24ce3652",
       "merge_base": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
       "repo_key": "forge",
-      "repo_path": "/home/moeen/code/forge",
+      "repo_path": "/home/owner/code/forge",
       "state": "NO_REMOTE_BRANCH",
       "subject": "wsc2: park common-denominator packet pending CPL POST-E2E source lock (Forge 213/213 retained, comparison provisional)",
       "tip_contained_in_default": false,
       "tree": "30e34b71f838c72eb55ea642c9f24d6fe59b4c5f",
       "worktree_paths": [
-        "/home/moeen/code/ws-c2-provider-denominator-20260923"
+        "/home/owner/code/ws-c2-provider-denominator-20260923"
       ]
     },
     {
@@ -3281,13 +3281,13 @@
       "local_short": "4c427063c",
       "merge_base": "ef958ee91ac6c9ce0152189f2654bf6e05abf273",
       "repo_key": "forge",
-      "repo_path": "/home/moeen/code/forge",
+      "repo_path": "/home/owner/code/forge",
       "state": "NO_REMOTE_BRANCH",
       "subject": "wsc2a: Phases B-D real-deck external-controller gate (40-decision smoke, twin determinism, 200-decision feasibility, hidden-info, 333-row coverage)",
       "tip_contained_in_default": false,
       "tree": "1e3063012d8119965fb7499bafc1620f35adb69c",
       "worktree_paths": [
-        "/home/moeen/code/ws-forge-real-deck-e2e-20260923"
+        "/home/owner/code/ws-forge-real-deck-e2e-20260923"
       ]
     },
     {
@@ -3368,7 +3368,7 @@
       "local_short": "7192075d9",
       "merge_base": "ff09f5425c6f9cae3a6d8e2c3b7dc9d96ae8c793",
       "repo_key": "mage",
-      "repo_path": "/home/moeen/code/mage-ws33",
+      "repo_path": "/home/owner/code/mage-ws33",
       "state": "NO_REMOTE_BRANCH",
       "subject": "ws33-a af8: terminal FAIL record for replacement run 34377848619",
       "tip_contained_in_default": false,
@@ -3408,5 +3408,5 @@
   ],
   "tip_already_contained_note": "These 7 local refs point at commits that are ancestors of their repository default branch. Zero unpublished content. Deletion candidates only; WSR23 deleted nothing.",
   "workstream": "WSR23",
-  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
+  "worktree": "/home/owner/code/wsr23-project-integration-hygiene"
 }

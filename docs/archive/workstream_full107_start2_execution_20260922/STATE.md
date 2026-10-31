@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 START-2 execution (2026-09-22)
 
 - Branch: `cpl/full107-start2-execution-20260922`
-- Worktree: `/home/moeen/code/ws-full107-start2-execution-20260922`
+- Worktree: `/home/owner/code/ws-full107-start2-execution-20260922`
 - Base: `c03d144f00b4a7c04455f71a44611c94b9baeded`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Engine: xmage `1.4.61` / pin `db134b97` (read-only, no change)

@@ -11,7 +11,7 @@
 
 | Item | Value |
 |---|---|
-| Worktree | `/home/moeen/code/lab-pb03-remediation2-20260929` |
+| Worktree | `/home/owner/code/lab-pb03-remediation2-20260929` |
 | Local branch | `pb03/304-remediation-on-dafe2ac6` |
 | **Persisted donor branch** | **`donor/pb03-304-terminal-hardening-20260929`** |
 | **Final HEAD** | **`1098f365485cea949e456f04bec81216b84aaa73`** |

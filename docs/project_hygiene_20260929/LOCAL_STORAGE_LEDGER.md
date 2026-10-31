@@ -8,7 +8,7 @@ Project-local storage, worktree, and cache inventory with cleanup advice.
 mechanism is forbidden. An `rm -rf` issued as part of an audit command chain was correctly
 denied by policy during this campaign and was not retried in another form.
 
-Scope: `/home/moeen/code/`, `/tmp/opencode/`, and `/tmp/*commander*` / `*foundry*` / `*claude*`.
+Scope: `/home/owner/code/`, `/tmp/opencode/`, and `/tmp/*commander*` / `*foundry*` / `*claude*`.
 No unrelated personal directories were scanned. No secret material was read; a directory
 containing `.env.example` was classified by name and size only.
 
@@ -18,9 +18,9 @@ containing `.env.example` was classified by name and size only.
 
 | Metric | Value |
 |---|---|
-| `/home/moeen` total | ~193 GB |
-| `/home/moeen/code` total | **~104 GB** (284 top-level entries) |
-| Registered worktrees of this repo | **197** (193 under `/home/moeen/code`, 4 under `/tmp`) |
+| `/home/owner` total | ~193 GB |
+| `/home/owner/code` total | **~104 GB** (284 top-level entries) |
+| Registered worktrees of this repo | **197** (193 under `/home/owner/code`, 4 under `/tmp`) |
 | Combined size of those worktrees | **~42.0 GB** |
 | This repository's `.git` | **273 MB** — healthy, not a problem |
 | `/tmp` (tmpfs) | **7.9 GB total, 7.3 GB used, 603 MB free → 93% FULL** |
@@ -168,7 +168,7 @@ clear would leave dangling worktree metadata.
 | 1,419 MB | `/tmp/foundry-launch-final-completion-muse-xhigh/` | `SAFE_AFTER_ARCHIVE` — same |
 | 989 MB | `/tmp/claude-1000/` | contains a **registered** worktree; use `git worktree remove`, not `rm` |
 | 633 MB | `/tmp/opencode/forge-pr4/` | `UNKNOWN` — a forge checkout on an **unpushed-looking** branch; cannot prove pushed |
-| 329 MB | `/tmp/pytest-of-moeen/` | `KEEP_ACTIVE` — in use by a live pytest process |
+| 329 MB | `/tmp/pytest-of-owner/` | `KEEP_ACTIVE` — in use by a live pytest process |
 | 267+256+78+3 MB | `/tmp/astra-integrity-20260928-venv/`, `/tmp/opencode/cpl-venv/`, `/tmp/opencode/mypyenv/`, `/tmp/mypy-base-2869915/` | `SAFE_EPHEMERAL` — virtualenvs |
 | 84+60+45 MB | `/tmp/opencode/baseline-dafe2ac6`, `salvage-baseline-check`, `final-audit` | **registered worktrees** — use `git worktree remove`; `final-audit` is 8 commits ahead |
 | 7 MB | `/tmp/opencode/preserved-artifacts/` | `KEEP_UNIQUE` — the name asserts preservation intent |
@@ -275,7 +275,7 @@ tracked files) but inconsistent.
 | S1 — `/tmp` relief + python caches + one `.runtime` | ~3.2 GB | Very low |
 | S2 — S1 + 14 proven-merged worktrees | ~4.6 GB | Very low |
 | S3 — S2 + build output in confirmed-abandoned worktrees | up to ~44 GB | Low, needs per-tree confirmation |
-| S4 — S3 + `/home/moeen/code/csn-final-bakeoff` after archiving 2 handoff `.md` files | up to ~57 GB | Low |
+| S4 — S3 + `/home/owner/code/csn-final-bakeoff` after archiving 2 handoff `.md` files | up to ~57 GB | Low |
 | S5 — S4 + forge/mage pack dedup | up to ~66 GB | **High** — cross-repo, unconfirmed ownership, 276 dirty files in one clone |
 
 Immediate non-cleanup risk: **`/tmp` at 93% full (603 MB free)** with an active pytest

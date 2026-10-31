@@ -4,7 +4,7 @@
 
 - Repo `moeendres-png/commander-playtest-lab`, branch
   `cpl/xmage-six-player-20260921`, base `faffab84` (successor tip).
-- Worktree `/home/moeen/code/ws-lab-six-player-20260921`.
+- Worktree `/home/owner/code/ws-lab-six-player-20260921`.
 
 ## Work Completed
 

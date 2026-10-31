@@ -20,7 +20,7 @@ proven; then promote only exactly executed fixtures with evidence.
 - Engine (READ-ONLY, no pin change): xmage maven `1.4.61`.
 - Depends on: WS2 restoration capability (merged PR #218).
 - This branch: `cpl/full107-procedure-executor-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-procedure-executor-20260922`.
+- This worktree: `/home/owner/code/ws-full107-procedure-executor-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR only.
 
 ## In Scope

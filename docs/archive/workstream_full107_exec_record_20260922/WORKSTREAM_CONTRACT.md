@@ -11,7 +11,7 @@ No PASS beyond executed cells.
 
 - Base: `origin/main` `3703999fdad6a75446d11a377c46eb163fc5a920`.
 - This branch: `cpl/full107-execution-record-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-execution-record-20260922`.
+- This worktree: `/home/owner/code/ws-full107-execution-record-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Foundry push + scoped PR only.
 
 ## In Scope

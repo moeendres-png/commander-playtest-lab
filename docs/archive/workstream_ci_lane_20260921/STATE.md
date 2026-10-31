@@ -2,7 +2,7 @@
 
 - Workstream: `cpl/ci-cardinality-lane-20260921`
 - Branch: `cpl/ci-cardinality-lane-20260921`
-- Worktree: `/home/moeen/code/ws-ci-cardinality-lane-20260921`
+- Worktree: `/home/owner/code/ws-ci-cardinality-lane-20260921`
 - Base: `107db18976c76ead4f328d7cdec0de7de8a4eb1d`
 - Contract: `docs/workstream_ci_lane_20260921/WORKSTREAM_CONTRACT.md`
 - Verdicts (live): `LANE=PASS (6/7; 1 parked tier)` ·

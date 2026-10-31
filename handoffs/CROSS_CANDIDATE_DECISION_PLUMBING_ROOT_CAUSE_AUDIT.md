@@ -43,7 +43,7 @@ Single primary workstream. Do not execute inside any other workstream.
   opencode.json HIGH default, agents, skills, `tools/foundry/`); rebase or cherry-pick
   only the execution-system files, never WS48/WS49 semantics.
 - Live-worktree caveat (2026-09-10): the local WS48 worktree
-  (`/home/moeen/code/commander-ws48`) reported HEAD `9b1d457a` while the branch ref
+  (`/home/owner/code/commander-ws48`) reported HEAD `9b1d457a` while the branch ref
   and origin both sat at `0799c008` — active work is in flight there. Reverify both
   branch refs and worktree HEADs before touching anything; the locks above are
   origin-verified, not worktree-verified.

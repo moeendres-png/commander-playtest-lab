@@ -176,7 +176,7 @@ validated_gates:
 - FULL107 denominator preserved at exactly 107; no row removed or duplicated
 - Strict mypy, ruff, compileall, invariant audit, STATE_OK all clean
 validated_head: 6784d9c568b40887e51d9283120431b07036eb8c
-worktree: /home/moeen/code/wsr22-successor-current-boundary
+worktree: /home/owner/code/wsr22-successor-current-boundary
 evidence_integrity_remediation:
   status: FIRST_BOUND_SOURCE_EVIDENCE_GENERATED__PIPELINE_GREEN__DECISION_CRITICAL_GAPS_REMAIN
   validated_head: 6784d9c568b40887e51d9283120431b07036eb8c

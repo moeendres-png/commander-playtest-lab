@@ -17,10 +17,10 @@ deterministic replay on the line all future work builds on.
 
 - Base: `origin/main` @ `aebcfda37d61eb435dde6cd11792ef80019dcd10` (clean).
 - This branch: `cpl/xmage-successor-integration-20260919`.
-- This worktree: `/home/moeen/code/ws-successor-integration-20260919`.
+- This worktree: `/home/owner/code/ws-successor-integration-20260919`.
 - Donor (READ-ONLY): `ws232/xmage-retention-nscoped-requalification-20260915`
   @ `fa4cd8d1b6b6466620263fa394729d5512102337` (cumulative: contains WS215 +
-  WS218; worktree `/home/moeen/code/ws232-...`, clean, never written).
+  WS218; worktree `/home/owner/code/ws232-...`, clean, never written).
 - Merge-base donor/main: `7725570b`; main-side touched NONE of the donor
   functional paths since MB (verified) — but main-side DID touch shared
   tests/data elsewhere (WS238/WS241/Mordor) → per-file 3-way care there.

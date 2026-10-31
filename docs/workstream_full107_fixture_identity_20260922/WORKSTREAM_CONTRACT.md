@@ -16,7 +16,7 @@ unsupported DIRECT promotions. No PASS/FAIL awarded beyond executed cells.
   (tree `eb7161d6216becbbedf0d3bc71ed7c1707bfdeb3`).
 - Frozen (READ-ONLY): `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`.
 - This branch: `cpl/full107-fixture-identity-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-fixture-identity-20260922`.
+- This worktree: `/home/owner/code/ws-full107-fixture-identity-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR only.
 
 ## In Scope

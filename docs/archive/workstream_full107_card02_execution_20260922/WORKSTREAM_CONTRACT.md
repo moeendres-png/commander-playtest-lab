@@ -17,7 +17,7 @@ promotion (forbidden by the grant while gated).
 - Depends on: WS2 restoration, executor cast routing, digest comparison
   (all merged).
 - This branch: `cpl/full107-card02-execution-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-card02-execution-20260922`.
+- This worktree: `/home/owner/code/ws-full107-card02-execution-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR only.
 
 ## In Scope

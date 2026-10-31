@@ -38,7 +38,7 @@
    "closeable_by_coordinator_adjudication_alone": false,
    "current_verdict": "PASS",
    "evidence_identity": "AF00_AF11_XMAGE.json gate AF00; FULL107_XMAGE_RUNTIME_LOG_INDEX.json; provider handshake engine_commit b19596980f2734496ea1896504253e1bdd2756dd",
-   "exact_wsr22_evidence": "Candidate commit reported by provider at handshake: b19596980f2734496ea1896504253e1bdd2756dd; engine_commit provenance file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar; Lab runner HEAD/TREE bound in runtime log index.",
+   "exact_wsr22_evidence": "Candidate commit reported by provider at handshake: b19596980f2734496ea1896504253e1bdd2756dd; engine_commit provenance file:/home/owner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar; Lab runner HEAD/TREE bound in runtime log index.",
    "freeze_eligibility_consequence": "Satisfied; survives remediation unless the engine or adapter pin changes.",
    "gate": "AF00",
    "impacted_production_path": "Source/build lock for the Rules provider process and adapter.",

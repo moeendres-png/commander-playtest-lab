@@ -52,7 +52,7 @@ state_written_against_head: bff89d9ed7f0a99d06c35f99795cdcf66d11f9ce
 # exact-head CI, which runs the full suite on the pushed head, and is not silently claimed by
 # this field.
 validated_head: 3fc27b2da35b0178ceb37b01f4e6f90df1379c2e
-worktree: /home/moeen/code/lab-test-signal-20260929
+worktree: /home/owner/code/lab-test-signal-20260929
 branch: maintenance/test-signal-integrity-20260929
 
 outcome: MERGED

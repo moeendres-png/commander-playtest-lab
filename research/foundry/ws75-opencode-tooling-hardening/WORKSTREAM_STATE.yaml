@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/ws75-foundry-opencode-tooling-hardening
+worktree: /home/owner/code/ws75-foundry-opencode-tooling-hardening
 branch: ws75/foundry-opencode-tooling-hardening-20260912
 audit_base_sha: c1a760af21469fc1358dbdb9b821f79dcdfaf2db
 audit_base_tree: 061135e2a90fb1b1a6289e6ea508db4da132bd9c

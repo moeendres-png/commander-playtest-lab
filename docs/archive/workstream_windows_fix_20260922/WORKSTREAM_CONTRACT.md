@@ -15,7 +15,7 @@ green, prepare merge-ready packet (merge by Coordinator).
 
 - Base: `origin/main` `62f74ee6755cf473d04cddf18a21a0fe9150ed32`.
 - This branch: `fix/windows-runtime-jobs-stanza-20260922`.
-- This worktree: `/home/moeen/code/ws-windows-runtime-fix-20260922`.
+- This worktree: `/home/owner/code/ws-windows-runtime-fix-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. No main edits, no bypass.
 
 ## In Scope

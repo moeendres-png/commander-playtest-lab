@@ -69,7 +69,7 @@ were not used. All pages fetched 2026-09-12; each page footer states
   tool that takes a path as input (for example `read`, `edit`, `glob`,
   `grep`, and many `bash` commands)."
 - "Keep the list focused on trusted paths" — supports the WS75 rule:
-  never broad `/home/moeen/code/**` write access; exact declared
+  never broad `/home/owner/code/**` write access; exact declared
   reference roots only, read-only by instruction.
 - Defaults: 'Most permissions default to `"allow"`. `doom_loop` and
   `external_directory` default to `"ask"`.'

@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 CARD_02 promotion (2026-09-22)
 
 - Branch: `cpl/full107-card02-promotion-20260922`
-- Worktree: `/home/moeen/code/ws-full107-card02-promotion-20260922`
+- Worktree: `/home/owner/code/ws-full107-card02-promotion-20260922`
 - Base: `3353f1c5f2fb9ff76afd6ce9b9ecf7474a4ba6fc`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Evidence: CARD_02 execution (PR #231 merged, CI conformance green)

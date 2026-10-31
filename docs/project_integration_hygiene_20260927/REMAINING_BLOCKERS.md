@@ -6,7 +6,7 @@ Nothing here was fixed by WSR23 because each item belongs to another surface.
 ## B1 — HIGH — Sole unpublished carrier of the RG-07 and RG-08 qualifications
 
 **Surface:** local branch `camp/rg-closure-20260925` (head `ca8950e5`, 12 unpublished commits),
-worktree `/home/moeen/code/ws-rg-closure-20260925`, repository `commander-playtest-lab`.
+worktree `/home/owner/code/ws-rg-closure-20260925`, repository `commander-playtest-lab`.
 **No remote branch exists.** The workstream is terminal — its own handoff ends with
 "Coordinator: review this handoff + branch … authorize publication". The worktree is clean, no
 process, no writer lock, no `ACTIVE` state. Nobody owns it.
@@ -75,7 +75,7 @@ requalification before any repin adjudication.
 
 ## B3 — MEDIUM — Unowned tracked modifications to Mage engine sources
 
-**Surface:** `/home/moeen/code/xmage-ws49-baseline`, detached at `66d97ebd` (2026-09-04), repository
+**Surface:** `/home/owner/code/xmage-ws49-baseline`, detached at `66d97ebd` (2026-09-04), repository
 `moeendres-png/mage`. **7 tracked files modified, unstaged:**
 
 ```text

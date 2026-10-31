@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/lab-final-prefreeze-evidence-closure-20261001
+worktree: /home/owner/code/lab-final-prefreeze-evidence-closure-20261001
 branch: hardening/final-prefreeze-evidence-closure-20261001
 audit_base_sha: d9dddcd07bd7eac6f7816a3c151552ad7c7dadf2
 audit_base_tree: 02eb292528f36d3bf75c7878fcf33269218cb10d

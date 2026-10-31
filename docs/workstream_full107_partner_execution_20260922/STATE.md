@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 Partner execution (2026-09-22)
 
 - Branch: `cpl/full107-partner-execution-20260922`
-- Worktree: `/home/moeen/code/ws-full107-partner-execution-20260922`
+- Worktree: `/home/owner/code/ws-full107-partner-execution-20260922`
 - Base: `316c09d4562fed407ebfb8770a52f2d046947758`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Engine: xmage `1.4.61` / pin `db134b97` (read-only, no change)

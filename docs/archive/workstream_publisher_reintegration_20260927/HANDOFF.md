@@ -3,7 +3,7 @@
 ## Source Lock
 
 - Repo `moeendres-png/commander-playtest-lab`, worktree
-  `/home/moeen/code/ws-lab-publisher-reint-20260927` (sole writer), branch
+  `/home/owner/code/ws-lab-publisher-reint-20260927` (sole writer), branch
   `lab/publisher-reintegration-20260927`.
 - Dispatch canonical main `fa315da3`; main advanced to `d04bf9e4` (PR #252,
   README-only, 1 file) before mutation: impact adjudicated none (zero overlap

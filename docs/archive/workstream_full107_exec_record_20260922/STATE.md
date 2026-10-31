@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 execution record (2026-09-22)
 
 - Branch: `cpl/full107-execution-record-20260922`
-- Worktree: `/home/moeen/code/ws-full107-execution-record-20260922`
+- Worktree: `/home/owner/code/ws-full107-execution-record-20260922`
 - Base: `3703999fdad6a75446d11a377c46eb163fc5a920`
 - Status: COMPLETE (merged via PR #214, merge commit
   `43ca740aa3c6a198d40c3db8dde63a7b31601e0b`; post-merge CI green on main:

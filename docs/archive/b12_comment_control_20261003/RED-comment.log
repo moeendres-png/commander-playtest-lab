@@ -2,7 +2,7 @@ F.                                                                       [100%]
 =================================== FAILURES ===================================
 _________________ test_locked_install_comment_is_not_a_command _________________
 
-tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-0/test_locked_install_comment_is0')
+tmp_path = PosixPath('/tmp/pytest-of-owner/pytest-0/test_locked_install_comment_is0')
 monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x714e98361480>
 
     def test_locked_install_comment_is_not_a_command(tmp_path, monkeypatch):
@@ -14,7 +14,7 @@ monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x714e98361480>
 tests/unit/test_ws223_environment_identity.py:204: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-repo_root = PosixPath('/tmp/pytest-of-moeen/pytest-0/test_locked_install_comment_is0')
+repo_root = PosixPath('/tmp/pytest-of-owner/pytest-0/test_locked_install_comment_is0')
 
     def test_locked_install_in_every_ubuntu_lane(repo_root: Path) -> None:
         for path in _workflow_files(repo_root):

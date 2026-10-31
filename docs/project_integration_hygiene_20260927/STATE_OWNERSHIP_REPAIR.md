@@ -21,12 +21,12 @@ Run with the workstream identity the launcher actually uses, against the unmodif
 
 ```text
 $ python3 tools/foundry/bootstrap.py \
-    --worktree /home/moeen/code/wsr23-project-integration-hygiene \
+    --worktree /home/owner/code/wsr23-project-integration-hygiene \
     --workstream wsr23-project-integration-hygiene-20260927 \
     --branch wsr23/project-integration-hygiene-20260927 \
     --audit-base-sha bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719 \
     --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml \
-    --profile cpl --canonical-root /home/moeen/code/commander-playtest-lab \
+    --profile cpl --canonical-root /home/owner/code/commander-playtest-lab \
     --allow-same-cwd-pids
 
 BOOTSTRAP_FAIL: state ownership 'WSR23 is the sole writer of branch ...' != workstream

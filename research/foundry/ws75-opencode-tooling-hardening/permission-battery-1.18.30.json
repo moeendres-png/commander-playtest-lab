@@ -311,7 +311,7 @@
     {
       "id": "P08",
       "agent": "foundry-implementer",
-      "probe": "git worktree remove /home/moeen/code/other",
+      "probe": "git worktree remove /home/owner/code/other",
       "verdict": "DENIED",
       "basis": "last matching rule: 'git worktree remove*'"
     },
@@ -479,9 +479,9 @@
     {
       "id": "X01",
       "agent": "foundry-implementer",
-      "probe": "/home/moeen/code/ws50-forge-decision-sequence-slice",
+      "probe": "/home/owner/code/ws50-forge-decision-sequence-slice",
       "verdict": "DENIED",
-      "basis": "last matching rule: '/home/moeen/code/ws50-forge-decision-sequence-slice*'"
+      "basis": "last matching rule: '/home/owner/code/ws50-forge-decision-sequence-slice*'"
     },
     {
       "id": "X02",
@@ -493,9 +493,9 @@
     {
       "id": "X03",
       "agent": "foundry-implementer",
-      "probe": "/home/moeen/code/somewhere-else",
+      "probe": "/home/owner/code/somewhere-else",
       "verdict": "ASK_GATED",
-      "basis": "last matching rule: '/home/moeen/code/*'"
+      "basis": "last matching rule: '/home/owner/code/*'"
     },
     {
       "id": "R33",

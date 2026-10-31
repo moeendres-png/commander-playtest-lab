@@ -158,7 +158,7 @@ adjudication.
 > of the summary below; the summary is kept only to show what changed.
 
 PB-09 was raised in this campaign after reading the WSR22 evidence, then traced in
-`/home/moeen/code/forge` (`moeendres-png/forge`).
+`/home/owner/code/forge` (`moeendres-png/forge`).
 
 | Identity | Commit | Status |
 |---|---|---|
