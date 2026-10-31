@@ -32,5 +32,7 @@ guides must be regenerated; the test fails until they are.
 `combo` tag and no proliferate or counters archetype; key cards follow board value, not synergy
 (the synergy centre of a deck can be missed); the commander target turn is `mana value` minus a
 0 or 1 ramp allowance; the RogShai guide names cards that
-`data/decks/rogshai_current.json` does not hold (it follows the Owner's current list), and the
-Chulane deck list is not in the repository, so the card checks skip both Owner guides.
+`data/decks/rogshai_current.json` does not hold (it follows the Owner's current list), so the card
+checks of `test_deck_guides.py` skip both Owner guides. The Chulane list is in the repository
+(`data/decks/chulane_current.txt`, the Owner's physical deck, last changed 2026-10-31) and
+`tests/unit/test_chulane_deck_list.py` checks its guide against it.

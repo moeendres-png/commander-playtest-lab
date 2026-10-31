@@ -1,5 +1,5 @@
 {
- "card_count": 2104,
+ "card_count": 2106,
  "cards": {
   "Abbey Griffin": {
    "engine_name": "Abbey Griffin",
@@ -9682,6 +9682,25 @@
    "toughness": null,
    "types": [
     "PLANESWALKER"
+   ]
+  },
+  "Elvish Mystic": {
+   "engine_name": "Elvish Mystic",
+   "loyalty": null,
+   "mana_cost": "{G}",
+   "mana_value": 1.0,
+   "power": 1.0,
+   "rules": [
+    "{T}: Add {G}."
+   ],
+   "subtypes": [
+    "Elf",
+    "Druid"
+   ],
+   "supertypes": [],
+   "toughness": 1.0,
+   "types": [
+    "CREATURE"
    ]
   },
   "Embersmith": {
@@ -38687,6 +38706,25 @@
    "subtypes": [
     "Spirit",
     "Knight"
+   ],
+   "supertypes": [],
+   "toughness": 2.0,
+   "types": [
+    "CREATURE"
+   ]
+  },
+  "Whitemane Lion": {
+   "engine_name": "Whitemane Lion",
+   "loyalty": null,
+   "mana_cost": "{1}{W}",
+   "mana_value": 2.0,
+   "power": 2.0,
+   "rules": [
+    "Flash",
+    "When {this} enters, return a creature you control to its owner's hand."
+   ],
+   "subtypes": [
+    "Cat"
    ],
    "supertypes": [],
    "toughness": 2.0,

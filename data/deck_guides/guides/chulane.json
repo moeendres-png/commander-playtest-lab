@@ -2,13 +2,25 @@
  "schema": "deck-guide/1",
  "deck_id": "custom/chulane",
  "guide_slug": "chulane",
- "deck_name": "Chulane (Ist-Stand 2026-10-22)",
+ "deck_name": "Chulane (Ist-Stand 2026-10-31)",
  "deck_klasse": "FOKUS",
  "evidenz": {
   "kartenfakten": "DIRECTLY_VERIFIED (Scryfall / repo pilot_card_knowledge)",
   "rollen": "CODE_DERIVED (repo card_roles)",
   "parameter": "MODELED (Formeln FORMAT.md §3)",
   "fokus_zusatz": "Erster Spezialisten-Entwurf fuer dieses Deck (bisher nur GenericCommanderPilot); Parameter MODELED aus Deckliste + Oracle-Fakten, Messwerte DIRECTLY_VERIFIED (M4)"
+ },
+ "stand_aenderung": {
+  "datum": "2026-10-31",
+  "neu": [
+   "Whitemane Lion",
+   "Elvish Mystic"
+  ],
+  "raus": [
+   "Aether Adept",
+   "Kor Skyfisher"
+  ],
+  "basis": "Angabe des Owners; Kurve, Rollen, Farbquellen und Pips neu gerechnet aus data/decks/chulane_current.txt mit denselben Formeln wie die Fassung vom 2026-10-22 (deren Zahlen die Rechnung vorher exakt reproduziert hat); Handfelder (Utility-Deltas, Bedrohung, Soll-Zug) unveraendert"
  },
  "commander": [
   "Chulane, Teller of Tales"
@@ -26,7 +38,7 @@
   "Chulane, Teller of Tales": 4
  },
  "haupt_commander": "Chulane, Teller of Tales",
- "commander_soll_zug_basis": "handgesetzt: Chulane MV 5; das Deck fuehrt 36 Laender und 16 Ramp-Rollen (u. a. Arbor Elf, Llanowar Elves, Sakura-Tribe Elder, Nature's Lore) -> Soll-Zug 4 ist die reale Linie, Zug 5 die späte.",
+ "commander_soll_zug_basis": "handgesetzt: Chulane MV 5; das Deck fuehrt 36 Laender und 17 Ramp-Rollen (u. a. Arbor Elf, Llanowar Elves, Elvish Mystic, Sakura-Tribe Elder, Nature's Lore) -> Soll-Zug 4 ist die reale Linie, Zug 5 die späte.",
  "manabasis": {
   "laender_gesamt": 36,
   "laender_nach_farbe": {
@@ -34,30 +46,30 @@
    "W": 12,
    "G": 15
   },
-  "farbquellen_nichtland": 7,
+  "farbquellen_nichtland": 8,
   "pip_bedarf_frueh": {
-   "U": 12,
-   "G": 19,
+   "U": 10,
+   "G": 20,
    "W": 10
   }
  },
  "kurve": {
   "0": 0,
-  "1": 11,
+  "1": 12,
   "2": 18,
-  "3": 12,
+  "3": 11,
   "4": 10,
   "5": 8,
   "6": 3,
   "7+": 2,
-  "durchschnitt_nonland": 3.05
+  "durchschnitt_nonland": 3.02
  },
  "rollen": {
-  "mana_source": 38,
-  "ramp": 16,
+  "mana_source": 39,
+  "ramp": 17,
   "draw": 16,
   "selection": 3,
-  "removal": 7,
+  "removal": 6,
   "counter": 4,
   "protection": 7,
   "wipe": 2,
@@ -78,7 +90,7 @@
   "lands",
   "go_wide_clue"
  ],
- "win_plan": "Chulane ist die Engine: Jede Kreatur zieht eine Karte und legt ggf. ein Land — das Deck spielt billige Kreaturen in Serie, Bounce-Kreaturen (Shrieking Drake, Fleetfoot Panther, Kor Skyfisher) holen sie zurueck und wiederholen die Trigger. Zweite Achse: Clues (Lonis, Tireless Tracker, Ethereal Investigator), die Academy Manufactor verdreifacht (Clue+Food+Treasure). Finisher: Psychosis Crawler (jede gezogene Karte = 1 Leben je Gegner), Mechanized Production (Alternativ-Sieg ueber 8 gleichnamige Artefakte), Koma als Top-End; Landfall (Tatyova, Felidar Retreat, Rampaging Baloths) konvertiert die extra Land-Drops in Board.",
+ "win_plan": "Chulane ist die Engine: Jede Kreatur zieht eine Karte und legt ggf. ein Land — das Deck spielt billige Kreaturen in Serie, Bounce-Kreaturen (Shrieking Drake, Fleetfoot Panther, Whitemane Lion) holen sie zurueck und wiederholen die Trigger. Zweite Achse: Clues (Lonis, Tireless Tracker, Ethereal Investigator), die Academy Manufactor verdreifacht (Clue+Food+Treasure). Finisher: Psychosis Crawler (jede gezogene Karte = 1 Leben je Gegner), Mechanized Production (Alternativ-Sieg ueber 8 gleichnamige Artefakte), Koma als Top-End; Landfall (Tatyova, Felidar Retreat, Rampaging Baloths) konvertiert die extra Land-Drops in Board.",
  "schluesselkarten": [
   "Chulane, Teller of Tales",
   "Tangletrove Kelp",
@@ -124,7 +136,7 @@
   "chulane_zusatz": {
    "handgesetzt": true,
    "drei_laender_bevorzugt": "5-MV-Commander: 2-Laender-Haende nur mit >= 2 Ramp-Karten (Dork/Rock/Land-Ramp)",
-   "bounce_kreaturen_brauchen_chulane": "Shrieking Drake / Fleetfoot Panther / Kor Skyfisher ohne Chulane-Linie sind Wert-Verlust — in der Eröffnung abwerten, bis Chulane projiziert ist",
+   "bounce_kreaturen_brauchen_chulane": "Shrieking Drake / Fleetfoot Panther / Whitemane Lion ohne Chulane-Linie sind Wert-Verlust — in der Eröffnung abwerten, bis Chulane projiziert ist",
    "clue_achse_ist_plan_b": "Hand mit Lonis / Tireless Tracker + Kreaturen ist auch ohne sofortigen Chulane keepbar"
   }
  },
@@ -209,7 +221,7 @@
    "karten": [
     "Shrieking Drake",
     "Fleetfoot Panther",
-    "Kor Skyfisher",
+    "Whitemane Lion",
     "Chulane, Teller of Tales (Fähigkeit)"
    ],
    "grund": "Bounce ist Trigger-Wiederholung oder Schutz (ETB eines Gegners/Removal ausweichen), nie Selbstzweck"
@@ -222,9 +234,8 @@
     "Chulane, Teller of Tales",
     "Shrieking Drake",
     "Fleetfoot Panther",
-    "Kor Skyfisher",
-    "Whirler Rogue",
-    "Aether Adept"
+    "Whitemane Lion",
+    "Whirler Rogue"
    ],
    "bonus": 0.45,
    "komponente": "engine_development",
@@ -311,7 +322,7 @@
   "ersetzungen": []
  },
  "messung_m4": {
-  "evidenz": "DIRECTLY_VERIFIED (M4-Lauefe, Pin v11, Pilot 1.0.0)",
+  "evidenz": "DIRECTLY_VERIFIED (M4-Lauefe, Pin v11, Pilot 1.0.0); gemessen am Deck-Stand 2026-10-22, vor dem Kartentausch vom 2026-10-31",
   "baseline_spiele": 200,
   "siegquote_basis_arm": "19/200 = 9.5 % (100-Spiele-Analyse-Slice: 8 %; ENDBERICHT gerundet 8 %)",
   "commander_cast_quote": {
