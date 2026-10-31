@@ -8,6 +8,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from commander_lab.models import CardRole, Color, StructuralCardProfile, StructuralDeckProfile
+from commander_lab.owner_data import owner_data_path
 
 _CASTABILITY_TURNS: tuple[int, ...] = tuple(range(2, 11))
 _CASTABILITY_MODES: tuple[str, str] = ("play", "draw")
@@ -273,7 +274,9 @@ class ManaAnalyzer:
 
     def __init__(self, root: str | Path) -> None:
         self.root = Path(root).resolve()
-        path = self.root / "data/canonical_import/2026-08-07/inventory_snapshot.json"
+        path = owner_data_path(
+            self.root, "data/canonical_import/2026-08-07/inventory_snapshot.json"
+        )
         payload = json.loads(path.read_text(encoding="utf-8"))
         self.inventory = {
             str(row["oracle_name"]): dict(row)

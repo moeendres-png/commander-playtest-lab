@@ -46,6 +46,7 @@ from commander_lab.optimization import (
     run_paired_structural_comparison,
     variant_deck,
 )
+from commander_lab.owner_data import owner_data_path
 from commander_lab.packages import ArchetypePackageExtractor
 from commander_lab.provenance import ProvenanceStore
 from commander_lab.storage import (
@@ -277,7 +278,9 @@ class ServiceCore:
         opponent_registry = self.root / "data/opponents/opponent_registry.json"
         opponent_profiles = self.root / "data/opponents/current_structural_profiles.json"
         deck_manifest = self.root / "data/decks/manifest.json"
-        allocation_snapshot = self.root / "data/collections/current_deck_allocations.json"
+        allocation_snapshot = owner_data_path(
+            self.root, "data/collections/current_deck_allocations.json"
+        )
         structural_profiles = self.root / "data/cards/structural_role_profiles.json"
         candidate_snapshot = self.root / "data/cards/phase5_upgrade_candidates.json"
         meta_latest = self.root / "data/meta/manifests/latest.json"
@@ -1184,9 +1187,9 @@ class ServiceCore:
         allocation = None
         if request.include_physical_allocation:
             collection = Collection.model_validate_json(
-                (self.root / "data/collections/current_deck_allocations.json").read_text(
-                    encoding="utf-8"
-                )
+                owner_data_path(
+                    self.root, "data/collections/current_deck_allocations.json"
+                ).read_text(encoding="utf-8")
             )
             allocation = validate_collection_quantities(collection, [deck]).model_dump(mode="json")
         return {

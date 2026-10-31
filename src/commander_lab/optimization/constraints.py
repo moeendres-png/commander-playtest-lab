@@ -13,6 +13,7 @@ from commander_lab.models import (
     OptimizationConstraints,
     StructuralDeckProfile,
 )
+from commander_lab.owner_data import owner_data_path
 
 BASIC_LANDS = {"Plains", "Island", "Swamp", "Mountain", "Forest", "Wastes"}
 
@@ -46,7 +47,7 @@ DEFAULT_CONSTRAINTS: dict[str, OptimizationConstraints] = {
 
 
 def load_candidate_inventory(root: str | Path) -> dict[str, int]:
-    path = Path(root) / "data/collections/phase7_optimization_pool.json"
+    path = owner_data_path(root, "data/collections/phase7_optimization_pool.json")
     if not path.exists():
         return {}
     payload = json.loads(path.read_text(encoding="utf-8"))
