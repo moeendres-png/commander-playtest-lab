@@ -393,13 +393,18 @@ def test_priority_guard_ignores_forced_pass_rounds() -> None:
 
 
 def test_target_selection_is_order_independent() -> None:
-    """Same targets in different bridge orders: same raw option selected."""
+    """Same targets in different bridge orders: same raw option selected.
+
+    The targets carry their zone and position, as every permanent the bridge offers does: that
+    position, not the offer order, names the card, so the tie between the lands is broken by the
+    seeded rng the same way for both orders.
+    """
     policy = _policy()
     request = {"context": {"outcome": "detriment"}}
     options = [
-        _option("raw-island-a", "Island"),
-        _option("raw-mountain", "Mountain"),
-        _option("raw-island-b", "Island"),
+        _zoned_option("raw-island-a", "Island", "battlefield", 0),
+        _zoned_option("raw-mountain", "Mountain", "battlefield", 1),
+        _zoned_option("raw-island-b", "Island", "battlefield", 2),
     ]
     first = policy._decide_targets(
         policy._pilots[1], _state(["hand-1"]), request, list(options), 1, 1, random.Random(0)
