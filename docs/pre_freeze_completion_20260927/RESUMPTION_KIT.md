@@ -59,7 +59,7 @@ Merge recipe — full adjudication in `CAMPAIGN_STATE.md` §1.1:
 ## 2. After the restart — Phase A
 
 ```bash
-cd /home/moeen/code/wsr23-project-integration-hygiene
+cd /home/owner/code/wsr23-project-integration-hygiene
 git fetch --all --prune
 git push --set-upstream origin wsr23/project-integration-hygiene-20260927
 gh pr create --base main --head wsr23/project-integration-hygiene-20260927 --title "..." --body "..."

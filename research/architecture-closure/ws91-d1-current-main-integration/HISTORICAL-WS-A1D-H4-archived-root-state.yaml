@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/ws-a1d-h4-docker-materialization
+worktree: /home/owner/code/ws-a1d-h4-docker-materialization
 branch: architecture/ws-a1d-h4-docker-materialization-20260911
 audit_base_sha: e207286200854bf9bff557e67bf3b37b5e428392
 audit_base_tree: 6e89a980bf0a7e40273ba11b108fe3febed39d47

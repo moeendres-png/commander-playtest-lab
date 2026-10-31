@@ -2,7 +2,7 @@
 
 - Workstream: `cpl/xmage-successor-integration-20260919`
 - Branch: `cpl/xmage-successor-integration-20260919`
-- Worktree: `/home/moeen/code/ws-successor-integration-20260919`
+- Worktree: `/home/owner/code/ws-successor-integration-20260919`
 - Base: `aebcfda37d61eb435dde6cd11792ef80019dcd10`
 - Donor: `fa4cd8d1` (cumulative WS213→WS232, read-only)
 - Engine pin: `xmage-1.4.61` (unchanged)

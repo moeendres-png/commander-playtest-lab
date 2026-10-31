@@ -91,7 +91,7 @@ cancels on the unchanged `main` dump.
    rules let the controller choose (CR 603.3b), and the stakes are small. Build it only if a game
    shows a damaging order.
 4. **P4 fast path and engine throughput (E1+E3)**: biggest reach, no change to play; E1+E3 need a
-   fork push and a repin, so Moritz's go.
+   fork push and a repin, so the Owner's go.
 5. **Pod realism check (new, cheap):** ask Commander Spellbook's bracket estimation for the four
    real-pod decks and the pool, to back the "casual/mid" profile with a number.
 

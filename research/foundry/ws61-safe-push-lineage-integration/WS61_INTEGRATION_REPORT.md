@@ -9,7 +9,7 @@ the hardened canonical state writer.
 ## Source lock
 
 - Repository: `moeendres-png/commander-playtest-lab`
-- Worktree: `/home/moeen/code/ws61-foundry-safe-push-lineage-integration`
+- Worktree: `/home/owner/code/ws61-foundry-safe-push-lineage-integration`
 - Branch: `ws61/foundry-safe-push-lineage-integration-20260911`
 - Audit base (main): `55fd87f99462f9b30225f9ac8587e8a6abf75e88`
 - WS57 qualified source: `9af19e627fa1b02fcf3ed94a2dfccbb51798ae9c`

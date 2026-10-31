@@ -18,7 +18,7 @@
     "tests/unit/test_real_4p_progress_contract.py",
     "tests/unit/test_real_4p_full_game_smoke.py",
     "tests/unit/test_full_game_shutdown.py",
-    "--junitxml=/home/moeen/work/takeover-evidence-20261003/pr518/GREEN-progress.xml"
+    "--junitxml=/home/owner/work/takeover-evidence-20261003/pr518/GREEN-progress.xml"
   ],
   "exit": 0,
   "log_sha256": "c39c3875fc02b1fda1f9a2c619889795512842938b00383d7c74b907e1acb371"

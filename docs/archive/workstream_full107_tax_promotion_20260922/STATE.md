@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 TAX promotion (2026-09-22)
 
 - Branch: `cpl/full107-tax-promotion-20260922`
-- Worktree: `/home/moeen/code/ws-full107-tax-promotion-20260922`
+- Worktree: `/home/owner/code/ws-full107-tax-promotion-20260922`
 - Base: `7a28b58116979e2f2c36dc82c483c1a2d8aea9e1`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Evidence: executor TAX-2/TAX-4 executions (PR #220 merged)

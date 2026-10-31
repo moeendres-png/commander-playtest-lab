@@ -61,7 +61,7 @@ Two stash entries from this session in the shared stash, both obsolete and safe 
 - `claude-seed-wip-20260929`: superseded by #293;
 - `claude-batch4-local-20260929`: ported here on top of Sol's payer.
 
-Obsolete worktree: `/home/moeen/code/claude-xmage-2p-draw-skip-20260929`; its branch was merged and deleted. The active worktree is `/home/moeen/code/claude-corpus-completion-20260929`.
+Obsolete worktree: `/home/owner/code/claude-xmage-2p-draw-skip-20260929`; its branch was merged and deleted. The active worktree is `/home/owner/code/claude-corpus-completion-20260929`.
 
 ## Exact next action
 

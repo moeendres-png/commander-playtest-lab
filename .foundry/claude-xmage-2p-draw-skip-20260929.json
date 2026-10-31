@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
-  "worktree": "/home/moeen/code/claude-xmage-2p-draw-skip-20260929",
+  "worktree": "/home/owner/code/claude-xmage-2p-draw-skip-20260929",
   "branch": "claude/xmage-2p-draw-skip-20260929",
   "audit_base_sha": "afe09c61d4ad90f89c28ff75ac7439a20b89cfdd",
   "audit_base_tree": "0d5b3f0d9020cc99131dd92a41a9615c61bbac8a",

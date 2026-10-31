@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/claude-lab-repin-20260929
+worktree: /home/owner/code/claude-lab-repin-20260929
 branch: claude/full107-row-families-20260930
 audit_base_sha: ed94cf0ae26cef3bf7ec064ccded675a793f5edd
 audit_base_tree: 1dbd3e694565b69890a0f3cf4741690d7d2ca04a

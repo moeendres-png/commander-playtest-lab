@@ -26,7 +26,7 @@ transliterated or adapted.
 | Repository | `https://github.com/moeendres-png/mage.git` |
 | Licence | MIT (`config/rules_engines.json → primary_engine.license`) |
 | Artifact executed | `org.mage:mage:1.4.61` |
-| Runtime proof | `get_provider_version` on both the `main` lane and the new `midgame` lane returned `engine_version=1.4.61`, `engine_commit=b1959698…`, `xmage_code_source=file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar` |
+| Runtime proof | `get_provider_version` on both the `main` lane and the new `midgame` lane returned `engine_version=1.4.61`, `engine_commit=b1959698…`, `xmage_code_source=file:/home/owner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar` |
 | Upstream counterpart | `magefree/mage` master, MIT, read-only |
 | Relationship | The pinned commit is a Commander-Lab **compatibility fork** of upstream, `release: "compatibility-fork-unreleased"`. It is **not** pristine upstream, and no result here may be reported as an upstream XMage result. |
 

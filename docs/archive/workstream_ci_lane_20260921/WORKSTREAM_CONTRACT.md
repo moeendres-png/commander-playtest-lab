@@ -14,7 +14,7 @@ regime, documented, untouched).
 
 - Base: R19 tip `107db18976c76ead4f328d7cdec0de7de8a4eb1d` (Lab 2–6P).
 - This branch: `cpl/ci-cardinality-lane-20260921`.
-- This worktree: `/home/moeen/code/ws-ci-cardinality-lane-20260921`.
+- This worktree: `/home/owner/code/ws-ci-cardinality-lane-20260921`.
 - Repo `moeendres-png/commander-playtest-lab`. No Forge/mage edits.
   No push/merge.
 

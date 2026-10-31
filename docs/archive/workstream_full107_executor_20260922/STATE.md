@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 decision executor slice (2026-09-22)
 
 - Branch: `cpl/full107-decision-executor-20260922`
-- Worktree: `/home/moeen/code/ws-full107-decision-executor-20260922`
+- Worktree: `/home/owner/code/ws-full107-decision-executor-20260922`
 - Base: `51c224a021e0ce0a9362accc2cd41387ca4ba6ac`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Verdicts: `FULL107_EXECUTION=NOT_RUN` · `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·

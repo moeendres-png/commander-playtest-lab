@@ -16,7 +16,7 @@ facts. Execution evidence only; NO mapping promotion.
 - Engine (READ-ONLY, no pin change): xmage maven `1.4.61`.
 - Depends on: WS2 restoration + digest comparison (merged).
 - This branch: `cpl/full107-start2-execution-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-start2-execution-20260922`.
+- This worktree: `/home/owner/code/ws-full107-start2-execution-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR only.
 
 ## In Scope

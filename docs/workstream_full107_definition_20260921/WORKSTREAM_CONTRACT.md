@@ -16,7 +16,7 @@ workstream.
 - Definition source (READ-ONLY): `origin/ws47/successor-contract-v1.0.5-freeze`
   @ `5a2e4f462fd45bba25f2271153212aab9faf09f5` (immutable; never mutated).
 - This branch: `cpl/full107-definition-import-20260921`.
-- This worktree: `/home/moeen/code/ws-full107-definition-import-20260921`.
+- This worktree: `/home/owner/code/ws-full107-definition-import-20260921`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR
   + Foundry push only (no direct main edits, no bypass).
 

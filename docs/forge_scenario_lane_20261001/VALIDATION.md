@@ -2,7 +2,7 @@
 
 ## Environment
 
-* Lab worktree: `/home/moeen/code/lab-forge-scenario-lane-20261001`,
+* Lab worktree: `/home/owner/code/lab-forge-scenario-lane-20261001`,
   branch `hardening/forge-scenario-lane-20261001`.
 * Audit base: `bcd903f2…` (tree `b7d44a0b…`); current main at authorization was
   merged in normally (`a9159084`, contract `1.0.9-successor`) before any

@@ -177,7 +177,7 @@
     },
     "external_directory": {
       "*": "allow",
-      "/home/moeen/code/*": "allow",
+      "/home/owner/code/*": "allow",
       "/tmp/*": "allow"
     }
   },

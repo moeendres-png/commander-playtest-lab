@@ -10,7 +10,7 @@ objective: >-
 identity:
   status: STOPPED_FOR_OWNERSHIP_HANDOVER
   stopped_at: 2026-09-29 (ownership transferred to a successor owner by coordinator instruction)
-  worktree: /home/moeen/code/lab-pb03-remediation2-20260929
+  worktree: /home/owner/code/lab-pb03-remediation2-20260929
   branch: pb03/304-remediation-on-dafe2ac6
   head: 1b69c31f7958ec77df55ae72a9fb95fd19d424bc
   tree: e5cc3e6a0ecf5df9b16869a60012a0395d842471
@@ -36,7 +36,7 @@ identity:
     line carries a remediation marker; no foreign symbol or unexplained content.
 
 preservation:
-  previous_worktree: /home/moeen/code/lab-pb03-remediation-20260929 (branch pb03/304-remediation-20260929, head e4edcd05)
+  previous_worktree: /home/owner/code/lab-pb03-remediation-20260929 (branch pb03/304-remediation-20260929, head e4edcd05)
   preserved_foreign_work: /tmp/opencode/foreign-preserve (full file copies + FULL-UNCOMMITTED-DELTA.patch, hashed 1519 lines)
   note: >-
     The earlier worktree held concurrent-session content that was later committed by

@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
-  "worktree": "/home/moeen/code/claude-mp-apnap-20260929",
+  "worktree": "/home/owner/code/claude-mp-apnap-20260929",
   "branch": "claude/mp-campaign-checkpoint-2-20260929",
   "audit_base_sha": "72665dcea00d3c74b3272586a9b2794bb86fd93c",
   "audit_base_tree": "bc16a510b2ff120298035af61372354b9dac422a",
@@ -23,7 +23,7 @@
   ],
   "ownership": "CLAUDE-MP-CAMPAIGN-20260929 (Claude Opus 5.5, sole writer of branches claude/xmage-multiplayer-apnap-20260929, claude/xmage-mp-each-player-choice-20260929, claude/xmage-mp-block-legality-20260929)",
   "dependencies": [
-    "pinned XMage b19596980f27 Maven artifacts in ~/.m2; source read from /home/moeen/code/mage-rg-candidate-build at that commit"
+    "pinned XMage b19596980f27 Maven artifacts in ~/.m2; source read from /home/owner/code/mage-rg-candidate-build at that commit"
   ],
   "hard_gates": [
     "no second rules engine; legality only from engine-native checks",

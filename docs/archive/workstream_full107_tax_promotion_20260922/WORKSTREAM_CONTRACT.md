@@ -15,7 +15,7 @@ executor workstream PR #220). Nothing else changes classification.
 - Evidence (READ-ONLY, merged): executor `XmageFullGameTaxExecutionTest`
   (TAX-2 2P + TAX-4 4P green locally and in CI conformance on PR #220).
 - This branch: `cpl/full107-tax-promotion-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-tax-promotion-20260922`.
+- This worktree: `/home/owner/code/ws-full107-tax-promotion-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR only.
 
 ## In Scope

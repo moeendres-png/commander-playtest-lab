@@ -201,7 +201,7 @@ subject to the repository permission/approval gates.
 Project-wide understanding must not be confused with project-wide write authority.
 
 Both DeepSeek MAX and Space Bunny MAX may consume explicitly verified project references across
-/home/moeen/code. Read-only references are materialized as disposable detached runtime
+/home/owner/code. Read-only references are materialized as disposable detached runtime
 snapshots so builds/searches do not operate on the authoritative source checkout. A
 cross-workstream task may also receive multiple explicit owned-write mutation surfaces.
 Every writable surface must bind exact repository, branch, HEAD/tree, a state path under

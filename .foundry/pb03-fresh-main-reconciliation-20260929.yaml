@@ -1,6 +1,6 @@
 schema_version: "2.0"
 repository: "moeendres-png/commander-playtest-lab"
-worktree: "/home/moeen/code/lab-pb03-fresh-main-reconciliation-20260929"
+worktree: "/home/owner/code/lab-pb03-fresh-main-reconciliation-20260929"
 branch: "integration/pb03-fresh-main-reconciliation-20260929"
 audit_base_sha: "72665dcea00d3c74b3272586a9b2794bb86fd93c"
 audit_base_tree: "bc16a510b2ff120298035af61372354b9dac422a"

@@ -16,12 +16,12 @@ Locked at: 2026-09-29 (Europe/Berlin), before any edit.
 | Base TREE | `0c7b0603cdc0f0958add7e9bf9f23c0f023ec1ff` |
 | Base subject | `Merge PR #298: fix XMage unlimited-block capacity` |
 | Workstream branch | `research/csn-engine-capability-delta-20260929` |
-| Worktree | `/home/moeen/code/ws-csn-capability-delta-20260929` |
+| Worktree | `/home/owner/code/ws-csn-capability-delta-20260929` |
 | Working tree at lock | clean |
 
 Coordinator's observed main HEAD `2e28866f…` and TREE `0c7b0603…` were
 **confirmed against `origin/main` after a full fetch** and match. The
-pre-existing `main` worktree `/home/moeen/code/commander-playtest-lab` was stale
+pre-existing `main` worktree `/home/owner/code/commander-playtest-lab` was stale
 at `e91819ae…` (106+ commits behind) and was **not** used as an edit surface.
 
 ## 2. Engine pins (authority: `config/rules_engines.json` at the locked HEAD)
@@ -40,7 +40,7 @@ machine-readable pin authority. No pin was changed by this workstream.
 | Upstream counterpart | `magefree/mage` master (MIT) |
 | Consumed artifact | `org.mage:mage:1.4.61` (Maven, resolved to `~/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar`) |
 | Bridge identity constant | `XmageProvider.ENGINE_COMMIT` — same SHA |
-| Runtime proof | `get_provider_version` reported `engine_commit=b1959698…` and `xmage_code_source=file:/home/moeen/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar` on the `main` lane and on the new `midgame` lane |
+| Runtime proof | `get_provider_version` reported `engine_commit=b1959698…` and `xmage_code_source=file:/home/owner/.m2/repository/org/mage/mage/1.4.61/mage-1.4.61.jar` on the `main` lane and on the new `midgame` lane |
 
 Ancestry is not identity. Every result in this workstream is evidence about the
 **pinned Lab fork** and must not be reported as an upstream XMage result.

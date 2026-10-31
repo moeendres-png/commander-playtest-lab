@@ -20,7 +20,7 @@ replacement of mandatory credit requirements.
 - Frozen (READ-ONLY): `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`.
 - Engine (READ-ONLY, no pin change): xmage maven `1.4.61`.
 - This branch: `cpl/full107-evidence-gate-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-evidence-gate-20260922`.
+- This worktree: `/home/owner/code/ws-full107-evidence-gate-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR only.
 
 ## In Scope

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="0.074" timestamp="2026-10-03T15:42:18.016351+02:00" hostname="MoritzPC"><testcase classname="tests.unit.test_real_4p_progress_execution" name="test_turn_contract_rejects_decision_cap_before_boundary" time="0.001"><failure message="Failed: DID NOT RAISE FullGameConformanceError">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7de010fcf360&gt;
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="5" skipped="0" tests="5" time="0.074" timestamp="2026-10-03T15:42:18.016351+02:00" hostname="owner-pc"><testcase classname="tests.unit.test_real_4p_progress_execution" name="test_turn_contract_rejects_decision_cap_before_boundary" time="0.001"><failure message="Failed: DID NOT RAISE FullGameConformanceError">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7de010fcf360&gt;
 
     def test_turn_contract_rejects_decision_cap_before_boundary(monkeypatch) -&gt; None:
 &gt;       with pytest.raises(FullGameConformanceError, match="turn boundary"):
@@ -23,8 +23,8 @@ E        +  where 'efc277bec1f0aac6a13e016a7dba39100363b0736ff0f3f82b77d283d1393
 E        +  and   'efc277bec1f0aac6a13e016a7dba39100363b0736ff0f3f82b77d283d1393fcf' = FullGameSmokeResult(schema_version='xmage-full-game-smoke-result-1.0.0', scenario_id='offline-progress', player_count=...only', consumed_gameplay_evidence=False, holdout_consumed=False, official_campaign_eligible=False, fallback_used=False).progress_digest
 
 tests/unit/test_real_4p_progress_execution.py:101: AssertionError</failure></testcase><testcase classname="tests.unit.test_real_4p_progress_execution" name="test_script_checks_the_second_twin_contract" time="0.014"><failure message="Failed: DID NOT RAISE FullGameConformanceError">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7de011035e10&gt;
-repo_root = PosixPath('/home/moeen/work/takeover-pr518-20261003')
-tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-20/test_script_checks_the_second_0')
+repo_root = PosixPath('/home/owner/work/takeover-pr518-20261003')
+tmp_path = PosixPath('/tmp/pytest-of-owner/pytest-20/test_script_checks_the_second_0')
 
     def test_script_checks_the_second_twin_contract(monkeypatch, repo_root, tmp_path) -&gt; None:
         first, _ = _run(monkeypatch, _round())
@@ -34,8 +34,8 @@ tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-20/test_script_checks_the_seco
 E       Failed: DID NOT RAISE FullGameConformanceError
 
 tests/unit/test_real_4p_progress_execution.py:142: Failed</failure></testcase><testcase classname="tests.unit.test_real_4p_progress_execution" name="test_script_rejects_a_missing_twin_digest" time="0.003"><failure message="Failed: DID NOT RAISE FullGameConformanceError">monkeypatch = &lt;_pytest.monkeypatch.MonkeyPatch object at 0x7de010df07c0&gt;
-repo_root = PosixPath('/home/moeen/work/takeover-pr518-20261003')
-tmp_path = PosixPath('/tmp/pytest-of-moeen/pytest-20/test_script_rejects_a_missing_0')
+repo_root = PosixPath('/home/owner/work/takeover-pr518-20261003')
+tmp_path = PosixPath('/tmp/pytest-of-owner/pytest-20/test_script_rejects_a_missing_0')
 
     def test_script_rejects_a_missing_twin_digest(monkeypatch, repo_root, tmp_path) -&gt; None:
         result, _ = _run(monkeypatch, _round())

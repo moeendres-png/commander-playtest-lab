@@ -10,19 +10,19 @@
 - Repo `moeendres-png/commander-playtest-lab`; single `origin`; hardened effective-target checks **PASS** (1 fetch record, 0 pushurl, no mirror, no receivepack, no `insteadOf`/`pushInsteadOf`).
 - Audit base `bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719`, tree `32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a` ("Merge PR #268: terminal closeout for pre-Freeze contract successor").
 - Initial audit base was `c5f9418e`; `main` advanced three times mid-run and was re-adjudicated (§21) before the final commit.
-- Branch `wsr23/project-integration-hygiene-20260927`, worktree `/home/moeen/code/wsr23-project-integration-hygiene`.
+- Branch `wsr23/project-integration-hygiene-20260927`, worktree `/home/owner/code/wsr23-project-integration-hygiene`.
 - Execution `opencode-go/space-bunny-free`, native `max`, project effort field `high`.
 
 ## Workspace Inventory
 
 | | |
 |---|---|
-| Workspace root | `/home/moeen/code`, **not** a git repository |
+| Workspace root | `/home/owner/code`, **not** a git repository |
 | Registered git worktrees | **225** — 173 Lab, 39 Forge, 13 Mage |
 | Local branches | 229 total; **61** with no remote branch |
 | Project repositories | `commander-playtest-lab`, `forge`, `mage` |
 | Reference-only repos | `wingedsheep/argentum-engine`, `NullPriority/quorune` |
-| Duplicate clone found | `/home/moeen/code/forge-candidate-h4f` (second Forge clone, not a worktree) |
+| Duplicate clone found | `/home/owner/code/forge-candidate-h4f` (second Forge clone, not a worktree) |
 | Shared stashes | 1 in the Lab repo (`9429face`, WS-48 WIP, 3 paths) — preserved, flagged |
 | Broken markdown links on `main` | **0** across 315 tracked files |
 | `tools/foundry/worktree_inventory.py` | 173 Lab worktrees, **0 duplicate writers** |

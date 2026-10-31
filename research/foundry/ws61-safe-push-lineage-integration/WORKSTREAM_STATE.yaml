@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/ws61-foundry-safe-push-lineage-integration
+worktree: /home/owner/code/ws61-foundry-safe-push-lineage-integration
 branch: ws61/foundry-safe-push-lineage-integration-20260911
 audit_base_sha: 55fd87f99462f9b30225f9ac8587e8a6abf75e88
 audit_base_tree: 4e1d594fefb7365d1c9117061a86f63ffb595033

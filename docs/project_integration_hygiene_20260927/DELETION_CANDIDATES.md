@@ -78,8 +78,8 @@ decision, not a hygiene cleanup.
 
 ## Tier 5 — duplicate clone
 
-`/home/moeen/code/forge-candidate-h4f` is a second independent clone of
-`moeendres-png/forge`, not a registered worktree of `/home/moeen/code/forge`. No WSR23 action.
+`/home/owner/code/forge-candidate-h4f` is a second independent clone of
+`moeendres-png/forge`, not a registered worktree of `/home/owner/code/forge`. No WSR23 action.
 Recorded so a future audit does not mistake it for a worktree of the Forge repo.
 
 ## Recommended Coordinator action

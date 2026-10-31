@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /mnt/c/Users/moeen/.codex/.chatgpt-projects/g-p-6a9197e782048191a98ff349f1c39525/work/ws190
+worktree: /mnt/c/Users/owner/.codex/.chatgpt-projects/g-p-6a9197e782048191a98ff349f1c39525/work/ws190
 branch: ws190/opencode-zen-provider-override-20260913
 audit_base_sha: 6eea80fb33746257e8434fd4e1c906765d8f22e9
 audit_base_tree: 3a3ca37639d6cb30864bda0fa60bb35d3d7b94c5

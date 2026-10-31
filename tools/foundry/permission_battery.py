@@ -77,7 +77,7 @@ PROBES: list[tuple[str, str, str, str, str]] = [
     ("P05", "foundry-implementer", "bash", "git reset --hard HEAD~1", "rule"),
     ("P06", "foundry-implementer", "bash", "git clean -fdx", "rule"),
     ("P07", "foundry-implementer", "bash", "git branch -D test/ws", "rule"),
-    ("P08", "foundry-implementer", "bash", "git worktree remove /home/moeen/code/other", "rule"),
+    ("P08", "foundry-implementer", "bash", "git worktree remove /home/owner/code/other", "rule"),
     ("P09", "foundry-implementer", "bash", "git checkout main", "rule"),
     ("P10", "foundry-implementer", "bash", "git switch -c test/evil", "rule"),
     ("P11", "foundry-implementer", "bash", "git -C /tmp/wt git push", "rule"),
@@ -106,11 +106,11 @@ PROBES: list[tuple[str, str, str, str, str]] = [
         "X01",
         "foundry-implementer",
         "external_directory",
-        "/home/moeen/code/ws50-forge-decision-sequence-slice",
+        "/home/owner/code/ws50-forge-decision-sequence-slice",
         "rule",
     ),
     ("X02", "foundry-implementer", "external_directory", "/tmp/scratch", "rule"),
-    ("X03", "foundry-implementer", "external_directory", "/home/moeen/code/somewhere-else", "rule"),
+    ("X03", "foundry-implementer", "external_directory", "/home/owner/code/somewhere-else", "rule"),
     # R-series: residual bypass shapes no pattern rule can express (analysis).
     ("R33", "foundry-implementer", "bash", "VAR=x prefix bypass", "analysis"),
     # D-series: WS75 repetition guard (doom_loop must resolve DENY: under

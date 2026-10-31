@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 digest + event evidence integrity (2026-09-22)
 
 - Branch: `cpl/full107-evidence-gate-20260922`
-- Worktree: `/home/moeen/code/ws-full107-evidence-gate-20260922`
+- Worktree: `/home/owner/code/ws-full107-evidence-gate-20260922`
 - Base: `728229f32aed2e6434a93aec73ec693de9e977a0`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Engine: xmage `1.4.61` / pin `db134b97` (read-only, no change)

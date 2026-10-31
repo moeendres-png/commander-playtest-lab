@@ -2,7 +2,7 @@
 
 Workstream: `DR-CLOSURE-01 — Deep Research Findings Implementation & Qualification Closure`
 Branch: `dr-closure-01-deep-research-20260924`
-Worktree: `/home/moeen/code/ws-dr-closure-20260924`
+Worktree: `/home/owner/code/ws-dr-closure-20260924`
 Execution date (UTC): 2026-09-24
 Instruction reference date: 20260923 (directory name preserved verbatim per assignment).
 

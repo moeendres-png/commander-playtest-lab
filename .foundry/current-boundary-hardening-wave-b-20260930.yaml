@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/code/cpl-cb-closeout-20260930
+worktree: /home/owner/code/cpl-cb-closeout-20260930
 branch: hardening/current-boundary-wave-b-closeout-20260930
 audit_base_sha: 20c3fb36c5023568c1ee62d5e2d0ae9ab735e573
 audit_base_tree: 9b2a52e7283dfb6b6d7040ccbe78c8774f40659b
@@ -91,7 +91,7 @@ tests_run:
     identical uncovered count to origin/main 0fbea2ec (95/73)'
 evidence:
   - 'Fail-before B4/B5: 16/16 tests red against pre-fix source (git() check=False; ambient
-    FORGE_WORKSPACE at /home/moeen/code/ws-forge-full107-cdq-20260926)'
+    FORGE_WORKSPACE at /home/owner/code/ws-forge-full107-cdq-20260926)'
   - 'Fail-before B1: 8/14 epoch tests red before wiring; end-to-end subprocess test proves a real
     runner process writes only the successor epoch while git status of the historical tree is empty'
   - 'B5 defect is real, measured read-only: ambient checkout HEAD 18bba95a has

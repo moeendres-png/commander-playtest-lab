@@ -10,7 +10,7 @@
 
 ## Branch / Worktree
 - Branch: `wsr25/xmage-rg07-rg08-current-pin-evidence-port-20260927` (isolated worktree
-  `/home/moeen/code/wsr25-rg07-rg08-port`, from fresh `origin/main`).
+  `/home/owner/code/wsr25-rg07-rg08-port`, from fresh `origin/main`).
 - Untouched: `camp/rg-closure-20260925`, WSR22/WSR23 branches, Space Bunny PB-03 worktrees,
   WS-48 stash `9429face`, `forge-candidate-h4f`, Mage PRs #13-16, `xmage-ws49-baseline` history.
 

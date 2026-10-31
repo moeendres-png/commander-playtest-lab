@@ -1,7 +1,7 @@
 # PB-09 — the Forge candidate identity, and why the 79-vs-30 comparison is not admissible
 
 Date: 2026-09-27
-Classification: `DIRECTLY_VERIFIED` (git history in `/home/moeen/code/forge` = `moeendres-png/forge`)
+Classification: `DIRECTLY_VERIFIED` (git history in `/home/owner/code/forge` = `moeendres-png/forge`)
 Coordinator disposition: **leave as an open evidence-integrity blocker**; do not repin, do not optimize toward a provider.
 
 This supersedes the earlier framing in `PRE_FREEZE_COMPARISON_PACKAGE.md` §7.1 and

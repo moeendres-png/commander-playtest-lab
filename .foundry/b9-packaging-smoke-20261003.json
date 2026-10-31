@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
-  "worktree": "/home/moeen/work/lab-b9",
+  "worktree": "/home/owner/work/lab-b9",
   "branch": "hardening/lab-b9-packaging-smoke-20261003",
   "audit_base_sha": "286f78d0169766b7a9765bd6c50d41c06d4f8fa0",
   "audit_base_tree": "8f04fe18d6c9262da1c2a458ab80a50f6abcdc0c",

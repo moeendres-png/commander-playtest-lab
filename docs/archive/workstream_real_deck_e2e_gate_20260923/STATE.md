@@ -1,7 +1,7 @@
 # Workstream STATE — real-deck 4P e2e gate (2026-09-23)
 
 - Branch: `opencode/real-deck-e2e-gate-20260923`
-- Worktree: `/home/moeen/code/ws-real-deck-e2e-gate-20260923`
+- Worktree: `/home/owner/code/ws-real-deck-e2e-gate-20260923`
 - Base: `69d6beb8bc43a2cb578820e23270db3308502c65`
 - Progress:
   - [x] Ownership established (branch/worktree/base verified, contract + lock)

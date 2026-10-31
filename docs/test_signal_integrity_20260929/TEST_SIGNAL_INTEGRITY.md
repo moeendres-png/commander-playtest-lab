@@ -171,7 +171,7 @@ regression test that has never been shown to fail on the bug is not evidence of 
 
 | Item | Why unchanged |
 |---|---|
-| `tests/foundry/test_drift.py:26` hardcodes `/home/moeen/code/mage-d3q6` | It is **environment-dependent, not permanently skipped** — it *runs here* (16 passed), because the path exists. Its fail-closed property is already covered hermetically at lines 71–90. Correcting an earlier classification of mine. Recorded, not altered |
+| `tests/foundry/test_drift.py:26` hardcodes `/home/owner/code/mage-d3q6` | It is **environment-dependent, not permanently skipped** — it *runs here* (16 passed), because the path exists. Its fail-closed property is already covered hermetically at lines 71–90. Correcting an earlier classification of mine. Recorded, not altered |
 | The 2 `httpx2` failures | Environmental; the dependency is declared. Installing packages is an operator decision |
 | Any assertion strength | No assertion was weakened, relaxed, or removed. One test was replaced by a strictly stronger hermetic equivalent |
 

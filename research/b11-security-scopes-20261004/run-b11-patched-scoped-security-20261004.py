@@ -1,7 +1,7 @@
 from pathlib import Path
 
 path = Path(
-    "/mnt/c/Users/moeen/.codex/.chatgpt-projects/g-p-6a9197e782048191a98ff349f1c39525/work-evidence/run-b11-scoped-security-20261004.py"
+    "/mnt/c/Users/owner/.codex/.chatgpt-projects/g-p-6a9197e782048191a98ff349f1c39525/work-evidence/run-b11-scoped-security-20261004.py"
 )
 code = (
     path.read_text()

@@ -8,7 +8,7 @@ Status: SEALED LOCAL IMPLEMENTATION. No publication. No independent review.
 
 - Repository: `moeendres-png/commander-playtest-lab`
 - Branch: `ws241/safe-push-effective-target-20260916`
-- Worktree: `/home/moeen/code/ws241-safe-push-effective-target`
+- Worktree: `/home/owner/code/ws241-safe-push-effective-target`
 - Audit base: `aebcfda37d61eb435dde6cd11792ef80019dcd10`
   (TREE `bf003afc0c0b71535094b6b96e3b1184d6dd0f1f`, per workstream issuance)
 - Implementation commit: `bf504a914ce1e951fb051576035e5b92f58ebf21` (local only,
@@ -18,7 +18,7 @@ Status: SEALED LOCAL IMPLEMENTATION. No publication. No independent review.
 - Task authority: issue #204 (CODE_DERIVED gap report; adjacent, pre-existing,
   not a WS240 regression). #196 covers cross-repo tool-path authority.
 - State file (outside worktree):
-  `/home/moeen/.local/state/commander-simulator-next/ws241-safe-push-effective-target/WORKSTREAM_STATE.yaml`
+  `/home/owner/.local/state/commander-simulator-next/ws241-safe-push-effective-target/WORKSTREAM_STATE.yaml`
   (schema 2.0; `validated_head: null` — no independent validation credit claimed)
 
 ## 2. Blob hashes at implementation commit (SHA-256)
@@ -113,7 +113,7 @@ not introduced).
 ## 8. WS241-C final remediation (adjudicated corrections 1–5, one commit)
 
 Adjudication:
-`/home/moeen/.local/state/commander-simulator-next/legacy-recovery-preflight-aebcfda3/ISSUE204_CANDIDATE_ADJUDICATION_2026-09-16.md`
+`/home/owner/.local/state/commander-simulator-next/legacy-recovery-preflight-aebcfda3/ISSUE204_CANDIDATE_ADJUDICATION_2026-09-16.md`
 (read-only; surviving line C with minimum corrections; A/B archived as
 reference, untouched).
 

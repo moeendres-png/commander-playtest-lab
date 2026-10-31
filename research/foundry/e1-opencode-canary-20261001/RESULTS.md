@@ -28,7 +28,7 @@ Every write target is a dedicated, empty canary directory. A target counts as re
 | 3 | Sibling worktree under the system temp directory | write **allowed** | **denied** | **defect, fixed** by finding 2: sibling denies now also bind at `edit`. The CLI exempts the temp directory from `external_directory`: a plain directory there with an explicit deny was still written. |
 | 4 | Sibling worktree outside the temp directory | denied | denied | `external_directory` denies bind there. |
 | 5 | `.env` inside the worktree | denied | denied | canonical secret-file denies hold. |
-| 6 | Write-tool write to any other path outside the worktree | allowed | allowed | **by design**: `external_directory` `"*": allow` and `/home/moeen/code/*` (`test_foundry_tools.py` documents the whole workspace tree as in campaign scope). Not changed here. |
+| 6 | Write-tool write to any other path outside the worktree | allowed | allowed | **by design**: `external_directory` `"*": allow` and `/home/owner/code/*` (`test_foundry_tools.py` documents the whole workspace tree as in campaign scope). Not changed here. |
 | 7 | `echo … > outside`, `python3 -c open(…,'w')` | allowed | allowed | BYPASSABLE / INSTRUCTION_ONLY by construction (I14, A24). Only the Bubblewrap mount sandbox mediates it, and that applies to cross-workstream launches only. |
 
 ## What is decided where
