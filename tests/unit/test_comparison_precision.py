@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import importlib.util
 import math
+import random
 import statistics
 from collections.abc import Callable, Sequence
 from pathlib import Path
@@ -151,9 +152,9 @@ def _assert_hand_arithmetic() -> None:
     assert round(se, 4) == 0.1795
     interval, detectable = fgc._paired_difference_stats(differences)
     assert interval is not None and detectable is not None
-    assert round(interval.low, 3) == -0.252
-    assert round(interval.high, 3) == 0.452
-    assert round(detectable, 3) == 0.503
+    assert round(interval.low, 3) == -0.306
+    assert round(interval.high, 3) == 0.506
+    assert round(detectable, 3) == 0.565
 
 
 def test_difference_interval_hand_arithmetic() -> None:
@@ -162,8 +163,10 @@ def test_difference_interval_hand_arithmetic() -> None:
     #            = 1.62 + 1.21 + 0.07 = 2.90.
     # Sample sd = sqrt(2.90/9) = 0.56765... -> 0.5676.
     # Standard error = 0.56765.../sqrt(10) = 0.17951... -> 0.1795.
-    # Interval = 0.1 +/- 1.96*0.17951... = -0.25184...+0.45184... -> -0.252..+0.452.
-    # Detectable = (1.96 + 0.8416)*0.17951... = 0.50290... -> 0.503.
+    # Student t with n - 1 = 9 degrees of freedom (#1074): t_0.975,9 = 2.262157..., t_0.80,9 = 0.883404...
+    # Interval = 0.1 +/- 2.262157*0.17951... = -0.30607...+0.50607... -> -0.306..+0.506.
+    # Detectable = (2.262157 + 0.883404)*0.17951... = 0.56464... -> 0.565.
+    # (With the normal 1.96 / 0.8416 it was -0.252..+0.452 and 0.503: too tight for 10 pairs.)
     _assert_hand_arithmetic()
 
 
@@ -272,11 +275,48 @@ def test_summary_lines_new_payload_adds_precision_lines() -> None:
 
 
 def test_wrong_reason_control_constant(monkeypatch: pytest.MonkeyPatch) -> None:
-    """Flipping the 95% quantile (1.96 -> 1.0) must break the hand-arithmetic
+    """Flipping the 95% quantile (t -> 1.0) must break the hand-arithmetic
     assertions, so test (a) cannot pass for the wrong reason."""
-    monkeypatch.setattr(fgc, "DIFFERENCE_Z95", 1.0)
+    monkeypatch.setattr(fgc, "student_t_quantile", lambda p, df: 1.0)
     with pytest.raises(AssertionError):
         _assert_hand_arithmetic()
+
+
+def test_wrong_reason_control_normal_quantiles(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Falling back to the normal 1.96 / 0.8416 (the pre-#1074 code) must break them too."""
+    monkeypatch.setattr(
+        fgc,
+        "student_t_quantile",
+        lambda p, df: fgc.DIFFERENCE_Z95 if p > 0.9 else fgc.DIFFERENCE_Z80,
+    )
+    with pytest.raises(AssertionError):
+        _assert_hand_arithmetic()
+
+
+def test_the_interval_uses_t_for_few_pairs_and_converges_to_normal_for_many() -> None:
+    # 12 alternating +1 / -1 pairs: mean 0, sd = sqrt(12/11), half width = t(0.975, 11) * sd / sqrt(12)
+    # = 2.200985 * 1.044466 / 3.464102 = 0.66362 (the normal 1.96 gave 0.5909, 11% too tight).
+    interval, _ = fgc._paired_difference_stats([1.0, -1.0] * 6)
+    assert interval is not None
+    assert round(interval.high, 4) == 0.6636
+    assert round(interval.low, 4) == -0.6636
+    # Control: with 2000 pairs the t quantile is within 0.1% of 1.96, so nothing changes there.
+    many, _ = fgc._paired_difference_stats([1.0, -1.0] * 1000)
+    assert many is not None
+    sd = math.sqrt(2000 / 1999)
+    assert many.high == pytest.approx(1.96 * sd / math.sqrt(2000), rel=1e-3)
+
+
+def test_the_interval_covers_the_true_mean_at_the_nominal_rate_for_ten_pairs() -> None:
+    # Simulated normal pairs with a known mean of 0: the 95% interval must cover it about 95% of
+    # the time. The old normal quantile covered about 92% at 10 pairs.
+    rng = random.Random(1074)
+    trials, covered = 1500, 0
+    for _ in range(trials):
+        interval, _ = fgc._paired_difference_stats([rng.gauss(0.0, 0.5) for _ in range(10)])
+        assert interval is not None
+        covered += interval.low <= 0.0 <= interval.high
+    assert covered / trials >= 0.935
 
 
 def test_planned_detectable_difference() -> None:
@@ -363,9 +403,9 @@ def test_cluster_difference_stats_matches_iid_when_one_pair_per_seed() -> None:
     assert interval.high == pytest.approx(iid_interval.high)
     assert detectable == pytest.approx(iid_detectable)
     assert round(se, 4) == 0.1795
-    assert round(interval.low, 3) == -0.252
-    assert round(interval.high, 3) == 0.452
-    assert round(detectable, 3) == 0.503
+    assert round(interval.low, 3) == -0.306
+    assert round(interval.high, 3) == 0.506
+    assert round(detectable, 3) == 0.565
 
 
 def test_student_t_quantile_reference_values_and_validation() -> None:

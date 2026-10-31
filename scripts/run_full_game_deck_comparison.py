@@ -56,13 +56,12 @@ from commander_lab.engine.rules.full_game_batch import (
     execution_identity_of,
 )
 from commander_lab.engine.rules.full_game_comparison import (
-    DIFFERENCE_Z80,
-    DIFFERENCE_Z95,
     DeckComparisonReport,
     DeckComparisonSpec,
     SwapSpecError,
     aggregate_comparison,
     apply_swaps,
+    difference_quantiles,
     pairs_needed,
     parse_swaps,
     plan_comparison_cases,
@@ -216,7 +215,11 @@ def _precision_lines(row: dict[str, Any]) -> list[str]:
         or pairs < 2
     ):
         return []
-    sd = detectable * math.sqrt(pairs) / (DIFFERENCE_Z95 + DIFFERENCE_Z80)
+    # The detectable difference is (t95 + t80) * sd / sqrt(pairs) with pairs - 1 degrees of
+    # freedom since #1074; a payload stored before it used the normal 1.96 + 0.8416, so its
+    # recovered sd is low by the ratio of the two (about 5% at 24 pairs).
+    q95, q80 = difference_quantiles(pairs - 1)
+    sd = detectable * math.sqrt(pairs) / (q95 + q80)
     lines = [
         f"{row['variant_deck_id']} vs {row['baseline_deck_id']}: "
         f"difference {difference:+.2f} "
