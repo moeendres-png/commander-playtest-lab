@@ -21,6 +21,7 @@ from ..full_game_pilot_views import (
     is_unsuspendable_target,
     named_choice_rank,
     named_counter_piles,
+    needed_colors,
     needs_commander_target,
     own_counter_stacks,
     own_counters_by_kind,
@@ -995,9 +996,16 @@ class _ChoiceDecisions(_PaymentDecisions):
                     facts = card_facts(str(entry.get("name") or ""))
                     if facts is not None:
                         identity |= facts.color_identity
+            # A payment inside the payment (a mana ability with a cost of its own) leaves only
+            # its generic cost behind; the colour it adds must serve the payment around it:
+            # Hall of Oracles picked red for a Shriekmaw that needed {B}, and the cast was
+            # cancelled (#989 phase 6).
+            unpaid = self._last_unpaid_mana.get(seat, "")
+            if not needed_colors(unpaid):
+                unpaid = self._outer_unpaid_mana.get(seat) or unpaid
             ranked = color_choice_rank(
                 options,
-                unpaid_mana=self._last_unpaid_mana.get(seat, ""),
+                unpaid_mana=unpaid,
                 hand_names=hand_names,
                 identity=identity,
             )

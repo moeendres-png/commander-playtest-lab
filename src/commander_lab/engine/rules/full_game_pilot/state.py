@@ -215,6 +215,11 @@ class _PolicyState:
         # mana this seat's current payment still needs (for colour picks).
         self._own_cast_names: dict[int, list[str]] = {}
         self._last_unpaid_mana: dict[int, str] = {}
+        # What the spell or ability being paid still needs, as the last payment of anything but
+        # a mana ability saw it. A mana ability with a cost of its own (Hall of Oracles'
+        # "{1}, {T}: Add one mana of any color") opens a payment inside the payment, and that
+        # one overwrites ``_last_unpaid_mana`` with its own "{1}" before the colour pick.
+        self._outer_unpaid_mana: dict[int, str] = {}
         # The mana-payment offer a seat last answered (options, unpaid cost, chosen option id),
         # kept while only its own follow-up prompts come back, so that a colour pick for the
         # mana ability it just chose can see what the rest of the payment still needs.

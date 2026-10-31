@@ -82,6 +82,54 @@ def test_two_failed_games_are_not_identical(tmp_path: Path) -> None:
     assert _compare(tmp_path, games, games) == 1
 
 
+def _timed_report(path: Path, *, workers: int, total_wall_s: float | None, wall: float) -> Path:
+    doc: dict = {
+        "workers": workers,
+        "games_per_jvm": 9,
+        "games": [
+            {"pod": "p1", "seed": seed, "status": "ok", "semantic": f"s{seed}"}
+            | {"wall_s": wall, "child_cpu_s": 2 * wall}
+            for seed in (1, 2)
+        ],
+    }
+    if total_wall_s is not None:
+        doc["total_wall_s"] = total_wall_s
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    return path
+
+
+def test_compare_gives_no_cpu_percentage_for_runs_with_several_workers(
+    tmp_path: Path, capsys
+) -> None:
+    # Per-game CPU and wall of overlapping games are not additive (#1075): the sums say -50 %
+    # here, the elapsed times say +20 %.
+    a = _timed_report(tmp_path / "a.json", workers=4, total_wall_s=100.0, wall=40.0)
+    b = _timed_report(tmp_path / "b.json", workers=4, total_wall_s=120.0, wall=20.0)
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    out = capsys.readouterr().out
+    assert "identical 2/2" in out
+    assert "cpu  n/a" in out and "elapsed 100.0 -> 120.0 s (+20.0 %)" in out
+    assert "wall 80.0" not in out and "cpu  160.0" not in out
+
+
+def test_compare_keeps_the_sums_for_single_worker_runs(tmp_path: Path, capsys) -> None:
+    # Control: with one worker the sums are real time, as before.
+    a = _timed_report(tmp_path / "a.json", workers=1, total_wall_s=100.0, wall=40.0)
+    b = _timed_report(tmp_path / "b.json", workers=1, total_wall_s=70.0, wall=30.0)
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    out = capsys.readouterr().out
+    assert "wall 80.0 -> 60.0 s (-25.0 %)" in out and "cpu  160.0 -> 120.0 s (-25.0 %)" in out
+    assert "NOTE" not in out and "n/a" not in out
+
+
+def test_compare_warns_when_the_worker_counts_differ(tmp_path: Path, capsys) -> None:
+    a = _timed_report(tmp_path / "a.json", workers=1, total_wall_s=100.0, wall=40.0)
+    b = _timed_report(tmp_path / "b.json", workers=4, total_wall_s=None, wall=10.0)
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    out = capsys.readouterr().out
+    assert "NOTE workers 1 -> 4" in out and "elapsed n/a" in out
+
+
 def test_compare_names_games_present_in_only_one_file(tmp_path: Path, capsys) -> None:
     a = [("p1", 1, "ok", "s1"), ("p1", 2, "ok", "s2")]
     assert _compare(tmp_path, a, a[:1]) == 1
@@ -331,6 +379,15 @@ def _git(repo: Path, *args: str) -> str:
     return done.stdout.strip()
 
 
+# Files that decide the 36-seed hashes without being pilot code (#1076).
+_HASH_INPUTS = (
+    "data/cards/pilot_card_knowledge.json",
+    "data/decks/rogshai_current.json",
+    "scripts/run_real_4p_full_game_smoke.py",
+    "engine-bridge/pom.xml",
+)
+
+
 def _reference_repo(tmp_path: Path) -> tuple[Path, Path]:
     """A throw-away repo that has a reference commit, a pilot sibling module and an unrelated file."""
     repo = tmp_path / "repo"
@@ -343,6 +400,9 @@ def _reference_repo(tmp_path: Path) -> tuple[Path, Path]:
     (rules / "full_game_pilot/payment.py").write_text("x = 1\n", encoding="utf-8")
     (rules / "full_game_pilot_mana_hold.py").write_text("y = 1\n", encoding="utf-8")
     (rules / "full_game.py").write_text("z = 1\n", encoding="utf-8")
+    for relative in (*_HASH_INPUTS, "docs/note.md"):
+        (repo / relative).parent.mkdir(parents=True, exist_ok=True)
+        (repo / relative).write_text("v1\n", encoding="utf-8")
     _git(repo, "init", "-q")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "reference")
@@ -369,10 +429,35 @@ def test_a_change_only_in_a_sibling_pilot_module_makes_the_reference_stale(tmp_p
     assert res["changed_files"] == ("src/commander_lab/engine/rules/full_game_pilot_mana_hold.py",)
 
 
-def test_a_change_outside_the_pilot_paths_keeps_the_reference_current(tmp_path: Path) -> None:
+def test_a_change_outside_the_watched_paths_keeps_the_reference_current(tmp_path: Path) -> None:
     module = _module()
     repo, doc = _reference_repo(tmp_path)
-    other = repo / "src/commander_lab/engine/rules/full_game.py"
-    other.write_text("z = 2\n", encoding="utf-8")
+    (repo / "docs/note.md").write_text("v2\n", encoding="utf-8")
     _git(repo, "commit", "-q", "-am", "unrelated")
     assert module.check_reference_staleness(doc_path=doc, repo_root=repo)["stale"] is False
+
+
+@pytest.mark.parametrize(
+    "relative",
+    ["src/commander_lab/engine/rules/full_game.py", *_HASH_INPUTS],
+)
+def test_a_change_to_an_input_of_the_hashes_makes_the_reference_stale(
+    tmp_path: Path, relative: str
+) -> None:
+    # The hashes depend on the card knowledge the pilot reads, the pod decks, the script that
+    # builds pod and pilot configuration, the engine pom and the module that forms the hash
+    # (#1076): none of them is pilot code, and the watcher used to call the reference current.
+    module = _module()
+    repo, doc = _reference_repo(tmp_path)
+    (repo / relative).write_text("v2\n", encoding="utf-8")
+    _git(repo, "commit", "-q", "-am", "input")
+    res = module.check_reference_staleness(doc_path=doc, repo_root=repo)
+    assert res["stale"] is True
+    assert res["changed_files"] == (relative,)
+
+
+def test_every_pod_deck_of_the_smoke_script_is_watched() -> None:
+    module = _module()
+    decks = {str(path) for path in module.smoke.REAL_DECK_PATHS}
+    assert len(decks) == 4
+    assert decks <= set(module.REFERENCE_WATCHED_PATHS)

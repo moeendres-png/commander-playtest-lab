@@ -388,17 +388,28 @@ def sign_test_p_value(variant_only: int, baseline_only: int) -> float:
     return min(1.0, 2 * tail)
 
 
+def difference_quantiles(df: int) -> tuple[float, float]:
+    """Student-t quantiles for the interval and the detectable difference (#1074).
+
+    Two-sided 95% (``F^-1(0.975)``) and one-sided 80% (``F^-1(0.80)``) for ``df`` degrees of
+    freedom. The spread comes from the sample, so the normal quantiles 1.96 / 0.8416 are too
+    narrow for few pairs: at 12 pairs t(11) = 2.20 against 1.96 (11% too tight), at 24 pairs
+    t(23) = 2.07 (5.6%).
+    """
+    return student_t_quantile(0.975, df), student_t_quantile(0.80, df)
+
+
 def _paired_difference_stats(
     differences: Sequence[float],
 ) -> tuple[DifferenceInterval | None, float | None]:
     """95% interval and 80%-power detectable difference of the mean difference.
 
-    Normal approximation on the sample standard deviation of the per-pair
-    differences ``d_i`` (variant share minus baseline share): the interval is
-    ``mean(d) +/- 1.96 * sd / sqrt(n)`` and the detectable difference
-    ``(1.96 + 0.8416) * sd / sqrt(n)`` (#870). Returns ``(None, None)`` for
-    fewer than 2 pairs or zero spread: with no variation the run saw nothing
-    to put an interval on.
+    Student-t on the sample standard deviation of the per-pair differences ``d_i`` (variant
+    share minus baseline share) with ``n - 1`` degrees of freedom: the interval is
+    ``mean(d) +/- t(0.975, n-1) * sd / sqrt(n)`` and the detectable difference
+    ``(t(0.975, n-1) + t(0.80, n-1)) * sd / sqrt(n)`` (#870; t instead of the normal quantiles
+    1.96 / 0.8416 since #1074). Returns ``(None, None)`` for fewer than 2 pairs or zero spread:
+    with no variation the run saw nothing to put an interval on.
     """
     n = len(differences)
     if n < 2:
@@ -407,10 +418,11 @@ def _paired_difference_stats(
     sd = math.sqrt(sum((d - mean) ** 2 for d in differences) / (n - 1))
     if sd == 0.0:
         return None, None
-    half_width = DIFFERENCE_Z95 * sd / math.sqrt(n)
+    q95, q80 = difference_quantiles(n - 1)
+    half_width = q95 * sd / math.sqrt(n)
     return (
         DifferenceInterval(low=mean - half_width, high=mean + half_width),
-        (DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / math.sqrt(n),
+        (q95 + q80) * sd / math.sqrt(n),
     )
 
 
@@ -470,9 +482,9 @@ def cluster_difference_stats(
 
     Treats each distinct seed as an independent cluster of seat-rotation pairs.
     Uses Liang-Zeger / CR1 degrees-of-freedom correction G / (G - 1) and Student's t
-    quantiles with G - 1 degrees of freedom when clusters hold multiple pairs (N > G).
-    When every cluster has size 1 (G == N), there is no within-seed clustering and
-    this is bit-identical to the i.i.d. paired interval and standard error sd / sqrt(N).
+    quantiles with G - 1 degrees of freedom. When every cluster has size 1 (G == N), there is
+    no within-seed clustering and this equals the i.i.d. paired interval (also t with N - 1
+    degrees of freedom since #1074) and the standard error sd / sqrt(N).
     Returns (None, None, None) for N < 2 or G < 2.
     Returns (None, None, 0.0) when se_cluster == 0.0.
     """
@@ -491,16 +503,7 @@ def cluster_difference_stats(
     se_cluster = math.sqrt(se_cluster_sq)
     if se_cluster == 0.0:
         return None, None, 0.0
-    if g == n:
-        sd = math.sqrt(sum_u_sq / (n - 1))
-        half_width = DIFFERENCE_Z95 * sd / math.sqrt(n)
-        return (
-            DifferenceInterval(low=mean - half_width, high=mean + half_width),
-            (DIFFERENCE_Z95 + DIFFERENCE_Z80) * sd / math.sqrt(n),
-            sd / math.sqrt(n),
-        )
-    q95 = student_t_quantile(0.975, g - 1)
-    q80 = student_t_quantile(0.80, g - 1)
+    q95, q80 = difference_quantiles(g - 1)
     half_width = q95 * se_cluster
     return (
         DifferenceInterval(low=mean - half_width, high=mean + half_width),
@@ -753,7 +756,7 @@ def reanalyze_paired_variant(
         half = 0.5 * (
             paired.cluster_difference_interval_95.high - paired.cluster_difference_interval_95.low
         )
-        if source_quantiles == "z" or g == n:
+        if source_quantiles == "z":
             se_cluster = half / DIFFERENCE_Z95
         else:
             se_cluster = half / student_t_quantile(0.975, g - 1)
@@ -767,12 +770,7 @@ def reanalyze_paired_variant(
         z_half = DIFFERENCE_Z95 * se_cluster
         z_interval = DifferenceInterval(low=mean - z_half, high=mean + z_half)
         z_detectable = (DIFFERENCE_Z95 + DIFFERENCE_Z80) * se_cluster
-        if g == n:
-            t_q95 = DIFFERENCE_Z95
-            t_q80 = DIFFERENCE_Z80
-        else:
-            t_q95 = student_t_quantile(0.975, g - 1)
-            t_q80 = student_t_quantile(0.80, g - 1)
+        t_q95, t_q80 = difference_quantiles(g - 1)
         t_half = t_q95 * se_cluster
         t_interval = DifferenceInterval(low=mean - t_half, high=mean + t_half)
         t_detectable = (t_q95 + t_q80) * se_cluster
@@ -1154,6 +1152,7 @@ __all__ = [
     "apply_swaps",
     "case_id",
     "cluster_difference_stats",
+    "difference_quantiles",
     "finishing_scores",
     "format_reanalysis_summary",
     "pairs_needed",

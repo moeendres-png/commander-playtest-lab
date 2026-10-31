@@ -59,6 +59,14 @@ REFERENCE_WATCHED_PATHS: tuple[str, ...] = (
     "src/commander_lab/agents",
     "engine-bridge/src/main",
     "config/rules_engines.json",
+    # Inputs that decide the 36-seed hashes without being pilot code (#1076): the card knowledge
+    # the pilot reads, the engine pom, the module that forms the hash, the script that builds
+    # pod and pilot configuration, and the four pod decks (listed once, in that script).
+    "data/cards/pilot_card_knowledge.json",
+    "engine-bridge/pom.xml",
+    "src/commander_lab/engine/rules/full_game.py",
+    "scripts/run_real_4p_full_game_smoke.py",
+    *(str(path) for path in smoke.REAL_DECK_PATHS),
 )
 
 
@@ -275,10 +283,41 @@ def compare(args: argparse.Namespace) -> int:
         print("DIFFERENT", key, *(d[key].get("semantic") or d[key]["status"] for d in (a, b)))
     if missing:
         print(f"MISSING {missing} game(s) present in only one file")
+    _print_time_comparison(base, other, wall, cpu)
+    return 1 if differ or missing else 0
+
+
+def _print_time_comparison(
+    base: dict[str, Any], other: dict[str, Any], wall: list[float], cpu: list[float]
+) -> None:
+    """Time lines of ``compare``: per-game sums only where they mean something (#1075).
+
+    A game's ``child_cpu_s`` is the RUSAGE_CHILDREN difference of the whole process, so with
+    ``--workers N > 1`` every game also counts the CPU of the games that overlap it, and the
+    sum of the per-game ``wall_s`` is not elapsed time. Such files compare by ``total_wall_s``
+    only; files recorded with different worker counts are not comparable at all.
+    """
+    workers = [int(doc.get("workers") or 1) for doc in (base, other)]
+    batches = [doc.get("games_per_jvm") for doc in (base, other)]
+    if workers[0] != workers[1] or batches[0] != batches[1]:
+        print(
+            f"NOTE workers {workers[0]} -> {workers[1]}, games_per_jvm {batches[0]} -> "
+            f"{batches[1]}: the time lines below do not compare like with like"
+        )
+    if max(workers) > 1:
+        print("cpu  n/a (workers > 1: the per-game CPU of overlapping games overlaps)")
+        totals = [doc.get("total_wall_s") for doc in (base, other)]
+        if all(isinstance(total, (int, float)) and total for total in totals):
+            print(
+                f"elapsed {totals[0]:.1f} -> {totals[1]:.1f} s "
+                f"({100 * (totals[1] / totals[0] - 1):+.1f} %)"
+            )
+        else:
+            print("elapsed n/a (a file has no total_wall_s)")
+        return
     if wall[0] and cpu[0]:
         print(f"wall {wall[0]:.1f} -> {wall[1]:.1f} s ({100 * (wall[1] / wall[0] - 1):+.1f} %)")
         print(f"cpu  {cpu[0]:.1f} -> {cpu[1]:.1f} s ({100 * (cpu[1] / cpu[0] - 1):+.1f} %)")
-    return 1 if differ or missing else 0
 
 
 def parse_reference_metadata(doc_path: Path) -> dict[str, str]:

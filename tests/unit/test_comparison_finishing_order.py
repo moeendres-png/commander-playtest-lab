@@ -266,7 +266,7 @@ def _placement_script() -> dict[tuple[str, int], tuple[tuple[int, ...], list[dic
 def test_aggregate_comparison_placement_difference() -> None:
     # (e) Hand-computed: d = [-1.0, +1.0, 1/3], mean 1/9.
     # sd = sqrt(((10/9)^2 + (8/9)^2 + (2/9)^2) / 2) = sqrt(28/27);
-    # 95% half-width = 1.96 * sd / sqrt(3).
+    # 95% half-width = t(0.975, df=2) * sd / sqrt(3) = 4.302653 * sd / sqrt(3) (#1074).
     spec = _spec((1, 2, 3))
     cases = plan_comparison_cases(spec)
     report = aggregate_comparison(spec, _report(_records(cases, _placement_script())))
@@ -274,7 +274,7 @@ def test_aggregate_comparison_placement_difference() -> None:
     assert paired.placement_pairs == 3
     assert paired.placement_difference == pytest.approx(1 / 9)
     mean, sd = 1 / 9, math.sqrt(28 / 27)
-    half = 1.96 * sd / math.sqrt(3)
+    half = 4.302652729911275 * sd / math.sqrt(3)
     assert paired.placement_difference_interval_95 is not None
     assert paired.placement_difference_interval_95.low == pytest.approx(mean - half)
     assert paired.placement_difference_interval_95.high == pytest.approx(mean + half)
