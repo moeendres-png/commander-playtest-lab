@@ -43,6 +43,7 @@ def _discard(
     count: int = 1,
     outcome: str = "discard",
     zone: str = "hand",
+    offset: int = 1,
 ) -> list[str]:
     """Names the pilot discards, from a frame shaped like the engine's discard choice."""
     options = [
@@ -63,6 +64,7 @@ def _discard(
         context={"outcome": outcome},
         state=_discard_state(hand, lands_on_board),
         prompt="Select a card to discard",
+        offset=offset,
     )
     request["minimum_selections"] = count
     request["maximum_selections"] = count
@@ -96,19 +98,33 @@ def test_a_discard_of_two_takes_both_surplus_lands() -> None:
 
 
 def test_other_outcomes_keep_the_generic_ranking() -> None:
-    # Control: the same hand under a neutral outcome is not a discard, so the old rule
-    # (the last label) still applies and the hand valuation is not used.
-    assert _discard(["Plains", "Savannah Lions"], lands_on_board=5, outcome="neutral") == [
-        "Savannah Lions"
-    ]
+    # Control: the same hand under a neutral outcome is not a discard, so the hand valuation is
+    # not used. The generic ranking scores both cards alike and the seeded rng of the decision
+    # breaks the tie (it was the last label before the tie-break): both cards turn up, where the
+    # hand valuation would give Plains every time.
+    picks = {
+        tuple(_discard(["Plains", "Savannah Lions"], lands_on_board=5, outcome="neutral", offset=n))
+        for n in range(1, 41)
+    }
+    assert picks == {("Plains",), ("Savannah Lions",)}
 
 
 def test_cards_outside_the_hand_keep_the_generic_ranking() -> None:
     # Control: a "discard" outcome over cards that are not in the actor's hand is not ranked
-    # by the hand valuation.
-    assert _discard(["Plains", "Savannah Lions"], lands_on_board=5, zone="graveyard") == [
-        "Savannah Lions"
-    ]
+    # by the hand valuation either.
+    picks = {
+        tuple(_discard(["Plains", "Savannah Lions"], lands_on_board=5, zone="graveyard", offset=n))
+        for n in range(1, 41)
+    }
+    assert picks == {("Plains",), ("Savannah Lions",)}
+
+
+def test_the_hand_valuation_does_not_depend_on_the_rng() -> None:
+    picks = {
+        tuple(_discard(["Plains", "Savannah Lions"], lands_on_board=5, offset=n))
+        for n in range(1, 41)
+    }
+    assert picks == {("Plains",)}
 
 
 def _view(name: str, mana_cost: float, *, land: bool) -> PilotActionView:
