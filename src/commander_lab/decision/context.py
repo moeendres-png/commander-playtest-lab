@@ -8,6 +8,8 @@ from dataclasses import asdict, dataclass
 from enum import StrEnum
 from pathlib import Path
 
+from commander_lab.owner_data import owner_data_path
+
 
 class DecisionContextError(ValueError):
     """Raised when deck/candidate decision context is missing or contradictory."""
@@ -354,12 +356,20 @@ def load_decision_context_registry(
     """
 
     root_path = Path(root).resolve()
-    scope_path = root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+    scope_path = owner_data_path(
+        root_path, "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+    )
     manifest_path = root_path / "data/decks/manifest.json"
-    inventory_path = root_path / "data/canonical_import/2026-08-07/inventory_snapshot.json"
-    allocation_path = root_path / "data/collections/current_deck_allocations.json"
-    candidate_path = root_path / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
-    opponent_path = root_path / "data/collections/current/POD_SCENARIOS_CURRENT.json"
+    inventory_path = owner_data_path(
+        root_path, "data/canonical_import/2026-08-07/inventory_snapshot.json"
+    )
+    allocation_path = owner_data_path(root_path, "data/collections/current_deck_allocations.json")
+    candidate_path = owner_data_path(
+        root_path, "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    )
+    opponent_path = owner_data_path(
+        root_path, "data/collections/current/POD_SCENARIOS_CURRENT.json"
+    )
 
     scope = _load_json(scope_path)
     manifest = _load_json(manifest_path)

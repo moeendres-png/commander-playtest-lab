@@ -6,6 +6,7 @@ from pathlib import Path
 
 from commander_lab.canonical_features import load_canonical_feature_annotations
 from commander_lab.models import CardRole
+from commander_lab.owner_data import owner_data_path
 from commander_lab.repositories.candidates import inventory_rows
 from commander_lab.semantic_features import rules_text, structural_roles_from_oracle
 
@@ -54,7 +55,7 @@ def _has_oracle_text(row: object) -> bool:
 
 def _canonical_inventory_facts(root: Path) -> dict[str, dict[str, object]]:
     records: dict[str, dict[str, object]] = {}
-    path = root / "data/canonical_import/2026-08-07/inventory.json"
+    path = owner_data_path(root, "data/canonical_import/2026-08-07/inventory.json")
     if path.exists():
         payload = json.loads(path.read_text(encoding="utf-8"))
         rows = payload.get("cards", []) if isinstance(payload, dict) else []

@@ -11,6 +11,8 @@ import json
 from pathlib import Path
 from typing import TypedDict, cast
 
+from commander_lab.owner_data import owner_data_path
+
 
 class CardRulesCoverageFile(TypedDict, total=False):
     """``data/rules/card_rules_coverage.json``."""
@@ -53,7 +55,7 @@ class CanonicalDeckListsFile(TypedDict, total=False):
 
 def read_optional_json_as[Shape](root: Path, relative: str, shape: type[Shape]) -> Shape:
     """Read ``root/relative`` as ``shape`` (a TypedDict); an absent file reads as ``{}``."""
-    path = root / relative
+    path = owner_data_path(root, relative)
     if not path.exists():
         return cast(Shape, {})
     return cast(Shape, json.loads(path.read_text(encoding="utf-8")))

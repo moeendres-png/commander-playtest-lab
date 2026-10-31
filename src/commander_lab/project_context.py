@@ -9,6 +9,7 @@ from typing import Any
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
 from commander_lab.models import Deck
+from commander_lab.owner_data import owner_data_path
 from commander_lab.storage import compute_deck_hash
 
 
@@ -136,7 +137,7 @@ def _feature_source_hashes(root: Path, manifest: dict[str, Any]) -> dict[str, st
         if not isinstance(drive_id, str) or not isinstance(digest, str) or len(digest) != 64:
             raise ProjectContextError(f"invalid feature source identity: {source_name}")
         hashes[f"drive_feature:{source_name}:{drive_id}"] = digest
-    projection_root = root / "data/collections/current/rogshai_feature_projection"
+    projection_root = owner_data_path(root, "data/collections/current/rogshai_feature_projection")
     parts = manifest.get("parts")
     if not isinstance(parts, list) or not parts:
         raise ProjectContextError("canonical feature manifest has no projection parts")
@@ -316,23 +317,34 @@ def _policy_config_hashes(root: Path) -> tuple[tuple[str, str], ...]:
 def load_project_context(root: str | Path) -> ProjectContextSnapshot:
     root_path = Path(root).resolve()
     paths = {
-        "active_scope": root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json",
-        "playstyle_preference": root_path
-        / "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json",
-        "inactive_deck_releases": root_path
-        / "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json",
-        "pod_scenarios": root_path / "data/collections/current/POD_SCENARIOS_CURRENT.json",
+        "active_scope": owner_data_path(
+            root_path, "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+        ),
+        "playstyle_preference": owner_data_path(
+            root_path, "data/collections/current/PLAYSTYLE_PREFERENCE_CURRENT.json"
+        ),
+        "inactive_deck_releases": owner_data_path(
+            root_path, "data/collections/current/INACTIVE_FORMER_OWN_DECK_RELEASES.json"
+        ),
+        "pod_scenarios": owner_data_path(
+            root_path, "data/collections/current/POD_SCENARIOS_CURRENT.json"
+        ),
         "opponent_registry": root_path / "data/opponents/opponent_registry.json",
         "pilot_registry": root_path / "data/pilots/pilot_registry.json",
         "deck_manifest": root_path / "data/decks/manifest.json",
         "deck_decision_registry": root_path / "config/deck_decision_registry.json",
-        "inventory_snapshot": root_path
-        / "data/canonical_import/2026-08-07/inventory_snapshot.json",
-        "allocation_snapshot": root_path / "data/collections/current_deck_allocations.json",
-        "candidate_eligibility": root_path
-        / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json",
-        "feature_projection_manifest": root_path
-        / "data/collections/current/rogshai_feature_projection/manifest.json",
+        "inventory_snapshot": owner_data_path(
+            root_path, "data/canonical_import/2026-08-07/inventory_snapshot.json"
+        ),
+        "allocation_snapshot": owner_data_path(
+            root_path, "data/collections/current_deck_allocations.json"
+        ),
+        "candidate_eligibility": owner_data_path(
+            root_path, "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+        ),
+        "feature_projection_manifest": owner_data_path(
+            root_path, "data/collections/current/rogshai_feature_projection/manifest.json"
+        ),
         "protected_cards": root_path / "config/protected_cards.json",
     }
     source_hash_dict = {name: _sha256_file(path) for name, path in paths.items()}

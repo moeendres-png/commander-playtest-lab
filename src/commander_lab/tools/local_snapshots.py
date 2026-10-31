@@ -10,6 +10,7 @@ from commander_lab.analysis import DeckValidator, validate_collection_quantities
 from commander_lab.cards.catalog import CardCatalog
 from commander_lab.importers import DeckImportOptions, PlaintextDeckImporter
 from commander_lab.models import CardIdentity, Collection, DataQuality
+from commander_lab.owner_data import owner_data_path
 from commander_lab.storage import compute_data_snapshot_hash, compute_deck_hash, save_model
 
 DECK_SPECS = {
@@ -26,7 +27,7 @@ DECK_SPECS = {
 def build_local_snapshots(root: str | Path) -> dict[str, object]:
     root_path = Path(root)
     catalog_path = root_path / "data/cards/oracle_subset.json"
-    collection_path = root_path / "data/collections/current_deck_allocations.json"
+    collection_path = owner_data_path(root_path, "data/collections/current_deck_allocations.json")
     deck_dir = root_path / "data/decks"
 
     catalog = CardCatalog.from_json(catalog_path)

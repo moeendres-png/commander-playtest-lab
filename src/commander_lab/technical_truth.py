@@ -9,6 +9,7 @@ from typing import Any
 
 from commander_lab import __version__
 from commander_lab.engine.structural import ENGINE_VERSION
+from commander_lab.owner_data import owner_data_path
 from commander_lab.project_context import ProjectContextSnapshot, load_project_context
 from commander_lab.storage.database import SCHEMA_VERSION
 
@@ -155,12 +156,16 @@ def build_technical_truth(root: str | Path) -> dict[str, Any]:
     root_path = Path(root).resolve()
     context = load_project_context(root_path)
     official_run = _official_run_truth(root_path, context)
-    pod_payload = _json_object(root_path / "data/collections/current/POD_SCENARIOS_CURRENT.json")
+    pod_payload = _json_object(
+        owner_data_path(root_path, "data/collections/current/POD_SCENARIOS_CURRENT.json")
+    )
     feature_manifest = _json_object(
-        root_path / "data/collections/current/rogshai_feature_projection/manifest.json"
+        owner_data_path(
+            root_path, "data/collections/current/rogshai_feature_projection/manifest.json"
+        )
     )
     active_scope = _json_object(
-        root_path / "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json"
+        owner_data_path(root_path, "data/collections/current/ACTIVE_OWN_DECKS_CURRENT.json")
     )
     engine_config = _json_object(root_path / "config/rules_engines.json")
 

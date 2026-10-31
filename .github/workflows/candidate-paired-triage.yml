@@ -56,6 +56,7 @@ on:
       - "src/commander_lab/candidate_workflow/**"
       - "src/commander_lab/decision/**"
       - "src/commander_lab/identity/**"
+      - "src/commander_lab/owner_data.py"
   workflow_dispatch:
 
 permissions:
