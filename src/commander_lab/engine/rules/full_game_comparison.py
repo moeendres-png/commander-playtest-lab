@@ -20,9 +20,11 @@ not Structural confirmatory evidence, and nothing here mutates a deck.
 from __future__ import annotations
 
 import hashlib
+import itertools
 import math
 from collections import Counter
 from collections.abc import Mapping, Sequence
+from statistics import NormalDist
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -656,27 +658,49 @@ def sequential_looks_planned(seed_count: int, look_every: int) -> int:
     return -(-seed_count // look_every)
 
 
-def sequential_look_alpha(significance_level: float, looks_planned: int) -> float:
-    """Per-look significance threshold for a sequential comparison (#832).
+def sequential_look_seed_counts(seed_count: int, look_every: int) -> tuple[int, ...]:
+    """Seeds played at each planned look: ``look_every, 2 * look_every, ..., seed_count``."""
+    looks = sequential_looks_planned(seed_count, look_every)
+    return tuple(min(seed_count, (index + 1) * look_every) for index in range(looks))
 
-    With ``looks_planned`` interim looks, a look may declare VARIANT_BETTER or
-    BASELINE_BETTER only when the sign-test p-value is below
-    ``significance_level / looks_planned``. This Bonferroni split is simple and
-    valid: it keeps the overall Type I error at most ``significance_level``.
-    The final look uses the same threshold.
+
+def sequential_look_alphas(
+    significance_level: float, cumulative_seeds: Sequence[int]
+) -> tuple[float, ...]:
+    """The level at which each planned look of a sequential comparison may decide (E6 stage 4).
+
+    Alpha is spent along a Lan-DeMets function of the O'Brien-Fleming type,
+    ``a(t) = 2 - 2 * Phi(z / sqrt(t))`` (``z`` the two-sided normal quantile of the level,
+    ``t`` the share of the seeds played at the look); look ``k`` may decide at the increment
+    ``a(t_k) - a(t_k-1)``. Every look's test has at most its own level, so the chance that any look
+    decides falsely is at most the sum of the increments, which is ``significance_level``: a union
+    bound that assumes nothing about how the looks depend on each other. Early looks get very small
+    levels (only overwhelming evidence stops a run early), the last one more than the equal split
+    ``significance_level / looks`` of #832, which cost power: measured error of that split was
+    0.6 to 1.8 % at a nominal 5 %.
     """
     if not 0.0 < significance_level < 1.0:
         raise ValueError("significance_level must be within (0, 1)")
-    if looks_planned < 1:
-        raise ValueError("looks_planned must be at least 1")
-    return significance_level / looks_planned
+    counts = list(cumulative_seeds)
+    if (
+        not counts
+        or counts[0] < 1
+        or any(left >= right for left, right in itertools.pairwise(counts))
+    ):
+        raise ValueError("cumulative_seeds must be positive and strictly increasing")
+    quantile = NormalDist().inv_cdf(1.0 - significance_level / 2.0)
+    spent = [
+        math.erfc(quantile / math.sqrt(2.0 * (count / counts[-1]))) for count in counts[:-1]
+    ] + [significance_level]
+    levels = [spent[0]] + [now - before for before, now in itertools.pairwise(spent)]
+    return tuple(max(level, 1e-300) for level in levels)
 
 
 def sequential_look_decided(paired: PairedVariantResult) -> bool:
     """Whether one variant's interim result stops the sequential run (#832).
 
     ``paired`` must come from an aggregation at the per-look alpha (see
-    :func:`sequential_look_alpha`): only a decided verdict, VARIANT_BETTER or
+    :func:`sequential_look_alphas`): only a decided verdict, VARIANT_BETTER or
     BASELINE_BETTER, stops the run. NO_CLEAR_DIFFERENCE and INSUFFICIENT never
     stop it; more seeds might still decide the comparison.
     """
@@ -1320,8 +1344,9 @@ __all__ = [
     "pod_decks",
     "power_table",
     "reanalyze_paired_variant",
-    "sequential_look_alpha",
+    "sequential_look_alphas",
     "sequential_look_decided",
+    "sequential_look_seed_counts",
     "sequential_looks_planned",
     "sequential_stop_now",
     "sign_test_p_value",

@@ -25,11 +25,11 @@ The report is exploratory deck-building evidence for this pilot policy and
 engine pin. It is not official campaign or holdout evidence.
 
 With ``--stop-when-decided`` the seeds run in blocks of ``--look-every`` seeds
-(default 5) in the given order. After each block the finished games are
+(default 10) in the given order. After each block the finished games are
 aggregated, and the run stops early once every variant has a decided verdict
-(VARIANT_BETTER or BASELINE_BETTER) at a Bonferroni-split per-look threshold
-(significance level divided by the number of planned looks), so the overall
-Type I error stays at 5%. The report records the sequential plan under
+(VARIANT_BETTER or BASELINE_BETTER) at the level of that look. The level comes from
+an O'Brien-Fleming-type spending of alpha over the planned looks (very small at the first
+looks, larger than alpha / looks at the last), so the overall Type I error stays at 5%. The report records the sequential plan under
 ``sequential`` and the summary says how many of the seeds were played.
 """
 
@@ -66,7 +66,8 @@ from commander_lab.engine.rules.full_game_comparison import (
     parse_swaps,
     plan_comparison_cases,
     planned_detectable_difference,
-    sequential_look_alpha,
+    sequential_look_alphas,
+    sequential_look_seed_counts,
     sequential_looks_planned,
     sequential_stop_now,
 )
@@ -450,11 +451,11 @@ def run_sequential_blocks(
 ) -> tuple[DeckComparisonReport, FullGameBatchReport, dict[str, Any]]:
     """Play seeds in blocks of ``look_every`` and stop once decided (#832).
 
-    After each block the finished games are aggregated with the Bonferroni-split
-    per-look alpha; the run stops early once every variant has a decided verdict
-    at that level. Each look aggregates over the seeds played so far (a
-    sub-spec), so unplayed seeds are never counted as censored. The final look
-    uses the same threshold. Returns the comparison report, the combined batch
+    After each block the finished games are aggregated at the alpha of that look
+    (:func:`sequential_look_alphas`, E6 stage 4); the run stops early once every
+    variant has a decided verdict at that level. Each look aggregates over the
+    seeds played so far (a sub-spec), so unplayed seeds are never counted as
+    censored. Returns the comparison report, the combined batch
     report over the blocks played, and the ``sequential`` payload for the
     report JSON.
 
@@ -465,7 +466,9 @@ def run_sequential_blocks(
     unchanged: it holds counts, not records.
     """
     looks_planned = sequential_looks_planned(len(spec.seeds), look_every)
-    per_look_alpha = sequential_look_alpha(significance_level, looks_planned)
+    look_alphas = sequential_look_alphas(
+        significance_level, sequential_look_seed_counts(len(spec.seeds), look_every)
+    )
     records: list[FullGameBatchRecord] = []
     looks_used = 0
     seeds_played = 0
@@ -489,13 +492,15 @@ def run_sequential_blocks(
             else FullGameBatchReport(**counts)
         )
         look_spec = spec.model_copy(update={"seeds": tuple(seed_list[:seeds_played])})
-        comparison = aggregate_comparison(look_spec, combined, significance_level=per_look_alpha)
+        comparison = aggregate_comparison(
+            look_spec, combined, significance_level=look_alphas[looks_used - 1]
+        )
         if sequential_stop_now(comparison.paired):
             break
     sequential = {
         "looks_planned": looks_planned,
         "looks_used": looks_used,
-        "per_look_alpha": per_look_alpha,
+        "look_alphas": list(look_alphas),
         "stopped_early": seeds_played < len(spec.seeds),
         "seeds_played": seeds_played,
     }
@@ -557,9 +562,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--look-every",
         type=int,
-        default=5,
+        default=10,
         metavar="K",
-        help="seeds per interim look with --stop-when-decided (default: 5)",
+        help="seeds per interim look with --stop-when-decided (default: 10; with four seat "
+        "rotations a look of five seeds cannot decide, see VERDICT_CLUSTER_T_2026-10-31.md)",
     )
     args = parser.parse_args(argv)
 
@@ -643,9 +649,12 @@ def main(argv: list[str] | None = None) -> int:
     sequential: dict[str, Any] | None = None
     if args.stop_when_decided:
         looks_planned = sequential_looks_planned(len(spec.seeds), args.look_every)
+        planned_alphas = sequential_look_alphas(
+            0.05, sequential_look_seed_counts(len(spec.seeds), args.look_every)
+        )
         print(
             f"sequential: {looks_planned} planned looks of {args.look_every} seeds, "
-            f"per-look alpha {sequential_look_alpha(0.05, looks_planned):.4g}"
+            "look levels " + ", ".join(f"{level:.3g}" for level in planned_alphas)
         )
 
         def run_block(block_cases: tuple[FullGameBatchCase, ...]) -> FullGameBatchReport:

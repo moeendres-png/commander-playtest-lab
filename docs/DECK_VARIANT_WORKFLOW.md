@@ -102,7 +102,11 @@ python scripts/run_full_game_deck_comparison.py \
 Every contender plays the same pods (same seeds, opponents, seats), so the
 comparison is paired. `--stop-when-decided` plays seeds in blocks of
 `--look-every` and stops early once every variant has a decided verdict at a
-Bonferroni-split per-look threshold (overall Type I error stays at 5%).
+per-look level that spends the 5% Type I error over the planned looks like an
+O'Brien-Fleming boundary (very small at the first looks, larger than 5% / looks
+at the last; four looks of ten seeds decide at 0.0001, 0.0055, 0.018, 0.026).
+A look of five seeds cannot decide with four seat rotations, so the default is
+`--look-every 10`.
 
 Reading the verdict: `VARIANT_BETTER` / `BASELINE_BETTER` — the paired games
 decided it: the sign test over the pairs is decided and, when a seed holds more
