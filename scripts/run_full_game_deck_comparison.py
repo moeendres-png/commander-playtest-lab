@@ -233,6 +233,49 @@ def _precision_lines(row: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _cluster_lines(row: dict[str, Any]) -> list[str]:
+    """The seed-cluster interval next to the pair interval (#1070, finding LAB-01).
+
+    The four seat rotations of a seed share one shuffle, so the pairs of a seed are not
+    independent; the pair-based verdict and interval above treat them as if they were. The
+    cluster-robust interval (one cluster per seed, t with G - 1 degrees of freedom) is stored in
+    the payload since #1043 but was never printed. This line prints it, and a caution when the
+    verdict is decided while that interval contains 0. The verdict itself is unchanged. Every key
+    is read with ``.get`` (payloads stored before #1043 print unchanged), and nothing is printed
+    when every seed holds a single pair, because the two intervals are then the same.
+    """
+    interval = row.get("cluster_difference_interval_95")
+    detectable = row.get("cluster_detectable_difference_80pct_power")
+    difference = row.get("win_share_difference")
+    seeds = row.get("seed_clusters_completed")
+    pairs = row.get("pairs_completed")
+    if (
+        not isinstance(interval, dict)
+        or not isinstance(interval.get("low"), (int, float))
+        or not isinstance(interval.get("high"), (int, float))
+        or not isinstance(difference, (int, float))
+        or not isinstance(seeds, int)
+        or not isinstance(pairs, int)
+        or seeds < 2
+        or seeds >= pairs
+    ):
+        return []
+    low, high = float(interval["low"]), float(interval["high"])
+    line = (
+        f"per seed ({seeds} seeds; the seat rotations of a seed share a shuffle): "
+        f"difference {difference:+.2f} (95% {low:+.2f}..{high:+.2f})"
+    )
+    if isinstance(detectable, (int, float)):
+        line += f", run could detect >= {detectable:.2f}"
+    lines = [line]
+    if row.get("verdict") in ("VARIANT_BETTER", "BASELINE_BETTER") and low <= 0.0 <= high:
+        lines.append(
+            f"CAUTION: {row['verdict']} counts every pair as independent, but the per-seed "
+            "interval contains 0; treat the verdict as not yet confirmed"
+        )
+    return lines
+
+
 def _placement_lines(row: dict[str, Any]) -> list[str]:
     """One extra line per variant with the finishing-order outcome (#875).
 
@@ -303,6 +346,7 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
             f"p={row['sign_test_p_value']:.3g})"
         )
         lines.extend(_precision_lines(row))
+        lines.extend(_cluster_lines(row))
         lines.extend(_placement_lines(row))
         lines.extend(_readiness_lines(report_json, row["variant_deck_id"]))
     sequential = report_json.get("sequential")
