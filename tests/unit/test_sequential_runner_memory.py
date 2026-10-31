@@ -24,7 +24,8 @@ import tracemalloc
 from commander_lab.engine.rules.full_game_comparison import (
     aggregate_comparison,
     plan_comparison_cases,
-    sequential_look_alpha,
+    sequential_look_alphas,
+    sequential_look_seed_counts,
     sequential_looks_planned,
 )
 from tests.unit.test_sequential_deck_comparison import (
@@ -108,6 +109,8 @@ def test_sequential_runner_memory_stays_flat() -> None:
     reference = aggregate_comparison(
         spec,
         _report(_records_for(cases, _alternating)),
-        significance_level=sequential_look_alpha(0.05, looks),
+        significance_level=sequential_look_alphas(
+            0.05, sequential_look_seed_counts(len(SEEDS), LOOK_EVERY)
+        )[-1],
     )
     assert comparison.model_dump(mode="json") == reference.model_dump(mode="json")
