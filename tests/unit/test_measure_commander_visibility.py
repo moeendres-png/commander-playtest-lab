@@ -66,16 +66,16 @@ def _find_priority_row_with_cz_option(rows: list[dict[str, object]]) -> dict[str
 def test_measure_real_pod_v1_fixture() -> None:
     """Verifies exact counted baseline metrics on the real_pod_v1 fixture.
 
-    The numbers are those of the fixture as re-recorded with the hand-value discard (#1071). The
+    The numbers are those of the fixture as re-recorded with the tie-break by rng (#1090). The
     sample holds no taxed commander cast any more; the taxed path is covered by the synthetic
     test below.
     """
     results = measure([FIXTURE])
 
-    assert results["requests_total"] == 446
+    assert results["requests_total"] == 399
     assert results["priority_requests"] == 80
-    assert results["requests_with_own_commander_damage"] == 88
-    assert results["requests_with_commander_damage_ge_14"] == 152
+    assert results["requests_with_own_commander_damage"] == 84
+    assert results["requests_with_commander_damage_ge_14"] == 161
     assert results["commander_zone_cast_options"] == 3
     assert results["commander_zone_cast_options_taxed"] == 0
     assert results["requests_with_taxed_commander_option"] == 0
@@ -182,10 +182,10 @@ def test_cli_execution_with_json_output(tmp_path: Path) -> None:
     ]
     proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     assert proc.returncode == 0, f"CLI exited with {proc.returncode}: {proc.stderr}"
-    assert "requests_total: 446" in proc.stdout
+    assert "requests_total: 399" in proc.stdout
     assert "answers_changed_without_taxed_option: 0" in proc.stdout
 
     assert json_out.is_file()
     payload = json.loads(json_out.read_text(encoding="utf-8"))
-    assert payload["requests_total"] == 446
+    assert payload["requests_total"] == 399
     assert payload["answers_changed_by_tax"] == 0
