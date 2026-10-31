@@ -46,7 +46,12 @@ RULES_ENGINES = REPO / "config" / "rules_engines.json"
 
 CARD_DIR = "Mage.Sets/src/mage/cards/"
 SET_DIR = "Mage.Sets/src/mage/sets/"
-ENGINE_PREFIXES = ("Mage/src/main/", "Mage.Server/", "Mage.Server.Plugins/", "Mage.Common/")
+ENGINE_PREFIXES = (
+    "Mage/src/main/",
+    "Mage.Server/",
+    "Mage.Server.Plugins/",
+    "Mage.Common/",
+)
 KIND_ORDER = ("engine", "card", "set", "test", "verify", "data", "ci", "other")
 ENGINE_COMMIT_LIST_LIMIT = 40
 CORE_DIR = "Mage/src/main/"
@@ -76,13 +81,25 @@ _SET_CARD_INFO = re.compile(
     r'SetCardInfo\("((?:[^"\\]|\\.)*)",\s*[^,]+,\s*Rarity\.\w+,\s*mage\.cards\.\w+\.(\w+)\.class'
 )
 _CARD_CLASS = re.compile(r"^Mage\.Sets/src/mage/cards/([a-z0-9])/(\w+)\.java$")
-_MODIFIERS = r"(?:(?:public|protected|private|static|final|abstract|default|synchronized)\s+)"
+_MODIFIERS = (
+    r"(?:(?:public|protected|private|static|final|abstract|default|synchronized)\s+)"
+)
 _DECLARATION = re.compile(
     rf"^(?P<indent>\s*)(?:@\w+(?:\([^)]*\))?\s+)*(?P<mods>{_MODIFIERS}+)?"
     r"(?:<[^>]+>\s+)?(?:(?P<type>[\w<>\[\],.? ]+?)\s+)?(?P<name>\w+)\s*\((?P<params>[^)]*)\)"
     r"(?P<tail>\s*(?:throws [\w., ]+)?\s*[{;]?)\s*$"
 )
-_NOT_A_DECLARATION = ("return", "throw", "new", "else", "if", "for", "while", "switch", "case")
+_NOT_A_DECLARATION = (
+    "return",
+    "throw",
+    "new",
+    "else",
+    "if",
+    "for",
+    "while",
+    "switch",
+    "case",
+)
 
 
 def git(repo: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
@@ -143,13 +160,22 @@ def parse_log(text: str) -> list[dict[str, Any]]:
 
 def commits_between(repo: Path, base: str, upstream: str) -> list[dict[str, Any]]:
     fmt = f"{_RECORD}%H{_FIELD}%cs{_FIELD}%an{_FIELD}%s"
-    out = git(repo, "log", "--no-merges", "--name-only", f"--format={fmt}", f"{base}..{upstream}")
+    out = git(
+        repo,
+        "log",
+        "--no-merges",
+        "--name-only",
+        f"--format={fmt}",
+        f"{base}..{upstream}",
+    )
     return parse_log(out.stdout)
 
 
 def card_class_changes(repo: Path, base: str, upstream: str) -> dict[str, str]:
     """Card class name -> ``added`` / ``modified`` / ``deleted`` between the two trees."""
-    out = git(repo, "diff", "--name-status", "--no-renames", base, upstream, "--", CARD_DIR)
+    out = git(
+        repo, "diff", "--name-status", "--no-renames", base, upstream, "--", CARD_DIR
+    )
     changes: dict[str, str] = {}
     labels = {"A": "added", "M": "modified", "D": "deleted"}
     for line in out.stdout.splitlines():
@@ -174,11 +200,15 @@ def card_names_for_classes(repo: Path, ref: str, classes: list[str]) -> dict[str
     """Class name -> card name, from the ``SetCardInfo`` registrations at ``ref``."""
     if not classes:
         return {}
-    with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False, encoding="utf-8") as handle:
+    with tempfile.NamedTemporaryFile(
+        "w", suffix=".txt", delete=False, encoding="utf-8"
+    ) as handle:
         handle.write("".join(f".{name}.class\n" for name in sorted(classes)))
         patterns = handle.name
     try:
-        out = git(repo, "grep", "-h", "-F", "-f", patterns, ref, "--", SET_DIR, check=False)
+        out = git(
+            repo, "grep", "-h", "-F", "-f", patterns, ref, "--", SET_DIR, check=False
+        )
     finally:
         Path(patterns).unlink(missing_ok=True)
     wanted = set(classes)
@@ -203,11 +233,15 @@ def registered_names(repo: Path, ref: str, cards: list[str]) -> set[str]:
     """
     if not cards:
         return set()
-    out = git(repo, "grep", "-h", "-F", 'SetCardInfo("', ref, "--", SET_DIR, check=False)
+    out = git(
+        repo, "grep", "-h", "-F", 'SetCardInfo("', ref, "--", SET_DIR, check=False
+    )
     found: set[str] = set()
     for name, _cls in registrations(out.stdout):
         found |= {fold(name), fold(front_face(name))}
-    return {card for card in cards if fold(card) in found or fold(front_face(card)) in found}
+    return {
+        card for card in cards if fold(card) in found or fold(front_face(card)) in found
+    }
 
 
 def front_face(name: str) -> str:
@@ -219,7 +253,10 @@ def deck_cards(deck_dir: Path) -> dict[str, list[str]]:
     held: dict[str, list[str]] = {}
     for path in sorted(deck_dir.glob("*.json")):
         deck = json.loads(path.read_text(encoding="utf-8"))
-        names = {entry.get("oracle_name") or entry.get("name") for entry in deck.get("cards", [])}
+        names = {
+            entry.get("oracle_name") or entry.get("name")
+            for entry in deck.get("cards", [])
+        }
         names |= set(deck.get("commander", {}).get("commanders", []))
         for name in names:
             if name:
@@ -231,7 +268,9 @@ def collection_names(path: Path) -> set[str]:
     if not path.exists():
         return set()
     return {
-        front_face(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()
+        front_face(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
     }
 
 
@@ -246,7 +285,9 @@ def missing_precon_names(report: dict[str, Any]) -> dict[str, list[str]]:
 
 def merge_conflicts(repo: Path, pin: str, upstream: str) -> dict[str, Any]:
     """Dry-run of ``git merge upstream`` into ``pin`` (object database only)."""
-    out = git(repo, "merge-tree", "--write-tree", "--name-only", pin, upstream, check=False)
+    out = git(
+        repo, "merge-tree", "--write-tree", "--name-only", pin, upstream, check=False
+    )
     lines = out.stdout.splitlines()
     if out.returncode == 0:
         return {"status": "CLEAN", "conflicted_files": []}
@@ -331,11 +372,17 @@ def scan_diff(repo: Path, base: str, upstream: str) -> dict[str, list[dict[str, 
                 for category, pattern in HAZARD_PATTERNS.items():
                     if pattern.search(text):
                         hazards.append(
-                            {"file": current, "category": category, "line": text.strip()[:160]}
+                            {
+                                "file": current,
+                                "category": category,
+                                "line": text.strip()[:160],
+                            }
                         )
             declaration = parse_declaration(text) if is_core else None
             if declaration:
-                (added if line[0] == "+" else removed).setdefault(current, []).append(declaration)
+                (added if line[0] == "+" else removed).setdefault(current, []).append(
+                    declaration
+                )
 
     signatures: list[dict[str, Any]] = []
     for path, olds in sorted(removed.items()):
@@ -381,7 +428,18 @@ def fork_callers(
     for sig in signatures:
         name = sig["name"]
         if name not in cache:
-            out = git(repo, "grep", "-l", "-F", "-e", f"{name}(", pin, "--", "*.java", check=False)
+            out = git(
+                repo,
+                "grep",
+                "-l",
+                "-F",
+                "-e",
+                f"{name}(",
+                pin,
+                "--",
+                "*.java",
+                check=False,
+            )
             cache[name] = {line.partition(":")[2] for line in out.stdout.splitlines()}
         callers = sorted((cache[name] & fork_files) - {sig["file"]})
         callers += [label for label, text in lab_texts.items() if f"{name}(" in text]
@@ -416,7 +474,9 @@ def evaluate_triggers(
         for deck in decks_with_gaps
         if all(card in gained for card, decks in missing.items() if deck in decks)
     )
-    core_conflicts = [f for f in report["merge"]["conflicted_files"] if f.startswith(CORE_DIR)]
+    core_conflicts = [
+        f for f in report["merge"]["conflicted_files"] if f.startswith(CORE_DIR)
+    ]
     hot = sorted(
         {
             path.rsplit("/", 1)[-1]
@@ -426,7 +486,9 @@ def evaluate_triggers(
         }
     )
     version = pom_version(repo, upstream)
-    base_date = date.fromisoformat(git(repo, "show", "-s", "--format=%cs", base).stdout.strip())
+    base_date = date.fromisoformat(
+        git(repo, "show", "-s", "--format=%cs", base).stdout.strip()
+    )
     weeks = (today - base_date).days // 7
     precon_card_hits = len(report["changed_cards_in_precons"])
     return {
@@ -440,7 +502,9 @@ def evaluate_triggers(
             "detail": f"upstream POM {'.'.join(map(str, version)) or 'unreadable'}",
         },
         f"T3 at least {UNBLOCKED_DECKS_THRESHOLD} blocked decks become importable": {
-            "status": "MET" if len(unblocked) >= UNBLOCKED_DECKS_THRESHOLD else "NOT_MET",
+            "status": "MET"
+            if len(unblocked) >= UNBLOCKED_DECKS_THRESHOLD
+            else "NOT_MET",
             "detail": f"{len(decks_with_gaps)} decks lack a card at the pin, "
             f"{len(unblocked)} would be complete with upstream's registrations",
         },
@@ -477,7 +541,9 @@ def build_report(
     today: date | None = None,
 ) -> dict[str, Any]:
     pin_full = git(repo, "rev-parse", "--verify", f"{pin}^{{commit}}").stdout.strip()
-    upstream_full = git(repo, "rev-parse", "--verify", f"{upstream_ref}^{{commit}}").stdout.strip()
+    upstream_full = git(
+        repo, "rev-parse", "--verify", f"{upstream_ref}^{{commit}}"
+    ).stdout.strip()
     base = git(repo, "merge-base", pin_full, upstream_full).stdout.strip()
     commits = commits_between(repo, base, upstream_full)
 
@@ -494,7 +560,9 @@ def build_report(
     owned = collection_names(collection_file)
 
     changed_cards = []
-    in_collection = 0  # a count only: which cards the Owner holds never goes into a report
+    in_collection = (
+        0  # a count only: which cards the Owner holds never goes into a report
+    )
     for cls, status in sorted(changes.items()):
         name = names.get(cls)
         in_collection += bool(name and front_face(name) in owned)
@@ -515,7 +583,9 @@ def build_report(
         hazard["card"] = card["name"] if card else None
         hazard["precon_decks"] = card["precon_decks"] if card else []
     signatures = scan["signature_changes"]
-    fork_callers(repo, pin_full, changed_files(repo, base, pin_full), signatures, lab_sources)
+    fork_callers(
+        repo, pin_full, changed_files(repo, base, pin_full), signatures, lab_sources
+    )
 
     # Cards the pin lacks: the importer's own list when given, else every precon card
     # without a registration at the pin (no JVM needed).
@@ -528,7 +598,9 @@ def build_report(
     upstream_has = registered_names(repo, upstream_full, list(missing))
     gained = {card for card in missing if card in upstream_has and card not in pin_has}
     now_implemented = [
-        {"name": card, "decks": decks} for card, decks in sorted(missing.items()) if card in gained
+        {"name": card, "decks": decks}
+        for card, decks in sorted(missing.items())
+        if card in gained
     ]
 
     engine_commits = [c for c in commits if "engine" in c["kinds"]]
@@ -540,7 +612,8 @@ def build_report(
         "commits_total": len(commits),
         "commits_by_kind": {kind: kinds[kind] for kind in KIND_ORDER if kinds[kind]},
         "engine_commits": [
-            {k: c[k] for k in ("sha", "date", "subject", "files")} for c in engine_commits
+            {k: c[k] for k in ("sha", "date", "subject", "files")}
+            for c in engine_commits
         ],
         "card_classes": {
             "added": sum(1 for c in changed_cards if c["status"] == "added"),
@@ -556,8 +629,12 @@ def build_report(
         "hazards": scan["hazards"],
         "hazards_in_precons": [h for h in scan["hazards"] if h["precon_decks"]],
         "signature_changes": signatures,
-        "signature_changes_with_fork_callers": [s for s in signatures if s["fork_callers"]],
-        "missing_precon_cards_source": "import report" if import_report else "registry at the pin",
+        "signature_changes_with_fork_callers": [
+            s for s in signatures if s["fork_callers"]
+        ],
+        "missing_precon_cards_source": "import report"
+        if import_report
+        else "registry at the pin",
         "missing_precon_cards_total": len(missing),
         "missing_precon_cards_now_implemented": now_implemented,
         "missing_precon_cards_with_pull_request": [
@@ -584,7 +661,9 @@ def render_markdown(report: dict[str, Any]) -> str:
         "| Touches | Commits |",
         "|---|---:|",
     ]
-    lines += [f"| {kind} | {count} |" for kind, count in report["commits_by_kind"].items()]
+    lines += [
+        f"| {kind} | {count} |" for kind, count in report["commits_by_kind"].items()
+    ]
     classes = report["card_classes"]
     lines += [
         "",
@@ -613,8 +692,14 @@ def render_markdown(report: dict[str, Any]) -> str:
         f"{len({h['card'] for h in report['hazards_in_precons']})}.",
     ]
     for hazard in hazards:
-        marker = f" [precon: {', '.join(hazard['precon_decks'])}]" if hazard["precon_decks"] else ""
-        lines.append(f"- {hazard['category']} `{hazard['file'].rsplit('/', 1)[-1]}`{marker}")
+        marker = (
+            f" [precon: {', '.join(hazard['precon_decks'])}]"
+            if hazard["precon_decks"]
+            else ""
+        )
+        lines.append(
+            f"- {hazard['category']} `{hazard['file'].rsplit('/', 1)[-1]}`{marker}"
+        )
     signatures = report["signature_changes"]
     hitting = report["signature_changes_with_fork_callers"]
     lines += [
@@ -625,7 +710,11 @@ def render_markdown(report: dict[str, Any]) -> str:
     for sig in signatures:
         callers = sig["fork_callers"]
         shown = ", ".join(c.rsplit("/", 1)[-1] for c in callers[:CALLER_LIST_LIMIT])
-        more = f" (+{len(callers) - CALLER_LIST_LIMIT})" if len(callers) > CALLER_LIST_LIMIT else ""
+        more = (
+            f" (+{len(callers) - CALLER_LIST_LIMIT})"
+            if len(callers) > CALLER_LIST_LIMIT
+            else ""
+        )
         now = " / ".join(f"({params})" for params in sig["new_parameters"])
         lines.append(
             f"- {sig['kind']} `{sig['name']}({sig['old_parameters']})`"
@@ -641,16 +730,22 @@ def render_markdown(report: dict[str, Any]) -> str:
             f"upstream now implements {len(implemented)}; "
             f"{len(report['missing_precon_cards_with_pull_request'])} have an upstream PR on record.",
         ]
-        lines += [f"- {item['name']} ({', '.join(item['decks'])})" for item in implemented]
+        lines += [
+            f"- {item['name']} ({', '.join(item['decks'])})" for item in implemented
+        ]
     if report["engine_commits"]:
         lines += ["", "Engine-core commits:"]
         for commit in report["engine_commits"][:ENGINE_COMMIT_LIST_LIMIT]:
-            lines.append(f"- `{commit['sha'][:10]}` {commit['date']} {commit['subject']}")
+            lines.append(
+                f"- `{commit['sha'][:10]}` {commit['date']} {commit['subject']}"
+            )
     precon_hits = report["changed_cards_in_precons"]
     if precon_hits:
         lines += ["", "Changed card classes that are in precon decks:"]
         for card in precon_hits:
-            lines.append(f"- {card['name']} ({card['status']}): {', '.join(card['precon_decks'])}")
+            lines.append(
+                f"- {card['name']} ({card['status']}): {', '.join(card['precon_decks'])}"
+            )
     return "\n".join(lines) + "\n"
 
 
@@ -658,7 +753,9 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--fork-checkout", type=Path, required=True)
     parser.add_argument("--upstream-ref", default="upstream/master")
-    parser.add_argument("--pin", default=None, help="default: primary_engine.commit of the config")
+    parser.add_argument(
+        "--pin", default=None, help="default: primary_engine.commit of the config"
+    )
     parser.add_argument("--import-report", type=Path, default=None)
     parser.add_argument(
         "--pull-requests-json",
@@ -674,7 +771,9 @@ def main() -> int:
     args = parser.parse_args()
 
     report_in = (
-        json.loads(args.import_report.read_text(encoding="utf-8")) if args.import_report else None
+        json.loads(args.import_report.read_text(encoding="utf-8"))
+        if args.import_report
+        else None
     )
     pull_requests = (
         json.loads(args.pull_requests_json.read_text(encoding="utf-8"))
