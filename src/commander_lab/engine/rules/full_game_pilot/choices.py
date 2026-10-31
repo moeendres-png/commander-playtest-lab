@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import itertools
 import random
 import re
 from collections.abc import Mapping
@@ -10,6 +11,8 @@ from typing import Any
 from commander_lab.agents.card_knowledge import card_facts
 from commander_lab.models import (
     PilotActionView,
+    PilotDecision,
+    PilotDecisionMode,
 )
 
 from ..full_game_pilot_lands import choose_lands_to_fetch, lands_on_board
@@ -292,8 +295,12 @@ class _ChoiceDecisions(_PaymentDecisions):
                     score += commander_clock_bonus(found[1], found[0], state, actor_id, outcome)
             ranked.append((score, action.card_name, action.action_id))
         ranked.sort(key=lambda item: (item[0], item[1], item[2]), reverse=True)
+        by_score = ranked
         ranked = self._rank_land_search(ranked, built, state, rng, max_selections)
+        searched = ranked is not by_score
         ranked = self._rank_own_hand_discard(runtime, state, outcome, built, ranked)
+        if not searched and ranked is by_score:
+            ranked = self._equal_scores_by_rng(ranked, rng)
 
         if max_selections <= 0:
             return []
@@ -308,6 +315,28 @@ class _ChoiceDecisions(_PaymentDecisions):
             return [raw_by_stable_id[stable_id] for _score, _label, stable_id in ranked[:take]]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable target action") from None
+
+    @staticmethod
+    def _equal_scores_by_rng(
+        ranked: list[tuple[float, str, str]], rng: random.Random
+    ) -> list[tuple[float, str, str]]:
+        """Targets that score alike come in the seeded rng's order, not the name's.
+
+        The ranking sorts by score, then card name, then id, so of two equal scores the name that
+        sorts last went first: in 24 recorded games 191 of 772 target rankings had a tie between
+        different cards, and the alphabet decided it (Quintorius over Plains, the same opponent
+        permanent every time). A group is shuffled only when it holds different card names; the
+        members are put in id order first, so the offer order does not matter, and the rng is the
+        decision's own, so a twin run draws the same.
+        """
+        ordered: list[tuple[float, str, str]] = []
+        for _score, tied in itertools.groupby(ranked, key=lambda item: round(item[0], 9)):
+            group = list(tied)
+            if len({item[1] for item in group}) > 1:
+                group.sort(key=lambda item: item[2])
+                rng.shuffle(group)
+            ordered.extend(group)
+        return ordered
 
     def _rank_own_hand_discard(
         self,
@@ -427,11 +456,46 @@ class _ChoiceDecisions(_PaymentDecisions):
         decision = runtime.pilot.choose_action(pilot_state, actions, rng)
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no semantic option")
+        selected_id = self._among_equal_scores(runtime, decision, actions, rng)
         try:
-            raw_id = raw_by_stable_id[decision.selected_action_id]
+            raw_id = raw_by_stable_id[selected_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable semantic option") from None
         return self._require_offered(raw_id, options, "semantic option")
+
+    @staticmethod
+    def _among_equal_scores(
+        runtime: _RuntimePilot,
+        decision: PilotDecision,
+        actions: list[PilotActionView],
+        rng: random.Random,
+    ) -> str:
+        """The pilot's pick, or the rng's pick among the options that tie with it.
+
+        A deterministic pilot breaks a tie of score and mana cost by the largest action id, which
+        for a semantic option is its label: of two modes or two triggers that score alike the one
+        that sorts last went first (24 recorded games: 48 of 207 trigger orders, 17 of 48 modes,
+        32 of 626 colour picks, all 3 replacement effects). Only a tie between different labels is
+        opened; a pilot that plays by a temperature already chooses at random.
+        """
+        chosen = str(decision.selected_action_id)
+        pilot = runtime.pilot
+        if (
+            pilot.config.mode != PilotDecisionMode.DETERMINISTIC
+            or decision.selected_utility is None
+        ):
+            return chosen
+        precision = pilot.policy.precision
+        cost = {action.action_id: action.mana_cost for action in actions}
+        best = (round(decision.selected_utility, precision), cost.get(chosen))
+        tied = sorted(
+            action_id
+            for action_id, utility in decision.candidates
+            if (round(utility, precision), cost.get(action_id)) == best
+        )
+        if len({action_id.rpartition(":")[0] for action_id in tied}) < 2:
+            return chosen
+        return rng.choice(tied)
 
     def _decide_mode(
         self,
