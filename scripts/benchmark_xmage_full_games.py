@@ -49,7 +49,7 @@ COVERAGE_DIR = ROOT / "data/coverage_decks/collection"
 # Five disjoint-as-possible pods over the 18 coverage decks (sorted file order).
 COVERAGE_PODS = ((0, 1, 2, 3), (4, 5, 6, 7), (8, 9, 10, 11), (12, 13, 14, 15), (16, 17, 0, 5))
 
-REFERENCE_DOC = ROOT / "docs/performance/REFERENCE_36_SEEDS_2026-10-31.md"
+REFERENCE_DOC = ROOT / "docs/performance/REFERENCE_36_SEEDS_2026-10-31b.md"
 # Paths whose changes affect pilot decisions or engine behavior and thus invalidate the reference.
 REFERENCE_WATCHED_PATHS: tuple[str, ...] = (
     "src/commander_lab/engine/rules/full_game_pilot",
