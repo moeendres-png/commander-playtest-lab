@@ -276,6 +276,36 @@ def _cluster_lines(row: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _cluster_t_lines(row: dict[str, Any]) -> list[str]:
+    """The per-seed t test next to the pair sign test (E6 stage 2).
+
+    The seat rotations of one seed share a shuffle and the pair sign test counts them as
+    independent, so a decided verdict also needs the cluster-robust t statistic (one cluster per
+    seed) to exceed the t quantile of the same level. Nothing is printed for payloads stored
+    before the field existed, or when every seed holds a single pair (the pair test then stands
+    alone). When the pair test alone was decided and the t test did not confirm it, the line says
+    so, because the verdict is then NO_CLEAR_DIFFERENCE although the pair p-value above is small.
+    """
+    statistic = row.get("cluster_t_statistic")
+    pair_verdict = row.get("pair_test_verdict")
+    seeds = row.get("seed_clusters_completed")
+    pairs = row.get("pairs_completed")
+    if not isinstance(seeds, int) or not isinstance(pairs, int) or seeds < 2 or seeds >= pairs:
+        return []
+    lines: list[str] = []
+    if isinstance(statistic, (int, float)):
+        lines.append(
+            f"per seed t test: t={statistic:+.2f} (df {row.get('cluster_t_df', seeds - 1)}); a "
+            "decided verdict needs the pair test and this t to agree"
+        )
+    if pair_verdict in ("VARIANT_BETTER", "BASELINE_BETTER"):
+        lines.append(
+            f"NOTE: the pair test alone would say {pair_verdict}; the per-seed t test does not "
+            "confirm it, so the verdict stays NO_CLEAR_DIFFERENCE"
+        )
+    return lines
+
+
 def _placement_lines(row: dict[str, Any]) -> list[str]:
     """One extra line per variant with the finishing-order outcome (#875).
 
@@ -347,6 +377,7 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
         )
         lines.extend(_precision_lines(row))
         lines.extend(_cluster_lines(row))
+        lines.extend(_cluster_t_lines(row))
         lines.extend(_placement_lines(row))
         lines.extend(_readiness_lines(report_json, row["variant_deck_id"]))
     sequential = report_json.get("sequential")
