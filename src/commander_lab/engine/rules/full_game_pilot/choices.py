@@ -311,7 +311,7 @@ class _ChoiceDecisions(_PaymentDecisions):
     def _rank_own_hand_discard(
         self,
         runtime: _RuntimePilot,
-        state: dict[str, Any],
+        state: dict[str, object],
         outcome: str,
         built: list[tuple[dict[str, object], PilotActionView]],
         ranked: list[tuple[float, str, str]],
