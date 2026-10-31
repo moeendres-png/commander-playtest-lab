@@ -189,6 +189,7 @@ def test_family_invariants_on_random_scripts() -> None:
             for index in range(1, count + 1)
         }
         family = _by_id(_run(script))
+        assert set(family) == set(script)
         for name, result in family.items():
             (alone,) = _run({name: script[name]})
             assert result.holm_adjusted_p_value is not None
