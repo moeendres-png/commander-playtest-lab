@@ -82,6 +82,54 @@ def test_two_failed_games_are_not_identical(tmp_path: Path) -> None:
     assert _compare(tmp_path, games, games) == 1
 
 
+def _timed_report(path: Path, *, workers: int, total_wall_s: float | None, wall: float) -> Path:
+    doc: dict = {
+        "workers": workers,
+        "games_per_jvm": 9,
+        "games": [
+            {"pod": "p1", "seed": seed, "status": "ok", "semantic": f"s{seed}"}
+            | {"wall_s": wall, "child_cpu_s": 2 * wall}
+            for seed in (1, 2)
+        ],
+    }
+    if total_wall_s is not None:
+        doc["total_wall_s"] = total_wall_s
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    return path
+
+
+def test_compare_gives_no_cpu_percentage_for_runs_with_several_workers(
+    tmp_path: Path, capsys
+) -> None:
+    # Per-game CPU and wall of overlapping games are not additive (#1075): the sums say -50 %
+    # here, the elapsed times say +20 %.
+    a = _timed_report(tmp_path / "a.json", workers=4, total_wall_s=100.0, wall=40.0)
+    b = _timed_report(tmp_path / "b.json", workers=4, total_wall_s=120.0, wall=20.0)
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    out = capsys.readouterr().out
+    assert "identical 2/2" in out
+    assert "cpu  n/a" in out and "elapsed 100.0 -> 120.0 s (+20.0 %)" in out
+    assert "wall 80.0" not in out and "cpu  160.0" not in out
+
+
+def test_compare_keeps_the_sums_for_single_worker_runs(tmp_path: Path, capsys) -> None:
+    # Control: with one worker the sums are real time, as before.
+    a = _timed_report(tmp_path / "a.json", workers=1, total_wall_s=100.0, wall=40.0)
+    b = _timed_report(tmp_path / "b.json", workers=1, total_wall_s=70.0, wall=30.0)
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    out = capsys.readouterr().out
+    assert "wall 80.0 -> 60.0 s (-25.0 %)" in out and "cpu  160.0 -> 120.0 s (-25.0 %)" in out
+    assert "NOTE" not in out and "n/a" not in out
+
+
+def test_compare_warns_when_the_worker_counts_differ(tmp_path: Path, capsys) -> None:
+    a = _timed_report(tmp_path / "a.json", workers=1, total_wall_s=100.0, wall=40.0)
+    b = _timed_report(tmp_path / "b.json", workers=4, total_wall_s=None, wall=10.0)
+    assert _module().main(["compare", str(a), str(b)]) == 0
+    out = capsys.readouterr().out
+    assert "NOTE workers 1 -> 4" in out and "elapsed n/a" in out
+
+
 def test_compare_names_games_present_in_only_one_file(tmp_path: Path, capsys) -> None:
     a = [("p1", 1, "ok", "s1"), ("p1", 2, "ok", "s2")]
     assert _compare(tmp_path, a, a[:1]) == 1
