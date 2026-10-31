@@ -1,15 +1,17 @@
 """#832: sequential deck comparison with early stopping.
 
 Pure unit tests (no JVM): scripted batch records drive the sequential look
-loop, so the Bonferroni-split per-look threshold and the stop logic can be
-checked by hand against the sign-test p-values.
+loop, so the per-look levels (an O'Brien-Fleming-type spending of alpha, E6 stage 4) and the
+stop logic can be checked by hand against the sign-test p-values.
 """
 
 from __future__ import annotations
 
 import importlib.util
+import math
 from collections.abc import Callable, Sequence
 from pathlib import Path
+from statistics import NormalDist
 
 import pytest
 
@@ -28,8 +30,9 @@ from commander_lab.engine.rules.full_game_comparison import (
     DeckComparisonSpec,
     aggregate_comparison,
     plan_comparison_cases,
-    sequential_look_alpha,
+    sequential_look_alphas,
     sequential_look_decided,
+    sequential_look_seed_counts,
     sequential_looks_planned,
     sequential_stop_now,
 )
@@ -171,16 +174,38 @@ def test_threshold_helpers() -> None:
     assert sequential_looks_planned(20, 5) == 4
     assert sequential_looks_planned(21, 5) == 5
     assert sequential_looks_planned(3, 5) == 1
-    assert sequential_look_alpha(0.05, 4) == pytest.approx(0.0125)
-    assert sequential_look_alpha(0.05, 1) == pytest.approx(0.05)
-    with pytest.raises(ValueError, match="significance_level"):
-        sequential_look_alpha(0.0, 4)
-    with pytest.raises(ValueError, match="looks_planned"):
-        sequential_look_alpha(0.05, 0)
+    assert sequential_look_seed_counts(21, 5) == (5, 10, 15, 20, 21)
+    assert sequential_look_seed_counts(3, 5) == (3,)
     with pytest.raises(ValueError, match="look_every"):
         sequential_looks_planned(10, 0)
     with pytest.raises(ValueError, match="seed_count"):
         sequential_looks_planned(0, 5)
+
+
+def test_look_alphas_hand_arithmetic() -> None:
+    # Two looks, half the seeds each: a(1/2) = 2 - 2 * Phi(1.95996 / sqrt(0.5)) = 0.005574.
+    first, second = sequential_look_alphas(0.05, (10, 20))
+    assert first == pytest.approx(0.0055736, abs=1e-6)
+    assert second == pytest.approx(0.05 - first)
+    # One look is the whole alpha.
+    assert sequential_look_alphas(0.05, (7,)) == (0.05,)
+    # Four looks: increasing levels, summing to alpha, first below and last above alpha / 4.
+    levels = sequential_look_alphas(0.05, (10, 20, 30, 40))
+    assert sum(levels) == pytest.approx(0.05, abs=1e-12)
+    assert list(levels) == sorted(levels)
+    assert levels[0] < 0.05 / 4 < levels[-1]
+    assert levels == pytest.approx((9.0e-5, 0.00549, 0.01805, 0.02637), abs=2e-5)
+    # An unequal last look takes its share of the information.
+    uneven = sequential_look_alphas(0.05, (10, 20, 25))
+    z = NormalDist().inv_cdf(0.975)
+    spent = [2 - 2 * NormalDist().cdf(z / math.sqrt(t)) for t in (0.4, 0.8)]
+    assert uneven == pytest.approx((spent[0], spent[1] - spent[0], 0.05 - spent[1]), abs=1e-9)
+    with pytest.raises(ValueError, match="significance_level"):
+        sequential_look_alphas(0.0, (10, 20))
+    with pytest.raises(ValueError, match="strictly increasing"):
+        sequential_look_alphas(0.05, (10, 10))
+    with pytest.raises(ValueError, match="strictly increasing"):
+        sequential_look_alphas(0.05, ())
 
 
 def test_clear_win_stops_at_first_look() -> None:
@@ -190,20 +215,20 @@ def test_clear_win_stops_at_first_look() -> None:
     blocks = _ScriptedBlocks(_variant_sweep)
     comparison, combined, sequential = cli.run_sequential_blocks(spec, cases, blocks, look_every=10)
     # 40 discordant pairs in ten seeds at the first look: the pair test and the sign test over
-    # seeds (p = 2/2^10) are both below 0.05/2. Five seeds could not decide (E6 stage 2:
-    # 2/2^5 = 0.0625), which is why the look holds ten.
+    # seeds (p = 2/2^10 = 0.00195) are both below the first look's level 0.00557. Five seeds
+    # could not decide (E6 stage 2: 2/2^5 = 0.0625), which is why the look holds ten.
     assert blocks.blocks == [tuple(range(1, 11))]
     assert combined.total_cases == 10 * 4 * 2
     assert comparison.seeds == tuple(range(1, 11))  # the look aggregates played seeds
     assert sequential == {
         "looks_planned": 2,
         "looks_used": 1,
-        "per_look_alpha": pytest.approx(0.025),
+        "look_alphas": pytest.approx([0.0055736, 0.0444264], abs=1e-6),
         "stopped_early": True,
         "seeds_played": 10,
     }
     paired = comparison.paired[0]
-    assert paired.sign_test_p_value < 0.025
+    assert paired.sign_test_p_value < sequential["look_alphas"][0]
     assert paired.cluster_t_statistic is None  # every seed has the same net: sign test over seeds
     assert paired.cluster_t_df == 9
     assert paired.verdict == "VARIANT_BETTER"
@@ -239,16 +264,15 @@ def test_marginal_p_does_not_stop_early() -> None:
     assert sequential["seeds_played"] == 28
     assert comparison.paired[0].verdict == "NO_CLEAR_DIFFERENCE"
     # Wrong-reason control: every seed of the first look has the same net (+2), so the sign test
-    # over the seven seeds decides, p = 2 / 2**7 = 0.0156, between alpha/4 and alpha.
+    # over the seven seeds decides, p = 2 / 2**7 = 0.0156, between the first look's level and alpha.
     look1_spec = _spec(tuple(range(1, 8)), rotate=True)
     look1_cases = [case for case in plan_comparison_cases(look1_spec)]
     look1 = _report(_records_for(look1_cases, _marginal))
     naive = aggregate_comparison(look1_spec, look1)
-    assert 0.0125 < 2 / 2**7 < 0.05
+    first_level = sequential_look_alphas(0.05, (7, 14, 21, 28))[0]
+    assert first_level < 2 / 2**7 < 0.05
     assert naive.paired[0].verdict == "VARIANT_BETTER"  # naive alpha would stop here
-    strict = aggregate_comparison(
-        look1_spec, look1, significance_level=sequential_look_alpha(0.05, 4)
-    )
+    strict = aggregate_comparison(look1_spec, look1, significance_level=first_level)
     assert strict.paired[0].verdict == "NO_CLEAR_DIFFERENCE"  # per-look alpha does not
 
 
@@ -282,7 +306,7 @@ def test_summary_reports_seeds_played() -> None:
         "sequential": {
             "looks_planned": 4,
             "looks_used": 1,
-            "per_look_alpha": 0.0125,
+            "look_alphas": [0.0001, 0.0055, 0.0181, 0.0264],
             "stopped_early": True,
             "seeds_played": 5,
         },
