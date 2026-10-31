@@ -6,6 +6,8 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import pytest
+
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "scripts" / "build_rules_coverage.py"
 
@@ -63,3 +65,33 @@ def test_nested_current_verified_opponent_is_loaded_and_historical_snapshot_is_e
     assert records["Kaervek the Merciless"]["evidence_files"] == [
         "data/decks/opponents/kaervek/current/deck.json"
     ]
+
+
+def test_candidate_registry_is_read_from_the_private_folder_when_it_is_set(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    namespace = runpy.run_path(str(SCRIPT))
+    load_registry = namespace["_load_current_candidate_registry"]
+    relative = "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    repository = tmp_path / "repository"
+    private = tmp_path / "private"
+    _write_json(
+        repository / relative,
+        {"eligible_by_deck": {"deck": {"Repository Card": {"physical_available_quantity": 1}}}},
+    )
+    _write_json(
+        private / relative,
+        {"eligible_by_deck": {"deck": {"Private Card": {"physical_available_quantity": 2}}}},
+    )
+
+    monkeypatch.delenv("COMMANDER_LAB_OWNER_DATA", raising=False)
+    from_repository: dict[str, dict[str, Any]] = {}
+    load_registry(repository, from_repository)
+    assert set(from_repository) == {"Repository Card"}
+
+    monkeypatch.setenv("COMMANDER_LAB_OWNER_DATA", str(private))
+    from_private: dict[str, dict[str, Any]] = {}
+    load_registry(repository, from_private)
+    assert set(from_private) == {"Private Card"}
+    # The evidence entry names the repository path, never the private folder.
+    assert from_private["Private Card"]["evidence_files"] == [relative]

@@ -3,9 +3,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from commander_lab.owner_data import owner_data_path
 
 ALLOWED_COVERAGE = {
     "external_engine_verified",
@@ -53,8 +58,8 @@ def _record(records: dict[str, dict[str, Any]], name: str) -> dict[str, Any]:
 
 
 def _load_current_candidate_registry(root: Path, records: dict[str, dict[str, Any]]) -> None:
-    path = root / "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
-    payload = load(path)
+    relative = "data/collections/current/J_P5_CURRENT_CANDIDATE_ELIGIBILITY.json"
+    payload = load(owner_data_path(root, relative))
     eligible = payload.get("eligible_by_deck", {}) if isinstance(payload, dict) else {}
     if not isinstance(eligible, dict):
         raise RuntimeError("current candidate eligibility registry has invalid eligible_by_deck")
@@ -76,7 +81,7 @@ def _load_current_candidate_registry(root: Path, records: dict[str, dict[str, An
             }
             rec["deck_versions"].append(f"candidate-pool/{deck_id}")
             rec["source_status"].append("current_candidate_eligibility")
-            rec["evidence_files"].append(str(path.relative_to(root)))
+            rec["evidence_files"].append(relative)
 
 
 def _load_current_rogshai(root: Path, records: dict[str, dict[str, Any]]) -> None:
@@ -208,7 +213,7 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
 
     for relative in CURRENT_SOURCE_FILES:
-        if not (root / relative).is_file():
+        if not owner_data_path(root, relative).is_file():
             raise RuntimeError(f"required current rules-coverage source is missing: {relative}")
 
     role_data = load(root / "data/cards/structural_role_profiles.json")
