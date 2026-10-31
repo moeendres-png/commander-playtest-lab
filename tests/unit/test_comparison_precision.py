@@ -652,3 +652,69 @@ def test_power_table_anchors_and_monotonicity() -> None:
             > r_020.seeds_needed_4_seats_rho_025
             > r_009.seeds_needed_4_seats_rho_025
         )
+
+
+def _cluster_row(**changes: object) -> dict[str, object]:
+    row: dict[str, object] = {
+        "variant_deck_id": "variant",
+        "baseline_deck_id": "base",
+        "verdict": "VARIANT_BETTER",
+        "win_share_difference": 0.10,
+        "pairs_completed": 100,
+        "seed_clusters_completed": 25,
+        "cluster_difference_interval_95": {"low": -0.02, "high": 0.22},
+        "cluster_detectable_difference_80pct_power": 0.20,
+    }
+    row.update(changes)
+    return row
+
+
+def test_cluster_lines_print_the_per_seed_interval_and_caution_a_decided_verdict() -> None:
+    cli = _script_module()
+    lines = cli._cluster_lines(_cluster_row())
+    assert lines[0] == (
+        "per seed (25 seeds; the seat rotations of a seed share a shuffle): "
+        "difference +0.10 (95% -0.02..+0.22), run could detect >= 0.20"
+    )
+    assert lines[1].startswith("CAUTION: VARIANT_BETTER counts every pair as independent")
+    assert len(lines) == 2
+
+
+def test_cluster_lines_do_not_caution_when_the_interval_excludes_zero_or_nothing_is_decided() -> (
+    None
+):
+    cli = _script_module()
+    excluded = cli._cluster_lines(
+        _cluster_row(cluster_difference_interval_95={"low": 0.03, "high": 0.17})
+    )
+    assert len(excluded) == 1
+    undecided = cli._cluster_lines(_cluster_row(verdict="NO_CLEAR_DIFFERENCE"))
+    assert len(undecided) == 1
+
+
+def test_cluster_lines_stay_silent_for_old_payloads_and_one_pair_per_seed() -> None:
+    cli = _script_module()
+    old = _cluster_row()
+    del old["cluster_difference_interval_95"]
+    assert cli._cluster_lines(old) == []
+    assert cli._cluster_lines(_cluster_row(seed_clusters_completed=100)) == []
+    assert cli._cluster_lines(_cluster_row(seed_clusters_completed=1)) == []
+
+
+def test_summary_lines_of_a_real_comparison_carry_the_per_seed_line() -> None:
+    cli = _script_module()
+    spec = _spec(tuple(range(1, 26)), rotate=True)
+    cases = plan_comparison_cases(spec)
+
+    def lopsided(contender_id: str, seed: int, seat: int) -> tuple[int, ...]:
+        # Seeds 0 and 1 mod 4: the variant, respectively the baseline, wins all four rotations;
+        # the other seeds are ties. The per-seed sums differ, so the interval is not degenerate.
+        if seed % 4 == 0:
+            return _variant_sweep(contender_id, seed, seat)
+        if seed % 4 == 1:
+            return (seat,) if contender_id == "base" else (_other_seat(seat),)
+        return _tie(contender_id, seed, seat)
+
+    comparison = aggregate_comparison(spec, _report(_records_for(cases, lopsided)))
+    lines = cli._summary_lines(comparison.model_dump(mode="json"))
+    assert any(line.startswith("per seed (25 seeds;") for line in lines)
