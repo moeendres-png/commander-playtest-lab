@@ -1,0 +1,106 @@
+name: Determinism Multi-Seed Twin Run
+
+# Plays the real 4-player pod for several seeds twice with the pinned engine and requires the
+# semantic transcript of every seed to be identical between the two runs. Slow and paid for in
+# CI minutes, so it never runs on its own: start it by hand (workflow_dispatch) or put the label
+# `determinism-multiseed` on a pull request. It is not a required check.
+
+on:
+  workflow_dispatch:
+    inputs:
+      seeds:
+        description: "Seeds of the real pod, a range or a comma list (digits, comma and dash only)"
+        required: false
+        default: "1-12"
+  pull_request:
+    types: [labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: determinism-multiseed-${{ github.event_name == 'pull_request' && github.head_ref || github.sha }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: "0"
+  SEEDS: ${{ github.event.inputs.seeds || '1-12' }}
+
+jobs:
+  twin:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.label.name == 'determinism-multiseed' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 150
+    steps:
+      - name: Check the seed list
+        run: |
+          set -euo pipefail
+          [[ "$SEEDS" =~ ^[0-9]+([,-][0-9]+)*$ ]] || { echo "bad seed list: $SEEDS" >&2; exit 1; }
+      - name: Checkout lab
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Resolve the current XMage pin
+        run: |
+          set -euo pipefail
+          # config/rules_engines.json is the sole machine-readable authority for the pin.
+          python3 - <<'PY' >> "$GITHUB_ENV"
+          import json
+          commit = json.load(open("config/rules_engines.json"))["primary_engine"]["commit"]
+          assert len(commit) == 40 and all(c in "0123456789abcdef" for c in commit), commit
+          print(f"XMAGE_COMMIT={commit}")
+          PY
+      - name: Checkout pinned XMage
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: moeendres-png/mage
+          ref: ${{ env.XMAGE_COMMIT }}
+          path: vendor/engine-source/xmage
+          fetch-depth: 1
+      - name: Set up JDK 17
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements/lock.txt
+      - name: Verify immutable XMage pin
+        working-directory: vendor/engine-source/xmage
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$XMAGE_COMMIT"
+      - name: Pinned XMage engine (restored by pin commit, built on a miss)
+        uses: ./.github/actions/pinned-xmage-engine
+        with:
+          commit: ${{ env.XMAGE_COMMIT }}
+      - name: Install lab
+        run: |
+          python -m pip install --require-hashes -r requirements/lock.txt
+          python -m pip install --no-deps --no-build-isolation -e .
+      - name: Build the XMage bridge jar
+        working-directory: engine-bridge
+        run: mvn -B -ntp -DskipTests -Dcheckstyle.skip=true package
+      - name: Twin run A
+        run: |
+          python scripts/benchmark_xmage_full_games.py run \
+            --jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
+            --out twin_a.json --seeds "$SEEDS" --workers 2
+      - name: Twin run B
+        run: |
+          python scripts/benchmark_xmage_full_games.py run \
+            --jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar \
+            --out twin_b.json --seeds "$SEEDS" --workers 2
+      - name: Compare the twin runs (fails when any seed differs)
+        run: python scripts/benchmark_xmage_full_games.py compare twin_a.json twin_b.json | tee compare.txt
+      - name: Upload twin run evidence
+        if: ${{ always() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: determinism-multiseed-${{ github.sha }}
+          path: |
+            twin_a.json
+            twin_b.json
+            compare.txt
+          if-no-files-found: warn
