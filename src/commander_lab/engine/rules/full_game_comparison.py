@@ -29,6 +29,7 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from commander_lab.agents.card_knowledge import is_basic_land_name
 from commander_lab.candidates.models import FutureXmageScenario
+from commander_lab.decision_statistics import holm_adjust
 from commander_lab.models import (
     PilotConfig,
     PilotDecisionMode,
@@ -414,6 +415,40 @@ def cluster_t_statistic(
     return mean / se_cluster, g - 1
 
 
+def effective_p_value(
+    *,
+    sign_p: float,
+    variant_only: int,
+    baseline_only: int,
+    pairs: int,
+    seed_clusters: int,
+    cluster_t: float | None,
+    cluster_df: int,
+    difference: float | None,
+) -> float:
+    """The p-value a variant's decided verdict stands on, for the Holm step (E6 stage 3).
+
+    A pair verdict needs the sign test over the pairs and, when some seed holds more than one
+    pair, the seed-cluster t test as well (stage 2). Both must pass, so the effective p-value is
+    the larger of the two; if the t statistic leans the other way than the sign test, or there is
+    no usable cluster test, it is 1. With zero spread between seeds the sign test over the seeds
+    stands in for the t test (two-sided, 2 / 2**G for G seeds that all lean the same way).
+    """
+    if variant_only == baseline_only:
+        return 1.0
+    direction = 1.0 if variant_only > baseline_only else -1.0
+    if seed_clusters >= pairs:
+        return sign_p
+    if cluster_t is not None:
+        if cluster_t * direction <= 0.0:
+            return 1.0
+        t_p = 2.0 * (1.0 - _student_t_cdf_positive(abs(cluster_t), cluster_df))
+        return max(sign_p, min(1.0, t_p))
+    if cluster_df < 1 or (difference or 0.0) * direction <= 0.0:
+        return 1.0
+    return max(sign_p, 2.0 * 0.5 ** (cluster_df + 1))
+
+
 def difference_quantiles(df: int) -> tuple[float, float]:
     """Student-t quantiles for the interval and the detectable difference (#1074).
 
@@ -698,6 +733,14 @@ class PairedVariantResult(_StrictModel):
     # The decided verdict the pair sign test alone gave, kept only when the cluster test did
     # not confirm it (then ``verdict`` is NO_CLEAR_DIFFERENCE). None otherwise.
     pair_test_verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER"] | None = None
+    # E6 stage 3: with two or more variants in a run the verdicts are corrected by Holm.
+    # ``effective_p_value`` is what a decided verdict stands on (see :func:`effective_p_value`),
+    # ``holm_adjusted_p_value`` its Holm adjustment over the variants of the run (both None for
+    # a single variant or a variant without a verdict basis). ``holm_withheld_verdict`` is the
+    # decided verdict that the adjustment did not carry (then ``verdict`` is NO_CLEAR_DIFFERENCE).
+    effective_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    holm_adjusted_p_value: float | None = Field(default=None, ge=0.0, le=1.0)
+    holm_withheld_verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER"] | None = None
     # 95% normal interval of the mean paired win-share difference (#870).
     # The pairs are treated as independent although the seat rotations of one
     # seed share a shuffle, so the interval is slightly narrow; see
@@ -991,6 +1034,37 @@ def _tested_placement(
     return finishing_scores(raw, player_count).get(tested_seat - 1)
 
 
+def _apply_holm(
+    paired: list[PairedVariantResult],
+    effective: Sequence[float | None],
+    significance_level: float,
+) -> list[PairedVariantResult]:
+    """Holm over the variants of a run (E6 stage 3): it can only withhold a decided verdict.
+
+    With one variant, or fewer than two with a verdict basis, nothing changes. A variant whose
+    adjusted p-value is not below the level goes back to NO_CLEAR_DIFFERENCE and keeps the
+    verdict it would have had in ``holm_withheld_verdict``.
+    """
+    indexes = [index for index, value in enumerate(effective) if value is not None]
+    if len(indexes) < 2:
+        return paired
+    adjusted = holm_adjust(effective[index] or 0.0 for index in indexes)
+    result = list(paired)
+    for index, adjusted_p in zip(indexes, adjusted, strict=True):
+        update: dict[str, object] = {"holm_adjusted_p_value": adjusted_p}
+        entry = result[index]
+        if (
+            entry.verdict in ("VARIANT_BETTER", "BASELINE_BETTER")
+            and adjusted_p >= significance_level
+        ):
+            update["holm_withheld_verdict"] = entry.verdict
+            update["verdict"] = "NO_CLEAR_DIFFERENCE"
+            detectable = entry.detectable_difference_80pct_power
+            update["underpowered"] = detectable is not None and detectable > UNDERPOWERED_ABOVE
+        result[index] = entry.model_copy(update=update)
+    return result
+
+
 def aggregate_comparison(
     spec: DeckComparisonSpec,
     report: FullGameBatchReport,
@@ -1068,6 +1142,8 @@ def aggregate_comparison(
 
     baseline = spec.contenders[0].deck_id
     paired: list[PairedVariantResult] = []
+    # Effective p-value per variant for the Holm step, None where there is no verdict basis.
+    holm_inputs: list[float | None] = []
     for variant in spec.contenders[1:]:
         pairs: list[tuple[float, float]] = []
         clustered_differences: list[tuple[int, float]] = []
@@ -1150,6 +1226,22 @@ def aggregate_comparison(
             and detectable is not None
             and detectable > UNDERPOWERED_ABOVE
         )
+        has_basis = bool(pairs) and censored <= max_censored_fraction * (len(pairs) + censored)
+        effective_p = (
+            effective_p_value(
+                sign_p=p_value,
+                variant_only=variant_only,
+                baseline_only=baseline_only,
+                pairs=len(pairs),
+                seed_clusters=seed_clusters,
+                cluster_t=cluster_t,
+                cluster_df=cluster_df,
+                difference=difference,
+            )
+            if has_basis
+            else None
+        )
+        holm_inputs.append(effective_p)
         paired.append(
             PairedVariantResult(
                 variant_deck_id=variant.deck_id,
@@ -1167,6 +1259,7 @@ def aggregate_comparison(
                 cluster_t_statistic=cluster_t,
                 cluster_t_df=cluster_df,
                 pair_test_verdict=pair_test_verdict,
+                effective_p_value=effective_p,
                 seed_clusters_completed=seed_clusters,
                 win_share_difference_interval_95=interval_95,
                 cluster_difference_interval_95=cluster_interval_95,
@@ -1180,6 +1273,8 @@ def aggregate_comparison(
                 placement_pairs=len(place_pairs),
             )
         )
+
+    paired = _apply_holm(paired, holm_inputs, significance_level)
 
     return DeckComparisonReport(
         comparison_id=spec.comparison_id,
@@ -1216,6 +1311,7 @@ __all__ = [
     "cluster_difference_stats",
     "cluster_t_statistic",
     "difference_quantiles",
+    "effective_p_value",
     "finishing_scores",
     "format_reanalysis_summary",
     "pairs_needed",

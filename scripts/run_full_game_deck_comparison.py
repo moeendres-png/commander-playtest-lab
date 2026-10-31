@@ -306,6 +306,30 @@ def _cluster_t_lines(row: dict[str, Any]) -> list[str]:
     return lines
 
 
+def _holm_lines(row: dict[str, Any], variants: int) -> list[str]:
+    """The Holm correction over the variants of a run (E6 stage 3).
+
+    With two or more variants the verdicts are adjusted for looking at several of them: a
+    decided verdict stands only if its Holm-adjusted p-value is below the level. Printed for
+    payloads that carry the adjusted value; when Holm held back a decided verdict the line says so,
+    because the verdict is then NO_CLEAR_DIFFERENCE although the pair p-value above is small.
+    """
+    adjusted = row.get("holm_adjusted_p_value")
+    withheld = row.get("holm_withheld_verdict")
+    if not isinstance(adjusted, (int, float)) or variants < 2:
+        return []
+    lines = [
+        f"Holm over {variants} variants: adjusted p={adjusted:.3g}; a decided verdict needs "
+        "this below the level"
+    ]
+    if withheld in ("VARIANT_BETTER", "BASELINE_BETTER"):
+        lines.append(
+            f"NOTE: before the correction for several variants this was {withheld}; it is not "
+            "confirmed across the variants, so the verdict stays NO_CLEAR_DIFFERENCE"
+        )
+    return lines
+
+
 def _placement_lines(row: dict[str, Any]) -> list[str]:
     """One extra line per variant with the finishing-order outcome (#875).
 
@@ -378,6 +402,7 @@ def _summary_lines(report_json: dict[str, Any]) -> list[str]:
         lines.extend(_precision_lines(row))
         lines.extend(_cluster_lines(row))
         lines.extend(_cluster_t_lines(row))
+        lines.extend(_holm_lines(row, len(report_json["paired"])))
         lines.extend(_placement_lines(row))
         lines.extend(_readiness_lines(report_json, row["variant_deck_id"]))
     sequential = report_json.get("sequential")
