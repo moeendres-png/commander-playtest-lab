@@ -1788,7 +1788,7 @@
    "power": 2.0,
    "rules": [
     "Elemental permanent spells you cast from your hand gain evoke {4} as you cast them.",
-    "Whenever you sacrifice a nontoken Elemental, create a token that's a copy of it. The token gains haste until end of turn. At the beginning of your next end step, sacrifice it unless you pay {W}{U}{B}{R}{G}."
+    "Whenever you sacrifice a nontoken Elemental you control, create a token that's a copy of it. The token gains haste until end of turn. At the beginning of your next end step, sacrifice it unless you pay {W}{U}{B}{R}{G}."
    ],
    "subtypes": [
     "Elemental",
@@ -3060,7 +3060,7 @@
    "mana_value": 4.0,
    "power": 3.0,
    "rules": [
-    "When {this} enters, choose up to one &mdash;<br>&bull Target creature becomes prepared.<br>&bull Target creature becomes unprepared.<br>"
+    "When {this} enters, choose up to one &mdash;<br>&bull Target creature becomes prepared. <i>(Only creatures with prepare spells can become prepared.)</i><br>&bull Target creature becomes unprepared.<br>"
    ],
    "subtypes": [
     "Construct"
@@ -3422,10 +3422,11 @@
   "Blazing Firesinger": {
    "engine_name": "Blazing Firesinger",
    "loyalty": null,
-   "mana_cost": "{2}{R}",
+   "mana_cost": "{2}{R}{*}{2}{R}",
    "mana_value": 3.0,
    "power": 2.0,
    "rules": [
+    "Instant &mdash; Seething Song {2}{R} &mdash; Add {R}{R}{R}{R}{R}.",
     "{this} enters prepared."
    ],
    "subtypes": [
@@ -5557,10 +5558,11 @@
   "Cheerful Osteomancer": {
    "engine_name": "Cheerful Osteomancer",
    "loyalty": null,
-   "mana_cost": "{3}{B}",
+   "mana_cost": "{B}{*}{3}{B}",
    "mana_value": 4.0,
    "power": 4.0,
    "rules": [
+    "Sorcery &mdash; Raise Dead {B} &mdash; Return target creature card from your graveyard to your hand.",
     "{this} enters prepared."
    ],
    "subtypes": [
@@ -7907,12 +7909,13 @@
   "Defacing Duskmage // Vandal's Edit": {
    "engine_name": "Defacing Duskmage",
    "loyalty": null,
-   "mana_cost": "{W}{B}",
+   "mana_cost": "{1}{W}{B}{*}{W}{B}",
    "mana_value": 2.0,
    "power": 2.0,
    "rules": [
+    "Instant &mdash; Vandal's Edit {1}{W}{B} &mdash; Draw two cards. Each player loses 2 life.",
     "Deathtouch",
-    "Whenever an opponent draws their second card each turn, {this} becomes prepared."
+    "Whenever an opponent draws their second card each turn, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Dog",
@@ -8456,12 +8459,13 @@
   "Dirgur Focusmage // Braingeyser": {
    "engine_name": "Dirgur Focusmage",
    "loyalty": null,
-   "mana_cost": "{2}{U}",
+   "mana_cost": "{X}{U}{U}{*}{2}{U}",
    "mana_value": 3.0,
    "power": 1.0,
    "rules": [
+    "Sorcery &mdash; Braingeyser {X}{U}{U} &mdash; Target player draws X cards.",
     "Instant and sorcery spells you cast cost {1} less to cast.",
-    "Whenever you cast an instant or sorcery spell with mana value 5 or greater from your hand, {this} becomes prepared."
+    "Whenever you cast an instant or sorcery spell with mana value 5 or greater from your hand, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Djinn",
@@ -9510,12 +9514,13 @@
   "Eiganjo Dynastorian // Replenish": {
    "engine_name": "Eiganjo Dynastorian",
    "loyalty": null,
-   "mana_cost": "{2}{W}",
+   "mana_cost": "{3}{W}{*}{2}{W}",
    "mana_value": 3.0,
    "power": 2.0,
    "rules": [
+    "Sorcery &mdash; Replenish {3}{W} &mdash; Return all enchantment cards from your graveyard to the battlefield.",
     "Vigilance",
-    "Whenever you attack with two or more creatures, {this} becomes prepared."
+    "Whenever you attack with two or more creatures, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Fox",
@@ -13644,10 +13649,11 @@
   "Goblin Glasswright": {
    "engine_name": "Goblin Glasswright",
    "loyalty": null,
-   "mana_cost": "{1}{R}",
+   "mana_cost": "{R}{*}{1}{R}",
    "mana_value": 2.0,
    "power": 2.0,
    "rules": [
+    "Sorcery &mdash; Craft with Pride {R} &mdash; Create a Treasure token.",
     "{this} enters prepared."
    ],
    "subtypes": [
@@ -16917,12 +16923,13 @@
   "Inspired Skypainter // Maestro's Gift": {
    "engine_name": "Inspired Skypainter",
    "loyalty": null,
-   "mana_cost": "{U}{R}",
+   "mana_cost": "{3}{U}{R}{*}{U}{R}",
    "mana_value": 2.0,
    "power": 2.0,
    "rules": [
+    "Sorcery &mdash; Maestro's Gift {3}{U}{R} &mdash; Create a token that's a copy of target creature you control. That token gains haste until end of turn.",
     "Flying",
-    "When this creature enters and whenever one or more creature tokens you control deal combat damage to a player, {this} becomes prepared."
+    "When this creature enters and whenever one or more creature tokens you control deal combat damage to a player, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Lizard",
@@ -18561,11 +18568,12 @@
   "Kirol, History Buff": {
    "engine_name": "Kirol, History Buff",
    "loyalty": null,
-   "mana_cost": "{R}{W}",
+   "mana_cost": "{1}{R}{W}{*}{R}{W}",
    "mana_value": 2.0,
    "power": 2.0,
    "rules": [
-    "Whenever one or more cards leave your graveyard, {this} becomes prepared."
+    "Sorcery &mdash; Pack a Punch {1}{R}{W} &mdash; Mill a card. Put two +1/+1 counters on target creature. It gains trample until end of turn.",
+    "Whenever one or more cards leave your graveyard, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Vampire",
@@ -20003,12 +20011,13 @@
   "Lorehold Archivist": {
    "engine_name": "Lorehold Archivist",
    "loyalty": null,
-   "mana_cost": "{1}{R}{W}",
+   "mana_cost": "{2}{R}{W}{*}{1}{R}{W}",
    "mana_value": 3.0,
    "power": 3.0,
    "rules": [
+    "Sorcery &mdash; Restore Relic {2}{R}{W} &mdash; Exile target artifact or creature card from your graveyard. Create a token that's a copy of it.",
     "First strike",
-    "At the beginning of your upkeep, if there are three or more artifact or creature card in your graveyard, {this} becomes prepared."
+    "At the beginning of your upkeep, if there are three or more artifact or creature card in your graveyard, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Dwarf",
@@ -22743,11 +22752,12 @@
   "Naktamun Lorespinner": {
    "engine_name": "Naktamun Lorespinner",
    "loyalty": null,
-   "mana_cost": "{2}{R}",
+   "mana_cost": "{2}{R}{*}{2}{R}",
    "mana_value": 3.0,
    "power": 3.0,
    "rules": [
-    "At the beginning of your upkeep, if a player has one or fewer cards in hand, {this} becomes prepared."
+    "Sorcery &mdash; Wheel of Fortune {2}{R} &mdash; Each player discards their hand, then draws seven cards.",
+    "At the beginning of your upkeep, if a player has one or fewer cards in hand, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Jackal",
@@ -26109,7 +26119,7 @@
    "mana_value": 2.0,
    "power": null,
    "rules": [
-    "Until end of turn, any number of target creatures you control each get +1/+0 and gain \"When this creature dies, draw a card.\" until end of turn."
+    "Until end of turn, any number of target creatures you control each get +1/+0 and gain \"When this creature dies, draw a card.\""
    ],
    "subtypes": [],
    "supertypes": [],
@@ -28360,10 +28370,11 @@
   "Sanar, Unfinished Genius": {
    "engine_name": "Sanar, Unfinished Genius",
    "loyalty": null,
-   "mana_cost": "{U}{R}",
+   "mana_cost": "{3}{U}{R}{*}{U}{R}",
    "mana_value": 2.0,
    "power": 0.0,
    "rules": [
+    "Sorcery &mdash; Wild Idea {3}{U}{R} &mdash; Search your library for an instant or sorcery card, reveal it, put it into your hand, then shuffle.",
     "{this} enters prepared.",
     "{T}: Create a Treasure token. Activate only if you've cast an instant or sorcery spell this turn."
    ],
@@ -28773,7 +28784,7 @@
    "power": 5.0,
    "rules": [
     "Flying",
-    "Dethrone (<i>Whenever this creature attacks the player with the most life or tied for most life, put a +1/+1 counter on it.</i>)",
+    "Dethrone <i>(Whenever this creature attacks the player with the most life or tied for most life, put a +1/+1 counter on it.)</i>",
     "Whenever {this} attacks for the first time each turn, if it's attacking the player with the most life or tied for most life, untap all attacking creatures. After this phase, there is an additional combat phase."
    ],
    "subtypes": [
@@ -30472,7 +30483,7 @@
    "power": null,
    "rules": [
     "{T}: Add {C}.",
-    "{3}, {T}: Target creature becomes prepared."
+    "{3}, {T}: Target creature becomes prepared. <i>(Only creatures with prepare spells can become prepared.)</i>"
    ],
    "subtypes": [],
    "supertypes": [],
@@ -31354,10 +31365,11 @@
   "Spellbook Seeker": {
    "engine_name": "Spellbook Seeker",
    "loyalty": null,
-   "mana_cost": "{3}{U}",
+   "mana_cost": "{U}{*}{3}{U}",
    "mana_value": 4.0,
    "power": 3.0,
    "rules": [
+    "Sorcery &mdash; Careful Study {U} &mdash; Draw two cards, then discard two cards.",
     "Flying",
     "{this} enters prepared."
    ],
@@ -32582,10 +32594,11 @@
   "Studious First-Year": {
    "engine_name": "Studious First-Year",
    "loyalty": null,
-   "mana_cost": "{G}",
+   "mana_cost": "{1}{G}{*}{G}",
    "mana_value": 1.0,
    "power": 1.0,
    "rules": [
+    "Sorcery &mdash; Rampant Growth {1}{G} &mdash; Search your library for a basic land card, put that card onto the battlefield tapped, then shuffle.",
     "{this} enters prepared."
    ],
    "subtypes": [
@@ -33676,11 +33689,12 @@
   "Tam, Observant Sequencer": {
    "engine_name": "Tam, Observant Sequencer",
    "loyalty": null,
-   "mana_cost": "{2}{G}{U}",
+   "mana_cost": "{G}{U}{*}{2}{G}{U}",
    "mana_value": 4.0,
    "power": 4.0,
    "rules": [
-    "<i>Landfall</i> &mdash; Whenever a land you control enters, {this} becomes prepared."
+    "Sorcery &mdash; Deep Sight {G}{U} &mdash; You draw a card and gain 1 life.",
+    "<i>Landfall</i> &mdash; Whenever a land you control enters, {this} becomes prepared. <i>(While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)</i>"
    ],
    "subtypes": [
     "Gorgon",
@@ -35062,6 +35076,7 @@
    "power": null,
    "rules": [
     "{this} enters tapped.",
+    "As {this} enters, choose a color other than red.",
     "{T}: Add {R}.",
     "{T}: Add one mana of the chosen color."
    ],
@@ -35080,6 +35095,7 @@
    "power": null,
    "rules": [
     "{this} enters tapped.",
+    "As {this} enters, choose a color other than green.",
     "{T}: Add {G}.",
     "{T}: Add one mana of the chosen color."
    ],
@@ -35098,6 +35114,7 @@
    "power": null,
    "rules": [
     "{this} enters tapped.",
+    "As {this} enters, choose a color other than white.",
     "{T}: Add {W}.",
     "{T}: Add one mana of the chosen color."
    ],
@@ -35116,6 +35133,7 @@
    "power": null,
    "rules": [
     "{this} enters tapped.",
+    "As {this} enters, choose a color other than blue.",
     "{T}: Add {U}.",
     "{T}: Add one mana of the chosen color."
    ],
@@ -35134,6 +35152,7 @@
    "power": null,
    "rules": [
     "{this} enters tapped.",
+    "As {this} enters, choose a color other than black.",
     "{T}: Add {B}.",
     "{T}: Add one mana of the chosen color."
    ],
@@ -36040,7 +36059,7 @@
    "mana_value": 3.0,
    "power": 2.0,
    "rules": [
-    "When {this} enters, you may search your library for up to one an artifact card with mana value 6 or more, reveal it, put it into your hand, then shuffle."
+    "When {this} enters, you may search your library for an artifact card with mana value 6 or greater, reveal it, put it into your hand, then shuffle."
    ],
    "subtypes": [
     "Human",
@@ -38181,7 +38200,7 @@
    "power": 2.0,
    "rules": [
     "Vigilance",
-    "Whenever you attack with one or more your commander, if an artifact with mana value 4 or greater, create a 4/4 green Rhino creature token with trample."
+    "Whenever you attack with your commander, if you control an artifact with mana value 4 or greater, create a 4/4 green Rhino creature token with trample."
    ],
    "subtypes": [
     "Human",

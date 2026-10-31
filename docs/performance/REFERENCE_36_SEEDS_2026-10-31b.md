@@ -43,11 +43,17 @@ Result, `LOCAL_OBSERVED`, no CI credit, not a pass rate:
 
 ## 3. Worker count
 
-As in the reference of 2026-10-31 the runs used `--workers 2`, because the rule for this work allows
-at most two bridge JVMs at once; the documented command uses four. The hash does not depend on the
-worker count as far as it was checked (33 of 36 equal between two and four workers in #1079, the
-others being the colour fix). That is evidence, not a proof. The elapsed times (449.5 s and 474.5 s)
-are not comparable with a four-worker run.
+The two reference runs used `--workers 2`, because the rule for this work allows at most two bridge
+JVMs at once; the documented command uses four. A third run with `--workers 4` on `37ddfaf7d`
+(`main` after #1096; the watched paths of `check-reference` are those of `889335c38`, which
+reported this reference current) gives the same hash in 36 of 36 seeds (`compare reference
+real36_workers4_37ddfaf7d_run1.json`: `identical 36/36`), file
+`docs/performance/measurements-2026-10-31/real36_workers4_37ddfaf7d_run1.json`, 36 of 36 games
+finished. Together with the 33 of 36 of #1079 (the others being the colour fix) this is evidence
+that the hash does not depend on the worker count, on all 36 seeds for the current pilot; it is not
+a proof for other seeds. The elapsed times (474.5 s with two workers, 304.6 s with four) are not a
+speed claim: `compare` prints its note for different worker counts, and unit tests ran on the same
+machine during the four-worker run.
 
 ## 4. Use
 
