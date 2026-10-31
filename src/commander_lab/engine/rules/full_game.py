@@ -124,10 +124,11 @@ class FullGameHiddenInformationAudit(_StrictModel):
 
     Every decision frame the engine publishes carries the actor's principal-
     scoped state. The audit checks that exactly one row is the actor's, that
-    it is the frame's actor, and that no other player's private rows (hand,
-    mana pool) appear unless the engine itself marked that row visible to this
-    principal (control, CR 723.4). A frame that breaks this ends the run fail
-    closed; the counts below describe a run that passed every frame.
+    it is the frame's actor, and that another player's row carries no private
+    key (hand, mana pool, land plays) and no key outside the redactor's public
+    set, unless the engine itself marked that row visible to this principal
+    (control, CR 723.4). A frame that breaks this ends the run fail closed; the
+    counts below describe a run that passed every frame.
     """
 
     frames_audited: int = Field(default=0, ge=0)
@@ -135,7 +136,37 @@ class FullGameHiddenInformationAudit(_StrictModel):
     non_actor_rows_engine_visible: int = Field(default=0, ge=0)
 
 
-_PRIVATE_ROW_KEYS = ("hand", "mana_pool")
+_PRIVATE_ROW_KEYS = ("hand", "mana_pool", "land_plays_remaining")
+
+# Every key the bridge's state redactor (XmageFullGameStateRedactor, player rows) puts on a row
+# that another principal may see. The engine gates the content of some of them itself
+# (granted_library only inside a Rules-entitled look, face-down exile and permanents only for an
+# entitled viewer), so the audit pins the key set, not those contents. A key outside this set on
+# another principal's row is a leak or an unreviewed new field: the run ends fail closed and the
+# set is extended only together with the redactor.
+_PUBLIC_ROW_KEYS = frozenset(
+    {
+        "player_id",
+        "seat",
+        "life",
+        "poison_counters",
+        "hand_count",
+        "library_count",
+        "graveyard_count",
+        "has_lost",
+        "has_won",
+        "is_actor",
+        "battlefield",
+        "graveyard",
+        "command",
+        "exile_count",
+        "exile",
+        "private_state_visible",
+        "granted_library",
+        "library_top_revealed",
+    }
+)
+_ROW_KEY_NAME = re.compile(r"[a-z_]{1,40}")
 
 
 def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[str]]:
@@ -162,11 +193,18 @@ def audit_actor_scoped_frame(decision: dict[str, Any]) -> tuple[int, int, list[s
         if player.get("private_state_visible") is True:
             visible += 1
             continue
+        seat = player.get("seat")
+        public_seat = seat if type(seat) is int and 0 <= seat <= 5 else "invalid"
         for key in _PRIVATE_ROW_KEYS:
             if key in player:
-                seat = player.get("seat")
-                public_seat = seat if type(seat) is int and 0 <= seat <= 5 else "invalid"
                 violations.append(f"seat {public_seat} exposes {key} to another principal")
+        for key in sorted(str(name) for name in player):
+            if key in _PRIVATE_ROW_KEYS or key in _PUBLIC_ROW_KEYS:
+                continue
+            shown = key if _ROW_KEY_NAME.fullmatch(key) else "invalid"
+            violations.append(
+                f"seat {public_seat} carries the unlisted row key {shown} for another principal"
+            )
     return rows, visible, violations
 
 
