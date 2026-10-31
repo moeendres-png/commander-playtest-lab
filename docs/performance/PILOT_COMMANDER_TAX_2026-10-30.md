@@ -43,7 +43,10 @@ code does what the measurement priced.
 - Winners by seat 4/1/22/9 before, 4/3/19/10 after. That is one pod with its own four decks, 36
   games, not a strength measure: the win rate is UNDECIDED (36 paired games give no power for a
   win-rate claim).
-- Median decisions per game 2819 -> 2709.
+- Median decisions per game 2789 -> 2690 (mean 2964.2 -> 2732.8). Corrected 2026-10-31: the first
+  version said 2819 -> 2709, which are `statistics.median_high` of the 36 values, not the median
+  (`docs/performance/measurements-2026-10-29/real36_v14_pin2ec507b721_run1.json` and
+  `measurements-2026-10-30/real36_main_6db6934f5_run1.json`).
 
 The 36-seed reference `REFERENCE_36_SEEDS_2026-10-29.md` is stale for the pilot after this
 change (the staleness check says so); a fresh twin-run reference is a separate step.
