@@ -111,7 +111,12 @@ exceeds the t quantile of the same level, because the four seat rotations of a
 seed share a shuffle and the pair test counts them as independent. With one
 pair per seed the pair test stands alone. When only the pair test is decided,
 the verdict is `NO_CLEAR_DIFFERENCE` and the summary names the pair verdict it
-would have been. `NO_CLEAR_DIFFERENCE` — played out, no significant edge;
+would have been. With two or more variants in one run the verdicts are also
+corrected by Holm over the variants: a decided verdict stands only if its
+adjusted p-value (`holm_adjusted_p_value`) is below the level, otherwise it
+becomes `NO_CLEAR_DIFFERENCE` and `holm_withheld_verdict` and a NOTE line name
+what it would have been. A variant tested in its own run is judged alone.
+`NO_CLEAR_DIFFERENCE` — played out, no significant edge;
 `INSUFFICIENT` — too few finished games to say anything. The report records
 the sequential plan and how many seeds were actually played.
 
