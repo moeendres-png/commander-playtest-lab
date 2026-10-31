@@ -74,6 +74,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             "amount",
         }:
             self._last_payment_offer.pop(seat, None)
+            self._outer_unpaid_mana.pop(seat, None)
         # #802 review P1: a decision of any other class for this seat ends the
         # current block-declaration round. After a declaration the engine
         # accepts, the seat's next decision is a priority window in the
@@ -131,6 +132,8 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             payer = request.get("source_object")
             if isinstance(payer, dict) and payer.get("source_object_id"):
                 self._payment_source[seat] = str(payer["source_object_id"])
+            if not (isinstance(payer, dict) and payer.get("ability_type") == "activated_mana"):
+                self._outer_unpaid_mana[seat] = str(context.get("unpaid_mana") or "")
             selected = [self._decide_mana(runtime, pilot_state, options, context, rng)]
             self._last_payment_offer[seat] = (
                 options,
