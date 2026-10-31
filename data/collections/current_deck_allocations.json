@@ -49,7 +49,7 @@
     {
       "copy_id": "canonical-20260807-0005",
       "oracle_name": "Act of Treason",
-      "quantity": 6,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -82,7 +82,7 @@
     {
       "copy_id": "canonical-20260807-0008",
       "oracle_name": "Aether Adept",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -104,7 +104,7 @@
     {
       "copy_id": "canonical-20260807-0010",
       "oracle_name": "Aether Tradewinds",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -170,7 +170,7 @@
     {
       "copy_id": "canonical-20260807-0016",
       "oracle_name": "Air Servant",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -203,7 +203,7 @@
     {
       "copy_id": "canonical-20260807-0019",
       "oracle_name": "Ajani's Pridemate",
-      "quantity": 5,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -313,7 +313,7 @@
     {
       "copy_id": "canonical-20260807-0029",
       "oracle_name": "Angel's Mercy",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -357,7 +357,7 @@
     {
       "copy_id": "canonical-20260807-0033",
       "oracle_name": "Apex Hawks",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -423,7 +423,7 @@
     {
       "copy_id": "canonical-20260807-0039",
       "oracle_name": "Arc Trail",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -445,7 +445,7 @@
     {
       "copy_id": "canonical-20260807-0041",
       "oracle_name": "Arcane Signet",
-      "quantity": 6,
+      "quantity": 1,
       "language": "Deutsch; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -489,7 +489,7 @@
     {
       "copy_id": "canonical-20260807-0045",
       "oracle_name": "Ardent Recruit",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -533,7 +533,7 @@
     {
       "copy_id": "canonical-20260807-0049",
       "oracle_name": "Arrest",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -599,7 +599,7 @@
     {
       "copy_id": "canonical-20260807-0055",
       "oracle_name": "Augury Owl",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -610,7 +610,7 @@
     {
       "copy_id": "canonical-20260807-0056",
       "oracle_name": "Auramancer",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -621,7 +621,7 @@
     {
       "copy_id": "canonical-20260807-0057",
       "oracle_name": "Autumn's Veil",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -665,7 +665,7 @@
     {
       "copy_id": "canonical-20260807-0061",
       "oracle_name": "Aven Fleetwing",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -720,7 +720,7 @@
     {
       "copy_id": "canonical-20260807-0066",
       "oracle_name": "Azorius Guildgate",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -731,7 +731,7 @@
     {
       "copy_id": "canonical-20260807-0067",
       "oracle_name": "Azorius Signet",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -852,7 +852,7 @@
     {
       "copy_id": "canonical-20260807-0078",
       "oracle_name": "Barrage Ogre",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -863,7 +863,7 @@
     {
       "copy_id": "canonical-20260807-0079",
       "oracle_name": "Barren Moor",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -896,7 +896,7 @@
     {
       "copy_id": "canonical-20260807-0082",
       "oracle_name": "Battle Hurda",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1028,7 +1028,7 @@
     {
       "copy_id": "canonical-20260807-0094",
       "oracle_name": "Bladed Sentinel",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1039,7 +1039,7 @@
     {
       "copy_id": "canonical-20260807-0095",
       "oracle_name": "Blasphemous Act",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1127,7 +1127,7 @@
     {
       "copy_id": "canonical-20260807-0103",
       "oracle_name": "Blood Seeker",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1138,7 +1138,7 @@
     {
       "copy_id": "canonical-20260807-0104",
       "oracle_name": "Bloodcrazed Neonate",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1149,7 +1149,7 @@
     {
       "copy_id": "canonical-20260807-0105",
       "oracle_name": "Bloodfell Caves",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1160,7 +1160,7 @@
     {
       "copy_id": "canonical-20260807-0106",
       "oracle_name": "Bloodhusk Ritualist",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1171,7 +1171,7 @@
     {
       "copy_id": "canonical-20260807-0107",
       "oracle_name": "Bloodpyre Elemental",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1182,7 +1182,7 @@
     {
       "copy_id": "canonical-20260807-0108",
       "oracle_name": "Bloodrage Vampire",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1204,7 +1204,7 @@
     {
       "copy_id": "canonical-20260807-0110",
       "oracle_name": "Blossoming Sands",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1292,7 +1292,7 @@
     {
       "copy_id": "canonical-20260807-0118",
       "oracle_name": "Bojuka Bog",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1369,7 +1369,7 @@
     {
       "copy_id": "canonical-20260807-0125",
       "oracle_name": "Bountiful Harvest",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1490,7 +1490,7 @@
     {
       "copy_id": "canonical-20260807-0136",
       "oracle_name": "Brineborn Cutthroat",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1501,7 +1501,7 @@
     {
       "copy_id": "canonical-20260807-0137",
       "oracle_name": "Brink of Disaster",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1512,7 +1512,7 @@
     {
       "copy_id": "canonical-20260807-0138",
       "oracle_name": "Broken Wings",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1545,7 +1545,7 @@
     {
       "copy_id": "canonical-20260807-0141",
       "oracle_name": "Burn the Impure",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1589,7 +1589,7 @@
     {
       "copy_id": "canonical-20260807-0145",
       "oracle_name": "Burst Lightning",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1600,7 +1600,7 @@
     {
       "copy_id": "canonical-20260807-0146",
       "oracle_name": "Butcher of Malakir",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1622,7 +1622,7 @@
     {
       "copy_id": "canonical-20260807-0148",
       "oracle_name": "Calcite Snapper",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1644,7 +1644,7 @@
     {
       "copy_id": "canonical-20260807-0150",
       "oracle_name": "Cancel",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1798,7 +1798,7 @@
     {
       "copy_id": "canonical-20260807-0164",
       "oracle_name": "Cemetery Reaper",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1842,7 +1842,7 @@
     {
       "copy_id": "canonical-20260807-0168",
       "oracle_name": "Chain Reaction",
-      "quantity": 4,
+      "quantity": 1,
       "language": "Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1897,7 +1897,7 @@
     {
       "copy_id": "canonical-20260807-0173",
       "oracle_name": "Chaos Warp",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1930,7 +1930,7 @@
     {
       "copy_id": "canonical-20260807-0176",
       "oracle_name": "Child of Night",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -1985,7 +1985,7 @@
     {
       "copy_id": "canonical-20260807-0181",
       "oracle_name": "Circuitous Route",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2073,7 +2073,7 @@
     {
       "copy_id": "canonical-20260807-0189",
       "oracle_name": "Cloud Elemental",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2139,7 +2139,7 @@
     {
       "copy_id": "canonical-20260807-0195",
       "oracle_name": "Command Tower",
-      "quantity": 6,
+      "quantity": 1,
       "language": "Deutsch; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2205,7 +2205,7 @@
     {
       "copy_id": "canonical-20260807-0201",
       "oracle_name": "Consume Spirit",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2249,7 +2249,7 @@
     {
       "copy_id": "canonical-20260807-0205",
       "oracle_name": "Copper Myr",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2260,7 +2260,7 @@
     {
       "copy_id": "canonical-20260807-0206",
       "oracle_name": "Coral Eel",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2337,7 +2337,7 @@
     {
       "copy_id": "canonical-20260807-0213",
       "oracle_name": "Cosi's Ravager",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2458,7 +2458,7 @@
     {
       "copy_id": "canonical-20260807-0224",
       "oracle_name": "Crumbling Necropolis",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2524,7 +2524,7 @@
     {
       "copy_id": "canonical-20260807-0230",
       "oracle_name": "Cudgel Troll",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2700,7 +2700,7 @@
     {
       "copy_id": "canonical-20260807-0246",
       "oracle_name": "Dead Reckoning",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2777,7 +2777,7 @@
     {
       "copy_id": "canonical-20260807-0253",
       "oracle_name": "Deep Analysis",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2810,7 +2810,7 @@
     {
       "copy_id": "canonical-20260807-0256",
       "oracle_name": "Demon's Horn",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2898,7 +2898,7 @@
     {
       "copy_id": "canonical-20260807-0264",
       "oracle_name": "Diabolic Tutor",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -2986,7 +2986,7 @@
     {
       "copy_id": "canonical-20260807-0272",
       "oracle_name": "Dismal Backwater",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3118,7 +3118,7 @@
     {
       "copy_id": "canonical-20260807-0284",
       "oracle_name": "Dragon Fodder",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3217,7 +3217,7 @@
     {
       "copy_id": "canonical-20260807-0293",
       "oracle_name": "Dreg Reaver",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3228,7 +3228,7 @@
     {
       "copy_id": "canonical-20260807-0294",
       "oracle_name": "Dregscape Zombie",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3239,7 +3239,7 @@
     {
       "copy_id": "canonical-20260807-0295",
       "oracle_name": "Drifting Shade",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3283,7 +3283,7 @@
     {
       "copy_id": "canonical-20260807-0299",
       "oracle_name": "Dross Hopper",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3371,7 +3371,7 @@
     {
       "copy_id": "canonical-20260807-0307",
       "oracle_name": "Elixir of Immortality",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3404,7 +3404,7 @@
     {
       "copy_id": "canonical-20260807-0310",
       "oracle_name": "Empyrean Eagle",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3415,7 +3415,7 @@
     {
       "copy_id": "canonical-20260807-0311",
       "oracle_name": "Enclave Elite",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3558,7 +3558,7 @@
     {
       "copy_id": "canonical-20260807-0324",
       "oracle_name": "Evolving Wilds",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3591,7 +3591,7 @@
     {
       "copy_id": "canonical-20260807-0327",
       "oracle_name": "Executioner's Capsule",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3602,7 +3602,7 @@
     {
       "copy_id": "canonical-20260807-0328",
       "oracle_name": "Exotic Orchard",
-      "quantity": 3,
+      "quantity": 1,
       "language": "Englisch; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3668,7 +3668,7 @@
     {
       "copy_id": "canonical-20260807-0334",
       "oracle_name": "Fabled Passage",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3800,7 +3800,7 @@
     {
       "copy_id": "canonical-20260807-0346",
       "oracle_name": "Fellwar Stone",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3899,7 +3899,7 @@
     {
       "copy_id": "canonical-20260807-0355",
       "oracle_name": "Finale of Revelation",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -3932,7 +3932,7 @@
     {
       "copy_id": "canonical-20260807-0358",
       "oracle_name": "Fireball",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4009,7 +4009,7 @@
     {
       "copy_id": "canonical-20260807-0365",
       "oracle_name": "Flameborn Hellion",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4042,7 +4042,7 @@
     {
       "copy_id": "canonical-20260807-0368",
       "oracle_name": "Flayer Husk",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4053,7 +4053,7 @@
     {
       "copy_id": "canonical-20260807-0369",
       "oracle_name": "Fledgling Griffin",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4086,7 +4086,7 @@
     {
       "copy_id": "canonical-20260807-0372",
       "oracle_name": "Flensermite",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4108,7 +4108,7 @@
     {
       "copy_id": "canonical-20260807-0374",
       "oracle_name": "Fling",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4152,7 +4152,7 @@
     {
       "copy_id": "canonical-20260807-0378",
       "oracle_name": "Foresee",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4163,7 +4163,7 @@
     {
       "copy_id": "canonical-20260807-0379",
       "oracle_name": "Forest",
-      "quantity": 55,
+      "quantity": 99,
       "language": "nicht dokumentiert; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4185,7 +4185,7 @@
     {
       "copy_id": "canonical-20260807-0381",
       "oracle_name": "Frantic Salvage",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4229,7 +4229,7 @@
     {
       "copy_id": "canonical-20260807-0385",
       "oracle_name": "Fume Spitter",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4273,7 +4273,7 @@
     {
       "copy_id": "canonical-20260807-0389",
       "oracle_name": "Garruk's Companion",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4383,7 +4383,7 @@
     {
       "copy_id": "canonical-20260807-0399",
       "oracle_name": "Giant Spider",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4669,7 +4669,7 @@
     {
       "copy_id": "canonical-20260807-0425",
       "oracle_name": "Goblin Piker",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4691,7 +4691,7 @@
     {
       "copy_id": "canonical-20260807-0427",
       "oracle_name": "Goblin Roughrider",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4790,7 +4790,7 @@
     {
       "copy_id": "canonical-20260807-0436",
       "oracle_name": "Gorehorn Minotaurs",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4845,7 +4845,7 @@
     {
       "copy_id": "canonical-20260807-0441",
       "oracle_name": "Gravedigger",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -4878,7 +4878,7 @@
     {
       "copy_id": "canonical-20260807-0444",
       "oracle_name": "Greater Basilisk",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5032,7 +5032,7 @@
     {
       "copy_id": "canonical-20260807-0458",
       "oracle_name": "Grizzly Bears",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5043,7 +5043,7 @@
     {
       "copy_id": "canonical-20260807-0459",
       "oracle_name": "Grotag Thrasher",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5065,7 +5065,7 @@
     {
       "copy_id": "canonical-20260807-0461",
       "oracle_name": "Groundswell",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5098,7 +5098,7 @@
     {
       "copy_id": "canonical-20260807-0464",
       "oracle_name": "Guardian Zendikon",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5120,7 +5120,7 @@
     {
       "copy_id": "canonical-20260807-0466",
       "oracle_name": "Gust-Skimmer",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5131,7 +5131,7 @@
     {
       "copy_id": "canonical-20260807-0467",
       "oracle_name": "Guttersnipe",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5208,7 +5208,7 @@
     {
       "copy_id": "canonical-20260807-0474",
       "oracle_name": "Harbor Serpent",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5263,7 +5263,7 @@
     {
       "copy_id": "canonical-20260807-0479",
       "oracle_name": "Healing Salve",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5318,7 +5318,7 @@
     {
       "copy_id": "canonical-20260807-0484",
       "oracle_name": "Hellfire Mongrel",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5362,7 +5362,7 @@
     {
       "copy_id": "canonical-20260807-0488",
       "oracle_name": "Heraldic Banner",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5373,7 +5373,7 @@
     {
       "copy_id": "canonical-20260807-0489",
       "oracle_name": "Hero's Downfall",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5395,7 +5395,7 @@
     {
       "copy_id": "canonical-20260807-0491",
       "oracle_name": "Hideous End",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5417,7 +5417,7 @@
     {
       "copy_id": "canonical-20260807-0493",
       "oracle_name": "Highland Berserker",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5428,7 +5428,7 @@
     {
       "copy_id": "canonical-20260807-0494",
       "oracle_name": "Hill Giant",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5461,7 +5461,7 @@
     {
       "copy_id": "canonical-20260807-0497",
       "oracle_name": "Holy Strength",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5494,7 +5494,7 @@
     {
       "copy_id": "canonical-20260807-0500",
       "oracle_name": "Horizon Spellbomb",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5527,7 +5527,7 @@
     {
       "copy_id": "canonical-20260807-0503",
       "oracle_name": "Hunter's Insight",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5571,7 +5571,7 @@
     {
       "copy_id": "canonical-20260807-0507",
       "oracle_name": "Ichorclaw Myr",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5637,7 +5637,7 @@
     {
       "copy_id": "canonical-20260807-0513",
       "oracle_name": "Imperious Perfect",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5648,7 +5648,7 @@
     {
       "copy_id": "canonical-20260807-0514",
       "oracle_name": "Imprisoned in the Moon",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5692,7 +5692,7 @@
     {
       "copy_id": "canonical-20260807-0518",
       "oracle_name": "Infectious Horror",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5747,7 +5747,7 @@
     {
       "copy_id": "canonical-20260807-0523",
       "oracle_name": "Infest",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5758,7 +5758,7 @@
     {
       "copy_id": "canonical-20260807-0524",
       "oracle_name": "Infestation Sage",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5780,7 +5780,7 @@
     {
       "copy_id": "canonical-20260807-0526",
       "oracle_name": "Instill Infection",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5868,7 +5868,7 @@
     {
       "copy_id": "canonical-20260807-0534",
       "oracle_name": "Island",
-      "quantity": 64,
+      "quantity": 99,
       "language": "nicht festgelegt; Englisch; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5901,7 +5901,7 @@
     {
       "copy_id": "canonical-20260807-0537",
       "oracle_name": "Jace's Erasure",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5912,7 +5912,7 @@
     {
       "copy_id": "canonical-20260807-0538",
       "oracle_name": "Jace's Ingenuity",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -5934,7 +5934,7 @@
     {
       "copy_id": "canonical-20260807-0540",
       "oracle_name": "Jagwasp Swarm",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6044,7 +6044,7 @@
     {
       "copy_id": "canonical-20260807-0550",
       "oracle_name": "Jungle Hollow",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6253,7 +6253,7 @@
     {
       "copy_id": "canonical-20260807-0569",
       "oracle_name": "Kor Aeronaut",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6286,7 +6286,7 @@
     {
       "copy_id": "canonical-20260807-0572",
       "oracle_name": "Kor Hookmaster",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6297,7 +6297,7 @@
     {
       "copy_id": "canonical-20260807-0573",
       "oracle_name": "Kor Skyfisher",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6319,7 +6319,7 @@
     {
       "copy_id": "canonical-20260807-0575",
       "oracle_name": "Kuldotha Flamefiend",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6330,7 +6330,7 @@
     {
       "copy_id": "canonical-20260807-0576",
       "oracle_name": "Kuldotha Rebirth",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6363,7 +6363,7 @@
     {
       "copy_id": "canonical-20260807-0579",
       "oracle_name": "Lava Axe",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6396,7 +6396,7 @@
     {
       "copy_id": "canonical-20260807-0582",
       "oracle_name": "Leaden Myr",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6440,7 +6440,7 @@
     {
       "copy_id": "canonical-20260807-0586",
       "oracle_name": "Levitation",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6451,7 +6451,7 @@
     {
       "copy_id": "canonical-20260807-0587",
       "oracle_name": "Lifelink",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6495,7 +6495,7 @@
     {
       "copy_id": "canonical-20260807-0591",
       "oracle_name": "Liquimetal Coating",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6506,7 +6506,7 @@
     {
       "copy_id": "canonical-20260807-0592",
       "oracle_name": "Llanowar Elves",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6759,7 +6759,7 @@
     {
       "copy_id": "canonical-20260807-0615",
       "oracle_name": "Mana Leak",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6770,7 +6770,7 @@
     {
       "copy_id": "canonical-20260807-0616",
       "oracle_name": "Manalith",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6814,7 +6814,7 @@
     {
       "copy_id": "canonical-20260807-0620",
       "oracle_name": "Maritime Guard",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6869,7 +6869,7 @@
     {
       "copy_id": "canonical-20260807-0625",
       "oracle_name": "Master's Call",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6935,7 +6935,7 @@
     {
       "copy_id": "canonical-20260807-0631",
       "oracle_name": "Merfolk Mesmerist",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -6946,7 +6946,7 @@
     {
       "copy_id": "canonical-20260807-0632",
       "oracle_name": "Merfolk Spy",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7001,7 +7001,7 @@
     {
       "copy_id": "canonical-20260807-0637",
       "oracle_name": "Mighty Leap",
-      "quantity": 5,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7023,7 +7023,7 @@
     {
       "copy_id": "canonical-20260807-0639",
       "oracle_name": "Mind Control",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7056,7 +7056,7 @@
     {
       "copy_id": "canonical-20260807-0642",
       "oracle_name": "Mind Stone",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7078,7 +7078,7 @@
     {
       "copy_id": "canonical-20260807-0644",
       "oracle_name": "Mire's Toll",
-      "quantity": 6,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7111,7 +7111,7 @@
     {
       "copy_id": "canonical-20260807-0647",
       "oracle_name": "Mischievous Mystic",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7144,7 +7144,7 @@
     {
       "copy_id": "canonical-20260807-0650",
       "oracle_name": "Mocking Sprite",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7166,7 +7166,7 @@
     {
       "copy_id": "canonical-20260807-0652",
       "oracle_name": "Molder Beast",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7221,7 +7221,7 @@
     {
       "copy_id": "canonical-20260807-0657",
       "oracle_name": "Morbid Plunder",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7232,7 +7232,7 @@
     {
       "copy_id": "canonical-20260807-0658",
       "oracle_name": "Mordant Dragon",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7254,7 +7254,7 @@
     {
       "copy_id": "canonical-20260807-0660",
       "oracle_name": "Moriok Reaver",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7309,7 +7309,7 @@
     {
       "copy_id": "canonical-20260807-0665",
       "oracle_name": "Moss Monster",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7320,7 +7320,7 @@
     {
       "copy_id": "canonical-20260807-0666",
       "oracle_name": "Mountain",
-      "quantity": 57,
+      "quantity": 99,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7386,7 +7386,7 @@
     {
       "copy_id": "canonical-20260807-0672",
       "oracle_name": "Mysteries of the Deep",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7463,7 +7463,7 @@
     {
       "copy_id": "canonical-20260807-0679",
       "oracle_name": "Naturalize",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7474,7 +7474,7 @@
     {
       "copy_id": "canonical-20260807-0680",
       "oracle_name": "Nature's Claim",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7529,7 +7529,7 @@
     {
       "copy_id": "canonical-20260807-0685",
       "oracle_name": "Necrogen Censer",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7562,7 +7562,7 @@
     {
       "copy_id": "canonical-20260807-0688",
       "oracle_name": "Negate",
-      "quantity": 6,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7727,7 +7727,7 @@
     {
       "copy_id": "canonical-20260807-0703",
       "oracle_name": "Obelisk of Grixis",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7738,7 +7738,7 @@
     {
       "copy_id": "canonical-20260807-0704",
       "oracle_name": "Ogre Resister",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7804,7 +7804,7 @@
     {
       "copy_id": "canonical-20260807-0710",
       "oracle_name": "Opt",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7826,7 +7826,7 @@
     {
       "copy_id": "canonical-20260807-0712",
       "oracle_name": "Orchard Spirit",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7936,7 +7936,7 @@
     {
       "copy_id": "canonical-20260807-0722",
       "oracle_name": "Oxidda Scrapmelter",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -7947,7 +7947,7 @@
     {
       "copy_id": "canonical-20260807-0723",
       "oracle_name": "Pacifism",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8013,7 +8013,7 @@
     {
       "copy_id": "canonical-20260807-0729",
       "oracle_name": "Path of Ancestry",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8057,7 +8057,7 @@
     {
       "copy_id": "canonical-20260807-0733",
       "oracle_name": "Peregrine Griffin",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8123,7 +8123,7 @@
     {
       "copy_id": "canonical-20260807-0739",
       "oracle_name": "Phyrexian Crusader",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8134,7 +8134,7 @@
     {
       "copy_id": "canonical-20260807-0740",
       "oracle_name": "Phyrexian Digester",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8189,7 +8189,7 @@
     {
       "copy_id": "canonical-20260807-0745",
       "oracle_name": "Pilgrim's Eye",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8200,7 +8200,7 @@
     {
       "copy_id": "canonical-20260807-0746",
       "oracle_name": "Piranha Marsh",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8222,7 +8222,7 @@
     {
       "copy_id": "canonical-20260807-0748",
       "oracle_name": "Pistus Strike",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8244,7 +8244,7 @@
     {
       "copy_id": "canonical-20260807-0750",
       "oracle_name": "Plains",
-      "quantity": 53,
+      "quantity": 99,
       "language": "nicht festgelegt; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8288,7 +8288,7 @@
     {
       "copy_id": "canonical-20260807-0754",
       "oracle_name": "Prairie Stream",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8431,7 +8431,7 @@
     {
       "copy_id": "canonical-20260807-0767",
       "oracle_name": "Prodigal Pyromancer",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8475,7 +8475,7 @@
     {
       "copy_id": "canonical-20260807-0771",
       "oracle_name": "Pulse Tracker",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8552,7 +8552,7 @@
     {
       "copy_id": "canonical-20260807-0778",
       "oracle_name": "Quest for the Goblin Lord",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8563,7 +8563,7 @@
     {
       "copy_id": "canonical-20260807-0779",
       "oracle_name": "Quicksand",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8607,7 +8607,7 @@
     {
       "copy_id": "canonical-20260807-0783",
       "oracle_name": "Raise the Alarm",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8618,7 +8618,7 @@
     {
       "copy_id": "canonical-20260807-0784",
       "oracle_name": "Rakdos Carnarium",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8662,7 +8662,7 @@
     {
       "copy_id": "canonical-20260807-0788",
       "oracle_name": "Rakdos Signet",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8673,7 +8673,7 @@
     {
       "copy_id": "canonical-20260807-0789",
       "oracle_name": "Rally the Forces",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8706,7 +8706,7 @@
     {
       "copy_id": "canonical-20260807-0792",
       "oracle_name": "Rampaging Baloths",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8761,7 +8761,7 @@
     {
       "copy_id": "canonical-20260807-0797",
       "oracle_name": "Razorfield Rhino",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8783,7 +8783,7 @@
     {
       "copy_id": "canonical-20260807-0799",
       "oracle_name": "Reality Shift",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Englisch; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -8849,7 +8849,7 @@
     {
       "copy_id": "canonical-20260807-0805",
       "oracle_name": "Recumbent Bliss",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9025,7 +9025,7 @@
     {
       "copy_id": "canonical-20260807-0821",
       "oracle_name": "Rite of Replication",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9124,7 +9124,7 @@
     {
       "copy_id": "canonical-20260807-0830",
       "oracle_name": "Roiling Terrain",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9190,7 +9190,7 @@
     {
       "copy_id": "canonical-20260807-0836",
       "oracle_name": "Rugged Highlands",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9201,7 +9201,7 @@
     {
       "copy_id": "canonical-20260807-0837",
       "oracle_name": "Ruin Ghost",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9245,7 +9245,7 @@
     {
       "copy_id": "canonical-20260807-0841",
       "oracle_name": "Runed Servitor",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9289,7 +9289,7 @@
     {
       "copy_id": "canonical-20260807-0845",
       "oracle_name": "Rusted Slasher",
-      "quantity": 5,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9311,7 +9311,7 @@
     {
       "copy_id": "canonical-20260807-0847",
       "oracle_name": "Ruthless Cullblade",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9344,7 +9344,7 @@
     {
       "copy_id": "canonical-20260807-0850",
       "oracle_name": "Sage Owl",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9421,7 +9421,7 @@
     {
       "copy_id": "canonical-20260807-0857",
       "oracle_name": "Savannah Lions",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9476,7 +9476,7 @@
     {
       "copy_id": "canonical-20260807-0862",
       "oracle_name": "Scoria Elemental",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9487,7 +9487,7 @@
     {
       "copy_id": "canonical-20260807-0863",
       "oracle_name": "Scoured Barrens",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9531,7 +9531,7 @@
     {
       "copy_id": "canonical-20260807-0867",
       "oracle_name": "Searing Blaze",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9608,7 +9608,7 @@
     {
       "copy_id": "canonical-20260807-0874",
       "oracle_name": "Sejiri Steppe",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9685,7 +9685,7 @@
     {
       "copy_id": "canonical-20260807-0881",
       "oracle_name": "Shatter",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9751,7 +9751,7 @@
     {
       "copy_id": "canonical-20260807-0887",
       "oracle_name": "Shivan Reef",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9795,7 +9795,7 @@
     {
       "copy_id": "canonical-20260807-0891",
       "oracle_name": "Shriekmaw",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9817,7 +9817,7 @@
     {
       "copy_id": "canonical-20260807-0893",
       "oracle_name": "Sign in Blood",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9839,7 +9839,7 @@
     {
       "copy_id": "canonical-20260807-0895",
       "oracle_name": "Silver Myr",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9905,7 +9905,7 @@
     {
       "copy_id": "canonical-20260807-0901",
       "oracle_name": "Skinrender",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9938,7 +9938,7 @@
     {
       "copy_id": "canonical-20260807-0904",
       "oracle_name": "Sky-Eel School",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -9960,7 +9960,7 @@
     {
       "copy_id": "canonical-20260807-0906",
       "oracle_name": "Skywinder Drake",
-      "quantity": 5,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10004,7 +10004,7 @@
     {
       "copy_id": "canonical-20260807-0910",
       "oracle_name": "Sleep",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10048,7 +10048,7 @@
     {
       "copy_id": "canonical-20260807-0914",
       "oracle_name": "Smoldering Spires",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10103,7 +10103,7 @@
     {
       "copy_id": "canonical-20260807-0919",
       "oracle_name": "Sol Ring",
-      "quantity": 5,
+      "quantity": 1,
       "language": "Deutsch; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10125,7 +10125,7 @@
     {
       "copy_id": "canonical-20260807-0921",
       "oracle_name": "Solemn Simulacrum",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10147,7 +10147,7 @@
     {
       "copy_id": "canonical-20260807-0923",
       "oracle_name": "Sorcerer's Strongbox",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10180,7 +10180,7 @@
     {
       "copy_id": "canonical-20260807-0926",
       "oracle_name": "Sorin's Thirst",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10279,7 +10279,7 @@
     {
       "copy_id": "canonical-20260807-0935",
       "oracle_name": "Soulcage Fiend",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10290,7 +10290,7 @@
     {
       "copy_id": "canonical-20260807-0936",
       "oracle_name": "Spectral Sailor",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10323,7 +10323,7 @@
     {
       "copy_id": "canonical-20260807-0939",
       "oracle_name": "Spin Engine",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10400,7 +10400,7 @@
     {
       "copy_id": "canonical-20260807-0946",
       "oracle_name": "Spread the Sickness",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10411,7 +10411,7 @@
     {
       "copy_id": "canonical-20260807-0947",
       "oracle_name": "Springbloom Druid",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10455,7 +10455,7 @@
     {
       "copy_id": "canonical-20260807-0951",
       "oracle_name": "Squee's Embrace",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10488,7 +10488,7 @@
     {
       "copy_id": "canonical-20260807-0954",
       "oracle_name": "Stampeding Rhino",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10521,7 +10521,7 @@
     {
       "copy_id": "canonical-20260807-0957",
       "oracle_name": "Steady Progress",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10532,7 +10532,7 @@
     {
       "copy_id": "canonical-20260807-0958",
       "oracle_name": "Steal Artifact",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10642,7 +10642,7 @@
     {
       "copy_id": "canonical-20260807-0968",
       "oracle_name": "Stonehorn Dignitary",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10664,7 +10664,7 @@
     {
       "copy_id": "canonical-20260807-0970",
       "oracle_name": "Storm Crow",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10675,7 +10675,7 @@
     {
       "copy_id": "canonical-20260807-0971",
       "oracle_name": "Storm Spirit",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10697,7 +10697,7 @@
     {
       "copy_id": "canonical-20260807-0973",
       "oracle_name": "Stormfront Pegasus",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10818,7 +10818,7 @@
     {
       "copy_id": "canonical-20260807-0984",
       "oracle_name": "Study Hall",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10840,7 +10840,7 @@
     {
       "copy_id": "canonical-20260807-0986",
       "oracle_name": "Sulfur Falls",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10939,7 +10939,7 @@
     {
       "copy_id": "canonical-20260807-0995",
       "oracle_name": "Swamp",
-      "quantity": 50,
+      "quantity": 99,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10961,7 +10961,7 @@
     {
       "copy_id": "canonical-20260807-0997",
       "oracle_name": "Swiftfoot Boots",
-      "quantity": 3,
+      "quantity": 1,
       "language": "Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10972,7 +10972,7 @@
     {
       "copy_id": "canonical-20260807-0998",
       "oracle_name": "Swiftwater Cliffs",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10983,7 +10983,7 @@
     {
       "copy_id": "canonical-20260807-0999",
       "oracle_name": "Swords to Plowshares",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Deutsch; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -10994,7 +10994,7 @@
     {
       "copy_id": "canonical-20260807-1000",
       "oracle_name": "Sylvan Bounty",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11005,7 +11005,7 @@
     {
       "copy_id": "canonical-20260807-1001",
       "oracle_name": "Sylvan Ranger",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11027,7 +11027,7 @@
     {
       "copy_id": "canonical-20260807-1003",
       "oracle_name": "Sylvok Replica",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11137,7 +11137,7 @@
     {
       "copy_id": "canonical-20260807-1013",
       "oracle_name": "Taste of Blood",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11181,7 +11181,7 @@
     {
       "copy_id": "canonical-20260807-1017",
       "oracle_name": "Tectonic Edge",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11192,7 +11192,7 @@
     {
       "copy_id": "canonical-20260807-1018",
       "oracle_name": "Teetering Peaks",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11203,7 +11203,7 @@
     {
       "copy_id": "canonical-20260807-1019",
       "oracle_name": "Tel-Jilad Defiance",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11280,7 +11280,7 @@
     {
       "copy_id": "canonical-20260807-1026",
       "oracle_name": "Temple of Enlightenment",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11291,7 +11291,7 @@
     {
       "copy_id": "canonical-20260807-1027",
       "oracle_name": "Temple of Epiphany",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11324,7 +11324,7 @@
     {
       "copy_id": "canonical-20260807-1030",
       "oracle_name": "Temple of Mystery",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11335,7 +11335,7 @@
     {
       "copy_id": "canonical-20260807-1031",
       "oracle_name": "Temple of Plenty",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11390,7 +11390,7 @@
     {
       "copy_id": "canonical-20260807-1036",
       "oracle_name": "Terramorphic Expanse",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11434,7 +11434,7 @@
     {
       "copy_id": "canonical-20260807-1040",
       "oracle_name": "Think Twice",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11445,7 +11445,7 @@
     {
       "copy_id": "canonical-20260807-1041",
       "oracle_name": "Thirst for Knowledge",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11467,7 +11467,7 @@
     {
       "copy_id": "canonical-20260807-1043",
       "oracle_name": "Thornwood Falls",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11522,7 +11522,7 @@
     {
       "copy_id": "canonical-20260807-1048",
       "oracle_name": "Throne of Geth",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11533,7 +11533,7 @@
     {
       "copy_id": "canonical-20260807-1049",
       "oracle_name": "Thrummingbird",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11588,7 +11588,7 @@
     {
       "copy_id": "canonical-20260807-1054",
       "oracle_name": "Tine Shrike",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11599,7 +11599,7 @@
     {
       "copy_id": "canonical-20260807-1055",
       "oracle_name": "Tireless Tracker",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert; Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11643,7 +11643,7 @@
     {
       "copy_id": "canonical-20260807-1059",
       "oracle_name": "Tolarian Terror",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11654,7 +11654,7 @@
     {
       "copy_id": "canonical-20260807-1060",
       "oracle_name": "Tomb Hex",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11797,7 +11797,7 @@
     {
       "copy_id": "canonical-20260807-1073",
       "oracle_name": "Trinket Mage",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11896,7 +11896,7 @@
     {
       "copy_id": "canonical-20260807-1082",
       "oracle_name": "Turn to Slag",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -11940,7 +11940,7 @@
     {
       "copy_id": "canonical-20260807-1086",
       "oracle_name": "Twisted Abomination",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12050,7 +12050,7 @@
     {
       "copy_id": "canonical-20260807-1096",
       "oracle_name": "Unsummon",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12061,7 +12061,7 @@
     {
       "copy_id": "canonical-20260807-1097",
       "oracle_name": "Untamed Might",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12149,7 +12149,7 @@
     {
       "copy_id": "canonical-20260807-1105",
       "oracle_name": "Vampire Nighthawk",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12193,7 +12193,7 @@
     {
       "copy_id": "canonical-20260807-1109",
       "oracle_name": "Vastwood Zendikon",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12226,7 +12226,7 @@
     {
       "copy_id": "canonical-20260807-1112",
       "oracle_name": "Vedalken Anatomist",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12270,7 +12270,7 @@
     {
       "copy_id": "canonical-20260807-1116",
       "oracle_name": "Vengeful Bloodwitch",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12292,7 +12292,7 @@
     {
       "copy_id": "canonical-20260807-1118",
       "oracle_name": "Veteran's Reflexes",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12314,7 +12314,7 @@
     {
       "copy_id": "canonical-20260807-1120",
       "oracle_name": "Vicious Hunger",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12369,7 +12369,7 @@
     {
       "copy_id": "canonical-20260807-1125",
       "oracle_name": "Violent Outburst",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12479,7 +12479,7 @@
     {
       "copy_id": "canonical-20260807-1135",
       "oracle_name": "Vulshok Heartstoker",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12490,7 +12490,7 @@
     {
       "copy_id": "canonical-20260807-1136",
       "oracle_name": "Vulshok Replica",
-      "quantity": 3,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12567,7 +12567,7 @@
     {
       "copy_id": "canonical-20260807-1143",
       "oracle_name": "Warpath Ghoul",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12578,7 +12578,7 @@
     {
       "copy_id": "canonical-20260807-1144",
       "oracle_name": "Warstorm Surge",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12611,7 +12611,7 @@
     {
       "copy_id": "canonical-20260807-1147",
       "oracle_name": "Water Servant",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12721,7 +12721,7 @@
     {
       "copy_id": "canonical-20260807-1157",
       "oracle_name": "Wind Zendikon",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12732,7 +12732,7 @@
     {
       "copy_id": "canonical-20260807-1158",
       "oracle_name": "Wind-Scarred Crag",
-      "quantity": 4,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12864,7 +12864,7 @@
     {
       "copy_id": "canonical-20260807-1170",
       "oracle_name": "Wring Flesh",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12919,7 +12919,7 @@
     {
       "copy_id": "canonical-20260807-1175",
       "oracle_name": "Zombie Infestation",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -12930,7 +12930,7 @@
     {
       "copy_id": "canonical-20260807-1176",
       "oracle_name": "Zombify",
-      "quantity": 2,
+      "quantity": 1,
       "language": "nicht dokumentiert",
       "condition": "UNKNOWN",
       "foil": false,
@@ -13876,7 +13876,7 @@
     {
       "copy_id": "canonical-20260807-1262",
       "oracle_name": "Morska, Undersea Sleuth",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -14063,7 +14063,7 @@
     {
       "copy_id": "canonical-20260807-1279",
       "oracle_name": "Reliquary Tower",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Englisch; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -14437,7 +14437,7 @@
     {
       "copy_id": "canonical-20260807-1313",
       "oracle_name": "Temple of the False God",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Englisch; Deutsch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -14668,7 +14668,7 @@
     {
       "copy_id": "canonical-20260807-1334",
       "oracle_name": "Portent of Betrayal",
-      "quantity": 2,
+      "quantity": 1,
       "language": "Englisch",
       "condition": "UNKNOWN",
       "foil": false,
@@ -14691,10 +14691,10 @@
   "sources": [
     {
       "source_type": "google_drive_export",
-      "source_name": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
-      "source_path": "drive:1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+      "source_name": "redacted",
+      "source_path": "redacted",
       "data_as_of": "2026-08-07T00:00:00Z",
-      "sha256": "cb6e52dfe9dc1b0328b2c15011cad7e4d8963105ebdf75ecf1aea1de25e238ad",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
       "quality": "project_verified",
       "notes": "Read-only canonical current inventory source."
     }

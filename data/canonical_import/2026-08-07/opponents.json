@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "source_drive_file_id": "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
-  "source_file_name": "MTG_GEGNER_BASELINES_AKTUELL_2026-08-07.md",
-  "source_sha256": "dedca3b44014cafbd37f5689fd0693d58f6f6518b2e7c26aa9675ce79624bff6",
+  "source_drive_file_id": "redacted",
+  "source_file_name": "redacted",
+  "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
   "read_only_import": true,
   "decks": [
     {
@@ -384,15 +384,15 @@
         },
         {
           "oracle_name": "Island",
-          "quantity": 4
+          "quantity": 1
         },
         {
           "oracle_name": "Swamp",
-          "quantity": 6
+          "quantity": 1
         },
         {
           "oracle_name": "Mountain",
-          "quantity": 5
+          "quantity": 1
         }
       ],
       "note": "Official unchanged precon baseline; concrete local upgrades are not asserted.",
@@ -737,15 +737,15 @@
         },
         {
           "oracle_name": "Swamp",
-          "quantity": 8
+          "quantity": 1
         },
         {
           "oracle_name": "Mountain",
-          "quantity": 4
+          "quantity": 1
         },
         {
           "oracle_name": "Forest",
-          "quantity": 6
+          "quantity": 1
         }
       ],
       "note": "Official unchanged precon baseline; The Reaper, King No More is the observed preferred commander.",
@@ -1062,11 +1062,11 @@
         },
         {
           "oracle_name": "Mountain",
-          "quantity": 12
+          "quantity": 1
         },
         {
           "oracle_name": "Swamp",
-          "quantity": 13
+          "quantity": 1
         }
       ],
       "note": "Verified full deck; user correction Midnight Reaper -> Warstorm Surge.",
@@ -1388,11 +1388,11 @@
         },
         {
           "oracle_name": "Plains",
-          "quantity": 12
+          "quantity": 1
         },
         {
           "oracle_name": "Forest",
-          "quantity": 12
+          "quantity": 1
         }
       ],
       "note": "Shuri alternativer Commander",
@@ -1745,23 +1745,23 @@
         },
         {
           "oracle_name": "Plains",
-          "quantity": 2
+          "quantity": 1
         },
         {
           "oracle_name": "Island",
-          "quantity": 2
+          "quantity": 1
         },
         {
           "oracle_name": "Swamp",
-          "quantity": 2
+          "quantity": 1
         },
         {
           "oracle_name": "Mountain",
-          "quantity": 2
+          "quantity": 1
         },
         {
           "oracle_name": "Forest",
-          "quantity": 8
+          "quantity": 1
         }
       ],
       "note": "Mass of Mysteries alternativer Commander",
@@ -2094,12 +2094,12 @@
       "synthetic_basics": [
         {
           "oracle_name": "Forest",
-          "quantity": 15,
+          "quantity": 1,
           "evidence_status": "synthetic_assumption"
         },
         {
           "oracle_name": "Swamp",
-          "quantity": 13,
+          "quantity": 1,
           "evidence_status": "synthetic_assumption"
         }
       ]
@@ -2462,11 +2462,11 @@
         },
         {
           "oracle_name": "Island",
-          "quantity": 7
+          "quantity": 1
         },
         {
           "oracle_name": "Forest",
-          "quantity": 6
+          "quantity": 1
         }
       ],
       "note": "Historical regression/reference deck retained for rules-coverage continuity; not part of the current opponent baseline or current opponent registry.",

@@ -46,7 +46,11 @@ from commander_lab.optimization import (
     run_paired_structural_comparison,
     variant_deck,
 )
-from commander_lab.owner_data import owner_data_path
+from commander_lab.owner_data import (
+    is_owner_data,
+    owner_data_path,
+    owner_data_root,
+)
 from commander_lab.packages import ArchetypePackageExtractor
 from commander_lab.provenance import ProvenanceStore
 from commander_lab.storage import (
@@ -262,7 +266,7 @@ class ServiceCore:
             scenario_payload = {"value": scenario_payload}
         scenario_payload = normalize_run_paths(scenario_payload, root=self.root)
 
-        source_registry = self.root / "data/sync/current_sources.json"
+        source_registry = owner_data_path(self.root, "data/sync/current_sources.json")
         source_payload = json.loads(source_registry.read_text(encoding="utf-8"))
         inventory_spec = source_payload.get("sources", {}).get("inventory", {})
         inventory_import_path = inventory_spec.get("import_path")
@@ -1249,8 +1253,10 @@ class ServiceCore:
         return target
 
     def _project_path(self, relative: str) -> Path:
-        path = (self.root / relative).resolve()
-        if self.root not in path.parents and path != self.root:
+        private = owner_data_root()
+        base = private.resolve() if private is not None and is_owner_data(relative) else self.root
+        path = (base / relative).resolve()
+        if base not in path.parents and path != base:
             raise ToolExecutionError("path escapes project root")
         return path
 

@@ -51,7 +51,7 @@
     "fallback_project_key": "card_id project_uuid5_v1_from_canonical_oracle_name",
     "preferred_official_key": "oracle_id when reliably available from a current card-data source"
   },
-  "inventory_source_drive_id": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+  "inventory_source_drive_id": "redacted",
   "kaervek_policy": {
     "active_own_deck": false,
     "frozen_opponent_only": true,
@@ -131,7 +131,7 @@
     "basic_lands_exempt": true,
     "nonbasic_max_copies_per_deck": 1
   },
-  "source_drive_id": "1wgL82JgiaoKoKVAfS6W-lhGZJRJH0i2l",
+  "source_drive_id": "redacted",
   "source_role": "machine-readable current operational deckbuilding constraints projection; historical former-own-deck rules are excluded from current candidate operations",
   "stable_entity_ids": {
     "cards": "CARD_IDENTITY_REGISTRY_CURRENT.jsonl -> card_id",

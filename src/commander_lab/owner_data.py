@@ -23,6 +23,7 @@ OWNER_DATA_PATHS: tuple[str, ...] = (
     "data/collections/current_deck_allocations.json",
     "data/collections/phase7_optimization_pool.json",
     "data/canonical_import/",
+    "data/sync/current_sources.json",
 )
 
 
