@@ -55,12 +55,12 @@ Forge evidence packages:
 runtime_run = 31429537724
 runtime_artifact = 9078696345
 runtime_sha256 = 28b5e6c6af0a1602ee083265b20335382e70abbdfbbe67ac16209f489003da87
-runtime_drive_id = 1peoRSZB0aLL_LUvva-EgPR3vW3wlhsDI
+runtime_drive_id = redacted
 
 build_controller_run = 31429032677
 build_controller_artifact = 9078423792
 build_controller_sha256 = f951787f4a68ac843f90648d2c6733e35f45dd69d79af060c04a844a93dadefa
-build_controller_drive_id = 1H69PC2PI5vNpykm5zlxdZ_DUAxu8Se0_
+build_controller_drive_id = redacted
 ```
 
 Both Drive roundtrips are SHA-256 identical to their GitHub artifacts.

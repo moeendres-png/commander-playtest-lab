@@ -3,7 +3,7 @@
   "purpose": "Technical RogShai MVP acceptance facts only; not a canonical deck, inventory, allocation, purchase, or opponent mutation.",
   "observed_at": "2026-08-10",
   "rogshai_candidate_pool": {
-    "drive_file_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
+    "drive_file_id": "redacted",
     "content_sha256": "43287c9d372c7d8ae5980f9ceea872fe55aa12e5af80cca2a9dec2e32946e39e",
     "expected_count": 795,
     "sorted_oracle_names_sha256": "44557d429d695d8c634210778c39c0507f5c87ee584c8b29dafedcb2dae64dc7",
@@ -84,15 +84,15 @@
   },
   "sources": {
     "candidate_pool": {
-      "source_file_id": "1L9znm2gZX8KaElOBtJjN_5P8i-cnmNu4",
+      "source_file_id": "redacted",
       "content_sha256": "43287c9d372c7d8ae5980f9ceea872fe55aa12e5af80cca2a9dec2e32946e39e"
     },
     "inventory_features": {
-      "source_file_id": "1Mp2sYnuv_HXTx9n55AIS2lmIu0EgCxLN",
+      "source_file_id": "redacted",
       "content_sha256": "de70ae3065de0c8013be60bd8a2ada75b3c898d2eaf0cef8d567bef002ca203a"
     },
     "availability": {
-      "source_file_id": "1xVScCCgH5L26mPG3oF44azJ_H9SyABJc",
+      "source_file_id": "redacted",
       "content_sha256": "0ba098e4daedf1ea695aee22a4ccc761c2f9abb03e12da80f9c9e5346b46e4c3"
     },
     "coverage": {

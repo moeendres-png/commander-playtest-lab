@@ -44,10 +44,10 @@
     "evidence": {
       "runtime_run_id": 31398027517, "runtime_artifact_id": 9066656227,
       "runtime_artifact_sha256": "9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926",
-      "runtime_drive_id": "1SYlE4AVJqCw9REOVCaCmrFHNoSJtjPx9",
+      "runtime_drive_id": "redacted",
       "fixture_run_id": 31399104522, "fixture_artifact_id": 9067034754,
       "fixture_artifact_sha256": "fa2cff928f75d74b519eb7984d0bb272809c30a9c0f8a2ce59debed1884b8d18",
-      "fixture_drive_id": "197zw-jJt4YPQwKY2oID9tukg1S1bXtVI"
+      "fixture_drive_id": "redacted"
     }
   },
   "forge": {
@@ -89,12 +89,12 @@
       "runtime_workflow_commit": "641db5fc66d0748762cfe649358f5a0273a3a137",
       "runtime_artifact_id": 9078696345,
       "runtime_artifact_sha256": "28b5e6c6af0a1602ee083265b20335382e70abbdfbbe67ac16209f489003da87",
-      "runtime_drive_id": "1peoRSZB0aLL_LUvva-EgPR3vW3wlhsDI",
+      "runtime_drive_id": "redacted",
       "build_controller_run_id": 31429032677,
       "build_controller_workflow_commit": "fcee69c499f55c04186ab24aad5d7519e3e23b95",
       "build_controller_artifact_id": 9078423792,
       "build_controller_artifact_sha256": "f951787f4a68ac843f90648d2c6733e35f45dd69d79af060c04a844a93dadefa",
-      "build_controller_drive_id": "1H69PC2PI5vNpykm5zlxdZ_DUAxu8Se0_"
+      "build_controller_drive_id": "redacted"
     },
     "remaining_limits": [
       "No production-style external adapter was built in P3C.",

@@ -2,7 +2,7 @@
 
 Restore the final `commander-playtest-lab` repository from one of these verified Drive sources:
 
-- Stable `00_LATEST` repository ID: `1QrPVlbP4CNfvwtzl0dv6lVXmG5ayHSA5`
+- Stable `00_LATEST` repository ID: `redacted`
 - Final-audit repository ID: `1nK9kIeJic7A93wBUkG-Lam3KQH71fLkw`
 - Final-audit bundle ID: `1pchdkQACw7k_vCLXYUICWZSfhuyBwRKV`
 - Final-audit source ID: `1Xu-N9NUyeyaEqYNJYYytwqkZkmccTJy1`

@@ -6,8 +6,8 @@
   "source_type": "opponent_snapshot",
   "derived_from": {
     "source_type": "owned_verified_deck",
-    "drive_file_id": "1n4wUDx7jMheUps8tkqRSa64QSV1DFdI1",
-    "xlsx_drive_file_id": "1n2z0Vc4pfeE_lwlWynL5IStrGGFrH8R5"
+    "drive_file_id": "redacted",
+    "xlsx_drive_file_id": "redacted"
   },
   "verified_full_list": true,
   "canonical_authority": "Google Drive owned deck; simulator snapshot is immutable derivative",

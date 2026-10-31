@@ -8,8 +8,8 @@ Local audit status: `final_audit_passed_with_limitations` before Drive upload ve
 
 ## Ground truth
 
-- Canonical `00_LATEST`: `1PV4WXGZyolwiylzK9F5w5VrJ2LmAv_vj`
-- Drive repository file: `1QrPVlbP4CNfvwtzl0dv6lVXmG5ayHSA5`
+- Canonical `00_LATEST`: `redacted`
+- Drive repository file: `redacted`
 - Start version: `1.10.1`
 - Start commit: `6459581cc3e886d412d8e3c1bf3c1f7dfe0f3009`
 - Drive repository SHA-256: `a814523177e7ee848716b3e4cec639a34d3657821aee2a8a8a306a90e6904e36`

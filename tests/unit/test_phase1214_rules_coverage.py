@@ -44,8 +44,8 @@ def test_card_coverage_registry_has_complete_scope_and_strict_external_defaults(
     assert data["generated_from_read_only_canonical_drive_snapshot"] is True
     assert data["source_drive_files"] == {
         "decks": "1mO0pnm1thoRrjAg7TGuGSXmrTTYDivJHxrUCdEtY5GQ",
-        "inventory": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
-        "opponents": "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
+        "inventory": "redacted",
+        "opponents": "redacted",
     }
     assert data["external_engine_execution_status"] == "blocked"
     assert len(data["cards"]) == 1698

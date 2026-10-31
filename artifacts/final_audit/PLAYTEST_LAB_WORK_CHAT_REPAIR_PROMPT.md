@@ -6,9 +6,9 @@ Use Google Drive and local file execution. The Phase-12.11 final audit is alread
 
 - Project folder: `MTG – Aktueller Projektstand`
 - Handoff folder: `MTG Commander Playtest Lab – Aktuelle Übergabe`
-- Canonical `00_LATEST` folder ID: `1PV4WXGZyolwiylzK9F5w5VrJ2LmAv_vj`
-- Final audit folder: `20_Final_System_Audit` (`1YTuihDCyRZBynKa1wQ9JXe_6DvdJDzyf`)
-- Stable repository file ID: `1QrPVlbP4CNfvwtzl0dv6lVXmG5ayHSA5`
+- Canonical `00_LATEST` folder ID: `redacted`
+- Final audit folder: `20_Final_System_Audit` (`redacted`)
+- Stable repository file ID: `redacted`
 - Final-audit repository file ID: `1nK9kIeJic7A93wBUkG-Lam3KQH71fLkw`
 - Final-audit bundle file ID: `1pchdkQACw7k_vCLXYUICWZSfhuyBwRKV`
 - Final-audit source file ID: `1Xu-N9NUyeyaEqYNJYYytwqkZkmccTJy1`

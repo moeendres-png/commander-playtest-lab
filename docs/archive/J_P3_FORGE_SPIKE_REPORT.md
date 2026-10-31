@@ -158,7 +158,7 @@ artifact = 9078696345
 zip_sha256 = 28b5e6c6af0a1602ee083265b20335382e70abbdfbbe67ac16209f489003da87
 artifact_size_bytes = 283514
 internal_manifest_sha256 = 7f475706664a0ce8b514948e101d32c9c65b3321e54ffd22157dc7ce93c9788c
-Drive_ID = 1peoRSZB0aLL_LUvva-EgPR3vW3wlhsDI
+Drive_ID = redacted
 Drive_roundtrip = PASS
 ```
 
@@ -171,7 +171,7 @@ artifact = 9078423792
 zip_sha256 = f951787f4a68ac843f90648d2c6733e35f45dd69d79af060c04a844a93dadefa
 artifact_size_bytes = 62384
 internal_manifest_sha256 = 0529dc2723d49d54ea849054e6a035671c8ee12cf13c974150154729da82d00e
-Drive_ID = 1H69PC2PI5vNpykm5zlxdZ_DUAxu8Se0_
+Drive_ID = redacted
 Drive_roundtrip = PASS
 ```
 
