@@ -32,10 +32,10 @@
       "notes": "94 entries; 0.31% meta; 11.70% conversion at retrieval"
     },
     {
-      "source_id": "mtgdecks-korvold-peter-zschau-2026",
-      "title": "MTGDecks Korvold by Peter Zschau",
+      "source_id": "mtgdecks-korvold-author-removed-2026",
+      "title": "MTGDecks Korvold decklist (author name removed)",
       "url": "https://mtgdecks.net/Commander/korvold-fae-cursed-king-decklist-by-peter-zschau-2985613",
-      "author": "Peter Zschau",
+      "author": "(author name removed)",
       "retrieved_at": "2026-08-05T22:45:00+00:00",
       "published_at": "2026-06-13T00:00:00+00:00",
       "source_type": "decklist",
@@ -143,7 +143,7 @@
   ],
   "deck_snapshots": [
     {
-      "source_id": "mtgdecks-korvold-peter-zschau-2026",
+      "source_id": "mtgdecks-korvold-author-removed-2026",
       "commander": "Korvold, Fae-Cursed King",
       "deck_hash": "95a8ff22fed58707783d088969a5f2e80221d05e17b1771f59ebc30161de6f6b",
       "retrieved_at": "2026-08-05T22:45:00+00:00",

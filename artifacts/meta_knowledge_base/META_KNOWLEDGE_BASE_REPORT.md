@@ -14,7 +14,7 @@ cEDH records are structure, package, sequencing and interaction benchmarks unles
 ## Sources
 - `edhtop16-rogsi-commander-2026` — EDHTop16 commander page: Ishai / Rograkh (authoritative_tournament)
 - `edhtop16-korvold-commander-2026` — EDHTop16 commander page: Korvold (authoritative_tournament)
-- `mtgdecks-korvold-peter-zschau-2026` — MTGDecks Korvold by Peter Zschau (verified_decklist)
+- `mtgdecks-korvold-author-removed-2026` — MTGDecks Korvold decklist (author name removed) (verified_decklist)
 - `archidekt-korvold-cedh-primer-5688565` — Archidekt Korvold cEDH Primer (established_primer)
 - `edhrec-rogsi-optimized-2026` — EDHREC average RogSi optimized (aggregator)
 - `edhrec-rogsi-control-2026` — EDHREC average RogSi control (aggregator)
