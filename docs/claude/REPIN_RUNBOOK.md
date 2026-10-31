@@ -38,7 +38,7 @@ Build the fork jar and add the Lab bridge classes of `main` (`engine-bridge/` bu
   to move a hash):** 46 precon pods with `scripts/precon_pod_sweep.py --jar … --out …
   --import-report <report of scripts/measure_precon_imports.py> --plan-seed 1 --game-seed 1`;
   36 real-pod seeds with `scripts/benchmark_xmage_full_games.py run … --seeds 1-36`
-  (reference run of the current pilot and pin: `docs/performance/REFERENCE_36_SEEDS_2026-10-31.md`); and
+  (reference run of the current pilot and pin: `docs/performance/REFERENCE_36_SEEDS_2026-10-31b.md`); and
   `scripts/determinism_probe.py locate` (and `--raw-order`) for pods that were unstable
   before (`docs/performance/DETERMINISM_PROBE.md`).
 - **Speed only interleaved** (ABBA, the cold first run not counted). CPU time (`child_cpu_s`)
