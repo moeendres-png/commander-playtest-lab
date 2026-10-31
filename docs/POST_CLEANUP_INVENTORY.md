@@ -84,7 +84,7 @@ The strict-quality branches remain intentionally available because repository-wi
 
 One duplicate object was proven empty before deletion:
 
-- Empty duplicate `17_Mulligan_Lab` folder, Drive ID `1Ftt8cy9ADZ0PuLwIWGqEhT7pFsCXdXun`.
+- Empty duplicate `17_Mulligan_Lab` folder, Drive ID `redacted`.
 
 The populated `17_Mulligan_Lab` folder remains in the active project area.
 

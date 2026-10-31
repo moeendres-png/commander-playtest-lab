@@ -65,13 +65,13 @@
   "drive": {
     "permanently_deleted": [
       {
-        "id": "1Ftt8cy9ADZ0PuLwIWGqEhT7pFsCXdXun",
+        "id": "redacted",
         "name": "17_Mulligan_Lab",
         "reason": "proven empty duplicate; populated 17_Mulligan_Lab remains"
       }
     ],
     "archived_or_moved": [
-      {"id":"1PV4WXGZyolwiylzK9F5w5VrJ2LmAv_vj","name":"HISTORICAL_00_LATEST_PRE_E_2026-08-08","reason":"active 00_LATEST contained stale/mixed 1.13.1-era release artifacts"},
+      {"id":"redacted","name":"HISTORICAL_00_LATEST_PRE_E_2026-08-08","reason":"active 00_LATEST contained stale/mixed 1.13.1-era release artifacts"},
       {"id":"1aD4-p6e1Rs6RDFe_f2v7xEBEX_pw5vQw","name":"HISTORICAL_21_SUPERSEDED_Pre_XMage_Data_Sync_1.13.3"},
       {"id":"1i8EXpQ1NYy4qfzB4FHFgGvGXo3xOZFTN","name":"HISTORICAL_23_SUPERSEDED_Pre_XMage_Data_Sync_1.13.3"},
       {"id":"1WiO3wqJwELp_sZ6ptfoTIpJdFW8FIwK5","name":"HISTORICAL_20_Pre-XMage_Data_Sync_1.13.3"},
@@ -79,7 +79,7 @@
       {"id":"1EoTcdtBOaLRh3doAoO0Jaj0JEjuJNl8U","name":"HISTORICAL_23_Data_Sync_1.13.3"},
       {"id":"1QDcD2O2CrQtbqLAX6RLPDnvxiiI2ZWWQ","name":"HISTORICAL_23_Pre_XMage_Data_Sync_1.13.3_FINAL"},
       {"id":"1xjEpg5jil6LQaQvATlAp4HaFAy8EXFot","name":"HISTORICAL_24_Release_1.13.4_Pretest_Variants_2026-08-08"},
-      {"id":"1YTuihDCyRZBynKa1wQ9JXe_6DvdJDzyf","name":"HISTORICAL_20_Final_System_Audit_2026-08-06"},
+      {"id":"redacted","name":"HISTORICAL_20_Final_System_Audit_2026-08-06"},
       {"id":"1QbjNOYMpwcmCQpsqfvS4biCHZqGG1jZQ","name":"HISTORICAL_PLAYTEST_LAB_KANONISCHER_EINSTIEG_PRE_1.13.4.md"},
       {"id":"1eJ6RYx4E7t0K_PbcCdVXB8G0Jjd86TZc","name":"HISTORICAL_PLAYTEST_LAB_EXTERNAL_ENGINE_FIX_2026-08-07.md"},
       {"id":"1iLPLiSRQ455RJ6cMTwQdnW6S5aaa_6yp","name":"HISTORICAL_12_15-12_17_Repair_1.10.3_2026-08-07"},

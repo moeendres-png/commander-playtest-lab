@@ -24,7 +24,7 @@ fixture_hash = cfea9c136b9126c4d367b0c91ebfe4089a47490c7d60dfae5e78dd307eb47dbb
 - artifact ZIP SHA-256: `9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926`
 - artifact size: `63302` bytes
 - internal manifest SHA-256: `02f6553fa099f38814bbb9f7a4e6818f158bf42d8ce94e75df4ecc2f57c7a2f5`
-- Drive ID: `1SYlE4AVJqCw9REOVCaCmrFHNoSJtjPx9`
+- Drive ID: `redacted`
 - Drive readback size: `63302` bytes
 - Drive readback SHA-256: `9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926`
 
@@ -42,7 +42,7 @@ The remote probe also invoked `sendPlayerAction` against a deliberately non-exis
 - artifact ZIP SHA-256: `fa2cff928f75d74b519eb7984d0bb272809c30a9c0f8a2ce59debed1884b8d18`
 - artifact size: `34682` bytes
 - internal manifest SHA-256: `669ec1a30603b17e77152f60e26e481ac49a00cd67655d70cc08170c17484025`
-- Drive ID: `197zw-jJt4YPQwKY2oID9tukg1S1bXtVI`
+- Drive ID: `redacted`
 
 Executed provider-native tests:
 

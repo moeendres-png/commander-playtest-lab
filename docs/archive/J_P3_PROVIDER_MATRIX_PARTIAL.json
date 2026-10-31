@@ -73,11 +73,11 @@
       "runtime_run_id": 31398027517,
       "runtime_artifact_id": 9066656227,
       "runtime_artifact_sha256": "9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926",
-      "runtime_drive_id": "1SYlE4AVJqCw9REOVCaCmrFHNoSJtjPx9",
+      "runtime_drive_id": "redacted",
       "fixture_run_id": 31399104522,
       "fixture_artifact_id": 9067034754,
       "fixture_artifact_sha256": "fa2cff928f75d74b519eb7984d0bb272809c30a9c0f8a2ce59debed1884b8d18",
-      "fixture_drive_id": "197zw-jJt4YPQwKY2oID9tukg1S1bXtVI"
+      "fixture_drive_id": "redacted"
     },
     "remaining_limits": [
       "No live four-player Ishai/Rograkh match was driven end-to-end through the remote controller.",

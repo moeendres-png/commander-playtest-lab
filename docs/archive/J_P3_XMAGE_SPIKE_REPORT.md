@@ -135,7 +135,7 @@ controller evidence commit = 52fb1654d22d128d9962741f9908e92f5d4781ad
 artifact = 9066656227
 zip_sha256 = 9f49cae416d384490e8fe77da6b782f2ae5c8732f78778c3919df143b5e09926
 internal_manifest_sha256 = 02f6553fa099f38814bbb9f7a4e6818f158bf42d8ce94e75df4ecc2f57c7a2f5
-Drive_ID = 1SYlE4AVJqCw9REOVCaCmrFHNoSJtjPx9
+Drive_ID = redacted
 Drive_roundtrip = PASS
 ```
 
@@ -147,7 +147,7 @@ workflow evidence commit = 09132ca8b43b9c61d92343b290cce4b2b8047fbe
 artifact = 9067034754
 zip_sha256 = fa2cff928f75d74b519eb7984d0bb272809c30a9c0f8a2ce59debed1884b8d18
 internal_manifest_sha256 = 669ec1a30603b17e77152f60e26e481ac49a00cd67655d70cc08170c17484025
-Drive_ID = 197zw-jJt4YPQwKY2oID9tukg1S1bXtVI
+Drive_ID = redacted
 ```
 
 ## P3B decision

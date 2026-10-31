@@ -4817,7 +4817,7 @@
         "canonical_snapshot": {
           "path": "data/canonical_import/2026-08-07/deck_lists.json",
           "read_only": true,
-          "source_drive_id": "15SaFU4pgoYugXiimT0uqlw0AF53fCuf9",
+          "source_drive_id": "redacted",
           "source_workbook": "MTG_Finale_Decklisten_und_Kartenpruefung_2026-08-07.xlsx"
         },
         "deck_priority": [

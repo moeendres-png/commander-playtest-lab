@@ -34,26 +34,26 @@
   "schema_version": "1.0",
   "source_bindings": {
     "canonical_inventory": {
-      "drive_id": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+      "drive_id": "redacted",
       "identity_registry_sha256": "cdac9fbc1ba83d9f7435c2f46781ae18853ad8fc9c0f15cecd296262aed42ff0",
       "local_file": "CARD_IDENTITY_REGISTRY_CURRENT.jsonl"
     },
     "existing_target_semantics": {
-      "drive_id": "1R3UdhdcN7vZ8kzf6zzXmH6aV7CDHfV3P",
+      "drive_id": "redacted",
       "rows": 1007,
       "sha256": "9f8c30314c1ef3a832ee5cfd46b1693b0160bbb5bd4119e4ea93d5fb5e1a3925"
     },
     "physical_registry": {
-      "drive_id": "1N6YxgqHVFnJBy6NtEl1k23q1KJCXkIGt",
+      "drive_id": "redacted",
       "sha256": "6772a6701998e7e876703dd809df371ee1db07bed74276f36d72281146a8e1f2"
     },
     "rogshai_context": {
-      "drive_id": "1ISgjG70YCJWVJNSCV1gXuDgh8liVCppx",
+      "drive_id": "redacted",
       "rows": 795,
       "sha256": "6025ac072a704339d418a92ac91e3caedcf7ddbd8ffd2ae62421739ae9419eae"
     },
     "taxonomy": {
-      "drive_id": "1bzDePGMDhOix0enaBxQ53BCxB9Dw4IQj",
+      "drive_id": "redacted",
       "sha256": "23bf37c32b4e556bd0c1e4368b30047c615c51340d0420bd01ce2e501e312466"
     }
   },
