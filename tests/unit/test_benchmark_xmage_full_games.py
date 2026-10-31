@@ -331,6 +331,15 @@ def _git(repo: Path, *args: str) -> str:
     return done.stdout.strip()
 
 
+# Files that decide the 36-seed hashes without being pilot code (#1076).
+_HASH_INPUTS = (
+    "data/cards/pilot_card_knowledge.json",
+    "data/decks/rogshai_current.json",
+    "scripts/run_real_4p_full_game_smoke.py",
+    "engine-bridge/pom.xml",
+)
+
+
 def _reference_repo(tmp_path: Path) -> tuple[Path, Path]:
     """A throw-away repo that has a reference commit, a pilot sibling module and an unrelated file."""
     repo = tmp_path / "repo"
@@ -343,6 +352,9 @@ def _reference_repo(tmp_path: Path) -> tuple[Path, Path]:
     (rules / "full_game_pilot/payment.py").write_text("x = 1\n", encoding="utf-8")
     (rules / "full_game_pilot_mana_hold.py").write_text("y = 1\n", encoding="utf-8")
     (rules / "full_game.py").write_text("z = 1\n", encoding="utf-8")
+    for relative in (*_HASH_INPUTS, "docs/note.md"):
+        (repo / relative).parent.mkdir(parents=True, exist_ok=True)
+        (repo / relative).write_text("v1\n", encoding="utf-8")
     _git(repo, "init", "-q")
     _git(repo, "add", "-A")
     _git(repo, "commit", "-q", "-m", "reference")
@@ -369,10 +381,35 @@ def test_a_change_only_in_a_sibling_pilot_module_makes_the_reference_stale(tmp_p
     assert res["changed_files"] == ("src/commander_lab/engine/rules/full_game_pilot_mana_hold.py",)
 
 
-def test_a_change_outside_the_pilot_paths_keeps_the_reference_current(tmp_path: Path) -> None:
+def test_a_change_outside_the_watched_paths_keeps_the_reference_current(tmp_path: Path) -> None:
     module = _module()
     repo, doc = _reference_repo(tmp_path)
-    other = repo / "src/commander_lab/engine/rules/full_game.py"
-    other.write_text("z = 2\n", encoding="utf-8")
+    (repo / "docs/note.md").write_text("v2\n", encoding="utf-8")
     _git(repo, "commit", "-q", "-am", "unrelated")
     assert module.check_reference_staleness(doc_path=doc, repo_root=repo)["stale"] is False
+
+
+@pytest.mark.parametrize(
+    "relative",
+    ["src/commander_lab/engine/rules/full_game.py", *_HASH_INPUTS],
+)
+def test_a_change_to_an_input_of_the_hashes_makes_the_reference_stale(
+    tmp_path: Path, relative: str
+) -> None:
+    # The hashes depend on the card knowledge the pilot reads, the pod decks, the script that
+    # builds pod and pilot configuration, the engine pom and the module that forms the hash
+    # (#1076): none of them is pilot code, and the watcher used to call the reference current.
+    module = _module()
+    repo, doc = _reference_repo(tmp_path)
+    (repo / relative).write_text("v2\n", encoding="utf-8")
+    _git(repo, "commit", "-q", "-am", "input")
+    res = module.check_reference_staleness(doc_path=doc, repo_root=repo)
+    assert res["stale"] is True
+    assert res["changed_files"] == (relative,)
+
+
+def test_every_pod_deck_of_the_smoke_script_is_watched() -> None:
+    module = _module()
+    decks = {str(path) for path in module.smoke.REAL_DECK_PATHS}
+    assert len(decks) == 4
+    assert decks <= set(module.REFERENCE_WATCHED_PATHS)

@@ -59,6 +59,14 @@ REFERENCE_WATCHED_PATHS: tuple[str, ...] = (
     "src/commander_lab/agents",
     "engine-bridge/src/main",
     "config/rules_engines.json",
+    # Inputs that decide the 36-seed hashes without being pilot code (#1076): the card knowledge
+    # the pilot reads, the engine pom, the module that forms the hash, the script that builds
+    # pod and pilot configuration, and the four pod decks (listed once, in that script).
+    "data/cards/pilot_card_knowledge.json",
+    "engine-bridge/pom.xml",
+    "src/commander_lab/engine/rules/full_game.py",
+    "scripts/run_real_4p_full_game_smoke.py",
+    *(str(path) for path in smoke.REAL_DECK_PATHS),
 )
 
 
