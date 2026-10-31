@@ -105,7 +105,13 @@ comparison is paired. `--stop-when-decided` plays seeds in blocks of
 Bonferroni-split per-look threshold (overall Type I error stays at 5%).
 
 Reading the verdict: `VARIANT_BETTER` / `BASELINE_BETTER` — the paired games
-decided it; `NO_CLEAR_DIFFERENCE` — played out, no significant edge;
+decided it: the sign test over the pairs is decided and, when a seed holds more
+than one pair, the cluster-robust t statistic (one cluster per seed) also
+exceeds the t quantile of the same level, because the four seat rotations of a
+seed share a shuffle and the pair test counts them as independent. With one
+pair per seed the pair test stands alone. When only the pair test is decided,
+the verdict is `NO_CLEAR_DIFFERENCE` and the summary names the pair verdict it
+would have been. `NO_CLEAR_DIFFERENCE` — played out, no significant edge;
 `INSUFFICIENT` — too few finished games to say anything. The report records
 the sequential plan and how many seeds were actually played.
 

@@ -28,6 +28,7 @@ from commander_lab.engine.rules.full_game_comparison import (
     plan_comparison_cases,
     pod_decks,
     sign_test_p_value,
+    student_t_quantile,
     wilson_interval,
 )
 from commander_lab.models import RulesDeckInput
@@ -234,20 +235,28 @@ def test_aggregate_censors_failures_and_pairs_by_pod(tmp_path: Path) -> None:
     assert paired.pairs_completed == 11 and paired.pairs_censored == 1
     assert paired.variant_only_wins == 7 and paired.baseline_only_wins == 0
     assert paired.win_share_difference == pytest.approx(1 - 4 / 11)
-    assert paired.verdict == "VARIANT_BETTER"
+    # Seven variant-only pairs, but only two of three seeds carry them: the pair sign test is
+    # decided (p = 2 / 2**7), the cluster-robust t (df 2) is below its critical value (E6 stage 2).
+    assert paired.sign_test_p_value < 0.05
+    assert paired.cluster_t_df == 2
+    assert paired.cluster_t_statistic is not None
+    assert paired.cluster_t_statistic < student_t_quantile(0.975, 2)
+    assert paired.verdict == "NO_CLEAR_DIFFERENCE"
+    assert paired.pair_test_verdict == "VARIANT_BETTER"
     assert comparison.official_campaign_eligible is False
     assert comparison.evidence_class == "exploratory_xmage_full_game"
 
 
 def test_heavily_censored_comparison_gets_no_verdict(tmp_path: Path) -> None:
-    # One of the twelve pods is censored (seed 3, seat 2): fine under the
-    # default 20% cap, too many under a 5% cap.
-    spec = _spec(seeds=(1, 2, 3), rotate=True)
+    # One of the forty-eight pods is censored (seed 3, seat 2): fine under the default 20% cap,
+    # too many under a 2% cap. Twelve seeds, because the variant only wins alone on the odd seeds
+    # and fewer could not decide (the seed-block sign test needs six seeds against none).
+    spec = _spec(seeds=tuple(range(1, 13)), rotate=True)
     report = XmageFullGameBatchRunner(_VariantWinsRunner(), tmp_path).run(  # type: ignore[arg-type]
         plan_comparison_cases(spec), workers=2
     )
     assert aggregate_comparison(spec, report).paired[0].verdict == "VARIANT_BETTER"
-    strict = aggregate_comparison(spec, report, max_censored_fraction=0.05)
+    strict = aggregate_comparison(spec, report, max_censored_fraction=0.02)
     assert strict.paired[0].verdict == "INSUFFICIENT"
     assert strict.paired[0].pairs_censored == 1
 

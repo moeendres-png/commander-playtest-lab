@@ -132,13 +132,14 @@ def _alternating(contender_id: str, seed: int, seat: int) -> tuple[int, ...]:
 
 
 def _marginal(contender_id: str, seed: int, seat: int) -> tuple[int, ...]:
-    """First look: 15 variant-won and 5 baseline-won pairs (p ~ 0.041).
+    """First look (seven seeds): 21 variant-won and 7 baseline-won pairs, every seed +2.
 
-    That p-value sits between alpha/4 = 0.0125 and alpha = 0.05, so the naive
-    threshold would stop at the first look while the per-look threshold must
-    not. Later seeds alternate, so the final verdict stays undecided.
+    The sign test over seeds is 7 against 0 (p = 2 / 2**7 = 0.0156, E6 stage 2). That
+    p-value sits between alpha/4 = 0.0125 and alpha = 0.05, so the naive threshold would stop at
+    the first look while the per-look threshold must not. Later seeds alternate (net 0 per
+    seed), so the final verdict stays undecided.
     """
-    if seed <= 5:
+    if seed <= 7:
         if seat != 4:
             return _variant_sweep(contender_id, seed, seat)
         return _baseline_sweep(contender_id, seed, seat)
@@ -187,20 +188,24 @@ def test_clear_win_stops_at_first_look() -> None:
     spec = _spec(tuple(range(1, 21)), rotate=True)
     cases = plan_comparison_cases(spec)
     blocks = _ScriptedBlocks(_variant_sweep)
-    comparison, combined, sequential = cli.run_sequential_blocks(spec, cases, blocks, look_every=5)
-    # 20 discordant pairs at the first look: p = 2/2^20 < 0.05/4.
-    assert blocks.blocks == [(1, 2, 3, 4, 5)]
-    assert combined.total_cases == 5 * 4 * 2
-    assert comparison.seeds == (1, 2, 3, 4, 5)  # the look aggregates played seeds
+    comparison, combined, sequential = cli.run_sequential_blocks(spec, cases, blocks, look_every=10)
+    # 40 discordant pairs in ten seeds at the first look: the pair test and the sign test over
+    # seeds (p = 2/2^10) are both below 0.05/2. Five seeds could not decide (E6 stage 2:
+    # 2/2^5 = 0.0625), which is why the look holds ten.
+    assert blocks.blocks == [tuple(range(1, 11))]
+    assert combined.total_cases == 10 * 4 * 2
+    assert comparison.seeds == tuple(range(1, 11))  # the look aggregates played seeds
     assert sequential == {
-        "looks_planned": 4,
+        "looks_planned": 2,
         "looks_used": 1,
-        "per_look_alpha": pytest.approx(0.0125),
+        "per_look_alpha": pytest.approx(0.025),
         "stopped_early": True,
-        "seeds_played": 5,
+        "seeds_played": 10,
     }
     paired = comparison.paired[0]
-    assert paired.sign_test_p_value < 0.0125
+    assert paired.sign_test_p_value < 0.025
+    assert paired.cluster_t_statistic is None  # every seed has the same net: sign test over seeds
+    assert paired.cluster_t_df == 9
     assert paired.verdict == "VARIANT_BETTER"
     assert sequential_look_decided(paired) is True
     assert sequential_stop_now(comparison.paired) is True
@@ -225,20 +230,21 @@ def test_fifty_fifty_never_stops_early() -> None:
 
 def test_marginal_p_does_not_stop_early() -> None:
     cli = _script_module()
-    spec = _spec(tuple(range(1, 21)), rotate=True)
+    spec = _spec(tuple(range(1, 29)), rotate=True)
     cases = plan_comparison_cases(spec)
     blocks = _ScriptedBlocks(_marginal)
-    comparison, _combined, sequential = cli.run_sequential_blocks(spec, cases, blocks, look_every=5)
+    comparison, _combined, sequential = cli.run_sequential_blocks(spec, cases, blocks, look_every=7)
     assert sequential["looks_used"] == 4
     assert sequential["stopped_early"] is False
-    assert sequential["seeds_played"] == 20
+    assert sequential["seeds_played"] == 28
     assert comparison.paired[0].verdict == "NO_CLEAR_DIFFERENCE"
-    # Wrong-reason control: the first look's p sits between alpha/4 and alpha.
-    look1_spec = _spec(tuple(range(1, 6)), rotate=True)
+    # Wrong-reason control: every seed of the first look has the same net (+2), so the sign test
+    # over the seven seeds decides, p = 2 / 2**7 = 0.0156, between alpha/4 and alpha.
+    look1_spec = _spec(tuple(range(1, 8)), rotate=True)
     look1_cases = [case for case in plan_comparison_cases(look1_spec)]
     look1 = _report(_records_for(look1_cases, _marginal))
     naive = aggregate_comparison(look1_spec, look1)
-    assert 0.0125 < naive.paired[0].sign_test_p_value < 0.05
+    assert 0.0125 < 2 / 2**7 < 0.05
     assert naive.paired[0].verdict == "VARIANT_BETTER"  # naive alpha would stop here
     strict = aggregate_comparison(
         look1_spec, look1, significance_level=sequential_look_alpha(0.05, 4)
@@ -249,7 +255,7 @@ def test_marginal_p_does_not_stop_early() -> None:
 def test_default_path_unchanged() -> None:
     # The default aggregation never applies the sequential threshold: the same
     # marginal first look still declares VARIANT_BETTER at alpha = 0.05.
-    look1_spec = _spec(tuple(range(1, 6)), rotate=True)
+    look1_spec = _spec(tuple(range(1, 8)), rotate=True)
     look1_cases = plan_comparison_cases(look1_spec)
     comparison = aggregate_comparison(look1_spec, _report(_records_for(look1_cases, _marginal)))
     assert comparison.significance_level == 0.05

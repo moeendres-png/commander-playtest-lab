@@ -388,6 +388,32 @@ def sign_test_p_value(variant_only: int, baseline_only: int) -> float:
     return min(1.0, 2 * tail)
 
 
+def cluster_t_statistic(
+    clustered_differences: Sequence[tuple[int, float]],
+) -> tuple[float | None, int]:
+    """Cluster-robust t statistic of the mean pair difference and its degrees of freedom G - 1.
+
+    The seat rotations of one seed share a library shuffle, so the pair sign test counts too
+    many independent observations (E6 stage 2). This is the statistic behind
+    :func:`cluster_difference_stats` (one cluster per seed, CR1 correction G / (G - 1)): the mean
+    difference over its cluster-robust standard error. ``(None, 0)`` for fewer than two pairs or
+    seeds, or when the standard error is zero (no variation to put a test on).
+    """
+    n = len(clustered_differences)
+    clusters: dict[int, list[float]] = {}
+    for seed, diff in clustered_differences:
+        clusters.setdefault(seed, []).append(diff)
+    g = len(clusters)
+    if n < 2 or g < 2:
+        return None, 0
+    mean = sum(diff for _, diff in clustered_differences) / n
+    sum_u_sq = sum(sum(d - mean for d in diffs) ** 2 for diffs in clusters.values())
+    se_cluster = math.sqrt((g / (g - 1)) * (sum_u_sq / (n * n)))
+    if se_cluster == 0.0:
+        return None, g - 1
+    return mean / se_cluster, g - 1
+
+
 def difference_quantiles(df: int) -> tuple[float, float]:
     """Student-t quantiles for the interval and the detectable difference (#1074).
 
@@ -662,6 +688,16 @@ class PairedVariantResult(_StrictModel):
     verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER", "NO_CLEAR_DIFFERENCE", "INSUFFICIENT"]
     # Number of distinct seeds (clusters) with at least one completed pair (#1043).
     seed_clusters_completed: int = Field(default=0, ge=0)
+    # Cluster-robust t statistic of the mean pair difference (one cluster per seed, df = G - 1;
+    # E6 stage 2). The seat rotations of a seed share a shuffle, so a pair verdict is decided
+    # only if |t| also exceeds the t quantile at the same level when some seed holds more than
+    # one pair. None for stored reports, fewer than two seeds, or zero spread (all seeds with
+    # the same net difference; the sign test over the seeds then decides).
+    cluster_t_statistic: float | None = None
+    cluster_t_df: int = Field(default=0, ge=0)
+    # The decided verdict the pair sign test alone gave, kept only when the cluster test did
+    # not confirm it (then ``verdict`` is NO_CLEAR_DIFFERENCE). None otherwise.
+    pair_test_verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER"] | None = None
     # 95% normal interval of the mean paired win-share difference (#870).
     # The pairs are treated as independent although the seat rotations of one
     # seed share a shuffle, so the interval is slightly narrow; see
@@ -1057,6 +1093,8 @@ def aggregate_comparison(
         variant_only = sum(1 for left, right in pairs if right > left)
         baseline_only = sum(1 for left, right in pairs if left > right)
         p_value = sign_test_p_value(variant_only, baseline_only)
+        cluster_t, cluster_df = cluster_t_statistic(clustered_differences)
+        pair_test_verdict: Literal["VARIANT_BETTER", "BASELINE_BETTER"] | None = None
         # Per-pair differences: identical pairs and shared wins are 0 or
         # fractional, and they narrow the interval like any other pair (#870).
         differences = [right - left for left, right in pairs]
@@ -1086,6 +1124,27 @@ def aggregate_comparison(
                 verdict = "BASELINE_BETTER"
             else:
                 verdict = "NO_CLEAR_DIFFERENCE"
+            # A decided pair verdict stands only when the cluster-robust t test agrees (E6
+            # stage 2). With one pair per seed the pair test is already valid and stands alone.
+            if verdict in ("VARIANT_BETTER", "BASELINE_BETTER") and seed_clusters < len(pairs):
+                if cluster_t is not None:
+                    critical = student_t_quantile(1.0 - significance_level / 2.0, cluster_df)
+                    confirmed = (verdict == "VARIANT_BETTER" and cluster_t > critical) or (
+                        verdict == "BASELINE_BETTER" and cluster_t < -critical
+                    )
+                else:
+                    # No spread between seeds: every seed has the same net difference, so all
+                    # G = cluster_df + 1 seeds lean the same way. The sign test over the seeds
+                    # (2 / 2**G) then decides; fewer than two seeds never confirm.
+                    confirmed = (
+                        cluster_df >= 1
+                        and 2.0 * 0.5 ** (cluster_df + 1) < significance_level
+                        and (difference or 0.0) * (1.0 if verdict == "VARIANT_BETTER" else -1.0)
+                        > 0.0
+                    )
+                if not confirmed:
+                    pair_test_verdict = verdict
+                    verdict = "NO_CLEAR_DIFFERENCE"
         underpowered = (
             verdict in ("NO_CLEAR_DIFFERENCE", "INSUFFICIENT")
             and detectable is not None
@@ -1105,6 +1164,9 @@ def aggregate_comparison(
                 identical_pairs=identical,
                 sign_test_p_value=p_value,
                 verdict=verdict,
+                cluster_t_statistic=cluster_t,
+                cluster_t_df=cluster_df,
+                pair_test_verdict=pair_test_verdict,
                 seed_clusters_completed=seed_clusters,
                 win_share_difference_interval_95=interval_95,
                 cluster_difference_interval_95=cluster_interval_95,
@@ -1152,6 +1214,7 @@ __all__ = [
     "apply_swaps",
     "case_id",
     "cluster_difference_stats",
+    "cluster_t_statistic",
     "difference_quantiles",
     "finishing_scores",
     "format_reanalysis_summary",
