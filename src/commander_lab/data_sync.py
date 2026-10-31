@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from commander_lab.owner_data import owner_data_path
+
 
 def _load(path: Path) -> dict[str, Any]:
     payload = json.loads(path.read_text(encoding="utf-8"))
@@ -13,7 +15,7 @@ def _load(path: Path) -> dict[str, Any]:
 
 
 def _source_observation(root: Path, key: str, spec: dict[str, Any]) -> dict[str, Any]:
-    path = root / spec["import_path"]
+    path = owner_data_path(root, spec["import_path"])
     payload = _load(path)
     expected_hash = spec["sha256"]
     expected_id = spec["drive_file_id"]
@@ -58,7 +60,7 @@ def _source_observation(root: Path, key: str, spec: dict[str, Any]) -> dict[str,
 
 def audit_current_sources(root: str | Path) -> dict[str, Any]:
     root_path = Path(root)
-    registry = _load(root_path / "data/sync/current_sources.json")
+    registry = _load(owner_data_path(root_path, "data/sync/current_sources.json"))
     checks = [
         _source_observation(root_path, key, spec) for key, spec in registry["sources"].items()
     ]

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "source_workbook": "MTG_Kartensammlung_kanonisch_aktuell_2026-08-07.xlsx",
-  "source_drive_id": "1_HlokwIebhVKCeQuDvVOpr3BZWYwgKBd",
+  "source_workbook": "redacted",
+  "source_drive_id": "redacted",
   "data_as_of": "2026-08-07",
   "read_only_import": true,
   "unique_rows": 1350,
@@ -57,7 +57,7 @@
     },
     {
       "oracle_name": "Act of Treason",
-      "quantity": 6,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -93,7 +93,7 @@
     },
     {
       "oracle_name": "Aether Adept",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -117,7 +117,7 @@
     },
     {
       "oracle_name": "Aether Tradewinds",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -189,7 +189,7 @@
     },
     {
       "oracle_name": "Air Servant",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -225,7 +225,7 @@
     },
     {
       "oracle_name": "Ajani's Pridemate",
-      "quantity": 5,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -345,7 +345,7 @@
     },
     {
       "oracle_name": "Angel's Mercy",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -393,7 +393,7 @@
     },
     {
       "oracle_name": "Apex Hawks",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -477,7 +477,7 @@
     },
     {
       "oracle_name": "Arc Trail",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -501,7 +501,7 @@
     },
     {
       "oracle_name": "Arcane Signet",
-      "quantity": 6,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -549,7 +549,7 @@
     },
     {
       "oracle_name": "Ardent Recruit",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -597,7 +597,7 @@
     },
     {
       "oracle_name": "Arrest",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -669,7 +669,7 @@
     },
     {
       "oracle_name": "Augury Owl",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -681,7 +681,7 @@
     },
     {
       "oracle_name": "Auramancer",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -693,7 +693,7 @@
     },
     {
       "oracle_name": "Autumn's Veil",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -741,7 +741,7 @@
     },
     {
       "oracle_name": "Aven Fleetwing",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -801,7 +801,7 @@
     },
     {
       "oracle_name": "Azorius Guildgate",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WU",
@@ -813,7 +813,7 @@
     },
     {
       "oracle_name": "Azorius Signet",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WU",
@@ -945,7 +945,7 @@
     },
     {
       "oracle_name": "Barrage Ogre",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -957,7 +957,7 @@
     },
     {
       "oracle_name": "Barren Moor",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -993,7 +993,7 @@
     },
     {
       "oracle_name": "Battle Hurda",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -1161,7 +1161,7 @@
     },
     {
       "oracle_name": "Bladed Sentinel",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -1173,7 +1173,7 @@
     },
     {
       "oracle_name": "Blasphemous Act",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -1269,7 +1269,7 @@
     },
     {
       "oracle_name": "Blood Seeker",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -1281,7 +1281,7 @@
     },
     {
       "oracle_name": "Bloodcrazed Neonate",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -1293,7 +1293,7 @@
     },
     {
       "oracle_name": "Bloodfell Caves",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "BR",
@@ -1305,7 +1305,7 @@
     },
     {
       "oracle_name": "Bloodhusk Ritualist",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -1317,7 +1317,7 @@
     },
     {
       "oracle_name": "Bloodpyre Elemental",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -1329,7 +1329,7 @@
     },
     {
       "oracle_name": "Bloodrage Vampire",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -1353,7 +1353,7 @@
     },
     {
       "oracle_name": "Blossoming Sands",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WG",
@@ -1449,7 +1449,7 @@
     },
     {
       "oracle_name": "Bojuka Bog",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -1533,7 +1533,7 @@
     },
     {
       "oracle_name": "Bountiful Harvest",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -1665,7 +1665,7 @@
     },
     {
       "oracle_name": "Brineborn Cutthroat",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -1677,7 +1677,7 @@
     },
     {
       "oracle_name": "Brink of Disaster",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -1689,7 +1689,7 @@
     },
     {
       "oracle_name": "Broken Wings",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -1725,7 +1725,7 @@
     },
     {
       "oracle_name": "Burn the Impure",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -1773,7 +1773,7 @@
     },
     {
       "oracle_name": "Burst Lightning",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -1797,7 +1797,7 @@
     },
     {
       "oracle_name": "Butcher of Malakir",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -1821,7 +1821,7 @@
     },
     {
       "oracle_name": "Calcite Snapper",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -1845,7 +1845,7 @@
     },
     {
       "oracle_name": "Cancel",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -2013,7 +2013,7 @@
     },
     {
       "oracle_name": "Cemetery Reaper",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -2061,7 +2061,7 @@
     },
     {
       "oracle_name": "Chain Reaction",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -2121,7 +2121,7 @@
     },
     {
       "oracle_name": "Chaos Warp",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -2157,7 +2157,7 @@
     },
     {
       "oracle_name": "Child of Night",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -2217,7 +2217,7 @@
     },
     {
       "oracle_name": "Circuitous Route",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -2313,7 +2313,7 @@
     },
     {
       "oracle_name": "Cloud Elemental",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -2385,7 +2385,7 @@
     },
     {
       "oracle_name": "Command Tower",
-      "quantity": 6,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -2457,7 +2457,7 @@
     },
     {
       "oracle_name": "Consume Spirit",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -2505,7 +2505,7 @@
     },
     {
       "oracle_name": "Copper Myr",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -2517,7 +2517,7 @@
     },
     {
       "oracle_name": "Coral Eel",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -2601,7 +2601,7 @@
     },
     {
       "oracle_name": "Cosi's Ravager",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -2733,7 +2733,7 @@
     },
     {
       "oracle_name": "Crumbling Necropolis",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UBR",
@@ -2805,7 +2805,7 @@
     },
     {
       "oracle_name": "Cudgel Troll",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -2997,7 +2997,7 @@
     },
     {
       "oracle_name": "Dead Reckoning",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -3081,7 +3081,7 @@
     },
     {
       "oracle_name": "Deep Analysis",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -3117,7 +3117,7 @@
     },
     {
       "oracle_name": "Demon's Horn",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -3213,7 +3213,7 @@
     },
     {
       "oracle_name": "Diabolic Tutor",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -3309,7 +3309,7 @@
     },
     {
       "oracle_name": "Dismal Backwater",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UB",
@@ -3453,7 +3453,7 @@
     },
     {
       "oracle_name": "Dragon Fodder",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -3561,7 +3561,7 @@
     },
     {
       "oracle_name": "Dreg Reaver",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -3573,7 +3573,7 @@
     },
     {
       "oracle_name": "Dregscape Zombie",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -3585,7 +3585,7 @@
     },
     {
       "oracle_name": "Drifting Shade",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -3633,7 +3633,7 @@
     },
     {
       "oracle_name": "Dross Hopper",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -3741,7 +3741,7 @@
     },
     {
       "oracle_name": "Elixir of Immortality",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -3789,7 +3789,7 @@
     },
     {
       "oracle_name": "Empyrean Eagle",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WU",
@@ -3801,7 +3801,7 @@
     },
     {
       "oracle_name": "Enclave Elite",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -3957,7 +3957,7 @@
     },
     {
       "oracle_name": "Evolving Wilds",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -3993,7 +3993,7 @@
     },
     {
       "oracle_name": "Executioner's Capsule",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -4005,7 +4005,7 @@
     },
     {
       "oracle_name": "Exotic Orchard",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -4077,7 +4077,7 @@
     },
     {
       "oracle_name": "Fabled Passage",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -4221,7 +4221,7 @@
     },
     {
       "oracle_name": "Fellwar Stone",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -4329,7 +4329,7 @@
     },
     {
       "oracle_name": "Finale of Revelation",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -4365,7 +4365,7 @@
     },
     {
       "oracle_name": "Fireball",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -4449,7 +4449,7 @@
     },
     {
       "oracle_name": "Flameborn Hellion",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -4485,7 +4485,7 @@
     },
     {
       "oracle_name": "Flayer Husk",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -4497,7 +4497,7 @@
     },
     {
       "oracle_name": "Fledgling Griffin",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -4533,7 +4533,7 @@
     },
     {
       "oracle_name": "Flensermite",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -4557,7 +4557,7 @@
     },
     {
       "oracle_name": "Fling",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -4605,7 +4605,7 @@
     },
     {
       "oracle_name": "Foresee",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -4617,7 +4617,7 @@
     },
     {
       "oracle_name": "Forest",
-      "quantity": 55,
+      "quantity": 99,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -4641,7 +4641,7 @@
     },
     {
       "oracle_name": "Frantic Salvage",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -4689,7 +4689,7 @@
     },
     {
       "oracle_name": "Fume Spitter",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -4737,7 +4737,7 @@
     },
     {
       "oracle_name": "Garruk's Companion",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -4881,7 +4881,7 @@
     },
     {
       "oracle_name": "Giant Spider",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -5193,7 +5193,7 @@
     },
     {
       "oracle_name": "Goblin Piker",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -5217,7 +5217,7 @@
     },
     {
       "oracle_name": "Goblin Roughrider",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -5325,7 +5325,7 @@
     },
     {
       "oracle_name": "Gorehorn Minotaurs",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -5385,7 +5385,7 @@
     },
     {
       "oracle_name": "Gravedigger",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -5421,7 +5421,7 @@
     },
     {
       "oracle_name": "Greater Basilisk",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -5589,7 +5589,7 @@
     },
     {
       "oracle_name": "Grizzly Bears",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -5601,7 +5601,7 @@
     },
     {
       "oracle_name": "Grotag Thrasher",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -5625,7 +5625,7 @@
     },
     {
       "oracle_name": "Groundswell",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -5661,7 +5661,7 @@
     },
     {
       "oracle_name": "Guardian Zendikon",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -5685,7 +5685,7 @@
     },
     {
       "oracle_name": "Gust-Skimmer",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -5697,7 +5697,7 @@
     },
     {
       "oracle_name": "Guttersnipe",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -5781,7 +5781,7 @@
     },
     {
       "oracle_name": "Harbor Serpent",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -5841,7 +5841,7 @@
     },
     {
       "oracle_name": "Healing Salve",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -5901,7 +5901,7 @@
     },
     {
       "oracle_name": "Hellfire Mongrel",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -5949,7 +5949,7 @@
     },
     {
       "oracle_name": "Heraldic Banner",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -5961,7 +5961,7 @@
     },
     {
       "oracle_name": "Hero's Downfall",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -5985,7 +5985,7 @@
     },
     {
       "oracle_name": "Hideous End",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -6009,7 +6009,7 @@
     },
     {
       "oracle_name": "Highland Berserker",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -6021,7 +6021,7 @@
     },
     {
       "oracle_name": "Hill Giant",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -6057,7 +6057,7 @@
     },
     {
       "oracle_name": "Holy Strength",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -6093,7 +6093,7 @@
     },
     {
       "oracle_name": "Horizon Spellbomb",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -6129,7 +6129,7 @@
     },
     {
       "oracle_name": "Hunter's Insight",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -6177,7 +6177,7 @@
     },
     {
       "oracle_name": "Ichorclaw Myr",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -6249,7 +6249,7 @@
     },
     {
       "oracle_name": "Imperious Perfect",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -6261,7 +6261,7 @@
     },
     {
       "oracle_name": "Imprisoned in the Moon",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -6309,7 +6309,7 @@
     },
     {
       "oracle_name": "Infectious Horror",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -6369,7 +6369,7 @@
     },
     {
       "oracle_name": "Infest",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -6381,7 +6381,7 @@
     },
     {
       "oracle_name": "Infestation Sage",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -6405,7 +6405,7 @@
     },
     {
       "oracle_name": "Instill Infection",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -6501,7 +6501,7 @@
     },
     {
       "oracle_name": "Island",
-      "quantity": 64,
+      "quantity": 99,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -6537,7 +6537,7 @@
     },
     {
       "oracle_name": "Jace's Erasure",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -6549,7 +6549,7 @@
     },
     {
       "oracle_name": "Jace's Ingenuity",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -6573,7 +6573,7 @@
     },
     {
       "oracle_name": "Jagwasp Swarm",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -6693,7 +6693,7 @@
     },
     {
       "oracle_name": "Jungle Hollow",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "BG",
@@ -6921,7 +6921,7 @@
     },
     {
       "oracle_name": "Kor Aeronaut",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -6957,7 +6957,7 @@
     },
     {
       "oracle_name": "Kor Hookmaster",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -6969,7 +6969,7 @@
     },
     {
       "oracle_name": "Kor Skyfisher",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -6993,7 +6993,7 @@
     },
     {
       "oracle_name": "Kuldotha Flamefiend",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -7005,7 +7005,7 @@
     },
     {
       "oracle_name": "Kuldotha Rebirth",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -7041,7 +7041,7 @@
     },
     {
       "oracle_name": "Lava Axe",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -7077,7 +7077,7 @@
     },
     {
       "oracle_name": "Leaden Myr",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -7125,7 +7125,7 @@
     },
     {
       "oracle_name": "Levitation",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7137,7 +7137,7 @@
     },
     {
       "oracle_name": "Lifelink",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -7185,7 +7185,7 @@
     },
     {
       "oracle_name": "Liquimetal Coating",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -7197,7 +7197,7 @@
     },
     {
       "oracle_name": "Llanowar Elves",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -7473,7 +7473,7 @@
     },
     {
       "oracle_name": "Mana Leak",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7485,7 +7485,7 @@
     },
     {
       "oracle_name": "Manalith",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -7533,7 +7533,7 @@
     },
     {
       "oracle_name": "Maritime Guard",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7593,7 +7593,7 @@
     },
     {
       "oracle_name": "Master's Call",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -7665,7 +7665,7 @@
     },
     {
       "oracle_name": "Merfolk Mesmerist",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7677,7 +7677,7 @@
     },
     {
       "oracle_name": "Merfolk Spy",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7749,7 +7749,7 @@
     },
     {
       "oracle_name": "Mighty Leap",
-      "quantity": 5,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -7773,7 +7773,7 @@
     },
     {
       "oracle_name": "Mind Control",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7809,7 +7809,7 @@
     },
     {
       "oracle_name": "Mind Stone",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -7833,7 +7833,7 @@
     },
     {
       "oracle_name": "Mire's Toll",
-      "quantity": 6,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -7869,7 +7869,7 @@
     },
     {
       "oracle_name": "Mischievous Mystic",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7905,7 +7905,7 @@
     },
     {
       "oracle_name": "Mocking Sprite",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -7929,7 +7929,7 @@
     },
     {
       "oracle_name": "Molder Beast",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -7989,7 +7989,7 @@
     },
     {
       "oracle_name": "Morbid Plunder",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -8001,7 +8001,7 @@
     },
     {
       "oracle_name": "Mordant Dragon",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -8025,7 +8025,7 @@
     },
     {
       "oracle_name": "Moriok Reaver",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -8085,7 +8085,7 @@
     },
     {
       "oracle_name": "Moss Monster",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -8097,7 +8097,7 @@
     },
     {
       "oracle_name": "Mountain",
-      "quantity": 57,
+      "quantity": 99,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -8169,7 +8169,7 @@
     },
     {
       "oracle_name": "Mysteries of the Deep",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -8253,7 +8253,7 @@
     },
     {
       "oracle_name": "Naturalize",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -8265,7 +8265,7 @@
     },
     {
       "oracle_name": "Nature's Claim",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -8325,7 +8325,7 @@
     },
     {
       "oracle_name": "Necrogen Censer",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -8361,7 +8361,7 @@
     },
     {
       "oracle_name": "Negate",
-      "quantity": 6,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -8541,7 +8541,7 @@
     },
     {
       "oracle_name": "Obelisk of Grixis",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UBR",
@@ -8553,7 +8553,7 @@
     },
     {
       "oracle_name": "Ogre Resister",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -8625,7 +8625,7 @@
     },
     {
       "oracle_name": "Opt",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -8649,7 +8649,7 @@
     },
     {
       "oracle_name": "Orchard Spirit",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -8769,7 +8769,7 @@
     },
     {
       "oracle_name": "Oxidda Scrapmelter",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -8781,7 +8781,7 @@
     },
     {
       "oracle_name": "Pacifism",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -8853,7 +8853,7 @@
     },
     {
       "oracle_name": "Path of Ancestry",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -8901,7 +8901,7 @@
     },
     {
       "oracle_name": "Peregrine Griffin",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -8973,7 +8973,7 @@
     },
     {
       "oracle_name": "Phyrexian Crusader",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -8985,7 +8985,7 @@
     },
     {
       "oracle_name": "Phyrexian Digester",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -9045,7 +9045,7 @@
     },
     {
       "oracle_name": "Pilgrim's Eye",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -9057,7 +9057,7 @@
     },
     {
       "oracle_name": "Piranha Marsh",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -9081,7 +9081,7 @@
     },
     {
       "oracle_name": "Pistus Strike",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -9105,7 +9105,7 @@
     },
     {
       "oracle_name": "Plains",
-      "quantity": 53,
+      "quantity": 99,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -9153,7 +9153,7 @@
     },
     {
       "oracle_name": "Prairie Stream",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WU",
@@ -9309,7 +9309,7 @@
     },
     {
       "oracle_name": "Prodigal Pyromancer",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -9357,7 +9357,7 @@
     },
     {
       "oracle_name": "Pulse Tracker",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -9441,7 +9441,7 @@
     },
     {
       "oracle_name": "Quest for the Goblin Lord",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -9453,7 +9453,7 @@
     },
     {
       "oracle_name": "Quicksand",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -9501,7 +9501,7 @@
     },
     {
       "oracle_name": "Raise the Alarm",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -9513,7 +9513,7 @@
     },
     {
       "oracle_name": "Rakdos Carnarium",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "BR",
@@ -9561,7 +9561,7 @@
     },
     {
       "oracle_name": "Rakdos Signet",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "BR",
@@ -9573,7 +9573,7 @@
     },
     {
       "oracle_name": "Rally the Forces",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -9609,7 +9609,7 @@
     },
     {
       "oracle_name": "Rampaging Baloths",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -9681,7 +9681,7 @@
     },
     {
       "oracle_name": "Razorfield Rhino",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -9705,7 +9705,7 @@
     },
     {
       "oracle_name": "Reality Shift",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -9777,7 +9777,7 @@
     },
     {
       "oracle_name": "Recumbent Bliss",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -9969,7 +9969,7 @@
     },
     {
       "oracle_name": "Rite of Replication",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -10077,7 +10077,7 @@
     },
     {
       "oracle_name": "Roiling Terrain",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -10149,7 +10149,7 @@
     },
     {
       "oracle_name": "Rugged Highlands",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "RG",
@@ -10161,7 +10161,7 @@
     },
     {
       "oracle_name": "Ruin Ghost",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -10209,7 +10209,7 @@
     },
     {
       "oracle_name": "Runed Servitor",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -10257,7 +10257,7 @@
     },
     {
       "oracle_name": "Rusted Slasher",
-      "quantity": 5,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -10281,7 +10281,7 @@
     },
     {
       "oracle_name": "Ruthless Cullblade",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -10317,7 +10317,7 @@
     },
     {
       "oracle_name": "Sage Owl",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -10401,7 +10401,7 @@
     },
     {
       "oracle_name": "Savannah Lions",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -10461,7 +10461,7 @@
     },
     {
       "oracle_name": "Scoria Elemental",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -10473,7 +10473,7 @@
     },
     {
       "oracle_name": "Scoured Barrens",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WB",
@@ -10521,7 +10521,7 @@
     },
     {
       "oracle_name": "Searing Blaze",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -10605,7 +10605,7 @@
     },
     {
       "oracle_name": "Sejiri Steppe",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -10689,7 +10689,7 @@
     },
     {
       "oracle_name": "Shatter",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -10761,7 +10761,7 @@
     },
     {
       "oracle_name": "Shivan Reef",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UR",
@@ -10809,7 +10809,7 @@
     },
     {
       "oracle_name": "Shriekmaw",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -10833,7 +10833,7 @@
     },
     {
       "oracle_name": "Sign in Blood",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -10857,7 +10857,7 @@
     },
     {
       "oracle_name": "Silver Myr",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -10929,7 +10929,7 @@
     },
     {
       "oracle_name": "Skinrender",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -10965,7 +10965,7 @@
     },
     {
       "oracle_name": "Sky-Eel School",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -10989,7 +10989,7 @@
     },
     {
       "oracle_name": "Skywinder Drake",
-      "quantity": 5,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -11037,7 +11037,7 @@
     },
     {
       "oracle_name": "Sleep",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -11085,7 +11085,7 @@
     },
     {
       "oracle_name": "Smoldering Spires",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -11145,7 +11145,7 @@
     },
     {
       "oracle_name": "Sol Ring",
-      "quantity": 5,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -11169,7 +11169,7 @@
     },
     {
       "oracle_name": "Solemn Simulacrum",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -11193,7 +11193,7 @@
     },
     {
       "oracle_name": "Sorcerer's Strongbox",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -11229,7 +11229,7 @@
     },
     {
       "oracle_name": "Sorin's Thirst",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -11337,7 +11337,7 @@
     },
     {
       "oracle_name": "Soulcage Fiend",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -11361,7 +11361,7 @@
     },
     {
       "oracle_name": "Spectral Sailor",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -11397,7 +11397,7 @@
     },
     {
       "oracle_name": "Spin Engine",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -11481,7 +11481,7 @@
     },
     {
       "oracle_name": "Spread the Sickness",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -11493,7 +11493,7 @@
     },
     {
       "oracle_name": "Springbloom Druid",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -11541,7 +11541,7 @@
     },
     {
       "oracle_name": "Squee's Embrace",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WR",
@@ -11589,7 +11589,7 @@
     },
     {
       "oracle_name": "Stampeding Rhino",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -11625,7 +11625,7 @@
     },
     {
       "oracle_name": "Steady Progress",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -11637,7 +11637,7 @@
     },
     {
       "oracle_name": "Steal Artifact",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -11757,7 +11757,7 @@
     },
     {
       "oracle_name": "Stonehorn Dignitary",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -11781,7 +11781,7 @@
     },
     {
       "oracle_name": "Storm Crow",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -11793,7 +11793,7 @@
     },
     {
       "oracle_name": "Storm Spirit",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WUG",
@@ -11817,7 +11817,7 @@
     },
     {
       "oracle_name": "Stormfront Pegasus",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -11949,7 +11949,7 @@
     },
     {
       "oracle_name": "Study Hall",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -11973,7 +11973,7 @@
     },
     {
       "oracle_name": "Sulfur Falls",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UR",
@@ -12081,7 +12081,7 @@
     },
     {
       "oracle_name": "Swamp",
-      "quantity": 50,
+      "quantity": 99,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -12105,7 +12105,7 @@
     },
     {
       "oracle_name": "Swiftfoot Boots",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -12117,7 +12117,7 @@
     },
     {
       "oracle_name": "Swiftwater Cliffs",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UR",
@@ -12129,7 +12129,7 @@
     },
     {
       "oracle_name": "Swords to Plowshares",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -12141,7 +12141,7 @@
     },
     {
       "oracle_name": "Sylvan Bounty",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -12153,7 +12153,7 @@
     },
     {
       "oracle_name": "Sylvan Ranger",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -12177,7 +12177,7 @@
     },
     {
       "oracle_name": "Sylvok Replica",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -12297,7 +12297,7 @@
     },
     {
       "oracle_name": "Taste of Blood",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -12345,7 +12345,7 @@
     },
     {
       "oracle_name": "Tectonic Edge",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -12357,7 +12357,7 @@
     },
     {
       "oracle_name": "Teetering Peaks",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -12369,7 +12369,7 @@
     },
     {
       "oracle_name": "Tel-Jilad Defiance",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -12453,7 +12453,7 @@
     },
     {
       "oracle_name": "Temple of Enlightenment",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WU",
@@ -12465,7 +12465,7 @@
     },
     {
       "oracle_name": "Temple of Epiphany",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UR",
@@ -12501,7 +12501,7 @@
     },
     {
       "oracle_name": "Temple of Mystery",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UG",
@@ -12513,7 +12513,7 @@
     },
     {
       "oracle_name": "Temple of Plenty",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WG",
@@ -12573,7 +12573,7 @@
     },
     {
       "oracle_name": "Terramorphic Expanse",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -12621,7 +12621,7 @@
     },
     {
       "oracle_name": "Think Twice",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -12633,7 +12633,7 @@
     },
     {
       "oracle_name": "Thirst for Knowledge",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -12669,7 +12669,7 @@
     },
     {
       "oracle_name": "Thornwood Falls",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "UG",
@@ -12729,7 +12729,7 @@
     },
     {
       "oracle_name": "Throne of Geth",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -12741,7 +12741,7 @@
     },
     {
       "oracle_name": "Thrummingbird",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -12801,7 +12801,7 @@
     },
     {
       "oracle_name": "Tine Shrike",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -12813,7 +12813,7 @@
     },
     {
       "oracle_name": "Tireless Tracker",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -12861,7 +12861,7 @@
     },
     {
       "oracle_name": "Tolarian Terror",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -12873,7 +12873,7 @@
     },
     {
       "oracle_name": "Tomb Hex",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -13029,7 +13029,7 @@
     },
     {
       "oracle_name": "Trinket Mage",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -13137,7 +13137,7 @@
     },
     {
       "oracle_name": "Turn to Slag",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -13185,7 +13185,7 @@
     },
     {
       "oracle_name": "Twisted Abomination",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -13317,7 +13317,7 @@
     },
     {
       "oracle_name": "Unsummon",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -13329,7 +13329,7 @@
     },
     {
       "oracle_name": "Untamed Might",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -13425,7 +13425,7 @@
     },
     {
       "oracle_name": "Vampire Nighthawk",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -13473,7 +13473,7 @@
     },
     {
       "oracle_name": "Vastwood Zendikon",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "G",
@@ -13509,7 +13509,7 @@
     },
     {
       "oracle_name": "Vedalken Anatomist",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -13557,7 +13557,7 @@
     },
     {
       "oracle_name": "Vengeful Bloodwitch",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -13593,7 +13593,7 @@
     },
     {
       "oracle_name": "Veteran's Reflexes",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "W",
@@ -13617,7 +13617,7 @@
     },
     {
       "oracle_name": "Vicious Hunger",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -13677,7 +13677,7 @@
     },
     {
       "oracle_name": "Violent Outburst",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "RG",
@@ -13797,7 +13797,7 @@
     },
     {
       "oracle_name": "Vulshok Heartstoker",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -13809,7 +13809,7 @@
     },
     {
       "oracle_name": "Vulshok Replica",
-      "quantity": 3,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -13893,7 +13893,7 @@
     },
     {
       "oracle_name": "Warpath Ghoul",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -13905,7 +13905,7 @@
     },
     {
       "oracle_name": "Warstorm Surge",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",
@@ -13941,7 +13941,7 @@
     },
     {
       "oracle_name": "Water Servant",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -14061,7 +14061,7 @@
     },
     {
       "oracle_name": "Wind Zendikon",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "U",
@@ -14073,7 +14073,7 @@
     },
     {
       "oracle_name": "Wind-Scarred Crag",
-      "quantity": 4,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WR",
@@ -14217,7 +14217,7 @@
     },
     {
       "oracle_name": "Wring Flesh",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -14277,7 +14277,7 @@
     },
     {
       "oracle_name": "Zombie Infestation",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -14289,7 +14289,7 @@
     },
     {
       "oracle_name": "Zombify",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "B",
@@ -15321,7 +15321,7 @@
     },
     {
       "oracle_name": "Morska, Undersea Sleuth",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "WUG",
@@ -15525,7 +15525,7 @@
     },
     {
       "oracle_name": "Reliquary Tower",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -15933,7 +15933,7 @@
     },
     {
       "oracle_name": "Temple of the False God",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "C",
@@ -16185,7 +16185,7 @@
     },
     {
       "oracle_name": "Portent of Betrayal",
-      "quantity": 2,
+      "quantity": 1,
       "currently_owned": true,
       "commander_legality": "legal",
       "color_identity": "R",

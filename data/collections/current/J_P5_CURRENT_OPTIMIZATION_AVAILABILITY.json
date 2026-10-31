@@ -1014,6 +1014,6 @@
     "status": "operational_wur_wbr_union_only",
     "truth_boundary": "Own-card optimization availability only; opponent universes and historical provenance are separate."
   },
-  "source_file": "SIMULTANEOUS_CARD_AVAILABILITY_CURRENT.jsonl",
-  "source_sha256": "a1aac8a3cd87ee9ec143e41bd02cbf5b832d13344a5056bd3fc447bfe31dc706"
+  "source_file": "redacted",
+  "source_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
 }

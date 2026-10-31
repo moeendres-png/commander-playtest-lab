@@ -22,8 +22,8 @@
       "scenario_id": "primary_4p_korvold",
       "scenario_type": "primary_four_player_context",
       "source_drive_ids": [
-        "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
-        "1IuvMmT3-jfrhB62qMPOxaNjAJmBUus9M"
+        "redacted",
+        "redacted"
       ]
     },
     {
@@ -46,8 +46,8 @@
       "scenario_id": "primary_4p_rogshai",
       "scenario_type": "primary_four_player_context",
       "source_drive_ids": [
-        "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
-        "1IuvMmT3-jfrhB62qMPOxaNjAJmBUus9M"
+        "redacted",
+        "redacted"
       ]
     },
     {
@@ -86,8 +86,8 @@
       "scenario_id": "holdout_sensitivity_pool",
       "scenario_type": "opponent_pool_not_fixed_pod",
       "source_drive_ids": [
-        "1ioeN6CHMWTwYM5ThFn1la4FjFWeDhBaX",
-        "1IuvMmT3-jfrhB62qMPOxaNjAJmBUus9M"
+        "redacted",
+        "redacted"
       ]
     },
     {
@@ -105,7 +105,7 @@
       "scenario_id": "pod_size_sensitivity_3p",
       "scenario_type": "pod_size_sensitivity",
       "source_drive_ids": [
-        "1MTI0ANCoMW5UmyaPXaYvu1OXePZVt61I"
+        "redacted"
       ]
     },
     {
@@ -123,7 +123,7 @@
       "scenario_id": "pod_size_sensitivity_5p",
       "scenario_type": "pod_size_sensitivity",
       "source_drive_ids": [
-        "1MTI0ANCoMW5UmyaPXaYvu1OXePZVt61I"
+        "redacted"
       ]
     }
   ],
