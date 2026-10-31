@@ -41,12 +41,29 @@ def load_dump(path: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
 
 
 def load_slices(paths: Sequence[Path]) -> tuple[dict[str, Any], list[dict[str, Any]], int]:
-    """Rows of all slices; refuses slices of different jars or corpus versions."""
+    """Rows of all slices of one full dump.
+
+    Refuses a file that is not a full dump (a sample from ``record`` without ``--all`` would be
+    counted as if it were whole games), a file whose row count differs from the header's
+    ``games_decisions`` (truncated or hand-edited), slices of different jars or corpus versions,
+    and a seed that appears in more than one slice (the same slice given twice would double
+    every number).
+    """
     header: dict[str, Any] | None = None
     rows: list[dict[str, Any]] = []
     size = 0
+    seed_files: dict[int, Path] = {}
     for path in paths:
         head, body = load_dump(path)
+        if head.get("kind") != "full":
+            raise ValueError(
+                f"{path} is not a full dump (kind {head.get('kind')!r}); record it with --all"
+            )
+        if head.get("games_decisions") != len(body):
+            raise ValueError(
+                f"{path} has {len(body)} rows but its header says "
+                f"{head.get('games_decisions')} decisions"
+            )
         if header is None:
             header = head
         elif (head.get("corpus_version"), head.get("jar_sha256")) != (
@@ -54,6 +71,10 @@ def load_slices(paths: Sequence[Path]) -> tuple[dict[str, Any], list[dict[str, A
             header.get("jar_sha256"),
         ):
             raise ValueError(f"{path} was recorded with another jar or corpus version")
+        for seed in {int(row["seed"]) for row in body}:
+            if seed in seed_files:
+                raise ValueError(f"seed {seed} is in both {seed_files[seed]} and {path}")
+            seed_files[seed] = path
         rows.extend(body)
         size += path.stat().st_size
     if header is None:
