@@ -338,6 +338,7 @@ Elder Cathar
 Elder Mastery
 Elixir of Immortality
 Elspeth, Knight-Errant
+Elvish Mystic
 Embersmith
 Empyrean Eagle
 Enclave Elite
@@ -1308,6 +1309,7 @@ Welkin Guide
 Whirler Rogue
 Whirlwind Denial
 Whirlwind of Thought
+Whitemane Lion
 Wild Nacatl
 Wildborn Preserver
 Wilderness Reclamation
