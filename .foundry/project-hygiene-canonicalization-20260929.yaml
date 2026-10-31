@@ -32,7 +32,7 @@ drift_events:
       Space Bunny MAX, selected explicitly by the operator in this campaign prompt. AGENTS.md
       section 6 requires explicit per-run executor selection, which this satisfies.
 
-worktree: /home/moeen/code/lab-project-hygiene-20260929
+worktree: /home/owner/code/lab-project-hygiene-20260929
 branch: maintenance/project-hygiene-canonicalization-20260929
 ownership:
   primary_mutation_surface: repository documentation + dead-file hygiene on owned branch

@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/work/takeover-pr518-20261003
+worktree: /home/owner/work/takeover-pr518-20261003
 branch: hardening/b8-real4p-progress-20261003
 audit_base_sha: 92ac2ef7d4876dd19a3f1b2ad85c8386a913df27
 audit_base_tree: 785f02937170c88576fba9e11b26844493532fc0

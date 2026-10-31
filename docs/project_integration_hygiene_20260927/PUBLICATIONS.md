@@ -80,7 +80,7 @@ misconfiguration:
   the launcher created it, then aborted at `init` before writing `launch-context.json` or
   acquiring any lock. That is the direct on-disk trace of the `LAUNCH_REFUSED` reported in §0.
 - It was therefore not spawned by `tools/foundry/launcher.py`, so no lock was ever acquired for
-  `/home/moeen/code/wsr23-project-integration-hygiene`.
+  `/home/owner/code/wsr23-project-integration-hygiene`.
 - `writer_lock.py` documents the threat model explicitly: the kernel flock is the single source
   of truth and the holder metadata is diagnostic only, so that "stale metadata can never brick a
   worktree" and so that "the kernel releases the lock on any fd close, including `kill -9` — no
@@ -121,10 +121,10 @@ which is the minimum honest remaining gate:
 
 Run from inside a Foundry **writer** session for this worktree — that is, a session started by
 `tools/foundry/launcher.py` in mode `writer` with `--worktree
-/home/moeen/code/wsr23-project-integration-hygiene`, `--branch
+/home/owner/code/wsr23-project-integration-hygiene`, `--branch
 wsr23/project-integration-hygiene-20260927`, `--workstream
 wsr23-project-integration-hygiene-20260927`, `--state
-/home/moeen/code/wsr23-project-integration-hygiene/docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml`
+/home/owner/code/wsr23-project-integration-hygiene/docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml`
 and `--audit-base-sha bbbb6b9c3e9297265c2a488c9ae72a72c0ff3719`. Inside that session:
 
 ```text

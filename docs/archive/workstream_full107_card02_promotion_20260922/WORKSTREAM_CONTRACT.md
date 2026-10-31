@@ -16,7 +16,7 @@ Nothing else changes classification. START-2 untouched.
 - Evidence (READ-ONLY, merged): `XmageFullGameCard02ExecutionTest`
   (green locally and in CI conformance on PR #231).
 - This branch: `cpl/full107-card02-promotion-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-card02-promotion-20260922`.
+- This worktree: `/home/owner/code/ws-full107-card02-promotion-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR only.
 
 ## In Scope

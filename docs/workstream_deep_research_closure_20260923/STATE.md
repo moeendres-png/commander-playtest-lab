@@ -2,7 +2,7 @@
 
 Workstream: `DR-CLOSURE-01`
 Branch: `dr-closure-01-deep-research-20260924`
-Worktree: `/home/moeen/code/ws-dr-closure-20260924`
+Worktree: `/home/owner/code/ws-dr-closure-20260924`
 Source lock: see `SOURCE_LOCK.md`
 (`HEAD 2231ff4bdd30753a127133e51a0d3657c668532d`,
 tree `f759ed34d35fdf76ebbb04814edf4a470f960e27`, clean).

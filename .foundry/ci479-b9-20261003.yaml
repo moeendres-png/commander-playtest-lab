@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/work/ci479-b9-repair-20261003
+worktree: /home/owner/work/ci479-b9-repair-20261003
 branch: hardening/lab-b9-packaging-smoke-20261003
 audit_base_sha: cf2360d4ef37959fb7cc8a543015df419e346296
 audit_base_tree: 25ac40c77e36aee8afb09148ad26cef63326f21b

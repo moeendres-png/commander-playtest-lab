@@ -2,7 +2,7 @@
 
 Workstream: `research/csn-engine-capability-delta-20260929` (PR #304)
 Remediation branch: `pb03/304-remediation-on-dafe2ac6`
-Worktree: `/home/moeen/code/lab-pb03-remediation2-20260929`
+Worktree: `/home/owner/code/lab-pb03-remediation2-20260929`
 
 `ARCHITECTURE_FREEZE = NOT CLAIMED` · `PRODUCTION_PROVIDER = NOT SELECTED`
 

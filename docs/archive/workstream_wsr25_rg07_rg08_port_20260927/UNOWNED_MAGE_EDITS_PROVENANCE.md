@@ -3,7 +3,7 @@
 Coordinator ruling: `REJECTED_STALE_EXPERIMENTAL_RESIDUE`. Must NOT be promoted.
 Must NOT influence canonical Mage candidate `b1959698`.
 
-- Worktree: `/home/moeen/code/xmage-ws49-baseline`, detached base `0c1f455ea8c8fa48ab9d638ad5068ec242800428` (WS42 commander-damage API).
+- Worktree: `/home/owner/code/xmage-ws49-baseline`, detached base `0c1f455ea8c8fa48ab9d638ad5068ec242800428` (WS42 commander-damage API).
 - Seven tracked modifications (unstaged, preserved here binary-safe in `UNOWNED_MAGE_EDITS_REJECTED.patch`):
   five card shuffles + `PlayerImpl.java` (2 sites) re-routed to global `RandomUtil.getRandom()`,
   plus `RandomUtil.java` `RecordingRandom` tape instrumentation (WS-39 style).

@@ -16,7 +16,7 @@ PASS/FAIL/UNKNOWN/NOT_RUN. No behavioral PASS without execution.
 - Frozen definition: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
   (READ-ONLY; 135 records, denominator 107).
 - This branch: `cpl/full107-decision-executor-20260922`.
-- This worktree: `/home/moeen/code/ws-full107-decision-executor-20260922`.
+- This worktree: `/home/owner/code/ws-full107-decision-executor-20260922`.
 - Repo `moeendres-png/commander-playtest-lab`. Publication via scoped PR
   + Foundry push only.
 

@@ -758,11 +758,11 @@ def test_safe_auto_deny_set_pinned() -> None:
     # the folder-name denies it replaces, so those denies are gone by design.
     ext = config["permission"]["external_directory"]
     assert ext["*"] == "allow"
-    assert ext["/home/moeen/code/*"] == "allow"
+    assert ext["/home/owner/code/*"] == "allow"
     assert ext["/tmp/*"] == "allow"
     for folder in (
-        "/home/moeen/code/ws50-forge-decision-sequence-slice*",
-        "/home/moeen/code/q6-capability-curation-20260910*",
+        "/home/owner/code/ws50-forge-decision-sequence-slice*",
+        "/home/owner/code/q6-capability-curation-20260910*",
     ):
         assert folder not in ext, folder
 

@@ -26,7 +26,7 @@ schema_version: '2.0'
 state_written_against_head: 4bf61fc10ccb2b9fd587df8567920277b70ce2bb
 status: COMPLETE
 validated_head: 4bf61fc10ccb2b9fd587df8567920277b70ce2bb
-worktree: /home/moeen/code/ws58-foundry-state-persistence-hardening
+worktree: /home/owner/code/ws58-foundry-state-persistence-hardening
 technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 current_reasoning_tier: high
 technical_decisions:

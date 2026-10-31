@@ -1074,7 +1074,6 @@
     {
       "sha": "c74ac92cb2a4213b1b5ed442c9d1102842dc08bb",
       "date": "2026-10-22",
-      "author": "Muz Ali",
       "subject": "[TRK] Update mtg-cards-data.txt",
       "kinds": [
         "data"
@@ -1083,7 +1082,6 @@
     {
       "sha": "5ccb0af24015f15cff637e4270f718c220c4da49",
       "date": "2026-10-22",
-      "author": "Darío Barrabino",
       "subject": "[MSC] Implement Panther Habit (#16488)",
       "kinds": [
         "card",
@@ -1094,7 +1092,6 @@
     {
       "sha": "7d700df67374c866bbe7be8c6b3ca608a189c813",
       "date": "2026-10-22",
-      "author": "Darío Barrabino",
       "subject": "[MSC] Implement Avenge (#16500)",
       "kinds": [
         "card",
@@ -1105,7 +1102,6 @@
     {
       "sha": "e18157de1712d0ebd0fe587ceb51b9695ee0944f",
       "date": "2026-10-22",
-      "author": "Darío Barrabino",
       "subject": "Use LKI of phased-out permanents in the remaining battlefield lookups (#16576)",
       "kinds": [
         "engine",
@@ -1116,7 +1112,6 @@
     {
       "sha": "4d60b894c188644b56c3e5c2026e52aa1393e9ff",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRC] Implement Spot, Felis catus (#16563)",
       "kinds": [
         "card",
@@ -1126,7 +1121,6 @@
     {
       "sha": "1c432a317f7c803f3bc6bc299e47c57796a7b975",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRC] Implement Starship Enterprise (#16567)",
       "kinds": [
         "card",
@@ -1136,7 +1130,6 @@
     {
       "sha": "6aa3f49b5aa7fc80406e7ac7fa2e2fa8e582d164",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRC] Implement Locutus of Borg (#16568)",
       "kinds": [
         "card",
@@ -1146,7 +1139,6 @@
     {
       "sha": "39d426476a8a0c0108fcca6ca3d1c3c9b6fdd4a7",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRC] Implement Koloth, Tribble Hunter (#16569)",
       "kinds": [
         "engine",
@@ -1157,7 +1149,6 @@
     {
       "sha": "ece7fe3c09dd82fa7fa08130f9bd6fc89fb2ac51",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRC] Implement Jean-Luc Picard, Luminary (#16570)",
       "kinds": [
         "card",
@@ -1167,7 +1158,6 @@
     {
       "sha": "eed8df999e508ef451f7e16413977b1f26d7b04a",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRC] Implement Command Chair (#16571)",
       "kinds": [
         "card",
@@ -1177,7 +1167,6 @@
     {
       "sha": "cea8fdc7eaab9216de59c23f14f61d4b30c3a2af",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "[MSC] Implement Heroic Return (#16501)",
       "kinds": [
         "card",
@@ -1188,7 +1177,6 @@
     {
       "sha": "d538182f077acace3770688ef2b69d2f63b797d2",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "[MSC] Implement Origin of Iron Man (#16502)",
       "kinds": [
         "card",
@@ -1198,7 +1186,6 @@
     {
       "sha": "90cf75adba9f55b0f4fa6e5b439023b852d75aa9",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "[HOB] Add missing printings",
       "kinds": [
         "set"
@@ -1207,7 +1194,6 @@
     {
       "sha": "716ac135e21ed0d29e034d258b2d92c326448442",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "[FRC] Add missing printings",
       "kinds": [
         "set"
@@ -1216,7 +1202,6 @@
     {
       "sha": "6133c52e4c330b683403af2509e546c9ad3b80e0",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[dev] Script to check for a given set code which implemented cards are missing printing information from their set (#16564)",
       "kinds": [
         "data"
@@ -1225,7 +1210,6 @@
     {
       "sha": "bbb2ae29e8640f0655fdf51ac203d5e6c67a3612",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRK] Implement Troubling Tribbles (#16565)",
       "kinds": [
         "card",
@@ -1235,7 +1219,6 @@
     {
       "sha": "030e3121cab6869911032da8255627b17d84063e",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRK] Implement The Duras Sisters (#16566)",
       "kinds": [
         "card",
@@ -1245,7 +1228,6 @@
     {
       "sha": "2273b8224590eef5b561f654746ce96faa5e1381",
       "date": "2026-10-21",
-      "author": "Muz",
       "subject": "[TRK] Implement Mr. Spock, Science Officer (#16572)",
       "kinds": [
         "card",
@@ -1255,7 +1237,6 @@
     {
       "sha": "33cfc699b690dbd8dac616b79e27afaec55e1716",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "[TRK] Implement Warp Core",
       "kinds": [
         "card",
@@ -1265,7 +1246,6 @@
     {
       "sha": "a9d2721bcc85128ca26ed75cf114867d85ebdf31",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "[TRK] Implement Tea, Earl Grey, Hot",
       "kinds": [
         "card",
@@ -1275,7 +1255,6 @@
     {
       "sha": "d46190c0de220d94dcd32b87cfcde6787e203156",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "[TRK] Implement Unexplored Territory",
       "kinds": [
         "card",
@@ -1285,7 +1264,6 @@
     {
       "sha": "369bfeb2742e990ab772349510b8915bb7b8eebd",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "[TRK] Implement Vexing Drone",
       "kinds": [
         "card",
@@ -1295,7 +1273,6 @@
     {
       "sha": "afb585aea1aae190f272e3117c689feeb8457242",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "Update mtg-cards-data.txt",
       "kinds": [
         "data"
@@ -1304,7 +1281,6 @@
     {
       "sha": "119be8634b7be54efd4f377621bf0a4e62a3ff05",
       "date": "2026-10-21",
-      "author": "Muz Ali",
       "subject": "[TRK] Update mtg-cards-data.txt",
       "kinds": [
         "data"
@@ -1313,7 +1289,6 @@
     {
       "sha": "859591d006b2a8d5dfd2049869b5550101d09a22",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "Use getSpellOrLKIStack in CantBeCopiedSourceEffect like Twinning Staff (#16575)",
       "kinds": [
         "engine"
@@ -1322,7 +1297,6 @@
     {
       "sha": "6bc989ffc880c185b6190cae4ace40338f1b55f4",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "[MSC] Implement Silver Surfer, Galactus's Herald (#16518)",
       "kinds": [
         "card",
@@ -1333,7 +1307,6 @@
     {
       "sha": "12be750f98131be75481a32dd37da2d854085f9a",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "Fix \"this spell can't be copied\" never applying (#16521)",
       "kinds": [
         "engine",
@@ -1343,7 +1316,6 @@
     {
       "sha": "8d9d204bc4372fe9a197668721964e7eeb69222b",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "[MSH] Fix Beast, Erudite Aerialist flying for copies of Beast (#16522)",
       "kinds": [
         "card",
@@ -1353,7 +1325,6 @@
     {
       "sha": "5f04616c6c9369a06dc2635a62caeebcd13125a5",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "Melded permanents can't be turned face down (712.16) (#16562)",
       "kinds": [
         "engine",
@@ -1363,7 +1334,6 @@
     {
       "sha": "4dc8f311d4049cbd06068774f24666a2cc98fe82",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "Use last known information of phased-out permanents for damage sources (#16561)",
       "kinds": [
         "engine",
@@ -1373,7 +1343,6 @@
     {
       "sha": "22fca32e3a948d4e1dbe75ece1f04e50e0318e46",
       "date": "2026-10-21",
-      "author": "ssk97",
       "subject": "Payment cancel - fixed that some spells can lost activation status on impossible payment or cancel (example: Convoke, Delve, Improvise,  #16509)",
       "kinds": [
         "engine",
@@ -1384,7 +1353,6 @@
     {
       "sha": "e6edddc37bd4eb4647b71950dc294e12da695ed2",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "Update Thriving lands to the new enters tapped and choose a color template (#16560)",
       "kinds": [
         "engine",
@@ -1395,7 +1363,6 @@
     {
       "sha": "463dba35a539cf4ef62aa64e7dd8df21b8b64585",
       "date": "2026-10-21",
-      "author": "Darío Barrabino",
       "subject": "Add BlocksAllTriggeredAbility and use it for whenever a creature blocks cards (#16559)",
       "kinds": [
         "engine",
@@ -1406,7 +1373,6 @@
     {
       "sha": "297d2d209b6df2e269cbdd8475f909098c28531d",
       "date": "2026-10-20",
-      "author": "Muz Ali",
       "subject": "[FRA] Add missing printings for Carnivorous Cultivator and Sphinx's Approach",
       "kinds": [
         "set"
@@ -1415,7 +1381,6 @@
     {
       "sha": "cb0f8c0be18dc1490a2d11d6da5cf4f3c9f8f64e",
       "date": "2026-10-20",
-      "author": "Muz Ali",
       "subject": "[FRA] Add missing printings for Carnivorous Cultivator and Sphinx's Approach",
       "kinds": [
         "set",
@@ -1425,7 +1390,6 @@
     {
       "sha": "abbabbf450e37cfa27975c26c4c64ba38a85ea8b",
       "date": "2026-10-20",
-      "author": "Muz Ali",
       "subject": "[TRK] Add spoiled reprints",
       "kinds": [
         "set"
@@ -1434,7 +1398,6 @@
     {
       "sha": "077666617be331422174f161690ca77c34501bf0",
       "date": "2026-10-20",
-      "author": "Muz Ali",
       "subject": "[TRK] Add new Planet lands",
       "kinds": [
         "card",
@@ -1444,7 +1407,6 @@
     {
       "sha": "d64984916f807d7210e7b368f9afc74751655921",
       "date": "2026-10-20",
-      "author": "Muz Ali",
       "subject": "Update mtg-cards-data.txt with TRK and TRC spoilers",
       "kinds": [
         "data"
@@ -1453,7 +1415,6 @@
     {
       "sha": "45ce1cb79e3afc49fd5d34025426eb68fe43bb2b",
       "date": "2026-10-20",
-      "author": "Muz Ali",
       "subject": "[SDS] Update Stardates spoiled cards",
       "kinds": [
         "set",
@@ -1463,7 +1424,6 @@
     {
       "sha": "3f4223aadef662633e07c956cff3ce814db3a544",
       "date": "2026-10-20",
-      "author": "PurpleCrowbar",
       "subject": "[FRC] Implement Tamiyo, Upriser Crowned (#16408)",
       "kinds": [
         "engine",

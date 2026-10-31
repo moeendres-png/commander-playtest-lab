@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 PARTNER promotion (2026-09-22)
 
 - Branch: `cpl/full107-partner-promotion-20260922`
-- Worktree: `/home/moeen/code/ws-full107-partner-promotion-20260922`
+- Worktree: `/home/owner/code/ws-full107-partner-promotion-20260922`
 - Base: `a75c47b978f151542a535adc3f91fbdccc09c035`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Evidence: partner executions (PR #224 merged, CI conformance green)

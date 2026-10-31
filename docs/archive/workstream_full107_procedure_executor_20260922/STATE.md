@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 procedure executor (2026-09-22)
 
 - Branch: `cpl/full107-procedure-executor-20260922`
-- Worktree: `/home/moeen/code/ws-full107-procedure-executor-20260922`
+- Worktree: `/home/owner/code/ws-full107-procedure-executor-20260922`
 - Base: `57caa2dc7ad63c8d54c43097a6ac92e0433fdc3e`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Engine: xmage `1.4.61` / pin `db134b97` (read-only, no change)

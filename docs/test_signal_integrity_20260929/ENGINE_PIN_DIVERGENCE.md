@@ -65,7 +65,7 @@ with **no default** and fail closed on absence (`:19-22`), resolving the pin at 
 
 ## 3. Lineage — ESTABLISHED
 
-Objects resolve in the local Mage clone (`/home/moeen/code/mage-ws33`), not the Lab repo.
+Objects resolve in the local Mage clone (`/home/owner/code/mage-ws33`), not the Lab repo.
 
 ```
   db134b9737e9…  2026-09-14  tree 4c7cae47  WS212 Rules-RNG explicit-seed authority

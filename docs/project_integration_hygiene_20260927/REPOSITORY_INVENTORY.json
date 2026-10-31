@@ -7,7 +7,7 @@
   "duplicate_clone_detected": {
     "class": "DIRTY_UNKNOWN_OWNER",
     "note": "Second independent clone of moeendres-png/forge. Not a registered worktree. No WSR23 action.",
-    "path": "/home/moeen/code/forge-candidate-h4f",
+    "path": "/home/owner/code/forge-candidate-h4f",
     "slug": "moeendres-png/forge"
   },
   "evidence_semantics": "UNKNOWN != PASS; PARTIAL != FULL; NOT_RUN != PASS",
@@ -26,7 +26,7 @@
   "observed_main_tree": "32f36366d0335ce60eeb6c430f3d38ef9cb8ac3a",
   "project_repositories": [
     {
-      "clone": "/home/moeen/code/commander-playtest-lab",
+      "clone": "/home/owner/code/commander-playtest-lab",
       "default_branch": "main",
       "local_branch_count": 174,
       "local_main_dirty": "1 untracked path only: Datenpaket_19_09/ (DIRTY_UNKNOWN_OWNER, untouched)",
@@ -40,7 +40,7 @@
       "worktree_count": 173
     },
     {
-      "clone": "/home/moeen/code/forge",
+      "clone": "/home/owner/code/forge",
       "default_branch": "master",
       "local_branch_count": "n/a (see BRANCH_INVENTORY)",
       "role": "Production Rules provider (read-only to WSR23)",
@@ -49,7 +49,7 @@
       "worktree_count": 39
     },
     {
-      "clone": "/home/moeen/code/mage-ws33 (detached) /home/moeen/code/mage-d3q6",
+      "clone": "/home/owner/code/mage-ws33 (detached) /home/owner/code/mage-d3q6",
       "default_branch": "master",
       "role": "Production Rules provider (read-only to WSR23)",
       "rules_semantics_writable_by_wsr23": false,
@@ -60,12 +60,12 @@
   "reference_repositories_read_only": [
     {
       "class": "REFERENCE_ONLY",
-      "clone": "/home/moeen/code/ws219-ref-argentum-3f46367d",
+      "clone": "/home/owner/code/ws219-ref-argentum-3f46367d",
       "slug": "wingedsheep/argentum-engine.git"
     },
     {
       "class": "REFERENCE_ONLY",
-      "clone": "/home/moeen/code/ws219-ref-quorune-64ef6569",
+      "clone": "/home/owner/code/ws219-ref-quorune-64ef6569",
       "slug": "NullPriority/quorune.git"
     }
   ],
@@ -79,7 +79,7 @@
       "verdict": "PASS_HARDENED_EFFECTIVE_TARGET"
     }
   },
-  "scope_rule": "A directory belongs to WSR23 only if its git remote is one of the three Commander Simulator Next project repositories, or it is a registered git worktree of one of them. Everything else under /home/moeen/code is OUT_OF_SCOPE and untouched.",
+  "scope_rule": "A directory belongs to WSR23 only if its git remote is one of the three Commander Simulator Next project repositories, or it is a registered git worktree of one of them. Everything else under /home/owner/code is OUT_OF_SCOPE and untouched.",
   "workstream": "WSR23",
-  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
+  "worktree": "/home/owner/code/wsr23-project-integration-hygiene"
 }

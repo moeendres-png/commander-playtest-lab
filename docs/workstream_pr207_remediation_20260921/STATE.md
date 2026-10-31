@@ -4,7 +4,7 @@ Authorized by Coordinator authorization "PR #207 — COMPLETE INTEGRATION
 REMEDIATION" (XHIGH, autonomous to PR207_MERGE_READY / PR207_BLOCKED_EXACT_GATE).
 
 - Branch: `cpl/ci-cardinality-lane-20260921` (PR #207 head).
-- Worktree: `/home/moeen/code/ws-ci-cardinality-lane-20260921`.
+- Worktree: `/home/owner/code/ws-ci-cardinality-lane-20260921`.
 - Source lock refreshed: PR head `0526a798` == local HEAD at start; published
   campaign commits preserved (remediation appends only).
 - Ownership: WS33 has no active Lab-side writer on the pin/retention/contract

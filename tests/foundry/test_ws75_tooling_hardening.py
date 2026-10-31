@@ -12,7 +12,7 @@ and real file-remotes:
 - REFERENCE_ROOT contract (exact slug/HEAD/tree, mismatch fail closed,
   mutation detection, bootstrap + launcher wiring);
 - TOOL_PERMISSION_BATTERY (git push / git -C / sibling denies,
-  doom_loop deny, no broad /home/moeen/code write);
+  doom_loop deny, no broad /home/owner/code write);
 - OPENCODE_1_18_30_PIN (exact pin passes, drift/unparseable fail closed,
   bounded audit mode);
 - SAFE_PUSH_REGRESSION (sole remote-write path under ancestor-held lock).
@@ -615,8 +615,8 @@ def test_campaign_workspace_reachable() -> None:
     """
     rules = _config_ext_rules()
     for probe in (
-        "/home/moeen/code/ws75-foundry-opencode-tooling-hardening/tools/foundry/launcher.py",
-        "/home/moeen/code/some-other-checkout/file.txt",
+        "/home/owner/code/ws75-foundry-opencode-tooling-hardening/tools/foundry/launcher.py",
+        "/home/owner/code/some-other-checkout/file.txt",
         "/tmp/opencode/scratch.json",
     ):
         verdict, matched = battery_mod.evaluate_rule(rules, "external_directory", probe)
@@ -632,12 +632,12 @@ def test_secret_files_stay_unreadable() -> None:
             for pattern, action in config["permission"][tool].items()
         ]
         for probe in (
-            "/home/moeen/code/commander-playtest-lab/.env",
-            "/home/moeen/code/commander-playtest-lab/.env.local",
+            "/home/owner/code/commander-playtest-lab/.env",
+            "/home/owner/code/commander-playtest-lab/.env.local",
         ):
             verdict, matched = battery_mod.evaluate_rule(rules, tool, probe)
             assert verdict == "DENIED", (tool, probe, matched)
-        verdict, _ = battery_mod.evaluate_rule(rules, tool, "/home/moeen/code/x/.env.example")
+        verdict, _ = battery_mod.evaluate_rule(rules, tool, "/home/owner/code/x/.env.example")
         assert verdict == "ENFORCED_ALLOW", tool
 
 

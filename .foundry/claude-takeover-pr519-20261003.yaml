@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/work/takeover-pr519-20261003
+worktree: /home/owner/work/takeover-pr519-20261003
 branch: hardening/b10-broad-secret-scan-20261003
 audit_base_sha: e827a981d204333fbbc7638a84836e7d1da52630
 audit_base_tree: 213c2f5539ee1cc13db854575113efb331596e3b

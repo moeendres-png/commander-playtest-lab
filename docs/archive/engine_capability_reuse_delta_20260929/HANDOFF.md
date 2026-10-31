@@ -17,7 +17,7 @@ dispatch issued; two owned surfaces deliberately left for their current owners.
 | Workstream branch | `research/csn-engine-capability-delta-20260929` |
 | Workstream HEAD | `cb017b74cfa1af9004036bd48e2c518d3194a56b` |
 | Workstream TREE | `fbf9069cd14bf5b8506328073009e140def58386` |
-| Worktree | `/home/moeen/code/ws-csn-capability-delta-20260929` |
+| Worktree | `/home/owner/code/ws-csn-capability-delta-20260929` |
 | PR | **#304** — https://github.com/moeendres-png/commander-playtest-lab/pull/304 |
 | XMage pin | `b19596980f2734496ea1896504253e1bdd2756dd` (Lab compatibility fork, MIT, **not** pristine upstream) |
 | XMage artifact executed | `org.mage:mage:1.4.61`; runtime proof `xmage_code_source=…/org/mage/mage/1.4.61/mage-1.4.61.jar` |

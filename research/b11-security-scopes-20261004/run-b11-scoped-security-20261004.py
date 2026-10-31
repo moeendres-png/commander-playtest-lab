@@ -6,14 +6,14 @@ from pathlib import Path
 
 import yaml
 
-repo = Path("/home/moeen/work/ci479-lab-b11-20261004")
-out = Path("/home/moeen/work/takeover-evidence-20261003/B11-live-scopes")
+repo = Path("/home/owner/work/ci479-lab-b11-20261004")
+out = Path("/home/owner/work/takeover-evidence-20261003/B11-live-scopes")
 assert not out.exists()
 shutil.move(repo / "artifacts/security", out)
 workflow = yaml.safe_load((repo / ".github/workflows/ci.yml").read_text())
 steps = workflow["jobs"]["security"]["steps"]
 env = os.environ.copy()
-env["PATH"] = "/home/moeen/work/b11-clean-tools-20261004/bin:/usr/bin:/bin"
+env["PATH"] = "/home/owner/work/b11-clean-tools-20261004/bin:/usr/bin:/bin"
 results = {"prepare-scopes": {"outcome": "success"}}
 commands = {}
 for step in steps:
@@ -30,7 +30,7 @@ for step in steps:
     script = (
         step["run"]
         .replace("artifacts/security", str(out))
-        .replace("$RUNNER_TEMP/security-product-venv", "/home/moeen/work/b11-product-20261004")
+        .replace("$RUNNER_TEMP/security-product-venv", "/home/owner/work/b11-product-20261004")
     )
     commands[key] = script
     p = subprocess.run(
@@ -49,7 +49,7 @@ for step in steps:
     )
 env["B11_STEP_RESULTS"] = json.dumps(results)
 command = [
-    "/home/moeen/work/b11-clean-tools-20261004/bin/python",
+    "/home/owner/work/b11-clean-tools-20261004/bin/python",
     "scripts/security_evidence.py",
     "seal",
     "--repo",
@@ -57,7 +57,7 @@ command = [
     "--wheel-dir",
     str(repo / "dist"),
     "--runtime",
-    "/home/moeen/work/b11-product-20261004",
+    "/home/owner/work/b11-product-20261004",
     "--out",
     str(out),
 ]

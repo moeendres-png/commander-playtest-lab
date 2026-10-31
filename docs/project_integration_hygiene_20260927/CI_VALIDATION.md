@@ -1,11 +1,11 @@
 # WSR23 — CI / Validation
 
-All validation below was run in `/home/moeen/code/wsr23-project-integration-hygiene` on branch
+All validation below was run in `/home/owner/code/wsr23-project-integration-hygiene` on branch
 `wsr23/project-integration-hygiene-20260927`.
 
 ## 1. Why a dedicated environment
 
-The ambient interpreter (`/home/moeen/.local`, Python 3.14.4) is missing three **declared**
+The ambient interpreter (`/home/owner/.local`, Python 3.14.4) is missing three **declared**
 dependencies — `typer` (a *core* dependency), `httpx2` and `pytest-asyncio` (both in the `dev`
 extra). `pytest tests` there aborts collection on all three. That is an interpreter gap, not a
 repository defect: all three are pinned in `requirements/lock.txt` (`typer==0.27.2`,

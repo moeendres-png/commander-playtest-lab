@@ -1,7 +1,7 @@
 # Workstream STATE — FULL107 fixture-identity adjudication (2026-09-22)
 
 - Branch: `cpl/full107-fixture-identity-20260922`
-- Worktree: `/home/moeen/code/ws-full107-fixture-identity-20260922`
+- Worktree: `/home/owner/code/ws-full107-fixture-identity-20260922`
 - Base: `b094b0522713836a01c539ba558717bf70ae18b0`
 - Frozen: `origin/ws47/successor-contract-v1.0.5-freeze@5a2e4f46`
 - Verdicts: `FULL107=NOT_QUALIFIED` · `ARCHITECTURE_FREEZE=NOT_CLAIMED` ·

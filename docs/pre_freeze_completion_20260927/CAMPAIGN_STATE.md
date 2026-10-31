@@ -174,7 +174,7 @@ between 2026-08-19 and 2026-09-25 (103.8a/b/c, 504.1, 800.4a/j, 508.8) carries
 
 This is the most decision-relevant new fact produced by this campaign, and it is **not** in the
 inherited blocker register. It was raised here, then traced to a concrete divergence in
-`/home/moeen/code/forge` (`moeendres-png/forge`).
+`/home/owner/code/forge` (`moeendres-png/forge`).
 
 > **Correction.** An earlier revision of this section concluded the Rules-Core pin was satisfied
 > because `a37a865a` is an ancestor of the executed commit. That inference was wrong: ancestry proves

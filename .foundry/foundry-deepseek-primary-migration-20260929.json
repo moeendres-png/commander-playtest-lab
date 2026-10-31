@@ -1,7 +1,7 @@
 {
   "schema_version": "2.0",
   "repository": "moeendres-png/commander-playtest-lab",
-  "worktree": "/home/moeen/code/foundry-deepseek-primary-20260929",
+  "worktree": "/home/owner/code/foundry-deepseek-primary-20260929",
   "branch": "foundry/deepseek-primary-migration-20260929",
   "audit_base_sha": "f7bbeb934007407d5ec88b16ef5f9f23cd07f2f1",
   "audit_base_tree": "d8b05127f3fb60ccde5c183fef66c2e4c7198945",

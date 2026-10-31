@@ -4,7 +4,7 @@
 - Branch: `ws58/foundry-state-persistence-hardening-20260911`
 - HEAD (audit base): `e207286200854bf9bff557e67bf3b37b5e428392`
 - Tree (audit base): `6e89a980bf0a7e40273ba11b108fe3febed39d47`
-- Worktree: `/home/moeen/code/ws58-foundry-state-persistence-hardening`
+- Worktree: `/home/owner/code/ws58-foundry-state-persistence-hardening`
 - Verified: `git branch --show-current`, `git rev-parse HEAD`, `git rev-parse HEAD^{tree}`,
   `git status --short --branch` (clean except untracked `research/` work outputs).
 

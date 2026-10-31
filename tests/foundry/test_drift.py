@@ -36,7 +36,7 @@ CPL_SLUG = "moeendres-png/commander-playtest-lab"
 # (see src/commander_lab/engine/process_manager.py), and this repository carries
 # more than one candidate engine. Overloading it would let a Forge checkout
 # silently satisfy a mage assertion.
-DEFAULT_LIVE_MAGE = Path("/home/moeen/code/mage-d3q6")
+DEFAULT_LIVE_MAGE = Path("/home/owner/code/mage-d3q6")
 LIVE_MAGE = Path(os.environ.get("MAGE_WORKTREE") or DEFAULT_LIVE_MAGE)
 
 

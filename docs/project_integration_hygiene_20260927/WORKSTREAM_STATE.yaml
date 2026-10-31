@@ -120,7 +120,7 @@ hypotheses_rejected:
   specifically. A push-intent against a real remote ref is a write and was never attempted.'
 in_scope:
 - Read-only inventory of repositories, worktrees, branches, writer locks, processes,
-  Foundry state, PRs, issues and CI under /home/moeen/code
+  Foundry state, PRs, issues and CI under /home/owner/code
 - Classification of all 41 open PRs with blob-level or ls-tree evidence
 - Classification of all 61 local branches with no remote branch, plus every branch
   ahead of its remote
@@ -135,7 +135,7 @@ in_scope:
 - Terminal supersession comment plus closure for open PRs proven to satisfy all six
   section 10 conditions
 invalidated_gates: []
-next_action: 'Operator: start a launcher-spawned Foundry writer session for /home/moeen/code/wsr23-project-integration-hygiene
+next_action: 'Operator: start a launcher-spawned Foundry writer session for /home/owner/code/wsr23-project-integration-hygiene
   on branch wsr23/project-integration-hygiene-20260927 with --state docs/project_integration_hygiene_20260927/WORKSTREAM_STATE.yaml
   and --workstream wsr23-project-integration-hygiene-20260927, then run the safe-push
   command in PUBLICATIONS.md section 2, then open the WSR23 PR against main. Coordinator:
@@ -143,7 +143,7 @@ next_action: 'Operator: start a launcher-spawned Foundry writer session for /hom
   branch camp/rg-closure-20260925) and B3 (unowned tracked modifications to Mage engine
   sources in xmage-ws49-baseline), and sequence WSR24 (issue #267) against the open
   WSR22 qualification.'
-objective: Inventory the /home/moeen/code Commander Simulator Next workspace, separate
+objective: Inventory the /home/owner/code Commander Simulator Next workspace, separate
   active from stale work, classify every open PR and every unpublished local branch,
   repair only free non-overlapping Lab integration and hygiene defects, validate,
   publish what is provably publishable, and leave a durable integration ledger.
@@ -156,7 +156,7 @@ out_of_scope:
   matrix
 - Force push, history rewrite, branch or worktree deletion, repository settings, protection
   changes, auto-merge, PR merge
-- Any repository under /home/moeen/code without a Commander Simulator Next remote
+- Any repository under /home/owner/code without a Commander Simulator Next remote
 - Acquiring the Foundry writer lock from a non-launcher process, or any other self-authorization
   of exclusive worktree ownership
 ownership: wsr23-project-integration-hygiene-20260927
@@ -173,7 +173,7 @@ technical_decision_authority: AUTONOMOUS_WITHIN_CONTRACT
 technical_decisions:
 - 'STATE_REPAIR (2026-09-27, identity field): the `ownership` field held the descriptive
   sentence "WSR23 is the sole writer of branch wsr23/project-integration-hygiene-20260927
-  in worktree /home/moeen/code/wsr23-project-integration-hygiene. Its mutation surface
+  in worktree /home/owner/code/wsr23-project-integration-hygiene. Its mutation surface
   is docs/project_integration_hygiene_20260927/** plus exactly one existing file,
   docs/foundry-execution/GOVERNANCE_SUPERSESSION.md. Verified disjoint from the diffs
   of PR #260, #261, #262 and the WSR22 branch." `ownership` is an identity token:
@@ -250,4 +250,4 @@ validated_gates:
 - 'project invariant audit: 6 pass, 0 fail'
 - WORKSTREAM_STATE STATE_OK schema 2.0; bootstrap gate BOOTSTRAP_PASS
 validated_head: 715c4737bf0ce376e628c5a6cd1fcd1b2a3cb1fa
-worktree: /home/moeen/code/wsr23-project-integration-hygiene
+worktree: /home/owner/code/wsr23-project-integration-hygiene

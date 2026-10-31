@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/work/lab
+worktree: /home/owner/work/lab
 branch: claude/oracle-optimizer-pilots-batch-e1y485
 audit_base_sha: 28ca0316604eef486a320ab522d9516f9aee66b2
 audit_base_tree: b252d3cf916d1dc3cb78f94b632423b633e9215d
@@ -36,7 +36,7 @@ out_of_scope:
 - Re-fitting StructuralTuning damage constants.
 ownership: >-
   Step 5 Preview HIGH (opencode/step-5-preview-free, native high); writer lock
-  OC759-STRUCTURAL-QUALITY-20261013 held for /home/moeen/work/lab. Branch
+  OC759-STRUCTURAL-QUALITY-20261013 held for /home/owner/work/lab. Branch
   claude/oracle-optimizer-pilots-batch-e1y485 is PR 759's own head and has no live writer.
 status: SUPERSEDED
 closed_out: '2026-10-16 handoff ledger cleanup: no open issue or PR remains for this workstream (all lane issues closed); closed out as stale, not claimed complete.'
@@ -178,7 +178,7 @@ remaining_scope:
   iterate QUEUE_REPOS including moeendres-png/forge, which 404s since the Forge removal, so
   the rest of brief (opencode/pb03/epoch lane) never prints.
 exact_next_action: >-
-  Push the branch with tools/foundry/safe_push.py --worktree /home/moeen/work/lab
+  Push the branch with tools/foundry/safe_push.py --worktree /home/owner/work/lab
   --expected-branch claude/oracle-optimizer-pilots-batch-e1y485 --state
   .foundry/oc759-structural-quality-20261013.yaml, then comment the repair with its
   evidence on PR 759 via gh pr comment 759, then re-read CI on the new head.

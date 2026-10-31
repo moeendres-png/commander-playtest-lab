@@ -3,7 +3,7 @@
   "parent_tree": "c3e9e3cea432ef50ed537c3e9d9690d073119555",
   "patch_sha256": "f8ddf0c987632c66fc27a8403c432c4dfb0ffdb1814588ee1c5183955a4d44c5",
   "evidence": {
-    "B10-review-GREEN.xml": "db66a1d3112057e4edbc5ab8c1eae8ff3f983afd64b8ea2250bf21449329baa3"
+    "B10-review-GREEN.xml": "7367d1afe40063b96c603fa49a5786e0a8711882c59ffc001acdf604c09f8d3e"
   },
   "passing_tests": 57,
   "qualification": "Affected offline controls only; fresh exact-head CI and independent review pending.",

@@ -13,7 +13,7 @@
       "head": "586914ea10caf1ede3e509908a6b177c4a20d5e7",
       "name": "commander-playtest-lab",
       "owner_evidence": "unattributed",
-      "path": "/home/moeen/code/commander-playtest-lab",
+      "path": "/home/owner/code/commander-playtest-lab",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -29,7 +29,7 @@
       "head": "895eca21a3f63a54e9173d0dc65f7d94e8b41818",
       "name": "commander-playtest-lab-muse-ws48",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/commander-playtest-lab-muse-ws48",
+      "path": "/home/owner/code/commander-playtest-lab-muse-ws48",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -45,7 +45,7 @@
       "head": "ece12fde7b605eeafa0b0990623374551a8a3a8c",
       "name": "commander-playtest-lab-muse-ws49",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/commander-playtest-lab-muse-ws49",
+      "path": "/home/owner/code/commander-playtest-lab-muse-ws49",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -61,7 +61,7 @@
       "head": "10a7f8f6ebc5be2b2a89d3d019f0c16659cadc7d",
       "name": "commander-ws48",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/commander-ws48",
+      "path": "/home/owner/code/commander-ws48",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -77,7 +77,7 @@
       "head": "6baa24d465d43eb10456fc846efb44f7c42dfc66",
       "name": "ws-arclose-d1-p1p2",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws-arclose-d1-p1p2",
+      "path": "/home/owner/code/ws-arclose-d1-p1p2",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -95,7 +95,7 @@
       "head": "7c1fb770bcae48bfb49048d972123565d820818c",
       "name": "ws-l6-rg05",
       "owner_evidence": "unattributed",
-      "path": "/home/moeen/code/ws-l6-rg05",
+      "path": "/home/owner/code/ws-l6-rg05",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -111,7 +111,7 @@
       "head": "380134e4f147b81ca5abe825fa606cd8b8e60c2e",
       "name": "ws-physical-pool-20260919",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws-physical-pool-20260919",
+      "path": "/home/owner/code/ws-physical-pool-20260919",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -127,7 +127,7 @@
       "head": "78d36c6b6048073e6289f1ec1339d346107729e9",
       "name": "ws-real-deck-e2e-gate-20260923",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws-real-deck-e2e-gate-20260923",
+      "path": "/home/owner/code/ws-real-deck-e2e-gate-20260923",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -143,7 +143,7 @@
       "head": "086589721dea69c38069ab5223e39a4b602bfcad",
       "name": "ws208-xmage-offer-determinism",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws208-xmage-offer-determinism",
+      "path": "/home/owner/code/ws208-xmage-offer-determinism",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -161,7 +161,7 @@
       "head": "7c3e3d2af474cbf9cdda6f9dd694f68e5cdb2c10",
       "name": "ws49-canonical",
       "owner_evidence": "unattributed",
-      "path": "/home/moeen/code/ws49-canonical",
+      "path": "/home/owner/code/ws49-canonical",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [],
@@ -175,7 +175,7 @@
       "head": "e636e7055478709010cbd778846683065e31655b",
       "name": "ws50-forge-decision-sequence-slice",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws50-forge-decision-sequence-slice",
+      "path": "/home/owner/code/ws50-forge-decision-sequence-slice",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -210,7 +210,7 @@
       "head": "dfb490e268b40dba7315a3fb53861eb2580d8baa",
       "name": "wsr22-final-current-boundary-freeze",
       "owner_evidence": "WSR22 (PID 71804 opencode, cwd = this worktree)",
-      "path": "/home/moeen/code/wsr22-final-current-boundary-freeze",
+      "path": "/home/owner/code/wsr22-final-current-boundary-freeze",
       "repo": "cpl",
       "staged_count": 0,
       "untracked": [
@@ -226,7 +226,7 @@
       "head": "85f03824229cbfc0a93bdf85d3554a92b5351884",
       "name": "ws59-forge-rqc3-engine-remediation",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws59-forge-rqc3-engine-remediation",
+      "path": "/home/owner/code/ws59-forge-rqc3-engine-remediation",
       "repo": "forge",
       "staged_count": 0,
       "untracked": [
@@ -242,7 +242,7 @@
       "head": "17945295b8dddd5c41ea471432d3c03d581ed16a",
       "name": "ws63-forge-a04-full-cast-remediation",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws63-forge-a04-full-cast-remediation",
+      "path": "/home/owner/code/ws63-forge-a04-full-cast-remediation",
       "repo": "forge",
       "staged_count": 0,
       "untracked": [
@@ -258,7 +258,7 @@
       "head": "1812baf3e36b8e4b79c4997ecff9e1b7cb6de94a",
       "name": "ws67-forge-ws65-engine-remediation",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws67-forge-ws65-engine-remediation",
+      "path": "/home/owner/code/ws67-forge-ws65-engine-remediation",
       "repo": "forge",
       "staged_count": 0,
       "untracked": [
@@ -274,7 +274,7 @@
       "head": "d97cdbc99b5a3b71fa779c447de05ea0f2db1423",
       "name": "ws76-forge-immediate-concession-hardening",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/ws76-forge-immediate-concession-hardening",
+      "path": "/home/owner/code/ws76-forge-immediate-concession-hardening",
       "repo": "forge",
       "staged_count": 0,
       "untracked": [
@@ -290,7 +290,7 @@
       "head": "1f25789c6e75e9523bcd8d1b147161684214b26b",
       "name": "mage-ws33",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/mage-ws33",
+      "path": "/home/owner/code/mage-ws33",
       "repo": "mage",
       "staged_count": 0,
       "untracked": [
@@ -306,7 +306,7 @@
       "head": "2c788c0d80865e438aa032ea4edb2dca466dec03",
       "name": "mage-ws33-ws33c-promo",
       "owner_evidence": "historic workstream build/evidence residue",
-      "path": "/home/moeen/code/mage-ws33-ws33c-promo",
+      "path": "/home/owner/code/mage-ws33-ws33c-promo",
       "repo": "mage",
       "staged_count": 0,
       "untracked": [
@@ -330,7 +330,7 @@
       "head": "0c1f455ea8c8fa48ab9d638ad5068ec242800428",
       "name": "xmage-ws49-baseline",
       "owner_evidence": "unattributed",
-      "path": "/home/moeen/code/xmage-ws49-baseline",
+      "path": "/home/owner/code/xmage-ws49-baseline",
       "repo": "mage",
       "staged_count": 0,
       "untracked": [],
@@ -366,5 +366,5 @@
   },
   "total": 19,
   "workstream": "WSR23",
-  "worktree": "/home/moeen/code/wsr23-project-integration-hygiene"
+  "worktree": "/home/owner/code/wsr23-project-integration-hygiene"
 }

@@ -77,7 +77,7 @@
   "owned_surface": {
    "branch": "hardening/final-prefreeze-evidence-closure-20261001",
    "state_file": ".foundry/final-prefreeze-evidence-closure-20261001.yaml",
-   "worktree": "/home/moeen/code/lab-final-prefreeze-evidence-closure-20261001",
+   "worktree": "/home/owner/code/lab-final-prefreeze-evidence-closure-20261001",
    "writer": "OpenCode Go / opencode-go/deepseek-v4.1-flash native MAX"
   }
  },

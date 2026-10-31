@@ -111,7 +111,7 @@
   "scenario_source_path": "forge-protocol2-bridge/src/main/java/forge/bridge/ScenarioBootstrap.java",
   "scenario_source_sha256": "9ae04d53dba447b6ecb7eee01c28a0f2a73f5bc8172a6547b1921b5b68fc39b1",
   "session_source_sha256": "404c034af7fb8f8a190149cc33d5efdbf424571de880310b3a848240e1f999fe",
-  "workspace": "/home/moeen/code/claude-forge-r5-integration-20260930"
+  "workspace": "/home/owner/code/claude-forge-r5-integration-20260930"
  },
  "supported": {
   "battlefield": {

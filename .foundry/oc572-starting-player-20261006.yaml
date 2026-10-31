@@ -1,6 +1,6 @@
 schema_version: '2.0'
 repository: moeendres-png/commander-playtest-lab
-worktree: /home/moeen/work/worktrees/oc572-starting-player-20261006
+worktree: /home/owner/work/worktrees/oc572-starting-player-20261006
 branch: opencode/oc572-starting-player-20261006
 audit_base_sha: 5849d187a0adf0ce323991ea0bf0c8a7fd931a88
 audit_base_tree: e839522778c050567cbf5f4f542c96881ad7dc61

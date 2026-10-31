@@ -566,9 +566,7 @@ def build_report(
             if card in (pull_requests or {})
         ],
         "merge": merge_conflicts(repo, pin_full, upstream_full),
-        "commits": [
-            {k: c[k] for k in ("sha", "date", "author", "subject", "kinds")} for c in commits
-        ],
+        "commits": [{k: c[k] for k in ("sha", "date", "subject", "kinds")} for c in commits],
     }
     report["triggers"] = evaluate_triggers(
         repo, upstream_full, base, report, missing, gained, today or date.today()

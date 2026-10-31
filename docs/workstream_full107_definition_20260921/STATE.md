@@ -2,7 +2,7 @@
 
 - Workstream: `cpl/full107-definition-import-20260921`
 - Branch: `cpl/full107-definition-import-20260921`
-- Worktree: `/home/moeen/code/ws-full107-definition-import-20260921`
+- Worktree: `/home/owner/code/ws-full107-definition-import-20260921`
 - Base: `069762bc074efa78153931ba637f392766d2cb44` (post-PR207/PR210 main;
   own branch fast-forwarded, prepared docs preserved)
 - Definition source: `origin/ws47/successor-contract-v1.0.5-freeze` @ `5a2e4f46`
