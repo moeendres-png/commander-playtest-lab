@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "checked_on": "2026-10-31",
+  "how_it_was_made": "By hand from api.deps.dev/v3 and api.osv.dev/v1/vulns/<id> on the date above (review of 2026-10-30, finding R6-10). The script report_java_dependencies.py reads this file and never goes online; refresh it by hand and move checked_on. A component that is in neither list is UNKNOWN, not clean.",
+  "advisories": [
+    {
+      "id": "GHSA-xxph-c9ww-hj94",
+      "aliases": [
+        "CVE-2026-102554"
+      ],
+      "component": "com.google.guava:guava",
+      "severity": "HIGH",
+      "fixed_in": "33.7.2",
+      "published": "2026-10-27",
+      "summary": "Deserialization of CompactHashMap and CompactHashSet",
+      "reachability": "Needs Java serialization of untrusted data. The bridge speaks JSONL; no ObjectInputStream in engine-bridge/src/main (grep 2026-10-31). Not shown to be reachable."
+    },
+    {
+      "id": "GHSA-65r4-943x-97jj",
+      "aliases": [
+        "CVE-2026-75140"
+      ],
+      "component": "org.jsoup:jsoup",
+      "severity": "HIGH",
+      "fixed_in": "1.23.2",
+      "published": "2026-08-20",
+      "summary": "XmlTreeBuilder",
+      "reachability": "Needs untrusted XML or HTML input. In the fork core jsoup is used by two data collectors only (git grep at 2ec507b721); the bridge does not call it. Not shown to be reachable."
+    },
+    {
+      "id": "GHSA-pmhh-3w7g-xqp8",
+      "aliases": [
+        "CVE-2026-71497"
+      ],
+      "component": "org.jsoup:jsoup",
+      "severity": "MODERATE",
+      "fixed_in": "1.23.1",
+      "published": "2026-08-06",
+      "summary": "Cleaner",
+      "reachability": "Needs the jsoup Cleaner on untrusted input; not used by the bridge. Not shown to be reachable."
+    },
+    {
+      "id": "GHSA-45hx-wfhj-473x",
+      "aliases": [
+        "CVE-2022-23221"
+      ],
+      "component": "com.h2database:h2",
+      "severity": "CRITICAL",
+      "fixed_in": "2.1.210",
+      "summary": "H2 Console (details not recorded in this table; see the advisory)",
+      "reachability": "Concerns the H2 console, which nothing in the fork starts (grep). The AUTO_SERVER TCP server is a different surface: see jar_facts.h2_auto_server."
+    },
+    {
+      "id": "GHSA-h376-j262-vhq6",
+      "aliases": [
+        "CVE-2021-42392"
+      ],
+      "component": "com.h2database:h2",
+      "severity": "CRITICAL",
+      "fixed_in": "2.0.206",
+      "summary": "H2 Console (details not recorded in this table; see the advisory)",
+      "reachability": "Concerns the H2 console, which nothing in the fork starts (grep)."
+    }
+  ],
+  "checked_without_advisory": [
+    "com.google.code.gson:gson",
+    "ch.qos.reload4j:reload4j",
+    "org.slf4j:slf4j-api",
+    "org.slf4j:slf4j-reload4j",
+    "com.j256.ormlite:ormlite-core",
+    "com.j256.ormlite:ormlite-jdbc",
+    "com.google.errorprone:error_prone_annotations"
+  ],
+  "jar_facts": {
+    "h2_auto_server": "The card repository opens jdbc:h2:file:./db/cards.h2 with AUTO_SERVER=TRUE. Every JVM that opens it starts an H2 TCP server on all network interfaces (measured 2026-10-31 with bridge_v14: lsof shows *:<port>). A caller needs the key in db/cards.h2.lock.db and the default user has no password, so the exposure is for everyone who can read the database directory. Mitigation without an engine change: -Dh2.bindAddress=127.0.0.1 in the JVM call (a change of the qualified launch plan, so a requalification item)."
+  }
+}
