@@ -9,3 +9,5 @@ seinem Oracle-Namen Loran of the Third Path geführt).
 
 Zweck: Dies ist der Ausgangszustand — das Deck soll verbessert werden.
 Ablageort bewusst hier im Handover (nicht in `data/collections/**`).
+
+Seit 2026-10-31 ist der Ist-Stand die Liste von `main` (`data/decks/chulane_current.txt`); `current-chulane-deck.txt` wurde auf diesen Stand nachgezogen (Elvish Mystic und Whitemane Lion statt Aether Adept und Kor Skyfisher).
