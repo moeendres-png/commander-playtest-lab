@@ -172,6 +172,7 @@ _SEAT_KEYS = (
     "pilot_s",
     "by_class",
     "spells_cast",
+    "mana_payments_cancelled",
     "spell_offers",
     "spell_offers_without_pilot_knowledge",
     "own_turns",
@@ -249,6 +250,9 @@ def summarize(
     instant_speed: dict[tuple[int, str], bool] = {}
     first_cast_round: dict[tuple[int, str], int] = {}
     own_cast_names: dict[int, set[str]] = {}
+    mana_payments_cancelled = 0
+    cancelled_payments: dict[tuple[int, str], int] = Counter()
+    pending_spell_cast: dict[int, str] = {}
     for record in records:
         request = record["request"]
         state = request.get("pilot_state") or {}
@@ -269,6 +273,7 @@ def summarize(
         if decision_class == "priority":
             if len(options) == 1:
                 forced += 1
+                pending_spell_cast.pop(seat, None)
                 continue
             picked = chosen[0] if chosen else {}
             picked_type = str(picked.get("option_type", ""))
@@ -314,6 +319,7 @@ def summarize(
             if meta.get("ability_type") == "spell":
                 name = canonical_card_name(str(meta.get("source_name") or ""))
                 if name:
+                    pending_spell_cast[seat] = name
                     cast_count[(seat, name)] += 1
                     if name in counted_now:
                         cast_in_offer_window[(seat, name)] += 1
@@ -322,6 +328,10 @@ def summarize(
                         cast_on_opponent_turn[(seat, name)] += 1
                     first_cast_round.setdefault((seat, name), own_round)
                     own_cast_names.setdefault(seat, set()).add(name.strip().casefold())
+                else:
+                    pending_spell_cast.pop(seat, None)
+            else:
+                pending_spell_cast.pop(seat, None)
             if meta.get("ability_type") == "spell":
                 spells[seat] += 1
                 name = str(meta.get("source_name") or "")
@@ -417,6 +427,12 @@ def summarize(
                     power = views.creature_power(found[1]) if found else 0
                     if life - power > 5:
                         needless_chumps += 1
+        elif decision_class == "mana_payment":
+            if any(o.get("option_type") == "cancel_mana_payment" for o in chosen):
+                mana_payments_cancelled += 1
+                cancelled_card = pending_spell_cast.pop(seat, None)
+                if cancelled_card:
+                    cancelled_payments[(seat, cancelled_card)] += 1
     rounds = max(1.0, max_turn / max(1, players))
     decisions = sum(by_class.values())
     # Per-card figures keyed by (seat, card name); first_cast_round is None
@@ -438,9 +454,12 @@ def summarize(
             "cast_in_offer_window": cast_in_offer_window.get((seat, name), 0),
             "cast_on_opponent_turn": cast_on_opponent_turn.get((seat, name), 0),
             "instant_speed": instant_speed.get((seat, name), False),
+            "cancelled_payments": cancelled_payments.get((seat, name), 0),
             "first_cast_round": first_cast_round.get((seat, name)),
         }
-        for (seat, name) in sorted(set(offered_castable) | set(cast_count))
+        for (seat, name) in sorted(
+            set(offered_castable) | set(cast_count) | set(cancelled_payments)
+        )
     ]
     result: dict[str, Any] = {
         "turns": max_turn,
@@ -455,6 +474,7 @@ def summarize(
         "by_class": dict(sorted(by_class.items())),
         "pilot_s": round(pilot_s, 2),
         "spells_cast": sum(spells.values()),
+        "mana_payments_cancelled": mana_payments_cancelled,
         "spell_offers": spell_offers,
         "spell_offers_without_pilot_knowledge": spell_offers_unknown,
         "spells_per_player_round": round(sum(spells.values()) / players / rounds, 2),
@@ -577,6 +597,7 @@ _TOTALS = (
     "wall_s",
     "pilot_s",
     "spells_cast",
+    "mana_payments_cancelled",
     "own_turns",
     "bad_idle_main_with_castable_spell",
     "bad_idle_main_with_unplayed_land",
@@ -789,6 +810,7 @@ def _aggregate_cards(report: dict[str, Any], seat: int | None) -> dict[str, Any]
     cast_in_window: dict[str, int] = Counter()
     cast_on_opponent_turn: dict[str, int] = Counter()
     instant_speed: dict[str, bool] = {}
+    cancelled: dict[str, int] = Counter()
     seen_in: dict[str, set[int]] = defaultdict(set)
     games_offered: dict[str, int] = Counter()
     games_cast_after_offer: dict[str, int] = Counter()
@@ -809,16 +831,18 @@ def _aggregate_cards(report: dict[str, Any], seat: int | None) -> dict[str, Any]
             # Records before per_card_version 3 do not split out the casts inside a
             # counted window; their cast count stands in for it.
             n_in_window = int(entry.get("cast_in_offer_window", n_cast) or 0)
+            n_cancelled = int(entry.get("cancelled_payments", 0) or 0)
             offered[name] += n_offered
             cast[name] += n_cast
             cast_in_window[name] += n_in_window
             cast_on_opponent_turn[name] += int(entry.get("cast_on_opponent_turn", 0) or 0)
+            cancelled[name] += n_cancelled
             if entry.get("instant_speed"):
                 instant_speed[name] = True
             per_game_offered[name] += n_offered
             per_game_cast[name] += n_cast
             per_game_cast_in_window[name] += n_in_window
-            if n_offered or n_cast:
+            if n_offered or n_cast or n_cancelled:
                 seen_in[name].add(game_idx)
             first = entry.get("first_cast_round")
             if first is not None:
@@ -839,6 +863,7 @@ def _aggregate_cards(report: dict[str, Any], seat: int | None) -> dict[str, Any]
             "cast_in_offer_window": cast_in_window[name],
             "cast_on_opponent_turn": cast_on_opponent_turn[name],
             "instant_speed": instant_speed.get(name, False),
+            "cancelled_payments": cancelled[name],
             # Casts in a counted window per counted window, at most 1.
             "cast_rate": (
                 round(min(cast_in_window[name], offered[name]) / offered[name], 3)

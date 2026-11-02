@@ -49,6 +49,7 @@ class MulliganLab(_LegacyMulliganLab):
         except ProjectContextError as exc:
             raise MulliganLabError(str(exc)) from exc
         self.mana_analyzer = ManaAnalyzer(self.root)
+        self._opponent_repository: CurrentOpponentRepository | None = None
 
     @staticmethod
     def _baseline_pilot_name(deck_id: str) -> str:
@@ -109,7 +110,9 @@ class MulliganLab(_LegacyMulliganLab):
                 "non-4P mulligan contexts require explicit opponent composition in a separate "
                 "sensitivity workflow"
             )
-        repository = CurrentOpponentRepository(self.root)
+        if self._opponent_repository is None:
+            self._opponent_repository = CurrentOpponentRepository(self.root)
+        repository = self._opponent_repository
         scheduler = BalancedPodScenarioScheduler(
             repository.records(), opponent_registry_hash=repository.registry_hash
         )

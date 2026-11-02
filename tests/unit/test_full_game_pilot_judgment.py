@@ -1075,3 +1075,13 @@ def test_delve_spell_cost_view_discounts_generic_mana_by_graveyard_size() -> Non
     tree_facts = card_facts("Tree of Perdition")
     assert tree_facts is not None
     assert CardRole.PAYOFF in card_roles(tree_facts)
+
+
+def test_wipe_role_recognized_for_counters_and_mass_bounce() -> None:
+    bsz = card_facts("Black Sun's Zenith")
+    assert bsz is not None
+    assert CardRole.WIPE in card_roles(bsz)
+
+    evacuation = card_facts("Evacuation")
+    assert evacuation is not None
+    assert CardRole.WIPE in card_roles(evacuation)

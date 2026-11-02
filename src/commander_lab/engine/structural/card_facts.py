@@ -98,6 +98,8 @@ class CardFactsCatalog:
         for name, fact in facts.items():
             if " // " in name:
                 self._by_key.setdefault(engine_lookup_key(name.split(" // ")[0]), fact)
+        self._facts = tuple(dict.fromkeys(self._by_key.values()))
+        self._profiles: tuple[StructuralCardProfile, ...] | None = None
 
     @classmethod
     def from_json(cls, path: str | Path) -> CardFactsCatalog:
@@ -127,10 +129,10 @@ class CardFactsCatalog:
         return fact
 
     def facts(self) -> tuple[CardFacts, ...]:
-        return tuple(dict.fromkeys(self._by_key.values()))
+        return self._facts
 
     def __len__(self) -> int:
-        return len(self.facts())
+        return len(self._facts)
 
 
 @lru_cache(maxsize=4)
@@ -228,7 +230,9 @@ def fact_profiles(catalog: CardFactsCatalog | None) -> tuple[StructuralCardProfi
     """Inferred profiles for every card with facts (curated profiles take precedence)."""
     if catalog is None:
         return ()
-    return tuple(profile_from_facts(fact.name, fact) for fact in catalog.facts())
+    if catalog._profiles is None:
+        catalog._profiles = tuple(profile_from_facts(fact.name, fact) for fact in catalog.facts())
+    return catalog._profiles
 
 
 def commander_stats(name: str, catalog: CardFactsCatalog | None) -> tuple[float, float] | None:

@@ -195,6 +195,8 @@ _WIPE = re.compile(
     r"(destroy|exile) (all|each) (other )?(nonland )?(creatures?|permanents?|artifacts?|nontoken)"
     r"|deals? (\d+|x) damage to each creature"
     r"|all creatures get -"
+    r"|put (\d+|x) -1/-1 counters? on each creature"
+    r"|return all (other )?(nonland )?(creatures|permanents|attacking creatures)[^.]* to their owners' hands"
     r"|each player sacrifices"
 )
 _DRAW = re.compile(
