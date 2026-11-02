@@ -1085,3 +1085,84 @@ def test_wipe_role_recognized_for_counters_and_mass_bounce() -> None:
     evacuation = card_facts("Evacuation")
     assert evacuation is not None
     assert CardRole.WIPE in card_roles(evacuation)
+
+
+def test_convoke_spell_cost_view_discounts_generic_mana_by_untapped_creatures() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import priority_view_fields
+
+    cast_lethal = _cast("lethal", "Lethal Scheme", black=2, generic=2)
+
+    # 0 creatures: full printed mana cost
+    state_0 = _state()
+    fields_0, _ = priority_view_fields(cast_lethal, state_0)
+    assert fields_0["mana_cost"] == 4.0
+
+    # 1 untapped creature: discounts by 1
+    state_1 = _state(actor_board=[_card("c1", "Grizzly Bears", power=2, toughness=2, tapped=False)])
+    fields_1, _ = priority_view_fields(cast_lethal, state_1)
+    assert fields_1["mana_cost"] == 3.0
+
+    # 2 untapped creatures: discounts generic part completely (min(2, 2) = 2)
+    state_2 = _state(
+        actor_board=[
+            _card("c1", "Grizzly Bears", power=2, toughness=2, tapped=False),
+            _card("c2", "Grizzly Bears", power=2, toughness=2, tapped=False),
+        ]
+    )
+    fields_2, _ = priority_view_fields(cast_lethal, state_2)
+    assert fields_2["mana_cost"] == 2.0
+
+    # Negative control: tapped creatures do not reduce convoke cost
+    state_tapped = _state(
+        actor_board=[
+            _card("c1", "Grizzly Bears", power=2, toughness=2, tapped=True),
+            _card("c2", "Grizzly Bears", power=2, toughness=2, tapped=True),
+        ]
+    )
+    fields_tapped, _ = priority_view_fields(cast_lethal, state_tapped)
+    assert fields_tapped["mana_cost"] == 4.0
+
+    # Negative control: opponent creatures do not reduce convoke cost
+    state_opponent = _state(
+        opponent_board=[
+            _card("c1", "Grizzly Bears", power=2, toughness=2, tapped=False),
+            _card("c2", "Grizzly Bears", power=2, toughness=2, tapped=False),
+        ]
+    )
+    fields_opponent, _ = priority_view_fields(cast_lethal, state_opponent)
+    assert fields_opponent["mana_cost"] == 4.0
+
+
+def test_x_spell_curve_and_impact_scaling_with_available_mana() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import priority_view_fields
+
+    # Stroke of Genius: {X}{2}{U}, base mana_value = 3.0
+    cast_stroke = _cast("stroke", "Stroke of Genius", blue=1, generic=2)
+
+    # 8 open lands -> payable_x = (8 - 3) = 5
+    state_8 = _state()
+    state_8["players"][0]["battlefield"] = [_card(f"island-{i}", "Island") for i in range(8)]
+    fields_8, _ = priority_view_fields(cast_stroke, state_8)
+    assert fields_8["metadata"].get("x_value_estimate") == 5
+    assert fields_8["metadata"].get("curve_bonus") == pytest.approx(1.0)
+
+    # 4 open lands -> payable_x = (4 - 3) = 1
+    state_4 = _state()
+    state_4["players"][0]["battlefield"] = [_card(f"island-{i}", "Island") for i in range(4)]
+    fields_4, _ = priority_view_fields(cast_stroke, state_4)
+    assert fields_4["metadata"].get("x_value_estimate") == 1
+    assert fields_4["metadata"].get("curve_bonus") == pytest.approx(1.0)
+
+    # Immediate impact must be higher for X=5 than X=1
+    assert fields_8["immediate_impact"] > fields_4["immediate_impact"]
+
+    # Black Sun's Zenith: {X}{B}{B}, base mana_value = 2.0
+    cast_bsz = _cast("bsz", "Black Sun's Zenith", black=2)
+    fields_bsz_8, _ = priority_view_fields(cast_bsz, state_8)
+    assert fields_bsz_8["metadata"].get("x_value_estimate") == 6
+    assert fields_bsz_8["metadata"].get("curve_bonus") == pytest.approx(1.0)
+
+    fields_bsz_4, _ = priority_view_fields(cast_bsz, state_4)
+    assert fields_bsz_4["metadata"].get("x_value_estimate") == 2
+    assert fields_bsz_4["metadata"].get("curve_bonus") == pytest.approx(1.0)
+    assert fields_bsz_8["immediate_impact"] > fields_bsz_4["immediate_impact"]

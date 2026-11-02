@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from pathlib import Path
 
-from commander_lab.agents.live_routing import pilot_family, strategy_family
+from commander_lab.agents.live_routing import _GENERIC_ARCHETYPES, pilot_family, strategy_family
 from commander_lab.mana_analysis import DeckManaAnalysis, ManaAnalyzer
 from commander_lab.models import (
     PilotConfig,
@@ -67,7 +67,13 @@ class MulliganLab(_LegacyMulliganLab):
             except KeyError as exc:
                 raise MulliganLabError(f"unknown explicit pilot profile: {requested}") from exc
             actual = pilot_family(profile.pilot_name)
-            if actual != family:
+            if family in _GENERIC_ARCHETYPES:
+                if actual not in {family, "generic"}:
+                    raise MulliganLabError(
+                        f"pilot family mismatch: deck={deck_id} strategy={family} "
+                        f"pilot={profile.pilot_name} family={actual}"
+                    )
+            elif actual != family:
                 raise MulliganLabError(
                     f"pilot family mismatch: deck={deck_id} strategy={family} "
                     f"pilot={profile.pilot_name} family={actual}"
@@ -85,7 +91,13 @@ class MulliganLab(_LegacyMulliganLab):
         profile = self.pilot_registry.profile(name)
         expected_family = strategy_family(deck.commander_strategy)
         actual_family = pilot_family(profile.pilot_name)
-        if actual_family != expected_family:
+        if expected_family in _GENERIC_ARCHETYPES:
+            if actual_family not in {expected_family, "generic"}:
+                raise MulliganLabError(
+                    f"pilot family mismatch: deck={deck.deck_id} strategy={expected_family} "
+                    f"pilot={profile.pilot_name} family={actual_family}"
+                )
+        elif actual_family != expected_family:
             raise MulliganLabError(
                 f"pilot family mismatch: deck={deck.deck_id} strategy={expected_family} "
                 f"pilot={profile.pilot_name} family={actual_family}"
