@@ -1024,8 +1024,22 @@ def priority_view_fields(
 
     if ability_type == "spell" and facts is not None:
         roles = card_roles(facts)
+        effective_cost = engine_cost if engine_cost is not None else facts.mana_value
+        if facts.has_keyword("Delve"):
+            generic_meta = meta.get("mana_cost_generic")
+            if isinstance(generic_meta, int) and not isinstance(generic_meta, bool):
+                generic_part = max(0, generic_meta)
+            else:
+                generic_part = sum(int(m) for m in re.findall(r"\{(\d+)\}", facts.mana_cost))
+            actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
+            gy_count = (
+                max(0, int(actor.get("graveyard_count", len(_items(actor.get("graveyard"))))))
+                if actor is not None
+                else 0
+            )
+            effective_cost = max(0.0, float(effective_cost) - float(min(generic_part, gy_count)))
         fields.update(
-            mana_cost=engine_cost if engine_cost is not None else facts.mana_value,
+            mana_cost=effective_cost,
             roles=frozenset(roles),
             role_strengths=dict(roles),
             base_power=float(max(0, facts.power or 0)),

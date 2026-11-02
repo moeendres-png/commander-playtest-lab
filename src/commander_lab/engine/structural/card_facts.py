@@ -95,6 +95,9 @@ class CardFacts:
 class CardFactsCatalog:
     def __init__(self, facts: dict[str, CardFacts]) -> None:
         self._by_key = {engine_lookup_key(name): fact for name, fact in facts.items()}
+        for name, fact in facts.items():
+            if " // " in name:
+                self._by_key.setdefault(engine_lookup_key(name.split(" // ")[0]), fact)
 
     @classmethod
     def from_json(cls, path: str | Path) -> CardFactsCatalog:
@@ -124,10 +127,10 @@ class CardFactsCatalog:
         return fact
 
     def facts(self) -> tuple[CardFacts, ...]:
-        return tuple(self._by_key.values())
+        return tuple(dict.fromkeys(self._by_key.values()))
 
     def __len__(self) -> int:
-        return len(self._by_key)
+        return len(self.facts())
 
 
 @lru_cache(maxsize=4)

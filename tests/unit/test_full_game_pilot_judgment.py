@@ -1046,3 +1046,32 @@ def test_commander_cast_view_has_no_tax_before_the_first_cast_or_for_other_cards
     # a commander of another owner never taxes this actor's view
     state["commander_status"][0]["owner_id"] = "opponent-1"
     assert policy._priority_action(_commander_cast(), state).mana_cost == 3.0
+
+
+def test_delve_spell_cost_view_discounts_generic_mana_by_graveyard_size() -> None:
+    from commander_lab.engine.rules.full_game_pilot_views import priority_view_fields
+
+    cast_dig = _cast("dig", "Dig Through Time", blue=2, generic=6)
+
+    state_0 = _state()
+    state_0["players"][0]["graveyard_count"] = 0
+    fields_0, _ = priority_view_fields(cast_dig, state_0)
+    assert fields_0["mana_cost"] == 8.0
+
+    state_4 = _state()
+    state_4["players"][0]["graveyard_count"] = 4
+    fields_4, _ = priority_view_fields(cast_dig, state_4)
+    assert fields_4["mana_cost"] == 4.0
+
+    state_8 = _state()
+    state_8["players"][0]["graveyard_count"] = 8
+    fields_8, _ = priority_view_fields(cast_dig, state_8)
+    assert fields_8["mana_cost"] == 2.0
+
+    dtt_facts = card_facts("Dig Through Time")
+    assert dtt_facts is not None
+    assert CardRole.DRAW in card_roles(dtt_facts)
+
+    tree_facts = card_facts("Tree of Perdition")
+    assert tree_facts is not None
+    assert CardRole.PAYOFF in card_roles(tree_facts)
