@@ -1024,8 +1024,47 @@ def priority_view_fields(
 
     if ability_type == "spell" and facts is not None:
         roles = card_roles(facts)
+        effective_cost = engine_cost if engine_cost is not None else facts.mana_value
+        if facts.has_keyword("Delve"):
+            generic_meta = meta.get("mana_cost_generic")
+            if isinstance(generic_meta, int) and not isinstance(generic_meta, bool):
+                generic_part = max(0, generic_meta)
+            else:
+                generic_part = sum(int(m) for m in re.findall(r"\{(\d+)\}", facts.mana_cost))
+            actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
+            gy_count = (
+                max(0, int(actor.get("graveyard_count", len(_items(actor.get("graveyard"))))))
+                if actor is not None
+                else 0
+            )
+            effective_cost = max(0.0, float(effective_cost) - float(min(generic_part, gy_count)))
+        if facts.has_keyword("Convoke"):
+            generic_meta = meta.get("mana_cost_generic")
+            if isinstance(generic_meta, int) and not isinstance(generic_meta, bool):
+                generic_part = max(0, generic_meta)
+            else:
+                generic_part = sum(int(m) for m in re.findall(r"\{(\d+)\}", facts.mana_cost))
+            actor = next((p for p in players(state) if str(p.get("player_id")) == actor_id), None)
+            untapped_creatures = (
+                sum(
+                    1
+                    for item in _items(actor.get("battlefield"))
+                    if is_creature_entry(item) and item.get("tapped") is not True
+                )
+                if actor is not None
+                else 0
+            )
+            effective_cost = max(
+                0.0, float(effective_cost) - float(min(generic_part, untapped_creatures))
+            )
+        x_symbols = facts.mana_cost.upper().count("{X}")
+        if x_symbols > 0:
+            available_mana = untapped_mana_estimate(state)
+            payable_x = max(0, int(max(0.0, available_mana - float(effective_cost))) // x_symbols)
+        else:
+            payable_x = 0
         fields.update(
-            mana_cost=engine_cost if engine_cost is not None else facts.mana_value,
+            mana_cost=effective_cost,
             roles=frozenset(roles),
             role_strengths=dict(roles),
             base_power=float(max(0, facts.power or 0)),
@@ -1049,10 +1088,20 @@ def priority_view_fields(
                 fields["floor_value"] = min(3.0, max(0.0, float(floor)))
             if isinstance(curated_impact, int | float):
                 fields["immediate_impact"] = min(2.0, max(0.0, float(curated_impact)))
-        curve = _curve_bonus(float(fields["mana_cost"]), state)
+        curve_cost = (
+            float(fields["mana_cost"]) + float(payable_x * x_symbols)
+            if payable_x >= 1
+            else float(fields["mana_cost"])
+        )
+        curve = _curve_bonus(curve_cost, state)
         if curve > 0.0:
             fields["immediate_impact"] = min(2.0, float(fields["immediate_impact"]) + curve)
             extra["curve_bonus"] = round(curve, 3)
+        if payable_x >= 1:
+            extra["x_value_estimate"] = payable_x
+            x_bonus = min(0.6, max(0, payable_x - 1) * 0.12)
+            if x_bonus > 0.0:
+                fields["immediate_impact"] = min(2.0, float(fields["immediate_impact"]) + x_bonus)
         timing = _instant_timing(facts, roles, state)
         if timing:
             fields["immediate_impact"] = min(

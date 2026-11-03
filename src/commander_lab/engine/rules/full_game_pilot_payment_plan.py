@@ -35,7 +35,11 @@ _COUNT_WORDS = {"one": 1, "two": 2, "three": 3}
 _NODE_CAP = 20000
 
 _FIXED_MANA = re.compile(r"add ((?:\{[wubrgc]\})+)", re.IGNORECASE)
-_ANY_COLOR = re.compile(r"add (one|two|three) mana of any (?:one )?colou?r", re.IGNORECASE)
+_ANY_COLOR = re.compile(
+    r"add (one|two|three) mana of any (?:one )?colou?r"
+    r"(?: in your commander's colou?r identity)?",
+    re.IGNORECASE,
+)
 _COMBINATION = re.compile(
     r"add (one|two|three) mana in any combination of (?P<kinds>(?:\{[wubrgc]\}[, ]*(?:and/or )?)+)",
     re.IGNORECASE,
@@ -103,10 +107,10 @@ def _slots_of(effect: str) -> tuple[Pip, ...] | None:
     fixed = _FIXED_MANA.fullmatch(sentence)
     if fixed is not None:
         return tuple(frozenset(symbol.casefold()) for symbol in _SYMBOL.findall(fixed.group(1)))
-    anycolor = _ANY_COLOR.match(sentence)
+    anycolor = _ANY_COLOR.fullmatch(sentence)
     if anycolor is not None:
         return (frozenset("wubrg"),) * _COUNT_WORDS[anycolor.group(1).casefold()]
-    combination = _COMBINATION.match(sentence)
+    combination = _COMBINATION.fullmatch(sentence)
     if combination is not None:
         kinds = frozenset(symbol.casefold() for symbol in _SYMBOL.findall(combination["kinds"]))
         return (kinds,) * _COUNT_WORDS[combination.group(1).casefold()]

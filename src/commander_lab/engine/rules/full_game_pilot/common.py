@@ -221,14 +221,17 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     produced_text = text.partition(": add ")[2]
     if not produced_text:
         return 1
-    if "any color" in produced_text or "any type" in produced_text:
-        return 2
-    produced = {
-        letter
-        for symbol in _MANA_SYMBOL.findall(produced_text)
-        for letter in symbol
-        if letter in _COLOR_LETTERS
-    }
+    if "any type" in produced_text:
+        produced: set[str] | frozenset[str] = _COLOR_LETTERS
+    elif "any color" in produced_text:
+        produced = frozenset("wubrg")
+    else:
+        produced = {
+            letter
+            for symbol in _MANA_SYMBOL.findall(produced_text)
+            for letter in symbol
+            if letter in _COLOR_LETTERS
+        }
     if not produced:
         return 1
     needed: set[str] = set()
@@ -271,6 +274,16 @@ def mana_needed_letters(unpaid_mana: str) -> frozenset[str]:
         for part in symbol.split("/")
         if part in _COLOR_LETTERS
     )
+
+
+def mana_ability_restriction_rank(label: str) -> int:
+    """0 for unconditional mana abilities, 1 for spend-restricted, 2 for board-dependent 'among'."""
+    produced_text = label.casefold().partition(": add ")[2]
+    if "among " in produced_text and " you control" in produced_text:
+        return 2
+    if "spend this mana only" in produced_text:
+        return 1
+    return 0
 
 
 class _MultikickerOffer(NamedTuple):

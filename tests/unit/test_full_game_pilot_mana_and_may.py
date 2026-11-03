@@ -373,6 +373,11 @@ def test_boolean_outcome_polarity(outcome: str, expected: str) -> None:
             "{G}",
             2,
         ),
+        (
+            "Command Tower — {T}: Add one mana of any color in your commander's color identity.",
+            "{2}",
+            1,
+        ),
         ("Unreadable engine text", "{B}", 1),
     ],
 )
@@ -460,6 +465,80 @@ def test_payment_keeps_flexible_sources_for_later_colors() -> None:
         )
     )
     assert response["selected_option_ids"] == ["plains"]
+
+
+def test_payment_taps_mono_color_land_before_alphabetically_earlier_dual_or_five_color_source() -> (
+    None
+):
+    # 'command tower' < 'lorehold campus' < 'plains' alphabetically.
+    # The mono-color land must be tapped first to preserve flexible options.
+    options = [
+        _option(
+            "tower",
+            "mana_ability",
+            "Command Tower — {T}: Add one mana of any color in your commander's color identity.",
+            source_object_id="tower",
+        ),
+        _option(
+            "campus-r",
+            "mana_ability",
+            "Lorehold Campus — {T}: Add {R}.",
+            source_object_id="campus",
+        ),
+        _option(
+            "campus-w",
+            "mana_ability",
+            "Lorehold Campus — {T}: Add {W}.",
+            source_object_id="campus",
+        ),
+        _option(
+            "plains",
+            "mana_ability",
+            "Plains — {T}: Add {W}.",
+            source_object_id="plains",
+        ),
+    ]
+    for unpaid in ("{2}{W}", "{W}"):
+        response = _policy().decide(
+            _request("mana_payment", options, context={"unpaid_mana": unpaid})
+        )
+        assert response["selected_option_ids"] == ["plains"]
+
+
+def test_plaza_of_heroes_uses_colorless_for_generic_and_spend_restricted_before_among_for_colored() -> (
+    None
+):
+    options = [
+        _option(
+            "plaza-c",
+            "mana_ability",
+            "Plaza of Heroes — {T}: Add {C}.",
+            source_object_id="plaza",
+        ),
+        _option(
+            "plaza-among",
+            "mana_ability",
+            "Plaza of Heroes — {T}: Add one mana of any color among legendary permanents you control.",
+            source_object_id="plaza",
+        ),
+        _option(
+            "plaza-spend",
+            "mana_ability",
+            "Plaza of Heroes — {T}: Add one mana of any color. Spend this mana only to cast a legendary spell.",
+            source_object_id="plaza",
+        ),
+    ]
+    # 1) unpaid {1} uses colorless
+    resp_generic = _policy().decide(
+        _request("mana_payment", options, context={"unpaid_mana": "{1}"})
+    )
+    assert resp_generic["selected_option_ids"] == ["plaza-c"]
+
+    # 2) unpaid {W} uses spend-restricted before among
+    resp_colored = _policy().decide(
+        _request("mana_payment", options, context={"unpaid_mana": "{W}"})
+    )
+    assert resp_colored["selected_option_ids"] == ["plaza-spend"]
 
 
 def test_cancelled_payment_is_not_retried_without_more_mana() -> None:

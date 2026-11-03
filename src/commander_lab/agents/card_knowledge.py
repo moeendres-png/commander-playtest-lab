@@ -195,10 +195,13 @@ _WIPE = re.compile(
     r"(destroy|exile) (all|each) (other )?(nonland )?(creatures?|permanents?|artifacts?|nontoken)"
     r"|deals? (\d+|x) damage to each creature"
     r"|all creatures get -"
+    r"|put (\d+|x) -1/-1 counters? on each creature"
+    r"|return all (other )?(nonland )?(creatures|permanents|attacking creatures)[^.]* to their owners' hands"
     r"|each player sacrifices"
 )
 _DRAW = re.compile(
     r"draws? (a|an additional|two|three|four|five|seven|x|that many) cards?|draw cards equal"
+    r"|put (two|three|four|five) of them into your hand"
 )
 _SELECTION = re.compile(
     r"\bscry\b|\bsurveil\b|look at the top|discard a card, then draw|then discard"
@@ -218,7 +221,10 @@ _TOKENS = re.compile(
     r"create (a|an|one|two|three|four|five|six|seven|eight|nine|ten|x|that many|\d+) "
 )
 _ANTHEM = re.compile(r"(enchanted|equipped) creature gets \+|creatures you control get \+")
-_TABLE = re.compile(r"each opponent (loses|deals?|sacrifices)|deals? \d+ damage to each opponent")
+_TABLE = re.compile(
+    r"each opponent (loses|deals?|sacrifices)|deals? \d+ damage to each opponent"
+    r"|exchange target (opponent|player)'s life total"
+)
 
 
 _PROFILES_PATH = _DEFAULT_PATH.parent / "structural_role_profiles.json"

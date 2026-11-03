@@ -39,6 +39,7 @@ from commander_lab.engine.structural.card_facts import (  # noqa: E402
 
 DECK_GLOBS = (
     "data/decks/*.json",
+    "data/decks/precons/*.json",
     "data/decks/opponents/*/current/deck.json",
     "data/opponents/*_precon.json",
     "data/opponents/official_precon_profiles.json",
@@ -121,7 +122,11 @@ def export(db: Path, h2_jar: Path, out_csv: Path) -> None:
 
 
 def build_facts(rows: Iterable[dict[str, str]], names: set[str]) -> dict[str, object]:
-    by_key = {engine_lookup_key(row["NAME"]): row for row in rows}
+    by_key: dict[str, dict[str, str]] = {}
+    for row in rows:
+        by_key[engine_lookup_key(row["NAME"])] = row
+        if " // " in row["NAME"]:
+            by_key.setdefault(engine_lookup_key(row["NAME"].split(" // ")[0]), row)
     cards: dict[str, dict[str, object]] = {}
     missing: list[str] = []
     for name in sorted(names):

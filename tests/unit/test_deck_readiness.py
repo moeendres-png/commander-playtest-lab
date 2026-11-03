@@ -96,6 +96,11 @@ def test_double_faced_card_resolves_by_front_face() -> None:
     report = check_deck(deck)
     assert report.cards[0].status is CardReadinessStatus.OK
 
+    front_only = double_faced.split(" // ")[0]
+    front_deck = _deck([front_only, *_known_names()[1:100]])
+    front_report = check_deck(front_deck)
+    assert front_report.cards[0].status is CardReadinessStatus.OK
+
 
 def test_cli_exit_code_1_for_not_ready_deck(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]

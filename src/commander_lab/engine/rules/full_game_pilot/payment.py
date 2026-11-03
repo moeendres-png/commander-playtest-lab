@@ -6,7 +6,7 @@ import itertools
 import math
 import random
 import re
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from typing import Any
 
 from commander_lab.agents.card_knowledge import card_facts
@@ -54,6 +54,7 @@ from .common import (
     _option_non_x_mana_value,
     _printed_spell_cost,
     _RuntimePilot,
+    mana_ability_restriction_rank,
     mana_needed_letters,
     mana_payment_fit,
     mana_produced_letters,
@@ -253,13 +254,7 @@ class _PaymentDecisions(_PolicyState):
             if not self._same_source(deferred, option)
             and mana_payment_fit(str(option.get("label", "")), cost_text) > 0
         ]
-        ranked = sorted(
-            usable,
-            key=lambda option: (
-                -mana_payment_fit(str(option.get("label", "")), cost_text),
-                str(option.get("label", "")).casefold(),
-            ),
-        )
+        ranked = sorted(usable, key=self._mana_ability_rank_key(usable, cost_text))
         if not ranked:
             _LOG.info(
                 "pilot chose %s, which needs mana first, but no other source can "
@@ -1243,6 +1238,50 @@ class _PaymentDecisions(_PolicyState):
         )
         return [option for option in options if option not in specials]
 
+    @staticmethod
+    def _mana_ability_rank_key(
+        abilities: Sequence[dict[str, Any]], unpaid_mana: str
+    ) -> Callable[[Mapping[str, object]], tuple[int, int, int, int, int, int, str]]:
+        needed = mana_needed_letters(unpaid_mana)
+
+        def source_key(option: Mapping[str, object]) -> str:
+            metadata = option.get("metadata")
+            meta = metadata if isinstance(metadata, dict) else {}
+            label = str(option.get("label", ""))
+            return str(meta.get("source_object_id") or label.partition(" — ")[0])
+
+        produced_by_source: dict[str, set[str]] = {}
+        for option in abilities:
+            letters = mana_produced_letters(str(option.get("label", ""))) or frozenset()
+            produced_by_source.setdefault(source_key(option), set()).update(letters)
+        supply = {
+            color: sum(1 for letters in produced_by_source.values() if color in letters)
+            for color in needed
+        }
+
+        def rank(option: Mapping[str, Any]) -> tuple[int, int, int, int, int, int, str]:
+            label = str(option.get("label", ""))
+            fit = mana_payment_fit(label, unpaid_mana)
+            produced = mana_produced_letters(label) or frozenset()
+            paying = produced & needed
+            scarcity = min((supply[color] for color in paying), default=99)
+            source_colors = produced_by_source.get(source_key(option), set())
+            flexibility = len(source_colors & needed)
+            restriction = mana_ability_restriction_rank(label)
+            total_flexibility = len(source_colors)
+            ability_colors = len(produced)
+            return (
+                -fit,
+                scarcity,
+                flexibility,
+                restriction,
+                total_flexibility,
+                ability_colors,
+                label.casefold(),
+            )
+
+        return rank
+
     def _planned_mana_source(self, options: list[dict[str, Any]], unpaid_mana: str) -> str | None:
         """Pay the way a player taps lands: scarcest color first, flexible sources last.
 
@@ -1270,32 +1309,7 @@ class _PaymentDecisions(_PolicyState):
                 return None
         if not abilities:
             return None
-        needed = mana_needed_letters(unpaid_mana)
-
-        def source_key(option: dict[str, Any]) -> str:
-            metadata = option.get("metadata")
-            meta = metadata if isinstance(metadata, dict) else {}
-            label = str(option.get("label", ""))
-            return str(meta.get("source_object_id") or label.partition(" — ")[0])
-
-        produced_by_source: dict[str, set[str]] = {}
-        for option in abilities:
-            letters = mana_produced_letters(str(option.get("label", ""))) or frozenset()
-            produced_by_source.setdefault(source_key(option), set()).update(letters)
-        supply = {
-            color: sum(1 for letters in produced_by_source.values() if color in letters)
-            for color in needed
-        }
-
-        def rank(option: dict[str, Any]) -> tuple[int, int, int, str]:
-            label = str(option.get("label", ""))
-            fit = mana_payment_fit(label, unpaid_mana)
-            produced = mana_produced_letters(label) or frozenset()
-            paying = produced & needed
-            scarcity = min((supply[color] for color in paying), default=99)
-            flexibility = len(produced_by_source.get(source_key(option), set()) & needed)
-            return (-fit, scarcity, flexibility, label.casefold())
-
+        rank = self._mana_ability_rank_key(abilities, unpaid_mana)
         # A source whose text fits nothing is still tapped rather than the
         # Lab inventing a cancel: "spend mana as though any color" effects
         # make the engine, not the label, the judge of what pays.

@@ -123,8 +123,11 @@ def test_j_p2_current_deck_source_and_protected_metadata_are_clean(repo_root: Pa
 
 
 def test_j_p2_current_opponents_route_to_non_generic_archetype_pilots(repo_root: Path) -> None:
-    from commander_lab.agents.pilots import auto_pilot_name
+    from commander_lab.agents.live_routing import auto_pilot_name as live_auto_pilot_name
+    from commander_lab.agents.live_routing import build_pilot
+    from commander_lab.agents.pilots import auto_pilot_name as legacy_auto_pilot_name
     from commander_lab.engine.structural.fixtures import build_current_opponent_profiles
+    from commander_lab.models import PilotConfig
 
     profiles = build_current_opponent_profiles(
         repo_root / "data/opponents/current_structural_profiles.json",
@@ -142,7 +145,11 @@ def test_j_p2_current_opponents_route_to_non_generic_archetype_pilots(repo_root:
     checked = list(expected.items())
     assert checked, "nothing was checked: expected.items() is empty"
     for deck_id, pilot_name in checked:
-        assert auto_pilot_name(profiles[deck_id].commander_strategy) == pilot_name
+        strategy = profiles[deck_id].commander_strategy
+        assert legacy_auto_pilot_name(strategy) == pilot_name
+        assert live_auto_pilot_name(strategy) == pilot_name
+        built = build_pilot(PilotConfig(pilot_name="auto"), strategy=strategy)
+        assert type(built).__name__ == pilot_name
 
 
 def test_j_p2_pilot_state_exposes_explicit_seat_position() -> None:

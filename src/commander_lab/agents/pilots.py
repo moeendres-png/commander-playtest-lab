@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 import random
+import re
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -1684,9 +1685,19 @@ class EnginePilot(_NumericStrategyMixin, BasePilot):
         return PilotUtilityWeights(**base)
 
 
+_SYMMETRIC_GRAVEYARD_WIPE = re.compile(
+    r"exile (?:all cards from )?(?:all|each player's) graveyards?"
+    r"|shuffle (?:all cards from )?(?:all|each player's) graveyards? into",
+    re.IGNORECASE,
+)
+
+
 def _is_graveyard_action(action: PilotActionView) -> bool:
     if action.action_kind == "graveyard_target":
         return True
+    facts = card_facts(action.card_name)
+    if facts is not None and _SYMMETRIC_GRAVEYARD_WIPE.search(facts.oracle_text):
+        return False
     if bool(
         action.roles
         & {
@@ -1705,7 +1716,6 @@ def _is_graveyard_action(action: PilotActionView) -> bool:
         }
     ):
         return True
-    facts = card_facts(action.card_name)
     return facts is not None and "graveyard" in facts.oracle_text.casefold()
 
 
@@ -1754,6 +1764,9 @@ class GraveyardPilot(EnginePilot):
         for card in cards:
             if CardRole.SACRIFICE_OUTLET in card.roles:
                 has_sacrifice_outlet = True
+            facts = card_facts(card.card_name)
+            if facts is not None and _SYMMETRIC_GRAVEYARD_WIPE.search(facts.oracle_text):
+                continue
             is_recursion = (
                 CardRole.RECURSION in card.roles
                 or bool(
@@ -1763,10 +1776,7 @@ class GraveyardPilot(EnginePilot):
                         StructuralMechanic.LAND_RECURSION,
                     }
                 )
-                or (
-                    (facts := card_facts(card.card_name)) is not None
-                    and "graveyard" in facts.oracle_text.casefold()
-                )
+                or (facts is not None and "graveyard" in facts.oracle_text.casefold())
             )
             if is_recursion:
                 recursion_pieces += 1

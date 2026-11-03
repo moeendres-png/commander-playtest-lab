@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from commander_lab.engine.structural.card_facts import CardFacts, CardFactsCatalog
 from commander_lab.engine.structural.fact_fidelity import (
     apply_current_card_facts,
     creature_from_type_line,
@@ -71,3 +72,21 @@ def test_land_fact_enforces_mana_source_role() -> None:
     assert corrected.is_land
     assert corrected.is_permanent
     assert CardRole.MANA_SOURCE in corrected.roles
+
+
+def test_card_facts_catalog_resolves_front_face_of_split_entry() -> None:
+    split_name = "Inspired Skypainter // Maestro's Gift"
+    fact = CardFacts(
+        name=split_name,
+        mana_value=3.0,
+        types=("CREATURE",),
+        subtypes=(),
+        supertypes=(),
+        power=2.0,
+        toughness=2.0,
+        rules=(),
+    )
+    catalog = CardFactsCatalog({split_name: fact})
+    assert len(catalog) == 1
+    assert catalog.get(split_name) is fact
+    assert catalog.get("Inspired Skypainter") is fact
