@@ -79,8 +79,14 @@ class _CardData:
                 f"unsupported card facts schema in {facts_path}: "
                 f"{facts_payload.get('schema_version')}"
             )
-        self._facts_keys = {engine_lookup_key(name) for name in facts_payload.get("cards", {})}
-        self._missing_keys = {engine_lookup_key(name) for name in facts_payload.get("missing", [])}
+        cards_map = facts_payload.get("cards", {})
+        self._facts_keys = {engine_lookup_key(name) for name in cards_map} | {
+            engine_lookup_key(name.split(" // ")[0]) for name in cards_map if " // " in name
+        }
+        missing_list = facts_payload.get("missing", [])
+        self._missing_keys = {engine_lookup_key(name) for name in missing_list} | {
+            engine_lookup_key(name.split(" // ")[0]) for name in missing_list if " // " in name
+        }
         if not pilot_knowledge_path.is_file():
             raise FileNotFoundError(f"pilot card knowledge not found: {pilot_knowledge_path}")
         self._pilot_knowledge_path = pilot_knowledge_path

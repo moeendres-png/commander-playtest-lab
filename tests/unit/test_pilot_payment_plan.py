@@ -116,6 +116,18 @@ def test_unpaid_cost_it_does_not_know_is_unreadable(text: str) -> None:
         ),
         ("Mana Vault — Add {C}{C}{C}.", False),
         ("Cabal Coffers — {2}, {T}: Add {B} for each Swamp you control.", False),
+        (
+            "Command Tower — {T}: Add one mana of any color in your commander's color identity.",
+            True,
+        ),
+        (
+            "Plaza of Heroes — {T}: Add one mana of any color among legendary permanents you control.",
+            False,
+        ),
+        (
+            "Bloom Tender — {T}: Add one mana of any color for each color among permanents you control.",
+            False,
+        ),
     ],
 )
 def test_ability_text_is_read_or_refused(label: str, readable: bool) -> None:
