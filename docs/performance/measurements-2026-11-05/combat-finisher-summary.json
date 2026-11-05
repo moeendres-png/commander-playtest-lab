@@ -28,7 +28,8 @@
         "mana_payments_cancelled": 0,
         "semantic": "e9f2af81f3a71116fe2b77ba18e102e379e50cf3332ebed55e5f53375fddc825"
       },
-      "semantic_equal": true
+      "semantic_equal": true,
+      "players": 4
     },
     {
       "pod": "P4a",
@@ -47,7 +48,8 @@
         "mana_payments_cancelled": 1,
         "semantic": "308ca036e440b91fa8ab53fd3af2efd082ae0511736442845792d5354cf08403"
       },
-      "semantic_equal": true
+      "semantic_equal": true,
+      "players": 4
     },
     {
       "pod": "P4b",
@@ -66,7 +68,8 @@
         "mana_payments_cancelled": 0,
         "semantic": "b2034926207272651bda50302b3986e5a4363487f9cb39bd89e5834c35893b1b"
       },
-      "semantic_equal": true
+      "semantic_equal": true,
+      "players": 4
     },
     {
       "pod": "P4b",
@@ -85,6 +88,47 @@
         "mana_payments_cancelled": 0,
         "semantic": "48b8527bde0b51cd4326b7f10e28aba8d3ab2e7b35cbecc2d54640ec441ad6f9"
       },
+      "semantic_equal": true,
+      "players": 4
+    },
+    {
+      "pod": "P6a",
+      "seed": 1,
+      "players": 6,
+      "before": {
+        "status": "ok",
+        "decisions": 4244,
+        "spells_cast": 47,
+        "mana_payments_cancelled": 6,
+        "semantic": "b83ba7d0efae43662d1fe4f9f88a8cb1841c33d30191747016fa8b06870f0e05"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 4244,
+        "spells_cast": 47,
+        "mana_payments_cancelled": 6,
+        "semantic": "b83ba7d0efae43662d1fe4f9f88a8cb1841c33d30191747016fa8b06870f0e05"
+      },
+      "semantic_equal": true
+    },
+    {
+      "pod": "P6a",
+      "seed": 2,
+      "players": 6,
+      "before": {
+        "status": "ok",
+        "decisions": 3807,
+        "spells_cast": 39,
+        "mana_payments_cancelled": 4,
+        "semantic": "3a9bb58ac5694c2fc725c0f46117f9a5d35f831877ffb288c8766ccb068bc46c"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 3807,
+        "spells_cast": 39,
+        "mana_payments_cancelled": 4,
+        "semantic": "3a9bb58ac5694c2fc725c0f46117f9a5d35f831877ffb288c8766ccb068bc46c"
+      },
       "semantic_equal": true
     }
   ],
@@ -95,7 +139,8 @@
       "attempt": "initial",
       "status": "interrupted",
       "reason": "BrokenProcessPool; cgroup oom_kill counter observed, causal attribution unknown",
-      "trace": "not persisted"
+      "trace": "not persisted",
+      "phase": "baseline"
     },
     {
       "pod": "P6b",
@@ -103,17 +148,29 @@
       "attempt": "memory_retry",
       "status": "interrupted_resource_guard",
       "reason": "controlled stop when shared cgroup exceeded 5 GiB",
-      "trace": "not persisted"
+      "trace": "not persisted",
+      "phase": "baseline"
     },
     {
       "pod": "P6b",
       "seed": 1,
       "attempt": "disk_retry",
+      "status": "interrupted_resource_guard",
+      "trace": "persisted prefix retained; uncommitted tail unknown",
+      "phase": "baseline",
+      "reason": "controlled stop when free workspace storage dropped below 2.5 GiB",
+      "persisted_records": 10200
+    },
+    {
+      "pod": "P6b",
+      "seed": 1,
+      "phase": "after",
+      "attempt": "compressed_disk",
       "status": "running",
-      "trace": "local sqlite"
+      "trace": "local sqlite; not yet a completed game"
     }
   ],
-  "other_six_player_baselines": "P6a seeds 1,2 and P6b seed 2 completed; paired after pending",
+  "other_six_player_baselines": "P6b seed 2 completed; paired after pending",
   "timing": "parallel execution; no timing comparison",
   "metric_definition": {
     "spells_cast": "Cancellation-adjusted priority cast selections; not proof of stack appearance or resolution."

@@ -62,14 +62,21 @@ establishes preservation of these four trajectories; it does not demonstrate
 that the rare commander-pressure counterexample occurred in them. The direct
 evidence for that preference change is the deterministic regression.
 
+Two additional paired six-player games (P6a, seeds one and two) completed with
+identical hashes: 8,051 decisions, 86 cancellation-adjusted priority cast
+selections and ten cancellations per cohort. The remaining P6b pairs are still
+incomplete; these six successful pairs are not all eight prescribed pairs.
+
 The original baseline process pool terminated abruptly after seven complete
 games. The environment reported an OOM kill counter of one, without sufficient
 evidence to attribute its time or process. The missing game is retried separately;
 the original interruption is retained and is not counted as a successful first
 attempt. A memory-based retry was deliberately stopped when the shared cgroup
-exceeded five GiB; its unpersisted trace is unknown. A disk-backed retry and the
-paired six-player measurements continue separately. Other six-player baselines
-completed, but unpaired baselines are not candidate full-game evidence.
+exceeded five GiB; its unpersisted trace is unknown. A disk-backed retry was
+stopped when free workspace storage fell below 2.5 GiB, retaining a prefix of
+10,200 records; its uncommitted tail remains unknown. The compressed candidate
+attempt continues separately. Unpaired baselines are not candidate full-game
+evidence.
 
 Main subsequently advanced through the deckbau CLI work in PR #1123. Its changes
 add a readiness command, two scripts, documentation and tests; the measured
