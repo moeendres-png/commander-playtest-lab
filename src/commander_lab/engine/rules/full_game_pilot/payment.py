@@ -461,7 +461,9 @@ class _PaymentDecisions(_PolicyState):
             },
         )
 
-    def _available_mana(self, actor: dict[str, Any]) -> int:
+    def _available_mana(
+        self, actor: dict[str, Any], *, state: Mapping[str, object] | None = None
+    ) -> int:
         """Mana the pilot can see it could pay with right now.
 
         The pool, plus one payment for every untapped permanent that offers a
@@ -482,7 +484,68 @@ class _PaymentDecisions(_PolicyState):
                 offers = self._looks_like_basic_land(str(item.get("name") or ""))
             if offers:
                 total += 1
-        return total
+        return self._fundable_mana_budget(actor, total, state=state)
+
+    def _fundable_mana_budget(
+        self,
+        actor: Mapping[str, object],
+        budget: int,
+        *,
+        state: Mapping[str, object] | None = None,
+        excluded_source_id: str = "",
+    ) -> int:
+        """Lower a ranking estimate when its sources cannot bootstrap their own costs.
+
+        Reuse the existing conservative payment planner. An unreadable offer or capped
+        search leaves the estimate unchanged; this does not remove an engine option or
+        redefine a cost. A lone {1}, {T} filter supplies no mana without a seed payment.
+        """
+        if budget <= 0 or state is None:
+            return budget
+        for player in players(state):
+            if board_lowers_costs(state, str(player.get("player_id") or "")):
+                return budget
+            battlefield = player.get("battlefield")
+            for item in battlefield if isinstance(battlefield, list) else ():
+                rules = item.get("abilities") if isinstance(item, dict) else None
+                if not isinstance(rules, list):
+                    return budget
+                for rule in rules:
+                    if not isinstance(rule, str):
+                        return budget
+                    text = rule.casefold()
+                    # Static/triggered mana modifiers are outside this printed-ability
+                    # estimate. Do not turn missing effects into a false shortfall.
+                    if "mana" in text and (
+                        not _ADDS_MANA_RULE.search(rule)
+                        or any(
+                            word in text for word in ("whenever", "instead", "additional", "twice")
+                        )
+                    ):
+                        return budget
+        offer = self._visible_mana_offer(actor)
+        if offer is None:
+            return budget
+        if excluded_source_id:
+            offer = [
+                option
+                for option in offer
+                if not isinstance(meta := option.get("metadata"), dict)
+                or str(meta.get("source_object_id") or "") != excluded_source_id
+            ]
+        if can_pay(offer, f"{{{budget}}}") is not False:
+            return budget
+        low, high = 0, budget - 1
+        while low < high:
+            middle = (low + high + 1) // 2
+            result = can_pay(offer, f"{{{middle}}}")
+            if result is None:
+                return budget
+            if result:
+                low = middle
+            else:
+                high = middle - 1
+        return low
 
     @staticmethod
     def _permanent_offers_mana(permanent: dict[str, Any]) -> bool | None:
@@ -491,6 +554,8 @@ class _PaymentDecisions(_PolicyState):
         True/False when the entry carries a machine-readable fact, None when
         it carries none and the caller must fall back.
         """
+        if permanent.get("source_tap_mana_abilities_blocked") is True:
+            return False
         for key in ("is_mana_ability", "mana_ability"):
             value = permanent.get(key)
             if isinstance(value, bool):
@@ -511,7 +576,8 @@ class _PaymentDecisions(_PolicyState):
 
         Read from the public text of the seat's own board, the same facts ``_mana_budget`` counts.
         None when the board is not reported, or an untapped permanent states no abilities at all.
-        A summoning-sick creature counts as usable, so the picture errs towards more mana.
+        The native source-tap verdict excludes blocked sources. An absent verdict remains
+        optimistic; the pilot does not reconstruct summoning sickness or haste permissions.
         """
         battlefield = actor.get("battlefield")
         if not isinstance(battlefield, list):
@@ -532,6 +598,8 @@ class _PaymentDecisions(_PolicyState):
             if not isinstance(item, dict) or item.get("tapped") is True:
                 continue
             if item.get("face_down") is True:
+                continue
+            if item.get("source_tap_mana_abilities_blocked") is True:
                 continue
             rules = item.get("abilities")
             if not isinstance(rules, list):
@@ -972,6 +1040,21 @@ class _PaymentDecisions(_PolicyState):
         payable: frozenset[str] = frozenset(),
     ) -> str:
         seat = runtime.binding.seat
+        # Apply the same source/cost guards before every route, including a funded filter
+        # chosen while pooled mana is available. Funding alone does not release reservations.
+        eligible = [
+            option
+            for option in options
+            if self._required_text(option, "option_type") != "mana_ability"
+            or (
+                self._priority_action_affordable(
+                    option, state, pool_verified=str(option.get("option_id")) in payable
+                )
+                and not self._spends_the_activations_own_source(seat, option)
+                and not self._spends_counters_the_cast_reserves(seat, option)
+                and not self._spends_a_permanent_the_tap_cost_needs(seat, option, state)
+            )
+        ]
         pool_options = [
             option
             for option in options
@@ -1018,7 +1101,7 @@ class _PaymentDecisions(_PolicyState):
             # latches (#732). When the pool and the free sources cannot
             # finish the unpaid cost alone, feed the costed ability the pool
             # already covers instead; the engine re-validates the activation.
-            funded = self._pool_funded_mana_ability(options, pool_options, unpaid)
+            funded = self._pool_funded_mana_ability(eligible, pool_options, unpaid)
             if funded is not None:
                 _LOG.info("feeding the pool into costed mana ability %s", funded)
                 return funded
@@ -1082,18 +1165,11 @@ class _PaymentDecisions(_PolicyState):
         # fund fails inside payManaMode with no pilot recourse. Withhold
         # such abilities from selection with the same native-flag gate used
         # at priority; pool spends and cancel are always selectable.
-        selectable: list[dict[str, Any]] = []
-        for option in non_pool:
-            if self._required_text(option, "option_type") == "mana_ability" and (
-                not self._priority_action_affordable(
-                    option, state, pool_verified=str(option.get("option_id")) in payable
-                )
-                or self._spends_the_activations_own_source(seat, option)
-                or self._spends_counters_the_cast_reserves(seat, option)
-                or self._spends_a_permanent_the_tap_cost_needs(seat, option, state)
-            ):
-                continue
-            selectable.append(option)
+        selectable = [
+            option
+            for option in eligible
+            if self._required_text(option, "option_type") != "mana_pool"
+        ]
         if not selectable:
             raise FullGameProtocolError(
                 "mana decision has no affordable option: every mana ability "
@@ -1108,7 +1184,9 @@ class _PaymentDecisions(_PolicyState):
             selectable, str(context.get("unpaid_mana", ""))
         )
 
-        planned = self._planned_mana_source(options, str(context.get("unpaid_mana", "")))
+        planned = self._planned_mana_source(
+            options, str(context.get("unpaid_mana", "")), payable=payable
+        )
         if planned is not None:
             return planned
 
@@ -1233,7 +1311,7 @@ class _PaymentDecisions(_PolicyState):
             failed = (turn, {})
             self._failed_payments[seat] = failed
         failed[1][label] = self._last_priority_visible_mana.get(
-            seat, self._available_mana(self._actor(state))
+            seat, self._available_mana(self._actor(state), state=state)
         )
 
     def _mana_before_alternate_payments(
@@ -1317,7 +1395,13 @@ class _PaymentDecisions(_PolicyState):
 
         return rank
 
-    def _planned_mana_source(self, options: list[dict[str, Any]], unpaid_mana: str) -> str | None:
+    def _planned_mana_source(
+        self,
+        options: list[dict[str, Any]],
+        unpaid_mana: str,
+        *,
+        payable: frozenset[str] = frozenset(),
+    ) -> str | None:
         """Pay the way a player taps lands: scarcest color first, flexible sources last.
 
         Paying mana is mechanics, not judgement, so when the offer holds only
@@ -1339,6 +1423,26 @@ class _PaymentDecisions(_PolicyState):
         for option in options:
             option_type = self._required_text(option, "option_type")
             if option_type == "mana_ability":
+                meta = option.get("metadata")
+                metadata = meta if isinstance(meta, dict) else {}
+                costs = [
+                    _cost_amount(metadata, key)
+                    for key in (*[key for key, _ in _MANA_COST_COLORS], "mana_cost_generic")
+                ]
+                proof = str(option.get("option_id")) in payable
+                funded = metadata.get("pool_covers_mana_cost")
+                if not proof and (
+                    funded is False
+                    or (funded is not True and any(cost is not None and cost > 0 for cost in costs))
+                ):
+                    if (
+                        metadata.get("requires_tap_source") is not True
+                        and metadata.get("requires_sacrifice_source") is not True
+                    ):
+                        # Repeatable converters have no source-consumption plan here.
+                        # Keep the ordinary discretionary choice and progress guard.
+                        return None
+                    continue
                 abilities.append(option)
             elif option_type != "cancel_mana_payment":
                 return None
@@ -1702,12 +1806,16 @@ class _PaymentDecisions(_PolicyState):
                 continue
             if item.get("face_down") is True:
                 continue
+            if item.get("source_tap_mana_abilities_blocked") is True:
+                continue
             rules = item.get("abilities")
             if not isinstance(rules, list):
                 continue
             if any(offers_mana_ability(str(rule)) for rule in rules):
                 budget += 1
-        return budget
+        return self._fundable_mana_budget(
+            actor, budget, state=state, excluded_source_id=excluded_source_id
+        )
 
     def _announce_x_affordable_max(
         self,
