@@ -58,7 +58,9 @@ Install package dependencies per `README.md` and run from repository root. The f
 python -m commander_lab.deck_readiness data/decks/deckbau/chulane_v1.json --json
 ```
 
-Exit 0 = `READY`; exit 1 = one or more `NO_CARD_FACTS`, `KNOWN_MISSING_IN_XMAGE` or `NO_PILOT_KNOWLEDGE`; exit 2 = import/file failure. Results list unknown card names and counts. The existing equivalent is `python scripts/deck_readiness.py --deck <path> --json`.
+Exit 0 = `READY`; exit 1 = one or more `NO_CARD_FACTS`, `KNOWN_MISSING_IN_XMAGE` or `NO_PILOT_KNOWLEDGE`; exit 2 = import/file failure.
+
+For the **full 177-deck registered pool** (173 precons, two opponent precons, Kaervek, RogShai), run `python scripts/deckbau_pool_readiness.py --json`. Exit 0 requires 177/177 READY and zero NO_CARD_FACTS. This reads only registered public deck snapshots and card-facts data. Results list unknown card names and counts. The existing equivalent is `python scripts/deck_readiness.py --deck <path> --json`.
 
 For commander mana-source/castability facts (seeded structural Monte Carlo, **not** an XMage rules adjudication):
 
