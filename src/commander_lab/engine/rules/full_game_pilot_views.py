@@ -1630,7 +1630,13 @@ def attack_score(
     life = defender.get("life")
     life_value = float(life) if isinstance(life, (int, float)) else 40.0
     damage = power * (2 if "double strike" in keywords else 1)
-    lethal = not able and damage >= life_value
+    lethal = (
+        isinstance(life, int | float)
+        and not isinstance(life, bool)
+        and life > 0
+        and not able
+        and damage >= life_value
+    )
     if lethal:
         score += 3.0  # lethal through an empty or evaded board
     elif "vigilance" not in keywords and _crack_back_danger(state) and toughness >= 2:
@@ -1663,7 +1669,11 @@ def attack_score(
         desp = desperation_score(actor_id, state)
         if desp > 0.0:
             score += desp * 1.0
-    return score, {"attack_power": power, "defender_blockers": len(able)}
+    return score, {
+        "attack_power": power,
+        "defender_blockers": len(able),
+        "lethal_window": lethal,
+    }
 
 
 def _crack_back_danger(state: Mapping[str, Any]) -> bool:
