@@ -269,10 +269,11 @@ def main(argv: list[str] | None = None) -> int:
                     "path": str(path),
                     "deck_id": report.deck_id,
                     "ready": report.ready,
-                    "counts": {status.value: report.counts[status] for status in CardReadinessStatus},
+                    "counts": {
+                        status.value: report.counts[status] for status in CardReadinessStatus
+                    },
                     "cards": [
-                        {"name": card.name, "status": card.status.value}
-                        for card in report.cards
+                        {"name": card.name, "status": card.status.value} for card in report.cards
                     ],
                 }
                 for path, report in entries
