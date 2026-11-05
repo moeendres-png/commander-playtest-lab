@@ -41,6 +41,7 @@ from .common import (
     _optional_mana_cost,
     _RuntimePilot,
 )
+from .counter_growth import saturated_self_counter, self_counter_progress
 from .payment import _PaymentDecisions
 
 # The engine's own tag for "choose a card to cast or play without paying for it". Picking one is
@@ -694,8 +695,35 @@ class _ChoiceDecisions(_PaymentDecisions):
         # fifteen rounds after a No. Flourishing Defenses ("may" create an Elf Warrior for each -1/-1
         # counter) against Blowfly Infestation (a -1/-1 counter on the new token) looped 50000
         # decisions with a stack of 199 abilities, answered No each time (plan seed 1, game seed
-        # 401, pod 017). CR 104.4b ends such a game as a draw; the Yes is kept.
-        if _INFINITE_LOOP_PROMPT.match(prompt):
+        # 401, pod 017). Keep that agreement unless a known self-counter decline has
+        # reduced the queue or improved capped body utility. Later refusals need more progress.
+        progress_draw = False
+        draw_progress = (
+            self_counter_progress(state) if _INFINITE_LOOP_PROMPT.match(prompt) else None
+        )
+        game_id = state.get("game_id")
+        declined = self._counter_growth_declines.get(seat)
+        refused = self._counter_draw_refusals.get(seat)
+        if (
+            False in values.values()
+            and isinstance(game_id, str)
+            and game_id.strip()
+            and type(turn) is int
+            and draw_progress is not None
+            and declined is not None
+            and declined[0] == game_id
+            and declined[1] == turn
+            and (draw_progress[0] < declined[2] or draw_progress[1] > declined[3])
+            and (
+                refused is None
+                or refused[0] != game_id
+                or refused[1] != turn
+                or draw_progress[0] < refused[2]
+                or draw_progress[1] > refused[3]
+            )
+        ):
+            progress_draw = True
+        if _INFINITE_LOOP_PROMPT.match(prompt) and not progress_draw:
             kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
@@ -762,12 +790,15 @@ class _ChoiceDecisions(_PaymentDecisions):
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         paid_cast_shortfall = self._paid_cast_mana_shortfall(state, prompt)
+        saturated = False in values.values() and saturated_self_counter(
+            state, source_object, prompt
+        )
         for option in options:
             value = values[self._required_text(option, "option_id")]
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
-            if paid_cast_shortfall:
+            if paid_cast_shortfall or saturated or progress_draw:
                 aligned = not value
             # Twin-stable: boolean value words are Rules-visible content.
             stable_id = f"boolean:{value}"
@@ -789,6 +820,18 @@ class _ChoiceDecisions(_PaymentDecisions):
             raw_id = raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable boolean option") from None
+        if (
+            not values[raw_id]
+            and isinstance(game_id, str)
+            and game_id.strip()
+            and type(turn) is int
+        ):
+            if saturated:
+                progress = self_counter_progress(state)
+                if progress is not None:
+                    self._counter_growth_declines[seat] = (game_id, turn, *progress)
+            if progress_draw and draw_progress is not None:
+                self._counter_draw_refusals[seat] = (game_id, turn, *draw_progress)
         if _FREE_CAST_PROMPT.match(prompt):
             self._free_cast_last_yes[seat] = prompt if values[raw_id] else None
         elif _FREE_CAST_CONTINUE_PROMPT.match(prompt):

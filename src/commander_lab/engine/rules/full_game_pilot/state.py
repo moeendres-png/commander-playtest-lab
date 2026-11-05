@@ -164,6 +164,8 @@ class _PolicyState:
         self._equipped_to: dict[tuple[int, str], tuple[object, str]] = {}
         # Wild Ricochet: per seat, the turn and how many copies the seat re-aimed that turn.
         self._retarget_yes: dict[int, tuple[object, int]] = {}
+        self._counter_growth_declines: dict[int, tuple[str, int, int, int]] = {}
+        self._counter_draw_refusals: dict[int, tuple[str, int, int, int]] = {}
         self._selection_ended: set[int] = set()
         # Seats that just answered "Continue the selection" and have not been asked to pick since.
         self._selection_reopened: set[int] = set()
