@@ -95,6 +95,8 @@ _LOYALTY_COST = re.compile(r"^\s*(?:[+\u2212\u2013-]\s*)?(?:\d+|x)\s*:", re.IGNO
 _PAID_CAST_PROMPT = re.compile(r"\ACast (?P<name>.+)\? \(You still pay the costs\)\Z")
 # A printed price alone is insufficient for alternate casting/payment instructions.
 _CAST_PAYMENT_TEXT = re.compile(r"\b(?:cast|pay|instead)\b", re.IGNORECASE)
+# The card feed tags created token types as keywords too (Magma Opus: Treasure).
+_NON_PAYMENT_KEYWORDS = frozenset({"Treasure"})
 
 
 def _option_spends_own_source(label: str, metadata: Mapping[str, object]) -> bool:
@@ -560,8 +562,8 @@ class _PaymentDecisions(_PolicyState):
 
         Chandra's optional cast is offered before payment even with no untapped sources.
         Reuse the existing conservative payment estimate, never a legality verdict. Unknown
-        prices, keyword mechanics, casting/payment text, multi-face cards and public cost
-        reducers leave the usual preference intact.
+        prices, unclassified keyword mechanics, casting/payment text, multi-face cards and
+        public cost reducers leave the usual preference intact.
         """
         match = _PAID_CAST_PROMPT.fullmatch(prompt)
         if match is None:
@@ -571,7 +573,7 @@ class _PaymentDecisions(_PolicyState):
         if (
             facts is None
             or " // " in facts.name
-            or facts.keywords
+            or facts.keywords - _NON_PAYMENT_KEYWORDS
             or _CAST_PAYMENT_TEXT.search(facts.oracle_text)
         ):
             return False

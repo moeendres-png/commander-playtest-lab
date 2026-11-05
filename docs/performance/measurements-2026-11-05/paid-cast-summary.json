@@ -1,5 +1,6 @@
 {
   "evidence_class": "DIRECTLY_VERIFIED",
+  "scope": "local measurement; no CI or qualification credit",
   "qualification": "NOT_RUN",
   "baseline_lab_commit": "c1183e487e122258a962046f9c810f4179633026",
   "engine_manifest": "config/rules_engines.json",
@@ -7,7 +8,7 @@
   "jar_sha256": "3e9a66c87125ef72bf0690f435b39e2c7bc068980fdaf13a8e6e189554087c11",
   "after_source_sha256": {
     "src/commander_lab/agents/card_knowledge.py": "8c639d9ec4e00e73b709affd1595c1609d39a73fb68a8cb3437c34331c4657cc",
-    "src/commander_lab/engine/rules/full_game_pilot/payment.py": "9e6d569f3d9eb74934d5fc29c14dfdbf45a1780b14051c76ee437c79b978de40",
+    "src/commander_lab/engine/rules/full_game_pilot/payment.py": "fd94a3198084ee11bd95386f24659fa167072b7df2d3c6b25a16044311577261",
     "src/commander_lab/engine/rules/full_game_pilot/choices.py": "73a43da99b7814fbc6f7d987b48f31648b61c0b53adcfbbdad61d2e401a7d187",
     "scripts/pilot_decision_report.py": "35661e0036ea805449af053e60023a1e47a92b343bc8241a528991b8b307cfa4"
   },
@@ -74,8 +75,8 @@
       "seed": 1,
       "status": "ok",
       "turns": 53,
-      "wall_s": 258.92,
-      "pilot_s": 9.54,
+      "wall_s": 235.3,
+      "pilot_s": 10.12,
       "decisions": 3892,
       "spells_cast": 82,
       "spells_per_player_round": 1.55,
@@ -90,13 +91,13 @@
       "seed": 2,
       "status": "ok",
       "turns": 37,
-      "wall_s": 160.88,
-      "pilot_s": 3.4,
-      "decisions": 2170,
+      "wall_s": 153.34,
+      "pilot_s": 3.14,
+      "decisions": 2190,
       "spells_cast": 44,
       "spells_per_player_round": 1.19,
-      "mana_payments_cancelled": 1,
-      "semantic": "5410f63b6ee061f72e43ed81d0cba866ee48ffb91efc63eac940a52d77775784",
+      "mana_payments_cancelled": 0,
+      "semantic": "302951c51993c53cea41a53081a12e743b7a198da041db5320e440a0f378c0b1",
       "winners": [
         1
       ],
@@ -106,8 +107,8 @@
       "seed": 3,
       "status": "ok",
       "turns": 43,
-      "wall_s": 117.78,
-      "pilot_s": 3.2,
+      "wall_s": 101.29,
+      "pilot_s": 2.79,
       "decisions": 2628,
       "spells_cast": 45,
       "spells_per_player_round": 1.05,
@@ -124,13 +125,13 @@
       "seed": 2,
       "status": "ok",
       "turns": 37,
-      "wall_s": 68.7,
-      "pilot_s": 1.64,
-      "decisions": 2170,
+      "wall_s": 120.72,
+      "pilot_s": 6.57,
+      "decisions": 2190,
       "spells_cast": 44,
       "spells_per_player_round": 1.19,
-      "mana_payments_cancelled": 1,
-      "semantic": "5410f63b6ee061f72e43ed81d0cba866ee48ffb91efc63eac940a52d77775784",
+      "mana_payments_cancelled": 0,
+      "semantic": "302951c51993c53cea41a53081a12e743b7a198da041db5320e440a0f378c0b1",
       "winners": [
         1
       ],
@@ -144,22 +145,16 @@
     "raised": 0,
     "illegal": 0
   },
-  "remaining_cancellation": {
-    "seed": 2,
-    "card": "Magma Opus",
-    "count": 1,
-    "reason": "Keyword-bearing cards retain the existing preference because alternate costs are not estimated by this change."
-  },
-  "scope": "local measurement; no CI or qualification credit",
+  "remaining_cancellations_in_sample": 0,
   "local_checks": {
-    "scoped_unit_passed": 675,
+    "scoped_unit_passed": 677,
     "private_collection_test_deselected": 1,
-    "final_additional_selection_passed": 21,
+    "subsequent_final_selection_passed": 25,
     "ruff_check": "PASS",
     "ruff_format_check": "PASS",
     "mypy": "PASS (349 source files)",
     "any_usage_ratchet": "PASS",
-    "full_suite": "NOT_RUN",
-    "github_ci": "NOT_YET_RUN"
+    "local_full_suite": "NOT_RUN",
+    "github_ci": "NOT_EVIDENCE_FROM_THIS_LOCAL_RUN"
   }
 }

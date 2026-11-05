@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import pytest
 
 from tests.unit.test_pilot_optional_costs import _answer, _ask, _board
@@ -72,6 +74,47 @@ def test_unreadable_funding_keeps_the_usual_preference() -> None:
     request = _ask(
         "Cast Fellwar Stone? (You still pay the costs)",
         _board(unreadable=True),
+        _CHANDRA,
+        outcome="benefit",
+        offset=1,
+    )
+    assert _answer(request) == "yes"
+
+
+@pytest.mark.parametrize("funded", [False, True])
+def test_token_metadata_does_not_hide_the_paid_spell_price(funded: bool) -> None:
+    from commander_lab.agents.card_knowledge import card_facts
+
+    facts = card_facts("Magma Opus")
+    assert facts is not None and facts.keywords == {"Treasure"}
+    board = _board(*[_RED] * 7, "{T}: Add {U}.") if funded else _board()
+    request = _ask(
+        "Cast Magma Opus? (You still pay the costs)",
+        board,
+        _CHANDRA,
+        outcome="benefit",
+        offset=1,
+    )
+    assert _answer(request) == ("yes" if funded else "no")
+
+
+@pytest.mark.parametrize(
+    "keywords",
+    [frozenset({"Unknown payment mechanic"}), frozenset({"Treasure", "Unknown payment mechanic"})],
+)
+def test_unknown_keyword_is_not_treated_like_a_token_tag(
+    monkeypatch: pytest.MonkeyPatch, keywords: frozenset[str]
+) -> None:
+    from commander_lab.agents.card_knowledge import card_facts
+    from commander_lab.engine.rules.full_game_pilot import payment
+
+    facts = card_facts("Fellwar Stone")
+    assert facts is not None
+    unknown = replace(facts, keywords=keywords)
+    monkeypatch.setattr(payment, "card_facts", lambda name: unknown)
+    request = _ask(
+        "Cast Fellwar Stone? (You still pay the costs)",
+        _board(),
         _CHANDRA,
         outcome="benefit",
         offset=1,

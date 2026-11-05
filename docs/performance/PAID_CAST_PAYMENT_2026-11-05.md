@@ -11,9 +11,10 @@ engine defect.
 
 The pilot reuses its existing visible-mana estimate to prefer No on these exact paid-cast
 questions when a plain printed cost exceeds the visible supply. Both engine boolean
-options remain available to the pilot. Unknown funding, keyword mechanics, casting or
-payment instructions, multi-face cards and public cost reducers keep the existing
-preference. XMage retains every legality, payment and outcome decision.
+options remain available to the pilot. The card feed's `Treasure` tag describes a token
+created by Magma Opus and does not disable the estimate. Unknown funding, other keyword
+mechanics, casting or payment instructions, multi-face cards and public cost reducers keep
+the existing preference. XMage retains every legality, payment and outcome decision.
 
 The decision report now excludes observed cancelled priority-cast attempts from cast,
 first-cast, commander-cast, wipe and counter figures. It attributes resolution-time
@@ -45,9 +46,9 @@ also reproduced in a separate full game.
 
 | Seed | Decisions, before → after | Priority cast selections | Casts / player round | Payment cancellations | Wall seconds |
 |---|---:|---:|---:|---:|---:|
-| 1 | 3892 → 3892 | 82 → 82 | 1.55 → 1.55 | 0 → 0 | 233.52 → 258.92 |
-| 2 | 1928 → 2170 | 38 → 44 | 1.09 → 1.19 | 2 → 1 | 108.21 → 160.88 |
-| 3 | 2628 → 2628 | 45 → 45 | 1.05 → 1.05 | 0 → 0 | 124.39 → 117.78 |
+| 1 | 3892 → 3892 | 82 → 82 | 1.55 → 1.55 | 0 → 0 | 233.52 → 235.30 |
+| 2 | 1928 → 2190 | 38 → 44 | 1.09 → 1.19 | 2 → 0 | 108.21 → 153.34 |
+| 3 | 2628 → 2628 | 45 → 45 | 1.05 → 1.05 | 0 → 0 | 124.39 → 101.29 |
 
 Seeds 1 and 3 preserve their semantic transcripts and winners. Seed 2 changes its
 trajectory and winner; its cast selections rise from 38 to 44. This small, single-pod
@@ -55,9 +56,10 @@ sample establishes the observed cancellation reduction, not stronger play or a w
 improvement. Wall times were collected with concurrent validation work and do not establish
 a causal performance improvement.
 
-The final seed-2 game retains one cancellation, for Magma Opus. Its keyword-bearing facts
-remain outside the new conservative hint. The earlier exploratory version with no such
-exception reported zero cancellations; it is not the final validated result.
+The final games have zero observed payment cancellations. A separately recorded intermediate
+seed-2 game exposed the Magma Opus case: its pool was empty, only Chandra was untapped, and
+its `Treasure` keyword tag had disabled the estimate. The fix distinguishes that known token
+tag from unclassified mechanics, with controls for both unknown keywords and mixed tags.
 
 Re-summarizing the same 1,928-decision baseline recording attributes both cancelled
 payments to Talisman of Creativity and Fellwar Stone (previously neither had per-card
@@ -65,10 +67,10 @@ attribution). This is analysis of a real recording, not another game or semantic
 
 ## Deterministic checks and limitations
 
-The scoped local suite passed 675 tests, with the private collection-coverage test
-explicitly deselected. A subsequent final selection passed 21 tests, including the
-alternative-cost control and Any-usage ratchet. Ruff lint/format and strict mypy
-(`349` source files) passed. This is not a full-suite or GitHub CI result.
+The scoped local suite passed 677 tests, with the private collection-coverage test
+explicitly deselected. A subsequent final selection passed 25 tests, including the
+unknown-keyword and alternative-cost controls and Any-usage ratchet. Ruff lint/format and
+strict mypy (`349` source files) passed. This is not a local full-suite or GitHub CI result.
 
 Regression tests fail on the old implementation for cancelled casts, standalone/prepare
 name collisions and unfunded paid-cast preferences. Controls cover funded pools and lands,
