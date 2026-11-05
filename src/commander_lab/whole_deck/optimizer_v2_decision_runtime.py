@@ -30,7 +30,11 @@ from .campaign import run_balanced_paired_campaign
 from .lab import WholeDeckDesignLab
 from .optimizer_runtime import DEFAULT_POLICIES
 from .optimizer_v2 import EvidenceContext
-from .optimizer_v2_evaluator import CachedPartitionEvaluator, _number
+from .optimizer_v2_evaluator import (
+    CachedPartitionEvaluator,
+    _number,
+    require_uncensored_decision_evidence,
+)
 from .optimizer_v2_release import (
     _load_handoff,
     _write_audit,
@@ -318,18 +322,6 @@ def _seed_stability(values: Sequence[float], *, mcse: float) -> dict[str, object
     }
 
 
-def _require_uncensored_decision_evidence(
-    result: Mapping[str, object], *, evidence_context: str
-) -> None:
-    if result.get("decision_evidence_eligible") is True:
-        return
-    censored = result.get("censored_pair_count", "unknown")
-    raise RuntimeError(
-        f"{evidence_context} Structural decision evidence is censored by aborted matches; "
-        f"censored_pair_count={censored}"
-    )
-
-
 class DecisionPartitionEvaluator(CachedPartitionEvaluator):
     def __init__(self, *args: Any, confidence: float, **kwargs: Any) -> None:
         if not 0.0 < confidence < 1.0:
@@ -388,7 +380,7 @@ class DecisionPartitionEvaluator(CachedPartitionEvaluator):
                 statistics_seed=statistics_seed,
                 workers=self.workers,
             )
-            _require_uncensored_decision_evidence(
+            require_uncensored_decision_evidence(
                 result, evidence_context=self.evidence_context.value
             )
             raw = result.get("paired_observations", [])
@@ -898,7 +890,7 @@ def _run_diagnostic_pair(
             statistics_seed=seed + offset,
             workers=workers,
         )
-        _require_uncensored_decision_evidence(result, evidence_context="critical_diagnostics")
+        require_uncensored_decision_evidence(result, evidence_context="critical_diagnostics")
         raw = result.get("paired_observations", [])
         if isinstance(raw, list):
             observations.extend(row for row in raw if isinstance(row, dict))
