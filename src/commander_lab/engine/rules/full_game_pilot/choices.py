@@ -761,11 +761,14 @@ class _ChoiceDecisions(_PaymentDecisions):
             options = selectable
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
+        paid_cast_shortfall = self._paid_cast_mana_shortfall(state, prompt)
         for option in options:
             value = values[self._required_text(option, "option_id")]
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
+            if paid_cast_shortfall:
+                aligned = not value
             # Twin-stable: boolean value words are Rules-visible content.
             stable_id = f"boolean:{value}"
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
