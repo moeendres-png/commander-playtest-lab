@@ -9,7 +9,7 @@ import argparse
 import json
 from pathlib import Path
 
-from commander_lab.deck_readiness import check_deck, format_deck_report
+from commander_lab.deck_readiness import CardReadinessStatus, check_deck, format_deck_report
 from commander_lab.engine.rules.project import load_rules_deck_snapshot
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -43,8 +43,9 @@ def main(argv: list[str] | None = None) -> int:
         "total": len(reports),
         "ready": ready,
         "not_ready": len(reports) - ready,
-        "no_card_facts": sum(report.counts[report_status] for _, report in reports
-                             for report_status in report.counts if report_status.value == "NO_CARD_FACTS"),
+        "no_card_facts": sum(
+            report.counts[CardReadinessStatus.NO_CARD_FACTS] for _, report in reports
+        ),
         "failed_decks": [
             {"path": str(path.relative_to(ROOT)), "report": format_deck_report(str(path), report)}
             for path, report in reports if not report.ready
@@ -53,8 +54,10 @@ def main(argv: list[str] | None = None) -> int:
     if args.json:
         print(json.dumps(payload, indent=2, sort_keys=True))
     else:
-        print(f"Reference deck readiness: {ready}/{len(reports)} READY; "
-              f"{payload['no_card_facts']} NO_CARD_FACTS")
+        print(
+            f"Reference deck readiness: {ready}/{len(reports)} READY; "
+            f"{payload['no_card_facts']} NO_CARD_FACTS"
+        )
         for entry in payload["failed_decks"]:
             print(entry["report"])
     return 0 if ready == EXPECTED_TOTAL and payload["no_card_facts"] == 0 else 1
