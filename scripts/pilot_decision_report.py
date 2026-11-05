@@ -24,6 +24,11 @@ XMAGE_CARD_REPOSITORY_INIT_FAILED, H2 "Lock file recently modified", #878).
 
 The figures are measurements of local games for pilot work, not qualification
 evidence. Lower is better for every "bad_*" counter.
+
+Cast counters measure priority spell selections excluding observed mana-payment
+cancellations; they do not confirm stack entry or resolution. Successful casts during
+effect resolution are outside these counters. Their observed payment cancellations
+are still attributed per card using the engine's source_object.
 """
 
 from __future__ import annotations
@@ -92,6 +97,48 @@ def _chosen(record: dict[str, Any]) -> list[dict[str, Any]]:
 def _meta(option: dict[str, Any]) -> dict[str, Any]:
     meta = option.get("metadata")
     return meta if isinstance(meta, dict) else {}
+
+
+def _cancelled_cast_attempts(records: list[dict[str, Any]]) -> dict[int, int]:
+    """Map observed payment cancellations to the originating spell-selection record.
+
+    Priority resumes only after a cast's decisions finish. Track each seat separately so
+    another player's intervening choice cannot clear its pending cast. A later priority
+    choice from that seat closes the attribution window, including forced passes.
+    Absence of a cancellation does not itself prove that a spell reached the stack.
+    """
+    pending: dict[int, int] = {}
+    cancelled: dict[int, int] = {}
+    for index, record in enumerate(records):
+        request = record["request"]
+        seat = _seat(request.get("pilot_state") or {})
+        decision_class = request.get("decision_class")
+        if decision_class == "priority":
+            pending.pop(seat, None)
+            chosen = _chosen(record)
+            if chosen and _meta(chosen[0]).get("ability_type") == "spell":
+                pending[seat] = index
+        elif decision_class == "mana_payment" and any(
+            option.get("option_type") == "cancel_mana_payment" for option in _chosen(record)
+        ):
+            source = request.get("source_object")
+            if isinstance(source, dict):
+                if source.get("ability_type") != "spell":
+                    continue
+                attempt = pending.get(seat)
+                if attempt is not None:
+                    selected = _meta(_chosen(records[attempt])[0])
+                    source_id = source.get("source_object_id")
+                    selected_id = selected.get("source_object_id")
+                    if source_id and selected_id:
+                        if source_id != selected_id:
+                            continue
+                    elif source.get("source_name") != selected.get("source_name"):
+                        continue
+            attempt = pending.pop(seat, None)
+            if attempt is not None:
+                cancelled[index] = attempt
+    return cancelled
 
 
 def _is_main(state: dict[str, Any]) -> bool:
@@ -252,8 +299,9 @@ def summarize(
     own_cast_names: dict[int, set[str]] = {}
     mana_payments_cancelled = 0
     cancelled_payments: dict[tuple[int, str], int] = Counter()
-    pending_spell_cast: dict[int, str] = {}
-    for record in records:
+    cancelled_attempts = _cancelled_cast_attempts(records)
+    failed_casts = set(cancelled_attempts.values())
+    for record_index, record in enumerate(records):
         request = record["request"]
         state = request.get("pilot_state") or {}
         decision_class = str(request.get("decision_class", ""))
@@ -273,7 +321,6 @@ def summarize(
         if decision_class == "priority":
             if len(options) == 1:
                 forced += 1
-                pending_spell_cast.pop(seat, None)
                 continue
             picked = chosen[0] if chosen else {}
             picked_type = str(picked.get("option_type", ""))
@@ -316,10 +363,9 @@ def summarize(
                 elif _own_turn(state) and _is_main(state):
                     offered_castable[(seat, name)] += 1
                     counted_now.add(name)
-            if meta.get("ability_type") == "spell":
+            if meta.get("ability_type") == "spell" and record_index not in failed_casts:
                 name = canonical_card_name(str(meta.get("source_name") or ""))
                 if name:
-                    pending_spell_cast[seat] = name
                     cast_count[(seat, name)] += 1
                     if name in counted_now:
                         cast_in_offer_window[(seat, name)] += 1
@@ -328,11 +374,7 @@ def summarize(
                         cast_on_opponent_turn[(seat, name)] += 1
                     first_cast_round.setdefault((seat, name), own_round)
                     own_cast_names.setdefault(seat, set()).add(name.strip().casefold())
-                else:
-                    pending_spell_cast.pop(seat, None)
-            else:
-                pending_spell_cast.pop(seat, None)
-            if meta.get("ability_type") == "spell":
+            if meta.get("ability_type") == "spell" and record_index not in failed_casts:
                 spells[seat] += 1
                 name = str(meta.get("source_name") or "")
                 command_ids = {
@@ -430,9 +472,23 @@ def summarize(
         elif decision_class == "mana_payment":
             if any(o.get("option_type") == "cancel_mana_payment" for o in chosen):
                 mana_payments_cancelled += 1
-                cancelled_card = pending_spell_cast.pop(seat, None)
-                if cancelled_card:
-                    cancelled_payments[(seat, cancelled_card)] += 1
+                attempt = cancelled_attempts.get(record_index)
+                source = request.get("source_object")
+                if isinstance(source, dict):
+                    # Resolution-time casts (Chandra) have no priority selection. Their
+                    # payment still names the spell authoritatively; do not lose its failure.
+                    name = (
+                        canonical_card_name(str(source.get("source_name") or ""))
+                        if source.get("ability_type") == "spell"
+                        else ""
+                    )
+                elif attempt is not None:
+                    selected = _chosen(records[attempt])[0]
+                    name = canonical_card_name(str(_meta(selected).get("source_name") or ""))
+                else:
+                    name = ""
+                if name:
+                    cancelled_payments[(seat, name)] += 1
     rounds = max(1.0, max_turn / max(1, players))
     decisions = sum(by_class.values())
     # Per-card figures keyed by (seat, card name); first_cast_round is None
@@ -501,7 +557,8 @@ def summarize(
         "bad_needless_chump_blocks": needless_chumps,
         "max_activations_one_turn": max(abilities_per_turn.values(), default=0),
         "per_card": per_card,
-        "per_card_version": 3,
+        # v4 excludes observed cancelled cast attempts from all cast counters.
+        "per_card_version": 4,
     }
     if by_seat:
         result["by_seat"] = {
