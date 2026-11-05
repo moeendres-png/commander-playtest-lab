@@ -234,3 +234,55 @@ __all__ = [
     "format_deck_report",
     "readiness_payload",
 ]
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Readiness entrypoint for a normalized Commander deck snapshot.
+
+    Usage: python -m commander_lab.deck_readiness data/decks/deckbau/my_deck.json
+    """
+    import argparse
+    import sys
+
+    from commander_lab.engine.rules.project import load_rules_deck_snapshot
+
+    parser = argparse.ArgumentParser(description="Validate deck card-facts and pilot readiness")
+    parser.add_argument("decks", type=Path, nargs="+")
+    parser.add_argument("--json", action="store_true", help="machine-readable readiness report")
+    args = parser.parse_args(argv)
+    entries: list[tuple[Path, DeckReadiness]] = []
+    for path in args.decks:
+        try:
+            deck = load_rules_deck_snapshot(path)
+            report = check_deck(deck)
+        except (OSError, ValueError, KeyError) as exc:
+            print(f"{path}: cannot validate deck: {exc}", file=sys.stderr)
+            return 2
+        entries.append((path, report))
+
+    ready = all(report.ready for _, report in entries)
+    if args.json:
+        payload = {
+            "ready": ready,
+            "decks": [
+                {
+                    "path": str(path),
+                    "deck_id": report.deck_id,
+                    "ready": report.ready,
+                    "counts": {status.value: report.counts[status] for status in CardReadinessStatus},
+                    "cards": [
+                        {"name": card.name, "status": card.status.value}
+                        for card in report.cards
+                    ],
+                }
+                for path, report in entries
+            ],
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("\n\n".join(format_deck_report(str(path), report) for path, report in entries))
+    return 0 if ready else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
