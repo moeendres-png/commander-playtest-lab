@@ -1876,9 +1876,16 @@ class _PaymentDecisions(_PolicyState):
         if symbols is None:
             symbols = prompt_symbols
         excluded_source = self._take_remembered_spends_source(seat, context, source_object)
+        source = (
+            str(source_object.get("source_object_id") or "")
+            if isinstance(source_object, dict)
+            else ""
+        )
+        commitment = self._optional_mana_commitments.get(seat, {}).get(source, (0, 0))[0]
         affordable = max(
             0,
-            (self._mana_budget(state, excluded_source_id=excluded_source) - non_x) // symbols,
+            (self._mana_budget(state, excluded_source_id=excluded_source) - non_x - commitment)
+            // symbols,
         )
         # #920: an X that is also paid by removing counters from its source,
         # or by tapping X untapped permanents.

@@ -603,10 +603,20 @@ class _ChoiceDecisions(_PaymentDecisions):
                 life < life_promised + int(life_prompt.group(1))
             )
         offer = _multikicker_offer(prompt)
+        optional_cost = _optional_mana_cost(prompt)
+        known_mana_cost = bool(
+            optional_cost and re.fullmatch(r"(?:\{(?:\d+|[WUBRGC])\})+", optional_cost)
+        )
         chain_key = (self._boolean_source_key(source_object), outcome)
         prior = self._boolean_repeat.get(seat)
         answered_yes = 0
-        cap: int | None = None
+        cap: int | None = (
+            self._boolean_yes_cap(
+                offer, self._actor(state), source_object, seat=seat, known_mana_cost=known_mana_cost
+            )
+            if offer is not None
+            else None
+        )
         if (
             offer is not None
             and prior is not None
@@ -614,7 +624,6 @@ class _ChoiceDecisions(_PaymentDecisions):
             and prior[1] == offer.ordinal - 1
         ):
             answered_yes = prior[2]
-            cap = self._boolean_yes_cap(offer, self._actor(state), source_object)
         dig_key = self._boolean_source_key(source_object)
         dug = 0
         if _LIFE_DIG_PROMPT.match(prompt):
@@ -626,7 +635,6 @@ class _ChoiceDecisions(_PaymentDecisions):
         # after the same single check. A Yes the seat's own mana provably cannot fund only cancels
         # the payment, and the spell is not cast either (the unkicked Nullpriest of Oblivion
         # stayed in hand). Cost text the model cannot read is never withheld.
-        optional_cost = _optional_mana_cost(prompt)
         cost_yes_blocked = optional_cost is not None and self._cost_cannot_be_paid(
             state, optional_cost * (offer.ordinal if offer is not None else 1), source_object
         )
@@ -855,6 +863,16 @@ class _ChoiceDecisions(_PaymentDecisions):
                 offer.ordinal,
                 (answered_yes + 1) if values[raw_id] else 0,
             )
+            if isinstance(source_object, dict) and offer.per_payment and known_mana_cost:
+                source = str(source_object.get("source_object_id") or "")
+                if source:
+                    commitments = self._optional_mana_commitments.setdefault(seat, {})
+                    if offer.ordinal == 1:
+                        commitments.clear()
+                        commitments[source] = (0, 0)
+                    previous = commitments.get(source)
+                    if values[raw_id] and previous is not None and previous[1] == offer.ordinal - 1:
+                        commitments[source] = (previous[0] + offer.per_payment, offer.ordinal)
         chosen_label = next(
             (
                 str(option.get("label", ""))
@@ -894,7 +912,13 @@ class _ChoiceDecisions(_PaymentDecisions):
         return f"instance:{instance}" if instance else ""
 
     def _boolean_yes_cap(
-        self, offer: _MultikickerOffer, actor: dict[str, Any], source_object: object = None
+        self,
+        offer: _MultikickerOffer,
+        actor: dict[str, Any],
+        source_object: object = None,
+        *,
+        seat: int | None = None,
+        known_mana_cost: bool = True,
     ) -> int:
         """How many multikicker payments the pilot's mana can fund in all.
 
@@ -907,10 +931,21 @@ class _ChoiceDecisions(_PaymentDecisions):
         prints no mana symbol states no per-payment value to divide by, so one
         further payment is assumed -- the minimum a bound needs to hold.
         """
+        base = self._spell_base_cost(source_object)
+        reserve = 0
+        if isinstance(source_object, dict) and source_object.get("ability_type") == "spell":
+            facts = card_facts(str(source_object.get("source_name") or ""))
+            symbols = facts.mana_cost.upper().count("{X}") if facts is not None else 0
+            source = str(source_object.get("source_object_id") or "")
+            if symbols and offer.per_payment and source and known_mana_cost:
+                remembered = self._priority_cost_facts.get(seat, {}).get(source) if seat else None
+                if remembered is not None:
+                    base = remembered
+                spare = max(0, self._available_mana(actor) - base)
+                reserve = min(spare, max(symbols, (spare + 1) // 2))
         return max(
-            1,
-            (self._available_mana(actor) - self._spell_base_cost(source_object))
-            // (offer.per_payment or 1),
+            0 if reserve else 1,
+            (self._available_mana(actor) - base - reserve) // (offer.per_payment or 1),
         )
 
     @staticmethod
