@@ -372,6 +372,11 @@ may use them locally, but values never appear in prompts, logs, evidence, commit
 handoffs. Deny explicit secret-extraction operations. Automatic session sharing is
 disabled.
 
+Deck, collection and ownership data, including partial lists and the single cards of one deck
+asked for one after another, go to no external service. Allowed are requests that carry no
+Owner reference, namely bulk downloads of public card data by plain GET; the evaluation runs
+locally.
+
 ## 13. Semantic Completion Rule
 
 Do not stop at a remediable in-scope failure (failed test, lint, config syntax, broken
