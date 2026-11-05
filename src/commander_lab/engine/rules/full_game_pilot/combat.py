@@ -55,7 +55,7 @@ class _CombatDecisions(_ChoiceDecisions):
         # not put up; the pilot chooses among the remaining defenders (its
         # evaluator weighs life and threat) or holds.
         for option in attacks:
-            score, _facts = attack_score(option, state)
+            score, facts = attack_score(option, state)
             if score <= 0.0:
                 continue
             label = str(option.get("label", "Attack"))
@@ -68,6 +68,10 @@ class _CombatDecisions(_ChoiceDecisions):
                 update={
                     "action_id": stable_id,
                     "floor_value": min(3.0, max(action.floor_value, score)),
+                    "metadata": {
+                        **action.metadata,
+                        "lethal_window": facts.get("lethal_window", False),
+                    },
                 }
             )
             actions.append(action)

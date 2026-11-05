@@ -848,6 +848,10 @@ class BasePilot:
         if action.action_kind == "combat_target":
             win_progress += max(0.0, 18.0 - float(action.metadata.get("target_life", 40.0))) * 0.12
             win_progress += float(action.metadata.get("commander_damage_pressure", 0.0)) * 0.18
+            # This is the attack evaluator's estimate of an open finishing window,
+            # not a prediction that combat damage or elimination will occur.
+            if action.metadata.get("lethal_window") is True:
+                win_progress += 8.0
         if StructuralMechanic.TABLE_DAMAGE in mechanics:
             win_progress += max(0, opponent_count - 1) * (
                 0.35 + max(0.0, action.multiplayer_scaling) * 0.18
