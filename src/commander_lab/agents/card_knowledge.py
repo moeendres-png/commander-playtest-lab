@@ -206,11 +206,12 @@ _WIPE = re.compile(
     r"|each player sacrifices"
 )
 _DRAW = re.compile(
-    r"draws? (a|an additional|two|three|four|five|seven|x|that many) cards?|draw cards equal"
+    r"draws? (a|an additional|two|three|four|five|seven|x|that many) cards?|draws? cards equal"
     r"|put (two|three|four|five) of them into your hand"
 )
 _SELECTION = re.compile(
     r"\bscry\b|\bsurveil\b|look at the top|discard a card, then draw|then discard"
+    r"|separates those cards into two piles\. put one pile into your hand"
 )
 _RAMP = re.compile(
     r"search your library for (up to (one|two) )?(a |an )?(basic )?(land|plains|island|swamp|mountain|forest)"
@@ -226,7 +227,10 @@ _GRAVE_HATE = re.compile(r"exile (all cards from )?(target player's|each opponen
 _TOKENS = re.compile(
     r"create (a|an|one|two|three|four|five|six|seven|eight|nine|ten|x|that many|\d+) "
 )
-_ANTHEM = re.compile(r"(enchanted|equipped) creature gets \+|creatures you control get \+")
+_ANTHEM = re.compile(
+    r"(enchanted|equipped) creature gets \+|creatures you control get \+"
+    r"|creatures you control gain trample and get \+"
+)
 _TABLE = re.compile(
     r"each opponent (loses|deals?|sacrifices)|deals? \d+ damage to each opponent"
     r"|exchange target (opponent|player)'s life total"

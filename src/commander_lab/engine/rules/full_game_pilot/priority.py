@@ -290,7 +290,7 @@ class _PriorityDecisions(_CombatDecisions):
             self_defeating += len(stays)
         failed = self._failed_payments.get(seat)
         if failed is not None and failed[0] == turn and failed[1]:
-            visible = self._available_mana(self._actor(state))
+            visible = self._available_mana(self._actor(state), state=state)
             unpaid = [
                 option
                 for option in (*affordable, *needs_mana_first)

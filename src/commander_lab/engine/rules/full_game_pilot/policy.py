@@ -197,7 +197,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # its sources tapped in the cancel's own state view.
             if seat in self._last_priority_label:
                 self._last_priority_visible_mana[seat] = self._available_mana(
-                    self._actor(pilot_state)
+                    self._actor(pilot_state), state=pilot_state
                 )
         elif (
             decision_class == "choose_object"
