@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from commander_lab.whole_deck.optimizer_v2_decision_runtime import (
-    _require_uncensored_decision_evidence,
+from commander_lab.whole_deck.optimizer_v2_evaluator import (
+    require_uncensored_decision_evidence as _require_uncensored_decision_evidence,
 )
 
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import Counter, defaultdict
+from collections.abc import Mapping
 from pathlib import Path
 from statistics import fmean
 from typing import Any
@@ -38,6 +39,35 @@ def _number(row: dict[str, object], key: str) -> float:
     if not isinstance(value, int | float):
         raise TypeError(f"paired observation {key} must be numeric")
     return float(value)
+
+
+# Contexts whose result is a decision input: aborted matches must not enter them (LAB-18).
+_UNCENSORED_CONTEXTS = frozenset({EvidenceContext.CONFIRMATORY, EvidenceContext.HOLDOUT})
+
+
+def require_uncensored_decision_evidence(
+    result: Mapping[str, object], *, evidence_context: str
+) -> None:
+    """Fail closed unless a paired Structural result has no aborted match (LAB-18).
+
+    A match that ended on max_turns, max_events or no progress carries a provisional placement
+    (life, threat, hand); the censoring contract forbids such placements as strong decision
+    evidence. Missing censoring metadata counts as censored.
+    """
+    if result.get("decision_evidence_eligible") is True:
+        return
+    censored = result.get("censored_pair_count", "unknown")
+    raise RuntimeError(
+        f"{evidence_context} Structural decision evidence is censored by aborted matches; "
+        f"censored_pair_count={censored}"
+    )
+
+
+def _count(result: Mapping[str, object], key: str) -> int:
+    value = result.get(key)
+    if not isinstance(value, int) or isinstance(value, bool) or value < 0:
+        raise TypeError(f"paired campaign {key} must be a non-negative integer")
+    return value
 
 
 def _partition(manifest: OptimizerV2Manifest, context: EvidenceContext) -> EvidencePartition:
@@ -209,7 +239,7 @@ class CachedPartitionEvaluator:
             "max_turns": self.max_turns,
             "pilot_assignment": "scenario_parity_fixed_ensemble",
             "mulligan_sensitivity": self.enable_mulligan_sensitivity,
-            "evaluator_schema": "optimizer-v2-cached-partition-1.0.0",
+            "evaluator_schema": "optimizer-v2-cached-partition-1.1.0",
         }
         seeds = tuple(row.seed for row in scenarios)
         if self.evidence_context == EvidenceContext.CALIBRATION:
@@ -243,6 +273,7 @@ class CachedPartitionEvaluator:
         budget: int,
     ) -> dict[str, Any]:
         observations: list[dict[str, object]] = []
+        censored_pair_count = 0
         pilot_deltas: dict[str, list[float]] = defaultdict(list)
         groups = (
             (
@@ -286,6 +317,11 @@ class CachedPartitionEvaluator:
                 statistics_seed=statistics_seed,
                 workers=self.workers,
             )
+            if self.evidence_context in _UNCENSORED_CONTEXTS:
+                require_uncensored_decision_evidence(
+                    result, evidence_context=self.evidence_context.value
+                )
+            censored_pair_count += _count(result, "censored_pair_count")
             raw = result.get("paired_observations", [])
             if not isinstance(raw, list):
                 raise TypeError("paired campaign observations are malformed")
@@ -333,6 +369,8 @@ class CachedPartitionEvaluator:
             "robust_lower_bound": distributionally_robust_lower_bound(differences),
             "sensitivity": sensitivity,
             "observation_count": len(observations),
+            "censored_pair_count": censored_pair_count,
+            "decision_evidence_eligible": censored_pair_count == 0,
             "evidence_context": self.evidence_context.value,
             "evidence_type": "structural_model_estimates",
         }
