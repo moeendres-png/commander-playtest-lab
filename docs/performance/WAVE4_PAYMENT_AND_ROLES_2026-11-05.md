@@ -103,6 +103,7 @@ checkout at the corresponding source lock, reuse the existing runner/report API:
 ```python
 import sys
 from pathlib import Path
+
 sys.path.insert(0, "scripts")
 import benchmark_xmage_full_games as bench
 import pilot_decision_report as report
@@ -113,12 +114,16 @@ scenario, decks, pilots = bench._setup(tuple(Path(p) for p in paths))
 command = bench.bridge_command(jar, ["-Xmx768m", "-XX:+UseSerialGC"])
 records = []
 runner = XmageFullGameRunner(
-    command, cwd="engine-bridge/target", private_card_repository=True,
+    command,
+    cwd="engine-bridge/target",
+    private_card_repository=True,
     request_timeout_seconds=600.0,
 )
 with report.recording(records):
     result = runner.run(
-        scenario=scenario.model_copy(update={"seed": seed}), decks=decks, pilots=pilots,
+        scenario=scenario.model_copy(update={"seed": seed}),
+        decks=decks,
+        pilots=pilots,
     )
 summary = report.summarize(records, 4)
 ```
