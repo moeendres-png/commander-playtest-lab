@@ -1,6 +1,6 @@
 """Check readiness of the 177 public, registered reference decks (no collection inputs).
 
-    python scripts/deckbau_pool_readiness.py --json
+python scripts/deckbau_pool_readiness.py --json
 """
 
 from __future__ import annotations
@@ -48,7 +48,8 @@ def main(argv: list[str] | None = None) -> int:
         ),
         "failed_decks": [
             {"path": str(path.relative_to(ROOT)), "report": format_deck_report(str(path), report)}
-            for path, report in reports if not report.ready
+            for path, report in reports
+            if not report.ready
         ],
     }
     if args.json:
