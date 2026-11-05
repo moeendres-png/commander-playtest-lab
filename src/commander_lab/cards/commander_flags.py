@@ -19,7 +19,7 @@ import re
 from collections.abc import Iterable, Iterator, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from typing import IO, Any
+from typing import IO
 
 from .normalize import oracle_lookup_key
 
@@ -41,7 +41,7 @@ _FACE_SEPARATOR = " // "
 class CommanderFlags:
     """The loaded flags file: positive lists only, keyed by the normalized card name."""
 
-    source: Mapping[str, Any]
+    source: Mapping[str, object]
     game_changers: Mapping[str, str]
     commander_banned: Mapping[str, str]
 
@@ -57,7 +57,7 @@ class DeckLabel:
     bulk_sha256: str
     scope: str
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self) -> dict[str, object]:
         return {
             "game_changer_count": self.game_changer_count,
             "game_changers": list(self.game_changers),
@@ -93,7 +93,7 @@ def _open_text(path: Path) -> IO[str]:
     return path.open("rt", encoding="utf-8")
 
 
-def _cards(path: Path) -> Iterator[dict[str, Any]]:
+def _cards(path: Path) -> Iterator[dict[str, object]]:
     with _open_text(path) as handle:
         for number, line in enumerate(handle, start=1):
             if not line.strip():
@@ -104,7 +104,7 @@ def _cards(path: Path) -> Iterator[dict[str, Any]]:
             yield card
 
 
-def derive_flags(bulk_path: Path) -> dict[str, Any]:
+def derive_flags(bulk_path: Path) -> dict[str, object]:
     """The flags file content for one Oracle bulk file. Sorted, so the same bulk gives the same bytes."""
     data_as_of = bulk_data_as_of(bulk_path)
     game_changers: dict[str, str] = {}
@@ -115,7 +115,12 @@ def derive_flags(bulk_path: Path) -> dict[str, Any]:
         card_count += 1
         name = str(card["name"])
         oracle_id = str(card["oracle_id"])
-        status = str((card.get("legalities") or {}).get("commander", "unknown"))
+        legalities = card.get("legalities")
+        status = (
+            str(legalities.get("commander", "unknown"))
+            if isinstance(legalities, dict)
+            else "unknown"
+        )
         legality_counts[status] = legality_counts.get(status, 0) + 1
         if card.get("game_changer") is True:
             game_changers[name] = oracle_id

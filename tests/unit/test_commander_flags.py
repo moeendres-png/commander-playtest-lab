@@ -10,7 +10,7 @@ import importlib.util
 import json
 import socket
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 
@@ -78,13 +78,15 @@ def flags_file(bulk: Path, tmp_path: Path) -> Path:
 
 def test_derive_collects_game_changers_and_bans_with_the_bulk_identity(bulk: Path) -> None:
     payload = cf.derive_flags(bulk)
-    assert [row["name"] for row in payload["game_changers"]] == [
+    game_changers = cast(list[dict[str, str]], payload["game_changers"])
+    banned = cast(list[dict[str, str]], payload["commander_banned"])
+    assert [row["name"] for row in game_changers] == [
         "Cyclonic Rift",
         "Rhystic Study",
         "Tergrid, God of Fright // Tergrid's Lantern",
     ]
-    assert [row["name"] for row in payload["commander_banned"]] == ["Dockside Extortionist"]
-    source = payload["source"]
+    assert [row["name"] for row in banned] == ["Dockside Extortionist"]
+    source = cast(dict[str, Any], payload["source"])
     assert source["data_as_of"] == "2026-11-01T12:00:00Z"
     assert source["card_count"] == len(BULK_CARDS)
     assert source["commander_legality_counts"] == {"banned": 1, "legal": 6, "not_legal": 1}
