@@ -24,7 +24,6 @@ import pilot_decision_report as decisions  # noqa: E402
 import run_real_4p_full_game_smoke as smoke  # noqa: E402
 
 from commander_lab.deck_readiness import check_deck, format_deck_report  # noqa: E402
-from commander_lab.engine.rules.project import load_rules_deck_snapshot  # noqa: E402
 
 BRIDGE_JAR = ROOT / "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
 
@@ -90,9 +89,7 @@ def summarize_candidate(games: list[dict[str, Any]]) -> dict[str, Any]:
         "mean_rounds": decisions.totals(report).get("mean_rounds"),
         "mana_efficiency": {
             "status": "NOT_MEASURED",
-            "spells_cast_per_own_turn_proxy": round(spells / own_turns, 3)
-            if own_turns
-            else None,
+            "spells_cast_per_own_turn_proxy": round(spells / own_turns, 3) if own_turns else None,
             "cancelled_mana_payments": int(seat_totals.get("mana_payments_cancelled", 0)),
         },
         "hand_residence_turns": {
