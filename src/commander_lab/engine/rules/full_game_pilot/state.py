@@ -153,6 +153,7 @@ class _PolicyState:
         self._free_cast_failed: dict[int, tuple[object, set[str]]] = {}
         self._free_cast_last_yes: dict[int, str | None] = {}
         self._free_cast_refused: dict[int, object] = {}
+        self._exiled_play_attempt: dict[int, tuple[str, str, str, int, str, str]] = {}
         # Seats whose last "copied card to cast" choice (Mizzix's Mastery) picked nothing.
         self._copy_cast_declined: set[int] = set()
         # Slaughter the Strong asks for one creature at a time and toggles a creature that is

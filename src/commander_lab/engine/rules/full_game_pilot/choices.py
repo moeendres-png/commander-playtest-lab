@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import itertools
+import json
 import random
 import re
 from collections.abc import Mapping
@@ -50,6 +52,8 @@ from .payment import _PaymentDecisions
 # then answered Yes to "Continue casting?" for ever (precon pod, 50000 decisions, no cast).
 _FREE_PLAY_OUTCOMES = frozenset({"playforfree"})
 _FREE_CAST_PROMPT = re.compile(r"Cast spell without paying its mana cost")
+_EXILED_PLAY_PROMPT = re.compile(r"\APlay .+\?\Z")
+_EXILED_PLAY_CONTINUE = "Continue playing the exiled cards?"
 _PHYREXIAN_LIFE_PROMPT = re.compile(r"Pay (\d+) life instead of ")
 _FREE_CAST_CONTINUE_PROMPT = re.compile(
     r"You can cast \d+ more spells? for free\. Continue casting"
@@ -656,6 +660,46 @@ class _ChoiceDecisions(_PaymentDecisions):
         # answered Yes to, followed by "Continue casting?", failed to cast;
         # the identical cast prompt is not offered Yes again this turn.
         turn = state.get("turn_number")
+        attempt = self._exiled_play_attempt.pop(seat, None)
+        play_key = None
+        if (
+            outcome == "playforfree"
+            and isinstance(source_object, dict)
+            and isinstance(state.get("game_id"), str)
+            and state.get("game_id")
+            and isinstance(state.get("actor_id"), str)
+            and state.get("actor_id")
+            and type(turn) is int
+        ):
+            source_id = source_object.get("source_object_id")
+            ability_id = source_object.get("ability_original_id")
+            if (
+                isinstance(source_id, str)
+                and source_id
+                and isinstance(ability_id, str)
+                and ability_id
+            ):
+                try:
+                    digest = hashlib.sha256(
+                        json.dumps(state, sort_keys=True, separators=(",", ":")).encode()
+                    ).hexdigest()
+                except (TypeError, ValueError):
+                    pass
+                else:
+                    play_key = (
+                        state["game_id"],
+                        state["actor_id"],
+                        source_id,
+                        turn,
+                        ability_id,
+                        digest,
+                    )
+        exiled_play_stalled = (
+            prompt == _EXILED_PLAY_CONTINUE
+            and play_key is not None
+            and attempt == play_key
+            and False in values.values()
+        )
         failed_turn, failed = self._free_cast_failed.get(seat, (None, set()))
         if failed_turn != turn:
             failed = set()
@@ -806,7 +850,7 @@ class _ChoiceDecisions(_PaymentDecisions):
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
-            if paid_cast_shortfall or saturated or progress_draw:
+            if paid_cast_shortfall or saturated or progress_draw or exiled_play_stalled:
                 aligned = not value
             # Twin-stable: boolean value words are Rules-visible content.
             stable_id = f"boolean:{value}"
@@ -847,6 +891,8 @@ class _ChoiceDecisions(_PaymentDecisions):
             if last_yes is not None:
                 failed.add(last_yes)
         self._free_cast_failed[seat] = (turn, failed)
+        if _EXILED_PLAY_PROMPT.fullmatch(prompt) and values[raw_id] and play_key is not None:
+            self._exiled_play_attempt[seat] = play_key
         if retarget and values[raw_id]:
             self._retarget_yes[seat] = (turn, retargeted + 1)
         if _LIFE_DIG_PROMPT.match(prompt) and values[raw_id]:
