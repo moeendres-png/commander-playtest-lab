@@ -608,6 +608,14 @@ class _ChoiceDecisions(_PaymentDecisions):
             )
         offer = _multikicker_offer(prompt)
         optional_cost = _optional_mana_cost(prompt)
+        native_cost = context.get("optional_mana_cost")
+        native_resolution_cost = (
+            native_cost
+            if context.get("optional_mana_cost_scope") == "effect_resolution"
+            and isinstance(native_cost, str)
+            and re.fullmatch(r"(?:\{(?:\d+|[WUBRGC])\})+", native_cost)
+            else None
+        )
         known_mana_cost = bool(
             optional_cost and re.fullmatch(r"(?:\{(?:\d+|[WUBRGC])\})+", optional_cost)
         )
@@ -639,8 +647,12 @@ class _ChoiceDecisions(_PaymentDecisions):
         # after the same single check. A Yes the seat's own mana provably cannot fund only cancels
         # the payment, and the spell is not cast either (the unkicked Nullpriest of Oblivion
         # stayed in hand). Cost text the model cannot read is never withheld.
-        cost_yes_blocked = optional_cost is not None and self._cost_cannot_be_paid(
-            state, optional_cost * (offer.ordinal if offer is not None else 1), source_object
+        cost_yes_blocked = (
+            native_resolution_cost is None
+            and optional_cost is not None
+            and self._cost_cannot_be_paid(
+                state, optional_cost * (offer.ordinal if offer is not None else 1), source_object
+            )
         )
         yes_withheld = (
             life_yes_blocked
@@ -842,6 +854,9 @@ class _ChoiceDecisions(_PaymentDecisions):
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         paid_cast_shortfall = self._paid_cast_mana_shortfall(state, prompt)
+        native_cost_shortfall = native_resolution_cost is not None and self._cost_cannot_be_paid(
+            state, native_resolution_cost
+        )
         saturated = False in values.values() and saturated_self_counter(
             state, source_object, prompt
         )
@@ -850,7 +865,13 @@ class _ChoiceDecisions(_PaymentDecisions):
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
-            if paid_cast_shortfall or saturated or progress_draw or exiled_play_stalled:
+            if (
+                paid_cast_shortfall
+                or native_cost_shortfall
+                or saturated
+                or progress_draw
+                or exiled_play_stalled
+            ):
                 aligned = not value
             # Twin-stable: boolean value words are Rules-visible content.
             stable_id = f"boolean:{value}"

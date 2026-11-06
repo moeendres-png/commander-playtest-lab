@@ -24,6 +24,8 @@ import mage.abilities.costs.common.TapTargetCost;
 import mage.abilities.costs.common.UntapSourceCost;
 import mage.abilities.costs.mana.ManaCost;
 import mage.abilities.costs.mana.ManaCosts;
+import mage.abilities.effects.Effect;
+import mage.abilities.effects.common.DoIfCostPaid;
 import mage.abilities.mana.ManaOptions;
 import mage.abilities.keyword.CastFromGraveyardAbility;
 import mage.abilities.keyword.CrewAbility;
@@ -1923,6 +1925,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     ) {
         JsonObject context = new JsonObject();
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
+        addEffectResolutionManaHint(context, source);
         return chooseBoolean(message, "choose_use", "Yes", "No", source, game, context);
     }
 
@@ -1938,6 +1941,7 @@ final class XmageFullGamePlayer extends PlayerImpl {
     ) {
         JsonObject context = new JsonObject();
         context.addProperty("outcome", outcome == null ? "neutral" : outcome.name().toLowerCase());
+        addEffectResolutionManaHint(context, source);
         if (secondMessage != null) {
             context.addProperty("secondary_prompt", secondMessage);
         }
@@ -1950,6 +1954,39 @@ final class XmageFullGamePlayer extends PlayerImpl {
                 game,
                 context
         );
+    }
+
+    /** Native effect cost, only when the exact caller and current effect are unambiguous. */
+    private static void addEffectResolutionManaHint(JsonObject context, Ability source) {
+        if (source == null || source.getEffects() == null || source.getEffects().size() != 1) {
+            return;
+        }
+        Effect effect = source.getEffects().get(0);
+        if (effect == null || effect.getClass() != DoIfCostPaid.class) {
+            return;
+        }
+        String caller = DoIfCostPaid.class.getName() + "#apply";
+        boolean direct = StackWalker.getInstance().walk(frames -> {
+            List<String> calls = frames
+                    .filter(frame -> !frame.getClassName().equals(XmageFullGamePlayer.class.getName()))
+                    .map(frame -> frame.getClassName() + "#" + frame.getMethodName())
+                    .toList();
+            return !calls.isEmpty() && caller.equals(calls.get(0))
+                    && calls.stream().filter(caller::equals).count() == 1;
+        });
+        if (!direct) {
+            return;
+        }
+        Cost cost = ((DoIfCostPaid) effect).getCost();
+        if (!(cost instanceof ManaCost)) {
+            return;
+        }
+        String text = cost.getText();
+        if (text == null || !text.matches("(?:\\{(?:[0-9]+|[WUBRGC])\\})+")) {
+            return;
+        }
+        context.addProperty("optional_mana_cost", text);
+        context.addProperty("optional_mana_cost_scope", "effect_resolution");
     }
 
     @Override

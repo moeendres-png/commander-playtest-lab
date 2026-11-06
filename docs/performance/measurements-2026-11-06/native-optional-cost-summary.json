@@ -1,0 +1,288 @@
+{
+  "classification": "DIRECTLY_VERIFIED",
+  "data_assets": {
+    "data/cards/pilot_card_knowledge.json": "6a4a0647c21da6ee0441b59601014d4843f25963bdfb8636afeaefb5b9df8f95",
+    "data/cards/structural_role_profiles.json": "a507010fc1191d1e2f500262f0162122a30ba2e4ee9edf42f6d4a3071268426a",
+    "data/cards/xmage_card_facts.json": "cdc0e4d68a4a3a11fca5a83756822112709f3d5ea43c00c69d5166a8f97b5f84"
+  },
+  "deck_inputs": [
+    {
+      "cards": 100,
+      "deck_id": "precon/2020/ruthless_regiment",
+      "file": "data/decks/precons/2020_ruthless_regiment.json",
+      "sha256": "053e897e67195d24396b209ab0744c21399af20648e11026394ea22943be758a"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2015/plunder_the_graves",
+      "file": "data/decks/precons/2015_plunder_the_graves.json",
+      "sha256": "f4efbce5a854489865ce75ff89ed4f445ab241f103ee778fabe1bee8804a9170"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2018/subjective_reality",
+      "file": "data/decks/precons/2018_subjective_reality.json",
+      "sha256": "c7c7e7b59ed3f1a28fb9d30254b59f312143534bd5581873cdbad526826719a6"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2018/built_from_scratch",
+      "file": "data/decks/precons/2018_built_from_scratch.json",
+      "sha256": "93d731e3704a878a8d039db1920ff3353a6e66d50c58bef232d9fe25ec3af678"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2022/draconic_destruction",
+      "file": "data/decks/precons/2022_draconic_destruction.json",
+      "sha256": "e357f345781cd6d7995d9685b7221196aedff57842175cc30fb1c80121f75fde"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2017/feline_ferocity",
+      "file": "data/decks/precons/2017_feline_ferocity.json",
+      "sha256": "535acd8635f7cff464f308bfb0792bb4452b171b8dc214b995cdf365fb39c379"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2011/mirror_mastery",
+      "file": "data/decks/precons/2011_mirror_mastery.json",
+      "sha256": "0ae0d595aaede256a29f2c293806e0ef065a38a3901e2a9da6dd81a32bcfacaa"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2020/arm_for_battle",
+      "file": "data/decks/precons/2020_arm_for_battle.json",
+      "sha256": "a11cd52ce86c2f5c5f5223b792cc26df63dedf10c5f08227b0d37fd607e4042e"
+    }
+  ],
+  "engine_pin": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "jar_binary_receipt": {
+    "bridge_player_class_sha256": "381a0f09cc55a6c7b7728944d9b7d1fae012e823591f0673456e6068836bcafb",
+    "bridge_player_source_sha256": "2f9fba372d3af3151b69c9c9e52848d67df16db3332501c508d21160960a0fd3",
+    "classification": "DIRECTLY_VERIFIED_BINARY_CONTENT",
+    "new_jar_sha256": "7f8ea3b34ee8cfb8e7aab3a1b407ffb6b7bfef1f7ecb0f227f3632a651104f36",
+    "old_jar_sha256": "5fe48fd25ab055fc12fce99aab807d0d045bc5912dfde626d585ff30dedba788",
+    "pinned_mage_classes_after": {
+      "class_entries": 49798,
+      "content_digest_sha256": "9a92a77cb56aa72c2655f54c7a012d963d3296d6b7f6aa0c7d9d455da6e95554"
+    },
+    "pinned_mage_classes_before": {
+      "class_entries": 49798,
+      "content_digest_sha256": "9a92a77cb56aa72c2655f54c7a012d963d3296d6b7f6aa0c7d9d455da6e95554"
+    }
+  },
+  "limits": [
+    "Both authoritative Boolean choices remain available; this is a strategy estimate, not exact payability.",
+    "Native callback association is established on the inspected current-mode resolution path; arbitrary ad hoc wrappers are not qualified.",
+    "The visible mana estimator retains its existing limitations; unsupported native cost syntax omits the hint.",
+    "Adjusted report cast counters are priority selections excluding observed cancellations, not resolution proof.",
+    "No full-pool, playing-strength or causal wall-time claim."
+  ],
+  "matched_games": [
+    {
+      "after": {
+        "adjusted_priority_cast_selections_per_1000_decisions": 18.499,
+        "archive": {
+          "file": "coverage-4p-000-1-records.jsonl.gz",
+          "records": 1892,
+          "uncompressed_sha256": "36d0bf57597286b17851df5150b1f9b2be385cdcf83eb0103a4f0aa173df8432",
+          "verified": true
+        },
+        "decisions": 1892,
+        "mana_payments_cancelled": 0,
+        "semantic": "9c04032c760b9b79f4ded889f0efbbe6afc28fa753daf63b87da35e43eb42275",
+        "spells_cast": 35,
+        "status": "ok",
+        "wall_s": 64.06,
+        "winners": [
+          2
+        ]
+      },
+      "before": {
+        "adjusted_priority_cast_selections_per_1000_decisions": 18.499,
+        "archive": {
+          "file": "coverage-4p-000-1-records.jsonl.gz",
+          "records": 1892,
+          "uncompressed_sha256": "87f859f61a628d93fdac72451f9cfe6536e5a875c4a93166c182399cd487aa38",
+          "verified": true
+        },
+        "decisions": 1892,
+        "mana_payments_cancelled": 0,
+        "semantic": "9c04032c760b9b79f4ded889f0efbbe6afc28fa753daf63b87da35e43eb42275",
+        "spells_cast": 35,
+        "status": "ok",
+        "wall_s": 170.83,
+        "winners": [
+          2
+        ]
+      },
+      "pod": "coverage-4p-000",
+      "seed": 1
+    },
+    {
+      "after": {
+        "adjusted_priority_cast_selections_per_1000_decisions": 21.133,
+        "archive": {
+          "file": "coverage-4p-001-1-records.jsonl.gz",
+          "records": 2366,
+          "uncompressed_sha256": "bc605f4a3f2f52eee4d113a3b4b7feac5c525674a047d3bc96df5ea58e38425f",
+          "verified": true
+        },
+        "decisions": 2366,
+        "mana_payments_cancelled": 2,
+        "semantic": "0a0197fed8adfd51120db31cd30304542357c94624529fa02a85614c00eb13fe",
+        "spells_cast": 50,
+        "status": "ok",
+        "wall_s": 68.07,
+        "winners": [
+          3
+        ]
+      },
+      "before": {
+        "adjusted_priority_cast_selections_per_1000_decisions": 15.437,
+        "archive": {
+          "file": "coverage-4p-001-1-records.jsonl.gz",
+          "records": 6219,
+          "uncompressed_sha256": "c60fca7557adf905818c27a308a18e5ad8e8d6331622ac7b6c62861e37bd9fd6",
+          "verified": true
+        },
+        "decisions": 6219,
+        "mana_payments_cancelled": 13,
+        "semantic": "db0a27280e646123156b3d423a0351ce1ee4b468d4f1ff25e4e9e8e9df157986",
+        "spells_cast": 96,
+        "status": "ok",
+        "wall_s": 163.62,
+        "winners": [
+          3
+        ]
+      },
+      "pod": "coverage-4p-001",
+      "seed": 1
+    }
+  ],
+  "parent_commit": "5c3286241cb57086f0fb8cd02e470688345d7007",
+  "pods": [
+    {
+      "decks": [
+        "data/decks/precons/2020_ruthless_regiment.json",
+        "data/decks/precons/2015_plunder_the_graves.json",
+        "data/decks/precons/2018_subjective_reality.json",
+        "data/decks/precons/2018_built_from_scratch.json"
+      ],
+      "name": "coverage-4p-000",
+      "padding_decks": [],
+      "size": 4
+    },
+    {
+      "decks": [
+        "data/decks/precons/2022_draconic_destruction.json",
+        "data/decks/precons/2017_feline_ferocity.json",
+        "data/decks/precons/2011_mirror_mastery.json",
+        "data/decks/precons/2020_arm_for_battle.json"
+      ],
+      "name": "coverage-4p-001",
+      "padding_decks": [],
+      "size": 4
+    }
+  ],
+  "problem_after": {
+    "cancelled_payments_by_source": {
+      "Riku of Two Reflections": 2
+    },
+    "native_hint_choices": [
+      {
+        "chosen_labels": [
+          "No"
+        ],
+        "cost": "{1}{G}{W}",
+        "count": 1,
+        "source": "Arahbo, Roar of the World"
+      },
+      {
+        "chosen_labels": [
+          "No"
+        ],
+        "cost": "{G}{U}",
+        "count": 2,
+        "source": "Riku of Two Reflections"
+      },
+      {
+        "chosen_labels": [
+          "Yes"
+        ],
+        "cost": "{G}{U}",
+        "count": 3,
+        "source": "Riku of Two Reflections"
+      },
+      {
+        "chosen_labels": [
+          "No"
+        ],
+        "cost": "{U}{R}",
+        "count": 1,
+        "source": "Riku of Two Reflections"
+      },
+      {
+        "chosen_labels": [
+          "Yes"
+        ],
+        "cost": "{U}{R}",
+        "count": 2,
+        "source": "Riku of Two Reflections"
+      }
+    ],
+    "riku_decline_witnesses": [
+      {
+        "chosen": "No",
+        "native_cost": "{G}{U}",
+        "offered_labels": [
+          "Yes",
+          "No"
+        ],
+        "prompt": "Create a token that's a copy of that creature?",
+        "record": 1431,
+        "scope": "effect_resolution",
+        "source": "Riku of Two Reflections",
+        "turn": 26
+      },
+      {
+        "chosen": "No",
+        "native_cost": "{G}{U}",
+        "offered_labels": [
+          "Yes",
+          "No"
+        ],
+        "prompt": "Create a token that's a copy of that creature?",
+        "record": 1724,
+        "scope": "effect_resolution",
+        "source": "Riku of Two Reflections",
+        "turn": 30
+      }
+    ]
+  },
+  "problem_before": {
+    "cancelled_payments_by_source": {
+      "Collective Voyage": 1,
+      "Riku of Two Reflections": 12
+    },
+    "native_hint_choices": [],
+    "riku_decline_witnesses": []
+  },
+  "runtime_files_sha256": {
+    "engine-bridge/src/main/java/org/commanderlab/xmage/XmageFullGamePlayer.java": "2f9fba372d3af3151b69c9c9e52848d67df16db3332501c508d21160960a0fd3",
+    "src/commander_lab/engine/rules/full_game_pilot/choices.py": "e82a93cfa3c69d80a3cde2a4e04dfd8c53793726227a3a661e35ce2653f5ee03"
+  },
+  "runtime_tree_digest_sha256": "8dddeb5ea01f9f7e5ff12e3a4b7b929bac7291c8572f81d055a70dcb1bcbaa7e",
+  "validation": {
+    "independent_review": "CODE_DERIVED PASS; no P1/P2",
+    "mypy_source_files": 350,
+    "native_errors": 0,
+    "native_failures": 0,
+    "native_new_tests_passed": 5,
+    "native_skipped": 1,
+    "native_verify_tests": 1161,
+    "python_broader_passed": 247,
+    "python_focused_passed": 88,
+    "suites_overlap": true
+  }
+}
