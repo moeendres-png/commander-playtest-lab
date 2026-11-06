@@ -274,6 +274,15 @@
   },
   "runtime_tree_digest_sha256": "8dddeb5ea01f9f7e5ff12e3a4b7b929bac7291c8572f81d055a70dcb1bcbaa7e",
   "validation": {
+    "fixture_followup": {
+      "first_option_and_any_ratchet_tests_passed": 5,
+      "fixture_source_sha256": "03d891093d4f05132281f9244bdf9a19880417fa9784ffb491035b3567fb8b6f",
+      "native_errors": 0,
+      "native_failures": 0,
+      "native_targeted_tests_passed": 6,
+      "scope": "Test fixture only; production runtime and measured JAR unchanged.",
+      "selection": "Unique Boolean metadata value, independent of offered order."
+    },
     "independent_review": "CODE_DERIVED PASS; no P1/P2",
     "mypy_source_files": 350,
     "native_errors": 0,

@@ -44,6 +44,18 @@ class OptionalManaCostHintTest {
     private static DoIfCostPaid effect(Cost cost) {
         return new DoIfCostPaid(null, cost, "Create a token that's a copy of that creature?");
     }
+    private static JsonObject booleanOption(JsonObject pending, boolean value) {
+        JsonObject match = null;
+        for (var entry : pending.getAsJsonArray("legal_options")) {
+            JsonObject option = entry.getAsJsonObject();
+            if (option.getAsJsonObject("metadata").get("value").getAsBoolean() == value) {
+                assertNull(match, "Boolean option must be unique");
+                match = option;
+            }
+        }
+        assertNotNull(match, "Requested Boolean value must be offered");
+        return match;
+    }
     private static List<JsonObject> capture(DoIfCostPaid effect, boolean multiple,
                                              boolean direct, boolean nested) throws Exception {
         XmageFullGameDecisionController controller = new XmageFullGameDecisionController();
@@ -83,8 +95,8 @@ class OptionalManaCostHintTest {
             response.addProperty("decision_id", prior);
             response.addProperty("actor_id", pending.get("actor_id").getAsString());
             JsonArray selected = new JsonArray();
-            selected.add(pending.getAsJsonArray("legal_options").get(nested && seen.size() == 1 ? 0 : 1)
-                    .getAsJsonObject().get("option_id").getAsString());
+            selected.add(booleanOption(pending, nested && seen.size() == 1)
+                    .get("option_id").getAsString());
             response.add("selected_option_ids", selected);
             response.add("ordering", new JsonArray());
             controller.submit(response);
@@ -105,8 +117,8 @@ class OptionalManaCostHintTest {
         JsonObject context = pending.getAsJsonObject("context");
         JsonArray options = pending.getAsJsonArray("legal_options");
         assertEquals(2, options.size());
-        assertTrue(options.get(0).getAsJsonObject().getAsJsonObject("metadata").get("value").getAsBoolean());
-        assertFalse(options.get(1).getAsJsonObject().getAsJsonObject("metadata").get("value").getAsBoolean());
+        assertNotEquals(booleanOption(pending, true).get("option_id"),
+                booleanOption(pending, false).get("option_id"));
         assertEquals("{G}{U}", context.get("optional_mana_cost").getAsString());
         assertEquals("effect_resolution", context.get("optional_mana_cost_scope").getAsString());
     }
@@ -126,5 +138,16 @@ class OptionalManaCostHintTest {
         DoIfCostPaid outer = new DoIfCostPaid(new Nested(inner), new ManaCostsImpl<>("{0}"), "Outer?");
         List<JsonObject> frames = capture(outer, false, false, true);
         noHint(frames.get(1));
+    }
+    @Test void fixtureChoosesTheSameBooleanWhenOptionsAreReordered() throws Exception {
+        JsonObject pending = capture(effect(new ManaCostsImpl<>("{G}{U}")), false, false, false).get(0);
+        JsonObject yes = booleanOption(pending, true);
+        JsonObject no = booleanOption(pending, false);
+        JsonArray reversed = new JsonArray();
+        reversed.add(no);
+        reversed.add(yes);
+        pending.add("legal_options", reversed);
+        assertEquals(yes, booleanOption(pending, true));
+        assertEquals(no, booleanOption(pending, false));
     }
 }

@@ -51,14 +51,17 @@ the visible-mana estimate retains its existing limitations.
 ## Validation and source lock
 
 The native positive regression first reached the real payment callback and
-errored on the missing hint. The final five native tests pass, including
+errored on the missing hint. The five native behavior tests pass, including
 negative controls for nesting, subclasses, multiple effects, non-mana costs,
 variable X and unrelated questions. Capture assertions require actual
 callbacks; the nested control accepts the outer zero-cost payment before
 checking the inner question.
 
 Full `mvn -f engine-bridge/pom.xml verify` succeeds: 1,161 tests, zero failures
-or errors, one existing skip. Python's isolated regression began with two
+or errors, one existing skip. A later fixture-only correction selects answers
+uniquely by Boolean value and adds a reversed-option-order control; all six
+targeted native tests and the first-option ratchet pass. Production source
+and the measured JAR are unchanged, so the full-game evidence remains applicable. Python's isolated regression began with two
 failures and eleven passing controls. The final focused run passes 88 tests;
 a broader guarded run passes 247, including the Any-usage ratchet. These
 suites overlap. Strict mypy passes over 350 source files, and Ruff lint and
