@@ -117,6 +117,27 @@ def _slots_of(effect: str) -> tuple[Pip, ...] | None:
     return None
 
 
+def native_mana_slots(option: Mapping[str, object]) -> tuple[Pip, ...] | None:
+    """Validate the engine's atomic unrestricted board-colour production hint."""
+    metadata = option.get("metadata")
+    if not isinstance(metadata, dict):
+        return None
+    hint = metadata.get("mana_production")
+    if not isinstance(hint, dict) or hint.get("scope") != "unrestricted_board_colors":
+        return None
+    amount = hint.get("amount")
+    colors = hint.get("colors")
+    if type(amount) is not int or amount != 1 or not isinstance(colors, list) or not colors:
+        return None
+    if any(
+        not isinstance(color, str) or color not in {"W", "U", "B", "R", "G"} for color in colors
+    ):
+        return None
+    if len(set(colors)) != len(colors):
+        return None
+    return (frozenset(color.casefold() for color in colors),)
+
+
 def parse_ability(option: Mapping[str, object]) -> Ability | None:
     """Read a mana ability from the engine's own text; None when any part is not understood."""
     label = str(option.get("label") or "")
@@ -141,7 +162,7 @@ def parse_ability(option: Mapping[str, object]) -> Ability | None:
                 pips.append(read[1])
         else:
             return None
-    slots = _slots_of(effect)
+    slots = native_mana_slots(option) or _slots_of(effect)
     if not consumes_source or slots is None:
         return None
     metadata = option.get("metadata")

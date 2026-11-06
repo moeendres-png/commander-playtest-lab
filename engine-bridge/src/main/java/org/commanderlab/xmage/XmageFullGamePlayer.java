@@ -5,6 +5,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.MageItem;
 import mage.MageObject;
+import mage.Mana;
 import mage.abilities.Ability;
 import mage.abilities.ActivatedAbility;
 import mage.abilities.Mode;
@@ -27,6 +28,7 @@ import mage.abilities.costs.mana.ManaCosts;
 import mage.abilities.effects.Effect;
 import mage.abilities.effects.common.DoIfCostPaid;
 import mage.abilities.mana.ManaOptions;
+import mage.abilities.mana.AnyColorPermanentTypesManaAbility;
 import mage.abilities.keyword.CastFromGraveyardAbility;
 import mage.abilities.keyword.CrewAbility;
 import mage.cards.Card;
@@ -79,6 +81,10 @@ import java.util.concurrent.ConcurrentHashMap;
  * randomness (shuffle, coin flips, dice, random modes) remains XMage-owned.</p>
  */
 final class XmageFullGamePlayer extends PlayerImpl {
+
+    private static final ThreadLocal<Boolean> MANA_PALETTE_ACTIVE = ThreadLocal.withInitial(() -> false);
+    private static final String BOARD_COLOR_EFFECT =
+            "mage.abilities.mana.AnyColorPermanentTypesManaEffect";
 
     private final XmageFullGameDecisionController decisionController;
 
@@ -3770,7 +3776,66 @@ final class XmageFullGamePlayer extends PlayerImpl {
         }
         metadata.addProperty("mana_ability", ability.isManaAbility());
         enrichAbilityCostFacts(metadata, ability, game);
+        enrichBoardColorManaProduction(metadata, ability, game);
         return metadata;
+    }
+
+    /** Exposes the native production palette, not eligibility to spend mana. */
+    private void enrichBoardColorManaProduction(JsonObject metadata, Ability ability, Game game) {
+        if (ability.getClass() != AnyColorPermanentTypesManaAbility.class
+                || game == null || game.getPhase() == null || game.inCheckPlayableState()
+                || MANA_PALETTE_ACTIVE.get() || !hasExactBoardColorEffect(ability)) {
+            return;
+        }
+        MANA_PALETTE_ACTIVE.set(true);
+        try {
+            AnyColorPermanentTypesManaAbility copy = ((AnyColorPermanentTypesManaAbility) ability).copy();
+            if (copy.getClass() != AnyColorPermanentTypesManaAbility.class || !hasExactBoardColorEffect(copy)) {
+                return;
+            }
+            List<Mana> mana = copy.getNetMana(game);
+            if (mana == null || mana.isEmpty()) {
+                return;
+            }
+            boolean[] colors = new boolean[5];
+            for (Mana item : mana) {
+                if (item == null || item.getClass() != Mana.class || item.count() != 1
+                        || item.getAny() != 0 || item.getGeneric() != 0 || item.getColorless() != 0) {
+                    return;
+                }
+                int[] amounts = {item.getWhite(), item.getBlue(), item.getBlack(), item.getRed(), item.getGreen()};
+                int selected = -1;
+                for (int i = 0; i < amounts.length; i++) {
+                    if (amounts[i] == 1) {
+                        if (selected != -1) return;
+                        selected = i;
+                    } else if (amounts[i] != 0) {
+                        return;
+                    }
+                }
+                if (selected < 0) return;
+                colors[selected] = true;
+            }
+            JsonArray palette = new JsonArray();
+            String[] symbols = {"W", "U", "B", "R", "G"};
+            for (int i = 0; i < symbols.length; i++) {
+                if (colors[i]) palette.add(symbols[i]);
+            }
+            JsonObject production = new JsonObject();
+            production.addProperty("scope", "unrestricted_board_colors");
+            production.addProperty("amount", 1);
+            production.add("colors", palette);
+            metadata.add("mana_production", production);
+        } catch (RuntimeException ignored) {
+            // An unavailable native calculation provides no advisory hint.
+        } finally {
+            MANA_PALETTE_ACTIVE.remove();
+        }
+    }
+
+    private boolean hasExactBoardColorEffect(Ability ability) {
+        return ability.getEffects().size() == 1
+                && ability.getEffects().get(0).getClass().getName().equals(BOARD_COLOR_EFFECT);
     }
 
     /**
