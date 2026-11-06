@@ -28,6 +28,7 @@ from ..full_game_pilot_payment_plan import (
     colour_letter,
     completing_options,
     completing_outcomes,
+    native_mana_slots,
 )
 from ..full_game_pilot_target_discount import (
     board_lowers_costs,
@@ -66,6 +67,18 @@ from .common import (
     x_tap_prompt_cap,
 )
 from .state import _PolicyState
+
+
+def _option_produced_letters(option: Mapping[str, object]) -> frozenset[str] | None:
+    slots = native_mana_slots(option)
+    return slots[0] if slots is not None else None
+
+
+def _option_mana_fit(option: Mapping[str, object], unpaid_mana: str) -> int:
+    return mana_payment_fit(
+        str(option.get("label", "")), unpaid_mana, _option_produced_letters(option)
+    )
+
 
 # Sources whose "pay any amount of {E}" question leads into an engine path the bridge keeps
 # closed. Casefolded names as the bridge reports them in ``source_name``.
@@ -257,8 +270,7 @@ class _PaymentDecisions(_PolicyState):
         usable = [
             option
             for option in funding
-            if not self._same_source(deferred, option)
-            and mana_payment_fit(str(option.get("label", "")), cost_text) > 0
+            if not self._same_source(deferred, option) and _option_mana_fit(option, cost_text) > 0
         ]
         ranked = sorted(usable, key=self._mana_ability_rank_key(usable, cost_text))
         if not ranked:
@@ -1205,7 +1217,7 @@ class _PaymentDecisions(_PolicyState):
             if option_type == "cancel_mana_payment":
                 floor_value = 0.1
             elif option_type == "mana_ability":
-                floor_value = 0.65 + 0.1 * mana_payment_fit(label, unpaid_mana)
+                floor_value = 0.65 + 0.1 * _option_mana_fit(option, unpaid_mana)
             else:
                 floor_value = 0.75
             actions.append(
@@ -1340,7 +1352,7 @@ class _PaymentDecisions(_PolicyState):
             return options
         payable = any(
             self._required_text(option, "option_type") == "mana_ability"
-            and mana_payment_fit(str(option.get("label", "")), unpaid_mana) > 0
+            and _option_mana_fit(option, unpaid_mana) > 0
             for option in options
         )
         if not payable:
@@ -1365,7 +1377,11 @@ class _PaymentDecisions(_PolicyState):
 
         produced_by_source: dict[str, set[str]] = {}
         for option in abilities:
-            letters = mana_produced_letters(str(option.get("label", ""))) or frozenset()
+            letters = (
+                _option_produced_letters(option)
+                or mana_produced_letters(str(option.get("label", "")))
+                or frozenset()
+            )
             produced_by_source.setdefault(source_key(option), set()).update(letters)
         supply = {
             color: sum(1 for letters in produced_by_source.values() if color in letters)
@@ -1374,13 +1390,17 @@ class _PaymentDecisions(_PolicyState):
 
         def rank(option: Mapping[str, Any]) -> tuple[int, int, int, int, int, int, str]:
             label = str(option.get("label", ""))
-            fit = mana_payment_fit(label, unpaid_mana)
-            produced = mana_produced_letters(label) or frozenset()
+            fit = _option_mana_fit(option, unpaid_mana)
+            produced = (
+                _option_produced_letters(option) or mana_produced_letters(label) or frozenset()
+            )
             paying = produced & needed
             scarcity = min((supply[color] for color in paying), default=99)
             source_colors = produced_by_source.get(source_key(option), set())
             flexibility = len(source_colors & needed)
-            restriction = mana_ability_restriction_rank(label)
+            restriction = (
+                0 if native_mana_slots(option) is not None else mana_ability_restriction_rank(label)
+            )
             total_flexibility = len(source_colors)
             ability_colors = len(produced)
             return (
