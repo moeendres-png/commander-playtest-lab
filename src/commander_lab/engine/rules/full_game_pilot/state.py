@@ -145,6 +145,8 @@ class _PolicyState:
         # never capped and clears this memory, so an ordinary may-trigger
         # cannot inherit a chain it never took part in.
         self._boolean_repeat: dict[int, tuple[tuple[str, str], int, int]] = {}
+        # Multikicker promises survive the terminating No until this cast's X.
+        self._optional_mana_commitments: dict[int, dict[str, tuple[int, int]]] = {}
         # #920: life the seat's Yes answers to the consecutive "Pay N life
         # instead of {X}?" asks of one Phyrexian payment have promised so far.
         self._phyrexian_life_promised: dict[int, int] = {}
