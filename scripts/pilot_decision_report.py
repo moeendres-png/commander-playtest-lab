@@ -1,7 +1,7 @@
 """Measure how the full-game pilots play: speed and decision quality of real XMage games.
 
 Plays real pods like ``benchmark_xmage_full_games.py`` and records every pilot decision
-(request and answer) in memory, then reduces each game to play-quality figures a
+(request and answer) in a temporary store, then reduces each game to play-quality figures a
 Commander player would look at:
 
 * length: turns, rounds (turns per player), decisions, decisions per round, wall time,
@@ -38,18 +38,20 @@ import json
 import math
 import random
 import sys
+import tempfile
 import time
 from collections import Counter, defaultdict
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import benchmark_xmage_full_games as bench  # noqa: E402
+from pilot_decision_records import DiskRecords, IndexedRecords, RecordStoreError  # noqa: E402
 
 from commander_lab.agents.card_knowledge import (  # noqa: E402
     canonical_card_name,
@@ -65,8 +67,12 @@ from commander_lab.engine.rules.full_game_pilot import (  # noqa: E402
 from commander_lab.models import CardRole  # noqa: E402
 
 
+class RecordSink(Protocol):
+    def append(self, value: dict[str, Any]) -> None: ...
+
+
 @contextmanager
-def recording(sink: list[dict[str, Any]]) -> Iterator[None]:
+def recording(sink: RecordSink) -> Iterator[None]:
     """Record every policy decision (request, answer, pilot seconds) into ``sink``."""
     original: Callable[..., dict[str, Any]] = ExternalPilotDecisionPolicy.decide
 
@@ -99,7 +105,7 @@ def _meta(option: dict[str, Any]) -> dict[str, Any]:
     return meta if isinstance(meta, dict) else {}
 
 
-def _cancelled_cast_attempts(records: list[dict[str, Any]]) -> dict[int, int]:
+def _cancelled_cast_attempts(records: Sequence[dict[str, Any]]) -> dict[int, int]:
     """Map observed payment cancellations to the originating spell-selection record.
 
     Priority resumes only after a cast's decisions finish. Track each seat separately so
@@ -251,7 +257,7 @@ def _round_of(turn: int, players: int) -> int:
 
 
 def summarize(
-    records: list[dict[str, Any]], players: int, *, by_seat: bool = True
+    records: Sequence[dict[str, Any]], players: int, *, by_seat: bool = True
 ) -> dict[str, Any]:
     """Play-quality figures of one recorded game.
 
@@ -561,17 +567,20 @@ def summarize(
         "per_card_version": 4,
     }
     if by_seat:
+        seat_indices: dict[int, list[int]] = defaultdict(list)
+        for index, record in enumerate(records):
+            seat_indices[_seat(record["request"].get("pilot_state") or {})].append(index)
         result["by_seat"] = {
             str(seat): {
                 key: value
                 for key, value in summarize(
-                    [r for r in records if _seat(r["request"].get("pilot_state") or {}) == seat],
+                    IndexedRecords(records, seat_indices[seat]),
                     players,
                     by_seat=False,
                 ).items()
                 if key in _SEAT_KEYS
             }
-            for seat in sorted({_seat(r["request"].get("pilot_state") or {}) for r in records})
+            for seat in sorted(seat_indices)
         }
     return result
 
@@ -582,21 +591,25 @@ def _play(
     scenario, decks, pilots = setup
     scenario = scenario.model_copy(update={"seed": seed})
     runner = XmageFullGameRunner(command, private_card_repository=True)
-    records: list[dict[str, Any]] = []
     started = time.monotonic()
     row: dict[str, Any] = {"pod": pod, "seed": seed, "players": len(decks)}
-    try:
-        with recording(records):
-            result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
-        row |= {
-            "status": "ok",
-            "semantic": result.semantic_transcript_sha256,
-            "winners": list(result.winner_seats),
-        }
-    except Exception as exc:  # a failed game is a result row, not a crash
-        row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
-    row["wall_s"] = round(time.monotonic() - started, 2)
-    row |= summarize(records, len(decks))
+    with tempfile.TemporaryDirectory(prefix="pilot-records-") as directory:  # noqa: SIM117
+        with DiskRecords(Path(directory) / "records.sqlite") as records:
+            try:
+                with recording(records):
+                    result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
+                row |= {
+                    "status": "ok",
+                    "semantic": result.semantic_transcript_sha256,
+                    "winners": list(result.winner_seats),
+                }
+            except RecordStoreError:
+                raise
+            except Exception as exc:  # a failed game is a result row, not a crash
+                row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
+            row["wall_s"] = round(time.monotonic() - started, 2)
+            records.commit()
+            row |= summarize(records, len(decks))
     print(json.dumps({k: row[k] for k in row if k not in {"by_class", "by_seat"}}), flush=True)
     return row
 
