@@ -285,7 +285,7 @@ def test_failure_isolation_check_reads_only_ok_games_of_a_reference(tmp_path: Pa
 def test_parse_reference_metadata_reads_commit_and_pin() -> None:
     module = _module()
     meta = module.parse_reference_metadata(module.REFERENCE_DOC)
-    assert meta == {"lab_commit": "889335c38", "xmage_pin": "2ec507b721"}
+    assert meta == {"lab_commit": "82d781ef3", "xmage_pin": "f4d12f6e80"}
 
 
 def test_parse_reference_metadata_fails_closed_without_commit_row(tmp_path: Path) -> None:
