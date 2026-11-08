@@ -91,7 +91,7 @@ The collector, reducer and dashboard are future components; the diagram does **n
 |---|---|---|---|
 | M01 | Deck inclusion | Eligible Chulane games with the card in the **same exact deck_hash**, divided by all games for that hash | Inputs available; per-game summary |
 | M02 | Seen / drawn | Distinct card-in-hand **entries** from library or kept opening seven; show source type and separate command-zone commander. Do not count bounce as new draw | Requires actor-private lifecycle |
-| M03 | Draw-to-cast | Distinct seen physical card episodes with first **accepted native spell cast reaching stack** divided by all seen eligible card episodes, with censoring | Not currently derivable from public log |
+| M03 | Draw-to-cast | For the primary draw-to-cast denominator include only **kept opening-hand or natural library-draw** entries (not bounced/tutored entries); count physical instances with first **accepted native spell cast reaching stack** before terminal, with censoring and separately labelled re-entry/tutor cohorts | Not currently derivable from public log |
 | M04 | Draw-to-battlefield | Among seen cards, how many **actually entered battlefield**, with non-cast cheated plays separately identified | Native zone link gap |
 | M05 | Hand dwell | **Median own-turn difference from hand entry to native cast**, among cast-hand intervals; same turn = 0. Report n and **separately** number still held/censored | Not currently measured end-to-end |
 | M06 | Dead draw / hand reasons | Fraction still in hand at game end, actually discarded/exiled before casting, and **castable-but-held** among native opportunities; these are distinct. Held counterspell may be correct | Requires intervals and offered choice classification |
