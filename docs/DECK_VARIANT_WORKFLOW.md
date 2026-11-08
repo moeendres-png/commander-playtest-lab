@@ -25,12 +25,16 @@ The effective catalog is `data/cards/oracle_subset.json` plus the deck overlays
 representation is a "duplicate conflicting card identity", so the importer
 counts overlay cards as known and skips them. Add the Oracle data of the
 missing cards on demand — with a deck file, one `--name` (repeatable) or
-`--names-file` (one name per line); nothing is imported in bulk. `--dry-run`
-prints what would be added and writes nothing:
+`--names-file` (one name per line); only the missing cards are added. The data
+comes from a stored Scryfall Oracle bulk file (`--bulk`, read locally, nothing is
+sent anywhere), so the names of a deck never leave the machine (`AGENTS.md` §12).
+`--online` asks Scryfall `cards/collection` instead and sends the names there: never
+use it for Owner decks or collections. `--dry-run` prints what would be added and
+writes nothing:
 
 ```bash
-python scripts/import_oracle_cards.py /tmp/my_variant.json --dry-run
-python scripts/import_oracle_cards.py --name "Mind Stone" --dry-run
+python scripts/import_oracle_cards.py --bulk /path/to/oracle-cards.jsonl.gz /tmp/my_variant.json --dry-run
+python scripts/import_oracle_cards.py --bulk /path/to/oracle-cards.jsonl.gz --name "Mind Stone" --dry-run
 ```
 
 Importing a card does not make it playable: the engine facts decide that.
