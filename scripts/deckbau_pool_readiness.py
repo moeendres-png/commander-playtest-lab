@@ -1,4 +1,4 @@
-"""Check readiness of the 177 public, registered reference decks (no collection inputs).
+"""Check 173 precons, two precon opponents, Kaervek and Chulane (no collections).
 
 python scripts/deckbau_pool_readiness.py --json
 """
@@ -17,7 +17,7 @@ OTHER_DECKS = (
     Path("data/opponents/hosts_of_mordor_precon.json"),
     Path("data/opponents/lorehold_spirit_precon.json"),
     Path("data/decks/opponents/kaervek/current/deck.json"),
-    Path("data/decks/rogshai_current.json"),
+    Path("data/decks/deckbau/chulane_current.json"),
 )
 EXPECTED_PRECONS = 173
 EXPECTED_TOTAL = 177

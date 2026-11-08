@@ -55,6 +55,51 @@ def test_an_opponent_mana_pool_is_a_violation() -> None:
     assert audit_actor_scoped_frame(frame)[2] == ["seat 1 exposes mana_pool to another principal"]
 
 
+def test_an_opponent_land_plays_remaining_is_a_violation() -> None:
+    frame = _frame(4)
+    frame["pilot_state"]["players"][1]["land_plays_remaining"] = 1
+    assert audit_actor_scoped_frame(frame)[2] == [
+        "seat 1 exposes land_plays_remaining to another principal"
+    ]
+
+
+@pytest.mark.parametrize("key", ["library", "library_cards", "revealed_hand", "scry_order"])
+def test_an_unlisted_row_key_on_an_opponent_is_a_violation(key: str) -> None:
+    frame = _frame(4)
+    frame["pilot_state"]["players"][2][key] = [{"object_id": "x", "name": SENTINEL}]
+    violations = audit_actor_scoped_frame(frame)[2]
+    assert violations == [f"seat 2 carries the unlisted row key {key} for another principal"]
+    assert SENTINEL not in " ".join(violations)
+
+
+def test_an_unlisted_row_key_with_an_odd_name_is_reported_without_the_name() -> None:
+    frame = _frame(4)
+    frame["pilot_state"]["players"][2]["Honeycard Sentinel"] = []
+    assert audit_actor_scoped_frame(frame)[2] == [
+        "seat 2 carries the unlisted row key invalid for another principal"
+    ]
+
+
+def test_every_public_row_key_of_the_redactor_passes_on_an_opponent() -> None:
+    frame = _frame(4)
+    row = frame["pilot_state"]["players"][1]
+    for key in sorted(full_game_module._PUBLIC_ROW_KEYS):
+        row.setdefault(key, [] if key in {"battlefield", "graveyard", "command", "exile"} else 0)
+    assert audit_actor_scoped_frame(frame)[2] == []
+
+
+def test_the_public_key_set_never_contains_a_private_key() -> None:
+    assert not set(full_game_module._PRIVATE_ROW_KEYS) & full_game_module._PUBLIC_ROW_KEYS
+
+
+def test_an_unlisted_key_on_an_engine_visible_row_is_not_flagged() -> None:
+    frame = _frame(4)
+    controlled = frame["pilot_state"]["players"][3]
+    controlled["private_state_visible"] = True
+    controlled["extra_controlled_view"] = []
+    assert audit_actor_scoped_frame(frame) == (3, 1, [])
+
+
 def test_an_engine_marked_visible_row_is_counted_not_flagged() -> None:
     frame = _frame(4)
     controlled = frame["pilot_state"]["players"][3]

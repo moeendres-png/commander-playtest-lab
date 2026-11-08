@@ -10,6 +10,9 @@ governing document, the governing document wins.
 | Question | Authoritative source |
 |---|---|
 | Durable rules every session must follow | [`AGENTS.md`](AGENTS.md) — including the source-truth order, rules authority, evidence semantics, Git/worktree authority, and the fact that filenames containing `CURRENT`/`FINAL`/`LATEST` prove nothing |
+| Permanent player limit | [`docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`](docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md): **maximum 6** players in new simulator sessions, default **4**, no 7+ roadmap |
+| Playgroup Live Phase-1 audit | [`docs/research/PLAYGROUP_LIVE_PHASE1_ARCHITECTURE_AUDIT_20261108.md`](docs/research/PLAYGROUP_LIVE_PHASE1_ARCHITECTURE_AUDIT_20261108.md) — public code availability, WebGL, APIs, hidden state, rules and licensing |
+| Current owner-deck work focus | [`docs/OWNER_DECK_FOCUS_CURRENT.md`](docs/OWNER_DECK_FOCUS_CURRENT.md) — Chulane only, with explicit agent priorities and remaining evidence gaps |
 | Governing mission and gates | [`docs/PROJECT_MISSION.md`](docs/PROJECT_MISSION.md) — outranks any summary, including the one on this page |
 | Current engine pins | [`config/rules_engines.json`](config/rules_engines.json) — the sole machine-readable pin authority. Do not restate pins from prose |
 | Current execution authority (who runs what, at which effort) | [`docs/CURRENT_EXECUTION_AUTHORITY.md`](docs/CURRENT_EXECUTION_AUTHORITY.md) with `AGENTS.md` §6–§7 |
@@ -201,7 +204,7 @@ git clone https://github.com/moeendres-png/mage ../xmage && git -C ../xmage chec
 Mage.Server.Plugins/Mage.Deck.Constructed,Mage.Server.Plugins/Mage.Game.CommanderFreeForAll,\
 Mage.Server.Plugins/Mage.Game.CommanderDuel)
 (cd engine-bridge && mvn -B -ntp verify)       # bridge tests + jar, as in CI
-export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -XX:+UseSerialGC -jar $PWD/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
+export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -XX:+UseSerialGC -Dh2.bindAddress=127.0.0.1 -jar $PWD/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
 ```
 
 Then compare decks on real four-player games (finished games are reused when the command
@@ -209,11 +212,11 @@ is run again with the same `--out`):
 
 ```bash
 python scripts/run_full_game_deck_comparison.py \
-  --baseline data/decks/rogshai_current.json --variant my_variant.json \
+  --baseline data/decks/deckbau/chulane_current.json --variant data/decks/deckbau/chulane_v2.json \
   --opponent data/decks/opponents/kaervek/current/deck.json \
   --opponent data/opponents/hosts_of_mordor_precon.json \
   --opponent data/opponents/lorehold_spirit_precon.json \
-  --seeds 1-5 --out artifacts/deck-comparison/try
+  --seeds 1-5 --out artifacts/deckbau/chulane-current-v2
 ```
 
 A variant that differs from the baseline by a few cards needs no deck file:

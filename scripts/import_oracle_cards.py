@@ -6,20 +6,26 @@ overlays (data/decks/*_card_catalog_overrides.json) are loaded next to it, so th
 known and are not imported again. A card is added when a deck or a comparison needs it, with its
 Oracle data from Scryfall. Nothing is imported in bulk and a card the catalog already knows (by name or alias) is never touched.
 
-    python scripts/import_oracle_cards.py deck.json                 # the deck's missing cards
-    python scripts/import_oracle_cards.py --name "Mind Stone" --name "Sol Ring"
-    python scripts/import_oracle_cards.py --names-file names.txt    # one name per line
-    python scripts/import_oracle_cards.py deck.json --dry-run       # print, write nothing
+    python scripts/import_oracle_cards.py deck.json --bulk oracle-cards-<stamp>.jsonl.gz
+    python scripts/import_oracle_cards.py --name "Mind Stone" --bulk BULK
+    python scripts/import_oracle_cards.py --names-file names.txt --bulk BULK   # one name per line
+    python scripts/import_oracle_cards.py deck.json --bulk BULK --dry-run      # print, write nothing
+
+``--bulk`` reads the Oracle data from a stored Scryfall Oracle bulk file on disk: nothing leaves
+the machine (AGENTS.md section 12: deck and card lists go to no external service). ``--online``
+asks Scryfall ``cards/collection`` instead and sends the wanted names there; use it only for names
+that are not Owner data, never for a deck or collection of the Owner.
 
 Importing a card does not make it playable: the engine facts (``xmage_card_facts.json``) and
 the fork decide that, see ``scripts/deck_readiness.py``. Names in ``--names-file`` end up in a
 committed file; do not pass a list of the Owner's collection unless the Owner asked for it.
-Exit 0 when every wanted card is in the catalog afterwards, 1 when Scryfall did not know one.
+Exit 0 when every wanted card is in the catalog afterwards, 1 when the source did not know one.
 """
 
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import re
 import sys
@@ -33,6 +39,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from commander_lab.cards.commander_flags import bulk_data_as_of  # noqa: E402
 from commander_lab.cards.normalize import oracle_lookup_key  # noqa: E402
 from commander_lab.engine.rules.project import load_rules_deck_snapshot  # noqa: E402
 
@@ -62,7 +69,12 @@ def _is_commander(card: Mapping[str, Any]) -> bool:
 
 
 def entry_from_scryfall(
-    card: Mapping[str, Any], *, retrieved_at: str, source_url: str
+    card: Mapping[str, Any],
+    *,
+    retrieved_at: str,
+    source_url: str,
+    source_type: str = "scryfall_api",
+    source_name: str = "Scryfall cards/collection (on-demand import)",
 ) -> dict[str, Any]:
     """One catalog entry from a Scryfall card object.
 
@@ -100,8 +112,8 @@ def entry_from_scryfall(
         "data_quality": "authoritative",
         "provenance": [
             {
-                "source_type": "scryfall_api",
-                "source_name": "Scryfall cards/collection (on-demand import)",
+                "source_type": source_type,
+                "source_name": source_name,
                 "source_path": source_url,
                 "retrieved_at": retrieved_at,
                 "data_as_of": retrieved_at,
@@ -194,6 +206,32 @@ def fetch_cards(names: Sequence[str]) -> tuple[dict[str, dict[str, Any]], list[s
     return found, missing
 
 
+def cards_from_bulk(
+    path: Path, names: Sequence[str]
+) -> tuple[dict[str, dict[str, Any]], list[str]]:
+    """Scryfall card objects for the names, read from a stored Oracle bulk file (one pass, no network).
+
+    A card with several faces is also found by its front name, as the online path does. The bulk
+    file holds one card per Oracle name, so a name that matches twice cannot happen; an unknown
+    name is returned in the second list.
+    """
+    wanted = {oracle_lookup_key(name): name for name in names}
+    by_front = {key.split(" // ")[0]: name for key, name in wanted.items()}
+    found: dict[str, dict[str, Any]] = {}
+    opener = gzip.open if path.suffix == ".gz" else open
+    with opener(path, "rt", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            card = json.loads(line)
+            key = oracle_lookup_key(str(card["name"]))
+            name = wanted.get(key) or by_front.get(key.split(" // ")[0])
+            if name is not None and name not in found:
+                found[name] = card
+    missing = [name for name in names if name not in found]
+    return found, missing
+
+
 def wanted_names(
     decks: Iterable[Path], names: Iterable[str], names_files: Iterable[Path]
 ) -> list[str]:
@@ -218,6 +256,18 @@ def main(argv: list[str] | None = None) -> int:
         "--names-file", type=Path, action="append", default=[], help="one name per line"
     )
     parser.add_argument("--catalog", type=Path, default=CATALOG)
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument(
+        "--bulk",
+        type=Path,
+        help="stored Scryfall Oracle bulk file (oracle-cards-<stamp>.jsonl[.gz]); read locally, "
+        "nothing is sent anywhere",
+    )
+    source.add_argument(
+        "--online",
+        action="store_true",
+        help="ask Scryfall cards/collection and send the wanted names there; never for Owner data",
+    )
     parser.add_argument(
         "--overlay",
         type=Path,
@@ -232,6 +282,11 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     if not (args.decks or args.name or args.names_file):
         parser.error("give a deck file, --name or --names-file")
+    if args.bulk is None and not args.online and not args.dry_run:
+        parser.error(
+            "give --bulk FILE (reads a stored Oracle bulk file, sends nothing) or --online "
+            "(sends the wanted names to Scryfall; not for Owner decks or collections)"
+        )
 
     catalog = json.loads(args.catalog.read_text(encoding="utf-8"))
     overlaid = overlay_keys(
@@ -245,11 +300,22 @@ def main(argv: list[str] | None = None) -> int:
         print(f"would fetch {len(todo)} card(s): {', '.join(todo)}")
         return 0
 
-    found, missing = fetch_cards(todo)
-    now = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    if args.bulk is not None:
+        found, missing = cards_from_bulk(args.bulk, todo)
+        stamp = bulk_data_as_of(args.bulk)
+        provenance: dict[str, str] = {
+            "retrieved_at": stamp,
+            "source_url": args.bulk.name,
+            "source_type": "scryfall_bulk",
+            "source_name": "Scryfall Oracle bulk file (on-demand import)",
+        }
+    else:
+        found, missing = fetch_cards(todo)
+        now = datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+        provenance = {"retrieved_at": now, "source_url": COLLECTION_URL}
     entries: dict[str, dict[str, Any]] = {}
     for card in found.values():
-        entry = entry_from_scryfall(card, retrieved_at=now, source_url=COLLECTION_URL)
+        entry = entry_from_scryfall(card, **provenance)
         entries.setdefault(entry["oracle_id"], entry)  # two asked names can be one card
     fresh = [
         e

@@ -258,13 +258,13 @@ def test_fast_options_use_the_jars_cds_archive_only_when_it_exists(tmp_path: Pat
     module = _module()
     jar = tmp_path / "bridge.jar"
     jar.write_bytes(b"")
-    assert module.fast_jvm_options(jar) == ["-XX:+UseSerialGC"]
+    assert module.fast_jvm_options(jar) == ["-XX:+UseSerialGC", "-Dh2.bindAddress=127.0.0.1"]
     (tmp_path / "bridge.jsa").write_bytes(b"")
     options = module.fast_jvm_options(jar)
     assert options[0] == "-XX:+UseSerialGC"
     assert f"-XX:SharedArchiveFile={tmp_path / 'bridge.jsa'}" in options
     # the JVM's own warnings must never reach the protocol on stdout
-    assert options[1:3] == ["-Xlog:disable", "-Xlog:all=warning:stderr"]
+    assert options[2:4] == ["-Xlog:disable", "-Xlog:all=warning:stderr"]
 
 
 def test_failure_isolation_check_reads_only_ok_games_of_a_reference(tmp_path: Path) -> None:
