@@ -2,6 +2,8 @@
 
 ## Übersicht
 
+**Aktuelles einziges Owner-Deckbauziel:** Chulane, Teller of Tales. Baseline: `data/decks/deckbau/chulane_current.json`; aktuelle Agent-Aufträge: `docs/OWNER_DECK_FOCUS_CURRENT.md`.
+
 Du kannst eine eigene Deckliste ins Projektformat überführen, von der Engine auf Importierbarkeit prüfen lassen und in Vierer-Pods gegen andere Decks spielen lassen. Nicht jedes legale Deck funktioniert: Karten, die die Engine nicht kennt, blockieren den Import, und ein erfolgreicher Import beweist nicht, dass jede Karte wie gedruckt spielt (siehe `docs/PRECON_VALIDATION.md`).
 
 ## Deck importieren
