@@ -39,7 +39,7 @@ References:
 - https://github.com/magefree/mage (README, multiplayer feature)
 - https://sourceforge.net/projects/xmage.mirror/ (published overview)
 
-**Pinned fork:** `moeendres-png/mage`, identity from `config/rules_engines.json`, currently `2ec507b721ac04834eaa4d553b494681c46d996f`. The pinned `Mage/src/main/java/mage/game/GameCommanderImpl.java` itself does not provide an explicit 6-player cap; the dedicated Lab bridge intentionally enforces one. That observation alone does **not** qualify eight-player native Commander correctness.
+**Pinned fork:** `moeendres-png/mage`, identity from `config/rules_engines.json` (the pin the measurements below were taken on was `2ec507b721`; the live pin moves with each repin, so read the file, not this sentence). The pinned `Mage/src/main/java/mage/game/GameCommanderImpl.java` itself does not provide an explicit 6-player cap; the dedicated Lab bridge intentionally enforces one. That observation alone does **not** qualify eight-player native Commander correctness.
 
 **Lab code-bound admission:**
 
