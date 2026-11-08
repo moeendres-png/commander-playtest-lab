@@ -15,9 +15,11 @@ optimization.
 - Coverage matters: simulate as many effects, abilities and therefore cards as
   possible, including cards the base XMage engine does not cover, so that real decks
   can be played as they are.
-- Four players (one own deck, three opponents) is the usual game. Other player
-  counts are supported where useful; there is no separate per-count conformance
-  mandate.
+- Four players (one own deck, three opponents) is the usual game. By explicit
+  Owner decision on 2026-11-08 the permanent supported maximum is **six players
+  per new simulator session** (see `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`).
+  Never create or plan 7+ player simulations for the product; isolated technical feasibility research on eight seats at most is allowed only as separate, explicitly assigned research that admits no operational session. Lower counts remain available only
+  where individually qualified; this does not promote 6P qualification.
 - Perfect play or perfect prediction is not assumed or claimed.
 
 ## Outcome-first architecture and research
