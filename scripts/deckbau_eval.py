@@ -40,7 +40,7 @@ PODS: dict[str, tuple[Path, Path, Path]] = {
         Path("data/decks/precons/2026_lorehold_spirit.json"),
     ),
     "optimized": (
-        Path("data/decks/rogshai_current.json"),
+        Path("data/decks/precons/2023_eldrazi_unbound.json"),
         Path("data/decks/opponents/kaervek/current/deck.json"),
         Path("data/opponents/hosts_of_mordor_precon.json"),
     ),

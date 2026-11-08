@@ -1,6 +1,8 @@
 # Cline operating notes
 
 The binding rules are in the repository-root `AGENTS.md`, which Cline loads natively.
+For owner-deck building/evaluation, read `docs/OWNER_DECK_FOCUS_CURRENT.md`: Chulane only, not RogShai. Do not read `data/collections/**`.
+
 Cline is a worker (`AGENTS.md` §6): own branch `cline/<topic>`, draft PR, never merge,
 no Owner-only decisions, no edits to sealed evidence under `qualification/`.
 

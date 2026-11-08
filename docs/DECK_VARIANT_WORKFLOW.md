@@ -3,7 +3,7 @@
 Project rule: the structural tools are a **filter** (cheap screening that rejects
 bad ideas fast); real XMage full games are the **evidence** (they rank variants).
 The verdict of `scripts/deck_variant_prefilter.py` says so itself: it is a filter,
-not a ranking.
+not a ranking. Current owner-deck scope: `docs/OWNER_DECK_FOCUS_CURRENT.md` (Chulane only).
 
 ## Step 1 — Readiness: can the simulator play every card?
 
@@ -11,7 +11,7 @@ Answers: does the variant contain cards the simulator does not know yet?
 Does **not** answer: whether the variant is any good.
 
 ```bash
-python scripts/deck_readiness.py --deck data/decks/rogshai_current.json --deck /tmp/my_variant.json
+python scripts/deck_readiness.py --deck data/decks/deckbau/chulane_current.json --deck /tmp/my_variant.json
 ```
 
 Exit 0 means every deck is ready; exit 1 lists unknown cards. Fix those first
@@ -42,7 +42,7 @@ what a full comparison would cost. Does **not** answer: which variant wins games
 
 ```bash
 python scripts/deck_variant_prefilter.py \
-    --baseline data/decks/rogshai_current.json \
+    --baseline data/decks/deckbau/chulane_current.json \
     --variant /tmp/my_variant.json \
     --trials 20000 --seeds 1-25 --players 4
 ```
@@ -75,12 +75,12 @@ make the real figure smaller, and the run prints its own figure at the end.
 ```bash
 export COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD="java -XX:+UseSerialGC -jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar full-game"
 python scripts/run_full_game_deck_comparison.py \
-    --baseline data/decks/rogshai_current.json \
+    --baseline data/decks/deckbau/chulane_current.json \
     --variant /tmp/my_variant.json \
     --opponent data/decks/opponents/kaervek/current/deck.json \
     --opponent data/opponents/hosts_of_mordor_precon.json \
     --opponent data/opponents/lorehold_spirit_precon.json \
-    --seeds 1-25 --out artifacts/deck-comparison/rogshai-vs-variant \
+    --seeds 1-25 --out artifacts/deck-comparison/chulane-vs-variant \
     --plan-only
 ```
 
@@ -90,12 +90,12 @@ Answers: which deck is better, on paired real games. This is the evidence step.
 
 ```bash
 python scripts/run_full_game_deck_comparison.py \
-    --baseline data/decks/rogshai_current.json \
+    --baseline data/decks/deckbau/chulane_current.json \
     --variant /tmp/my_variant.json \
     --opponent data/decks/opponents/kaervek/current/deck.json \
     --opponent data/opponents/hosts_of_mordor_precon.json \
     --opponent data/opponents/lorehold_spirit_precon.json \
-    --seeds 1-25 --out artifacts/deck-comparison/rogshai-vs-variant \
+    --seeds 1-25 --out artifacts/deck-comparison/chulane-vs-variant \
     --require-ready --stop-when-decided --look-every 5
 ```
 

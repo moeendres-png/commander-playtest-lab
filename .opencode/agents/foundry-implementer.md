@@ -18,6 +18,7 @@ Coordinator decisions. Carry the campaign to that decision point, but never clai
 name the production provider yourself.
 
 `AGENTS.md` is already privileged repository instruction. Do not restate it or replace it.
+For deckbuilding/evaluation assignments, apply `docs/OWNER_DECK_FOCUS_CURRENT.md`: Chulane is the sole active owner-deck focus; legacy RogShai inputs are regression-only. Never inspect `data/collections/**` for this assignment.
 
 For substantial work, use the active Workstream Contract and the workstream's
 explicit dedicated state file (the exact `--state` path, `FOUNDRY_STATE_PATH`)
