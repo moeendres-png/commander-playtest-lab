@@ -10,6 +10,7 @@ governing document, the governing document wins.
 | Question | Authoritative source |
 |---|---|
 | Durable rules every session must follow | [`AGENTS.md`](AGENTS.md) — including the source-truth order, rules authority, evidence semantics, Git/worktree authority, and the fact that filenames containing `CURRENT`/`FINAL`/`LATEST` prove nothing |
+| Current owner-deck work focus | [`docs/OWNER_DECK_FOCUS_CURRENT.md`](docs/OWNER_DECK_FOCUS_CURRENT.md) — Chulane only, with explicit agent priorities and remaining evidence gaps |
 | Governing mission and gates | [`docs/PROJECT_MISSION.md`](docs/PROJECT_MISSION.md) — outranks any summary, including the one on this page |
 | Current engine pins | [`config/rules_engines.json`](config/rules_engines.json) — the sole machine-readable pin authority. Do not restate pins from prose |
 | Current execution authority (who runs what, at which effort) | [`docs/CURRENT_EXECUTION_AUTHORITY.md`](docs/CURRENT_EXECUTION_AUTHORITY.md) with `AGENTS.md` §6–§7 |
@@ -209,11 +210,11 @@ is run again with the same `--out`):
 
 ```bash
 python scripts/run_full_game_deck_comparison.py \
-  --baseline data/decks/rogshai_current.json --variant my_variant.json \
+  --baseline data/decks/deckbau/chulane_current.json --variant data/decks/deckbau/chulane_v2.json \
   --opponent data/decks/opponents/kaervek/current/deck.json \
   --opponent data/opponents/hosts_of_mordor_precon.json \
   --opponent data/opponents/lorehold_spirit_precon.json \
-  --seeds 1-5 --out artifacts/deck-comparison/try
+  --seeds 1-5 --out artifacts/deckbau/chulane-current-v2
 ```
 
 A variant that differs from the baseline by a few cards needs no deck file:
