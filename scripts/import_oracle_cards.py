@@ -40,7 +40,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from commander_lab.cards.commander_flags import bulk_data_as_of  # noqa: E402
-
 from commander_lab.cards.normalize import oracle_lookup_key  # noqa: E402
 from commander_lab.engine.rules.project import load_rules_deck_snapshot  # noqa: E402
 
