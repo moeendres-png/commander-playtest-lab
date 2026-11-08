@@ -199,7 +199,8 @@ def fast_jvm_options(jar: Path) -> list[str]:
     also maps its classes instead of loading them; JVM logging then goes to stderr, because the
     JVM's own warning (a stale archive) would otherwise reach the protocol on stdout.
     """
-    options = ["-XX:+UseSerialGC"]
+    # H2 AUTO_SERVER listens on every interface by default; the bridge needs the loopback only.
+    options = ["-XX:+UseSerialGC", "-Dh2.bindAddress=127.0.0.1"]
     archive = jar.resolve().with_suffix(".jsa")
     if archive.is_file():
         options += ["-Xlog:disable", "-Xlog:all=warning:stderr", f"-XX:SharedArchiveFile={archive}"]

@@ -577,10 +577,13 @@ def build_launch_plan(
         # games run side by side; the parallel collector's extra threads cost CPU there and
         # the heap stays small. Measured on the real pod (12 of 12 identical semantic hashes):
         # -12 percent wall time, -20 percent CPU. GC choice does not enter the game.
+        # H2 bind address (2026-10-31): the card database opens with AUTO_SERVER=TRUE, which
+        # listens on every network interface; the bridge needs it on the loopback only.
         argv = (
             "java",
             "-XX:+UseSerialGC",
             "-Djava.awt.headless=true",
+            "-Dh2.bindAddress=127.0.0.1",
             f"-Dcommanderlab.repoRoot={workspace.parent}",
             "-cp",
             f"{workspace / 'target' / 'classes'}:{classpath}",

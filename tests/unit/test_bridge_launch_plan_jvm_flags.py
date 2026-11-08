@@ -30,3 +30,13 @@ def test_the_collector_is_the_only_jvm_flag_added(tmp_path: Path) -> None:
     flags = [part for part in plan.argv[1 : plan.argv.index("-cp")] if part.startswith("-")]
     assert flags[0] == "-XX:+UseSerialGC"
     assert [flag for flag in flags if flag.startswith("-XX")] == ["-XX:+UseSerialGC"]
+
+
+def test_every_xmage_lane_binds_the_card_database_server_to_the_loopback(tmp_path: Path) -> None:
+    # The fork opens the card database with AUTO_SERVER=TRUE, which listens on every interface
+    # unless h2.bindAddress is set (docs/JAVA_DEPENDENCIES_2026-10-31.md, section 3).
+    for lane in (None, "full-game", "midgame", "compat"):
+        plan = build_launch_plan("xmage", lane=lane, xmage_workspace=_workspace(tmp_path))
+        argv = list(plan.argv)
+        assert "-Dh2.bindAddress=127.0.0.1" in argv, lane
+        assert argv.index("-Dh2.bindAddress=127.0.0.1") < argv.index("-cp"), lane
