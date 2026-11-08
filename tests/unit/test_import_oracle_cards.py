@@ -1,12 +1,15 @@
 """scripts/import_oracle_cards.py adds named cards to the oracle catalog on demand (#877).
 
-No network: Scryfall answers are hand-made card objects and ``fetch_cards`` is replaced.
+No network: Scryfall answers are hand-made card objects and ``fetch_cards`` is replaced; the bulk
+mode reads a hand-made bulk file and every socket is closed for the whole module.
 """
 
 from __future__ import annotations
 
+import gzip
 import importlib.util
 import json
+import socket
 from pathlib import Path
 from typing import Any
 
@@ -214,7 +217,9 @@ def test_main_adds_only_the_missing_cards_and_changes_nothing_else(
         return {"Mind Stone": MIND_STONE}, []
 
     monkeypatch.setattr(imp, "fetch_cards", fake_fetch)
-    code = imp.main(["--catalog", str(path), "--name", "Mind Stone", "--name", "Sol Ring"])
+    code = imp.main(
+        ["--online", "--catalog", str(path), "--name", "Mind Stone", "--name", "Sol Ring"]
+    )
     assert code == 0
     assert asked == [["Mind Stone"]]
     after = json.loads(path.read_text(encoding="utf-8"))
@@ -229,14 +234,14 @@ def test_a_second_run_finds_nothing_to_do(tmp_path: Path, monkeypatch: pytest.Mo
     path = tmp_path / "oracle_subset.json"
     _write_catalog(path, ["Sol Ring"])
     monkeypatch.setattr(imp, "fetch_cards", lambda names: ({n: MIND_STONE for n in names}, []))
-    assert imp.main(["--catalog", str(path), "--name", "Mind Stone"]) == 0
+    assert imp.main(["--online", "--catalog", str(path), "--name", "Mind Stone"]) == 0
     first = path.read_text(encoding="utf-8")
 
     def refuse(names: list[str]) -> Any:
         raise AssertionError("nothing should be fetched")
 
     monkeypatch.setattr(imp, "fetch_cards", refuse)
-    assert imp.main(["--catalog", str(path), "--name", "Mind Stone"]) == 0
+    assert imp.main(["--online", "--catalog", str(path), "--name", "Mind Stone"]) == 0
     assert path.read_text(encoding="utf-8") == first
 
 
@@ -262,7 +267,9 @@ def test_a_card_scryfall_does_not_know_is_reported_and_exits_one(
     monkeypatch.setattr(
         imp, "fetch_cards", lambda names: ({"Mind Stone": MIND_STONE}, ["Nonexistent Card"])
     )
-    code = imp.main(["--catalog", str(path), "--name", "Mind Stone", "--name", "Nonexistent Card"])
+    code = imp.main(
+        ["--online", "--catalog", str(path), "--name", "Mind Stone", "--name", "Nonexistent Card"]
+    )
     assert code == 1
     assert "Mind Stone" in path.read_text(encoding="utf-8")  # the known card is still added
     assert "Nonexistent Card" in capsys.readouterr().err
@@ -282,7 +289,7 @@ def test_names_file_and_deck_files_are_read(
         return {"Mind Stone": MIND_STONE, "Forest": FOREST}, []
 
     monkeypatch.setattr(imp, "fetch_cards", fake_fetch)
-    assert imp.main(["--catalog", str(path), "--names-file", str(names_file)]) == 0
+    assert imp.main(["--online", "--catalog", str(path), "--names-file", str(names_file)]) == 0
     assert asked == [["Mind Stone", "Forest"]]
     deck = imp.wanted_names([ROOT / "data/decks/rogshai_current.json"], [], [])
     assert "Ishai, Ojutai Dragonspeaker" in deck and "Rograkh, Son of Rohgahh" in deck
@@ -291,6 +298,93 @@ def test_names_file_and_deck_files_are_read(
 def test_main_needs_something_to_import(tmp_path: Path) -> None:
     with pytest.raises(SystemExit) as stopped:
         imp.main(["--catalog", str(tmp_path / "x.json")])
+    assert stopped.value.code == 2
+
+
+@pytest.fixture(autouse=True)
+def no_network(monkeypatch: pytest.MonkeyPatch) -> None:
+    def refuse(*args: object, **kwargs: object) -> None:
+        raise AssertionError("no network in these tests")
+
+    monkeypatch.setattr(socket, "socket", refuse)
+    monkeypatch.setattr(socket, "create_connection", refuse)
+
+
+def _bulk(tmp_path: Path, cards: list[dict[str, Any]]) -> Path:
+    path = tmp_path / "oracle-cards-20261101120000.jsonl.gz"
+    with gzip.open(path, "wt", encoding="utf-8") as handle:
+        for card in cards:
+            handle.write(json.dumps(card) + "\n")
+    return path
+
+
+def test_bulk_mode_reads_the_local_file_and_records_where_the_data_came_from(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = tmp_path / "oracle_subset.json"
+    _write_catalog(path, ["Sol Ring"])
+    bulk = _bulk(tmp_path, [MIND_STONE, FOREST, {**MIND_STONE, "name": "Other", "oracle_id": "x"}])
+    monkeypatch.setattr(
+        imp, "fetch_cards", lambda names: (_ for _ in ()).throw(AssertionError("no fetch"))
+    )
+    code = imp.main(
+        ["--bulk", str(bulk), "--catalog", str(path), "--name", "Mind Stone", "--name", "Sol Ring"]
+    )
+    assert code == 0
+    added = [c for c in json.loads(path.read_text())["cards"] if c["oracle_name"] == "Mind Stone"]
+    assert len(added) == 1
+    provenance = added[0]["provenance"][0]
+    assert provenance["source_type"] == "scryfall_bulk"
+    assert provenance["source_path"] == bulk.name
+    assert provenance["retrieved_at"] == "2026-11-01T12:00:00Z"
+    assert "added 1 card(s): Mind Stone" in capsys.readouterr().out
+    CardCatalog.from_json(path)
+
+
+def test_bulk_mode_finds_a_card_by_its_front_name_and_reports_an_unknown_one(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    path = tmp_path / "oracle_subset.json"
+    _write_catalog(path, ["Sol Ring"])
+    fire_ice = {
+        **MIND_STONE,
+        "name": "Fire // Ice",
+        "oracle_id": "00000000-0000-0000-0000-000000000009",
+    }
+    bulk = _bulk(tmp_path, [fire_ice])
+    code = imp.main(
+        [
+            "--bulk",
+            str(bulk),
+            "--catalog",
+            str(path),
+            "--name",
+            "Fire",
+            "--name",
+            "Nonexistent Card",
+        ]
+    )
+    assert code == 1
+    assert "Fire // Ice" in path.read_text(encoding="utf-8")
+    assert "Nonexistent Card" in capsys.readouterr().err
+
+
+def test_without_bulk_or_online_nothing_is_fetched_and_the_run_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = tmp_path / "oracle_subset.json"
+    _write_catalog(path, ["Sol Ring"])
+    monkeypatch.setattr(
+        imp, "fetch_cards", lambda names: (_ for _ in ()).throw(AssertionError("no fetch"))
+    )
+    with pytest.raises(SystemExit) as stopped:
+        imp.main(["--catalog", str(path), "--name", "Mind Stone"])
+    assert stopped.value.code == 2
+
+
+def test_bulk_and_online_exclude_each_other(tmp_path: Path) -> None:
+    with pytest.raises(SystemExit) as stopped:
+        imp.main(["--bulk", str(tmp_path / "b.jsonl"), "--online", "--name", "Mind Stone"])
     assert stopped.value.code == 2
 
 
@@ -314,8 +408,11 @@ def test_cards_of_a_deck_overlay_are_known_and_not_imported(
         imp, "fetch_cards", lambda names: (_ for _ in ()).throw(AssertionError("no fetch"))
     )
     code = imp.main(
-        ["--catalog", str(catalog_path), "--overlay", str(overlay), "--name", "Mind Stone"]
-    )
+        [
+            "--online", "--catalog", str(catalog_path), "--overlay", str(overlay),
+            "--name", "Mind Stone",
+        ]
+    )  # fmt: skip
     assert code == 0
     assert "already in the catalog or its deck overlay" in capsys.readouterr().out
     assert [c["oracle_name"] for c in json.loads(catalog_path.read_text())["cards"]] == ["Sol Ring"]
@@ -332,7 +429,7 @@ def test_an_overlay_card_is_skipped_even_when_scryfall_returns_it(
     )
     imp.main(
         [
-            "--catalog", str(catalog_path), "--overlay", str(overlay),
+            "--online", "--catalog", str(catalog_path), "--overlay", str(overlay),
             "--name", "Mind Stone", "--name", "Forest",
         ]
     )  # fmt: skip
