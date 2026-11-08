@@ -41,9 +41,7 @@ V13_TREE = "9d6c810ab1266598fc436298f7caa49668c4b2bc"
 FREEZE_PIN = "b479fe74fd1eaf899ff16c6a9203e74a91c0f339"
 WSR22_PIN = "b19596980f2734496ea1896504253e1bdd2756dd"
 ENGINE_VERSION = "1.4.62"
-SUCCESSOR_LOCK = (
-    "qualification/xmage-upstream-fixes-repin-v15-20261108/SUCCESSOR_SOURCE_LOCK.json"
-)
+SUCCESSOR_LOCK = "qualification/xmage-upstream-fixes-repin-v15-20261108/SUCCESSOR_SOURCE_LOCK.json"
 PRIOR_LOCKS = (
     "qualification/xmage-determinism-line-repin-v10-20261020/SUCCESSOR_SOURCE_LOCK.json",
     "qualification/xmage-lazy-triggers-repin-v11-20261021/SUCCESSOR_SOURCE_LOCK.json",
