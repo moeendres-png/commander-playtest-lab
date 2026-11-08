@@ -18,8 +18,11 @@ which restricted operations to a single pod size):
 - **Conformance-workflow evidence is 4P until S5.** The external full-game
   conformance script/workflow still runs seeded 4P games; 2–5P CI expansion is
   deferred to successor S5. This does not narrow lane capability.
-- **6 players is an optional stretch**, currently not supported unless later
-  qualification changes it.
+- **New Owner decision (2026-11-08): a permanent maximum of 6 players** in every new
+  operational simulator session, 4P still the default. There is **no 7+/8P stretch
+  goal**. This hard product maximum is independent of qualification: a lane that is
+  qualified only for 2–5P does not gain 6P evidence by policy declaration. See
+  `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`. Historical artifacts are unchanged.
 - Generic low-level StructuralSimulator capability may remain for isolated
   technical engine-correctness tests; it is not an operational decision path.
 - Historical 3P/5P references or artifacts are provenance only, not current
