@@ -4,7 +4,7 @@ Source: `moeendres-png/commander-playtest-lab`. Rules authority: **pinned XMage*
 
 ## 1. Candidate storage and format
 
-Put new candidates in **`data/decks/deckbau/`**, e.g. `data/decks/deckbau/chulane_v1.json`. Do not edit `data/decks/manifest.json`, existing precons, opponents, Kaervek, or RogShai for this interface.
+**Current Chulane baseline:** `data/decks/deckbau/chulane_current.json` (100 cards mirrored from `data/decks/chulane_current.txt`). Put candidate variants in **`data/decks/deckbau/`**, e.g. `data/decks/deckbau/chulane_v1.json`. Do not alter `data/decks/manifest.json` or historic opponent/reference fixtures merely to change current deckbuilding focus. Follow `docs/OWNER_DECK_FOCUS_CURRENT.md`.
 
 The simulator's `RulesDeckInput` **Python model** (not the on-disk JSON format) has fields `deck_id`, `name`, `commander_names`, `mainboard`, optional `sideboard`, `card_printings`, `deck_hash`, `source_path`. `mainboard` contains **98 cards for two commanders** or **99 cards for one commander**, as repeated card names. The validator requires **exactly 100 cards including commander(s)**.
 
@@ -44,7 +44,7 @@ Convert (from repository root):
 python scripts/import_deck.py --name "Chulane Candidate v1" --commander "Chulane, Teller of Tales" --input data/decks/deckbau/chulane_v1.txt --output data/decks/deckbau/chulane_v1.json --format text
 ```
 
-Two commanders: `--commander "Ishai, Ojutai Dragonspeaker; Rograkh, Son of Rohgahh"`. `import_deck.py` only warns about incorrect counts; the checks below reject invalid 100-card counts. Import is **not** proof of Commander color identity, singleton legality, successful XMage import, or runtime behavior.
+Two-commander generic syntax: `--commander "Commander A; Commander B"`; Chulane has one commander. `import_deck.py` only warns about incorrect counts; the checks below reject invalid 100-card counts. Import is **not** proof of Commander color identity, singleton legality, successful XMage import, or runtime behavior.
 
 ### Printed names: split, Adventure, Prepare, double-faced
 
@@ -60,7 +60,7 @@ python -m commander_lab.deck_readiness data/decks/deckbau/chulane_v1.json --json
 
 Exit 0 = `READY`; exit 1 = one or more `NO_CARD_FACTS`, `KNOWN_MISSING_IN_XMAGE` or `NO_PILOT_KNOWLEDGE`; exit 2 = import/file failure.
 
-For the **full 177-deck registered pool** (173 precons, two opponent precons, Kaervek, RogShai), run `python scripts/deckbau_pool_readiness.py --json`. Exit 0 requires 177/177 READY and zero NO_CARD_FACTS. This reads only registered public deck snapshots and card-facts data. Results list unknown card names and counts. The existing equivalent is `python scripts/deck_readiness.py --deck <path> --json`.
+For the **full 177-deck registered pool** (173 precons, two opponent precons, Kaervek, Chulane), run `python scripts/deckbau_pool_readiness.py --json`. Exit 0 requires 177/177 READY and zero NO_CARD_FACTS. This reads only registered public deck snapshots and card-facts data. Results list unknown card names and counts. The existing equivalent is `python scripts/deck_readiness.py --deck <path> --json`.
 
 For commander mana-source/castability facts (seeded structural Monte Carlo, **not** an XMage rules adjudication):
 
@@ -95,7 +95,7 @@ All pods have the candidate in **seat 1**; opponents' source JSONs are fixed. Th
 |---|---|---|
 | `precon` | Precon-level | Lorehold Spirit (2026), Animated Army (2024), Token Triumph (2022) |
 | `mixed` | Mixed | Kaervek, Animated Army, Lorehold Spirit |
-| `optimized` | Higher-powered reference | RogShai, Kaervek, The Hosts of Mordor |
+| `optimized` | Challenging mixed reference (power unverified) | Kaervek, The Hosts of Mordor, Eldrazi Unbound |
 
 **Exactly one full game** for a first technical candidate check:
 
