@@ -47,7 +47,7 @@ The **Chulane card page** primarily measures Chulane included in the 99 of other
 | engine-bridge/.../XmageFullGameStateRedactor.java | actorView/private hand where native authorization permits; publicView hides hands | Requires local actor-only lifecycle instrumentation and persistent per-event entitlement |
 | docs/performance/PILOT_RANK_SENSITIVITY_PROTOCOL.md; scripts/rank_sensitivity.py | 4P seed-blocked four-seat rotations, ranking sensitivity and precision | Apply to Chulane after current baseline is integrated; no new measured run |
 
-**Key distinction:** current per_card_version=3 first_cast_round is the seat's **own turn count**, while commander_first_cast_turn is the global turn. Never mix them; extra turns and eliminated players require an actual observed clock. Split/adventure card canonicalization and return-to-hand recasts require explicit card identity discipline.
+**Key distinction:** `first_cast_round` (per_card_version 3, kept in the current version 4 that also excludes cancelled cast attempts from the cast counters; `scripts/pilot_decision_report.py`) is the seat's **own turn count**, while commander_first_cast_turn is the global turn. Never mix them; extra turns and eliminated players require an actual observed clock. Split/adventure card canonicalization and return-to-hand recasts require explicit card identity discipline.
 
 ## 4. Measurement architecture (PROPOSED, not implemented)
 
