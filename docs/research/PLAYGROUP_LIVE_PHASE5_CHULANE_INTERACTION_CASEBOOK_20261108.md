@@ -54,7 +54,7 @@
 - **G0 DATA/TRUTH:** every evaluation uses allowed public fixtures or owner-approved but never exported local deck snapshots; no `data/collections/**`.
 - **G1 RULES:** native XMage allowed options, no phantom spell/target, fail-closed on unknown class/decider/stale ID; 4P default, 6P maximum.
 - **G2 OBSERVABILITY:** per-seat available→selected→paid→stack→resolved chain separately captured; avoid treating 30 repeated priority pings as 30 independent human responses.
-- **G3 STRATEGY:** at least 4/6/8/10 of the deterministic cases (or formal adjudicated variants) change for a stated strategic reason; no hard-coded claim that the proposed strategy will win more. **No numeric threshold for promotion is pre-authorized by this design-only document.**
+- **G3 STRATEGY:** report the adjudicated acceptable-option rate for **every** prespecified scenario and list every changed decision with a concrete strategic reason. No made-up numeric success threshold, no assumption that a different choice necessarily wins more.
 - **G4 REPRODUCIBILITY:** fixed seed/pod rotations, frozen pilot/deck source, identical engine bridge, monotonic decisions and privacy; compare candidate vs baseline on matched blocks.
 - **G5 STRENGTH:** actual full games to terminal, with failures shown, seat-rotated win shares/CI and ranking sensitivity; *no* success claim from one smoke, one selected seed, or a structural model.
 - **G6 PERFORMANCE:** measure per-decision overhead, heap/RSS, game throughput, timeouts, loops especially 6P.
