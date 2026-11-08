@@ -5,6 +5,7 @@
 ## Binding product scope
 
 - **Maximum 6 seats in every newly designed Commander simulation and play surface.** Never offer, plan, implement, benchmark, admit, or advertise an operational 7+ player session. There is no future 8-player stretch goal.
+- **Isolated research is not a product feature.** On explicit assignment the Owner allows isolated, non-operational technical feasibility research on eight seats at most (own harness, no admission endpoint, no default, no UI promise, and no result counted as 4P or 6P evidence). It changes nothing in this cap (Owner update 2026-11-08).
 - **Default remains 4 seats:** one Owner deck (currently Chulane) and three opponents. Other supported modes may use 2, 3, 5 or 6 seats after relevant lane-specific runtime qualification.
 - Keep all server-side validators, job planners, candidate schemas, pilots, comparison protocols and browser UI fail-closed at **2–6 players**. A solo goldfish may have one human seat as a *separate practice mode*, not a multiplayer simulation. A six-player session must not be claimed qualified merely because the upper-bound validation allows it.
 - The motivation is consciously bounded **JVM/CPU time, memory growth, game duration and table readability**, not a claim that Magic rules prohibit 7+ players.

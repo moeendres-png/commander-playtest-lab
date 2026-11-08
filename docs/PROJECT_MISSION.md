@@ -18,7 +18,7 @@ optimization.
 - Four players (one own deck, three opponents) is the usual game. By explicit
   Owner decision on 2026-11-08 the permanent supported maximum is **six players
   per new simulator session** (see `docs/OWNER_DECISION_SIX_PLAYER_MAX_20261108.md`).
-  Never create or plan 7+ player simulations. Lower counts remain available only
+  Never create or plan 7+ player simulations for the product; isolated technical feasibility research on eight seats at most is allowed only as separate, explicitly assigned research that admits no operational session. Lower counts remain available only
   where individually qualified; this does not promote 6P qualification.
 - Perfect play or perfect prediction is not assumed or claimed.
 

@@ -159,7 +159,7 @@ flowchart LR
 ## 8. Konkrete Abnahmekriterien für Folgephasen
 
 1. **Phase 2 Regel-Matrix:** Zu jeder kritischen Mechanik eine Kategorie `XMAGE_ENGINE`, `UI_PRESENTATION`, `MANUAL_ONLY_AT_PLAYGROUP`, `UNVERIFIED`. Keine Funktionswerbung als getestete Regeltauglichkeit.
-2. **Phase 3 Spielerlimit:** Keine 7+/8P-Aufträge mehr. Fokussiere Benchmark-/Capacity-Gates auf 4P und optional 6P; prüfe JVM-RSS, Peak Heap, GC-Zeit, Entscheidungen pro Spiel, Zeit bis Terminal, Status `ok`, Kartenanzahl, UI-FPS, GPU-RAM und State-Fanout. Keine PASS ohne exakte Messungen.
+2. **Phase 3 Spielerlimit:** Keine 7+/8P-Produktaufträge mehr; isolierte 8P-Machbarkeitsforschung nur auf ausdrückliche Anweisung und getrennt vom Produkt (siehe Entscheidungsdokument). Fokussiere Benchmark-/Capacity-Gates auf 4P und optional 6P; prüfe JVM-RSS, Peak Heap, GC-Zeit, Entscheidungen pro Spiel, Zeit bis Terminal, Status `ok`, Kartenanzahl, UI-FPS, GPU-RAM und State-Fanout. Keine PASS ohne exakte Messungen.
 3. **Browserprüfung:** Falls später Work-/Cloud-Browser verfügbar: öffentliche, datensparsame Solo-Demo, Browserkonsole und Netzwerkanalyse, keine Login-Pflicht umgehen. Herkunft jedes Render-/Clientbibliothek-Befundes nachtragen.
 4. **Datenschutz:** Getrennte actor-scoped, spectator, end-of-game-replay views; manuelle Negative Tests gegen Leakage; keine Inhalte unter `data/collections/**` inspizieren.
 5. **Chulane:** Große Creature-/Token-/Clue-Boards und 2–6-Sitzplätze gestalten. Eigene 4P-Full-Game-Pilot- und Chulane-Readiness-Nachweise weiter getrennt prüfen.
