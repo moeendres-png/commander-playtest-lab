@@ -1,0 +1,110 @@
+{
+ "schema_version": "commander-lab.af11-coordinator-adjudication/1.0.0",
+ "gate": "AF11",
+ "gate_name": "INTEROP_LICENSE_TOPOLOGY",
+ "gate_contract": "Actual integration topology satisfies WS-09: the selected provider runs as a genuine separate process, and no other rules engine is part of the integration (Forge removed by Owner decision 2026-10-13).",
+ "ws09_semantics": "G12 INTEROP_LICENSE (qualification/obligations/FULL_RULES_REQUIREMENTS_CONTRACT_v1.json): technical interoperability and licensing compatibility for the actual integration/distribution model; Forge must remain across a genuine separate-process/service boundary.",
+ "adjudicated_by": "Coordinator (AGENTS.md section 8, Owner delegation)",
+ "adjudicated_on": "2026-11-08",
+ "selected_provider": "xmage",
+ "owner_selection": {
+  "record": "docs/engine_strategy_20261009/ENGINE_STRATEGY_ADR.md",
+  "owner_statement": "#255 comment 6080484727",
+  "effective_epoch": "qualification/current-boundary-epochs/e1352f1d2c23-1d2de8f805a8",
+  "effective_condition": "sealed main epoch on the new pin on which every XMage gate except AF11 is PASS (PB-03 run 42508483426 on main e1352f1d2c23: FULL107 107/107, AF00-AF10 PASS, AF11 UNKNOWN; sealed by the PR that carries this record)",
+  "effective_epoch_named_by": "Coordinator, 2026-11-08. The Owner's condition in #255 is unchanged; this record only names the sealed epoch that satisfies it on the new pin."
+ },
+ "integration_topology": {
+  "provider_process": "external JVM running the XMage bridge (engine-bridge JsonlBridge), driven over stdin/stdout JSONL",
+  "adapter": "engine-bridge/src/main/java/org/commanderlab/xmage",
+  "launch_main_class": "org.commanderlab.xmage.Main",
+  "engine_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "adapter_serves": [
+   "xmage"
+  ],
+  "lab_process_embeds_engine": false,
+  "provider_classpath_manifest": "engine-bridge/target/cp-wsr22.txt"
+ },
+ "licence_topology": {
+  "lab": "LicenseRef-Proprietary",
+  "provider": "MIT",
+  "provider_classpath": {
+   "apiguardian-api-1.1.2.jar": "Apache-2.0",
+   "error_prone_annotations-2.50.0.jar": "Apache-2.0",
+   "failureaccess-1.0.3.jar": "Apache-2.0",
+   "gson-2.15.0.jar": "Apache-2.0",
+   "guava-33.7.2-jre.jar": "Apache-2.0",
+   "h2-1.4.197.jar": "MPL-2.0 OR EPL-1.0",
+   "j2objc-annotations-3.1.jar": "Apache-2.0",
+   "jsoup-1.23.2.jar": "MIT",
+   "jspecify-1.0.1.jar": "Apache-2.0",
+   "junit-jupiter-6.1.3.jar": "EPL-2.0",
+   "junit-jupiter-api-6.1.3.jar": "EPL-2.0",
+   "junit-jupiter-engine-6.1.3.jar": "EPL-2.0",
+   "junit-jupiter-params-6.1.3.jar": "EPL-2.0",
+   "junit-platform-commons-6.1.3.jar": "EPL-2.0",
+   "junit-platform-engine-6.1.3.jar": "EPL-2.0",
+   "listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar": "Apache-2.0",
+   "mage-1.4.62.jar": "MIT",
+   "mage-deck-constructed-1.4.62.jar": "MIT",
+   "mage-game-commanderduel-1.4.62.jar": "MIT",
+   "mage-game-commanderfreeforall-1.4.62.jar": "MIT",
+   "mage-sets-1.4.62.jar": "MIT",
+   "opentest4j-1.3.0.jar": "Apache-2.0",
+   "ormlite-core-5.7.jar": "ISC",
+   "ormlite-jdbc-5.7.jar": "ISC",
+   "protobuf-java-3.25.8.jar": "BSD-3-Clause",
+   "reload4j-1.2.22.jar": "Apache-2.0",
+   "slf4j-api-2.0.17.jar": "MIT",
+   "slf4j-reload4j-2.0.17.jar": "MIT"
+  },
+  "strong_copyleft_on_provider_classpath": false
+ },
+ "forge": {
+  "role": "REMOVED",
+  "owner_decision": "docs/owner_decision_20261013_forge_removal/OWNER_DECISION_FORGE_REMOVAL.md",
+  "in_production_distribution": false,
+  "detail": "Forge has no role in the Lab: no reference column, no differential lane, no container image. No GPL component is part of the process topology, so the former separate-process condition for Forge is vacuous, not relaxed."
+ },
+ "decisions": [
+  {
+   "id": "SEPARATE_PROCESS_TOPOLOGY",
+   "decision": "SATISFIED",
+   "basis": "The Lab drives the selected provider only through an external process over JSONL; no engine code is embedded in the Lab process. Measured per run by the assembler (adapter identity, embedded-engine check, recorded boundary)."
+  },
+  {
+   "id": "PROVIDER_SPECIFIC_DECISION_IDENTITY_SHIM",
+   "decision": "SATISFIED",
+   "basis": "With one selected provider the adapter serves exactly one decision-identity shape. The shim only carries the provider's own published decision identity (AF04 PASS on the effective epoch); it reconstructs no legality and fabricates no option, so it is an adapter detail, not a cross-provider interop layer."
+  },
+  {
+   "id": "PROVIDER_LICENCE_COMPATIBILITY",
+   "decision": "SATISFIED",
+   "basis": "XMage is MIT (LICENSE at the pin). Every jar on the bridge runtime classpath is permissive (MIT, Apache-2.0, BSD-3-Clause, ISC) or weak file-level copyleft used unmodified (MPL-2.0 OR EPL-1.0 for h2, EPL-2.0 for the JUnit test jars); none is GPL, LGPL or AGPL. MIT permits use, modification and redistribution in proprietary software provided the copyright and permission notice is included."
+  }
+ ],
+ "conditions": [
+  "Any distribution of the production artifact ships the XMage MIT copyright and permission notice and the third-party notices of every jar on the provider classpath (Apache-2.0 NOTICE files; MPL-2.0/EPL source availability for unmodified jars).",
+  "A change to the provider classpath jar set or to the XMage engine pin invalidates this adjudication: the assembler then reports AF11 UNKNOWN until the Coordinator re-adjudicates the inventory and pin.",
+  "No Forge code enters the Lab, the XMage fork or any production artifact; re-introducing any GPL engine needs a new Owner licence decision and a new AF11 adjudication."
+ ],
+ "not_claimed": [
+  "ARCHITECTURE_FREEZE (separate Owner decision)",
+  "PRODUCTION_REPOSITORY (not created)",
+  "runtime manifest provider_decision change (stays NO_PROVIDER_READY until the Freeze workstream records it)",
+  "a legal opinion; an external legal review before commercial distribution is an Owner decision"
+ ],
+ "verdict_rule": "The assembler derives AF11 PASS for the selected provider only when every measured technical fact holds, this record validates against the source lock (provider and Lab licences, engine pin equal to the engine the run executed, Forge role), the effective epoch is a sealed epoch whose seal verifies and whose AF00-AF10 pass, every classpath licence is in the adjudicated allowlist, and the classpath manifest and entry point the runner's launch contract uses match this record. A violated fact is FAIL; anything else, including a malformed record, is UNKNOWN.",
+ "supersedes": {
+  "record": "qualification/af11-xmage-only-topology-20261030-v14/AF11_COORDINATOR_ADJUDICATION.json",
+  "engine_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "why": "repin v15 moved the XMage pin to f4d12f6e80 (head of the fork branch claude/trial-ue4-20261031, also the head of the candidate line claude/xmage-mp-candidate-20260929): the v14 pin plus twelve upstream XMage commits, the cancelled-payment fix, Guava 33.7.2-jre and jsoup 1.23.2, and two adaptations of fork code. The prior record's condition 'a change to the provider classpath jar set or to the XMage engine pin invalidates this adjudication' applies on both counts. The prior record stays the adjudication of every epoch run on 2ec507b721 (the sealed epoch cd23d329ce5a-9490ba04fa16)."
+ },
+ "pin_delta": {
+  "from": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "to": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "diff": "git diff --shortstat 2ec507b721 f4d12f6e80 (moeendres-png/mage): 98 files changed, 1173 insertions, 292 deletions: twelve upstream XMage commits (ten engine and card fixes, two Verify test fixes), the cancelled-payment fix, the version change of Guava and jsoup in the root pom.xml, and two adaptations of fork code. The diff lists no LICENSE file",
+  "licence_effect": "none for the engine: LICENSE.txt is unchanged, XMage stays MIT, the module version stays 1.4.62. The provider classpath inventory is still 28 jars but is not the one of the prior record: Guava 33.4.8-jre to 33.7.2-jre and jsoup 1.21.2 to 1.23.2 (root pom.xml of this pin), with Guava's error_prone_annotations 2.48.0 to 2.50.0, j2objc-annotations 3.0.0 to 3.1 and jspecify 1.0.0 to 1.0.1; and, from the Lab engine-bridge/pom.xml, gson 2.14.0 to 2.15.0 (d17863bb6) and JUnit 5.13.4 to 6.1.3 (dd9973020, the junit-platform and apiguardian jars follow). The licences of the changed jars were read from their published POMs: Guava, gson, error_prone_annotations, j2objc-annotations and jspecify Apache-2.0, jsoup MIT, JUnit Jupiter and Platform Eclipse Public License v2.0 (EPL-2.0); every licence is inside the adjudicated allowlist and none is strong copyleft. Measured on the sealed epoch: the launch classpath recorded in MIDGAME_REPLAY_TWIN_EXECUTIONS.json of PB-03 run 42508483426 lists exactly the 28 jars of the inventory above. The assembler checks the run's classpath against the inventory on each PB-03",
+  "topology_effect": "none: same adapter, entry point, classpath manifest and external-process boundary"
+ }
+}

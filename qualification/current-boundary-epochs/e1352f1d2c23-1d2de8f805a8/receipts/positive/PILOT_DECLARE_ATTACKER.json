@@ -1,0 +1,49 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "construction_verdict": "ALLOWED_VARIANCE",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "PILOT_DECLARE_ATTACKER",
+  "obligation_exercised": {
+    "obligation_digest": "1f2ea47296e2c98471c30647e4f7ff5d8563f0efa12fe124aa19cefab2c4bd82",
+    "requested_state_digest": "836a2232c59d0594b34cd326b72c3870449604cf4271143b184136ccc679f896",
+    "required_events": [
+      "declare_attacker_frame:P1",
+      "attacker_declared:obj:p1-bears->P2"
+    ],
+    "terminal_checks": [
+      "Grizzly Bears on P1's battlefield is tapped=True"
+    ],
+    "terminal_postconditions": [
+      "obj:p1-bears is attacking P2 and is tapped if required by rules."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "Grizzly Bears on P1's battlefield is tapped=True": true
+    },
+    "token_evidence": {
+      "attacker_declared:obj:p1-bears->P2": {
+        "events": [
+          7
+        ]
+      },
+      "declare_attacker_frame:P1": {
+        "decision_frames": [
+          0
+        ]
+      }
+    },
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "0b6ea59d228e2a538fb0efdf5b5d4229dbe97dfff8021014587e43b760080809",
+  "runner_digest": "f0c3ded973f33292a65821162fa161437dd2a39f4e76c49fc69cf7a449cef502",
+  "runtime_receipt_digest": "4007691c8fe8b953a6ab12af0774a27457305fec352fe1a18d1b5f8773f0fadf",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#PILOT_DECLARE_ATTACKER",
+  "variance_source": null
+}
