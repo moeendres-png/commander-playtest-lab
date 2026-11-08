@@ -301,11 +301,11 @@ def test_parse_reference_metadata_fails_closed_without_commit_row(tmp_path: Path
 
 def test_reference_is_current_at_its_own_commit() -> None:
     module = _module()
-    res = module.check_reference_staleness(target_ref="889335c38")
+    res = module.check_reference_staleness(target_ref="82d781ef3")
     assert res["stale"] is False
     assert res["changed_files"] == ()
     assert res["pin_matches"] is True
-    assert "current at 889335c38" in str(res["message"])
+    assert "current at 82d781ef3" in str(res["message"])
 
 
 def _old_reference_doc(tmp_path: Path) -> Path:
@@ -362,7 +362,7 @@ def test_unknown_reference_commit_fails_closed(tmp_path: Path) -> None:
 
 def test_check_reference_cli_exit_codes(tmp_path: Path) -> None:
     module = _module()
-    assert module.main(["check-reference", "--target", "889335c38"]) == 0
+    assert module.main(["check-reference", "--target", "82d781ef3"]) == 0
     old = _old_reference_doc(tmp_path)
     assert module.main(["check-reference", "--doc", str(old), "--target", "a8d6e54a5"]) == 1
 
