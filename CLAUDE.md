@@ -14,6 +14,8 @@ protected branches.
 
 ## Efficient operation
 
+**Deck focus.** For new owner-deck evaluation/deckbuilding assignments, read `docs/OWNER_DECK_FOCUS_CURRENT.md`: Chulane only. RogShai remains historical/regression data, not active optimization. Do not read `data/collections/**` in this lane.
+
 **Cold start.** Read `docs/claude/state/HANDOFF.md` (regenerate it when stale), the active
 lane contract, then run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`.
 Git/GitHub, tests and sealed evidence are Source Truth; HANDOFF is only a continuation
