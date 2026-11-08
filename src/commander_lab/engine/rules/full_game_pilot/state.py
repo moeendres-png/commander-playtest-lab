@@ -145,12 +145,15 @@ class _PolicyState:
         # never capped and clears this memory, so an ordinary may-trigger
         # cannot inherit a chain it never took part in.
         self._boolean_repeat: dict[int, tuple[tuple[str, str], int, int]] = {}
+        # Multikicker promises survive the terminating No until this cast's X.
+        self._optional_mana_commitments: dict[int, dict[str, tuple[int, int]]] = {}
         # #920: life the seat's Yes answers to the consecutive "Pay N life
         # instead of {X}?" asks of one Phyrexian payment have promised so far.
         self._phyrexian_life_promised: dict[int, int] = {}
         self._free_cast_failed: dict[int, tuple[object, set[str]]] = {}
         self._free_cast_last_yes: dict[int, str | None] = {}
         self._free_cast_refused: dict[int, object] = {}
+        self._exiled_play_attempt: dict[int, tuple[str, str, str, int, str, str]] = {}
         # Seats whose last "copied card to cast" choice (Mizzix's Mastery) picked nothing.
         self._copy_cast_declined: set[int] = set()
         # Slaughter the Strong asks for one creature at a time and toggles a creature that is
@@ -164,6 +167,8 @@ class _PolicyState:
         self._equipped_to: dict[tuple[int, str], tuple[object, str]] = {}
         # Wild Ricochet: per seat, the turn and how many copies the seat re-aimed that turn.
         self._retarget_yes: dict[int, tuple[object, int]] = {}
+        self._counter_growth_declines: dict[int, tuple[str, int, int, int]] = {}
+        self._counter_draw_refusals: dict[int, tuple[str, int, int, int]] = {}
         self._selection_ended: set[int] = set()
         # Seats that just answered "Continue the selection" and have not been asked to pick since.
         self._selection_reopened: set[int] = set()

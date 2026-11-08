@@ -12,7 +12,7 @@ from commander_lab.agents import (
     KorvoldPilot,
     RogShaiPilot,
 )
-from commander_lab.agents.pilots import _is_artifact_action
+from commander_lab.agents.pilots import _is_artifact_action, _is_graveyard_action
 from commander_lab.models import (
     CardRole,
     PilotActionView,
@@ -1070,3 +1070,43 @@ def test_artifact_opening_hand_ignores_text_match_spells() -> None:
     assert artifact_pilot.opening_hand_score(
         artifact_hand, commander_names=("Test Commander",)
     ) > engine_pilot.opening_hand_score(artifact_hand, commander_names=("Test Commander",))
+
+
+def test_is_graveyard_action_excludes_symmetric_graveyard_wipes() -> None:
+    farewell = _action(
+        "farewell", "Farewell", cost=6, roles={CardRole.WIPE, CardRole.GRAVEYARD_HATE}
+    )
+    assert _is_graveyard_action(farewell) is False
+
+    bog = _action("bog", "Bojuka Bog", cost=0, roles={CardRole.GRAVEYARD_HATE})
+    assert _is_graveyard_action(bog) is True
+
+    sevinne = _action("sevinne", "Sevinne's Reclamation", cost=3, roles={CardRole.RECURSION})
+    assert _is_graveyard_action(sevinne) is True
+
+    victimize = _action("victimize", "Victimize", cost=3, roles={CardRole.RECURSION})
+    assert _is_graveyard_action(victimize) is True
+
+
+def test_graveyard_pilot_gives_no_bonus_to_farewell() -> None:
+    config = PilotConfig(strength=PilotStrength.STRONG, mode=PilotDecisionMode.DETERMINISTIC)
+    engine_pilot = EnginePilot(config)
+    graveyard_pilot = GraveyardPilot(config)
+    state = _state()
+    farewell_action = _action(
+        "farewell", "Farewell", cost=6, roles={CardRole.WIPE, CardRole.GRAVEYARD_HATE}
+    )
+    assert (
+        graveyard_pilot.evaluate_action(state, farewell_action).specialist_bonus
+        == engine_pilot.evaluate_action(state, farewell_action).specialist_bonus
+    )
+
+    unrelated = [
+        _action("bear", "Grizzly Bears", cost=2, roles={CardRole.MANA_SOURCE}),
+        _action("bolt", "Lightning Bolt", cost=1, roles={CardRole.REMOVAL}),
+        _action("forest", "Forest", cost=0, roles={CardRole.MANA_SOURCE}),
+    ]
+    farewell_hand = [*unrelated, farewell_action]
+    assert graveyard_pilot.opening_hand_score(
+        farewell_hand, commander_names=("Test Commander",)
+    ) == engine_pilot.opening_hand_score(farewell_hand, commander_names=("Test Commander",))

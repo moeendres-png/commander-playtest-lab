@@ -75,6 +75,8 @@ def _evaluator(
     *,
     workers: int,
     mulligan: bool,
+    evidence_context: EvidenceContext = EvidenceContext.EXPLORATORY,
+    max_turns: int = 12,
 ) -> CachedPartitionEvaluator:
     lab = WholeDeckDesignLab(root)
     return CachedPartitionEvaluator(
@@ -83,10 +85,10 @@ def _evaluator(
         orchestrator=WholeDeckCampaignOrchestrator(root),
         control_mainboard=current_control_mainboard(root),
         context=lab.context,
-        evidence_context=EvidenceContext.EXPLORATORY,
+        evidence_context=evidence_context,
         run_directory=directory,
         workers=workers,
-        max_turns=12,
+        max_turns=max_turns,
         enable_mulligan_sensitivity=mulligan,
     )
 
@@ -144,6 +146,57 @@ def test_exact_cache_miss_store_hit_and_fresh_equivalence(
     assert audit.executed_scenario_pairs == 2
     assert audit.requested_scenario_pairs == 4
     assert fresh.model_dump(mode="json") == second.model_dump(mode="json")
+
+
+def test_exploratory_payload_reports_censored_pairs_without_refusing(
+    project_root: Path, release_manifest, tmp_path: Path
+) -> None:
+    # max_turns=12 aborts many matches (measured: 214 of 300 pairs); exploration only reports it.
+    evaluator = _evaluator(
+        project_root, release_manifest, tmp_path / "explore", workers=1, mulligan=False
+    )
+    candidate = evaluator.context.materialize(
+        current_control_mainboard(project_root), label="censoring-explore"
+    )
+    payload = evaluator._compute(candidate=candidate, scenarios=evaluator.scenarios[:8], budget=8)
+    assert payload["censored_pair_count"] > 0
+    assert payload["decision_evidence_eligible"] is False
+
+
+@pytest.mark.parametrize("context", [EvidenceContext.CONFIRMATORY, EvidenceContext.HOLDOUT])
+def test_decision_contexts_refuse_aborted_structural_matches(
+    project_root: Path, release_manifest, tmp_path: Path, context: EvidenceContext
+) -> None:
+    evaluator = _evaluator(
+        project_root,
+        release_manifest,
+        tmp_path / context.value,
+        workers=1,
+        mulligan=False,
+        evidence_context=context,
+        max_turns=12,
+    )
+    with pytest.raises(RuntimeError, match="censored by aborted matches"):
+        evaluator(_control_variant(project_root), 8, 0)
+    assert evaluator.audit().cache_stores == 0
+
+
+@pytest.mark.parametrize("context", [EvidenceContext.CONFIRMATORY, EvidenceContext.HOLDOUT])
+def test_decision_contexts_accept_complete_structural_matches(
+    project_root: Path, release_manifest, tmp_path: Path, context: EvidenceContext
+) -> None:
+    evaluator = _evaluator(
+        project_root,
+        release_manifest,
+        tmp_path / f"{context.value}-complete",
+        workers=1,
+        mulligan=False,
+        evidence_context=context,
+        max_turns=35,
+    )
+    evaluation = evaluator(_control_variant(project_root), 8, 0)
+    assert evaluation.budget == 8
+    assert evaluator.audit().cache_stores == 1
 
 
 def test_worker_count_one_and_two_are_result_equivalent(

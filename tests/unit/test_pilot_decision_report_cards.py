@@ -371,7 +371,7 @@ def test_old_record_without_version_fields_aggregates() -> None:
     assert counter["cast_rate"] == pytest.approx(0.25)
 
 
-def test_new_records_carry_per_card_version_3() -> None:
+def test_new_records_carry_per_card_version_4() -> None:
     records = [
         _priority_record(
             options=[_option("cs", source_name="Counterspell"), _pass_option()],
@@ -379,7 +379,7 @@ def test_new_records_carry_per_card_version_3() -> None:
         )
     ]
     summary = pdr.summarize(records, players=4)
-    assert summary["per_card_version"] == 3
+    assert summary["per_card_version"] == 4
     assert summary["per_card"][0]["instant_speed"] is True
 
 
@@ -464,3 +464,75 @@ def test_stack_top_ability_skipped_foe_spell_below_offers() -> None:
 
 def test_stack_top_empty_stack_offers() -> None:
     assert pdr._stack_top_is_own_cast({"stack": []}, {_OWN_SPELL}) is False
+
+
+def test_mana_payments_cancelled_counted_overall_per_seat_and_per_card() -> None:
+    def _mana_payment_record(
+        *,
+        seat: int = 0,
+        turn: int = 5,
+        actor_id: str = "p1",
+        cancel: bool = True,
+    ) -> dict[str, Any]:
+        options = [
+            {"option_id": "cancel", "option_type": "cancel_mana_payment", "metadata": {}},
+            {"option_id": "pay", "option_type": "pay_mana", "metadata": {}},
+        ]
+        return {
+            "request": {
+                "decision_class": "mana_payment",
+                "legal_options": options,
+                "pilot_state": {
+                    "phase": "main1",
+                    "step": "main",
+                    "turn_number": turn,
+                    "seat": seat,
+                    "actor_id": actor_id,
+                    "active_player_id": actor_id,
+                    "stack": [],
+                },
+            },
+            "answer": {"selected_option_ids": ["cancel" if cancel else "pay"]},
+            "pilot_s": 0.01,
+        }
+
+    records = [
+        # Seat 0 casts Lightning Bolt, then cancels mana payment
+        _priority_record(
+            seat=0,
+            actor_id="p1",
+            active_player_id="p1",
+            options=[_option("bolt", source_name="Lightning Bolt"), _pass_option()],
+            picked_id="bolt",
+        ),
+        _mana_payment_record(seat=0, actor_id="p1", cancel=True),
+        # Seat 1 casts Counterspell, then completes mana payment
+        _priority_record(
+            seat=1,
+            actor_id="p2",
+            active_player_id="p1",
+            options=[_option("counter", source_name="Counterspell"), _pass_option()],
+            picked_id="counter",
+        ),
+        _mana_payment_record(seat=1, actor_id="p2", cancel=False),
+    ]
+
+    summary = pdr.summarize(records, players=4)
+    assert summary["mana_payments_cancelled"] == 1
+    assert summary["by_seat"]["1"]["mana_payments_cancelled"] == 1
+    assert summary["by_seat"]["2"]["mana_payments_cancelled"] == 0
+
+    per_card = {(e["seat"], e["card"]): e for e in summary["per_card"]}
+    bolt_entry = per_card[(1, "Lightning Bolt")]
+    assert bolt_entry["cancelled_payments"] == 1
+
+    counter_entry = per_card[(2, "Counterspell")]
+    assert counter_entry["cancelled_payments"] == 0
+
+    report = {"games": [dict(summary, status="ok", pod="p", seed=1, players=4)]}
+    cards = pdr.aggregate_cards(report)
+    bolt_agg = next(c for c in cards["cards"] if c["card"] == "Lightning Bolt")
+    assert bolt_agg["cancelled_payments"] == 1
+
+    counter_agg = next(c for c in cards["cards"] if c["card"] == "Counterspell")
+    assert counter_agg["cancelled_payments"] == 0

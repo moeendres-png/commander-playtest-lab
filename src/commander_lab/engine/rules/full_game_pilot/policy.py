@@ -181,6 +181,8 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # #815: same for failed X announcements — a new priority action
             # starts with a clean retry slate.
             self._priority_cost_facts.pop(seat, None)
+            self._optional_mana_commitments.pop(seat, None)
+            self._boolean_repeat.pop(seat, None)
             self._priority_spends_source.pop(seat, None)
             self._priority_x_counter_caps.pop(seat, None)
             self._failed_x_announcements.pop(seat, None)
@@ -197,7 +199,7 @@ class ExternalPilotDecisionPolicy(_PriorityDecisions):
             # its sources tapped in the cancel's own state view.
             if seat in self._last_priority_label:
                 self._last_priority_visible_mana[seat] = self._available_mana(
-                    self._actor(pilot_state)
+                    self._actor(pilot_state), state=pilot_state
                 )
         elif (
             decision_class == "choose_object"

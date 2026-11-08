@@ -1,7 +1,7 @@
 """Measure how the full-game pilots play: speed and decision quality of real XMage games.
 
 Plays real pods like ``benchmark_xmage_full_games.py`` and records every pilot decision
-(request and answer) in memory, then reduces each game to play-quality figures a
+(request and answer) in a temporary store, then reduces each game to play-quality figures a
 Commander player would look at:
 
 * length: turns, rounds (turns per player), decisions, decisions per round, wall time,
@@ -24,6 +24,11 @@ XMAGE_CARD_REPOSITORY_INIT_FAILED, H2 "Lock file recently modified", #878).
 
 The figures are measurements of local games for pilot work, not qualification
 evidence. Lower is better for every "bad_*" counter.
+
+Cast counters measure priority spell selections excluding observed mana-payment
+cancellations; they do not confirm stack entry or resolution. Successful casts during
+effect resolution are outside these counters. Their observed payment cancellations
+are still attributed per card using the engine's source_object.
 """
 
 from __future__ import annotations
@@ -33,18 +38,20 @@ import json
 import math
 import random
 import sys
+import tempfile
 import time
 from collections import Counter, defaultdict
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from concurrent.futures import ProcessPoolExecutor
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any
+from typing import Any, Protocol
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import benchmark_xmage_full_games as bench  # noqa: E402
+from pilot_decision_records import DiskRecords, IndexedRecords, RecordStoreError  # noqa: E402
 
 from commander_lab.agents.card_knowledge import (  # noqa: E402
     canonical_card_name,
@@ -60,8 +67,12 @@ from commander_lab.engine.rules.full_game_pilot import (  # noqa: E402
 from commander_lab.models import CardRole  # noqa: E402
 
 
+class RecordSink(Protocol):
+    def append(self, value: dict[str, Any]) -> None: ...
+
+
 @contextmanager
-def recording(sink: list[dict[str, Any]]) -> Iterator[None]:
+def recording(sink: RecordSink) -> Iterator[None]:
     """Record every policy decision (request, answer, pilot seconds) into ``sink``."""
     original: Callable[..., dict[str, Any]] = ExternalPilotDecisionPolicy.decide
 
@@ -92,6 +103,48 @@ def _chosen(record: dict[str, Any]) -> list[dict[str, Any]]:
 def _meta(option: dict[str, Any]) -> dict[str, Any]:
     meta = option.get("metadata")
     return meta if isinstance(meta, dict) else {}
+
+
+def _cancelled_cast_attempts(records: Sequence[dict[str, Any]]) -> dict[int, int]:
+    """Map observed payment cancellations to the originating spell-selection record.
+
+    Priority resumes only after a cast's decisions finish. Track each seat separately so
+    another player's intervening choice cannot clear its pending cast. A later priority
+    choice from that seat closes the attribution window, including forced passes.
+    Absence of a cancellation does not itself prove that a spell reached the stack.
+    """
+    pending: dict[int, int] = {}
+    cancelled: dict[int, int] = {}
+    for index, record in enumerate(records):
+        request = record["request"]
+        seat = _seat(request.get("pilot_state") or {})
+        decision_class = request.get("decision_class")
+        if decision_class == "priority":
+            pending.pop(seat, None)
+            chosen = _chosen(record)
+            if chosen and _meta(chosen[0]).get("ability_type") == "spell":
+                pending[seat] = index
+        elif decision_class == "mana_payment" and any(
+            option.get("option_type") == "cancel_mana_payment" for option in _chosen(record)
+        ):
+            source = request.get("source_object")
+            if isinstance(source, dict):
+                if source.get("ability_type") != "spell":
+                    continue
+                attempt = pending.get(seat)
+                if attempt is not None:
+                    selected = _meta(_chosen(records[attempt])[0])
+                    source_id = source.get("source_object_id")
+                    selected_id = selected.get("source_object_id")
+                    if source_id and selected_id:
+                        if source_id != selected_id:
+                            continue
+                    elif source.get("source_name") != selected.get("source_name"):
+                        continue
+            attempt = pending.pop(seat, None)
+            if attempt is not None:
+                cancelled[index] = attempt
+    return cancelled
 
 
 def _is_main(state: dict[str, Any]) -> bool:
@@ -172,6 +225,7 @@ _SEAT_KEYS = (
     "pilot_s",
     "by_class",
     "spells_cast",
+    "mana_payments_cancelled",
     "spell_offers",
     "spell_offers_without_pilot_knowledge",
     "own_turns",
@@ -203,7 +257,7 @@ def _round_of(turn: int, players: int) -> int:
 
 
 def summarize(
-    records: list[dict[str, Any]], players: int, *, by_seat: bool = True
+    records: Sequence[dict[str, Any]], players: int, *, by_seat: bool = True
 ) -> dict[str, Any]:
     """Play-quality figures of one recorded game.
 
@@ -249,7 +303,11 @@ def summarize(
     instant_speed: dict[tuple[int, str], bool] = {}
     first_cast_round: dict[tuple[int, str], int] = {}
     own_cast_names: dict[int, set[str]] = {}
-    for record in records:
+    mana_payments_cancelled = 0
+    cancelled_payments: dict[tuple[int, str], int] = Counter()
+    cancelled_attempts = _cancelled_cast_attempts(records)
+    failed_casts = set(cancelled_attempts.values())
+    for record_index, record in enumerate(records):
         request = record["request"]
         state = request.get("pilot_state") or {}
         decision_class = str(request.get("decision_class", ""))
@@ -311,7 +369,7 @@ def summarize(
                 elif _own_turn(state) and _is_main(state):
                     offered_castable[(seat, name)] += 1
                     counted_now.add(name)
-            if meta.get("ability_type") == "spell":
+            if meta.get("ability_type") == "spell" and record_index not in failed_casts:
                 name = canonical_card_name(str(meta.get("source_name") or ""))
                 if name:
                     cast_count[(seat, name)] += 1
@@ -322,7 +380,7 @@ def summarize(
                         cast_on_opponent_turn[(seat, name)] += 1
                     first_cast_round.setdefault((seat, name), own_round)
                     own_cast_names.setdefault(seat, set()).add(name.strip().casefold())
-            if meta.get("ability_type") == "spell":
+            if meta.get("ability_type") == "spell" and record_index not in failed_casts:
                 spells[seat] += 1
                 name = str(meta.get("source_name") or "")
                 command_ids = {
@@ -417,6 +475,26 @@ def summarize(
                     power = views.creature_power(found[1]) if found else 0
                     if life - power > 5:
                         needless_chumps += 1
+        elif decision_class == "mana_payment":
+            if any(o.get("option_type") == "cancel_mana_payment" for o in chosen):
+                mana_payments_cancelled += 1
+                attempt = cancelled_attempts.get(record_index)
+                source = request.get("source_object")
+                if isinstance(source, dict):
+                    # Resolution-time casts (Chandra) have no priority selection. Their
+                    # payment still names the spell authoritatively; do not lose its failure.
+                    name = (
+                        canonical_card_name(str(source.get("source_name") or ""))
+                        if source.get("ability_type") == "spell"
+                        else ""
+                    )
+                elif attempt is not None:
+                    selected = _chosen(records[attempt])[0]
+                    name = canonical_card_name(str(_meta(selected).get("source_name") or ""))
+                else:
+                    name = ""
+                if name:
+                    cancelled_payments[(seat, name)] += 1
     rounds = max(1.0, max_turn / max(1, players))
     decisions = sum(by_class.values())
     # Per-card figures keyed by (seat, card name); first_cast_round is None
@@ -438,9 +516,12 @@ def summarize(
             "cast_in_offer_window": cast_in_offer_window.get((seat, name), 0),
             "cast_on_opponent_turn": cast_on_opponent_turn.get((seat, name), 0),
             "instant_speed": instant_speed.get((seat, name), False),
+            "cancelled_payments": cancelled_payments.get((seat, name), 0),
             "first_cast_round": first_cast_round.get((seat, name)),
         }
-        for (seat, name) in sorted(set(offered_castable) | set(cast_count))
+        for (seat, name) in sorted(
+            set(offered_castable) | set(cast_count) | set(cancelled_payments)
+        )
     ]
     result: dict[str, Any] = {
         "turns": max_turn,
@@ -455,6 +536,7 @@ def summarize(
         "by_class": dict(sorted(by_class.items())),
         "pilot_s": round(pilot_s, 2),
         "spells_cast": sum(spells.values()),
+        "mana_payments_cancelled": mana_payments_cancelled,
         "spell_offers": spell_offers,
         "spell_offers_without_pilot_knowledge": spell_offers_unknown,
         "spells_per_player_round": round(sum(spells.values()) / players / rounds, 2),
@@ -481,20 +563,24 @@ def summarize(
         "bad_needless_chump_blocks": needless_chumps,
         "max_activations_one_turn": max(abilities_per_turn.values(), default=0),
         "per_card": per_card,
-        "per_card_version": 3,
+        # v4 excludes observed cancelled cast attempts from all cast counters.
+        "per_card_version": 4,
     }
     if by_seat:
+        seat_indices: dict[int, list[int]] = defaultdict(list)
+        for index, record in enumerate(records):
+            seat_indices[_seat(record["request"].get("pilot_state") or {})].append(index)
         result["by_seat"] = {
             str(seat): {
                 key: value
                 for key, value in summarize(
-                    [r for r in records if _seat(r["request"].get("pilot_state") or {}) == seat],
+                    IndexedRecords(records, seat_indices[seat]),
                     players,
                     by_seat=False,
                 ).items()
                 if key in _SEAT_KEYS
             }
-            for seat in sorted({_seat(r["request"].get("pilot_state") or {}) for r in records})
+            for seat in sorted(seat_indices)
         }
     return result
 
@@ -505,21 +591,25 @@ def _play(
     scenario, decks, pilots = setup
     scenario = scenario.model_copy(update={"seed": seed})
     runner = XmageFullGameRunner(command, private_card_repository=True)
-    records: list[dict[str, Any]] = []
     started = time.monotonic()
     row: dict[str, Any] = {"pod": pod, "seed": seed, "players": len(decks)}
-    try:
-        with recording(records):
-            result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
-        row |= {
-            "status": "ok",
-            "semantic": result.semantic_transcript_sha256,
-            "winners": list(result.winner_seats),
-        }
-    except Exception as exc:  # a failed game is a result row, not a crash
-        row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
-    row["wall_s"] = round(time.monotonic() - started, 2)
-    row |= summarize(records, len(decks))
+    with tempfile.TemporaryDirectory(prefix="pilot-records-") as directory:  # noqa: SIM117
+        with DiskRecords(Path(directory) / "records.sqlite") as records:
+            try:
+                with recording(records):
+                    result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
+                row |= {
+                    "status": "ok",
+                    "semantic": result.semantic_transcript_sha256,
+                    "winners": list(result.winner_seats),
+                }
+            except RecordStoreError:
+                raise
+            except Exception as exc:  # a failed game is a result row, not a crash
+                row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
+            row["wall_s"] = round(time.monotonic() - started, 2)
+            records.commit()
+            row |= summarize(records, len(decks))
     print(json.dumps({k: row[k] for k in row if k not in {"by_class", "by_seat"}}), flush=True)
     return row
 
@@ -577,6 +667,7 @@ _TOTALS = (
     "wall_s",
     "pilot_s",
     "spells_cast",
+    "mana_payments_cancelled",
     "own_turns",
     "bad_idle_main_with_castable_spell",
     "bad_idle_main_with_unplayed_land",
@@ -789,6 +880,7 @@ def _aggregate_cards(report: dict[str, Any], seat: int | None) -> dict[str, Any]
     cast_in_window: dict[str, int] = Counter()
     cast_on_opponent_turn: dict[str, int] = Counter()
     instant_speed: dict[str, bool] = {}
+    cancelled: dict[str, int] = Counter()
     seen_in: dict[str, set[int]] = defaultdict(set)
     games_offered: dict[str, int] = Counter()
     games_cast_after_offer: dict[str, int] = Counter()
@@ -809,16 +901,18 @@ def _aggregate_cards(report: dict[str, Any], seat: int | None) -> dict[str, Any]
             # Records before per_card_version 3 do not split out the casts inside a
             # counted window; their cast count stands in for it.
             n_in_window = int(entry.get("cast_in_offer_window", n_cast) or 0)
+            n_cancelled = int(entry.get("cancelled_payments", 0) or 0)
             offered[name] += n_offered
             cast[name] += n_cast
             cast_in_window[name] += n_in_window
             cast_on_opponent_turn[name] += int(entry.get("cast_on_opponent_turn", 0) or 0)
+            cancelled[name] += n_cancelled
             if entry.get("instant_speed"):
                 instant_speed[name] = True
             per_game_offered[name] += n_offered
             per_game_cast[name] += n_cast
             per_game_cast_in_window[name] += n_in_window
-            if n_offered or n_cast:
+            if n_offered or n_cast or n_cancelled:
                 seen_in[name].add(game_idx)
             first = entry.get("first_cast_round")
             if first is not None:
@@ -839,6 +933,7 @@ def _aggregate_cards(report: dict[str, Any], seat: int | None) -> dict[str, Any]
             "cast_in_offer_window": cast_in_window[name],
             "cast_on_opponent_turn": cast_on_opponent_turn[name],
             "instant_speed": instant_speed.get(name, False),
+            "cancelled_payments": cancelled[name],
             # Casts in a counted window per counted window, at most 1.
             "cast_rate": (
                 round(min(cast_in_window[name], offered[name]) / offered[name], 3)

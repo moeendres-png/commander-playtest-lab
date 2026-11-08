@@ -205,7 +205,9 @@ def mana_x_prompt_symbols(prompt: str) -> int | None:
     return len(_X_SYMBOL_TOKEN.findall(match.group("symbols")))
 
 
-def mana_payment_fit(label: str, unpaid_mana: str) -> int:
+def mana_payment_fit(
+    label: str, unpaid_mana: str, produced_letters: frozenset[str] | None = None
+) -> int:
     """Order mana abilities inside a payment by what their mana can pay.
 
     2: the ability makes mana of a color the unpaid cost names, or any color;
@@ -219,16 +221,21 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     """
     text = label.casefold()
     produced_text = text.partition(": add ")[2]
-    if not produced_text:
+    if produced_letters is not None:
+        produced: set[str] | frozenset[str] = produced_letters
+    elif not produced_text:
         return 1
-    if "any color" in produced_text or "any type" in produced_text:
-        return 2
-    produced = {
-        letter
-        for symbol in _MANA_SYMBOL.findall(produced_text)
-        for letter in symbol
-        if letter in _COLOR_LETTERS
-    }
+    elif "any type" in produced_text:
+        produced = _COLOR_LETTERS
+    elif "any color" in produced_text:
+        produced = frozenset("wubrg")
+    else:
+        produced = {
+            letter
+            for symbol in _MANA_SYMBOL.findall(produced_text)
+            for letter in symbol
+            if letter in _COLOR_LETTERS
+        }
     if not produced:
         return 1
     needed: set[str] = set()
@@ -271,6 +278,16 @@ def mana_needed_letters(unpaid_mana: str) -> frozenset[str]:
         for part in symbol.split("/")
         if part in _COLOR_LETTERS
     )
+
+
+def mana_ability_restriction_rank(label: str) -> int:
+    """0 for unconditional mana abilities, 1 for spend-restricted, 2 for board-dependent 'among'."""
+    produced_text = label.casefold().partition(": add ")[2]
+    if "among " in produced_text and " you control" in produced_text:
+        return 2
+    if "spend this mana only" in produced_text:
+        return 1
+    return 0
 
 
 class _MultikickerOffer(NamedTuple):

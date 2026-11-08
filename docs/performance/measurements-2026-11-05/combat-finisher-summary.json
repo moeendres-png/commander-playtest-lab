@@ -1,0 +1,220 @@
+{
+  "classification": "DIRECTLY_VERIFIED local observations; no strength or causal claim",
+  "source_hashes": {
+    "baseline_hashlist_sha256": "279a12c1a17b25ebfe541d67b1c57dd49e1d9c33fe6220b895f4e94ecb995746",
+    "after_hashlist_sha256": "35b1e8a75d21e7cac20051f27cfed90a08ff759043ed778bb57cd9f834713c96",
+    "after_pilots_sha256": "198a61c85a5f860d9f0e2672d55b0b03ff23f80f44b3e926b77f0944200a39bc",
+    "after_combat_sha256": "01307320cbb65b17d875f02c8289efad6958bf569b65839ab80e11584b34e5be",
+    "after_views_sha256": "ac57ef47e80729594fb1b55907a5f88701aa5ae0ac35083815444f5ca90c6361",
+    "hashlist_scope": "sha256sum of sorted file paths under src/scripts/config excluding pycache and pyc",
+    "jar_sha256": "5fe48fd25ab055fc12fce99aab807d0d045bc5912dfde626d585ff30dedba788",
+    "engine_fork_commit": "2ec507b721ac04834eaa4d553b494681c46d996f"
+  },
+  "pairs": [
+    {
+      "pod": "P4a",
+      "seed": 1,
+      "before": {
+        "status": "ok",
+        "decisions": 2897,
+        "spells_cast": 55,
+        "mana_payments_cancelled": 0,
+        "semantic": "e9f2af81f3a71116fe2b77ba18e102e379e50cf3332ebed55e5f53375fddc825"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 2897,
+        "spells_cast": 55,
+        "mana_payments_cancelled": 0,
+        "semantic": "e9f2af81f3a71116fe2b77ba18e102e379e50cf3332ebed55e5f53375fddc825"
+      },
+      "semantic_equal": true,
+      "players": 4
+    },
+    {
+      "pod": "P4a",
+      "seed": 2,
+      "before": {
+        "status": "ok",
+        "decisions": 3837,
+        "spells_cast": 84,
+        "mana_payments_cancelled": 1,
+        "semantic": "308ca036e440b91fa8ab53fd3af2efd082ae0511736442845792d5354cf08403"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 3837,
+        "spells_cast": 84,
+        "mana_payments_cancelled": 1,
+        "semantic": "308ca036e440b91fa8ab53fd3af2efd082ae0511736442845792d5354cf08403"
+      },
+      "semantic_equal": true,
+      "players": 4
+    },
+    {
+      "pod": "P4b",
+      "seed": 1,
+      "before": {
+        "status": "ok",
+        "decisions": 3009,
+        "spells_cast": 40,
+        "mana_payments_cancelled": 0,
+        "semantic": "b2034926207272651bda50302b3986e5a4363487f9cb39bd89e5834c35893b1b"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 3009,
+        "spells_cast": 40,
+        "mana_payments_cancelled": 0,
+        "semantic": "b2034926207272651bda50302b3986e5a4363487f9cb39bd89e5834c35893b1b"
+      },
+      "semantic_equal": true,
+      "players": 4
+    },
+    {
+      "pod": "P4b",
+      "seed": 2,
+      "before": {
+        "status": "ok",
+        "decisions": 2218,
+        "spells_cast": 29,
+        "mana_payments_cancelled": 0,
+        "semantic": "48b8527bde0b51cd4326b7f10e28aba8d3ab2e7b35cbecc2d54640ec441ad6f9"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 2218,
+        "spells_cast": 29,
+        "mana_payments_cancelled": 0,
+        "semantic": "48b8527bde0b51cd4326b7f10e28aba8d3ab2e7b35cbecc2d54640ec441ad6f9"
+      },
+      "semantic_equal": true,
+      "players": 4
+    },
+    {
+      "pod": "P6a",
+      "seed": 1,
+      "players": 6,
+      "before": {
+        "status": "ok",
+        "decisions": 4244,
+        "spells_cast": 47,
+        "mana_payments_cancelled": 6,
+        "semantic": "b83ba7d0efae43662d1fe4f9f88a8cb1841c33d30191747016fa8b06870f0e05"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 4244,
+        "spells_cast": 47,
+        "mana_payments_cancelled": 6,
+        "semantic": "b83ba7d0efae43662d1fe4f9f88a8cb1841c33d30191747016fa8b06870f0e05"
+      },
+      "semantic_equal": true
+    },
+    {
+      "pod": "P6a",
+      "seed": 2,
+      "players": 6,
+      "before": {
+        "status": "ok",
+        "decisions": 3807,
+        "spells_cast": 39,
+        "mana_payments_cancelled": 4,
+        "semantic": "3a9bb58ac5694c2fc725c0f46117f9a5d35f831877ffb288c8766ccb068bc46c"
+      },
+      "after": {
+        "status": "ok",
+        "decisions": 3807,
+        "spells_cast": 39,
+        "mana_payments_cancelled": 4,
+        "semantic": "3a9bb58ac5694c2fc725c0f46117f9a5d35f831877ffb288c8766ccb068bc46c"
+      },
+      "semantic_equal": true
+    }
+  ],
+  "six_player_attempts": [
+    {
+      "pod": "P6b",
+      "seed": 1,
+      "attempt": "initial",
+      "status": "interrupted",
+      "reason": "BrokenProcessPool; cgroup oom_kill counter observed, causal attribution unknown",
+      "trace": "not persisted",
+      "phase": "baseline"
+    },
+    {
+      "pod": "P6b",
+      "seed": 1,
+      "attempt": "memory_retry",
+      "status": "interrupted_resource_guard",
+      "reason": "controlled stop when shared cgroup exceeded 5 GiB",
+      "trace": "not persisted",
+      "phase": "baseline"
+    },
+    {
+      "pod": "P6b",
+      "seed": 1,
+      "attempt": "disk_retry",
+      "status": "interrupted_resource_guard",
+      "trace": "persisted prefix retained; uncommitted tail unknown",
+      "phase": "baseline",
+      "reason": "controlled stop when free workspace storage dropped below 2.5 GiB",
+      "persisted_records": 10200
+    },
+    {
+      "pod": "P6b",
+      "seed": 1,
+      "phase": "after",
+      "attempt": "compressed_disk",
+      "status": "running",
+      "trace": "local sqlite; not yet a completed game"
+    }
+  ],
+  "other_six_player_baselines": "P6b seed 2 completed; paired after pending",
+  "timing": "parallel execution; no timing comparison",
+  "metric_definition": {
+    "spells_cast": "Cancellation-adjusted priority cast selections; not proof of stack appearance or resolution."
+  },
+  "pool_manifest": {
+    "eligible_decks": 177,
+    "four_player_pods": 45,
+    "six_player_pods": 30,
+    "sha256": "6203cddc8050d6317df317630d872cfd56b7f84c62fe45c9045e7a905f978a68",
+    "status": "prepared, not executed; not claimed as coverage"
+  },
+  "integration": {
+    "main": "9ba7abfa3c2aa0bc84af3e529ca469f48e424b77",
+    "impact": "Deckbau CLI, its docs and tests only; three candidate pilot source hashes unchanged. Native bridge and pin unchanged."
+  },
+  "pods": {
+    "P4a": [
+      "2014_guided_by_nature",
+      "2015_plunder_the_graves",
+      "2019_faceless_menace",
+      "2026_tramplesaurus_rex"
+    ],
+    "P4b": [
+      "2023_call_for_backup",
+      "2021_coven_counters",
+      "2021_aura_of_courage",
+      "2011_devour_for_power"
+    ],
+    "P6a": [
+      "2014_guided_by_nature",
+      "2015_plunder_the_graves",
+      "2017_feline_ferocity",
+      "2017_draconic_domination",
+      "2021_vampiric_bloodline",
+      "2026_tramplesaurus_rex"
+    ],
+    "P6b": [
+      "2023_call_for_backup",
+      "2021_coven_counters",
+      "2019_primal_genesis",
+      "2018_breed_lethality",
+      "2016_open_hostility",
+      "2017_arcane_wizardry"
+    ]
+  },
+  "pod_path_template": "data/decks/precons/{deck}.json; seat order is the listed order"
+}

@@ -1,0 +1,160 @@
+{
+  "evidence_class": "DIRECTLY_VERIFIED",
+  "scope": "local measurement; no CI or qualification credit",
+  "qualification": "NOT_RUN",
+  "baseline_lab_commit": "c1183e487e122258a962046f9c810f4179633026",
+  "engine_manifest": "config/rules_engines.json",
+  "engine_manifest_sha256": "879e7fef01fd2276cd69f93eea855bfd6ef26ea47f6e96cbfe116df154dcaf32",
+  "jar_sha256": "3e9a66c87125ef72bf0690f435b39e2c7bc068980fdaf13a8e6e189554087c11",
+  "after_source_sha256": {
+    "src/commander_lab/agents/card_knowledge.py": "8c639d9ec4e00e73b709affd1595c1609d39a73fb68a8cb3437c34331c4657cc",
+    "src/commander_lab/engine/rules/full_game_pilot/payment.py": "fd94a3198084ee11bd95386f24659fa167072b7df2d3c6b25a16044311577261",
+    "src/commander_lab/engine/rules/full_game_pilot/choices.py": "73a43da99b7814fbc6f7d987b48f31648b61c0b53adcfbbdad61d2e401a7d187",
+    "scripts/pilot_decision_report.py": "35661e0036ea805449af053e60023a1e47a92b343bc8241a528991b8b307cfa4"
+  },
+  "pod": [
+    "data/decks/rogshai_current.json",
+    "data/decks/opponents/kaervek/current/deck.json",
+    "data/opponents/hosts_of_mordor_precon.json",
+    "data/opponents/lorehold_spirit_precon.json"
+  ],
+  "command": "scripts/pilot_decision_report.py run --jar JAR --out OUT --seeds 1-3 --workers 2 --jvm-option=-Xmx768m --jvm-option=-XX:+UseSerialGC",
+  "twin_command": "same command with --seeds 2 --workers 1",
+  "before": [
+    {
+      "seed": 1,
+      "status": "ok",
+      "turns": 53,
+      "wall_s": 233.52,
+      "pilot_s": 12.17,
+      "decisions": 3892,
+      "spells_cast": 82,
+      "spells_per_player_round": 1.55,
+      "mana_payments_cancelled": 0,
+      "semantic": "b34120152f865d32c3c395b4d2216bbd35ae3472fa08724ff0c2fdc83df09769",
+      "winners": [
+        3
+      ],
+      "per_card_version": 3
+    },
+    {
+      "seed": 2,
+      "status": "ok",
+      "turns": 35,
+      "wall_s": 108.21,
+      "pilot_s": 2.22,
+      "decisions": 1928,
+      "spells_cast": 38,
+      "spells_per_player_round": 1.09,
+      "mana_payments_cancelled": 2,
+      "semantic": "50acd62f3c718a471f30455a2fbae184caa64280496c200eb968650136b2ecad",
+      "winners": [
+        3
+      ],
+      "per_card_version": 3
+    },
+    {
+      "seed": 3,
+      "status": "ok",
+      "turns": 43,
+      "wall_s": 124.39,
+      "pilot_s": 4.2,
+      "decisions": 2628,
+      "spells_cast": 45,
+      "spells_per_player_round": 1.05,
+      "mana_payments_cancelled": 0,
+      "semantic": "dcd936257bf94195e48cb6ef301d7583845cf3479ec1596f4d7c8cb22ba68e6a",
+      "winners": [
+        3
+      ],
+      "per_card_version": 3
+    }
+  ],
+  "after": [
+    {
+      "seed": 1,
+      "status": "ok",
+      "turns": 53,
+      "wall_s": 235.3,
+      "pilot_s": 10.12,
+      "decisions": 3892,
+      "spells_cast": 82,
+      "spells_per_player_round": 1.55,
+      "mana_payments_cancelled": 0,
+      "semantic": "b34120152f865d32c3c395b4d2216bbd35ae3472fa08724ff0c2fdc83df09769",
+      "winners": [
+        3
+      ],
+      "per_card_version": 4
+    },
+    {
+      "seed": 2,
+      "status": "ok",
+      "turns": 37,
+      "wall_s": 153.34,
+      "pilot_s": 3.14,
+      "decisions": 2190,
+      "spells_cast": 44,
+      "spells_per_player_round": 1.19,
+      "mana_payments_cancelled": 0,
+      "semantic": "302951c51993c53cea41a53081a12e743b7a198da041db5320e440a0f378c0b1",
+      "winners": [
+        1
+      ],
+      "per_card_version": 4
+    },
+    {
+      "seed": 3,
+      "status": "ok",
+      "turns": 43,
+      "wall_s": 101.29,
+      "pilot_s": 2.79,
+      "decisions": 2628,
+      "spells_cast": 45,
+      "spells_per_player_round": 1.05,
+      "mana_payments_cancelled": 0,
+      "semantic": "dcd936257bf94195e48cb6ef301d7583845cf3479ec1596f4d7c8cb22ba68e6a",
+      "winners": [
+        3
+      ],
+      "per_card_version": 4
+    }
+  ],
+  "after_seed2_twin": [
+    {
+      "seed": 2,
+      "status": "ok",
+      "turns": 37,
+      "wall_s": 120.72,
+      "pilot_s": 6.57,
+      "decisions": 2190,
+      "spells_cast": 44,
+      "spells_per_player_round": 1.19,
+      "mana_payments_cancelled": 0,
+      "semantic": "302951c51993c53cea41a53081a12e743b7a198da041db5320e440a0f378c0b1",
+      "winners": [
+        1
+      ],
+      "per_card_version": 4
+    }
+  ],
+  "historical_request_corpus": {
+    "stateless_replayed": 376,
+    "changed": 2,
+    "changed_class": "choose_use",
+    "raised": 0,
+    "illegal": 0
+  },
+  "remaining_cancellations_in_sample": 0,
+  "local_checks": {
+    "scoped_unit_passed": 677,
+    "private_collection_test_deselected": 1,
+    "subsequent_final_selection_passed": 25,
+    "ruff_check": "PASS",
+    "ruff_format_check": "PASS",
+    "mypy": "PASS (349 source files)",
+    "any_usage_ratchet": "PASS",
+    "local_full_suite": "NOT_RUN",
+    "github_ci": "NOT_EVIDENCE_FROM_THIS_LOCAL_RUN"
+  }
+}

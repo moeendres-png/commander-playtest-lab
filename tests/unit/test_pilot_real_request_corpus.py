@@ -224,13 +224,38 @@ def test_a_pilot_that_answers_with_an_unoffered_option_is_caught(
     assert problems and all(problems)
 
 
-def test_diff_reports_nothing_for_the_recording_pilot_and_counts_a_changed_pilot(
-    capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
+def test_diff_reports_paid_cast_fixes_and_counts_an_additionally_changed_pilot(
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+    corpus: tuple[dict[str, Any], list[dict[str, Any]]],
+    replayed: list[dict[str, Any]],
 ) -> None:
     args = type("Args", (), {"corpus": CORPUS})()
     assert corpus_tool.diff(args) == 0
     quiet = capsys.readouterr().out
-    assert "changed in total: 0 of" in quiet, quiet
+    # Preserve the historical engine recording: the two deliberately changed answers
+    # decline unfunded Chandra casts. Every other stateless answer must stay identical.
+    changed_rows = [
+        (row, outcome)
+        for row, outcome in zip(corpus[1], replayed, strict=True)
+        if row["stateless"]
+        and corpus_tool.answer_key(outcome["answer"]) != corpus_tool.answer_key(row["answer"])
+    ]
+    assert len(changed_rows) == 2
+    assert {row["request"]["prompt"] for row, _ in changed_rows} == {
+        "Cast Talisman of Creativity? (You still pay the costs)",
+        "Cast Fellwar Stone? (You still pay the costs)",
+    }
+    for row, outcome in changed_rows:
+        assert row["class"] == "choose_use"
+        options = row["request"]["legal_options"]
+        before = next(o for o in options if o["option_id"] in row["answer"]["selected_option_ids"])
+        after = next(
+            o for o in options if o["option_id"] in outcome["answer"]["selected_option_ids"]
+        )
+        assert before["metadata"]["value"] is True
+        assert after["metadata"]["value"] is False
+    assert "changed in total: 2 of" in quiet, quiet
 
     _break_priority_answers(monkeypatch, legal=True)
     assert corpus_tool.diff(args) == 0
@@ -238,7 +263,7 @@ def test_diff_reports_nothing_for_the_recording_pilot_and_counts_a_changed_pilot
     priority_line = next(line for line in loud.splitlines() if line.strip().startswith("priority"))
     changed = int(priority_line.split()[1])
     assert changed > 0, loud
-    assert "changed in total: 0 of" not in loud
+    assert "changed in total: 2 of" not in loud
 
 
 def test_a_full_dump_is_replayed_with_one_policy_per_seed(

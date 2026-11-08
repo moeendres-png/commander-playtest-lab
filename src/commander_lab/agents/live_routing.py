@@ -41,6 +41,16 @@ def strategy_family(strategy: str) -> str:
         return "kaervek"
     if normalized in _GENERIC_ARCHETYPES:
         return normalized
+    if "aggro" in normalized or "combat" in normalized:
+        return "aggro"
+    if "control" in normalized:
+        return "control"
+    if "artifact" in normalized or "equipment" in normalized:
+        return "artifact"
+    if "graveyard" in normalized or "recursion" in normalized or "reanimation" in normalized:
+        return "graveyard"
+    if "engine" in normalized or "etb" in normalized:
+        return "engine"
     return "generic"
 
 

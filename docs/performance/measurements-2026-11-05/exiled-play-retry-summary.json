@@ -1,0 +1,249 @@
+{
+  "baseline_prefix_adjudication": {
+    "baseline_source_parent": "51e36a957ee7462727f2a2bc91f6a8fcc1a31628",
+    "baseline_status": "ENGINE_FAILURE at 50000 decisions; not complete",
+    "candidate_parent": "a2e29f91abd7d1df9ef283ae145c2e3983c0b21b",
+    "classification": "DIRECTLY_VERIFIED",
+    "continue_record": 2711,
+    "failed_play_record": 2710,
+    "identical_native_observations": true,
+    "multikicker_prefix": [],
+    "numeric_prefix": [
+      {
+        "choice": 1,
+        "record": 1900,
+        "source": "Rod of Absorption"
+      },
+      {
+        "choice": 1,
+        "record": 1938,
+        "source": "Rod of Absorption"
+      },
+      {
+        "choice": 1,
+        "record": 2013,
+        "source": "Rod of Absorption"
+      },
+      {
+        "choice": 6,
+        "record": 2087,
+        "source": "Rod of Absorption"
+      }
+    ],
+    "play_prompt": "Play Plains?",
+    "source": "Dungeon of the Mad Mage",
+    "turn": 45
+  },
+  "candidate_preceding_play": {
+    "chosen": [
+      [
+        "boolean",
+        "Yes"
+      ]
+    ],
+    "class": "choose_use",
+    "numeric": null,
+    "prompt": "Play Plains?"
+  },
+  "classification": "DIRECTLY_VERIFIED",
+  "control": {
+    "after": {
+      "archive": {
+        "file": "coverage-4p-000-1-records.jsonl.gz",
+        "records": 1892,
+        "uncompressed_sha256": "87f859f61a628d93fdac72451f9cfe6536e5a875c4a93166c182399cd487aa38",
+        "verified": true
+      },
+      "decisions": 1892,
+      "mana_payments_cancelled": 0,
+      "pod": "coverage-4p-000",
+      "seed": 1,
+      "semantic": "9c04032c760b9b79f4ded889f0efbbe6afc28fa753daf63b87da35e43eb42275",
+      "spells_cast": 35,
+      "status": "ok",
+      "wall_s": 170.83,
+      "winners": [
+        2
+      ]
+    },
+    "before": {
+      "archive": {
+        "file": "coverage-4p-000-1-records.jsonl.gz",
+        "records": 1892,
+        "uncompressed_sha256": "51b75ba089b508a31c313e8a3048beaad79d88fdc3d25d510e31ffead63e9f8b",
+        "verified": true
+      },
+      "decisions": 1892,
+      "mana_payments_cancelled": 0,
+      "pod": "coverage-4p-000",
+      "seed": 1,
+      "semantic": "9c04032c760b9b79f4ded889f0efbbe6afc28fa753daf63b87da35e43eb42275",
+      "spells_cast": 35,
+      "status": "ok",
+      "wall_s": 101.27,
+      "winners": [
+        2
+      ]
+    }
+  },
+  "data_assets": {
+    "data/cards/pilot_card_knowledge.json": "6a4a0647c21da6ee0441b59601014d4843f25963bdfb8636afeaefb5b9df8f95",
+    "data/cards/structural_role_profiles.json": "a507010fc1191d1e2f500262f0162122a30ba2e4ee9edf42f6d4a3071268426a",
+    "data/cards/xmage_card_facts.json": "cdc0e4d68a4a3a11fca5a83756822112709f3d5ea43c00c69d5166a8f97b5f84"
+  },
+  "deck_inputs": [
+    {
+      "cards": 100,
+      "deck_id": "precon/2020/ruthless_regiment",
+      "file": "data/decks/precons/2020_ruthless_regiment.json",
+      "sha256": "053e897e67195d24396b209ab0744c21399af20648e11026394ea22943be758a"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2015/plunder_the_graves",
+      "file": "data/decks/precons/2015_plunder_the_graves.json",
+      "sha256": "f4efbce5a854489865ce75ff89ed4f445ab241f103ee778fabe1bee8804a9170"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2018/subjective_reality",
+      "file": "data/decks/precons/2018_subjective_reality.json",
+      "sha256": "c7c7e7b59ed3f1a28fb9d30254b59f312143534bd5581873cdbad526826719a6"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2018/built_from_scratch",
+      "file": "data/decks/precons/2018_built_from_scratch.json",
+      "sha256": "93d731e3704a878a8d039db1920ff3353a6e66d50c58bef232d9fe25ec3af678"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2021/dungeons_of_death",
+      "file": "data/decks/precons/2021_dungeons_of_death.json",
+      "sha256": "9535d48139a48838b07f3ae3fd27905710d68053a2345931af019ee6216a1911"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2026/tramplesaurus_rex",
+      "file": "data/decks/precons/2026_tramplesaurus_rex.json",
+      "sha256": "a6dc9b8c7e3fffff5719588528dcc3177227e6c38c0573db2d56f42eefbd9184"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2024/miracle_worker",
+      "file": "data/decks/precons/2024_miracle_worker.json",
+      "sha256": "a661b8d5e08ce6ee775a69ec6657396a3a022a360d5c62996638dcbe1fe0692b"
+    },
+    {
+      "cards": 100,
+      "deck_id": "precon/2023/fae_dominion",
+      "file": "data/decks/precons/2023_fae_dominion.json",
+      "sha256": "de809bfb924f99bc088f74422aedef48a27add2e440af5988a8ad25b0a2279c0"
+    }
+  ],
+  "engine_pin": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "first_response_divergence": {
+    "after": {
+      "chosen": [
+        [
+          "boolean",
+          "No"
+        ]
+      ],
+      "class": "choose_use",
+      "numeric": null,
+      "prompt": "Continue playing the exiled cards?"
+    },
+    "before": {
+      "chosen": [
+        [
+          "boolean",
+          "Yes"
+        ]
+      ],
+      "class": "choose_use",
+      "numeric": null,
+      "prompt": "Continue playing the exiled cards?"
+    },
+    "record": 2711
+  },
+  "jar_sha256": "5fe48fd25ab055fc12fce99aab807d0d045bc5912dfde626d585ff30dedba788",
+  "later_empty_native_stack": {
+    "record": 2721,
+    "turn": 45
+  },
+  "limits": [
+    "Baseline problem game failed after 50000 decisions; it is not a complete game.",
+    "The baseline problem snapshot predates the X reserve predecessor. It contains no multikicker before the stalled cycle; selected option types/labels and numeric values match until the new Continue No. Incidental per-run UUIDs in HTML prompts differ.",
+    "The whole principal-scoped observation is compared, not every internal engine state. This is a strategy preference, not a legality conclusion.",
+    "An intervening boolean clears the attempt; intervening nonboolean requests need not do so.",
+    "No playing-strength or causal wall-time claim; concurrent work affects timings."
+  ],
+  "parent_commit": "a2e29f91abd7d1df9ef283ae145c2e3983c0b21b",
+  "pods": [
+    {
+      "decks": [
+        "data/decks/precons/2020_ruthless_regiment.json",
+        "data/decks/precons/2015_plunder_the_graves.json",
+        "data/decks/precons/2018_subjective_reality.json",
+        "data/decks/precons/2018_built_from_scratch.json"
+      ],
+      "name": "coverage-4p-000",
+      "padding_decks": [],
+      "size": 4
+    },
+    {
+      "decks": [
+        "data/decks/precons/2021_dungeons_of_death.json",
+        "data/decks/precons/2026_tramplesaurus_rex.json",
+        "data/decks/precons/2024_miracle_worker.json",
+        "data/decks/precons/2023_fae_dominion.json"
+      ],
+      "name": "coverage-4p-009",
+      "padding_decks": [],
+      "size": 4
+    }
+  ],
+  "problem": {
+    "after": {
+      "archive": {
+        "file": "coverage-4p-009-1-records.jsonl.gz",
+        "records": 3006,
+        "uncompressed_sha256": "1b7b49fb9986adda16dce7df238bb7364f7b1283225e6492950729e6c000a048",
+        "verified": true
+      },
+      "decisions": 3006,
+      "mana_payments_cancelled": 3,
+      "pod": "coverage-4p-009",
+      "seed": 1,
+      "semantic": "e96b6b9f6cc1fabeba1b0c23339b2323c8b8224c8caca6c3fefab8cb5008e356",
+      "spells_cast": 52,
+      "status": "ok",
+      "wall_s": 209.42,
+      "winners": [
+        2
+      ]
+    },
+    "before": {
+      "archive": {
+        "file": "coverage-4p-009-1-records.jsonl.gz",
+        "records": 50000,
+        "uncompressed_sha256": "7a874a7145c099e53806e48aff442f12cbc34ddebb6dffe1febef5b79630a161",
+        "verified": true
+      },
+      "decisions": 50000,
+      "error": "FullGameProtocolError: full-game diagnostics redacted: ENGINE_FAILURE [ENGINE_FAILURE] (diagnostics sha256:8afd47c41503664e)",
+      "mana_payments_cancelled": 3,
+      "pod": "coverage-4p-009",
+      "seed": 1,
+      "spells_cast": 48,
+      "status": "failed",
+      "wall_s": 368.43
+    }
+  },
+  "runtime_files_sha256": {
+    "src/commander_lab/engine/rules/full_game_pilot/choices.py": "2dc18ea3776a1198aecae5d0b6ca98a0baeda6504fecc10f3996c4da35245005",
+    "src/commander_lab/engine/rules/full_game_pilot/state.py": "12be8e31908feff357b8f2a156ffd25e651281dda99e82c604abb06a4d820621"
+  },
+  "runtime_tree_digest_sha256": "d1533f51ecde2a5351a64f5d79cc495e564c95bf067910866a311de416c88f4d"
+}

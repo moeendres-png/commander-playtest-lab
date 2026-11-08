@@ -6,10 +6,14 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import mage.MageItem;
 import mage.abilities.Ability;
+import mage.abilities.costs.Cost;
+import mage.abilities.costs.common.TapSourceCost;
+import mage.abilities.mana.ActivatedManaAbilityImpl;
 import mage.cards.Card;
 import mage.constants.AsThoughEffectType;
 import mage.constants.CommanderCardType;
 import mage.constants.ManaType;
+import mage.constants.Zone;
 import mage.counters.Counter;
 import mage.counters.CounterType;
 import mage.game.Game;
@@ -596,6 +600,7 @@ final class XmageFullGameStateRedactor {
                             publicAnchorId
                     );
                     permanent.remove("private_identity");
+                    permanent.remove("source_tap_mana_abilities_blocked");
                 }
             }
         }
@@ -689,11 +694,43 @@ final class XmageFullGameStateRedactor {
             abilityRules.forEach(abilities::add);
             item.add("abilities", abilities);
             item.addProperty("ability_count", abilityRules.size());
+            if (game != null && viewer != null && viewer.getId().equals(permanent.getControllerId())) {
+                Boolean blocked = sourceTapManaAbilitiesBlocked(permanent, game);
+                if (blocked != null) {
+                    item.addProperty("source_tap_mana_abilities_blocked", blocked);
+                }
+            }
         } else {
             item.add("abilities", new JsonArray());
             item.addProperty("ability_count", 0);
         }
         return item;
+    }
+
+    /** A narrow native tap-cost fact, independent of the current mana pool. */
+    private static Boolean sourceTapManaAbilitiesBlocked(Permanent permanent, Game game) {
+        try {
+            boolean found = false;
+            for (ActivatedManaAbilityImpl ability : permanent.getAbilities(game)
+                    .getActivatedManaAbilities(Zone.BATTLEFIELD)) {
+                found = true;
+                boolean hasTapSource = false;
+                for (Cost cost : ability.getCosts()) {
+                    if (cost instanceof TapSourceCost) {
+                        hasTapSource = true;
+                        if (cost.canPay(ability, ability, permanent.getControllerId(), game)) {
+                            return false;
+                        }
+                    }
+                }
+                if (!hasTapSource) {
+                    return false;
+                }
+            }
+            return found ? Boolean.TRUE : null;
+        } catch (RuntimeException ignored) {
+            return null;
+        }
     }
 
     private static JsonArray exileView(Game game, Player viewer, Player owner) {
