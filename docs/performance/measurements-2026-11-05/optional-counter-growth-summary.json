@@ -1,0 +1,167 @@
+{
+  "classification": "DIRECTLY_VERIFIED local unit and full-game observations; strategy estimate, not optimality proof",
+  "branch_parent_commit": "078f17363dd176929eba48355beeb10d3f508afa",
+  "engine_fork_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "jar_sha256": "5fe48fd25ab055fc12fce99aab807d0d045bc5912dfde626d585ff30dedba788",
+  "runtime_source": {
+    "snapshot": "/workspace/scratch/combat-v1/growth-progress-v1-src",
+    "file_hashlist_sha256": "00b46af3ac8f6d0c341d8abe0f7dd14445950f0ab0c05abf8aa6e7951e6d92f2",
+    "sources": {
+      "src/commander_lab/engine/rules/full_game_pilot/choices.py": "61c96400d8d6d9c1aa8febbc22eef70d277d283598368034a22fc8e12c7ef8ba",
+      "src/commander_lab/engine/rules/full_game_pilot/counter_growth.py": "9c3715da3f9aa40274f5b3d4d9402bf9391f04b0e21cbc57a745f8c851bb1f83",
+      "src/commander_lab/engine/rules/full_game_pilot/state.py": "bb2b040d3e9507daca86f45ffa3cdbbc249a99cbbefd5223241e78dafc07a6cc"
+    }
+  },
+  "games": [
+    {
+      "pod": "P6a",
+      "seed": 1,
+      "status": "ok",
+      "decisions": 4244,
+      "spells_cast": 47,
+      "mana_payments_cancelled": 6,
+      "semantic": "b83ba7d0efae43662d1fe4f9f88a8cb1841c33d30191747016fa8b06870f0e05",
+      "wall_s": 250.46,
+      "pilot_s": 7.63,
+      "winners": [
+        5
+      ]
+    },
+    {
+      "pod": "P6b",
+      "seed": 1,
+      "status": "ok",
+      "decisions": 7384,
+      "spells_cast": 66,
+      "mana_payments_cancelled": 1,
+      "semantic": "8d4430ab778feff02da0578c3c071f61c37a0ed18414a3c5621b2594315e291e",
+      "wall_s": 131.94,
+      "pilot_s": 6.49,
+      "winners": [
+        4
+      ]
+    }
+  ],
+  "control_semantic_equal": true,
+  "metric_definition": {
+    "spells_cast": "Cancellation-adjusted priority cast selections, not proof of resolution."
+  },
+  "growth": {
+    "source": "Enduring Scalelord",
+    "choices": {
+      "Yes": 207,
+      "No": 624
+    },
+    "source_power_min": 4,
+    "source_power_max": 73
+  },
+  "first_native_no": {
+    "record": 3751,
+    "turn": 50,
+    "power": 49,
+    "toughness": 49,
+    "counters": [
+      {
+        "type": "+1/+1",
+        "count": 45
+      }
+    ],
+    "stack_depth": 44,
+    "next_20_decisions": {
+      "count": 20,
+      "classes": {
+        "priority": 8,
+        "choose_use": 4,
+        "trigger_order": 8
+      },
+      "stack_depth_min": 41,
+      "stack_depth_max": 50
+    }
+  },
+  "later_empty_native_stack": {
+    "record": 6746,
+    "decisions_after_first_no": 2995,
+    "turn": 50,
+    "phase": "beginning",
+    "decision_class": "priority"
+  },
+  "native_draw_proposal_choices": {
+    "False": 6,
+    "True": 2
+  },
+  "baseline": {
+    "status": "resource_interrupted",
+    "result": "UNKNOWN",
+    "retained_records": 10200,
+    "observation_record": 10199,
+    "observed_source_power": 497,
+    "observed_source_toughness": 497,
+    "observed_stack_depth": 3696,
+    "observed_scalelords_controlled": 6,
+    "completed_game_time": "UNKNOWN; no causal speed comparison"
+  },
+  "validation": {
+    "targeted_tests": 170,
+    "broad_tests": 800,
+    "private_coverage_deselected": 1,
+    "mypy_source_files": 350,
+    "any_ratchet": "PASS"
+  },
+  "limitations": [
+    "The original unmodified baseline has no terminal result or winner; intermediate candidates ended in native offered draws.",
+    "Unknown or additional counter payoffs retain previous ranking.",
+    "Intermediate source runs are not credited to the final snapshot.",
+    "No playing-strength or causal speed improvement is claimed."
+  ],
+  "pods": {
+    "P6a": [
+      "2014_guided_by_nature",
+      "2015_plunder_the_graves",
+      "2017_feline_ferocity",
+      "2017_draconic_domination",
+      "2021_vampiric_bloodline",
+      "2026_tramplesaurus_rex"
+    ],
+    "P6b": [
+      "2023_call_for_backup",
+      "2021_coven_counters",
+      "2019_primal_genesis",
+      "2018_breed_lethality",
+      "2016_open_hostility",
+      "2017_arcane_wizardry"
+    ]
+  },
+  "pod_path_template": "data/decks/precons/{deck}.json; listed seat order",
+  "privacy_deviation": {
+    "scope": "separate delegated API triage",
+    "action": "broad filesystem metadata search for a compiler, contrary to explicit path restriction",
+    "private_path_or_content_output": false,
+    "excluded_tree_traversal": "UNKNOWN",
+    "file_contents_read_by_that_find_command": false,
+    "evidence_credit": "excluded; final Python tests/games used access guards"
+  },
+  "intermediate_candidates": [
+    {
+      "source_label": "growth-approved-v2",
+      "native_status": "completed_draw",
+      "decisions": 11055,
+      "counter_choices": {
+        "Yes": 410,
+        "No": 1541
+      },
+      "empty_stack_after_no_observed": false,
+      "liveness_goal": "PARTIAL"
+    },
+    {
+      "source_label": "growth-redundancy-v1",
+      "native_status": "completed_draw",
+      "decisions": 6034,
+      "counter_choices": {
+        "Yes": 147,
+        "No": 485
+      },
+      "empty_stack_after_no_observed": false,
+      "liveness_goal": "PARTIAL"
+    }
+  ]
+}

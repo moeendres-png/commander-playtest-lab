@@ -205,7 +205,9 @@ def mana_x_prompt_symbols(prompt: str) -> int | None:
     return len(_X_SYMBOL_TOKEN.findall(match.group("symbols")))
 
 
-def mana_payment_fit(label: str, unpaid_mana: str) -> int:
+def mana_payment_fit(
+    label: str, unpaid_mana: str, produced_letters: frozenset[str] | None = None
+) -> int:
     """Order mana abilities inside a payment by what their mana can pay.
 
     2: the ability makes mana of a color the unpaid cost names, or any color;
@@ -219,10 +221,12 @@ def mana_payment_fit(label: str, unpaid_mana: str) -> int:
     """
     text = label.casefold()
     produced_text = text.partition(": add ")[2]
-    if not produced_text:
+    if produced_letters is not None:
+        produced: set[str] | frozenset[str] = produced_letters
+    elif not produced_text:
         return 1
-    if "any type" in produced_text:
-        produced: set[str] | frozenset[str] = _COLOR_LETTERS
+    elif "any type" in produced_text:
+        produced = _COLOR_LETTERS
     elif "any color" in produced_text:
         produced = frozenset("wubrg")
     else:

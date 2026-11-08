@@ -1,0 +1,59 @@
+{
+  "classification": "DIRECTLY_VERIFIED local full-game and report-parity observations",
+  "engine_fork_commit": "2ec507b721ac04834eaa4d553b494681c46d996f",
+  "jar_sha256": "5fe48fd25ab055fc12fce99aab807d0d045bc5912dfde626d585ff30dedba788",
+  "snapshot_file_hashlist_sha256": "2704b64ab3c2bc4178193b71b3f06aa04ca11a1021959c57405fc2a544625ae6",
+  "comparison_scope": "Every global and by_seat report value except pilot_s; full semantic hash equality",
+  "games": [
+    {
+      "pod": "P4a",
+      "status": "ok",
+      "semantic": "e9f2af81f3a71116fe2b77ba18e102e379e50cf3332ebed55e5f53375fddc825",
+      "decisions": 2897,
+      "global_and_by_seat_match": true,
+      "mismatched_keys": [],
+      "reference_semantic": "e9f2af81f3a71116fe2b77ba18e102e379e50cf3332ebed55e5f53375fddc825",
+      "semantic_equal": true
+    },
+    {
+      "pod": "P4b",
+      "status": "ok",
+      "semantic": "b2034926207272651bda50302b3986e5a4363487f9cb39bd89e5834c35893b1b",
+      "decisions": 3009,
+      "global_and_by_seat_match": true,
+      "mismatched_keys": [],
+      "reference_semantic": "b2034926207272651bda50302b3986e5a4363487f9cb39bd89e5834c35893b1b",
+      "semantic_equal": true
+    }
+  ],
+  "seed": 1,
+  "source_hashes": {
+    "scripts/pilot_decision_report.py": "a1c620b5a8cfcc38d954af17b298cf17c05b6a94f9573285aa25d2d0945f8829",
+    "scripts/pilot_decision_records.py": "fbdf243b340672c0e04c81c442a2116db4f0fee2ca674aa83a6ad98a07c8cd25"
+  },
+  "runtime_change": "report storage only; pilot source, bridge and engine pin unchanged",
+  "limitations": [
+    "No speed or strength claim",
+    "Six-player Scalelord prefixes remain interrupted, not full-game evidence",
+    "Temporary storage is not a permanent recording archive; abrupt uncommitted tails are unknown"
+  ],
+  "pods": {
+    "P4a": [
+      "2014_guided_by_nature",
+      "2015_plunder_the_graves",
+      "2019_faceless_menace",
+      "2026_tramplesaurus_rex"
+    ],
+    "P4b": [
+      "2023_call_for_backup",
+      "2021_coven_counters",
+      "2021_aura_of_courage",
+      "2011_devour_for_power"
+    ]
+  },
+  "pod_path_template": "data/decks/precons/{deck}.json; listed seat order",
+  "branch_base_commit": "67394f673dca0fef2097ee9dc0ecd826a9a00f1c",
+  "reference_snapshot_file_hashlist_sha256": "35b1e8a75d21e7cac20051f27cfed90a08ff759043ed778bb57cd9f834713c96",
+  "hashlist_scope": "sha256sum of sorted src/scripts/config file hash lists, excluding pycache/pyc",
+  "reference_report_sha256": "35661e0036ea805449af053e60023a1e47a92b343bc8241a528991b8b307cfa4"
+}

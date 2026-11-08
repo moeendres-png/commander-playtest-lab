@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import itertools
+import json
 import random
 import re
 from collections.abc import Mapping
@@ -41,6 +43,7 @@ from .common import (
     _optional_mana_cost,
     _RuntimePilot,
 )
+from .counter_growth import saturated_self_counter, self_counter_progress
 from .payment import _PaymentDecisions
 
 # The engine's own tag for "choose a card to cast or play without paying for it". Picking one is
@@ -49,6 +52,8 @@ from .payment import _PaymentDecisions
 # then answered Yes to "Continue casting?" for ever (precon pod, 50000 decisions, no cast).
 _FREE_PLAY_OUTCOMES = frozenset({"playforfree"})
 _FREE_CAST_PROMPT = re.compile(r"Cast spell without paying its mana cost")
+_EXILED_PLAY_PROMPT = re.compile(r"\APlay .+\?\Z")
+_EXILED_PLAY_CONTINUE = "Continue playing the exiled cards?"
 _PHYREXIAN_LIFE_PROMPT = re.compile(r"Pay (\d+) life instead of ")
 _FREE_CAST_CONTINUE_PROMPT = re.compile(
     r"You can cast \d+ more spells? for free\. Continue casting"
@@ -602,10 +607,28 @@ class _ChoiceDecisions(_PaymentDecisions):
                 life < life_promised + int(life_prompt.group(1))
             )
         offer = _multikicker_offer(prompt)
+        optional_cost = _optional_mana_cost(prompt)
+        native_cost = context.get("optional_mana_cost")
+        native_resolution_cost = (
+            native_cost
+            if context.get("optional_mana_cost_scope") == "effect_resolution"
+            and isinstance(native_cost, str)
+            and re.fullmatch(r"(?:\{(?:\d+|[WUBRGC])\})+", native_cost)
+            else None
+        )
+        known_mana_cost = bool(
+            optional_cost and re.fullmatch(r"(?:\{(?:\d+|[WUBRGC])\})+", optional_cost)
+        )
         chain_key = (self._boolean_source_key(source_object), outcome)
         prior = self._boolean_repeat.get(seat)
         answered_yes = 0
-        cap: int | None = None
+        cap: int | None = (
+            self._boolean_yes_cap(
+                offer, self._actor(state), source_object, seat=seat, known_mana_cost=known_mana_cost
+            )
+            if offer is not None
+            else None
+        )
         if (
             offer is not None
             and prior is not None
@@ -613,7 +636,6 @@ class _ChoiceDecisions(_PaymentDecisions):
             and prior[1] == offer.ordinal - 1
         ):
             answered_yes = prior[2]
-            cap = self._boolean_yes_cap(offer, self._actor(state), source_object)
         dig_key = self._boolean_source_key(source_object)
         dug = 0
         if _LIFE_DIG_PROMPT.match(prompt):
@@ -625,9 +647,12 @@ class _ChoiceDecisions(_PaymentDecisions):
         # after the same single check. A Yes the seat's own mana provably cannot fund only cancels
         # the payment, and the spell is not cast either (the unkicked Nullpriest of Oblivion
         # stayed in hand). Cost text the model cannot read is never withheld.
-        optional_cost = _optional_mana_cost(prompt)
-        cost_yes_blocked = optional_cost is not None and self._cost_cannot_be_paid(
-            state, optional_cost * (offer.ordinal if offer is not None else 1), source_object
+        cost_yes_blocked = (
+            native_resolution_cost is None
+            and optional_cost is not None
+            and self._cost_cannot_be_paid(
+                state, optional_cost * (offer.ordinal if offer is not None else 1), source_object
+            )
         )
         yes_withheld = (
             life_yes_blocked
@@ -647,6 +672,46 @@ class _ChoiceDecisions(_PaymentDecisions):
         # answered Yes to, followed by "Continue casting?", failed to cast;
         # the identical cast prompt is not offered Yes again this turn.
         turn = state.get("turn_number")
+        attempt = self._exiled_play_attempt.pop(seat, None)
+        play_key = None
+        if (
+            outcome == "playforfree"
+            and isinstance(source_object, dict)
+            and isinstance(state.get("game_id"), str)
+            and state.get("game_id")
+            and isinstance(state.get("actor_id"), str)
+            and state.get("actor_id")
+            and type(turn) is int
+        ):
+            source_id = source_object.get("source_object_id")
+            ability_id = source_object.get("ability_original_id")
+            if (
+                isinstance(source_id, str)
+                and source_id
+                and isinstance(ability_id, str)
+                and ability_id
+            ):
+                try:
+                    digest = hashlib.sha256(
+                        json.dumps(state, sort_keys=True, separators=(",", ":")).encode()
+                    ).hexdigest()
+                except (TypeError, ValueError):
+                    pass
+                else:
+                    play_key = (
+                        state["game_id"],
+                        state["actor_id"],
+                        source_id,
+                        turn,
+                        ability_id,
+                        digest,
+                    )
+        exiled_play_stalled = (
+            prompt == _EXILED_PLAY_CONTINUE
+            and play_key is not None
+            and attempt == play_key
+            and False in values.values()
+        )
         failed_turn, failed = self._free_cast_failed.get(seat, (None, set()))
         if failed_turn != turn:
             failed = set()
@@ -694,8 +759,35 @@ class _ChoiceDecisions(_PaymentDecisions):
         # fifteen rounds after a No. Flourishing Defenses ("may" create an Elf Warrior for each -1/-1
         # counter) against Blowfly Infestation (a -1/-1 counter on the new token) looped 50000
         # decisions with a stack of 199 abilities, answered No each time (plan seed 1, game seed
-        # 401, pod 017). CR 104.4b ends such a game as a draw; the Yes is kept.
-        if _INFINITE_LOOP_PROMPT.match(prompt):
+        # 401, pod 017). Keep that agreement unless a known self-counter decline has
+        # reduced the queue or improved capped body utility. Later refusals need more progress.
+        progress_draw = False
+        draw_progress = (
+            self_counter_progress(state) if _INFINITE_LOOP_PROMPT.match(prompt) else None
+        )
+        game_id = state.get("game_id")
+        declined = self._counter_growth_declines.get(seat)
+        refused = self._counter_draw_refusals.get(seat)
+        if (
+            False in values.values()
+            and isinstance(game_id, str)
+            and game_id.strip()
+            and type(turn) is int
+            and draw_progress is not None
+            and declined is not None
+            and declined[0] == game_id
+            and declined[1] == turn
+            and (draw_progress[0] < declined[2] or draw_progress[1] > declined[3])
+            and (
+                refused is None
+                or refused[0] != game_id
+                or refused[1] != turn
+                or draw_progress[0] < refused[2]
+                or draw_progress[1] > refused[3]
+            )
+        ):
+            progress_draw = True
+        if _INFINITE_LOOP_PROMPT.match(prompt) and not progress_draw:
             kept = [o for o in selectable if values[self._required_text(o, "option_id")]]
             if kept:
                 selectable = kept
@@ -762,12 +854,24 @@ class _ChoiceDecisions(_PaymentDecisions):
         actions: list[PilotActionView] = []
         raw_by_stable_id: dict[str, str] = {}
         paid_cast_shortfall = self._paid_cast_mana_shortfall(state, prompt)
+        native_cost_shortfall = native_resolution_cost is not None and self._cost_cannot_be_paid(
+            state, native_resolution_cost
+        )
+        saturated = False in values.values() and saturated_self_counter(
+            state, source_object, prompt
+        )
         for option in options:
             value = values[self._required_text(option, "option_id")]
             aligned = (value and outcome in {"benefit", "benefit_to_controller"}) or (
                 not value and outcome in DECLINE_ALIGNED_BOOLEAN_OUTCOMES
             )
-            if paid_cast_shortfall:
+            if (
+                paid_cast_shortfall
+                or native_cost_shortfall
+                or saturated
+                or progress_draw
+                or exiled_play_stalled
+            ):
                 aligned = not value
             # Twin-stable: boolean value words are Rules-visible content.
             stable_id = f"boolean:{value}"
@@ -789,6 +893,18 @@ class _ChoiceDecisions(_PaymentDecisions):
             raw_id = raw_by_stable_id[decision.selected_action_id]
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable boolean option") from None
+        if (
+            not values[raw_id]
+            and isinstance(game_id, str)
+            and game_id.strip()
+            and type(turn) is int
+        ):
+            if saturated:
+                progress = self_counter_progress(state)
+                if progress is not None:
+                    self._counter_growth_declines[seat] = (game_id, turn, *progress)
+            if progress_draw and draw_progress is not None:
+                self._counter_draw_refusals[seat] = (game_id, turn, *draw_progress)
         if _FREE_CAST_PROMPT.match(prompt):
             self._free_cast_last_yes[seat] = prompt if values[raw_id] else None
         elif _FREE_CAST_CONTINUE_PROMPT.match(prompt):
@@ -796,6 +912,8 @@ class _ChoiceDecisions(_PaymentDecisions):
             if last_yes is not None:
                 failed.add(last_yes)
         self._free_cast_failed[seat] = (turn, failed)
+        if _EXILED_PLAY_PROMPT.fullmatch(prompt) and values[raw_id] and play_key is not None:
+            self._exiled_play_attempt[seat] = play_key
         if retarget and values[raw_id]:
             self._retarget_yes[seat] = (turn, retargeted + 1)
         if _LIFE_DIG_PROMPT.match(prompt) and values[raw_id]:
@@ -812,6 +930,16 @@ class _ChoiceDecisions(_PaymentDecisions):
                 offer.ordinal,
                 (answered_yes + 1) if values[raw_id] else 0,
             )
+            if isinstance(source_object, dict) and offer.per_payment and known_mana_cost:
+                source = str(source_object.get("source_object_id") or "")
+                if source:
+                    commitments = self._optional_mana_commitments.setdefault(seat, {})
+                    if offer.ordinal == 1:
+                        commitments.clear()
+                        commitments[source] = (0, 0)
+                    previous = commitments.get(source)
+                    if values[raw_id] and previous is not None and previous[1] == offer.ordinal - 1:
+                        commitments[source] = (previous[0] + offer.per_payment, offer.ordinal)
         chosen_label = next(
             (
                 str(option.get("label", ""))
@@ -851,7 +979,13 @@ class _ChoiceDecisions(_PaymentDecisions):
         return f"instance:{instance}" if instance else ""
 
     def _boolean_yes_cap(
-        self, offer: _MultikickerOffer, actor: dict[str, Any], source_object: object = None
+        self,
+        offer: _MultikickerOffer,
+        actor: dict[str, Any],
+        source_object: object = None,
+        *,
+        seat: int | None = None,
+        known_mana_cost: bool = True,
     ) -> int:
         """How many multikicker payments the pilot's mana can fund in all.
 
@@ -864,10 +998,21 @@ class _ChoiceDecisions(_PaymentDecisions):
         prints no mana symbol states no per-payment value to divide by, so one
         further payment is assumed -- the minimum a bound needs to hold.
         """
+        base = self._spell_base_cost(source_object)
+        reserve = 0
+        if isinstance(source_object, dict) and source_object.get("ability_type") == "spell":
+            facts = card_facts(str(source_object.get("source_name") or ""))
+            symbols = facts.mana_cost.upper().count("{X}") if facts is not None else 0
+            source = str(source_object.get("source_object_id") or "")
+            if symbols and offer.per_payment and source and known_mana_cost:
+                remembered = self._priority_cost_facts.get(seat, {}).get(source) if seat else None
+                if remembered is not None:
+                    base = remembered
+                spare = max(0, self._available_mana(actor) - base)
+                reserve = min(spare, max(symbols, (spare + 1) // 2))
         return max(
-            1,
-            (self._available_mana(actor) - self._spell_base_cost(source_object))
-            // (offer.per_payment or 1),
+            0 if reserve else 1,
+            (self._available_mana(actor) - base - reserve) // (offer.per_payment or 1),
         )
 
     @staticmethod
