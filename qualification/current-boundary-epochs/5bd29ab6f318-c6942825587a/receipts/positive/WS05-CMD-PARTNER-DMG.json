@@ -1,0 +1,43 @@
+{
+  "assertion_class": "BEHAVIOUR_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "construction_verdict": "EXACT",
+  "declared_substitution_source": null,
+  "execution_mode": "MIDGAME_LANE_PLACEMENT_OBLIGATION",
+  "fixture_id": "WS05-CMD-PARTNER-DMG",
+  "obligation_exercised": {
+    "obligation_digest": "46b1eb6427635dd410069810c308faa9f5486fdba06ce82fd5ff85006ba1afc9",
+    "requested_state_digest": "79c514bca20aff91afc6099f1a6c63b605d74bc1e1e7032a5fdfd7fe0d5143d1",
+    "required_events": [],
+    "terminal_checks": [
+      "exactly 0 LOST event(s) with any fields",
+      "the engine asked exactly 1 priority decision(s) of P1 about ''",
+      "the engine reports P2 neither lost nor left",
+      "the engine's commander combat damage from P1's Kediss, Emberclaw Familiar to P2 is 9",
+      "the engine's commander combat damage from P1's Rograkh, Son of Rohgahh to P2 is 12"
+    ],
+    "terminal_postconditions": [
+      "12 + 9 combat damage from different partner commanders does not pool to cause a 21-damage loss."
+    ]
+  },
+  "observed_assertion": {
+    "terminal_facts": {
+      "exactly 0 LOST event(s) with any fields": true,
+      "the engine asked exactly 1 priority decision(s) of P1 about ''": true,
+      "the engine reports P2 neither lost nor left": true,
+      "the engine's commander combat damage from P1's Kediss, Emberclaw Familiar to P2 is 9": true,
+      "the engine's commander combat damage from P1's Rograkh, Son of Rohgahh to P2 is 12": true
+    },
+    "token_evidence": {},
+    "typed_refusals": []
+  },
+  "outcome": "PASS",
+  "receipt_digest": "04e150173c74e5bc4ac53f016ee87bd615a6e65a625f77015cf77f6eeb584a3e",
+  "runner_digest": "ce2d0e043377f1148c3c7dce62e187abaa8a2cce5f097918aac449f48f6038fb",
+  "runtime_receipt_digest": "473a7484a15d488039ca0bfae69cbefbca5b2cfbc7fb3ba99cabea048eac9490",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:placement-obligation#WS05-CMD-PARTNER-DMG",
+  "variance_source": null
+}

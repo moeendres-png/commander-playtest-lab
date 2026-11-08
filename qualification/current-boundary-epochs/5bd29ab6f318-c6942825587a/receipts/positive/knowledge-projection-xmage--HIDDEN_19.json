@@ -1,0 +1,625 @@
+{
+  "assertion_class": "KNOWLEDGE_BOUNDARY_OBSERVED",
+  "assertion_kind": "POSITIVE_BEHAVIOUR",
+  "candidate": "xmage",
+  "candidate_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "construction_verdict": "EXACT",
+  "execution_mode": "MIDGAME_LANE_KNOWLEDGE_PROJECTION",
+  "fixture_id": "HIDDEN_19",
+  "obligation_exercised": {
+    "forbidden_events": [
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A"
+    ],
+    "obligation_digest": "3fd311012eb0430981c0b59206edf9c9fdc10afa690edd5f30b968a45ab6976d",
+    "requested_state_digest": "defc3acfc46c6860d4732c05c3c1f09ab54ed19dfab84a91128d8abfc1a58f4f",
+    "required_events": [
+      "knowledge_projection:HIDDEN_19:P1"
+    ],
+    "terminal_postconditions": [
+      "P1 observation exactly respects declared viewer state.",
+      "No prohibited metadata appears in any tested channel.",
+      "Knowledge invalidation/permission persistence follows the declared conditions."
+    ],
+    "viewer_obligation": "pilot code cannot access omniscient raw engine APIs"
+  },
+  "observed_assertion": {
+    "channel_coverage": {
+      "ability_metadata": 108,
+      "context": 13,
+      "event": 7,
+      "log": 216,
+      "option_id": 72,
+      "option_label": 72,
+      "option_metadata": 72,
+      "pile_metadata": 0,
+      "prompt": 13,
+      "source_metadata": 13,
+      "state": 28,
+      "transcript": 115
+    },
+    "checks": [
+      {
+        "detail": "arrival EXACT, construction_match True, mismatches []",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "construction_exact"
+      },
+      {
+        "detail": "required {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}; the engine reported {'hand_composition': 4, 'library_order': 1, 'library_object': 1, 'face_down': 1}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "lossless_checks_performed"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P1"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P2"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P3"
+      },
+      {
+        "detail": "the projection names the requested principal, a seat-label bijection and exactly one actor seat, which is the requester's own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "projection_bound_to:P4"
+      },
+      {
+        "detail": "4 distinct principal ids for 4 seats",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "distinct_principals"
+      },
+      {
+        "detail": "0 occurrences of ['Demonic Tutor', 'Vampiric Tutor', 'WS30_HONEY_P2_PRIVATE_7F3A', 'obj:hidden-hand', 'obj:hidden-lib-0']",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "no_forbidden_token_in_channels_of:P1"
+      },
+      {
+        "detail": "every channel carried content",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scan_coverage"
+      },
+      {
+        "detail": "each honey sentinel is found in the harness's own create request",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_sentinel_in_request"
+      },
+      {
+        "detail": "the honey-bound identity is found in the projection of every principal entitled to it",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "scanner_detects_honey_identity_where_entitled"
+      },
+      {
+        "detail": "static declaration, recorded but never sufficient on its own",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "declared_no_omniscient_surface"
+      },
+      {
+        "detail": "declared scopes: {'get_midgame_projection': 'principal_scoped_required_requester', 'get_midgame_state': 'principal_scoped_required_requester_counts_only', 'get_midgame_decision': 'acting_principal_frame', 'get_legal_actions': 'acting_principal_frame', 'get_midgame_events': 'public_semantic_event_tape', 'get_rules_rng_tape': 'orchestration_keyed_digests_refused_without_launch_key', 'complete_midgame_arrival': 'principal_scoped_or_principal_neutral_opponent_hands_counts_only'}",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "every_observation_scoped"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_midgame_projection:{}"
+      },
+      {
+        "detail": "refusal code midgame_projection_failed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_midgame_projection:{}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"*\"}"
+      },
+      {
+        "detail": "refusal code midgame_projection_failed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"*\"}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+      },
+      {
+        "detail": "refusal code midgame_projection_failed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"P9\"}"
+      },
+      {
+        "detail": "refusal code midgame_projection_failed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"P9\"}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_midgame_state:{}"
+      },
+      {
+        "detail": "refusal code midgame_state_failed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_midgame_state:{}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+      },
+      {
+        "detail": "refusal code midgame_arrival_failed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_full_game_state:{}"
+      },
+      {
+        "detail": "refusal code unsupported_message",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_full_game_state:{}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_omniscient_state:{}"
+      },
+      {
+        "detail": "refusal code unsupported_message",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_omniscient_state:{}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:dump_engine_state:{}"
+      },
+      {
+        "detail": "refusal code unsupported_message",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:dump_engine_state:{}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_raw_engine_object_graph:{}"
+      },
+      {
+        "detail": "refusal code unsupported_message",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_raw_engine_object_graph:{}"
+      },
+      {
+        "detail": "the lane refused",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "omniscience_not_served:get_rules_rng_tape:{}"
+      },
+      {
+        "detail": "refusal code rules_rng_tape_failed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_refusal_typed:get_rules_rng_tape:{}"
+      },
+      {
+        "detail": "refusal message 'IllegalStateException: ORCHESTRATION_CHANNEL_NOT_ENABLED: this launch carries no orchestration key'",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "orchestration_channel_disabled:get_rules_rng_tape:{}"
+      },
+      {
+        "detail": "11 of 11 attempts made",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "omniscience_attempts_made"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:fa40738533811ce9e0d8d9c4b70c5a08d5eec12574ee0a2a38fcdd03659db2bc"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:e06627da1c7a526eaaec7efdef0380997022e0a77b32d1e28ba5955edd8d8390"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:9f6148edba1c4ee673c774f0f9e029cd2e919e20ce24e235263fb97f28b7c780"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:1f0f80fea70c4f9309d44ebe9e8fd08da056680115fa24979b2f179461932e47"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:1a9f1335971a77bdbaeb73332596e9a4d7d2f4a31b52d70c2d06097df2bfe85e"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:e83f2fe7b505901840d6fd550843f6f5f5c64c62e1823b76b4d745f9a504fc00"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:d6d53286441400354f683af089bb94aad5a7a01a94378c7d1923e9bd01d23a37"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:66e9415ff0e660a8eb4f1678f4d098e84b1d74fcab491280f3c4a9c57f63024d"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:35327de58374fed94e626afd529831c58f6e09e0ba708690688d5d0a95275b98"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:822a8711f4db9495eaa023d22103ec283f72124c16a7009ffa4d6ae5fe1b6ac6"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:30369c798f16aadc546a02441cb6de21158bba814d194de5f3925b15dc1985ae"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:5274613e69cc28fa73522dfe84b9bec5e6399a8100d502bb37ff18f15eb2f80a"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:792d62bce5eca0bd6fd9900e50bb694df4c0ea23c5c7d22f3d8aa690680068c8"
+      },
+      {
+        "detail": "every occurrence embeds the acting principal's own view",
+        "holds": true,
+        "kind": "LEAK",
+        "name": "frame_carries_only_its_actor:dfb19888cfb29244432353c70aba802f83d8ecca440544c5d6c82c22be27e530"
+      },
+      {
+        "detail": "14 decision frames observed",
+        "holds": true,
+        "kind": "MEASURED",
+        "name": "frames_observed"
+      }
+    ],
+    "forbidden_evidence": {
+      "leak:WS30_HONEY_P2_PRIVATE_7F3A": {
+        "ambiguous_tokens_not_scanned": {},
+        "occurrences": [],
+        "tokens_scanned": [
+          "Demonic Tutor",
+          "Vampiric Tutor",
+          "WS30_HONEY_P2_PRIVATE_7F3A",
+          "obj:hidden-hand",
+          "obj:hidden-lib-0"
+        ]
+      }
+    },
+    "token_evidence": {
+      "knowledge_projection:HIDDEN_19:P1": [
+        {
+          "detail": "static declaration, recorded but never sufficient on its own",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "declared_no_omniscient_surface"
+        },
+        {
+          "detail": "declared scopes: {'get_midgame_projection': 'principal_scoped_required_requester', 'get_midgame_state': 'principal_scoped_required_requester_counts_only', 'get_midgame_decision': 'acting_principal_frame', 'get_legal_actions': 'acting_principal_frame', 'get_midgame_events': 'public_semantic_event_tape', 'get_rules_rng_tape': 'orchestration_keyed_digests_refused_without_launch_key', 'complete_midgame_arrival': 'principal_scoped_or_principal_neutral_opponent_hands_counts_only'}",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "every_observation_scoped"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_midgame_projection:{}"
+        },
+        {
+          "detail": "refusal code midgame_projection_failed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_midgame_projection:{}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"*\"}"
+        },
+        {
+          "detail": "refusal code midgame_projection_failed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"*\"}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+        },
+        {
+          "detail": "refusal code midgame_projection_failed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"ALL\"}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_midgame_projection:{\"actor_id\": \"P9\"}"
+        },
+        {
+          "detail": "refusal code midgame_projection_failed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_midgame_projection:{\"actor_id\": \"P9\"}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_midgame_state:{}"
+        },
+        {
+          "detail": "refusal code midgame_state_failed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_midgame_state:{}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+        },
+        {
+          "detail": "refusal code midgame_arrival_failed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:complete_midgame_arrival:{\"actor_id\": \"P9\"}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_full_game_state:{}"
+        },
+        {
+          "detail": "refusal code unsupported_message",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_full_game_state:{}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_omniscient_state:{}"
+        },
+        {
+          "detail": "refusal code unsupported_message",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_omniscient_state:{}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:dump_engine_state:{}"
+        },
+        {
+          "detail": "refusal code unsupported_message",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:dump_engine_state:{}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_raw_engine_object_graph:{}"
+        },
+        {
+          "detail": "refusal code unsupported_message",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_raw_engine_object_graph:{}"
+        },
+        {
+          "detail": "the lane refused",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "omniscience_not_served:get_rules_rng_tape:{}"
+        },
+        {
+          "detail": "refusal code rules_rng_tape_failed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_refusal_typed:get_rules_rng_tape:{}"
+        },
+        {
+          "detail": "refusal message 'IllegalStateException: ORCHESTRATION_CHANNEL_NOT_ENABLED: this launch carries no orchestration key'",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "orchestration_channel_disabled:get_rules_rng_tape:{}"
+        },
+        {
+          "detail": "11 of 11 attempts made",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "omniscience_attempts_made"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:fa40738533811ce9e0d8d9c4b70c5a08d5eec12574ee0a2a38fcdd03659db2bc"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:e06627da1c7a526eaaec7efdef0380997022e0a77b32d1e28ba5955edd8d8390"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:9f6148edba1c4ee673c774f0f9e029cd2e919e20ce24e235263fb97f28b7c780"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:1f0f80fea70c4f9309d44ebe9e8fd08da056680115fa24979b2f179461932e47"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:1a9f1335971a77bdbaeb73332596e9a4d7d2f4a31b52d70c2d06097df2bfe85e"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:e83f2fe7b505901840d6fd550843f6f5f5c64c62e1823b76b4d745f9a504fc00"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:d6d53286441400354f683af089bb94aad5a7a01a94378c7d1923e9bd01d23a37"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:66e9415ff0e660a8eb4f1678f4d098e84b1d74fcab491280f3c4a9c57f63024d"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:35327de58374fed94e626afd529831c58f6e09e0ba708690688d5d0a95275b98"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:822a8711f4db9495eaa023d22103ec283f72124c16a7009ffa4d6ae5fe1b6ac6"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:30369c798f16aadc546a02441cb6de21158bba814d194de5f3925b15dc1985ae"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:5274613e69cc28fa73522dfe84b9bec5e6399a8100d502bb37ff18f15eb2f80a"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:792d62bce5eca0bd6fd9900e50bb694df4c0ea23c5c7d22f3d8aa690680068c8"
+        },
+        {
+          "detail": "every occurrence embeds the acting principal's own view",
+          "holds": true,
+          "kind": "LEAK",
+          "name": "frame_carries_only_its_actor:dfb19888cfb29244432353c70aba802f83d8ecca440544c5d6c82c22be27e530"
+        },
+        {
+          "detail": "14 decision frames observed",
+          "holds": true,
+          "kind": "MEASURED",
+          "name": "frames_observed"
+        }
+      ]
+    },
+    "viewer": "P1"
+  },
+  "outcome": "PASS",
+  "receipt_digest": "f5d25f62fa0488caa534671608849310f96e79d25c6bdb5b324cda746b8c7af9",
+  "runner_digest": "ce2d0e043377f1148c3c7dce62e187abaa8a2cce5f097918aac449f48f6038fb",
+  "runtime_receipt_digest": "76861707d0e557ae68b08e508efff476c12861eec65d536cc639bf9fe244dce7",
+  "schema_version": "commander-lab.positive-fixture-receipt/1.0.0",
+  "test_identity": "midgame-lane:knowledge-projection#HIDDEN_19"
+}
