@@ -29,6 +29,12 @@ Fork `maven.yml`, `workflow_dispatch` on `claude/trial-ue4-20261031`, run 420813
 skipped (the v14 pin ran 7586); Mage.Verify 28 run, 0 failures, 0 errors, 8 skipped. The two
 Verify failures that the v14 lock carried as baseline-attributed (set BCHR, card Vox) are gone.
 
+The Conformance run of the repin branch (XMage Full Game Conformance, run 42496814885, run number 2447, head
+`fce2ca9219`, engine-bridge `mvn verify` against XMage built from exact `f4d12f6e80`): 1164 tests, 0 failures,
+0 errors, 1 skipped (the superseded START-2 provenance test), `XmageCandidateEngineFingerprintTest` 8 of 8. The
+run, job, artifact and the digests of the installed `mage` and `mage-sets` jars are bound in the lock, which is
+`EVIDENCE_BOUND`. PB-03 on the merge commit is still open.
+
 ## Identity against the reference (LOCAL_OBSERVED)
 
 The measuring worktree held Lab `8cc0d1563` (main plus the HID-01 launch plan) with the pin

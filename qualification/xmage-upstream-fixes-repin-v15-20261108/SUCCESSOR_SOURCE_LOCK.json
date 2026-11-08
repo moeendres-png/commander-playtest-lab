@@ -2,8 +2,8 @@
  "schema_version": "commander-lab.xmage-successor-source-lock/1.0.0",
  "workstream": "xmage-upstream-fixes-repin-v15-20261108",
  "classification": "SUCCESSOR_LIVE_PIN_EPOCH",
- "status": "PIN_MOVED_LAB_EVIDENCE_PENDING",
- "status_note": "the pin is the head of the fork branch claude/trial-ue4-20261031 (moeendres-png/mage, also the head of the candidate line claude/xmage-mp-candidate-20260929): the v14 pin 2ec507b721 plus twelve upstream XMage commits picked from the U-1 delta (ten engine and card fixes and two Verify test fixes), the cancelled-payment fix (U-4), Guava 33.7.2-jre and jsoup 1.23.2, and two adaptations of fork code. status moves to EVIDENCE_BOUND once the XMage Full Game Conformance run of the repin branch is bound under lab_runtime_qualification.bridge_suite.",
+ "status": "EVIDENCE_BOUND",
+ "status_note": "the pin is the head of the fork branch claude/trial-ue4-20261031 (moeendres-png/mage, also the head of the candidate line claude/xmage-mp-candidate-20260929): the v14 pin 2ec507b721 plus twelve upstream XMage commits picked from the U-1 delta (ten engine and card fixes and two Verify test fixes), the cancelled-payment fix (U-4), Guava 33.7.2-jre and jsoup 1.23.2, and two adaptations of fork code. status is EVIDENCE_BOUND: the XMage Full Game Conformance run of the repin branch is bound under lab_runtime_qualification.bridge_suite.",
  "not_a": [
   "PRODUCTION_PROVIDER_SELECTION",
   "ARCHITECTURE_FREEZE",
@@ -588,13 +588,28 @@
   "bridge_identity_tests": "the engine-bridge suite runs in Actions against XMage built from the exact pin (lab_runtime_qualification.bridge_suite); not repeated locally"
  },
  "lab_runtime_qualification": {
-  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite once it exists (XMage built and installed from exactly f4d12f6e80 for that job; the step 'Record engine artifact identity' prints the sha256 of the installed jars)",
-  "installed_artifacts_commit": null,
-  "installed_artifacts": {},
+  "isolated_maven_repository": "the durable runtime evidence is the Actions run bound under bridge_suite (XMage built and installed from exactly f4d12f6e80 for that job; the step 'Record engine artifact identity' printed the sha256 of the installed jars)",
+  "installed_artifacts_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+  "installed_artifacts": {
+   "org.mage:mage:1.4.62": "sha256 7b12b585ff11f930d7b951ac8497cac40d87537797390f3203edb33d539acf10",
+   "org.mage:mage-sets:1.4.62": "sha256 d9a9f6c12940d86df4e6e883d59ae639d586e1efb5bf0f847bb09a27f13b65a3"
+  },
   "bridge_suite": {
-   "status": "PENDING",
-   "command": "XMage Full Game Conformance pull_request run on the repin branch head (XMAGE_COMMIT=f4d12f6e80): engine-bridge mvn verify against XMage built from exact f4d12f6e80",
-   "note": "not run when this lock was written; run id, job, artifact id, zip digest and test counts are bound here when the run has finished, and the status moves to EVIDENCE_BOUND"
+   "command": "XMage Full Game Conformance pull_request run on the repin branch head fce2ca9219af68f9c347de8c6aeb454fbd156c57 (XMAGE_COMMIT=f4d12f6e80, checked in the job): engine-bridge mvn verify against XMage built from exact f4d12f6e80",
+   "run": 2447,
+   "failures": 0,
+   "errors": 0,
+   "skipped": 1,
+   "status": "COMPLETE",
+   "actions_run": 42496814885,
+   "job": 128780861576,
+   "artifact": {
+    "id": 13624163443,
+    "zip_sha256": "0943ac154c950e6b553b47080b9dcdffbfcdbc1013ee74e617cc21816b9202d3"
+   },
+   "tests_run": 1164,
+   "skipped_is": "superseded START-2 v1.0.5 provenance test (XmageFullGameStart2ExecutionTest)",
+   "fingerprint": "XmageCandidateEngineFingerprintTest 8/8"
   },
   "engine_identity": "XmageProvider.ENGINE_COMMIT == new_live_pin.commit and ENGINE_VERSION == 1.4.62; XmageCandidateEngineFingerprintTest and the v6, v7 and v8 hooks stay checked."
  },
