@@ -1,5 +1,7 @@
 # Deck guides
 
+**Aktueller Owner-Fokus (2026-11-08): ausschließlich Chulane.** RogShai-Guides bleiben für historische Reproduzierbarkeit erhalten und sind kein Optimierungsauftrag. Siehe `docs/OWNER_DECK_FOCUS_CURRENT.md`.
+
 One guide per deck the project plays: 182 precon decks (164 real, 9 originals the engine cannot
 fully play, 9 synthetic replacement decks) and the two Owner decks (`custom/rogshai`,
 `custom/chulane`). Each guide is a pair in `guides/`: `<slug>.json` (parameters, schema in
