@@ -2,6 +2,15 @@
 
 **Stand:** 2026-11-08 · **Repo:** `moeendres-png/commander-playtest-lab` · **Evidenzstand:** `main@79b549ba576d5cc612b4ab92cd17b28ebe25d0e6` · **Artefaktart:** source-locked research, integration decision record, test and release planning. **Keine laufende Browser-UI, kein neues Lastspiel und kein neuer Replay-Collector wurden in Phase 8 implementiert oder ausgeführt.**
 
+> **Integrationsnotiz (2026-11-08, nach Review und Merge):** Dieses Dokument beschreibt in §0 und §2 den Stand `main@79b549ba5`, als
+> #1134–#1141 noch offene Drafts waren. Dieser Stand ist überholt: #1134 (Chulane-Fokus, `b0ebdac13`), #1135 (6-Spieler-Grenze,
+> `5bf8e93d1`), #1136 (`afda65b62`), #1137 (`46d571848`), #1138 (`0fd421d34`), #1139 (`4d5f0ba62`), #1140 (`473e581d7`) und #1141
+> (`fc29cd3b6`) sind nach unabhängigem Review gemergt. Beim Review korrigiert: #1135 verbot jede 8-Spieler-Arbeit und widersprach damit
+> der Owner-Entscheidung (isolierte 8P-Machbarkeitsforschung ist erlaubt, kein Produktpfad); #1137 nannte den Live-Pin im Fließtext statt
+> auf `config/rules_engines.json` zu verweisen; #1141 nannte `per_card_version` 3, wo `main` Version 4 ausgibt (3 führte `first_cast_round`
+> ein). Maßgeblich für den Live-Pin bleibt allein `config/rules_engines.json`. Alle Aussagen dieses Dokuments bleiben Forschung und
+> Planung: `AUDIT_DONE` ist nicht `IMPLEMENTED`, `TEST_SPECIFIED` nicht `TEST_RUN`. Es wurde keine Playgroup-Funktion implementiert.
+
 ## 0. Bindende Owner-Entscheidungen und Definition von „fertig“
 
 - **Alleiniges aktives Owner-Deck:** Chulane, Teller of Tales. RogShai nur als historisch notwendige Regressions-/Provenienzreferenz; keine neue aktive RogShai-Optimierung. Die Umsetzung des Fokus liegt derzeit in **Draft-PR #1134**, nicht automatisch auf `main`.
