@@ -72,6 +72,12 @@ spread wide.
 Token Triumph casts its commander earliest (round 2.6) and still finishes behind: this is the signature to look at
 first (tokens and their payoffs, chump blocks, how its attackers are met), not a card verdict.
 
+Token Triumph in the 60 games, by how it ended (5 wins, 20 times first out, 23 in between): when it went out
+first it had made 7.9 attacks and had 8.2 own turns (wins: 35.4 attacks, 11.6 own turns); the commander came out
+in round 2.6 in all three groups, so the early start is the same. The opposing decks cast 1.6 board wipes per game
+when Token Triumph went out first against 1.0 otherwise (20 against 40 games). That is a lead (a go-wide deck is
+what a wipe answers), not a cause: the numbers are small and the base rate of wipes in these pods is 1.4 per game.
+
 ## 4. Who is attacked (the 36 Chulane-pod games, all seats)
 
 2076 attacker declarations against a living opponent, 1704 of them with at least two opponents alive. The games
@@ -96,7 +102,7 @@ Not claimed: why Hosts of Mordor and Eldrazi Unbound win above and Token Triumph
 pilot's targeting causes any of it; a win rate; a card verdict. Real-player data has no per-seat or per-deck
 attack counts, so the targeting numbers have nothing to be set against.
 
-Candidates for a next measurement, each cheap: the Token Triumph signature in games it loses early (tokens made,
-blocks, which seat is attacked first); the same round-robin with attack targets recorded for all five decks; a
+Candidates for a next measurement, each cheap: the Token Triumph games with the wipes (when each wipe was cast,
+how many tokens it killed, whether it was cast while the caster was ahead); the same round-robin with attack targets recorded for all five decks; a
 paired run of the round-robin with `focus_defender` switched to plain lowest life or plain threat, to see whether
 the winner spread moves.
