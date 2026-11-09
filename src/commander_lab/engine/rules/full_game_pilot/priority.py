@@ -9,6 +9,7 @@ from typing import Any
 from commander_lab.agents.card_knowledge import card_facts
 from commander_lab.models import (
     PilotActionView,
+    PilotStateView,
 )
 
 from ..full_game_pilot_lands import choose_land_to_play, returns_a_land
@@ -435,12 +436,12 @@ class _PriorityDecisions(_CombatDecisions):
 
     @staticmethod
     def _bounce_lands_that_wait_for_a_spell(
-        options: Sequence[dict[str, Any]],
-    ) -> list[dict[str, Any]]:
+        options: Sequence[dict[str, object]],
+    ) -> list[dict[str, object]]:
         """The bounce-land plays to hold back while a spell can be cast in this window."""
         if not any(_metadata(option).get("ability_type") == "spell" for option in options):
             return []
-        held: list[dict[str, Any]] = []
+        held: list[dict[str, object]] = []
         for option in options:
             if not _is_land_play(option):
                 continue
@@ -452,9 +453,9 @@ class _PriorityDecisions(_CombatDecisions):
     def _land_beats_pass(
         self,
         runtime: _RuntimePilot,
-        state: dict[str, Any],
-        pilot_state: Any,
-        land: dict[str, Any],
+        state: dict[str, object],
+        pilot_state: PilotStateView,
+        land: dict[str, object],
         pass_view: PilotActionView,
     ) -> bool:
         """Whether the pilot would have played the held land rather than pass, as it did before."""
