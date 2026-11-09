@@ -37,6 +37,9 @@ _NUMBER_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
 _REVEAL_FROM_HAND = re.compile(r"reveal an? ([^.\n]+?) card from your hand")
 _PAY_LIFE = re.compile(r"you may pay (\d+) life")
 _FETCH = re.compile(r"sacrifice[^.\n]*: search your library for")
+_RETURNS_A_LAND = re.compile(
+    r"when [^.\n]*enters[^.\n]*, return an? (?:untapped )?land you control to its owner['\u2019]s hand"
+)
 _CONDITIONAL_MANA = re.compile(r"activate only|spend this mana only|only if you control")
 _FETCH_COLORS = re.compile(r"\b(plains|island|swamp|mountain|forest)\b")
 
@@ -75,6 +78,16 @@ def _produced(facts: CardFacts, identity: frozenset[str]) -> frozenset[str]:
 
 def _is_fetch(facts: CardFacts) -> bool:
     return facts.is_land and _FETCH.search(facts.oracle_text.casefold()) is not None
+
+
+def returns_a_land(facts: CardFacts) -> bool:
+    """A bounce land: it enters tapped and takes one of the actor's lands back to hand.
+
+    Played before a spell it costs the mana of the land it returns, so a spell that was castable
+    a moment ago may not be (Simic Growth Chamber returned the only Forest, Wood Elves could no
+    longer be cast). Karoo lands ("unless you return an untapped Plains") are not read here.
+    """
+    return facts.is_land and _RETURNS_A_LAND.search(facts.oracle_text.casefold()) is not None
 
 
 def _fetchable(facts: CardFacts, identity: frozenset[str]) -> frozenset[str]:
