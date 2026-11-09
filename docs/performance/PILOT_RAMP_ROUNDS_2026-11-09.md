@@ -68,6 +68,6 @@ spell; `test_pilots.py`: two fixture values lowered).
 
 ## 5. After the merge
 
-Hashes change by design: new 36-seed reference chain (twin run `identical 36/36`, `check-reference`, new
-reference note), as after every pilot phase. Not part of this change: seat rotation, a paired candidate
-comparison, a win claim.
+Hashes changed by design; the new 36-seed reference (twin run `identical 36/36`, `check-reference`
+current) is `docs/performance/REFERENCE_36_SEEDS_2026-11-09.md`. Not part of this change: seat rotation, a
+paired candidate comparison, a win claim.
