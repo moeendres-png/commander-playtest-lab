@@ -57,4 +57,4 @@ Mordor 6 to 7, Animated Army 5 to 6, Chulane 4 to 6, Token Triumph 4 to 3, Kaerv
 ## 5. Not claimed
 
 That the games get better (hash and spell counts cannot say), a win rate, a card verdict. The `Karoo` family
-("sacrifice unless you return an untapped Plains") is not read; no deck of the pods has one.
+("sacrifice unless you return an untapped Plains") is not read; no deck of the pods measured here has one (the Angels precon of the pool does).
