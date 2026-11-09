@@ -769,8 +769,10 @@ def test_artifact_pilot_prefers_artifact_engine_over_generic_engine() -> None:
         cost=2,
         roles={CardRole.RAMP},
         tags={StructuralMechanic.ARTIFACT_ENGINE},
-        immediate=0.7,
-        floor=0.7,
+        # Lowered from 0.7 when the ramp terms started to decay per game round instead of per
+        # engine turn: the plain pilot must still prefer the generic engine here.
+        immediate=0.6,
+        floor=0.6,
         metadata={"is_artifact": True},
     )
     rng = random.Random(42)
@@ -956,8 +958,10 @@ def test_paired_12_seed_archetype_comparison_changes_decisions_only_on_matching_
         tags={
             StructuralMechanic(m) for m in bmc_data["mechanic_tags"] if m in set(StructuralMechanic)
         },
-        immediate=0.95,
-        floor=0.95,
+        # Lowered from 0.95 when the ramp terms started to decay per game round instead of per
+        # engine turn (the card carries a ramp role): the engine pilot must still pick it.
+        immediate=0.5,
+        floor=0.5,
     )
     artifact_state = _state(
         strategy=doom_profile["strategy"],

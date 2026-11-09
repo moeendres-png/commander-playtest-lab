@@ -288,6 +288,18 @@ class _NumericStrategyMixin:
 STANDALONE_MANA_ABILITY_UTILITY = -1.0
 
 
+def _game_round(state: PilotStateView) -> int:
+    """Round of the game the actor is in (1 for the first turn of every player).
+
+    The engine's turn counter advances with every player's turn, so in a four-player pod
+    ``state.turn`` is about four times the number of turns the actor has taken. The ramp terms
+    below were written for a decay over the actor's own turns; with the raw counter they were
+    spent by the actor's third turn, so a castable ramp spell lost to any dearer spell from then
+    on (Chulane baseline 2026-11-09: 21 % of early castable ramp never cast).
+    """
+    return (max(1, state.turn) - 1) // max(1, state.pod_size) + 1
+
+
 class BasePilot:
     """Pure structural action evaluator.
 
@@ -736,7 +748,9 @@ class BasePilot:
             else raw_value / max(0.75, action.mana_cost)
         )
         if CardRole.RAMP in roles:
-            mana_efficiency += action.strength(CardRole.RAMP) * max(0.2, 1.7 - state.turn * 0.14)
+            mana_efficiency += action.strength(CardRole.RAMP) * max(
+                0.2, 1.7 - _game_round(state) * 0.14
+            )
         if action.mana_cost == 0 and action.action_kind != "pass":
             mana_efficiency += 1.0
 
@@ -754,7 +768,7 @@ class BasePilot:
         )
         tempo += action.strength(CardRole.REMOVAL) * min(2.0, action.target_threat * 0.15)
         tempo += action.strength(CardRole.COUNTER) * min(2.0, action.threat_score * 0.25)
-        tempo += action.strength(CardRole.RAMP) * max(0.0, 1.4 - state.turn * 0.12)
+        tempo += action.strength(CardRole.RAMP) * max(0.0, 1.4 - _game_round(state) * 0.12)
         tempo -= action.turn_cycle_risk * 0.7
 
         package_density = (

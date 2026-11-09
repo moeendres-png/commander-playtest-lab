@@ -233,29 +233,43 @@ def test_diff_reports_paid_cast_fixes_and_counts_an_additionally_changed_pilot(
     args = type("Args", (), {"corpus": CORPUS})()
     assert corpus_tool.diff(args) == 0
     quiet = capsys.readouterr().out
-    # Preserve the historical engine recording: the two deliberately changed answers
-    # decline unfunded Chandra casts. Every other stateless answer must stay identical.
+    # Preserve the historical engine recording: the deliberately changed answers are the two
+    # declined unfunded Chandra casts and the two round-5 ramp casts the pilot now takes first
+    # (the ramp bonus counts game rounds, not the engine's per-player turn counter). Every other
+    # stateless answer must stay identical.
     changed_rows = [
         (row, outcome)
         for row, outcome in zip(corpus[1], replayed, strict=True)
         if row["stateless"]
         and corpus_tool.answer_key(outcome["answer"]) != corpus_tool.answer_key(row["answer"])
     ]
-    assert len(changed_rows) == 2
-    assert {row["request"]["prompt"] for row, _ in changed_rows} == {
+    assert len(changed_rows) == 4
+
+    def chosen(row: dict[str, Any], answer: dict[str, Any]) -> dict[str, Any]:
+        options = row["request"]["legal_options"]
+        return next(o for o in options if o["option_id"] in answer["selected_option_ids"])
+
+    paid_cast_rows = [(r, o) for r, o in changed_rows if r["class"] == "choose_use"]
+    assert {row["request"]["prompt"] for row, _ in paid_cast_rows} == {
         "Cast Talisman of Creativity? (You still pay the costs)",
         "Cast Fellwar Stone? (You still pay the costs)",
     }
-    for row, outcome in changed_rows:
-        assert row["class"] == "choose_use"
-        options = row["request"]["legal_options"]
-        before = next(o for o in options if o["option_id"] in row["answer"]["selected_option_ids"])
-        after = next(
-            o for o in options if o["option_id"] in outcome["answer"]["selected_option_ids"]
-        )
-        assert before["metadata"]["value"] is True
-        assert after["metadata"]["value"] is False
-    assert "changed in total: 2 of" in quiet, quiet
+    for row, outcome in paid_cast_rows:
+        assert chosen(row, row["answer"])["metadata"]["value"] is True
+        assert chosen(row, outcome["answer"])["metadata"]["value"] is False
+
+    ramp_rows = [(r, o) for r, o in changed_rows if r["class"] == "priority"]
+    assert sorted(
+        (chosen(row, row["answer"])["label"], chosen(row, outcome["answer"])["label"])
+        for row, outcome in ramp_rows
+    ) == [
+        (
+            "Naktamun Lorespinner \u2014 Cast Naktamun Lorespinner",
+            "Seize the Spoils \u2014 Cast Seize the Spoils",
+        ),
+        ("Swamp \u2014 Play Swamp", "Relic of Sauron \u2014 Cast Relic of Sauron"),
+    ]
+    assert "changed in total: 4 of" in quiet, quiet
 
     _break_priority_answers(monkeypatch, legal=True)
     assert corpus_tool.diff(args) == 0
@@ -263,7 +277,7 @@ def test_diff_reports_paid_cast_fixes_and_counts_an_additionally_changed_pilot(
     priority_line = next(line for line in loud.splitlines() if line.strip().startswith("priority"))
     changed = int(priority_line.split()[1])
     assert changed > 0, loud
-    assert "changed in total: 2 of" not in loud
+    assert "changed in total: 4 of" not in loud
 
 
 def test_a_full_dump_is_replayed_with_one_policy_per_seed(
