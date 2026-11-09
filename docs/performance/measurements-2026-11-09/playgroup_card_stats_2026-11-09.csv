@@ -1,0 +1,24 @@
+# Source: Playgroup.gg card pages (https://playgroup.gg/cards/<slug>), aggregate Live Play Data, CC BY 4.0, attribution: Playgroup.gg. Retrieved 2026-11-09. Multiplayer view. 'turn' is not defined on the pages. Correlational, not causal.
+card,brought_to_game,first_cast_n,cast_same_turn_as_drawn_pct,on_curve_pct,median_cast_turn,p25,p75,win_rate_when_cast_pct
+Sol Ring,124518,31808,83,35,3.0,1,7,31
+Llanowar Elves,9731,2037,73,35,3,1,6,30
+Elvish Mystic,2774,557,72,34,3,1,6,28
+Arcane Signet,82784,16532,52,41,3.0,2,6,28
+Thought Vessel,7475,1499,51,31,4,2,7,28
+Fellwar Stone,9224,1746,50,40,3.0,2,6,28
+Talisman of Curiosity,2034,387,46,36,3,2,6,30
+Farseek,13353,2299,45,38,4,2,6,29
+Sakura-Tribe Elder,7571,1490,45,30,4.0,2,7,31
+Everflowing Chalice,4697,795,44,,5,3,7,30
+Rampant Growth,14108,2390,43,39,3.0,2,6,27
+Wood Elves,2003,357,43,31,5,3,7,32
+Mind Stone,20334,3881,42,30,4,2,7,28
+Night's Whisper,6708,1073,40,18,5,3,7,26
+Nature's Lore,22669,3965,37,32,4,2,6,30
+Thran Dynamo,8700,1702,36,38,5.0,4,7,36
+Hedron Archive,2449,411,34,39,5,4,7,30
+Tireless Tracker,1967,295,34,27,5,3,8,24
+Burnished Hart,2736,470,33,28,5.0,3,7,31
+Cultivate,21552,3430,33,39,4.0,3,7,28
+Gilded Lotus,3539,596,32,46,6.0,5,7,33
+Solemn Simulacrum,9241,1480,32,35,5.0,4,7,30
