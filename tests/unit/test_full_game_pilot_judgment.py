@@ -626,11 +626,13 @@ def test_pilot_spends_its_mana_on_the_bigger_spell_in_its_main_phase() -> None:
 
     state = _state(
         actor_board=[_card(f"plains-{i}", "Island") for i in range(3)],
-        hand=["Iron Myr", "Tor Wauki the Younger"],
+        hand=["Grizzly Bears", "Tor Wauki the Younger"],
     )
-    myr = _cast("small", "Iron Myr", generic=2)
+    # A plain two-drop, not a mana creature: the ramp terms of the utility (which now favour a
+    # castable ramp spell in the first rounds) are not what this test is about.
+    bears = _cast("small", "Grizzly Bears", generic=2)
     tor = _cast("big", "Tor Wauki the Younger", generic=3, black=1, red=1)
-    response = _policy().decide(_request("priority", [_PASS, myr, tor], state))
+    response = _policy().decide(_request("priority", [_PASS, bears, tor], state))
     assert response["selected_option_ids"] == ["big"]
     assert _curve_bonus(5.0, state) > _curve_bonus(2.0, state) > 0.0
     off_turn = {**state, "active_player_id": "opponent-1"}
