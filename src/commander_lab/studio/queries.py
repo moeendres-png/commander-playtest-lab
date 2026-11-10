@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any
+import sqlite3
 
 from .decks import color_set
 from .store import StudioStore
 
 
-def legal_pool(store: StudioStore, commander_names: list[str]) -> list[dict[str, Any]]:
+def legal_pool(store: StudioStore, commander_names: list[str]) -> list[sqlite3.Row]:
     """Cards of the collection a deck under these commanders may use, by the stored data:
     Commander-legal and inside the commanders' color identity. ``available`` may be 0."""
     identity: frozenset[str] = frozenset()
@@ -25,12 +25,12 @@ def legal_pool(store: StudioStore, commander_names: list[str]) -> list[dict[str,
         "FROM card c JOIN inventory i USING (card_id) WHERE c.commander_legal = 1 "
         "ORDER BY c.oracle_name"
     ).fetchall()
-    return [dict(row) for row in rows if color_set(row["color_identity"]) <= identity]
+    return [row for row in rows if color_set(row["color_identity"]) <= identity]
 
 
 def corpus_inclusion(
     store: StudioStore, card_name: str, *, play_group: str | None = None
-) -> dict[str, Any]:
+) -> dict[str, object]:
     """In how many distinct source decks a card appears: hits and denominator.
 
     Exact duplicates count once. ``play_group`` narrows the cohort (for example
@@ -38,7 +38,7 @@ def corpus_inclusion(
     that cohort. No decks in the cohort means the share is unknown, not zero.
     """
     where = "d.duplicate_of IS NULL"
-    parameters: list[Any] = []
+    parameters: list[str] = []
     if play_group is not None:
         where += " AND d.play_group = ?"
         parameters.append(play_group)

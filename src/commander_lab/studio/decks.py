@@ -9,9 +9,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Iterable, Mapping
+import sqlite3
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Any
 
 from .store import StudioStore, now_utc
 
@@ -110,7 +110,7 @@ def create_revision(
     return revision_id
 
 
-def revision_rows(store: StudioStore, revision_id: str) -> list[Mapping[str, Any]]:
+def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
     rows = store.connection.execute(
         "SELECT rc.card_id, rc.zone, rc.quantity, c.oracle_name, c.color_identity, "
         "c.is_basic_land, c.commander_legal, c.type_line, c.oracle_text, "
@@ -122,10 +122,10 @@ def revision_rows(store: StudioStore, revision_id: str) -> list[Mapping[str, Any
     ).fetchall()
     if not rows:
         raise KeyError(revision_id)
-    return [dict(row) for row in rows]
+    return rows
 
 
-def _any_number_allowed(row: Mapping[str, Any]) -> bool:
+def _any_number_allowed(row: sqlite3.Row) -> bool:
     text = str(row["oracle_text"] or "")
     return bool(row["is_basic_land"]) or "A deck can have any number of cards named" in text
 
@@ -207,7 +207,7 @@ def validate_revision(
 
 def lab_snapshot(
     store: StudioStore, revision_id: str, *, name: str | None = None
-) -> dict[str, Any]:
+) -> dict[str, object]:
     """The revision in the on-disk deck snapshot format of ``DECKBAU_INTERFACE.md``."""
     rows = revision_rows(store, revision_id)
     header = store.connection.execute(

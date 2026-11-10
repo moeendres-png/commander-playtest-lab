@@ -11,7 +11,6 @@ import csv
 import json
 from collections.abc import Iterator, Mapping
 from pathlib import Path
-from typing import Any
 
 from openpyxl import load_workbook
 
@@ -22,7 +21,7 @@ IDENTITY_SHEET = "01_CARD_IDENTITY"
 INVENTORY_SHEET = "05_INVENTORY_CURRENT"
 
 
-def _sheet_rows(path: Path, sheet: str) -> list[dict[str, Any]]:
+def _sheet_rows(path: Path, sheet: str) -> list[dict[str, object]]:
     workbook = load_workbook(filename=path, read_only=True, data_only=True)
     try:
         if sheet not in workbook.sheetnames:
@@ -38,14 +37,14 @@ def _sheet_rows(path: Path, sheet: str) -> list[dict[str, Any]]:
         workbook.close()
 
 
-def _text(value: Any) -> str | None:
+def _text(value: object) -> str | None:
     if value is None:
         return None
     text = str(value).strip()
     return text or None
 
 
-def _flag(value: Any) -> int | None:
+def _flag(value: object) -> int | None:
     if value is None or value == "":
         return None
     if isinstance(value, bool):
@@ -53,10 +52,20 @@ def _flag(value: Any) -> int | None:
     return int(str(value).strip().casefold() in {"true", "1", "yes", "ja"})
 
 
-def _integer(value: Any, *, field: str, card: str) -> int:
+def _integer(value: object, *, field: str, card: str) -> int:
     if value is None or value == "":
         raise ValueError(f"{card}: {field} is empty")
-    return int(value)
+    return _whole(value)
+
+
+def _whole(value: object) -> int:
+    return int(value) if isinstance(value, int | float) else int(str(value))
+
+
+def _real(value: object) -> float | None:
+    if value is None or value == "":
+        return None
+    return float(value) if isinstance(value, int | float) else float(str(value))
 
 
 def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str, int]:
@@ -95,7 +104,7 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
                     name,
                     _text(row.get("color_identity")) or "",
                     _text(row.get("mana_cost")),
-                    float(mana_value) if mana_value is not None else None,
+                    _real(mana_value),
                     _text(row.get("type_line")),
                     _text(row.get("oracle_text")),
                     _flag(row.get("is_basic_land")) or 0,
@@ -135,7 +144,7 @@ def import_inventory_workbook(store: StudioStore, path: str | Path) -> dict[str,
                         card=label,
                     ),
                     _flag(row.get("quantity_exact")) or 0,
-                    int(lots) if lots is not None else None,
+                    _whole(lots) if lots is not None else None,
                     _text(row.get("last_verified_at")),
                     source_id,
                 ),
@@ -151,7 +160,7 @@ def import_studio_selection(
     name: str,
     commander_names: list[str],
     branch: str = "main",
-) -> dict[str, Any]:
+) -> dict[str, object]:
     """Turn the unchanged selection export of the earlier HTML studio into a deck revision.
 
     The file is only read. Entries marked ``reserve`` are kept out of the deck and reported,
@@ -179,7 +188,7 @@ def import_studio_selection(
         cards.append(RevisionCard(str(card_id), quantity, "main"))
     in_deck = set(state["deck"])
     raw_status = state.get("status")
-    statuses: dict[str, Any] = raw_status if isinstance(raw_status, dict) else {}
+    statuses: dict[str, object] = raw_status if isinstance(raw_status, dict) else {}
     reserve = sorted(
         card_id
         for card_id, status in statuses.items()
