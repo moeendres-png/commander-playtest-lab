@@ -7,7 +7,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, importers
+from . import catalog, importers, roles
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
 from .queries import corpus_inclusion, legal_pool
@@ -47,6 +47,10 @@ def _parser() -> argparse.ArgumentParser:
     cohort.add_argument("--name", required=True)
     images = commands.add_parser("fetch-images")
     images.add_argument("--commander", action="append", required=True)
+    fetch_roles = commands.add_parser("fetch-roles")
+    fetch_roles.add_argument("--identity", required=True, help="color identity, for example WUG")
+    fetch_roles.add_argument("--out", required=True, help="role file to write, then imported")
+    commands.add_parser("import-roles").add_argument("path")
     serve = commands.add_parser("serve")
     serve.add_argument("--port", type=int, default=8765)
     serve.add_argument("--open", action="store_true", help="open the browser")
@@ -93,6 +97,10 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "fetch-images":
             pool = legal_pool(store, args.commander)
             result = fetch_images(store, [str(row["card_id"]) for row in pool])
+        elif args.command == "fetch-roles":
+            result = roles.import_roles(store, roles.fetch_role_file(args.identity, args.out))
+        elif args.command == "import-roles":
+            result = roles.import_roles(store, args.path)
         elif args.command == "import-selection":
             result = importers.import_studio_selection(
                 store, args.path, deck_id=args.deck_id, name=args.name,

@@ -5,12 +5,14 @@ const COMMANDER = "Chulane, Teller of Tales";
 const GROUPS = ["Creature", "Planeswalker", "Battle", "Artifact", "Enchantment", "Instant", "Sorcery", "Land", "Other"];
 const GROUP_NAMES = { Creature: "Kreaturen", Planeswalker: "Planeswalker", Battle: "Schlachten", Artifact: "Artefakte", Enchantment: "Verzauberungen", Instant: "Spontanzauber", Sorcery: "Hexereien", Land: "Länder", Other: "Sonstige" };
 const COHORT_NAMES = { all: "alle Quelldecks", community: "Community", turnier_cedh: "Turnier cEDH", community_cedh: "Community cEDH", unklassifiziert: "unklassifiziert" };
+const ROLE_NAMES = { ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp", card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip", tutor: "Tutor", removal: "Entfernung", board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink", recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass", lifegain: "Lebensgewinn" };
+const roleName = (key) => ROLE_NAMES[key] || key;
 const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", commander_type: "Commander-Typ", color_identity: "Farbidentität", singleton: "Mehrfach", legality_unknown: "Legalität unbekannt", not_legal: "Nicht legal", not_owned: "Nicht in der Sammlung", not_available: "Nicht frei" };
 
 const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
   decks: [], deckId: null, branch: "main", baseRevision: null,
-  list: new Map(), dirty: false, issues: [], shape: null, shapes: [],
+  list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
@@ -79,6 +81,7 @@ function maxCopies(card) {
 function filtered() {
   const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const type = $("type-filter").value;
+  const role = $("role-filter").value;
   const min = $("mv-min").value === "" ? null : Number($("mv-min").value);
   const max = $("mv-max").value === "" ? null : Number($("mv-max").value);
   const free = $("f-free").checked, notIn = $("f-notin").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
@@ -89,6 +92,7 @@ function filtered() {
     if (fav && !card.favorite) return false;
     if (!showExcluded && card.excluded) return false;
     if (type && card.group !== type) return false;
+    if (role === "-" ? card.roles.length > 0 : role && !card.roles.includes(role)) return false;
     if (min !== null && !(card.mana_value >= min)) return false;
     if (max !== null && !(card.mana_value <= max)) return false;
     if (state.colors.size) {
@@ -151,13 +155,14 @@ const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
   ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
   ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"],
-  ["produced_mana", "erzeugt Mana", null], ["note", "Notiz", null],
+  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["note", "Notiz", null],
 ];
 function cell(card, key) {
   if (key === "img") return h("td", {}, card.has_image ? image(card, "thumb") : null);
   if (key === "name") { const td = h("td", { class: "name", onclick: () => openCard(card) }, (card.favorite ? "★ " : "") + card.name); hoverPreview(td, card); return td; }
   if (key === "mana_cost") return h("td", {}, mana(card.mana_cost));
   if (key === "text") return h("td", { class: "text" }, card.text);
+  if (key === "roles") return h("td", {}, card.roles.map(roleName).join(", "));
   if (key === "pt") return h("td", {}, card.power !== null ? `${card.power}/${card.toughness}` : "");
   if (key === "freq") { const f = freq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, freqText(card)); }
   if (key === "edhrec") {
@@ -224,7 +229,7 @@ async function syncDraft() {
       api("/api/check", "POST", { cards, owned_only: true }),
       state.dirty ? api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "PUT", { cards, base_revision_id: state.baseRevision }) : null,
     ]);
-    state.issues = result.issues; state.shape = result.shape;
+    state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {};
     $("save-state").textContent = state.dirty ? "Entwurf gesichert, noch nicht als Stand gespeichert" : "gespeichert";
     renderHeader(); renderDeck();
   } catch (error) { toast("Fehler: " + error.message); }
@@ -278,13 +283,20 @@ function bars(values, labels) {
 function renderNumbers(body) {
   const shape = state.shape;
   if (!shape) { body.append(h("p", { class: "muted" }, "Wird berechnet.")); return; }
-  body.append(h("h3", {}, "Manakurve (ohne Länder)"), bars([0, 1, 2, 3, 4, 5, 6, 7].map((key) => shape.curve[String(key)] || 0), ["0", "1", "2", "3", "4", "5", "6", "7+"]),
+  body.append(h("h3", {}, "Manakurve (ohne Länder)"), ...bars([0, 1, 2, 3, 4, 5, 6, 7].map((key) => shape.curve[String(key)] || 0), ["0", "1", "2", "3", "4", "5", "6", "7+"]),
     h("p", {}, `Durchschnittlicher Manawert der Nichtland-Karten: ${shape.mana_value === null ? "unbekannt" : shape.mana_value}`));
   const types = h("table", {}, h("tbody", {}, GROUPS.filter((group) => shape.types[group]).map((group) => h("tr", {}, h("td", {}, GROUP_NAMES[group]), h("td", { class: "num" }, shape.types[group])))));
   body.append(h("h3", {}, "Kartentypen"), types);
   const colors = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Farbsymbole in Kosten"), h("th", { class: "num" }, "Karten, die die Farbe erzeugen"))),
     h("tbody", {}, ["W", "U", "B", "R", "G", "C"].filter((letter) => shape.pips[letter] || shape.mana_sources[letter]).map((letter) =>
       h("tr", {}, h("td", {}, h("span", { class: "ms ms-" + letter }, letter)), h("td", { class: "num" }, shape.pips[letter] || 0), h("td", { class: "num" }, shape.mana_sources[letter] || 0)))));
+  if (state.roles.length) {
+    const reference = state.shapes.find((row) => row.cohort === state.cohort) || {};
+    const spans = reference.roles || {};
+    body.append(h("h3", {}, "Rollen"), h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Dein Deck"), h("th", { class: "num" }, cohortName(state.cohort)))),
+      h("tbody", {}, state.roles.map((role) => h("tr", {}, h("td", {}, roleName(role)), h("td", { class: "num" }, state.deckRoles[role] || 0), h("td", { class: "num" }, span(spans[role])))))),
+      h("p", { class: "note" }, "Rollen sind öffentliche Marken der Scryfall-Gemeinschaft (Tagger). Eine Karte kann mehrere Rollen haben, und nicht jede Karte ist markiert. Vergleich: Median und mittlere Hälfte der gewählten Vergleichsgruppe."));
+  }
   body.append(h("h3", {}, "Farben"), colors, h("p", { class: "note" }, "Gezählt aus den Kartendaten: Symbole in den Manakosten und Karten, die Mana dieser Farbe erzeugen können. Das ist eine Zählung, keine Bewertung."));
 }
 function renderCheck(body) {
@@ -343,6 +355,7 @@ async function openCard(card) {
   const right = h("div", {},
     h("h2", {}, card.name), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { style: "white-space:pre-line" }, card.text),
+    card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, roleName(role)))) : null,
     h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "")),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
@@ -389,7 +402,7 @@ async function loadBranch() {
     api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`),
   ]);
   if (draft.draft) { useCards(draft.draft.cards); state.dirty = true; }
-  else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; }
+  else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; }
   renderAll(); await syncDraft();
 }
 async function saveRevision(branch = state.branch) {
@@ -428,12 +441,13 @@ function setupControls() {
     event.currentTarget.classList.toggle("on"); state.shown = 120; renderPool();
   } }, letter)));
   $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...GROUPS.map((group) => h("option", { value: group }, GROUP_NAMES[group])));
+  $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), ...state.roles.map((role) => h("option", { value: role }, roleName(role))), h("option", { value: "-" }, "ohne Rollenmarke"));
   $("cohort").replaceChildren(...Object.entries(state.cohorts).map(([key, size]) => h("option", { value: key }, `${cohortName(key)} (${size})`)));
   const sorts = [["freq:-1", "Häufigkeit in Quelldecks"], ["name:1", "Name"], ["mana_value:1", "Manawert"], ["edhrec:-1", "EDHREC-Anteil"], ["edhrec_rank:1", "EDHREC-Rang"], ["available:-1", "freie Kopien"]];
   $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); renderPool(); });
   $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderPool(); renderDeck(); });
-  for (const id of ["q", "type-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("span", { class: "chip" + (state.view === key ? " on" : ""), onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
@@ -460,7 +474,7 @@ async function start() {
   try {
     const [pool, shapes] = await Promise.all([api("/api/pool?commander=" + encodeURIComponent(COMMANDER)), api("/api/cohorts")]);
     state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
-    state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes;
+    state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes;
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, "Sind Sammlung und Kartendaten importiert?"));

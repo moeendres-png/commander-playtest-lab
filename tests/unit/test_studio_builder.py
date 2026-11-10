@@ -19,9 +19,11 @@ from commander_lab.studio import (
     catalog,
     create_revision,
     importers,
+    roles,
 )
 from commander_lab.studio.decks import lab_snapshot, list_rows, validate_rows
 from commander_lab.studio.images import cached_image, image_address
+from commander_lab.studio.store import SCHEMA_VERSION
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_store import (
     _card_row,
@@ -165,7 +167,7 @@ def test_an_older_store_is_upgraded_in_place(tmp_path: Path) -> None:
     store.close()
     again = StudioStore.open(tmp_path)
     row = again.connection.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
-    assert row["value"] == "2"
+    assert row["value"] == str(SCHEMA_VERSION)
     assert again.count("scryfall_card") == 0
 
 
@@ -321,3 +323,71 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
         assert client.get("/api/cohorts").json()[0]["cohort"] == "all"
         assert client.get("/img/card:project:0002", params={"face": "side"}).status_code == 422
         assert client.get("/api/revisions/nope").status_code == 404
+
+
+def test_roles_are_read_from_a_role_file_and_counted(studio: StudioStore, tmp_path: Path) -> None:
+    role_file = tmp_path / "roles.json"
+    role_file.write_text(
+        json.dumps(
+            {
+                "fetched_at": "2026-11-10T00:00:00Z",
+                "roles": {
+                    "ramp": ["oracle-forest", "oracle-filler-01"],
+                    "removal": ["oracle-swarm-rat", "oracle-not-in-collection"],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert roles.import_roles(studio, role_file) == {
+        "roles": 2,
+        "role_rows": 4,
+        "collection_cards_with_role": 3,
+    }
+    pool = builder.pool_cards(studio, ["Test Commander"])
+    assert pool["roles"] == ["ramp", "removal"]
+    cards = {card["name"]: card for card in pool["cards"]}  # type: ignore[union-attr]
+    assert cards["Swarm Rat"]["roles"] == ["removal"]
+    assert cards["Filler 02"]["roles"] == []
+    assert builder.deck_roles(studio, _deck()) == {"ramp": 30}
+    shapes = {shape["cohort"]: shape for shape in builder.cohort_shapes(studio)}
+    assert shapes["community"]["roles"] == {
+        "ramp": {"median": 33.0, "p25": 31.5, "p75": 34.5},
+        "removal": {"median": 0.5, "p25": 0.25, "p75": 0.75},
+    }
+    role_file.write_text("{}", encoding="utf-8")
+    with pytest.raises(ValueError, match="no roles"):
+        roles.import_roles(studio, role_file)
+
+
+def test_role_fetch_asks_only_the_card_search(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    asked: list[str] = []
+
+    def page(address: str) -> dict[str, object]:
+        asked.append(address)
+        if "page=2" in address:
+            return {"data": [{"oracle_id": "b"}], "has_more": False}
+        return {
+            "data": [{"oracle_id": "a"}, {"name": "no id"}],
+            "has_more": True,
+            "next_page": roles.SEARCH + "?page=2",
+        }
+
+    monkeypatch.setattr(roles, "_page", page)
+    written = roles.fetch_role_file("WUG", tmp_path / "roles.json", pause=0)
+    payload = json.loads(written.read_text(encoding="utf-8"))
+    assert payload["identity"] == "WUG"
+    assert set(payload["roles"]) == set(roles.ROLES)
+    assert payload["roles"]["ramp"] == ["a", "b"]
+    assert len(asked) == 2 * len(roles.ROLES)
+    assert all(address.startswith(roles.SEARCH) for address in asked)
+    assert "id%3C%3Dwug" in asked[0]
+
+    def elsewhere(address: str) -> dict[str, object]:
+        return {"data": [], "has_more": True, "next_page": "https://example.invalid/next"}
+
+    monkeypatch.setattr(roles, "_page", elsewhere)
+    with pytest.raises(ValueError, match="unexpected address"):
+        roles.fetch_role_file("WUG", tmp_path / "other.json", pause=0)

@@ -102,6 +102,9 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
         "ORDER BY denominator DESC"
     ):
         edhrec.setdefault(str(row["card_id"]), row)
+    roles: dict[str, list[str]] = {}
+    for row in db.execute("SELECT oracle_id, role FROM card_role ORDER BY role"):
+        roles.setdefault(str(row["oracle_id"]), []).append(str(row["role"]))
     cards: list[dict[str, object]] = []
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
@@ -138,6 +141,7 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
                 "favorite": bool(row["favorite"]),
                 "excluded": bool(row["excluded"]),
                 "note": row["note"] or "",
+                "roles": roles.get(str(row["oracle_id"]), []),
                 "decks": hits.get(str(row["oracle_id"]), hits.get(str(row["oracle_name"]), {})),
                 "edhrec": None
                 if widest is None
@@ -154,6 +158,7 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
         "identity": "".join(sorted(identity, key="WUBRG".index)),
         "cohorts": cohort_sizes(store),
         "small_denominator": SMALL_DENOMINATOR,
+        "roles": [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")],
         "cards": cards,
     }
 
@@ -210,6 +215,11 @@ def cohort_shapes(store: StudioStore) -> list[dict[str, object]]:
         found = by_id.get(str(item["deck_id"]))
         if found is not None:
             members.setdefault(str(item["cohort"]), []).append(found)
+    role_names = [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")]
+    role_cards: dict[tuple[str, str], int] = {
+        (str(r["deck_id"]), str(r["role"])): int(r["cards"])
+        for r in db.execute("SELECT deck_id, role, cards FROM corpus_deck_role")
+    }
     shapes: list[dict[str, object]] = []
     for cohort, group in members.items():
         complete = [row for row in group if row["resolved"] == row["cards"]]
@@ -237,8 +247,33 @@ def cohort_shapes(store: StudioStore) -> list[dict[str, object]]:
                         "p25": round(_percentile(values, 0.25), 2),
                         "p75": round(_percentile(values, 0.75), 2),
                     }
+        if complete and role_names:
+            spans: dict[str, dict[str, float]] = {}
+            for role in role_names:
+                counts = [float(role_cards.get((str(row["deck_id"]), role), 0)) for row in complete]
+                spans[role] = {
+                    "median": round(median(counts), 2),
+                    "p25": round(_percentile(counts, 0.25), 2),
+                    "p75": round(_percentile(counts, 0.75), 2),
+                }
+            shape["roles"] = spans
         shapes.append(shape)
     return shapes
+
+
+def deck_roles(store: StudioStore, cards: Iterable[RevisionCard]) -> dict[str, int]:
+    """How many main-deck cards of a list carry each role tag. A card may carry several."""
+    counts: Counter[str] = Counter()
+    db = store.connection
+    for card in cards:
+        if card.zone != "main":
+            continue
+        for row in db.execute(
+            "SELECT r.role FROM card c JOIN card_role r USING (oracle_id) WHERE c.card_id = ?",
+            (card.card_id,),
+        ):
+            counts[str(row["role"])] += card.quantity
+    return dict(counts)
 
 
 def deck_shape(rows: Iterable[sqlite3.Row]) -> dict[str, object]:

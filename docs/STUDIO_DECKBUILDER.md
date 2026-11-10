@@ -18,6 +18,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `import-cohort FILE.csv --name NAME` | a named group of source decks | normalized |
 | `import-edhrec FILE.csv` | EDHREC rows with numerator, denominator, page | original |
 | `import-selection FILE.json --deck-id ID --name NAME --commander NAME` | a saved selection as first deck revision | original |
+| `fetch-roles --identity WUG --out FILE.json` | public role tags (Scryfall tagger) for a color identity; the query names only the colors | original (public, community labels) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 
 Card facts shown in the builder (color identity, legality, type, text, mana value) come from
@@ -40,7 +41,9 @@ own page.
 - The deck list by card type, with the data check (100 cards, commander, color identity,
   singleton, legality, ownership, free copies). The check reads stored facts; the Rules Core
   stays the binding check before play.
-- Counts of the deck: curve, types, color symbols and mana sources.
+- Counts of the deck: curve, types, color symbols and mana sources, and role counts (ramp,
+  card draw, removal ...) next to the median of the chosen group of source decks. Roles are
+  public community labels, not ratings, and not every card is labelled.
 - Comparison with the source decks: per group (all, play groups, named cohorts) the number of
   decks that play a card, always with the denominator, and median and middle half of lands,
   creatures and mana value. Groups below 30 decks are marked. These are frequencies, not

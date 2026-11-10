@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -184,6 +184,18 @@ CREATE TABLE IF NOT EXISTS corpus_deck_stat (
     nonland_mana_value REAL NOT NULL,
     nonland_cards INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS card_role (
+    oracle_id TEXT NOT NULL,
+    role TEXT NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (oracle_id, role)
+);
+CREATE TABLE IF NOT EXISTS corpus_deck_role (
+    deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
+    role TEXT NOT NULL,
+    cards INTEGER NOT NULL,
+    PRIMARY KEY (deck_id, role)
+);
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
@@ -319,7 +331,8 @@ class StudioStore:
         if table not in {
             "source", "card", "inventory", "deck", "deck_revision", "deck_revision_card",
             "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
-            "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat",
+            "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "card_role",
+            "corpus_deck_role",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
