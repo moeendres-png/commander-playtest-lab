@@ -58,6 +58,7 @@ Churn = number of file touches since 2026-09-01 (a rough activity signal only).
 | `decision/` | Decision-support modules: `bundle`, `context`, `information`, `quality` | active |
 | `candidate_workflow/` | Candidate evaluation workflow: `screening`, `evaluation`, `cut_frontier`, `advancement` | active |
 | `identity/` | `variant` and `workflow` identity helpers | active |
+| `studio/` | Commander Studio data contract: SQLite store in the Owner data folder (never in the Git tree), importers for inventory workbook, deck register and EDHREC rows, immutable 100-card deck revisions, data check, snapshot export for the Rules Core | active |
 | `rogshai/` | Rogshai MVP experiment: `first_run_preparation`, `experiments`, `mvp_acceptance` | qual / hist (guess) |
 
 Moved modules keep a shim at their old path (`commander_lab.decision_bundle`, `candidate_screening`,
