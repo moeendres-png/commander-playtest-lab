@@ -56,6 +56,7 @@ from .common import (
     _printed_spell_cost,
     _RuntimePilot,
     mana_ability_restriction_rank,
+    mana_ability_yields_nothing,
     mana_needed_letters,
     mana_payment_fit,
     mana_produced_letters,
@@ -63,6 +64,7 @@ from .common import (
     offers_mana_ability,
     option_x_counter_cap,
     option_x_tap_cap,
+    permanent_mana_is_counter_starved,
     tap_cost_needs_permanent,
     x_tap_prompt_cap,
 )
@@ -494,7 +496,7 @@ class _PaymentDecisions(_PolicyState):
             offers = self._permanent_offers_mana(item)
             if offers is None:
                 offers = self._looks_like_basic_land(str(item.get("name") or ""))
-            if offers:
+            if offers and not permanent_mana_is_counter_starved(item):
                 total += 1
         return self._fundable_mana_budget(actor, total, state=state)
 
@@ -1065,6 +1067,7 @@ class _PaymentDecisions(_PolicyState):
                 and not self._spends_the_activations_own_source(seat, option)
                 and not self._spends_counters_the_cast_reserves(seat, option)
                 and not self._spends_a_permanent_the_tap_cost_needs(seat, option, state)
+                and not mana_ability_yields_nothing(option, self._actor(state).get("battlefield"))
             )
         ]
         pool_options = [
@@ -1831,7 +1834,9 @@ class _PaymentDecisions(_PolicyState):
             rules = item.get("abilities")
             if not isinstance(rules, list):
                 continue
-            if any(offers_mana_ability(str(rule)) for rule in rules):
+            if any(offers_mana_ability(str(rule)) for rule in rules) and not (
+                permanent_mana_is_counter_starved(item)
+            ):
                 budget += 1
         return self._fundable_mana_budget(
             actor, budget, state=state, excluded_source_id=excluded_source_id

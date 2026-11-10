@@ -523,6 +523,75 @@ def option_x_counter_cap(
     return None
 
 
+# Mana that is as many as the counters on its source: "{T}: Add {C} for each charge counter on
+# {this}." (Everflowing Chalice), "{T}, Remove any number of storage counters from {this}: Add {C}
+# for each storage counter removed this way." (Mage-Ring Network), "{T}: Add X mana of any one
+# color, where X is the number of charge counters on {this}." (Astral Cornucopia).
+_COUNTER_FUELLED_MANA = re.compile(
+    r":\s*add\s[^.]*?(?:\bfor each (?P<kind_each>\S+) counters?\b"
+    r"|\bwhere X is the number of (?P<kind_x>\S+) counters? on\b)",
+    re.IGNORECASE,
+)
+
+
+def counter_fuelled_mana_supply(rule: str, permanent: Mapping[str, object]) -> int | None:
+    """Counters that fuel a mana ability of ``permanent``; ``None`` when it is not such a rule.
+
+    The engine offers the ability in a payment whatever the counters, taps the source for it and
+    adds nothing when there are none (a Chalice cast for no charge counters, a storage land
+    without storage counters), so a payment that chose it spent a land for no mana and ended
+    in a cancel. The counters are board-public. ``None`` also means the counters on the
+    permanent are not reported, and an unreadable rule is never turned into a number.
+    """
+    match = _COUNTER_FUELLED_MANA.search(rule or "")
+    if match is None:
+        return None
+    kind = (match.group("kind_each") or match.group("kind_x") or "").casefold()
+    counters = permanent.get("counters")
+    if not kind or not isinstance(counters, list):
+        return None
+    total = 0
+    for entry in counters:
+        if not isinstance(entry, dict) or str(entry.get("type") or "").casefold() != kind:
+            continue
+        count = entry.get("count")
+        if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+            return None
+        total += count
+    return total
+
+
+def mana_ability_yields_nothing(option: Mapping[str, object], battlefield: object) -> bool:
+    """True when a payment option is a counter-fuelled mana ability whose counters are all gone."""
+    metadata = option.get("metadata")
+    source_id = str(metadata.get("source_object_id") or "") if isinstance(metadata, dict) else ""
+    if not source_id or not isinstance(battlefield, list):
+        return False
+    label = str(option.get("label") or "")
+    rule = label.partition(" \u2014 ")[2] or label
+    for item in battlefield:
+        if isinstance(item, dict) and str(item.get("object_id") or "") == source_id:
+            return counter_fuelled_mana_supply(rule, item) == 0
+    return False
+
+
+def permanent_mana_is_counter_starved(permanent: Mapping[str, object]) -> bool:
+    """True when every mana ability a permanent states is counter-fuelled and has no counters."""
+    rules = permanent.get("abilities")
+    if not isinstance(rules, list):
+        return False
+    mana_rules = [
+        rule
+        for rule in rules
+        if isinstance(rule, str)
+        and re.search(r":\s*add\s", rule, re.IGNORECASE)
+        and not re.match(r"^\s*(?:[+\u2212\u2013-]\s*)?(?:\d+|x)\s*:", rule, re.IGNORECASE)
+    ]
+    return bool(mana_rules) and all(
+        counter_fuelled_mana_supply(rule, permanent) == 0 for rule in mana_rules
+    )
+
+
 # The cost the engine prints for an X paid by tapping permanents: "Tap X untapped artifacts
 # you control" (Necron Overlord). The kind is the plural noun before "you control".
 _TAP_X_UNTAPPED = re.compile(
