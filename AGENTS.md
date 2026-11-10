@@ -20,6 +20,8 @@ optimization). Governing mission policy: `docs/PROJECT_MISSION.md`.
   XMage engine lacks, so real decks play as they are.
 - Four players (one own deck, three opponents) is the usual game; other counts are
   supported where useful.
+- Owner decision 2026-11-10: the simulator is one part of the local Commander Studio
+  (BUILD, PLAY, SIMULATE): `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`.
 
 `ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:
 `docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md`).
@@ -376,6 +378,9 @@ Deck, collection and ownership data, including partial lists and the single card
 asked for one after another, go to no external service. Allowed are requests that carry no
 Owner reference, namely bulk downloads of public card data by plain GET; the evaluation runs
 locally.
+One Owner exception (2026-11-10): card names may be sent to a free public card-image source
+to show card images, cached locally; nothing else about decks or the collection leaves the
+machine.
 
 ## 13. Semantic Completion Rule
 
