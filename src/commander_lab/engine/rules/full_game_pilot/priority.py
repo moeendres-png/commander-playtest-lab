@@ -6,11 +6,13 @@ import random
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from commander_lab.agents.card_knowledge import card_facts
 from commander_lab.models import (
     PilotActionView,
+    PilotStateView,
 )
 
-from ..full_game_pilot_lands import choose_land_to_play
+from ..full_game_pilot_lands import choose_land_to_play, returns_a_land
 from ..full_game_pilot_views import (
     priority_view_fields,
 )
@@ -301,6 +303,14 @@ class _PriorityDecisions(_CombatDecisions):
                 affordable = [o for o in affordable if id(o) not in unpaid_ids]
                 needs_mana_first = [o for o in needs_mana_first if id(o) not in unpaid_ids]
                 self_defeating += len(unpaid)
+        # A bounce land waits while a spell is on offer: it enters tapped and takes a land back,
+        # so played first it can leave the spell uncastable. It is put up again once no spell is
+        # left, and in place of a pass (below), so the land drop is never lost to this rule.
+        held_lands = self._bounce_lands_that_wait_for_a_spell(affordable)
+        if held_lands:
+            _LOG.info("withheld %d bounce land(s) until the spells are cast", len(held_lands))
+            held_ids = {id(option) for option in held_lands}
+            affordable = [o for o in affordable if id(o) not in held_ids]
         if self_defeating:
             _LOG.info("withheld %d self-defeating or too early priority action(s)", self_defeating)
         if needs_mana_first:
@@ -392,16 +402,15 @@ class _PriorityDecisions(_CombatDecisions):
                 )
             )
             raw_by_stable_id[stable_id] = self._required_text(option, "option_id")
-        action_views.append(
-            PilotActionView(
-                action_id=pass_id,
-                action_kind="pass",
-                card_name="Pass priority",
-                floor_value=0.15,
-                immediate_impact=0.0,
-                metadata={"flexible_interaction": bool(state.get("stack"))},
-            )
+        pass_view = PilotActionView(
+            action_id=pass_id,
+            action_kind="pass",
+            card_name="Pass priority",
+            floor_value=0.15,
+            immediate_impact=0.0,
+            metadata={"flexible_interaction": bool(state.get("stack"))},
         )
+        action_views.append(pass_view)
         if len(action_views) == 1:
             _LOG.info("forced priority pass: no discretionary action offered")
             return pass_id
@@ -409,6 +418,12 @@ class _PriorityDecisions(_CombatDecisions):
         if decision.selected_action_id is None:
             raise FullGameProtocolError("Commander Lab pilot returned no priority action")
         if decision.selected_action_id == pass_id:
+            if held_lands and self._land_beats_pass(
+                runtime, state, pilot_state, held_lands[0], pass_view
+            ):
+                return self._refine_priority_choice(
+                    self._required_text(held_lands[0], "option_id"), held_lands, state, rng
+                )
             return pass_id
         deferred = deferred_by_stable_id.get(decision.selected_action_id)
         if deferred is not None:
@@ -418,6 +433,37 @@ class _PriorityDecisions(_CombatDecisions):
         except KeyError:
             raise FullGameProtocolError("pilot returned unknown stable priority action") from None
         return self._refine_priority_choice(chosen_id, affordable, state, rng)
+
+    @staticmethod
+    def _bounce_lands_that_wait_for_a_spell(
+        options: Sequence[dict[str, object]],
+    ) -> list[dict[str, object]]:
+        """The bounce-land plays to hold back while a spell can be cast in this window."""
+        if not any(_metadata(option).get("ability_type") == "spell" for option in options):
+            return []
+        held: list[dict[str, object]] = []
+        for option in options:
+            if not _is_land_play(option):
+                continue
+            facts = card_facts(str(_metadata(option).get("source_name") or ""))
+            if facts is not None and returns_a_land(facts):
+                held.append(option)
+        return held
+
+    def _land_beats_pass(
+        self,
+        runtime: _RuntimePilot,
+        state: dict[str, object],
+        pilot_state: PilotStateView,
+        land: dict[str, object],
+        pass_view: PilotActionView,
+    ) -> bool:
+        """Whether the pilot would have played the held land rather than pass, as it did before."""
+        view = self._priority_action(land, state).model_copy(
+            update={"action_id": f"priority:held-land:{land.get('option_id')}"}
+        )
+        land_utility = runtime.pilot.evaluate_action(pilot_state, view).total_utility
+        return land_utility >= runtime.pilot.evaluate_action(pilot_state, pass_view).total_utility
 
     @staticmethod
     def _refine_priority_choice(
