@@ -1,0 +1,483 @@
+"use strict";
+// Commander Studio deck builder. All text from data is set as text, never as HTML.
+
+const COMMANDER = "Chulane, Teller of Tales";
+const GROUPS = ["Creature", "Planeswalker", "Battle", "Artifact", "Enchantment", "Instant", "Sorcery", "Land", "Other"];
+const GROUP_NAMES = { Creature: "Kreaturen", Planeswalker: "Planeswalker", Battle: "Schlachten", Artifact: "Artefakte", Enchantment: "Verzauberungen", Instant: "Spontanzauber", Sorcery: "Hexereien", Land: "Länder", Other: "Sonstige" };
+const COHORT_NAMES = { all: "alle Quelldecks", community: "Community", turnier_cedh: "Turnier cEDH", community_cedh: "Community cEDH", unklassifiziert: "unklassifiziert" };
+const ROLE_NAMES = { ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp", card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip", tutor: "Tutor", removal: "Entfernung", board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink", recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass", lifegain: "Lebensgewinn" };
+const roleName = (key) => ROLE_NAMES[key] || key;
+const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", commander_type: "Commander-Typ", color_identity: "Farbidentität", singleton: "Mehrfach", legality_unknown: "Legalität unbekannt", not_legal: "Nicht legal", not_owned: "Nicht in der Sammlung", not_available: "Nicht frei" };
+
+const state = {
+  pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
+  decks: [], deckId: null, branch: "main", baseRevision: null,
+  list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
+  view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
+  colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
+};
+
+const $ = (id) => document.getElementById(id);
+function h(tag, props, ...children) {
+  const el = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value === null || value === undefined || value === false) continue;
+    if (key === "class") el.className = value;
+    else if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
+    else if (key === "dataset") Object.assign(el.dataset, value);
+    else if (key in el && key !== "list") el[key] = value;
+    else el.setAttribute(key, value);
+  }
+  for (const child of children.flat()) {
+    if (child === null || child === undefined || child === false) continue;
+    el.append(child.nodeType ? child : document.createTextNode(String(child)));
+  }
+  return el;
+}
+async function api(path, method = "GET", body) {
+  const options = { method, headers: { "X-Studio": "1" } };
+  if (body !== undefined) { options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
+  const response = await fetch(path, options);
+  if (!response.ok) {
+    let detail = response.statusText;
+    try { detail = (await response.json()).detail || detail; } catch (error) { /* keep status text */ }
+    throw new Error(typeof detail === "string" ? detail : JSON.stringify(detail));
+  }
+  return response.json();
+}
+let toastTimer = 0;
+function toast(text) {
+  const box = $("toast"); box.textContent = text; box.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { box.hidden = true; }, 3500);
+}
+const cohortName = (key) => COHORT_NAMES[key] || key;
+function mana(cost) {
+  const span = h("span", {});
+  for (const match of String(cost || "").matchAll(/\{([^}]+)\}|(\/\/)/g)) {
+    if (match[2]) { span.append(" // "); continue; }
+    const symbol = match[1];
+    const color = ["W", "U", "B", "R", "G"].find((letter) => symbol.split("/").includes(letter));
+    span.append(h("span", { class: "ms" + (color ? " ms-" + color : "") }, symbol));
+  }
+  return span;
+}
+function freq(card, cohort = state.cohort) {
+  const total = state.cohorts[cohort] || 0;
+  const hits = (card.decks && card.decks[cohort]) || 0;
+  return { hits, total, share: total ? hits / total : null };
+}
+function freqText(card, cohort = state.cohort) {
+  const f = freq(card, cohort);
+  return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
+}
+const qty = (id) => state.list.get(id) || 0;
+const deckTotal = () => state.commanderIds.length + [...state.list.values()].reduce((a, b) => a + b, 0);
+function maxCopies(card) {
+  if (card.basic || /A deck can have any number of cards named/.test(card.text)) return Math.max(card.available, 0);
+  return Math.min(1, Math.max(card.available, 0));
+}
+
+// ---------- pool ----------
+function filtered() {
+  const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const type = $("type-filter").value;
+  const role = $("role-filter").value;
+  const min = $("mv-min").value === "" ? null : Number($("mv-min").value);
+  const max = $("mv-max").value === "" ? null : Number($("mv-max").value);
+  const free = $("f-free").checked, notIn = $("f-notin").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
+  const rows = state.pool.filter((card) => {
+    if (state.commanderIds.includes(card.card_id)) return false;
+    if (free && card.available < 1) return false;
+    if (notIn && qty(card.card_id)) return false;
+    if (fav && !card.favorite) return false;
+    if (!showExcluded && card.excluded) return false;
+    if (type && card.group !== type) return false;
+    if (role === "-" ? card.roles.length > 0 : role && !card.roles.includes(role)) return false;
+    if (min !== null && !(card.mana_value >= min)) return false;
+    if (max !== null && !(card.mana_value <= max)) return false;
+    if (state.colors.size) {
+      const colorless = card.colors === "";
+      if (!(colorless ? state.colors.has("C") : [...card.colors].some((letter) => state.colors.has(letter)))) return false;
+    }
+    if (words.length) {
+      const hay = (card.name + "\n" + card.type_line + "\n" + card.text).toLowerCase();
+      if (!words.every((word) => hay.includes(word))) return false;
+    }
+    return true;
+  });
+  const key = state.sortKey, dir = state.sortDir;
+  const value = (card) => {
+    if (key === "freq") return freq(card).hits;
+    if (key === "edhrec") return card.edhrec ? card.edhrec.pct : -1;
+    if (key === "edhrec_rank") return card.edhrec_rank === null ? Infinity : card.edhrec_rank;
+    return card[key];
+  };
+  rows.sort((a, b) => {
+    const x = value(a), y = value(b);
+    if (x === y) return a.name.localeCompare(b.name);
+    return (x > y ? 1 : -1) * dir;
+  });
+  return rows;
+}
+function image(card, cls, face = "front") {
+  return h("img", { class: cls, loading: "lazy", alt: card.name, src: `/img/${encodeURIComponent(card.card_id)}?face=${face}` });
+}
+function hoverPreview(el, card) {
+  if (!card.has_image) return;
+  el.addEventListener("mouseenter", (event) => {
+    const box = $("preview"); box.firstChild.src = `/img/${encodeURIComponent(card.card_id)}`; box.hidden = false; movePreview(event);
+  });
+  el.addEventListener("mousemove", movePreview);
+  el.addEventListener("mouseleave", () => { $("preview").hidden = true; });
+}
+function movePreview(event) {
+  const box = $("preview");
+  const left = event.clientX + 290 > innerWidth ? event.clientX - 280 : event.clientX + 20;
+  box.style.left = left + "px"; box.style.top = Math.min(event.clientY - 40, innerHeight - 380) + "px";
+}
+function tile(card) {
+  const count = qty(card.card_id);
+  const face = card.has_image
+    ? image(card, "")
+    : h("div", { class: "fallback" }, h("b", {}, card.name), mana(card.mana_cost), h("span", { class: "muted" }, card.type_line), h("span", {}, card.text));
+  face.addEventListener("click", () => openCard(card));
+  const f = freq(card);
+  return h("div", { class: "tile" + (count ? " in" : "") + (card.available < 1 ? " none" : "") },
+    face, card.favorite && h("span", { class: "star" }, "★"),
+    h("div", { class: "bar" },
+      h("button", { class: "small", type: "button", title: "ins Deck", disabled: count >= maxCopies(card), onclick: () => add(card) }, "+"),
+      count ? h("button", { class: "small", type: "button", title: "aus dem Deck", onclick: () => remove(card) }, "−") : null,
+      count ? h("b", {}, count + "×") : null,
+      h("span", { class: "spacer" }),
+      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: "Decks der Vergleichsgruppe mit dieser Karte" }, f.total ? `${f.hits}/${f.total}` : "–")));
+}
+const COLUMNS = [
+  ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
+  ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
+  ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"],
+  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["note", "Notiz", null],
+];
+function cell(card, key) {
+  if (key === "img") return h("td", {}, card.has_image ? image(card, "thumb") : null);
+  if (key === "name") { const td = h("td", { class: "name", onclick: () => openCard(card) }, (card.favorite ? "★ " : "") + card.name); hoverPreview(td, card); return td; }
+  if (key === "mana_cost") return h("td", {}, mana(card.mana_cost));
+  if (key === "text") return h("td", { class: "text" }, card.text);
+  if (key === "roles") return h("td", {}, card.roles.map(roleName).join(", "));
+  if (key === "pt") return h("td", {}, card.power !== null ? `${card.power}/${card.toughness}` : "");
+  if (key === "freq") { const f = freq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, freqText(card)); }
+  if (key === "edhrec") {
+    if (!card.edhrec) return h("td", { class: "num muted" }, "unbekannt");
+    const e = card.edhrec;
+    return h("td", { class: "num" + (e.denominator < state.small ? " low" : ""), title: "EDHREC-Seite: " + e.page }, `${e.numerator}/${e.denominator} · ${Number(e.pct).toFixed(0)} %`);
+  }
+  const value = card[key];
+  return h("td", { class: typeof value === "number" ? "num" : "" }, value === null || value === undefined ? "" : value);
+}
+function renderPool() {
+  const rows = filtered();
+  $("pool-count").textContent = `${rows.length} von ${state.pool.length - state.commanderIds.length} Karten`;
+  const body = $("pool-body"); body.replaceChildren();
+  const part = rows.slice(0, state.shown);
+  if (state.view === "grid") {
+    body.append(h("div", { class: "grid" }, part.map(tile)));
+  } else {
+    const columns = COLUMNS.filter(([key]) => state.columns.has(key));
+    const head = h("tr", {}, h("th", {}, ""), columns.map(([key, label, sortKey]) => h("th", {
+      class: ["available", "owned", "reserved", "freq", "edhrec", "edhrec_rank", "mana_value"].includes(key) ? "num" : "",
+      onclick: sortKey ? () => { state.sortDir = state.sortKey === sortKey ? -state.sortDir : (["name", "type_line", "edhrec_rank", "mana_value"].includes(sortKey) ? 1 : -1); state.sortKey = sortKey; $("sort").value = ""; renderPool(); } : null,
+    }, label + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
+    const lines = part.map((card) => {
+      const count = qty(card.card_id);
+      return h("tr", { class: count ? "in" : "" },
+        h("td", {}, count
+          ? h("button", { class: "small", type: "button", onclick: () => remove(card) }, "−")
+          : h("button", { class: "small", type: "button", disabled: maxCopies(card) < 1, onclick: () => add(card) }, "+")),
+        columns.map(([key]) => cell(card, key)));
+    });
+    body.append(h("table", {}, h("thead", {}, head), h("tbody", {}, lines)));
+  }
+  if (rows.length > part.length) {
+    body.append(h("p", {}, h("button", { type: "button", onclick: () => { state.shown += 240; renderPool(); } }, `Weitere anzeigen (${rows.length - part.length})`)));
+  }
+}
+
+// ---------- deck ----------
+function add(card) {
+  const count = qty(card.card_id);
+  if (count >= maxCopies(card)) { toast(card.available < 1 ? "Keine freie Kopie in der Sammlung." : "Schon im Deck."); return; }
+  state.list.set(card.card_id, count + 1); changed();
+}
+function remove(card) {
+  const count = qty(card.card_id);
+  if (count <= 1) state.list.delete(card.card_id); else state.list.set(card.card_id, count - 1);
+  changed();
+}
+function entries() {
+  const cards = state.commanderIds.map((id) => ({ card_id: id, quantity: 1, zone: "commander" }));
+  for (const [id, quantity] of state.list) cards.push({ card_id: id, quantity, zone: "main" });
+  return cards;
+}
+let saveTimer = 0;
+function changed() {
+  state.dirty = true; renderAll();
+  clearTimeout(saveTimer); saveTimer = setTimeout(syncDraft, 500);
+}
+async function syncDraft() {
+  try {
+    const cards = entries();
+    const [result] = await Promise.all([
+      api("/api/check", "POST", { cards, owned_only: true }),
+      state.dirty ? api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "PUT", { cards, base_revision_id: state.baseRevision }) : null,
+    ]);
+    state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {};
+    $("save-state").textContent = state.dirty ? "Entwurf gesichert, noch nicht als Stand gespeichert" : "gespeichert";
+    renderHeader(); renderDeck();
+  } catch (error) { toast("Fehler: " + error.message); }
+}
+function renderHeader() {
+  const total = deckTotal();
+  const counter = $("counter"); counter.textContent = `${total} / 100`;
+  counter.className = "pill " + (total === 100 ? "good" : total > 100 ? "bad" : "warn");
+  const errors = state.issues.filter((issue) => issue.severity === "error").length;
+  const warnings = state.issues.length - errors;
+  const pill = $("check-pill");
+  pill.textContent = errors ? `${errors} Fehler` : warnings ? `${warnings} Hinweise` : "Datenprüfung ohne Befund";
+  pill.className = "pill " + (errors ? "bad" : warnings ? "warn" : "good");
+  $("save").disabled = !state.dirty;
+}
+function deckCards() {
+  return [...state.list.keys()].map((id) => state.byId.get(id)).filter(Boolean);
+}
+function renderList(body) {
+  const problems = new Set(state.issues.map((issue) => issue.card_id).filter(Boolean));
+  for (const id of state.commanderIds) {
+    const card = state.byId.get(id);
+    if (!card) continue;
+    body.append(h("div", { class: "commander" }, card.has_image ? image(card, "") : null,
+      h("div", {}, h("b", {}, card.name), h("div", { class: "muted" }, "Commander"), h("div", {}, mana(card.mana_cost)),
+        h("div", { class: "note" }, `Farbidentität ${card.colors || "farblos"}`))));
+  }
+  const cards = deckCards();
+  if (!cards.length) body.append(h("p", { class: "muted" }, "Noch keine Karten. Wähle links Karten aus deiner Sammlung aus."));
+  for (const group of GROUPS) {
+    const members = cards.filter((card) => card.group === group).sort((a, b) => a.mana_value - b.mana_value || a.name.localeCompare(b.name));
+    if (!members.length) continue;
+    const count = members.reduce((sum, card) => sum + qty(card.card_id), 0);
+    const box = h("div", { class: "group" }, h("h3", {}, `${GROUP_NAMES[group]} (${count})`));
+    for (const card of members) {
+      const name = h("span", { class: "nm", onclick: () => openCard(card) }, card.name);
+      hoverPreview(name, card);
+      box.append(h("div", { class: "row" + (problems.has(card.card_id) ? " problem" : "") },
+        h("span", { class: "qty" }, qty(card.card_id)), name, mana(card.mana_cost),
+        card.basic ? h("button", { class: "small", type: "button", disabled: qty(card.card_id) >= maxCopies(card), onclick: () => add(card) }, "+") : null,
+        h("button", { class: "small", type: "button", onclick: () => remove(card) }, "−")));
+    }
+    body.append(box);
+  }
+}
+function bars(values, labels) {
+  const top = Math.max(1, ...values);
+  return [h("div", { class: "bars" }, values.map((value) => h("div", { style: `height:${(100 * value) / top}%` }, h("span", {}, value)))),
+    h("div", { class: "axis" }, labels.map((label) => h("span", {}, label)))];
+}
+function renderNumbers(body) {
+  const shape = state.shape;
+  if (!shape) { body.append(h("p", { class: "muted" }, "Wird berechnet.")); return; }
+  body.append(h("h3", {}, "Manakurve (ohne Länder)"), ...bars([0, 1, 2, 3, 4, 5, 6, 7].map((key) => shape.curve[String(key)] || 0), ["0", "1", "2", "3", "4", "5", "6", "7+"]),
+    h("p", {}, `Durchschnittlicher Manawert der Nichtland-Karten: ${shape.mana_value === null ? "unbekannt" : shape.mana_value}`));
+  const types = h("table", {}, h("tbody", {}, GROUPS.filter((group) => shape.types[group]).map((group) => h("tr", {}, h("td", {}, GROUP_NAMES[group]), h("td", { class: "num" }, shape.types[group])))));
+  body.append(h("h3", {}, "Kartentypen"), types);
+  const colors = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Farbe"), h("th", { class: "num" }, "Farbsymbole in Kosten"), h("th", { class: "num" }, "Karten, die die Farbe erzeugen"))),
+    h("tbody", {}, ["W", "U", "B", "R", "G", "C"].filter((letter) => shape.pips[letter] || shape.mana_sources[letter]).map((letter) =>
+      h("tr", {}, h("td", {}, h("span", { class: "ms ms-" + letter }, letter)), h("td", { class: "num" }, shape.pips[letter] || 0), h("td", { class: "num" }, shape.mana_sources[letter] || 0)))));
+  if (state.roles.length) {
+    const reference = state.shapes.find((row) => row.cohort === state.cohort) || {};
+    const spans = reference.roles || {};
+    body.append(h("h3", {}, "Rollen"), h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Rolle"), h("th", { class: "num" }, "Dein Deck"), h("th", { class: "num" }, cohortName(state.cohort)))),
+      h("tbody", {}, state.roles.map((role) => h("tr", {}, h("td", {}, roleName(role)), h("td", { class: "num" }, state.deckRoles[role] || 0), h("td", { class: "num" }, span(spans[role])))))),
+      h("p", { class: "note" }, "Rollen sind öffentliche Marken der Scryfall-Gemeinschaft (Tagger). Eine Karte kann mehrere Rollen haben, und nicht jede Karte ist markiert. Vergleich: Median und mittlere Hälfte der gewählten Vergleichsgruppe."));
+  }
+  body.append(h("h3", {}, "Farben"), colors, h("p", { class: "note" }, "Gezählt aus den Kartendaten: Symbole in den Manakosten und Karten, die Mana dieser Farbe erzeugen können. Das ist eine Zählung, keine Bewertung."));
+}
+function renderCheck(body) {
+  if (!state.issues.length) { body.append(h("p", {}, "Die Datenprüfung findet nichts.")); }
+  for (const issue of state.issues) {
+    body.append(h("div", { class: "issue " + issue.severity }, h("b", {}, ISSUE_NAMES[issue.code] || issue.code), h("div", {}, issue.message)));
+  }
+  body.append(h("p", { class: "note" }, "Diese Prüfung liest gespeicherte Kartendaten: 100 Karten, Commander, Farbidentität, Einzelkarten-Regel, Legalität, Besitz und freie Kopien. Verbindlich für das Spiel ist erst die Prüfung durch die Regel-Engine."));
+}
+function span(entry) { return entry ? `${entry.median} (${entry.p25} bis ${entry.p75})` : "unbekannt"; }
+function renderCompare(body) {
+  const shape = state.shape || {};
+  const table = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gruppe"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Länder"), h("th", { class: "num" }, "Kreaturen"), h("th", { class: "num" }, "Ø Manawert"))),
+    h("tbody", {}, h("tr", {}, h("td", {}, h("b", {}, "Dein Deck")), h("td", {}), h("td", { class: "num" }, shape.lands ?? ""), h("td", { class: "num" }, shape.creatures ?? ""), h("td", { class: "num" }, shape.mana_value ?? "")),
+      state.shapes.map((row) => h("tr", { class: row.decks < state.small ? "low" : "" }, h("td", {}, cohortName(row.cohort)), h("td", { class: "num" }, row.decks_counted === row.decks ? row.decks : `${row.decks_counted} von ${row.decks}`),
+        h("td", { class: "num" }, span(row.lands)), h("td", { class: "num" }, span(row.creatures)), h("td", { class: "num" }, span(row.mana_value))))));
+  body.append(h("h3", {}, "Aufbau im Vergleich"), table, h("p", { class: "note" }, "Median und mittlere Hälfte der Quelldecks. Gelb: Gruppe mit weniger als 30 Decks, sehr unsicher. Länder nach Vorderseite gezählt."));
+  const name = cohortName(state.cohort);
+  const candidates = state.pool.filter((card) => !qty(card.card_id) && !state.commanderIds.includes(card.card_id) && card.available > 0 && !card.excluded && !card.basic)
+    .sort((a, b) => freq(b).hits - freq(a).hits).slice(0, 20);
+  const rare = deckCards().filter((card) => !card.basic).sort((a, b) => freq(a).hits - freq(b).hits).slice(0, 20);
+  const listing = (cards, withAdd) => h("div", {}, cards.map((card) => {
+    const label = h("span", { class: "nm", onclick: () => openCard(card) }, card.name); hoverPreview(label, card);
+    return h("div", { class: "row" }, label, h("span", { class: "muted" }, freqText(card)),
+      withAdd ? h("button", { class: "small", type: "button", onclick: () => add(card) }, "+") : h("button", { class: "small", type: "button", onclick: () => remove(card) }, "−"));
+  }));
+  body.append(h("h3", {}, `Oft gespielt (${name}), frei in deiner Sammlung, nicht im Deck`), listing(candidates, true),
+    h("h3", {}, `Im Deck, selten gespielt (${name})`), listing(rare, false),
+    h("p", { class: "note" }, "Häufigkeit sagt, was andere spielen, nicht, was stärker ist."));
+}
+function renderDeck() {
+  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["compare", "Vergleich"]];
+  $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("span", { class: "chip" + (state.tab === key ? " on" : ""), onclick: () => { state.tab = key; renderDeck(); } }, label)));
+  const body = $("deck-body"); body.replaceChildren();
+  ({ list: renderList, numbers: renderNumbers, check: renderCheck, compare: renderCompare })[state.tab](body);
+}
+function renderAll() { renderHeader(); renderPool(); renderDeck(); }
+
+// ---------- card window ----------
+function closeModal() { $("modal").hidden = true; }
+async function openCard(card) {
+  const box = $("modal-box"); box.className = ""; box.replaceChildren();
+  let face = "front";
+  const picture = card.has_image ? image(card, "big") : h("div", { class: "muted" }, "Kein Bild in den Kartendaten.");
+  const left = h("div", {}, picture, card.has_back ? h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { face = face === "front" ? "back" : "front"; picture.src = `/img/${encodeURIComponent(card.card_id)}?face=${face}`; } }, "Rückseite / Vorderseite")) : null);
+  const note = h("textarea", { placeholder: "Deine Notiz zur Karte" }); note.value = card.note;
+  const saveMark = async (change) => {
+    Object.assign(card, change);
+    try { await api(`/api/cards/${encodeURIComponent(card.card_id)}/mark`, "PUT", { favorite: card.favorite, excluded: card.excluded, note: card.note }); renderPool(); openCard(card); }
+    catch (error) { toast("Fehler: " + error.message); }
+  };
+  const count = qty(card.card_id);
+  const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
+    h("tbody", {}, Object.keys(state.cohorts).map((key) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
+  const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
+  const right = h("div", {},
+    h("h2", {}, card.name), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
+    h("p", { style: "white-space:pre-line" }, card.text),
+    card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, roleName(role)))) : null,
+    h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "")),
+    h("div", { class: "actions" },
+      h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
+      count ? h("button", { type: "button", onclick: () => { remove(card); openCard(card); } }, `Aus dem Deck (${count})`) : null,
+      h("button", { type: "button", onclick: () => saveMark({ favorite: !card.favorite }) }, card.favorite ? "★ Favorit" : "☆ Favorit"),
+      h("button", { type: "button", onclick: () => saveMark({ excluded: !card.excluded }) }, card.excluded ? "Ausschluss aufheben" : "Ausschließen"),
+      h("button", { type: "button", onclick: closeModal }, "Schließen")),
+    note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
+    h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."), extra);
+  box.append(left, right); $("modal").hidden = false;
+  try {
+    const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}`);
+    const rows = detail.observations.filter((row) => row.metric === "inclusion_pct");
+    const lift = new Map(detail.observations.filter((row) => row.metric === "lift").map((row) => [row.cohort, row.value]));
+    extra.replaceChildren(h("h3", {}, "EDHREC-Seiten"), rows.length ? h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Seite"), h("th", { class: "num" }, "Zähler/Nenner"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"))),
+      h("tbody", {}, rows.map((row) => h("tr", { class: row.denominator < state.small ? "low" : "" }, h("td", {}, row.cohort.replace(/^edhrec:/, "")), h("td", { class: "num" }, `${row.numerator}/${row.denominator}`), h("td", { class: "num" }, row.value === null ? "unbekannt" : Number(row.value).toFixed(1) + " %"),
+        h("td", { class: "num" }, lift.get(row.cohort) === null || lift.get(row.cohort) === undefined ? "unbekannt" : Number(lift.get(row.cohort)).toFixed(2)))))) : h("p", { class: "muted" }, "Keine EDHREC-Zeile gespeichert: unbekannt, nicht null."));
+  } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "EDHREC-Zeilen nicht lesbar: " + error.message)); }
+}
+
+// ---------- decks, variants, saving ----------
+async function loadDecks() {
+  state.decks = await api("/api/decks");
+  if (!state.decks.length) {
+    const created = await api("/api/decks", "POST", { name: "Chulane", commander_card_ids: state.commanderIds });
+    state.deckId = created.deck_id; state.decks = await api("/api/decks");
+  }
+  if (!state.decks.some((deck) => deck.deck_id === state.deckId)) state.deckId = state.decks[0].deck_id;
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  if (!deck.branches.some((item) => item.branch === state.branch)) state.branch = deck.branches[0].branch;
+  $("deck-select").replaceChildren(...state.decks.map((item) => h("option", { value: item.deck_id, selected: item.deck_id === state.deckId }, item.name)));
+  $("branch-select").replaceChildren(...deck.branches.map((item) => h("option", { value: item.branch, selected: item.branch === state.branch }, `${item.branch} (${item.cards})${item.has_draft ? " *" : ""}`)));
+}
+function useCards(cards) {
+  state.list = new Map();
+  for (const entry of cards) if (entry.zone === "main" && state.byId.has(entry.card_id)) state.list.set(entry.card_id, entry.quantity);
+}
+async function loadBranch() {
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  const branch = deck.branches.find((item) => item.branch === state.branch);
+  state.baseRevision = branch.revision_id;
+  const [revision, draft] = await Promise.all([
+    api(`/api/revisions/${encodeURIComponent(branch.revision_id)}`),
+    api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`),
+  ]);
+  if (draft.draft) { useCards(draft.draft.cards); state.dirty = true; }
+  else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; }
+  renderAll(); await syncDraft();
+}
+async function saveRevision(branch = state.branch) {
+  const note = prompt("Kurze Notiz zu diesem Stand (darf leer sein):", "");
+  if (note === null) return;
+  try {
+    const result = await api(`/api/decks/${encodeURIComponent(state.deckId)}/revisions`, "POST", { cards: entries(), branch, note, parent_revision_id: state.baseRevision });
+    if (branch !== state.branch) await api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "DELETE");
+    state.branch = branch; state.baseRevision = result.revision_id; state.dirty = false;
+    await loadDecks(); renderHeader(); $("save-state").textContent = "gespeichert"; toast("Stand gespeichert.");
+  } catch (error) { toast("Fehler: " + error.message); }
+}
+async function showHistory() {
+  const rows = await api(`/api/decks/${encodeURIComponent(state.deckId)}/history`);
+  const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Verlauf"),
+    h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Gespeichert"), h("th", { class: "num" }, "Karten"), h("th", {}, "Notiz"), h("th", {}, ""))),
+      h("tbody", {}, rows.map((row) => h("tr", {}, h("td", {}, row.created_at.replace("T", " ").replace("Z", "")), h("td", { class: "num" }, row.cards), h("td", {}, row.note),
+        h("td", {}, h("button", { type: "button", class: "small", onclick: async () => { const revision = await api(`/api/revisions/${encodeURIComponent(row.revision_id)}`); useCards(revision.cards); closeModal(); changed(); toast("Alter Stand geladen. Er wird erst mit Speichern zum aktuellen Stand."); } }, "Laden")))))),
+    h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
+  $("modal").hidden = false;
+}
+function showExport() {
+  if (state.dirty) { toast("Bitte zuerst als Stand speichern. Exportiert wird immer ein gespeicherter Stand."); return; }
+  const base = `/api/revisions/${encodeURIComponent(state.baseRevision)}/export`;
+  const box = $("modal-box"); box.className = "plain"; box.replaceChildren(h("h2", {}, "Export"),
+    h("p", {}, "Exportiert wird der gespeicherte Stand ", h("code", {}, state.baseRevision), "."),
+    h("div", { class: "actions" }, h("a", { href: base + "?format=txt", target: "_blank", rel: "noopener" }, "Deckliste als Text"), h("a", { href: base + "?format=json", target: "_blank", rel: "noopener" }, "Deck für die Simulation (JSON)")),
+    h("div", { class: "actions" }, h("button", { type: "button", onclick: closeModal }, "Schließen")));
+  $("modal").hidden = false;
+}
+
+// ---------- start ----------
+function setupControls() {
+  $("color-filter").replaceChildren(...["W", "U", "G", "C"].map((letter) => h("span", { class: "chip", title: letter === "C" ? "farblos" : "", onclick: (event) => {
+    if (state.colors.has(letter)) state.colors.delete(letter); else state.colors.add(letter);
+    event.currentTarget.classList.toggle("on"); state.shown = 120; renderPool();
+  } }, letter)));
+  $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...GROUPS.map((group) => h("option", { value: group }, GROUP_NAMES[group])));
+  $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), ...state.roles.map((role) => h("option", { value: role }, roleName(role))), h("option", { value: "-" }, "ohne Rollenmarke"));
+  $("cohort").replaceChildren(...Object.entries(state.cohorts).map(([key, size]) => h("option", { value: key }, `${cohortName(key)} (${size})`)));
+  const sorts = [["freq:-1", "Häufigkeit in Quelldecks"], ["name:1", "Name"], ["mana_value:1", "Manawert"], ["edhrec:-1", "EDHREC-Anteil"], ["edhrec_rank:1", "EDHREC-Rang"], ["available:-1", "freie Kopien"]];
+  $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
+  $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); renderPool(); });
+  $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderPool(); renderDeck(); });
+  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  const views = [["grid", "Bilder"], ["table", "Tabelle"]];
+  const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("span", { class: "chip" + (state.view === key ? " on" : ""), onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
+  drawViews();
+  $("columns").addEventListener("click", () => { $("column-menu").hidden = !$("column-menu").hidden; });
+  $("column-menu").replaceChildren(...COLUMNS.map(([key, label]) => h("label", {}, h("input", { type: "checkbox", checked: state.columns.has(key), onchange: (event) => {
+    if (event.target.checked) state.columns.add(key); else state.columns.delete(key);
+    try { localStorage.setItem("studio-columns", JSON.stringify([...state.columns])); } catch (error) { /* view setting only */ }
+    state.view = "table"; drawViews(); renderPool();
+  } }), " " + label)));
+  $("save").addEventListener("click", () => saveRevision());
+  $("history").addEventListener("click", showHistory);
+  $("export").addEventListener("click", showExport);
+  $("new-branch").addEventListener("click", () => { const name = prompt("Name der neuen Variante:", ""); if (name && name.trim()) saveRevision(name.trim().slice(0, 60)); });
+  $("deck-select").addEventListener("change", async () => { state.deckId = $("deck-select").value; await loadDecks(); await loadBranch(); });
+  $("branch-select").addEventListener("change", async () => { state.branch = $("branch-select").value; await loadBranch(); });
+  $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) closeModal(); });
+  document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
+}
+async function start() {
+  try {
+    const stored = JSON.parse(localStorage.getItem("studio-columns") || "null");
+    if (Array.isArray(stored)) state.columns = new Set(stored);
+  } catch (error) { /* view setting only */ }
+  try {
+    const [pool, shapes] = await Promise.all([api("/api/pool?commander=" + encodeURIComponent(COMMANDER)), api("/api/cohorts")]);
+    state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
+    state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes;
+    setupControls(); await loadDecks(); await loadBranch();
+  } catch (error) {
+    $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, "Sind Sammlung und Kartendaten importiert?"));
+  }
+}
+start();

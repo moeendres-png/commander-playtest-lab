@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commander Studio</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header id="top">
+  <h1>Commander Studio <span>Deckbau</span></h1>
+  <label>Deck <select id="deck-select"></select></label>
+  <label>Variante <select id="branch-select"></select></label>
+  <button id="new-branch" type="button">Neue Variante</button>
+  <span id="counter" class="pill">0 / 100</span>
+  <span id="check-pill" class="pill">Prüfung</span>
+  <span id="save-state" class="muted"></span>
+  <span class="spacer"></span>
+  <button id="save" type="button" class="primary">Als Stand speichern</button>
+  <button id="history" type="button">Verlauf</button>
+  <button id="export" type="button">Export</button>
+</header>
+<main>
+  <section id="pool">
+    <div id="filters">
+      <input id="q" type="search" placeholder="Suche in Name, Typ und Text" autocomplete="off">
+      <span id="color-filter" class="chips"></span>
+      <select id="type-filter"></select>
+      <select id="role-filter"></select>
+      <label>Manawert <input id="mv-min" type="number" min="0" max="20" placeholder="von">
+        <input id="mv-max" type="number" min="0" max="20" placeholder="bis"></label>
+      <label><input id="f-free" type="checkbox" checked> nur freie</label>
+      <label><input id="f-notin" type="checkbox"> nicht im Deck</label>
+      <label><input id="f-fav" type="checkbox"> Favoriten</label>
+      <label><input id="f-excl" type="checkbox"> Ausgeschlossene zeigen</label>
+      <label>Vergleichsgruppe <select id="cohort"></select></label>
+      <label>Sortierung <select id="sort"></select></label>
+      <span class="chips" id="view-toggle"></span>
+      <button id="columns" type="button">Spalten</button>
+      <span id="pool-count" class="muted"></span>
+    </div>
+    <div id="column-menu" hidden></div>
+    <div id="pool-body"></div>
+  </section>
+  <aside id="deck">
+    <nav id="deck-tabs" class="chips"></nav>
+    <div id="deck-body"></div>
+  </aside>
+</main>
+<div id="preview" hidden><img alt=""></div>
+<div id="modal" hidden><div id="modal-box"></div></div>
+<div id="toast" hidden></div>
+<script src="app.js"></script>
+</body>
+</html>

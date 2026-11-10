@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sqlite3
-from collections.abc import Iterable
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
 from .store import StudioStore, now_utc
@@ -110,12 +110,17 @@ def create_revision(
     return revision_id
 
 
+_ROW_COLUMNS = (
+    "rc.card_id, rc.zone, rc.quantity, c.oracle_name, c.engine_name, "
+    "c.color_identity, c.is_basic_land, c.commander_legal, c.type_line, c.oracle_text, "
+    "c.mana_cost, c.mana_value, c.produced_mana, c.layout, "
+    "i.available_lower_bound, i.reserved "
+)
+
+
 def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
     rows = store.connection.execute(
-        "SELECT rc.card_id, rc.zone, rc.quantity, c.oracle_name, c.color_identity, "
-        "c.is_basic_land, c.commander_legal, c.type_line, c.oracle_text, "
-        "i.available_lower_bound, i.reserved "
-        "FROM deck_revision_card rc JOIN card c USING (card_id) "
+        f"SELECT {_ROW_COLUMNS} FROM deck_revision_card rc JOIN card_fact c USING (card_id) "
         "LEFT JOIN inventory i USING (card_id) WHERE rc.revision_id = ? "
         "ORDER BY rc.zone, c.oracle_name",
         (revision_id,),
@@ -123,6 +128,24 @@ def revision_rows(store: StudioStore, revision_id: str) -> list[sqlite3.Row]:
     if not rows:
         raise KeyError(revision_id)
     return rows
+
+
+def list_rows(store: StudioStore, cards: Iterable[RevisionCard]) -> list[sqlite3.Row]:
+    """The same rows as ``revision_rows`` for a list that is not stored as a revision."""
+    db = store.connection
+    db.execute(
+        "CREATE TEMP TABLE IF NOT EXISTS work_list "
+        "(card_id TEXT NOT NULL, zone TEXT NOT NULL, quantity INTEGER NOT NULL)"
+    )
+    db.execute("DELETE FROM work_list")
+    db.executemany(
+        "INSERT INTO work_list(card_id, zone, quantity) VALUES (?, ?, ?)",
+        [(card.card_id, card.zone, card.quantity) for card in _merge(cards)],
+    )
+    return db.execute(
+        f"SELECT {_ROW_COLUMNS} FROM work_list rc JOIN card_fact c USING (card_id) "
+        "LEFT JOIN inventory i USING (card_id) ORDER BY rc.zone, c.oracle_name"
+    ).fetchall()
 
 
 def _any_number_allowed(row: sqlite3.Row) -> bool:
@@ -134,7 +157,11 @@ def validate_revision(
     store: StudioStore, revision_id: str, *, owned_only: bool = True
 ) -> list[DeckIssue]:
     """Data check of one revision. An empty list means: nothing found."""
-    rows = revision_rows(store, revision_id)
+    return validate_rows(revision_rows(store, revision_id), owned_only=owned_only)
+
+
+def validate_rows(rows: Sequence[sqlite3.Row], *, owned_only: bool = True) -> list[DeckIssue]:
+    """Data check of deck rows (from ``revision_rows`` or ``list_rows``)."""
     issues: list[DeckIssue] = []
     commanders = [row for row in rows if row["zone"] == "commander"]
     total = sum(int(row["quantity"]) for row in rows)
@@ -215,7 +242,7 @@ def lab_snapshot(
         "WHERE r.revision_id = ?",
         (revision_id,),
     ).fetchone()
-    commanders = [str(row["oracle_name"]) for row in rows if row["zone"] == "commander"]
+    commanders = [str(row["engine_name"]) for row in rows if row["zone"] == "commander"]
     return {
         "deck_id": str(header["deck_id"]),
         "name": name or str(header["name"]),
@@ -228,7 +255,7 @@ def lab_snapshot(
         },
         "cards": [
             {
-                "oracle_name": str(row["oracle_name"]),
+                "oracle_name": str(row["engine_name"]),
                 "quantity": int(row["quantity"]),
                 "zone": str(row["zone"]),
             }
