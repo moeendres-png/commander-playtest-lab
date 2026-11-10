@@ -77,6 +77,9 @@ first it had made 7.9 attacks and had 8.2 own turns (wins: 35.4 attacks, 11.6 ow
 in round 2.6 in all three groups, so the early start is the same. The opposing decks cast 1.6 board wipes per game
 when Token Triumph went out first against 1.0 otherwise (20 against 28 games). That is a lead (a go-wide deck is
 what a wipe answers), not a cause: the numbers are small and the base rate of wipes in these pods is 1.4 per game.
+Update 2026-11-10: this lead does not hold up. The count was for the whole game and for every card with the wipe role;
+counted per sweeper spell cast while Token Triumph was still alive it is 0.65 against 0.52 per game, see
+`TOKEN_TRIUMPH_WIPES_2026-11-10.md`.
 
 ## 4. Who is attacked (the 36 Chulane-pod games, all seats)
 
