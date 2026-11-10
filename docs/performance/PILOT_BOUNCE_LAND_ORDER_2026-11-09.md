@@ -1,6 +1,6 @@
 # Pilot: bounce land after the spells (2026-11-09)
 
-Refs #1070. Draft, **not merged**: a pilot change needs the Owner's explicit go. Evidence class
+Refs #1070. Merged as #1152 after the Owner's explicit go (a pilot change needs it). Evidence class
 `LOCAL_OBSERVED`, exploratory, no CI credit, not a win-rate estimate: **the win rate stays UNDECIDED**.
 Follows from section 2 of `PILOT_CALIBRATION_REAL_PLAYERS_2026-11-09.md` (the one real sequencing defect).
 
@@ -48,11 +48,12 @@ standard error of 0.106, mean rounds +0.07 +- 0.34): inside the noise of 22 dive
 either direction. Wins by deck (counts, not an estimate), before to after: Lorehold Spirit 12 to 11, Hosts of
 Mordor 6 to 7, Animated Army 5 to 6, Chulane 4 to 6, Token Triumph 4 to 3, Kaervek 3 to 2, Eldrazi Unbound 2 to 1.
 
-## 4. If it is merged
+## 4. After the merge
 
-`check-reference` reports the 36-seed reference stale (the two watched files above). The chain is the one of
-`REFERENCE_36_SEEDS_2026-11-09.md`: two 36-seed runs with the same jar, `identical 36/36`, new reference note,
-`REFERENCE_DOC` and the test strings. No bridge, fork, pin or sealed record is touched, so no requalification.
+Merged as #1152 (`823903239`) with the Owner's go of 2026-11-09. `check-reference` then reported the 36-seed
+reference stale (the two watched files above); the new reference is `REFERENCE_36_SEEDS_2026-11-10.md` (twin run
+`identical 36/36`; against the old reference 34 of 36 hashes are equal, since that pod holds few bounce lands). No
+bridge, fork, pin or sealed record was touched, so no requalification.
 
 ## 5. Not claimed
 
