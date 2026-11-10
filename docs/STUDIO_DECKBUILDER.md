@@ -34,6 +34,10 @@ Only image requests leave the machine, and they name single public cards (Owner 
 server listens on `127.0.0.1` only, rejects other host names, and accepts writes only from its
 own page.
 
+The page files in `studio/static/` are read from the source tree (editable install, as the
+starter uses it). `pyproject.toml` is bound by a qualification manifest and is not changed for
+this; shipping the page inside a wheel is a later step.
+
 ## What the builder shows
 
 - The legal pool for the commander with full card images or as a table with selectable

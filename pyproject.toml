@@ -45,9 +45,6 @@ commander-lab-optimizer = "commander_lab.optimizer_v2_cli:app"
 [tool.setuptools.packages.find]
 where = ["src"]
 
-[tool.setuptools.package-data]
-commander_lab = ["studio/static/*"]
-
 [tool.pytest.ini_options]
 addopts = "-ra --strict-config --strict-markers"
 testpaths = ["tests"]
