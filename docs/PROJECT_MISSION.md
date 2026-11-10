@@ -21,6 +21,12 @@ optimization.
   Never create or plan 7+ player simulations for the product; isolated technical feasibility research on eight seats at most is allowed only as separate, explicitly assigned research that admits no operational session. Lower counts remain available only
   where individually qualified; this does not promote 6P qualification.
 - Perfect play or perfect prediction is not assumed or claimed.
+- By explicit Owner decision on 2026-11-10 the simulator is one part of a connected local
+  application, **Commander Studio**: BUILD (deck building on the Owner's collection, highest
+  product priority), PLAY (one human against AI seats) and SIMULATE (AI games, their logs and
+  win rates). Pilots aim at generally strong play with a deck game plan; new series of small
+  per-decision measurements are frozen. See
+  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`.
 
 ## Outcome-first architecture and research
 
