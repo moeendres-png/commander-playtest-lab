@@ -14,7 +14,7 @@ def legal_pool(store: StudioStore, commander_names: list[str]) -> list[sqlite3.R
     identity: frozenset[str] = frozenset()
     for name in commander_names:
         row = store.connection.execute(
-            "SELECT color_identity FROM card WHERE oracle_name = ?", (name,)
+            "SELECT color_identity FROM card_fact WHERE oracle_name = ?", (name,)
         ).fetchone()
         if row is None:
             raise KeyError(name)
@@ -22,7 +22,7 @@ def legal_pool(store: StudioStore, commander_names: list[str]) -> list[sqlite3.R
     rows = store.connection.execute(
         "SELECT c.card_id, c.oracle_name, c.color_identity, c.type_line, c.mana_value, "
         "i.available_lower_bound AS available, i.reserved "
-        "FROM card c JOIN inventory i USING (card_id) WHERE c.commander_legal = 1 "
+        "FROM card_fact c JOIN inventory i USING (card_id) WHERE c.commander_legal = 1 "
         "ORDER BY c.oracle_name"
     ).fetchall()
     return [row for row in rows if color_set(row["color_identity"]) <= identity]

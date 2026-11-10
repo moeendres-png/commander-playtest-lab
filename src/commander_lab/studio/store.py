@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -130,6 +130,79 @@ CREATE TABLE IF NOT EXISTS observation (
     source_id TEXT NOT NULL REFERENCES source(source_id)
 );
 CREATE INDEX IF NOT EXISTS observation_card ON observation(card_name, metric);
+CREATE TABLE IF NOT EXISTS scryfall_card (
+    oracle_id TEXT PRIMARY KEY,
+    scryfall_id TEXT NOT NULL,
+    name TEXT NOT NULL,
+    front_name TEXT NOT NULL,
+    layout TEXT NOT NULL,
+    mana_cost TEXT,
+    mana_value REAL,
+    type_line TEXT,
+    oracle_text TEXT,
+    color_identity TEXT NOT NULL,
+    commander_legality TEXT NOT NULL,
+    edhrec_rank INTEGER,
+    keywords TEXT NOT NULL,
+    produced_mana TEXT NOT NULL,
+    power TEXT,
+    toughness TEXT,
+    game_changer INTEGER,
+    released_at TEXT,
+    image_front TEXT,
+    image_back TEXT,
+    source_id TEXT NOT NULL REFERENCES source(source_id)
+);
+CREATE INDEX IF NOT EXISTS scryfall_name ON scryfall_card(name);
+CREATE INDEX IF NOT EXISTS scryfall_front_name ON scryfall_card(front_name);
+CREATE TABLE IF NOT EXISTS card_mark (
+    card_id TEXT PRIMARY KEY REFERENCES card(card_id),
+    favorite INTEGER NOT NULL DEFAULT 0,
+    excluded INTEGER NOT NULL DEFAULT 0,
+    note TEXT NOT NULL DEFAULT '',
+    updated_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS deck_draft (
+    deck_id TEXT NOT NULL REFERENCES deck(deck_id),
+    branch TEXT NOT NULL,
+    cards TEXT NOT NULL,
+    base_revision_id TEXT,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (deck_id, branch)
+);
+CREATE TABLE IF NOT EXISTS corpus_cohort (
+    cohort TEXT NOT NULL,
+    deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
+    PRIMARY KEY (cohort, deck_id)
+);
+CREATE TABLE IF NOT EXISTS corpus_deck_stat (
+    deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id),
+    cards INTEGER NOT NULL,
+    resolved INTEGER NOT NULL,
+    lands INTEGER NOT NULL,
+    creatures INTEGER NOT NULL,
+    nonland_mana_value REAL NOT NULL,
+    nonland_cards INTEGER NOT NULL
+);
+CREATE VIEW IF NOT EXISTS card_fact AS
+SELECT c.card_id,
+       c.oracle_name,
+       COALESCE(s.oracle_id, c.oracle_id) AS oracle_id,
+       CASE WHEN s.oracle_id IS NULL THEN c.oracle_name
+            WHEN s.layout = 'split' THEN s.name ELSE s.front_name END AS engine_name,
+       COALESCE(s.color_identity, REPLACE(c.color_identity, 'C', '')) AS color_identity,
+       COALESCE(s.mana_cost, c.mana_cost) AS mana_cost,
+       COALESCE(s.mana_value, c.mana_value) AS mana_value,
+       COALESCE(s.type_line, c.type_line) AS type_line,
+       COALESCE(s.oracle_text, c.oracle_text) AS oracle_text,
+       CASE WHEN COALESCE(s.type_line, c.type_line) LIKE 'Basic %Land%' THEN 1
+            ELSE c.is_basic_land END AS is_basic_land,
+       CASE WHEN s.oracle_id IS NULL THEN c.commander_legal
+            WHEN s.commander_legality = 'legal' THEN 1 ELSE 0 END AS commander_legal,
+       CASE WHEN s.oracle_id IS NULL THEN 'workbook' ELSE 'scryfall' END AS fact_source,
+       s.layout, s.edhrec_rank, s.keywords, s.produced_mana, s.power, s.toughness,
+       s.game_changer, s.image_front, s.image_back
+FROM card c LEFT JOIN scryfall_card s ON s.oracle_id = c.oracle_id;
 """
 
 
@@ -203,9 +276,14 @@ class StudioStore:
             connection.execute(
                 "INSERT INTO meta(key, value) VALUES ('schema_version', ?)", (str(SCHEMA_VERSION),)
             )
-        elif int(row["value"]) != SCHEMA_VERSION:
+        elif int(row["value"]) > SCHEMA_VERSION:
             raise RuntimeError(
                 f"Studio store has schema {row['value']}, this code needs {SCHEMA_VERSION}"
+            )
+        elif int(row["value"]) < SCHEMA_VERSION:
+            # Every schema step so far only adds tables and views (created above).
+            connection.execute(
+                "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
         connection.commit()
         return connection
@@ -240,7 +318,8 @@ class StudioStore:
     def count(self, table: str) -> int:
         if table not in {
             "source", "card", "inventory", "deck", "deck_revision", "deck_revision_card",
-            "deck_branch", "corpus_deck", "corpus_deck_card", "observation",
+            "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
+            "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
