@@ -6,6 +6,7 @@ its denominator; nothing here rates a card.
 
 from __future__ import annotations
 
+import functools
 import json
 import math
 import re
@@ -14,8 +15,31 @@ from collections import Counter
 from collections.abc import Iterable, Sequence
 from statistics import median
 
+from commander_lab.deck_readiness import (
+    _CARD_FACTS_PATH,
+    _PILOT_KNOWLEDGE_PATH,
+    _CardData,
+)
+from commander_lab.deck_variant import compare_variant, comparison_to_dict
+from commander_lab.models import RulesDeckInput
+
 from .decks import RevisionCard, color_set, list_rows
 from .store import StudioStore, now_utc
+
+
+@functools.lru_cache(maxsize=1)
+def _sim_card_data() -> _CardData:
+    return _CardData(_CARD_FACTS_PATH, _PILOT_KNOWLEDGE_PATH)
+
+
+@functools.lru_cache(maxsize=4096)
+def sim_readiness_status(card_name: str) -> str:
+    """Simulator readiness of ``card_name`` against the repo XMage card facts and pilot catalog."""
+    try:
+        return _sim_card_data().status_of(card_name).value
+    except (OSError, ValueError):
+        return "UNKNOWN"
+
 
 ALL_DECKS = "all"
 SMALL_DENOMINATOR = 30
@@ -136,6 +160,7 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
                 "has_back": row["image_back"] is not None,
                 "has_image": row["image_front"] is not None,
                 "fact_source": row["fact_source"],
+                "sim_status": sim_readiness_status(str(row["oracle_name"])),
                 "owned": row["owned_lower_bound"],
                 "available": row["available_lower_bound"],
                 "reserved": row["reserved"],
@@ -165,7 +190,7 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
 
 
 def card_cooccurrence(
-    store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS, limit: int = 15
+    store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS, limit: int = 25
 ) -> dict[str, object]:
     """Other collection cards that appear in the same non-duplicate source decks as ``card_id``.
 
@@ -375,6 +400,7 @@ def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) ->
     ]
     return {
         "card_id": card_id,
+        "sim_status": sim_readiness_status(str(row["oracle_name"])),
         "observations": observations,
         "used_in": used_in,
         "cooccurrence": card_cooccurrence(store, card_id, cohort=cohort),
@@ -654,6 +680,60 @@ def diff_lists(
         "base_shape": base_shape,
         "target_shape": target_shape,
         "role_deltas": role_deltas,
+    }
+
+
+def _to_rules_deck(
+    store: StudioStore, cards: Sequence[RevisionCard], deck_id: str
+) -> RulesDeckInput | None:
+    rows = list_rows(store, cards)
+    cmds: list[str] = []
+    main: list[str] = []
+    for row in rows:
+        name = str(row["engine_name"] or row["oracle_name"])
+        qty = int(row["quantity"])
+        if row["zone"] == "commander":
+            cmds.extend([name] * qty)
+        else:
+            main.extend([name] * qty)
+    if not cmds or len(cmds) + len(main) != 100:
+        return None
+    try:
+        return RulesDeckInput(
+            deck_id=deck_id,
+            name=deck_id,
+            commander_names=tuple(cmds),
+            mainboard=tuple(main),
+        )
+    except ValueError:
+        return None
+
+
+def prefilter_lists(
+    store: StudioStore,
+    base_cards: Sequence[RevisionCard],
+    target_cards: Sequence[RevisionCard],
+    *,
+    trials: int = 2000,
+) -> dict[str, object]:
+    """Compare ``target_cards`` against ``base_cards`` using the simulator prefilter and
+    commander castability model (``HEURISTIC_MODEL``, seed 20261016).
+
+    Requires two valid 100-card Commander lists; returns ``comparable: False`` otherwise.
+    """
+    base_deck = _to_rules_deck(store, base_cards, "baseline")
+    target_deck = _to_rules_deck(store, target_cards, "variant")
+    if base_deck is None or target_deck is None:
+        return {
+            "data_class": "HEURISTIC_MODEL",
+            "comparable": False,
+            "reason": "Vorfilter benötigt zwei vollständige 100-Karten-Commander-Listen.",
+        }
+    comp = compare_variant(base_deck, target_deck, trials=trials)
+    return {
+        "data_class": "HEURISTIC_MODEL",
+        "comparable": True,
+        **comparison_to_dict(comp),
     }
 
 

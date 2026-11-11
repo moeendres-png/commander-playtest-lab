@@ -97,12 +97,14 @@ function filtered() {
   const min = $("mv-min").value === "" ? null : Number($("mv-min").value);
   const max = $("mv-max").value === "" ? null : Number($("mv-max").value);
   const free = $("f-free").checked, notIn = $("f-notin").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
+  const simReady = $("f-sim") && $("f-sim").checked;
   const rows = state.pool.filter((card) => {
     if (state.commanderIds.includes(card.card_id)) return false;
     if (free && card.available < 1) return false;
     if (notIn && qty(card.card_id)) return false;
     if (fav && !card.favorite) return false;
     if (!showExcluded && card.excluded) return false;
+    if (simReady && card.sim_status !== "OK") return false;
     if (type && card.group !== type) return false;
     if (role === "-" ? card.roles.length > 0 : role && !card.roles.includes(role)) return false;
     if (min !== null && !(card.mana_value >= min)) return false;
@@ -167,7 +169,7 @@ const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
   ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
   ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"],
-  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["note", "Notiz", null],
+  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
 ];
 function cell(card, key) {
   if (key === "img") return h("td", {}, card.has_image ? image(card, "thumb") : null);
@@ -329,6 +331,17 @@ function renderCheck(body) {
     body.append(h("div", { class: "issue " + issue.severity }, h("b", {}, ISSUE_NAMES[issue.code] || issue.code), h("div", {}, issue.message)));
   }
   body.append(h("p", { class: "note" }, "Diese Prüfung liest gespeicherte Kartendaten: 100 Karten, Commander, Farbidentität, Einzelkarten-Regel, Legalität, Besitz und freie Kopien. Verbindlich für das Spiel ist erst die Prüfung durch die Regel-Engine."));
+  const currentCards = [...state.commanderIds.map((id) => state.byId.get(id)), ...deckCards()].filter(Boolean);
+  const notReady = currentCards.filter((card) => card.sim_status && card.sim_status !== "OK");
+  body.append(h("h3", {}, "Simulator-Bereitschaft (CODE_DERIVED)"));
+  if (!notReady.length) {
+    body.append(h("p", {}, `Alle ${currentCards.length} eindeutigen Karten im aktuellen Deck haben XMage-Card-Facts und Pilot-Wissen (OK).`));
+  } else {
+    body.append(h("p", {}, `${notReady.length} Karte(n) im aktuellen Deck sind im Simulator-Vorfilter noch nicht vollständig hinterlegt:`),
+      h("div", {}, notReady.map((card) => h("div", { class: "issue warning" },
+        h("b", {}, card.sim_status),
+        h("div", {}, `${card.name}: Status ${card.sim_status} (deck_readiness).`)))));
+  }
 }
 function span(entry) { return entry ? `${entry.median} (${entry.p25} bis ${entry.p75})` : "unbekannt"; }
 function renderCompare(body) {
@@ -382,6 +395,31 @@ async function renderDiff(body) {
         h("tr", {}, h("td", {}, "Ø Manawert"), h("td", { class: "num" }, bs.mana_value ?? "–"), h("td", { class: "num" }, ts.mana_value ?? "–"),
           h("td", { class: "num" }, bs.mana_value !== null && ts.mana_value !== null ? ((ts.mana_value - bs.mana_value >= 0 ? "+" : "") + (ts.mana_value - bs.mana_value).toFixed(2)) : "–"))));
     box.append(h("h3", {}, "Struktur-Delta (DERIVED_DESCRIPTIVE)"), shapeTable);
+    const bdp = bs.draw_probabilities && bs.draw_probabilities.opening_7 ? bs.draw_probabilities : null;
+    const tdp = ts.draw_probabilities && ts.draw_probabilities.opening_7 ? ts.draw_probabilities : null;
+    if (bdp && tdp) {
+      const pct = (v) => (v === null || v === undefined ? "–" : (100 * v).toFixed(1) + " %");
+      const dpDelta = (bVal, tVal) => (bVal === null || tVal === null || bVal === undefined || tVal === undefined ? "–" : ((tVal - bVal >= 0 ? "+" : "") + (100 * (tVal - bVal)).toFixed(1) + " %"));
+      const probDiffTable = h("table", {},
+        h("thead", {}, h("tr", {}, h("th", {}, "Land-Ziehfenster"), h("th", { class: "num" }, "Basis"), h("th", { class: "num" }, "Aktuell"), h("th", { class: "num" }, "Delta"))),
+        h("tbody", {},
+          [["Starthand ≥ 3 Länder (7)", bdp.opening_7.at_least_3_lands, tdp.opening_7.at_least_3_lands],
+           ["Starthand 3–4 Länder (7)", bdp.opening_7.between_3_and_4_lands, tdp.opening_7.between_3_and_4_lands],
+           ["Bis Zug 4 ≥ 4 Länder (10)", bdp.turn_4_draw_10.at_least_4_lands, tdp.turn_4_draw_10.at_least_4_lands]].map(([label, bV, tV]) =>
+            h("tr", {}, h("td", {}, label), h("td", { class: "num" }, pct(bV)), h("td", { class: "num" }, pct(tV)), h("td", { class: "num" }, dpDelta(bV, tV))))));
+      box.append(h("h3", {}, "Land-Ziehwahrscheinlichkeiten-Delta (DERIVED_DESCRIPTIVE)"), probDiffTable);
+    }
+    if (diff.role_deltas && Object.keys(diff.role_deltas).length) {
+      const roleRows = Object.entries(diff.role_deltas).sort((a, b) => roleName(a[0]).localeCompare(roleName(b[0])));
+      const roleDiffTable = h("table", {},
+        h("thead", {}, h("tr", {}, h("th", {}, "Rolle (Tagger)"), h("th", { class: "num" }, "Basis"), h("th", { class: "num" }, "Aktuell"), h("th", { class: "num" }, "Delta"))),
+        h("tbody", {}, roleRows.map(([rKey, vals]) => h("tr", {},
+          h("td", {}, roleName(rKey)),
+          h("td", { class: "num" }, vals.base),
+          h("td", { class: "num" }, vals.target),
+          h("td", { class: "num" }, (vals.delta > 0 ? "+" : "") + vals.delta)))));
+      box.append(h("h3", {}, "Rollen-Delta (DERIVED_DESCRIPTIVE)"), roleDiffTable);
+    }
     if (diff.added.length) {
       box.append(h("h3", {}, `Hinzugefügt (+${diff.added.length})`), h("div", {}, diff.added.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, "+" + item.quantity), h("span", { class: "nm", onclick: () => { const c = state.byId.get(item.card_id); if (c) openCard(c); } }, item.name), h("span", { class: "muted" }, GROUP_NAMES[item.group] || item.group)))));
     }
@@ -391,6 +429,53 @@ async function renderDiff(body) {
     if (diff.changed.length) {
       box.append(h("h3", {}, "Mengenänderung"), h("div", {}, diff.changed.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, `${item.base_quantity}→${item.target_quantity}`), h("span", {}, item.name)))));
     }
+    const pfBox = h("div", {});
+    const pfBtn = h("button", {
+      type: "button",
+      onclick: async () => {
+        pfBtn.disabled = true;
+        pfBox.replaceChildren(h("p", { class: "muted" }, "Berechnet Commander-Castability & Manabasis-Vorfilter (2000 MC-Läufe, Seed 20261016)..."));
+        try {
+          const pf = await api("/api/prefilter", "POST", { base_revision_id: state.diffBaseRev, cards: entries(), trials: 2000 });
+          pfBox.replaceChildren();
+          if (!pf.comparable) {
+            pfBox.append(h("p", { class: "muted" }, pf.reason || "Vorfilter benötigt zwei vollständige 100-Karten-Listen."));
+          } else {
+            pfBox.append(h("h3", {}, "Vorfilter & Commander-Castability (HEURISTIC_MODEL)"),
+              h("p", {}, h("b", {}, `Urteil: ${pf.verdict}`), ` — ${pf.verdict_reason}`),
+              h("p", { class: "note" }, `Simulator-Bereitschaft: Basis=${pf.baseline_ready ? "OK" : "Lücken"}, Aktuell=${pf.variant_ready ? "OK" : "Lücken (" + (pf.variant_not_ready_cards || []).join(", ") + ")"} · Manabasis-Delta: Länder ${pf.land_count_delta >= 0 ? "+" : ""}${pf.land_count_delta}, sicher getappt ${pf.definitely_tapped_land_delta >= 0 ? "+" : ""}${pf.definitely_tapped_land_delta}, bedingt getappt ${pf.conditionally_tapped_land_delta >= 0 ? "+" : ""}${pf.conditionally_tapped_land_delta}`));
+            if (pf.castability && pf.castability.length) {
+              const fmtPct = (v) => (v === null || v === undefined ? "–" : (100 * v).toFixed(1) + " %");
+              const fmtDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + (100 * v).toFixed(1) + " %");
+              const castRows = [];
+              for (const c of pf.castability) {
+                for (const t of ["3", "4", "5", "6"]) {
+                  const pB = c.play && c.play.by_turn_baseline ? c.play.by_turn_baseline[t] : null;
+                  const pV = c.play && c.play.by_turn_variant ? c.play.by_turn_variant[t] : null;
+                  const pD = c.play && c.play.by_turn_delta ? c.play.by_turn_delta[t] : null;
+                  const dB = c.draw && c.draw.by_turn_baseline ? c.draw.by_turn_baseline[t] : null;
+                  const dV = c.draw && c.draw.by_turn_variant ? c.draw.by_turn_variant[t] : null;
+                  const dD = c.draw && c.draw.by_turn_delta ? c.draw.by_turn_delta[t] : null;
+                  castRows.push(h("tr", {},
+                    h("td", {}, `${c.card_name} (Zug ${t})`),
+                    h("td", { class: "num" }, `${fmtPct(pB)} → ${fmtPct(pV)} (${fmtDelta(pD)})`),
+                    h("td", { class: "num" }, `${fmtPct(dB)} → ${fmtPct(dV)} (${fmtDelta(dD)})`)));
+                }
+              }
+              pfBox.append(h("table", {},
+                h("thead", {}, h("tr", {}, h("th", {}, "Commander / Zug"), h("th", { class: "num" }, "On the Play (Basis → Aktuell)"), h("th", { class: "num" }, "On the Draw (Basis → Aktuell)"))),
+                h("tbody", {}, castRows)),
+                h("p", { class: "note" }, "Modellrechnung (HEURISTIC_MODEL, 2000 Läufe, Seed 20261016): prüft Manabasis und Farbquellen ohne volle Spielsimulation."));
+            }
+          }
+        } catch (err) {
+          pfBox.replaceChildren(h("p", { class: "muted" }, "Vorfilter-Fehler: " + err.message));
+        } finally {
+          pfBtn.disabled = false;
+        }
+      },
+    }, "Vorfilter & Commander-Castability berechnen (HEURISTIC_MODEL)");
+    box.append(h("div", { class: "actions", style: "margin-top:10px" }, pfBtn), pfBox);
   } catch (error) {
     box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + error.message));
   }
@@ -455,7 +540,7 @@ async function openCard(card) {
     h("h2", {}, card.name), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { style: "white-space:pre-line" }, card.text),
     card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, roleName(role)))) : null,
-    h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "")),
+    h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${card.sim_status || "unbekannt"}`),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
       count ? h("button", { type: "button", onclick: () => { remove(card); openCard(card); } }, `Aus dem Deck (${count})`) : null,
@@ -474,10 +559,14 @@ async function openCard(card) {
     }
     if (detail.cooccurrence && detail.cooccurrence.cards && detail.cooccurrence.cards.length) {
       const co = detail.cooccurrence;
+      const coRows = co.cards.filter((item) => {
+        const other = state.byId.get(item.card_id);
+        return !other || !other.basic;
+      });
       parts.push(h("h3", {}, `Zusammen gespielt in Quelldecks (${cohortName(co.cohort)}, Nenner: ${co.card_decks} Decks mit dieser Karte)`),
         h("table", {},
-          h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", {}, ""))),
-          h("tbody", {}, co.cards.map((item) => {
+          h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", {}, ""))),
+          h("tbody", {}, coRows.map((item) => {
             const other = state.byId.get(item.card_id);
             return h("tr", { class: co.card_decks < state.small ? "low" : "" },
               h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, item.name),
@@ -598,7 +687,7 @@ function setupControls() {
   $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); renderPool(); });
   $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderPool(); renderDeck(); });
-  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("span", { class: "chip" + (state.view === key ? " on" : ""), onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
