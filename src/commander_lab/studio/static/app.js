@@ -449,17 +449,29 @@ async function renderDiff(body) {
               const fmtDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + (100 * v).toFixed(1) + " %");
               const castRows = [];
               for (const c of pf.castability) {
+                const bp = c.baseline_probability || {};
+                const vp = c.variant_probability || {};
+                const dp = c.probability_delta || {};
                 for (const t of ["3", "4", "5", "6"]) {
-                  const pB = c.play && c.play.by_turn_baseline ? c.play.by_turn_baseline[t] : null;
-                  const pV = c.play && c.play.by_turn_variant ? c.play.by_turn_variant[t] : null;
-                  const pD = c.play && c.play.by_turn_delta ? c.play.by_turn_delta[t] : null;
-                  const dB = c.draw && c.draw.by_turn_baseline ? c.draw.by_turn_baseline[t] : null;
-                  const dV = c.draw && c.draw.by_turn_variant ? c.draw.by_turn_variant[t] : null;
-                  const dD = c.draw && c.draw.by_turn_delta ? c.draw.by_turn_delta[t] : null;
+                  const pB = bp.play ? bp.play[t] : null;
+                  const pV = vp.play ? vp.play[t] : null;
+                  const pD = dp.play ? dp.play[t] : null;
+                  const dB = bp.draw ? bp.draw[t] : null;
+                  const dV = vp.draw ? vp.draw[t] : null;
+                  const dD = dp.draw ? dp.draw[t] : null;
                   castRows.push(h("tr", {},
-                    h("td", {}, `${c.card_name} (Zug ${t})`),
+                    h("td", {}, `${c.name} (Zug ${t})`),
                     h("td", { class: "num" }, `${fmtPct(pB)} → ${fmtPct(pV)} (${fmtDelta(pD)})`),
                     h("td", { class: "num" }, `${fmtPct(dB)} → ${fmtPct(dV)} (${fmtDelta(dD)})`)));
+                }
+                const be = c.baseline_expected_turn || {}, ve = c.variant_expected_turn || {}, de = c.expected_turn_delta || {};
+                if (be.play !== undefined && ve.play !== undefined) {
+                  const fmtTurn = (v) => (v === null || v === undefined ? "–" : Number(v).toFixed(2));
+                  const fmtTurnDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + Number(v).toFixed(2));
+                  castRows.push(h("tr", {},
+                    h("td", {}, `${c.name} (Ø Zug)`),
+                    h("td", { class: "num" }, `${fmtTurn(be.play)} → ${fmtTurn(ve.play)} (${fmtTurnDelta(de.play)})`),
+                    h("td", { class: "num" }, `${fmtTurn(be.draw)} → ${fmtTurn(ve.draw)} (${fmtTurnDelta(de.draw)})`)));
                 }
               }
               pfBox.append(h("table", {},

@@ -421,6 +421,17 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
             "share": 0.5,
         }
     ]
+    role_file = tmp_path / "diff_roles.json"
+    role_file.write_text(
+        json.dumps(
+            {
+                "fetched_at": "2026-11-10T00:00:00Z",
+                "roles": {"ramp": ["oracle-forest"], "removal": ["oracle-swarm-rat"]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    roles.import_roles(studio, role_file)
     base_cards = _deck()
     target_cards = [
         *base_cards[:-1],
@@ -443,6 +454,10 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
             "delta": -1,
         }
     ]
+    assert diff["role_deltas"] == {
+        "ramp": {"base": 29, "target": 28, "delta": -1},
+        "removal": {"base": 0, "target": 1, "delta": 1},
+    }
     dp = builder.draw_probabilities(99, 29)
     assert dp is not None
     assert dp["data_class"] == "DERIVED_DESCRIPTIVE"
@@ -469,6 +484,13 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
     assert pf["land_count_delta"] == -1
     assert isinstance(pf["castability"], list)
     assert len(pf["castability"]) == 1
+    cmd_cast = pf["castability"][0]
+    assert isinstance(cmd_cast, dict)
+    assert cmd_cast["name"] == "Test Commander"
+    assert "3" in cmd_cast["baseline_probability"]["play"]  # type: ignore[index]
+    assert "3" in cmd_cast["variant_probability"]["play"]  # type: ignore[index]
+    assert "3" in cmd_cast["probability_delta"]["play"]  # type: ignore[index]
+    assert "play" in cmd_cast["baseline_expected_turn"]  # type: ignore[operator]
 
 
 def test_multipart_scryfall_folder_and_disambiguation(tmp_path: Path) -> None:
