@@ -91,7 +91,7 @@ class CardCoverageRecord:
     corpus_denominator: int
     edhrec_hits: int | None
     edhrec_denominator: int | None
-    edhrec_lift: float | None
+    edhrec_inclusion_pct: float | None
     has_spellbook_combos: bool
     playgroup_observed_games: int | None
     tournament_hits: int | None
@@ -572,14 +572,14 @@ def calculate_card_coverage_record(
     edhrec = card.get("edhrec")
     edhrec_hits: int | None = None
     edhrec_denominator: int | None = None
-    edhrec_lift: float | None = None
+    edhrec_inclusion_pct: float | None = None
     if isinstance(edhrec, dict):
         if edhrec.get("numerator") is not None:
             edhrec_hits = int(edhrec["numerator"])
         if edhrec.get("denominator") is not None:
             edhrec_denominator = int(edhrec["denominator"])
         if edhrec.get("pct") is not None:
-            edhrec_lift = float(edhrec["pct"])
+            edhrec_inclusion_pct = float(edhrec["pct"])
 
     has_spellbook_combos = name in spellbook_combo_cards
     playgroup_observed_games: int | None = None  # Documented blockade / no public export
@@ -661,7 +661,7 @@ def calculate_card_coverage_record(
         corpus_denominator=corpus_denominator,
         edhrec_hits=edhrec_hits,
         edhrec_denominator=edhrec_denominator,
-        edhrec_lift=edhrec_lift,
+        edhrec_inclusion_pct=edhrec_inclusion_pct,
         has_spellbook_combos=has_spellbook_combos,
         playgroup_observed_games=playgroup_observed_games,
         tournament_hits=tournament_hits,
@@ -738,7 +738,7 @@ def calculate_pool_gap_matrix(
     records.sort(key=lambda r: (-r.research_priority_score, r.card_name))
 
     return {
-        "schema_version": "pool-gap-matrix-1.0.0",
+        "schema_version": "pool-gap-matrix-1.1.0",
         "description": "Evidence gap and research priority matrix for format-legal pool cards (P0 Deliverable 2).",
         "commander": ", ".join(commander_names),
         "generated_at_utc": now_utc(),

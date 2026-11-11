@@ -317,7 +317,7 @@ def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None
     store = StudioStore.open(store_dir)
     matrix = calculate_pool_gap_matrix(store)
 
-    assert matrix["schema_version"] == "pool-gap-matrix-1.0.0"
+    assert matrix["schema_version"] == "pool-gap-matrix-1.1.0"
     assert matrix["total_cards"] == 801
     assert matrix["corpus_denominator"] == 975
     assert matrix["commander"] == "Chulane, Teller of Tales"
@@ -350,7 +350,7 @@ def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None
 
     loaded = json.loads(written_path.read_text(encoding="utf-8"))
     assert loaded["total_cards"] == 801
-    assert loaded["schema_version"] == "pool-gap-matrix-1.0.0"
+    assert loaded["schema_version"] == "pool-gap-matrix-1.1.0"
     assert len(loaded["cards"]) == 801
 
 
@@ -372,7 +372,7 @@ def test_source_inventory_payload_filtered_by_status() -> None:
 def test_generate_gap_example_report() -> None:
     # Build a minimal matrix with 1 card of each grade
     matrix: PoolGapMatrixPayload = {
-        "schema_version": "pool-gap-matrix-1.0.0",
+        "schema_version": "pool-gap-matrix-1.1.0",
         "description": "test",
         "commander": "Chulane, Teller of Tales",
         "generated_at_utc": "2026-11-11T12:00:00Z",
@@ -392,7 +392,7 @@ def test_generate_gap_example_report() -> None:
                 "corpus_denominator": 975,
                 "edhrec_hits": 50,
                 "edhrec_denominator": 100,
-                "edhrec_lift": 50.0,
+                "edhrec_inclusion_pct": 50.0,
                 "has_spellbook_combos": False,
                 "playgroup_observed_games": None,
                 "tournament_hits": None,
@@ -413,7 +413,7 @@ def test_generate_gap_example_report() -> None:
                 "corpus_denominator": 975,
                 "edhrec_hits": None,
                 "edhrec_denominator": None,
-                "edhrec_lift": None,
+                "edhrec_inclusion_pct": None,
                 "has_spellbook_combos": False,
                 "playgroup_observed_games": None,
                 "tournament_hits": None,
@@ -434,7 +434,7 @@ def test_generate_gap_example_report() -> None:
                 "corpus_denominator": 975,
                 "edhrec_hits": None,
                 "edhrec_denominator": None,
-                "edhrec_lift": None,
+                "edhrec_inclusion_pct": None,
                 "has_spellbook_combos": False,
                 "playgroup_observed_games": None,
                 "tournament_hits": None,
@@ -455,7 +455,7 @@ def test_generate_gap_example_report() -> None:
                 "corpus_denominator": 975,
                 "edhrec_hits": None,
                 "edhrec_denominator": None,
-                "edhrec_lift": None,
+                "edhrec_inclusion_pct": None,
                 "has_spellbook_combos": False,
                 "playgroup_observed_games": None,
                 "tournament_hits": None,
