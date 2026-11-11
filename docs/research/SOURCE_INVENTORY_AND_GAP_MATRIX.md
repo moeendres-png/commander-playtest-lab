@@ -1,8 +1,8 @@
-# Commander Studio BUILD: Quelleninventar & Datenlückenmatrix (P0 Deliverables 1 & 2)
+# Commander Studio BUILD: Quelleninventar, Datenlückenmatrix & Beispielreport (P0 Deliverables 1, 2 & 3)
 
 **Datum:** 2026-11-11  
 **Autorität & Bindung:** Issue [#1185](https://github.com/moeendres-png/commander-playtest-lab/issues/1185), [`docs/PROJECT_MISSION.md`](file:///home/moeen/commander-playtest-lab/docs/PROJECT_MISSION.md), [`docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`](file:///home/moeen/commander-playtest-lab/docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md), `AGENTS.md` §2 (Rules Authority), §3 (Source Truth), §12 (Privacy).  
-**Status:** `P0_DELIVERABLES_1_AND_2_COMPLETED` (Maschinenlesbares Quellenregister, Qualifizierungsbericht und 801-Karten-Lückenmatrix).  
+**Status:** `P0_DELIVERABLES_COMPLETED` (Maschinenlesbares Quellenregister, 801-Karten-Lückenmatrix, Beispielreport & CLI-Integration).  
 **Maschinenlesbare Artefakte:**
 - Quellenregister (9 Quellen): [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json)
 - Lückenmatrix (801 Chulane-Poolkarten): [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json)
@@ -270,7 +270,64 @@ Exakt **413 Karten (51,6 % des Pools)** wurden als **Long-Tail-Kandidaten** iden
 
 ---
 
-## 4. Software-Architektur und Schnittstellen
+---
+
+## 4. Deliverable 3: Beispielreport für vorhandene, schwache und unbekannte Beobachtungen
+
+Gemäß den P0-Abnahmekriterien aus Issue #1185 wurde ein strukturierter Beispielreport implementiert (`generate_gap_example_report` und CLI-Befehl `python -m commander_lab.studio sources --example-report`). Er demonstriert die Repräsentanz der vier Evidenzklassen im legalen Pool:
+
+### 1. `COMPLETE` (Vollständige Evidenz)
+- **Beispiel 1: `Aether Adept`**
+  - Manawert: 3, Typ: `Creature — Human Wizard`, Rollen: `bounce`
+  - Korpus: 6 / 975 Treffer ($0{,}6\,\%$)
+  - EDHREC: Vorhanden, Lift: $100{,}0\,\%$
+  - Research-Score: $0{,}08$ (gut belegt, geringer Forschungsbedarf)
+- **Beispiel 2: `Aftermath Analyst`**
+  - Manawert: 2, Typ: `Creature — Elf Detective`, Rollen: `ramp`, `landfall`
+  - Korpus: 6 / 975 Treffer
+  - EDHREC: Vorhanden, Lift: $5{,}56\,\%$
+  - Research-Score: $0{,}08$
+
+### 2. `SPARSE` (Schwache Evidenz / 1–4 Korpustreffer)
+- **Beispiel 1: `Felidar Cub`**
+  - Manawert: 2, Typ: `Creature — Cat Beast`, Rollen: `removal`
+  - Korpus: 1 / 975 Treffer
+  - EDHREC: Fehlend
+  - Research-Score: $0{,}351$ (Long-Tail-Kandidat)
+- **Beispiel 2: `Groundskeeper`**
+  - Manawert: 1, Typ: `Creature — Human Druid`, Rollen: `card_advantage`, `recursion`
+  - Korpus: 1 / 975 Treffer
+  - EDHREC: Fehlend
+  - Research-Score: $0{,}351$ (Long-Tail-Kandidat)
+
+### 3. `PARTIAL` (Partielle Evidenz / $\ge 5$ Korpustreffer, aber fehlendes EDHREC)
+- **Beispiel 1: `Fleetfoot Panther`**
+  - Manawert: 3, Typ: `Creature — Cat`, Flash, Self-Bounce (`roles: ['bounce']`)
+  - Korpus: 16 / 975 Treffer ($1{,}64\,\%$)
+  - EDHREC: Fehlend im Chulane-Schnitt (keine aggregierte Lift-Metrik)
+  - Research-Score: $0{,}24$
+- **Beispiel 2: `Walking Atlas`**
+  - Manawert: 2, Typ: `Artifact Creature — Construct`, Land-Drop-Tap (`roles: ['ramp']`)
+  - Korpus: 8 / 975 Treffer
+  - EDHREC: Fehlend
+  - Research-Score: $0{,}24$
+
+### 4. `UNOBSERVED_IN_CORPUS` (Unbekannt / 0 Korpustreffer)
+- **Beispiel 1: `Esperzoa`**
+  - Manawert: 3, Typ: `Artifact Creature — Jellyfish`
+  - Upkeep-Trigger: Lässt Artefakte auf die Hand zurückspringen (potentieller Mana-/ETB-Recast für 0–2 Mana)
+  - Korpus: **0 / 975 Treffer**
+  - Research-Score: **$0{,}48$ (Spitzen-Research-Priorität)**
+  - Einordnung: *Missing observation* – extrem starke mechanische Synergie, die im Standard-Korpus komplett übersehen wird!
+- **Beispiel 2: `Gleaming Barrier`**
+  - Manawert: 2, Typ: `Artifact Creature — Wall`
+  - Death-Trigger erzeugt Treasure-Token
+  - Korpus: **0 / 975 Treffer**
+  - Research-Score: **$0{,}48$**
+
+---
+
+## 5. Software-Architektur und Schnittstellen
 
 1. **CLI-Befehle:**
    - **Quellenregister:**
@@ -283,8 +340,12 @@ Exakt **413 Karten (51,6 % des Pools)** wurden als **Long-Tail-Kandidaten** iden
      python -m commander_lab.studio sources --gap-report
      python -m commander_lab.studio sources --gap-report --gap-out custom_matrix.json
      ```
+   - **Beispielreport erzeugen:**
+     ```bash
+     python -m commander_lab.studio sources --example-report
+     ```
 2. **Datenablage:**
    - [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json): Versioniertes Quellenregister (9 Quellen: 5 `VERIFIED`, 4 `REVIEW`).
    - [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json): Vollständige Matrix für alle 801 legalen Poolkarten mit `research_priority_score`, `coverage_grade` und Long-Tail-Kennzeichnung.
 3. **Unit-Tests:**
-   - [`tests/unit/test_studio_sources.py`](file:///home/moeen/commander-playtest-lab/tests/unit/test_studio_sources.py): 9 Tests, $100\,\%$ Test-Hygiene, 0 `Any`-Verletzungen.
+   - [`tests/unit/test_studio_sources.py`](file:///home/moeen/commander-playtest-lab/tests/unit/test_studio_sources.py): 12 Tests, $100\,\%$ Test-Hygiene, 0 `Any`-Verletzungen, vollständige CLI-Abdeckung.

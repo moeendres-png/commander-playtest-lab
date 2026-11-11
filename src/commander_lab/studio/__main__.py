@@ -93,6 +93,11 @@ def _parser() -> argparse.ArgumentParser:
     )
     sources_cmd.add_argument("--out", help="optional output path to write source_inventory.json")
     sources_cmd.add_argument(
+        "--verified-only",
+        action="store_true",
+        help="filter the evidence sources output to only VERIFIED sources",
+    )
+    sources_cmd.add_argument(
         "--gap-report",
         action="store_true",
         help="calculate and export the 801-card pool gap matrix",
@@ -100,6 +105,11 @@ def _parser() -> argparse.ArgumentParser:
     sources_cmd.add_argument(
         "--gap-out",
         help="optional output path for gap matrix JSON (default: data/research/chulane_legal_pool_gap_matrix.json)",
+    )
+    sources_cmd.add_argument(
+        "--example-report",
+        action="store_true",
+        help="generate and print a concrete sample report with representative cards for each coverage grade (P0)",
     )
     return parser
 
@@ -169,23 +179,26 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "sources":
         from .sources import (
+            SourceStatus,
             calculate_pool_gap_matrix,
+            generate_gap_example_report,
             source_inventory_payload,
             write_gap_matrix_json,
             write_source_inventory_json,
         )
 
+        data_folder = args.data
+        if not data_folder and not os.environ.get("COMMANDER_LAB_STUDIO_DATA"):
+            default_user_dir = Path.home() / ".local/share/commander-studio"
+            if default_user_dir.is_dir():
+                data_folder = str(default_user_dir)
+
         if getattr(args, "gap_report", False):
-            data_folder = args.data
-            if not data_folder and not os.environ.get("COMMANDER_LAB_STUDIO_DATA"):
-                default_user_dir = Path.home() / ".local/share/commander-studio"
-                if default_user_dir.is_dir():
-                    data_folder = str(default_user_dir)
             store = StudioStore.open(data_folder)
+            matrix = calculate_pool_gap_matrix(store)
             default_gap_path = Path("data/research/chulane_legal_pool_gap_matrix.json")
             target_path = Path(args.gap_out) if getattr(args, "gap_out", None) else default_gap_path
-            written = write_gap_matrix_json(store, target_path)
-            matrix = calculate_pool_gap_matrix(store)
+            written = write_gap_matrix_json(store, target_path, payload=matrix)
             summary = {
                 "written": str(written),
                 "total_cards": matrix["total_cards"],
@@ -195,11 +208,28 @@ def main(argv: list[str] | None = None) -> int:
             print(json.dumps(summary, indent=2))
             return 0
 
+        if getattr(args, "example_report", False):
+            store = StudioStore.open(data_folder)
+            matrix = calculate_pool_gap_matrix(store)
+            report = generate_gap_example_report(matrix)
+            print(json.dumps(report, indent=2, ensure_ascii=False))
+            return 0
+
+        status_filter: SourceStatus | None = (
+            "VERIFIED" if getattr(args, "verified_only", False) else None
+        )
+
         if getattr(args, "out", None):
-            written = write_source_inventory_json(args.out)
+            written = write_source_inventory_json(args.out, status=status_filter)
             print(json.dumps({"written": str(written)}, indent=2))
         else:
-            print(json.dumps(source_inventory_payload(), indent=2, ensure_ascii=False))
+            print(
+                json.dumps(
+                    source_inventory_payload(status=status_filter),
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
         return 0
     store = StudioStore.open(args.data)
     try:
