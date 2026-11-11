@@ -27,6 +27,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `import-roles FILE.json [--replace-scope]` | a role file (format below) as claims | original, normalized or derived, by the file's origin |
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
+| `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
 
 ### Role files and the lossless role import (schema 5)
 
@@ -67,6 +68,18 @@ The tagger bulk (`oracle_tags`) lists canonical labels. `board-wipe` and `gravey
 query slugs of `board_wipe` and `graveyard_hate`, are search aliases of `sweeper` and
 `hate-graveyard` (`roles.SEARCH_ALIASES`; the search finds the same number of cards). A reader of
 the bulk has to map them explicitly; `check-role-labels` shows where that is needed.
+
+### Data report
+
+`data-report` prints JSON with numbers only: every figure is a count with its denominator, a
+missing value is counted as unknown (never as zero), and no card name, deck address or note text
+is included, so the output can go into an issue or a shared document. `roles.fingerprint` holds
+hashes of `card_role_claim` (in total and per origin and scope), `card_role` and
+`corpus_deck_role`: run the report before and after an import. An import limited to one scope
+must leave the hash of every other scope unchanged, and an identical second import must leave
+all hashes unchanged. The report states what
+it cannot measure (`not_measured_here`: pilot knowledge and engine card support for the
+collection, collection changes since the last export). The plan for closing the gaps is #1182.
 
 Card facts shown in the builder (color identity, legality, type, text, mana value) come from
 the public card data once a card is linked; the workbook stays the source of what is owned.
