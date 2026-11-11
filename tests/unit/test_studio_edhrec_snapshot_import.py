@@ -175,7 +175,6 @@ def test_import_edhrec_capture_manifest_fixture(tmp_path: Path) -> None:
             }
         }
         raw_bytes_2 = json.dumps(content_2).encode("utf-8")
-        sha_2 = hashlib.sha256(raw_bytes_2).hexdigest()
         (raw_dir / "event_2.json").write_bytes(raw_bytes_2)
 
         rec1 = _make_proven_capture(
@@ -209,11 +208,14 @@ def test_import_edhrec_capture_manifest_fixture(tmp_path: Path) -> None:
             "SELECT * FROM source_capture_event ORDER BY event_id"
         ).fetchall()
         assert len(events) == 2
-        assert events[0]["event_id"] == rec1["event_id"]
-        assert events[0]["provenance_class"] == "NEW_HTTP_CAPTURE_ONLY"
-        assert events[0]["raw_response_sha256"] == sha_1
-        assert events[0]["request_start_utc"] == "2026-11-11T12:54:59.352Z"
-        assert events[0]["response_complete_utc"] == "2026-11-11T12:54:59.435Z"
+        by_event = {row["event_id"]: row for row in events}
+        assert rec1["event_id"] in by_event
+        assert rec2["event_id"] in by_event
+        first_event = by_event[rec1["event_id"]]
+        assert first_event["provenance_class"] == "NEW_HTTP_CAPTURE_ONLY"
+        assert first_event["raw_response_sha256"] == sha_1
+        assert first_event["request_start_utc"] == "2026-11-11T12:54:59.352Z"
+        assert first_event["response_complete_utc"] == "2026-11-11T12:54:59.435Z"
 
         # Check observations
         obs = store.connection.execute(
