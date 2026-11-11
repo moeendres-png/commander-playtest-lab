@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "snapshot_id": "edhrec-v5-preview-audit-2026-11-10",
+  "data_class": "ORIGINAL_SOURCE_INDEX",
+  "evidence_layer": "OBSERVED_DECK_PREVIEW",
+  "release_status": "REVIEW",
+  "automatic_import": false,
+  "source_system": "EDHREC",
+  "subject": "Chulane/Koma EDHREC filtered deckpreview source IDs",
+  "source_archive": "ERGEBNISSE_EDHREC_V5.zip",
+  "original_archive_sha256": "877a113f54aa73e02a67fc716d897c32718dd9ba7898b7a90d4e733a871d1f0d",
+  "original_archive_bytes": 16693648,
+  "source_date": "2026-11-10",
+  "retrieved_at_utc": null,
+  "historical_timestamps_are_exact": false,
+  "source_file_count": 963,
+  "group_counts": {
+    "raw_previews": 470,
+    "state": 473,
+    "diagnose": 8,
+    "exports": 12
+  },
+  "listed_preview_ids": 470,
+  "fully_verified_99_card_decks": 0,
+  "verified_card_positions": 0,
+  "original_index_sha256": "520aaaefb5a13e60aea3d6c2789943515884b5c48de3d4287c56e14cee1a9d00",
+  "same_index_and_pending_sha256": true,
+  "checksum_scheme": "For *.json.gz archive members sha256 and size refer to GZIP-DECOMPRESSED logical bytes. All other ZIP members use raw bytes. Group derives from first slash-separated path component, or 'exports' for root-level members. Compare multiset, not order.",
+  "source_multiset_file": "source_multiset.csv",
+  "source_index_drive_file_id": "1KB71NZ9038PdMk-hfWnCxpP1TSivpJ2Z",
+  "original_corpus_drive_folder_url": "https://drive.google.com/drive/folders/1kqpx6hdq0bKC1wTsYt7poln_VGZ22S_n",
+  "raw_archive_storage": "PRIVATE_GOOGLE_DRIVE_ONLY",
+  "git_payload": "SHA-256/byte-count multiset and aggregate source manifest only; no scraped HTML, response bodies, screenshots, private decks, collection, tokens or browser-profile data.",
+  "importer_rule": "never import the 470 preview IDs as complete 99-card decks; no aggregate inclusion frequency/denominator is derivable from those IDs alone",
+  "other_edhrec_cohorts": [
+    {
+      "id": "chulane-c079-historical",
+      "rows": 1379,
+      "exact_utc": 75,
+      "utc_unknown": 1304,
+      "status": "OBSERVATION_REVIEW",
+      "drive_file_id": "1J9ADkvg_rvHBkPx7UQx7crD0K6cUmYUP"
+    },
+    {
+      "id": "chulane-new-20-http200-20261111",
+      "pages": 20,
+      "cardlist_rows": 4945,
+      "status": "NEW_HTTP_CAPTURE_REVIEW",
+      "implementation_issue": 1186,
+      "implementation_pr": 1184
+    },
+    {
+      "id": "tam-78-theme-pages-20261109",
+      "themes": 78,
+      "cardrec_rows": 16023,
+      "status": "OBSERVATION_REVIEW",
+      "drive_folder_id": "1uVes8IRBtII_BXSvCBVX7Awbs_v2DZ2o"
+    },
+    {
+      "id": "tam-chandra-381-decks-20261111",
+      "decks": 381,
+      "eligible_review_candidates": 187,
+      "status": "PRIVATE_REVIEW_NOT_ACTIVE",
+      "drive_folder_id": "1iXmksjwQE6-V0Ds3xzxy9Ai-EqCM22oX"
+    }
+  ],
+  "evidence_notes": [
+    "Source ZIP is an already captured historical archive. Do not assert a new live EDHREC fetch.",
+    "raw_previews contains 470 compressed page payloads, not 470 complete decklists.",
+    "The 01_EDHREC_DECK_INDEX.csv and 06_PENDING_AND_FAILED.csv have the same SHA-256 (one byte-identical copy).",
+    "Legacy C079 and new 2026-11-11 HTTP captures must retain separate snapshots, timestamps and denominators.",
+    "README source references are not a mechanism to publish private deck/card inventories."
+  ]
+}
