@@ -86,14 +86,10 @@ def test_repository_manifest_covers_every_v5_source_byte() -> None:
 
 
 @pytest.mark.parametrize("fault", ["none", "verified", "mainboard", "index"])
-def test_preview_status_requires_actual_empty_deck_exports(
-    tmp_path: Path, fault: str
-) -> None:
+def test_preview_status_requires_actual_empty_deck_exports(tmp_path: Path, fault: str) -> None:
     archive = tmp_path / "preview-evidence.zip"
     status = "VERIFIED" if fault == "index" else "DECK_NOT_VERIFIED"
-    index = "id,status,fingerprint\n" + "".join(
-        f"test-{i},{status},\n" for i in range(470)
-    )
+    index = "id,status,fingerprint\n" + "".join(f"test-{i},{status},\n" for i in range(470))
     with zipfile.ZipFile(archive, "w") as dest:
         dest.writestr("01_EDHREC_DECK_INDEX.csv", index)
         dest.writestr(
