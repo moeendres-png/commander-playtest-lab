@@ -1,16 +1,9 @@
 name: C079 Public EDHREC Fresh Capture (review only)
 
 # Only public Chulane EDHREC URLs; not a historical timestamp repair.
-# Never run on a schedule; no import or modification of Studio ACTIVE sources.
+# Explicit manual operation only; never run on a schedule or for unrelated PRs.
+# No import or modification of Studio ACTIVE sources.
 on:
-  pull_request:
-    paths:
-      - "scripts/studio_edhrec_provenance/**"
-      - "data/studio_public/edhrec_chulane_original_20_urls.txt"
-      - ".github/workflows/studio-edhrec-proof-capture.yml"
-      - "src/commander_lab/studio/edhrec_capture_proof.py"
-      - "src/commander_lab/studio/importers.py"
-      - "tests/unit/test_studio_edhrec*.py"
   workflow_dispatch:
 
 permissions:
