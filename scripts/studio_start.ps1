@@ -7,7 +7,10 @@ if (-not $env:COMMANDER_LAB_STUDIO_DATA) {
 }
 $bridgeJar = Join-Path $repo 'engine-bridge\target\xmage-engine-bridge-0.1.0-SNAPSHOT.jar'
 $studioJar = Join-Path $env:COMMANDER_LAB_STUDIO_DATA 'engine\xmage-engine-bridge.jar'
-if ((Test-Path $bridgeJar) -and -not (Test-Path $studioJar)) {
+# Re-stage whenever the built bridge differs from the staged copy: a stale copy carries an
+# older engine commit and the full-game runner then refuses every game (commit mismatch).
+if ((Test-Path $bridgeJar) -and (-not (Test-Path $studioJar) -or
+        (Get-FileHash $bridgeJar).Hash -ne (Get-FileHash $studioJar).Hash)) {
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $studioJar) | Out-Null
     Copy-Item -Path $bridgeJar -Destination $studioJar -Force
 }

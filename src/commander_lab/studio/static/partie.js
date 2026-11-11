@@ -197,7 +197,7 @@ function render() {
 }
 function endText() {
   const result = state.result || {};
-  if (result.status !== "finished") return `Die Partie wurde nicht zu Ende gespielt (${result.failure_class || "abgebrochen"}).`;
+  if (result.status !== "finished") return `Die Partie wurde nicht zu Ende gespielt (${result.failure_message || result.failure_class || "abgebrochen"}).`;
   const winners = result.winner_seats || [];
   return winners.length ? `Partie beendet. Sieger: ${winners.map((seat) => `${seatName(seat)} (${seatLabel(seat)})`).join(", ")}` : "Partie beendet ohne Sieger.";
 }

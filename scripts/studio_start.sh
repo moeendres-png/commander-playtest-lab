@@ -7,7 +7,9 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export COMMANDER_LAB_STUDIO_DATA="${COMMANDER_LAB_STUDIO_DATA:-${HOME}/.local/share/commander-studio}"
 BRIDGE_JAR="${REPO_ROOT}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
 STUDIO_JAR="${COMMANDER_LAB_STUDIO_DATA}/engine/xmage-engine-bridge.jar"
-if [[ -f "${BRIDGE_JAR}" && ! -f "${STUDIO_JAR}" ]]; then
+# Re-stage whenever the built bridge differs from the staged copy: a stale copy carries an
+# older engine commit and the full-game runner then refuses every game (commit mismatch).
+if [[ -f "${BRIDGE_JAR}" ]] && ! cmp -s "${BRIDGE_JAR}" "${STUDIO_JAR}" 2>/dev/null; then
     mkdir -p "$(dirname "${STUDIO_JAR}")"
     cp -f "${BRIDGE_JAR}" "${STUDIO_JAR}"
 fi
