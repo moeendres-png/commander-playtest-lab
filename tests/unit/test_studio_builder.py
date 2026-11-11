@@ -338,21 +338,33 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
         assert client.get("/api/revisions/nope").status_code == 404
 
 
+def _role_payload(role_ids: dict[str, list[str]]) -> dict[str, object]:
+    """A complete role file in the current format (full snapshot of one color identity)."""
+    return {
+        "schema": roles.ROLES_SCHEMA,
+        "role_origin": roles.ORIGIN_TAGGER,
+        "fetched_at": "2026-11-10T00:00:00Z",
+        "scope": {"mode": roles.FULL_SNAPSHOT, "key": "WUG", "completeness": "COMPLETE_FOR_SCOPE"},
+        "tags": {role: roles.ROLES[role] for role in role_ids},
+        "roles": role_ids,
+    }
+
+
 def test_roles_are_read_from_a_role_file_and_counted(studio: StudioStore, tmp_path: Path) -> None:
     role_file = tmp_path / "roles.json"
     role_file.write_text(
         json.dumps(
-            {
-                "fetched_at": "2026-11-10T00:00:00Z",
-                "roles": {
+            _role_payload(
+                {
                     "ramp": ["oracle-forest", "oracle-filler-01"],
                     "removal": ["oracle-swarm-rat", "oracle-not-in-collection"],
-                },
-            }
+                }
+            )
         ),
         encoding="utf-8",
     )
-    assert roles.import_roles(studio, role_file) == {
+    report = roles.import_roles(studio, role_file)
+    assert {key: report[key] for key in ("roles", "role_rows", "collection_cards_with_role")} == {
         "roles": 2,
         "role_rows": 4,
         "collection_cards_with_role": 3,
@@ -423,12 +435,7 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
     ]
     role_file = tmp_path / "diff_roles.json"
     role_file.write_text(
-        json.dumps(
-            {
-                "fetched_at": "2026-11-10T00:00:00Z",
-                "roles": {"ramp": ["oracle-forest"], "removal": ["oracle-swarm-rat"]},
-            }
-        ),
+        json.dumps(_role_payload({"ramp": ["oracle-forest"], "removal": ["oracle-swarm-rat"]})),
         encoding="utf-8",
     )
     roles.import_roles(studio, role_file)

@@ -64,7 +64,15 @@ def _parser() -> argparse.ArgumentParser:
     fetch_roles = commands.add_parser("fetch-roles")
     fetch_roles.add_argument("--identity", required=True, help="color identity, for example WUG")
     fetch_roles.add_argument("--out", required=True, help="role file to write, then imported")
-    commands.add_parser("import-roles").add_argument("path")
+    replace_help = "let a full snapshot remove claims that the new snapshot no longer lists"
+    fetch_roles.add_argument("--replace-scope", action="store_true", help=replace_help)
+    import_roles = commands.add_parser("import-roles")
+    import_roles.add_argument("path")
+    import_roles.add_argument("--replace-scope", action="store_true", help=replace_help)
+    labels = commands.add_parser(
+        "check-role-labels", help="compare the role query slugs with a list of tagger labels"
+    )
+    labels.add_argument("path", help="JSON list or one label per line")
     serve = commands.add_parser("serve")
     serve.add_argument("--port", type=int, default=8765)
     serve.add_argument("--open", action="store_true", help="open the browser")
@@ -126,12 +134,25 @@ def _serve(data: str | None, port: int, open_browser: bool) -> int:
     return 0
 
 
+def _read_labels(path: str) -> list[str]:
+    text = Path(path).read_text(encoding="utf-8")
+    if text.lstrip().startswith("["):
+        loaded = json.loads(text)
+        if not isinstance(loaded, list) or not all(isinstance(item, str) for item in loaded):
+            raise SystemExit(f"{path}: expected a JSON list of strings")
+        return [str(item) for item in loaded]
+    return text.splitlines()
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
         return _serve(args.data, args.port, args.open)
     if args.command in {"play", "games"}:
         return _games(args)
+    if args.command == "check-role-labels":
+        print(json.dumps(roles.check_role_labels(_read_labels(args.path)), indent=2))
+        return 0
     store = StudioStore.open(args.data)
     try:
         result: object
@@ -174,9 +195,13 @@ def main(argv: list[str] | None = None) -> int:
             pool = legal_pool(store, args.commander)
             result = fetch_images(store, [str(row["card_id"]) for row in pool])
         elif args.command == "fetch-roles":
-            result = roles.import_roles(store, roles.fetch_role_file(args.identity, args.out))
+            result = roles.import_roles(
+                store,
+                roles.fetch_role_file(args.identity, args.out),
+                allow_scope_replace=args.replace_scope,
+            )
         elif args.command == "import-roles":
-            result = roles.import_roles(store, args.path)
+            result = roles.import_roles(store, args.path, allow_scope_replace=args.replace_scope)
         elif args.command == "import-selection":
             result = importers.import_studio_selection(
                 store, args.path, deck_id=args.deck_id, name=args.name,

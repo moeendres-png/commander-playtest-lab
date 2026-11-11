@@ -16,7 +16,7 @@ from openpyxl import load_workbook
 
 from .catalog import refresh_corpus_stats
 from .decks import RevisionCard, create_revision
-from .store import DataClass, StudioStore, now_utc, sha256_file
+from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sha256_file
 
 IDENTITY_SHEET = "01_CARD_IDENTITY"
 INVENTORY_SHEET = "05_INVENTORY_CURRENT"
@@ -573,13 +573,7 @@ def import_hub_corpus(store: StudioStore, folder: str | Path) -> dict[str, int]:
                 [(*key, *val) for key, val in neutral_rows.items()],
             )
         if store.count("card_role") > 0:
-            db.execute("DELETE FROM corpus_deck_role")
-            db.execute(
-                "INSERT INTO corpus_deck_role "
-                "SELECT k.deck_id, r.role, SUM(k.quantity) FROM corpus_deck_card k "
-                "JOIN card_role r ON r.oracle_id = k.oracle_id "
-                "WHERE k.section != 'sideboard' GROUP BY k.deck_id, r.role"
-            )
+            rebuild_corpus_deck_role(db)
     if store.count("scryfall_card") > 0:
         refresh_corpus_stats(store)
     unique_decks = sum(

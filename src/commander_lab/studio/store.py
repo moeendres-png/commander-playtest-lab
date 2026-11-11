@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -190,6 +190,17 @@ CREATE TABLE IF NOT EXISTS card_role (
     source_id TEXT NOT NULL REFERENCES source(source_id),
     PRIMARY KEY (oracle_id, role)
 );
+CREATE TABLE IF NOT EXISTS card_role_claim (
+    oracle_id TEXT NOT NULL,
+    role TEXT NOT NULL,
+    role_origin TEXT NOT NULL,
+    scope_key TEXT NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    original_tag TEXT,
+    mapping_rule TEXT,
+    PRIMARY KEY (oracle_id, role, role_origin, scope_key, source_id)
+);
+CREATE INDEX IF NOT EXISTS card_role_claim_scope ON card_role_claim(role_origin, scope_key, role);
 CREATE TABLE IF NOT EXISTS corpus_deck_role (
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
     role TEXT NOT NULL,
@@ -301,6 +312,22 @@ def now_utc() -> str:
     return datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
+def rebuild_corpus_deck_role(db: sqlite3.Connection) -> None:
+    """Count roles per source deck again from ``card_role``.
+
+    The table is derived: it holds the number of main-deck cards of each deck that carry a
+    role, never more than ``corpus_deck_card`` and ``card_role`` say. Callers run it inside
+    their own transaction, once, after they changed either input.
+    """
+    db.execute("DELETE FROM corpus_deck_role")
+    db.execute(
+        "INSERT INTO corpus_deck_role "
+        "SELECT k.deck_id, r.role, SUM(k.quantity) FROM corpus_deck_card k "
+        "JOIN card_role r ON r.oracle_id = k.oracle_id "
+        "WHERE k.section != 'sideboard' GROUP BY k.deck_id, r.role"
+    )
+
+
 class StudioStore:
     """One open Studio database."""
 
@@ -398,7 +425,7 @@ class StudioStore:
             "source", "card", "inventory", "deck", "deck_revision", "deck_revision_card",
             "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "card_role",
-            "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
+            "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
