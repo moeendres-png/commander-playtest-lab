@@ -1,10 +1,10 @@
-name: Standalone deckbuilder smoke tests
+name: Standalone deckbuilder CI
 on:
   push:
-    branches: [deckbuilder-standalone-20261111]
+    branches: [main, deckbuilder-standalone-20261111]
   workflow_dispatch:
 jobs:
-  smoke:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,4 +14,4 @@ jobs:
       - run: python -m pip install --upgrade pip
       - run: pip install -e '.[test]'
       - run: python -m compileall -q src
-      - run: pytest -q tests/test_standalone.py
+      - run: pytest -q tests/
