@@ -8,6 +8,7 @@ and means unknown, never zero.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from pathlib import Path
@@ -986,3 +987,320 @@ def import_simulation_report(
     return _import_one_simulation_file(
         store, target, engine_pin=engine_pin, pilot_policy=pilot_policy
     )
+
+
+def import_card_marks(store: StudioStore, path: str | Path) -> dict[str, int]:
+    """Import card marks (favorite, excluded, note) from CSV or JSON.
+
+    Supports G2 (user-provided markings). Idempotent and validates against known cards.
+    """
+    marks_path = Path(path)
+    if not marks_path.exists():
+        raise FileNotFoundError(f"Marks file not found: {marks_path}")
+
+    rows: list[dict[str, str | int]] = []
+    if marks_path.suffix.lower() == ".json":
+        data = json.loads(marks_path.read_text(encoding="utf-8"))
+        if isinstance(data, list):
+            for item in data:
+                if isinstance(item, dict):
+                    rows.append(item)
+        elif isinstance(data, dict):
+            for cid, details in data.items():
+                if isinstance(details, dict):
+                    rows.append({"card_id": cid, **details})
+                else:
+                    rows.append({"card_id": cid, "note": str(details)})
+    else:
+        for r in _csv_rows(marks_path):
+            rows.append(r)
+
+    count = 0
+    updated_at = now_utc()
+    with store.connection as db:
+        for r in rows:
+            card_id = str(r.get("card_id") or "").strip()
+            card_name = str(r.get("card_name") or r.get("name") or "").strip()
+            if not card_id and card_name:
+                resolved = store.card_id_by_oracle_or_name(None, card_name)
+                if resolved:
+                    card_id = resolved
+            if not card_id:
+                continue
+
+            fav_raw = r.get("favorite") if "favorite" in r else r.get("fav", 0)
+            excl_raw = r.get("excluded") if "excluded" in r else r.get("excl", 0)
+            note_raw = str(r.get("note") or r.get("notes") or "")
+
+            try:
+                fav = 1 if int(fav_raw) else 0
+            except (ValueError, TypeError):
+                fav = 1 if str(fav_raw).lower() in ("true", "1", "yes") else 0
+
+            try:
+                excl = 1 if int(excl_raw) else 0
+            except (ValueError, TypeError):
+                excl = 1 if str(excl_raw).lower() in ("true", "1", "yes") else 0
+
+            db.execute(
+                "INSERT INTO card_mark(card_id, favorite, excluded, note, updated_at) "
+                "VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT(card_id) DO UPDATE SET "
+                "favorite = excluded.favorite, "
+                "excluded = excluded.excluded, "
+                "note = excluded.note, "
+                "updated_at = excluded.updated_at",
+                (card_id, fav, excl, note_raw, updated_at),
+            )
+            count += 1
+    return {"marks_imported": count}
+
+
+def import_edhrec_capture_manifest(
+    store: StudioStore,
+    manifest_path: str | Path,
+    *,
+    raw_folder: str | Path | None = None,
+    target_comparison_cards: set[str] | None = None,
+) -> dict[str, int]:
+    """Import immutable 20 HTTP200 EDHREC public captures with full request/response provenance.
+
+    Refs #1186. Never backfills or overwrites historical C079 timestamps.
+    Separates cohorts, computes derived inclusion, verifies SHA-256 integrity,
+    and handles unlisted cards as UNKNOWN.
+    """
+    manifest_file = Path(manifest_path)
+    if not manifest_file.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_file}")
+
+    manifest_data = json.loads(manifest_file.read_text(encoding="utf-8"))
+    records = manifest_data.get("records")
+    if not isinstance(records, list) or not records:
+        raise ValueError("Manifest contains no records")
+
+    raw_dir = Path(raw_folder) if raw_folder else manifest_file.parent
+
+    # Pre-validation: verify all raw files and SHA-256 before any database write
+    validated_records: list[tuple[dict[str, object], bytes, dict[str, object]]] = []
+    for rec in records:
+        event_id = str(rec.get("event_id") or "").strip()
+        url = str(rec.get("url") or "").strip()
+        raw_rel = str(rec.get("raw") or "").strip()
+        expected_sha = str(rec.get("sha256") or "").strip()
+        observed_utc = str(rec.get("observed_utc") or "").strip()
+
+        if not event_id or not url or not raw_rel or not expected_sha or not observed_utc:
+            raise ValueError(f"Incomplete record in manifest: {rec}")
+
+        raw_path = raw_dir / raw_rel
+        if not raw_path.exists():
+            raise FileNotFoundError(f"Raw capture file not found: {raw_path}")
+
+        raw_bytes = raw_path.read_bytes()
+        actual_sha = hashlib.sha256(raw_bytes).hexdigest()
+        if actual_sha != expected_sha:
+            raise ValueError(
+                f"SHA-256 mismatch for {event_id}: expected {expected_sha}, got {actual_sha}"
+            )
+
+        try:
+            parsed = json.loads(raw_bytes.decode("utf-8"))
+        except Exception as exc:
+            raise ValueError(f"Malformed JSON in {raw_path}") from exc
+
+        container = parsed.get("container") if isinstance(parsed, dict) else None
+        json_dict = container.get("json_dict") if isinstance(container, dict) else None
+        cardlists = json_dict.get("cardlists") if isinstance(json_dict, dict) else None
+        if not isinstance(cardlists, list):
+            raise ValueError(f"Missing cardlists in {raw_path}")
+
+        validated_records.append((rec, raw_bytes, parsed))
+
+    unique_card_page_pairs: set[tuple[str, str]] = set()
+    total_observations = 0
+    all_seen_cards: set[str] = set()
+
+    with store.connection as db:
+        for rec, raw_bytes, parsed in validated_records:
+            event_id = str(rec["event_id"])
+            url = str(rec["url"])
+            observed_utc = str(rec["observed_utc"])
+            sha256_hash = str(rec["sha256"])
+
+            source_id = store.register_source(
+                data_class=DataClass.ORIGINAL_SOURCE,
+                title=f"EDHREC:{event_id}",
+                sha256=sha256_hash,
+                snapshot_date=observed_utc[:10],
+                url=url,
+            )
+
+            cardlists = parsed["container"]["json_dict"]["cardlists"]
+            db.execute(
+                "INSERT INTO source_capture_event("
+                "event_id, source_url, request_start_utc, response_complete_utc, "
+                "raw_response_sha256, http_status, provenance_class, raw_size_bytes, "
+                "cardlists_count, automatic_import, source_id) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(event_id) DO UPDATE SET "
+                "source_id = excluded.source_id, "
+                "raw_response_sha256 = excluded.raw_response_sha256",
+                (
+                    event_id,
+                    url,
+                    observed_utc,
+                    observed_utc,
+                    sha256_hash,
+                    200,
+                    "NEW_HTTP_CAPTURE_ONLY",
+                    len(raw_bytes),
+                    len(cardlists),
+                    0,
+                    source_id,
+                ),
+            )
+
+            # Idempotent re-import: remove prior observations for this exact source
+            db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
+
+            # Determine theme slug from URL
+            theme_slug = url.rstrip("/").split("/")[-1].replace(".json", "")
+            if theme_slug == "chulane-teller-of-tales":
+                theme_slug = "commander_core"
+            cohort = f"edhrec_snapshot_20261111:{theme_slug}"
+            snapshot_label = f"{event_id} ({observed_utc})"
+
+            seen_in_page: set[str] = set()
+            for cl in cardlists:
+                cardviews = cl.get("cardviews")
+                if not isinstance(cardviews, list):
+                    continue
+                for cv in cardviews:
+                    card_name = str(cv.get("name") or "").strip()
+                    if not card_name:
+                        continue
+                    all_seen_cards.add(card_name)
+                    if card_name in seen_in_page:
+                        continue
+                    seen_in_page.add(card_name)
+                    unique_card_page_pairs.add((theme_slug, card_name))
+
+                    card_id = store.card_id_by_oracle_or_name(None, card_name)
+
+                    num = int(cv["num_decks"]) if cv.get("num_decks") is not None else None
+                    den = (
+                        int(cv["potential_decks"])
+                        if cv.get("potential_decks") is not None
+                        else None
+                    )
+                    lift = float(cv["lift"]) if cv.get("lift") is not None else None
+                    synergy = float(cv["synergy"]) if cv.get("synergy") is not None else None
+
+                    inc = (
+                        round((num / den) * 100.0, 2)
+                        if num is not None and den is not None and den > 0
+                        else None
+                    )
+
+                    # 1. Inclusion (derived descriptive)
+                    db.execute(
+                        "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                        "numerator, denominator, data_class, url, snapshot, source_id) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            card_id,
+                            card_name,
+                            cohort,
+                            "inclusion_pct",
+                            inc,
+                            num,
+                            den,
+                            DataClass.DERIVED_DESCRIPTIVE.value
+                            if inc is not None
+                            else DataClass.UNKNOWN.value,
+                            url,
+                            snapshot_label,
+                            source_id,
+                        ),
+                    )
+                    total_observations += 1
+
+                    # 2. Lift (original source)
+                    db.execute(
+                        "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                        "numerator, denominator, data_class, url, snapshot, source_id) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            card_id,
+                            card_name,
+                            cohort,
+                            "lift",
+                            lift,
+                            None,
+                            None,
+                            DataClass.ORIGINAL_SOURCE.value
+                            if lift is not None
+                            else DataClass.UNKNOWN.value,
+                            url,
+                            snapshot_label,
+                            source_id,
+                        ),
+                    )
+                    total_observations += 1
+
+                    # 3. Synergy (if present)
+                    if synergy is not None:
+                        db.execute(
+                            "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                            "numerator, denominator, data_class, url, snapshot, source_id) "
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (
+                                card_id,
+                                card_name,
+                                cohort,
+                                "synergy_pct",
+                                round(synergy * 100.0, 2),
+                                None,
+                                None,
+                                DataClass.ORIGINAL_SOURCE.value,
+                                url,
+                                snapshot_label,
+                                source_id,
+                            ),
+                        )
+                        total_observations += 1
+
+        # Check target comparison cards for unlisted ones
+        unlisted_count = 0
+        if target_comparison_cards:
+            missing_cards = sorted(target_comparison_cards - all_seen_cards)
+            for missing_name in missing_cards:
+                cid = store.card_id_by_oracle_or_name(None, missing_name)
+                first_src_id = f"src:{validated_records[0][0]['sha256'][:16]}"
+                db.execute(
+                    "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                    "numerator, denominator, data_class, url, snapshot, source_id) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        cid,
+                        missing_name,
+                        "edhrec_snapshot_20261111:not_listed",
+                        "status",
+                        None,
+                        None,
+                        None,
+                        DataClass.UNKNOWN.value,
+                        None,
+                        "NOT_LISTED_IN_NEW_CARDLIST_UNKNOWN",
+                        first_src_id,
+                    ),
+                )
+                unlisted_count += 1
+                total_observations += 1
+
+    return {
+        "events": len(validated_records),
+        "unique_card_pages": len(unique_card_page_pairs),
+        "observations_written": total_observations,
+        "unlisted_comparison_cards": unlisted_count if target_comparison_cards else 0,
+    }

@@ -72,6 +72,11 @@ def _parser() -> argparse.ArgumentParser:
     cohort.add_argument("--name", required=True)
     images = commands.add_parser("fetch-images")
     images.add_argument("--commander", action="append", required=True)
+    marks = commands.add_parser("import-marks")
+    marks.add_argument("path")
+    edhrec_manifest = commands.add_parser("import-edhrec-manifest")
+    edhrec_manifest.add_argument("path")
+    edhrec_manifest.add_argument("--raw-folder")
     fetch_roles = commands.add_parser("fetch-roles")
     fetch_roles.add_argument("--identity", required=True, help="color identity, for example WUG")
     fetch_roles.add_argument("--out", required=True, help="role file to write, then imported")
@@ -257,6 +262,12 @@ def main(argv: list[str] | None = None) -> int:
             )
         elif args.command == "import-edhrec":
             result = importers.import_edhrec_table(store, args.path)
+        elif args.command == "import-edhrec-manifest":
+            result = importers.import_edhrec_capture_manifest(
+                store, args.path, raw_folder=args.raw_folder
+            )
+        elif args.command == "import-marks":
+            result = importers.import_card_marks(store, args.path)
         elif args.command == "import-edhrec-cardrecs":
             result = importers.import_edhrec_cardrecs_csv(store, args.path)
         elif args.command == "import-edhrec-delta":

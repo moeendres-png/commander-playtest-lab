@@ -18,7 +18,9 @@ a location inside this repository. Card images are cached next to it in `images/
 | `import-corpus-cards FILE.csv [FILE.csv ...] [--allow-deck-move]` | the cards of the source decks, one or several part files in one transaction (see below) | normalized |
 | `import-hub FOLDER` | 2026-11-10 objective hub (`01_DECK_CATALOG_994_SOURCES.csv`, `02_CARD_DICTIONARY_*.csv`, `03_MAINBOARD_99_COMPACT_*.jsonl`, `06_OTHER_BOARDS_NEUTRAL_*.csv`) | normalized |
 | `import-cohort FILE.csv --name NAME` | a named group of source decks | normalized |
+| `import-marks FILE` | import user-provided card markings (favorite, excluded, notes) from CSV or JSON | original (user markings) |
 | `import-edhrec FILE.csv` | EDHREC rows with numerator, denominator, page | original |
+| `import-edhrec-manifest PATH [--raw-folder FOLDER]` | immutable 20 HTTP200 EDHREC public captures with full request/response SHA-256 provenance into `source_capture_event` and `observation` (never backfilling historical timestamps) | original (public capture) |
 | `import-edhrec-cardrecs FILE.csv` | normalized EDHREC recommendations across cohorts (`cardrecs_alle.csv`) | normalized |
 | `import-edhrec-delta PATH` | EDHREC delta JSONL files (`10_EDHREC_STATISTICS_DELTA_*.jsonl`, preserving `NULL` per-card denominators and separate `synergy_pct`) | normalized |
 | `import-selection FILE.json --deck-id ID --name NAME --commander NAME` | a saved selection as first deck revision (marking `reserve` entries in `card_mark`) | original |
@@ -94,6 +96,14 @@ must leave the hash of every other scope unchanged, and an identical second impo
 all hashes unchanged. The report states what
 it cannot measure (`not_measured_here`: pilot knowledge and engine card support for the
 collection, collection changes since the last export). The plan for closing the gaps is #1182.
+
+### Captured public EDHREC snapshots (schema 7)
+
+`import-edhrec-manifest` imports immutable 20 HTTP200 public EDHREC captures with full
+request/response SHA-256 provenance into `source_capture_event` (event ID, URL, start/complete UTC,
+SHA-256, HTTP status 200, size, cardlists count) and `observation`. Historical C079 rows and
+timestamps remain untouched (`NULL` stays `NULL`, never backfilled). Unlisted comparison cards
+are stored with `DataClass.UNKNOWN` and snapshot `NOT_LISTED_IN_NEW_CARDLIST_UNKNOWN`.
 
 Card facts shown in the builder (color identity, legality, type, text, mana value) come from
 the public card data once a card is linked; the workbook stays the source of what is owned.

@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -255,6 +255,19 @@ CREATE TABLE IF NOT EXISTS simulation_card (
     PRIMARY KEY (run_id, card_name)
 );
 CREATE INDEX IF NOT EXISTS simulation_card_id ON simulation_card(card_id);
+CREATE TABLE IF NOT EXISTS source_capture_event (
+    event_id TEXT PRIMARY KEY,
+    source_url TEXT NOT NULL,
+    request_start_utc TEXT NOT NULL,
+    response_complete_utc TEXT NOT NULL,
+    raw_response_sha256 TEXT NOT NULL,
+    http_status INTEGER NOT NULL,
+    provenance_class TEXT NOT NULL,
+    raw_size_bytes INTEGER NOT NULL,
+    cardlists_count INTEGER NOT NULL,
+    automatic_import INTEGER NOT NULL DEFAULT 0,
+    source_id TEXT REFERENCES source(source_id)
+);
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
@@ -431,6 +444,7 @@ class StudioStore:
             "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
+            "source_capture_event",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

@@ -1,0 +1,42 @@
+name: C079 Public EDHREC Fresh Capture (review only)
+
+# Only public Chulane EDHREC URLs; not a historical timestamp repair.
+# Never run on a schedule; no import or modification of Studio ACTIVE sources.
+on:
+  pull_request:
+    paths:
+      - "scripts/studio_edhrec_provenance/**"
+      - "data/studio_public/edhrec_chulane_original_20_urls.txt"
+      - ".github/workflows/studio-edhrec-proof-capture.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture-fresh-public-sources:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - name: Checkout read-only
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Validate offline, including deliberate 403 failure case
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -v -s scripts/studio_edhrec_provenance -p "test_*.py"
+      - name: Capture new public observations without historical backfill
+        run: |
+          set -euo pipefail
+          python3 scripts/studio_edhrec_provenance/capture_public_chulane.py \
+            --urls data/studio_public/edhrec_chulane_original_20_urls.txt \
+            --out edhrec-fresh-evidence --pause 1.5 --limit 20
+      - name: Preserve source response and any denial evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: edhrec-fresh-capture-proof
+          path: edhrec-fresh-evidence/
+          if-no-files-found: warn
+          retention-days: 30
