@@ -9,8 +9,10 @@ where the engine is, which decks can sit at the table, and the process start.
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -66,6 +68,57 @@ def _java_executable() -> str | None:
     return None
 
 
+_JAVA_VERSION = re.compile(r'version "(\d+)(?:\.(\d+))?')
+MIN_JAVA_MAJOR = 17
+
+
+def _parse_java_major(version_output: str) -> int | None:
+    """The major version from ``java -version`` output, or ``None`` when unreadable.
+
+    Java 8 and older report ``1.8.0`` for major 8; from Java 9 the first number is the
+    major version itself.
+    """
+    match = _JAVA_VERSION.search(version_output)
+    if match is None:
+        return None
+    major = int(match.group(1))
+    if major == 1 and match.group(2) is not None:
+        return int(match.group(2))
+    return major
+
+
+@lru_cache(maxsize=4)
+def _java_major(java: str) -> int | None:
+    try:
+        run = subprocess.run(
+            [java, "-version"], capture_output=True, text=True, timeout=5, check=False
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return _parse_java_major(f"{run.stderr}\n{run.stdout}")
+
+
+@lru_cache(maxsize=1)
+def _engine_pin() -> str | None:
+    """The pinned XMage commit from the sole pin authority, when the repo file is here."""
+    try:
+        raw = json.loads(
+            (_repository_root() / "config" / "rules_engines.json").read_text(encoding="utf-8")
+        )
+        commit = raw["primary_engine"]["commit"]
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+    return commit if isinstance(commit, str) and commit else None
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
 def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     """How the rules engine is started here, or ``None`` when it is not set up.
 
@@ -78,17 +131,52 @@ def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     jar = Path(data_folder) / ENGINE_JAR
     java = _java_executable()
     if jar.is_file() and java:
+        major = _java_major(java)
+        if major is not None and major < MIN_JAVA_MAJOR:
+            # A Java that is provably too old cannot run the pinned engine; an
+            # undeterminable version keeps the previous behaviour and the full-game
+            # runner still reports its own start failure for that game.
+            return None
         return (java, "-Xmx3g", "-jar", str(jar), "full-game")
     return None
 
 
 def engine_state(data_folder: str | Path) -> dict[str, object]:
-    if engine_command(data_folder) is not None:
-        return {"ready": True, "reason": ""}
+    """Whether a game can start here, and what exactly was found.
+
+    ``pin`` is the expected engine commit (sole authority: ``config/rules_engines.json``);
+    ``jar_sha256`` is the actual checksum of the staged engine file. There is no expected
+    checksum for the bridge jar in the repository (the jar build is not byte-reproducible),
+    so the two are shown side by side without claiming they could be compared directly;
+    the full-game runner checks the engine commit of the jar it starts.
+    """
     jar = Path(data_folder) / ENGINE_JAR
+    java = _java_executable()
+    major = _java_major(java) if java else None
+    state: dict[str, object] = {
+        "ready": False,
+        "reason": "",
+        "pin": _engine_pin(),
+        "java_version": major,
+        "jar": str(jar) if jar.is_file() else None,
+        "jar_sha256": _file_sha256(jar) if jar.is_file() else None,
+        "jar_size": jar.stat().st_size if jar.is_file() else None,
+    }
+    if engine_command(data_folder) is not None:
+        state["ready"] = True
+        return state
     if not jar.is_file():
-        return {"ready": False, "reason": f"Die Engine-Datei fehlt: {jar}"}
-    return {"ready": False, "reason": "Java ist nicht installiert (Java 17 oder neuer)."}
+        state["reason"] = f"Die Engine-Datei fehlt: {jar}"
+    elif java is None:
+        state["reason"] = f"Java ist nicht installiert (Java {MIN_JAVA_MAJOR} oder neuer)."
+    elif major is not None and major < MIN_JAVA_MAJOR:
+        state["reason"] = (
+            f"Java ist zu alt: gefunden wurde Version {major}, "
+            f"nötig ist Java {MIN_JAVA_MAJOR} oder neuer."
+        )
+    else:
+        state["reason"] = "Die Engine ist auf diesem Rechner nicht einsatzbereit."
+    return state
 
 
 @lru_cache(maxsize=1)

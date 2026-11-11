@@ -438,9 +438,16 @@ async function newGame() {
   box.append(h("h2", null, "Neue Partie"));
   $("modal").hidden = false;
   if (!table.engine.ready) {
-    box.append(h("p", null, "Die Regel-Engine ist auf diesem Rechner noch nicht eingerichtet."), h("p", { class: "muted" }, table.engine.reason), h("p", null, close));
+    box.append(h("p", null, "Die Regel-Engine ist auf diesem Rechner noch nicht eingerichtet."), h("p", { class: "muted" }, table.engine.reason));
+    if (table.engine.pin) box.append(h("p", { class: "muted" }, `Erwarteter Engine-Stand (Pin): XMage ${String(table.engine.pin).slice(0, 12)}`));
+    box.append(h("p", null, close));
     return;
   }
+  const engineFacts = [
+    table.engine.pin ? `Engine-Pin: XMage ${String(table.engine.pin).slice(0, 12)}` : null,
+    table.engine.java_version ? `Java ${table.engine.java_version}` : null,
+    table.engine.jar_sha256 ? `Engine-Datei SHA-256: ${String(table.engine.jar_sha256).slice(0, 12)}…` : null,
+  ].filter(Boolean).join(" · ");
   const revisions = table.decks.flatMap((deck) => deck.branches.map((branch) => ({ id: branch.revision_id, label: `${deck.name} · ${branch.branch} (${branch.cards} Karten)`, cards: branch.cards })));
   if (!revisions.length) { box.append(h("p", null, "Es gibt noch kein gespeichertes Deck. Speichere zuerst im Deckbau einen Stand."), h("p", null, close)); return; }
   const own = h("select", null, revisions.map((entry) => h("option", { value: entry.id }, entry.label)));
@@ -489,6 +496,7 @@ async function newGame() {
   });
   box.append(
     h("p", { class: "muted" }, "Alle Plätze spielt die KI. XMage entscheidet jede Regel. Die Partie wird mitgeschrieben und läuft hier direkt mit."),
+    engineFacts ? h("p", { class: "muted" }, engineFacts) : "",
     h("div", { class: "form" },
       h("label", null, "Dein Deck auf Sitz 1 (KI) ", own),
       h("label", null, "Tisch ", count),

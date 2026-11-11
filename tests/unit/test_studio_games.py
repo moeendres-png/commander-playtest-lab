@@ -5,6 +5,7 @@ All data here is synthetic. No engine runs in these tests.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import shutil
@@ -262,6 +263,42 @@ def test_engine_command_comes_from_the_environment_or_the_data_folder(
     )  # fmt: skip
     monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, "java -jar 'my bridge.jar' full-game")
     assert launch.engine_command(tmp_path) == ("java", "-jar", "my bridge.jar", "full-game")
+
+
+def test_java_major_parsing_and_engine_state_facts(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    assert launch._parse_java_major('openjdk version "17.0.9" 2023-10-17') == 17
+    assert launch._parse_java_major('java version "1.8.0_392"') == 8
+    assert launch._parse_java_major('openjdk version "21" 2023-09-19') == 21
+    assert launch._parse_java_major("keine Versionsangabe") is None
+
+    jar = tmp_path / launch.ENGINE_JAR
+    jar.parent.mkdir()
+    jar.write_bytes(b"jar-bytes")
+    monkeypatch.delenv(launch.ENGINE_COMMAND_ENV, raising=False)
+    monkeypatch.setattr(launch, "_java_executable", lambda: "/usr/bin/java")
+    monkeypatch.setattr(launch, "_java_major", lambda java: 11)
+    assert launch.engine_command(tmp_path) is None  # a provably too old Java starts nothing
+    state = launch.engine_state(tmp_path)
+    assert state["ready"] is False
+    assert "zu alt" in str(state["reason"]) and "11" in str(state["reason"])
+    assert state["java_version"] == 11
+    assert state["jar_sha256"] == hashlib.sha256(b"jar-bytes").hexdigest()
+    assert state["jar_size"] == len(b"jar-bytes")
+    pin = json.loads(
+        (Path(__file__).resolve().parents[2] / "config" / "rules_engines.json").read_text(
+            encoding="utf-8"
+        )
+    )["primary_engine"]["commit"]
+    assert state["pin"] == pin
+
+    monkeypatch.setattr(launch, "_java_major", lambda java: 21)
+    assert launch.engine_command(tmp_path) == (
+        "/usr/bin/java", "-Xmx3g", "-jar", str(jar), "full-game",
+    )  # fmt: skip
+    ready = launch.engine_state(tmp_path)
+    assert ready["ready"] is True and ready["java_version"] == 21
 
 
 def test_starting_a_game_checks_its_seats_before_any_process_starts(

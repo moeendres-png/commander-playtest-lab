@@ -14,6 +14,25 @@ if ((Test-Path $bridgeJar) -and (-not (Test-Path $studioJar) -or
     New-Item -ItemType Directory -Force -Path (Split-Path -Parent $studioJar) | Out-Null
     Copy-Item -Path $bridgeJar -Destination $studioJar -Force
 }
+# Preflight for games (the deck builder also works without the engine): say clearly what
+# is missing instead of letting the first game start fail inside the engine process.
+if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
+    Write-Host 'WARNUNG: Java nicht gefunden. Fuer Partien wird Java 17 oder neuer benoetigt (Deckbau geht ohne Engine).'
+} else {
+    try {
+        $versionLine = (& java -version 2>&1 | Select-Object -First 1) -join ' '
+        if ($versionLine -match 'version "(\d+)(?:\.(\d+))?') {
+            $major = [int]$Matches[1]
+            if ($major -eq 1 -and $Matches[2]) { $major = [int]$Matches[2] }
+            if ($major -lt 17) {
+                Write-Host "WARNUNG: Java $major gefunden. Fuer Partien wird Java 17 oder neuer benoetigt (Deckbau geht ohne Engine)."
+            }
+        }
+    } catch { }
+}
+if (-not (Test-Path $studioJar)) {
+    Write-Host "WARNUNG: Engine-Datei fehlt: $studioJar (Deckbau geht ohne, Partien erst nach Bereitstellung der Engine-Datei)."
+}
 $python = Join-Path $repo '.venv\Scripts\python.exe'
 if (-not (Test-Path $python)) { $python = 'python' }
 $env:PYTHONPATH = Join-Path $repo 'src'
