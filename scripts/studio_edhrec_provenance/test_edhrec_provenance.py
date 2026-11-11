@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
-import io
 import json
 import sqlite3
 import tempfile

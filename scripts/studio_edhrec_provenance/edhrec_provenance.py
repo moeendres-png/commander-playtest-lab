@@ -178,7 +178,7 @@ def load_captures(source: Path | io.BytesIO) -> tuple[list[dict], list[tuple]]:
                 numer, denom = view.get('num_decks'), view.get('potential_decks')
                 expect(type(numer) is int and type(denom) is int and 0 <= numer <= denom,
                        'Invalid source numerator/denominator')
-                lift = dec(view.get('lift'))
+                dec(view.get('lift'))  # Validate original value before storing it.
                 grouped[name_key(view['name'])].append((header, view))
         for key, variants in grouped.items():
             signatures = {(v['num_decks'], v['potential_decks'], str(dec(v.get('lift'))))
