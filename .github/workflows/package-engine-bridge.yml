@@ -11,7 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  XMAGE_COMMIT: f4d12f6e8066203fba7aa38bd35ea3358117393d
   PYTHONHASHSEED: "0"
 
 jobs:
@@ -21,11 +20,17 @@ jobs:
     steps:
       - name: Checkout lab
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Resolve canonical XMage engine pin
+        id: pin
+        run: |
+          eval "$(python3 scripts/docker_resolve_engine_pin.py --provider xmage --format shell)"
+          echo "XMAGE_COMMIT=${XMAGE_ENGINE_COMMIT}" >> "$GITHUB_ENV"
+          echo "commit=${XMAGE_ENGINE_COMMIT}" >> "$GITHUB_OUTPUT"
       - name: Checkout pinned XMage
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: moeendres-png/mage
-          ref: ${{ env.XMAGE_COMMIT }}
+          ref: ${{ steps.pin.outputs.commit }}
           path: vendor/engine-source/xmage
           fetch-depth: 1
       - name: Set up JDK 17
