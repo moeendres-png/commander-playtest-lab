@@ -197,7 +197,7 @@ function render() {
 }
 function endText() {
   const result = state.result || {};
-  if (result.status !== "finished") return `Die Partie wurde nicht zu Ende gespielt (${result.failure_class || "abgebrochen"}).`;
+  if (result.status !== "finished") return `Die Partie wurde nicht zu Ende gespielt (${result.failure_message || result.failure_class || "abgebrochen"}).`;
   const winners = result.winner_seats || [];
   return winners.length ? `Partie beendet. Sieger: ${winners.map((seat) => `${seatName(seat)} (${seatLabel(seat)})`).join(", ")}` : "Partie beendet ohne Sieger.";
 }
@@ -351,6 +351,17 @@ async function newGame() {
     }
   };
   count.addEventListener("change", fill); fill();
+  const applyPod = (ids) => {
+    count.value = String(ids.length);
+    seats.textContent = "";
+    ids.forEach((id, index) => {
+      const select = h("select", null, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
+      select.value = id;
+      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select));
+    });
+  };
+  const podButtons = table.pods ? Object.entries(table.pods).map(([name, ids]) =>
+    h("button", { type: "button", onclick: () => applyPod(ids) }, `Pod: ${name}`)) : [];
   const seed = h("input", { type: "number", min: "0", max: "2000000000", value: String(Math.floor(Math.random() * 1000000)) });
   const go = h("button", { type: "button", class: "primary" }, "Partie starten");
   const note = h("p", { class: "muted" });
@@ -371,7 +382,9 @@ async function newGame() {
       h("label", null, "Dein Deck auf Sitz 1 (KI) ", own),
       h("label", null, "Tisch ", count),
       seats,
-      h("button", { type: "button", onclick: () => { seats.textContent = ""; fill(); } }, "Andere Gegner würfeln"),
+      h("div", { class: "actions" },
+        h("button", { type: "button", onclick: () => { seats.textContent = ""; fill(); } }, "Andere Gegner würfeln"),
+        ...podButtons),
       h("label", null, "Seed ", seed)),
     note, h("p", null, go, " ", close));
 }

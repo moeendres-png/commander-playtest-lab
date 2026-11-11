@@ -229,6 +229,10 @@ def test_web_application_serves_games(studio_folder: Path, monkeypatch: pytest.M
         assert table["engine"]["ready"] is False
         assert table["decks"][0]["deck_id"] == "test"
         assert len(table["opponents"]) > 100
+        assert set(table["pods"]) == {"precon", "mixed", "optimized"}
+        opp_ids = {d["deck_id"] for d in table["opponents"]}
+        for pod_ids in table["pods"].values():
+            assert set(pod_ids).issubset(opp_ids)
         body = {
             "revision_id": table["decks"][0]["branches"][0]["revision_id"],
             "opponent_ids": [table["opponents"][0]["deck_id"]],

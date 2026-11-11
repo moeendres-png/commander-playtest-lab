@@ -26,6 +26,27 @@ ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
 MIN_SEATS, MAX_SEATS = 2, 6
 START_WAIT_SECONDS = 20.0
+POD_PRESETS: dict[str, tuple[str, str, str]] = {
+    "precon": (
+        "precon/2026/lorehold_spirit",
+        "precon/2024/animated_army",
+        "precon/2022/token_triumph",
+    ),
+    "mixed": (
+        "kaervek/current",
+        "precon/2024/animated_army",
+        "precon/2026/lorehold_spirit",
+    ),
+    "optimized": (
+        "precon/2023/eldrazi_unbound",
+        "kaervek/current",
+        "opponent/hosts-of-mordor-precon",
+    ),
+}
+_EXTRA_OPPONENT_PATHS = (
+    Path("data/decks/opponents/kaervek/current/deck.json"),
+    Path("data/opponents/hosts_of_mordor_precon.json"),
+)
 
 
 def _repository_root() -> Path:
@@ -59,17 +80,37 @@ def engine_state(data_folder: str | Path) -> dict[str, object]:
 
 @lru_cache(maxsize=1)
 def _precons() -> tuple[tuple[str, str, tuple[str, ...], str, Path], ...]:
-    found = []
-    for path in sorted((_repository_root() / "data" / "decks" / "precons").glob("*.json")):
+    root = _repository_root()
+    found: list[tuple[str, str, tuple[str, ...], str, Path]] = []
+    candidate_paths = [
+        *(root / rel for rel in _EXTRA_OPPONENT_PATHS),
+        *sorted((root / "data" / "decks" / "precons").glob("*.json")),
+    ]
+    for path in candidate_paths:
+        if not path.is_file():
+            continue
         try:
-            deck = json.loads(path.read_text(encoding="utf-8"))
-            commanders = tuple(str(name) for name in deck["commander"]["commanders"])
+            raw = json.loads(path.read_text(encoding="utf-8"))
+            deck = raw.get("deck") if isinstance(raw.get("deck"), dict) else raw
+            cmd_field = deck.get("commander")
+            if isinstance(cmd_field, dict):
+                commanders = tuple(str(name) for name in cmd_field["commanders"])
+            elif isinstance(cmd_field, str) and cmd_field:
+                commanders = (cmd_field,)
+            else:
+                continue
+            year = str(
+                deck.get("release_date")
+                or deck.get("snapshot_date")
+                or deck.get("data_as_of")
+                or ""
+            )[:4]
             found.append(
                 (
                     str(deck["deck_id"]),
                     str(deck["name"]),
                     commanders,
-                    str(deck.get("release_date") or "")[:4],
+                    year,
                     path,
                 )
             )

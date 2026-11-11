@@ -197,6 +197,7 @@ def main(argv: list[str] | None = None) -> int:
                 "issues": [issue.message for issue in issues],
             }
         elif args.command == "export":
+            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
             Path(args.out).write_text(
                 json.dumps(lab_snapshot(store, args.revision_id), indent=2, ensure_ascii=False)
                 + "\n",

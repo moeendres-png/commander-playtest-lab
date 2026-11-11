@@ -493,8 +493,24 @@ async function renderDiff(body) {
   }
 }
 function renderSimulations(body) {
+  body.append(h("div", { class: "actions" }, h("a", { class: "nav", href: "partie.html" }, "Partien-Ansicht & Neue Partie starten →")));
+  if (state.recordedGames && state.recordedGames.length) {
+    const gTable = h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Entscheidungen"), h("th", {}, "Status / Sieger"), h("th", {}, ""))),
+      h("tbody", {}, state.recordedGames.slice(0, 15).map((g) => {
+        const hdr = g.header || {};
+        const end = g.running ? "läuft" : g.result && g.result.status === "finished" ? `Sieger Sitz ${((g.result.winner_seats || []).map((s) => s + 1)).join(", ") || "keiner"}` : "abgebrochen";
+        return h("tr", {},
+          h("td", {}, h("code", {}, g.game_id)),
+          h("td", { class: "num" }, hdr.seed ?? "–"),
+          h("td", { class: "num" }, g.frames ?? 0),
+          h("td", {}, end),
+          h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Ansehen →")));
+      })));
+    body.append(h("h3", {}, "Aufgezeichnete Einzelpartien (SIMULATED_RESULT)"), gTable);
+  }
   if (!state.simulations || !state.simulations.length) {
-    body.append(h("p", { class: "muted" }, "Keine Simulationsläufe (SIMULATED_RESULT) im Store hinterlegt."));
+    body.append(h("p", { class: "muted" }, "Keine Batch-Simulationsläufe (SIMULATED_RESULT) im Store hinterlegt."));
     return;
   }
   const runTable = h("table", {},
@@ -724,9 +740,9 @@ async function start() {
     if (Array.isArray(stored)) state.columns = new Set(stored);
   } catch (error) { /* view setting only */ }
   try {
-    const [pool, shapes, sims] = await Promise.all([api("/api/pool?commander=" + encodeURIComponent(COMMANDER)), api("/api/cohorts"), api("/api/simulations")]);
+    const [pool, shapes, sims, recordedGames] = await Promise.all([api("/api/pool?commander=" + encodeURIComponent(COMMANDER)), api("/api/cohorts"), api("/api/simulations"), api("/api/games").catch(() => [])]);
     state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
-    state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes; state.simulations = sims || [];
+    state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, "Sind Sammlung und Kartendaten importiert?"));

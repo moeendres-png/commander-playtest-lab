@@ -11,7 +11,10 @@ from __future__ import annotations
 from pathlib import Path
 
 from commander_lab.candidates.models import FutureXmageScenario
-from commander_lab.engine.rules.failure_privacy import public_exception_type
+from commander_lab.engine.rules.failure_privacy import (
+    public_exception_type,
+    public_full_game_exception_message,
+)
 from commander_lab.engine.rules.full_game import (
     FullGamePilotBinding,
     XmageFullGameRunner,
@@ -153,11 +156,17 @@ def play_recorded_game(
     try:
         result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
     except Exception as error:
-        path = recorder.close({"status": "failed", "failure_class": public_exception_type(error)})
-        return {
-            "game_id": game,
+        # run() is behind the public error boundary, so its message carries only a fixed
+        # site and audited codes (failure_privacy); it says why the game did not start.
+        failure = {
             "status": "failed",
             "failure_class": public_exception_type(error),
+            "failure_message": public_full_game_exception_message(error),
+        }
+        path = recorder.close(failure)
+        return {
+            "game_id": game,
+            **failure,
             "frames": recorder.frames,
             "log": str(path),
         }

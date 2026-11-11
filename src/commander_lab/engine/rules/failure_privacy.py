@@ -105,6 +105,9 @@ _FULL_GAME_SITES = (
     "deck_duplicate_card",
     "deck_color_identity_violation",
     "deck_color_identity_unknown",
+    # Handshake refusal of a bridge built from another engine commit (stale jar). Only this
+    # fixed prefix is published; the commits in the suffix are dropped like every suffix.
+    "XMage commit mismatch",
 )
 _PUBLIC_ERROR_REASONS = (
     "wrong vector length",
