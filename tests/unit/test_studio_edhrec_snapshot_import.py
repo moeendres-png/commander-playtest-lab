@@ -245,8 +245,8 @@ def test_import_edhrec_capture_manifest_fixture(tmp_path: Path) -> None:
         re_result = importers.import_edhrec_capture_manifest(store, manifest_file)
         assert re_result["events"] == 2
         count_after = store.connection.execute("SELECT COUNT(*) FROM observation").fetchone()[0]
-        # 3 observations per card * 2 cards = 6
-        assert count_after == 6
+        # 3 observations per card * 2 cards + 1 unlisted comparison card = 7
+        assert count_after == 7
     finally:
         store.close()
 
