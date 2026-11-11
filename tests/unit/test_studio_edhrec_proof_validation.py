@@ -8,7 +8,6 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.studio.edhrec_capture_proof import verify_captures
 from commander_lab.studio.importers import import_edhrec_capture_manifest
 from commander_lab.studio.store import DataClass, StudioStore
 
