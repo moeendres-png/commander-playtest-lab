@@ -17,7 +17,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import builder
+from . import builder, games, launch
 from .decks import (
     RevisionCard,
     create_revision,
@@ -26,8 +26,8 @@ from .decks import (
     revision_rows,
     validate_rows,
 )
-from .images import cached_image
-from .store import StudioStore
+from .images import cached_image, cached_image_by_name, public_card
+from .store import StudioStore, studio_data_dir
 
 STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
@@ -70,6 +70,16 @@ class MarkBody(BaseModel):
     favorite: bool = False
     excluded: bool = False
     note: str = Field(default="", max_length=2000)
+
+
+class GameBody(BaseModel):
+    revision_id: str = Field(min_length=1, max_length=200)
+    opponent_ids: list[str] = Field(min_length=1, max_length=5)
+    seed: int = Field(ge=0, le=2_000_000_000)
+
+
+class NamesBody(BaseModel):
+    names: list[str] = Field(max_length=2000)
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -310,6 +320,85 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             path = cached_image(store, card_id, face)
+        finally:
+            store.close()
+        if path is None:
+            raise HTTPException(404, "no image")
+        return FileResponse(
+            path, media_type="image/jpeg", headers={"Cache-Control": "max-age=604800"}
+        )
+
+    def games_home() -> Path:
+        return Path(data_folder).resolve() if data_folder is not None else studio_data_dir()
+
+    @app.get("/api/games")
+    def game_list() -> list[dict[str, object]]:
+        return games.list_games(games_home())
+
+    @app.get("/api/table")
+    def table() -> dict[str, object]:
+        """What a new game can be made of: the engine, the own decks, the other seats."""
+        store = open_store()
+        try:
+            return {
+                "engine": launch.engine_state(games_home()),
+                "decks": builder.list_decks(store),
+                "opponents": launch.opponent_decks(),
+            }
+        finally:
+            store.close()
+
+    @app.post("/api/games")
+    def new_game(body: GameBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            game_id = launch.start_game(
+                store,
+                games_home(),
+                revision_id=body.revision_id,
+                opponent_ids=body.opponent_ids,
+                seed=body.seed,
+            )
+            return {"game_id": game_id}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/games/{game_id}")
+    def game(
+        game_id: str,
+        start: int = Query(default=0, ge=0),
+        count: int = Query(default=200, ge=0, le=1000),
+    ) -> dict[str, object]:
+        try:
+            return games.read_game(games_home(), game_id, start=start, count=count)
+        except (KeyError, ValueError) as error:
+            raise HTTPException(404, "unknown game") from error
+
+    @app.post("/api/public-cards")
+    def public_cards(body: NamesBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            found: dict[str, object] = {}
+            for name in body.names:
+                card = public_card(store, name)
+                if card is not None:
+                    card.pop("image_front", None)
+                    found[name] = card
+            return found
+        finally:
+            store.close()
+
+    @app.get("/img-name")
+    def image_by_name(name: str = Query(min_length=1, max_length=200)) -> Response:
+        store = open_store()
+        try:
+            path = cached_image_by_name(store, name)
         finally:
             store.close()
         if path is None:

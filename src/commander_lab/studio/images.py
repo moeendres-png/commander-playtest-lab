@@ -48,6 +48,12 @@ def cached_image(
     if found is None:
         return None
     oracle_id, address = found
+    return _cached(store, oracle_id, address, face, fetch=fetch)
+
+
+def _cached(
+    store: StudioStore, oracle_id: str, address: str, face: str, *, fetch: bool
+) -> Path | None:
     target = image_folder(store) / f"{oracle_id}-{face}.jpg"
     if target.exists() and target.stat().st_size > 0:
         return target
@@ -68,6 +74,28 @@ def cached_image(
     partial.write_bytes(data)
     partial.replace(target)
     return target
+
+
+def public_card(store: StudioStore, name: str) -> dict[str, object] | None:
+    """Public facts of a card by its name (full name or front face), or ``None``.
+
+    For cards outside the collection, such as the cards of the other seats in a game.
+    """
+    row = store.connection.execute(
+        "SELECT oracle_id, name, mana_cost, mana_value, type_line, oracle_text, power, "
+        "toughness, image_front FROM scryfall_card WHERE name = :name OR front_name = :name "
+        "ORDER BY name = :name DESC LIMIT 1",
+        {"name": name},
+    ).fetchone()
+    return dict(row) if row is not None else None
+
+
+def cached_image_by_name(store: StudioStore, name: str, *, fetch: bool = True) -> Path | None:
+    """Front image of a card named by the rules engine; same cache as the collection."""
+    card = public_card(store, name)
+    if card is None or card["image_front"] is None:
+        return None
+    return _cached(store, str(card["oracle_id"]), str(card["image_front"]), "front", fetch=fetch)
 
 
 def fetch_images(store: StudioStore, card_ids: list[str], *, pause: float = 0.05) -> dict[str, int]:

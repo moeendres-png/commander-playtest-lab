@@ -58,7 +58,7 @@ Churn = number of file touches since 2026-09-01 (a rough activity signal only).
 | `decision/` | Decision-support modules: `bundle`, `context`, `information`, `quality` | active |
 | `candidate_workflow/` | Candidate evaluation workflow: `screening`, `evaluation`, `cut_frontier`, `advancement` | active |
 | `identity/` | `variant` and `workflow` identity helpers | active |
-| `studio/` | Commander Studio (`docs/STUDIO_DECKBUILDER.md`): SQLite store in the Owner data folder (never in the Git tree), importers, public card data, immutable deck revisions, data check, deck builder read models and the local web application (`web.py`, `static/`) | active |
+| `studio/` | Commander Studio (`docs/STUDIO_DECKBUILDER.md`): SQLite store in the Owner data folder (never in the Git tree), importers, public card data, immutable deck revisions, data check, deck builder read models, the local web application (`web.py`, `static/`), and game logs with the spectator page for simulated games (`games.py`, `play.py`, `launch.py`, `docs/STUDIO_GAME_VIEWER.md`) | active |
 | `rogshai/` | Rogshai MVP experiment: `first_run_preparation`, `experiments`, `mvp_acceptance` | qual / hist (guess) |
 
 Moved modules keep a shim at their old path (`commander_lab.decision_bundle`, `candidate_screening`,
