@@ -464,7 +464,9 @@ def test_delete_game_and_orphaned_out(tmp_path: Path) -> None:
 
     # 2. Orphaned .out file (process crashed before writing .jsonl)
     orphaned_out = folder / "crashed-start.out"
-    orphaned_out.write_text("Exception in thread main: java.lang.OutOfMemoryError\n", encoding="utf-8")
+    orphaned_out.write_text(
+        "Exception in thread main: java.lang.OutOfMemoryError\n", encoding="utf-8"
+    )
 
     listed = games.list_games(tmp_path)
     assert any(g["game_id"] == "crashed-start" for g in listed)

@@ -137,7 +137,9 @@ def _active_seat(state: Mapping[str, object]) -> int | None:
     return None
 
 
-def _parse_combat_declaration(decision_class: str, chosen: list[str]) -> dict[str, list[dict[str, str]]]:
+def _parse_combat_declaration(
+    decision_class: str, chosen: list[str]
+) -> dict[str, list[dict[str, str]]]:
     attacks: list[dict[str, str]] = []
     blocks: list[dict[str, str]] = []
     for text in chosen:
@@ -252,7 +254,8 @@ class GameRecorder:
             self._current_turn = turn
 
         labels = {
-            str(option.get("option_id")): _plain(option.get("label")) or str(option.get("option_id"))
+            str(option.get("option_id")): _plain(option.get("label"))
+            or str(option.get("option_id"))
             for option in _items(decision.get("legal_options"))
         }
         chosen: list[str] = []
