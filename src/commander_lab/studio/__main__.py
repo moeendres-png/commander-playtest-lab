@@ -254,8 +254,12 @@ def main(argv: list[str] | None = None) -> int:
                 seed_step=args.seed_step,
                 style=args.style,
             )
-            while batch.status in {"pending", "running"}:
-                time.sleep(0.5)
+            try:
+                while batch.status in {"pending", "running"}:
+                    time.sleep(0.5)
+            except KeyboardInterrupt:
+                batch.cancel()
+                raise
             print(json.dumps(batch.to_dict(), indent=2, ensure_ascii=False))
             return 0 if batch.status == "completed" else 1
         finally:

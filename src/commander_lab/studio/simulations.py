@@ -30,6 +30,28 @@ from .store import DataClass, StudioStore, now_utc
 PILOT_POLICY = "GenericCommanderPilot 1.0.0"
 
 
+def _as_int(value: object, default: int = 0) -> int:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, (float, str)):
+        try:
+            return int(value)
+        except ValueError:
+            return default
+    return default
+
+
+def _as_float(value: object, default: float = 0.0) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return default
+    return default
+
+
 def wilson_score_interval(wins: float, total: int, confidence: float = 0.95) -> tuple[float, float]:
     """Wilson score confidence interval for a binomial proportion.
 
@@ -95,18 +117,20 @@ def extract_game_log_telemetry(
             failure_message=str(exc),
         )
 
-    hdr = data.get("header") if isinstance(data.get("header"), dict) else {}
-    seed = int(hdr.get("seed") or 0)
-    result = data.get("result") if isinstance(data.get("result"), dict) else {}
+    hdr_raw = data.get("header")
+    hdr = hdr_raw if isinstance(hdr_raw, dict) else {}
+    seed = _as_int(hdr.get("seed"), 0)
+    result_raw = data.get("result")
+    result = result_raw if isinstance(result_raw, dict) else {}
     status = str(result.get("status") or ("running" if data.get("running") else "failed"))
     raw_winners = result.get("winner_seats")
     winner_seats: list[int] = (
-        [int(s) for s in raw_winners if isinstance(s, (int, float))]
+        [_as_int(s) for s in raw_winners if isinstance(s, (int, float, str))]
         if isinstance(raw_winners, list)
         else []
     )
     candidate_won = candidate_seat in winner_seats
-    decision_count = int(result.get("decision_count") or data.get("total") or 0)
+    decision_count = _as_int(result.get("decision_count") or data.get("total"), 0)
 
     # Scan frames for turn count and candidate cards in hand / cast
     max_turn = 0
@@ -170,10 +194,8 @@ def extract_game_log_telemetry(
         decision_count=decision_count,
         rounds=max_turn,
         candidate_won=candidate_won,
-        failure_class=str(result.get("failure_class")) if result.get("failure_class") else None,
-        failure_message=str(result.get("failure_message"))
-        if result.get("failure_message")
-        else None,
+        failure_class=str(result["failure_class"]) if "failure_class" in result else None,
+        failure_message=str(result["failure_message"]) if "failure_message" in result else None,
         log_path=str(games_folder(data_folder) / f"{game_id}.jsonl.gz"),
         observed_cards=card_telemetry,
     )
@@ -215,10 +237,10 @@ def aggregate_batch_results(
         )
         cast_games = sum(1 for g in successful if g.observed_cards.get(c_name, {}).get("cast"))
         total_casts = sum(
-            int(g.observed_cards.get(c_name, {}).get("cast_count") or 0) for g in successful
+            _as_int(g.observed_cards.get(c_name, {}).get("cast_count"), 0) for g in successful
         )
         first_rounds = [
-            int(r)
+            _as_int(r)
             for g in successful
             if (r := g.observed_cards.get(c_name, {}).get("first_cast_round")) is not None
         ]
@@ -328,10 +350,10 @@ def save_batch_to_store(
                 engine_pin,
                 PILOT_POLICY,
                 json.dumps(batch.seeds),
-                int(summary.get("games_planned") or len(batch.seeds)),
-                int(summary.get("games_completed") or 0),
-                int(summary.get("games_failed") or 0),
-                float(summary.get("wins_fractional") or 0.0),
+                _as_int(summary.get("games_planned"), len(batch.seeds)),
+                _as_int(summary.get("games_completed"), 0),
+                _as_int(summary.get("games_failed"), 0),
+                _as_float(summary.get("wins_fractional"), 0.0),
                 summary.get("win_rate"),
                 summary.get("mean_rounds"),
                 "NOT_MEASURED",
@@ -452,17 +474,20 @@ class BatchSimulation:
                         style=self.style,
                     )
                     status = str(exec_res.get("status") or "finished")
-                    winners = [
-                        int(w) for w in exec_res.get("winner_seats", []) if isinstance(w, int)
-                    ]
-                    decisions_count = int(exec_res.get("decision_count") or 0)
+                    raw_winners = exec_res.get("winner_seats")
+                    winners: list[int] = (
+                        [_as_int(w) for w in raw_winners if isinstance(w, (int, float, str))]
+                        if isinstance(raw_winners, list)
+                        else []
+                    )
+                    decisions_count = _as_int(exec_res.get("decision_count"), 0)
                     summary = GameSummary(
                         game_id=game_id,
                         seed=seed,
                         status=status,
                         winner_seats=winners,
                         decision_count=decisions_count,
-                        rounds=int(exec_res.get("rounds") or 10),
+                        rounds=_as_int(exec_res.get("rounds"), 10),
                         candidate_won=0 in winners,
                     )
                 else:
@@ -486,7 +511,7 @@ class BatchSimulation:
             if (
                 not self._cancel_requested
                 and store_factory is not None
-                and int(self._summary.get("games_completed") or 0) > 0
+                and _as_int(self._summary.get("games_completed"), 0) > 0
             ):
                 store = store_factory()
                 try:
@@ -545,6 +570,9 @@ class BatchSimulation:
                 proc = subprocess.Popen(cmd, stdout=out, stderr=subprocess.STDOUT, text=True)
                 with self._lock:
                     self._current_process = proc
+                    if self._cancel_requested:
+                        with contextlib.suppress(OSError):
+                            proc.terminate()
 
                 # Wait for child process to terminate
                 proc.wait(timeout=300.0)
