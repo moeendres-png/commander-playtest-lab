@@ -20,8 +20,7 @@ EXPECTED_ARCHIVE_SHA256 = "877a113f54aa73e02a67fc716d897c32718dd9ba7898b7a90d4e7
 EXPECTED_ARCHIVE_BYTES = 16669766
 EXPECTED_COUNTS = {"state": 473, "raw_previews": 470, "diagnose": 8, "exports": 12}
 DEFAULT_MANIFEST = (
-    Path(__file__).resolve().parents[1]
-    / "data/provenance/edhrec_v5_20261110/source_multiset.csv"
+    Path(__file__).resolve().parents[1] / "data/provenance/edhrec_v5_20261110/source_multiset.csv"
 )
 
 
@@ -85,8 +84,7 @@ def verify_archive(
         missing = sum((expected - actual).values())
         unexpected = sum((actual - expected).values())
         raise ValueError(
-            f"EDHREC V5 checksum multiset mismatch: missing={missing}, "
-            f"unexpected={unexpected}"
+            f"EDHREC V5 checksum multiset mismatch: missing={missing}, unexpected={unexpected}"
         )
     if strict_counts and dict(groups) != EXPECTED_COUNTS:
         raise ValueError("EDHREC V5 source group counts do not match the snapshot manifest")
