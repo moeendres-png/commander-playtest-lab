@@ -26,7 +26,7 @@ Der Prüfer liest die Originaldateien **nur lokal**, vergleicht ZIP-SHA, logisch
 ## Nicht mit anderen EDHREC-Kohorten vermischen
 
 - **Chulane C079 historisch:** 1.379 beobachtete Karten/Themenseiten-Zeilen; 75 ursprüngliche exakte UTC-Abrufe, 1.304 `UNKNOWN`. [Drive-Importquelle](https://drive.google.com/file/d/1J9ADkvg_rvHBkPx7UQx7crD0K6cUmYUP/view). Neuabruf kann historische Zeit nicht reparieren.
-- **Chulane 20 HTTP200-Neuquellen (2026-11-11):** 4.945 Cardlist-Zeilen; unabhängige aktuelle Datenlane [Issue #1186](https://github.com/moeendres-png/commander-playtest-lab/issues/1186) / [PR #1184](https://github.com/moeendres-png/commander-playtest-lab/pull/1184). Kein V5-Zeitstempelersatz.
+- **Chulane 20 HTTP200-Neuquellen (2026-11-11):** 4.945 Cardlist-Zeilen; unabhängige aktuelle Datenlane [Issue #1186](https://github.com/moeendres-png/commander-playtest-lab/issues/1186) / [gemergter PR #1193](https://github.com/moeendres-png/commander-playtest-lab/pull/1193) (ersetzt den geschlossenen, nicht gemergten #1184). Kein V5-Zeitstempelersatz.
 - **Chulane V010 Forschungshub:** 9.831 EDHREC-Index-IDs als **Indexbelege**; keine weiteren 9.831 vollständigen 99er-Decks. [Private Quelle](https://drive.google.com/drive/folders/1KqmAco70VgOo5fc_OzzSZmSY1qHIT9xv).
 - **Tam / The Possibility:** 78 EDHREC-Themenseiten mit 16.023 CardRec-Beobachtungen; je Seite eigener Nenner. [Private Quelle](https://drive.google.com/drive/folders/1uVes8IRBtII_BXSvCBVX7Awbs_v2DZ2o).
 - **Tam + Chandra:** 381 kuratierte EDHREC-Quelllisten, separate **REVIEW**-Kohorte (187 qualifizierbare Kandidaten, keine automatische Aktivierung). [Drive-Review](https://drive.google.com/drive/folders/1iXmksjwQE6-V0Ds3xzxy9Ai-EqCM22oX).
