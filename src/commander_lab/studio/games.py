@@ -206,9 +206,9 @@ class GameRecorder:
     def close(self, result: Mapping[str, object]) -> Path:
         """Write the closing entry and pack the log. Returns the packed file."""
         self._write({"kind": "result", "ended_at": now_utc(), "frames": self.frames, **result})
-        assert self._handle is not None
-        self._handle.close()
-        self._handle = None
+        handle, self._handle = self._handle, None
+        if handle is not None:
+            handle.close()
         packed = self.path.with_suffix(".jsonl.gz")
         with self.path.open("rb") as source, gzip.open(packed, "wb") as target:
             for chunk in iter(lambda: source.read(1 << 20), b""):

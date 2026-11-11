@@ -89,7 +89,8 @@ def play_recorded_game(
     """
     decks = load_decks(deck_paths)
     own = decks[0]
-    assert own.deck_hash is not None
+    if own.deck_hash is None:
+        raise ValueError("the own deck has no deck hash")
     pin = canonical_xmage_engine_pin()
     game = game_id or free_game_id(data_folder, f"{own.deck_id}-{len(decks)}p-seed{seed}")
     scenario = FutureXmageScenario(
