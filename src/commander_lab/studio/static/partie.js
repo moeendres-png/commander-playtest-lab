@@ -228,6 +228,8 @@ function seatPanel(player, frame) {
       h("span", { class: "muted" }, info.deck_id || ""),
       frame.active_seat === player.seat && h("span", { class: "pill good" }, "am Zug"),
       isTargetSeat && h("span", { class: "pill bad" }, "⚔️ Ziel"),
+      info.style !== undefined && h("span", { class: "pill", title: `KI-Stil: ${info.style} (${info.style_name || ""})` }, `Stil ${info.style}`),
+      info.deck_plan && h("span", { class: "pill link", title: "Spielplan ansehen (abgeleitet)", onclick: () => showDeckPlan(seatName(player.seat), info.deck_plan) }, "Plan"),
       player.lost && h("span", { class: "pill bad" }, "ausgeschieden"),
       last && winners.includes(player.seat) && h("span", { class: "pill warn" }, "Sieger")),
     h("div", { class: "seat-head" },
@@ -245,6 +247,22 @@ function seatPanel(player, frame) {
 function showList(title, names) {
   const box = $("modal-box"); box.textContent = "";
   box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name) => cardTile(name))) : h("p", { class: "muted" }, "leer"), h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
+  $("modal").hidden = false;
+}
+function showDeckPlan(title, plan) {
+  const box = $("modal-box"); box.textContent = "";
+  box.append(
+    h("h2", null, `Spielplan (${title})`),
+    h("p", { class: "muted" }, `Herkunft: ${plan.provenance || "abgeleitet, nicht gemessen"}`),
+    h("div", { class: "plan-details", style: "display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0;" },
+      h("p", null, h("b", null, "Fokus: "), plan.focus || "–"),
+      h("p", null, h("b", null, "Gewinn-Plan: "), plan.win_condition || "–"),
+      h("p", null, h("b", null, "Motoren: "), (plan.engines || []).join(", ") || "–"),
+      h("p", null, h("b", null, "Antworten: "), (plan.answers || []).join(", ") || "–"),
+      plan.key_cards && plan.key_cards.length ? h("p", null, h("b", null, "Schlüsselkarten: "), plan.key_cards.join(", ")) : null
+    ),
+    h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen"))
+  );
   $("modal").hidden = false;
 }
 
@@ -451,21 +469,32 @@ async function newGame() {
   const revisions = table.decks.flatMap((deck) => deck.branches.map((branch) => ({ id: branch.revision_id, label: `${deck.name} · ${branch.branch} (${branch.cards} Karten)`, cards: branch.cards })));
   if (!revisions.length) { box.append(h("p", null, "Es gibt noch kein gespeichertes Deck. Speichere zuerst im Deckbau einen Stand."), h("p", null, close)); return; }
   const own = h("select", null, revisions.map((entry) => h("option", { value: entry.id }, entry.label)));
+  const styleOptions = () => [
+    h("option", { value: "0.0" }, "0.0 · Aggressiv"),
+    h("option", { value: "0.25" }, "0.25 · Druckvoll"),
+    h("option", { value: "0.5", selected: true }, "0.50 · Ausgeglichen"),
+    h("option", { value: "0.75" }, "0.75 · Defensiv"),
+    h("option", { value: "1.0" }, "1.00 · Kontrollierend")
+  ];
+  const ownStyle = h("select", { class: "style-pick" }, ...styleOptions());
   const count = h("select", null, [1, 2, 3, 4, 5].map((n) => h("option", { value: String(n) }, `${n + 1} Spieler`)));
   count.value = "3";
   const seats = h("div", { class: "seat-picks" });
   const pick = () => Math.floor(Math.random() * table.opponents.length);
   const fill = () => {
-    const chosen = [...seats.querySelectorAll("select")].map((el) => el.value);
+    const chosen = [...seats.querySelectorAll(".opp-deck")].map((el) => el.value);
+    const chosenStyles = [...seats.querySelectorAll(".opp-style")].map((el) => el.value);
     seats.textContent = "";
     const used = new Set();
     for (let index = 0; index < Number(count.value); index += 1) {
       let value = chosen[index];
       while (!value || used.has(value)) value = table.opponents[pick()].deck_id;
       used.add(value);
-      const select = h("select", null, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
+      const select = h("select", { class: "opp-deck" }, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
       select.value = value;
-      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select));
+      const sSelect = h("select", { class: "opp-style style-pick" }, ...styleOptions());
+      if (chosenStyles[index]) sSelect.value = chosenStyles[index];
+      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select, " Stil ", sSelect));
     }
   };
   count.addEventListener("change", fill); fill();
@@ -473,9 +502,10 @@ async function newGame() {
     count.value = String(ids.length);
     seats.textContent = "";
     ids.forEach((id, index) => {
-      const select = h("select", null, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
+      const select = h("select", { class: "opp-deck" }, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
       select.value = id;
-      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select));
+      const sSelect = h("select", { class: "opp-style style-pick" }, ...styleOptions());
+      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select, " Stil ", sSelect));
     });
   };
   const podButtons = table.pods ? Object.entries(table.pods).map(([name, ids]) =>
@@ -484,11 +514,19 @@ async function newGame() {
   const go = h("button", { type: "button", class: "primary" }, "Partie starten");
   const note = h("p", { class: "muted" });
   go.addEventListener("click", async () => {
-    const opponents = [...seats.querySelectorAll("select")].map((el) => el.value);
+    const opponents = [...seats.querySelectorAll(".opp-deck")].map((el) => el.value);
+    const oppStyles = [...seats.querySelectorAll(".opp-style")].map((el) => Number(el.value));
+    const seatStyles = [Number(ownStyle.value), ...oppStyles];
     if (new Set(opponents).size !== opponents.length) { note.textContent = "Jeder Sitz braucht ein anderes Deck."; return; }
     go.disabled = true; note.textContent = "Die Engine startet. Das dauert etwa 20 Sekunden.";
     try {
-      const made = await api("/api/games", "POST", { revision_id: own.value, opponent_ids: opponents, seed: Number(seed.value) || 0 });
+      const made = await api("/api/games", "POST", {
+        revision_id: own.value,
+        opponent_ids: opponents,
+        seed: Number(seed.value) || 0,
+        style: Number(ownStyle.value),
+        seat_styles: seatStyles,
+      });
       $("modal").hidden = true;
       await listGames(made.game_id);
       setPlaying(true);
@@ -498,7 +536,7 @@ async function newGame() {
     h("p", { class: "muted" }, "Alle Plätze spielt die KI. XMage entscheidet jede Regel. Die Partie wird mitgeschrieben und läuft hier direkt mit."),
     engineFacts ? h("p", { class: "muted" }, engineFacts) : "",
     h("div", { class: "form" },
-      h("label", null, "Dein Deck auf Sitz 1 (KI) ", own),
+      h("label", null, "Dein Deck auf Sitz 1 (KI) ", own, " Stil ", ownStyle),
       h("label", null, "Tisch ", count),
       seats,
       h("div", { class: "actions" },
