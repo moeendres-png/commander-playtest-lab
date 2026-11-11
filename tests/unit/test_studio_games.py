@@ -63,6 +63,10 @@ def _decision(seat: int = 0, *, turn: int = 1, label: str = "Forest — Play For
                     ],
                     "graveyard": [{"name": "Old Spell"}],
                     "command": [{"name": "Test Commander"}],
+                    "exile": [
+                        {"name": "Exiled Spell"},
+                        {"name": "Hidden Exile", "face_down": True},
+                    ],
                     "exile_count": 3,
                 },
                 {
@@ -108,8 +112,33 @@ def test_a_frame_keeps_the_published_board_and_the_answer() -> None:
     assert own["graveyard"] == ["Old Spell"]
     assert own["command"] == ["Test Commander"]
     assert own["exile_count"] == 3
+    # Only the exile cards the bridge published are kept: the third card of the public
+    # count was not published to this principal and is not invented here, and a published
+    # face-down card is never named.
+    assert own["exile"] == ["Exiled Spell", "(verdeckt)"]
     assert "hand" not in other  # the engine publishes only the actor's hand
+    assert "exile" not in other  # no exile list is invented when the engine published none
     assert other["hand_count"] == 7
+
+
+def test_an_empty_published_exile_stays_an_empty_list() -> None:
+    decision = _decision()
+    decision["pilot_state"]["players"][0]["exile"] = []
+    decision["pilot_state"]["players"][0]["exile_count"] = 2
+    frame = games.frame_of(1, decision, {"selected_option_ids": ["o1"]})
+    # The engine published an (empty) list: keep it, so the page can open the exile and
+    # flag the two unpublished cards of the public count instead of hiding the zone.
+    assert frame["players"][0]["exile"] == []
+    assert frame["players"][0]["exile_count"] == 2
+
+
+def test_partie_page_opens_the_exile_and_explains_the_frame_moment() -> None:
+    script = (
+        Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static/partie.js"
+    ).read_text(encoding="utf-8")
+    assert "Exil von" in script
+    assert "für diese Sicht nicht veröffentlicht" in script
+    assert "Stand bei dieser Frage" in script
 
 
 def test_recorder_writes_a_log_that_can_be_read_in_pages(tmp_path: Path) -> None:

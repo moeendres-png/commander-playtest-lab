@@ -125,6 +125,9 @@ function seatPanel(player, frame) {
   const lands = grouped(player.battlefield.filter((card) => isLand(card.name)));
   const others = grouped(player.battlefield.filter((card) => !isLand(card.name)));
   const yard = h("span", { class: "stat link", title: "Friedhof ansehen", onclick: () => showList(`Friedhof von ${seatName(player.seat)}`, player.graveyard) }, `Friedhof ${player.graveyard.length}`);
+  const exile = Array.isArray(player.exile) && (player.exile_count || player.exile.length)
+    ? h("span", { class: "stat link", title: "Exil ansehen", onclick: () => showExile(player) }, `Exil ${player.exile_count ?? player.exile.length}`)
+    : (player.exile_count ? h("span", { class: "stat" }, `Exil ${player.exile_count}`) : null);
   return h("div", { class: classes },
     h("div", { class: "seat-head" },
       h("span", { class: `life${player.life !== null && player.life <= 10 ? " low" : ""}` }, player.life === null ? "?" : player.life),
@@ -138,7 +141,7 @@ function seatPanel(player, frame) {
       h("span", { class: "stat" }, `Hand ${player.hand_count ?? "?"}`),
       h("span", { class: "stat" }, `Bibliothek ${player.library_count ?? "?"}`),
       yard,
-      player.exile_count ? h("span", { class: "stat" }, `Exil ${player.exile_count}`) : null,
+      exile,
       player.poison ? h("span", { class: "stat" }, `Gift ${player.poison}`) : null,
       player.mana_pool ? h("span", { class: "stat" }, `Mana ${Object.entries(player.mana_pool).map(([color, amount]) => `${amount} ${color}`).join(", ")}`) : null),
     player.command.length ? h("div", null, h("div", { class: "zone-title" }, "Kommandozone"), h("div", { class: "cards" }, player.command.map((name) => cardTile(name, { small: true })))) : null,
@@ -146,10 +149,20 @@ function seatPanel(player, frame) {
     h("div", { class: "cards" }, others.map(permanentTile)),
     lands.length ? h("div", { class: "cards lands" }, lands.map(permanentTile)) : null);
 }
-function showList(title, names) {
+function showList(title, names, note) {
   const box = $("modal-box"); box.textContent = "";
-  box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name) => cardTile(name))) : h("p", { class: "muted" }, "leer"), h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
+  box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name) => cardTile(name))) : h("p", { class: "muted" }, "leer"));
+  if (note) box.append(h("p", { class: "muted" }, note));
+  box.append(h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
   $("modal").hidden = false;
+}
+function showExile(player) {
+  const names = player.exile || [];
+  const unpublished = (player.exile_count || 0) - names.length;
+  const note = unpublished === 1
+    ? "1 weitere Karte wurde für diese Sicht nicht veröffentlicht und bleibt unbenannt."
+    : `${unpublished} weitere Karten wurden für diese Sicht nicht veröffentlicht und bleiben unbenannt.`;
+  showList(`Exil von ${seatName(player.seat)}`, names, unpublished > 0 ? note : null);
 }
 
 function render() {
@@ -178,7 +191,8 @@ function render() {
   now.append(
     h("div", { class: "who" }, h("span", { class: `s${frame.seat}` }, seatName(frame.seat)), ` · ${seatLabel(frame.seat)}`),
     h("div", { class: "what" }, answer(frame)),
-    h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")));
+    h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")),
+    h("div", { class: "ask" }, "Das Brett zeigt den Stand bei dieser Frage. Das Ergebnis der Antwort zeigt die nächste Entscheidung."));
   const stack = $("stack"); stack.textContent = "";
   if (frame.stack.length) frame.stack.forEach((name) => stack.append(name.startsWith("stack ability") ? h("div", { class: "muted" }, name.replace(/^stack ability \(/, "Fähigkeit: ").replace(/\)$/, "")) : cardTile(name, { small: true })));
   else stack.append(h("span", { class: "muted" }, "leer"));

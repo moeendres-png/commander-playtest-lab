@@ -118,6 +118,12 @@ def _player(player: Mapping[str, object]) -> dict[str, object]:
     }
     if "hand" in player:
         row["hand"] = [_card_name(card) for card in _items(player.get("hand"))]
+    if "exile" in player:
+        # The bridge publishes only the exiled cards this principal may see (face-up ones,
+        # plus a face-down one only for a principal allowed to look at it). Cards it did
+        # not publish stay unpublished here, so the public count above can be larger than
+        # this list; a published face-down card keeps the module's "(verdeckt)" name.
+        row["exile"] = [_card_name(card) for card in _items(player.get("exile"))]
     pool = player.get("mana_pool")
     if isinstance(pool, dict):
         mana = {color: pool.get(color) for color in _COLORS if _whole(pool.get(color))}
