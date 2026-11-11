@@ -76,8 +76,17 @@ def test_corpus_parts_accumulate_without_erasing_previous_parts(tmp_path: Path) 
                 "color_identity, commander_legality, keywords, produced_mana, type_line, "
                 "source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
-                    f"oracle-{name.lower()}", f"printing-{name.lower()}", name, name,
-                    "normal", "", "legal", "[]", "", f"Basic Land — {name}", source_id,
+                    f"oracle-{name.lower()}",
+                    f"printing-{name.lower()}",
+                    name,
+                    name,
+                    "normal",
+                    "",
+                    "legal",
+                    "[]",
+                    "",
+                    f"Basic Land — {name}",
+                    source_id,
                 ),
             )
         store.connection.commit()
