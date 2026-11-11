@@ -466,6 +466,29 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/engine/missing-cards")
+    def engine_missing_cards(revision_id: str | None = None) -> dict[str, object]:
+        """Check for cards missing pilot knowledge or unsupported by XMage."""
+        store = open_store()
+        try:
+            if revision_id:
+                snapshot = lab_snapshot(store, revision_id)
+                return {
+                    "revision_id": revision_id,
+                    "unknown_to_pilots": launch.cards_unknown_to_pilots(snapshot),
+                    "unsupported_by_engine": launch.cards_unsupported_by_engine(snapshot),
+                }
+            return {
+                "collection_unknown_to_pilots": launch.collection_cards_unknown_to_pilots(store),
+                "collection_unsupported_by_engine": launch.collection_cards_unsupported_by_engine(
+                    store
+                ),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
     @app.post("/api/games")
     def new_game(body: GameBody) -> dict[str, object]:
         store = open_store()

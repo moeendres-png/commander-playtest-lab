@@ -19,4 +19,26 @@ if [[ ! -x "${PYTHON_BIN}" ]]; then
 fi
 export PYTHONPATH="${REPO_ROOT}/src"
 echo "Studio data: ${COMMANDER_LAB_STUDIO_DATA}"
+
+# Check prerequisites (Issue #1172)
+JAVA_BIN="${JAVA_HOME:-}/bin/java"
+if [[ ! -x "${JAVA_BIN}" ]]; then
+    JAVA_BIN="$(command -v java 2>/dev/null || true)"
+fi
+if [[ -z "${JAVA_BIN}" ]]; then
+    echo "[HINWEIS] Java wurde nicht gefunden. Für 'Neue Partie' und 'Simulieren' wird Java 17 oder neuer benötigt."
+    echo "          Installiere Java 17+ (z.B. Eclipse Temurin 17) oder setze JAVA_HOME."
+else
+    JAVA_VER="$("${JAVA_BIN}" -version 2>&1 | head -n 1 | sed -E 's/.*version "([0-9]+).*/\1/')"
+    if [[ "${JAVA_VER}" =~ ^[0-9]+$ ]] && [[ "${JAVA_VER}" -lt 17 ]]; then
+        echo "[HINWEIS] Gefundenes Java hat Version ${JAVA_VER}. Für 'Neue Partie' und 'Simulieren' wird Java 17 oder neuer benötigt."
+    fi
+fi
+
+if [[ ! -f "${STUDIO_JAR}" ]] && [[ ! -f "${BRIDGE_JAR}" ]]; then
+    echo "[HINWEIS] Die Engine-Datei fehlt noch: ${STUDIO_JAR}"
+    echo "          Für Simulationen: Baue die Bridge (mvn -B verify im Ordner engine-bridge)"
+    echo "          oder lege die bereitgestellte xmage-engine-bridge.jar unter ${STUDIO_JAR} ab."
+fi
+
 exec "${PYTHON_BIN}" -m commander_lab.studio serve "$@"
