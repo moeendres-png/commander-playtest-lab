@@ -1,0 +1,40 @@
+name: Studio Role63 Scryfall Tagger Source Audit
+
+# Strictly read-only to the repository, source snapshot only: no XMage, no importer,
+# no user inventory, no changes to ACTIVE manifests. Runs only for this audit lane.
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/studio-role63-tagger-audit.yml"
+      - "scripts/audit_scryfall_tagger_roles63.py"
+      - "data/studio_roles_audit/PHOTO20260919_63_oracle_ids.txt"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  independent-tagger-source-check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout public Oracle IDs and audit tool
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Verify public Scryfall Oracle Tag bulk (no paid API)
+        run: |
+          set -euo pipefail
+          python3 scripts/audit_scryfall_tagger_roles63.py \
+            --ids data/studio_roles_audit/PHOTO20260919_63_oracle_ids.txt \
+            --output role63-tagger-evidence
+
+      - name: Upload provenance and complete 17x63 membership matrix
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: role63-tagger-evidence
+          path: role63-tagger-evidence/
+          if-no-files-found: warn
+          retention-days: 30
