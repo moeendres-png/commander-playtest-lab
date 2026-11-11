@@ -11,9 +11,8 @@ import json
 import math
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
 
 URL_RE = re.compile(
     r"^https://json\.edhrec\.com/pages/commanders/chulane-teller-of-tales(?:/[a-z0-9-]+)?\.json$"
@@ -31,7 +30,7 @@ class VerifiedCapture:
     request_start_utc: str
     response_complete_utc: str
     raw_bytes: bytes
-    parsed: dict[str, Any]
+    parsed: dict[str, object]
     cardlists_count: int
 
 
@@ -39,7 +38,7 @@ def _utc(value: object, field: str) -> datetime:
     if not isinstance(value, str) or not UTC_RE.fullmatch(value):
         raise ValueError(f"{field}: ISO-8601 millisecond UTC-Z timestamp required")
     try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(UTC)
     except ValueError as exc:
         raise ValueError(f"{field}: invalid date/time") from exc
 
@@ -61,7 +60,7 @@ def verify_captures(
     manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
     records = manifest.get("records") if isinstance(manifest, dict) else None
     if not isinstance(records, list) or not records or len(records) > 20:
-        raise ValueError("Capture manifest must contain 1–20 records")
+        raise ValueError("Capture manifest must contain 1-20 records")
     root = Path(raw_folder) if raw_folder is not None else manifest_file.parent
     seen_event_ids: set[str] = set()
     seen_urls: set[str] = set()
@@ -112,6 +111,8 @@ def verify_captures(
             raise ValueError(f"Capture size mismatch in {event_id}")
         start = meta.get("request_start_utc")
         end = meta.get("response_complete_utc")
+        if not isinstance(start, str) or not isinstance(end, str):
+            raise ValueError(f"Capture timestamp missing or invalid in {event_id}")
         if _utc(start, "request_start_utc") > _utc(end, "response_complete_utc"):
             raise ValueError(f"Reversed capture UTC times in {event_id}")
         if end != rec.get("observed_utc"):
