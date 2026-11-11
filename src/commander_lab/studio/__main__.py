@@ -8,6 +8,7 @@ from collections import Counter
 from pathlib import Path
 
 from . import catalog, importers, roles
+from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
 from .queries import corpus_inclusion, legal_pool
@@ -87,6 +88,9 @@ def _parser() -> argparse.ArgumentParser:
     play.add_argument("--max-decisions", type=int, default=50_000)
     commands.add_parser("games")
     commands.add_parser("status")
+    commands.add_parser(
+        "data-report", help="counts-only report on what the store has, lacks and does not know"
+    )
     return parser
 
 
@@ -229,6 +233,8 @@ def main(argv: list[str] | None = None) -> int:
                 encoding="utf-8",
             )
             result = {"written": args.out}
+        elif args.command == "data-report":
+            result = data_report(store)
         elif args.command == "inclusion":
             result = corpus_inclusion(store, args.card_name, play_group=args.group)
         else:
