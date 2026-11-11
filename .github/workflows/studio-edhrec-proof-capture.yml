@@ -32,6 +32,24 @@ jobs:
           python3 scripts/studio_edhrec_provenance/capture_public_chulane.py \
             --urls data/studio_public/edhrec_chulane_original_20_urls.txt \
             --out edhrec-fresh-evidence --pause 1.5 --limit 20
+      - name: Load new raw evidence into isolated SQLite (no Studio writes)
+        run: |
+          set -euo pipefail
+          python3 scripts/studio_edhrec_provenance/edhrec_provenance.py \
+            --db "$RUNNER_TEMP/edhrec-capture-only.sqlite3" \
+            import-new edhrec-fresh-evidence
+          python3 scripts/studio_edhrec_provenance/edhrec_provenance.py \
+            --db "$RUNNER_TEMP/edhrec-capture-only.sqlite3" status \
+            > edhrec-fresh-evidence/sqlite_capture_import_status.json
+          python3 - "$RUNNER_TEMP/edhrec-capture-only.sqlite3" <<'PY'
+          import sqlite3,sys
+          db=sqlite3.connect(sys.argv[1])
+          assert db.execute("SELECT count(*) FROM edhrec_capture_event").fetchone()[0]==20
+          assert db.execute("SELECT count(*) FROM edhrec_capture_card").fetchone()[0]>=20
+          assert db.execute("PRAGMA integrity_check").fetchone()[0]=='ok'
+          assert db.execute("PRAGMA foreign_key_check").fetchall()==[]
+          assert db.execute("SELECT count(*) FROM edhrec_c079_historical_audit").fetchone()[0]==0
+          PY
       - name: Preserve source response and any denial evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
