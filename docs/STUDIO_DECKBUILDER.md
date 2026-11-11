@@ -46,10 +46,12 @@ this; shipping the page inside a wheel is a later step.
 ## What the builder shows
 
 - The legal pool for the commander with full card images or as a table with selectable
-  columns; filters for text, color, type, mana value, free copies, favorites.
+  columns; filters for text, color, type, mana value, free copies, favorites, and simulator
+  readiness (`sim_status`, `CODE_DERIVED`).
 - The deck list by card type, with the data check (100 cards, commander, color identity,
-  singleton, legality, ownership, free copies). The check reads stored facts; the Rules Core
-  stays the binding check before play.
+  singleton, legality, ownership, free copies) and per-card simulator readiness (`OK`,
+  `NO_CARD_FACTS`, `KNOWN_MISSING_IN_XMAGE`, `NO_PILOT_KNOWLEDGE`). The check reads stored
+  facts; the Rules Core stays the binding check before play.
 - Counts of the deck: curve, types, color symbols and mana sources, and role counts (ramp,
   card draw, removal ...) next to the median of the chosen group of source decks. Roles are
   public community labels, not ratings, and not every card is labelled.
@@ -63,6 +65,8 @@ this; shipping the page inside a wheel is a later step.
   mixed with mainboard frequencies), EDHREC cohorts (keeping `lift` and `synergy_pct` separate
   and unverified per-card denominators `unbekannt`), and `SIMULATED_RESULT` cast statistics.
 - Exact hypergeometric land-draw probabilities (`DERIVED_DESCRIPTIVE`), variant/revision diffs
-  (`Varianten-Diff`), and 4P XMage simulation run summaries (`Simulation`).
+  (`Varianten-Diff`, including land-draw probability deltas, role deltas, and on-demand
+  `HEURISTIC_MODEL` commander castability / mana-base pre-filtering via `POST /api/prefilter`),
+  and 4P XMage simulation run summaries (`Simulation`).
 - Drafts are kept automatically; a saved state is an immutable revision. Variants are named
   branches of a deck. Export as text list or as deck snapshot for the simulator.

@@ -77,6 +77,12 @@ class DiffBody(BaseModel):
     cards: list[CardEntry]
 
 
+class PrefilterBody(BaseModel):
+    base_revision_id: str
+    cards: list[CardEntry]
+    trials: int = Field(default=2000, ge=50, le=20000)
+
+
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
     return [RevisionCard(entry.card_id, entry.quantity, entry.zone) for entry in entries]
 
@@ -175,6 +181,23 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 for r in base_rows
             ]
             return builder.diff_lists(store, base_cards, _cards(body.cards))
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
+    @app.post("/api/prefilter")
+    def prefilter(body: PrefilterBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            base_rows = revision_rows(store, body.base_revision_id)
+            base_cards = [
+                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
+                for r in base_rows
+            ]
+            return builder.prefilter_lists(
+                store, base_cards, _cards(body.cards), trials=body.trials
+            )
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
         finally:
