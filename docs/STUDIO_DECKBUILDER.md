@@ -23,8 +23,50 @@ a location inside this repository. Card images are cached next to it in `images/
 | `import-selection FILE.json --deck-id ID --name NAME --commander NAME` | a saved selection as first deck revision (marking `reserve` entries in `card_mark`) | original |
 | `import-lab-deck FILE.json [--deck-id ID] [--name NAME] [--branch BRANCH]` | an on-disk Lab deck snapshot (`DECKBAU_INTERFACE.md`) as a revision | original |
 | `import-simulation PATH [--engine-pin PIN] [--pilot-policy POLICY]` | `deckbau_eval.py` JSON simulation reports into `simulation_run` / `simulation_card` | simulated result |
-| `fetch-roles --identity WUG --out FILE.json` | public role tags (Scryfall tagger) for a color identity; the query names only the colors | original (public, community labels) |
+| `fetch-roles --identity WUG --out FILE.json [--replace-scope]` | public role tags (Scryfall tagger) for a color identity, written as a full snapshot of that identity and imported; the query names only the colors | original (public, community labels) |
+| `import-roles FILE.json [--replace-scope]` | a role file (format below) as claims | original, normalized or derived, by the file's origin |
+| `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
+
+### Role files and the lossless role import (schema 5)
+
+`import-roles` never reads a file as "everything" unless the file says so. A role file
+(`studio-roles-2`) carries `role_origin` (`SCRYFALL_TAGGER_ORIGINAL`, `CROSSWALK_NORMALIZED`
+with `crosswalk_version`, or `ORACLE_TEXT_REVIEW`), `fetched_at`, `scope` and `roles`
+(role name to oracle ids; the role names are those of `roles.ROLES`). Tagger and crosswalk
+files also carry `tags` (role to original tag); a review of the Oracle text carries none.
+
+| `scope.mode` | `scope.completeness` | Effect |
+|---|---|---|
+| `FULL_SNAPSHOT` | `COMPLETE_FOR_SCOPE` | replaces the earlier claims of the same origin, the same `scope.key` (for the tagger: the color identity) and the roles the file lists, and nothing else; if that removes claims, the run stops unless `--replace-scope` is given |
+| `PARTIAL_INCREMENTAL` | `PARTIAL` | only adds |
+
+A file without `schema` and scope is refused, except the file older `fetch-roles` runs wrote
+(it names its color identity and a tag for every role; it is read as a full snapshot of that
+identity). Refused as well: unknown role names, anything that is not an oracle id (blanks, card
+ids), an oracle id twice in one role, a missing snapshot time or original tag, and a scope whose
+mode contradicts its completeness.
+
+What is stored: every statement is one row of `card_role_claim` (oracle id, role, origin, scope
+key, source, original tag, mapping rule). A review of the Oracle text and a tagger label for the
+same card and role are two claims; neither overwrites the other. `card_role` (what the builder
+reads) is rebuilt from the claims, one row per card and role, pointing at the claim of the
+strongest origin (tagger, crosswalk, Oracle text, legacy); `corpus_deck_role` (roles per source
+deck) is rebuilt from `card_role` once. All of it happens in one transaction: a file that fails
+any check, or an error in the middle, changes nothing, not even the source register. Importing
+the same file twice leaves the store as it was.
+
+Migration: schema 4 to 5 only adds the table `card_role_claim`; opening a store upgrades it. The
+first role import after that keeps every `card_role` row that has no claim as a claim with origin
+`LEGACY_UNSPECIFIED` (nothing is known about it beyond that it was there). A tagger snapshot
+later replaces such a row when it lists the same card and role; legacy rows it does not list stay
+and are counted in the report. Rollback: copy `studio.sqlite3` before the first import with this
+version; an older program version ignores the new table but would not keep it in step.
+
+The tagger bulk (`oracle_tags`) lists canonical labels. `board-wipe` and `graveyard-hate`, the
+query slugs of `board_wipe` and `graveyard_hate`, are search aliases of `sweeper` and
+`hate-graveyard` (`roles.SEARCH_ALIASES`; the search finds the same number of cards). A reader of
+the bulk has to map them explicitly; `check-role-labels` shows where that is needed.
 
 Card facts shown in the builder (color identity, legality, type, text, mana value) come from
 the public card data once a card is linked; the workbook stays the source of what is owned.
