@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import csv
 import json
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from pathlib import Path
 
 from openpyxl import load_workbook
@@ -310,18 +310,15 @@ def import_corpus_register(store: StudioStore, path: str | Path) -> dict[str, in
     return {"decks": count}
 
 
-def import_corpus_cards(store: StudioStore, path: str | Path) -> dict[str, int]:
-    """Read the normalized card rows of the source decks. Needs the register first."""
-    cards_path = Path(path)
-    store.register_source(
-        data_class=DataClass.NORMALIZED_SOURCE,
-        title=cards_path.name,
-        sha256=sha256_file(cards_path),
-    )
-    known = {str(row[0]) for row in store.connection.execute("SELECT deck_id FROM corpus_deck")}
-    merged: dict[tuple[str, str, str], tuple[str | None, int, str]] = {}
+_MERGED = dict[tuple[str, str, str], tuple[str | None, int, str]]
+_EXAMPLES = 5
+
+
+def _read_corpus_part(path: Path, known: set[str]) -> tuple[_MERGED, int]:
+    """Rows of one part file, equal (deck, card, section) rows merged, unregistered decks left out."""
+    merged: _MERGED = {}
     skipped = 0
-    for row in _csv_rows(cards_path):
+    for row in _csv_rows(path):
         if row["deck_id"] not in known:
             skipped += 1
             continue
@@ -329,26 +326,110 @@ def import_corpus_cards(store: StudioStore, path: str | Path) -> dict[str, int]:
         previous = merged.get(key)
         quantity = int(row["quantity"]) + (previous[1] if previous else 0)
         merged[key] = (row["oracle_id"] or None, quantity, row["normalization_status"])
+    return merged, skipped
+
+
+def _example_ids(deck_ids: Iterable[str]) -> str:
+    ordered = sorted(set(deck_ids))
+    shown = ", ".join(ordered[:_EXAMPLES])
+    return f"{shown} (and {len(ordered) - _EXAMPLES} more)" if len(ordered) > _EXAMPLES else shown
+
+
+def import_corpus_card_parts(
+    store: StudioStore, paths: Sequence[str | Path], *, allow_deck_move: bool = False
+) -> dict[str, int]:
+    """Read the normalized card rows of the source decks, one or several part files at once.
+
+    Each file is one partition of a larger corpus: it replaces the rows of the decks it holds
+    and leaves every other deck alone, so repeating a file is harmless. A deck must live in
+    exactly one part (named by the file name). Before anything is written the import checks that
+
+    * no deck is listed in two of the given files,
+    * no deck is already held by a part with another file name (a deck split over two
+      files, or a part renamed, would otherwise lose rows silently) unless
+      ``allow_deck_move`` says the move is intended,
+    * every row is readable.
+
+    Decks that an older program version imported have no recorded part and are accepted.
+    All files are written in one transaction: if one fails, none is imported.
+    """
+    files = [Path(path) for path in paths]
+    if not files:
+        raise ValueError("no card file given")
+    if len({file.name for file in files}) != len(files):
+        raise ValueError("two of the given files have the same name")
+    known = {str(row[0]) for row in store.connection.execute("SELECT deck_id FROM corpus_deck")}
+    parts = [(file, *_read_corpus_part(file, known)) for file in files]
+    owner_of: dict[str, str] = {}
+    shared: set[str] = set()
+    for file, merged, _ in parts:
+        for deck_id in {key[0] for key in merged}:
+            if deck_id in owner_of:
+                shared.add(deck_id)
+            owner_of[deck_id] = file.name
+    if shared:
+        raise ValueError(
+            f"{len(shared)} deck(s) appear in more than one of the given files: "
+            f"{_example_ids(shared)}. A deck must be complete in one file; nothing was imported"
+        )
+    recorded = {
+        str(row[0]): str(row[1])
+        for row in store.connection.execute("SELECT deck_id, part_name FROM corpus_deck_part")
+    }
+    moved = {
+        deck_id
+        for deck_id, name in owner_of.items()
+        if deck_id in recorded and recorded[deck_id] != name
+    }
+    if moved and not allow_deck_move:
+        raise ValueError(
+            f"{len(moved)} deck(s) are already held by a part with another file name: "
+            f"{_example_ids(moved)}. Import the deck from its original file, or pass "
+            "--allow-deck-move if the deck now lives in this file; nothing was imported"
+        )
     with store.connection as db:
-        # Each input file is one partition of a larger corpus. Replace only the decks
-        # present in this partition, retaining other previously imported partitions.
-        # This also makes re-importing the same partition idempotent.
-        db.executemany(
-            "DELETE FROM corpus_deck_card WHERE deck_id = ?",
-            ((deck_id,) for deck_id in {key[0] for key in merged}),
-        )
-        db.executemany(
-            "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
-            "normalization_status) VALUES (?, ?, ?, ?, ?, ?)",
-            [(*key, *value) for key, value in merged.items()],
-        )
+        for file, merged, _ in parts:
+            source_id = store.register_source(
+                data_class=DataClass.NORMALIZED_SOURCE,
+                title=file.name,
+                sha256=sha256_file(file),
+            )
+            deck_ids = sorted({key[0] for key in merged})
+            # Replace only the decks present in this part; other parts stay untouched.
+            db.executemany(
+                "DELETE FROM corpus_deck_card WHERE deck_id = ?", [(d,) for d in deck_ids]
+            )
+            db.executemany(
+                "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+                "normalization_status) VALUES (?, ?, ?, ?, ?, ?)",
+                [(*key, *value) for key, value in merged.items()],
+            )
+            db.executemany(
+                "INSERT OR REPLACE INTO corpus_deck_part(deck_id, part_name, source_id) "
+                "VALUES (?, ?, ?)",
+                [(deck_id, file.name, source_id) for deck_id in deck_ids],
+            )
     # The deck builder must see complete structural comparisons after the final
     # CSV partition, even when Scryfall was imported before the source decks.
     if store.count("scryfall_card"):
-        from .catalog import refresh_corpus_stats
-
         refresh_corpus_stats(store)
-    return {"rows": len(merged), "rows_without_registered_deck": skipped}
+    return {
+        "rows": sum(len(merged) for _, merged, _ in parts),
+        "rows_without_registered_deck": sum(skipped for _, _, skipped in parts),
+        "decks": len(owner_of),
+        "decks_moved_from_another_part": len(moved),
+    }
+
+
+def import_corpus_cards(
+    store: StudioStore, path: str | Path, *, allow_deck_move: bool = False
+) -> dict[str, int]:
+    """Read the normalized card rows of the source decks from one part file."""
+    result = import_corpus_card_parts(store, [path], allow_deck_move=allow_deck_move)
+    return {
+        "rows": result["rows"],
+        "rows_without_registered_deck": result["rows_without_registered_deck"],
+    }
 
 
 def _number(value: str) -> float | None:

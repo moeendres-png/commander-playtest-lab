@@ -192,8 +192,28 @@ def _roles(db: sqlite3.Connection) -> dict[str, object]:
 def _corpus(db: sqlite3.Connection) -> dict[str, object]:
     decks = _scalar(db, "SELECT COUNT(*) FROM corpus_deck")
     card_rows = _scalar(db, "SELECT COUNT(*) FROM corpus_deck_card")
+    with_rows = _scalar(db, "SELECT COUNT(DISTINCT deck_id) FROM corpus_deck_card")
     return {
         "decks": decks,
+        "decks_without_card_rows": _share(decks - with_rows, decks),
+        "decks_without_recorded_part": _share(
+            _scalar(
+                db,
+                "SELECT COUNT(DISTINCT k.deck_id) FROM corpus_deck_card k "
+                "LEFT JOIN corpus_deck_part p ON p.deck_id = k.deck_id "
+                "WHERE p.deck_id IS NULL",
+            ),
+            with_rows,
+        ),
+        "mainboard_not_99_cards": _share(
+            _scalar(
+                db,
+                "SELECT COUNT(*) FROM (SELECT deck_id FROM corpus_deck_card "
+                "GROUP BY deck_id HAVING SUM(CASE WHEN LOWER(section) = 'mainboard' "
+                "THEN quantity ELSE 0 END) != 99)",
+            ),
+            with_rows,
+        ),
         "by_cohort": _counter(db, "SELECT cohort, COUNT(*) FROM corpus_deck GROUP BY cohort"),
         "fingerprint_missing": _share(
             _scalar(db, "SELECT COUNT(*) FROM corpus_deck WHERE fingerprint = ''"), decks

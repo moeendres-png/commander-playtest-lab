@@ -24,13 +24,22 @@ def _parser() -> argparse.ArgumentParser:
     for name in (
         "import-inventory",
         "import-corpus-register",
-        "import-corpus-cards",
         "import-edhrec",
         "import-edhrec-cardrecs",
         "import-edhrec-delta",
         "import-hub",
     ):
         commands.add_parser(name).add_argument("path")
+    corpus_cards = commands.add_parser(
+        "import-corpus-cards",
+        help="source-deck card rows from one or several part files (one transaction)",
+    )
+    corpus_cards.add_argument("paths", nargs="+")
+    corpus_cards.add_argument(
+        "--allow-deck-move",
+        action="store_true",
+        help="a deck that an earlier import took from another part file now lives in this file",
+    )
     scryfall = commands.add_parser("import-scryfall")
     scryfall.add_argument("path")
     scryfall.add_argument("--disambiguation")
@@ -245,7 +254,9 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "import-corpus-register":
             result = importers.import_corpus_register(store, args.path)
         elif args.command == "import-corpus-cards":
-            result = importers.import_corpus_cards(store, args.path)
+            result = importers.import_corpus_card_parts(
+                store, args.paths, allow_deck_move=args.allow_deck_move
+            )
         elif args.command == "import-edhrec":
             result = importers.import_edhrec_table(store, args.path)
         elif args.command == "import-edhrec-cardrecs":

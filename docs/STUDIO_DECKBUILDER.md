@@ -14,7 +14,8 @@ a location inside this repository. Card images are cached next to it in `images/
 |---|---|---|
 | `import-inventory FILE.xlsx` | card identities and inventory of the collection | original |
 | `import-scryfall PATH [--disambiguation FILE.csv]` | public card data (single `.jsonl`/`.jsonl.gz` or folder of split parts); links the collection | original (public) |
-| `import-corpus-register FILE.csv`, `import-corpus-cards FILE.csv` | source decks and their cards | normalized |
+| `import-corpus-register FILE.csv` | source decks | normalized |
+| `import-corpus-cards FILE.csv [FILE.csv ...] [--allow-deck-move]` | the cards of the source decks, one or several part files in one transaction (see below) | normalized |
 | `import-hub FOLDER` | 2026-11-10 objective hub (`01_DECK_CATALOG_994_SOURCES.csv`, `02_CARD_DICTIONARY_*.csv`, `03_MAINBOARD_99_COMPACT_*.jsonl`, `06_OTHER_BOARDS_NEUTRAL_*.csv`) | normalized |
 | `import-cohort FILE.csv --name NAME` | a named group of source decks | normalized |
 | `import-edhrec FILE.csv` | EDHREC rows with numerator, denominator, page | original |
@@ -68,6 +69,19 @@ The tagger bulk (`oracle_tags`) lists canonical labels. `board-wipe` and `gravey
 query slugs of `board_wipe` and `graveyard_hate`, are search aliases of `sweeper` and
 `hate-graveyard` (`roles.SEARCH_ALIASES`; the search finds the same number of cards). A reader of
 the bulk has to map them explicitly; `check-role-labels` shows where that is needed.
+
+### Corpus card parts (schema 6)
+
+A large corpus comes in several part files. Each file replaces the rows of the decks it holds and
+nothing else, so repeating a file is harmless; `corpus_deck_part` remembers which file name holds
+which deck. A deck must live in exactly one part, so the import refuses, before it writes
+anything, (a) a deck that is listed in two of the files given together, and (b) a deck that an
+earlier import took from a part with another file name (a deck split over two files, or a part
+renamed: its rows would be replaced by the shorter list). `--allow-deck-move` says that the move
+is intended. Several files given together are written in one transaction: a bad row in one of
+them imports none. Decks imported by an older program version have no recorded part and are
+accepted. `data-report` shows decks without card rows, without a recorded part, and decks whose
+mainboard does not add up to 99 cards.
 
 ### Data report
 
