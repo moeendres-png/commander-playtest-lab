@@ -28,9 +28,7 @@ def fixture(tmp_path: Path) -> tuple[Path, Path]:
     ]
     with zipfile.ZipFile(archive, "w") as dest:
         for _group, name, content, compressed in logical:
-            dest.writestr(
-                name, gzip.compress(content, mtime=0) if compressed else content
-            )
+            dest.writestr(name, gzip.compress(content, mtime=0) if compressed else content)
     with manifest.open("w", encoding="utf-8", newline="") as stream:
         writer = csv.writer(stream)
         writer.writerow(["group", "uncompressed_bytes", "sha256", "count"])
@@ -39,13 +37,9 @@ def fixture(tmp_path: Path) -> tuple[Path, Path]:
     return archive, manifest
 
 
-def test_private_source_archive_validates_without_public_payload(
-    tmp_path: Path,
-) -> None:
+def test_private_source_archive_validates_without_public_payload(tmp_path: Path) -> None:
     archive, manifest = fixture(tmp_path)
-    result = verifier.verify_archive(
-        archive, manifest, strict_archive=False, strict_counts=False
-    )
+    result = verifier.verify_archive(archive, manifest, strict_archive=False, strict_counts=False)
     assert result["status"] == "PASS"
     assert result["verified_source_files"] == 3
     assert result["verified_complete_99_card_decks"] == 0
