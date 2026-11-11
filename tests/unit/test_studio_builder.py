@@ -321,6 +321,19 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
         assert client.get("/api/cards/card:project:0007").json()["observations"] == []
         assert client.get("/api/cards/card:project:9999").status_code == 404
         assert client.get("/api/cohorts").json()[0]["cohort"] == "all"
+        diff_resp = client.post(
+            "/api/diff",
+            json={"base_revision_id": saved["revision_id"], "cards": cards},
+            headers=marker,
+        ).json()
+        assert diff_resp["added_slots"] == 0
+        pf_resp = client.post(
+            "/api/prefilter",
+            json={"base_revision_id": saved["revision_id"], "cards": cards, "trials": 100},
+            headers=marker,
+        ).json()
+        assert pf_resp["comparable"] is True
+        assert pf_resp["data_class"] == "HEURISTIC_MODEL"
         assert client.get("/img/card:project:0002", params={"face": "side"}).status_code == 422
         assert client.get("/api/revisions/nope").status_code == 404
 
@@ -391,3 +404,151 @@ def test_role_fetch_asks_only_the_card_search(
     monkeypatch.setattr(roles, "_page", elsewhere)
     with pytest.raises(ValueError, match="unexpected address"):
         roles.fetch_role_file("WUG", tmp_path / "other.json", pause=0)
+
+
+def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
+    studio: StudioStore, tmp_path: Path
+) -> None:
+    co = builder.card_cooccurrence(studio, "card:project:0007")
+    assert co["card_decks"] == 2
+    assert co["data_class"] == "DERIVED_DESCRIPTIVE"
+    assert co["cards"] == [
+        {
+            "card_id": "card:project:0002",
+            "name": "Forest",
+            "both_hits": 1,
+            "card_decks": 2,
+            "share": 0.5,
+        }
+    ]
+    role_file = tmp_path / "diff_roles.json"
+    role_file.write_text(
+        json.dumps(
+            {
+                "fetched_at": "2026-11-10T00:00:00Z",
+                "roles": {"ramp": ["oracle-forest"], "removal": ["oracle-swarm-rat"]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    roles.import_roles(studio, role_file)
+    base_cards = _deck()
+    target_cards = [
+        *base_cards[:-1],
+        RevisionCard("card:project:0002", 28),
+        RevisionCard("card:project:0007", 1),
+    ]
+    diff = builder.diff_lists(studio, base_cards, target_cards)
+    assert diff["data_class"] == "DERIVED_DESCRIPTIVE"
+    assert diff["added"] == [
+        {"card_id": "card:project:0007", "name": "Swarm Rat", "group": "Creature", "quantity": 1}
+    ]
+    assert diff["removed"] == []
+    assert diff["changed"] == [
+        {
+            "card_id": "card:project:0002",
+            "name": "Forest",
+            "group": "Land",
+            "base_quantity": 29,
+            "target_quantity": 28,
+            "delta": -1,
+        }
+    ]
+    assert diff["role_deltas"] == {
+        "ramp": {"base": 29, "target": 28, "delta": -1},
+        "removal": {"base": 0, "target": 1, "delta": 1},
+    }
+    dp = builder.draw_probabilities(99, 29)
+    assert dp is not None
+    assert dp["data_class"] == "DERIVED_DESCRIPTIVE"
+    assert dp["main_cards"] == 99
+    assert dp["lands"] == 29
+    opening = dp["opening_7"]
+    assert isinstance(opening, dict)
+    assert 0.0 < float(opening["at_least_3_lands"]) < 1.0
+    # sim_status is populated on pool and card_detail
+    pool = builder.pool_cards(studio, ["Test Commander"])
+    cards_by_name = {card["name"]: card for card in pool["cards"]}  # type: ignore[union-attr]
+    assert cards_by_name["Forest"]["sim_status"] == "OK"
+    assert cards_by_name["Swarm Rat"]["sim_status"] == "NO_CARD_FACTS"
+    detail = builder.card_detail(studio, "card:project:0002")
+    assert detail["sim_status"] == "OK"
+    # prefilter_lists requires 100 cards in both lists, and returns HEURISTIC_MODEL when met
+    short_pf = builder.prefilter_lists(studio, base_cards[:10], target_cards, trials=100)
+    assert short_pf["comparable"] is False
+    assert short_pf["data_class"] == "HEURISTIC_MODEL"
+    pf = builder.prefilter_lists(studio, base_cards, target_cards, trials=100)
+    assert pf["comparable"] is True
+    assert pf["data_class"] == "HEURISTIC_MODEL"
+    assert pf["verdict"] in {"PASS_TO_GAMES", "WARN", "BLOCKED"}
+    assert pf["land_count_delta"] == -1
+    assert isinstance(pf["castability"], list)
+    assert len(pf["castability"]) == 1
+    cmd_cast = pf["castability"][0]
+    assert isinstance(cmd_cast, dict)
+    assert cmd_cast["name"] == "Test Commander"
+    assert "3" in cmd_cast["baseline_probability"]["play"]  # type: ignore[index]
+    assert "3" in cmd_cast["variant_probability"]["play"]  # type: ignore[index]
+    assert "3" in cmd_cast["probability_delta"]["play"]  # type: ignore[index]
+    assert "play" in cmd_cast["baseline_expected_turn"]  # type: ignore[operator]
+
+
+def test_multipart_scryfall_folder_and_disambiguation(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    importers.import_inventory_workbook(
+        store, _workbook(tmp_path / "cards.xlsx", _synthetic_cards()[:2])
+    )
+    scry_dir = tmp_path / "scry"
+    scry_dir.mkdir()
+    part1 = scry_dir / "default-cards-20261109_part_001.jsonl"
+    part2 = scry_dir / "default-cards-20261109_part_002.jsonl"
+    part1.write_text(
+        json.dumps(_public("Test Commander", ["G", "U", "W"], "Legendary Creature — Human Druid"))
+        + "\n",
+        encoding="utf-8",
+    )
+    part2.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    _public(
+                        "Forest",
+                        ["G"],
+                        "Basic Land — Forest",
+                        oracle_id="oracle-forest-paper",
+                        games=["paper"],
+                    )
+                ),
+                json.dumps(
+                    _public(
+                        "Forest // Forest",
+                        ["G"],
+                        "Basic Land — Forest",
+                        oracle_id="oracle-forest-rev",
+                        layout="reversible_card",
+                    )
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    dis = _write_csv(
+        tmp_path / "11_ORACLE_DISAMBIGUATION.csv",
+        [
+            {
+                "name": "Forest",
+                "num_possible_oracle_ids": "2",
+                "selected_oracle_id": "oracle-forest-paper",
+                "selection_rule": "PAPER_LEGAL",
+                "candidate_ids": "oracle-forest-paper;oracle-forest-rev",
+            }
+        ],
+    )
+    res = catalog.import_scryfall_oracle(store, scry_dir, disambiguation_path=dis)
+    assert res["files"] == 2
+    assert res["linked"] == 2
+    forest = store.connection.execute(
+        "SELECT oracle_id FROM card WHERE oracle_name = 'Forest'"
+    ).fetchone()
+    assert forest["oracle_id"] == "oracle-forest-paper"

@@ -13,11 +13,16 @@ a location inside this repository. Card images are cached next to it in `images/
 | Command (`python -m commander_lab.studio ...`) | Reads | Data class |
 |---|---|---|
 | `import-inventory FILE.xlsx` | card identities and inventory of the collection | original |
-| `import-scryfall oracle-cards.jsonl.gz` | public card data; links the collection by exact name | original (public) |
+| `import-scryfall PATH [--disambiguation FILE.csv]` | public card data (single `.jsonl`/`.jsonl.gz` or folder of split parts); links the collection | original (public) |
 | `import-corpus-register FILE.csv`, `import-corpus-cards FILE.csv` | source decks and their cards | normalized |
+| `import-hub FOLDER` | 2026-11-10 objective hub (`01_DECK_CATALOG_994_SOURCES.csv`, `02_CARD_DICTIONARY_*.csv`, `03_MAINBOARD_99_COMPACT_*.jsonl`, `06_OTHER_BOARDS_NEUTRAL_*.csv`) | normalized |
 | `import-cohort FILE.csv --name NAME` | a named group of source decks | normalized |
 | `import-edhrec FILE.csv` | EDHREC rows with numerator, denominator, page | original |
-| `import-selection FILE.json --deck-id ID --name NAME --commander NAME` | a saved selection as first deck revision | original |
+| `import-edhrec-cardrecs FILE.csv` | normalized EDHREC recommendations across cohorts (`cardrecs_alle.csv`) | normalized |
+| `import-edhrec-delta PATH` | EDHREC delta JSONL files (`10_EDHREC_STATISTICS_DELTA_*.jsonl`, preserving `NULL` per-card denominators and separate `synergy_pct`) | normalized |
+| `import-selection FILE.json --deck-id ID --name NAME --commander NAME` | a saved selection as first deck revision (marking `reserve` entries in `card_mark`) | original |
+| `import-lab-deck FILE.json [--deck-id ID] [--name NAME] [--branch BRANCH]` | an on-disk Lab deck snapshot (`DECKBAU_INTERFACE.md`) as a revision | original |
+| `import-simulation PATH [--engine-pin PIN] [--pilot-policy POLICY]` | `deckbau_eval.py` JSON simulation reports into `simulation_run` / `simulation_card` | simulated result |
 | `fetch-roles --identity WUG --out FILE.json` | public role tags (Scryfall tagger) for a color identity; the query names only the colors | original (public, community labels) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 
@@ -30,7 +35,7 @@ Only image requests leave the machine, and they name single public cards (Owner 
 
 ## Start
 
-`python -m commander_lab.studio serve --open` (Windows: `scripts/studio_start.ps1`). The
+`python -m commander_lab.studio serve --open` (Windows: `scripts/studio_start.ps1`, Linux/WSL: `scripts/studio_start.sh`). The
 server listens on `127.0.0.1` only, rejects other host names, and accepts writes only from its
 own page.
 
@@ -41,10 +46,12 @@ this; shipping the page inside a wheel is a later step.
 ## What the builder shows
 
 - The legal pool for the commander with full card images or as a table with selectable
-  columns; filters for text, color, type, mana value, free copies, favorites.
+  columns; filters for text, color, type, mana value, free copies, favorites, and simulator
+  readiness (`sim_status`, `CODE_DERIVED`).
 - The deck list by card type, with the data check (100 cards, commander, color identity,
-  singleton, legality, ownership, free copies). The check reads stored facts; the Rules Core
-  stays the binding check before play.
+  singleton, legality, ownership, free copies) and per-card simulator readiness (`OK`,
+  `NO_CARD_FACTS`, `KNOWN_MISSING_IN_XMAGE`, `NO_PILOT_KNOWLEDGE`). The check reads stored
+  facts; the Rules Core stays the binding check before play.
 - Counts of the deck: curve, types, color symbols and mana sources, and role counts (ramp,
   card draw, removal ...) next to the median of the chosen group of source decks. Roles are
   public community labels, not ratings, and not every card is labelled.
@@ -52,5 +59,14 @@ this; shipping the page inside a wheel is a later step.
   decks that play a card, always with the denominator, and median and middle half of lands,
   creatures and mana value. Groups below 30 decks are marked. These are frequencies, not
   ratings.
+- Card detail view: per-cohort source deck inclusion, co-occurring collection cards in the
+  same source decks (`both_hits / card_decks`, `DERIVED_DESCRIPTIVE`), neutral non-mainboard
+  batch sections (`MAYBEBOARD`, `CUTS`, `SIDEBOARD` with section and batch denominators, never
+  mixed with mainboard frequencies), EDHREC cohorts (keeping `lift` and `synergy_pct` separate
+  and unverified per-card denominators `unbekannt`), and `SIMULATED_RESULT` cast statistics.
+- Exact hypergeometric land-draw probabilities (`DERIVED_DESCRIPTIVE`), variant/revision diffs
+  (`Varianten-Diff`, including land-draw probability deltas, role deltas, and on-demand
+  `HEURISTIC_MODEL` commander castability / mana-base pre-filtering via `POST /api/prefilter`),
+  and 4P XMage simulation run summaries (`Simulation`).
 - Drafts are kept automatically; a saved state is an immutable revision. Variants are named
   branches of a deck. Export as text list or as deck snapshot for the simulator.

@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import csv
 import gzip
+import hashlib
 import json
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from pathlib import Path
 
 from .store import DataClass, StudioStore, sha256_file
@@ -101,17 +102,84 @@ def _row(card: dict[str, object], source_id: str) -> tuple[object, ...] | None:
     )
 
 
-def import_scryfall_oracle(store: StudioStore, path: str | Path) -> dict[str, object]:
-    """Read the public oracle card file (``.jsonl`` or ``.jsonl.gz``, one card per line)
-    and link the collection to it."""
+def _printing_rank(
+    card: dict[str, object], row: tuple[object, ...]
+) -> tuple[int, int, int, int, int]:
+    games = card.get("games")
+    in_paper = int(isinstance(games, list) and "paper" in games)
+    not_digital = int(not bool(card.get("digital")))
+    english = int(card.get("lang") in {None, "en"})
+    has_image = int(row[18] is not None)
+    legal = int(row[10] == "legal" and row[4] != "reversible_card")
+    return (in_paper, not_digital, english, has_image, legal)
+
+
+def _source_files(path: Path) -> list[Path]:
+    if path.is_dir():
+        parts = sorted(path.glob("default-cards-*_part_*.jsonl"))
+        if not parts:
+            parts = sorted(
+                p
+                for p in path.iterdir()
+                if p.is_file() and (p.name.endswith(".jsonl") or p.name.endswith(".jsonl.gz"))
+            )
+        if not parts:
+            raise ValueError(f"{path}: no .jsonl or .jsonl.gz files found")
+        return parts
+    return [path]
+
+
+def _source_digest(files: list[Path]) -> str:
+    if len(files) == 1:
+        return sha256_file(files[0])
+    digest = hashlib.sha256()
+    for item in files:
+        digest.update(f"{item.name}:{sha256_file(item)}\n".encode("ascii"))
+    return digest.hexdigest()
+
+
+def _load_disambiguation(path: str | Path | None) -> dict[str, str]:
+    if path is None:
+        return {}
     file_path = Path(path)
+    if not file_path.is_file():
+        return {}
+    with file_path.open(encoding="utf-8-sig", newline="") as handle:
+        return {
+            row["name"].strip(): row["selected_oracle_id"].strip()
+            for row in csv.DictReader(handle)
+            if row.get("name") and row.get("selected_oracle_id")
+        }
+
+
+def import_scryfall_oracle(
+    store: StudioStore,
+    path: str | Path,
+    *,
+    disambiguation_path: str | Path | None = None,
+) -> dict[str, object]:
+    """Read the public oracle card file (``.jsonl``, ``.jsonl.gz``, or a folder of split
+    ``.jsonl`` parts, one card per line) and link the collection to it."""
+    target = Path(path)
+    files = _source_files(target)
     source_id = store.register_source(
         data_class=DataClass.ORIGINAL_SOURCE,
-        title=file_path.name,
-        sha256=sha256_file(file_path),
+        title=target.name,
+        sha256=_source_digest(files),
         url="https://scryfall.com/docs/api/bulk-data",
     )
-    rows = [row for row in (_row(card, source_id) for card in _objects(file_path)) if row]
+    by_oracle: dict[str, tuple[tuple[int, int, int, int, int], tuple[object, ...]]] = {}
+    for file_path in files:
+        for card in _objects(file_path):
+            row = _row(card, source_id)
+            if row is None:
+                continue
+            oracle_id = str(row[0])
+            rank = _printing_rank(card, row)
+            previous = by_oracle.get(oracle_id)
+            if previous is None or rank > previous[0]:
+                by_oracle[oracle_id] = (rank, row)
+    rows = [entry[1] for entry in by_oracle.values()]
     with store.connection as db:
         db.execute("DELETE FROM scryfall_card")
         db.executemany(
@@ -119,33 +187,62 @@ def import_scryfall_oracle(store: StudioStore, path: str | Path) -> dict[str, ob
             "(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             rows,
         )
-    report: dict[str, object] = {"oracle_cards": len(rows)}
-    report.update(link_collection(store))
+    report: dict[str, object] = {"oracle_cards": len(rows), "files": len(files)}
+    report.update(link_collection(store, disambiguation=_load_disambiguation(disambiguation_path)))
     report.update(refresh_corpus_stats(store))
     return report
 
 
-def link_collection(store: StudioStore) -> dict[str, object]:
+def link_collection(
+    store: StudioStore, *, disambiguation: Mapping[str, str] | None = None
+) -> dict[str, object]:
     """Give every collection card its oracle id by exact name (full name or front face).
 
-    A name that fits no card or more than one stays unlinked and keeps its workbook facts.
+    A name that fits no card or more than one stays unlinked and keeps its workbook facts,
+    unless paper-legal non-reversible priority or explicit disambiguation selects a single card.
     """
     db = store.connection
     linked = 0
     unlinked: list[str] = []
+    preferred = disambiguation or {}
     with db:
         for card in db.execute("SELECT card_id, oracle_name FROM card").fetchall():
             name = str(card["oracle_name"])
-            found = (
-                db.execute("SELECT oracle_id FROM scryfall_card WHERE name = ?", (name,)).fetchall()
-                or db.execute(
-                    "SELECT oracle_id FROM scryfall_card WHERE front_name = ?", (name,)
-                ).fetchall()
-            )
-            if len(found) == 1:
+            chosen: str | None = None
+            if name in preferred:
+                explicit = db.execute(
+                    "SELECT oracle_id FROM scryfall_card WHERE oracle_id = ?", (preferred[name],)
+                ).fetchone()
+                if explicit is not None:
+                    chosen = str(explicit["oracle_id"])
+            if chosen is None:
+                found = (
+                    db.execute(
+                        "SELECT oracle_id, layout, commander_legality FROM scryfall_card "
+                        "WHERE name = ?",
+                        (name,),
+                    ).fetchall()
+                    or db.execute(
+                        "SELECT oracle_id, layout, commander_legality FROM scryfall_card "
+                        "WHERE front_name = ?",
+                        (name,),
+                    ).fetchall()
+                )
+                if len(found) > 1:
+                    narrowed = [
+                        row
+                        for row in found
+                        if row["layout"] != "reversible_card"
+                        and row["commander_legality"] == "legal"
+                    ]
+                    if len(narrowed) == 1:
+                        found = narrowed
+                if len(found) == 1:
+                    chosen = str(found[0]["oracle_id"])
+            if chosen is not None:
                 db.execute(
                     "UPDATE card SET oracle_id = ? WHERE card_id = ?",
-                    (found[0]["oracle_id"], card["card_id"]),
+                    (chosen, card["card_id"]),
                 )
                 linked += 1
             else:

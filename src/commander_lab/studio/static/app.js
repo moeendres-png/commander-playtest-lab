@@ -4,7 +4,18 @@
 const COMMANDER = "Chulane, Teller of Tales";
 const GROUPS = ["Creature", "Planeswalker", "Battle", "Artifact", "Enchantment", "Instant", "Sorcery", "Land", "Other"];
 const GROUP_NAMES = { Creature: "Kreaturen", Planeswalker: "Planeswalker", Battle: "Schlachten", Artifact: "Artefakte", Enchantment: "Verzauberungen", Instant: "Spontanzauber", Sorcery: "Hexereien", Land: "Länder", Other: "Sonstige" };
-const COHORT_NAMES = { all: "alle Quelldecks", community: "Community", turnier_cedh: "Turnier cEDH", community_cedh: "Community cEDH", unklassifiziert: "unklassifiziert" };
+const COHORT_NAMES = {
+  all: "alle Quelldecks",
+  community: "Community",
+  turnier_cedh: "Turnier cEDH",
+  community_cedh: "Community cEDH",
+  unklassifiziert: "unklassifiziert",
+  c087_945: "C087-Basis (945)",
+  new_2026_11_10: "Neu 10.11.2026",
+  koma_in_99: "mit Koma im 99er",
+  no_koma_in_99: "ohne Koma im 99er",
+  koma_31: "Koma-C084 (31)",
+};
 const ROLE_NAMES = { ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp", card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip", tutor: "Tutor", removal: "Entfernung", board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink", recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass", lifegain: "Lebensgewinn" };
 const roleName = (key) => ROLE_NAMES[key] || key;
 const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", commander_type: "Commander-Typ", color_identity: "Farbidentität", singleton: "Mehrfach", legality_unknown: "Legalität unbekannt", not_legal: "Nicht legal", not_owned: "Nicht in der Sammlung", not_available: "Nicht frei" };
@@ -13,6 +24,7 @@ const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
+  simulations: [], diffBaseRev: null, diffData: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
@@ -85,12 +97,14 @@ function filtered() {
   const min = $("mv-min").value === "" ? null : Number($("mv-min").value);
   const max = $("mv-max").value === "" ? null : Number($("mv-max").value);
   const free = $("f-free").checked, notIn = $("f-notin").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
+  const simReady = $("f-sim") && $("f-sim").checked;
   const rows = state.pool.filter((card) => {
     if (state.commanderIds.includes(card.card_id)) return false;
     if (free && card.available < 1) return false;
     if (notIn && qty(card.card_id)) return false;
     if (fav && !card.favorite) return false;
     if (!showExcluded && card.excluded) return false;
+    if (simReady && card.sim_status !== "OK") return false;
     if (type && card.group !== type) return false;
     if (role === "-" ? card.roles.length > 0 : role && !card.roles.includes(role)) return false;
     if (min !== null && !(card.mana_value >= min)) return false;
@@ -155,7 +169,7 @@ const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
   ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
   ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"],
-  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["note", "Notiz", null],
+  ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
 ];
 function cell(card, key) {
   if (key === "img") return h("td", {}, card.has_image ? image(card, "thumb") : null);
@@ -298,6 +312,18 @@ function renderNumbers(body) {
       h("p", { class: "note" }, "Rollen sind öffentliche Marken der Scryfall-Gemeinschaft (Tagger). Eine Karte kann mehrere Rollen haben, und nicht jede Karte ist markiert. Vergleich: Median und mittlere Hälfte der gewählten Vergleichsgruppe."));
   }
   body.append(h("h3", {}, "Farben"), colors, h("p", { class: "note" }, "Gezählt aus den Kartendaten: Symbole in den Manakosten und Karten, die Mana dieser Farbe erzeugen können. Das ist eine Zählung, keine Bewertung."));
+  const dp = shape.draw_probabilities;
+  if (dp && dp.opening_7) {
+    const pct = (v) => (v === null || v === undefined ? "unbekannt" : (100 * v).toFixed(1) + " %");
+    const probTable = h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Ziehfenster"), h("th", { class: "num" }, "Karten (n)"), h("th", { class: "num" }, "≥ 2 Länder"), h("th", { class: "num" }, "3–4 Länder"), h("th", { class: "num" }, "≥ 3 Länder"), h("th", { class: "num" }, "≥ 4 Länder"))),
+      h("tbody", {},
+        h("tr", {}, h("td", {}, "Starthand"), h("td", { class: "num" }, dp.opening_7.draws), h("td", { class: "num" }, pct(dp.opening_7.at_least_2_lands)), h("td", { class: "num" }, pct(dp.opening_7.between_3_and_4_lands)), h("td", { class: "num" }, pct(dp.opening_7.at_least_3_lands)), h("td", { class: "num" }, pct(dp.opening_7.at_least_4_lands))),
+        h("tr", {}, h("td", {}, "Bis Zug 3"), h("td", { class: "num" }, dp.turn_3_draw_9.draws), h("td", { class: "num" }, "–"), h("td", { class: "num" }, "–"), h("td", { class: "num" }, pct(dp.turn_3_draw_9.at_least_3_lands)), h("td", { class: "num" }, pct(dp.turn_3_draw_9.at_least_4_lands))),
+        h("tr", {}, h("td", {}, "Bis Zug 4"), h("td", { class: "num" }, dp.turn_4_draw_10.draws), h("td", { class: "num" }, "–"), h("td", { class: "num" }, "–"), h("td", { class: "num" }, pct(dp.turn_4_draw_10.at_least_3_lands)), h("td", { class: "num" }, pct(dp.turn_4_draw_10.at_least_4_lands)))));
+    body.append(h("h3", {}, `Land-Ziehwahrscheinlichkeiten (${dp.lands} Länder in ${dp.main_cards} Maindeck-Karten)`), probTable,
+      h("p", { class: "note" }, "Exakte hypergeometrische Kombinatorik (DERIVED_DESCRIPTIVE) ohne Mulligan-Heuristik."));
+  }
 }
 function renderCheck(body) {
   if (!state.issues.length) { body.append(h("p", {}, "Die Datenprüfung findet nichts.")); }
@@ -305,6 +331,17 @@ function renderCheck(body) {
     body.append(h("div", { class: "issue " + issue.severity }, h("b", {}, ISSUE_NAMES[issue.code] || issue.code), h("div", {}, issue.message)));
   }
   body.append(h("p", { class: "note" }, "Diese Prüfung liest gespeicherte Kartendaten: 100 Karten, Commander, Farbidentität, Einzelkarten-Regel, Legalität, Besitz und freie Kopien. Verbindlich für das Spiel ist erst die Prüfung durch die Regel-Engine."));
+  const currentCards = [...state.commanderIds.map((id) => state.byId.get(id)), ...deckCards()].filter(Boolean);
+  const notReady = currentCards.filter((card) => card.sim_status && card.sim_status !== "OK");
+  body.append(h("h3", {}, "Simulator-Bereitschaft (CODE_DERIVED)"));
+  if (!notReady.length) {
+    body.append(h("p", {}, `Alle ${currentCards.length} eindeutigen Karten im aktuellen Deck haben XMage-Card-Facts und Pilot-Wissen (OK).`));
+  } else {
+    body.append(h("p", {}, `${notReady.length} Karte(n) im aktuellen Deck sind im Simulator-Vorfilter noch nicht vollständig hinterlegt:`),
+      h("div", {}, notReady.map((card) => h("div", { class: "issue warning" },
+        h("b", {}, card.sim_status),
+        h("div", {}, `${card.name}: Status ${card.sim_status} (deck_readiness).`)))));
+  }
 }
 function span(entry) { return entry ? `${entry.median} (${entry.p25} bis ${entry.p75})` : "unbekannt"; }
 function renderCompare(body) {
@@ -327,11 +364,170 @@ function renderCompare(body) {
     h("h3", {}, `Im Deck, selten gespielt (${name})`), listing(rare, false),
     h("p", { class: "note" }, "Häufigkeit sagt, was andere spielen, nicht, was stärker ist."));
 }
+async function renderDiff(body) {
+  const deck = state.decks.find((item) => item.deck_id === state.deckId);
+  const branches = deck ? deck.branches : [];
+  if (!state.diffBaseRev && state.baseRevision) state.diffBaseRev = state.baseRevision;
+  const select = h("select", {
+    onchange: async (event) => {
+      state.diffBaseRev = event.target.value;
+      state.diffData = null;
+      renderDeck();
+    },
+  }, ...branches.map((b) => h("option", { value: b.revision_id, selected: b.revision_id === state.diffBaseRev }, `Variante: ${b.branch} (${b.revision_id.slice(0, 20)})`)));
+  body.append(h("div", { class: "actions" }, h("label", {}, "Vergleichsbasis: ", select)));
+  if (!state.diffBaseRev) {
+    body.append(h("p", { class: "muted" }, "Keine gespeicherte Variante als Vergleichsbasis vorhanden."));
+    return;
+  }
+  const box = h("div", {}, h("p", { class: "muted" }, "Berechnet Differenz..."));
+  body.append(box);
+  try {
+    const diff = await api("/api/diff", "POST", { base_revision_id: state.diffBaseRev, cards: entries() });
+    box.replaceChildren();
+    box.append(h("p", {}, `Neu: +${diff.added_slots} Slots (${diff.added.length} Karten) · Entfernt: −${diff.removed_slots} Slots (${diff.removed.length} Karten)`));
+    const bs = diff.base_shape || {}, ts = diff.target_shape || {};
+    const shapeTable = h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Kennzahl"), h("th", { class: "num" }, "Basis"), h("th", { class: "num" }, "Aktuell"), h("th", { class: "num" }, "Delta"))),
+      h("tbody", {},
+        [["Länder", bs.lands ?? 0, ts.lands ?? 0], ["Kreaturen", bs.creatures ?? 0, ts.creatures ?? 0], ["Nichtländer", bs.nonland ?? 0, ts.nonland ?? 0]].map(([label, bVal, tVal]) =>
+          h("tr", {}, h("td", {}, label), h("td", { class: "num" }, bVal), h("td", { class: "num" }, tVal), h("td", { class: "num" }, (tVal - bVal > 0 ? "+" : "") + (tVal - bVal)))),
+        h("tr", {}, h("td", {}, "Ø Manawert"), h("td", { class: "num" }, bs.mana_value ?? "–"), h("td", { class: "num" }, ts.mana_value ?? "–"),
+          h("td", { class: "num" }, bs.mana_value !== null && ts.mana_value !== null ? ((ts.mana_value - bs.mana_value >= 0 ? "+" : "") + (ts.mana_value - bs.mana_value).toFixed(2)) : "–"))));
+    box.append(h("h3", {}, "Struktur-Delta (DERIVED_DESCRIPTIVE)"), shapeTable);
+    const bdp = bs.draw_probabilities && bs.draw_probabilities.opening_7 ? bs.draw_probabilities : null;
+    const tdp = ts.draw_probabilities && ts.draw_probabilities.opening_7 ? ts.draw_probabilities : null;
+    if (bdp && tdp) {
+      const pct = (v) => (v === null || v === undefined ? "–" : (100 * v).toFixed(1) + " %");
+      const dpDelta = (bVal, tVal) => (bVal === null || tVal === null || bVal === undefined || tVal === undefined ? "–" : ((tVal - bVal >= 0 ? "+" : "") + (100 * (tVal - bVal)).toFixed(1) + " %"));
+      const probDiffTable = h("table", {},
+        h("thead", {}, h("tr", {}, h("th", {}, "Land-Ziehfenster"), h("th", { class: "num" }, "Basis"), h("th", { class: "num" }, "Aktuell"), h("th", { class: "num" }, "Delta"))),
+        h("tbody", {},
+          [["Starthand ≥ 3 Länder (7)", bdp.opening_7.at_least_3_lands, tdp.opening_7.at_least_3_lands],
+           ["Starthand 3–4 Länder (7)", bdp.opening_7.between_3_and_4_lands, tdp.opening_7.between_3_and_4_lands],
+           ["Bis Zug 4 ≥ 4 Länder (10)", bdp.turn_4_draw_10.at_least_4_lands, tdp.turn_4_draw_10.at_least_4_lands]].map(([label, bV, tV]) =>
+            h("tr", {}, h("td", {}, label), h("td", { class: "num" }, pct(bV)), h("td", { class: "num" }, pct(tV)), h("td", { class: "num" }, dpDelta(bV, tV))))));
+      box.append(h("h3", {}, "Land-Ziehwahrscheinlichkeiten-Delta (DERIVED_DESCRIPTIVE)"), probDiffTable);
+    }
+    if (diff.role_deltas && Object.keys(diff.role_deltas).length) {
+      const roleRows = Object.entries(diff.role_deltas).sort((a, b) => roleName(a[0]).localeCompare(roleName(b[0])));
+      const roleDiffTable = h("table", {},
+        h("thead", {}, h("tr", {}, h("th", {}, "Rolle (Tagger)"), h("th", { class: "num" }, "Basis"), h("th", { class: "num" }, "Aktuell"), h("th", { class: "num" }, "Delta"))),
+        h("tbody", {}, roleRows.map(([rKey, vals]) => h("tr", {},
+          h("td", {}, roleName(rKey)),
+          h("td", { class: "num" }, vals.base),
+          h("td", { class: "num" }, vals.target),
+          h("td", { class: "num" }, (vals.delta > 0 ? "+" : "") + vals.delta)))));
+      box.append(h("h3", {}, "Rollen-Delta (DERIVED_DESCRIPTIVE)"), roleDiffTable);
+    }
+    if (diff.added.length) {
+      box.append(h("h3", {}, `Hinzugefügt (+${diff.added.length})`), h("div", {}, diff.added.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, "+" + item.quantity), h("span", { class: "nm", onclick: () => { const c = state.byId.get(item.card_id); if (c) openCard(c); } }, item.name), h("span", { class: "muted" }, GROUP_NAMES[item.group] || item.group)))));
+    }
+    if (diff.removed.length) {
+      box.append(h("h3", {}, `Entfernt (−${diff.removed.length})`), h("div", {}, diff.removed.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, "−" + item.quantity), h("span", { class: "nm", onclick: () => { const c = state.byId.get(item.card_id); if (c) openCard(c); } }, item.name), h("span", { class: "muted" }, GROUP_NAMES[item.group] || item.group)))));
+    }
+    if (diff.changed.length) {
+      box.append(h("h3", {}, "Mengenänderung"), h("div", {}, diff.changed.map((item) => h("div", { class: "row" }, h("span", { class: "qty" }, `${item.base_quantity}→${item.target_quantity}`), h("span", {}, item.name)))));
+    }
+    const pfBox = h("div", {});
+    const pfBtn = h("button", {
+      type: "button",
+      onclick: async () => {
+        pfBtn.disabled = true;
+        pfBox.replaceChildren(h("p", { class: "muted" }, "Berechnet Commander-Castability & Manabasis-Vorfilter (2000 MC-Läufe, Seed 20261016)..."));
+        try {
+          const pf = await api("/api/prefilter", "POST", { base_revision_id: state.diffBaseRev, cards: entries(), trials: 2000 });
+          pfBox.replaceChildren();
+          if (!pf.comparable) {
+            pfBox.append(h("p", { class: "muted" }, pf.reason || "Vorfilter benötigt zwei vollständige 100-Karten-Listen."));
+          } else {
+            pfBox.append(h("h3", {}, "Vorfilter & Commander-Castability (HEURISTIC_MODEL)"),
+              h("p", {}, h("b", {}, `Urteil: ${pf.verdict}`), ` — ${pf.verdict_reason}`),
+              h("p", { class: "note" }, `Simulator-Bereitschaft: Basis=${pf.baseline_ready ? "OK" : "Lücken"}, Aktuell=${pf.variant_ready ? "OK" : "Lücken (" + (pf.variant_not_ready_cards || []).join(", ") + ")"} · Manabasis-Delta: Länder ${pf.land_count_delta >= 0 ? "+" : ""}${pf.land_count_delta}, sicher getappt ${pf.definitely_tapped_land_delta >= 0 ? "+" : ""}${pf.definitely_tapped_land_delta}, bedingt getappt ${pf.conditionally_tapped_land_delta >= 0 ? "+" : ""}${pf.conditionally_tapped_land_delta}`));
+            if (pf.castability && pf.castability.length) {
+              const fmtPct = (v) => (v === null || v === undefined ? "–" : (100 * v).toFixed(1) + " %");
+              const fmtDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + (100 * v).toFixed(1) + " %");
+              const castRows = [];
+              for (const c of pf.castability) {
+                const bp = c.baseline_probability || {};
+                const vp = c.variant_probability || {};
+                const dp = c.probability_delta || {};
+                for (const t of ["3", "4", "5", "6"]) {
+                  const pB = bp.play ? bp.play[t] : null;
+                  const pV = vp.play ? vp.play[t] : null;
+                  const pD = dp.play ? dp.play[t] : null;
+                  const dB = bp.draw ? bp.draw[t] : null;
+                  const dV = vp.draw ? vp.draw[t] : null;
+                  const dD = dp.draw ? dp.draw[t] : null;
+                  castRows.push(h("tr", {},
+                    h("td", {}, `${c.name} (Zug ${t})`),
+                    h("td", { class: "num" }, `${fmtPct(pB)} → ${fmtPct(pV)} (${fmtDelta(pD)})`),
+                    h("td", { class: "num" }, `${fmtPct(dB)} → ${fmtPct(dV)} (${fmtDelta(dD)})`)));
+                }
+                const be = c.baseline_expected_turn || {}, ve = c.variant_expected_turn || {}, de = c.expected_turn_delta || {};
+                if (be.play !== undefined && ve.play !== undefined) {
+                  const fmtTurn = (v) => (v === null || v === undefined ? "–" : Number(v).toFixed(2));
+                  const fmtTurnDelta = (v) => (v === null || v === undefined ? "–" : (v >= 0 ? "+" : "") + Number(v).toFixed(2));
+                  castRows.push(h("tr", {},
+                    h("td", {}, `${c.name} (Ø Zug)`),
+                    h("td", { class: "num" }, `${fmtTurn(be.play)} → ${fmtTurn(ve.play)} (${fmtTurnDelta(de.play)})`),
+                    h("td", { class: "num" }, `${fmtTurn(be.draw)} → ${fmtTurn(ve.draw)} (${fmtTurnDelta(de.draw)})`)));
+                }
+              }
+              pfBox.append(h("table", {},
+                h("thead", {}, h("tr", {}, h("th", {}, "Commander / Zug"), h("th", { class: "num" }, "On the Play (Basis → Aktuell)"), h("th", { class: "num" }, "On the Draw (Basis → Aktuell)"))),
+                h("tbody", {}, castRows)),
+                h("p", { class: "note" }, "Modellrechnung (HEURISTIC_MODEL, 2000 Läufe, Seed 20261016): prüft Manabasis und Farbquellen ohne volle Spielsimulation."));
+            }
+          }
+        } catch (err) {
+          pfBox.replaceChildren(h("p", { class: "muted" }, "Vorfilter-Fehler: " + err.message));
+        } finally {
+          pfBtn.disabled = false;
+        }
+      },
+    }, "Vorfilter & Commander-Castability berechnen (HEURISTIC_MODEL)");
+    box.append(h("div", { class: "actions", style: "margin-top:10px" }, pfBtn), pfBox);
+  } catch (error) {
+    box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + error.message));
+  }
+}
+function renderSimulations(body) {
+  if (!state.simulations || !state.simulations.length) {
+    body.append(h("p", { class: "muted" }, "Keine Simulationsläufe (SIMULATED_RESULT) im Store hinterlegt."));
+    return;
+  }
+  const runTable = h("table", {},
+    h("thead", {}, h("tr", {}, h("th", {}, "Pod"), h("th", {}, "Engine-Pin"), h("th", {}, "Pilot"), h("th", { class: "num" }, "Spiele"), h("th", { class: "num" }, "Siege"), h("th", { class: "num" }, "Siegrate"), h("th", { class: "num" }, "Ø Runden"))),
+    h("tbody", {}, state.simulations.map((run) => h("tr", {},
+      h("td", {}, h("b", {}, run.pod)),
+      h("td", {}, h("code", {}, run.engine_pin)),
+      h("td", {}, run.pilot_policy),
+      h("td", { class: "num" }, `${run.games_completed}/${run.games_planned}`),
+      h("td", { class: "num" }, run.wins_fractional),
+      h("td", { class: "num" }, run.win_rate === null ? "unbekannt" : `${(100 * run.win_rate).toFixed(1)} %`),
+      h("td", { class: "num" }, run.mean_rounds ?? "unbekannt")))));
+  body.append(h("h3", {}, "4P-Simulationsläufe (SIMULATED_RESULT)"), runTable,
+    h("p", { class: "note" }, "Ergebnisse aus echten XMage-Regelkern-Spielen, gebunden an Deck, Engine-Pin, Pilot-Policy und Seeds. Kein Beleg für reale Tisch-Siegraten. Exakte Handverweildauer: unbekannt (nicht gemessen)."));
+  for (const run of state.simulations) {
+    const inDeckCards = (run.cards || []).filter((c) => !c.card_id || qty(c.card_id) > 0 || state.commanderIds.includes(c.card_id));
+    if (!inDeckCards.length) continue;
+    const cTable = h("table", {},
+      h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt geblieben"), h("th", { class: "num" }, "Ø 1. Runde"))),
+      h("tbody", {}, inDeckCards.slice(0, 25).map((c) => h("tr", {},
+        h("td", { class: "name", onclick: () => { const card = c.card_id ? state.byId.get(c.card_id) : null; if (card) openCard(card); } }, c.card_name),
+        h("td", { class: "num" }, `${c.games_offered}/${c.games_completed}`),
+        h("td", { class: "num" }, `${c.games_cast_after_offer}/${c.games_offered}`),
+        h("td", { class: "num" }, c.games_rotted),
+        h("td", { class: "num" }, c.mean_first_cast_round === null ? "–" : Number(c.mean_first_cast_round).toFixed(1))))));
+    body.append(h("h3", {}, `Karten-Angebote im Pod „${run.pod}“ (${run.games_completed} Spiele)`), cTable);
+  }
+}
 function renderDeck() {
-  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["compare", "Vergleich"]];
+  const tabs = [["list", "Liste"], ["numbers", "Zahlen"], ["check", "Prüfung"], ["compare", "Vergleich"], ["diff", "Varianten-Diff"], ["sim", "Simulation"]];
   $("deck-tabs").replaceChildren(...tabs.map(([key, label]) => h("span", { class: "chip" + (state.tab === key ? " on" : ""), onclick: () => { state.tab = key; renderDeck(); } }, label)));
   const body = $("deck-body"); body.replaceChildren();
-  ({ list: renderList, numbers: renderNumbers, check: renderCheck, compare: renderCompare })[state.tab](body);
+  ({ list: renderList, numbers: renderNumbers, check: renderCheck, compare: renderCompare, diff: renderDiff, sim: renderSimulations })[state.tab](body);
 }
 function renderAll() { renderHeader(); renderPool(); renderDeck(); }
 
@@ -356,7 +552,7 @@ async function openCard(card) {
     h("h2", {}, card.name), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { style: "white-space:pre-line" }, card.text),
     card.roles.length ? h("p", {}, card.roles.map((role) => h("span", { class: "chip", style: "cursor:default;margin-right:4px" }, roleName(role)))) : null,
-    h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "")),
+    h("p", { class: "note" }, `Sammlung: ${card.owned} im Besitz, ${card.available} frei` + (card.reserved ? `, ${card.reserved} reserviert` : "") + ` · Kartendaten: ${card.fact_source === "scryfall" ? "Scryfall" : "deine Tabelle"}` + (card.edhrec_rank ? ` · EDHREC-Rang ${card.edhrec_rank}` : "") + (card.game_changer ? " · Game Changer" : "") + ` · Simulator: ${card.sim_status || "unbekannt"}`),
     h("div", { class: "actions" },
       h("button", { type: "button", class: "primary", disabled: count >= maxCopies(card), onclick: () => { add(card); openCard(card); } }, "Ins Deck"),
       count ? h("button", { type: "button", onclick: () => { remove(card); openCard(card); } }, `Aus dem Deck (${count})`) : null,
@@ -367,13 +563,69 @@ async function openCard(card) {
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."), extra);
   box.append(left, right); $("modal").hidden = false;
   try {
-    const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}`);
+    const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?cohort=${encodeURIComponent(state.cohort)}`);
+    const parts = [];
+    if (detail.used_in && detail.used_in.length) {
+      parts.push(h("h3", {}, "Verwendet in gespeicherten Varianten"),
+        h("p", {}, detail.used_in.map((u) => `${u.name} (${u.branch})`).join(" · ")));
+    }
+    if (detail.cooccurrence && detail.cooccurrence.cards && detail.cooccurrence.cards.length) {
+      const co = detail.cooccurrence;
+      const coRows = co.cards.filter((item) => {
+        const other = state.byId.get(item.card_id);
+        return !other || !other.basic;
+      });
+      parts.push(h("h3", {}, `Zusammen gespielt in Quelldecks (${cohortName(co.cohort)}, Nenner: ${co.card_decks} Decks mit dieser Karte)`),
+        h("table", {},
+          h("thead", {}, h("tr", {}, h("th", {}, "Karte in deiner Sammlung (ohne Standardländer)"), h("th", { class: "num" }, "gemeinsam / Nenner"), h("th", { class: "num" }, "Anteil"), h("th", {}, ""))),
+          h("tbody", {}, coRows.map((item) => {
+            const other = state.byId.get(item.card_id);
+            return h("tr", { class: co.card_decks < state.small ? "low" : "" },
+              h("td", { class: "name", onclick: () => { if (other) openCard(other); } }, item.name),
+              h("td", { class: "num" }, `${item.both_hits}/${item.card_decks}`),
+              h("td", { class: "num" }, `${(100 * item.share).toFixed(1)} %`),
+              h("td", {}, other && !qty(other.card_id) && maxCopies(other) > 0 ? h("button", { class: "small", type: "button", onclick: () => { add(other); openCard(card); } }, "+") : null));
+          }))),
+        h("p", { class: "note" }, "Reine Zählung (DERIVED_DESCRIPTIVE): wie oft eine andere Karte deiner Sammlung in denselben Quelldecks vorkommt."));
+    }
+    if (detail.neutral_boards && detail.neutral_boards.sections && detail.neutral_boards.sections.length) {
+      const nb = detail.neutral_boards;
+      parts.push(h("h3", {}, "Neutrale Nicht-Mainboard-Sektionen (Batch-Quellen)"),
+        h("table", {},
+          h("thead", {}, h("tr", {}, h("th", {}, "Sektion"), h("th", { class: "num" }, "Quellen mit Karte / Sektions-Quellen"), h("th", { class: "num" }, "Batch-Gesamt"), h("th", { class: "num" }, "Anteil in Sektion"))),
+          h("tbody", {}, nb.sections.map((sec) => h("tr", {},
+            h("td", {}, sec.section),
+            h("td", { class: "num" }, `${sec.hits}/${sec.section_sources}`),
+            h("td", { class: "num" }, sec.batch_sources),
+            h("td", { class: "num" }, `${(100 * sec.share_of_section).toFixed(1)} %`))))),
+        h("p", { class: "note" }, "Neutrale Quellkategorie der Deckautoren (Maybeboard = Überlegung, Cuts = vom Autor separiert). Keine negative Bewertung und niemals mit Mainboard-Frequenzen vermischt."));
+    }
+    if (detail.simulations && detail.simulations.length) {
+      parts.push(h("h3", {}, "Simulationsergebnisse (SIMULATED_RESULT)"),
+        h("table", {},
+          h("thead", {}, h("tr", {}, h("th", {}, "Pod (Pin)"), h("th", { class: "num" }, "Spiele angeboten"), h("th", { class: "num" }, "Spiele gewirkt"), h("th", { class: "num" }, "ungespielt"), h("th", { class: "num" }, "Ø 1. Runde"), h("th", {}, "Handverweildauer"))),
+          h("tbody", {}, detail.simulations.map((s) => h("tr", {},
+            h("td", {}, `${s.pod} (${s.engine_pin})`),
+            h("td", { class: "num" }, `${s.games_offered}/${s.games_completed}`),
+            h("td", { class: "num" }, `${s.games_cast_after_offer}/${s.games_offered}`),
+            h("td", { class: "num" }, s.games_rotted),
+            h("td", { class: "num" }, s.mean_first_cast_round === null ? "unbekannt" : Number(s.mean_first_cast_round).toFixed(1)),
+            h("td", { class: "muted" }, s.hand_dwell_status === "UNKNOWN" ? "unbekannt (nicht gemessen)" : s.hand_dwell_status))))));
+    }
     const rows = detail.observations.filter((row) => row.metric === "inclusion_pct");
     const lift = new Map(detail.observations.filter((row) => row.metric === "lift").map((row) => [row.cohort, row.value]));
-    extra.replaceChildren(h("h3", {}, "EDHREC-Seiten"), rows.length ? h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Seite"), h("th", { class: "num" }, "Zähler/Nenner"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"))),
-      h("tbody", {}, rows.map((row) => h("tr", { class: row.denominator < state.small ? "low" : "" }, h("td", {}, row.cohort.replace(/^edhrec:/, "")), h("td", { class: "num" }, `${row.numerator}/${row.denominator}`), h("td", { class: "num" }, row.value === null ? "unbekannt" : Number(row.value).toFixed(1) + " %"),
-        h("td", { class: "num" }, lift.get(row.cohort) === null || lift.get(row.cohort) === undefined ? "unbekannt" : Number(lift.get(row.cohort)).toFixed(2)))))) : h("p", { class: "muted" }, "Keine EDHREC-Zeile gespeichert: unbekannt, nicht null."));
-  } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "EDHREC-Zeilen nicht lesbar: " + error.message)); }
+    const synergy = new Map(detail.observations.filter((row) => row.metric === "synergy_pct").map((row) => [row.cohort, row.value]));
+    parts.push(h("h3", {}, "EDHREC-Seiten (getrennte Kohorten, nicht addierbar)"),
+      rows.length ? h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Kohorte / Seite"), h("th", { class: "num" }, "Zähler/Nenner"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"), h("th", { class: "num" }, "Synergy %"))),
+        h("tbody", {}, rows.map((row) => h("tr", { class: row.denominator !== null && row.denominator < state.small ? "low" : "" },
+          h("td", { title: row.snapshot || "" }, row.cohort.replace(/^edhrec:/, "")),
+          h("td", { class: "num" }, row.denominator !== null ? `${row.numerator}/${row.denominator}` : `${row.numerator ?? "?"}/unbekannt`),
+          h("td", { class: "num" }, row.value === null ? "unbekannt" : Number(row.value).toFixed(1) + " %"),
+          h("td", { class: "num" }, lift.get(row.cohort) === null || lift.get(row.cohort) === undefined ? "unbekannt" : Number(lift.get(row.cohort)).toFixed(2)),
+          h("td", { class: "num" }, synergy.get(row.cohort) === null || synergy.get(row.cohort) === undefined ? "unbekannt" : Number(synergy.get(row.cohort)).toFixed(1) + " %")))))
+        : h("p", { class: "muted" }, "Keine EDHREC-Zeile gespeichert: unbekannt, nicht null."));
+    extra.replaceChildren(...parts);
+  } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "Zusatzdaten nicht lesbar: " + error.message)); }
 }
 
 // ---------- decks, variants, saving ----------
@@ -447,7 +699,7 @@ function setupControls() {
   $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); renderPool(); });
   $("cohort").addEventListener("change", () => { state.cohort = $("cohort").value; renderPool(); renderDeck(); });
-  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
+  for (const id of ["q", "type-filter", "role-filter", "mv-min", "mv-max", "f-free", "f-notin", "f-fav", "f-excl", "f-sim"]) if ($(id)) $(id).addEventListener("input", () => { state.shown = 120; renderPool(); });
   const views = [["grid", "Bilder"], ["table", "Tabelle"]];
   const drawViews = () => $("view-toggle").replaceChildren(...views.map(([key, label]) => h("span", { class: "chip" + (state.view === key ? " on" : ""), onclick: () => { state.view = key; drawViews(); renderPool(); } }, label)));
   drawViews();
@@ -472,9 +724,9 @@ async function start() {
     if (Array.isArray(stored)) state.columns = new Set(stored);
   } catch (error) { /* view setting only */ }
   try {
-    const [pool, shapes] = await Promise.all([api("/api/pool?commander=" + encodeURIComponent(COMMANDER)), api("/api/cohorts")]);
+    const [pool, shapes, sims] = await Promise.all([api("/api/pool?commander=" + encodeURIComponent(COMMANDER)), api("/api/cohorts"), api("/api/simulations")]);
     state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
-    state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes;
+    state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes; state.simulations = sims || [];
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, "Sind Sammlung und Kartendaten importiert?"));

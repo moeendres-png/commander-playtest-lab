@@ -82,6 +82,17 @@ class NamesBody(BaseModel):
     names: list[str] = Field(max_length=2000)
 
 
+class DiffBody(BaseModel):
+    base_revision_id: str
+    cards: list[CardEntry]
+
+
+class PrefilterBody(BaseModel):
+    base_revision_id: str
+    cards: list[CardEntry]
+    trials: int = Field(default=2000, ge=50, le=20000)
+
+
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
     return [RevisionCard(entry.card_id, entry.quantity, entry.zone) for entry in entries]
 
@@ -126,6 +137,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "cards": store.count("card"),
                 "public_cards": store.count("scryfall_card"),
                 "source_decks": store.count("corpus_deck"),
+                "neutral_board_rows": store.count("neutral_board_row"),
+                "simulation_runs": store.count("simulation_run"),
                 "decks": store.count("deck"),
                 "sources": sources,
             }
@@ -151,12 +164,52 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.get("/api/cards/{card_id}")
-    def card(card_id: str) -> dict[str, object]:
+    def card(card_id: str, cohort: str = builder.ALL_DECKS) -> dict[str, object]:
         store = open_store()
         try:
-            return builder.card_detail(store, card_id)
+            return builder.card_detail(store, card_id, cohort=cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/simulations")
+    def simulations() -> list[dict[str, object]]:
+        store = open_store()
+        try:
+            return builder.list_simulations(store)
+        finally:
+            store.close()
+
+    @app.post("/api/diff")
+    def diff(body: DiffBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            base_rows = revision_rows(store, body.base_revision_id)
+            base_cards = [
+                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
+                for r in base_rows
+            ]
+            return builder.diff_lists(store, base_cards, _cards(body.cards))
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
+        finally:
+            store.close()
+
+    @app.post("/api/prefilter")
+    def prefilter(body: PrefilterBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            base_rows = revision_rows(store, body.base_revision_id)
+            base_cards = [
+                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
+                for r in base_rows
+            ]
+            return builder.prefilter_lists(
+                store, base_cards, _cards(body.cards), trials=body.trials
+            )
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
         finally:
             store.close()
 
