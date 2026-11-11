@@ -1,10 +1,10 @@
 {
   "schema_version": "evidence-source-inventory-1.0.0",
   "description": "Systematic inventory of qualified evidence sources for Commander Studio (P0 Deliverable 1).",
-  "total_sources": 7,
+  "total_sources": 9,
   "status_counts": {
-    "VERIFIED": 4,
-    "REVIEW": 3,
+    "VERIFIED": 5,
+    "REVIEW": 4,
     "UNAVAILABLE": 0
   },
   "sources": [
@@ -251,6 +251,73 @@
       ],
       "status": "REVIEW",
       "status_rationale": "Valuable supplementary perspective, but requires manual audit due to cEDH selection divergence and non-bulk license terms."
+    },
+    {
+      "source_id": "xmage:card-facts",
+      "priority": 8,
+      "title": "XMage Engine Card Facts & Rules Support",
+      "direct_url": "local:data/cards/xmage_card_facts.json",
+      "reference_urls": [
+        "https://github.com/magefree/mage",
+        "src/commander_lab/deck_readiness.py"
+      ],
+      "publisher": "XMage Project / Commander Lab",
+      "retrieved_at_utc": "2026-11-10T00:00:00Z",
+      "observation_period": "All cards implemented in the canonical pinned XMage Rules Core (7,231 verified cards)",
+      "snapshot_id": "xmage-card-facts-v1",
+      "schema_format": "JSON (xmage_card_facts.json)",
+      "card_identifier": "engine_name / oracle_name",
+      "coverage_scope": "7,231 cards implemented in pinned XMage engine; 801 / 801 legal Chulane cards have verified readiness",
+      "evidence_layer": "DERIVED_MECHANICAL",
+      "has_exact_numerator_denominator": true,
+      "game_context": {
+        "format": "Commander",
+        "rules_engine": "XMage",
+        "provider": "XMAGE"
+      },
+      "double_counting_risk": "None; card names map deterministically to engine implementations.",
+      "license_terms": "GPLv3 / Open Source (XMage Engine Source)",
+      "allowed_retrieval_method": "Local file import / repository asset.",
+      "reproducibility": "DETERMINISTIC_OFFLINE_SNAPSHOT",
+      "bias_risks": [
+        "Engine implementation coverage differs from full Oracle card universe",
+        "Tactical card mechanics without external decision control fail closed"
+      ],
+      "status": "VERIFIED",
+      "status_rationale": "100% verified locally against pinned engine rules. All 801 legal Chulane pool cards are qualified with sim_status=OK."
+    },
+    {
+      "source_id": "scryfall:tagger",
+      "priority": 9,
+      "title": "Scryfall Tagger Functional Roles & Community Tags",
+      "direct_url": "https://tagger.scryfall.com/",
+      "reference_urls": [
+        "https://scryfall.com/docs/tagger-tags",
+        "src/commander_lab/studio/roles.py"
+      ],
+      "publisher": "Scryfall Community / Tagger Project",
+      "retrieved_at_utc": null,
+      "observation_period": "Continuous community tag catalog (2024-2026)",
+      "snapshot_id": null,
+      "schema_format": "Web / Community Tagging (CSV export when available)",
+      "card_identifier": "oracle_id / card_name",
+      "coverage_scope": "Community functional tags: ramp, draw, removal, bounce, tutor, combo-piece",
+      "evidence_layer": "EXTERNAL_OPINION",
+      "has_exact_numerator_denominator": false,
+      "game_context": {
+        "format": "Commander",
+        "tagging_scope": "functional_card_roles"
+      },
+      "double_counting_risk": "Multiple overlapping tags for the same functional role (e.g. bounce-creature and bounce-permanent).",
+      "license_terms": "Public Community Fan Content Policy; non-commercial citation only.",
+      "allowed_retrieval_method": "MANUAL_INSPECTION_ONLY (or authorized Scryfall bulk tags export).",
+      "reproducibility": "DYNAMIC_EPHEMERAL_WEB",
+      "bias_risks": [
+        "Community tags are subjective, non-authoritative annotations, not official MTG Oracle mechanics",
+        "Inconsistent granularity across card types"
+      ],
+      "status": "REVIEW",
+      "status_rationale": "Valuable semantic role mappings imported into card_role, but requires external audit due to community subjectivity."
     }
   ]
 }

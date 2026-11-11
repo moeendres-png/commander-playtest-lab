@@ -1,9 +1,11 @@
-# Commander Studio BUILD: Quelleninventar & Datenlückenmatrix (P0 Deliverable 1)
+# Commander Studio BUILD: Quelleninventar & Datenlückenmatrix (P0 Deliverables 1 & 2)
 
 **Datum:** 2026-11-11  
 **Autorität & Bindung:** Issue [#1185](https://github.com/moeendres-png/commander-playtest-lab/issues/1185), [`docs/PROJECT_MISSION.md`](file:///home/moeen/commander-playtest-lab/docs/PROJECT_MISSION.md), [`docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`](file:///home/moeen/commander-playtest-lab/docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md), `AGENTS.md` §2 (Rules Authority), §3 (Source Truth), §12 (Privacy).  
-**Status:** `P0_DELIVERABLE_1_COMPLETED` (Maschinenlesbares Quellenregister und Qualifizierungsbericht).  
-**Maschinenlesbare Datei:** [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json).
+**Status:** `P0_DELIVERABLES_1_AND_2_COMPLETED` (Maschinenlesbares Quellenregister, Qualifizierungsbericht und 801-Karten-Lückenmatrix).  
+**Maschinenlesbare Artefakte:**
+- Quellenregister (9 Quellen): [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json)
+- Lückenmatrix (801 Chulane-Poolkarten): [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json)
 
 ---
 
@@ -173,37 +175,116 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 
 ---
 
-## 3. Long-Tail-Research-Strategie
+### Priorität 8: XMage Engine Card Facts & Rules Readiness
+- **Quellen-ID:** `xmage:card-facts`
+- **Direkte URL:** `local:data/cards/xmage_card_facts.json`
+- **Referenz-Dokumentation:** [`https://github.com/magefree/mage`](https://github.com/magefree/mage), [`src/commander_lab/deck_readiness.py`](file:///home/moeen/commander-playtest-lab/src/commander_lab/deck_readiness.py)
+- **Herausgeber:** XMage Project / Commander Lab
+- **Datenstand / Snapshot:** `xmage-card-facts-v1`, Stand: `2026-11-10T00:00:00Z`
+- **Schema & Identifikator:** JSON (`xmage_card_facts.json`); Primärschlüssel: normalisierter `engine_name` / `oracle_name`.
+- **Abdeckung:** 7.231 im gepinnten Rules Core implementierte Karten. Exakt **801 von 801** Chulane-Poolkarten sind verifiziert und regeltechnisch lauffähig (`sim_status: OK`).
+- **Evidenzschicht:** `DERIVED_MECHANICAL`.
+- **Zähler / Nenner:** Deterministische Indikatoren (`implemented`, `playable`, `sim_status`).
+- **Doppelzählungs-Risiko:** Ausgeschlossen; deterministische Namensabbildung.
+- **Lizenz & Abrufmethode:** Open Source (GPLv3); lokales Repository-Asset.
+- **Reproduzierbarkeit:** `DETERMINISTIC_OFFLINE_SNAPSHOT`.
+- **Bias & Grenzen:**
+  - Regeln-Verfügbarkeit $\neq$ Spielstärke: Eine lauffähige Karte ist nicht automatisch gut.
+  - Karten ohne externe Entscheidungsunterstützung scheitern fail-closed.
+- **Status:** **`VERIFIED`**
 
-Der Deckbuilder soll **nicht nur die 50 populärsten Staples** empfehlen, sondern Synergien im **Long Tail** erschließen.
+---
 
-### Priorisierungsformel für weitere Datensuche
-$$\text{Research-Priorität} = (1 - \text{Evidenzabdeckung}) \times \text{Deck-Relevanz}$$
+### Priorität 9: Scryfall Tagger Community-Rollen
+- **Quellen-ID:** `scryfall:tagger`
+- **Direkte URL:** [`https://tagger.scryfall.com/`](https://tagger.scryfall.com/)
+- **Referenz-Dokumentation:** [`https://scryfall.com/docs/tagger-tags`](https://scryfall.com/docs/tagger-tags), [`src/commander_lab/studio/roles.py`](file:///home/moeen/commander-playtest-lab/src/commander_lab/studio/roles.py)
+- **Herausgeber:** Scryfall Community / Tagger Project
+- **Datenstand:** Kontinuierlich gepflegter Community-Tag-Katalog (2024–2026).
+- **Schema & Identifikator:** Web / CSV / Tag-Taxonomie; Identifikation via `oracle_id` und Kartennamen.
+- **Abdeckung:** Funktionale Rollen (Ramp, Draw, Removal, Bounce, Tutor, Combo-Piece).
+- **Evidenzschicht:** `EXTERNAL_OPINION`.
+- **Zähler / Nenner:** Qualitative Tags ohne standardisierten Nenner.
+- **Doppelzählungs-Risiko:** Mehrfache überlappende Tags für dieselbe Funktion (z. B. `bounce-creature` und `bounce-permanent`).
+- **Lizenz & Abrufmethode:** Wizards Fan Content Policy; unkommerzielle Zitation, manuelle Prüfung oder Scryfall-Bulk-Export.
+- **Reproduzierbarkeit:** `DYNAMIC_EPHEMERAL_WEB`.
+- **Bias & Grenzen:** Subjektive Zuordnung durch Community-Nutzer; Vollständigkeit bei neuen Sets verzögert.
+- **Status:** **`REVIEW`**
 
-- **$\text{Evidenzabdeckung} \in [0, 1]$**: Wie viele Quellen haben reale Beobachtungen für die Karte?
-- **$\text{Deck-Relevanz} \in [0, 1]$**:
-  - Kreaturen mit Manawert $\le 3$: Hohe Chulane-Triggerdichte.
-  - Bounce- / Self-Bounce-Effekte (z. B. Shrieking Drake, Whitemane Lion, Kor Skyfisher).
-  - ETB-Zusatzeffekte (Kartenziehen, Ramp, Entfernung).
-  - Landfall- / Landdrop-Mechaniken.
-  - Beteiligung an Commander-Spellbook-Kombos.
+---
 
-### Einordnung der Null-Treffer-Karten (372 / 801)
-- $0$ Korpustreffer $\rightarrow$ Status `UNOBSERVED_IN_CORPUS`.
-- **Keine automatische D-Klassifizierung:** Solange keine negativen Spielsignale vorliegen, bleibt die Karte `UNRATED` mit hohem Research-Potential, wenn die mechanische Eignung hoch ist.
+## 3. Deliverable 2: 801-Karten-Lückenmatrix & Long-Tail-Analyse
+
+Die vollständige Lückenmatrix für den gesamten legalen Chulane-Pool ($N = 801$ Karten) wurde berechnet und in [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json) hinterlegt.
+
+### Methodik der Lückenberechnung
+
+Für jede der 801 Poolkarten wird die Evidenzabdeckung und das Research-Potential objektiv bewertet:
+
+1. **Evidenzabdeckung ($\text{Coverage} \in [0.0, 1.0]$):**
+   - Scryfall-Fakten (`oracle_id`, Typ, CMC, Farben): $+0{,}20$
+   - XMage-Regeln verifiziert (`sim_status: OK`): $+0{,}20$
+   - Korpus-Beobachtung:
+     - $\ge 5$ Treffer: $+0{,}30$
+     - $1\text{--}4$ Treffer: $(\text{hits} / 5) \times 0{,}30$
+     - $0$ Treffer: $+0{,}00$
+   - EDHREC-Verankerung (Präsenz und relativer Lift): $+0{,}20$
+   - Spellbook-Kombobeteiligung: $+0{,}10$
+2. **Deck-Relevanz ($\text{Relevance} \in [0.0, 1.0]$):**
+   - Basisrelevanz (format-legale Karte im Studio-Store): $+0{,}15$
+   - Kreaturen:
+     - Manawert $\le 3$ (optimaler Chulane-Cast-Trigger): $+0{,}35$
+     - Manawert $> 3$: $+0{,}15$
+   - Funktionale Synergien (Bounce, Recast, Ramp, Draw, Mana-Dork, Landfall): $+0{,}30$
+   - Sonstige funktionale Rollen: $+0{,}15$
+   - Spellbook-Kombostück: $+0{,}20$
+3. **Research-Prioritäts-Score:**
+   $$\text{Research-Priorität} = (1 - \text{Coverage}) \times \text{Relevance}$$
+   Karten mit hoher mechanischer Relevanz, aber bisher fehlender Korpus-Evidenz, erhalten den höchsten Score und stehen an erster Stelle für gezielte Simulationen oder vertiefte Recherchen.
+
+### Klassifikation der Evidenzabdeckung (Coverage Grades)
+
+| Evidenzgrad | Kriterien | Anzahl Karten | Anteil |
+| :--- | :--- | :---: | :---: |
+| **`COMPLETE`** | Scryfall Fakten + XMage Regeln + Korpus $\ge 5$ + EDHREC Daten | **219** | 27,3 % |
+| **`SPARSE`** | Korpus beobachtet, aber dünn ($1 \le \text{hits} \le 4$) | **202** | 25,2 % |
+| **`PARTIAL`** | Korpus $\ge 5$, aber EDHREC fehlt (z. B. Nischen-Staples) | **8** | 1,0 % |
+| **`UNOBSERVED_IN_CORPUS`** | Im 975-Deck-Korpus bisher nicht beobachtet ($0$ Treffer) | **372** | 46,4 % |
+| **Gesamt** | **Format-legaler Chulane-Pool im StudioStore** | **801** | **100,0 %** |
+
+> [!IMPORTANT]
+> **Striktes Evidenzprinzip zu `UNOBSERVED_IN_CORPUS` (372 Karten):**
+> 0 Korpustreffer bedeutet ausschließlich **fehlende Beobachtung im kuratierten Korpus**, niemals Spielstärke 0 oder D-Tier! Karten wie z. B. `Esperzoa`, `Gleaming Barrier`, `Hydro-Channeler` oder `Faerie Artisans` besitzen starke mechanische Synergien und erhalten daher höchste Priorität für weitere Untersuchungen.
+
+### Long-Tail-Kandidaten (413 von 801 Karten)
+
+Exakt **413 Karten (51,6 % des Pools)** wurden als **Long-Tail-Kandidaten** identifiziert:
+- **Kriterium:** $0 \le \text{Korpustreffer} \le 4$ **UND** (Kreatur mit $\text{MV} \le 3$ ODER Synergie-Rolle Bounce/Recast/Ramp/Draw/Landfall ODER Spellbook-Kombostück).
+- **Höchste Research-Priorität (Score 0,48):**
+  - `Esperzoa` (MV 3, Artifact Creature, Upkeep-Bounce)
+  - `Gleaming Barrier` (MV 2, Creature, Mana/Treasure Death-Trigger)
+  - `Hydro-Channeler` (MV 3, Creature, Bounce/Draw Spells)
+  - `Cephalid Facetaker` (MV 3, Creature, Copy/ETB)
+  - `Combat Courier` (MV 2, Artifact Creature, Draw/Recast)
+  - `Faerie Artisans` (MV 3, Creature, Token-ETB-Abundance)
 
 ---
 
 ## 4. Software-Architektur und Schnittstellen
 
-1. **Modul [`src/commander_lab/studio/sources.py`](file:///home/moeen/commander-playtest-lab/src/commander_lab/studio/sources.py)**:
-   - `EvidenceSource`: 17-Felder-Datenklasse für jedes Quellenprofil.
-   - `CardCoverageRecord`: Datenlücken- und Evidenzprofil pro Oracle-ID.
-   - `QUALIFIED_SOURCES`: Vollständig typisiertes Register aller 7 Prioritäten.
-   - `source_inventory_payload()`: Erzeugt Deliverable 1 als JSON-kompatibles Dictionary.
-2. **Maschinenlesbare Ablage [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json)**:
-   - Versioniertes Schema `evidence-source-inventory-1.0.0`.
-   - 4 Quellen `VERIFIED`, 3 Quellen `REVIEW`, 0 verdeckt oder erfunden.
-3. **Unit-Tests [`tests/unit/test_studio_sources.py`](file:///home/moeen/commander-playtest-lab/tests/unit/test_studio_sources.py)**:
-   - Strikte Validierung aller 17 Attribute je Quelle.
-   - Verifikation von Prioritätsfolge (1 bis 7), URLs, Lizenzangaben und Status.
+1. **CLI-Befehle:**
+   - **Quellenregister:**
+     ```bash
+     python -m commander_lab.studio sources
+     python -m commander_lab.studio sources --verified-only
+     ```
+   - **801-Karten-Lückenmatrix berechnen und exportieren:**
+     ```bash
+     python -m commander_lab.studio sources --gap-report
+     python -m commander_lab.studio sources --gap-report --gap-out custom_matrix.json
+     ```
+2. **Datenablage:**
+   - [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json): Versioniertes Quellenregister (9 Quellen: 5 `VERIFIED`, 4 `REVIEW`).
+   - [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json): Vollständige Matrix für alle 801 legalen Poolkarten mit `research_priority_score`, `coverage_grade` und Long-Tail-Kennzeichnung.
+3. **Unit-Tests:**
+   - [`tests/unit/test_studio_sources.py`](file:///home/moeen/commander-playtest-lab/tests/unit/test_studio_sources.py): 9 Tests, $100\,\%$ Test-Hygiene, 0 `Any`-Verletzungen.

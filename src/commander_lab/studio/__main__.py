@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from collections import Counter
 from pathlib import Path
 
@@ -88,9 +89,18 @@ def _parser() -> argparse.ArgumentParser:
     commands.add_parser("games")
     commands.add_parser("status")
     sources_cmd = commands.add_parser(
-        "sources", help="print or write the evidence sources inventory (P0 Deliverable 1)"
+        "sources", help="print or write the evidence sources inventory and gap matrix (P0)"
     )
     sources_cmd.add_argument("--out", help="optional output path to write source_inventory.json")
+    sources_cmd.add_argument(
+        "--gap-report",
+        action="store_true",
+        help="calculate and export the 801-card pool gap matrix",
+    )
+    sources_cmd.add_argument(
+        "--gap-out",
+        help="optional output path for gap matrix JSON (default: data/research/chulane_legal_pool_gap_matrix.json)",
+    )
     return parser
 
 
@@ -158,7 +168,32 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(roles.check_role_labels(_read_labels(args.path)), indent=2))
         return 0
     if args.command == "sources":
-        from .sources import source_inventory_payload, write_source_inventory_json
+        from .sources import (
+            calculate_pool_gap_matrix,
+            source_inventory_payload,
+            write_gap_matrix_json,
+            write_source_inventory_json,
+        )
+
+        if getattr(args, "gap_report", False):
+            data_folder = args.data
+            if not data_folder and not os.environ.get("COMMANDER_LAB_STUDIO_DATA"):
+                default_user_dir = Path.home() / ".local/share/commander-studio"
+                if default_user_dir.is_dir():
+                    data_folder = str(default_user_dir)
+            store = StudioStore.open(data_folder)
+            default_gap_path = Path("data/research/chulane_legal_pool_gap_matrix.json")
+            target_path = Path(args.gap_out) if getattr(args, "gap_out", None) else default_gap_path
+            written = write_gap_matrix_json(store, target_path)
+            matrix = calculate_pool_gap_matrix(store)
+            summary = {
+                "written": str(written),
+                "total_cards": matrix["total_cards"],
+                "corpus_denominator": matrix["corpus_denominator"],
+                "summary_counts": matrix["summary_counts"],
+            }
+            print(json.dumps(summary, indent=2))
+            return 0
 
         if getattr(args, "out", None):
             written = write_source_inventory_json(args.out)
