@@ -87,6 +87,10 @@ def _parser() -> argparse.ArgumentParser:
     play.add_argument("--max-decisions", type=int, default=50_000)
     commands.add_parser("games")
     commands.add_parser("status")
+    sources_cmd = commands.add_parser(
+        "sources", help="print or write the evidence sources inventory (P0 Deliverable 1)"
+    )
+    sources_cmd.add_argument("--out", help="optional output path to write source_inventory.json")
     return parser
 
 
@@ -152,6 +156,15 @@ def main(argv: list[str] | None = None) -> int:
         return _games(args)
     if args.command == "check-role-labels":
         print(json.dumps(roles.check_role_labels(_read_labels(args.path)), indent=2))
+        return 0
+    if args.command == "sources":
+        from .sources import source_inventory_payload, write_source_inventory_json
+
+        if getattr(args, "out", None):
+            written = write_source_inventory_json(args.out)
+            print(json.dumps({"written": str(written)}, indent=2))
+        else:
+            print(json.dumps(source_inventory_payload(), indent=2, ensure_ascii=False))
         return 0
     store = StudioStore.open(args.data)
     try:
