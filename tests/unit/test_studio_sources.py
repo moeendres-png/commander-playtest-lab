@@ -12,10 +12,13 @@ from pathlib import Path
 
 import pytest
 
+from commander_lab.studio.__main__ import main as studio_main
 from commander_lab.studio.sources import (
     QUALIFIED_SOURCES,
+    PoolGapMatrixPayload,
     calculate_card_coverage_record,
     calculate_pool_gap_matrix,
+    generate_gap_example_report,
     get_source,
     list_sources,
     load_spellbook_combo_cards,
@@ -349,3 +352,182 @@ def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None
     assert loaded["total_cards"] == 801
     assert loaded["schema_version"] == "pool-gap-matrix-1.0.0"
     assert len(loaded["cards"]) == 801
+
+
+def test_source_inventory_payload_filtered_by_status() -> None:
+    verified_payload = source_inventory_payload(status="VERIFIED")
+    assert verified_payload["schema_version"] == "evidence-source-inventory-1.0.0"
+    assert verified_payload["total_sources"] == 5
+    assert len(verified_payload["sources"]) == 5
+    for s in verified_payload["sources"]:
+        assert s["status"] == "VERIFIED"
+
+    review_payload = source_inventory_payload(status="REVIEW")
+    assert review_payload["total_sources"] == 4
+    assert len(review_payload["sources"]) == 4
+    for s in review_payload["sources"]:
+        assert s["status"] == "REVIEW"
+
+
+def test_generate_gap_example_report() -> None:
+    # Build a minimal matrix with 1 card of each grade
+    matrix: PoolGapMatrixPayload = {
+        "schema_version": "pool-gap-matrix-1.0.0",
+        "description": "test",
+        "commander": "Chulane, Teller of Tales",
+        "generated_at_utc": "2026-11-11T12:00:00Z",
+        "total_cards": 4,
+        "corpus_denominator": 975,
+        "summary_counts": {"COMPLETE": 1, "SPARSE": 1, "PARTIAL": 1, "UNOBSERVED_IN_CORPUS": 1},
+        "cards": [
+            {
+                "oracle_id": "c1",
+                "card_name": "Card Complete",
+                "mana_value": 2.0,
+                "color_identity": "U",
+                "type_line": "Creature",
+                "has_scryfall_facts": True,
+                "has_xmage_rules": True,
+                "corpus_hits": 10,
+                "corpus_denominator": 975,
+                "edhrec_hits": 50,
+                "edhrec_denominator": 100,
+                "edhrec_lift": 50.0,
+                "has_spellbook_combos": False,
+                "playgroup_observed_games": None,
+                "tournament_hits": None,
+                "coverage_grade": "COMPLETE",
+                "research_priority_score": 0.05,
+                "is_long_tail_candidate": False,
+                "notes": "ok",
+            },
+            {
+                "oracle_id": "c2",
+                "card_name": "Card Sparse",
+                "mana_value": 3.0,
+                "color_identity": "G",
+                "type_line": "Creature",
+                "has_scryfall_facts": True,
+                "has_xmage_rules": True,
+                "corpus_hits": 2,
+                "corpus_denominator": 975,
+                "edhrec_hits": None,
+                "edhrec_denominator": None,
+                "edhrec_lift": None,
+                "has_spellbook_combos": False,
+                "playgroup_observed_games": None,
+                "tournament_hits": None,
+                "coverage_grade": "SPARSE",
+                "research_priority_score": 0.35,
+                "is_long_tail_candidate": True,
+                "notes": "sparse",
+            },
+            {
+                "oracle_id": "c3",
+                "card_name": "Card Partial",
+                "mana_value": 4.0,
+                "color_identity": "W",
+                "type_line": "Enchantment",
+                "has_scryfall_facts": True,
+                "has_xmage_rules": True,
+                "corpus_hits": 8,
+                "corpus_denominator": 975,
+                "edhrec_hits": None,
+                "edhrec_denominator": None,
+                "edhrec_lift": None,
+                "has_spellbook_combos": False,
+                "playgroup_observed_games": None,
+                "tournament_hits": None,
+                "coverage_grade": "PARTIAL",
+                "research_priority_score": 0.20,
+                "is_long_tail_candidate": False,
+                "notes": "partial",
+            },
+            {
+                "oracle_id": "c4",
+                "card_name": "Card Unobserved",
+                "mana_value": 1.0,
+                "color_identity": "U",
+                "type_line": "Creature",
+                "has_scryfall_facts": True,
+                "has_xmage_rules": True,
+                "corpus_hits": 0,
+                "corpus_denominator": 975,
+                "edhrec_hits": None,
+                "edhrec_denominator": None,
+                "edhrec_lift": None,
+                "has_spellbook_combos": False,
+                "playgroup_observed_games": None,
+                "tournament_hits": None,
+                "coverage_grade": "UNOBSERVED_IN_CORPUS",
+                "research_priority_score": 0.48,
+                "is_long_tail_candidate": True,
+                "notes": "unobserved",
+            },
+        ],
+    }
+
+    report = generate_gap_example_report(matrix, sample_size_per_grade=1)
+    assert report["schema_version"] == "gap-example-report-1.0.0"
+    assert report["total_pool_cards"] == 4
+    assert report["commander"] == "Chulane, Teller of Tales"
+
+    examples = report["examples_by_grade"]
+    assert isinstance(examples, dict)
+    assert len(examples) == 4
+    assert len(examples["COMPLETE"]) == 1
+    assert examples["COMPLETE"][0]["card_name"] == "Card Complete"
+    assert len(examples["SPARSE"]) == 1
+    assert examples["SPARSE"][0]["card_name"] == "Card Sparse"
+    assert len(examples["PARTIAL"]) == 1
+    assert examples["PARTIAL"][0]["card_name"] == "Card Partial"
+    assert len(examples["UNOBSERVED_IN_CORPUS"]) == 1
+    assert examples["UNOBSERVED_IN_CORPUS"][0]["card_name"] == "Card Unobserved"
+
+
+def test_cli_sources_commands(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    # 1. Default sources list
+    rc = studio_main(["sources"])
+    assert rc == 0
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert payload["schema_version"] == "evidence-source-inventory-1.0.0"
+    assert payload["total_sources"] == 9
+
+    # 2. Verified-only flag
+    rc_v = studio_main(["sources", "--verified-only"])
+    assert rc_v == 0
+    captured_v = capsys.readouterr()
+    payload_v = json.loads(captured_v.out)
+    assert payload_v["total_sources"] == 5
+    assert len(payload_v["sources"]) == 5
+
+    # 3. Out flag writes to file
+    out_file = tmp_path / "sources_test.json"
+    rc_out = studio_main(["sources", "--out", str(out_file), "--verified-only"])
+    assert rc_out == 0
+    captured_out = capsys.readouterr()
+    assert str(out_file) in captured_out.out
+    assert out_file.is_file()
+    loaded_out = json.loads(out_file.read_text(encoding="utf-8"))
+    assert loaded_out["total_sources"] == 5
+
+    # 4. Gap report CLI (skip if DB not present)
+    store_dir = Path.home() / ".local" / "share" / "commander-studio"
+    if (store_dir / "studio.sqlite3").is_file():
+        gap_out_file = tmp_path / "gap_test.json"
+        rc_gap = studio_main(["sources", "--gap-report", "--gap-out", str(gap_out_file)])
+        assert rc_gap == 0
+        captured_gap = capsys.readouterr()
+        summary = json.loads(captured_gap.out)
+        assert summary["total_cards"] == 801
+        assert gap_out_file.is_file()
+
+        # 5. Example report CLI
+        rc_ex = studio_main(["sources", "--example-report"])
+        assert rc_ex == 0
+        captured_ex = capsys.readouterr()
+        ex_report = json.loads(captured_ex.out)
+        assert ex_report["schema_version"] == "gap-example-report-1.0.0"
+        assert ex_report["total_pool_cards"] == 801
+        assert "UNOBSERVED_IN_CORPUS" in ex_report["examples_by_grade"]

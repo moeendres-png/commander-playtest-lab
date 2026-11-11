@@ -486,9 +486,10 @@ class SourceInventoryPayload(TypedDict):
     sources: list[dict[str, object]]
 
 
-def source_inventory_payload() -> SourceInventoryPayload:
-    """Generate the Deliverable 1 machine-readable inventory payload."""
-    sources_data = [s.to_dict() for s in QUALIFIED_SOURCES]
+def source_inventory_payload(*, status: SourceStatus | None = None) -> SourceInventoryPayload:
+    """Generate the Deliverable 1 machine-readable inventory payload, optionally filtered by status."""
+    matched = list_sources(status=status)
+    sources_data = [s.to_dict() for s in matched]
     verified_count = sum(1 for s in QUALIFIED_SOURCES if s.status == "VERIFIED")
     review_count = sum(1 for s in QUALIFIED_SOURCES if s.status == "REVIEW")
     unavailable_count = sum(1 for s in QUALIFIED_SOURCES if s.status == "UNAVAILABLE")
@@ -496,7 +497,7 @@ def source_inventory_payload() -> SourceInventoryPayload:
     return {
         "schema_version": "evidence-source-inventory-1.0.0",
         "description": "Systematic inventory of qualified evidence sources for Commander Studio (P0 Deliverable 1).",
-        "total_sources": len(QUALIFIED_SOURCES),
+        "total_sources": len(matched),
         "status_counts": {
             "VERIFIED": verified_count,
             "REVIEW": review_count,
@@ -506,11 +507,11 @@ def source_inventory_payload() -> SourceInventoryPayload:
     }
 
 
-def write_source_inventory_json(path: str | Path) -> Path:
+def write_source_inventory_json(path: str | Path, *, status: SourceStatus | None = None) -> Path:
     """Write the machine-readable sources register to disk."""
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    payload = source_inventory_payload()
+    payload = source_inventory_payload(status=status)
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return out_path
 
@@ -756,15 +757,64 @@ def calculate_pool_gap_matrix(
     }
 
 
+class GapExampleReportPayload(TypedDict):
+    """Deliverable 3 concrete example report structure."""
+
+    schema_version: str
+    description: str
+    commander: str
+    total_pool_cards: int
+    corpus_denominator: int
+    summary_counts: dict[str, object]
+    examples_by_grade: dict[str, list[dict[str, object]]]
+
+
+def generate_gap_example_report(
+    matrix: PoolGapMatrixPayload,
+    *,
+    sample_size_per_grade: int = 2,
+) -> GapExampleReportPayload:
+    """Generate a concrete example report illustrating observed, sparse, partial and unobserved pool cards (P0 Deliverable 3)."""
+    cards = matrix.get("cards", [])
+    by_grade: dict[str, list[dict[str, object]]] = {
+        "COMPLETE": [],
+        "SPARSE": [],
+        "PARTIAL": [],
+        "UNOBSERVED_IN_CORPUS": [],
+    }
+    for c in cards:
+        if isinstance(c, dict):
+            grade = str(c.get("coverage_grade", ""))
+            if grade in by_grade:
+                by_grade[grade].append(c)
+
+    examples: dict[str, list[dict[str, object]]] = {}
+    for grade, grade_cards in by_grade.items():
+        examples[grade] = grade_cards[:sample_size_per_grade]
+
+    return {
+        "schema_version": "gap-example-report-1.0.0",
+        "description": "Representative examples of observed, sparse, partial and unobserved pool cards (P0 Deliverable 3).",
+        "commander": str(matrix.get("commander", "")),
+        "total_pool_cards": int(matrix.get("total_cards", 0)),
+        "corpus_denominator": int(matrix.get("corpus_denominator", 975)),
+        "summary_counts": matrix.get("summary_counts", {}),
+        "examples_by_grade": examples,
+    }
+
+
 def write_gap_matrix_json(
     store: StudioStore,
     path: str | Path,
     commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
     combos_path: str | Path | None = None,
+    *,
+    payload: PoolGapMatrixPayload | None = None,
 ) -> Path:
     """Calculate and write the 801-card gap matrix JSON to disk."""
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    payload = calculate_pool_gap_matrix(store, commander_names, combos_path=combos_path)
+    if payload is None:
+        payload = calculate_pool_gap_matrix(store, commander_names, combos_path=combos_path)
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return out_path
