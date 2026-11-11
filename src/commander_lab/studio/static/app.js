@@ -24,7 +24,7 @@ const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
-  simulations: [], diffBaseRev: null, diffData: null,
+  simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
@@ -501,8 +501,161 @@ async function renderDiff(body) {
     box.replaceChildren(h("p", { class: "muted" }, "Differenz nicht lesbar: " + error.message));
   }
 }
+function pollBatch(batchId) {
+  if (state.batchPollTimer) clearTimeout(state.batchPollTimer);
+  state.batchPollTimer = setTimeout(async () => {
+    try {
+      const batch = await api("/api/simulations/batch/" + encodeURIComponent(batchId));
+      state.activeBatch = batch;
+      if (batch.status === "completed" || batch.status === "cancelled" || batch.status === "failed") {
+        const [sims, recordedGames] = await Promise.all([
+          api("/api/simulations").catch(() => []),
+          api("/api/games").catch(() => []),
+        ]);
+        state.simulations = sims || [];
+        state.recordedGames = recordedGames || [];
+        if (state.tab === "sim") renderDeck();
+      } else {
+        pollBatch(batchId);
+        if (state.tab === "sim") renderDeck();
+      }
+    } catch (err) {
+      console.warn("Poll batch error:", err);
+    }
+  }, 1200);
+}
 function renderSimulations(body) {
-  body.append(h("div", { class: "actions" }, h("a", { class: "nav", href: "partie.html" }, "Partien-Ansicht & Neue Partie starten →")));
+  body.append(h("div", { class: "actions" }, h("a", { class: "nav", href: "partie.html" }, "Partien-Ansicht & Neue Einzelpartie →")));
+
+  // Batch simulation launcher & live monitor
+  const bBox = h("div", { class: "sim-box" },
+    h("h3", { style: "margin-top:0" }, "Neue Simulationsserie starten (M5 Batch-Simulation)"),
+    h("p", { class: "note" }, "Spielt mehrere vollständige 4-Spieler-Partien nacheinander in prozessisolierten Durchläufen mit deterministischen Seeds. Berechnet Siegrate mit Nenner und 95%-Wilson-Konfidenzintervall.")
+  );
+
+  const curRev = state.baseRevision || (state.deckId ? `rev@${state.deckId}/main/current` : "rev@chulane/main/current");
+  const revInput = h("input", { type: "text", value: curRev, style: "width:240px", title: "Deck-Revision" });
+  const podSelect = h("select", {},
+    h("option", { value: "precon" }, "Precon (Lorehold, Animated Army, Token Triumph)"),
+    h("option", { value: "mixed" }, "Mixed (Kaervek, Animated Army, Lorehold)"),
+    h("option", { value: "optimized" }, "Optimized (Eldrazi, Kaervek, Hosts of Mordor)")
+  );
+  const countSelect = h("select", {},
+    h("option", { value: "5" }, "5 Partien"),
+    h("option", { value: "10", selected: true }, "10 Partien"),
+    h("option", { value: "20" }, "20 Partien"),
+    h("option", { value: "30" }, "30 Partien"),
+    h("option", { value: "50" }, "50 Partien")
+  );
+  const seedInput = h("input", { type: "number", value: "1000", style: "width:90px" });
+
+  const startBtn = h("button", { type: "submit", class: "primary" }, "Serie starten");
+  const form = h("form", {
+    class: "sim-form",
+    onsubmit: async (e) => {
+      e.preventDefault();
+      startBtn.disabled = true;
+      try {
+        const res = await api("/api/simulations/batch", "POST", {
+          revision_id: revInput.value.trim(),
+          pod: podSelect.value,
+          games_count: parseInt(countSelect.value, 10),
+          base_seed: parseInt(seedInput.value, 10),
+        });
+        state.activeBatch = {
+          batch_id: res.batch_id,
+          status: res.status,
+          pod: podSelect.value,
+          games_planned: parseInt(countSelect.value, 10),
+          games_completed: 0,
+          games_failed: 0,
+          games: [],
+        };
+        pollBatch(res.batch_id);
+        renderDeck();
+      } catch (err) {
+        alert("Fehler beim Starten: " + err.message);
+        startBtn.disabled = false;
+      }
+    }
+  },
+    h("label", {}, "Revision", revInput),
+    h("label", {}, "Gegnertisch (Pod)", podSelect),
+    h("label", {}, "Anzahl", countSelect),
+    h("label", {}, "Basis-Seed", seedInput),
+    startBtn
+  );
+  bBox.append(form);
+
+  if (state.activeBatch) {
+    const b = state.activeBatch;
+    const isRunning = b.status === "running" || b.status === "pending";
+    const statusText = isRunning ? "Läuft..." : b.status === "completed" ? "Abgeschlossen" : b.status === "cancelled" ? "Abgebrochen" : "Fehler: " + (b.error || "Unbekannt");
+    const pct = b.games_planned > 0 ? Math.round((b.games_completed / b.games_planned) * 100) : 0;
+
+    const monitor = h("div", { style: "margin-top:12px;padding-top:10px;border-top:1px solid var(--line)" },
+      h("div", { style: "display:flex;justify-content:space-between;align-items:center;margin-bottom:6px" },
+        h("b", {}, `Serie „${b.pod}“: ${b.games_completed} von ${b.games_planned} Partien abgeschlossen (${pct} %)`),
+        h("span", { class: "pill " + (isRunning ? "warn" : b.status === "completed" ? "good" : "bad") }, statusText)
+      ),
+      h("progress", { value: b.games_completed, max: b.games_planned })
+    );
+
+    if (isRunning) {
+      const cancelBtn = h("button", {
+        type: "button",
+        class: "danger",
+        style: "margin-top:8px",
+        onclick: async () => {
+          cancelBtn.disabled = true;
+          try {
+            await api("/api/simulations/batch/" + encodeURIComponent(b.batch_id) + "/cancel", "POST");
+            pollBatch(b.batch_id);
+          } catch (err) {
+            console.warn(err);
+          }
+        }
+      }, "Serie abbrechen");
+      monitor.append(cancelBtn);
+    }
+
+    if (b.summary) {
+      const s = b.summary;
+      const ci = s.confidence_interval_95 || {};
+      const sumBox = h("div", { style: "margin-top:10px;background:var(--panel);padding:10px;border-radius:6px" },
+        h("h4", { style: "margin:0 0 6px" }, "Ergebnis der Serie (SIMULATED_RESULT)"),
+        h("div", { style: "display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px" },
+          h("div", {}, h("span", { class: "muted" }, "Siege: "), h("b", {}, `${s.wins_fractional} / ${s.games_completed}`)),
+          h("div", {}, h("span", { class: "muted" }, "Siegrate: "), h("b", {}, s.win_rate !== null ? `${s.win_rate_percent} %` : "–")),
+          h("div", {}, h("span", { class: "muted" }, "95 %-CI (Wilson): "), h("b", {}, ci.lower_percent !== undefined ? `[${ci.lower_percent} %, ${ci.upper_percent} %]` : "–")),
+          h("div", {}, h("span", { class: "muted" }, "Ø Runden: "), h("b", {}, s.mean_rounds ?? "–"))
+        ),
+        b.run_id ? h("p", { class: "note", style: "margin:6px 0 0" }, `Dauerhaft im Store hinterlegt unter ID: `, h("code", {}, b.run_id)) : null
+      );
+      monitor.append(sumBox);
+    }
+
+    if (b.games && b.games.length) {
+      const bTable = h("table", { style: "margin-top:8px" },
+        h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Runden"), h("th", {}, "Ergebnis"), h("th", {}, ""))),
+        h("tbody", {}, b.games.map((g) => {
+          const outcome = g.status === "finished" ? (g.candidate_won ? "Sieg Sitz 1" : `Niederlage (Sieger: Sitz ${(g.winner_seats || []).map((x) => x + 1).join(", ") || "–"})`) : "Fehlgeschlagen";
+          return h("tr", {},
+            h("td", {}, h("code", {}, g.game_id)),
+            h("td", { class: "num" }, g.seed),
+            h("td", { class: "num" }, g.rounds || "–"),
+            h("td", {}, outcome),
+            h("td", {}, h("a", { href: `partie.html?partie=${encodeURIComponent(g.game_id)}` }, "Ansehen →"))
+          );
+        }))
+      );
+      monitor.append(bTable);
+    }
+
+    bBox.append(monitor);
+  }
+
+  body.append(bBox);
   if (state.recordedGames && state.recordedGames.length) {
     const gTable = h("table", {},
       h("thead", {}, h("tr", {}, h("th", {}, "Partie"), h("th", { class: "num" }, "Seed"), h("th", { class: "num" }, "Entscheidungen"), h("th", {}, "Status / Sieger"), h("th", {}, ""))),
