@@ -74,6 +74,13 @@ def _parser() -> argparse.ArgumentParser:
     images.add_argument("--commander", action="append", required=True)
     marks = commands.add_parser("import-marks")
     marks.add_argument("path")
+    pg_atlas = commands.add_parser(
+        "import-playgroup-atlas",
+        help="import Playgroup.gg Card Atlas records (HTML, JSON, JSONL, or TSV/CSV)",
+    )
+    pg_atlas.add_argument("path", help="path to HTML, JSON, JSONL, or TSV/CSV Playgroup file")
+    pg_atlas.add_argument("--source-title", help="optional custom source title")
+    pg_atlas.add_argument("--snapshot-date", help="optional snapshot date (YYYY-MM-DD)")
     edhrec_manifest = commands.add_parser("import-edhrec-manifest")
     edhrec_manifest.add_argument("path")
     edhrec_manifest.add_argument("--raw-folder")
@@ -289,6 +296,10 @@ def main(argv: list[str] | None = None) -> int:
             )
         elif args.command == "import-marks":
             result = importers.import_card_marks(store, args.path)
+        elif args.command == "import-playgroup-atlas":
+            result = importers.import_playgroup_atlas(
+                store, args.path, source_title=args.source_title, snapshot_date=args.snapshot_date
+            )
         elif args.command == "import-edhrec-cardrecs":
             result = importers.import_edhrec_cardrecs_csv(store, args.path)
         elif args.command == "import-edhrec-delta":

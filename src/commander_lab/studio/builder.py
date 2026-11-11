@@ -130,6 +130,17 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
     roles: dict[str, list[str]] = {}
     for row in db.execute("SELECT oracle_id, role FROM card_role ORDER BY role"):
         roles.setdefault(str(row["oracle_id"]), []).append(str(row["role"]))
+    playgroup: dict[str, sqlite3.Row] = {}
+    for row in db.execute(
+        "SELECT oracle_id, card_id, live_inclusion_pct, median_cast_turn, "
+        "winrate_when_cast_pct, observed_winrate_gap_pp, ci_95_lower_pp, ci_95_upper_pp, "
+        "conservative_ranking_indicator, fetch_status, times_brought, insufficient_sample "
+        "FROM playgroup_card_atlas WHERE format_mode = 'multiplayer'"
+    ):
+        if row["card_id"]:
+            playgroup.setdefault(str(row["card_id"]), row)
+        if row["oracle_id"]:
+            playgroup.setdefault(str(row["oracle_id"]), row)
     cards: list[dict[str, object]] = []
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
@@ -141,6 +152,9 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
             continue
         card_id = str(row["card_id"])
         widest = edhrec.get(card_id)
+        pg = playgroup.get(card_id) or (
+            playgroup.get(str(row["oracle_id"])) if row["oracle_id"] else None
+        )
         cards.append(
             {
                 "card_id": card_id,
@@ -176,6 +190,20 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
                     "pct": widest["value"],
                     "numerator": widest["numerator"],
                     "denominator": widest["denominator"],
+                },
+                "playgroup": None
+                if pg is None
+                else {
+                    "live_inclusion_pct": pg["live_inclusion_pct"],
+                    "median_cast_turn": pg["median_cast_turn"],
+                    "winrate_when_cast_pct": pg["winrate_when_cast_pct"],
+                    "observed_winrate_gap_pp": pg["observed_winrate_gap_pp"],
+                    "ci_95_lower_pp": pg["ci_95_lower_pp"],
+                    "ci_95_upper_pp": pg["ci_95_upper_pp"],
+                    "conservative_ranking_indicator": pg["conservative_ranking_indicator"],
+                    "status": pg["fetch_status"],
+                    "times_brought": pg["times_brought"],
+                    "insufficient_sample": bool(pg["insufficient_sample"]),
                 },
             }
         )
@@ -398,6 +426,47 @@ def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) ->
             (card_id,),
         )
     ]
+    pg_row = db.execute(
+        "SELECT * FROM playgroup_card_atlas "
+        "WHERE (card_id = ? OR (oracle_id IS NOT NULL AND oracle_id = ?)) "
+        "AND format_mode = 'multiplayer'",
+        (card_id, row["oracle_id"]),
+    ).fetchone()
+    playgroup_detail: dict[str, object] | None = None
+    if pg_row is not None:
+        oracle_id = str(pg_row["oracle_id"])
+        top_commanders = [
+            dict(tc)
+            for tc in db.execute(
+                "SELECT rank, commander_name, commander_slug, color_identity, decks_count "
+                "FROM playgroup_top_commander WHERE oracle_id = ? AND format_mode = 'multiplayer' ORDER BY rank",
+                (oracle_id,),
+            )
+        ]
+        final_zones = [
+            dict(fz)
+            for fz in db.execute(
+                "SELECT zone_name, pct, instances_n "
+                "FROM playgroup_final_zone WHERE oracle_id = ? AND format_mode = 'multiplayer' ORDER BY zone_name",
+                (oracle_id,),
+            )
+        ]
+        warnings: list[object] = []
+        if pg_row["quality_warnings_json"]:
+            try:
+                warnings = json.loads(pg_row["quality_warnings_json"])
+            except Exception:
+                warnings = []
+        playgroup_detail = dict(pg_row)
+        playgroup_detail["top_commanders"] = top_commanders
+        playgroup_detail["final_zones"] = final_zones
+        playgroup_detail["quality_warnings"] = warnings
+        playgroup_detail["insufficient_sample"] = bool(pg_row["insufficient_sample"])
+        playgroup_detail["attribution"] = "Playgroup.gg (CC BY 4.0)"
+        playgroup_detail["disclosure"] = (
+            "Live-Korrelation (Playgroup.gg), keine kausale Kartenstärke."
+        )
+
     return {
         "card_id": card_id,
         "sim_status": sim_readiness_status(str(row["oracle_name"])),
@@ -406,6 +475,7 @@ def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) ->
         "cooccurrence": card_cooccurrence(store, card_id, cohort=cohort),
         "neutral_boards": card_neutral_boards(store, card_id),
         "simulations": card_simulations(store, card_id),
+        "playgroup": playgroup_detail,
     }
 
 
