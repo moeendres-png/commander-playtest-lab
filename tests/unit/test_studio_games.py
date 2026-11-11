@@ -258,6 +258,7 @@ def test_engine_command_comes_from_the_environment_or_the_data_folder(
     assert launch.engine_command(tmp_path) is None
     assert "Java" in str(launch.engine_state(tmp_path)["reason"])
     monkeypatch.setattr(launch.shutil, "which", lambda name: "/usr/bin/java")
+    monkeypatch.setattr(launch, "_java_major", lambda java: 21)
     assert launch.engine_command(tmp_path) == (
         "/usr/bin/java", "-Xmx3g", "-jar", str(jar), "full-game",
     )  # fmt: skip
@@ -299,6 +300,31 @@ def test_java_major_parsing_and_engine_state_facts(
     )  # fmt: skip
     ready = launch.engine_state(tmp_path)
     assert ready["ready"] is True and ready["java_version"] == 21
+
+    # Exactly 17 is enough, and an undeterminable version never blocks a start:
+    # only a provably too old Java does.
+    monkeypatch.setattr(launch, "_java_major", lambda java: 17)
+    assert launch.engine_command(tmp_path) is not None
+    monkeypatch.setattr(launch, "_java_major", lambda java: None)
+    assert launch.engine_command(tmp_path) is not None
+
+    # An environment command always wins, even over a provably too old local Java,
+    # and the staged file is then not hashed (a different engine will run).
+    monkeypatch.setattr(launch, "_java_major", lambda java: 11)
+    monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, "java -jar bridge.jar full-game")
+    assert launch.engine_command(tmp_path) == ("java", "-jar", "bridge.jar", "full-game")
+    env_state = launch.engine_state(tmp_path)
+    assert env_state["ready"] is True and env_state["jar_sha256"] is None
+
+
+def test_engine_state_without_any_engine_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv(launch.ENGINE_COMMAND_ENV, raising=False)
+    state = launch.engine_state(tmp_path)
+    assert state["ready"] is False
+    assert state["jar"] is None and state["jar_sha256"] is None and state["jar_size"] is None
+    assert state["pin"]  # the expected pin is shown even when nothing is staged
 
 
 def test_starting_a_game_checks_its_seats_before_any_process_starts(

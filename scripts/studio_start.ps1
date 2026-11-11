@@ -16,11 +16,14 @@ if ((Test-Path $bridgeJar) -and (-not (Test-Path $studioJar) -or
 }
 # Preflight for games (the deck builder also works without the engine): say clearly what
 # is missing instead of letting the first game start fail inside the engine process.
-if (-not (Get-Command java -ErrorAction SilentlyContinue)) {
+$javaExe = $null
+if (Get-Command java -ErrorAction SilentlyContinue) { $javaExe = 'java' }
+elseif ($env:JAVA_HOME -and (Test-Path (Join-Path $env:JAVA_HOME 'bin\java.exe'))) { $javaExe = Join-Path $env:JAVA_HOME 'bin\java.exe' }
+if (-not $javaExe) {
     Write-Host 'WARNUNG: Java nicht gefunden. Fuer Partien wird Java 17 oder neuer benoetigt (Deckbau geht ohne Engine).'
 } else {
     try {
-        $versionLine = (& java -version 2>&1 | Select-Object -First 1) -join ' '
+        $versionLine = (& $javaExe -version 2>&1 | Select-Object -First 1) -join ' '
         if ($versionLine -match 'version "(\d+)(?:\.(\d+))?') {
             $major = [int]$Matches[1]
             if ($major -eq 1 -and $Matches[2]) { $major = [int]$Matches[2] }

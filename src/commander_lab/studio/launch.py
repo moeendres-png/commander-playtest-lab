@@ -21,6 +21,11 @@ import time
 from functools import lru_cache
 from pathlib import Path
 
+from commander_lab.qualification.current_boundary.bridge_launcher import (
+    BridgeLaunchError,
+    canonical_xmage_engine_pin,
+)
+
 from .decks import lab_snapshot
 from .games import free_game_id, games_folder
 from .store import StudioStore
@@ -87,28 +92,29 @@ def _parse_java_major(version_output: str) -> int | None:
     return major
 
 
-@lru_cache(maxsize=4)
 def _java_major(java: str) -> int | None:
+    # Deliberately uncached: the answer can change when the JDK at this path is replaced,
+    # and a stale "too old" verdict would block legitimate starts until a Studio restart.
     try:
         run = subprocess.run(
-            [java, "-version"], capture_output=True, text=True, timeout=5, check=False
+            [java, "-version"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=5,
+            check=False,
         )
     except (OSError, subprocess.SubprocessError):
         return None
     return _parse_java_major(f"{run.stderr}\n{run.stdout}")
 
 
-@lru_cache(maxsize=1)
 def _engine_pin() -> str | None:
-    """The pinned XMage commit from the sole pin authority, when the repo file is here."""
+    """The pinned XMage commit from the sole pin authority, or ``None`` when unreadable."""
     try:
-        raw = json.loads(
-            (_repository_root() / "config" / "rules_engines.json").read_text(encoding="utf-8")
-        )
-        commit = raw["primary_engine"]["commit"]
-    except (OSError, ValueError, KeyError, TypeError):
+        return canonical_xmage_engine_pin()
+    except BridgeLaunchError:
         return None
-    return commit if isinstance(commit, str) and commit else None
 
 
 def _file_sha256(path: Path) -> str:
@@ -153,19 +159,32 @@ def engine_state(data_folder: str | Path) -> dict[str, object]:
     jar = Path(data_folder) / ENGINE_JAR
     java = _java_executable()
     major = _java_major(java) if java else None
+    jar_exists = jar.is_file()
+    jar_sha256: str | None = None
+    jar_size: int | None = None
+    if jar_exists and not os.environ.get(ENGINE_COMMAND_ENV, "").strip():
+        # With an environment command a different engine starts, so hashing the staged
+        # file would report facts about an engine that will not run. Reading can also
+        # fail (the starter re-stages the file concurrently); the state endpoint must
+        # still answer with a state instead of raising.
+        try:
+            jar_size = jar.stat().st_size
+            jar_sha256 = _file_sha256(jar)
+        except OSError:
+            jar_sha256, jar_size = None, None
     state: dict[str, object] = {
         "ready": False,
         "reason": "",
         "pin": _engine_pin(),
         "java_version": major,
-        "jar": str(jar) if jar.is_file() else None,
-        "jar_sha256": _file_sha256(jar) if jar.is_file() else None,
-        "jar_size": jar.stat().st_size if jar.is_file() else None,
+        "jar": str(jar) if jar_exists else None,
+        "jar_sha256": jar_sha256,
+        "jar_size": jar_size,
     }
     if engine_command(data_folder) is not None:
         state["ready"] = True
         return state
-    if not jar.is_file():
+    if not jar_exists:
         state["reason"] = f"Die Engine-Datei fehlt: {jar}"
     elif java is None:
         state["reason"] = f"Java ist nicht installiert (Java {MIN_JAVA_MAJOR} oder neuer)."

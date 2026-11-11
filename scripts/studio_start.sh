@@ -15,11 +15,16 @@ if [[ -f "${BRIDGE_JAR}" ]] && ! cmp -s "${BRIDGE_JAR}" "${STUDIO_JAR}" 2>/dev/n
 fi
 # Preflight for games (the deck builder also works without the engine): say clearly what
 # is missing instead of letting the first game start fail inside the engine process.
-if ! command -v java >/dev/null 2>&1; then
+JAVA_BIN="$(command -v java || true)"
+if [[ -z "${JAVA_BIN}" && -n "${JAVA_HOME:-}" && -x "${JAVA_HOME}/bin/java" ]]; then
+    JAVA_BIN="${JAVA_HOME}/bin/java"
+fi
+if [[ -z "${JAVA_BIN}" ]]; then
     echo "WARNUNG: Java nicht gefunden. Für Partien wird Java 17 oder neuer benötigt (Deckbau geht ohne Engine)."
 else
-    JAVA_VERSION_LINE="$(java -version 2>&1 | head -n 1)"
-    JAVA_MAJOR="$(printf '%s' "${JAVA_VERSION_LINE}" | sed -n 's/.*version "\([0-9][0-9]*\)\..*/\1/p')"
+    # A broken Java must only ever produce this warning, never abort the start.
+    JAVA_VERSION_LINE="$("${JAVA_BIN}" -version 2>&1 | head -n 1)" || JAVA_VERSION_LINE=""
+    JAVA_MAJOR="$(printf '%s' "${JAVA_VERSION_LINE}" | sed -n 's/.*version "\([0-9][0-9]*\)[."].*/\1/p')"
     if [[ "${JAVA_MAJOR}" == "1" ]]; then
         JAVA_MAJOR="$(printf '%s' "${JAVA_VERSION_LINE}" | sed -n 's/.*version "1\.\([0-9][0-9]*\).*/\1/p')"
     fi
