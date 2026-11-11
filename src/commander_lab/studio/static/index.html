@@ -9,6 +9,9 @@
 <body>
 <header id="top">
   <h1>Commander Studio <span>Deckbau</span></h1>
+  <label>Commander <select id="commander-select"></select></label>
+  <label>Sammlung <input id="inventory-file" type="file" accept=".xlsx"></label>
+  <button id="import-inventory" type="button">Importieren</button>
   <label>Deck <select id="deck-select"></select></label>
   <label>Variante <select id="branch-select"></select></label>
   <button id="new-branch" type="button">Neue Variante</button>
@@ -19,7 +22,6 @@
   <button id="save" type="button" class="primary">Als Stand speichern</button>
   <button id="history" type="button">Verlauf</button>
   <button id="export" type="button">Export</button>
-  <a class="nav" href="partie.html">Partien</a>
 </header>
 <main>
   <section id="pool">

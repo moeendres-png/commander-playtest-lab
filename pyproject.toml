@@ -3,87 +3,25 @@ requires = ["setuptools>=75", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "commander-playtest-lab"
-version = "1.25.0"
-description = "Reproducible Commander deck import, validation, simulation, and optimization laboratory."
-readme = "README.md"
+name = "mtg-collection-deckbuilder"
+version = "0.1.0"
+description = "Standalone local MTG Commander deckbuilder, collection import, Scryfall normalization and cache"
 requires-python = ">=3.12"
 license = "LicenseRef-Proprietary"
-authors = [{ name = "Owner" }]
-dependencies = [
-  "pydantic>=2.10,<3",
-  "openpyxl>=3.1,<4",
-  "PyYAML>=6.0,<7",
-  "typer>=0.15,<1",
-]
+dependencies = ["openpyxl>=3.1,<4", "python-multipart>=0.0.20,<1", "ijson>=3,<4", "fastapi>=0.115,<1", "uvicorn>=0.34,<1", "pydantic>=2.10,<3"]
 
 [project.optional-dependencies]
-dev = [
-  "pytest>=8.3,<10",
-  "pytest-asyncio>=1.4,<2",
-  "hypothesis>=6.120,<7",
-  "httpx2>=2.7,<3",
-  "jsonschema>=4.23,<5",
-  "ruff>=0.9,<1",
-  "mypy>=2,<3",
-  "types-openpyxl>=3.1,<4",
-  "types-PyYAML>=6.0,<7",
-]
-api = [
-  "fastapi>=0.115,<1",
-  "uvicorn>=0.34,<1",
-]
-openai = [
-  "openai>=2.45,<3",
-  "openai-agents>=0.18.3,<0.19",
-]
+test = ["pytest>=8.3,<10", "httpx>=0.27,<1"]
 
 [project.scripts]
-commander-lab = "commander_lab.cli.main:app"
-commander-lab-optimizer = "commander_lab.optimizer_v2_cli:app"
+mtg-deckbuilder = "commander_lab.studio.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"commander_lab.studio" = ["static/*.html", "static/*.js", "static/*.css"]
+
 [tool.pytest.ini_options]
-addopts = "-ra --strict-config --strict-markers"
 testpaths = ["tests"]
 pythonpath = ["src"]
-markers = [
-  "property: deterministic property-style tests",
-  "integration: local integration tests",
-  "golden: fixed expected-decision regression tests",
-  "differential: comparisons against external or normalized rule backends",
-  "agent_eval: agent trajectory and report evaluation tests",
-  "external: requires a configured XMage or Forge backend",
-]
-
-[tool.ruff]
-target-version = "py312"
-line-length = 100
-src = ["src", "tests"]
-# Vendored upstream skill text (Markdown only) is pinned byte-for-byte by
-# tests/unit/test_claude_ci_gate_skills.py; formatting its embedded code
-# examples would break the pin.
-extend-exclude = [".claude/skills/sharp-edges"]
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
-ignore = ["B008", "E501"]
-
-[tool.ruff.lint.per-file-ignores]
-"src/commander_lab/models/__init__.py" = ["F401", "E402"]
-"src/commander_lab/cards/normalize.py" = ["RUF001"]
-"tests/fuzz/test_boundary_fuzz.py" = ["RUF001"]
-"tests/property/test_normalization_properties.py" = ["RUF001"]
-"tests/unit/test_plaintext_importer.py" = ["RUF001"]
-"tests/unit/test_phase1214_rules_coverage.py" = ["RUF001"]
-
-[tool.mypy]
-python_version = "3.12"
-strict = true
-packages = ["commander_lab"]
-
-[tool.coverage.run]
-source = ["commander_lab"]
-branch = true

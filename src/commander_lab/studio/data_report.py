@@ -296,15 +296,6 @@ def _marks_and_games(db: sqlite3.Connection) -> dict[str, object]:
             "decks": _scalar(db, "SELECT COUNT(*) FROM deck"),
             "revisions": _scalar(db, "SELECT COUNT(*) FROM deck_revision"),
         },
-        "simulation": {
-            "runs": _scalar(db, "SELECT COUNT(*) FROM simulation_run"),
-            "games_completed": _scalar(
-                db, "SELECT COALESCE(SUM(games_completed), 0) FROM simulation_run"
-            ),
-            "games_failed": _scalar(
-                db, "SELECT COALESCE(SUM(games_failed), 0) FROM simulation_run"
-            ),
-        },
     }
 
 

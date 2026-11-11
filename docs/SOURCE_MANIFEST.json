@@ -1,0 +1,34 @@
+{
+  "source_repository": "moeendres-png/commander-playtest-lab",
+  "source_commit": "10e663de0d274b3f22adf93c03b89d59bb01356c",
+  "branch": "deckbuilder-standalone-20261111",
+  "unchanged": [
+    "src/commander_lab/studio/__init__.py",
+    "src/commander_lab/studio/catalog.py",
+    "src/commander_lab/studio/decks.py",
+    "src/commander_lab/studio/images.py",
+    "src/commander_lab/studio/queries.py",
+    "src/commander_lab/studio/roles.py",
+    "src/commander_lab/studio/static/app.css"
+  ],
+  "adjusted_or_created": [
+    "pyproject.toml",
+    ".gitignore",
+    "README.md",
+    "docs/NORMALIZATION_CONTRACT.md",
+    "src/commander_lab/__init__.py",
+    "src/commander_lab/studio/__main__.py",
+    "src/commander_lab/studio/builder.py",
+    "src/commander_lab/studio/commander_cache.py",
+    "src/commander_lab/studio/data_report.py",
+    "src/commander_lab/studio/importers.py",
+    "src/commander_lab/studio/scryfall_sync.py",
+    "src/commander_lab/studio/store.py",
+    "src/commander_lab/studio/web.py",
+    "src/commander_lab/studio/static/index.html",
+    "src/commander_lab/studio/static/app.js",
+    "tests/test_standalone.py",
+    ".github/workflows/standalone-ci.yml"
+  ],
+  "collection_committed": false
+}

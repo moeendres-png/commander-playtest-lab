@@ -8,16 +8,19 @@ the data check reads stored facts, the Rules Core stays the binding check for pl
 from __future__ import annotations
 
 import re
+import tempfile
+from pathlib import Path
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi import FastAPI, File, HTTPException, Query, Request, Response, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from . import builder, games, launch
+from . import builder, catalog, importers
+from .commander_cache import cache_commander
 from .decks import (
     RevisionCard,
     create_revision,
@@ -72,12 +75,6 @@ class MarkBody(BaseModel):
     note: str = Field(default="", max_length=2000)
 
 
-class GameBody(BaseModel):
-    revision_id: str = Field(min_length=1, max_length=200)
-    opponent_ids: list[str] = Field(min_length=1, max_length=5)
-    seed: int = Field(ge=0, le=2_000_000_000)
-
-
 class NamesBody(BaseModel):
     names: list[str] = Field(max_length=2000)
 
@@ -85,12 +82,6 @@ class NamesBody(BaseModel):
 class DiffBody(BaseModel):
     base_revision_id: str
     cards: list[CardEntry]
-
-
-class PrefilterBody(BaseModel):
-    base_revision_id: str
-    cards: list[CardEntry]
-    trials: int = Field(default=2000, ge=50, le=20000)
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -138,10 +129,53 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "public_cards": store.count("scryfall_card"),
                 "source_decks": store.count("corpus_deck"),
                 "neutral_board_rows": store.count("neutral_board_row"),
-                "simulation_runs": store.count("simulation_run"),
                 "decks": store.count("deck"),
                 "sources": sources,
             }
+        finally:
+            store.close()
+
+    @app.post("/api/import-inventory")
+    async def upload_inventory(file: UploadFile = File(...)) -> dict[str, object]:
+        if not file.filename or not file.filename.casefold().endswith(".xlsx"):
+            raise HTTPException(422, "An .xlsx collection file is required")
+        limit = 25 * 1024 * 1024
+        size = 0
+        with tempfile.TemporaryDirectory(prefix="mtgdeck-") as folder:
+            upload = Path(folder) / "collection.xlsx"
+            with upload.open("wb") as target:
+                while chunk := await file.read(1024 * 1024):
+                    size += len(chunk)
+                    if size > limit:
+                        raise HTTPException(413, "Collection exceeds 25 MB")
+                    target.write(chunk)
+            await file.close()
+            store = open_store()
+            try:
+                report = importers.import_inventory_workbook(store, upload)
+                if store.count("scryfall_card"):
+                    report["normalization"] = catalog.link_collection(store)
+                return report
+            except (ValueError, KeyError) as exc:
+                raise HTTPException(422, str(exc)) from exc
+            finally:
+                store.close()
+
+    @app.get("/api/commanders")
+    def commanders() -> list[dict[str, object]]:
+        store = open_store()
+        try:
+            return [
+                {"card_id": r["card_id"], "name": r["oracle_name"], "colors": r["color_identity"]}
+                for r in store.connection.execute(
+                    "SELECT c.card_id, c.oracle_name, c.color_identity "
+                    "FROM card_fact c JOIN inventory i USING (card_id) "
+                    "WHERE c.commander_legal = 1 "
+                    "AND (c.type_line LIKE '%Legendary Creature%' "
+                    "OR LOWER(c.oracle_text) LIKE '%can be your commander%') "
+                    "ORDER BY c.oracle_name"
+                )
+            ]
         finally:
             store.close()
 
@@ -149,7 +183,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def pool(commander: list[str] = Query(min_length=1, max_length=2)) -> dict[str, object]:
         store = open_store()
         try:
-            return builder.pool_cards(store, commander)
+            pool = builder.pool_cards(store, commander)
+            cache_commander(store, commander)
+            return pool
         except KeyError as error:
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
@@ -173,14 +209,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/simulations")
-    def simulations() -> list[dict[str, object]]:
-        store = open_store()
-        try:
-            return builder.list_simulations(store)
-        finally:
-            store.close()
-
     @app.post("/api/diff")
     def diff(body: DiffBody) -> dict[str, object]:
         store = open_store()
@@ -191,23 +219,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 for r in base_rows
             ]
             return builder.diff_lists(store, base_cards, _cards(body.cards))
-        except KeyError as error:
-            raise HTTPException(404, "unknown revision") from error
-        finally:
-            store.close()
-
-    @app.post("/api/prefilter")
-    def prefilter(body: PrefilterBody) -> dict[str, object]:
-        store = open_store()
-        try:
-            base_rows = revision_rows(store, body.base_revision_id)
-            base_cards = [
-                RevisionCard(str(r["card_id"]), int(r["quantity"]), str(r["zone"]))
-                for r in base_rows
-            ]
-            return builder.prefilter_lists(
-                store, base_cards, _cards(body.cards), trials=body.trials
-            )
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
         finally:
@@ -380,67 +391,6 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         return FileResponse(
             path, media_type="image/jpeg", headers={"Cache-Control": "max-age=604800"}
         )
-
-    def games_home() -> Path:
-        return Path(data_folder).resolve() if data_folder is not None else studio_data_dir()
-
-    @app.get("/api/games")
-    def game_list() -> list[dict[str, object]]:
-        return games.list_games(games_home())
-
-    @app.get("/api/table")
-    def table() -> dict[str, object]:
-        """What a new game can be made of: the engine, the own decks, the other seats."""
-        store = open_store()
-        try:
-            return {
-                "engine": launch.engine_state(games_home()),
-                "decks": builder.list_decks(store),
-                "opponents": launch.opponent_decks(),
-                "pods": {k: list(v) for k, v in launch.POD_PRESETS.items()},
-            }
-        finally:
-            store.close()
-
-    @app.post("/api/games")
-    def new_game(body: GameBody) -> dict[str, object]:
-        store = open_store()
-        try:
-            game_id = launch.start_game(
-                store,
-                games_home(),
-                revision_id=body.revision_id,
-                opponent_ids=body.opponent_ids,
-                seed=body.seed,
-            )
-            return {"game_id": game_id}
-        except KeyError as error:
-            raise HTTPException(404, "unknown deck") from error
-        except ValueError as error:
-            raise HTTPException(422, str(error)) from error
-        except RuntimeError as error:
-            raise HTTPException(409, str(error)) from error
-        finally:
-            store.close()
-
-    @app.get("/api/games/{game_id}")
-    def game(
-        game_id: str,
-        start: int = Query(default=0, ge=0),
-        count: int = Query(default=200, ge=0, le=1000),
-    ) -> dict[str, object]:
-        try:
-            return games.read_game(games_home(), game_id, start=start, count=count)
-        except (KeyError, ValueError) as error:
-            raise HTTPException(404, "unknown game") from error
-
-    @app.delete("/api/games/{game_id}")
-    def delete_game(game_id: str) -> dict[str, object]:
-        try:
-            deleted = games.delete_game(games_home(), game_id)
-            return {"deleted": deleted, "game_id": game_id}
-        except (KeyError, ValueError) as error:
-            raise HTTPException(404, "unknown game") from error
 
     @app.post("/api/public-cards")
     def public_cards(body: NamesBody) -> dict[str, object]:

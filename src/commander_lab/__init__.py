@@ -1,3 +1,1 @@
-"""Commander Playtest Lab data and validation package."""
-
-__version__ = "1.25.0"
+"""Standalone Commander deckbuilding package; no simulator is bundled."""

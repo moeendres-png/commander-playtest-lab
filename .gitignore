@@ -1,56 +1,19 @@
+# Never upload personal collection, deck lists, local cache or user databases
+*.sqlite3
+*.sqlite3-*
+*.xlsx
+*.xls
+*.csv
+*.jsonl
+*.jsonl.gz
+*.json.gz
+*.zip
+data/
+owner-data/
+local-data/
+cache/
 __pycache__/
-*.py[cod]
 .pytest_cache/
-.mypy_cache/
-.ruff_cache/
-.coverage
-htmlcov/
 .venv/
 .env
-*.sqlite3
-*.sqlite3-wal
-*.sqlite3-shm
-*.db-wal
-*.db-shm
-*.parquet
-data/runs/*
-!data/runs/.gitkeep
-
-*.egg-info/
-
-build/
-dist/
-release/
-
-# Ephemeral local runtime state
-.runtime/
-
-# Foundry launcher telemetry spool (sealed into evidence/docs, never committed raw)
-.foundry/metrics.jsonl
-
-# Generated Phase-10 demo evidence
-artifacts/phase10/*.json
-artifacts/engine_setup/logs/.*.process-state.json.*
-
-# WSR22: XMage test-run card database build output (runtime artifact, not source)
-engine-bridge/db/
-engine-bridge/target/cp-wsr22.txt
-
-# Generic Maven/Java build output at any level.
-# `engine-bridge/target/` is additionally covered by engine-bridge/.gitignore; this rule
-# covers stray top-level `target/` trees produced by an ad-hoc `mvn` invocation.
-target/
-
-# XMage/Forge H2 card databases produced by test runs (H2 .mv.db, up to ~300 MB each).
-# `engine-bridge/db/` above is the narrower, pre-existing instance of this same concern.
-# No tracked path lives under any `db/` directory.
-db/
-
-# Engine source and binaries materialised by CI `actions/checkout` steps with a `path:`
-# argument. `vendor/README.md` is tracked and stays tracked; only the fetched trees are
-# generated. See .github/workflows/*-materialization and the integration workflows.
-vendor/engine-source/
-vendor/engine-binaries/
-
-# WSR22 successor: test-local bridge stub processes (generated, not source)
-tests/qualification/_bridge_stubs/
+!.github/

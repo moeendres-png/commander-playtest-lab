@@ -9,9 +9,8 @@ from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
 
-from commander_lab.owner_data import owner_data_root
 
-STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
+STUDIO_DATA_ENV = "MTG_DECKBUILDER_DATA"
 SCHEMA_VERSION = 7
 DATABASE_NAME = "studio.sqlite3"
 
@@ -225,36 +224,6 @@ CREATE TABLE IF NOT EXISTS neutral_board_row (
 );
 CREATE INDEX IF NOT EXISTS neutral_board_oracle ON neutral_board_row(oracle_id);
 CREATE INDEX IF NOT EXISTS neutral_board_name ON neutral_board_row(card_name);
-CREATE TABLE IF NOT EXISTS simulation_run (
-    run_id TEXT PRIMARY KEY,
-    deck_id TEXT NOT NULL,
-    pod TEXT NOT NULL,
-    engine_pin TEXT NOT NULL,
-    pilot_policy TEXT NOT NULL,
-    seeds TEXT NOT NULL,
-    games_planned INTEGER NOT NULL,
-    games_completed INTEGER NOT NULL,
-    games_failed INTEGER NOT NULL,
-    wins_fractional REAL NOT NULL,
-    win_rate REAL,
-    mean_rounds REAL,
-    hand_dwell_status TEXT NOT NULL,
-    source_id TEXT NOT NULL REFERENCES source(source_id)
-);
-CREATE TABLE IF NOT EXISTS simulation_card (
-    run_id TEXT NOT NULL REFERENCES simulation_run(run_id),
-    card_id TEXT REFERENCES card(card_id),
-    card_name TEXT NOT NULL,
-    games_completed INTEGER NOT NULL,
-    games_offered INTEGER NOT NULL,
-    games_cast_after_offer INTEGER NOT NULL,
-    games_rotted INTEGER NOT NULL,
-    offered_castable INTEGER NOT NULL,
-    cast_count INTEGER NOT NULL,
-    mean_first_cast_round REAL,
-    PRIMARY KEY (run_id, card_name)
-);
-CREATE INDEX IF NOT EXISTS simulation_card_id ON simulation_card(card_id);
 CREATE TABLE IF NOT EXISTS source_capture_event (
     event_id TEXT PRIMARY KEY,
     source_url TEXT NOT NULL,
@@ -305,13 +274,7 @@ def studio_data_dir() -> Path:
     if explicit:
         folder = Path(explicit).expanduser()
     else:
-        owner = owner_data_root()
-        if owner is None:
-            raise RuntimeError(
-                f"set {STUDIO_DATA_ENV} or COMMANDER_LAB_OWNER_DATA: the Studio store has no "
-                "default location inside the repository"
-            )
-        folder = owner / "studio"
+        folder = Path.home() / ".local" / "share" / "mtg-collection-deckbuilder"
     resolved = folder.resolve()
     if resolved.is_relative_to(_repository_root()):
         raise RuntimeError(f"the Studio store must be outside the repository: {resolved}")
@@ -443,7 +406,7 @@ class StudioStore:
             "source", "card", "inventory", "deck", "deck_revision", "deck_revision_card",
             "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
-            "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
+            "card_role_claim", "corpus_deck_role", "neutral_board_row",
             "source_capture_event",
         }:  # fmt: skip
             raise ValueError(table)

@@ -6,7 +6,6 @@ its denominator; nothing here rates a card.
 
 from __future__ import annotations
 
-import functools
 import json
 import math
 import re
@@ -15,30 +14,8 @@ from collections import Counter
 from collections.abc import Iterable, Sequence
 from statistics import median
 
-from commander_lab.deck_readiness import (
-    _CARD_FACTS_PATH,
-    _PILOT_KNOWLEDGE_PATH,
-    _CardData,
-)
-from commander_lab.deck_variant import compare_variant, comparison_to_dict
-from commander_lab.models import RulesDeckInput
-
 from .decks import RevisionCard, color_set, list_rows
 from .store import StudioStore, now_utc
-
-
-@functools.lru_cache(maxsize=1)
-def _sim_card_data() -> _CardData:
-    return _CardData(_CARD_FACTS_PATH, _PILOT_KNOWLEDGE_PATH)
-
-
-@functools.lru_cache(maxsize=4096)
-def sim_readiness_status(card_name: str) -> str:
-    """Simulator readiness of ``card_name`` against the repo XMage card facts and pilot catalog."""
-    try:
-        return _sim_card_data().status_of(card_name).value
-    except (OSError, ValueError):
-        return "UNKNOWN"
 
 
 ALL_DECKS = "all"
@@ -160,7 +137,6 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
                 "has_back": row["image_back"] is not None,
                 "has_image": row["image_front"] is not None,
                 "fact_source": row["fact_source"],
-                "sim_status": sim_readiness_status(str(row["oracle_name"])),
                 "owned": row["owned_lower_bound"],
                 "available": row["available_lower_bound"],
                 "reserved": row["reserved"],
@@ -320,61 +296,6 @@ def card_neutral_boards(store: StudioStore, card_id: str) -> dict[str, object]:
     }
 
 
-def card_simulations(store: StudioStore, card_id: str) -> list[dict[str, object]]:
-    """Simulated cast opportunities for one card across stored ``SIMULATED_RESULT`` runs."""
-    db = store.connection
-    target = db.execute(
-        "SELECT oracle_name, engine_name FROM card_fact WHERE card_id = ?", (card_id,)
-    ).fetchone()
-    if target is None:
-        raise KeyError(card_id)
-    rows = db.execute(
-        "SELECT r.run_id, r.pod, r.engine_pin, r.pilot_policy, r.hand_dwell_status, "
-        "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
-        "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
-        "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
-        "WHERE sc.card_id = ? OR sc.card_name IN (?, ?) ORDER BY r.pod",
-        (card_id, target["oracle_name"], target["engine_name"]),
-    ).fetchall()
-    return [
-        {
-            **dict(item),
-            "data_class": "SIMULATED_RESULT",
-        }
-        for item in rows
-    ]
-
-
-def list_simulations(store: StudioStore) -> list[dict[str, object]]:
-    """All stored ``SIMULATED_RESULT`` runs with their summary metrics and per-card cast counts."""
-    db = store.connection
-    runs: list[dict[str, object]] = []
-    for run in db.execute(
-        "SELECT run_id, deck_id, pod, engine_pin, pilot_policy, seeds, games_planned, "
-        "games_completed, games_failed, wins_fractional, win_rate, mean_rounds, hand_dwell_status "
-        "FROM simulation_run ORDER BY pod, run_id"
-    ):
-        cards = [
-            dict(row)
-            for row in db.execute(
-                "SELECT card_id, card_name, games_completed, games_offered, "
-                "games_cast_after_offer, games_rotted, offered_castable, cast_count, "
-                "mean_first_cast_round FROM simulation_card WHERE run_id = ? "
-                "ORDER BY games_offered DESC, card_name ASC",
-                (run["run_id"],),
-            )
-        ]
-        runs.append(
-            {
-                **dict(run),
-                "seeds": json.loads(str(run["seeds"])),
-                "data_class": "SIMULATED_RESULT",
-                "cards": cards,
-            }
-        )
-    return runs
-
-
 def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) -> dict[str, object]:
     """Everything stored about one card: observations with numerator, denominator, address
     and data class, plus co-occurring cards, neutral boards and simulation runs."""
@@ -400,12 +321,10 @@ def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) ->
     ]
     return {
         "card_id": card_id,
-        "sim_status": sim_readiness_status(str(row["oracle_name"])),
         "observations": observations,
         "used_in": used_in,
         "cooccurrence": card_cooccurrence(store, card_id, cohort=cohort),
         "neutral_boards": card_neutral_boards(store, card_id),
-        "simulations": card_simulations(store, card_id),
     }
 
 
@@ -683,60 +602,6 @@ def diff_lists(
     }
 
 
-def _to_rules_deck(
-    store: StudioStore, cards: Sequence[RevisionCard], deck_id: str
-) -> RulesDeckInput | None:
-    rows = list_rows(store, cards)
-    cmds: list[str] = []
-    main: list[str] = []
-    for row in rows:
-        name = str(row["engine_name"] or row["oracle_name"])
-        qty = int(row["quantity"])
-        if row["zone"] == "commander":
-            cmds.extend([name] * qty)
-        else:
-            main.extend([name] * qty)
-    if not cmds or len(cmds) + len(main) != 100:
-        return None
-    try:
-        return RulesDeckInput(
-            deck_id=deck_id,
-            name=deck_id,
-            commander_names=tuple(cmds),
-            mainboard=tuple(main),
-        )
-    except ValueError:
-        return None
-
-
-def prefilter_lists(
-    store: StudioStore,
-    base_cards: Sequence[RevisionCard],
-    target_cards: Sequence[RevisionCard],
-    *,
-    trials: int = 2000,
-) -> dict[str, object]:
-    """Compare ``target_cards`` against ``base_cards`` using the simulator prefilter and
-    commander castability model (``HEURISTIC_MODEL``, seed 20261016).
-
-    Requires two valid 100-card Commander lists; returns ``comparable: False`` otherwise.
-    """
-    base_deck = _to_rules_deck(store, base_cards, "baseline")
-    target_deck = _to_rules_deck(store, target_cards, "variant")
-    if base_deck is None or target_deck is None:
-        return {
-            "data_class": "HEURISTIC_MODEL",
-            "comparable": False,
-            "reason": "Vorfilter benötigt zwei vollständige 100-Karten-Commander-Listen.",
-        }
-    comp = compare_variant(base_deck, target_deck, trials=trials)
-    return {
-        "data_class": "HEURISTIC_MODEL",
-        "comparable": True,
-        **comparison_to_dict(comp),
-    }
-
-
 def read_draft(store: StudioStore, deck_id: str, branch: str) -> dict[str, object] | None:
     row = store.connection.execute(
         "SELECT cards, base_revision_id, updated_at FROM deck_draft WHERE deck_id = ? "
@@ -811,7 +676,16 @@ def list_decks(store: StudioStore) -> list[dict[str, object]]:
                 (deck["deck_id"],),
             )
         ]
-        decks.append({**dict(deck), "branches": branches})
+        main = next((b for b in branches if b["branch"] == "main"), branches[0] if branches else None)
+        commander_ids = []
+        if main is not None:
+            commander_ids = [
+                str(r[0]) for r in db.execute(
+                    "SELECT card_id FROM deck_revision_card WHERE revision_id = ? "
+                    "AND zone = 'commander' ORDER BY card_id", (main["revision_id"],)
+                )
+            ]
+        decks.append({**dict(deck), "branches": branches, "commander_ids": commander_ids})
     return decks
 
 
