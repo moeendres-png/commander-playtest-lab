@@ -12,6 +12,7 @@ from . import catalog, importers, roles
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
+from .marks import import_owner_marks
 from .queries import corpus_inclusion, legal_pool
 from .store import StudioStore
 
@@ -80,6 +81,11 @@ def _parser() -> argparse.ArgumentParser:
     import_roles = commands.add_parser("import-roles")
     import_roles.add_argument("path")
     import_roles.add_argument("--replace-scope", action="store_true", help=replace_help)
+    owner_marks = commands.add_parser(
+        "import-owner-marks",
+        help="merge favorites, exclusions and notes from a marks file (never a rating)",
+    )
+    owner_marks.add_argument("path")
     labels = commands.add_parser(
         "check-role-labels", help="compare the role query slugs with a list of tagger labels"
     )
@@ -295,6 +301,8 @@ def main(argv: list[str] | None = None) -> int:
             )
         elif args.command == "import-roles":
             result = roles.import_roles(store, args.path, allow_scope_replace=args.replace_scope)
+        elif args.command == "import-owner-marks":
+            result = import_owner_marks(store, args.path)
         elif args.command == "import-selection":
             result = importers.import_studio_selection(
                 store, args.path, deck_id=args.deck_id, name=args.name,

@@ -107,9 +107,9 @@ def _corpus_hits(store: StudioStore) -> dict[str, dict[str, int]]:
 
 def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
-    builder shows per card."""
+    builder shows per card. Without any commander the colour filter is off (all legal cards)."""
     db = store.connection
-    identity: frozenset[str] = frozenset()
+    identity: frozenset[str] = frozenset() if commander_names else frozenset("WUBRG")
     commander_ids: list[str] = []
     for name in commander_names:
         row = db.execute(
@@ -144,6 +144,7 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
         cards.append(
             {
                 "card_id": card_id,
+                "oracle_id": row["oracle_id"],
                 "name": row["oracle_name"],
                 "mana_cost": row["mana_cost"] or "",
                 "mana_value": row["mana_value"],
