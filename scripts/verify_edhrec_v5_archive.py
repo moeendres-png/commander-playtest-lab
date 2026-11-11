@@ -3,6 +3,7 @@
 No extraction, network calls, deck data publication or import side effects.
 The Drive V011 index hashes the logical decompressed bytes of *.json.gz files.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -38,7 +39,9 @@ def read_manifest(path: Path) -> Counter[tuple[str, int, str]]:
             count = int(row["count"])
             if group not in EXPECTED_COUNTS or size < 0 or count <= 0:
                 raise ValueError("Invalid group, size or count in EDHREC source manifest")
-            if len(digest) != HASH_SIZE or any(c not in "0123456789abcdef" for c in digest):
+            if len(digest) != HASH_SIZE or any(
+                c not in "0123456789abcdef" for c in digest
+            ):
                 raise ValueError("Invalid SHA-256 value in EDHREC source manifest")
             if (group, size, digest) in expected:
                 raise ValueError("Duplicate source multiset key in EDHREC manifest")
@@ -47,8 +50,11 @@ def read_manifest(path: Path) -> Counter[tuple[str, int, str]]:
 
 
 def verify_archive(
-    archive: Path, manifest: Path,
-    *, strict_archive: bool = True, strict_counts: bool = True,
+    archive: Path,
+    manifest: Path,
+    *,
+    strict_archive: bool = True,
+    strict_counts: bool = True,
 ) -> dict[str, object]:
     expected = read_manifest(manifest)
     if strict_archive:
@@ -80,11 +86,15 @@ def verify_archive(
     if actual != expected:
         missing = sum((expected - actual).values())
         unexpected = sum((actual - expected).values())
-        raise ValueError(f"EDHREC V5 checksum multiset mismatch: missing={missing}, unexpected={unexpected}")
+        raise ValueError(
+            f"EDHREC V5 checksum multiset mismatch: missing={missing}, "
+            f"unexpected={unexpected}"
+        )
     if strict_counts and dict(groups) != EXPECTED_COUNTS:
         raise ValueError("EDHREC V5 source group counts do not match the snapshot manifest")
     return {
-        "status": "PASS", "archive_sha256": EXPECTED_ARCHIVE_SHA256 if strict_archive else None,
+        "status": "PASS",
+        "archive_sha256": EXPECTED_ARCHIVE_SHA256 if strict_archive else None,
         "verified_source_files": sum(groups.values()),
         "unique_checksum_keys": len(actual),
         "source_groups": dict(sorted(groups.items())),
