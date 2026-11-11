@@ -5,7 +5,6 @@ import csv
 import gzip
 import hashlib
 import importlib.util
-import tempfile
 import zipfile
 from pathlib import Path
 
