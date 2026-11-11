@@ -51,23 +51,31 @@ def test_corpus_parts_accumulate_without_erasing_previous_parts(tmp_path: Path) 
     store = StudioStore.in_memory()
     try:
         register = _write(tmp_path / "register.csv", [_deck(x) for x in ("d1", "d2", "d3", "d4")])
-        part_1 = _write(tmp_path / "part1.csv", [
-            _card("d1", "Forest", 2),
-            _card("d1", "Island", 1),
-            _card("d1", "Forest", 3),
-            _card("d2", "Plains", 1),
-        ])
-        part_2 = _write(tmp_path / "part2.csv", [
-            _card("d3", "Mountain", 1),
-            _card("d4", "Swamp", 2),
-        ])
+        part_1 = _write(
+            tmp_path / "part1.csv",
+            [
+                _card("d1", "Forest", 2),
+                _card("d1", "Island", 1),
+                _card("d1", "Forest", 3),
+                _card("d2", "Plains", 1),
+            ],
+        )
+        part_2 = _write(
+            tmp_path / "part2.csv",
+            [
+                _card("d3", "Mountain", 1),
+                _card("d4", "Swamp", 2),
+            ],
+        )
         importers.import_corpus_register(store, register)
         assert importers.import_corpus_cards(store, part_1) == {
-            "rows": 3, "rows_without_registered_deck": 0,
+            "rows": 3,
+            "rows_without_registered_deck": 0,
         }
         assert store.count("corpus_deck_card") == 3
         assert importers.import_corpus_cards(store, part_2) == {
-            "rows": 2, "rows_without_registered_deck": 0,
+            "rows": 2,
+            "rows_without_registered_deck": 0,
         }
         assert store.count("corpus_deck_card") == 5
 
@@ -92,11 +100,17 @@ def test_corpus_parts_accumulate_without_erasing_previous_parts(tmp_path: Path) 
         _write(part_1, [_card("d1", "Forest", 9), _card("d2", "Plains", 1)])
         importers.import_corpus_cards(store, part_1)
         assert store.count("corpus_deck_card") == 4
-        assert store.connection.execute(
-            "SELECT quantity FROM corpus_deck_card WHERE deck_id='d1' AND card_name='Forest'"
-        ).fetchone()[0] == 9
-        assert store.connection.execute(
-            "SELECT quantity FROM corpus_deck_card WHERE deck_id='d3' AND card_name='Mountain'"
-        ).fetchone()[0] == 1
+        assert (
+            store.connection.execute(
+                "SELECT quantity FROM corpus_deck_card WHERE deck_id='d1' AND card_name='Forest'"
+            ).fetchone()[0]
+            == 9
+        )
+        assert (
+            store.connection.execute(
+                "SELECT quantity FROM corpus_deck_card WHERE deck_id='d3' AND card_name='Mountain'"
+            ).fetchone()[0]
+            == 1
+        )
     finally:
         store.close()
