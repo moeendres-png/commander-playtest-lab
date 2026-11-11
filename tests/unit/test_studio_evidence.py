@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, roles
 from commander_lab.studio.evidence import (
@@ -17,7 +18,9 @@ from commander_lab.studio.evidence import (
     card_evidence,
     mechanical_features,
     pool_evidence,
+    role_alternatives,
 )
+from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _fill
 from tests.unit.test_studio_roles_import import FILLER, FOREST, RAT, _file
 
@@ -129,19 +132,43 @@ def test_edhrec_inclusion_and_lift_stay_separate_and_unknown_times_are_flagged(
     assert metrics["synergy_pct"]["snapshot"] == "2026-11-01T00:00:00Z"
 
 
+def _add_atlas(store: StudioStore, name: str, *, insufficient: int = 0) -> None:
+    source = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    row = store.connection.execute(
+        "SELECT card_id, oracle_id FROM card_fact WHERE oracle_name = ?", (name,)
+    ).fetchone()
+    store.connection.execute(
+        "INSERT INTO playgroup_card_atlas(oracle_id, card_id, card_name, slug, times_brought, "
+        "winrate_when_cast_pct, observed_winrate_gap_pp, insufficient_sample, source_id, "
+        "created_at, updated_at) VALUES (?, ?, ?, 'slug', 40, 30.0, 2.5, ?, ?, 'now', 'now')",
+        (row["oracle_id"], row["card_id"], name, insufficient, source),
+    )
+
+
 def test_game_combo_and_simulation_layers_say_what_is_missing(studio: StudioStore) -> None:
     forest = _cards(studio)["Forest"]
     game = _layer(forest, "observed_game")
     assert game["status"] == NOT_COLLECTED
-    assert game["rows"] == 0
+    assert game["atlas"] is None
     sim = _layer(forest, "simulated_result")
     assert sim["status"] == "NONE_RECORDED"
     assert sim["totals"] is None
-    _add_observation(studio, "Forest", "cast_rate", value=0.4, cohort="playgroup:atlas")
-    again = _cards(studio)["Forest"]
-    assert _layer(again, "observed_game")["status"] == PRESENT
-    deck = _layer(again, "observed_deck")
-    assert deck["edhrec"]["inclusion_views"] == 0  # type: ignore[index]  # a game row is no deck row
+    _add_atlas(studio, "Forest", insufficient=1)
+    cards = _cards(studio)
+    game = _layer(cards["Forest"], "observed_game")
+    assert game["status"] == PRESENT
+    assert game["atlas"]["times_brought"] == 40  # type: ignore[index]
+    assert "SMALL_GAME_SAMPLE" in cards["Forest"]["coverage"]["needs"]  # type: ignore[index]
+    # the source is now known, so a card without a row is "none recorded", not "not collected"
+    assert _layer(cards["Swarm Rat"], "observed_game")["status"] == "NONE_RECORDED"
+    # a game figure never becomes a tier and never a deck observation
+    assert cards["Forest"]["rating"]["status"] == "UNRATED"  # type: ignore[index]
+    assert _layer(cards["Forest"], "observed_deck")["edhrec"]["inclusion_views"] == 0  # type: ignore[index]
+    # game events are counted across all commanders, so the global view shows them too
+    global_cards = pool_evidence(studio, COMMANDER, view="global")["cards"]
+    assert isinstance(global_cards, list)
+    by_name = {str(card["name"]): card for card in global_cards}
+    assert _layer(by_name["Forest"], "observed_game")["status"] == PRESENT
 
 
 def test_the_global_view_keeps_only_what_does_not_depend_on_a_commander(
@@ -228,3 +255,61 @@ def test_a_card_outside_the_pool_and_a_bad_view_are_refused(studio: StudioStore)
         card_evidence(studio, outsider, COMMANDER)
     with pytest.raises(ValueError):
         pool_evidence(studio, COMMANDER, view="everything")
+
+
+def test_role_alternatives_compare_function_and_never_claim_an_improvement(
+    studio: StudioStore, tmp_path: Path
+) -> None:
+    filler2 = "oracle-filler-02"
+    roles.import_roles(
+        studio,
+        _file(tmp_path, "wug.json", {"ramp": [FOREST, FILLER, filler2], "removal": [RAT, FILLER]}),
+    )
+    forest = studio.card_id_by_name("Forest")
+    filler1 = studio.card_id_by_name("Filler 01")
+    assert forest is not None
+    assert filler1 is not None
+    result = role_alternatives(studio, filler1, COMMANDER)
+    assert result["roles"] == ["ramp", "removal"]
+    items = result["alternatives"]
+    assert isinstance(items, list)
+    names = [item["card"]["name"] for item in items]
+    # same mana value first (Filler 02), then by name; each shares exactly one role
+    assert names == ["Filler 02", "Swarm Rat", "Forest"]
+    assert {item["improvement_claimed"] for item in items} == {False}
+    assert items[0]["shared_roles"] == ["ramp"]
+    assert items[0]["missing_roles"] == ["removal"]
+    assert items[2]["mana_value_delta"] == -2.0
+    without = role_alternatives(studio, filler1, COMMANDER, in_deck=[forest])
+    assert "Forest" not in [item["card"]["name"] for item in without["alternatives"]]  # type: ignore[union-attr]
+    none = role_alternatives(studio, str(studio.card_id_by_name("Filler 05")), COMMANDER)
+    assert none["status"] == "NO_ROLE_CLAIM"
+    assert none["alternatives"] == []
+    with pytest.raises(KeyError):
+        role_alternatives(studio, "card:project:nope", COMMANDER)
+
+
+def test_the_web_api_serves_evidence_and_the_tier_list_page(studio: StudioStore) -> None:
+    forest = studio.card_id_by_name("Forest")
+    folder = studio.path.parent
+    studio.close()
+    with TestClient(create_app(folder)) as client:
+        assert client.get("/tierliste.html").status_code == 200
+        commander = {"view": "commander", "commander": "Test Commander"}
+        data = client.get("/api/evidence", params=commander).json()
+        assert data["summary"]["unrated"] == data["summary"]["cards"]
+        assert data["summary"]["cards"] > 0
+        assert client.get("/api/evidence", params={"view": "global"}).json()["commander"] == []
+        assert client.get("/api/evidence", params={"view": "commander"}).status_code == 422
+        assert client.get("/api/evidence", params={"view": "all"}).status_code == 422
+        missing = {"view": "commander", "commander": "Nobody"}
+        assert client.get("/api/evidence", params=missing).status_code == 404
+        one = client.get(f"/api/cards/{forest}/evidence", params=commander).json()
+        assert one["card"]["rating"]["status"] == "UNRATED"
+        assert client.get("/api/cards/nope/evidence", params=commander).status_code == 404
+        body = {"commander": ["Test Commander"], "in_deck": []}
+        marker = {"X-Studio": "1"}
+        answer = client.post(f"/api/cards/{forest}/alternatives", json=body, headers=marker)
+        assert answer.status_code == 200
+        assert answer.json()["status"] == "NO_ROLE_CLAIM"
+        assert client.post(f"/api/cards/{forest}/alternatives", json=body).status_code == 403

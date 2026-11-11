@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 8
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -255,6 +255,101 @@ CREATE TABLE IF NOT EXISTS simulation_card (
     PRIMARY KEY (run_id, card_name)
 );
 CREATE INDEX IF NOT EXISTS simulation_card_id ON simulation_card(card_id);
+CREATE TABLE IF NOT EXISTS source_capture_event (
+    event_id TEXT PRIMARY KEY,
+    source_url TEXT NOT NULL,
+    request_start_utc TEXT NOT NULL,
+    response_complete_utc TEXT NOT NULL,
+    raw_response_sha256 TEXT NOT NULL,
+    http_status INTEGER NOT NULL,
+    provenance_class TEXT NOT NULL,
+    raw_size_bytes INTEGER NOT NULL,
+    cardlists_count INTEGER NOT NULL,
+    automatic_import INTEGER NOT NULL DEFAULT 0,
+    source_id TEXT REFERENCES source(source_id)
+);
+CREATE TABLE IF NOT EXISTS playgroup_card_atlas (
+    oracle_id TEXT NOT NULL,
+    format_mode TEXT NOT NULL DEFAULT 'multiplayer',
+    card_id TEXT REFERENCES card(card_id),
+    card_name TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    card_type TEXT,
+    set_name TEXT,
+    live_inclusion_pct REAL,
+    deck_inclusion_pct REAL,
+    times_brought INTEGER,
+    decks_running INTEGER,
+    unique_players INTEGER,
+    median_cast_turn REAL,
+    drawn_to_played_pct REAL,
+    first_cast_n INTEGER,
+    turn_1_pct REAL,
+    turn_2_pct REAL,
+    turn_3_pct REAL,
+    turn_4_pct REAL,
+    turn_5_pct REAL,
+    turn_6_to_9_pct REAL,
+    turn_10_plus_pct REAL,
+    p25_cast_turn REAL,
+    p75_cast_turn REAL,
+    max_cast_turn REAL,
+    on_curve_pct REAL,
+    on_curve_count INTEGER,
+    on_curve_denominator INTEGER,
+    on_curve_turn TEXT,
+    cast_same_turn_as_drawn_pct REAL,
+    turns_in_hand REAL,
+    funnel_brought_n INTEGER,
+    funnel_players_n INTEGER,
+    ever_drawn_n INTEGER,
+    reached_battlefield_n INTEGER,
+    still_on_board_at_end_n INTEGER,
+    battlefield_survival_pct REAL,
+    winrate_when_cast_pct REAL,
+    winrate_when_cast_n INTEGER,
+    winrate_when_in_library_pct REAL,
+    winrate_when_in_library_n INTEGER,
+    winrate_when_in_hand_pct REAL,
+    winrate_when_in_hand_n INTEGER,
+    observed_winrate_gap_pp REAL,
+    ci_95_lower_pp REAL,
+    ci_95_upper_pp REAL,
+    conservative_ranking_indicator TEXT,
+    final_zones_instances_n INTEGER,
+    fetch_status TEXT NOT NULL DEFAULT 'OK',
+    quality_warnings_json TEXT NOT NULL DEFAULT '[]',
+    insufficient_sample INTEGER NOT NULL DEFAULT 0,
+    retrieved_at_utc TEXT,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY (oracle_id, format_mode)
+);
+CREATE INDEX IF NOT EXISTS idx_playgroup_card_atlas_card_id ON playgroup_card_atlas(card_id);
+CREATE INDEX IF NOT EXISTS idx_playgroup_card_atlas_slug ON playgroup_card_atlas(slug);
+CREATE INDEX IF NOT EXISTS idx_playgroup_card_atlas_status ON playgroup_card_atlas(fetch_status);
+CREATE INDEX IF NOT EXISTS idx_playgroup_card_atlas_name ON playgroup_card_atlas(card_name);
+CREATE TABLE IF NOT EXISTS playgroup_top_commander (
+    oracle_id TEXT NOT NULL,
+    format_mode TEXT NOT NULL DEFAULT 'multiplayer',
+    rank INTEGER NOT NULL,
+    commander_name TEXT NOT NULL,
+    commander_slug TEXT NOT NULL,
+    color_identity TEXT NOT NULL,
+    decks_count INTEGER NOT NULL,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (oracle_id, format_mode, rank)
+);
+CREATE TABLE IF NOT EXISTS playgroup_final_zone (
+    oracle_id TEXT NOT NULL,
+    format_mode TEXT NOT NULL DEFAULT 'multiplayer',
+    zone_name TEXT NOT NULL,
+    pct REAL NOT NULL,
+    instances_n INTEGER,
+    created_at TEXT NOT NULL,
+    PRIMARY KEY (oracle_id, format_mode, zone_name)
+);
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
@@ -431,6 +526,7 @@ class StudioStore:
             "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
+            "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

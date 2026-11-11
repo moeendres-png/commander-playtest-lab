@@ -22,6 +22,7 @@ const NEED_NAMES = {
   EDHREC_TIME_UNKNOWN: "EDHREC-Zeit unbekannt",
   NO_ROLE_CLAIM: "keine Rolle erfasst",
   NO_SIMULATION: "nicht simuliert",
+  SMALL_GAME_SAMPLE: "kleine Spielstichprobe",
 };
 const SORTS = [
   ["name", "Name"],
@@ -29,13 +30,20 @@ const SORTS = [
   ["layers", "Anzahl vorhandener Schichten"],
   ["corpus", "Anteil in Quelldecks (nur Lesehilfe)"],
   ["edhrec", "EDHREC Inclusion (nur Lesehilfe)"],
+  ["games", "Partien mit der Karte (nur Lesehilfe)"],
   ["research", "Forschungsbedarf (Heuristik)"],
 ];
+const POLICY_TEXT = "Ein Tier braucht eine vorab festgelegte Zielgröße, ein kalibriertes Modell und Belege außerhalb der Trainingsdaten. Ein solches Modell gibt es noch nicht, deshalb ist jede Karte unbewertet. Häufigkeit in Decks, EDHREC-Werte, deine Markierungen und reine Zählungen setzen nie allein ein Tier. Fehlende Belege sind nie ein niedriger Tier.";
+const GAME_NOTES = {
+  PRESENT: "Beobachteter Zusammenhang mit Verzerrung durch Pilot, Runde und Spielverlauf. Kein kausaler Effekt.",
+  NONE_RECORDED: "Die Spielquelle hat für diese Karte keine verwertbare Zeile.",
+  NOT_COLLECTED: "Noch keine Spielquelle importiert (Playgroup Card Atlas).",
+};
 const SMALL_FIRST = new Set(["name", "mv"]);
 
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
-  deckCards: null, deckRoles: {}, sortKey: "name", sortDir: 1, shown: 150,
+  deckCards: null, deckRoles: {}, ticket: 0, sortKey: "name", sortDir: 1, shown: 150,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -48,14 +56,16 @@ function h(tag, props, ...children) {
     else if (key in el && key !== "list") el[key] = value;
     else el.setAttribute(key, value);
   }
-  for (const child of children.flat()) {
+  for (const child of children.flat(Infinity)) {
     if (child === null || child === undefined || child === false) continue;
     el.append(child.nodeType ? child : document.createTextNode(String(child)));
   }
   return el;
 }
-async function api(path) {
-  const response = await fetch(path, { headers: { "X-Studio": "1" } });
+async function api(path, body) {
+  const options = { headers: { "X-Studio": "1" } };
+  if (body !== undefined) { options.method = "POST"; options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
+  const response = await fetch(path, options);
   if (!response.ok) {
     let detail = response.statusText;
     try { detail = (await response.json()).detail || detail; } catch (error) { /* keep status text */ }
@@ -89,6 +99,7 @@ function sortValue(card, key) {
   if (key === "layers") return presentCount(card);
   if (key === "corpus") { const c = corpusAll(card); return c && c.of ? c.decks / c.of : null; }
   if (key === "edhrec") { const w = widest(card); return w ? w.value : null; }
+  if (key === "games") { const a = layer(card, "observed_game").atlas; return a && a.status === "OK" ? a.times_brought : null; }
   if (key === "research") { const r = card.coverage.research_priority; return r ? r.score : null; }
   return null;
 }
@@ -146,6 +157,14 @@ function edhrecCell(card) {
   const den = w.denominator === null ? "Nenner unbekannt" : `${w.numerator}/${w.denominator}`;
   return h("span", { title: `Ansicht ${w.cohort}; Datenklasse ${w.data_class}` }, `${den}`, w.small_denominator ? h("span", { class: "badge warn" }, "n < 30") : null, w.snapshot_known ? null : h("span", { class: "badge dim" }, "Zeit unbekannt"));
 }
+function gameCell(card) {
+  const game = layer(card, "observed_game"), atlas = game.atlas;
+  if (game.status !== "PRESENT" || !atlas) return unknown(game.status === "NOT_COLLECTED" ? "keine Quelle" : "keine Beobachtung");
+  const brought = atlas.times_brought === null ? "n unbekannt" : `n = ${atlas.times_brought}`;
+  const gap = atlas.observed_winrate_gap_pp === null ? null : `Differenz ${atlas.observed_winrate_gap_pp > 0 ? "+" : ""}${atlas.observed_winrate_gap_pp} Pp`;
+  const ci = atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? null : ` (95 %: ${atlas.ci_95_lower_pp} bis ${atlas.ci_95_upper_pp})`;
+  return h("span", { title: "Playgroup.gg (CC BY 4.0), alle Commander, nur Live-Partien. Beobachteter Zusammenhang, keine kausale Kartenstärke." }, brought, gap ? ` · ${gap}` : "", ci || "", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "kleine Stichprobe") : null);
+}
 function simCell(card) {
   const sim = layer(card, "simulated_result");
   if (sim.status === "NOT_APPLICABLE") return unknown("–");
@@ -163,7 +182,7 @@ function needBadges(card) {
 // ---------- tables ----------
 function cardsTable(cards) {
   const commander = state.view !== "global";
-  const head = ["Tier", "Karte", "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Simulation"] : ["Beliebtheit (global)"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
+  const head = ["Tier", "Karte", "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele", "Simulation"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
   const rows = cards.slice(0, state.shown).map((card) => {
     const mark = state.marks.get(card.card_id) || {};
     const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
@@ -173,7 +192,7 @@ function cardsTable(cards) {
       h("td", { class: "num" }, card.mana_value),
       h("td", {}, featureBadges(card)),
       h("td", {}, roleBadges(card)),
-      ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, simCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${rank.rank}` : unknown("unbekannt"))]),
+      ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, gameCell(card)), h("td", {}, simCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${rank.rank}` : unknown("unbekannt")), h("td", {}, gameCell(card))]),
       h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${presentCount(card)}/5`),
       ...(state.view === "deck" ? [h("td", { class: "num" }, state.deckCards.get(card.card_id))] : []));
   });
@@ -219,7 +238,7 @@ function renderNotice() {
   const status = summary.layer_status;
   const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
   $("notice").replaceChildren(
-    h("div", {}, h("b", {}, "Noch kein Tier vergeben. "), policy.rule),
+    h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, "Noch kein Tier vergeben. "), POLICY_TEXT),
     h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game", "simulated_result"].map(line).join(" · ")));
   $("tier-pill").textContent = `${summary.unrated} von ${summary.cards} unbewertet`;
 }
@@ -253,9 +272,24 @@ function drawer(card) {
   box.push(deckBox);
 
   const game = layer(card, "observed_game");
-  box.push(h("div", { class: "layer" }, heading("observed_game", game.status), h("p", {}, game.note)));
+  const atlas = game.atlas;
+  const val = (x, suffix = "") => (x === null || x === undefined ? unknown() : `${x}${suffix}`);
+  box.push(h("div", { class: "layer" }, heading("observed_game", game.status), h("p", {}, GAME_NOTES[game.status] || game.note),
+    atlas && game.status === "PRESENT" ? [
+      h("p", {}, `Quelle: Playgroup.gg Card Atlas (CC BY 4.0). Grundgesamtheit: alle Commander, nur Playgroup-Live-Partien.`),
+      table(["Messwert", "Wert"], [
+        ["Mitgebracht (Partien)", val(atlas.times_brought)],
+        ["Live-Inclusion", val(atlas.live_inclusion_pct, " %")],
+        ["Median Zug des ersten Wirkens", val(atlas.median_cast_turn)],
+        ["Siegrate, wenn gewirkt", val(atlas.winrate_when_cast_pct, " %")],
+        ["Differenz gewirkt gegen Bibliothek", val(atlas.observed_winrate_gap_pp, " Pp")],
+        ["95-%-Intervall der Differenz", atlas.ci_95_lower_pp === null || atlas.ci_95_upper_pp === null ? unknown() : `${atlas.ci_95_lower_pp} bis ${atlas.ci_95_upper_pp} Pp`],
+        ["Stichprobe", atlas.insufficient_sample ? h("span", { class: "badge warn" }, "zu klein") : "ausreichend laut Import"],
+      ]),
+      h("p", {}, "Die Differenz vergleicht Partien, in denen die Karte gewirkt wurde, mit Partien, in denen sie in der Bibliothek blieb. Wer eine Karte wirken kann, steht oft schon besser da. Das ist kein Beweis für Kartenstärke."),
+    ] : null));
   const combo = layer(card, "combo_verified");
-  box.push(h("div", { class: "layer" }, heading("combo_verified", combo.status), combo.note ? h("p", {}, combo.note) : null));
+  box.push(h("div", { class: "layer" }, heading("combo_verified", combo.status), combo.note ? h("p", {}, "Eine gelistete Kombo ist kein Beleg für Stärke und kein bestandener Engine-Test.") : null));
   const sim = layer(card, "simulated_result");
   box.push(h("div", { class: "layer" }, heading("simulated_result", sim.status), sim.totals ? h("p", {}, `${sim.totals.runs} Läufe: in ${sim.totals.games_cast_after_offer} von ${sim.totals.games_offered} Partien nach dem Angebot gespielt (${sim.totals.cast_count} Zauber). Simulierte Ergebnisse stehen für sich und werden nie mit echten Spielen verrechnet.`) : null));
 
@@ -264,6 +298,27 @@ function drawer(card) {
     h("p", {}, `Vorhanden: ${cov.present.map((name) => LAYER_NAMES[name]).join(", ") || "nichts"}.`),
     cov.needs.length ? h("div", {}, needBadges(card)) : h("p", {}, "Keine offene Lücke."),
     cov.gap_grade ? h("p", {}, `Lückenklasse: ${cov.gap_grade}. Forschungspriorität (Heuristik, keine Kartenstärke): ${cov.research_priority.score.toFixed(2)}${cov.research_priority.long_tail ? ", Long-Tail-Kandidat" : ""}.`) : null));
+  return box;
+}
+async function alternativesBox(card) {
+  const inDeck = state.view === "deck" && state.deckCards ? [...state.deckCards.keys()] : [];
+  const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/alternatives`, { commander: [COMMANDER], in_deck: inDeck });
+  const box = h("div", { class: "layer" }, h("h3", {}, "Funktionsalternativen (Tauschvergleich)"));
+  if (data.status === "NO_ROLE_CLAIM") { box.append(h("p", {}, "Für diese Karte ist keine Rolle erfasst. Ohne Rolle gibt es keinen Funktionsvergleich.")); return box; }
+  const shown = data.alternatives.filter((item) => !(state.marks.get(item.card.card_id) || {}).excluded);
+  box.append(h("p", {}, `Freie Karten mit mindestens einer gleichen Rolle${inDeck.length ? ", die nicht im gewählten Deck sind" : ""}. Reihenfolge: mehr gemeinsame Rollen, dann kleinerer Unterschied im Manawert, dann Name. Das ist ein Vergleich der Funktion. Ohne Ergebnisdaten wird kein Tausch als Verbesserung bezeichnet.`));
+  if (!shown.length) { box.append(h("p", {}, "Keine freie Karte mit gleicher Rolle gefunden.")); return box; }
+  box.append(table(["Karte", "Manawert", "Unterschied", "Gemeinsame Rollen", "Fehlt gegenüber dieser Karte", "Zusätzlich", "Quelldecks", "Echte Spiele"], shown.map((item) => [
+    h("span", { class: "name", onclick: () => openCard(item.card) }, (state.marks.get(item.card.card_id) || {}).favorite ? h("span", { class: "star" }, "★ ") : null, item.card.name),
+    item.card.mana_value,
+    item.mana_value_delta === 0 ? "gleich" : `${item.mana_value_delta > 0 ? "+" : ""}${item.mana_value_delta}`,
+    item.shared_roles.map(roleName).join(", "),
+    item.missing_roles.map(roleName).join(", ") || "nichts",
+    item.only_candidate_roles.map(roleName).join(", ") || "nichts",
+    corpusCell(item.card),
+    gameCell(item.card),
+  ])));
+  if (data.total > data.alternatives.length) box.append(h("p", {}, `${data.total - data.alternatives.length} weitere nicht gezeigt.`));
   return box;
 }
 async function openCard(card) {
@@ -279,7 +334,8 @@ async function openCard(card) {
       h("h2", {}, full.name),
       h("p", { class: "muted" }, full.type_line),
       h("div", { class: "policy" }, h("b", {}, "Tier: unbewertet. "), `Grund: ${full.rating.reason}. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein.`),
-      drawer(full));
+      ...drawer(full));
+    if (state.view !== "global") content.append(await alternativesBox(full));
   } catch (error) { content.append(h("p", {}, `Fehler: ${error.message}`)); }
 }
 
@@ -287,7 +343,10 @@ async function openCard(card) {
 async function loadEvidence() {
   const apiView = state.view === "global" ? "global" : "commander";
   const query = apiView === "global" ? "view=global" : `view=commander&commander=${encodeURIComponent(COMMANDER)}`;
-  state.data = await api(`/api/evidence?${query}`);
+  const ticket = ++state.ticket;
+  const data = await api(`/api/evidence?${query}`);
+  if (ticket !== state.ticket) return; // a newer view was chosen meanwhile
+  state.data = data;
   const groups = [...new Set(state.data.cards.map((card) => card.group))].sort();
   const roles = [...new Set(state.data.cards.flatMap(cardRoles))].sort((a, b) => roleName(a).localeCompare(roleName(b)));
   $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), groups.map((group) => h("option", { value: group }, group)));

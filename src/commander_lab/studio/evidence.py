@@ -218,6 +218,7 @@ def _card_evidence(
     observations: dict[str, list[dict[str, object]]],
     simulations: dict[str, dict[str, object]],
     combo_cards: set[str],
+    atlas_collected: bool,
     detail: bool,
 ) -> dict[str, object]:
     card_id = str(card["card_id"])
@@ -289,14 +290,27 @@ def _card_evidence(
     if detail and commander_view:
         deck_layer["edhrec_rows"] = edhrec_rows
 
-    # Game layer: real game events. Nothing is imported yet unless a playgroup row exists.
+    # Game layer: real game events across all commanders (Playgroup card atlas). The figures
+    # are observed correlations with their own sample sizes, never a causal card strength.
+    atlas = card.get("playgroup")
+    atlas_ok = isinstance(atlas, dict) and atlas.get("status") == "OK"
+    if atlas_ok or game_rows:
+        game_status = PRESENT
+    elif atlas_collected:
+        game_status = NONE_RECORDED
+    else:
+        game_status = NOT_COLLECTED
     game_layer: dict[str, object] = {
-        "status": PRESENT if game_rows else NOT_COLLECTED,
+        "status": game_status,
         "rows": game_rows if detail else len(game_rows),
+        "atlas": atlas if isinstance(atlas, dict) else None,
+        "population": "all commanders, Playgroup Live games only",
         "data_class": "OBSERVED_GAME",
-        "note": "no game-event source imported yet (Playgroup card atlas, #1192)"
-        if not game_rows
-        else "observed correlation, not a causal effect",
+        "note": "observed correlation with pilot, pod and survivorship bias; not a causal effect"
+        if game_status == PRESENT
+        else "the game-event source has no usable row for this card"
+        if game_status == NONE_RECORDED
+        else "no game-event source imported yet (Playgroup card atlas)",
     }
 
     # Combo layer and simulation layer only make sense for a named commander.
@@ -342,6 +356,8 @@ def _card_evidence(
     needs: list[str] = []
     if layers[LAYER_GAME]["status"] != PRESENT:
         needs.append("NO_GAME_EVIDENCE")
+    elif isinstance(atlas, dict) and atlas.get("insufficient_sample"):
+        needs.append("SMALL_GAME_SAMPLE")
     if layers[LAYER_DECK]["status"] == ABSENT_IN_KNOWN_CORPUS:
         needs.append("NOT_OBSERVED_IN_CORPUS")
     if edhrec is not None and edhrec["any_small_denominator"]:
@@ -422,6 +438,12 @@ def pool_evidence(
     observations = _observations(db, name_to_id)
     simulations = _simulations(db, name_to_id)
     combo_cards = load_spellbook_combo_cards(_COMBOS_PATH) if view == VIEW_COMMANDER else set()
+    atlas_collected = (
+        db.execute(
+            "SELECT 1 FROM playgroup_card_atlas WHERE fetch_status = 'OK' LIMIT 1"
+        ).fetchone()
+        is not None
+    )
     cards: list[dict[str, object]] = []
     for card in raw_cards:
         if only_card_id is not None and card["card_id"] != only_card_id:
@@ -435,6 +457,7 @@ def pool_evidence(
                 observations=observations,
                 simulations=simulations,
                 combo_cards=combo_cards,
+                atlas_collected=atlas_collected,
                 detail=detail,
             )
         )
@@ -483,4 +506,74 @@ def card_evidence(
         "cohorts": result["cohorts"],
         "small_denominator": SMALL_DENOMINATOR,
         "card": card,
+    }
+
+
+def role_alternatives(
+    store: StudioStore,
+    card_id: str,
+    commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
+    *,
+    in_deck: Sequence[str] = (),
+    limit: int = 25,
+) -> dict[str, object]:
+    """Free pool cards that hold at least one role of ``card_id``: function alternatives.
+
+    This is a comparison of function, not a claim that a swap is better. The order is
+    deterministic and descriptive only: more shared roles first, then the smaller difference
+    in mana value, then the name. No outcome evidence exists, so ``improvement_claimed`` is
+    always false. Marks are not read; the caller filters excluded cards for display.
+    """
+    result = pool_evidence(store, commander_names, view=VIEW_COMMANDER)
+    cards = result["cards"]
+    if not isinstance(cards, list):
+        raise TypeError("pool_evidence returned an unexpected shape")
+
+    def roles_of(card: dict[str, object]) -> set[str]:
+        layers = card["layers"]
+        if not isinstance(layers, dict):
+            raise TypeError("layers must be a mapping")
+        claims = layers[LAYER_FACT]["roles"]
+        return {str(claim["role"]) for claim in claims}
+
+    target = next((card for card in cards if card["card_id"] == card_id), None)
+    if target is None:
+        raise KeyError(card_id)
+    target_roles = roles_of(target)
+    target_mv = float(str(target["mana_value"] or 0))
+    skip = {card_id, *in_deck}
+    found: list[tuple[int, float, str, dict[str, object]]] = []
+    for card in cards:
+        available = card["available"]
+        if card["card_id"] in skip or not isinstance(available, int) or available <= 0:
+            continue
+        shared = sorted(target_roles & roles_of(card))
+        if not shared:
+            continue
+        delta = float(str(card["mana_value"] or 0)) - target_mv
+        found.append(
+            (
+                -len(shared),
+                abs(delta),
+                str(card["name"]),
+                {
+                    "card": card,
+                    "shared_roles": shared,
+                    "only_candidate_roles": sorted(roles_of(card) - target_roles),
+                    "missing_roles": sorted(target_roles - roles_of(card)),
+                    "mana_value_delta": delta,
+                    "improvement_claimed": False,
+                },
+            )
+        )
+    found.sort(key=lambda item: item[:3])
+    return {
+        "schema": EVIDENCE_SCHEMA,
+        "card": target,
+        "roles": sorted(target_roles),
+        "status": "NO_ROLE_CLAIM" if not target_roles else "OK",
+        "order": "shared roles (more first), mana value difference (smaller first), name",
+        "basis": "function only; no outcome evidence, so no swap is called an improvement",
+        "total": len(found),
+        "alternatives": [item[3] for item in found[:limit]],
     }

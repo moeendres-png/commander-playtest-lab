@@ -20,3 +20,4 @@ td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:8px}
 .rule{color:var(--muted);font-size:11px}
 .policy{border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel2);border-radius:0 6px 6px 0;margin:8px 0;font-size:12px}
 th{top:0}
+.layer .name{cursor:pointer;font-weight:600}

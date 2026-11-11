@@ -311,18 +311,30 @@ class BasePilot:
     def __init__(self, config: PilotConfig | None = None) -> None:
         self.config = config or PilotConfig(pilot_name=self.pilot_name)
         self.policy = _STRENGTH_POLICIES[self.config.strength]
-        self.weights = self.config.weights or self.default_weights(self.config.strength)
+        self.style = self.config.style
+        self.deck_plan = self.config.deck_plan
+        if self.config.weights is not None:
+            self.weights = self.config.weights
+        elif self.config.style is not None:
+            from commander_lab.agents.style import style_weights
+
+            self.weights = style_weights(self.config.style, self.config.strength)
+        else:
+            self.weights = self.default_weights(self.config.strength)
         self.temperature = self.config.temperature or self.policy.temperature
         self.mistake_rate = (
             self.policy.mistake_rate
             if self.config.mistake_rate is None
             else self.config.mistake_rate
         )
-        self.reserve_mana_target = (
-            self.policy.reserve_mana_target
-            if self.config.reserve_mana_target is None
-            else self.config.reserve_mana_target
-        )
+        if self.config.reserve_mana_target is not None:
+            self.reserve_mana_target = self.config.reserve_mana_target
+        elif self.config.style is not None:
+            from commander_lab.agents.style import style_reserve_mana
+
+            self.reserve_mana_target = style_reserve_mana(self.config.style)
+        else:
+            self.reserve_mana_target = self.policy.reserve_mana_target
 
     def default_weights(self, strength: PilotStrength) -> PilotUtilityWeights:
         return _GENERIC_WEIGHTS[strength]
@@ -573,6 +585,14 @@ class BasePilot:
                 strength=self.config.strength,
                 mode=self.config.mode,
             )
+        # Invariant (Vorrangregel): game-winning actions and combos strictly precede other play
+        winning = [
+            a
+            for a in candidates
+            if a.metadata.get("combo_win") is True or a.metadata.get("game_winning") is True
+        ]
+        if winning:
+            candidates = winning
         scored = [(action, self.evaluate_action(state, action)) for action in candidates]
         scored.sort(key=lambda item: (item[1].total_utility, item[0].action_id), reverse=True)
         scored = scored[: self.policy.shortlist]
@@ -613,7 +633,18 @@ class BasePilot:
         actions: Iterable[PilotActionView],
         rng: random.Random,
     ) -> PilotDecision:
-        return self.choose_action(state, actions, rng)
+        candidate_list = list(actions)
+        # Invariant (Vorrangregel): an open lethal finish strictly overrides holding back
+        lethal = [
+            a
+            for a in candidate_list
+            if a.action_kind == "combat_target" and a.metadata.get("lethal_window") is True
+        ]
+        if lethal:
+            active = [a for a in candidate_list if a.action_kind != "pass"]
+            if active:
+                candidate_list = active
+        return self.choose_action(state, candidate_list, rng)
 
     def choose_target(
         self,

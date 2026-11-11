@@ -77,6 +77,8 @@ class GameBody(BaseModel):
     revision_id: str = Field(min_length=1, max_length=200)
     opponent_ids: list[str] = Field(min_length=1, max_length=5)
     seed: int = Field(ge=0, le=2_000_000_000)
+    style: float | None = Field(default=None, ge=0.0, le=1.0)
+    seat_styles: list[float] | None = None
 
 
 class NamesBody(BaseModel):
@@ -92,6 +94,11 @@ class PrefilterBody(BaseModel):
     base_revision_id: str
     cards: list[CardEntry]
     trials: int = Field(default=2000, ge=50, le=20000)
+
+
+class AlternativesBody(BaseModel):
+    commander: list[str] = Field(min_length=1, max_length=2)
+    in_deck: list[str] = Field(default_factory=list, max_length=300)
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -207,6 +214,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return evidence_model.card_evidence(store, card_id, commander, view=view)
         except KeyError as error:
             raise HTTPException(404, "unknown card or card outside this view") from error
+        finally:
+            store.close()
+
+    @app.post("/api/cards/{card_id}/alternatives")
+    def alternatives(card_id: str, body: AlternativesBody) -> dict[str, object]:
+        """Free cards with a shared role: a comparison of function, never a claimed upgrade."""
+        store = open_store()
+        try:
+            return evidence_model.role_alternatives(
+                store, card_id, body.commander, in_deck=body.in_deck
+            )
+        except KeyError as error:
+            raise HTTPException(404, "unknown card or commander") from error
         finally:
             store.close()
 
@@ -449,6 +469,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 revision_id=body.revision_id,
                 opponent_ids=body.opponent_ids,
                 seed=body.seed,
+                style=body.style,
+                seat_styles=body.seat_styles,
             )
             return {"game_id": game_id}
         except KeyError as error:
@@ -468,6 +490,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         try:
             return games.read_game(games_home(), game_id, start=start, count=count)
+        except (KeyError, ValueError) as error:
+            raise HTTPException(404, "unknown game") from error
+
+    @app.delete("/api/games/{game_id}")
+    def delete_game(game_id: str) -> dict[str, object]:
+        try:
+            deleted = games.delete_game(games_home(), game_id)
+            return {"deleted": deleted, "game_id": game_id}
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
 
