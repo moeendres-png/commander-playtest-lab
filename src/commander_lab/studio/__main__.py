@@ -125,7 +125,6 @@ def _parser() -> argparse.ArgumentParser:
     commands.add_parser(
         "data-report", help="counts-only report on what the store has, lacks and does not know"
     )
-    )
     return parser
 
 
