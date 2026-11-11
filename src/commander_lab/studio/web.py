@@ -76,6 +76,8 @@ class GameBody(BaseModel):
     revision_id: str = Field(min_length=1, max_length=200)
     opponent_ids: list[str] = Field(min_length=1, max_length=5)
     seed: int = Field(ge=0, le=2_000_000_000)
+    style: float | None = Field(default=None, ge=0.0, le=1.0)
+    seat_styles: list[float] | None = None
 
 
 class NamesBody(BaseModel):
@@ -412,6 +414,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 revision_id=body.revision_id,
                 opponent_ids=body.opponent_ids,
                 seed=body.seed,
+                style=body.style,
+                seat_styles=body.seat_styles,
             )
             return {"game_id": game_id}
         except KeyError as error:
