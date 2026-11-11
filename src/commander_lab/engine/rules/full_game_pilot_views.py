@@ -1135,7 +1135,7 @@ def priority_view_fields(
         # We scale by 0.3 and cap at 2.0 total, so synergy is a tiebreaker,
         # not a dominant factor. Example: Llanowar Elves with Wood Elves on
         # battlefield gets +0.09 (0.3 * 0.3).
-        # Design rationale (Hans, 2026-10-18): synergy should reward
+        # Design rationale (Owner, 2026-10-18): synergy should reward
         # coherent deck strategies without overriding card fundamentals.
         own_battlefield = [
             item
@@ -1659,7 +1659,7 @@ def attack_score(
     # In normal situations it returns 0.0, so this code has no effect.
     # When desperate, we add desperation * 1.0 to the attack score, making
     # aggressive attacks more attractive than holding back blockers.
-    # Design rationale (Hans, 2026-10-18): "Tempo-Effekt generell schwächer,
+    # Design rationale (Owner, 2026-10-18): "Tempo-Effekt generell schwächer,
     # nur in echten Desperation-Situationen stark." A desperate player should
     # attack; a non-desperate player should not be affected.
     # Note: actor_id is read from state (pattern used at line 462). If empty,

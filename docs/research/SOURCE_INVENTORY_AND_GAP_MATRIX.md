@@ -1,11 +1,11 @@
 # Commander Studio BUILD: Quelleninventar, Datenlückenmatrix & Beispielreport (P0 Deliverables 1, 2 & 3)
 
 **Datum:** 2026-11-11  
-**Autorität & Bindung:** Issue [#1185](https://github.com/moeendres-png/commander-playtest-lab/issues/1185), [`docs/PROJECT_MISSION.md`](file:///home/moeen/commander-playtest-lab/docs/PROJECT_MISSION.md), [`docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`](file:///home/moeen/commander-playtest-lab/docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md), `AGENTS.md` §2 (Rules Authority), §3 (Source Truth), §12 (Privacy).  
+**Autorität & Bindung:** Issue [#1185](https://github.com/moeendres-png/commander-playtest-lab/issues/1185), [`docs/PROJECT_MISSION.md`](../PROJECT_MISSION.md), [`docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`](../OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md), `AGENTS.md` §2 (Rules Authority), §3 (Source Truth), §12 (Privacy).  
 **Status:** `P0_DELIVERABLES_COMPLETED` (Maschinenlesbares Quellenregister, 801-Karten-Lückenmatrix, Beispielreport & CLI-Integration).  
 **Maschinenlesbare Artefakte:**
-- Quellenregister (9 Quellen): [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json)
-- Lückenmatrix (801 Chulane-Poolkarten): [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json)
+- Quellenregister (9 Quellen): [`data/provenance/source_inventory.json`](../../data/provenance/source_inventory.json)
+- Lückenmatrix (801 Chulane-Poolkarten): [`data/research/chulane_legal_pool_gap_matrix.json`](../../data/research/chulane_legal_pool_gap_matrix.json)
 
 ---
 
@@ -126,7 +126,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 - **Evidenzschicht:** `COMBO_VERIFIED`.
 - **Zähler / Nenner:** Diskrete Varianten-ID, genaue Anzahl beteiligter Teile und Schritte.
 - **Doppelzählungs-Risiko:** Gering auf Kombo-Ebene; funktionale Klone (z. B. Shrieking Drake vs. Man-o'-War) bilden separate Varianten.
-- **Lizenz & Abrufmethode:** **Open Source (MIT License & CC BY 4.0)**; uneingeschränkt frei nutzbar via REST-API. Adapter in [`src/commander_lab/commander_spellbook.py`](file:///home/moeen/commander-playtest-lab/src/commander_lab/commander_spellbook.py) bereits implementiert.
+- **Lizenz & Abrufmethode:** **Open Source (MIT License & CC BY 4.0)**; uneingeschränkt frei nutzbar via REST-API. Adapter in [`src/commander_lab/commander_spellbook.py`](../../src/commander_lab/commander_spellbook.py) bereits implementiert.
 - **Reproduzierbarkeit:** `REPRODUCIBLE_API`.
 - **Bias & Grenzen:**
   - Die bloße Existenz einer Kombo ist **kein Beleg für Konsistenz, Spielstärke oder Siegquote**.
@@ -138,7 +138,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 ### Priorität 6: ACTIVE-Drive Curated Chulane 99-Card Deck-Korpus
 - **Quellen-ID:** `active_drive:chulane-corpus-975`
 - **Direkte URL:** `local:data/hub/03_MAINBOARD_99_COMPACT_*.jsonl`
-- **Referenz-Dokumentation:** [`docs/STUDIO_DECKBUILDER.md`](file:///home/moeen/commander-playtest-lab/docs/STUDIO_DECKBUILDER.md)
+- **Referenz-Dokumentation:** [`docs/STUDIO_DECKBUILDER.md`](../STUDIO_DECKBUILDER.md)
 - **Herausgeber:** Commander Studio ACTIVE Archive / Owner
 - **Datenstand:** Stand 2026-11-10; 994 registrierte Quellen, **975 einzigartige Deckkompositionen**.
 - **Schema & Identifikator:** JSONL / CSV; Primärschlüssel `deck_id`, referenziert über `oracle_id`.
@@ -178,7 +178,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 ### Priorität 8: XMage Engine Card Facts & Rules Readiness
 - **Quellen-ID:** `xmage:card-facts`
 - **Direkte URL:** `local:data/cards/xmage_card_facts.json`
-- **Referenz-Dokumentation:** [`https://github.com/magefree/mage`](https://github.com/magefree/mage), [`src/commander_lab/deck_readiness.py`](file:///home/moeen/commander-playtest-lab/src/commander_lab/deck_readiness.py)
+- **Referenz-Dokumentation:** [`https://github.com/magefree/mage`](https://github.com/magefree/mage), [`src/commander_lab/deck_readiness.py`](../../src/commander_lab/deck_readiness.py)
 - **Herausgeber:** XMage Project / Commander Lab
 - **Datenstand / Snapshot:** `xmage-card-facts-v1`, Stand: `2026-11-10T00:00:00Z`
 - **Schema & Identifikator:** JSON (`xmage_card_facts.json`); Primärschlüssel: normalisierter `engine_name` / `oracle_name`.
@@ -198,7 +198,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 ### Priorität 9: Scryfall Tagger Community-Rollen
 - **Quellen-ID:** `scryfall:tagger`
 - **Direkte URL:** [`https://tagger.scryfall.com/`](https://tagger.scryfall.com/)
-- **Referenz-Dokumentation:** [`https://scryfall.com/docs/tagger-tags`](https://scryfall.com/docs/tagger-tags), [`src/commander_lab/studio/roles.py`](file:///home/moeen/commander-playtest-lab/src/commander_lab/studio/roles.py)
+- **Referenz-Dokumentation:** [`https://scryfall.com/docs/tagger-tags`](https://scryfall.com/docs/tagger-tags), [`src/commander_lab/studio/roles.py`](../../src/commander_lab/studio/roles.py)
 - **Herausgeber:** Scryfall Community / Tagger Project
 - **Datenstand:** Kontinuierlich gepflegter Community-Tag-Katalog (2024–2026).
 - **Schema & Identifikator:** Web / CSV / Tag-Taxonomie; Identifikation via `oracle_id` und Kartennamen.
@@ -215,7 +215,7 @@ Die Qualifizierung erfolgt in der vom Owner verbindlich festgelegten Reihenfolge
 
 ## 3. Deliverable 2: 801-Karten-Lückenmatrix & Long-Tail-Analyse
 
-Die vollständige Lückenmatrix für den gesamten legalen Chulane-Pool ($N = 801$ Karten) wurde berechnet und in [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json) hinterlegt.
+Die vollständige Lückenmatrix für den gesamten legalen Chulane-Pool ($N = 801$ Karten) wurde berechnet und in [`data/research/chulane_legal_pool_gap_matrix.json`](../../data/research/chulane_legal_pool_gap_matrix.json) hinterlegt.
 
 ### Methodik der Lückenberechnung
 
@@ -345,7 +345,7 @@ Gemäß den P0-Abnahmekriterien aus Issue #1185 wurde ein strukturierter Beispie
      python -m commander_lab.studio sources --example-report
      ```
 2. **Datenablage:**
-   - [`data/provenance/source_inventory.json`](file:///home/moeen/commander-playtest-lab/data/provenance/source_inventory.json): Versioniertes Quellenregister (9 Quellen: 5 `VERIFIED`, 4 `REVIEW`).
-   - [`data/research/chulane_legal_pool_gap_matrix.json`](file:///home/moeen/commander-playtest-lab/data/research/chulane_legal_pool_gap_matrix.json): Vollständige Matrix für alle 801 legalen Poolkarten mit `research_priority_score`, `coverage_grade` und Long-Tail-Kennzeichnung.
+   - [`data/provenance/source_inventory.json`](../../data/provenance/source_inventory.json): Versioniertes Quellenregister (9 Quellen: 5 `VERIFIED`, 4 `REVIEW`).
+   - [`data/research/chulane_legal_pool_gap_matrix.json`](../../data/research/chulane_legal_pool_gap_matrix.json): Vollständige Matrix für alle 801 legalen Poolkarten mit `research_priority_score`, `coverage_grade` und Long-Tail-Kennzeichnung.
 3. **Unit-Tests:**
-   - [`tests/unit/test_studio_sources.py`](file:///home/moeen/commander-playtest-lab/tests/unit/test_studio_sources.py): 12 Tests, $100\,\%$ Test-Hygiene, 0 `Any`-Verletzungen, vollständige CLI-Abdeckung.
+   - [`tests/unit/test_studio_sources.py`](../../tests/unit/test_studio_sources.py): 12 Tests, $100\,\%$ Test-Hygiene, 0 `Any`-Verletzungen, vollständige CLI-Abdeckung.
