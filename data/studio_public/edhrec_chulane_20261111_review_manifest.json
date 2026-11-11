@@ -1,0 +1,27 @@
+{
+  "dataset": "edhrec-chulane-c079-historical-20261111-fresh-capture",
+  "schema": "source-review-sidecar-1",
+  "review_only": true,
+  "automatic_import": false,
+  "github_action_verified_run": "https://github.com/moeendres-png/commander-playtest-lab/actions/runs/43024442970",
+  "drive_data_folder": "https://drive.google.com/drive/folders/1kAFbIlvD6Qv1rcJRSMbILaNeOgd6PkWy",
+  "drive_full_source_zip": "https://drive.google.com/file/d/1eX670LPagB4K6Sp2t1XrzwaUhuo_LgbB/view",
+  "drive_sqlite_prebuilt": "https://drive.google.com/file/d/1qQENjS1oRiRAoM4etMoalbpXs9AjDCJ2/view",
+  "historical_rows": 1379,
+  "historical_exact_utc": 75,
+  "historical_unknown_utc": 1304,
+  "new_http200_events": 20,
+  "new_page_card_rows": 4945,
+  "historical_relisted": 1298,
+  "historical_not_listed_current_unknown": 6,
+  "historical_utc_backfilled": 0,
+  "source_evidence_zip_sha256": "275b74181b1a1e88d1f1c3b71801228361f986fa2ee72e36beb598b420e6be9c",
+  "sealed_full_review_zip_sha256": "7b07e0c54de32790dccaa374b5f8e4971949580e6311a154ebbf789f8e1232f9",
+  "sealed_full_review_filename": "STUDIO_EDHREC_C079_HISTORIE_UND_NEU_2026-11-11_VERIFIZIERT.zip",
+  "files_sha256": {
+    "edhrec_provenance.py": "6bd4f59893f8ef9926260a408d023e80ae15bc0cd9d0401c30d1d65d927e1142",
+    "test_edhrec_provenance.py": "9db1143ee6581d80c089c9833370e121289896ce593208010b10d75b8a13f3e8",
+    "CommanderStudio_EDHREC_C079_NEU_2026-11-11_REVIEW.sqlite3": "9071d58ebfe708c22a2b66f03eed0e9901f6cd5194bddaaa9dd112563918a848"
+  },
+  "private_card_ids_excluded_from_public_git": true
+}
