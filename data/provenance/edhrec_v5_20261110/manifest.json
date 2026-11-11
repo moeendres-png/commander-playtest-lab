@@ -79,5 +79,8 @@
     "normalized_mainboard_rows": 0,
     "bracket1_exclusion_rows": 2,
     "validator": "scripts/verify_edhrec_v5_archive.py"
-  }
+  },
+  "source_archive_drive_file_id": "11_-2NEeyZcBaRIh8SveUvQeB7tz5qCIb",
+  "source_archive_drive_url": "https://drive.google.com/file/d/11_-2NEeyZcBaRIh8SveUvQeB7tz5qCIb/view",
+  "source_archive_drive_sha256_readback_verified": true
 }
