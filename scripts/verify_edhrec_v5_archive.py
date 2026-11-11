@@ -47,7 +47,6 @@ def read_manifest(path: Path) -> Counter[tuple[str, int, str]]:
     return expected
 
 
-
 def verify_no_complete_decks(source: zipfile.ZipFile) -> dict[str, int]:
     """Check the V5 status data, not just the archive checksum.
 
@@ -61,9 +60,8 @@ def verify_no_complete_decks(source: zipfile.ZipFile) -> dict[str, int]:
     }
     if not required.issubset(source.namelist()):
         raise ValueError("EDHREC V5 is missing a required deck-verification export")
-    index = list(
-        csv.DictReader(io.StringIO(source.read("01_EDHREC_DECK_INDEX.csv").decode("utf-8-sig")))
-    )
+    index_text = source.read("01_EDHREC_DECK_INDEX.csv").decode("utf-8-sig")
+    index = list(csv.DictReader(io.StringIO(index_text)))
     if (
         len(index) != 470
         or len({row["id"] for row in index}) != 470
@@ -73,18 +71,12 @@ def verify_no_complete_decks(source: zipfile.ZipFile) -> dict[str, int]:
         raise ValueError("EDHREC V5 preview index is not the expected unverified 470-row cohort")
     if source.read("02_DECKS_COMPACT_ELIGIBLE.jsonl").strip():
         raise ValueError("EDHREC V5 contains unexpected purported verified deck records")
-    mainboard = list(
-        csv.DictReader(
-            io.StringIO(source.read("02_MAINBOARD_CARDS_NORMALIZED.csv").decode("utf-8-sig"))
-        )
-    )
+    mainboard_text = source.read("02_MAINBOARD_CARDS_NORMALIZED.csv").decode("utf-8-sig")
+    mainboard = list(csv.DictReader(io.StringIO(mainboard_text)))
     if mainboard:
         raise ValueError("EDHREC V5 has mainboard rows requiring separate legality verification")
-    excluded = list(
-        csv.DictReader(
-            io.StringIO(source.read("05_BRACKET1_EXHIBITION_EXCLUDED.csv").decode("utf-8-sig"))
-        )
-    )
+    excluded_text = source.read("05_BRACKET1_EXHIBITION_EXCLUDED.csv").decode("utf-8-sig")
+    excluded = list(csv.DictReader(io.StringIO(excluded_text)))
     if len(excluded) != 2:
         raise ValueError("EDHREC V5 Bracket 1 exclusion evidence count changed")
     return {
@@ -92,6 +84,7 @@ def verify_no_complete_decks(source: zipfile.ZipFile) -> dict[str, int]:
         "verified_complete_99_card_decks": 0,
         "excluded_bracket1_preview_ids": len(excluded),
     }
+
 
 def verify_archive(
     archive: Path,
