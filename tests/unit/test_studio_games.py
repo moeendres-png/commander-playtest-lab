@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 from pathlib import Path
 
 import pytest
@@ -251,7 +252,7 @@ def test_engine_command_comes_from_the_environment_or_the_data_folder(
     jar = tmp_path / launch.ENGINE_JAR
     jar.parent.mkdir()
     jar.write_bytes(b"jar")
-    monkeypatch.setattr(launch.shutil, "which", lambda name: None)
+    monkeypatch.setattr(shutil, "which", lambda name: None)
     assert launch.engine_command(tmp_path) is None
     assert "Java" in str(launch.engine_state(tmp_path)["reason"])
     monkeypatch.setattr(launch.shutil, "which", lambda name: "/usr/bin/java")
@@ -320,3 +321,198 @@ def test_starting_a_game_checks_its_seats_before_any_process_starts(
             )
     finally:
         store.close()
+
+
+def test_public_card_token_mapping(studio_folder: Path) -> None:
+    store = StudioStore.open(studio_folder)
+    try:
+        source_id = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+        # Insert a synthetic card and test token fallback
+        store.connection.execute(
+            "INSERT INTO scryfall_card (oracle_id, scryfall_id, name, front_name, layout, "
+            "mana_cost, mana_value, type_line, oracle_text, color_identity, commander_legality, "
+            "keywords, produced_mana, source_id, image_front) "
+            "VALUES ('o-food', 's-food', 'Food', 'Food', 'token', '', 0, 'Artifact — Food', "
+            "'Sacrifice: Gain 3 life', '', 'not_legal', '[]', '', ?, 'https://cards.scryfall.io/food.jpg')",
+            (source_id,),
+        )
+        store.connection.commit()
+
+        # Querying "Food Token" should find "Food"
+        card = public_card(store, "Food Token")
+        assert card is not None
+        assert card["name"] == "Food"
+        assert card["image_front"] == "https://cards.scryfall.io/food.jpg"
+
+        # Querying "Food" finds "Food" directly
+        card_direct = public_card(store, "Food")
+        assert card_direct is not None
+        assert card_direct["oracle_id"] == "o-food"
+    finally:
+        store.close()
+
+
+def test_combat_and_target_tracking_in_frames(tmp_path: Path) -> None:
+    recorder = games.GameRecorder(tmp_path, "combat-test", HEADER)
+
+    # Turn 2, combat phase: declare attacker
+    atk_decision = {
+        "decision_class": "declare_attacker",
+        "seat": 0,
+        "pilot_state": {
+            "turn_number": 2,
+            "phase": "combat",
+            "step": "declare_attackers",
+            "active_player_id": "p0",
+            "players": [{"seat": 0, "battlefield": [{"name": "Grizzly Bears"}]}],
+        },
+        "legal_options": [
+            {"option_id": "o1", "label": "Grizzly Bears attacks Full Game Seat 1"},
+            {"option_id": "o2", "label": "Hold Grizzly Bears"},
+        ],
+    }
+    recorder.record(atk_decision, {"selected_option_ids": ["o1"]})
+
+    # declare blocker
+    blk_decision = {
+        "decision_class": "declare_blocker",
+        "seat": 1,
+        "pilot_state": {
+            "turn_number": 2,
+            "phase": "combat",
+            "step": "declare_blockers",
+            "active_player_id": "p0",
+            "players": [{"seat": 1, "battlefield": [{"name": "Giant Spider"}]}],
+        },
+        "legal_options": [
+            {"option_id": "b1", "label": "Giant Spider blocks Grizzly Bears"},
+        ],
+    }
+    recorder.record(blk_decision, {"selected_option_ids": ["b1"]})
+
+    # spell target
+    tgt_decision = {
+        "decision_class": "target",
+        "seat": 0,
+        "pilot_state": {
+            "turn_number": 2,
+            "phase": "postcombat_main",
+            "step": "postcombat_main",
+            "players": [],
+        },
+        "legal_options": [
+            {"option_id": "t1", "label": "Grizzly Bears"},
+        ],
+    }
+    recorder.record(tgt_decision, {"selected_option_ids": ["t1"]})
+
+    recorder.close({"status": "finished"})
+
+    game = games.read_game(tmp_path, "combat-test")
+    frames = game["frames"]
+    assert len(frames) == 3
+
+    # Frame 1: attack
+    assert frames[0]["combat"]["attacks"] == [
+        {"attacker": "Grizzly Bears", "target": "Full Game Seat 1"}
+    ]
+    # Frame 2: accumulated combat carries attack + block
+    assert frames[1]["combat"]["attacks"] == [
+        {"attacker": "Grizzly Bears", "target": "Full Game Seat 1"}
+    ]
+    assert frames[1]["combat"]["blocks"] == [
+        {"blocker": "Giant Spider", "attacker": "Grizzly Bears"}
+    ]
+
+    # Frame 3: target decision recorded in targets, combat reset
+    assert frames[2]["targets"] == ["Grizzly Bears"]
+    assert "combat" not in frames[2]
+
+
+def test_exile_list_in_player() -> None:
+    raw_player = {
+        "seat": 0,
+        "life": 40,
+        "exile": [
+            {"name": "Path to Exile"},
+            {"name": "Hidden Threat", "face_down": True},
+        ],
+    }
+    parsed = games._player(raw_player)
+    assert parsed["exile_count"] == 2
+    assert parsed["exile"] == ["Path to Exile", "(verdeckt)"]
+
+
+def test_delete_game_and_orphaned_out(tmp_path: Path) -> None:
+    folder = games.games_folder(tmp_path)
+
+    # 1. Normal game deletion
+    rec = games.GameRecorder(tmp_path, "del-me", HEADER)
+    rec.record(_decision(), {"selected_option_ids": ["o1"]})
+    gz_path = rec.close({"status": "finished"})
+    out_path = folder / "del-me.out"
+    out_path.write_text("process output\n", encoding="utf-8")
+
+    assert gz_path.is_file()
+    assert out_path.is_file()
+    assert games.delete_game(tmp_path, "del-me") is True
+    assert not gz_path.exists()
+    assert not out_path.exists()
+
+    with pytest.raises(KeyError):
+        games.delete_game(tmp_path, "del-me")
+
+    # 2. Orphaned .out file (process crashed before writing .jsonl)
+    orphaned_out = folder / "crashed-start.out"
+    orphaned_out.write_text("Exception in thread main: java.lang.OutOfMemoryError\n", encoding="utf-8")
+
+    listed = games.list_games(tmp_path)
+    assert any(g["game_id"] == "crashed-start" for g in listed)
+
+    crashed = games.read_game(tmp_path, "crashed-start")
+    assert crashed["running"] is False
+    assert crashed["result"]["status"] == "failed"
+    assert crashed["result"]["failure_class"] == "start_failed"
+    assert "OutOfMemoryError" in crashed["result"]["failure_message"]
+    assert "OutOfMemoryError" in crashed["result"]["stdout"]
+
+    # Delete the orphaned game
+    assert games.delete_game(tmp_path, "crashed-start") is True
+    assert not orphaned_out.exists()
+
+
+def test_web_api_delete_game(studio_folder: Path) -> None:
+    rec = games.GameRecorder(studio_folder, "api-del", HEADER)
+    rec.record(_decision(), {"selected_option_ids": ["o1"]})
+    rec.close({"status": "finished"})
+
+    marker = {"X-Studio": "1"}
+    with TestClient(create_app(studio_folder)) as client:
+        # Without marker -> 403
+        assert client.delete("/api/games/api-del").status_code == 403
+        # With marker -> 200
+        res = client.delete("/api/games/api-del", headers=marker)
+        assert res.status_code == 200
+        assert res.json() == {"deleted": True, "game_id": "api-del"}
+        # Second time -> 404
+        assert client.delete("/api/games/api-del", headers=marker).status_code == 404
+
+
+def test_engine_command_with_java_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv(launch.ENGINE_COMMAND_ENV, raising=False)
+    jar = tmp_path / launch.ENGINE_JAR
+    jar.parent.mkdir()
+    jar.write_bytes(b"jar")
+
+    fake_java_home = tmp_path / "jdk"
+    java_bin = fake_java_home / "bin"
+    java_bin.mkdir(parents=True)
+    fake_java = java_bin / ("java.exe" if os.name == "nt" else "java")
+    fake_java.write_bytes(b"")
+
+    monkeypatch.setattr(shutil, "which", lambda name: None)
+    monkeypatch.setenv("JAVA_HOME", str(fake_java_home))
+
+    cmd = launch.engine_command(tmp_path)
+    assert cmd is not None
+    assert cmd[0] == str(fake_java)

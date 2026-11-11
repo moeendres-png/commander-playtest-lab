@@ -80,6 +80,7 @@ def public_card(store: StudioStore, name: str) -> dict[str, object] | None:
     """Public facts of a card by its name (full name or front face), or ``None``.
 
     For cards outside the collection, such as the cards of the other seats in a game.
+    Tokens ending in ' Token' fallback to their base card/token name and vice versa.
     """
     row = store.connection.execute(
         "SELECT oracle_id, name, mana_cost, mana_value, type_line, oracle_text, power, "
@@ -87,7 +88,29 @@ def public_card(store: StudioStore, name: str) -> dict[str, object] | None:
         "ORDER BY name = :name DESC LIMIT 1",
         {"name": name},
     ).fetchone()
-    return dict(row) if row is not None else None
+    if row is not None:
+        return dict(row)
+    if name.endswith(" Token"):
+        base_name = name[:-6].strip()
+        row = store.connection.execute(
+            "SELECT oracle_id, name, mana_cost, mana_value, type_line, oracle_text, power, "
+            "toughness, image_front FROM scryfall_card WHERE name = :name OR front_name = :name "
+            "ORDER BY name = :name DESC LIMIT 1",
+            {"name": base_name},
+        ).fetchone()
+        if row is not None:
+            return dict(row)
+    elif not name.endswith(" Token"):
+        token_name = f"{name} Token"
+        row = store.connection.execute(
+            "SELECT oracle_id, name, mana_cost, mana_value, type_line, oracle_text, power, "
+            "toughness, image_front FROM scryfall_card WHERE name = :name OR front_name = :name "
+            "ORDER BY name = :name DESC LIMIT 1",
+            {"name": token_name},
+        ).fetchone()
+        if row is not None:
+            return dict(row)
+    return None
 
 
 def cached_image_by_name(store: StudioStore, name: str, *, fetch: bool = True) -> Path | None:
