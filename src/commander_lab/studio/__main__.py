@@ -10,7 +10,6 @@ from pathlib import Path
 
 from . import catalog, importers, roles
 from .data_report import data_report
-from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
 from .queries import corpus_inclusion, legal_pool
