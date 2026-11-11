@@ -69,3 +69,53 @@ def test_reject_unexpected_sha(tmp_path: Path) -> None:
     manifest.write_text("\n".join(lines) + "\n", encoding="utf-8")
     with pytest.raises(ValueError, match="Invalid SHA-256"):
         verifier.read_manifest(manifest)
+
+
+def test_repository_manifest_covers_every_v5_source_byte() -> None:
+    source = MODULE.parents[1] / "data/provenance/edhrec_v5_20261110/source_multiset.csv"
+    counts = verifier.read_manifest(source)
+    assert len(counts) == 962
+    assert sum(counts.values()) == 963
+    assert {
+        group: sum(n for (kind, _size, _sha), n in counts.items() if kind == group)
+        for group in verifier.EXPECTED_COUNTS
+    } == verifier.EXPECTED_COUNTS
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == (
+        "379416495bb5c606de38ec261c37d3a903468324f19e9f0f92fbd8ef2ff3ed3c"
+    )
+
+
+@pytest.mark.parametrize("fault", ["none", "verified", "mainboard", "index"])
+def test_preview_status_requires_actual_empty_deck_exports(
+    tmp_path: Path, fault: str
+) -> None:
+    archive = tmp_path / "preview-evidence.zip"
+    status = "VERIFIED" if fault == "index" else "DECK_NOT_VERIFIED"
+    index = "id,status,fingerprint\n" + "".join(
+        f"test-{i},{status},\n" for i in range(470)
+    )
+    with zipfile.ZipFile(archive, "w") as dest:
+        dest.writestr("01_EDHREC_DECK_INDEX.csv", index)
+        dest.writestr(
+            "02_DECKS_COMPACT_ELIGIBLE.jsonl",
+            '{"fake":"deck"}\n' if fault == "verified" else "",
+        )
+        dest.writestr(
+            "02_MAINBOARD_CARDS_NORMALIZED.csv",
+            "id,name,oracle_id,quantity\n"
+            + ("test-0,Forest,unknown,1\n" if fault == "mainboard" else ""),
+        )
+        dest.writestr(
+            "05_BRACKET1_EXHIBITION_EXCLUDED.csv",
+            "id,url,evidence_url\n" + "test-a,,\ntest-b,,\n",
+        )
+    with zipfile.ZipFile(archive) as source:
+        if fault == "none":
+            assert verifier.verify_no_complete_decks(source) == {
+                "source_preview_ids": 470,
+                "verified_complete_99_card_decks": 0,
+                "excluded_bracket1_preview_ids": 2,
+            }
+        else:
+            with pytest.raises(ValueError):
+                verifier.verify_no_complete_decks(source)
