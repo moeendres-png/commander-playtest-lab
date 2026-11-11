@@ -124,6 +124,7 @@ function filtered() {
     if (key === "freq") return freq(card).hits;
     if (key === "edhrec") return card.edhrec ? card.edhrec.pct : -1;
     if (key === "edhrec_rank") return card.edhrec_rank === null ? Infinity : card.edhrec_rank;
+    if (key === "playgroup") return card.playgroup && card.playgroup.live_inclusion_pct !== null ? card.playgroup.live_inclusion_pct : -1;
     return card[key];
   };
   rows.sort((a, b) => {
@@ -169,6 +170,7 @@ const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
   ["type_line", "Typ", "type_line"], ["text", "Text", null], ["pt", "S/W", null], ["available", "frei", "available"], ["owned", "Besitz", "owned"],
   ["reserved", "reserviert", "reserved"], ["freq", "Quelldecks", "freq"], ["edhrec", "EDHREC", "edhrec"], ["edhrec_rank", "EDHREC-Rang", "edhrec_rank"],
+  ["playgroup", "Playgroup", "playgroup"],
   ["roles", "Rollen", null], ["produced_mana", "erzeugt Mana", null], ["sim_status", "Simulator", "sim_status"], ["note", "Notiz", null],
 ];
 function cell(card, key) {
@@ -183,6 +185,13 @@ function cell(card, key) {
     if (!card.edhrec) return h("td", { class: "num muted" }, "unbekannt");
     const e = card.edhrec;
     return h("td", { class: "num" + (e.denominator < state.small ? " low" : ""), title: "EDHREC-Seite: " + e.page }, `${e.numerator}/${e.denominator} · ${Number(e.pct).toFixed(0)} %`);
+  }
+  if (key === "playgroup") {
+    if (!card.playgroup) return h("td", { class: "num muted" }, "unbekannt");
+    const p = card.playgroup;
+    const gap = p.observed_winrate_gap_pp !== null ? `${p.observed_winrate_gap_pp > 0 ? "+" : ""}${p.observed_winrate_gap_pp.toFixed(1)} pp` : "–";
+    const turn = p.median_cast_turn !== null ? `T${p.median_cast_turn.toFixed(1)}` : "–";
+    return h("td", { class: "num" + (p.insufficient_sample ? " low" : ""), title: `Playgroup Live: Cast-Turn ${turn}, Winrate-Gap ${gap}` }, `${p.live_inclusion_pct !== null ? p.live_inclusion_pct.toFixed(0) + " %" : "–"} · ${turn} · ${gap}`);
   }
   const value = card[key];
   return h("td", { class: typeof value === "number" ? "num" : "" }, value === null || value === undefined ? "" : value);
@@ -640,6 +649,29 @@ async function openCard(card) {
           h("td", { class: "num" }, lift.get(row.cohort) === null || lift.get(row.cohort) === undefined ? "unbekannt" : Number(lift.get(row.cohort)).toFixed(2)),
           h("td", { class: "num" }, synergy.get(row.cohort) === null || synergy.get(row.cohort) === undefined ? "unbekannt" : Number(synergy.get(row.cohort)).toFixed(1) + " %")))))
         : h("p", { class: "muted" }, "Keine EDHREC-Zeile gespeichert: unbekannt, nicht null."));
+    if (detail.playgroup) {
+      const pg = detail.playgroup;
+      const pgRows = [];
+      pgRows.push(
+        h("tr", {}, h("td", {}, "Live Inclusion"), h("td", { class: "num" }, pg.live_inclusion_pct !== null ? `${Number(pg.live_inclusion_pct).toFixed(1)} %` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Times Brought / Decks Running"), h("td", { class: "num" }, `${pg.times_brought ?? "?"} / ${pg.decks_running ?? "?"}`)),
+        h("tr", {}, h("td", {}, "Medianer Cast-Turn"), h("td", { class: "num" }, pg.median_cast_turn !== null ? `T${Number(pg.median_cast_turn).toFixed(1)}` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Drawn-to-Played Rate"), h("td", { class: "num" }, pg.drawn_to_played_pct !== null ? `${Number(pg.drawn_to_played_pct).toFixed(1)} %` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Winrate when cast"), h("td", { class: "num" }, pg.winrate_when_cast_pct !== null ? `${Number(pg.winrate_when_cast_pct).toFixed(1)} % (n=${pg.winrate_when_cast_n ?? "?"})` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Winrate in library"), h("td", { class: "num" }, pg.winrate_when_in_library_pct !== null ? `${Number(pg.winrate_when_in_library_pct).toFixed(1)} % (n=${pg.winrate_when_in_library_n ?? "?"})` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Observed Winrate-Gap"), h("td", { class: "num" }, pg.observed_winrate_gap_pp !== null ? `${pg.observed_winrate_gap_pp > 0 ? "+" : ""}${Number(pg.observed_winrate_gap_pp).toFixed(1)} pp` : "unbekannt")),
+        h("tr", {}, h("td", {}, "95% Konfidenzintervall"), h("td", { class: "num" }, pg.ci_95_lower_pp !== null && pg.ci_95_upper_pp !== null ? `[${pg.ci_95_lower_pp > 0 ? "+" : ""}${Number(pg.ci_95_lower_pp).toFixed(1)} pp; ${pg.ci_95_upper_pp > 0 ? "+" : ""}${Number(pg.ci_95_upper_pp).toFixed(1)} pp]` : "unbekannt")),
+        h("tr", {}, h("td", {}, "Konservativer Schätzer"), h("td", { class: "num" }, pg.conservative_ranking_indicator || "unbekannt")),
+      );
+      if (pg.quality_warnings && pg.quality_warnings.length) {
+        pgRows.push(h("tr", { class: "low" }, h("td", {}, "Qualitätshinweise"), h("td", { class: "num" }, pg.quality_warnings.join(" · "))));
+      }
+      parts.push(
+        h("h3", {}, `Playgroup Card Atlas (${pg.attribution || "Playgroup.gg, CC BY 4.0"})`),
+        h("table", {}, h("tbody", {}, pgRows)),
+        h("p", { class: "note" }, pg.disclosure || "Live-Korrelation (Playgroup.gg), keine kausale Kartenstärke.")
+      );
+    }
     extra.replaceChildren(...parts);
   } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "Zusatzdaten nicht lesbar: " + error.message)); }
 }

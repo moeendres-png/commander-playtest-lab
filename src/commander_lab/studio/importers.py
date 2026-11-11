@@ -1328,3 +1328,368 @@ def import_edhrec_capture_manifest(
         "observations_written": total_observations,
         "unlisted_comparison_cards": unlisted_count if target_comparison_cards is not None else 0,
     }
+
+
+def _int_or_none(value: object) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        return int(float(str(value)))
+    except (ValueError, TypeError):
+        return None
+
+
+def _float_or_none(value: object) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(str(value))
+    except (ValueError, TypeError):
+        return None
+
+
+def import_playgroup_atlas(
+    store: StudioStore,
+    path: str | Path,
+    *,
+    source_title: str | None = None,
+    snapshot_date: str | None = None,
+) -> dict[str, int]:
+    """Import Playgroup.gg Card Atlas records into the Studio store.
+
+    Accepts:
+    - HTML file of a single card page (e.g. fixtures or scraped pages)
+    - JSON file containing a list of card records or a single card record
+    - JSONL file (one card record per line)
+    - TSV or CSV file conforming to STUDIO_PLAYGROUP_ATLAS_SCHEMA.md
+    """
+    from .playgroup_parser import (
+        parse_playgroup_card_html,
+        to_playgroup_slug,
+    )
+
+    file_path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    source_id = store.register_source(
+        data_class=DataClass.NORMALIZED_SOURCE,
+        title=source_title or f"playgroup_atlas:{file_path.name}",
+        sha256=sha256_file(file_path),
+        snapshot_date=snapshot_date,
+        url="https://playgroup.gg/cards",
+    )
+
+    records: list[dict[str, object]] = []
+
+    suffix = file_path.suffix.lower()
+    if suffix in {".html", ".htm"}:
+        html_content = file_path.read_text(encoding="utf-8")
+        parsed = parse_playgroup_card_html(html_content, slug=file_path.stem)
+        records.append(parsed.to_dict())
+    elif suffix in {".tsv", ".csv"}:
+        delimiter = "\t" if suffix == ".tsv" else ","
+        with file_path.open("r", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle, delimiter=delimiter)
+            for row in reader:
+                records.append(dict(row))
+    else:
+        # JSON or JSONL
+        content = file_path.read_text(encoding="utf-8").strip()
+        if content.startswith("{") or content.startswith("["):
+            try:
+                loaded = json.loads(content)
+                if isinstance(loaded, list):
+                    records = [dict(item) for item in loaded if isinstance(item, dict)]
+                elif isinstance(loaded, dict):
+                    if "cards" in loaded and isinstance(loaded["cards"], list):
+                        records = [dict(item) for item in loaded["cards"] if isinstance(item, dict)]
+                    elif "records" in loaded and isinstance(loaded["records"], list):
+                        records = [
+                            dict(item) for item in loaded["records"] if isinstance(item, dict)
+                        ]
+                    else:
+                        records = [loaded]
+            except json.JSONDecodeError:
+                # Try JSONL fallback
+                for line in content.splitlines():
+                    line = line.strip()
+                    if line:
+                        records.append(json.loads(line))
+        else:
+            for line in content.splitlines():
+                line = line.strip()
+                if line:
+                    records.append(json.loads(line))
+
+    db = store.connection
+    timestamp = now_utc()
+    records_imported = 0
+    top_commanders_imported = 0
+    final_zones_imported = 0
+
+    with db:
+        for row in records:
+            card_name = _text(row.get("card_name") or row.get("name")) or ""
+            oracle_id = _text(row.get("oracle_id"))
+            if not oracle_id and card_name:
+                found = db.execute(
+                    "SELECT oracle_id FROM card WHERE oracle_name = ? "
+                    "UNION SELECT oracle_id FROM scryfall_card WHERE name = ?",
+                    (card_name, card_name),
+                ).fetchone()
+                if found:
+                    oracle_id = str(found[0])
+
+            if not oracle_id:
+                # If still no oracle_id, skip or cannot identify
+                continue
+
+            raw_card_id = _text(row.get("card_id"))
+            card_id: str | None = None
+            if (
+                raw_card_id
+                and db.execute("SELECT 1 FROM card WHERE card_id = ?", (raw_card_id,)).fetchone()
+            ):
+                card_id = raw_card_id
+            if not card_id:
+                card_id = store.card_id_by_oracle_or_name(oracle_id, card_name)
+            slug = _text(row.get("slug")) or to_playgroup_slug(card_name)
+            format_mode = _text(row.get("format_mode")) or "multiplayer"
+
+            raw_warnings = row.get("quality_warnings")
+            if isinstance(raw_warnings, list | tuple):
+                warnings_json = json.dumps(list(raw_warnings), ensure_ascii=False)
+            elif isinstance(raw_warnings, str):
+                if raw_warnings.startswith("["):
+                    warnings_json = raw_warnings
+                else:
+                    warnings_json = json.dumps([raw_warnings], ensure_ascii=False)
+            else:
+                warnings_json = str(row.get("quality_warnings_json") or "[]")
+
+            insufficient_sample = _flag(row.get("insufficient_sample")) or 0
+
+            db.execute(
+                """
+                INSERT INTO playgroup_card_atlas (
+                    oracle_id, format_mode, card_id, card_name, slug, card_type, set_name,
+                    live_inclusion_pct, deck_inclusion_pct, times_brought, decks_running, unique_players,
+                    median_cast_turn, drawn_to_played_pct, first_cast_n,
+                    turn_1_pct, turn_2_pct, turn_3_pct, turn_4_pct, turn_5_pct, turn_6_to_9_pct, turn_10_plus_pct,
+                    p25_cast_turn, p75_cast_turn, max_cast_turn,
+                    on_curve_pct, on_curve_count, on_curve_denominator, on_curve_turn,
+                    cast_same_turn_as_drawn_pct, turns_in_hand,
+                    funnel_brought_n, funnel_players_n, ever_drawn_n, reached_battlefield_n, still_on_board_at_end_n,
+                    battlefield_survival_pct,
+                    winrate_when_cast_pct, winrate_when_cast_n,
+                    winrate_when_in_library_pct, winrate_when_in_library_n,
+                    winrate_when_in_hand_pct, winrate_when_in_hand_n,
+                    observed_winrate_gap_pp, ci_95_lower_pp, ci_95_upper_pp,
+                    conservative_ranking_indicator, final_zones_instances_n,
+                    fetch_status, quality_warnings_json, insufficient_sample,
+                    retrieved_at_utc, source_id, created_at, updated_at
+                ) VALUES (
+                    ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?,
+                    ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?,
+                    ?, ?, ?, ?,
+                    ?, ?,
+                    ?, ?, ?, ?, ?,
+                    ?,
+                    ?, ?,
+                    ?, ?,
+                    ?, ?,
+                    ?, ?, ?,
+                    ?, ?,
+                    ?, ?, ?,
+                    ?, ?, ?, ?
+                )
+                ON CONFLICT(oracle_id, format_mode) DO UPDATE SET
+                    card_id = COALESCE(excluded.card_id, playgroup_card_atlas.card_id),
+                    card_name = excluded.card_name,
+                    slug = excluded.slug,
+                    card_type = excluded.card_type,
+                    set_name = excluded.set_name,
+                    live_inclusion_pct = excluded.live_inclusion_pct,
+                    deck_inclusion_pct = excluded.deck_inclusion_pct,
+                    times_brought = excluded.times_brought,
+                    decks_running = excluded.decks_running,
+                    unique_players = excluded.unique_players,
+                    median_cast_turn = excluded.median_cast_turn,
+                    drawn_to_played_pct = excluded.drawn_to_played_pct,
+                    first_cast_n = excluded.first_cast_n,
+                    turn_1_pct = excluded.turn_1_pct,
+                    turn_2_pct = excluded.turn_2_pct,
+                    turn_3_pct = excluded.turn_3_pct,
+                    turn_4_pct = excluded.turn_4_pct,
+                    turn_5_pct = excluded.turn_5_pct,
+                    turn_6_to_9_pct = excluded.turn_6_to_9_pct,
+                    turn_10_plus_pct = excluded.turn_10_plus_pct,
+                    p25_cast_turn = excluded.p25_cast_turn,
+                    p75_cast_turn = excluded.p75_cast_turn,
+                    max_cast_turn = excluded.max_cast_turn,
+                    on_curve_pct = excluded.on_curve_pct,
+                    on_curve_count = excluded.on_curve_count,
+                    on_curve_denominator = excluded.on_curve_denominator,
+                    on_curve_turn = excluded.on_curve_turn,
+                    cast_same_turn_as_drawn_pct = excluded.cast_same_turn_as_drawn_pct,
+                    turns_in_hand = excluded.turns_in_hand,
+                    funnel_brought_n = excluded.funnel_brought_n,
+                    funnel_players_n = excluded.funnel_players_n,
+                    ever_drawn_n = excluded.ever_drawn_n,
+                    reached_battlefield_n = excluded.reached_battlefield_n,
+                    still_on_board_at_end_n = excluded.still_on_board_at_end_n,
+                    battlefield_survival_pct = excluded.battlefield_survival_pct,
+                    winrate_when_cast_pct = excluded.winrate_when_cast_pct,
+                    winrate_when_cast_n = excluded.winrate_when_cast_n,
+                    winrate_when_in_library_pct = excluded.winrate_when_in_library_pct,
+                    winrate_when_in_library_n = excluded.winrate_when_in_library_n,
+                    winrate_when_in_hand_pct = excluded.winrate_when_in_hand_pct,
+                    winrate_when_in_hand_n = excluded.winrate_when_in_hand_n,
+                    observed_winrate_gap_pp = excluded.observed_winrate_gap_pp,
+                    ci_95_lower_pp = excluded.ci_95_lower_pp,
+                    ci_95_upper_pp = excluded.ci_95_upper_pp,
+                    conservative_ranking_indicator = excluded.conservative_ranking_indicator,
+                    final_zones_instances_n = excluded.final_zones_instances_n,
+                    fetch_status = excluded.fetch_status,
+                    quality_warnings_json = excluded.quality_warnings_json,
+                    insufficient_sample = excluded.insufficient_sample,
+                    retrieved_at_utc = excluded.retrieved_at_utc,
+                    source_id = excluded.source_id,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    oracle_id,
+                    format_mode,
+                    card_id,
+                    card_name,
+                    slug,
+                    _text(row.get("card_type")),
+                    _text(row.get("set_name")),
+                    _float_or_none(row.get("live_inclusion_pct")),
+                    _float_or_none(row.get("deck_inclusion_pct")),
+                    _int_or_none(row.get("times_brought")),
+                    _int_or_none(row.get("decks_running")),
+                    _int_or_none(row.get("unique_players")),
+                    _float_or_none(row.get("median_cast_turn")),
+                    _float_or_none(row.get("drawn_to_played_pct")),
+                    _int_or_none(row.get("first_cast_n")),
+                    _float_or_none(row.get("turn_1_pct")),
+                    _float_or_none(row.get("turn_2_pct")),
+                    _float_or_none(row.get("turn_3_pct")),
+                    _float_or_none(row.get("turn_4_pct")),
+                    _float_or_none(row.get("turn_5_pct")),
+                    _float_or_none(row.get("turn_6_to_9_pct")),
+                    _float_or_none(row.get("turn_10_plus_pct")),
+                    _float_or_none(row.get("p25_cast_turn")),
+                    _float_or_none(row.get("p75_cast_turn")),
+                    _float_or_none(row.get("max_cast_turn")),
+                    _float_or_none(row.get("on_curve_pct")),
+                    _int_or_none(row.get("on_curve_count")),
+                    _int_or_none(row.get("on_curve_denominator")),
+                    _text(row.get("on_curve_turn")),
+                    _float_or_none(row.get("cast_same_turn_as_drawn_pct")),
+                    _float_or_none(row.get("turns_in_hand")),
+                    _int_or_none(row.get("funnel_brought_n")),
+                    _int_or_none(row.get("funnel_players_n")),
+                    _int_or_none(row.get("ever_drawn_n")),
+                    _int_or_none(row.get("reached_battlefield_n")),
+                    _int_or_none(row.get("still_on_board_at_end_n")),
+                    _float_or_none(row.get("battlefield_survival_pct")),
+                    _float_or_none(row.get("winrate_when_cast_pct")),
+                    _int_or_none(row.get("winrate_when_cast_n")),
+                    _float_or_none(row.get("winrate_when_in_library_pct")),
+                    _int_or_none(row.get("winrate_when_in_library_n")),
+                    _float_or_none(row.get("winrate_when_in_hand_pct")),
+                    _int_or_none(row.get("winrate_when_in_hand_n")),
+                    _float_or_none(row.get("observed_winrate_gap_pp")),
+                    _float_or_none(row.get("ci_95_lower_pp")),
+                    _float_or_none(row.get("ci_95_upper_pp")),
+                    _text(row.get("conservative_ranking_indicator")),
+                    _int_or_none(row.get("final_zones_instances_n")),
+                    _text(row.get("fetch_status")) or "OK",
+                    warnings_json,
+                    insufficient_sample,
+                    _text(row.get("retrieved_at_utc")),
+                    source_id,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+            records_imported += 1
+
+            # Top commanders
+            top_commanders = row.get("top_commanders")
+            if isinstance(top_commanders, str) and top_commanders.startswith("["):
+                try:
+                    top_commanders = json.loads(top_commanders)
+                except Exception:
+                    top_commanders = []
+            if isinstance(top_commanders, list | tuple):
+                db.execute(
+                    "DELETE FROM playgroup_top_commander WHERE oracle_id = ? AND format_mode = ?",
+                    (oracle_id, format_mode),
+                )
+                for tc in top_commanders:
+                    if isinstance(tc, dict):
+                        tc_rank = _int_or_none(tc.get("rank")) or 1
+                        tc_name = _text(tc.get("commander_name")) or ""
+                        tc_slug = _text(tc.get("commander_slug")) or to_playgroup_slug(tc_name)
+                        tc_color = _text(tc.get("color_identity")) or ""
+                        tc_count = _int_or_none(tc.get("decks_count")) or 0
+                        db.execute(
+                            """
+                            INSERT INTO playgroup_top_commander (
+                                oracle_id, format_mode, rank, commander_name, commander_slug,
+                                color_identity, decks_count, created_at
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            """,
+                            (
+                                oracle_id,
+                                format_mode,
+                                tc_rank,
+                                tc_name,
+                                tc_slug,
+                                tc_color,
+                                tc_count,
+                                timestamp,
+                            ),
+                        )
+                        top_commanders_imported += 1
+
+            # Final zones
+            final_zones = row.get("final_zones")
+            if isinstance(final_zones, str) and final_zones.startswith("["):
+                try:
+                    final_zones = json.loads(final_zones)
+                except Exception:
+                    final_zones = []
+            if isinstance(final_zones, list | tuple):
+                db.execute(
+                    "DELETE FROM playgroup_final_zone WHERE oracle_id = ? AND format_mode = ?",
+                    (oracle_id, format_mode),
+                )
+                for fz in final_zones:
+                    if isinstance(fz, dict):
+                        fz_name = _text(fz.get("zone_name")) or ""
+                        fz_pct = _float_or_none(fz.get("pct")) or 0.0
+                        fz_inst = _int_or_none(fz.get("instances_n"))
+                        if fz_name:
+                            db.execute(
+                                """
+                                INSERT INTO playgroup_final_zone (
+                                    oracle_id, format_mode, zone_name, pct, instances_n, created_at
+                                ) VALUES (?, ?, ?, ?, ?, ?)
+                                """,
+                                (oracle_id, format_mode, fz_name, fz_pct, fz_inst, timestamp),
+                            )
+                            final_zones_imported += 1
+
+    return {
+        "records_imported": records_imported,
+        "top_commanders_imported": top_commanders_imported,
+        "final_zones_imported": final_zones_imported,
+    }
