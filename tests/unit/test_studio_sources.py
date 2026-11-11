@@ -56,6 +56,7 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
         "EXTERNAL_OPINION",
     }
 
+    assert len(QUALIFIED_SOURCES) == 7
     for source in QUALIFIED_SOURCES:
         # Core identification & URL
         assert source.source_id.strip() != ""
