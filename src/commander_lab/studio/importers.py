@@ -1100,14 +1100,24 @@ def import_edhrec_capture_manifest(
             db.execute(
                 "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, "
                 "snapshot_date, url, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (source_id, DataClass.ORIGINAL_SOURCE.value, f"EDHREC:{event_id}",
-                 sha256_hash, observed_utc[:10], url, now_utc()),
+                (
+                    source_id,
+                    DataClass.ORIGINAL_SOURCE.value,
+                    f"EDHREC:{event_id}",
+                    sha256_hash,
+                    observed_utc[:10],
+                    url,
+                    now_utc(),
+                ),
             )
             source_state = db.execute(
                 "SELECT sha256, url FROM source WHERE source_id = ?", (source_id,)
             ).fetchone()
-            if (source_state is None or source_state["sha256"] != sha256_hash
-                    or source_state["url"] != url):
+            if (
+                source_state is None
+                or source_state["sha256"] != sha256_hash
+                or source_state["url"] != url
+            ):
                 raise ValueError(f"Source event ID reused with different bytes/URL: {event_id}")
 
             container = parsed.get("container") if isinstance(parsed, dict) else None
@@ -1147,11 +1157,21 @@ def import_edhrec_capture_manifest(
                 "SELECT source_url, request_start_utc, response_complete_utc, "
                 "raw_response_sha256, http_status, raw_size_bytes, cardlists_count, "
                 "provenance_class, automatic_import, source_id "
-                "FROM source_capture_event WHERE event_id = ?", (event_id,)
+                "FROM source_capture_event WHERE event_id = ?",
+                (event_id,),
             ).fetchone()
-            expected = (url, capture.request_start_utc, capture.response_complete_utc,
-                        sha256_hash, 200, len(raw_bytes), capture.cardlists_count,
-                        "NEW_HTTP_CAPTURE_ONLY", 0, source_id)
+            expected = (
+                url,
+                capture.request_start_utc,
+                capture.response_complete_utc,
+                sha256_hash,
+                200,
+                len(raw_bytes),
+                capture.cardlists_count,
+                "NEW_HTTP_CAPTURE_ONLY",
+                0,
+                source_id,
+            )
             if capture_state is None or tuple(capture_state) != expected:
                 raise ValueError(f"Immutable HTTP event changed between imports: {event_id}")
             db.execute(
@@ -1272,7 +1292,9 @@ def import_edhrec_capture_manifest(
         unlisted_count = 0
         if target_comparison_cards is not None:
             missing_cards = sorted(target_comparison_cards - all_seen_cards)
-            first_src_id = "src:edhrec-event:" + hashlib.sha256(verified[0].event_id.encode()).hexdigest()[:24]
+            first_src_id = (
+                "src:edhrec-event:" + hashlib.sha256(verified[0].event_id.encode()).hexdigest()[:24]
+            )
             db.execute(
                 "DELETE FROM observation WHERE source_id = ? AND cohort = ?",
                 (first_src_id, unknown_cohort),
