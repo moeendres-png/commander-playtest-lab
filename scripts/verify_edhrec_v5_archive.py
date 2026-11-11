@@ -10,6 +10,7 @@ import argparse
 import csv
 import gzip
 import hashlib
+import io
 import json
 import zipfile
 from collections import Counter
@@ -46,6 +47,52 @@ def read_manifest(path: Path) -> Counter[tuple[str, int, str]]:
     return expected
 
 
+
+def verify_no_complete_decks(source: zipfile.ZipFile) -> dict[str, int]:
+    """Check the V5 status data, not just the archive checksum.
+
+    EDHREC preview IDs are never evidence of a verified 99-card mainboard.
+    """
+    required = {
+        "01_EDHREC_DECK_INDEX.csv",
+        "02_DECKS_COMPACT_ELIGIBLE.jsonl",
+        "02_MAINBOARD_CARDS_NORMALIZED.csv",
+        "05_BRACKET1_EXHIBITION_EXCLUDED.csv",
+    }
+    if not required.issubset(source.namelist()):
+        raise ValueError("EDHREC V5 is missing a required deck-verification export")
+    index = list(
+        csv.DictReader(io.StringIO(source.read("01_EDHREC_DECK_INDEX.csv").decode("utf-8-sig")))
+    )
+    if (
+        len(index) != 470
+        or len({row["id"] for row in index}) != 470
+        or any(row["status"] != "DECK_NOT_VERIFIED" for row in index)
+        or any(row["fingerprint"].strip() for row in index)
+    ):
+        raise ValueError("EDHREC V5 preview index is not the expected unverified 470-row cohort")
+    if source.read("02_DECKS_COMPACT_ELIGIBLE.jsonl").strip():
+        raise ValueError("EDHREC V5 contains unexpected purported verified deck records")
+    mainboard = list(
+        csv.DictReader(
+            io.StringIO(source.read("02_MAINBOARD_CARDS_NORMALIZED.csv").decode("utf-8-sig"))
+        )
+    )
+    if mainboard:
+        raise ValueError("EDHREC V5 has mainboard rows requiring separate legality verification")
+    excluded = list(
+        csv.DictReader(
+            io.StringIO(source.read("05_BRACKET1_EXHIBITION_EXCLUDED.csv").decode("utf-8-sig"))
+        )
+    )
+    if len(excluded) != 2:
+        raise ValueError("EDHREC V5 Bracket 1 exclusion evidence count changed")
+    return {
+        "source_preview_ids": len(index),
+        "verified_complete_99_card_decks": 0,
+        "excluded_bracket1_preview_ids": len(excluded),
+    }
+
 def verify_archive(
     archive: Path,
     manifest: Path,
@@ -63,6 +110,7 @@ def verify_archive(
             raise ValueError("Archive SHA-256 differs from the frozen V5 source")
     actual: Counter[tuple[str, int, str]] = Counter()
     groups: Counter[str] = Counter()
+    evidence: dict[str, int] | None = None
     with zipfile.ZipFile(archive) as source:
         names: set[str] = set()
         for item in source.infolist():
@@ -80,6 +128,8 @@ def verify_archive(
                 data = gzip.decompress(data)
             actual[(group, len(data), sha256(data))] += 1
             groups[group] += 1
+        if strict_counts:
+            evidence = verify_no_complete_decks(source)
     if actual != expected:
         missing = sum((expected - actual).values())
         unexpected = sum((actual - expected).values())
@@ -94,6 +144,7 @@ def verify_archive(
         "verified_source_files": sum(groups.values()),
         "unique_checksum_keys": len(actual),
         "source_groups": dict(sorted(groups.items())),
+        "deck_evidence": evidence,
         "verified_complete_99_card_decks": 0,
         "active_studio_import": False,
     }
