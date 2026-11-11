@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commander Studio: Partie</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="partie.css">
+</head>
+<body>
+<header id="top">
+  <h1>Commander Studio <span>Partie ansehen</span></h1>
+  <label>Partie <select id="game-select"></select></label>
+  <span id="sim-pill" class="pill warn" title="Eine einzelne simulierte Partie: ein Seed, KI auf allen Plätzen. Sie zeigt, was in dieser Partie passiert ist, nicht wie stark ein Deck ist.">simuliert</span>
+  <span id="game-info" class="muted"></span>
+  <span class="spacer"></span>
+  <button id="new-game" type="button" class="primary">Neue Partie</button>
+  <a class="nav" href="index.html">Deckbau</a>
+</header>
+<div id="controls">
+  <button id="first" type="button" title="Anfang">⏮</button>
+  <button id="back" type="button" title="Eine Aktion zurück (Pfeil links)">◀</button>
+  <button id="play" type="button" class="primary" title="Abspielen oder anhalten (Leertaste)">▶ Abspielen</button>
+  <button id="next" type="button" title="Eine Aktion weiter (Pfeil rechts)">▶</button>
+  <button id="next-turn" type="button" title="Zum nächsten Zug">Zug ⏭</button>
+  <label>Tempo <select id="speed"></select></label>
+  <label><input id="skip" type="checkbox" checked> Passen und Manazahlung überspringen</label>
+  <input id="position" type="range" min="0" max="0" value="0">
+  <span id="where" class="muted"></span>
+</div>
+<main id="game">
+  <section id="table"></section>
+  <aside id="side">
+    <div id="now"></div>
+    <h3>Stapel</h3>
+    <div id="stack" class="cards"></div>
+    <h3 id="hand-title">Hand</h3>
+    <div id="hand" class="cards"></div>
+    <h3>Verlauf</h3>
+    <div id="log"></div>
+  </aside>
+</main>
+<div id="preview" hidden><img alt=""></div>
+<div id="modal" hidden><div id="modal-box" class="plain"></div></div>
+<div id="toast" hidden></div>
+<script src="partie.js"></script>
+</body>
+</html>

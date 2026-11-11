@@ -68,8 +68,45 @@ def _parser() -> argparse.ArgumentParser:
     serve = commands.add_parser("serve")
     serve.add_argument("--port", type=int, default=8765)
     serve.add_argument("--open", action="store_true", help="open the browser")
+    play = commands.add_parser(
+        "play", help="play one simulated game on the rules engine and record it"
+    )
+    play.add_argument(
+        "--deck", action="append", required=True, help="deck snapshot per seat (2 to 6 times)"
+    )
+    play.add_argument("--seed", type=int, required=True)
+    play.add_argument("--game-id", default=None)
+    play.add_argument("--max-decisions", type=int, default=50_000)
+    commands.add_parser("games")
     commands.add_parser("status")
     return parser
+
+
+def _games(args: argparse.Namespace) -> int:
+    from pathlib import Path
+
+    from .games import list_games
+    from .store import studio_data_dir
+
+    folder = Path(args.data).resolve() if args.data else studio_data_dir()
+    result: object
+    if args.command == "play":
+        from .play import play_recorded_game
+
+        result = play_recorded_game(
+            folder,
+            [Path(path) for path in args.deck],
+            seed=args.seed,
+            game_id=args.game_id,
+            max_decisions=args.max_decisions,
+        )
+    else:
+        result = [
+            {key: game[key] for key in ("game_id", "frames", "running", "result")}
+            for game in list_games(folder)
+        ]
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    return 0
 
 
 def _serve(data: str | None, port: int, open_browser: bool) -> int:
@@ -93,6 +130,8 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
         return _serve(args.data, args.port, args.open)
+    if args.command in {"play", "games"}:
+        return _games(args)
     store = StudioStore.open(args.data)
     try:
         result: object
