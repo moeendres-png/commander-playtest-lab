@@ -36,17 +36,20 @@ def _seed_card(store: StudioStore, card_id: str, oracle_name: str) -> None:
     store.connection.commit()
 
 
-
 def _make_proven_capture(
-    root: Path, url: str, raw_bytes: bytes, *,
+    root: Path,
+    url: str,
+    raw_bytes: bytes,
+    *,
     started: str = "2026-11-11T12:54:59.352Z",
     completed: str = "2026-11-11T12:54:59.435Z",
 ) -> dict[str, str]:
     """A self-consistent, tamper-checkable mock HTTP event."""
     digest = hashlib.sha256(raw_bytes).hexdigest()
-    event_id = "EDHREC_NEW_" + hashlib.sha256(
-        (url + "\n" + started + "\n" + digest).encode()
-    ).hexdigest()[:24]
+    event_id = (
+        "EDHREC_NEW_"
+        + hashlib.sha256((url + "\n" + started + "\n" + digest).encode()).hexdigest()[:24]
+    )
     raw_rel = f"raw/{event_id}.json"
     metadata_rel = f"observations/{event_id}.json"
     (root / "raw").mkdir(parents=True, exist_ok=True)
