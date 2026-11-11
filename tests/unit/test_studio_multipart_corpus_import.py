@@ -40,7 +40,7 @@ def _card(deck_id: str, name: str, quantity: int) -> dict[str, object]:
         "deck_id": deck_id,
         "raw_card_name": name,
         "canonical_name": name,
-        "oracle_id": "",
+        "oracle_id": f"oracle-{name.lower()}",
         "quantity": quantity,
         "section": "mainboard",
         "normalization_status": "exact",
@@ -68,16 +68,31 @@ def test_corpus_parts_accumulate_without_erasing_previous_parts(tmp_path: Path) 
             ],
         )
         importers.import_corpus_register(store, register)
+        # Scryfall was loaded before deck cards in the common import order.
+        source_id = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+        for name in ("Forest", "Island", "Plains", "Mountain", "Swamp"):
+            store.connection.execute(
+                "INSERT INTO scryfall_card(oracle_id, scryfall_id, name, front_name, layout, "
+                "color_identity, commander_legality, keywords, produced_mana, type_line, "
+                "source_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    f"oracle-{name.lower()}", f"printing-{name.lower()}", name, name,
+                    "normal", "", "legal", "[]", "", f"Basic Land — {name}", source_id,
+                ),
+            )
+        store.connection.commit()
         assert importers.import_corpus_cards(store, part_1) == {
             "rows": 3,
             "rows_without_registered_deck": 0,
         }
         assert store.count("corpus_deck_card") == 3
+        assert store.count("corpus_deck_stat") == 2
         assert importers.import_corpus_cards(store, part_2) == {
             "rows": 2,
             "rows_without_registered_deck": 0,
         }
         assert store.count("corpus_deck_card") == 5
+        assert store.count("corpus_deck_stat") == 4
 
         # Repeating a partition must not double the quantities or erase other partitions.
         importers.import_corpus_cards(store, part_1)
