@@ -39,9 +39,7 @@ def read_manifest(path: Path) -> Counter[tuple[str, int, str]]:
             count = int(row["count"])
             if group not in EXPECTED_COUNTS or size < 0 or count <= 0:
                 raise ValueError("Invalid group, size or count in EDHREC source manifest")
-            if len(digest) != HASH_SIZE or any(
-                c not in "0123456789abcdef" for c in digest
-            ):
+            if len(digest) != HASH_SIZE or any(c not in "0123456789abcdef" for c in digest):
                 raise ValueError("Invalid SHA-256 value in EDHREC source manifest")
             if (group, size, digest) in expected:
                 raise ValueError("Duplicate source multiset key in EDHREC manifest")
