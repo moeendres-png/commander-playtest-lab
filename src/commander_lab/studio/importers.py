@@ -16,8 +16,8 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 from .catalog import refresh_corpus_stats
-from .edhrec_capture_proof import verify_captures
 from .decks import RevisionCard, create_revision
+from .edhrec_capture_proof import verify_captures
 from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sha256_file
 
 IDENTITY_SHEET = "01_CARD_IDENTITY"
