@@ -253,6 +253,7 @@ def test_engine_command_comes_from_the_environment_or_the_data_folder(
     jar.parent.mkdir()
     jar.write_bytes(b"jar")
     monkeypatch.setattr(shutil, "which", lambda name: None)
+    monkeypatch.delenv("JAVA_HOME", raising=False)
     assert launch.engine_command(tmp_path) is None
     assert "Java" in str(launch.engine_state(tmp_path)["reason"])
     monkeypatch.setattr(launch.shutil, "which", lambda name: "/usr/bin/java")
