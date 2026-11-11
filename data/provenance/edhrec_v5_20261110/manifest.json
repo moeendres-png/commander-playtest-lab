@@ -70,5 +70,14 @@
     "The 01_EDHREC_DECK_INDEX.csv and 06_PENDING_AND_FAILED.csv have the same SHA-256 (one byte-identical copy).",
     "Legacy C079 and new 2026-11-11 HTTP captures must retain separate snapshots, timestamps and denominators.",
     "README source references are not a mechanism to publish private deck/card inventories."
-  ]
+  ],
+  "source_multiset_sha256": "379416495bb5c606de38ec261c37d3a903468324f19e9f0f92fbd8ef2ff3ed3c",
+  "content_validation": {
+    "preview_index_rows": 470,
+    "preview_status": "DECK_NOT_VERIFIED",
+    "eligible_complete_deck_rows": 0,
+    "normalized_mainboard_rows": 0,
+    "bracket1_exclusion_rows": 2,
+    "validator": "scripts/verify_edhrec_v5_archive.py"
+  }
 }
