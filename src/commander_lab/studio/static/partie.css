@@ -10,7 +10,17 @@ a.nav:hover{border-color:var(--accent)}
 .seat.active{border-color:var(--good)}
 .seat.acting{box-shadow:0 0 0 2px var(--accent)}
 .seat.out{opacity:.45}
-.seat.winner{border-color:#ffd257}
+.seat.attacked{border-color:var(--bad);box-shadow:0 0 8px rgba(238,138,115,.4)}
+.card.attacking img,.card.attacking .nocard{outline:2px solid var(--warn);box-shadow:0 0 6px rgba(224,192,96,.6)}
+.card.blocking img,.card.blocking .nocard{outline:2px solid #7db7ee;box-shadow:0 0 6px rgba(125,183,238,.6)}
+.card.targeted img,.card.targeted .nocard{outline:2px solid #ff4444;box-shadow:0 0 6px rgba(255,68,68,.6)}
+.badge.combat{left:2px;top:20px;background:#1b2838;border:1px solid var(--warn);color:#ffd257}
+.badge.blocking{border-color:#7db7ee;color:#7db7ee}
+.badge.targeted{border-color:#ff4444;color:#ff8888}
+button.danger{background:#8a2525;color:#fff;border:1px solid #c43838;border-radius:6px;padding:4px 10px;cursor:pointer}
+button.danger:hover{background:#a33030}
+#now .hint{font-size:11px;color:var(--muted);margin-top:6px;border-top:1px dashed var(--line);padding-top:4px}
+pre.error-out{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px;font-size:11px;max-height:180px;overflow:auto;white-space:pre-wrap;color:#ff9d94}
 .seat-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
 .seat-head b{font-size:15px}
 .life{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;min-width:38px;text-align:center;border-radius:8px;background:var(--panel2);padding:0 8px}

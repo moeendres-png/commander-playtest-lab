@@ -73,6 +73,21 @@ class _RecordingRunner(XmageFullGameRunner):
             raise RuntimeError("no recorder bound")
         return RecordingPolicy(policy, self.recorder)
 
+    def _drive(  # type: ignore[override]
+        self, client: object, policy: object, *, stop_after: int | None = None, **kwargs: object
+    ) -> tuple[int, object, bool]:
+        res = super()._drive(client, policy, stop_after=stop_after, **kwargs)  # type: ignore[arg-type]
+        if self.recorder is not None and hasattr(client, "request"):
+            try:
+                raw_log = client.request("export_event_log")
+                if isinstance(raw_log, dict):
+                    events = raw_log.get("events")
+                    if isinstance(events, list):
+                        self.recorder.save_event_log(events)
+            except Exception:
+                pass
+        return res
+
 
 def play_recorded_game(
     data_folder: str | Path,

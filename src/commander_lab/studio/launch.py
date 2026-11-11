@@ -8,6 +8,7 @@ where the engine is, which decks can sit at the table, and the process start.
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import shlex
@@ -53,6 +54,18 @@ def _repository_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
+def _java_executable() -> str | None:
+    java = shutil.which("java") or shutil.which("java.exe")
+    if java:
+        return java
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home:
+        candidate = Path(java_home) / "bin" / ("java.exe" if os.name == "nt" else "java")
+        if candidate.is_file():
+            return str(candidate)
+    return None
+
+
 def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     """How the rules engine is started here, or ``None`` when it is not set up.
 
@@ -61,9 +74,9 @@ def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     """
     raw = os.environ.get(ENGINE_COMMAND_ENV, "").strip()
     if raw:
-        return tuple(shlex.split(raw))
+        return tuple(shlex.split(raw, posix=(os.name != "nt")))
     jar = Path(data_folder) / ENGINE_JAR
-    java = shutil.which("java")
+    java = _java_executable()
     if jar.is_file() and java:
         return (java, "-Xmx3g", "-jar", str(jar), "full-game")
     return None
@@ -201,4 +214,12 @@ def start_game(
         time.sleep(0.2)
     if any(folder.glob(f"{game_id}.jsonl*")):
         return game_id
+    out_file = folder / f"{game_id}.out"
+    detail = ""
+    if out_file.is_file():
+        with contextlib.suppress(OSError):
+            detail = out_file.read_text(encoding="utf-8", errors="replace").strip()
+    if detail:
+        tail = "\n".join(detail.splitlines()[-5:])
+        raise RuntimeError(f"Die Partie konnte nicht gestartet werden: {tail}")
     raise RuntimeError("Die Partie konnte nicht gestartet werden.")

@@ -434,6 +434,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         except (KeyError, ValueError) as error:
             raise HTTPException(404, "unknown game") from error
 
+    @app.delete("/api/games/{game_id}")
+    def delete_game(game_id: str) -> dict[str, object]:
+        try:
+            deleted = games.delete_game(games_home(), game_id)
+            return {"deleted": deleted, "game_id": game_id}
+        except (KeyError, ValueError) as error:
+            raise HTTPException(404, "unknown game") from error
+
     @app.post("/api/public-cards")
     def public_cards(body: NamesBody) -> dict[str, object]:
         store = open_store()
