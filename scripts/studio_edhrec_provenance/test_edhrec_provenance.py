@@ -54,6 +54,18 @@ def build_archive(path: Path, *, bad_digest: bool = False, bad_url: bool = False
 
 
 class ProvenanceTest(unittest.TestCase):
+    def test_production_studio_database_is_always_rejected(self):
+        with tempfile.TemporaryDirectory() as t:
+            with self.assertRaisesRegex(ValueError, 'production Studio database'):
+                mod.connect(Path(t) / 'studio.sqlite3')
+            path = Path(t) / 'renamed.sqlite3'
+            conn = sqlite3.connect(path)
+            conn.execute('CREATE TABLE observation (id INTEGER)')
+            conn.commit()
+            conn.close()
+            with self.assertRaisesRegex(ValueError, 'Studio production or mixed database'):
+                mod.connect(path)
+
     def test_capture_import_is_idempotent_and_derived_is_separate(self):
         with tempfile.TemporaryDirectory() as t:
             archive = Path(t) / 'capture.zip'
