@@ -23,9 +23,23 @@ def _parser() -> argparse.ArgumentParser:
         "import-corpus-register",
         "import-corpus-cards",
         "import-edhrec",
-        "import-scryfall",
+        "import-edhrec-cardrecs",
+        "import-edhrec-delta",
+        "import-hub",
     ):
         commands.add_parser(name).add_argument("path")
+    scryfall = commands.add_parser("import-scryfall")
+    scryfall.add_argument("path")
+    scryfall.add_argument("--disambiguation")
+    sim = commands.add_parser("import-simulation")
+    sim.add_argument("path")
+    sim.add_argument("--engine-pin", default="f4d12f6e80")
+    sim.add_argument("--pilot-policy", default="tuned")
+    lab_deck = commands.add_parser("import-lab-deck")
+    lab_deck.add_argument("path")
+    lab_deck.add_argument("--deck-id")
+    lab_deck.add_argument("--name")
+    lab_deck.add_argument("--branch", default="main")
     selection = commands.add_parser("import-selection")
     selection.add_argument("path")
     selection.add_argument("--deck-id", required=True)
@@ -90,8 +104,31 @@ def main(argv: list[str] | None = None) -> int:
             result = importers.import_corpus_cards(store, args.path)
         elif args.command == "import-edhrec":
             result = importers.import_edhrec_table(store, args.path)
+        elif args.command == "import-edhrec-cardrecs":
+            result = importers.import_edhrec_cardrecs_csv(store, args.path)
+        elif args.command == "import-edhrec-delta":
+            result = importers.import_edhrec_delta_jsonl(store, args.path)
+        elif args.command == "import-hub":
+            result = importers.import_hub_corpus(store, args.path)
         elif args.command == "import-scryfall":
-            result = catalog.import_scryfall_oracle(store, args.path)
+            result = catalog.import_scryfall_oracle(
+                store, args.path, disambiguation_path=args.disambiguation
+            )
+        elif args.command == "import-simulation":
+            result = importers.import_simulation_report(
+                store,
+                args.path,
+                engine_pin=args.engine_pin,
+                pilot_policy=args.pilot_policy,
+            )
+        elif args.command == "import-lab-deck":
+            result = importers.import_lab_deck_snapshot(
+                store,
+                args.path,
+                deck_id=args.deck_id,
+                name=args.name,
+                branch=args.branch,
+            )
         elif args.command == "import-cohort":
             result = catalog.import_cohort(store, args.path, cohort=args.name)
         elif args.command == "fetch-images":
@@ -134,7 +171,8 @@ def main(argv: list[str] | None = None) -> int:
                 table: store.count(table)
                 for table in ("source", "card", "inventory", "deck", "deck_revision",
                               "corpus_deck", "corpus_deck_card", "observation",
-                              "scryfall_card", "corpus_cohort")
+                              "scryfall_card", "corpus_cohort", "neutral_board_row",
+                              "simulation_run")
             }  # fmt: skip
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0

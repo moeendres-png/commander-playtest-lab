@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 4
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -196,6 +196,49 @@ CREATE TABLE IF NOT EXISTS corpus_deck_role (
     cards INTEGER NOT NULL,
     PRIMARY KEY (deck_id, role)
 );
+CREATE TABLE IF NOT EXISTS neutral_board_row (
+    source_key TEXT NOT NULL,
+    batch TEXT NOT NULL,
+    section TEXT NOT NULL,
+    card_name TEXT NOT NULL,
+    oracle_id TEXT,
+    quantity INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (source_key, section, card_name)
+);
+CREATE INDEX IF NOT EXISTS neutral_board_oracle ON neutral_board_row(oracle_id);
+CREATE INDEX IF NOT EXISTS neutral_board_name ON neutral_board_row(card_name);
+CREATE TABLE IF NOT EXISTS simulation_run (
+    run_id TEXT PRIMARY KEY,
+    deck_id TEXT NOT NULL,
+    pod TEXT NOT NULL,
+    engine_pin TEXT NOT NULL,
+    pilot_policy TEXT NOT NULL,
+    seeds TEXT NOT NULL,
+    games_planned INTEGER NOT NULL,
+    games_completed INTEGER NOT NULL,
+    games_failed INTEGER NOT NULL,
+    wins_fractional REAL NOT NULL,
+    win_rate REAL,
+    mean_rounds REAL,
+    hand_dwell_status TEXT NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id)
+);
+CREATE TABLE IF NOT EXISTS simulation_card (
+    run_id TEXT NOT NULL REFERENCES simulation_run(run_id),
+    card_id TEXT REFERENCES card(card_id),
+    card_name TEXT NOT NULL,
+    games_completed INTEGER NOT NULL,
+    games_offered INTEGER NOT NULL,
+    games_cast_after_offer INTEGER NOT NULL,
+    games_rotted INTEGER NOT NULL,
+    offered_castable INTEGER NOT NULL,
+    cast_count INTEGER NOT NULL,
+    mean_first_cast_round REAL,
+    PRIMARY KEY (run_id, card_name)
+);
+CREATE INDEX IF NOT EXISTS simulation_card_id ON simulation_card(card_id);
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
@@ -327,12 +370,35 @@ class StudioStore:
         ).fetchall()
         return str(rows[0]["card_id"]) if len(rows) == 1 else None
 
+    def card_id_by_oracle_or_name(
+        self, oracle_id: str | None, card_name: str | None = None
+    ) -> str | None:
+        """Resolve a collection card by its oracle_id first, then by exact or front face name."""
+        if oracle_id:
+            rows = self.connection.execute(
+                "SELECT card_id FROM card WHERE oracle_id = ?", (oracle_id,)
+            ).fetchall()
+            if len(rows) == 1:
+                return str(rows[0]["card_id"])
+        if card_name:
+            by_name = self.card_id_by_name(card_name)
+            if by_name is not None:
+                return by_name
+            front = card_name.split(" // ")[0].strip()
+            rows = self.connection.execute(
+                "SELECT card_id FROM card_fact WHERE engine_name = ? OR oracle_name = ?",
+                (front, front),
+            ).fetchall()
+            if len(rows) == 1:
+                return str(rows[0]["card_id"])
+        return None
+
     def count(self, table: str) -> int:
         if table not in {
             "source", "card", "inventory", "deck", "deck_revision", "deck_revision_card",
             "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "card_role",
-            "corpus_deck_role",
+            "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

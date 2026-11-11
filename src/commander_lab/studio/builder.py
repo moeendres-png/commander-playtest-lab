@@ -7,13 +7,14 @@ its denominator; nothing here rates a card.
 from __future__ import annotations
 
 import json
+import math
 import re
 import sqlite3
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from statistics import median
 
-from .decks import RevisionCard, color_set
+from .decks import RevisionCard, color_set, list_rows
 from .store import StudioStore, now_utc
 
 ALL_DECKS = "all"
@@ -163,9 +164,195 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
     }
 
 
-def card_detail(store: StudioStore, card_id: str) -> dict[str, object]:
+def card_cooccurrence(
+    store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS, limit: int = 15
+) -> dict[str, object]:
+    """Other collection cards that appear in the same non-duplicate source decks as ``card_id``.
+
+    Pure count (``DERIVED_DESCRIPTIVE``): ``both_hits`` is the numerator and ``card_decks`` (the
+    number of distinct non-duplicate source decks in ``cohort`` that contain ``card_id``) is the
+    denominator.
+    """
+    db = store.connection
+    target = db.execute(
+        "SELECT oracle_id, oracle_name FROM card_fact WHERE card_id = ?", (card_id,)
+    ).fetchone()
+    if target is None:
+        raise KeyError(card_id)
+    oracle_id = target["oracle_id"]
+    oracle_name = str(target["oracle_name"])
+    cohort_join = ""
+    params: list[object] = []
+    if cohort != ALL_DECKS:
+        play_groups = {str(r[0]) for r in db.execute("SELECT DISTINCT play_group FROM corpus_deck")}
+        if cohort in play_groups:
+            cohort_join = " AND d.play_group = ?"
+            params.append(cohort)
+        else:
+            cohort_join = " AND EXISTS (SELECT 1 FROM corpus_cohort cc WHERE cc.deck_id = d.deck_id AND cc.cohort = ?)"
+            params.append(cohort)
+    match_clause = "(k.oracle_id = ? OR k.card_name = ?)" if oracle_id else "k.card_name = ?"
+    match_params: list[object] = [oracle_id, oracle_name] if oracle_id else [oracle_name]
+    deck_ids = [
+        str(r[0])
+        for r in db.execute(
+            "SELECT DISTINCT k.deck_id FROM corpus_deck_card k JOIN corpus_deck d USING (deck_id) "
+            f"WHERE d.duplicate_of IS NULL AND k.section != 'sideboard' AND {match_clause}"
+            f"{cohort_join}",
+            [*match_params, *params],
+        )
+    ]
+    card_decks = len(deck_ids)
+    if card_decks == 0:
+        return {
+            "cohort": cohort,
+            "card_decks": 0,
+            "data_class": "DERIVED_DESCRIPTIVE",
+            "cards": [],
+        }
+    placeholders = ",".join("?" for _ in deck_ids)
+    rows = db.execute(
+        "SELECT c.card_id, c.oracle_name AS name, COUNT(DISTINCT k.deck_id) AS both_hits "
+        "FROM corpus_deck_card k JOIN card_fact c "
+        "ON (k.oracle_id IS NOT NULL AND k.oracle_id = c.oracle_id) "
+        "OR (k.oracle_id IS NULL AND k.card_name = c.oracle_name) "
+        f"WHERE k.deck_id IN ({placeholders}) AND k.section != 'sideboard' "
+        "AND c.card_id != ? AND c.commander_legal = 1 "
+        "GROUP BY c.card_id, c.oracle_name ORDER BY both_hits DESC, c.oracle_name ASC LIMIT ?",
+        [*deck_ids, card_id, limit],
+    ).fetchall()
+    return {
+        "cohort": cohort,
+        "card_decks": card_decks,
+        "data_class": "DERIVED_DESCRIPTIVE",
+        "cards": [
+            {
+                "card_id": str(r["card_id"]),
+                "name": str(r["name"]),
+                "both_hits": int(r["both_hits"]),
+                "card_decks": card_decks,
+                "share": round(int(r["both_hits"]) / card_decks, 4),
+            }
+            for r in rows
+        ],
+    }
+
+
+def card_neutral_boards(store: StudioStore, card_id: str) -> dict[str, object]:
+    """Counts of ``card_id`` in neutral non-mainboard source sections (MAYBEBOARD, CUTS, SIDEBOARD).
+
+    Stored in ``neutral_board_row`` and never mixed into mainboard frequencies.
+    """
+    db = store.connection
+    target = db.execute(
+        "SELECT oracle_id, oracle_name FROM card_fact WHERE card_id = ?", (card_id,)
+    ).fetchone()
+    if target is None:
+        raise KeyError(card_id)
+    batch_sources = int(
+        db.execute("SELECT COUNT(DISTINCT source_key) FROM neutral_board_row").fetchone()[0]
+    )
+    if batch_sources == 0:
+        return {"batch_sources": 0, "data_class": "DERIVED_DESCRIPTIVE", "sections": []}
+    oracle_id = target["oracle_id"]
+    oracle_name = str(target["oracle_name"])
+    section_totals = {
+        str(r["section"]): int(r["n"])
+        for r in db.execute(
+            "SELECT section, COUNT(DISTINCT source_key) AS n FROM neutral_board_row "
+            "GROUP BY section"
+        )
+    }
+    match_clause = "(oracle_id = ? OR card_name = ?)" if oracle_id else "card_name = ?"
+    match_params: list[object] = [oracle_id, oracle_name] if oracle_id else [oracle_name]
+    hits_by_section = {
+        str(r["section"]): int(r["hits"])
+        for r in db.execute(
+            "SELECT section, COUNT(DISTINCT source_key) AS hits FROM neutral_board_row "
+            f"WHERE {match_clause} GROUP BY section",
+            match_params,
+        )
+    }
+    sections: list[dict[str, object]] = []
+    for sec in ("MAYBEBOARD", "CUTS", "SIDEBOARD"):
+        sec_den = section_totals.get(sec, 0)
+        if sec_den == 0:
+            continue
+        hits = hits_by_section.get(sec, 0)
+        sections.append(
+            {
+                "section": sec,
+                "hits": hits,
+                "section_sources": sec_den,
+                "batch_sources": batch_sources,
+                "share_of_section": round(hits / sec_den, 4),
+            }
+        )
+    return {
+        "batch_sources": batch_sources,
+        "data_class": "DERIVED_DESCRIPTIVE",
+        "sections": sections,
+    }
+
+
+def card_simulations(store: StudioStore, card_id: str) -> list[dict[str, object]]:
+    """Simulated cast opportunities for one card across stored ``SIMULATED_RESULT`` runs."""
+    db = store.connection
+    target = db.execute(
+        "SELECT oracle_name, engine_name FROM card_fact WHERE card_id = ?", (card_id,)
+    ).fetchone()
+    if target is None:
+        raise KeyError(card_id)
+    rows = db.execute(
+        "SELECT r.run_id, r.pod, r.engine_pin, r.pilot_policy, r.hand_dwell_status, "
+        "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
+        "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
+        "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
+        "WHERE sc.card_id = ? OR sc.card_name IN (?, ?) ORDER BY r.pod",
+        (card_id, target["oracle_name"], target["engine_name"]),
+    ).fetchall()
+    return [
+        {
+            **dict(item),
+            "data_class": "SIMULATED_RESULT",
+        }
+        for item in rows
+    ]
+
+
+def list_simulations(store: StudioStore) -> list[dict[str, object]]:
+    """All stored ``SIMULATED_RESULT`` runs with their summary metrics and per-card cast counts."""
+    db = store.connection
+    runs: list[dict[str, object]] = []
+    for run in db.execute(
+        "SELECT run_id, deck_id, pod, engine_pin, pilot_policy, seeds, games_planned, "
+        "games_completed, games_failed, wins_fractional, win_rate, mean_rounds, hand_dwell_status "
+        "FROM simulation_run ORDER BY pod, run_id"
+    ):
+        cards = [
+            dict(row)
+            for row in db.execute(
+                "SELECT card_id, card_name, games_completed, games_offered, "
+                "games_cast_after_offer, games_rotted, offered_castable, cast_count, "
+                "mean_first_cast_round FROM simulation_card WHERE run_id = ? "
+                "ORDER BY games_offered DESC, card_name ASC",
+                (run["run_id"],),
+            )
+        ]
+        runs.append(
+            {
+                **dict(run),
+                "seeds": json.loads(str(run["seeds"])),
+                "data_class": "SIMULATED_RESULT",
+                "cards": cards,
+            }
+        )
+    return runs
+
+
+def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) -> dict[str, object]:
     """Everything stored about one card: observations with numerator, denominator, address
-    and data class."""
+    and data class, plus co-occurring cards, neutral boards and simulation runs."""
     db = store.connection
     row = db.execute("SELECT * FROM card_fact WHERE card_id = ?", (card_id,)).fetchone()
     if row is None:
@@ -174,8 +361,8 @@ def card_detail(store: StudioStore, card_id: str) -> dict[str, object]:
         dict(item)
         for item in db.execute(
             "SELECT cohort, metric, value, numerator, denominator, data_class, url, snapshot "
-            "FROM observation WHERE card_id = ? ORDER BY metric, denominator DESC",
-            (card_id,),
+            "FROM observation WHERE card_id = ? OR card_name = ? ORDER BY metric, denominator DESC",
+            (card_id, row["oracle_name"]),
         )
     ]
     used_in = [
@@ -186,7 +373,14 @@ def card_detail(store: StudioStore, card_id: str) -> dict[str, object]:
             (card_id,),
         )
     ]
-    return {"card_id": card_id, "observations": observations, "used_in": used_in}
+    return {
+        "card_id": card_id,
+        "observations": observations,
+        "used_in": used_in,
+        "cooccurrence": card_cooccurrence(store, card_id, cohort=cohort),
+        "neutral_boards": card_neutral_boards(store, card_id),
+        "simulations": card_simulations(store, card_id),
+    }
 
 
 def _percentile(values: list[float], share: float) -> float:
@@ -276,8 +470,67 @@ def deck_roles(store: StudioStore, cards: Iterable[RevisionCard]) -> dict[str, i
     return dict(counts)
 
 
+def _hypergeom_at_least(total_n: int, success_k: int, draws: int, min_hits: int) -> float | None:
+    if total_n < draws or draws <= 0 or success_k < 0 or success_k > total_n:
+        return None
+    denom = math.comb(total_n, draws)
+    if denom == 0:
+        return None
+    hits = sum(
+        math.comb(success_k, i) * math.comb(total_n - success_k, draws - i)
+        for i in range(max(min_hits, 0), min(success_k, draws) + 1)
+        if 0 <= draws - i <= total_n - success_k
+    )
+    return round(hits / denom, 4)
+
+
+def _hypergeom_range(
+    total_n: int, success_k: int, draws: int, low_hits: int, high_hits: int
+) -> float | None:
+    if total_n < draws or draws <= 0 or success_k < 0 or success_k > total_n:
+        return None
+    denom = math.comb(total_n, draws)
+    if denom == 0:
+        return None
+    hits = sum(
+        math.comb(success_k, i) * math.comb(total_n - success_k, draws - i)
+        for i in range(max(low_hits, 0), min(high_hits, success_k, draws) + 1)
+        if 0 <= draws - i <= total_n - success_k
+    )
+    return round(hits / denom, 4)
+
+
+def draw_probabilities(main_cards: int, lands: int) -> dict[str, object] | None:
+    """Exact hypergeometric land-draw probabilities on the main deck (``DERIVED_DESCRIPTIVE``)."""
+    if main_cards < 10:
+        return None
+    return {
+        "data_class": "DERIVED_DESCRIPTIVE",
+        "main_cards": main_cards,
+        "lands": lands,
+        "opening_7": {
+            "draws": 7,
+            "at_least_2_lands": _hypergeom_at_least(main_cards, lands, 7, 2),
+            "at_least_3_lands": _hypergeom_at_least(main_cards, lands, 7, 3),
+            "between_3_and_4_lands": _hypergeom_range(main_cards, lands, 7, 3, 4),
+            "at_least_4_lands": _hypergeom_at_least(main_cards, lands, 7, 4),
+        },
+        "turn_3_draw_9": {
+            "draws": 9,
+            "at_least_3_lands": _hypergeom_at_least(main_cards, lands, 9, 3),
+            "at_least_4_lands": _hypergeom_at_least(main_cards, lands, 9, 4),
+        },
+        "turn_4_draw_10": {
+            "draws": 10,
+            "at_least_3_lands": _hypergeom_at_least(main_cards, lands, 10, 3),
+            "at_least_4_lands": _hypergeom_at_least(main_cards, lands, 10, 4),
+        },
+    }
+
+
 def deck_shape(rows: Iterable[sqlite3.Row]) -> dict[str, object]:
-    """Counts of one deck list: size, types, curve, color symbols, mana sources."""
+    """Counts of one deck list: size, types, curve, color symbols, mana sources, and
+    exact hypergeometric land-draw probabilities."""
     total = 0
     types: Counter[str] = Counter()
     curve: Counter[int] = Counter()
@@ -306,16 +559,101 @@ def deck_shape(rows: Iterable[sqlite3.Row]) -> dict[str, object]:
             for letter in "WUBRG":
                 if letter in symbol.split("/"):
                     pips[letter] += quantity
+    lands = types.get("Land", 0)
+    main_cards = lands + nonland
     return {
         "cards": total,
         "types": dict(types),
         "curve": {str(key): curve.get(key, 0) for key in range(8)},
         "pips": dict(pips),
         "mana_sources": dict(sources),
-        "lands": types.get("Land", 0),
+        "lands": lands,
         "creatures": types.get("Creature", 0),
         "nonland": nonland,
         "mana_value": round(mana_value_sum / nonland, 2) if nonland else None,
+        "draw_probabilities": draw_probabilities(main_cards, lands),
+    }
+
+
+def diff_lists(
+    store: StudioStore,
+    base_cards: Sequence[RevisionCard],
+    target_cards: Sequence[RevisionCard],
+) -> dict[str, object]:
+    """Objective card, shape and role difference between two deck lists (``DERIVED_DESCRIPTIVE``)."""
+    base_rows = list_rows(store, base_cards)
+    target_rows = list_rows(store, target_cards)
+    base_by_id = {
+        str(r["card_id"]): (int(r["quantity"]), str(r["oracle_name"]), main_type(r["type_line"]))
+        for r in base_rows
+        if r["zone"] == "main"
+    }
+    target_by_id = {
+        str(r["card_id"]): (int(r["quantity"]), str(r["oracle_name"]), main_type(r["type_line"]))
+        for r in target_rows
+        if r["zone"] == "main"
+    }
+    added: list[dict[str, object]] = []
+    removed: list[dict[str, object]] = []
+    changed: list[dict[str, object]] = []
+    added_slots = 0
+    removed_slots = 0
+    for card_id in sorted(
+        set(base_by_id) | set(target_by_id),
+        key=lambda cid: (target_by_id.get(cid) or base_by_id[cid])[1],
+    ):
+        b_item = base_by_id.get(card_id)
+        t_item = target_by_id.get(card_id)
+        if b_item is None and t_item is not None:
+            added.append(
+                {"card_id": card_id, "name": t_item[1], "group": t_item[2], "quantity": t_item[0]}
+            )
+            added_slots += t_item[0]
+        elif t_item is None and b_item is not None:
+            removed.append(
+                {"card_id": card_id, "name": b_item[1], "group": b_item[2], "quantity": b_item[0]}
+            )
+            removed_slots += b_item[0]
+        elif b_item is not None and t_item is not None and b_item[0] != t_item[0]:
+            delta = t_item[0] - b_item[0]
+            changed.append(
+                {
+                    "card_id": card_id,
+                    "name": t_item[1],
+                    "group": t_item[2],
+                    "base_quantity": b_item[0],
+                    "target_quantity": t_item[0],
+                    "delta": delta,
+                }
+            )
+            if delta > 0:
+                added_slots += delta
+            else:
+                removed_slots += -delta
+    base_shape = deck_shape(base_rows)
+    target_shape = deck_shape(target_rows)
+    base_roles = deck_roles(store, base_cards)
+    target_roles = deck_roles(store, target_cards)
+    all_roles = sorted(set(base_roles) | set(target_roles))
+    role_deltas = {
+        role: {
+            "base": base_roles.get(role, 0),
+            "target": target_roles.get(role, 0),
+            "delta": target_roles.get(role, 0) - base_roles.get(role, 0),
+        }
+        for role in all_roles
+        if base_roles.get(role, 0) != target_roles.get(role, 0)
+    }
+    return {
+        "data_class": "DERIVED_DESCRIPTIVE",
+        "added": added,
+        "removed": removed,
+        "changed": changed,
+        "added_slots": added_slots,
+        "removed_slots": removed_slots,
+        "base_shape": base_shape,
+        "target_shape": target_shape,
+        "role_deltas": role_deltas,
     }
 
 
