@@ -14,10 +14,13 @@ a location inside this repository. Card images are cached next to it in `images/
 |---|---|---|
 | `import-inventory FILE.xlsx` | card identities and inventory of the collection | original |
 | `import-scryfall PATH [--disambiguation FILE.csv]` | public card data (single `.jsonl`/`.jsonl.gz` or folder of split parts); links the collection | original (public) |
-| `import-corpus-register FILE.csv`, `import-corpus-cards FILE.csv` | source decks and their cards | normalized |
+| `import-corpus-register FILE.csv` | source decks | normalized |
+| `import-corpus-cards FILE.csv [FILE.csv ...] [--allow-deck-move]` | the cards of the source decks, one or several part files in one transaction (see below) | normalized |
 | `import-hub FOLDER` | 2026-11-10 objective hub (`01_DECK_CATALOG_994_SOURCES.csv`, `02_CARD_DICTIONARY_*.csv`, `03_MAINBOARD_99_COMPACT_*.jsonl`, `06_OTHER_BOARDS_NEUTRAL_*.csv`) | normalized |
 | `import-cohort FILE.csv --name NAME` | a named group of source decks | normalized |
+| `import-marks FILE` | import user-provided card markings (favorite, excluded, notes) from CSV or JSON | original (user markings) |
 | `import-edhrec FILE.csv` | EDHREC rows with numerator, denominator, page | original |
+| `import-edhrec-manifest PATH [--raw-folder FOLDER]` | immutable 20 HTTP200 EDHREC public captures with full request/response SHA-256 provenance into `source_capture_event` and `observation` (never backfilling historical timestamps) | original (public capture) |
 | `import-edhrec-cardrecs FILE.csv` | normalized EDHREC recommendations across cohorts (`cardrecs_alle.csv`) | normalized |
 | `import-edhrec-delta PATH` | EDHREC delta JSONL files (`10_EDHREC_STATISTICS_DELTA_*.jsonl`, preserving `NULL` per-card denominators and separate `synergy_pct`) | normalized |
 | `import-selection FILE.json --deck-id ID --name NAME --commander NAME` | a saved selection as first deck revision (marking `reserve` entries in `card_mark`) | original |
@@ -27,6 +30,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `import-roles FILE.json [--replace-scope]` | a role file (format below) as claims | original, normalized or derived, by the file's origin |
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
+| `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
 
 ### Role files and the lossless role import (schema 5)
 
@@ -67,6 +71,39 @@ The tagger bulk (`oracle_tags`) lists canonical labels. `board-wipe` and `gravey
 query slugs of `board_wipe` and `graveyard_hate`, are search aliases of `sweeper` and
 `hate-graveyard` (`roles.SEARCH_ALIASES`; the search finds the same number of cards). A reader of
 the bulk has to map them explicitly; `check-role-labels` shows where that is needed.
+
+### Corpus card parts (schema 6)
+
+A large corpus comes in several part files. Each file replaces the rows of the decks it holds and
+nothing else, so repeating a file is harmless; `corpus_deck_part` remembers which file name holds
+which deck. A deck must live in exactly one part, so the import refuses, before it writes
+anything, (a) a deck that is listed in two of the files given together, and (b) a deck that an
+earlier import took from a part with another file name (a deck split over two files, or a part
+renamed: its rows would be replaced by the shorter list). `--allow-deck-move` says that the move
+is intended. Several files given together are written in one transaction: a bad row in one of
+them imports none. Decks imported by an older program version have no recorded part and are
+accepted. `data-report` shows decks without card rows, without a recorded part, and decks whose
+mainboard does not add up to 99 cards.
+
+### Data report
+
+`data-report` prints JSON with numbers only: every figure is a count with its denominator, a
+missing value is counted as unknown (never as zero), and no card name, deck address or note text
+is included, so the output can go into an issue or a shared document. `roles.fingerprint` holds
+hashes of `card_role_claim` (in total and per origin and scope), `card_role` and
+`corpus_deck_role`: run the report before and after an import. An import limited to one scope
+must leave the hash of every other scope unchanged, and an identical second import must leave
+all hashes unchanged. The report states what
+it cannot measure (`not_measured_here`: pilot knowledge and engine card support for the
+collection, collection changes since the last export). The plan for closing the gaps is #1182.
+
+### Captured public EDHREC snapshots (schema 7)
+
+`import-edhrec-manifest` imports immutable 20 HTTP200 public EDHREC captures with full
+request/response SHA-256 provenance into `source_capture_event` (event ID, URL, start/complete UTC,
+SHA-256, HTTP status 200, size, cardlists count) and `observation`. Historical C079 rows and
+timestamps remain untouched (`NULL` stays `NULL`, never backfilled). Unlisted comparison cards
+are stored with `DataClass.UNKNOWN` and snapshot `NOT_LISTED_IN_NEW_CARDLIST_UNKNOWN`.
 
 Card facts shown in the builder (color identity, legality, type, text, mana value) come from
 the public card data once a card is linked; the workbook stays the source of what is owned.
