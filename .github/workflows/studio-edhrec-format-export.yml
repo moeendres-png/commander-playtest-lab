@@ -1,0 +1,31 @@
+name: EDHREC Ruff Format Evidence Export
+on:
+  pull_request:
+    paths:
+      - scripts/studio_edhrec_provenance/**
+      - .github/workflows/studio-edhrec-format-export.yml
+permissions:
+  contents: read
+jobs:
+  export-formatting:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install matching Ruff
+        run: python3 -m pip install ruff==0.14.4
+      - name: Format EDHREC scripts, log lint
+        run: |
+          mkdir -p formatter-artifacts
+          ruff check scripts/studio_edhrec_provenance/ --fix --unsafe-fixes 2>&1 | tee formatter-artifacts/ruff-autofix.log || true
+          ruff format scripts/studio_edhrec_provenance/ 2>&1 | tee formatter-artifacts/ruff-format.log
+          ruff check scripts/studio_edhrec_provenance/ 2>&1 | tee formatter-artifacts/ruff-remaining.log || true
+          ruff format --check scripts/studio_edhrec_provenance/
+          cp scripts/studio_edhrec_provenance/*.py formatter-artifacts/
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: edhrec-ruff-formatted-output
+          path: formatter-artifacts/
+          retention-days: 7
