@@ -120,6 +120,20 @@ def _parser() -> argparse.ArgumentParser:
         default=None,
         help="Seat-specific style in seat:style format (e.g. 1:0.0 or 2:1.0).",
     )
+    sim = commands.add_parser(
+        "simulate", help="run a batch simulation series of multiple games in isolated processes"
+    )
+    sim.add_argument("--revision", required=True, help="candidate deck revision id (e.g. rev@...)")
+    sim.add_argument(
+        "--pod",
+        default="precon",
+        choices=["precon", "mixed", "optimized"],
+        help="pod preset",
+    )
+    sim.add_argument("--count", type=int, default=10, help="number of games to simulate")
+    sim.add_argument("--base-seed", type=int, default=1000, help="starting random seed")
+    sim.add_argument("--seed-step", type=int, default=1, help="seed increment per game")
+    sim.add_argument("--style", type=float, default=None, help="AI pilot style from 0.0 to 1.0")
     commands.add_parser("games")
     commands.add_parser("status")
     sources_cmd = commands.add_parser(
@@ -220,6 +234,36 @@ def main(argv: list[str] | None = None) -> int:
         return _serve(args.data, args.port, args.open)
     if args.command in {"play", "games"}:
         return _games(args)
+    if args.command == "simulate":
+        import time
+
+        from .simulations import SimulationBatchManager
+        from .store import studio_data_dir
+
+        folder = Path(args.data).resolve() if args.data else studio_data_dir()
+        store = StudioStore.open(folder)
+        try:
+            mgr = SimulationBatchManager()
+            batch = mgr.start_batch(
+                store,
+                folder,
+                revision_id=args.revision,
+                pod=args.pod,
+                games_count=args.count,
+                base_seed=args.base_seed,
+                seed_step=args.seed_step,
+                style=args.style,
+            )
+            try:
+                while batch.status in {"pending", "running"}:
+                    time.sleep(0.5)
+            except KeyboardInterrupt:
+                batch.cancel()
+                raise
+            print(json.dumps(batch.to_dict(), indent=2, ensure_ascii=False))
+            return 0 if batch.status == "completed" else 1
+        finally:
+            store.close()
     if args.command == "check-role-labels":
         print(json.dumps(roles.check_role_labels(_read_labels(args.path)), indent=2))
         return 0
