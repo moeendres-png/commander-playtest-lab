@@ -2,7 +2,7 @@
 
 **Status:** `REVIEW / ORIGINAL_SOURCE_INDEX`, `automatic_import=false`.
 
-Dieses Verzeichnis referenziert das gesamte eingefrorene V5-Quellarchiv **ohne** Rohantworten oder private Deck-/Sammlungsdaten in das öffentliche Repository zu kopieren. Die Originale sind im [V011-Drive-Archiv](https://drive.google.com/drive/folders/1kqpx6hdq0bKC1wTsYt7poln_VGZ22S_n) hinterlegt. Autorität für Programmcode ist GitHub `main`, Autorität für Rohbelege ist das unveränderte Drive-Original.
+Dieses Verzeichnis referenziert das gesamte eingefrorene V5-Quellarchiv **ohne** Rohantworten oder private Deck-/Sammlungsdaten in das öffentliche Repository zu kopieren. Das unveränderte [Original-ZIP](https://drive.google.com/file/d/11_-2NEeyZcBaRIh8SveUvQeB7tz5qCIb/view) liegt zusätzlich zum [V011-Drive-Archiv](https://drive.google.com/drive/folders/1kqpx6hdq0bKC1wTsYt7poln_VGZ22S_n) bereit. Sein SHA-256 wurde nach erneutem Herunterladen geprüft. Autorität für Programmcode ist GitHub `main`, Autorität für Rohbelege ist das unveränderte Drive-Original.
 
 | Inhalt des Original-ZIP | Anzahl | Bedeutung |
 |---|---:|---|
