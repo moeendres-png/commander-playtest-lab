@@ -391,3 +391,111 @@ def test_role_fetch_asks_only_the_card_search(
     monkeypatch.setattr(roles, "_page", elsewhere)
     with pytest.raises(ValueError, match="unexpected address"):
         roles.fetch_role_file("WUG", tmp_path / "other.json", pause=0)
+
+
+def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
+    studio: StudioStore, tmp_path: Path
+) -> None:
+    co = builder.card_cooccurrence(studio, "card:project:0007")
+    assert co["card_decks"] == 2
+    assert co["data_class"] == "DERIVED_DESCRIPTIVE"
+    assert co["cards"] == [
+        {
+            "card_id": "card:project:0002",
+            "name": "Forest",
+            "both_hits": 1,
+            "card_decks": 2,
+            "share": 0.5,
+        }
+    ]
+    base_cards = _deck()
+    target_cards = [
+        *base_cards[:-1],
+        RevisionCard("card:project:0002", 28),
+        RevisionCard("card:project:0007", 1),
+    ]
+    diff = builder.diff_lists(studio, base_cards, target_cards)
+    assert diff["data_class"] == "DERIVED_DESCRIPTIVE"
+    assert diff["added"] == [
+        {"card_id": "card:project:0007", "name": "Swarm Rat", "group": "Creature", "quantity": 1}
+    ]
+    assert diff["removed"] == []
+    assert diff["changed"] == [
+        {
+            "card_id": "card:project:0002",
+            "name": "Forest",
+            "group": "Land",
+            "base_quantity": 29,
+            "target_quantity": 28,
+            "delta": -1,
+        }
+    ]
+    dp = builder.draw_probabilities(99, 29)
+    assert dp is not None
+    assert dp["data_class"] == "DERIVED_DESCRIPTIVE"
+    assert dp["main_cards"] == 99
+    assert dp["lands"] == 29
+    opening = dp["opening_7"]
+    assert isinstance(opening, dict)
+    assert 0.0 < float(opening["at_least_3_lands"]) < 1.0
+
+
+def test_multipart_scryfall_folder_and_disambiguation(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    importers.import_inventory_workbook(
+        store, _workbook(tmp_path / "cards.xlsx", _synthetic_cards()[:2])
+    )
+    scry_dir = tmp_path / "scry"
+    scry_dir.mkdir()
+    part1 = scry_dir / "default-cards-20261109_part_001.jsonl"
+    part2 = scry_dir / "default-cards-20261109_part_002.jsonl"
+    part1.write_text(
+        json.dumps(_public("Test Commander", ["G", "U", "W"], "Legendary Creature — Human Druid"))
+        + "\n",
+        encoding="utf-8",
+    )
+    part2.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    _public(
+                        "Forest",
+                        ["G"],
+                        "Basic Land — Forest",
+                        oracle_id="oracle-forest-paper",
+                        games=["paper"],
+                    )
+                ),
+                json.dumps(
+                    _public(
+                        "Forest // Forest",
+                        ["G"],
+                        "Basic Land — Forest",
+                        oracle_id="oracle-forest-rev",
+                        layout="reversible_card",
+                    )
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    dis = _write_csv(
+        tmp_path / "11_ORACLE_DISAMBIGUATION.csv",
+        [
+            {
+                "name": "Forest",
+                "num_possible_oracle_ids": "2",
+                "selected_oracle_id": "oracle-forest-paper",
+                "selection_rule": "PAPER_LEGAL",
+                "candidate_ids": "oracle-forest-paper;oracle-forest-rev",
+            }
+        ],
+    )
+    res = catalog.import_scryfall_oracle(store, scry_dir, disambiguation_path=dis)
+    assert res["files"] == 2
+    assert res["linked"] == 2
+    forest = store.connection.execute(
+        "SELECT oracle_id FROM card WHERE oracle_name = 'Forest'"
+    ).fetchone()
+    assert forest["oracle_id"] == "oracle-forest-paper"

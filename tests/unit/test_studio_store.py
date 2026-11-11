@@ -428,3 +428,296 @@ def test_command_line_round_trip(tmp_path: Path, capsys: pytest.CaptureFixture[s
     assert '"cards": 77' in output
     assert '"legal": 74' in output
     assert '"inventory": 77' in output
+
+
+def test_hub_corpus_import_excludes_bracket_one_and_isolates_neutral_boards(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    hub = tmp_path / "hub"
+    hub.mkdir()
+    _write_csv(
+        hub / "01_DECK_CATALOG_994_SOURCES.csv",
+        [
+            {
+                "deck_id": "d1",
+                "cohort": "C087_BASELINE_2026_11_10",
+                "source": "TEST",
+                "platform": "archidekt",
+                "title": "D1",
+                "original_url": "https://example.invalid/d1",
+                "mainboard_quantity": "99",
+                "mainboard_name_rows": "2",
+                "commander": "Test Commander",
+                "content_fingerprint_sha256": "fp-1",
+                "oracle_unresolved_count": "0",
+                "is_new_vs_baseline": "false",
+                "original_archetype_tag": "NOT_LISTED",
+                "unique_deck_representative": "true",
+                "identical_content_source_count": "2",
+                "source_archetype_tag_status": "NOT_LISTED",
+                "original_content_fingerprint_sha256": "fp-1",
+                "source_revision_status": "FROZEN_BASELINE",
+                "bracket_user_set": "",
+                "bracket_import_policy": "",
+                "source_key": "k1",
+                "source_document_sha256": "s1",
+            },
+            {
+                "deck_id": "d1_dup",
+                "cohort": "2026_11_10_USER_BATCHES",
+                "source": "TEST",
+                "platform": "archidekt",
+                "title": "D1 Dup",
+                "original_url": "https://example.invalid/d1_dup",
+                "mainboard_quantity": "99",
+                "mainboard_name_rows": "2",
+                "commander": "Test Commander",
+                "content_fingerprint_sha256": "fp-1",
+                "oracle_unresolved_count": "0",
+                "is_new_vs_baseline": "true",
+                "original_archetype_tag": "",
+                "unique_deck_representative": "false",
+                "identical_content_source_count": "2",
+                "source_archetype_tag_status": "NOT_LISTED",
+                "original_content_fingerprint_sha256": "fp-1",
+                "source_revision_status": "NEW",
+                "bracket_user_set": "UNKNOWN",
+                "bracket_import_policy": "",
+                "source_key": "k2",
+                "source_document_sha256": "s2",
+            },
+            {
+                "deck_id": "d_b1",
+                "cohort": "NEW_RESEARCH_2026_11_10",
+                "source": "TEST",
+                "platform": "archidekt",
+                "title": "Bracket 1 Excluded",
+                "original_url": "https://example.invalid/db1",
+                "mainboard_quantity": "99",
+                "mainboard_name_rows": "1",
+                "commander": "Test Commander",
+                "content_fingerprint_sha256": "fp-b1",
+                "oracle_unresolved_count": "0",
+                "is_new_vs_baseline": "true",
+                "original_archetype_tag": "",
+                "unique_deck_representative": "true",
+                "identical_content_source_count": "1",
+                "source_archetype_tag_status": "NOT_LISTED",
+                "original_content_fingerprint_sha256": "fp-b1",
+                "source_revision_status": "NEW",
+                "bracket_user_set": "1",
+                "bracket_import_policy": "EXCLUDE",
+                "source_key": "k3",
+                "source_document_sha256": "s3",
+            },
+        ],
+    )
+    _write_csv(
+        hub / "02_CARD_DICTIONARY_01.csv",
+        [
+            {
+                "card_code": "C00001",
+                "oracle_id": "oracle-forest",
+                "canonical_name": "Forest",
+                "snapshot_legality": "legal",
+                "snapshot_color_identity": "G",
+                "snapshot_type_line": "Basic Land — Forest",
+                "oracle_id_status": "PROVIDED",
+                "source_normalization_status": "RESOLVED_EXACT",
+            },
+            {
+                "card_code": "C00002",
+                "oracle_id": "oracle-koma",
+                "canonical_name": "Koma, Cosmos Serpent",
+                "snapshot_legality": "legal",
+                "snapshot_color_identity": "GU",
+                "snapshot_type_line": "Legendary Creature — Serpent",
+                "oracle_id_status": "PROVIDED",
+                "source_normalization_status": "RESOLVED_EXACT",
+            },
+        ],
+    )
+    (hub / "03_MAINBOARD_99_COMPACT_01.jsonl").write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "deck_id": "d1",
+                        "fingerprint": "fp-1",
+                        "cards": [["C00001", 98], ["C00002", 1]],
+                    }
+                ),
+                json.dumps(
+                    {
+                        "deck_id": "d1_dup",
+                        "fingerprint": "fp-1",
+                        "cards": [["C00001", 98], ["C00002", 1]],
+                    }
+                ),
+                json.dumps({"deck_id": "d_b1", "fingerprint": "fp-b1", "cards": [["C00001", 99]]}),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    _write_csv(
+        hub / "06_OTHER_BOARDS_NEUTRAL_01.csv",
+        [
+            {
+                "batch": "B1",
+                "source_key": "k1",
+                "section": "MAYBEBOARD",
+                "name": "Swarm Rat",
+                "oracle_id": "oracle-swarm-rat",
+                "quantity": "1",
+                "status": "CONFIRMED",
+            },
+            {
+                "batch": "B1",
+                "source_key": "k1",
+                "section": "CUTS",
+                "name": "Filler 00",
+                "oracle_id": "oracle-filler-00",
+                "quantity": "1",
+                "status": "CONFIRMED",
+            },
+        ],
+    )
+    res = importers.import_hub_corpus(store, hub)
+    assert res == {
+        "decks": 2,
+        "unique_decks": 1,
+        "mainboard_rows": 4,
+        "koma_decks": 2,
+        "neutral_board_rows": 2,
+    }
+    # Swarm Rat is only in MAYBEBOARD, so its mainboard corpus inclusion is 0
+    assert corpus_inclusion(store, "Swarm Rat")["hits"] == 0
+
+
+def test_edhrec_delta_and_cardrecs_preserve_null_denominators_and_synergy(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    cardrecs = _write_csv(
+        tmp_path / "cardrecs_alle.csv",
+        [
+            {
+                "karte": "Swarm Rat",
+                "karte_norm": "swarm rat",
+                "rubrik": "tokens",
+                "sektion": "Creatures",
+                "inclusion_pct": "25.0",
+                "lift": "1.2",
+                "synergy": "0.15",
+                "decks_with_card": "10",
+                "eligible_decks": "40",
+                "overall_decks": "40",
+                "source_url": "https://example.invalid/tokens",
+                "retrieved_at": "2026-11-09T00:00:00Z",
+                "snapshot_id": "s1",
+                "data_quality": "LIVE_JSON",
+                "quelle_datei": "test",
+                "nenner_warnung": "",
+            }
+        ],
+    )
+    assert importers.import_edhrec_cardrecs_csv(store, cardrecs) == {"rows": 1}
+    delta = tmp_path / "10_EDHREC_STATISTICS_DELTA_001.jsonl"
+    delta.write_text(
+        "\n".join(
+            [
+                json.dumps(
+                    {
+                        "data_kind": "EDHREC_CARDRECS_BRACKET2_CORE",
+                        "oracle_name": "Swarm Rat",
+                        "decks_with_card_reported": 187,
+                        "inclusion_pct_reported": 33.0,
+                        "lift_reported": 0.78,
+                        "cohort_decks_reported": 563,
+                        "eligible_decks_per_card": None,
+                        "eligible_decks_status": "NOT_LISTED_IN_WEB_INDEX_TEXT",
+                        "original_url": "https://example.invalid/core",
+                        "source_index_crawled_date": "2026-11-09",
+                    }
+                ),
+                json.dumps(
+                    {
+                        "data_kind": "EDHREC_CARDRECS_BRACKET2_CORE_HISTORIC_NN",
+                        "oracle_name": "Swarm Rat",
+                        "decks_with_card_n_shown": 317,
+                        "eligible_decks_N_shown": 634,
+                        "inclusion_pct_shown": 50.0,
+                        "lift_shown": None,
+                        "synergy_pct_shown": 43,
+                        "original_url": "https://example.invalid/core-hist",
+                        "retrieval_utc": "2026-11-10T00:00:00Z",
+                    }
+                ),
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    assert importers.import_edhrec_delta_jsonl(store, delta) == {"files": 1, "rows": 2}
+    core_idx = store.connection.execute(
+        "SELECT numerator, denominator, snapshot FROM observation "
+        "WHERE cohort = 'edhrec:core_b2_563_index' AND metric = 'inclusion_pct'"
+    ).fetchone()
+    # eligible_decks_per_card is None, never coerced to 563
+    assert core_idx["numerator"] == 187
+    assert core_idx["denominator"] is None
+    assert "cohort_decks=563" in str(core_idx["snapshot"])
+    syn_row = store.connection.execute(
+        "SELECT value FROM observation "
+        "WHERE cohort = 'edhrec:core_b2_634_hist' AND metric = 'synergy_pct'"
+    ).fetchone()
+    assert syn_row["value"] == pytest.approx(43.0)
+
+
+def test_lab_deck_and_simulation_report_import(store: StudioStore, tmp_path: Path) -> None:
+    revision = create_revision(store, deck_id="test", name="Test deck", cards=_legal_deck(store))
+    snap_path = tmp_path / "chulane_current.json"
+    snap_path.write_text(json.dumps(lab_snapshot(store, revision)), encoding="utf-8")
+    imported = importers.import_lab_deck_snapshot(
+        store, snap_path, deck_id="test", name="Test deck", branch="lab_current"
+    )
+    assert imported["revision_id"] == revision
+    sim_path = tmp_path / "chulane_mixed_seeds1-12.json"
+    sim_path.write_text(
+        json.dumps(
+            {
+                "plan": {
+                    "deck_id": "custom/chulane",
+                    "pod": "mixed",
+                    "games_planned": 12,
+                    "seeds": [1, 2],
+                },
+                "summary": {
+                    "games_completed": 12,
+                    "games_failed": 0,
+                    "wins_fractional": 2.0,
+                    "win_rate_completed_games": 0.1667,
+                    "mean_rounds": 11.75,
+                    "hand_residence_turns": {
+                        "status": "NOT_MEASURED",
+                        "castable_but_uncast": [{"card": "Swarm Rat", "games_rotted": 2}],
+                        "per_card_cast_opportunities": [
+                            {
+                                "card": "Swarm Rat",
+                                "games_offered": 6,
+                                "games_cast_after_offer": 4,
+                                "offered_castable": 10,
+                                "cast": 5,
+                                "mean_first_cast_round": 4.5,
+                            }
+                        ],
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    sim_res = importers.import_simulation_report(store, sim_path, engine_pin="f4d12f6e80")
+    assert sim_res["games_completed"] == 12
+    assert store.count("simulation_run") == 1
+    assert store.count("simulation_card") == 1
