@@ -5,6 +5,12 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export COMMANDER_LAB_STUDIO_DATA="${COMMANDER_LAB_STUDIO_DATA:-${HOME}/.local/share/commander-studio}"
+BRIDGE_JAR="${REPO_ROOT}/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
+STUDIO_JAR="${COMMANDER_LAB_STUDIO_DATA}/engine/xmage-engine-bridge.jar"
+if [[ -f "${BRIDGE_JAR}" && ! -f "${STUDIO_JAR}" ]]; then
+    mkdir -p "$(dirname "${STUDIO_JAR}")"
+    cp -f "${BRIDGE_JAR}" "${STUDIO_JAR}"
+fi
 PYTHON_BIN="${REPO_ROOT}/.venv/bin/python"
 if [[ ! -x "${PYTHON_BIN}" ]]; then
     PYTHON_BIN="python3"

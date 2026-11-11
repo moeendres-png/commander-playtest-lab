@@ -397,6 +397,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "engine": launch.engine_state(games_home()),
                 "decks": builder.list_decks(store),
                 "opponents": launch.opponent_decks(),
+                "pods": {k: list(v) for k, v in launch.POD_PRESETS.items()},
             }
         finally:
             store.close()

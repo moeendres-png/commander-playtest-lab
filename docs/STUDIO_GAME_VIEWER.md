@@ -21,8 +21,10 @@ game, not how strong a deck is.
     python -m commander_lab.studio play --deck OWN.json --deck A.json --deck B.json --deck C.json --seed 7
 
 Two to six decks in seat order, as deck snapshots. The page's "Neue Partie" does the same for
-a saved deck revision and preconstructed decks from `data/decks/precons/`; the game runs in
-its own process and the page follows the growing log.
+a saved deck revision and preconstructed or verified opponent decks from `data/decks/precons/`,
+`data/decks/opponents/kaervek/current/deck.json` and `data/opponents/hosts_of_mordor_precon.json`
+(including one-click buttons for the `precon`, `mixed` and `optimized` evaluation pods); the
+game runs in its own process and the page follows the growing log.
 
 The engine start command comes from `COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD`, as for every
 full game of the Lab. Without it the Studio uses `engine/xmage-engine-bridge.jar` in the Studio

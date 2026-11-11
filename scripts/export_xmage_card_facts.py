@@ -39,6 +39,7 @@ from commander_lab.engine.structural.card_facts import (  # noqa: E402
 
 DECK_GLOBS = (
     "data/decks/*.json",
+    "data/decks/deckbau/*.json",
     "data/decks/precons/*.json",
     "data/decks/opponents/*/current/deck.json",
     "data/opponents/*_precon.json",
@@ -46,6 +47,8 @@ DECK_GLOBS = (
     "data/coverage_decks/collection/*.json",
 )
 COLLECTION = "data/collections/owner_collection_2026-10-12.txt"
+PILOT_KNOWLEDGE = "data/cards/pilot_card_knowledge.json"
+DEFAULT_H2_JAR = "engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar"
 QUERY = (
     "SELECT NAME, MIN(POWER) P, MIN(TOUGHNESS) T, MIN(STARTINGLOYALTY) L, "
     "MIN(MANAVALUE) MV, MIN(TYPES) TY, MIN(SUBTYPES) ST, MIN(SUPERTYPES) SP, "
@@ -69,18 +72,35 @@ def _names_in(value: object) -> Iterable[str]:
             yield from _names_in(item)
 
 
-def wanted_names(root: Path) -> set[str]:
+def listed_names(path: Path) -> list[str]:
+    text = (path if path.is_absolute() else ROOT / path).read_text(encoding="utf-8")
+    return [
+        line.strip()
+        for line in text.splitlines()
+        if line.strip() and not line.lstrip().startswith("#") and line.strip() != "oracle_name"
+    ]
+
+
+def wanted_names(root: Path, extra_files: Iterable[Path] = ()) -> set[str]:
     names: set[str] = set()
     for pattern in DECK_GLOBS:
         for path in sorted(root.glob(pattern)):
             names.update(_names_in(json.loads(path.read_text(encoding="utf-8"))))
+    for catalog_rel in (PILOT_KNOWLEDGE, CARD_FACTS_PATH):
+        catalog_path = root / catalog_rel
+        if catalog_path.is_file():
+            payload = json.loads(catalog_path.read_text(encoding="utf-8"))
+            cards_obj = payload.get("cards")
+            if isinstance(cards_obj, dict):
+                names.update(str(k) for k in cards_obj)
+            missing_obj = payload.get("missing")
+            if isinstance(missing_obj, list):
+                names.update(str(k) for k in missing_obj if isinstance(k, str))
     collection = root / COLLECTION
     if collection.is_file():
-        names.update(
-            line.strip()
-            for line in collection.read_text(encoding="utf-8").splitlines()
-            if line.strip() and line.strip() != "oracle_name"
-        )
+        names.update(listed_names(collection))
+    for path in extra_files:
+        names.update(listed_names(path))
     return names
 
 
@@ -161,15 +181,22 @@ def build_facts(rows: Iterable[dict[str, str]], names: set[str]) -> dict[str, ob
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--db", type=Path, default=ROOT / ".runtime/engine/db/cards.h2.mv.db")
-    parser.add_argument("--h2-jar", type=Path, required=True)
+    parser.add_argument("--h2-jar", type=Path, default=ROOT / DEFAULT_H2_JAR)
     parser.add_argument("--out", type=Path, default=ROOT / CARD_FACTS_PATH)
+    parser.add_argument(
+        "--names-file",
+        type=Path,
+        action="append",
+        default=[],
+        help="plain card list, one name per line",
+    )
     args = parser.parse_args()
     with tempfile.TemporaryDirectory() as scratch:
         out_csv = Path(scratch) / "facts.csv"
         export(args.db, args.h2_jar, out_csv)
         csv.field_size_limit(10**8)
         with out_csv.open(encoding="utf-8", newline="") as handle:
-            facts = build_facts(csv.DictReader(handle), wanted_names(ROOT))
+            facts = build_facts(csv.DictReader(handle), wanted_names(ROOT, args.names_file))
     args.out.write_text(
         json.dumps(facts, indent=1, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8"
     )
