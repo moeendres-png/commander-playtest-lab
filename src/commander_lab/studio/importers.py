@@ -330,7 +330,13 @@ def import_corpus_cards(store: StudioStore, path: str | Path) -> dict[str, int]:
         quantity = int(row["quantity"]) + (previous[1] if previous else 0)
         merged[key] = (row["oracle_id"] or None, quantity, row["normalization_status"])
     with store.connection as db:
-        db.execute("DELETE FROM corpus_deck_card")
+        # Each input file is one partition of a larger corpus. Replace only the decks
+        # present in this partition, retaining other previously imported partitions.
+        # This also makes re-importing the same partition idempotent.
+        db.executemany(
+            "DELETE FROM corpus_deck_card WHERE deck_id = ?",
+            ((deck_id,) for deck_id in {key[0] for key in merged}),
+        )
         db.executemany(
             "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
             "normalization_status) VALUES (?, ?, ?, ?, ?, ?)",
