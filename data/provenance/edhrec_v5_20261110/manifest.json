@@ -71,7 +71,7 @@
     "Legacy C079 and new 2026-11-11 HTTP captures must retain separate snapshots, timestamps and denominators.",
     "README source references are not a mechanism to publish private deck/card inventories."
   ],
-  "source_multiset_sha256": "379416495bb5c606de38ec261c37d3a903468324f19e9f0f92fbd8ef2ff3ed3c",
+  "source_multiset_sha256": "44a6370ff215477ebe32a49486f5b615769ab1441c6e0d9c1f27dfa67a1b406b",
   "content_validation": {
     "preview_index_rows": 470,
     "preview_status": "DECK_NOT_VERIFIED",

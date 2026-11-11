@@ -81,7 +81,7 @@ def test_repository_manifest_covers_every_v5_source_byte() -> None:
         for group in verifier.EXPECTED_COUNTS
     } == verifier.EXPECTED_COUNTS
     assert hashlib.sha256(source.read_bytes()).hexdigest() == (
-        "379416495bb5c606de38ec261c37d3a903468324f19e9f0f92fbd8ef2ff3ed3c"
+        "44a6370ff215477ebe32a49486f5b615769ab1441c6e0d9c1f27dfa67a1b406b"
     )
 
 
