@@ -16,6 +16,7 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 from .catalog import refresh_corpus_stats
+from .edhrec_capture_proof import verify_captures
 from .decks import RevisionCard, create_revision
 from .store import DataClass, StudioStore, now_utc, rebuild_corpus_deck_role, sha256_file
 
@@ -1073,71 +1074,41 @@ def import_edhrec_capture_manifest(
     Separates cohorts, computes derived inclusion, verifies SHA-256 integrity,
     and handles unlisted cards as UNKNOWN.
     """
-    manifest_file = Path(manifest_path)
-    if not manifest_file.exists():
-        raise FileNotFoundError(f"Manifest not found: {manifest_file}")
-
-    manifest_data = json.loads(manifest_file.read_text(encoding="utf-8"))
-    records = manifest_data.get("records")
-    if not isinstance(records, list) or not records:
-        raise ValueError("Manifest contains no records")
-
-    raw_dir = Path(raw_folder) if raw_folder else manifest_file.parent
-
-    # Pre-validation: verify all raw files and SHA-256 before any database write
-    validated_records: list[tuple[dict[str, object], bytes, dict[str, object]]] = []
-    for rec in records:
-        event_id = str(rec.get("event_id") or "").strip()
-        url = str(rec.get("url") or "").strip()
-        raw_rel = str(rec.get("raw") or "").strip()
-        expected_sha = str(rec.get("sha256") or "").strip()
-        observed_utc = str(rec.get("observed_utc") or "").strip()
-
-        if not event_id or not url or not raw_rel or not expected_sha or not observed_utc:
-            raise ValueError(f"Incomplete record in manifest: {rec}")
-
-        raw_path = raw_dir / raw_rel
-        if not raw_path.exists():
-            raise FileNotFoundError(f"Raw capture file not found: {raw_path}")
-
-        raw_bytes = raw_path.read_bytes()
-        actual_sha = hashlib.sha256(raw_bytes).hexdigest()
-        if actual_sha != expected_sha:
-            raise ValueError(
-                f"SHA-256 mismatch for {event_id}: expected {expected_sha}, got {actual_sha}"
-            )
-
-        try:
-            parsed = json.loads(raw_bytes.decode("utf-8"))
-        except Exception as exc:
-            raise ValueError(f"Malformed JSON in {raw_path}") from exc
-
-        container = parsed.get("container") if isinstance(parsed, dict) else None
-        json_dict = container.get("json_dict") if isinstance(container, dict) else None
-        raw_cardlists = json_dict.get("cardlists") if isinstance(json_dict, dict) else None
-        if not isinstance(raw_cardlists, list):
-            raise ValueError(f"Missing cardlists in {raw_path}")
-
-        validated_records.append((rec, raw_bytes, parsed))
+    # Validate all immutable HTTP event metadata and raw bytes before any DB write.
+    verified = verify_captures(manifest_path, raw_folder)
+    batch_day = verified[0].response_complete_utc[:10]
+    if any(event.response_complete_utc[:10] != batch_day for event in verified):
+        raise ValueError("Mixed-day EDHREC captures must be imported as separate batches")
+    unknown_cohort = f"edhrec_snapshot:{batch_day}:not_listed"
 
     unique_card_page_pairs: set[tuple[str, str]] = set()
     total_observations = 0
     all_seen_cards: set[str] = set()
 
     with store.connection as db:
-        for rec, raw_bytes, parsed in validated_records:
-            event_id = str(rec["event_id"])
-            url = str(rec["url"])
-            observed_utc = str(rec["observed_utc"])
-            sha256_hash = str(rec["sha256"])
+        for capture in verified:
+            event_id = capture.event_id
+            url = capture.url
+            observed_utc = capture.response_complete_utc
+            sha256_hash = capture.sha256
+            raw_bytes = capture.raw_bytes
+            parsed = capture.parsed
 
-            source_id = store.register_source(
-                data_class=DataClass.ORIGINAL_SOURCE,
-                title=f"EDHREC:{event_id}",
-                sha256=sha256_hash,
-                snapshot_date=observed_utc[:10],
-                url=url,
+            # One immutable event per HTTP request, NOT one event per SHA.
+            # Identical bytes can be served at different, genuine capture times.
+            source_id = "src:edhrec-event:" + hashlib.sha256(event_id.encode()).hexdigest()[:24]
+            db.execute(
+                "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, "
+                "snapshot_date, url, imported_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (source_id, DataClass.ORIGINAL_SOURCE.value, f"EDHREC:{event_id}",
+                 sha256_hash, observed_utc[:10], url, now_utc()),
             )
+            source_state = db.execute(
+                "SELECT sha256, url FROM source WHERE source_id = ?", (source_id,)
+            ).fetchone()
+            if (source_state is None or source_state["sha256"] != sha256_hash
+                    or source_state["url"] != url):
+                raise ValueError(f"Source event ID reused with different bytes/URL: {event_id}")
 
             container = parsed.get("container") if isinstance(parsed, dict) else None
             json_dict = container.get("json_dict") if isinstance(container, dict) else None
@@ -1153,32 +1124,46 @@ def import_edhrec_capture_manifest(
                 "raw_response_sha256, http_status, provenance_class, raw_size_bytes, "
                 "cardlists_count, automatic_import, source_id) "
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
-                "ON CONFLICT(event_id) DO UPDATE SET "
-                "source_id = excluded.source_id, "
-                "raw_response_sha256 = excluded.raw_response_sha256",
+                "ON CONFLICT(event_id) DO NOTHING",
                 (
                     event_id,
                     url,
-                    observed_utc,
-                    observed_utc,
+                    capture.request_start_utc,
+                    capture.response_complete_utc,
                     sha256_hash,
                     200,
                     "NEW_HTTP_CAPTURE_ONLY",
                     len(raw_bytes),
-                    len(page_cardlists),
+                    capture.cardlists_count,
                     0,
                     source_id,
                 ),
             )
 
-            # Idempotent re-import: remove prior observations for this exact source
-            db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
+            # Repeated imports may re-materialize only this event's card metrics.
+            # Preserve a previous "not listed" comparison marker if no comparison
+            # input was supplied on the repeated run.
+            capture_state = db.execute(
+                "SELECT source_url, request_start_utc, response_complete_utc, "
+                "raw_response_sha256, http_status, raw_size_bytes, cardlists_count, "
+                "provenance_class, automatic_import, source_id "
+                "FROM source_capture_event WHERE event_id = ?", (event_id,)
+            ).fetchone()
+            expected = (url, capture.request_start_utc, capture.response_complete_utc,
+                        sha256_hash, 200, len(raw_bytes), capture.cardlists_count,
+                        "NEW_HTTP_CAPTURE_ONLY", 0, source_id)
+            if capture_state is None or tuple(capture_state) != expected:
+                raise ValueError(f"Immutable HTTP event changed between imports: {event_id}")
+            db.execute(
+                "DELETE FROM observation WHERE source_id = ? AND cohort <> ?",
+                (source_id, unknown_cohort),
+            )
 
             # Determine theme slug from URL
             theme_slug = url.rstrip("/").split("/")[-1].replace(".json", "")
             if theme_slug == "chulane-teller-of-tales":
                 theme_slug = "commander_core"
-            cohort = f"edhrec_snapshot_20261111:{theme_slug}"
+            cohort = f"edhrec_snapshot:{batch_day}:{theme_slug}"
             snapshot_label = f"{event_id} ({observed_utc})"
 
             seen_in_page: set[str] = set()
@@ -1285,13 +1270,15 @@ def import_edhrec_capture_manifest(
 
         # Check target comparison cards for unlisted ones
         unlisted_count = 0
-        if target_comparison_cards:
+        if target_comparison_cards is not None:
             missing_cards = sorted(target_comparison_cards - all_seen_cards)
+            first_src_id = "src:edhrec-event:" + hashlib.sha256(verified[0].event_id.encode()).hexdigest()[:24]
+            db.execute(
+                "DELETE FROM observation WHERE source_id = ? AND cohort = ?",
+                (first_src_id, unknown_cohort),
+            )
             for missing_name in missing_cards:
                 cid = store.card_id_by_oracle_or_name(None, missing_name)
-                rec0 = validated_records[0][0]
-                rec0_sha = str(rec0.get("sha256") or "")[:16]
-                first_src_id = f"src:{rec0_sha}"
                 db.execute(
                     "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
                     "numerator, denominator, data_class, url, snapshot, source_id) "
@@ -1299,7 +1286,7 @@ def import_edhrec_capture_manifest(
                     (
                         cid,
                         missing_name,
-                        "edhrec_snapshot_20261111:not_listed",
+                        unknown_cohort,
                         "status",
                         None,
                         None,
@@ -1314,8 +1301,8 @@ def import_edhrec_capture_manifest(
                 total_observations += 1
 
     return {
-        "events": len(validated_records),
+        "events": len(verified),
         "unique_card_pages": len(unique_card_page_pairs),
         "observations_written": total_observations,
-        "unlisted_comparison_cards": unlisted_count if target_comparison_cards else 0,
+        "unlisted_comparison_cards": unlisted_count if target_comparison_cards is not None else 0,
     }
