@@ -998,13 +998,13 @@ def import_card_marks(store: StudioStore, path: str | Path) -> dict[str, int]:
     if not marks_path.exists():
         raise FileNotFoundError(f"Marks file not found: {marks_path}")
 
-    rows: list[dict[str, str | int]] = []
+    rows: list[dict[str, object]] = []
     if marks_path.suffix.lower() == ".json":
         data = json.loads(marks_path.read_text(encoding="utf-8"))
         if isinstance(data, list):
             for item in data:
                 if isinstance(item, dict):
-                    rows.append(item)
+                    rows.append(dict(item))
         elif isinstance(data, dict):
             for cid, details in data.items():
                 if isinstance(details, dict):
@@ -1013,14 +1013,14 @@ def import_card_marks(store: StudioStore, path: str | Path) -> dict[str, int]:
                     rows.append({"card_id": cid, "note": str(details)})
     else:
         for r in _csv_rows(marks_path):
-            rows.append(r)
+            rows.append(dict(r))
 
     count = 0
     updated_at = now_utc()
     with store.connection as db:
-        for r in rows:
-            card_id = str(r.get("card_id") or "").strip()
-            card_name = str(r.get("card_name") or r.get("name") or "").strip()
+        for row_dict in rows:
+            card_id = str(row_dict.get("card_id") or "").strip()
+            card_name = str(row_dict.get("card_name") or row_dict.get("name") or "").strip()
             if not card_id and card_name:
                 resolved = store.card_id_by_oracle_or_name(None, card_name)
                 if resolved:
@@ -1028,17 +1028,21 @@ def import_card_marks(store: StudioStore, path: str | Path) -> dict[str, int]:
             if not card_id:
                 continue
 
-            fav_raw = r.get("favorite") if "favorite" in r else r.get("fav", 0)
-            excl_raw = r.get("excluded") if "excluded" in r else r.get("excl", 0)
-            note_raw = str(r.get("note") or r.get("notes") or "")
+            fav_raw: object = (
+                row_dict.get("favorite") if "favorite" in row_dict else row_dict.get("fav", 0)
+            )
+            excl_raw: object = (
+                row_dict.get("excluded") if "excluded" in row_dict else row_dict.get("excl", 0)
+            )
+            note_raw = str(row_dict.get("note") or row_dict.get("notes") or "")
 
             try:
-                fav = 1 if int(fav_raw) else 0
+                fav = 1 if int(str(fav_raw)) else 0
             except (ValueError, TypeError):
                 fav = 1 if str(fav_raw).lower() in ("true", "1", "yes") else 0
 
             try:
-                excl = 1 if int(excl_raw) else 0
+                excl = 1 if int(str(excl_raw)) else 0
             except (ValueError, TypeError):
                 excl = 1 if str(excl_raw).lower() in ("true", "1", "yes") else 0
 
@@ -1110,8 +1114,8 @@ def import_edhrec_capture_manifest(
 
         container = parsed.get("container") if isinstance(parsed, dict) else None
         json_dict = container.get("json_dict") if isinstance(container, dict) else None
-        cardlists = json_dict.get("cardlists") if isinstance(json_dict, dict) else None
-        if not isinstance(cardlists, list):
+        raw_cardlists = json_dict.get("cardlists") if isinstance(json_dict, dict) else None
+        if not isinstance(raw_cardlists, list):
             raise ValueError(f"Missing cardlists in {raw_path}")
 
         validated_records.append((rec, raw_bytes, parsed))
@@ -1135,7 +1139,14 @@ def import_edhrec_capture_manifest(
                 url=url,
             )
 
-            cardlists = parsed["container"]["json_dict"]["cardlists"]
+            container = parsed.get("container") if isinstance(parsed, dict) else None
+            json_dict = container.get("json_dict") if isinstance(container, dict) else None
+            cardlists_val = json_dict.get("cardlists") if isinstance(json_dict, dict) else None
+            page_cardlists: list[dict[str, object]] = (
+                [cl for cl in cardlists_val if isinstance(cl, dict)]
+                if isinstance(cardlists_val, list)
+                else []
+            )
             db.execute(
                 "INSERT INTO source_capture_event("
                 "event_id, source_url, request_start_utc, response_complete_utc, "
@@ -1154,7 +1165,7 @@ def import_edhrec_capture_manifest(
                     200,
                     "NEW_HTTP_CAPTURE_ONLY",
                     len(raw_bytes),
-                    len(cardlists),
+                    len(page_cardlists),
                     0,
                     source_id,
                 ),
@@ -1171,11 +1182,13 @@ def import_edhrec_capture_manifest(
             snapshot_label = f"{event_id} ({observed_utc})"
 
             seen_in_page: set[str] = set()
-            for cl in cardlists:
+            for cl in page_cardlists:
                 cardviews = cl.get("cardviews")
                 if not isinstance(cardviews, list):
                     continue
                 for cv in cardviews:
+                    if not isinstance(cv, dict):
+                        continue
                     card_name = str(cv.get("name") or "").strip()
                     if not card_name:
                         continue
@@ -1187,14 +1200,14 @@ def import_edhrec_capture_manifest(
 
                     card_id = store.card_id_by_oracle_or_name(None, card_name)
 
-                    num = int(cv["num_decks"]) if cv.get("num_decks") is not None else None
+                    num = int(str(cv["num_decks"])) if cv.get("num_decks") is not None else None
                     den = (
-                        int(cv["potential_decks"])
+                        int(str(cv["potential_decks"]))
                         if cv.get("potential_decks") is not None
                         else None
                     )
-                    lift = float(cv["lift"]) if cv.get("lift") is not None else None
-                    synergy = float(cv["synergy"]) if cv.get("synergy") is not None else None
+                    lift = float(str(cv["lift"])) if cv.get("lift") is not None else None
+                    synergy = float(str(cv["synergy"])) if cv.get("synergy") is not None else None
 
                     inc = (
                         round((num / den) * 100.0, 2)
@@ -1276,7 +1289,9 @@ def import_edhrec_capture_manifest(
             missing_cards = sorted(target_comparison_cards - all_seen_cards)
             for missing_name in missing_cards:
                 cid = store.card_id_by_oracle_or_name(None, missing_name)
-                first_src_id = f"src:{validated_records[0][0]['sha256'][:16]}"
+                rec0 = validated_records[0][0]
+                rec0_sha = str(rec0.get("sha256") or "")[:16]
+                first_src_id = f"src:{rec0_sha}"
                 db.execute(
                     "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
                     "numerator, denominator, data_class, url, snapshot, source_id) "
