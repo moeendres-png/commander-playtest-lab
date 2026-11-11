@@ -3,6 +3,7 @@
 Every timestamp belongs to a *new HTTP request*, never to historical C079.
 No external dependencies or network requests.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -14,7 +15,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-URL_RE = re.compile(r"^https://json\.edhrec\.com/pages/commanders/chulane-teller-of-tales(?:/[a-z0-9-]+)?\.json$")
+URL_RE = re.compile(
+    r"^https://json\.edhrec\.com/pages/commanders/chulane-teller-of-tales(?:/[a-z0-9-]+)?\.json$"
+)
 UTC_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$")
 SHA_RE = re.compile(r"^[0-9a-f]{64}$")
 EVENT_RE = re.compile(r"^EDHREC_NEW_[0-9a-f]{24}$")
@@ -50,7 +53,9 @@ def _contained_path(root: Path, name: object, field: str) -> Path:
     return target
 
 
-def verify_captures(manifest_path: str | Path, raw_folder: str | Path | None = None) -> list[VerifiedCapture]:
+def verify_captures(
+    manifest_path: str | Path, raw_folder: str | Path | None = None
+) -> list[VerifiedCapture]:
     """Fail closed if any HTTP proof, SHA, source URL or card metric is invalid."""
     manifest_file = Path(manifest_path)
     manifest = json.loads(manifest_file.read_text(encoding="utf-8"))
@@ -83,7 +88,9 @@ def verify_captures(manifest_path: str | Path, raw_folder: str | Path | None = N
         raw_bytes = raw.read_bytes()
         actual_sha = hashlib.sha256(raw_bytes).hexdigest()
         if expected_sha != actual_sha:
-            raise ValueError(f"SHA-256 mismatch for {event_id}: expected {expected_sha}, got {actual_sha}")
+            raise ValueError(
+                f"SHA-256 mismatch for {event_id}: expected {expected_sha}, got {actual_sha}"
+            )
         meta = json.loads(meta_path.read_text(encoding="utf-8"))
         if not isinstance(meta, dict):
             raise ValueError(f"Invalid metadata object in {event_id}")
@@ -94,8 +101,13 @@ def verify_captures(manifest_path: str | Path, raw_folder: str | Path | None = N
             raise ValueError(f"HTTP 200 proof missing in {event_id}")
         if meta.get("provenance_class") != "NEW_HTTP_CAPTURE_ONLY":
             raise ValueError(f"Capture provenance classification invalid in {event_id}")
-        if meta.get("automatic_import") is not False or meta.get("historical_C079_timestamp_backfilled") is not False:
-            raise ValueError(f"Capture is not review-only or claims historical backfill: {event_id}")
+        if (
+            meta.get("automatic_import") is not False
+            or meta.get("historical_C079_timestamp_backfilled") is not False
+        ):
+            raise ValueError(
+                f"Capture is not review-only or claims historical backfill: {event_id}"
+            )
         if type(meta.get("raw_size_bytes")) is not int or meta["raw_size_bytes"] != len(raw_bytes):
             raise ValueError(f"Capture size mismatch in {event_id}")
         start = meta.get("request_start_utc")
@@ -104,7 +116,10 @@ def verify_captures(manifest_path: str | Path, raw_folder: str | Path | None = N
             raise ValueError(f"Reversed capture UTC times in {event_id}")
         if end != rec.get("observed_utc"):
             raise ValueError(f"Manifest observed_utc != response_complete_utc: {event_id}")
-        calculated_event = "EDHREC_NEW_" + hashlib.sha256((url + "\n" + start + "\n" + expected_sha).encode()).hexdigest()[:24]
+        calculated_event = (
+            "EDHREC_NEW_"
+            + hashlib.sha256((url + "\n" + start + "\n" + expected_sha).encode()).hexdigest()[:24]
+        )
         if calculated_event != event_id:
             raise ValueError(f"Capture event fingerprint mismatch in {event_id}")
         try:
@@ -122,12 +137,20 @@ def verify_captures(manifest_path: str | Path, raw_folder: str | Path | None = N
             if not isinstance(cl, dict) or not isinstance(cl.get("cardviews"), list):
                 raise ValueError(f"Invalid EDHREC cardlist/cardviews in {event_id}")
             for cv in cl["cardviews"]:
-                if not isinstance(cv, dict) or not isinstance(cv.get("name"), str) or not cv["name"].strip():
+                if (
+                    not isinstance(cv, dict)
+                    or not isinstance(cv.get("name"), str)
+                    or not cv["name"].strip()
+                ):
                     raise ValueError(f"Malformed EDHREC cardview in {event_id}")
                 for key in ("num_decks", "potential_decks"):
                     if cv.get(key) is not None:
                         value = cv[key]
-                        if isinstance(value, bool) or not str(value).isdigit() or int(str(value)) < 0:
+                        if (
+                            isinstance(value, bool)
+                            or not str(value).isdigit()
+                            or int(str(value)) < 0
+                        ):
                             raise ValueError(f"Invalid nonnegative count {key} in {event_id}")
                 num, den = cv.get("num_decks"), cv.get("potential_decks")
                 if num is not None and den is not None and int(str(num)) > int(str(den)):
@@ -140,5 +163,7 @@ def verify_captures(manifest_path: str | Path, raw_folder: str | Path | None = N
                             raise ValueError(f"Malformed {key} in {event_id}") from exc
                         if not math.isfinite(numeric):
                             raise ValueError(f"Nonfinite {key} in {event_id}")
-        out.append(VerifiedCapture(event_id, url, expected_sha, start, end, raw_bytes, parsed, len(lists)))
+        out.append(
+            VerifiedCapture(event_id, url, expected_sha, start, end, raw_bytes, parsed, len(lists))
+        )
     return out
