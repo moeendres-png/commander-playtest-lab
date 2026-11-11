@@ -16,6 +16,7 @@ import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Sequence
 from functools import lru_cache
 from pathlib import Path
 
@@ -166,6 +167,8 @@ def start_game(
     revision_id: str,
     opponent_ids: list[str],
     seed: int,
+    style: float | None = None,
+    seat_styles: Sequence[float] | None = None,
 ) -> str:
     """Start the game process and return the id of the game it records.
 
@@ -199,6 +202,11 @@ def start_game(
     ]  # fmt: skip
     for path in opponents:
         command += ["--deck", str(path)]
+    if style is not None:
+        command += ["--style", str(style)]
+    if seat_styles:
+        for idx, s in enumerate(seat_styles, start=1):
+            command += ["--seat-style", f"{idx}:{s}"]
     folder = games_folder(data_folder)
     with (folder / f"{game_id}.out").open("w", encoding="utf-8") as output:
         process = subprocess.Popen(

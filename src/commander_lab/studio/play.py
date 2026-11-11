@@ -8,8 +8,15 @@ seat is a later step.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
 
+from commander_lab.agents import (
+    derive_deck_plan,
+    style_label,
+    style_reserve_mana,
+    style_weights,
+)
 from commander_lab.candidates.models import FutureXmageScenario
 from commander_lab.engine.rules.failure_privacy import (
     public_exception_type,
@@ -96,6 +103,8 @@ def play_recorded_game(
     seed: int,
     game_id: str | None = None,
     strategy: str = "generic",
+    style: float | None = None,
+    seat_styles: Mapping[int, float] | None = None,
     max_decisions: int = 50_000,
     request_timeout_seconds: float = 120.0,
 ) -> dict[str, object]:
@@ -125,23 +134,33 @@ def play_recorded_game(
         pilot_version=PILOT_VERSION,
         decision_policy_version=POLICY_VERSION,
     )
-    pilots = tuple(
-        FullGamePilotBinding(
-            seat=seat,
-            deck_id=deck.deck_id,
-            strategy=strategy,
-            commander_names=deck.commander_names,
-            config=PilotConfig(
-                pilot_name="auto",
-                strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC,
-                mode=PilotDecisionMode.DETERMINISTIC,
-            ),
-            pilot_identity=PILOT_IDENTITY,
-            pilot_version=PILOT_VERSION,
-            decision_policy_version=POLICY_VERSION,
+    seat_details = []
+    pilots_list = []
+    for seat, deck in enumerate(decks, start=1):
+        seat_style = (seat_styles or {}).get(seat, style if style is not None else 0.5)
+        plan = derive_deck_plan(deck)
+        seat_details.append((deck, seat_style, plan))
+        pilots_list.append(
+            FullGamePilotBinding(
+                seat=seat,
+                deck_id=deck.deck_id,
+                strategy=strategy,
+                commander_names=deck.commander_names,
+                config=PilotConfig(
+                    pilot_name="auto",
+                    strength=PilotStrength.NEAR_OPTIMAL_HEURISTIC,
+                    mode=PilotDecisionMode.DETERMINISTIC,
+                    style=seat_style,
+                    weights=style_weights(seat_style),
+                    reserve_mana_target=style_reserve_mana(seat_style),
+                    deck_plan=plan.as_dict(),
+                ),
+                pilot_identity=PILOT_IDENTITY,
+                pilot_version=PILOT_VERSION,
+                decision_policy_version=POLICY_VERSION,
+            )
         )
-        for seat, deck in enumerate(decks, start=1)
-    )
+    pilots = tuple(pilots_list)
     recorder = GameRecorder(
         data_folder,
         game,
@@ -157,8 +176,11 @@ def play_recorded_game(
                     "deck_id": deck.deck_id,
                     "commanders": list(deck.commander_names),
                     "pilot": "KI",
+                    "style": s_style,
+                    "style_name": style_label(s_style),
+                    "deck_plan": s_plan.as_dict(),
                 }
-                for index, deck in enumerate(decks)
+                for index, (deck, s_style, s_plan) in enumerate(seat_details)
             ],
         },
     )

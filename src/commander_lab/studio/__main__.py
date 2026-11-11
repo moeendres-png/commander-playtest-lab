@@ -101,6 +101,18 @@ def _parser() -> argparse.ArgumentParser:
     play.add_argument("--seed", type=int, required=True)
     play.add_argument("--game-id", default=None)
     play.add_argument("--max-decisions", type=int, default=50_000)
+    play.add_argument(
+        "--style",
+        type=float,
+        default=None,
+        help="AI pilot style from 0.0 (aggressive) to 1.0 (control). Defaults to 0.5 (balanced).",
+    )
+    play.add_argument(
+        "--seat-style",
+        action="append",
+        default=None,
+        help="Seat-specific style in seat:style format (e.g. 1:0.0 or 2:1.0).",
+    )
     commands.add_parser("games")
     commands.add_parser("status")
     sources_cmd = commands.add_parser(
@@ -143,11 +155,20 @@ def _games(args: argparse.Namespace) -> int:
     if args.command == "play":
         from .play import play_recorded_game
 
+        seat_styles = {}
+        if args.seat_style:
+            for item in args.seat_style:
+                parts = item.split(":", 1)
+                if len(parts) == 2:
+                    seat_styles[int(parts[0])] = float(parts[1])
+
         result = play_recorded_game(
             folder,
             [Path(path) for path in args.deck],
             seed=args.seed,
             game_id=args.game_id,
+            style=args.style,
+            seat_styles=seat_styles or None,
             max_decisions=args.max_decisions,
         )
     else:
