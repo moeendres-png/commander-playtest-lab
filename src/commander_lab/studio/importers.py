@@ -330,12 +330,24 @@ def import_corpus_cards(store: StudioStore, path: str | Path) -> dict[str, int]:
         quantity = int(row["quantity"]) + (previous[1] if previous else 0)
         merged[key] = (row["oracle_id"] or None, quantity, row["normalization_status"])
     with store.connection as db:
-        db.execute("DELETE FROM corpus_deck_card")
+        # Each input file is one partition of a larger corpus. Replace only the decks
+        # present in this partition, retaining other previously imported partitions.
+        # This also makes re-importing the same partition idempotent.
+        db.executemany(
+            "DELETE FROM corpus_deck_card WHERE deck_id = ?",
+            ((deck_id,) for deck_id in {key[0] for key in merged}),
+        )
         db.executemany(
             "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
             "normalization_status) VALUES (?, ?, ?, ?, ?, ?)",
             [(*key, *value) for key, value in merged.items()],
         )
+    # The deck builder must see complete structural comparisons after the final
+    # CSV partition, even when Scryfall was imported before the source decks.
+    if store.count("scryfall_card"):
+        from .catalog import refresh_corpus_stats
+
+        refresh_corpus_stats(store)
     return {"rows": len(merged), "rows_without_registered_deck": skipped}
 
 
