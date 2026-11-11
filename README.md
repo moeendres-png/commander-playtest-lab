@@ -37,12 +37,15 @@ Die Kopie ist ein initialer extrahierter Entwicklungsstand, keine Behauptung, da
 
 Diese Arbeitskopie liegt absichtlich in einem isolierten Branch des Quell-Repositories, weil die verbundene GitHub-Schnittstelle **kein Repository anlegen** kann. Beim Erstellen des neuen Repos einen **neuen Root-Commit ohne alte Lab-Historie** erzeugen. Beispiel (nach lokalem Clone des Standalone-Branches):
 
+Lade aus dem Standalone-Branch **Code → Download ZIP** herunter und entpacke
+die Dateien. Ein ZIP enthält nur den aktuellen Deckbuilder-Dateibaum, keine
+Historie des Playtest-Labs. Erstelle dann ein **leeres** GitHub-Repository und
+führe im entpackten Ordner aus:
+
 ```sh
-git switch --orphan clean-main
-git add -A
+git init -b main
+git add .
 git commit -m "Initial standalone collection deckbuilder"
-git branch -M main
-git remote remove origin
 git remote add origin https://github.com/DEIN-ACCOUNT/mtg-collection-deckbuilder.git
 git push -u origin main
 ```

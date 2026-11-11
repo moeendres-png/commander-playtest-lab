@@ -1,15 +1,14 @@
 """Local web application of the Studio deck builder.
 
 It listens on this machine only. The browser gets card data, deck lists and counts from
-the Studio store; card images come from the local image cache. Nothing here decides rules:
-the data check reads stored facts, the Rules Core stays the binding check for play.
+the Studio store; card images come from the local image cache. The validation is
+a factual deckbuilding precheck, not an authoritative game-rules engine.
 """
 
 from __future__ import annotations
 
 import re
 import tempfile
-from pathlib import Path
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
 from pathlib import Path

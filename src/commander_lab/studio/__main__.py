@@ -47,7 +47,8 @@ def main(argv: list[str] | None = None) -> int:
                 "SELECT COUNT(*) FROM card c JOIN scryfall_card s ON c.oracle_id = s.oracle_id"
             ).fetchone()[0]
             unresolved = [r[0] for r in db.execute(
-                "SELECT oracle_name FROM card WHERE oracle_id IS NULL ORDER BY oracle_name"
+                "SELECT c.oracle_name FROM card c LEFT JOIN scryfall_card s "
+                "ON c.oracle_id = s.oracle_id WHERE s.oracle_id IS NULL ORDER BY c.oracle_name"
             )]
             result = {"card_identities": total, "linked_to_scryfall": linked,
                       "unresolved_count": len(unresolved), "unresolved": unresolved}
