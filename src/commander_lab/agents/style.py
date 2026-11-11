@@ -81,7 +81,12 @@ def style_weights(
     style: float | None,
     base_strength: PilotStrength = PilotStrength.NEAR_OPTIMAL_HEURISTIC,
 ) -> PilotUtilityWeights:
-    """Compute interpolated pilot utility weights for a given style in [0.0, 1.0]."""
+    """Compute interpolated pilot utility weights for a given style in [0.0, 1.0].
+
+    Note: Pilots operate at full strength (default NEAR_OPTIMAL_HEURISTIC per architecture freeze);
+    style shifts heuristic priorities across this baseline without lowering overall intelligence.
+    """
+    _ = base_strength
     s = clamp_style(style)
     if s <= 0.5:
         t = s / 0.5

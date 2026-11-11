@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import random
 from pathlib import Path
-from typing import Any
 
 import pytest
 from starlette.testclient import TestClient
@@ -447,9 +446,9 @@ def test_studio_play_cli_args_parsing() -> None:
 
 def test_web_api_game_body_with_styles(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv(launch.ENGINE_COMMAND_ENV, "mock-engine")
-    captured_kwargs: dict[str, Any] = {}
+    captured_kwargs: dict[str, object] = {}
 
-    def mock_start_game(store: Any, folder: Any, **kwargs: Any) -> str:
+    def mock_start_game(store: object, folder: object, **kwargs: object) -> str:
         captured_kwargs.update(kwargs)
         return "mock-game-123"
 

@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Final
+from typing import Final
 
 from commander_lab.agents.card_knowledge import card_facts, card_roles
 from commander_lab.models import CardRole, RulesDeckInput
@@ -32,7 +32,7 @@ class DeckPlan:
     key_cards: tuple[str, ...]
     provenance: str = PLAN_PROVENANCE
 
-    def as_dict(self) -> dict[str, Any]:
+    def as_dict(self) -> dict[str, object]:
         return {
             "deck_id": self.deck_id,
             "focus": self.focus,
@@ -44,7 +44,7 @@ class DeckPlan:
         }
 
 
-def _find_guide(deck_id: str, guides_dir: Path) -> dict[str, Any] | None:
+def _find_guide(deck_id: str, guides_dir: Path) -> dict[str, object] | None:
     if not guides_dir.is_dir():
         return None
 
