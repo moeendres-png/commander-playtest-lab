@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -174,6 +174,11 @@ CREATE TABLE IF NOT EXISTS corpus_cohort (
     cohort TEXT NOT NULL,
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
     PRIMARY KEY (cohort, deck_id)
+);
+CREATE TABLE IF NOT EXISTS corpus_deck_part (
+    deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id) DEFERRABLE INITIALLY DEFERRED,
+    part_name TEXT NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id)
 );
 CREATE TABLE IF NOT EXISTS corpus_deck_stat (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id),
@@ -424,7 +429,7 @@ class StudioStore:
         if table not in {
             "source", "card", "inventory", "deck", "deck_revision", "deck_revision_card",
             "deck_branch", "corpus_deck", "corpus_deck_card", "observation", "scryfall_card",
-            "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "card_role",
+            "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
         }:  # fmt: skip
             raise ValueError(table)

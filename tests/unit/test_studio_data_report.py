@@ -41,6 +41,9 @@ def test_report_counts_the_filled_store_with_denominators(studio: StudioStore) -
     assert corpus["decks"] == 4
     assert corpus["marked_duplicate_of_another"] == {"count": 1, "of": 4}
     assert corpus["card_rows_without_oracle_id"] == {"count": 1, "of": corpus["card_rows"]}
+    assert corpus["decks_without_card_rows"] == {"count": 0, "of": 4}
+    assert corpus["decks_without_recorded_part"] == {"count": 0, "of": 4}
+    assert corpus["mainboard_not_99_cards"] == {"count": 4, "of": 4}  # synthetic decks are short
     assert _section(report, "observations")["rows"] == 0
     assert _section(report, "roles")["collection_with_any_role"] == {
         "count": 0,
