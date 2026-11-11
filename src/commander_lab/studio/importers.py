@@ -342,6 +342,12 @@ def import_corpus_cards(store: StudioStore, path: str | Path) -> dict[str, int]:
             "normalization_status) VALUES (?, ?, ?, ?, ?, ?)",
             [(*key, *value) for key, value in merged.items()],
         )
+    # The deck builder must see complete structural comparisons after the final
+    # CSV partition, even when Scryfall was imported before the source decks.
+    if store.count("scryfall_card"):
+        from .catalog import refresh_corpus_stats
+
+        refresh_corpus_stats(store)
     return {"rows": len(merged), "rows_without_registered_deck": skipped}
 
 
