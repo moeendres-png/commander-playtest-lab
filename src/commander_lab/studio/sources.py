@@ -8,9 +8,13 @@ evidence layers, licensing terms, rate limits, bias characteristics, and coverag
 from __future__ import annotations
 
 import json
+from collections.abc import Sequence
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Literal, TypedDict
+
+from .builder import ALL_DECKS, pool_cards
+from .store import StudioStore, now_utc
 
 SourceStatus = Literal["VERIFIED", "REVIEW", "UNAVAILABLE"]
 
@@ -378,6 +382,82 @@ QUALIFIED_SOURCES: tuple[EvidenceSource, ...] = (
             "selection divergence and non-bulk license terms."
         ),
     ),
+    EvidenceSource(
+        source_id="xmage:card-facts",
+        priority=8,
+        title="XMage Engine Card Facts & Rules Support",
+        direct_url="local:data/cards/xmage_card_facts.json",
+        reference_urls=(
+            "https://github.com/magefree/mage",
+            "src/commander_lab/deck_readiness.py",
+        ),
+        publisher="XMage Project / Commander Lab",
+        retrieved_at_utc="2026-11-10T00:00:00Z",
+        observation_period="All cards implemented in the canonical pinned XMage Rules Core (7,231 verified cards)",
+        snapshot_id="xmage-card-facts-v1",
+        schema_format="JSON (xmage_card_facts.json)",
+        card_identifier="engine_name / oracle_name",
+        coverage_scope="7,231 cards implemented in pinned XMage engine; 801 / 801 legal Chulane cards have verified readiness",
+        evidence_layer="DERIVED_MECHANICAL",
+        has_exact_numerator_denominator=True,
+        game_context={
+            "format": "Commander",
+            "rules_engine": "XMage",
+            "provider": "XMAGE",
+        },
+        double_counting_risk="None; card names map deterministically to engine implementations.",
+        license_terms="GPLv3 / Open Source (XMage Engine Source)",
+        allowed_retrieval_method="Local file import / repository asset.",
+        reproducibility="DETERMINISTIC_OFFLINE_SNAPSHOT",
+        bias_risks=(
+            "Engine implementation coverage differs from full Oracle card universe",
+            "Tactical card mechanics without external decision control fail closed",
+        ),
+        status="VERIFIED",
+        status_rationale=(
+            "100% verified locally against pinned engine rules. "
+            "All 801 legal Chulane pool cards are qualified with sim_status=OK."
+        ),
+    ),
+    EvidenceSource(
+        source_id="scryfall:tagger",
+        priority=9,
+        title="Scryfall Tagger Functional Roles & Community Tags",
+        direct_url="https://tagger.scryfall.com/",
+        reference_urls=(
+            "https://scryfall.com/docs/tagger-tags",
+            "src/commander_lab/studio/roles.py",
+        ),
+        publisher="Scryfall Community / Tagger Project",
+        retrieved_at_utc=None,
+        observation_period="Continuous community tag catalog (2024-2026)",
+        snapshot_id=None,
+        schema_format="Web / Community Tagging (CSV export when available)",
+        card_identifier="oracle_id / card_name",
+        coverage_scope="Community functional tags: ramp, draw, removal, bounce, tutor, combo-piece",
+        evidence_layer="EXTERNAL_OPINION",
+        has_exact_numerator_denominator=False,
+        game_context={
+            "format": "Commander",
+            "tagging_scope": "functional_card_roles",
+        },
+        double_counting_risk=(
+            "Multiple overlapping tags for the same functional role "
+            "(e.g. bounce-creature and bounce-permanent)."
+        ),
+        license_terms="Public Community Fan Content Policy; non-commercial citation only.",
+        allowed_retrieval_method="MANUAL_INSPECTION_ONLY (or authorized Scryfall bulk tags export).",
+        reproducibility="DYNAMIC_EPHEMERAL_WEB",
+        bias_risks=(
+            "Community tags are subjective, non-authoritative annotations, not official MTG Oracle mechanics",
+            "Inconsistent granularity across card types",
+        ),
+        status="REVIEW",
+        status_rationale=(
+            "Valuable semantic role mappings imported into card_role, "
+            "but requires external audit due to community subjectivity."
+        ),
+    ),
 )
 
 
@@ -431,5 +511,260 @@ def write_source_inventory_json(path: str | Path) -> Path:
     out_path = Path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     payload = source_inventory_payload()
+    out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    return out_path
+
+
+def load_spellbook_combo_cards(combos_path: str | Path | None = None) -> set[str]:
+    """Load the set of card names participating in verified combos for Chulane."""
+    target_path = Path(combos_path) if combos_path else Path("data/meta/spellbook_combos.json")
+    if not target_path.is_file():
+        return set()
+    try:
+        data = json.loads(target_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return set()
+    cards: set[str] = set()
+    combos = data.get("combos")
+    if not isinstance(combos, list):
+        return set()
+    for combo in combos:
+        if isinstance(combo, dict) and "Chulane" in str(combo.get("commander", "")):
+            combo_cards = combo.get("cards")
+            if isinstance(combo_cards, list):
+                for c in combo_cards:
+                    if isinstance(c, str):
+                        cards.add(c)
+            any_groups = combo.get("any_of")
+            if isinstance(any_groups, list):
+                for any_group in any_groups:
+                    if isinstance(any_group, list):
+                        for c in any_group:
+                            if isinstance(c, str):
+                                cards.add(c)
+    return cards
+
+
+def calculate_card_coverage_record(
+    card: dict[str, object],
+    spellbook_combo_cards: set[str],
+    corpus_denominator: int = 975,
+) -> CardCoverageRecord:
+    """Calculate the systematic coverage and long-tail metrics for one pool card."""
+    name = str(card.get("name", ""))
+    oracle_id = str(card.get("oracle_id") or card.get("card_id", ""))
+    mana_value = float(card.get("mana_value") or 0.0)  # type: ignore[arg-type]
+    color_identity = str(card.get("colors") or "")
+    type_line = str(card.get("type_line") or "")
+    group = str(card.get("group") or "")
+
+    # Evidence indicators
+    has_scryfall_facts = bool(card.get("has_image") or card.get("fact_source") == "scryfall")
+    sim_status = str(card.get("sim_status") or "")
+    has_xmage_rules = sim_status in {"OK", "READY"}
+
+    decks = card.get("decks")
+    corpus_hits = 0
+    if isinstance(decks, dict):
+        corpus_hits = int(decks.get(ALL_DECKS, 0))
+
+    edhrec = card.get("edhrec")
+    edhrec_hits: int | None = None
+    edhrec_denominator: int | None = None
+    edhrec_lift: float | None = None
+    if isinstance(edhrec, dict):
+        if edhrec.get("numerator") is not None:
+            edhrec_hits = int(edhrec["numerator"])
+        if edhrec.get("denominator") is not None:
+            edhrec_denominator = int(edhrec["denominator"])
+        if edhrec.get("pct") is not None:
+            edhrec_lift = float(edhrec["pct"])
+
+    has_spellbook_combos = name in spellbook_combo_cards
+    playgroup_observed_games: int | None = None  # Documented blockade / no public export
+    tournament_hits: int | None = None  # Documented blockade / no licensed cEDH bulk export
+
+    # Coverage grade determination
+    coverage_grade: CoverageGrade
+    if corpus_hits == 0:
+        coverage_grade = "UNOBSERVED_IN_CORPUS"
+    elif corpus_hits <= 4:
+        coverage_grade = "SPARSE"
+    elif has_scryfall_facts and has_xmage_rules and corpus_hits >= 5 and edhrec_hits is not None:
+        coverage_grade = "COMPLETE"
+    else:
+        coverage_grade = "PARTIAL"
+
+    # Research priority score calculation: (1 - coverage) * relevance
+    # 1. Coverage score [0.0, 1.0]
+    coverage = 0.0
+    if has_scryfall_facts:
+        coverage += 0.20
+    if has_xmage_rules:
+        coverage += 0.20
+    if corpus_hits >= 5:
+        coverage += 0.30
+    else:
+        coverage += (corpus_hits / 5.0) * 0.30
+    if edhrec_hits is not None:
+        coverage += 0.20
+    if has_spellbook_combos:
+        coverage += 0.10
+    coverage = min(1.0, coverage)
+
+    # 2. Deck relevance score [0.0, 1.0]
+    relevance = 0.15  # base relevance for format-legal card in store
+    if group == "Creature":
+        if mana_value <= 3.0:
+            relevance += 0.35  # optimal Chulane cast trigger
+        else:
+            relevance += 0.15
+    raw_roles = card.get("roles")
+    roles = [str(r) for r in raw_roles] if isinstance(raw_roles, list) else []
+    primary_synergies = {"bounce", "recast", "ramp", "draw", "mana-dork", "landfall"}
+    if any(r in primary_synergies for r in roles):
+        relevance += 0.30
+    elif roles:
+        relevance += 0.15
+    if has_spellbook_combos:
+        relevance += 0.20
+    relevance = min(1.0, relevance)
+
+    research_priority_score = round((1.0 - coverage) * relevance, 4)
+
+    # Long-tail candidate detection
+    is_long_tail_candidate = (corpus_hits <= 4) and (
+        (group == "Creature" and mana_value <= 3.0) or bool(roles) or has_spellbook_combos
+    )
+
+    notes: str
+    if is_long_tail_candidate:
+        notes = (
+            f"Long-tail candidate: {corpus_hits}/975 corpus hits with engine relevance "
+            f"(group={group}, MV={mana_value:g}, roles={roles or 'none'})."
+        )
+    elif corpus_hits == 0:
+        notes = "Unobserved in curated 975-deck corpus (0 hits != weak; missing observation)."
+    else:
+        notes = f"Corpus observed ({corpus_hits}/{corpus_denominator} hits)."
+
+    return CardCoverageRecord(
+        oracle_id=oracle_id,
+        card_name=name,
+        mana_value=mana_value,
+        color_identity=color_identity,
+        type_line=type_line,
+        has_scryfall_facts=has_scryfall_facts,
+        has_xmage_rules=has_xmage_rules,
+        corpus_hits=corpus_hits,
+        corpus_denominator=corpus_denominator,
+        edhrec_hits=edhrec_hits,
+        edhrec_denominator=edhrec_denominator,
+        edhrec_lift=edhrec_lift,
+        has_spellbook_combos=has_spellbook_combos,
+        playgroup_observed_games=playgroup_observed_games,
+        tournament_hits=tournament_hits,
+        coverage_grade=coverage_grade,
+        research_priority_score=research_priority_score,
+        is_long_tail_candidate=is_long_tail_candidate,
+        notes=notes,
+    )
+
+
+class PoolGapMatrixPayload(TypedDict):
+    """Deliverable 2 machine-readable pool gap matrix structure."""
+
+    schema_version: str
+    description: str
+    commander: str
+    generated_at_utc: str
+    total_cards: int
+    corpus_denominator: int
+    summary_counts: dict[str, object]
+    cards: list[dict[str, object]]
+
+
+def calculate_pool_gap_matrix(
+    store: StudioStore,
+    commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
+    combos_path: str | Path | None = None,
+) -> PoolGapMatrixPayload:
+    """Calculate the 801-card data gap matrix and research priority scores (P0 Deliverable 2)."""
+    pool = pool_cards(store, commander_names)
+    raw_cards = pool.get("cards", [])
+    if not isinstance(raw_cards, list):
+        raw_cards = []
+
+    spellbook_cards = load_spellbook_combo_cards(combos_path)
+    corpus_sizes = pool.get("cohorts", {})
+    denominator = 975
+    if isinstance(corpus_sizes, dict) and ALL_DECKS in corpus_sizes:
+        denominator = int(corpus_sizes[ALL_DECKS])
+
+    records: list[CardCoverageRecord] = []
+    grade_counts: dict[str, int] = {
+        "COMPLETE": 0,
+        "PARTIAL": 0,
+        "SPARSE": 0,
+        "UNOBSERVED_IN_CORPUS": 0,
+    }
+    long_tail_count = 0
+    unobserved_count = 0
+    observed_count = 0
+    has_edhrec_count = 0
+    spellbook_combo_count = 0
+    xmage_ready_count = 0
+
+    for c in raw_cards:
+        if isinstance(c, dict):
+            rec = calculate_card_coverage_record(c, spellbook_cards, corpus_denominator=denominator)
+            records.append(rec)
+            grade_counts[rec.coverage_grade] = grade_counts.get(rec.coverage_grade, 0) + 1
+            if rec.is_long_tail_candidate:
+                long_tail_count += 1
+            if rec.corpus_hits == 0:
+                unobserved_count += 1
+            else:
+                observed_count += 1
+            if rec.edhrec_hits is not None:
+                has_edhrec_count += 1
+            if rec.has_spellbook_combos:
+                spellbook_combo_count += 1
+            if rec.has_xmage_rules:
+                xmage_ready_count += 1
+
+    # Sort cards by research priority score descending, then by name
+    records.sort(key=lambda r: (-r.research_priority_score, r.card_name))
+
+    return {
+        "schema_version": "pool-gap-matrix-1.0.0",
+        "description": "Evidence gap and research priority matrix for format-legal pool cards (P0 Deliverable 2).",
+        "commander": ", ".join(commander_names),
+        "generated_at_utc": now_utc(),
+        "total_cards": len(records),
+        "corpus_denominator": denominator,
+        "summary_counts": {
+            "coverage_grades": grade_counts,
+            "long_tail_candidates_count": long_tail_count,
+            "unobserved_in_corpus_count": unobserved_count,
+            "observed_in_corpus_count": observed_count,
+            "has_edhrec_count": has_edhrec_count,
+            "has_spellbook_combos_count": spellbook_combo_count,
+            "xmage_ready_count": xmage_ready_count,
+        },
+        "cards": [r.to_dict() for r in records],
+    }
+
+
+def write_gap_matrix_json(
+    store: StudioStore,
+    path: str | Path,
+    commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
+    combos_path: str | Path | None = None,
+) -> Path:
+    """Calculate and write the 801-card gap matrix JSON to disk."""
+    out_path = Path(path)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    payload = calculate_pool_gap_matrix(store, commander_names, combos_path=combos_path)
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return out_path

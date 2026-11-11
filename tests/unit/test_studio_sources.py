@@ -1,7 +1,8 @@
-"""Tests for the Commander Studio evidence source registry (P0 Deliverable 1).
+"""Tests for the Commander Studio evidence source registry (P0 Deliverable 1 & 2).
 
-Verifies the systematic qualification of the 7 prioritized sources, schema integrity,
-explicit null-timestamp preservation, and JSON inventory generation.
+Verifies the systematic qualification of the 9 prioritized sources, schema integrity,
+explicit null-timestamp preservation, JSON inventory generation, card coverage record calculation,
+long-tail candidate identification, and full 801-card pool gap matrix calculation.
 """
 
 from __future__ import annotations
@@ -13,11 +14,16 @@ import pytest
 
 from commander_lab.studio.sources import (
     QUALIFIED_SOURCES,
+    calculate_card_coverage_record,
+    calculate_pool_gap_matrix,
     get_source,
     list_sources,
+    load_spellbook_combo_cards,
     source_inventory_payload,
+    write_gap_matrix_json,
     write_source_inventory_json,
 )
+from commander_lab.studio.store import StudioStore
 
 EXPECTED_PRIORITIES = (
     (1, "scryfall:bulk-oracle", "VERIFIED"),
@@ -27,14 +33,17 @@ EXPECTED_PRIORITIES = (
     (5, "spellbook:variants-api", "VERIFIED"),
     (6, "active_drive:chulane-corpus-975", "VERIFIED"),
     (7, "tournament:cedh-meta", "REVIEW"),
+    (8, "xmage:card-facts", "VERIFIED"),
+    (9, "scryfall:tagger", "REVIEW"),
 )
 
 
-def test_qualified_sources_covers_all_seven_priorities_in_exact_order() -> None:
-    assert len(QUALIFIED_SOURCES) == 7
+def test_qualified_sources_covers_all_nine_priorities_in_exact_order() -> None:
+    assert len(QUALIFIED_SOURCES) == 9
     priorities = [s.priority for s in QUALIFIED_SOURCES]
-    assert priorities == list(range(1, 8))
+    assert priorities == list(range(1, 10))
 
+    assert len(EXPECTED_PRIORITIES) == 9
     for (expected_prio, expected_id, expected_status), source in zip(
         EXPECTED_PRIORITIES, QUALIFIED_SOURCES, strict=True
     ):
@@ -56,7 +65,7 @@ def test_every_source_has_all_seventeen_dimensions_populated() -> None:
         "EXTERNAL_OPINION",
     }
 
-    assert len(QUALIFIED_SOURCES) == 7
+    assert len(QUALIFIED_SOURCES) == 9
     for source in QUALIFIED_SOURCES:
         # Core identification & URL
         assert source.source_id.strip() != ""
@@ -105,10 +114,18 @@ def test_missing_timestamps_remain_none_never_fabricated() -> None:
     assert tournament.retrieved_at_utc is None
     assert tournament.snapshot_id is None
 
+    tagger = get_source("scryfall:tagger")
+    assert tagger.retrieved_at_utc is None
+    assert tagger.snapshot_id is None
+
     # Verified sources have explicit UTC timestamps and snapshot IDs
     scryfall = get_source("scryfall:bulk-oracle")
     assert scryfall.retrieved_at_utc == "2026-11-10T00:00:00Z"
     assert scryfall.snapshot_id == "scryfall-oracle-cards-20261110"
+
+    xmage = get_source("xmage:card-facts")
+    assert xmage.retrieved_at_utc == "2026-11-10T00:00:00Z"
+    assert xmage.snapshot_id == "xmage-card-facts-v1"
 
 
 def test_get_source_and_list_sources() -> None:
@@ -121,20 +138,22 @@ def test_get_source_and_list_sources() -> None:
         get_source("non-existent-source")
 
     verified = list_sources(status="VERIFIED")
-    assert len(verified) == 4
+    assert len(verified) == 5
     assert {s.source_id for s in verified} == {
         "scryfall:bulk-oracle",
         "edhrec:chulane",
         "spellbook:variants-api",
         "active_drive:chulane-corpus-975",
+        "xmage:card-facts",
     }
 
     review = list_sources(status="REVIEW")
-    assert len(review) == 3
+    assert len(review) == 4
     assert {s.source_id for s in review} == {
         "playgroup:card-atlas",
         "playgroup:chulane",
         "tournament:cedh-meta",
+        "scryfall:tagger",
     }
 
     unavailable = list_sources(status="UNAVAILABLE")
@@ -144,11 +163,11 @@ def test_get_source_and_list_sources() -> None:
 def test_source_inventory_payload_matches_schema() -> None:
     payload = source_inventory_payload()
     assert payload["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert payload["total_sources"] == 7
-    assert payload["status_counts"]["VERIFIED"] == 4
-    assert payload["status_counts"]["REVIEW"] == 3
+    assert payload["total_sources"] == 9
+    assert payload["status_counts"]["VERIFIED"] == 5
+    assert payload["status_counts"]["REVIEW"] == 4
     assert payload["status_counts"]["UNAVAILABLE"] == 0
-    assert len(payload["sources"]) == 7
+    assert len(payload["sources"]) == 9
 
 
 def test_write_source_inventory_json_roundtrip(tmp_path: Path) -> None:
@@ -158,8 +177,175 @@ def test_write_source_inventory_json_roundtrip(tmp_path: Path) -> None:
 
     loaded = json.loads(written_path.read_text(encoding="utf-8"))
     assert loaded["schema_version"] == "evidence-source-inventory-1.0.0"
-    assert loaded["total_sources"] == 7
-    assert len(loaded["sources"]) == 7
+    assert loaded["total_sources"] == 9
+    assert len(loaded["sources"]) == 9
     first = loaded["sources"][0]
     assert first["source_id"] == "scryfall:bulk-oracle"
     assert first["priority"] == 1
+
+
+def test_load_spellbook_combo_cards(tmp_path: Path) -> None:
+    # 1. Non-existent path returns empty set
+    empty_set = load_spellbook_combo_cards(tmp_path / "does_not_exist.json")
+    assert empty_set == set()
+
+    # 2. Corrupted JSON returns empty set
+    corrupted_file = tmp_path / "corrupted.json"
+    corrupted_file.write_text("{not valid json", encoding="utf-8")
+    assert load_spellbook_combo_cards(corrupted_file) == set()
+
+    # 3. Valid JSON with Chulane combo and non-Chulane combo
+    valid_file = tmp_path / "combos.json"
+    payload = {
+        "combos": [
+            {
+                "commander": "Chulane, Teller of Tales",
+                "cards": ["Shrieking Drake", "Lotus Cobra"],
+                "any_of": [["Mana Breach", "Overburden"]],
+            },
+            {
+                "commander": "Korvold, Fae-Cursed King",
+                "cards": ["Dockside Extortionist", "Mayhem Devil"],
+            },
+        ]
+    }
+    valid_file.write_text(json.dumps(payload), encoding="utf-8")
+    extracted = load_spellbook_combo_cards(valid_file)
+    assert extracted == {"Shrieking Drake", "Lotus Cobra", "Mana Breach", "Overburden"}
+
+    # 4. Canonical repository file check (if present)
+    canonical = Path("data/meta/spellbook_combos.json")
+    if canonical.is_file():
+        cards = load_spellbook_combo_cards()
+        assert "Chulane, Teller of Tales" in cards
+        assert "Shrieking Drake" in cards
+        assert "Whitemane Lion" in cards
+
+
+def test_calculate_card_coverage_record_grades_and_scores() -> None:
+    spellbook_cards = {"Shrieking Drake", "Whitemane Lion"}
+
+    # 1. Unobserved card in corpus (0 hits)
+    unobserved_card: dict[str, object] = {
+        "name": "Esperzoa",
+        "oracle_id": "test-esperzoa-id",
+        "mana_value": 3.0,
+        "colors": "U",
+        "type_line": "Artifact Creature — Jellyfish",
+        "group": "Creature",
+        "has_image": True,
+        "sim_status": "OK",
+        "decks": {"all": 0},
+        "roles": ["bounce"],
+    }
+    rec_unobs = calculate_card_coverage_record(unobserved_card, spellbook_cards)
+    assert rec_unobs.coverage_grade == "UNOBSERVED_IN_CORPUS"
+    assert rec_unobs.corpus_hits == 0
+    assert rec_unobs.has_scryfall_facts is True
+    assert rec_unobs.has_xmage_rules is True
+    assert rec_unobs.has_spellbook_combos is False
+    assert rec_unobs.is_long_tail_candidate is True
+    assert "0/975 corpus hits with engine relevance" in rec_unobs.notes
+    assert rec_unobs.research_priority_score == pytest.approx(0.48, abs=0.01)
+
+    # 2. Sparse card (1-4 hits)
+    sparse_card: dict[str, object] = {
+        "name": "Cloudstone Curio",
+        "oracle_id": "test-curio-id",
+        "mana_value": 3.0,
+        "colors": "",
+        "type_line": "Artifact",
+        "group": "Artifact",
+        "has_image": True,
+        "sim_status": "OK",
+        "decks": {"all": 4},
+        "roles": ["bounce", "combo"],
+    }
+    rec_sparse = calculate_card_coverage_record(sparse_card, spellbook_cards)
+    assert rec_sparse.coverage_grade == "SPARSE"
+    assert rec_sparse.corpus_hits == 4
+    assert rec_sparse.is_long_tail_candidate is True
+
+    # 3. Complete card (>= 5 hits, scryfall, xmage, edhrec)
+    complete_card: dict[str, object] = {
+        "name": "Shrieking Drake",
+        "oracle_id": "test-drake-id",
+        "mana_value": 1.0,
+        "colors": "U",
+        "type_line": "Creature — Drake",
+        "group": "Creature",
+        "has_image": True,
+        "sim_status": "OK",
+        "decks": {"all": 500},
+        "edhrec": {"numerator": 8000, "denominator": 10000, "pct": 80.0},
+        "roles": ["bounce"],
+    }
+    rec_complete = calculate_card_coverage_record(complete_card, spellbook_cards)
+    assert rec_complete.coverage_grade == "COMPLETE"
+    assert rec_complete.has_spellbook_combos is True
+    assert rec_complete.is_long_tail_candidate is False
+    assert rec_complete.research_priority_score == 0.0
+
+    # 4. Partial card (>= 5 hits, but missing edhrec)
+    partial_card: dict[str, object] = {
+        "name": "Fleetfoot Panther",
+        "oracle_id": "test-panther-id",
+        "mana_value": 3.0,
+        "colors": "WG",
+        "type_line": "Creature — Cat",
+        "group": "Creature",
+        "has_image": True,
+        "sim_status": "OK",
+        "decks": {"all": 16},
+        "roles": ["bounce"],
+    }
+    rec_partial = calculate_card_coverage_record(partial_card, spellbook_cards)
+    assert rec_partial.coverage_grade == "PARTIAL"
+    assert rec_partial.corpus_hits == 16
+    assert rec_partial.is_long_tail_candidate is False
+
+
+def test_calculate_pool_gap_matrix_integration_and_write(tmp_path: Path) -> None:
+    store_dir = Path.home() / ".local" / "share" / "commander-studio"
+    db_path = store_dir / "studio.sqlite3"
+    if not db_path.is_file():
+        pytest.skip(f"Studio sqlite DB not found at {db_path}")
+
+    store = StudioStore.open(store_dir)
+    matrix = calculate_pool_gap_matrix(store)
+
+    assert matrix["schema_version"] == "pool-gap-matrix-1.0.0"
+    assert matrix["total_cards"] == 801
+    assert matrix["corpus_denominator"] == 975
+    assert matrix["commander"] == "Chulane, Teller of Tales"
+
+    summary = matrix["summary_counts"]
+    grades = summary["coverage_grades"]
+    assert isinstance(grades, dict)
+    assert grades["COMPLETE"] == 219
+    assert grades["SPARSE"] == 202
+    assert grades["PARTIAL"] == 8
+    assert grades["UNOBSERVED_IN_CORPUS"] == 372
+    assert summary["long_tail_candidates_count"] == 413
+    assert summary["observed_in_corpus_count"] == 429
+    assert summary["unobserved_in_corpus_count"] == 372
+    assert summary["xmage_ready_count"] == 801
+
+    cards = matrix["cards"]
+    assert len(cards) == 801
+
+    # Verify descending sort by research_priority_score
+    scores = [float(c["research_priority_score"]) for c in cards]  # type: ignore[arg-type]
+    assert len(scores) == 801
+    for i in range(len(scores) - 1):
+        assert scores[i] >= scores[i + 1]
+
+    # Verify file roundtrip
+    out_file = tmp_path / "research" / "test_gap_matrix.json"
+    written_path = write_gap_matrix_json(store, out_file)
+    assert written_path.is_file()
+
+    loaded = json.loads(written_path.read_text(encoding="utf-8"))
+    assert loaded["total_cards"] == 801
+    assert loaded["schema_version"] == "pool-gap-matrix-1.0.0"
+    assert len(loaded["cards"]) == 801
