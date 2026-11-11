@@ -317,12 +317,17 @@ def validate_review_bundle(package: Path) -> tuple[list[dict], list[tuple], list
 
 def connect(db_path: Path) -> sqlite3.Connection:
     target = db_path.expanduser().resolve()
+    expect(target.name.lower() != 'studio.sqlite3', 'Refusing to modify the production Studio database')
     # Deny accidental database creation in the checked-out repository.
     roots = [p for p in Path(__file__).resolve().parents if (p / 'pyproject.toml').is_file() and (p / 'src').is_dir()]
     expect(not any(target.is_relative_to(repo) for repo in roots), 'Evidence database must live outside Git')
     target.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(target)
     conn.execute('PRAGMA foreign_keys=ON')
+    known = {row[0] for row in conn.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+    if {'source', 'inventory', 'observation'} & known:
+        conn.close()
+        raise ValueError('Refusing to alter a Studio production or mixed database')
     return conn
 
 
