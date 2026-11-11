@@ -321,6 +321,19 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
         assert client.get("/api/cards/card:project:0007").json()["observations"] == []
         assert client.get("/api/cards/card:project:9999").status_code == 404
         assert client.get("/api/cohorts").json()[0]["cohort"] == "all"
+        diff_resp = client.post(
+            "/api/diff",
+            json={"base_revision_id": saved["revision_id"], "cards": cards},
+            headers=marker,
+        ).json()
+        assert diff_resp["added_slots"] == 0
+        pf_resp = client.post(
+            "/api/prefilter",
+            json={"base_revision_id": saved["revision_id"], "cards": cards, "trials": 100},
+            headers=marker,
+        ).json()
+        assert pf_resp["comparable"] is True
+        assert pf_resp["data_class"] == "HEURISTIC_MODEL"
         assert client.get("/img/card:project:0002", params={"face": "side"}).status_code == 422
         assert client.get("/api/revisions/nope").status_code == 404
 
@@ -408,6 +421,17 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
             "share": 0.5,
         }
     ]
+    role_file = tmp_path / "diff_roles.json"
+    role_file.write_text(
+        json.dumps(
+            {
+                "fetched_at": "2026-11-10T00:00:00Z",
+                "roles": {"ramp": ["oracle-forest"], "removal": ["oracle-swarm-rat"]},
+            }
+        ),
+        encoding="utf-8",
+    )
+    roles.import_roles(studio, role_file)
     base_cards = _deck()
     target_cards = [
         *base_cards[:-1],
@@ -430,6 +454,10 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
             "delta": -1,
         }
     ]
+    assert diff["role_deltas"] == {
+        "ramp": {"base": 29, "target": 28, "delta": -1},
+        "removal": {"base": 0, "target": 1, "delta": 1},
+    }
     dp = builder.draw_probabilities(99, 29)
     assert dp is not None
     assert dp["data_class"] == "DERIVED_DESCRIPTIVE"
@@ -438,6 +466,31 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
     opening = dp["opening_7"]
     assert isinstance(opening, dict)
     assert 0.0 < float(opening["at_least_3_lands"]) < 1.0
+    # sim_status is populated on pool and card_detail
+    pool = builder.pool_cards(studio, ["Test Commander"])
+    cards_by_name = {card["name"]: card for card in pool["cards"]}  # type: ignore[union-attr]
+    assert cards_by_name["Forest"]["sim_status"] == "OK"
+    assert cards_by_name["Swarm Rat"]["sim_status"] == "NO_CARD_FACTS"
+    detail = builder.card_detail(studio, "card:project:0002")
+    assert detail["sim_status"] == "OK"
+    # prefilter_lists requires 100 cards in both lists, and returns HEURISTIC_MODEL when met
+    short_pf = builder.prefilter_lists(studio, base_cards[:10], target_cards, trials=100)
+    assert short_pf["comparable"] is False
+    assert short_pf["data_class"] == "HEURISTIC_MODEL"
+    pf = builder.prefilter_lists(studio, base_cards, target_cards, trials=100)
+    assert pf["comparable"] is True
+    assert pf["data_class"] == "HEURISTIC_MODEL"
+    assert pf["verdict"] in {"PASS_TO_GAMES", "WARN", "BLOCKED"}
+    assert pf["land_count_delta"] == -1
+    assert isinstance(pf["castability"], list)
+    assert len(pf["castability"]) == 1
+    cmd_cast = pf["castability"][0]
+    assert isinstance(cmd_cast, dict)
+    assert cmd_cast["name"] == "Test Commander"
+    assert "3" in cmd_cast["baseline_probability"]["play"]  # type: ignore[index]
+    assert "3" in cmd_cast["variant_probability"]["play"]  # type: ignore[index]
+    assert "3" in cmd_cast["probability_delta"]["play"]  # type: ignore[index]
+    assert "play" in cmd_cast["baseline_expected_turn"]  # type: ignore[operator]
 
 
 def test_multipart_scryfall_folder_and_disambiguation(tmp_path: Path) -> None:

@@ -46627,6 +46627,25 @@
    "toughness": null,
    "type_line": "Enchantment — Aura"
   },
+  "Flickering Hound": {
+   "color_identity": [
+    "W"
+   ],
+   "colors": [
+    "W"
+   ],
+   "keywords": [],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "{3}{W}",
+   "mana_value": 4.0,
+   "name": "Flickering Hound",
+   "oracle_text": "Whenever you cast a creature spell, exile up to one other target creature you control, then return that card to the battlefield under its owner's control.",
+   "power": 2,
+   "produced_mana": [],
+   "toughness": 2,
+   "type_line": "Creature — Dog"
+  },
   "Flickering Ward": {
    "color_identity": [
     "W"
@@ -47463,6 +47482,27 @@
    "produced_mana": [],
    "toughness": 3,
    "type_line": "Creature — Zombie Horror"
+  },
+  "Formidable Commons": {
+   "color_identity": [
+    "B",
+    "G"
+   ],
+   "colors": [],
+   "keywords": [],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "name": "Formidable Commons",
+   "oracle_text": "This land enters tapped unless you control a planeswalker.\n{T}: Add {B} or {G}.",
+   "power": null,
+   "produced_mana": [
+    "B",
+    "G"
+   ],
+   "toughness": null,
+   "type_line": "Land"
   },
   "Formless Genesis": {
    "color_identity": [
@@ -49257,6 +49297,27 @@
    "produced_mana": [],
    "toughness": 5,
    "type_line": "Legendary Creature — Avatar Wizard"
+  },
+  "Gardenize": {
+   "color_identity": [
+    "G"
+   ],
+   "colors": [
+    "G"
+   ],
+   "keywords": [],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{G}",
+   "mana_value": 3.0,
+   "name": "Gardenize",
+   "oracle_text": "Whenever a creature you control dies, put a charge counter on this enchantment.\nAt the beginning of your first main phase, add {G} for each charge counter on this enchantment.",
+   "power": null,
+   "produced_mana": [
+    "G"
+   ],
+   "toughness": null,
+   "type_line": "Enchantment"
   },
   "Gargoyle Castle": {
    "color_identity": [],
@@ -72424,6 +72485,27 @@
    "toughness": 8,
    "type_line": "Legendary Artifact Creature — Robot"
   },
+  "Lich's Relic": {
+   "color_identity": [
+    "B"
+   ],
+   "colors": [
+    "B"
+   ],
+   "keywords": [
+    "Equip"
+   ],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "{B}",
+   "mana_value": 1.0,
+   "name": "Lich's Relic",
+   "oracle_text": "When this Equipment enters, you may pay {2}. When you do, for each opponent, destroy up to one target creature or planeswalker that player controls.\nEquipped creature gets +2/+1.\nEquip {2}",
+   "power": null,
+   "produced_mana": [],
+   "toughness": null,
+   "type_line": "Artifact — Equipment"
+  },
   "Licia, Sanguine Tribune": {
    "color_identity": [
     "B",
@@ -74754,6 +74836,25 @@
    "produced_mana": [],
    "toughness": 1,
    "type_line": "Creature — Zombie"
+  },
+  "Loyal Tutor": {
+   "color_identity": [
+    "W"
+   ],
+   "colors": [
+    "W"
+   ],
+   "keywords": [],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "{W}",
+   "mana_value": 1.0,
+   "name": "Loyal Tutor",
+   "oracle_text": "Search your library for a planeswalker card, reveal it, then shuffle and put that card on top.",
+   "power": null,
+   "produced_mana": [],
+   "toughness": null,
+   "type_line": "Instant"
   },
   "Loyal Unicorn": {
    "color_identity": [
@@ -125549,6 +125650,27 @@
    "toughness": 3,
    "type_line": "Creature — Human Knight Ally"
   },
+  "Tam, Mindful First-Year": {
+   "color_identity": [
+    "G",
+    "U"
+   ],
+   "colors": [
+    "G",
+    "U"
+   ],
+   "keywords": [],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "{1}{G/U}",
+   "mana_value": 2.0,
+   "name": "Tam, Mindful First-Year",
+   "oracle_text": "Each other creature you control has hexproof from each of its colors.\n{T}: Target creature you control becomes all colors until end of turn.",
+   "power": 2,
+   "produced_mana": [],
+   "toughness": 2,
+   "type_line": "Legendary Creature — Gorgon Wizard"
+  },
   "Tam, Observant Sequencer": {
    "color_identity": [
     "G",
@@ -125571,6 +125693,32 @@
    "power": 4,
    "produced_mana": [],
    "toughness": 3,
+   "type_line": "Legendary Creature — Gorgon Wizard"
+  },
+  "Tam, the Possibility": {
+   "color_identity": [
+    "B",
+    "G",
+    "R",
+    "U",
+    "W"
+   ],
+   "colors": [
+    "G",
+    "U"
+   ],
+   "keywords": [
+    "Proliferate"
+   ],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "{1}{G}{U}",
+   "mana_value": 3.0,
+   "name": "Tam, the Possibility",
+   "oracle_text": "Planeswalker spells you cast cost {1} less to cast.\n{W}{U}{B}{R}{G}, {T}: Proliferate X times, where X is the number of planeswalker types among planeswalkers you control. (To proliferate, choose any number of permanents and/or players, then give each another counter of each kind already there.)",
+   "power": 2,
+   "produced_mana": [],
+   "toughness": 4,
    "type_line": "Legendary Creature — Gorgon Wizard"
   },
   "Tamiyo's Logbook": {
@@ -134398,6 +134546,27 @@
    "produced_mana": [],
    "toughness": 2,
    "type_line": "Enchantment Creature — Griffin"
+  },
+  "Transformative Commons": {
+   "color_identity": [
+    "G",
+    "U"
+   ],
+   "colors": [],
+   "keywords": [],
+   "layout": "normal",
+   "loyalty": null,
+   "mana_cost": "",
+   "mana_value": 0.0,
+   "name": "Transformative Commons",
+   "oracle_text": "This land enters tapped unless you control a planeswalker.\n{T}: Add {G} or {U}.",
+   "power": null,
+   "produced_mana": [
+    "G",
+    "U"
+   ],
+   "toughness": null,
+   "type_line": "Land"
   },
   "Transforming Flourish": {
    "color_identity": [
@@ -149900,7 +150069,7 @@
    "type_line": "Legendary Creature — Human Knight"
   }
  },
- "generated_at": "2026-10-23T21:55:15Z",
+ "generated_at": "2026-11-11T00:42:49Z",
  "purpose": "Public printed card facts the full-game pilots rank engine-offered options with. Strategic knowledge only; XMage is the sole rules authority.",
  "schema_version": "pilot-card-knowledge-1.0.0",
  "source": "Scryfall public card API (printed Oracle data)"
