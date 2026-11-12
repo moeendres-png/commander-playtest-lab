@@ -12,6 +12,7 @@ import contextlib
 import hashlib
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -68,6 +69,50 @@ def _java_executable() -> str | None:
     return None
 
 
+_JAVA_VERSION = re.compile(r'version "(\d+)(?:\.(\d+))?')
+MIN_JAVA_MAJOR = 17
+
+
+def _parse_java_major(version_output: str) -> int | None:
+    """The major version from ``java -version`` output, or ``None`` when unreadable.
+
+    Java 8 and older report ``1.8.0`` for major 8; from Java 9 the first number is the
+    major version itself.
+    """
+    match = _JAVA_VERSION.search(version_output)
+    if match is None:
+        return None
+    major = int(match.group(1))
+    if major == 1 and match.group(2) is not None:
+        return int(match.group(2))
+    return major
+
+
+def _java_major(java: str) -> int | None:
+    # Deliberately uncached: the answer can change when the JDK at this path is replaced,
+    # and a stale "too old" verdict would block legitimate starts until a Studio restart.
+    try:
+        run = subprocess.run(  # the resolved Java binary, fixed argument
+            [java, "-version"],
+            capture_output=True,
+            text=True,
+            errors="replace",
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return _parse_java_major(f"{run.stderr}\n{run.stdout}")
+
+
+def _java_too_old(java: str) -> int | None:
+    """The found major version when it is known and below the minimum, else ``None``.
+
+    An unreadable version is not treated as too old: the engine process then decides."""
+    major = _java_major(java)
+    return major if major is not None and major < MIN_JAVA_MAJOR else None
+
+
 def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     """How the rules engine is started here, or ``None`` when it is not set up.
 
@@ -79,7 +124,7 @@ def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
         return tuple(shlex.split(raw, posix=(os.name != "nt")))
     jar = Path(data_folder) / ENGINE_JAR
     java = _java_executable()
-    if jar.is_file() and java:
+    if jar.is_file() and java and _java_too_old(java) is None:
         return (java, "-Xmx3g", "-jar", str(jar), "full-game")
     return None
 
@@ -149,6 +194,26 @@ def engine_state(data_folder: str | Path) -> dict[str, object]:
             "recorded_pin": None,
             "pin_matches": False,
             "warning": f"Engine-Datei fehlt unter {jar}",
+            "command": None,
+        }
+
+    java = _java_executable()
+    old_major = _java_too_old(java) if java else None
+    if old_major is not None:
+        too_old = (
+            f"Java ist zu alt: gefunden wurde Version {old_major}, "
+            f"nötig ist Java {MIN_JAVA_MAJOR} oder neuer."
+        )
+        return {
+            "ready": False,
+            "reason": too_old,
+            "pin": pin,
+            "jar_path": jar_path,
+            "jar_sha256": jar_sha256,
+            "recorded_pin": recorded_pin,
+            "pin_matches": pin_matches,
+            "java_version": old_major,
+            "warning": too_old,
             "command": None,
         }
 
