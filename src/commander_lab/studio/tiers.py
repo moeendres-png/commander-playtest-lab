@@ -15,6 +15,7 @@ displayed tier can be recomputed and checked.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from itertools import pairwise
 from dataclasses import dataclass, field
 from typing import TypedDict
 
@@ -68,7 +69,7 @@ class TierParams:
         shares = [cut for _, cut in self.cuts]
         if any(not 0 < share <= 1 for share in shares):
             raise ValueError("every tier cut share must be in (0, 1]")
-        if any(later >= earlier for earlier, later in zip(shares, shares[1:], strict=False)):
+        if any(later >= earlier for earlier, later in pairwise(shares)):
             raise ValueError("tier cuts must be strictly descending by share")
 
     def to_dict(self) -> TierParamsDict:
