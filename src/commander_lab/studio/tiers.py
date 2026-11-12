@@ -14,8 +14,34 @@ displayed tier can be recomputed and checked.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TypedDict
+
+from ._coerce import iterate, to_float, to_int
+from .universe import InclusionResult
+
+
+class TierParamsDict(TypedDict):
+    """The serialized form of ``TierParams``."""
+
+    min_universe: int
+    cuts: list[list[str | float]]
+    fallback_tier: str
+
+
+class CardTier(TypedDict):
+    """One computed tier with the exact inputs it was computed from."""
+
+    card_name: str
+    tier: str
+    reason: str
+    hits: int
+    denominator: int
+    share: float | None
+    universe_snapshot: str
+    params: TierParamsDict
+    data_class: str
 
 
 @dataclass(frozen=True)
@@ -29,7 +55,7 @@ class TierParams:
     )
     fallback_tier: str = "D"
 
-    def to_dict(self) -> dict[str, Any]:
+    def to_dict(self) -> TierParamsDict:
         return {
             "min_universe": self.min_universe,
             "cuts": [[tier, cut] for tier, cut in self.cuts],
@@ -37,18 +63,22 @@ class TierParams:
         }
 
     @classmethod
-    def from_dict(cls, raw: dict[str, Any]) -> TierParams:
+    def from_dict(cls, raw: Mapping[str, object]) -> TierParams:
         # An explicitly empty cuts list is an owner setting (every counted card lands
         # in the fallback tier), not a missing value: only an absent key defaults.
-        if "cuts" in raw:
-            cuts = tuple((str(tier), float(cut)) for tier, cut in raw["cuts"])
-        else:
-            cuts = cls().cuts
+        cuts = tuple(_cut(item) for item in iterate(raw["cuts"])) if "cuts" in raw else cls().cuts
         return cls(
-            min_universe=int(raw.get("min_universe", 30)),
+            min_universe=to_int(raw.get("min_universe", 30)),
             cuts=cuts,
             fallback_tier=str(raw.get("fallback_tier", "D")),
         )
+
+
+def _cut(item: object) -> tuple[str, float]:
+    pair = list(iterate(item))
+    if len(pair) != 2:
+        raise ValueError(f"a tier cut must be a (tier, share) pair, got {len(pair)} values")
+    return str(pair[0]), to_float(pair[1])
 
 
 def tier_for_share(share: float | None, denominator: int, params: TierParams) -> tuple[str, str]:
@@ -70,7 +100,7 @@ def card_tier(
     denominator: int,
     universe_snapshot: str,
     params: TierParams,
-) -> dict[str, Any]:
+) -> CardTier:
     share = hits / denominator if denominator else None
     tier, reason = tier_for_share(share, denominator, params)
     return {
@@ -87,8 +117,8 @@ def card_tier(
 
 
 def tiers_for_universe(
-    inclusion_result: dict[str, Any], *, universe_snapshot: str, params: TierParams
-) -> list[dict[str, Any]]:
+    inclusion_result: InclusionResult, *, universe_snapshot: str, params: TierParams
+) -> list[CardTier]:
     """Tiers for every row of a ``universe.inclusion`` result, in the same order."""
     return [
         card_tier(

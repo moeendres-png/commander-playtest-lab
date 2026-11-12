@@ -18,42 +18,112 @@ from __future__ import annotations
 
 import datetime
 import json
-from typing import Any
+from collections.abc import Mapping
+from typing import TypedDict
 
+from ._coerce import to_int
 from .store import StudioStore, now_utc
 
 COUNTED_SECTIONS = ("main", "commander", "companion")
 _SPEC_KEYS = {"platforms", "cohorts", "date_from", "date_to", "min_main_cards"}
 
 
-def _validate_spec(spec: dict[str, Any]) -> dict[str, Any]:
+class UniverseSpec(TypedDict, total=False):
+    """A validated universe spec; absent keys mean "no filter"."""
+
+    platforms: list[str]
+    cohorts: list[str]
+    date_from: str
+    date_to: str
+    min_main_cards: int
+
+
+class Profile(TypedDict):
+    profile_id: str
+    name: str
+    spec: UniverseSpec
+    created_at: str
+
+
+class SavedProfile(TypedDict):
+    profile_id: str
+    name: str
+    spec: UniverseSpec
+
+
+class InclusionRow(TypedDict):
+    card_name: str
+    hits: int
+    denominator: int
+    share: float | None
+
+
+class InclusionResult(TypedDict):
+    profile: str | None
+    spec: UniverseSpec
+    denominator: int
+    rows: list[InclusionRow]
+    data_class: str
+
+
+class CooccurrenceRow(TypedDict):
+    card_name: str
+    decks_together: int
+
+
+class CooccurrenceResult(TypedDict):
+    card_name: str
+    profile: str | None
+    decks_with_card: int
+    pairs: list[CooccurrenceRow]
+    data_class: str
+
+
+def _string_list(spec: Mapping[str, object], key: str) -> list[str]:
+    values = spec.get(key) or []
+    if isinstance(values, str) or not isinstance(values, (list, tuple)):
+        raise ValueError(f"universe spec {key} must be a list of non-empty strings")
+    strings = [value for value in values if isinstance(value, str) and value]
+    if len(strings) != len(values):
+        raise ValueError(f"universe spec {key} must be a list of non-empty strings")
+    return sorted(set(strings))
+
+
+def _iso_date(spec: Mapping[str, object], key: str) -> str | None:
+    if not spec.get(key):
+        return None
+    try:
+        return datetime.date.fromisoformat(str(spec[key])[:10]).isoformat()
+    except ValueError:
+        raise ValueError(f"universe spec {key} must be an ISO date (YYYY-MM-DD)") from None
+
+
+def _validate_spec(spec: Mapping[str, object]) -> UniverseSpec:
     unknown = set(spec) - _SPEC_KEYS
     if unknown:
         raise ValueError(f"unknown universe spec keys: {sorted(unknown)}")
-    cleaned: dict[str, Any] = {}
-    for key in ("platforms", "cohorts"):
-        values = spec.get(key) or []
-        if isinstance(values, str) or not isinstance(values, (list, tuple)):
-            raise ValueError(f"universe spec {key} must be a list of non-empty strings")
-        if not all(isinstance(value, str) and value for value in values):
-            raise ValueError(f"universe spec {key} must be a list of non-empty strings")
-        if values:
-            cleaned[key] = sorted(set(values))
-    for key in ("date_from", "date_to"):
-        if spec.get(key):
-            try:
-                cleaned[key] = datetime.date.fromisoformat(str(spec[key])[:10]).isoformat()
-            except ValueError:
-                raise ValueError(f"universe spec {key} must be an ISO date (YYYY-MM-DD)") from None
+    cleaned: UniverseSpec = {}
+    platforms = _string_list(spec, "platforms")
+    if platforms:
+        cleaned["platforms"] = platforms
+    cohorts = _string_list(spec, "cohorts")
+    if cohorts:
+        cleaned["cohorts"] = cohorts
+    date_from = _iso_date(spec, "date_from")
+    if date_from is not None:
+        cleaned["date_from"] = date_from
+    date_to = _iso_date(spec, "date_to")
+    if date_to is not None:
+        cleaned["date_to"] = date_to
     if spec.get("min_main_cards") is not None:
-        minimum = int(spec["min_main_cards"])
+        minimum = to_int(spec["min_main_cards"])
         if minimum < 0:
             raise ValueError("universe spec min_main_cards must not be negative")
         cleaned["min_main_cards"] = minimum
     return cleaned
 
 
-def save_profile(store: StudioStore, name: str, spec: dict[str, Any]) -> dict[str, Any]:
+def save_profile(store: StudioStore, name: str, spec: Mapping[str, object]) -> SavedProfile:
     """Store (or replace) a named universe profile; returns the stored profile."""
     cleaned = _validate_spec(spec)
     profile_id = f"universe:{name}"
@@ -66,7 +136,7 @@ def save_profile(store: StudioStore, name: str, spec: dict[str, Any]) -> dict[st
     return {"profile_id": profile_id, "name": name, "spec": cleaned}
 
 
-def list_profiles(store: StudioStore) -> list[dict[str, Any]]:
+def list_profiles(store: StudioStore) -> list[dict[str, object]]:
     rows = store.connection.execute(
         "SELECT profile_id, name, spec, created_at FROM universe_profile ORDER BY name"
     ).fetchall()
@@ -81,14 +151,14 @@ def list_profiles(store: StudioStore) -> list[dict[str, Any]]:
     ]
 
 
-def get_profile(store: StudioStore, name: str) -> dict[str, Any]:
+def get_profile(store: StudioStore, name: str) -> Profile:
     row = store.connection.execute(
         "SELECT profile_id, name, spec, created_at FROM universe_profile WHERE name = ?",
         (name,),
     ).fetchone()
     if row is None:
         raise KeyError(name)
-    profile: dict[str, Any] = {
+    profile: Profile = {
         "profile_id": str(row["profile_id"]),
         "name": str(row["name"]),
         "spec": json.loads(row["spec"]),
@@ -97,11 +167,11 @@ def get_profile(store: StudioStore, name: str) -> dict[str, Any]:
     return profile
 
 
-def resolve_universe(store: StudioStore, spec: dict[str, Any]) -> list[str]:
+def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str]:
     """Deck ids of the universe a spec selects, in stable order."""
     cleaned = _validate_spec(spec)
     where = ["d.duplicate_of IS NULL"]
-    parameters: list[Any] = []
+    parameters: list[str] = []
     if cleaned.get("platforms"):
         marks = ", ".join("?" for _ in cleaned["platforms"])
         where.append(f"d.platform IN ({marks})")
@@ -138,11 +208,10 @@ def resolve_universe(store: StudioStore, spec: dict[str, Any]) -> list[str]:
 
 
 def _universe_spec(
-    store: StudioStore, profile: str | None, spec: dict[str, Any] | None
-) -> dict[str, Any]:
+    store: StudioStore, profile: str | None, spec: Mapping[str, object] | None
+) -> UniverseSpec:
     if profile is not None:
-        found: dict[str, Any] = get_profile(store, profile)["spec"]
-        return found
+        return get_profile(store, profile)["spec"]
     return _validate_spec(spec or {})
 
 
@@ -150,9 +219,9 @@ def inclusion(
     store: StudioStore,
     *,
     profile: str | None = None,
-    spec: dict[str, Any] | None = None,
+    spec: Mapping[str, object] | None = None,
     card_names: list[str] | None = None,
-) -> dict[str, Any]:
+) -> InclusionResult:
     """Per-card deck counts over one universe: hits, denominator, share.
 
     With ``card_names`` only those cards are returned (missing ones with 0 hits); without
@@ -174,7 +243,7 @@ def inclusion(
             )
         }
     names = card_names if card_names is not None else sorted(counts, key=lambda n: (-counts[n], n))
-    rows = [
+    rows: list[InclusionRow] = [
         {
             "card_name": name,
             "hits": counts.get(name, 0),
@@ -197,13 +266,13 @@ def cooccurrence(
     card_name: str,
     *,
     profile: str | None = None,
-    spec: dict[str, Any] | None = None,
+    spec: Mapping[str, object] | None = None,
     limit: int = 25,
-) -> dict[str, Any]:
+) -> CooccurrenceResult:
     """How many universe decks contain ``card_name`` together with each other card."""
     deck_ids = resolve_universe(store, _universe_spec(store, profile, spec))
     denominator = 0
-    pairs: list[dict[str, Any]] = []
+    pairs: list[CooccurrenceRow] = []
     if deck_ids:
         marks = ", ".join("?" for _ in deck_ids)
         sections = ", ".join("?" for _ in COUNTED_SECTIONS)
@@ -241,7 +310,7 @@ def cooccurrence(
 
 
 def snapshot_id(
-    store: StudioStore, *, profile: str | None = None, spec: dict[str, Any] | None = None
+    store: StudioStore, *, profile: str | None = None, spec: Mapping[str, object] | None = None
 ) -> str:
     """A short fingerprint of a universe: its spec plus what it currently selects.
 
@@ -268,6 +337,11 @@ def snapshot_id(
 
 __all__ = [
     "COUNTED_SECTIONS",
+    "CooccurrenceResult",
+    "InclusionResult",
+    "Profile",
+    "SavedProfile",
+    "UniverseSpec",
     "cooccurrence",
     "get_profile",
     "inclusion",

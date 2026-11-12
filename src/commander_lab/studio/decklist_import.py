@@ -26,13 +26,28 @@ from __future__ import annotations
 
 import hashlib
 import json
+from collections.abc import Mapping
 from pathlib import Path
-from typing import Any
+from typing import TypedDict
 
+from ._coerce import iterate, to_int
 from .store import DataClass, StudioStore, sha256_file
 
 COMMANDER_COHORT = "chulane"
 COMMANDER_NAME = "Chulane, Teller of Tales"
+
+
+class _Deck(TypedDict):
+    """One parsed deck, as the importer writes it."""
+
+    deck_id: str
+    url: str
+    platform: str
+    deck_date: str | None
+    tags: list[str]
+    rows: list[tuple[str, str, int]]
+    cohorts: list[str]
+    title: str
 
 
 def _merge_rows(rows: list[tuple[str, str, int]]) -> list[tuple[str, str, int]]:
@@ -53,38 +68,40 @@ def _fingerprint(rows: list[tuple[str, str, int]]) -> str:
     return digest.hexdigest()
 
 
-def _read_json(path: Path) -> dict[str, Any]:
+def _read_json(path: Path) -> dict[str, object]:
     raw = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(raw, dict):
         raise ValueError(f"{path.name}: expected one JSON object per deck file")
     return raw
 
 
-def _card_rows(raw: dict[str, Any], path: Path) -> list[dict[str, Any]]:
+def _card_rows(raw: Mapping[str, object], path: Path) -> list[dict[str, object]]:
     cards = raw.get("cards")
     if not isinstance(cards, list):
         raise ValueError(f"{path.name}: deck file without a cards list")
+    checked: list[dict[str, object]] = []
     for card in cards:
         if not isinstance(card, dict) or not card.get("name") or card.get("quantity") is None:
             raise ValueError(f"{path.name}: card entry without name or quantity")
-    return cards
+        checked.append(card)
+    return checked
 
 
-def _bracket(raw: dict[str, Any], path: Path) -> int:
+def _bracket(raw: Mapping[str, object], path: Path) -> int:
     bracket = raw.get("bracket")
     if bracket is None:
         raise ValueError(f"{path.name}: deck file without a bracket")
-    return int(bracket)
+    return to_int(bracket)
 
 
-def _edhrec_deck(raw: dict[str, Any], path: Path) -> dict[str, Any]:
+def _edhrec_deck(raw: Mapping[str, object], path: Path) -> _Deck:
     urlhash = str(raw.get("urlhash") or path.stem)
-    commanders = {str(name) for name in raw.get("commanders", [])}
+    commanders = {str(name) for name in iterate(raw.get("commanders", []))}
     rows: list[tuple[str, str, int]] = []
     for card in _card_rows(raw, path):
         name = str(card["name"])
         section = "commander" if name in commanders else "main"
-        rows.append((name, section, int(card["quantity"])))
+        rows.append((name, section, to_int(card["quantity"])))
     variant = str(raw.get("variante") or "")
     bracket = _bracket(raw, path)
     tags = [f"bracket:{bracket}", f"variant:{variant}", f"sum:{raw.get('karten_summe')}"]
@@ -107,8 +124,8 @@ def _edhrec_deck(raw: dict[str, Any], path: Path) -> dict[str, Any]:
     }
 
 
-def _archidekt_section(card: dict[str, Any]) -> str:
-    categories = [str(c).lower() for c in card.get("categories", [])]
+def _archidekt_section(card: Mapping[str, object]) -> str:
+    categories = [str(c).lower() for c in iterate(card.get("categories", []))]
     if card.get("companion"):
         return "companion"
     if "commander" in categories:
@@ -120,10 +137,10 @@ def _archidekt_section(card: dict[str, Any]) -> str:
     return "main"
 
 
-def _archidekt_deck(raw: dict[str, Any], path: Path) -> dict[str, Any]:
+def _archidekt_deck(raw: Mapping[str, object], path: Path) -> _Deck:
     deck_id = str(raw.get("id") or path.stem)
     rows = [
-        (str(card["name"]), _archidekt_section(card), int(card["quantity"]))
+        (str(card["name"]), _archidekt_section(card), to_int(card["quantity"]))
         for card in _card_rows(raw, path)
     ]
     bracket = _bracket(raw, path)
