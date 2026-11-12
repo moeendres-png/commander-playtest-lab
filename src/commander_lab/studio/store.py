@@ -514,6 +514,16 @@ def _bind_legacy(connection: sqlite3.Connection) -> None:
     connection.execute("DROP TABLE legacy_other")
 
 
+# True inside the corpus_deck binding trigger when the new deck already has a commander
+# section that does not name the commander of the running import.
+_NAMES_OTHER_COMMANDER = (
+    "EXISTS (SELECT 1 FROM corpus_deck_card c WHERE c.deck_id = NEW.deck_id "
+    "AND c.section = 'commander') AND NOT EXISTS (SELECT 1 FROM corpus_deck_card c "
+    "WHERE c.deck_id = NEW.deck_id AND c.section = 'commander' "
+    "AND c.card_name = (SELECT name FROM import_commander))"
+)
+
+
 class StudioStore:
     """One open Studio database."""
 
@@ -612,11 +622,14 @@ class StudioStore:
                 f"SELECT '{kind}', NEW.{column}, name, 'IMPORT_DECLARED' FROM import_commander "
                 "WHERE NOT EXISTS (SELECT 1 FROM commander_binding b "
                 f"WHERE b.kind = '{kind}' AND b.key = NEW.{column} "
-                "AND b.commander_name = import_commander.name); END"
+                "AND b.commander_name = import_commander.name)"
+                + (f" AND NOT ({_NAMES_OTHER_COMMANDER})" if kind == "corpus_deck" else "")
+                + "; END"
             )
         db.commit()
         try:
             yield
+            self.release_contradicted_bindings()
         finally:
             db.rollback()
             for kind in _BINDING_COLUMNS:
@@ -624,6 +637,20 @@ class StudioStore:
                 db.execute(f"DROP TRIGGER IF EXISTS bind_write_{kind}")
             db.execute("DROP TABLE IF EXISTS import_commander")
             db.commit()
+
+    def release_contradicted_bindings(self) -> int:
+        """Unbind source decks whose own commander section names other cards than the
+        commander an import or the migration declared for them. An Owner binding stays."""
+        with self.connection as db:
+            cursor = db.execute(
+                "DELETE FROM commander_binding WHERE kind = 'corpus_deck' "
+                "AND basis IN ('IMPORT_DECLARED', 'LEGACY_SINGLE_COMMANDER_STORE') "
+                "AND EXISTS (SELECT 1 FROM corpus_deck_card c WHERE c.deck_id = key "
+                "AND c.section = 'commander') AND NOT EXISTS (SELECT 1 FROM corpus_deck_card c "
+                "WHERE c.deck_id = key AND c.section = 'commander' "
+                "AND c.card_name = commander_name)"
+            )
+            return cursor.rowcount
 
     def other_commanders(self, commander_name: str) -> list[str]:
         """Commanders other than ``commander_name`` that source decks or neutral rows belong to."""

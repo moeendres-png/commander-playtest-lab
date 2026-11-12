@@ -225,7 +225,7 @@ def test_the_command_line_refuses_a_cohort_of_another_commander(
     assert main(["--data", str(data), "import-corpus-register", str(register)]) == 0
     capsys.readouterr()
     other = ["--commander", "Second Commander"]
-    with pytest.raises(SystemExit, match="bound to another commander"):
+    with pytest.raises(SystemExit, match="Nothing was imported"):
         main(["--data", str(data), "import-corpus-register", str(register), *other])
     assert main(["--data", str(data), "commanders"]) == 0
     listed = {item["name"]: item["source_decks"] for item in json.loads(capsys.readouterr().out)}
@@ -289,3 +289,33 @@ def test_an_import_keeps_the_basis_of_an_existing_binding(tmp_path: Path) -> Non
     assert store.other_commanders("Test Commander") == []
     assert store.other_commanders("Second Commander") == ["Test Commander"]
     store.close()
+
+
+def test_a_deck_that_names_another_commander_is_never_bound_by_an_import(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    data = tmp_path / "data"
+    register = _write_csv(
+        tmp_path / "register.csv",
+        [_register_row("d1", "community"), _register_row("x1", "community")],
+    )
+    cards = _write_csv(
+        tmp_path / "cards.csv",
+        [
+            {**_card_row("d1", LEGACY_COMMANDER), "section": "commander"},
+            {**_card_row("x1", "Second Commander"), "section": "commander"},
+        ],
+    )
+    assert main(["--data", str(data), "import-corpus-register", str(register)]) == 0
+    capsys.readouterr()
+    assert main(["--data", str(data), "import-corpus-cards", str(cards)]) == 0
+    assert json.loads(capsys.readouterr().out)["commander_bindings_released"] == 1
+    # a later routine re-import of the register must not bind the foreign deck again
+    assert main(["--data", str(data), "import-corpus-register", str(register)]) == 0
+    capsys.readouterr()
+    store = StudioStore.open(data)
+    try:
+        assert builder.corpus_binding(store, [LEGACY_COMMANDER])["bound_decks"] == 1
+        assert store.binding_counts()["corpus_deck"] == {"total": 2, "bound": 1, "unbound": 1}
+    finally:
+        store.close()

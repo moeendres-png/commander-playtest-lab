@@ -30,6 +30,10 @@ _SOURCE_DATA_COMMANDS = (
 )
 
 
+# These importers commit file by file; all others write one transaction.
+_PER_FILE_COMMANDS = ("import-edhrec-delta", "import-simulation")
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="commander_lab.studio", description=__doc__)
     parser.add_argument("--data", help="Studio data folder (default: from the environment)")
@@ -557,12 +561,19 @@ def main(argv: list[str] | None = None) -> int:
             except sqlite3.IntegrityError as error:
                 if BOUND_ELSEWHERE not in str(error):
                     raise
+                kept = (
+                    f"Nothing of that file was written; files of the folder imported before "
+                    f"it stay imported for {args.commander!r}."
+                    if args.command in _PER_FILE_COMMANDS
+                    else "Nothing was imported."
+                )
                 raise SystemExit(
                     f"{args.command}: stopped. The import writes a deck, cohort, run or "
                     f"neutral source that is bound to another commander than "
-                    f"{args.commander!r}. Nothing of that file was written; with a folder, "
-                    f"files imported before it stay imported for {args.commander!r}."
+                    f"{args.commander!r}. {kept}"
                 ) from None
+            except ValueError as error:
+                raise SystemExit(f"{args.command}: {error}") from None
             if isinstance(result, dict):
                 added = store.count("commander_binding") - before
                 result = {
@@ -572,6 +583,11 @@ def main(argv: list[str] | None = None) -> int:
                 }
         else:
             result = _run(args, store)
+            if args.command == "import-corpus-cards" and isinstance(result, dict):
+                # Card rows can show that a deck belongs to another commander than the
+                # one its register import declared; such a deck is counted for nobody.
+                released = store.release_contradicted_bindings()
+                result = {**result, "commander_bindings_released": released}
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0
     finally:
