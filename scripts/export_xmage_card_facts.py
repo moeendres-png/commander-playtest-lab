@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Export the card facts the Structural model needs from the pinned XMage card database.
+"""Export the card facts the Structural model needs from a supplied XMage card database.
 
 The Structural simulator used to know creature power, finishers and commander stats only
 from hand-curated tables, so every other card was a 0-power creature or an inert filler.
@@ -12,6 +12,9 @@ project's decks and collection:
         --db .runtime/engine/db/cards.h2 \\
         --h2-jar ~/.m2/repository/com/h2database/h2/1.4.197/h2-1.4.197.jar
 
+Use --all-cards to export all database names without reading deck or collection files.
+--engine-commit records a caller declaration, not proof of the database's identity.
+
 The database is created by the engine bridge on first start. Copy it first if a bridge
 is running; H2 file databases allow one process at a time.
 """
@@ -20,12 +23,14 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import shutil
 import subprocess
 import sys
 import tempfile
 from collections.abc import Iterable
+from datetime import UTC, datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -115,10 +120,12 @@ def _number(value: str) -> float | None:
         return None
 
 
-def export(db: Path, h2_jar: Path, out_csv: Path) -> None:
+def export(db: Path, h2_jar: Path, out_csv: Path) -> str:
     with tempfile.TemporaryDirectory() as scratch:
         copy = Path(scratch) / "cards.h2.mv.db"
         shutil.copyfile(db, copy)
+        with copy.open("rb") as copied_db:
+            digest = hashlib.file_digest(copied_db, "sha256").hexdigest()
         url = f"jdbc:h2:file:{Path(scratch) / 'cards.h2'}"
         sql = f"CALL CSVWRITE('{out_csv}', '{QUERY}')"
         subprocess.run(
@@ -139,18 +146,23 @@ def export(db: Path, h2_jar: Path, out_csv: Path) -> None:
             check=True,
             capture_output=True,
         )
+        return digest
 
 
-def build_facts(rows: Iterable[dict[str, str]], names: set[str]) -> dict[str, object]:
+def build_facts(rows: Iterable[dict[str, str]], names: set[str] | None) -> dict[str, object]:
     by_key: dict[str, dict[str, str]] = {}
+    exact: dict[str, dict[str, str]] = {}
     for row in rows:
+        if row["NAME"] in exact and exact[row["NAME"]] != row:
+            raise ValueError("conflicting XMage rows for the same name")
+        exact[row["NAME"]] = row
         by_key[engine_lookup_key(row["NAME"])] = row
         if " // " in row["NAME"]:
             by_key.setdefault(engine_lookup_key(row["NAME"].split(" // ")[0]), row)
     cards: dict[str, dict[str, object]] = {}
     missing: list[str] = []
-    for name in sorted(names):
-        row = by_key.get(engine_lookup_key(name))
+    for name in sorted(exact if names is None else names):
+        row = exact[name] if names is None else by_key.get(engine_lookup_key(name))
         if row is None and " // " in name:
             row = by_key.get(engine_lookup_key(name.split(" // ")[0]))
         if row is None:
@@ -171,7 +183,7 @@ def build_facts(rows: Iterable[dict[str, str]], names: set[str]) -> dict[str, ob
         }
     return {
         "schema_version": CARD_FACTS_SCHEMA_VERSION,
-        "source": "pinned XMage card repository (engine bridge cards.h2)",
+        "source": "supplied XMage card repository (engine bridge cards.h2)",
         "card_count": len(cards),
         "missing": missing,
         "cards": cards,
@@ -183,6 +195,16 @@ def main() -> int:
     parser.add_argument("--db", type=Path, default=ROOT / ".runtime/engine/db/cards.h2.mv.db")
     parser.add_argument("--h2-jar", type=Path, default=ROOT / DEFAULT_H2_JAR)
     parser.add_argument("--out", type=Path, default=ROOT / CARD_FACTS_PATH)
+    parser.add_argument("--all-cards", action="store_true", help="export all database names")
+    parser.add_argument(
+        "--record-provenance",
+        action="store_true",
+        help="record copied database digest and export time",
+    )
+    parser.add_argument(
+        "--engine-commit", help="caller-declared engine source commit (not verified from database)"
+    )
+    parser.add_argument("--engine-source-url", help="caller-declared engine repository URL")
     parser.add_argument(
         "--names-file",
         type=Path,
@@ -191,12 +213,33 @@ def main() -> int:
         help="plain card list, one name per line",
     )
     args = parser.parse_args()
+    if args.all_cards and args.names_file:
+        parser.error("--all-cards cannot be combined with --names-file")
+    if args.engine_commit and (
+        len(args.engine_commit) != 40
+        or any(c not in "0123456789abcdefABCDEF" for c in args.engine_commit)
+    ):
+        parser.error("--engine-commit must be a 40-character hexadecimal commit")
     with tempfile.TemporaryDirectory() as scratch:
         out_csv = Path(scratch) / "facts.csv"
-        export(args.db, args.h2_jar, out_csv)
+        db_sha256 = export(args.db, args.h2_jar, out_csv)
         csv.field_size_limit(10**8)
         with out_csv.open(encoding="utf-8", newline="") as handle:
-            facts = build_facts(csv.DictReader(handle), wanted_names(ROOT, args.names_file))
+            names = None if args.all_cards else wanted_names(ROOT, args.names_file)
+            facts = build_facts(csv.DictReader(handle), names)
+    if args.record_provenance or args.engine_commit or args.engine_source_url:
+        facts["provenance"] = {
+            "database_sha256": db_sha256,
+            "exported_at": datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            **(
+                {"declared_engine_commit": args.engine_commit.lower()} if args.engine_commit else {}
+            ),
+            **(
+                {"declared_engine_source_url": args.engine_source_url}
+                if args.engine_source_url
+                else {}
+            ),
+        }
     args.out.write_text(
         json.dumps(facts, indent=1, sort_keys=True, ensure_ascii=False) + "\n", encoding="utf-8"
     )
