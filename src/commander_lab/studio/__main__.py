@@ -6,6 +6,7 @@ import argparse
 import json
 import os
 import sqlite3
+import sys
 from collections import Counter
 from pathlib import Path
 
@@ -14,6 +15,14 @@ from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
+from .launch import (
+    DEFAULT_GAMES_PER_JVM,
+    MAX_GAMES_PER_JVM,
+    MAX_WORKERS,
+    MIN_GAMES_PER_JVM,
+    MIN_WORKERS,
+    checked_series_settings,
+)
 from .marks import import_owner_marks
 from .queries import corpus_inclusion, legal_pool
 from .store import BOUND_ELSEWHERE, LEGACY_COMMANDER, StudioStore
@@ -182,8 +191,20 @@ def _parser() -> argparse.ArgumentParser:
         default=None,
         help="Seat-specific style in seat:style format (e.g. 1:0.0 or 2:1.0).",
     )
+    chunk = commands.add_parser(
+        "play-batch",
+        help="play several games in one rules-engine process (used by simulation series)",
+    )
+    chunk.add_argument("--deck", action="append", required=True)
+    chunk.add_argument(
+        "--game", action="append", required=True, help="SEED:GAME_ID, once per game, in order"
+    )
+    chunk.add_argument("--max-decisions", type=int, default=50_000)
+    chunk.add_argument("--style", type=float, default=None)
+    chunk.add_argument("--private-card-repository", action="store_true")
     sim = commands.add_parser(
-        "simulate", help="run a batch simulation series of multiple games in isolated processes"
+        "simulate",
+        help="run a batch simulation series of several games, several per engine process",
     )
     sim.add_argument("--revision", required=True, help="candidate deck revision id (e.g. rev@...)")
     sim.add_argument(
@@ -196,6 +217,19 @@ def _parser() -> argparse.ArgumentParser:
     sim.add_argument("--base-seed", type=int, default=1000, help="starting random seed")
     sim.add_argument("--seed-step", type=int, default=1, help="seed increment per game")
     sim.add_argument("--style", type=float, default=None, help="AI pilot style from 0.0 to 1.0")
+    sim.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help=f"games played at once, {MIN_WORKERS} to {MAX_WORKERS} (default: min(4, cpu count - 1))",
+    )
+    sim.add_argument(
+        "--games-per-jvm",
+        type=int,
+        default=None,
+        help=f"games one engine process plays, {MIN_GAMES_PER_JVM} to {MAX_GAMES_PER_JVM} "
+        f"(default: {DEFAULT_GAMES_PER_JVM})",
+    )
     commands.add_parser("games")
     outcomes = commands.add_parser(
         "card-outcomes",
@@ -304,6 +338,41 @@ def _games(args: argparse.Namespace) -> int:
         ]
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
+
+
+def _play_batch(args: argparse.Namespace) -> int:
+    import signal
+
+    from .play_batch import SeriesGame, play_recorded_games
+    from .store import studio_data_dir
+
+    folder = Path(args.data).resolve() if args.data else studio_data_dir()
+    games: list[SeriesGame] = []
+    for item in args.game:
+        seed, _, game_id = item.partition(":")
+        if not game_id:
+            raise SystemExit(f"--game needs SEED:GAME_ID, got {item!r}")
+        games.append(SeriesGame(int(seed), game_id))
+
+    def _stop(_signal: int, _frame: object) -> None:
+        # a cancelled series ends this process; leaving the with-blocks shuts the engine down
+        raise SystemExit(143)
+
+    signal.signal(signal.SIGTERM, _stop)
+
+    def _report(summary: dict[str, object]) -> None:
+        print(json.dumps({"game_id": summary["game_id"], "status": summary["status"]}), flush=True)
+
+    summaries = play_recorded_games(
+        folder,
+        [Path(path) for path in args.deck],
+        games,
+        style=args.style,
+        max_decisions=args.max_decisions,
+        private_card_repository=args.private_card_repository,
+        on_game=_report,
+    )
+    return 0 if all(item["status"] == "finished" for item in summaries) else 1
 
 
 def _serve(data: str | None, port: int, open_browser: bool) -> int:
@@ -495,6 +564,8 @@ def main(argv: list[str] | None = None) -> int:
         return _card_outcomes(args)
     if args.command in {"play", "games"}:
         return _games(args)
+    if args.command == "play-batch":
+        return _play_batch(args)
     if args.command == "simulate":
         import time
 
@@ -502,6 +573,11 @@ def main(argv: list[str] | None = None) -> int:
         from .store import studio_data_dir
 
         folder = Path(args.data).resolve() if args.data else studio_data_dir()
+        try:
+            checked_series_settings(args.workers, args.games_per_jvm)
+        except ValueError as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 2
         store = StudioStore.open(folder)
         try:
             mgr = SimulationBatchManager()
@@ -514,6 +590,8 @@ def main(argv: list[str] | None = None) -> int:
                 base_seed=args.base_seed,
                 seed_step=args.seed_step,
                 style=args.style,
+                workers=args.workers,
+                games_per_jvm=args.games_per_jvm,
             )
             try:
                 while batch.status in {"pending", "running"}:

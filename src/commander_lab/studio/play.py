@@ -9,6 +9,7 @@ seat is a later step.
 from __future__ import annotations
 
 from collections.abc import Mapping
+from dataclasses import dataclass
 from pathlib import Path
 
 from commander_lab.agents import (
@@ -23,6 +24,7 @@ from commander_lab.engine.rules.failure_privacy import (
     public_full_game_exception_message,
 )
 from commander_lab.engine.rules.full_game import (
+    FullGameConformanceResult,
     FullGamePilotBinding,
     XmageFullGameRunner,
 )
@@ -76,9 +78,13 @@ class _RecordingRunner(XmageFullGameRunner):
         pilots: tuple[FullGamePilotBinding, ...],
     ) -> DecisionPolicy:
         policy = super()._validated_policy(scenario, decks, pilots)
+        return RecordingPolicy(policy, self._recorder_for(scenario))
+
+    def _recorder_for(self, scenario: FutureXmageScenario) -> GameRecorder:
+        """The log the game of ``scenario`` is written to; one bound recorder for one game."""
         if self.recorder is None:
             raise RuntimeError("no recorder bound")
-        return RecordingPolicy(policy, self.recorder)
+        return self.recorder
 
     def _drive(  # type: ignore[override]
         self, client: object, policy: object, *, stop_after: int | None = None, **kwargs: object
@@ -96,37 +102,39 @@ class _RecordingRunner(XmageFullGameRunner):
         return res
 
 
-def play_recorded_game(
-    data_folder: str | Path,
-    deck_paths: list[Path],
+@dataclass(frozen=True)
+class PreparedGame:
+    """Everything one recorded game needs before the engine is asked anything."""
+
+    game_id: str
+    scenario: FutureXmageScenario
+    decks: tuple[RulesDeckInput, ...]
+    pilots: tuple[FullGamePilotBinding, ...]
+    header: dict[str, object]
+
+
+def prepare_game(
+    decks: tuple[RulesDeckInput, ...],
     *,
     seed: int,
-    game_id: str | None = None,
+    game_id: str,
     strategy: str = "generic",
     style: float | None = None,
     seat_styles: Mapping[int, float] | None = None,
-    max_decisions: int = 50_000,
-    request_timeout_seconds: float = 120.0,
-) -> dict[str, object]:
-    """Play one game on the configured engine and write its log. Returns a short summary.
-
-    The engine start command comes from the environment as for every full game of the Lab,
-    or from the engine file in the Studio data folder.
-    A game that fails keeps its log up to the failure, with the public failure class.
-    """
-    decks = load_decks(deck_paths)
+) -> PreparedGame:
+    """Scenario, pilots and log header of one game. A game played alone and a game played in a
+    batch (``play_batch``) are built by this one function, so they cannot differ in setup."""
     own = decks[0]
     if own.deck_hash is None:
         raise ValueError("the own deck has no deck hash")
     pin = canonical_xmage_engine_pin()
-    game = game_id or free_game_id(data_folder, f"{own.deck_id}-{len(decks)}p-seed{seed}")
     scenario = FutureXmageScenario(
         candidate_id=own.deck_id,
         deck_hash=own.deck_hash,
         opponent_deck_ids=tuple(deck.deck_id for deck in decks[1:]),
         player_count=len(decks),
         seat=1,
-        scenario_id=f"studio-game-{game}",
+        scenario_id=f"studio-game-{game_id}",
         seed=seed,
         xmage_commit=pin,
         bridge_version=BRIDGE_VERSION,
@@ -160,30 +168,91 @@ def play_recorded_game(
                 decision_policy_version=POLICY_VERSION,
             )
         )
-    pilots = tuple(pilots_list)
-    recorder = GameRecorder(
-        data_folder,
-        game,
+    header: dict[str, object] = {
+        "seed": seed,
+        "engine_commit": pin,
+        "pilot": f"{PILOT_IDENTITY} {PILOT_VERSION}",
+        "decision_policy": POLICY_VERSION,
+        "strategy": strategy,
+        "seats": [
+            {
+                "seat": index,
+                "deck_id": deck.deck_id,
+                "commanders": list(deck.commander_names),
+                "pilot": "KI",
+                "style": s_style,
+                "style_name": style_label(s_style),
+                "deck_plan": s_plan.as_dict(),
+            }
+            for index, (deck, s_style, s_plan) in enumerate(seat_details)
+        ],
+    }
+    return PreparedGame(game_id, scenario, decks, tuple(pilots_list), header)
+
+
+def close_recorded_game(
+    recorder: GameRecorder, outcome: FullGameConformanceResult | Exception
+) -> dict[str, object]:
+    """Write the closing entry of a game log from its outcome and return the short summary."""
+    if isinstance(outcome, Exception):
+        # run() is behind the public error boundary, so its message carries only a fixed
+        # site and audited codes (failure_privacy); it says why the game did not start.
+        failure = {
+            "status": "failed",
+            "failure_class": public_exception_type(outcome),
+            "failure_message": public_full_game_exception_message(outcome),
+        }
+        path = recorder.close(failure)
+        return {
+            "game_id": recorder.game_id,
+            **failure,
+            "frames": recorder.frames,
+            "log": str(path),
+        }
+    # the engine counts seats from 1 in its outcome, the board frames count from 0
+    winners = [seat - 1 for seat in outcome.winner_seats]
+    path = recorder.close(
         {
-            "seed": seed,
-            "engine_commit": pin,
-            "pilot": f"{PILOT_IDENTITY} {PILOT_VERSION}",
-            "decision_policy": POLICY_VERSION,
-            "strategy": strategy,
-            "seats": [
-                {
-                    "seat": index,
-                    "deck_id": deck.deck_id,
-                    "commanders": list(deck.commander_names),
-                    "pilot": "KI",
-                    "style": s_style,
-                    "style_name": style_label(s_style),
-                    "deck_plan": s_plan.as_dict(),
-                }
-                for index, (deck, s_style, s_plan) in enumerate(seat_details)
-            ],
-        },
+            "status": "finished",
+            "winner_seats": winners,
+            "decision_count": outcome.decision_count,
+            "engine_version": outcome.engine_version,
+            "semantic_transcript_sha256": outcome.semantic_transcript_sha256,
+        }
     )
+    return {
+        "game_id": recorder.game_id,
+        "status": "finished",
+        "winner_seats": winners,
+        "frames": recorder.frames,
+        "log": str(path),
+    }
+
+
+def play_recorded_game(
+    data_folder: str | Path,
+    deck_paths: list[Path],
+    *,
+    seed: int,
+    game_id: str | None = None,
+    strategy: str = "generic",
+    style: float | None = None,
+    seat_styles: Mapping[int, float] | None = None,
+    max_decisions: int = 50_000,
+    request_timeout_seconds: float = 120.0,
+) -> dict[str, object]:
+    """Play one game on the configured engine and write its log. Returns a short summary.
+
+    The engine start command comes from the environment as for every full game of the Lab,
+    or from the engine file in the Studio data folder.
+    A game that fails keeps its log up to the failure, with the public failure class.
+    """
+    decks = load_decks(deck_paths)
+    game = game_id or free_game_id(data_folder, f"{decks[0].deck_id}-{len(decks)}p-seed{seed}")
+    prepared = prepare_game(
+        decks, seed=seed, game_id=game, strategy=strategy, style=style, seat_styles=seat_styles
+    )
+    recorder = GameRecorder(data_folder, game, prepared.header)
     runner = _RecordingRunner(
         command=engine_command(data_folder),
         max_decisions=max_decisions,
@@ -191,36 +260,7 @@ def play_recorded_game(
     )
     runner.recorder = recorder
     try:
-        result = runner.run(scenario=scenario, decks=decks, pilots=pilots)
+        result = runner.run(scenario=prepared.scenario, decks=decks, pilots=prepared.pilots)
     except Exception as error:
-        # run() is behind the public error boundary, so its message carries only a fixed
-        # site and audited codes (failure_privacy); it says why the game did not start.
-        failure = {
-            "status": "failed",
-            "failure_class": public_exception_type(error),
-            "failure_message": public_full_game_exception_message(error),
-        }
-        path = recorder.close(failure)
-        return {
-            "game_id": game,
-            **failure,
-            "frames": recorder.frames,
-            "log": str(path),
-        }
-    # the engine counts seats from 1 in its outcome, the board frames count from 0
-    winners = [seat - 1 for seat in result.winner_seats]
-    path = recorder.close(
-        {
-            "status": "finished",
-            "winner_seats": winners,
-            "decision_count": result.decision_count,
-            "engine_version": result.engine_version,
-        }
-    )
-    return {
-        "game_id": game,
-        "status": "finished",
-        "winner_seats": winners,
-        "frames": recorder.frames,
-        "log": str(path),
-    }
+        return close_recorded_game(recorder, error)
+    return close_recorded_game(recorder, result)

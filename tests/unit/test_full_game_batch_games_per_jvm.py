@@ -267,6 +267,13 @@ _BATCH_CALLERS = {
     "scripts/rank_sensitivity.py",  # measurement (S-1); one game per JVM unless asked
     "src/commander_lab/engine/rules/full_game_batch.py",
     "src/commander_lab/engine/rules/full_game.py",
+    # Commander Studio series (Owner-reviewed widening, #1170): simulation series, not evidence
+    "scripts/check_studio_series_identity.py",  # real-engine identity check of a Studio series
+    "src/commander_lab/studio/__main__.py",  # series CLI options
+    "src/commander_lab/studio/launch.py",  # series engine command and settings ranges
+    "src/commander_lab/studio/play_batch.py",  # plays a chunk of series games on run_batch
+    "src/commander_lab/studio/simulations.py",  # the series runner
+    "src/commander_lab/studio/web.py",  # series API body
 }
 
 
