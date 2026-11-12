@@ -185,7 +185,9 @@ def test_import_reads_split_parts_and_reports_every_file(
     card_file = files[signals.CARD_FILE]
     assert card_file["parts"] == ["commander_card_signals_1.csv", "commander_card_signals_2.csv"]
     assert card_file["rows_read"] == 12  # 9 + the duplicate heading + 2 of the other commander
-    assert card_file["skipped_reasons"] == {"DUPLICATE_CONFLICT": 1, "DUPLICATE_SAME_FIGURES": 2}
+    # The duplicate heading row yields one conflicting (inclusion) and one identical
+    # (synergy) pair; a third pair (lift) is no longer produced.
+    assert card_file["skipped_reasons"] == {"DUPLICATE_CONFLICT": 1, "DUPLICATE_SAME_FIGURES": 1}
     assert files[f"{signals.BRACKET_FILE}_upgraded"]["status"] == "ABSENT"
     assert files[signals.GLOBAL_FILE]["skipped_reasons"] == {"FETCH_STATUS_NOT_AVAILABLE": 1}
     first = _signal(store, signals.SIGNAL_INCLUSION, "Filler 00")
@@ -254,6 +256,53 @@ def test_import_rejects_a_file_without_its_columns(store: StudioStore, tmp_path:
     _write(broken / "spellbook_card_links.csv", [{"card_name": "x"}], ["card_name"])
     with pytest.raises(ValueError, match="missing column"):
         signals.import_signals(store, broken, commander=COMMANDER)
+
+
+def test_import_stores_no_dead_signals(store: StudioStore, tmp_path: Path) -> None:
+    # The fixture files still carry the lift and partners_in_collection columns (as the
+    # real dataset files do); the importer must ignore them, because no strength
+    # component reads either signal.
+    report = _import(store, tmp_path)
+    stored = {row[0] for row in store.connection.execute("SELECT DISTINCT signal FROM card_signal")}
+    assert stored == {
+        "edhrec_commander_inclusion",
+        "edhrec_commander_synergy",
+        "edhrec_bracket_inclusion:core",
+        "edhrec_bracket_inclusion:cedh",
+        "edhrec_global_inclusion",
+        "spellbook_variants",
+        "tournament_lists",
+    }
+    files = report["files"]
+    assert isinstance(files, dict)
+    assert files[signals.CARD_FILE]["rows_written"] == 22  # 11 cards x inclusion + synergy
+    assert files[signals.SPELLBOOK_FILE]["rows_written"] == 10  # variants only, no partners
+
+
+def test_import_does_not_require_the_dead_columns(store: StudioStore, tmp_path: Path) -> None:
+    lean = tmp_path / "lean"
+    lean.mkdir()
+    _write(
+        lean / "commander_card_signals.csv",
+        [
+            {
+                "commander_name": COMMANDER,
+                "card_name": "Filler 00",
+                "num_decks": 5,
+                "potential_decks": 10,
+                "synergy": 0.5,
+            }
+        ],
+        ["commander_name", "card_name", "num_decks", "potential_decks", "synergy"],
+    )
+    _write(
+        lean / "spellbook_card_links.csv",
+        [{"card_name": "Filler 00", "fetch_status": "AVAILABLE", "variant_count": 3}],
+        ["card_name", "fetch_status", "variant_count"],
+    )
+    report = signals.import_signals(store, lean, commander=COMMANDER)
+    assert report["rows_written"] == 3
+    assert _signal(store, signals.SIGNAL_VARIANTS, "Filler 00", commander="") is not None
 
 
 # ---------- pure scoring ----------
