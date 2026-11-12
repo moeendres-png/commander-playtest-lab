@@ -205,9 +205,11 @@ def run_audit(repo_root: Path) -> tuple[list[AuditRow], str]:
     lines.append(
         f"- **Karten der Inclusion-CSV ohne Gap-Matrix-Eintrag (normalisiert):** {len(inc_missing_gap_norm)}"
     )
+    pool_in_inclusion = len(set(gap_names_exact) & inc_names_unique)
     lines.append(
         "- **Befund:** Die Inclusion-CSV deckt das gesamte 4-Player-Deck-Universum ab (inkl. Gegner- und Formatkarten außerhalb des Chulane-Pools). "
-        "417 der 801 Chulane-Pool-Karten erscheinen in der Inclusion-CSV; 6.126 Universumskarten liegen außerhalb des 801-Pools."
+        f"{pool_in_inclusion} der {len(gap_cards)} Chulane-Pool-Karten erscheinen in der Inclusion-CSV; "
+        f"{len(inc_missing_gap)} Universumskarten liegen außerhalb des {len(gap_cards)}-Pools."
     )
     lines.append("")
 

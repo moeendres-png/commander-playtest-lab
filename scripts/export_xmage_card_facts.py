@@ -232,6 +232,7 @@ def build_facts(rows: Iterable[dict[str, str]], names: set[str] | None) -> dict[
     half_keys = {engine_lookup_key(name) for name in half_only}
     cards: dict[str, dict[str, object]] = dict(exact) if names is None else {}
     missing: list[str] = []
+    subset_ambiguous: list[str] = []
     for name in sorted(names or ()):
         key = engine_lookup_key(name)
         if key in ambiguous_keys:
@@ -240,13 +241,22 @@ def build_facts(rows: Iterable[dict[str, str]], names: set[str] | None) -> dict[
         if name in exact:
             targets = {name}
         if len(targets) > 1:
+            # A searched front shared by several whole cards has no unambiguous
+            # whole-card fact; account for it instead of dropping it silently.
+            subset_ambiguous.append(name)
             continue
         if not targets:
-            if key not in half_keys:
+            if key in half_keys:
+                # The name exists only as a split half: present in the engine
+                # data, but without whole-card facts of its own.
+                subset_ambiguous.append(name)
+            else:
                 missing.append(name)
             continue
         target = next(iter(targets))
         cards[name] = exact[target]
+    if subset_ambiguous:
+        ambiguous = sorted({*ambiguous, *subset_ambiguous})
     aliases = {alias: target for alias, target in aliases.items() if target in cards}
     return {
         "schema_version": CARD_FACTS_SCHEMA_VERSION,
