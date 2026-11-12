@@ -36,6 +36,7 @@ Git, tests and issues win. Step names (M4, M5, ...) continue those of issue #116
 |---|---|---|
 | B-1 | Bind source decks, published statistics, neutral boards and simulation runs to one commander; choose the commander in deck builder and tier list (#1187 P0) | Done with store schema 10. A stored row without a commander is counted for nobody and shown as such. Existing stores are migrated once, because until now they held one commander. |
 | B-2 | Deck universes and counted tiers (#1205; store and command line are in `main`) | Next: build the tier page on the evidence layers: the counted tier is one more column with its universe and denominator; the outcome-based field stays unrated (reading on B5 and B6). One setting for the universe, used by pool, card detail, tier list and comparison groups, so that two views can never show different denominators. |
+| B-2a | Strength index in the tier page (B10): signal import (`import-signals`), weights, bracket, presets and saved profiles | Built. Next: add game outcomes per card (opening-hand comparison) as a component once a series is large enough, with its interval. |
 | B-3 | Import path for the second commander (Tam, #1187) | One generic importer for "register plus card parts plus commander" that takes the commander as an argument, instead of a second special importer. Import into an isolated test store first, then the Owner imports locally. The REVIEW set stays out. |
 | B-4 | New collection cards (#1208, #1209) | Recompute the pool and the gap matrix from the imported workbook; publish counts only. Cards the pinned engine does not know stay `UNKNOWN` and are listed, because they are the work list for card support. |
 | B-5 | Engine check inside the deck builder (#1174 point 2) | A named second check next to the data check: "checked by the engine" with engine pin and time. Now possible because engine provisioning is in `main`. |
@@ -54,6 +55,7 @@ the pull request before merging); private data in the public repository (A6).
 | S-3 | Card view over a series: drawn, cast, in won and lost games, each with denominator | After S-1, from the logs that exist. Label as observation of this series, never as card strength. |
 | S-4 | Pilot strength in general (S1) | Take the three most frequent loss patterns from the logs of S-1 and fix those, each with a paired series before and after. No look-ahead in Java without a go (S5). |
 | S-5 | Opponents: fixed pods and seeded random pods from the precon pool | Keep both. Fixed pods for comparisons over time, random pods against overfitting to three opponents. |
+| S-5a | Throughput (#1251, S6): measure where a game spends its time, then several games per JVM and parallel engine processes | Before S-3 and S-4, because card outcomes need thousands of games per deck. No own rules engine. |
 | S-6 | Five and six seats | After S-1 to S-4. Needs its own qualification and the Owner's release (A8). Measure run time first: a four-seat game takes about a minute on four cores. |
 
 Risk: series take long. Recommendation: several games per JVM, a resumable series with a
