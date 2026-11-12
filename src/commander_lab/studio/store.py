@@ -5,6 +5,8 @@ from __future__ import annotations
 import hashlib
 import os
 import sqlite3
+from collections.abc import Iterator
+from contextlib import contextmanager
 from datetime import UTC, datetime
 from enum import StrEnum
 from pathlib import Path
@@ -12,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -186,6 +188,15 @@ CREATE TABLE IF NOT EXISTS corpus_deck_part (
     part_name TEXT NOT NULL,
     source_id TEXT NOT NULL REFERENCES source(source_id)
 );
+CREATE TABLE IF NOT EXISTS commander_binding (
+    kind TEXT NOT NULL CHECK (kind IN
+        ('corpus_deck', 'observation_cohort', 'simulation_run', 'neutral_source')),
+    key TEXT NOT NULL,
+    commander_name TEXT NOT NULL,
+    basis TEXT NOT NULL,
+    PRIMARY KEY (kind, key, commander_name)
+);
+CREATE INDEX IF NOT EXISTS commander_binding_name ON commander_binding(commander_name, kind);
 CREATE TABLE IF NOT EXISTS corpus_deck_stat (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id),
     cards INTEGER NOT NULL,
@@ -434,6 +445,75 @@ def rebuild_corpus_deck_role(db: sqlite3.Connection) -> None:
     )
 
 
+LEGACY_COMMANDER = "Chulane, Teller of Tales"
+BOUND_ELSEWHERE = "source data is already bound to another commander"
+BINDING_KINDS: dict[str, str] = {
+    "corpus_deck": "SELECT deck_id AS k FROM corpus_deck",
+    "observation_cohort": "SELECT DISTINCT cohort AS k FROM observation",
+    "simulation_run": "SELECT run_id AS k FROM simulation_run",
+    "neutral_source": "SELECT DISTINCT source_key AS k FROM neutral_board_row",
+}
+
+
+def _bind_unbound(connection: sqlite3.Connection, commander_name: str, basis: str) -> int:
+    """Bind every source row that has no commander yet to ``commander_name``.
+
+    Rows already bound to any commander are left alone, so data of another commander is never
+    re-labelled. Returns the number of new bindings."""
+    added = 0
+    for kind, keys in BINDING_KINDS.items():
+        cursor = connection.execute(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+            f"SELECT ?, src.k, ?, ? FROM ({keys}) AS src "
+            "WHERE NOT EXISTS (SELECT 1 FROM commander_binding b "
+            "WHERE b.kind = ? AND b.key = src.k)",
+            (kind, commander_name, basis, kind),
+        )
+        added += cursor.rowcount
+    return added
+
+
+_BINDING_COLUMNS: dict[str, tuple[str, str]] = {
+    "corpus_deck": ("corpus_deck", "deck_id"),
+    "observation_cohort": ("observation", "cohort"),
+    "simulation_run": ("simulation_run", "run_id"),
+    "neutral_source": ("neutral_board_row", "source_key"),
+}
+
+
+def _bind_legacy(connection: sqlite3.Connection) -> None:
+    """One-time binding of a store written before commander bindings existed.
+
+    Simulation runs follow the commander of the deck revision they played when that is
+    stored. A source deck whose own commander section names other cards stays unbound.
+    Everything else was imported for the one commander those stores were built for."""
+    connection.execute(
+        "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+        "SELECT DISTINCT 'simulation_run', s.run_id, f.oracle_name, 'DECK_REVISION_COMMANDER' "
+        "FROM simulation_run s JOIN deck_revision dr "
+        "ON dr.revision_id = s.deck_id OR dr.deck_id = s.deck_id "
+        "JOIN deck_revision_card rc ON rc.revision_id = dr.revision_id "
+        "JOIN card_fact f ON f.card_id = rc.card_id WHERE rc.zone = 'commander'"
+    )
+    connection.execute(
+        "CREATE TEMP TABLE legacy_other AS SELECT deck_id AS k FROM corpus_deck d "
+        "WHERE EXISTS (SELECT 1 FROM corpus_deck_card c WHERE c.deck_id = d.deck_id "
+        "AND c.section = 'commander') AND NOT EXISTS (SELECT 1 FROM corpus_deck_card c "
+        "WHERE c.deck_id = d.deck_id AND c.section = 'commander' AND c.card_name = ?)",
+        (LEGACY_COMMANDER,),
+    )
+    for kind, keys in BINDING_KINDS.items():
+        skip = " AND src.k NOT IN (SELECT k FROM legacy_other)" if kind == "corpus_deck" else ""
+        connection.execute(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+            f"SELECT ?, src.k, ?, 'LEGACY_SINGLE_COMMANDER_STORE' FROM ({keys}) AS src "
+            "WHERE NOT EXISTS (SELECT 1 FROM commander_binding b "
+            f"WHERE b.kind = ? AND b.key = src.k){skip}",
+            (kind, LEGACY_COMMANDER, kind),
+        )
+    connection.execute("DROP TABLE legacy_other")
+
+
 class StudioStore:
     """One open Studio database."""
 
@@ -470,6 +550,9 @@ class StudioStore:
             )
         elif int(row["value"]) < SCHEMA_VERSION:
             # Every schema step so far only adds tables and views (created above).
+            if int(row["value"]) < 10:
+                # Before schema 10 the Studio held the source data of one commander only.
+                _bind_legacy(connection)
             connection.execute(
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
@@ -496,6 +579,67 @@ class StudioStore:
             (source_id, data_class.value, title, sha256, snapshot_date, url, now_utc()),
         )
         return source_id
+
+    @contextmanager
+    def importing_for(self, commander_name: str) -> Iterator[None]:
+        """Bind every source row written inside the block to ``commander_name``.
+
+        Only the keys the import writes are bound; rows that were unbound before stay
+        unbound. Writing into a deck, cohort, run or neutral source that is bound to
+        another commander aborts the import, so one key never holds two commanders."""
+        name = commander_name.strip()
+        if not name:
+            raise ValueError("a commander name is required")
+        db = self.connection
+        db.execute("CREATE TEMP TABLE IF NOT EXISTS import_commander (name TEXT NOT NULL)")
+        db.execute("DELETE FROM import_commander")
+        db.execute("INSERT INTO import_commander(name) VALUES (?)", (name,))
+        for kind, (table, column) in _BINDING_COLUMNS.items():
+            db.execute(
+                f"CREATE TEMP TRIGGER bind_guard_{kind} BEFORE INSERT ON main.{table} BEGIN "
+                f"SELECT RAISE(ABORT, '{BOUND_ELSEWHERE}') WHERE EXISTS ("
+                f"SELECT 1 FROM commander_binding b WHERE b.kind = '{kind}' "
+                f"AND b.key = NEW.{column} "
+                "AND b.commander_name != (SELECT name FROM import_commander)); END"
+            )
+            db.execute(
+                f"CREATE TEMP TRIGGER bind_write_{kind} AFTER INSERT ON main.{table} BEGIN "
+                "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+                f"SELECT '{kind}', NEW.{column}, name, 'IMPORT_DECLARED' FROM import_commander; "
+                "END"
+            )
+        db.commit()
+        try:
+            yield
+        finally:
+            db.rollback()
+            for kind in _BINDING_COLUMNS:
+                db.execute(f"DROP TRIGGER IF EXISTS bind_guard_{kind}")
+                db.execute(f"DROP TRIGGER IF EXISTS bind_write_{kind}")
+            db.execute("DROP TABLE IF EXISTS import_commander")
+            db.commit()
+
+    def binding_counts(self) -> dict[str, dict[str, int]]:
+        """Per kind of source data: keys in the store, bound to a commander, unbound."""
+        counts: dict[str, dict[str, int]] = {}
+        for kind, keys in BINDING_KINDS.items():
+            total = int(self.connection.execute(f"SELECT COUNT(*) FROM ({keys})").fetchone()[0])
+            bound = int(
+                self.connection.execute(
+                    f"SELECT COUNT(*) FROM ({keys}) AS src WHERE EXISTS (SELECT 1 FROM "
+                    "commander_binding b WHERE b.kind = ? AND b.key = src.k)",
+                    (kind,),
+                ).fetchone()[0]
+            )
+            counts[kind] = {"total": total, "bound": bound, "unbound": total - bound}
+        return counts
+
+    def bind_unbound(self, commander_name: str, *, basis: str = "IMPORT_DECLARED") -> int:
+        """Bind all source rows without a commander to ``commander_name`` (see ``_bind_unbound``)."""
+        if not commander_name.strip():
+            raise ValueError("a commander name is required")
+        with self.connection as db:
+            return _bind_unbound(db, commander_name.strip(), basis)
 
     def card_id_by_name(self, oracle_name: str) -> str | None:
         rows = self.connection.execute(
@@ -533,7 +677,7 @@ class StudioStore:
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
-            "universe_profile",
+            "universe_profile", "commander_binding",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
