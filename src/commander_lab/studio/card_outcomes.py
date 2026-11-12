@@ -14,11 +14,11 @@ effect draws and mulligan bottoms depend on play, so that set is NOT randomised.
 
 from __future__ import annotations
 
-import gzip
 import json
 import math
 import os
 import re
+import zlib
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
 from concurrent.futures import ProcessPoolExecutor
@@ -49,6 +49,7 @@ CHANCE_RATE = 0.05
 _FRAME_HEAD = re.compile(
     rb'\{\s*"kind"\s*:\s*"frame"\s*,[^{}\[\]]{0,300}?"turn"\s*:\s*(-?\d+|null)\s*,'
     rb'[^{}\[\]]{0,300}?"active_seat"\s*:\s*(-?\d+|null)\s*,\s*"seat"\s*:\s*(-?\d+|null)\s*,'
+    rb'\s*"decision_class"\s*:\s*"([^"\\]*)"'
 )
 
 Result = Literal["win", "loss", "draw"]
@@ -234,37 +235,59 @@ def _opt_int(raw: bytes) -> int | None:
     return None if raw == b"null" else int(raw)
 
 
+def _unpacked(path: Path) -> bytes:
+    """The whole log as bytes; a packed log is inflated straight from its bytes."""
+    data = path.read_bytes()
+    if path.suffix != ".gz":
+        return data
+    parts: list[bytes] = []
+    while data:
+        inflater = zlib.decompressobj(wbits=31)
+        parts.append(inflater.decompress(data))
+        if not inflater.eof:
+            raise EOFError("truncated gzip member")
+        data = inflater.unused_data
+    return b"".join(parts)
+
+
 def _scan(
     path: Path, *, fast: bool
 ) -> tuple[dict[str, object] | None, dict[str, object] | None, list[dict[str, object]]]:
     """Header, last result record and the frames that can matter, from one line stream.
 
     ``fast`` skips ``json.loads`` for a frame line whose head (turn, active seat, deciding
-    seat) is read by pattern when the deciding seat is already past its
-    ``OWN_TURNS_SECONDARY``-th own turn and the line does not mention a mulligan: such a frame
-    can only add an own turn, which is kept as a stub. A line whose head does not match is
-    always parsed.
+    seat, decision class) is read by pattern when the frame is not a mulligan decision and the
+    deciding seat is already past its ``OWN_TURNS_SECONDARY``-th own turn: such a frame can only
+    add an own turn, which is kept as a stub. Once every seat is past that turn, such frames
+    are dropped. A line whose head does not match is always parsed.
     """
     header: dict[str, object] | None = None
     result: dict[str, object] | None = None
     frames: list[dict[str, object]] = []
     own_turns: dict[int, set[int]] = {}
-    opener = gzip.open if path.suffix == ".gz" else open
-    with opener(path, "rb") as handle:
-        raw = handle.read()
-    lines = raw.split(b"\n")
-    lines.pop()  # after the last newline: empty, or an entry still being written
-    for line in lines:
-        if fast and own_turns and b"mulligan" not in line:
-            match = _FRAME_HEAD.match(line)
-            if match is not None:
-                turn, active, deciding = (_opt_int(g) for g in match.groups())
-                if active in own_turns and turn is not None:
-                    own_turns[active].add(turn)
-                if deciding not in own_turns or len(own_turns[deciding]) > OWN_TURNS_SECONDARY:
+    raw = _unpacked(path)
+    settled = False  # every seat is past its OWN_TURNS_SECONDARY-th own turn
+    pos = 0
+    while True:
+        end = raw.find(b"\n", pos)
+        if end < 0:
+            break  # after the last newline: nothing, or an entry still being written
+        start, pos = pos, end + 1
+        match = _FRAME_HEAD.match(raw, start, end) if fast and own_turns else None
+        if match is not None and match.group(4) != MULLIGAN_CLASS.encode():
+            if settled:
+                continue  # no hand or turn after this point can change the result
+            turn, active, deciding = (_opt_int(g) for g in match.groups()[:3])
+            new_turn = False
+            if active in own_turns and turn is not None and turn not in own_turns[active]:
+                own_turns[active].add(turn)
+                new_turn = True
+                settled = all(len(t) > OWN_TURNS_SECONDARY for t in own_turns.values())
+            if deciding not in own_turns or len(own_turns[deciding]) > OWN_TURNS_SECONDARY:
+                if new_turn:
                     frames.append({"kind": "frame", "turn": turn, "active_seat": active})
-                    continue
-        entry = json.loads(line)
+                continue
+        entry = json.loads(raw[start:end])
         if not isinstance(entry, dict):
             continue
         kind = entry.get("kind")
@@ -283,6 +306,7 @@ def _scan(
             turn, active = _int(entry.get("turn")), _int(entry.get("active_seat"))
             if active in own_turns and turn is not None:
                 own_turns[active].add(turn)
+                settled = all(len(t) > OWN_TURNS_SECONDARY for t in own_turns.values())
     return header, result, frames
 
 
@@ -290,7 +314,7 @@ def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, li
     """The exposure of one log (or None) and the deck ids named in its header."""
     try:
         header, result, frames = _scan(path, fast=fast)
-    except (OSError, EOFError, ValueError):
+    except (OSError, EOFError, ValueError, zlib.error):
         return None, []
     if header is None or header.get("schema") != LOG_SCHEMA:
         return None, []
