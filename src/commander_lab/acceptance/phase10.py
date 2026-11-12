@@ -99,9 +99,14 @@ def _rule_status(root: Path, card_names: list[str]) -> dict[str, Any]:
 
 
 def _repository_secret_scan(root: Path) -> dict[str, Any]:
+    # The lookbehind anchors matches to standalone tokens: a real API key is
+    # stored as its own token (after whitespace, a quote, "=", ...), while the
+    # "sk-" inside a hyphenated slug such as the card slug
+    # "zask-skittering-swarmlord" in published research data is glued to a
+    # preceding word character or hyphen and is not a secret.
     token_patterns = (
-        re.compile(r"sk-proj-[A-Za-z0-9_-]{20,}"),
-        re.compile(r"sk-[A-Za-z0-9_-]{20,}"),
+        re.compile(r"(?<![A-Za-z0-9_-])sk-proj-[A-Za-z0-9_-]{20,}"),
+        re.compile(r"(?<![A-Za-z0-9_-])sk-[A-Za-z0-9_-]{20,}"),
     )
     findings: list[str] = []
     try:
