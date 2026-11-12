@@ -20,6 +20,7 @@ Abrufdatum: 2026-11-12.
 ## 2. Dateien
 - `topdeck_commander_presence.csv`: Aktualisierte Präsenz-Zählung aller 107 Commander.
 - `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste.
+- `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte × Commander (Refs #1205).
 
 ## 3. Übersicht je Commander mit Präsenz
 | Commander | Einträge 90d | Einträge mit Liste | Vollständig exportiert | Unvollständig |
