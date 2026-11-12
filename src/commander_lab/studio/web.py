@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
-from . import builder, games, launch, universe, universe_view
+from . import builder, card_outcomes, games, launch, universe, universe_view
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
@@ -630,6 +630,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/games")
     def game_list() -> list[dict[str, object]]:
         return games.list_games(games_home())
+
+    @app.get("/api/outcomes")
+    def outcomes(
+        deck_id: str = Query(min_length=1, max_length=200),
+        min_exposed: int = Query(default=card_outcomes.DEFAULT_MIN_EXPOSED, ge=1, le=100_000),
+    ) -> dict[str, object]:
+        """Per-card win rate with the card in the first dealt hand versus not (simulated)."""
+        try:
+            table = card_outcomes.outcomes_for_folder(
+                games.games_folder(games_home()), deck_id=deck_id, min_exposed=min_exposed
+            )
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from error
+        return dict(table)
 
     @app.get("/api/table")
     def table() -> dict[str, object]:
