@@ -27,8 +27,7 @@
   "same_index_and_pending_sha256": true,
   "checksum_scheme": "For *.json.gz archive members sha256 and size refer to GZIP-DECOMPRESSED logical bytes. All other ZIP members use raw bytes. Group derives from first slash-separated path component, or 'exports' for root-level members. Compare multiset, not order.",
   "source_multiset_file": "source_multiset.csv",
-  "source_index_drive_file_id": "1KB71NZ9038PdMk-hfWnCxpP1TSivpJ2Z",
-  "raw_archive_storage": "PRIVATE_GOOGLE_DRIVE_ONLY",
+  "raw_archive_storage": "OWNER_DATA_FOLDER_ONLY",
   "git_payload": "SHA-256/byte-count multiset and aggregate source manifest only; no scraped HTML, response bodies, screenshots, private decks, collection, tokens or browser-profile data.",
   "importer_rule": "never import the 470 preview IDs as complete 99-card decks; no aggregate inclusion frequency/denominator is derivable from those IDs alone",
   "other_edhrec_cohorts": [
@@ -37,8 +36,7 @@
       "rows": 1379,
       "exact_utc": 75,
       "utc_unknown": 1304,
-      "status": "OBSERVATION_REVIEW",
-      "drive_file_id": "1J9ADkvg_rvHBkPx7UQx7crD0K6cUmYUP"
+      "status": "OBSERVATION_REVIEW"
     },
     {
       "id": "chulane-new-20-http200-20261111",
@@ -52,15 +50,13 @@
       "id": "tam-78-theme-pages-20261109",
       "themes": 78,
       "cardrec_rows": 16023,
-      "status": "OBSERVATION_REVIEW",
-      "drive_folder_id": "1uVes8IRBtII_BXSvCBVX7Awbs_v2DZ2o"
+      "status": "OBSERVATION_REVIEW"
     },
     {
       "id": "tam-chandra-381-decks-20261111",
       "decks": 381,
       "eligible_review_candidates": 187,
-      "status": "PRIVATE_REVIEW_NOT_ACTIVE",
-      "drive_folder_id": "1iXmksjwQE6-V0Ds3xzxy9Ai-EqCM22oX"
+      "status": "PRIVATE_REVIEW_NOT_ACTIVE"
     }
   ],
   "evidence_notes": [
@@ -79,6 +75,5 @@
     "bracket1_exclusion_rows": 2,
     "validator": "scripts/verify_edhrec_v5_archive.py"
   },
-  "source_archive_drive_file_id": "11_-2NEeyZcBaRIh8SveUvQeB7tz5qCIb",
-  "source_archive_drive_sha256_readback_verified": true
+  "source_archive_sha256_readback_verified": true
 }
