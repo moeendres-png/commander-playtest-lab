@@ -21,6 +21,7 @@ import os
 import re
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
+from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 from typing import Literal, TypedDict, cast
 
@@ -41,8 +42,14 @@ OWN_TURNS_SECONDARY = 3
 EXPECTED_EXPOSURE = 7 / 99
 CACHE_DIR = ".outcomes-cache"
 CACHE_VERSION = 1
+PARALLEL_MIN_LOGS = 8  # cold logs before a process pool pays for itself
+MAX_WORKERS = 4
 CHANCE_RATE = 0.05
-_KIND = re.compile(r'\{\s*"kind"\s*:\s*"([a-z_]+)"')
+# The scalar keys that open every frame line; None groups mean JSON ``null``.
+_FRAME_HEAD = re.compile(
+    rb'\{\s*"kind"\s*:\s*"frame"\s*,[^{}\[\]]{0,300}?"turn"\s*:\s*(-?\d+|null)\s*,'
+    rb'[^{}\[\]]{0,300}?"active_seat"\s*:\s*(-?\d+|null)\s*,\s*"seat"\s*:\s*(-?\d+|null)\s*,'
+)
 
 Result = Literal["win", "loss", "draw"]
 CardStatus = Literal["MEASURED", "INSUFFICIENT_SAMPLE"]
@@ -182,8 +189,10 @@ def _seat_exposure(
         turn = _int(frame.get("turn"))
         if _int(frame.get("active_seat")) == seat and turn is not None:
             own_turns.add(turn)
+        if _int(frame.get("seat")) != seat:
+            continue  # only the deciding seat's own hand is visible
         hand = _hand_of(frame, seat)
-        if _int(frame.get("seat")) == seat and frame.get("decision_class") == MULLIGAN_CLASS:
+        if frame.get("decision_class") == MULLIGAN_CLASS:
             chosen = _names(frame.get("chosen")) or []
             if TAKE_MULLIGAN_LABEL in chosen:
                 taken += 1
@@ -221,62 +230,59 @@ def _hand_of(frame: dict[str, object], seat: int) -> list[str] | None:
     return None
 
 
+def _opt_int(raw: bytes) -> int | None:
+    return None if raw == b"null" else int(raw)
+
+
 def _scan(
     path: Path, *, fast: bool
 ) -> tuple[dict[str, object] | None, dict[str, object] | None, list[dict[str, object]]]:
     """Header, last result record and the frames that can matter, from one line stream.
 
-    ``fast`` skips ``json.loads`` for a frame line once every seat has passed its
-    ``OWN_TURNS_SECONDARY``-th own turn and has its first hand, unless the line mentions a
-    mulligan; a line whose kind cannot be told from its start is always parsed.
+    ``fast`` skips ``json.loads`` for a frame line whose head (turn, active seat, deciding
+    seat) is read by pattern when the deciding seat is already past its
+    ``OWN_TURNS_SECONDARY``-th own turn and the line does not mention a mulligan: such a frame
+    can only add an own turn, which is kept as a stub. A line whose head does not match is
+    always parsed.
     """
     header: dict[str, object] | None = None
     result: dict[str, object] | None = None
     frames: list[dict[str, object]] = []
     own_turns: dict[int, set[int]] = {}
-    has_first: set[int] = set()
     opener = gzip.open if path.suffix == ".gz" else open
-    with opener(path, "rt", encoding="utf-8") as handle:
-        for line in handle:
-            if not line.endswith("\n"):
-                break  # a running game: the last entry is still being written
-            if fast and own_turns and "mulligan" not in line:
-                match = _KIND.match(line)
-                if (
-                    match is not None
-                    and match.group(1) == "frame"
-                    and all(
-                        len(turns) > OWN_TURNS_SECONDARY and seat in has_first
-                        for seat, turns in own_turns.items()
-                    )
-                ):
-                    continue
-            entry = json.loads(line)
-            if not isinstance(entry, dict):
-                continue
-            kind = entry.get("kind")
-            if kind == "header":
-                if header is None:
-                    header = entry
-                    rows = entry.get("seats")
-                    for row in rows if isinstance(rows, list) else []:
-                        seat = _int(row.get("seat")) if isinstance(row, dict) else None
-                        if seat is not None:
-                            own_turns[seat] = set()
-            elif kind == "result":
-                result = entry
-            elif kind == "frame":
-                frames.append(entry)
-                turn, active = _int(entry.get("turn")), _int(entry.get("active_seat"))
+    with opener(path, "rb") as handle:
+        raw = handle.read()
+    lines = raw.split(b"\n")
+    lines.pop()  # after the last newline: empty, or an entry still being written
+    for line in lines:
+        if fast and own_turns and b"mulligan" not in line:
+            match = _FRAME_HEAD.match(line)
+            if match is not None:
+                turn, active, deciding = (_opt_int(g) for g in match.groups())
                 if active in own_turns and turn is not None:
                     own_turns[active].add(turn)
-                deciding = _int(entry.get("seat"))
-                if (
-                    deciding in own_turns
-                    and entry.get("decision_class") == MULLIGAN_CLASS
-                    and _hand_of(entry, deciding)
-                ):
-                    has_first.add(deciding)
+                if deciding not in own_turns or len(own_turns[deciding]) > OWN_TURNS_SECONDARY:
+                    frames.append({"kind": "frame", "turn": turn, "active_seat": active})
+                    continue
+        entry = json.loads(line)
+        if not isinstance(entry, dict):
+            continue
+        kind = entry.get("kind")
+        if kind == "header":
+            if header is None:
+                header = entry
+                rows = entry.get("seats")
+                for row in rows if isinstance(rows, list) else []:
+                    seat = _int(row.get("seat")) if isinstance(row, dict) else None
+                    if seat is not None:
+                        own_turns[seat] = set()
+        elif kind == "result":
+            result = entry
+        elif kind == "frame":
+            frames.append(entry)
+            turn, active = _int(entry.get("turn")), _int(entry.get("active_seat"))
+            if active in own_turns and turn is not None:
+                own_turns[active].add(turn)
     return header, result, frames
 
 
@@ -363,6 +369,14 @@ def _store(
         temp.unlink(missing_ok=True)  # a cache that cannot be written is only slower
 
 
+def _is_cached(path: Path) -> bool:
+    try:
+        stat = path.stat()
+    except OSError:
+        return False
+    return _cached(_cache_file(path), stat.st_size, stat.st_mtime_ns) is not None
+
+
 def _read(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, list[str]]:
     """``_read_log`` through the per-log cache (finished packed logs only)."""
     if not fast or path.suffix != ".gz":
@@ -406,8 +420,14 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
     skipped_ids: list[str] = []
     seen_games: set[str] = set()
     duplicates = 0
-    for key, path in sorted(paths.items()):
-        exposure, deck_ids = _read(path)
+    ordered = sorted(paths.items())
+    cold = [path for _, path in ordered if path.suffix == ".gz" and not _is_cached(path)]
+    warmed: dict[Path, tuple[GameExposure | None, list[str]]] = {}
+    if len(cold) >= PARALLEL_MIN_LOGS:
+        with ProcessPoolExecutor(max_workers=min(MAX_WORKERS, os.cpu_count() or 1)) as pool:
+            warmed = dict(zip(cold, pool.map(_read, cold, chunksize=4), strict=True))
+    for key, path in ordered:
+        exposure, deck_ids = warmed[path] if path in warmed else _read(path)
         if exposure is not None:
             if exposure["game_id"] in seen_games:
                 duplicates += 1  # the same game under another file name: first name wins
