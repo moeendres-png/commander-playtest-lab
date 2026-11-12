@@ -283,6 +283,7 @@ def test_starting_a_game_checks_its_seats_before_any_process_starts(
 
     monkeypatch.setattr(launch.subprocess, "Popen", _Process)
     monkeypatch.setattr(launch, "cards_unknown_to_pilots", lambda snapshot: [])
+    monkeypatch.setattr(launch, "cards_unsupported_by_engine", lambda snapshot: [])
     opponents = [deck["deck_id"] for deck in launch.opponent_decks()[:2]]
     store = StudioStore.open(studio_folder)
     try:
@@ -319,6 +320,15 @@ def test_starting_a_game_checks_its_seats_before_any_process_starts(
         with pytest.raises(ValueError, match="Odd Card"):
             launch.start_game(
                 store, studio_folder, revision_id=revision, opponent_ids=opponents, seed=12
+            )
+
+        monkeypatch.setattr(launch, "cards_unknown_to_pilots", lambda snapshot: [])
+        monkeypatch.setattr(
+            launch, "cards_unsupported_by_engine", lambda snapshot: ["Unknown Engine Card"]
+        )
+        with pytest.raises(ValueError, match="Unknown Engine Card"):
+            launch.start_game(
+                store, studio_folder, revision_id=revision, opponent_ids=opponents, seed=13
             )
     finally:
         store.close()

@@ -526,7 +526,8 @@ async function newGame() {
     } catch (error) { note.textContent = `Start nicht möglich: ${error.message}`; go.disabled = false; }
   });
   box.append(
-    h("p", { class: "muted" }, "Alle Plätze spielt die KI. XMage entscheidet jede Regel. Die Partie wird mitgeschrieben und läuft hier direkt mit."),
+    h("p", { class: "muted" }, `Alle Plätze spielt die KI. XMage entscheidet jede Regel (${table.engine && table.engine.pin ? table.engine.pin.slice(0, 10) : "gepinnt"}). Die Partie wird mitgeschrieben und läuft hier direkt mit.`),
+    table.engine && table.engine.warning ? h("p", { class: "pill warn", style: "display:inline-block;margin:4px 0" }, table.engine.warning) : null,
     h("div", { class: "form" },
       h("label", null, "Dein Deck auf Sitz 1 (KI) ", own, " Stil ", ownStyle),
       h("label", null, "Tisch ", count),
