@@ -271,9 +271,12 @@ def _scan(
                 if active in own_turns and turn is not None:
                     own_turns[active].add(turn)
                 deciding = _int(entry.get("seat"))
-                if deciding in own_turns and _hand_of(entry, deciding):
-                    if entry.get("decision_class") == MULLIGAN_CLASS:
-                        has_first.add(deciding)
+                if (
+                    deciding in own_turns
+                    and entry.get("decision_class") == MULLIGAN_CLASS
+                    and _hand_of(entry, deciding)
+                ):
+                    has_first.add(deciding)
     return header, result, frames
 
 
