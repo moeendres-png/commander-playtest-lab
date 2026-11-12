@@ -429,3 +429,51 @@ def test_malformed_index_csv_is_value_error_and_cli_reports_failure(
     code, _ = run_main(monkeypatch, archive, manifest)
     assert code not in (0, None)
     assert "validation FAILED" in capsys.readouterr().err
+
+
+class _RecordingStream:
+    """Stands in for a member stream and records every requested read size."""
+
+    def __init__(self, sizes: list[int | None]) -> None:
+        self.sizes = sizes
+
+    def __enter__(self) -> _RecordingStream:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        return None
+
+    def read(self, size: int | None = None) -> bytes:
+        self.sizes.append(size)
+        return b"x" * 5
+
+
+class _RecordingZip:
+    def __init__(self, sizes: list[int | None]) -> None:
+        self.sizes = sizes
+
+    def open(self, item: zipfile.ZipInfo) -> _RecordingStream:
+        return _RecordingStream(self.sizes)
+
+
+@pytest.mark.parametrize("gz", [False, True])
+def test_member_reads_are_requested_with_a_bound(gz: bool, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The cap is enforced while reading: no unbounded read() is ever requested."""
+    sizes: list[int | None] = []
+    monkeypatch.setattr(
+        verifier.gzip, "GzipFile", lambda fileobj: _RecordingStream(sizes), raising=True
+    )
+    item = zipfile.ZipInfo("raw_previews/one.json.gz" if gz else "state/one.json")
+    item.file_size = 3
+    data = verifier.read_member(_RecordingZip(sizes), item, 7, gz=gz)
+    assert sizes == [8]
+    assert data == b"x" * 5
+
+
+def test_plain_member_with_oversized_header_is_rejected_before_reading() -> None:
+    sizes: list[int | None] = []
+    item = zipfile.ZipInfo("state/one.json")
+    item.file_size = 8
+    with pytest.raises(ValueError, match="maximum logical size"):
+        verifier.read_member(_RecordingZip(sizes), item, 7, gz=False)
+    assert sizes == []
