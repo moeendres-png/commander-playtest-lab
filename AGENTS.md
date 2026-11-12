@@ -105,7 +105,7 @@ adjudication and required requalification.
 ## 6. Executors
 
 The Owner selects the tool and model for each session manually. This file names no
-model allowlist; every executor works under exactly these rules, at the effort the Owner
+model allowlist (the two floors in §7 are Owner-set minimums, not an allowlist); every executor works under exactly these rules, at the effort the Owner
 selected, never silently lowered. Tool configuration that enforces executor identity
 (for example the OpenCode Foundry launcher and `.foundry/executor-profiles.json`) is
 technical configuration, not policy; there is no automatic fallback between executors.
@@ -140,12 +140,15 @@ Every tool splits its own work the same way, so tokens go where judgement is nee
 - **Lead model** (the tool's strongest model, the one the Owner launched): understanding the
   task, planning, architecture, Rules and evidence adjudication, gate and merge decisions,
   and the final check of delegated work.
-- **Token-efficient helpers** (the tool's smaller model or a lower effort): implementation
+- **Token-efficient helpers** (subagents the tool defines for this purpose, on its smaller
+  model at their own declared level): implementation
   from a complete brief, test/fix loops, code review passes, log and CI digestion, and
   watching checks. A helper gets a bounded brief (objective, source lock, exact commands,
   stop condition, report limit) and reports back; it decides nothing reserved in §8.
 - A helper's result counts only after the lead has checked it against the evidence rules
-  (§4). A MATERIAL change still needs the independent review of §10.
+  (§4). Neither that check nor a helper pass inside the session that wrote the change is the
+  independent review of §10: every MATERIAL change still needs that review from a fresh
+  context that did not write it.
 
 Two fixed exceptions:
 
@@ -153,8 +156,9 @@ Two fixed exceptions:
   starts; nothing smaller or lower is used.
 - **Muse**: always `high` to `max`, including its subagents.
 
-This tiering never lowers an Owner-selected level for the lead model and never changes
-authority: the session that owns the work stays accountable for it.
+This tiering never lowers the level the Owner selected for a session or worker, is not a
+fallback between executors (§6) and never changes authority: the session that owns the
+work stays accountable for it.
 
 ## 8. Technical decision authority
 
