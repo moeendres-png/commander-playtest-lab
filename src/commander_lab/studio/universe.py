@@ -9,6 +9,26 @@ cuts themselves stay code constants of the tier model, never profile settings).
 Storing a profile validates its platform, cohort and commander values against what
 the store actually holds, so a typo is refused instead of silently counting an empty
 universe; a dimension whose stock is still empty cannot be checked and is accepted.
+A profile carries a version: the first save is version 1, every later save of the same
+name keeps ``created_at`` and raises the version by one, stamping ``updated_at``; a
+profile can be deleted, and deleting one the store does not hold is an error, never a
+silent no-op.
+
+A spec may also require cards: ``must_contain`` names collection cards (oracle names)
+and a deck of the universe must contain *every* one of them. Containment is a main-deck
+statement: a card counts when a row of the deck's main sections (``main``/``mainboard``,
+quantity above zero) names it — under any spelling the collection knows for the card
+(oracle name, engine name, or a front face that is no card's exact name; a front face
+several cards share is a spelling of each of them, exactly as the counted spread
+attributes it, but it names no single card and so cannot state a requirement). A row in the ``commander``
+section never counts by itself; the single exception is the deck's own commander: when
+a required card *is* the commander the deck is bound to (``commander_binding``), the
+deck contains it by definition, even without a main-deck row. Sideboard and maybeboard
+rows never satisfy a requirement. Required names are validated against the collection
+at save time and stored as the cards' oracle names; a name no collection card carries
+is refused, never silently counted as an empty universe. How many decks the card filter
+drops is reported next to every denominator (``excluded_by_card_filter``), exactly like
+the date filter's ``excluded_no_date``.
 Every figure computed over a universe is a plain count with its denominator: inclusion of
 a card is the number of distinct universe decks whose counted sections (``main`` and
 ``mainboard``, the same section under the spelling of the decklist and the corpus importer,
@@ -41,6 +61,10 @@ from .store import StudioStore, now_utc
 
 # The corpus importer stores the main deck as "mainboard", the decklist importer as "main".
 COUNTED_SECTIONS = ("main", "mainboard", "commander", "companion")
+# The sections a ``must_contain`` requirement reads: the main deck only. Deliberately
+# narrower than COUNTED_SECTIONS — a commander or companion row is not a main-deck card
+# (the commander exception is the binding rule in ``resolve_universe``, not a section).
+MAIN_SECTIONS = ("main", "mainboard")
 _SPEC_KEYS = {
     "platforms",
     "cohorts",
@@ -49,6 +73,7 @@ _SPEC_KEYS = {
     "date_to",
     "min_main_cards",
     "min_universe",
+    "must_contain",
 }
 
 
@@ -62,6 +87,7 @@ class UniverseSpec(TypedDict, total=False):
     date_to: str
     min_main_cards: int
     min_universe: int
+    must_contain: list[str]
 
 
 class Profile(TypedDict):
@@ -69,12 +95,17 @@ class Profile(TypedDict):
     name: str
     spec: UniverseSpec
     created_at: str
+    version: int
+    updated_at: str | None
 
 
 class SavedProfile(TypedDict):
     profile_id: str
     name: str
     spec: UniverseSpec
+    version: int
+    created_at: str
+    updated_at: str
 
 
 class InclusionRow(TypedDict):
@@ -91,6 +122,7 @@ class InclusionResult(TypedDict):
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
+    excluded_by_card_filter: int
     rows: list[InclusionRow]
     data_class: str
 
@@ -104,6 +136,7 @@ class UniverseOptions(TypedDict):
     platforms: list[OptionValue]
     cohorts: list[OptionValue]
     commanders: list[OptionValue]
+    cards: list[OptionValue]
 
 
 class CooccurrenceRow(TypedDict):
@@ -171,11 +204,69 @@ def _validate_spec(spec: Mapping[str, object]) -> UniverseSpec:
         if min_universe < 1:
             raise ValueError("universe spec min_universe must be at least 1")
         cleaned["min_universe"] = min_universe
+    must_contain = _string_list(spec, "must_contain")
+    if must_contain:
+        cleaned["must_contain"] = must_contain
     return cleaned
 
 
 def _known_values(store: StudioStore, sql: str) -> set[str]:
     return {str(row[0]) for row in store.connection.execute(sql)}
+
+
+def _card_name_index(
+    store: StudioStore,
+) -> tuple[dict[str, frozenset[str]], dict[str, str]]:
+    """The collection's name discipline, shared with the counted spread.
+
+    Returns (oracle name -> its casefolded spellings, unambiguous spelling -> oracle
+    name). A card's spellings are its oracle name, its engine name, and the front face
+    of either, unless that front face is the exact name of a card (then it names that
+    card, never this one). A front face several cards share is a spelling of each of
+    them — a deck listing it counts for every one, exactly as the counted spread
+    attributes it — but it names no single card, so it is absent from the second map
+    and cannot be used to *state* a requirement."""
+    cards = [
+        (str(row["oracle_name"]), str(row["engine_name"]))
+        for row in store.connection.execute("SELECT oracle_name, engine_name FROM card_fact")
+    ]
+    taken = {spelling.casefold() for pair in cards for spelling in pair}
+    by_oracle: dict[str, set[str]] = {}
+    for oracle, engine in cards:
+        keys = by_oracle.setdefault(oracle, set())
+        for spelling in (oracle, engine):
+            keys.add(spelling.casefold())
+            front = spelling.split(" // ")[0].strip().casefold()
+            if front and front not in taken:
+                keys.add(front)
+    owners: dict[str, str] = {}
+    ambiguous: set[str] = set()
+    for oracle, keys in by_oracle.items():
+        for key in keys:
+            if key in owners and owners[key] != oracle:
+                ambiguous.add(key)
+            owners.setdefault(key, oracle)
+    unique = {key: oracle for key, oracle in owners.items() if key not in ambiguous}
+    return {oracle: frozenset(keys) for oracle, keys in by_oracle.items()}, unique
+
+
+def _required_cards(store: StudioStore, names: Sequence[str]) -> list[tuple[str, frozenset[str]]]:
+    """Resolve ``must_contain`` names to (oracle name, its casefolded spellings).
+
+    Raises ValueError naming every name that names no single collection card: an
+    unresolvable requirement must fail loudly, never count as an empty universe."""
+    by_oracle, unique = _card_name_index(store)
+    resolved: list[tuple[str, frozenset[str]]] = []
+    unknown: list[str] = []
+    for name in names:
+        oracle = unique.get(name.casefold())
+        if oracle is None:
+            unknown.append(name)
+        else:
+            resolved.append((oracle, by_oracle[oracle]))
+    if unknown:
+        raise ValueError(f"unknown universe card(s): {sorted(set(unknown))}")
+    return resolved
 
 
 def _validate_against_stock(store: StudioStore, cleaned: UniverseSpec) -> None:
@@ -211,28 +302,69 @@ def _validate_against_stock(store: StudioStore, cleaned: UniverseSpec) -> None:
             raise ValueError(
                 f"unknown universe {label}(s): {unknown}; the store holds: {sorted(known)}"
             )
+    required = cleaned.get("must_contain")
+    if required:
+        by_oracle, unique = _card_name_index(store)
+        if by_oracle:
+            unknown_cards = sorted({name for name in required if name.casefold() not in unique})
+            if unknown_cards:
+                raise ValueError(
+                    f"unknown universe card(s): {unknown_cards}; "
+                    f"the store holds {len(by_oracle)} collection cards"
+                )
+            # The stored spec names the cards by their oracle name, whatever spelling
+            # the caller used, so a profile always reads the same.
+            cleaned["must_contain"] = sorted({unique[name.casefold()] for name in required})
 
 
 def save_profile(store: StudioStore, name: str, spec: Mapping[str, object]) -> SavedProfile:
     """Store (or replace) a named universe profile; returns the stored profile.
 
-    Raises ValueError for a malformed spec and for platform, cohort or commander
-    values the store does not hold (see ``_validate_against_stock``)."""
+    The first save of a name is version 1; replacing a profile keeps its
+    ``created_at`` and raises the version by one, so a same-named profile whose
+    meaning changed is distinguishable from the one counts were taken with.
+    Raises ValueError for a malformed spec and for platform, cohort, commander or
+    card values the store does not hold (see ``_validate_against_stock``)."""
     cleaned = _validate_spec(spec)
     _validate_against_stock(store, cleaned)
     profile_id = f"universe:{name}"
+    stamp = now_utc()
     with store.connection as db:
+        existing = db.execute(
+            "SELECT version, created_at FROM universe_profile WHERE name = ?", (name,)
+        ).fetchone()
+        if existing is None:
+            version, created_at = 1, stamp
+        else:
+            version, created_at = int(existing["version"]) + 1, str(existing["created_at"])
         db.execute(
-            "INSERT OR REPLACE INTO universe_profile(profile_id, name, spec, created_at) "
-            "VALUES (?, ?, ?, ?)",
-            (profile_id, name, json.dumps(cleaned, sort_keys=True), now_utc()),
+            "INSERT OR REPLACE INTO universe_profile"
+            "(profile_id, name, spec, created_at, version, updated_at) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (profile_id, name, json.dumps(cleaned, sort_keys=True), created_at, version, stamp),
         )
-    return {"profile_id": profile_id, "name": name, "spec": cleaned}
+    return {
+        "profile_id": profile_id,
+        "name": name,
+        "spec": cleaned,
+        "version": version,
+        "created_at": created_at,
+        "updated_at": stamp,
+    }
+
+
+def delete_profile(store: StudioStore, name: str) -> None:
+    """Delete a universe profile. Raises KeyError when the store holds no such
+    profile — deleting nothing is an explicit error, never a silent no-op."""
+    with store.connection as db:
+        if db.execute("DELETE FROM universe_profile WHERE name = ?", (name,)).rowcount == 0:
+            raise KeyError(name)
 
 
 def list_profiles(store: StudioStore) -> list[dict[str, object]]:
     rows = store.connection.execute(
-        "SELECT profile_id, name, spec, created_at FROM universe_profile ORDER BY name"
+        "SELECT profile_id, name, spec, created_at, version, updated_at "
+        "FROM universe_profile ORDER BY name"
     ).fetchall()
     return [
         {
@@ -240,6 +372,8 @@ def list_profiles(store: StudioStore) -> list[dict[str, object]]:
             "name": row["name"],
             "spec": json.loads(row["spec"]),
             "created_at": row["created_at"],
+            "version": row["version"],
+            "updated_at": row["updated_at"],
         }
         for row in rows
     ]
@@ -247,7 +381,8 @@ def list_profiles(store: StudioStore) -> list[dict[str, object]]:
 
 def get_profile(store: StudioStore, name: str) -> Profile:
     row = store.connection.execute(
-        "SELECT profile_id, name, spec, created_at FROM universe_profile WHERE name = ?",
+        "SELECT profile_id, name, spec, created_at, version, updated_at "
+        "FROM universe_profile WHERE name = ?",
         (name,),
     ).fetchone()
     if row is None:
@@ -257,6 +392,8 @@ def get_profile(store: StudioStore, name: str) -> Profile:
         "name": str(row["name"]),
         "spec": json.loads(row["spec"]),
         "created_at": str(row["created_at"]),
+        "version": int(row["version"]),
+        "updated_at": str(row["updated_at"]) if row["updated_at"] is not None else None,
     }
     return profile
 
@@ -306,7 +443,57 @@ def options(store: StudioStore, *, commander_names: Sequence[str] | None = None)
                 for value in commanders
             ]
         ),
+        "cards": _card_options(store, scope),
     }
+
+
+def _card_options(store: StudioStore, scope: UniverseSpec) -> list[OptionValue]:
+    """Collection cards a ``must_contain`` requirement can name, with deck counts.
+
+    The count of a card is the size of the universe the scope plus the single-card
+    requirement selects — counted in one pass over the scope's decks under the same
+    containment rule ``resolve_universe`` applies (main sections, plus the deck's own
+    commander), so the offered number is the denominator the filter would produce.
+    Cards no scope deck contains are not offered."""
+    deck_ids = resolve_universe(store, scope)
+    if not deck_ids:
+        return []
+    by_oracle, unique = _card_name_index(store)
+    if not by_oracle:
+        return []
+    owners: dict[str, list[str]] = {}
+    for oracle, keys in by_oracle.items():
+        for key in keys:
+            owners.setdefault(key, []).append(oracle)
+    bound = {
+        str(row[0]): str(row[1])
+        for row in store.connection.execute(
+            "SELECT key, commander_name FROM commander_binding WHERE kind = 'corpus_deck'"
+        )
+    }
+    counts: dict[str, int] = {}
+    main_marks = ", ".join("?" for _ in MAIN_SECTIONS)
+    with _universe_table(store, deck_ids) as universe_deck:
+        spellings: dict[str, set[str]] = {}
+        for deck_id, card_name in store.connection.execute(
+            f"SELECT c.deck_id, c.card_name FROM corpus_deck_card c "
+            f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"WHERE c.section IN ({main_marks}) AND c.quantity > 0",
+            MAIN_SECTIONS,
+        ):
+            spellings.setdefault(str(deck_id), set()).add(str(card_name).casefold())
+    for deck_id in deck_ids:
+        found: set[str] = set()
+        for name in spellings.get(deck_id, set()):
+            found.update(owners.get(name, []))
+        commander = bound.get(deck_id)
+        if commander is not None and commander.casefold() in unique:
+            found.add(unique[commander.casefold()])
+        for oracle in found:
+            counts[oracle] = counts.get(oracle, 0) + 1
+    return [
+        {"value": oracle, "decks": decks} for oracle, decks in sorted(counts.items()) if decks > 0
+    ]
 
 
 def excluded_no_date(store: StudioStore, spec: Mapping[str, object]) -> int:
@@ -332,6 +519,23 @@ def excluded_no_date(store: StudioStore, spec: Mapping[str, object]) -> int:
             "ON u.deck_id = d.deck_id WHERE d.deck_date IS NULL OR d.deck_date = ''"
         ).fetchone()
     return int(row[0])
+
+
+def excluded_by_card_filter(store: StudioStore, spec: Mapping[str, object]) -> int:
+    """Decks a spec's ``must_contain`` filter drops.
+
+    Counted exactly, as the set difference the module reports for the date filter:
+    decks the same spec without its card requirement would select, minus the decks
+    the requirement keeps. Without a card requirement the count is 0."""
+    cleaned = _validate_spec(spec)
+    if not cleaned.get("must_contain"):
+        return 0
+    unfiltered = dict(cleaned)
+    unfiltered.pop("must_contain", None)
+    unfiltered_spec = cast(UniverseSpec, unfiltered)
+    return len(
+        set(resolve_universe(store, unfiltered_spec)) - set(resolve_universe(store, cleaned))
+    )
 
 
 def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str]:
@@ -399,6 +603,39 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
             )
         }
         deck_ids = [deck_id for deck_id in deck_ids if sizes.get(deck_id, 0) >= minimum]
+    required_names = cleaned.get("must_contain")
+    if required_names:
+        # A deck contains a required card when one of its main-section rows names the
+        # card under any known spelling, or when the card is the commander the deck is
+        # bound to (a commander-section row alone never counts: the binding, not the
+        # section, states whose deck this is). All requirements must hold.
+        required = _required_cards(store, required_names)
+        _by_oracle, unique = _card_name_index(store)
+        bound_commanders = {
+            str(row[0]): str(row[1])
+            for row in store.connection.execute(
+                "SELECT key, commander_name FROM commander_binding WHERE kind = 'corpus_deck'"
+            )
+        }
+        main_marks = ", ".join("?" for _ in MAIN_SECTIONS)
+        spellings: dict[str, set[str]] = {}
+        for deck_id, card_name in store.connection.execute(
+            f"SELECT deck_id, card_name FROM corpus_deck_card "
+            f"WHERE section IN ({main_marks}) AND quantity > 0",
+            MAIN_SECTIONS,
+        ):
+            spellings.setdefault(str(deck_id), set()).add(str(card_name).casefold())
+
+        def _contains(deck_id: str) -> bool:
+            names_in_deck = spellings.get(deck_id, set())
+            commander = bound_commanders.get(deck_id)
+            commander_oracle = unique.get(commander.casefold()) if commander is not None else None
+            return all(
+                bool(names_in_deck & spellings_of_card) or commander_oracle == oracle
+                for oracle, spellings_of_card in required
+            )
+
+        deck_ids = [deck_id for deck_id in deck_ids if _contains(deck_id)]
     # Query-time dedupe inside the selected universe: one deck per content fingerprint,
     # the lowest deck id wins.
     fingerprints = dict(selected)
@@ -530,6 +767,7 @@ def inclusion(
         "denominator_by_platform": by_platform,
         "denominator_by_bracket": by_bracket,
         "excluded_no_date": excluded_no_date(store, resolved_spec),
+        "excluded_by_card_filter": excluded_by_card_filter(store, resolved_spec),
         "rows": rows,
         "data_class": "DERIVED_DESCRIPTIVE",
     }

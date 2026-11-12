@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 11
+SCHEMA_VERSION = 12
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -181,7 +181,9 @@ CREATE TABLE IF NOT EXISTS universe_profile (
     profile_id TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     spec TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    version INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT
 );
 CREATE TABLE IF NOT EXISTS corpus_deck_part (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id) DEFERRABLE INITIALLY DEFERRED,
@@ -576,6 +578,20 @@ class StudioStore:
         elif int(row["value"]) < SCHEMA_VERSION:
             # Every schema step so far only adds tables and views (created above); schema 11
             # adds card_signal and strength_profile.
+            if int(row["value"]) < 12:
+                # Schema 12 adds the universe profile lifecycle columns (version,
+                # updated_at) to the existing table; purely additive, existing rows
+                # keep version 1 and a NULL updated_at (never updated since creation).
+                columns = {
+                    str(r["name"])
+                    for r in connection.execute("PRAGMA table_info(universe_profile)")
+                }
+                if "version" not in columns:
+                    connection.execute(
+                        "ALTER TABLE universe_profile ADD COLUMN version INTEGER NOT NULL DEFAULT 1"
+                    )
+                if "updated_at" not in columns:
+                    connection.execute("ALTER TABLE universe_profile ADD COLUMN updated_at TEXT")
             if int(row["value"]) < 10:
                 # Before schema 10 the Studio held the source data of one commander only.
                 _bind_legacy(connection)
