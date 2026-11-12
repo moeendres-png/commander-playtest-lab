@@ -29,6 +29,7 @@ from .decks import (
     validate_rows,
 )
 from .images import cached_image, cached_image_by_name, public_card
+from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
 from .store import StudioStore, studio_data_dir
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -90,6 +91,8 @@ class BatchSimulationBody(BaseModel):
     base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
     seed_step: int = Field(default=1, ge=1, le=1000)
     style: float | None = Field(default=None, ge=0.0, le=1.0)
+    workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
+    games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
 class NamesBody(BaseModel):
@@ -388,8 +391,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 base_seed=body.base_seed,
                 seed_step=body.seed_step,
                 style=body.style,
+                workers=body.workers,
+                games_per_jvm=body.games_per_jvm,
             )
-            return {"batch_id": batch.batch_id, "status": batch.status}
+            return {
+                "batch_id": batch.batch_id,
+                "status": batch.status,
+                "execution": batch.execution(),
+            }
         except KeyError as error:
             raise HTTPException(404, "unknown deck revision") from error
         except ValueError as error:

@@ -19,6 +19,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Sequence
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 
@@ -30,6 +31,8 @@ ENGINE_COMMAND_ENV = "COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD"
 ENGINE_JAR = Path("engine") / "xmage-engine-bridge.jar"
 MIN_SEATS, MAX_SEATS = 2, 6
 START_WAIT_SECONDS = 20.0
+MIN_WORKERS, MAX_WORKERS = 1, 16
+MIN_GAMES_PER_JVM, MAX_GAMES_PER_JVM, DEFAULT_GAMES_PER_JVM = 1, 24, 6
 POD_PRESETS: dict[str, tuple[str, str, str]] = {
     "precon": (
         "precon/2026/lorehold_spirit",
@@ -127,6 +130,81 @@ def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     if jar.is_file() and java and _java_too_old(java) is None:
         return (java, "-Xmx3g", "-jar", str(jar), "full-game")
     return None
+
+
+def default_workers() -> int:
+    """Games a series plays at once unless told otherwise: ``min(4, cpu count - 1)``, at least 1."""
+    return max(MIN_WORKERS, min(4, (os.cpu_count() or 1) - 1))
+
+
+def checked_series_settings(workers: int | None, games_per_jvm: int | None) -> tuple[int, int]:
+    """The series settings with their defaults; ``ValueError`` outside the allowed ranges."""
+    used_workers = default_workers() if workers is None else workers
+    used_batch = DEFAULT_GAMES_PER_JVM if games_per_jvm is None else games_per_jvm
+    if not MIN_WORKERS <= used_workers <= MAX_WORKERS:
+        raise ValueError(f"workers must be between {MIN_WORKERS} and {MAX_WORKERS}")
+    if not MIN_GAMES_PER_JVM <= used_batch <= MAX_GAMES_PER_JVM:
+        raise ValueError(
+            f"games_per_jvm must be between {MIN_GAMES_PER_JVM} and {MAX_GAMES_PER_JVM}"
+        )
+    return used_workers, used_batch
+
+
+@dataclass(frozen=True)
+class SeriesEngine:
+    """How a Studio series starts its bridge JVMs: the command and what it is made of."""
+
+    command: tuple[str, ...]
+    #: Every JVM option between the launcher and ``-jar`` (heap, serial GC, AppCDS, batch size).
+    jvm_flags: tuple[str, ...]
+    #: Games one bridge JVM plays before the next one starts; 1 when the launcher is not java.
+    games_per_jvm: int
+    serial_gc: bool
+    appcds: bool
+
+
+def _is_java_launcher(command: Sequence[str]) -> bool:
+    return bool(command) and os.path.basename(command[0]).lower() in ("java", "javaw", "java.exe")
+
+
+def series_engine(data_folder: str | Path, games_per_jvm: int) -> SeriesEngine | None:
+    """The engine command of a series: fast JVM options and room for ``games_per_jvm`` games.
+
+    The options come from the benchmark's helper ``fast_jvm_options`` (serial GC; the AppCDS
+    archive only when ``<jar>.jsa`` exists next to the jar; the JVM itself ignores an archive that
+    does not match the jar and says so on stderr). They change how the JVM runs, not a game. A
+    launcher that is not java is used as it is, one game per process. ``None``: no engine.
+    """
+    from commander_lab.engine.rules.fast_jvm_options import fast_jvm_options
+    from commander_lab.engine.rules.full_game_batch import command_with_games_per_jvm
+
+    base = engine_command(data_folder)
+    if base is None:
+        return None
+    if not _is_java_launcher(base) or "-jar" not in base or base.index("-jar") + 1 >= len(base):
+        return SeriesEngine(base, (), 1, serial_gc=False, appcds=False)
+    jar_at = base.index("-jar") + 1
+    jar = Path(base[jar_at]).resolve()
+    # a private card repository starts each JVM in a directory of its own: the jar path must
+    # not depend on the working directory
+    base = (*base[:jar_at], str(jar), *base[jar_at + 1 :])
+    options = [option for option in fast_jvm_options(jar) if option not in base]
+    command = command_with_games_per_jvm((base[0], *options, *base[1:]), games_per_jvm)
+    flags = command[1 : command.index("-jar")]
+    return SeriesEngine(
+        command=command,
+        jvm_flags=flags,
+        games_per_jvm=games_per_jvm,
+        serial_gc="-XX:+UseSerialGC" in flags,
+        appcds=any(flag.startswith("-XX:SharedArchiveFile=") for flag in flags),
+    )
+
+
+def command_text(command: Sequence[str]) -> str:
+    """``command`` as the one string ``COMMANDER_LAB_XMAGE_FULL_GAME_BRIDGE_CMD`` takes."""
+    if os.name == "nt":
+        return subprocess.list2cmdline(list(command))
+    return shlex.join(command)
 
 
 @lru_cache(maxsize=16)
