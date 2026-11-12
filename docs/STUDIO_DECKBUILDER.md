@@ -31,6 +31,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 | `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
+| `import-owner-marks FILE.json` | the Owner's own favorites, exclusions and notes (format below) merged into `card_mark`; the report holds counts only | the Owner's own marks, never a rating |
 
 ### Role files and the lossless role import (schema 5)
 
@@ -84,6 +85,51 @@ is intended. Several files given together are written in one transaction: a bad 
 them imports none. Decks imported by an older program version have no recorded part and are
 accepted. `data-report` shows decks without card rows, without a recorded part, and decks whose
 mainboard does not add up to 99 cards.
+
+### Owner marks (favorite, excluded, note)
+
+Marks are a filter, a star and an availability condition for the Owner's own use. They are
+**never** a strength signal: no evidence figure, rating or tier reads them
+(`evidence.TIER_POLICY["never_inputs"]`, pinned by `test_marks_never_change_the_evidence`).
+`import-owner-marks` merges: a key a file does not mention stays as it is, a card that cannot be
+resolved (by `card_id`, then by name) is counted and skipped, a bad value refuses the whole file
+before anything is written, and a second identical import changes nothing. It reads
+`{"format": "studio-marks-1", "marks": [{"card_id": "...", "card_name": "...",
+"favorite": true, "excluded": false, "note": "..."}]}` and the export of the old HTML studio
+(`state.fav` and `state.notes`; `wish`, `variants` and `tierOverride` are counted as ignored, a
+tier override is deliberately not imported). A marks file is private data and does not go into
+the repository.
+
+### Evidence per card (R3 of #1185)
+
+`evidence.pool_evidence(store, commander_names, view=...)` and `evidence.card_evidence` give,
+per card, five layers side by side: `fact` (facts, rule-based mechanical features with the rule
+and its version, roles with their origin), `observed_deck` (source decks per cohort as
+count of denominator, EDHREC rows with numerator, denominator and snapshot time, or unknown),
+`observed_game` (real game events from the Playgroup card atlas once it is imported, #1192), `combo_verified` and
+`simulated_result`. Inclusion, lift and synergy are separate metrics and are never merged into
+one field. A missing source is `NOT_COLLECTED`, zero hits in a known corpus is
+`ABSENT_IN_KNOWN_CORPUS` (a missing observation, not weakness), and every card is `UNRATED`
+until a model with outcome evidence exists (`TIER_POLICY`). The `commander` view binds
+everything to the named commander; the `global` view has no colour filter and keeps only what
+does not depend on a commander. Real game events come from the Playgroup card atlas
+(`observed_game`, counted across all commanders, so both views show them): an observed
+correlation with its sample size, never a causal card strength and never a tier.
+
+`evidence.role_alternatives` lists free pool cards that share at least one role with a card: a
+comparison of function. The order is descriptive (more shared roles, smaller mana value
+difference, name) and `improvement_claimed` is always false, because no outcome evidence exists.
+
+The page `tierliste.html` (link "Tierliste" in the header) shows this: views Chulane, Global and
+current deck revision; every card "Unbewertet"; columns for mechanics, roles with origin, source
+decks as count of denominator, EDHREC inclusion, real games and simulation; an evidence drawer per
+card with all rows and the function alternatives; and a research list of what is missing per
+card. Sorting by a frequency is offered as a reading aid and labelled as such. Marks are used
+only as filters and as a star. API: `GET /api/evidence`, `GET /api/cards/{id}/evidence`,
+`POST /api/cards/{id}/alternatives`.
+
+`import-marks` (older command) replaces all three mark fields of every listed card;
+`import-owner-marks` only changes the fields a file states. Prefer the latter for partial files.
 
 ### Data report
 

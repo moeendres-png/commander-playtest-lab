@@ -18,6 +18,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from . import builder, games, launch
+from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
     create_revision,
@@ -105,6 +106,12 @@ class PrefilterBody(BaseModel):
     trials: int = Field(default=2000, ge=50, le=20000)
 
 
+class AlternativesBody(BaseModel):
+    commander: list[str] = Field(min_length=1, max_length=2)
+    in_deck: list[str] = Field(default_factory=list, max_length=300)
+    skip: list[str] = Field(default_factory=list, max_length=5000)
+
+
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
     return [RevisionCard(entry.card_id, entry.quantity, entry.zone) for entry in entries]
 
@@ -182,6 +189,55 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return builder.card_detail(store, card_id, cohort=cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/evidence")
+    def evidence(
+        view: str = evidence_model.VIEW_COMMANDER,
+        commander: list[str] = Query(default=[], max_length=2),
+    ) -> dict[str, object]:
+        """Evidence per pool card for the tier list view. Marks are not part of it."""
+        if view not in evidence_model.VIEWS:
+            raise HTTPException(422, "view must be 'commander' or 'global'")
+        if view == evidence_model.VIEW_COMMANDER and not commander:
+            raise HTTPException(422, "the commander view needs a commander")
+        store = open_store()
+        try:
+            return evidence_model.pool_evidence(store, commander, view=view)
+        except KeyError as error:
+            raise HTTPException(404, f"commander not in the collection: {error}") from error
+        finally:
+            store.close()
+
+    @app.get("/api/cards/{card_id}/evidence")
+    def card_evidence(
+        card_id: str,
+        view: str = evidence_model.VIEW_COMMANDER,
+        commander: list[str] = Query(default=[], max_length=2),
+    ) -> dict[str, object]:
+        if view not in evidence_model.VIEWS:
+            raise HTTPException(422, "view must be 'commander' or 'global'")
+        if view == evidence_model.VIEW_COMMANDER and not commander:
+            raise HTTPException(422, "the commander view needs a commander")
+        store = open_store()
+        try:
+            return evidence_model.card_evidence(store, card_id, commander, view=view)
+        except KeyError as error:
+            raise HTTPException(404, "unknown card or card outside this view") from error
+        finally:
+            store.close()
+
+    @app.post("/api/cards/{card_id}/alternatives")
+    def alternatives(card_id: str, body: AlternativesBody) -> dict[str, object]:
+        """Free cards with a shared role: a comparison of function, never a claimed upgrade."""
+        store = open_store()
+        try:
+            return evidence_model.role_alternatives(
+                store, card_id, body.commander, in_deck=body.in_deck, skip=body.skip
+            )
+        except KeyError as error:
+            raise HTTPException(404, "unknown card or commander") from error
         finally:
             store.close()
 

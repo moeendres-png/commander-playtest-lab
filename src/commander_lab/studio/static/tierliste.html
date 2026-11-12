@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Commander Studio: Tierliste</title>
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="tierliste.css">
+</head>
+<body>
+<header id="top">
+  <h1>Commander Studio <span>Tierliste</span></h1>
+  <label>Ansicht <select id="view"></select></label>
+  <span id="deck-pick" hidden>
+    <label>Deck <select id="deck-select"></select></label>
+    <label>Variante <select id="branch-select"></select></label>
+  </span>
+  <span id="tier-pill" class="pill warn" title="Ein Tier braucht ein Modell mit Ergebnisdaten. Ein solches Modell gibt es noch nicht.">alle unbewertet</span>
+  <span class="spacer"></span>
+  <a class="nav" href="index.html">Deckbau</a>
+  <a class="nav" href="partie.html">Partien</a>
+</header>
+<div id="notice"></div>
+<div id="filters">
+  <input id="q" type="search" placeholder="Suche in Name und Typ" autocomplete="off">
+  <select id="type-filter"></select>
+  <select id="role-filter"></select>
+  <label><input id="f-free" type="checkbox" checked> nur freie</label>
+  <label><input id="f-fav" type="checkbox"> Favoriten</label>
+  <label><input id="f-excl" type="checkbox"> Ausgeschlossene zeigen</label>
+  <label>Sortierung <select id="sort"></select></label>
+  <span class="chips" id="tabs"></span>
+  <span id="count" class="muted"></span>
+</div>
+<div id="pool-body"></div>
+<div id="modal" hidden><div id="modal-box" class="plain"></div></div>
+<div id="toast" hidden></div>
+<script src="tierliste.js"></script>
+</body>
+</html>

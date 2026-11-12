@@ -228,7 +228,7 @@ Für jede der 801 Poolkarten wird die Evidenzabdeckung und das Research-Potentia
      - $\ge 5$ Treffer: $+0{,}30$
      - $1\text{--}4$ Treffer: $(\text{hits} / 5) \times 0{,}30$
      - $0$ Treffer: $+0{,}00$
-   - EDHREC-Verankerung (Präsenz und relativer Lift): $+0{,}20$
+   - EDHREC-Verankerung (Inclusion-Beobachtung vorhanden): $+0{,}20$
    - Spellbook-Kombobeteiligung: $+0{,}10$
 2. **Deck-Relevanz ($\text{Relevance} \in [0.0, 1.0]$):**
    - Basisrelevanz (format-legale Karte im Studio-Store): $+0{,}15$
@@ -280,12 +280,12 @@ Gemäß den P0-Abnahmekriterien aus Issue #1185 wurde ein strukturierter Beispie
 - **Beispiel 1: `Aether Adept`**
   - Manawert: 3, Typ: `Creature — Human Wizard`, Rollen: `bounce`
   - Korpus: 6 / 975 Treffer ($0{,}6\,\%$)
-  - EDHREC: Vorhanden, Lift: $100{,}0\,\%$
+  - EDHREC: Vorhanden, Inclusion: $100{,}0\,\%$ (breiteste Ansicht, kein Lift)
   - Research-Score: $0{,}08$ (gut belegt, geringer Forschungsbedarf)
 - **Beispiel 2: `Aftermath Analyst`**
   - Manawert: 2, Typ: `Creature — Elf Detective`, Rollen: `ramp`, `landfall`
   - Korpus: 6 / 975 Treffer
-  - EDHREC: Vorhanden, Lift: $5{,}56\,\%$
+  - EDHREC: Vorhanden, Inclusion: $5{,}56\,\%$ (breiteste Ansicht, kein Lift)
   - Research-Score: $0{,}08$
 
 ### 2. `SPARSE` (Schwache Evidenz / 1–4 Korpustreffer)
@@ -304,7 +304,7 @@ Gemäß den P0-Abnahmekriterien aus Issue #1185 wurde ein strukturierter Beispie
 - **Beispiel 1: `Fleetfoot Panther`**
   - Manawert: 3, Typ: `Creature — Cat`, Flash, Self-Bounce (`roles: ['bounce']`)
   - Korpus: 16 / 975 Treffer ($1{,}64\,\%$)
-  - EDHREC: Fehlend im Chulane-Schnitt (keine aggregierte Lift-Metrik)
+  - EDHREC: Fehlend im Chulane-Schnitt (keine Inclusion-Beobachtung)
   - Research-Score: $0{,}24$
 - **Beispiel 2: `Walking Atlas`**
   - Manawert: 2, Typ: `Artifact Creature — Construct`, Land-Drop-Tap (`roles: ['ramp']`)
