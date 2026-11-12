@@ -3,6 +3,12 @@
 A *universe* is a stored profile (``universe_profile``) whose spec selects source decks
 from the corpus: by platform, by cohort membership (``corpus_cohort`` rows such as
 ``bracket:3`` or ``source:edhrec``), by deck date range and by a minimum main-deck size.
+A spec may also name the commanders its decks must be bound to and a ``min_universe``
+(the smallest denominator the counted spread of ``tiers.py`` still grades; the tier
+cuts themselves stay code constants of the tier model, never profile settings).
+Storing a profile validates its platform, cohort and commander values against what
+the store actually holds, so a typo is refused instead of silently counting an empty
+universe; a dimension whose stock is still empty cannot be checked and is accepted.
 Every figure computed over a universe is a plain count with its denominator: inclusion of
 a card is the number of distinct universe decks whose counted sections (``main`` and
 ``mainboard``, the same section under the spelling of the decklist and the corpus importer,
@@ -28,14 +34,22 @@ import datetime
 import json
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
-from typing import TypedDict
+from typing import TypedDict, cast
 
 from ._coerce import to_int
 from .store import StudioStore, now_utc
 
 # The corpus importer stores the main deck as "mainboard", the decklist importer as "main".
 COUNTED_SECTIONS = ("main", "mainboard", "commander", "companion")
-_SPEC_KEYS = {"platforms", "cohorts", "commanders", "date_from", "date_to", "min_main_cards"}
+_SPEC_KEYS = {
+    "platforms",
+    "cohorts",
+    "commanders",
+    "date_from",
+    "date_to",
+    "min_main_cards",
+    "min_universe",
+}
 
 
 class UniverseSpec(TypedDict, total=False):
@@ -47,6 +61,7 @@ class UniverseSpec(TypedDict, total=False):
     date_from: str
     date_to: str
     min_main_cards: int
+    min_universe: int
 
 
 class Profile(TypedDict):
@@ -75,8 +90,20 @@ class InclusionResult(TypedDict):
     denominator: int
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
+    excluded_no_date: int
     rows: list[InclusionRow]
     data_class: str
+
+
+class OptionValue(TypedDict):
+    value: str
+    decks: int
+
+
+class UniverseOptions(TypedDict):
+    platforms: list[OptionValue]
+    cohorts: list[OptionValue]
+    commanders: list[OptionValue]
 
 
 class CooccurrenceRow(TypedDict):
@@ -139,12 +166,60 @@ def _validate_spec(spec: Mapping[str, object]) -> UniverseSpec:
         if minimum < 0:
             raise ValueError("universe spec min_main_cards must not be negative")
         cleaned["min_main_cards"] = minimum
+    if spec.get("min_universe") is not None:
+        min_universe = to_int(spec["min_universe"])
+        if min_universe < 1:
+            raise ValueError("universe spec min_universe must be at least 1")
+        cleaned["min_universe"] = min_universe
     return cleaned
 
 
+def _known_values(store: StudioStore, sql: str) -> set[str]:
+    return {str(row[0]) for row in store.connection.execute(sql)}
+
+
+def _validate_against_stock(store: StudioStore, cleaned: UniverseSpec) -> None:
+    """Refuse spec values the store does not hold (a typo must not count as empty).
+
+    A dimension whose stock is empty (no decks imported yet) cannot be checked and is
+    accepted as-is; the first import then decides what the profile selects."""
+    checks = (
+        (
+            cleaned.get("platforms"),
+            "platform",
+            _known_values(store, "SELECT DISTINCT platform FROM corpus_deck"),
+        ),
+        (
+            cleaned.get("cohorts"),
+            "cohort",
+            _known_values(store, "SELECT DISTINCT cohort FROM corpus_cohort"),
+        ),
+        (
+            cleaned.get("commanders"),
+            "commander",
+            _known_values(
+                store,
+                "SELECT DISTINCT commander_name FROM commander_binding WHERE kind = 'corpus_deck'",
+            ),
+        ),
+    )
+    for values, label, known in checks:
+        if not values or not known:
+            continue
+        unknown = sorted(set(values) - known)
+        if unknown:
+            raise ValueError(
+                f"unknown universe {label}(s): {unknown}; the store holds: {sorted(known)}"
+            )
+
+
 def save_profile(store: StudioStore, name: str, spec: Mapping[str, object]) -> SavedProfile:
-    """Store (or replace) a named universe profile; returns the stored profile."""
+    """Store (or replace) a named universe profile; returns the stored profile.
+
+    Raises ValueError for a malformed spec and for platform, cohort or commander
+    values the store does not hold (see ``_validate_against_stock``)."""
     cleaned = _validate_spec(spec)
+    _validate_against_stock(store, cleaned)
     profile_id = f"universe:{name}"
     with store.connection as db:
         db.execute(
@@ -184,6 +259,79 @@ def get_profile(store: StudioStore, name: str) -> Profile:
         "created_at": str(row["created_at"]),
     }
     return profile
+
+
+def options(store: StudioStore, *, commander_names: Sequence[str] | None = None) -> UniverseOptions:
+    """The spec values the store holds, each with the decks a universe would count.
+
+    The count of a value is the size of the universe that selects only decks of that
+    value (plus the ``commander_names`` scope when given) under the one counting rule
+    of ``resolve_universe`` — duplicates collapsed, decks without a counted card row
+    out — so the number next to a value is the denominator it would produce, never a
+    raw row count. Values that would count no deck are not offered."""
+    scope: UniverseSpec = {}
+    if commander_names:
+        scope["commanders"] = list(commander_names)
+
+    def offer(spec: UniverseSpec, value: str) -> OptionValue | None:
+        decks = len(resolve_universe(store, spec))
+        return {"value": value, "decks": decks} if decks else None
+
+    def collect(specs: list[tuple[UniverseSpec, str]]) -> list[OptionValue]:
+        found = [item for spec, value in specs if (item := offer(spec, value))]
+        return sorted(found, key=lambda item: item["value"])
+
+    platforms = _known_values(store, "SELECT DISTINCT platform FROM corpus_deck")
+    cohorts = _known_values(store, "SELECT DISTINCT cohort FROM corpus_cohort")
+    commanders = _known_values(
+        store,
+        "SELECT DISTINCT commander_name FROM commander_binding WHERE kind = 'corpus_deck'",
+    )
+    return {
+        "platforms": collect(
+            [(cast(UniverseSpec, {**scope, "platforms": [value]}), value) for value in platforms]
+        ),
+        "cohorts": collect(
+            [(cast(UniverseSpec, {**scope, "cohorts": [value]}), value) for value in cohorts]
+        ),
+        "commanders": collect(
+            [
+                (
+                    cast(
+                        UniverseSpec,
+                        {**scope, "commanders": [*scope.get("commanders", []), value]},
+                    ),
+                    value,
+                )
+                for value in commanders
+            ]
+        ),
+    }
+
+
+def excluded_no_date(store: StudioStore, spec: Mapping[str, object]) -> int:
+    """Decks a spec's date filter drops only because they carry no deck date.
+
+    Counted exactly: decks the same spec without its date bounds would select, that the
+    date bounds remove, and whose stored ``deck_date`` is empty. Decks dated outside the
+    range are excluded by their date, not by its absence, and are not counted here.
+    Without a date bound the count is 0."""
+    cleaned = _validate_spec(spec)
+    if not cleaned.get("date_from") and not cleaned.get("date_to"):
+        return 0
+    undated = dict(cleaned)
+    undated.pop("date_from", None)
+    undated.pop("date_to", None)
+    undated_spec = cast(UniverseSpec, undated)
+    dropped = set(resolve_universe(store, undated_spec)) - set(resolve_universe(store, cleaned))
+    if not dropped:
+        return 0
+    with _universe_table(store, sorted(dropped)) as universe_deck:
+        row = store.connection.execute(
+            f"SELECT COUNT(*) FROM corpus_deck d JOIN {universe_deck} u "
+            "ON u.deck_id = d.deck_id WHERE d.deck_date IS NULL OR d.deck_date = ''"
+        ).fetchone()
+    return int(row[0])
 
 
 def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str]:
@@ -381,6 +529,7 @@ def inclusion(
         "denominator": denominator,
         "denominator_by_platform": by_platform,
         "denominator_by_bracket": by_bracket,
+        "excluded_no_date": excluded_no_date(store, resolved_spec),
         "rows": rows,
         "data_class": "DERIVED_DESCRIPTIVE",
     }
@@ -557,15 +706,19 @@ __all__ = [
     "COUNTED_SECTIONS",
     "CooccurrenceResult",
     "InclusionResult",
+    "OptionValue",
     "Profile",
     "SavedProfile",
     "UniverseDecks",
+    "UniverseOptions",
     "UniverseSpec",
     "cooccurrence",
     "cooccurrence_in_decks",
+    "excluded_no_date",
     "get_profile",
     "inclusion",
     "list_profiles",
+    "options",
     "resolve_universe",
     "save_profile",
     "snapshot_id",
