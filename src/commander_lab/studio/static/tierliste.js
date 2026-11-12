@@ -362,7 +362,7 @@ async function universeBox(card) {
     button.disabled = true;
     try {
       const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(uni.name)}&limit=25`);
-      result.replaceChildren(co.decks_with_card === null ? h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor") : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), pairsTable(co)]);
+      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), pairsTable(co)]));
     } catch (error) { result.replaceChildren(h("p", {}, `Fehler: ${error.message}`)); button.disabled = false; }
   } }, "Zusammen gespielt mit");
   box.append(button, result);
@@ -436,7 +436,7 @@ function renderUniversePanel() {
   panel.replaceChildren(facts, h("div", { class: "muted" }, SPREAD_NOTE), h("details", {}, h("summary", {}, uni.name ? "Universum ändern oder neu anlegen" : "Universum anlegen"), form));
 }
 function fillUniverseSelect(selected) {
-  $("universe-select").replaceChildren(h("option", { value: "" }, "kein Universum"), state.universe.profiles.map((p) => h("option", { value: p.name }, p.name)));
+  $("universe-select").replaceChildren(h("option", { value: "" }, "kein Universum"), ...state.universe.profiles.map((p) => h("option", { value: p.name }, p.name)));
   $("universe-select").value = selected || "";
 }
 async function selectUniverse(name) {
