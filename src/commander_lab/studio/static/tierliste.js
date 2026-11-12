@@ -472,8 +472,8 @@ async function loadEvidence() {
   state.data = data;
   const groups = [...new Set(state.data.cards.map((card) => card.group))].sort();
   const roles = [...new Set(state.data.cards.flatMap(cardRoles))].sort((a, b) => roleName(a).localeCompare(roleName(b)));
-  $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), groups.map((group) => h("option", { value: group }, group)));
-  $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), roles.map((role) => h("option", { value: role }, roleName(role))));
+  $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...groups.map((group) => h("option", { value: group }, group)));
+  $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), ...roles.map((role) => h("option", { value: role }, roleName(role))));
   renderNotice();
   render();
 }
@@ -490,14 +490,14 @@ async function loadDeck() {
 }
 function fillBranches() {
   const deck = state.decks.find((entry) => entry.deck_id === $("deck-select").value);
-  $("branch-select").replaceChildren((deck ? deck.branches : []).map((entry) => h("option", { value: entry.branch }, entry.branch)));
+  $("branch-select").replaceChildren(...(deck ? deck.branches : []).map((entry) => h("option", { value: entry.branch }, entry.branch)));
 }
 async function setView(view) {
   state.view = view;
   $("deck-pick").hidden = view !== "deck";
   if (view === "deck" && !state.decks.length) {
     state.decks = await api("/api/decks");
-    $("deck-select").replaceChildren(state.decks.map((deck) => h("option", { value: deck.deck_id }, deck.name)));
+    $("deck-select").replaceChildren(...state.decks.map((deck) => h("option", { value: deck.deck_id }, deck.name)));
     fillBranches();
   }
   await loadEvidence();

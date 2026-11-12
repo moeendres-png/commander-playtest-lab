@@ -30,7 +30,8 @@ from typing import TypedDict
 from ._coerce import to_int
 from .store import StudioStore, now_utc
 
-COUNTED_SECTIONS = ("main", "commander", "companion")
+# The corpus importer stores the main deck as "mainboard", the decklist importer as "main".
+COUNTED_SECTIONS = ("main", "mainboard", "commander", "companion")
 _SPEC_KEYS = {"platforms", "cohorts", "date_from", "date_to", "min_main_cards"}
 
 
