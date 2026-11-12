@@ -357,6 +357,11 @@ def main(argv: list[str] | None = None) -> int:
         "cards": dict(sorted(cards.items())),
     }
     if args.bulk_file:
+        document["source"] = (
+            "Retained catalog and local Scryfall bulk snapshot (printed Oracle data)"
+            if existing
+            else "Local Scryfall bulk snapshot (printed Oracle data)"
+        )
         document["bulk_refresh"] = {
             "inputs": sorted(
                 ({"file": path.name, "sha256": _sha256(path)} for path in args.bulk_file),
@@ -367,6 +372,7 @@ def main(argv: list[str] | None = None) -> int:
             "source_documentation_url": "https://scryfall.com/docs/api/bulk-data",
             "retained_catalog_sha256": prior_sha256,
             "retained_catalog_generated_at": existing_doc.get("generated_at"),
+            "retained_catalog_source": existing_doc.get("source"),
             "existing_entries_retained": len(existing),
             "scope": "English paper cards with legal, banned, or restricted Commander status; non-deck layouts excluded",
             "skipped_records": dict(sorted(skipped.items())),

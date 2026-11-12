@@ -137,8 +137,12 @@ def test_bulk_extension_retains_existing_and_provenance_and_is_offline(
     assert set(data["cards"]) == {"Old", "New", "Front // Back", "Banned"}
     assert data["cards"]["Old"]["oracle_text"] == "newer"
     assert data["cards"]["Front // Back"]["oracle_text"] == "Front ability"
-    assert data["custom"] == 7 and data["source"] == "prior"
+    assert data["custom"] == 7
+    assert (
+        data["source"] == "Retained catalog and local Scryfall bulk snapshot (printed Oracle data)"
+    )
     provenance = data["bulk_refresh"]
+    assert provenance["retained_catalog_source"] == "prior"
     assert provenance["retained_catalog_sha256"] == prior_hash
     assert provenance["retained_catalog_generated_at"] == original["generated_at"]
     assert provenance["declared_snapshot_at"] == "2026-11-09"
@@ -185,7 +189,10 @@ def test_offline_missing_name_never_requests_network_and_prints_count_only(
     monkeypatch.setattr(module, "fetch_cards", lambda *args: pytest.fail("network accessed"))
     assert module.main(["--bulk-file", str(path), "--output", str(output)]) == 1
     assert "Private Missing" not in capsys.readouterr().out
-    assert set(json.loads(output.read_text())["cards"]) == {"Known"}
+    document = json.loads(output.read_text())
+    assert set(document["cards"]) == {"Known"}
+    assert document["source"] == "Local Scryfall bulk snapshot (printed Oracle data)"
+    assert document["bulk_refresh"]["retained_catalog_source"] is None
 
 
 def test_bulk_mixed_formats_and_face_names(tmp_path: Path) -> None:
