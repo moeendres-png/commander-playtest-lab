@@ -8,18 +8,6 @@
   "audit_base_tree": "90ae65bece76ec967686fe57c9ead5b053c98aba",
   "issue": 1227,
   "objective": "Distinguish missing catalog facts from actual missing XMage coverage; repair verified gaps.",
-  "owned_write": [
-    "scripts/export_xmage_card_facts.py",
-    "scripts/build_pilot_card_knowledge.py",
-    "new associated unit tests",
-    "data/cards/xmage_card_facts.json",
-    "data/cards/pilot_card_knowledge.json",
-    "docs/coverage new report",
-    "src/commander_lab/engine/structural/card_facts.py",
-    "src/commander_lab/agents/card_knowledge.py catalog lookup only",
-    "src/commander_lab/deck_readiness.py",
-    "associated identity tests"
-  ],
   "read_only": [
     "engine-bridge",
     "config/rules_engines.json",
@@ -45,9 +33,8 @@
     "focused tests",
     "runtime where claimed"
   ],
-  "status": "IN_PROGRESS",
-  "next_action": "Final 10-seed paired run; final full CI and targeted independent review on exact head.",
-  "ownership": "card-coverage-20261112",
+  "status": "ACTIVE",
+  "ownership": "card-coverage-20261112 — claimed by Codex 2026-11-12; taken over by Muse 2026-11-12 on explicit Owner instruction after Codex hit its usage limit; no other open PR owns these paths",
   "local_counts": {
     "identities": 1655,
     "OK": 1425,
@@ -75,5 +62,34 @@
     "facts_catalog_entries": 32615,
     "public_ambiguous_UNKNOWN": 4,
     "prior_lookup_changes": 0
-  }
+  },
+  "schema_version": "2.0",
+  "repository": "moeendres-png/commander-playtest-lab",
+  "worktree": "/home/hatch/workspace/projects/cpl-codex-takeover",
+  "state_written_against_head": "900e4f5baa7928b27673d97ef16593a77c163856",
+  "validated_head": null,
+  "in_scope": [
+    "scripts/export_xmage_card_facts.py",
+    "scripts/build_pilot_card_knowledge.py",
+    "new associated unit tests",
+    "data/cards/xmage_card_facts.json",
+    "data/cards/pilot_card_knowledge.json",
+    "docs/coverage new report",
+    "src/commander_lab/engine/structural/card_facts.py",
+    "src/commander_lab/agents/card_knowledge.py catalog lookup only",
+    "src/commander_lab/deck_readiness.py",
+    "associated identity tests"
+  ],
+  "takeover": {
+    "by": "Muse",
+    "date": "2026-11-12",
+    "reason": "Owner instruction in side chat: read the Codex chat and complete all of its PRs and issues"
+  },
+  "exact_next_action": "Push the CI-repair commit, verify quality/security/infrastructure on the exact new head, run a focused independent review of the identity/alias paths, then merge PR #1236 and close #1227.",
+  "technical_decisions": [
+    "Takeover repairs 2026-11-12: RegisteredCardProbe takes the engine commit as a caller-resolved argument instead of restating the live pin literal (pin fanout ratchet).",
+    "State file migrated to schema 2.0 conformance (state.py validate) instead of an EXEMPTIONS entry.",
+    "Audit expectations follow the measured data state: check 2.1 is OK/0 because the full public catalog closed the PCK gap; stale hardcoded audit detail strings made dynamic; DATA_AUDIT_20261112.md regenerated.",
+    "origin/main merged into the branch (no file overlap with owned surfaces) so the audit test baseline includes the #1229 expectations."
+  ]
 }

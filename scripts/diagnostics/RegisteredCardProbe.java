@@ -20,12 +20,14 @@ public final class RegisteredCardProbe {
 
     public static void main(String[] args) throws Exception {
         System.setProperty("java.awt.headless", "true");
+        if (args.length < 2) throw new IllegalArgumentException(
+            "usage: RegisteredCardProbe <report-path> <engine-commit resolved from config/rules_engines.json>");
         if (Files.exists(Path.of("db"))) throw new IllegalStateException("Fresh DB required");
         List<String> scanErrors = new ArrayList<>();
         CardScanner.scan(scanErrors);
         Map<String,Object> report = new LinkedHashMap<>();
         report.put("measured_at", java.time.Instant.now().toString());
-        report.put("engine_commit", "f4d12f6e8066203fba7aa38bd35ea3358117393d");
+        report.put("engine_commit", args[1]);
         report.put("evidence", "LOCAL_OBSERVED_REGISTRATION_AND_CONSTRUCTION_ONLY");
         report.put("scan_errors", scanErrors);
         Map<String,Object> sets = new TreeMap<>();

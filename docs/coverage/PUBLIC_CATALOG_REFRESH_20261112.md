@@ -49,7 +49,9 @@ never falls back to a network lookup. Public API use requires explicit opt-in an
 
 The standalone diagnostic sources are `scripts/diagnostics/RegisteredCardProbe.java` and
 `PrivateImportProbe.java`. Compile with the exact engine/bridge runtime classpath. Run the
-registration probe in a new working directory without `db/`; it creates the scanner DB,
+registration probe in a new working directory without `db/`, passing the report path and
+the engine commit resolved from `config/rules_engines.json` as its two arguments (the
+probe never restates the pin itself); it creates the scanner DB,
 checks all public names and ECL/FRA/SPM printings, and rejects an unknown name and an
 invalid constructor. A real mismatched constructed identity is rejected, with a matching
 identity positive control. Nonzero exit covers scanner, printing, construction and identity failures.

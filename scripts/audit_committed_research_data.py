@@ -4,7 +4,7 @@
 Audit Scope:
 - data/research/chulane_legal_pool_gap_matrix.json (927 cards)
 - data/research/chulane_decklist_inclusion_20261112.csv (15,038 rows)
-- data/cards/pilot_card_knowledge.json (7,231 cards)
+- data/cards/pilot_card_knowledge.json (32,820 cards)
 - data/cards/commander_flags.json (53 game changers, 83 commander banned)
 - data/cards/official_precon_oracle_cards.json (512 cards)
 
@@ -168,7 +168,7 @@ def run_audit(repo_root: Path) -> tuple[list[AuditRow], str]:
             "2.1 Gap-Matrix-Karten ohne Eintrag in pilot_card_knowledge",
             "OK" if len(gap_missing_pck) == 0 else "ABWEICHUNG",
             len(gap_missing_pck),
-            "Abschnitt 2.1: 3 benutzerdefinierte/geteilte Karten fehlen in PCK",
+            f"Abschnitt 2.1: {len(gap_missing_pck)} Gap-Matrix-Karten fehlen in PCK",
         )
     )
 
@@ -192,7 +192,7 @@ def run_audit(repo_root: Path) -> tuple[list[AuditRow], str]:
             "2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag (Universum vs. Chulane-Pool)",
             "OK" if len(inc_missing_gap) == 0 else "ABWEICHUNG",
             len(inc_missing_gap),
-            "Abschnitt 2.2: 6.126 Universums-Karten außerhalb des 801-Chulane-Pools",
+            f"Abschnitt 2.2: {len(inc_missing_gap)} Universums-Karten außerhalb des 927-Chulane-Pools",
         )
     )
 
