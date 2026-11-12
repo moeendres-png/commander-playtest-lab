@@ -24,7 +24,7 @@ from commander_lab.deck_variant import compare_variant, comparison_to_dict
 from commander_lab.models import RulesDeckInput
 
 from .decks import RevisionCard, color_set, list_rows
-from .store import StudioStore, now_utc
+from .store import BINDING_KINDS, StudioStore, now_utc
 
 
 @functools.lru_cache(maxsize=1)
@@ -58,39 +58,163 @@ def main_type(type_line: str | None) -> str:
     return "Other"
 
 
-def cohort_sizes(store: StudioStore) -> dict[str, int]:
-    """Distinct source decks per group: all, each play group, each named cohort."""
+def bound_to(kind: str, column: str, commander_names: Sequence[str]) -> tuple[str, list[str]]:
+    """SQL condition (starting with ``AND``) and its parameters: the row whose key is
+    ``column`` is bound to every named commander. Source data is never read without it, so
+    the figures of two commanders cannot be mixed. No commander means no row."""
+    if kind not in BINDING_KINDS:
+        raise ValueError(kind)
+    if not commander_names:
+        return " AND 0", []
+    one = (
+        " AND EXISTS (SELECT 1 FROM commander_binding cb WHERE "
+        f"cb.kind = '{kind}' AND cb.key = {column} AND cb.commander_name = ?)"
+    )
+    # Exactly the named commanders: a row bound to a pair is not a row of one of them.
+    exact = (
+        " AND (SELECT COUNT(*) FROM commander_binding cb WHERE "
+        f"cb.kind = '{kind}' AND cb.key = {column}) = {len(set(commander_names))}"
+    )
+    return one * len(commander_names) + exact, [str(name) for name in commander_names]
+
+
+def corpus_binding(store: StudioStore, commander_names: Sequence[str]) -> dict[str, object]:
+    """How many distinct source decks are bound to the commander, to another one, or to none."""
     db = store.connection
+    bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+    total = int(
+        db.execute("SELECT COUNT(*) FROM corpus_deck WHERE duplicate_of IS NULL").fetchone()[0]
+    )
+    mine = int(
+        db.execute(
+            f"SELECT COUNT(*) FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}", bound_args
+        ).fetchone()[0]
+    )
+    unbound = int(
+        db.execute(
+            "SELECT COUNT(*) FROM corpus_deck d WHERE d.duplicate_of IS NULL AND NOT EXISTS "
+            "(SELECT 1 FROM commander_binding cb WHERE cb.kind = 'corpus_deck' "
+            "AND cb.key = d.deck_id)"
+        ).fetchone()[0]
+    )
+    return {
+        "commander": list(commander_names),
+        "bound_decks": mine,
+        "other_commander_decks": total - mine - unbound,
+        "unbound_decks": unbound,
+    }
+
+
+def list_commanders(
+    store: StudioStore, *, include_collection: bool = False
+) -> list[dict[str, object]]:
+    """Commanders the Studio knows: those of saved decks and those source data is bound to.
+
+    ``in_collection`` says whether the card is in the collection (the pool needs it there).
+    With ``include_collection`` the Commander-legal legendary creatures of the collection are
+    listed too (``has_data`` False), so a commander without any data yet can be chosen."""
+    db = store.connection
+    found: dict[str, dict[str, object]] = {}
+
+    def entry(name: str) -> dict[str, object]:
+        return found.setdefault(
+            name, {"name": name, "saved_decks": 0, "source_decks": 0, "observation_cohorts": 0}
+        )
+
+    for row in db.execute(
+        "SELECT f.oracle_name AS name, COUNT(DISTINCT b.deck_id) AS n FROM deck_branch b "
+        "JOIN deck_revision_card rc ON rc.revision_id = b.revision_id AND rc.zone = 'commander' "
+        "JOIN card_fact f ON f.card_id = rc.card_id GROUP BY f.oracle_name"
+    ):
+        entry(str(row["name"]))["saved_decks"] = int(row["n"])
+    for row in db.execute(
+        "SELECT cb.commander_name AS name, COUNT(*) AS n FROM commander_binding cb "
+        "JOIN corpus_deck d ON d.deck_id = cb.key AND d.duplicate_of IS NULL "
+        "WHERE cb.kind = 'corpus_deck' GROUP BY cb.commander_name"
+    ):
+        entry(str(row["name"]))["source_decks"] = int(row["n"])
+    for row in db.execute(
+        "SELECT commander_name AS name, COUNT(*) AS n FROM commander_binding "
+        "WHERE kind = 'observation_cohort' GROUP BY commander_name"
+    ):
+        entry(str(row["name"]))["observation_cohorts"] = int(row["n"])
+    for name, item in found.items():
+        fact = db.execute(
+            "SELECT card_id, color_identity FROM card_fact WHERE oracle_name = ?", (name,)
+        ).fetchone()
+        item["in_collection"] = fact is not None
+        item["card_id"] = None if fact is None else str(fact["card_id"])
+        item["identity"] = None if fact is None else fact["color_identity"]
+        item["has_data"] = True
+    if include_collection:
+        for row in db.execute(
+            "SELECT c.card_id, c.oracle_name, c.color_identity, c.type_line, c.oracle_text "
+            "FROM card_fact c JOIN inventory i USING (card_id) WHERE c.commander_legal = 1"
+        ):
+            front = str(row["type_line"] or "").split(" // ")[0]
+            legendary_creature = "Legendary" in front and "Creature" in front
+            named = "can be your commander" in str(row["oracle_text"] or "")
+            if (legendary_creature or named) and str(row["oracle_name"]) not in found:
+                found[str(row["oracle_name"])] = {
+                    "name": str(row["oracle_name"]),
+                    "saved_decks": 0,
+                    "source_decks": 0,
+                    "observation_cohorts": 0,
+                    "in_collection": True,
+                    "card_id": str(row["card_id"]),
+                    "identity": row["color_identity"],
+                    "has_data": False,
+                }
+    return sorted(found.values(), key=lambda item: str(item["name"]))
+
+
+def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str, int]:
+    """Distinct source decks of the commander per group: all, each play group, each named
+    cohort. ``all`` means all decks bound to this commander, never all decks of the store."""
+    db = store.connection
+    if not commander_names:
+        return {}
+    bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     sizes = {
         ALL_DECKS: int(
-            db.execute("SELECT COUNT(*) FROM corpus_deck WHERE duplicate_of IS NULL").fetchone()[0]
+            db.execute(
+                f"SELECT COUNT(*) FROM corpus_deck d WHERE d.duplicate_of IS NULL{bound}",
+                bound_args,
+            ).fetchone()[0]
         )
     }
     for row in db.execute(
-        "SELECT play_group, COUNT(*) AS n FROM corpus_deck WHERE duplicate_of IS NULL "
-        "GROUP BY play_group ORDER BY n DESC"
+        "SELECT d.play_group, COUNT(*) AS n FROM corpus_deck d WHERE d.duplicate_of IS NULL"
+        f"{bound} GROUP BY d.play_group ORDER BY n DESC",
+        bound_args,
     ):
         sizes[str(row["play_group"])] = int(row["n"])
     for row in db.execute(
         "SELECT c.cohort, COUNT(*) AS n FROM corpus_cohort c JOIN corpus_deck d USING (deck_id) "
-        "WHERE d.duplicate_of IS NULL GROUP BY c.cohort ORDER BY c.cohort"
+        f"WHERE d.duplicate_of IS NULL{bound} GROUP BY c.cohort ORDER BY c.cohort",
+        bound_args,
     ):
         sizes[str(row["cohort"])] = int(row["n"])
     return sizes
 
 
-def _corpus_hits(store: StudioStore) -> dict[str, dict[str, int]]:
-    """``{card key: {cohort: decks}}``; the key is the oracle id, else the card name."""
+def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str, dict[str, int]]:
+    """``{card key: {cohort: decks}}`` over the decks bound to the commander; the key is the
+    oracle id, else the card name."""
     db = store.connection
     hits: dict[str, dict[str, int]] = {}
+    if not commander_names:
+        return hits
+    bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     key = "COALESCE(k.oracle_id, k.card_name)"
     base = (
         "FROM corpus_deck_card k JOIN corpus_deck d USING (deck_id) "
-        "WHERE d.duplicate_of IS NULL AND k.section != 'sideboard'"
+        f"WHERE d.duplicate_of IS NULL AND k.section != 'sideboard'{bound}"
     )
     for row in db.execute(
         f"SELECT {key} AS card, d.play_group AS cohort, COUNT(DISTINCT k.deck_id) AS n {base} "
-        "GROUP BY 1, 2"
+        "GROUP BY 1, 2",
+        bound_args,
     ):
         entry = hits.setdefault(str(row["card"]), {})
         entry[str(row["cohort"])] = int(row["n"])
@@ -99,7 +223,8 @@ def _corpus_hits(store: StudioStore) -> dict[str, dict[str, int]]:
         f"SELECT {key} AS card, c.cohort AS cohort, COUNT(DISTINCT k.deck_id) AS n "
         "FROM corpus_deck_card k JOIN corpus_deck d USING (deck_id) "
         "JOIN corpus_cohort c USING (deck_id) "
-        "WHERE d.duplicate_of IS NULL AND k.section != 'sideboard' GROUP BY 1, 2"
+        f"WHERE d.duplicate_of IS NULL AND k.section != 'sideboard'{bound} GROUP BY 1, 2",
+        bound_args,
     ):
         hits.setdefault(str(row["card"]), {})[str(row["cohort"])] = int(row["n"])
     return hits
@@ -119,12 +244,14 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
             raise KeyError(name)
         identity |= color_set(row["color_identity"])
         commander_ids.append(str(row["card_id"]))
-    hits = _corpus_hits(store)
+    hits = _corpus_hits(store, commander_names)
     edhrec: dict[str, sqlite3.Row] = {}
+    cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
     for row in db.execute(
-        "SELECT card_id, cohort, value, numerator, denominator FROM observation "
-        "WHERE metric = 'inclusion_pct' AND card_id IS NOT NULL "
-        "ORDER BY denominator DESC"
+        "SELECT o.card_id, o.cohort, o.value, o.numerator, o.denominator FROM observation o "
+        f"WHERE o.metric = 'inclusion_pct' AND o.card_id IS NOT NULL{cohort_bound} "
+        "ORDER BY o.denominator DESC",
+        cohort_args,
     ):
         edhrec.setdefault(str(row["card_id"]), row)
     roles: dict[str, list[str]] = {}
@@ -211,7 +338,8 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
     return {
         "commander_ids": commander_ids,
         "identity": "".join(sorted(identity, key="WUBRG".index)),
-        "cohorts": cohort_sizes(store),
+        "cohorts": cohort_sizes(store, commander_names),
+        "corpus_binding": corpus_binding(store, commander_names),
         "small_denominator": SMALL_DENOMINATOR,
         "roles": [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")],
         "cards": cards,
@@ -219,13 +347,18 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
 
 
 def card_cooccurrence(
-    store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS, limit: int = 25
+    store: StudioStore,
+    card_id: str,
+    commander_names: Sequence[str],
+    *,
+    cohort: str = ALL_DECKS,
+    limit: int = 25,
 ) -> dict[str, object]:
     """Other collection cards that appear in the same non-duplicate source decks as ``card_id``.
 
     Pure count (``DERIVED_DESCRIPTIVE``): ``both_hits`` is the numerator and ``card_decks`` (the
-    number of distinct non-duplicate source decks in ``cohort`` that contain ``card_id``) is the
-    denominator.
+    number of distinct non-duplicate source decks of the commander in ``cohort`` that contain
+    ``card_id``) is the denominator.
     """
     db = store.connection
     target = db.execute(
@@ -235,15 +368,18 @@ def card_cooccurrence(
         raise KeyError(card_id)
     oracle_id = target["oracle_id"]
     oracle_name = str(target["oracle_name"])
-    cohort_join = ""
-    params: list[object] = []
+    cohort_join, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+    params: list[object] = [*bound_args]
     if cohort != ALL_DECKS:
         play_groups = {str(r[0]) for r in db.execute("SELECT DISTINCT play_group FROM corpus_deck")}
         if cohort in play_groups:
-            cohort_join = " AND d.play_group = ?"
+            cohort_join += " AND d.play_group = ?"
             params.append(cohort)
         else:
-            cohort_join = " AND EXISTS (SELECT 1 FROM corpus_cohort cc WHERE cc.deck_id = d.deck_id AND cc.cohort = ?)"
+            cohort_join += (
+                " AND EXISTS (SELECT 1 FROM corpus_cohort cc "
+                "WHERE cc.deck_id = d.deck_id AND cc.cohort = ?)"
+            )
             params.append(cohort)
     match_clause = "(k.oracle_id = ? OR k.card_name = ?)" if oracle_id else "k.card_name = ?"
     match_params: list[object] = [oracle_id, oracle_name] if oracle_id else [oracle_name]
@@ -292,7 +428,9 @@ def card_cooccurrence(
     }
 
 
-def card_neutral_boards(store: StudioStore, card_id: str) -> dict[str, object]:
+def card_neutral_boards(
+    store: StudioStore, card_id: str, commander_names: Sequence[str]
+) -> dict[str, object]:
     """Counts of ``card_id`` in neutral non-mainboard source sections (MAYBEBOARD, CUTS, SIDEBOARD).
 
     Stored in ``neutral_board_row`` and never mixed into mainboard frequencies.
@@ -303,8 +441,12 @@ def card_neutral_boards(store: StudioStore, card_id: str) -> dict[str, object]:
     ).fetchone()
     if target is None:
         raise KeyError(card_id)
+    bound, bound_args = bound_to("neutral_source", "n.source_key", commander_names)
     batch_sources = int(
-        db.execute("SELECT COUNT(DISTINCT source_key) FROM neutral_board_row").fetchone()[0]
+        db.execute(
+            f"SELECT COUNT(DISTINCT n.source_key) FROM neutral_board_row n WHERE 1{bound}",
+            bound_args,
+        ).fetchone()[0]
     )
     if batch_sources == 0:
         return {"batch_sources": 0, "data_class": "DERIVED_DESCRIPTIVE", "sections": []}
@@ -313,18 +455,19 @@ def card_neutral_boards(store: StudioStore, card_id: str) -> dict[str, object]:
     section_totals = {
         str(r["section"]): int(r["n"])
         for r in db.execute(
-            "SELECT section, COUNT(DISTINCT source_key) AS n FROM neutral_board_row "
-            "GROUP BY section"
+            "SELECT n.section, COUNT(DISTINCT n.source_key) AS n FROM neutral_board_row n "
+            f"WHERE 1{bound} GROUP BY n.section",
+            bound_args,
         )
     }
-    match_clause = "(oracle_id = ? OR card_name = ?)" if oracle_id else "card_name = ?"
+    match_clause = "(n.oracle_id = ? OR n.card_name = ?)" if oracle_id else "n.card_name = ?"
     match_params: list[object] = [oracle_id, oracle_name] if oracle_id else [oracle_name]
     hits_by_section = {
         str(r["section"]): int(r["hits"])
         for r in db.execute(
-            "SELECT section, COUNT(DISTINCT source_key) AS hits FROM neutral_board_row "
-            f"WHERE {match_clause} GROUP BY section",
-            match_params,
+            "SELECT n.section, COUNT(DISTINCT n.source_key) AS hits FROM neutral_board_row n "
+            f"WHERE {match_clause}{bound} GROUP BY n.section",
+            [*match_params, *bound_args],
         )
     }
     sections: list[dict[str, object]] = []
@@ -349,21 +492,25 @@ def card_neutral_boards(store: StudioStore, card_id: str) -> dict[str, object]:
     }
 
 
-def card_simulations(store: StudioStore, card_id: str) -> list[dict[str, object]]:
-    """Simulated cast opportunities for one card across stored ``SIMULATED_RESULT`` runs."""
+def card_simulations(
+    store: StudioStore, card_id: str, commander_names: Sequence[str]
+) -> list[dict[str, object]]:
+    """Simulated cast opportunities for one card across the stored ``SIMULATED_RESULT`` runs
+    of the commander."""
     db = store.connection
     target = db.execute(
         "SELECT oracle_name, engine_name FROM card_fact WHERE card_id = ?", (card_id,)
     ).fetchone()
     if target is None:
         raise KeyError(card_id)
+    bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     rows = db.execute(
         "SELECT r.run_id, r.pod, r.engine_pin, r.pilot_policy, r.hand_dwell_status, "
         "sc.games_completed, sc.games_offered, sc.games_cast_after_offer, sc.games_rotted, "
         "sc.offered_castable, sc.cast_count, sc.mean_first_cast_round "
         "FROM simulation_card sc JOIN simulation_run r USING (run_id) "
-        "WHERE sc.card_id = ? OR sc.card_name IN (?, ?) ORDER BY r.pod",
-        (card_id, target["oracle_name"], target["engine_name"]),
+        f"WHERE (sc.card_id = ? OR sc.card_name IN (?, ?)){bound} ORDER BY r.pod",
+        (card_id, target["oracle_name"], target["engine_name"], *bound_args),
     ).fetchall()
     return [
         {
@@ -374,14 +521,18 @@ def card_simulations(store: StudioStore, card_id: str) -> list[dict[str, object]
     ]
 
 
-def list_simulations(store: StudioStore) -> list[dict[str, object]]:
-    """All stored ``SIMULATED_RESULT`` runs with their summary metrics and per-card cast counts."""
+def list_simulations(store: StudioStore, commander_names: Sequence[str]) -> list[dict[str, object]]:
+    """The stored ``SIMULATED_RESULT`` runs of the commander with their summary metrics and
+    per-card cast counts."""
     db = store.connection
     runs: list[dict[str, object]] = []
+    bound, bound_args = bound_to("simulation_run", "r.run_id", commander_names)
     for run in db.execute(
-        "SELECT run_id, deck_id, pod, engine_pin, pilot_policy, seeds, games_planned, "
-        "games_completed, games_failed, wins_fractional, win_rate, mean_rounds, hand_dwell_status "
-        "FROM simulation_run ORDER BY pod, run_id"
+        "SELECT r.run_id, r.deck_id, r.pod, r.engine_pin, r.pilot_policy, r.seeds, "
+        "r.games_planned, r.games_completed, r.games_failed, r.wins_fractional, r.win_rate, "
+        f"r.mean_rounds, r.hand_dwell_status FROM simulation_run r WHERE 1{bound} "
+        "ORDER BY r.pod, r.run_id",
+        bound_args,
     ):
         cards = [
             dict(row)
@@ -404,19 +555,29 @@ def list_simulations(store: StudioStore) -> list[dict[str, object]]:
     return runs
 
 
-def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) -> dict[str, object]:
-    """Everything stored about one card: observations with numerator, denominator, address
-    and data class, plus co-occurring cards, neutral boards and simulation runs."""
+def card_detail(
+    store: StudioStore,
+    card_id: str,
+    commander_names: Sequence[str],
+    *,
+    cohort: str = ALL_DECKS,
+) -> dict[str, object]:
+    """Everything stored about one card under the commander: observations with numerator,
+    denominator, address and data class, plus co-occurring cards, neutral boards and
+    simulation runs. Source rows bound to another commander are never shown."""
     db = store.connection
     row = db.execute("SELECT * FROM card_fact WHERE card_id = ?", (card_id,)).fetchone()
     if row is None:
         raise KeyError(card_id)
+    cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
     observations = [
         dict(item)
         for item in db.execute(
-            "SELECT cohort, metric, value, numerator, denominator, data_class, url, snapshot "
-            "FROM observation WHERE card_id = ? OR card_name = ? ORDER BY metric, denominator DESC",
-            (card_id, row["oracle_name"]),
+            "SELECT o.cohort, o.metric, o.value, o.numerator, o.denominator, o.data_class, "
+            "o.url, o.snapshot FROM observation o "
+            f"WHERE (o.card_id = ? OR o.card_name = ?){cohort_bound} "
+            "ORDER BY o.metric, o.denominator DESC",
+            (card_id, row["oracle_name"], *cohort_args),
         )
     ]
     used_in = [
@@ -473,9 +634,10 @@ def card_detail(store: StudioStore, card_id: str, *, cohort: str = ALL_DECKS) ->
         "sim_status": sim_readiness_status(str(row["oracle_name"])),
         "observations": observations,
         "used_in": used_in,
-        "cooccurrence": card_cooccurrence(store, card_id, cohort=cohort),
-        "neutral_boards": card_neutral_boards(store, card_id),
-        "simulations": card_simulations(store, card_id),
+        "commander": list(commander_names),
+        "cooccurrence": card_cooccurrence(store, card_id, commander_names, cohort=cohort),
+        "neutral_boards": card_neutral_boards(store, card_id, commander_names),
+        "simulations": card_simulations(store, card_id, commander_names),
         "playgroup": playgroup_detail,
     }
 
@@ -488,14 +650,18 @@ def _percentile(values: list[float], share: float) -> float:
     return ordered[low] + (ordered[high] - ordered[low]) * (position - low)
 
 
-def cohort_shapes(store: StudioStore) -> list[dict[str, object]]:
-    """How the source decks are built, per cohort: lands, creatures, average mana value of
+def cohort_shapes(store: StudioStore, commander_names: Sequence[str]) -> list[dict[str, object]]:
+    """How the source decks of the commander are built, per cohort: lands, creatures, average mana value of
     nonland cards (median and middle half). Decks with unresolved cards are left out and
     counted."""
     db = store.connection
+    if not commander_names:
+        return []
+    bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     rows = db.execute(
         "SELECT s.*, d.play_group FROM corpus_deck_stat s JOIN corpus_deck d USING (deck_id) "
-        "WHERE d.duplicate_of IS NULL"
+        f"WHERE d.duplicate_of IS NULL{bound}",
+        bound_args,
     ).fetchall()
     members: dict[str, list[sqlite3.Row]] = {ALL_DECKS: list(rows)}
     for row in rows:
@@ -882,7 +1048,16 @@ def list_decks(store: StudioStore) -> list[dict[str, object]]:
                 (deck["deck_id"],),
             )
         ]
-        decks.append({**dict(deck), "branches": branches})
+        commanders = [
+            str(row[0])
+            for row in db.execute(
+                "SELECT DISTINCT f.oracle_name FROM deck_branch b JOIN deck_revision_card rc "
+                "ON rc.revision_id = b.revision_id AND rc.zone = 'commander' "
+                "JOIN card_fact f ON f.card_id = rc.card_id WHERE b.deck_id = ? ORDER BY 1",
+                (deck["deck_id"],),
+            )
+        ]
+        decks.append({**dict(deck), "commanders": commanders, "branches": branches})
     return decks
 
 
