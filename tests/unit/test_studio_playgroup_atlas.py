@@ -409,73 +409,193 @@ def test_import_playgroup_atlas_tsv_and_cli(tmp_path: Path, capsys: object) -> N
     assert out["records_imported"] == 1
 
 
-def test_load_target_cards_chulane_priority(tmp_path: Path) -> None:
-    """Verify load_target_cards orders Chulane-legal cards before non-Chulane cards."""
-    import sqlite3
+def _collector():  # type: ignore[no-untyped-def]
     import sys
 
     repo_root = Path(__file__).resolve().parents[2]
     if str(repo_root) not in sys.path:
         sys.path.insert(0, str(repo_root))
+    from scripts import collect_playgroup_card_atlas as module
 
-    from scripts.collect_playgroup_card_atlas import load_target_cards
+    return module
 
-    db_path = tmp_path / "test_store.sqlite3"
-    with sqlite3.connect(db_path) as conn:
-        conn.execute(
-            """
-            CREATE TABLE card_fact (
-                card_id TEXT PRIMARY KEY,
-                oracle_id TEXT,
-                oracle_name TEXT NOT NULL,
-                color_identity TEXT NOT NULL,
-                commander_legal INTEGER NOT NULL
-            )
-            """
+
+def test_load_target_cards_plain_list_and_csv_dedup_in_file_order(tmp_path: Path) -> None:
+    """Targets come from a public list only: plain lines or CSV with card_name header."""
+    module = _collector()
+    txt = tmp_path / "cards.txt"
+    txt.write_text("Sol Ring\n\nArcane Signet\nsol ring\n", encoding="utf-8")
+    assert [c["card_name"] for c in module.load_target_cards(txt)] == ["Sol Ring", "Arcane Signet"]
+
+    csv_file = tmp_path / "cards.csv"
+    csv_file.write_text(
+        'card_name,source\n"Chulane, Teller of Tales",edhrec\nForest,edhrec\nforest,x\n',
+        encoding="utf-8",
+    )
+    targets = module.load_target_cards(csv_file)
+    assert [c["card_name"] for c in targets] == ["Chulane, Teller of Tales", "Forest"]
+    assert targets[0]["slug"] == "chulane-teller-of-tales"
+
+
+def test_collector_never_reads_owner_tables_for_targets(tmp_path: Path) -> None:
+    """Guard (AGENTS.md section 12): no store access, no owner tables in the collector."""
+    import inspect
+    import re
+    import sqlite3
+
+    module = _collector()
+    assert list(inspect.signature(module.load_target_cards).parameters) == ["cards_file"]
+    source = inspect.getsource(module)
+    assert "sqlite3" not in source
+    assert not re.search(r"\b(card_fact|deck_revision|deck_card|StudioStore)\b", source)
+    assert "studio.store" not in source
+    assert not re.search(r"(?i)\bselect\b[^\n]*\bfrom\b", source)
+
+    # Behavioural: a store full of cards must not influence the requested slugs.
+    db = tmp_path / "studio.sqlite3"
+    with sqlite3.connect(db) as conn:
+        conn.execute("CREATE TABLE card_fact (oracle_name TEXT)")
+        conn.executemany(
+            "INSERT INTO card_fact VALUES (?)", [(f"Owner Card {i}",) for i in range(20)]
         )
-        conn.execute("INSERT INTO card_fact VALUES ('c1', 'o1', 'Lightning Bolt', 'R', 1)")
-        conn.execute("INSERT INTO card_fact VALUES ('c2', 'o2', 'Birds of Paradise', 'G', 1)")
-        conn.execute("INSERT INTO card_fact VALUES ('c3', 'o3', 'Dark Ritual', 'B', 1)")
-        conn.execute("INSERT INTO card_fact VALUES ('c4', 'o4', 'Banned Bant Card', 'G,W,U', 0)")
+    cards = tmp_path / "cards.txt"
+    cards.write_text("Sol Ring\nArcane Signet\n", encoding="utf-8")
+    requested: list[str] = []
 
-    targets = load_target_cards(store_path=db_path)
-    assert len(targets) == 4
-    # First card must be Birds of Paradise (Bant legal, commander_legal=1)
-    assert targets[0]["card_name"] == "Birds of Paradise"
-    assert targets[0]["is_chulane_legal"] == 1
-    # Other cards must have is_chulane_legal == 0
-    assert targets[1]["is_chulane_legal"] == 0
-    assert targets[2]["is_chulane_legal"] == 0
-    assert targets[3]["is_chulane_legal"] == 0
+    def fake_fetch(slug: str, **_kw: object) -> tuple[str | None, int, str]:
+        requested.append(slug)
+        return None, 404, "HTTP 404: Not Found"
+
+    module.run_collection(
+        module.load_target_cards(cards),
+        out_dir=tmp_path / "out",
+        cache_dir=tmp_path / "cache",
+        fetch=fake_fetch,
+    )
+    assert requested == ["sol-ring", "arcane-signet"]
+
+
+def test_offline_cache_miss_is_not_collected_not_not_found(tmp_path: Path) -> None:
+    module = _collector()
+    cards = tmp_path / "cards.txt"
+    cards.write_text("Sol Ring\n", encoding="utf-8")
+    summary = module.run_collection(
+        module.load_target_cards(cards),
+        out_dir=tmp_path / "out",
+        cache_dir=tmp_path / "cache",
+        offline_only=True,
+    )
+    assert summary["status_counts"] == {"NOT_COLLECTED": 1}
+    assert summary["status"] == "COMPLETE"
+
+
+def test_real_404_is_not_found(tmp_path: Path) -> None:
+    module = _collector()
+    cards = tmp_path / "cards.txt"
+    cards.write_text("Sol Ring\n", encoding="utf-8")
+    summary = module.run_collection(
+        module.load_target_cards(cards),
+        out_dir=tmp_path / "out",
+        cache_dir=tmp_path / "cache",
+        fetch=lambda slug, **_kw: (None, 404, "HTTP 404: Not Found"),
+    )
+    assert summary["status_counts"] == {"NOT_FOUND": 1}
+
+
+def _http_error(code: int) -> Exception:
+    import urllib.error
+
+    return urllib.error.HTTPError("https://x/y", code, "err", {}, None)  # type: ignore[arg-type]
+
+
+def test_404_marker_stores_utc_time_and_expires(tmp_path: Path) -> None:
+    from datetime import UTC, datetime, timedelta
+
+    module = _collector()
+    calls: list[str] = []
+
+    def opener(req: object, timeout: float = 0) -> object:
+        calls.append("x")
+        raise _http_error(404)
+
+    now = datetime(2026, 11, 12, tzinfo=UTC)
+    kwargs = {"cache_dir": tmp_path, "delay": 0.0, "opener": opener, "sleep": lambda _s: None}
+    html, status, _ = module.fetch_card_html("gone", now=now, **kwargs)
+    assert (html, status) == (None, 404)
+    marker = tmp_path / "gone.404"
+    assert datetime.fromisoformat(marker.read_text().strip()) == now
+    assert len(calls) == 1
+
+    # within 30 days: served from marker, no request
+    _, status, err = module.fetch_card_html("gone", now=now + timedelta(days=29), **kwargs)
+    assert status == 404 and "Cached HTTP 404" in err and len(calls) == 1
+
+    # after 30 days: retried
+    module.fetch_card_html("gone", now=now + timedelta(days=31), **kwargs)
+    assert len(calls) == 2
+
+    # configurable
+    module.fetch_card_html(
+        "gone", now=now + timedelta(days=31 + 2), retry_404_after_days=1, **kwargs
+    )
+    assert len(calls) == 3
+
+
+def test_blocked_stops_run_with_nonzero_exit(tmp_path: Path) -> None:
+    module = _collector()
+    cards = tmp_path / "cards.txt"
+    cards.write_text("A One\nB Two\nC Three\n", encoding="utf-8")
+    requested: list[str] = []
+
+    def fake_fetch(slug: str, **_kw: object) -> tuple[str | None, int, str]:
+        requested.append(slug)
+        if slug == "b-two":
+            return None, 429, "HTTP 429"
+        return None, 404, "HTTP 404: Not Found"
+
+    summary = module.run_collection(
+        module.load_target_cards(cards),
+        out_dir=tmp_path / "out",
+        cache_dir=tmp_path / "cache",
+        fetch=fake_fetch,
+    )
+    assert requested == ["a-one", "b-two"]
+    assert summary["status"] == "BLOCKED"
+    assert summary["status_counts"] == {"NOT_FOUND": 1, "BLOCKED": 1}
+
+    rc = module.main(
+        [
+            "--cards",
+            str(cards),
+            "--out-dir",
+            str(tmp_path / "o2"),
+            "--cache-dir",
+            str(tmp_path / "c2"),
+            "--offline-only",
+        ]
+    )
+    assert rc == 0
+    assert module.exit_code_for({"status": "BLOCKED"}) != 0
+
+
+def test_default_user_agent_is_generic() -> None:
+    module = _collector()
+    ua = module.DEFAULT_USER_AGENT
+    assert ua == "commander-studio-research/1.0"
+    assert "github" not in ua.lower() and "http" not in ua.lower()
 
 
 def test_fetch_card_html_caching_and_404(tmp_path: Path) -> None:
-    """Verify fetch_card_html cache reading and .404 marker detection."""
-    import sys
-
-    repo_root = Path(__file__).resolve().parents[2]
-    if str(repo_root) not in sys.path:
-        sys.path.insert(0, str(repo_root))
-
-    from scripts.collect_playgroup_card_atlas import fetch_card_html
-
+    """Cache hit works; offline cache miss is reported as not collected (not 404)."""
+    module = _collector()
     cache_dir = tmp_path / "cache"
     cache_dir.mkdir()
 
-    # 1. Uncached offline request
-    html, status, err = fetch_card_html("test-card", cache_dir=cache_dir, offline_only=True)
+    html, status, _err = module.fetch_card_html("test-card", cache_dir=cache_dir, offline_only=True)
     assert html is None
-    assert status == 404
+    assert status == module.NOT_COLLECTED_STATUS
 
-    # 2. Cached HTML hit
     (cache_dir / "test-card.html").write_text("<html><body>test</body></html>", encoding="utf-8")
-    html, status, err = fetch_card_html("test-card", cache_dir=cache_dir, offline_only=True)
+    html, status, _err = module.fetch_card_html("test-card", cache_dir=cache_dir, offline_only=True)
     assert html == "<html><body>test</body></html>"
     assert status == 200
-
-    # 3. Cached .404 marker hit
-    (cache_dir / "missing-card.404").touch()
-    html, status, err = fetch_card_html("missing-card", cache_dir=cache_dir, offline_only=False)
-    assert html is None
-    assert status == 404
-    assert "Cached HTTP 404" in err

@@ -14,7 +14,7 @@
 - **Urheber:** Arcane Digital B.V. / Playgroup.gg.
 - **Attribution:** „Playgroup.gg, CC BY 4.0, URL: `https://playgroup.gg/cards/<slug>`“.
 - **Zugriffsbedingungen (Stand 2026-11-11):**
-  - Identifizierender User-Agent erforderlich (z. B. `CommanderLabResearch/1.0 (+https://github.com/moeendres-png/commander-playtest-lab)`).
+  - Identifizierender User-Agent erforderlich (generisch, z. B. `commander-studio-research/1.0`, ohne Repository-Besitzer oder URL).
   - Offiziell dokumentierte Rate-Limits: 400 Anfragen / Minute mit User-Agent, 10 ohne.
   - Im Commander Lab gilt ein konservatives Drosselungslimit von maximal ca. **1 Anfrage / Sekunde** mit lokalem Caching, Retry-After-Beachtung und Wiederaufnahme.
   - Kein Auth-Bypass, keine bezahlten Zugänge, kein aggressives Crawling.
@@ -124,3 +124,31 @@
    - **Brought-Mismatch**: Wenn `times_brought != funnel_brought_n` (z. B. Koma, World-Eater: 817 vs. 821; Sol Ring: 131.091 vs. 131.212). Beide Rohwerte werden unverändert gespeichert und im `quality_warnings`-Feld protokolliert.
    - **On-Curve-Rechenfehler**: Wenn der verlinkte Text `(count / denominator)` rechnerisch um $> 2.0$ Prozentpunkte vom angezeigten `on_curve_pct` abweicht (z. B. Koma, World-Eater: Anzeige 53 %, real $25 / 157 = 15.9 \%$; Koma, Cosmos Serpent: Anzeige 68 %, real $51 / 320 = 15.9 \%$). Der angezeigte Originalwert bleibt erhalten, die Abweichung wird protokolliert.
    - **Endzonen-Summe**: Die Zonenwerte müssen sich nicht auf 100 % summieren (Karten können unaufgelöst bleiben oder sich in Sonderzonen wie Hand/Kommandozone befinden). Keine künstliche Normalisierung auf 100 %.
+
+---
+
+## 4. Collector `scripts/collect_playgroup_card_atlas.py`
+
+**Ziele sind eine öffentliche Liste.** Der Collector fragt ausschließlich Karten ab, die in
+`--cards FILE` stehen (eine Karte je Zeile, oder CSV mit Spalte `card_name`; z. B.
+`data/research/chulane_decklist_inclusion_20261112.csv`). Reihenfolge = Dateireihenfolge,
+Duplikate (casefold) entfernt. Grund: Deck-, Sammlungs- und Besitzdaten gehen an keinen
+externen Dienst, auch nicht Karte für Karte (`AGENTS.md` §12). Der Collector liest weder
+Studio-Store noch `card`/`card_fact`/Deck-Revisionen. Ein Abgleich der geholten öffentlichen
+Seiten mit dem Store geschieht lokal im Import (`import-playgroup-atlas`).
+
+```
+python3 scripts/collect_playgroup_card_atlas.py --cards data/research/chulane_decklist_inclusion_20261112.csv \
+    [--out-dir data/research/playgroup] [--cache-dir .cache/playgroup_cards] [--delay 1.1] \
+    [--limit N] [--offline-only] [--retry-404-after-days 30] [--user-agent STR]
+```
+
+Der Lauf braucht eine Maschine mit Netzzugang zu playgroup.gg. Der Cache (`<slug>.html`)
+macht Läufe fortsetzbar; `<slug>.404` enthält die UTC-Zeit und verfällt nach
+`--retry-404-after-days` (Standard 30).
+
+**Statusbedeutung (`fetch_status`):** `OK`/`PARTIAL`/`NO_DATA` kommen vom Parser.
+`NOT_FOUND` = echte HTTP-404-Antwort. `NOT_COLLECTED` = nicht abgefragt (z. B. `--offline-only`
+ohne Cache-Treffer), unbekannt, nicht „fehlt auf der Quelle“. `BLOCKED` = HTTP 403/429 auch nach
+dem einen Wiederholungsversuch: der Lauf bricht ab (Lauf-Status `BLOCKED`, Exit-Code 3), bis dahin
+Geholtes bleibt im Cache. `UNKNOWN` = Netzwerk-/sonstiger Fehler.

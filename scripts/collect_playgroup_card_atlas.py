@@ -1,10 +1,12 @@
-"""Collect Playgroup.gg Card Atlas statistics for collection/deck cards (#1192).
+"""Collect Playgroup.gg Card Atlas statistics for a PUBLIC card list (#1192).
 
 Fetches publicly available card statistics from Playgroup.gg:
+- Targets come only from --cards FILE (public card names); no collection, deck or
+  store data decides what is requested (AGENTS.md section 12).
 - Respects CC BY 4.0 license and attribution requirements.
-- Uses descriptive identifying User-Agent: CommanderLabResearch/1.0 (+https://github.com/moeendres-png/commander-playtest-lab).
-- Enforces conservative rate-limiting (~1 request/second) with caching and resumption.
-- Prioritizes 801 Chulane-legal cards, followed by remaining 613 cards.
+- Generic User-Agent without owner handle or URL.
+- Conservative rate-limiting (~1 request/second) with caching and resumption.
+- Stops with status BLOCKED (exit code 3) on HTTP 403/429 after the single retry.
 - Exports structured TSV and JSON conforming to STUDIO_PLAYGROUP_ATLAS_SCHEMA.md.
 
 Mandatory disclosure:
@@ -17,14 +19,16 @@ import argparse
 import csv
 import json
 import logging
-import sqlite3
 import sys
 import time
 import urllib.error
 import urllib.request
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
+from contextlib import AbstractContextManager
 from dataclasses import asdict
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 # Add src to sys.path if run directly
 _REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -42,91 +46,45 @@ from commander_lab.studio.playgroup_parser import (  # noqa: E402
 
 logger = logging.getLogger("collect_playgroup")
 
-DEFAULT_USER_AGENT = (
-    "CommanderLabResearch/1.0 (+https://github.com/moeendres-png/commander-playtest-lab)"
-)
+DEFAULT_USER_AGENT = "commander-studio-research/1.0"
+DEFAULT_RETRY_404_AFTER_DAYS = 30.0
+NOT_COLLECTED_STATUS = -1
+BLOCKING_STATUSES = (403, 429)
 PLAYGROUP_BASE_URL = "https://playgroup.gg/cards"
 
 
-def load_target_cards(
-    *,
-    store_path: Path | None = None,
-    crosswalk_path: Path | None = None,
-    explicit_names: Sequence[str] | None = None,
-) -> list[dict[str, object]]:
-    """Load target cards to query, prioritizing Chulane-legal cards."""
-    cards: list[dict[str, object]] = []
+def load_target_cards(cards_file: Path) -> list[dict[str, str]]:
+    """Read request targets from a PUBLIC card list (AGENTS.md section 12).
 
-    if explicit_names:
-        for name in explicit_names:
-            clean = name.strip()
-            if clean:
-                cards.append(
-                    {
-                        "card_name": clean,
-                        "oracle_id": "",
-                        "card_id": "",
-                        "commander_legal": 1,
-                        "slug": to_playgroup_slug(clean),
-                    }
-                )
-        return cards
+    The file holds one card name per line, or is a CSV whose header has a
+    ``card_name`` column. Order is file order, deduplicated casefolded. No store,
+    collection or deck data is ever consulted to decide what is requested.
+    """
+    lines = cards_file.read_text(encoding="utf-8-sig").splitlines()
+    names: list[str] = []
+    header = next(csv.reader(lines[:1]), []) if lines else []
+    if "card_name" in [h.strip() for h in header]:
+        for row in csv.DictReader(lines):
+            names.append((row.get("card_name") or "").strip())
+    else:
+        names = [line.strip() for line in lines]
+    targets: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for name in names:
+        key = name.casefold()
+        if not name or key in seen:
+            continue
+        seen.add(key)
+        targets.append({"card_name": name, "slug": to_playgroup_slug(name)})
+    return targets
 
-    if crosswalk_path and crosswalk_path.exists():
-        with crosswalk_path.open("r", encoding="utf-8") as handle:
-            reader = csv.DictReader(handle)
-            for row in reader:
-                name = row.get("oracle_name") or row.get("name") or ""
-                if not name:
-                    continue
-                cards.append(
-                    {
-                        "card_name": name,
-                        "oracle_id": row.get("oracle_id") or "",
-                        "card_id": row.get("card_id") or "",
-                        "commander_legal": int(row.get("commander_legal") or 0),
-                        "slug": to_playgroup_slug(name),
-                    }
-                )
-        cards.sort(
-            key=lambda c: (
-                -int(c["commander_legal"]),  # type: ignore[arg-type]
-                str(c["card_name"]),
-            )
-        )
-        return cards
 
-    if store_path and store_path.exists():
-        conn = sqlite3.connect(store_path)
-        conn.row_factory = sqlite3.Row
-        try:
-            for row in conn.execute(
-                """
-                SELECT card_id, oracle_id, oracle_name, commander_legal,
-                       CASE
-                           WHEN color_identity NOT LIKE '%B%' AND color_identity NOT LIKE '%R%' AND commander_legal = 1 THEN 1
-                           ELSE 0
-                       END AS is_chulane_legal
-                FROM card_fact
-                ORDER BY is_chulane_legal DESC, commander_legal DESC, oracle_name ASC
-                """
-            ):
-                name = str(row["oracle_name"])
-                cards.append(
-                    {
-                        "card_name": name,
-                        "oracle_id": str(row["oracle_id"]) if row["oracle_id"] else "",
-                        "card_id": str(row["card_id"]) if row["card_id"] else "",
-                        "commander_legal": int(row["commander_legal"] or 0),
-                        "is_chulane_legal": int(row["is_chulane_legal"] or 0),
-                        "slug": to_playgroup_slug(name),
-                    }
-                )
-        finally:
-            conn.close()
-        return cards
-
-    raise ValueError("No valid source specified for target cards (store, crosswalk, or explicit)")
+def _read_404_marker(marker: Path) -> datetime | None:
+    try:
+        stamp = datetime.fromisoformat(marker.read_text(encoding="utf-8").strip())
+    except (OSError, ValueError):
+        return None
+    return stamp if stamp.tzinfo else stamp.replace(tzinfo=UTC)
 
 
 def fetch_card_html(
@@ -136,24 +94,33 @@ def fetch_card_html(
     user_agent: str = DEFAULT_USER_AGENT,
     delay: float = 1.0,
     offline_only: bool = False,
+    retry_404_after_days: float = DEFAULT_RETRY_404_AFTER_DAYS,
+    opener: Callable[..., AbstractContextManager[Any]] = urllib.request.urlopen,
+    sleep: Callable[[float], None] = time.sleep,
+    now: datetime | None = None,
 ) -> tuple[str | None, int, str]:
     """Fetch card HTML from cache or live server.
 
-    Returns: (html_content_or_none, http_status, error_message)
+    Returns: (html_content_or_none, http_status, error_message). Status
+    ``NOT_COLLECTED_STATUS`` means nothing was requested (offline cache miss).
     """
+    current = now or datetime.now(UTC)
     cache_file = cache_dir / f"{slug}.html"
     if cache_file.exists():
         try:
             return cache_file.read_text(encoding="utf-8"), 200, ""
-        except Exception as e:
+        except OSError as e:
             logger.warning("Failed to read cache file %s: %s", cache_file, e)
 
     cache_404 = cache_dir / f"{slug}.404"
     if cache_404.exists():
-        return None, 404, "Cached HTTP 404: Not Found"
+        stamp = _read_404_marker(cache_404)
+        if stamp is not None and current - stamp < timedelta(days=retry_404_after_days):
+            return None, 404, "Cached HTTP 404: Not Found"
+        # expired or unreadable (legacy empty marker): ask again
 
     if offline_only:
-        return None, 404, "Offline only: not in cache"
+        return None, NOT_COLLECTED_STATUS, "Offline only: not in cache, not collected"
 
     url = f"{PLAYGROUP_BASE_URL}/{slug}"
     req = urllib.request.Request(
@@ -165,31 +132,33 @@ def fetch_card_html(
         },
     )
 
+    def store(content: str) -> None:
+        cache_file.parent.mkdir(parents=True, exist_ok=True)
+        cache_file.write_text(content, encoding="utf-8")
+
     try:
-        time.sleep(delay)
-        with urllib.request.urlopen(req, timeout=20) as response:
-            status = response.status
+        sleep(delay)
+        with opener(req, timeout=20) as response:
             content = response.read().decode("utf-8", errors="replace")
-            cache_file.parent.mkdir(parents=True, exist_ok=True)
-            cache_file.write_text(content, encoding="utf-8")
-            return content, status, ""
+            store(content)
+            return content, int(response.status), ""
     except urllib.error.HTTPError as e:
         if e.code == 404:
             cache_dir.mkdir(parents=True, exist_ok=True)
-            (cache_dir / f"{slug}.404").touch()
+            cache_404.write_text(current.astimezone(UTC).isoformat() + "\n", encoding="utf-8")
             return None, 404, "HTTP 404: Not Found"
         if e.code in (403, 429):
-            retry_after = e.headers.get("Retry-After", "10")
+            retry_after = e.headers.get("Retry-After", "10") if e.headers else "10"
             wait_time = float(retry_after) if retry_after.isdigit() else 10.0
             logger.warning("HTTP %d Rate limited/blocked. Waiting %s seconds...", e.code, wait_time)
-            time.sleep(wait_time)
-            # Retry once
-            try:
-                with urllib.request.urlopen(req, timeout=20) as retry_resp:
+            sleep(wait_time)
+            try:  # retry once
+                with opener(req, timeout=20) as retry_resp:
                     content = retry_resp.read().decode("utf-8", errors="replace")
-                    cache_file.parent.mkdir(parents=True, exist_ok=True)
-                    cache_file.write_text(content, encoding="utf-8")
-                    return content, retry_resp.status, ""
+                    store(content)
+                    return content, int(retry_resp.status), ""
+            except urllib.error.HTTPError as retry_err:
+                return None, retry_err.code, str(retry_err)
             except Exception as retry_err:
                 return None, e.code, str(retry_err)
         return None, e.code, str(e)
@@ -198,7 +167,7 @@ def fetch_card_html(
 
 
 def run_collection(
-    targets: list[dict[str, object]],
+    targets: Sequence[dict[str, str]],
     *,
     out_dir: Path,
     cache_dir: Path,
@@ -206,6 +175,8 @@ def run_collection(
     delay: float = 1.1,
     offline_only: bool = False,
     limit: int | None = None,
+    retry_404_after_days: float = DEFAULT_RETRY_404_AFTER_DAYS,
+    fetch: Callable[..., tuple[str | None, int, str]] = fetch_card_html,
 ) -> dict[str, object]:
     """Run collection and export structured records."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -214,29 +185,23 @@ def run_collection(
     items_to_process = targets[:limit] if limit else targets
     records: list[PlaygroupCardRecord] = []
     status_counts: dict[str, int] = {}
+    run_status = "COMPLETE"
 
     for idx, card in enumerate(items_to_process, 1):
         name = str(card["card_name"])
         slug = str(card["slug"])
-        oracle_id = str(card.get("oracle_id") or "")
-        card_id = str(card.get("card_id") or "")
-        is_chulane = card.get("is_chulane_legal", 0)
+        oracle_id = ""
+        card_id = ""
 
-        logger.info(
-            "[%d/%d] (Chulane: %s) Processing %s (%s)...",
-            idx,
-            len(items_to_process),
-            is_chulane,
-            name,
-            slug,
-        )
+        logger.info("[%d/%d] Processing %s (%s)...", idx, len(items_to_process), name, slug)
 
-        html, status, err = fetch_card_html(
+        html, status, err = fetch(
             slug,
             cache_dir=cache_dir,
             user_agent=user_agent,
             delay=delay,
             offline_only=offline_only,
+            retry_404_after_days=retry_404_after_days,
         )
 
         if html:
@@ -251,8 +216,10 @@ def run_collection(
         else:
             if status == 404:
                 fetch_status = "NOT_FOUND"
-            elif status in (403, 429):
+            elif status in BLOCKING_STATUSES:
                 fetch_status = "BLOCKED"
+            elif status == NOT_COLLECTED_STATUS:
+                fetch_status = "NOT_COLLECTED"
             else:
                 fetch_status = "UNKNOWN"
             warning = f"HTTP {status}: {err}" if err else f"HTTP {status}"
@@ -266,6 +233,10 @@ def run_collection(
             )
             records.append(rec)
             status_counts[fetch_status] = status_counts.get(fetch_status, 0) + 1
+            if fetch_status == "BLOCKED":
+                run_status = "BLOCKED"
+                logger.error("Blocked by source (HTTP %d); aborting. Cache is resumable.", status)
+                break
 
     # Export JSON
     json_path = out_dir / "playgroup_card_atlas.json"
@@ -276,6 +247,7 @@ def run_collection(
         "disclosure": PLAYGROUP_DISCLOSURE,
         "total_cards": len(records),
         "status_counts": status_counts,
+        "run_status": run_status,
         "cards": [r.to_dict() for r in records],
     }
     json_path.write_text(json.dumps(json_payload, indent=2, ensure_ascii=False), encoding="utf-8")
@@ -401,6 +373,7 @@ def run_collection(
                 )
 
     summary = {
+        "status": run_status,
         "total_cards": len(records),
         "status_counts": status_counts,
         "json_path": str(json_path),
@@ -410,11 +383,18 @@ def run_collection(
     return summary
 
 
-def main() -> int:
+def exit_code_for(summary: dict[str, object]) -> int:
+    """Non-zero when the run was aborted because the source blocked us."""
+    return 3 if summary.get("status") == "BLOCKED" else 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--store", help="Path to Studio SQLite database")
-    parser.add_argument("--crosswalk", help="Path to Scryfall/Oracle crosswalk CSV")
-    parser.add_argument("--cards", nargs="+", help="Explicit card names to query")
+    parser.add_argument(
+        "--cards",
+        required=True,
+        help="Public card list: one name per line, or CSV with a card_name column",
+    )
     parser.add_argument("--out-dir", default="data/research/playgroup", help="Output directory")
     parser.add_argument("--cache-dir", default=".cache/playgroup_cards", help="Cache directory")
     parser.add_argument(
@@ -425,25 +405,19 @@ def main() -> int:
     )
     parser.add_argument("--limit", type=int, help="Limit number of cards processed")
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT, help="User-Agent string")
-
-    args = parser.parse_args()
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
-
-    store_path = Path(args.store) if args.store else None
-    if not store_path and not args.crosswalk and not args.cards:
-        # Check standard studio location
-        default_studio = Path.home() / ".local/share/commander-studio/studio.sqlite3"
-        if default_studio.exists():
-            store_path = default_studio
-
-    targets = load_target_cards(
-        store_path=store_path,
-        crosswalk_path=Path(args.crosswalk) if args.crosswalk else None,
-        explicit_names=args.cards,
+    parser.add_argument(
+        "--retry-404-after-days",
+        type=float,
+        default=DEFAULT_RETRY_404_AFTER_DAYS,
+        help="Days after which a cached HTTP 404 is requested again (default 30)",
     )
 
+    args = parser.parse_args(argv)
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+
+    targets = load_target_cards(Path(args.cards))
     logger.info("Loaded %d target cards.", len(targets))
-    run_collection(
+    summary = run_collection(
         targets,
         out_dir=Path(args.out_dir),
         cache_dir=Path(args.cache_dir),
@@ -451,8 +425,9 @@ def main() -> int:
         delay=args.delay,
         offline_only=args.offline_only,
         limit=args.limit,
+        retry_404_after_days=args.retry_404_after_days,
     )
-    return 0
+    return exit_code_for(summary)
 
 
 if __name__ == "__main__":
