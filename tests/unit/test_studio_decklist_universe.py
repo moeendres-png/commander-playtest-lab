@@ -350,3 +350,111 @@ def test_tiers_are_pure_counts_with_a_u_state(store: StudioStore, tmp_path: Path
     _edhrec_file(tmp_path, "d4", [(CHULANE, 1)])
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
     assert universe.snapshot_id(store) != snapshot
+
+
+def test_changed_reimport_releases_stale_duplicate_marks(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _edhrec_file(tmp_path, "a", [(CHULANE, 1), ("Sol Ring", 1)])
+    _edhrec_file(tmp_path, "b", [(CHULANE, 1), ("Sol Ring", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    assert universe.inclusion(store)["denominator"] == 1
+    _edhrec_file(tmp_path, "a", [(CHULANE, 1), ("Black Lotus", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    counted = universe.inclusion(store, card_names=["Sol Ring"])
+    assert counted["denominator"] == 2
+    assert counted["rows"][0]["hits"] == 1
+    marks = dict(store.connection.execute("SELECT deck_id, duplicate_of FROM corpus_deck"))
+    assert marks == {"edhrec:a": None, "edhrec:b": None}
+
+
+def test_duplicates_are_collapsed_inside_the_selected_universe(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    cards = [(CHULANE, 1), ("Sol Ring", 1)]
+    _edhrec_file(tmp_path, "a", cards, savedate="2026-05-01")
+    _edhrec_file(tmp_path, "b", cards, savedate="2020-05-01")
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    old = universe.inclusion(store, spec={"date_to": "2021-01-01"}, card_names=["Sol Ring"])
+    assert old["denominator"] == 1 and old["rows"][0]["hits"] == 1
+    assert universe.inclusion(store)["denominator"] == 1
+
+
+@pytest.mark.parametrize("quantity", [0, -1])
+def test_non_positive_quantities_are_not_hits(
+    store: StudioStore, tmp_path: Path, quantity: int
+) -> None:
+    _edhrec_file(tmp_path, "q", [(CHULANE, 1), ("Sol Ring", 1), ("Ghost Card", quantity)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    ghost = universe.inclusion(store, card_names=["Ghost Card"])["rows"][0]
+    assert ghost["hits"] == 0
+    assert universe.cooccurrence(store, "Ghost Card")["decks_with_card"] == 0
+    names = {pair["card_name"] for pair in universe.cooccurrence(store, "Sol Ring")["pairs"]}
+    assert "Ghost Card" not in names
+    # Even a row that reached the table directly is not counted by the queries.
+    store.connection.execute(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+        "normalization_status) VALUES ('edhrec:q', 'Raw Ghost', 'main', NULL, ?, 'source_name')",
+        (quantity,),
+    )
+    assert universe.inclusion(store, card_names=["Raw Ghost"])["rows"][0]["hits"] == 0
+    assert universe.cooccurrence(store, "Raw Ghost")["decks_with_card"] == 0
+
+
+def test_tier_params_are_validated() -> None:
+    with pytest.raises(ValueError):
+        tiers.TierParams(cuts=(("C", 0.1), ("S", 0.5)))
+    with pytest.raises(ValueError):
+        tiers.TierParams(cuts=(("S", 0.5), ("A", 0.5)))
+    with pytest.raises(ValueError):
+        tiers.TierParams(cuts=(("S", 1.5),))
+    with pytest.raises(ValueError):
+        tiers.TierParams(cuts=(("S", 0.0),))
+    with pytest.raises(ValueError):
+        tiers.TierParams(min_universe=-5)
+    with pytest.raises(ValueError):
+        tiers.TierParams(min_universe=0)
+    with pytest.raises(ValueError):
+        tiers.TierParams(cuts=(("", 0.5),))
+    with pytest.raises(ValueError):
+        tiers.TierParams(cuts=(("S", 0.5), ("S", 0.2)))
+    with pytest.raises(ValueError):
+        tiers.TierParams(fallback_tier="")
+    with pytest.raises(ValueError):
+        tiers.TierParams.from_dict({"cuts": [["C", 0.1], ["S", 0.5]]})
+    with pytest.raises(ValueError):
+        tiers.TierParams.from_dict({"min_universe": -5})
+
+
+def test_pooled_universe_reports_its_composition(store: StudioStore, tmp_path: Path) -> None:
+    edhrec = tmp_path / "e"
+    edhrec.mkdir()
+    archidekt = tmp_path / "a"
+    archidekt.mkdir()
+    _edhrec_file(edhrec, "e1", [(CHULANE, 1), ("Sol Ring", 1)])
+    _edhrec_file(edhrec, "e2", [(CHULANE, 1), ("Island", 1)])
+    _archidekt_file(archidekt, 5, [_card(CHULANE, 1, ["Commander"]), _card("Forest")])
+    decklist_import.import_decklists(store, edhrec, format="edhrec")
+    decklist_import.import_decklists(store, archidekt, format="archidekt")
+    counted = universe.inclusion(store)
+    assert counted["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
+    assert counted["denominator_by_bracket"] == {"bracket:3": 2, "bracket:4": 1}
+    snapshot = universe.snapshot_id(store)
+    row = tiers.tiers_for_universe(
+        counted, universe_snapshot=snapshot, params=tiers.TierParams(min_universe=1)
+    )[0]
+    assert row["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
+    assert row["denominator_by_bracket"] == {"bracket:3": 2, "bracket:4": 1}
+    co = universe.cooccurrence(store, "Sol Ring")
+    assert co["denominator"] == 3
+    assert co["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
+
+
+def test_cooccurrence_limit_is_validated(store: StudioStore, tmp_path: Path) -> None:
+    _edhrec_file(tmp_path, "l", [(CHULANE, 1), ("Sol Ring", 1), ("Forest", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    for bad in (0, -1):
+        with pytest.raises(ValueError):
+            universe.cooccurrence(store, "Sol Ring", limit=bad)
+    assert len(universe.cooccurrence(store, "Sol Ring", limit=None)["pairs"]) == 2
+    assert len(universe.cooccurrence(store, "Sol Ring", limit=1)["pairs"]) == 1
