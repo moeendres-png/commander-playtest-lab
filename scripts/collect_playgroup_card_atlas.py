@@ -54,22 +54,38 @@ def load_target_cards(
     crosswalk_path: Path | None = None,
     explicit_names: Sequence[str] | None = None,
 ) -> list[dict[str, object]]:
-    """Load target cards to query, prioritizing Chulane-legal cards."""
+    """Load target cards to query from public datasets (corpus or card file)."""
     cards: list[dict[str, object]] = []
 
     if explicit_names:
-        for name in explicit_names:
-            clean = name.strip()
-            if clean:
-                cards.append(
-                    {
-                        "card_name": clean,
-                        "oracle_id": "",
-                        "card_id": "",
-                        "commander_legal": 1,
-                        "slug": to_playgroup_slug(clean),
-                    }
-                )
+        # Check if single argument is an existing text or csv file
+        if len(explicit_names) == 1 and Path(explicit_names[0]).is_file():
+            p = Path(explicit_names[0])
+            with p.open("r", encoding="utf-8") as f:
+                for line in f:
+                    clean = line.strip()
+                    if clean and not clean.startswith("#"):
+                        cards.append(
+                            {
+                                "card_name": clean,
+                                "oracle_id": "",
+                                "card_id": "",
+                                "slug": to_playgroup_slug(clean),
+                            }
+                        )
+        else:
+            for name in explicit_names:
+                clean = name.strip()
+                if clean:
+                    cards.append(
+                        {
+                            "card_name": clean,
+                            "oracle_id": "",
+                            "card_id": "",
+                            "slug": to_playgroup_slug(clean),
+                        }
+                    )
+        cards.sort(key=lambda c: str(c["card_name"]))
         return cards
 
     if crosswalk_path and crosswalk_path.exists():
@@ -84,49 +100,67 @@ def load_target_cards(
                         "card_name": name,
                         "oracle_id": row.get("oracle_id") or "",
                         "card_id": row.get("card_id") or "",
-                        "commander_legal": int(row.get("commander_legal") or 0),
                         "slug": to_playgroup_slug(name),
                     }
                 )
-        cards.sort(
-            key=lambda c: (
-                -int(c["commander_legal"]),  # type: ignore[arg-type]
-                str(c["card_name"]),
-            )
-        )
+        cards.sort(key=lambda c: str(c["card_name"]))
         return cards
 
     if store_path and store_path.exists():
         conn = sqlite3.connect(store_path)
         conn.row_factory = sqlite3.Row
         try:
-            for row in conn.execute(
-                """
-                SELECT card_id, oracle_id, oracle_name, commander_legal,
-                       CASE
-                           WHEN color_identity NOT LIKE '%B%' AND color_identity NOT LIKE '%R%' AND commander_legal = 1 THEN 1
-                           ELSE 0
-                       END AS is_chulane_legal
-                FROM card_fact
-                ORDER BY is_chulane_legal DESC, commander_legal DESC, oracle_name ASC
-                """
-            ):
-                name = str(row["oracle_name"])
-                cards.append(
-                    {
-                        "card_name": name,
-                        "oracle_id": str(row["oracle_id"]) if row["oracle_id"] else "",
-                        "card_id": str(row["card_id"]) if row["card_id"] else "",
-                        "commander_legal": int(row["commander_legal"] or 0),
-                        "is_chulane_legal": int(row["is_chulane_legal"] or 0),
-                        "slug": to_playgroup_slug(name),
-                    }
-                )
+            # Query public corpus decks; if absent fallback to scryfall_card
+            table_check = [
+                r[0]
+                for r in conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('corpus_deck_card', 'scryfall_card')"
+                ).fetchall()
+            ]
+            if "corpus_deck_card" in table_check:
+                for row in conn.execute(
+                    """
+                    SELECT DISTINCT card_name, oracle_id
+                    FROM corpus_deck_card
+                    WHERE card_name IS NOT NULL AND card_name != ''
+                    ORDER BY card_name ASC
+                    """
+                ):
+                    name = str(row["card_name"])
+                    cards.append(
+                        {
+                            "card_name": name,
+                            "oracle_id": str(row["oracle_id"]) if row["oracle_id"] else "",
+                            "card_id": "",
+                            "slug": to_playgroup_slug(name),
+                        }
+                    )
+            elif "scryfall_card" in table_check:
+                for row in conn.execute(
+                    """
+                    SELECT DISTINCT name AS card_name, oracle_id
+                    FROM scryfall_card
+                    WHERE name IS NOT NULL AND name != ''
+                    ORDER BY name ASC
+                    """
+                ):
+                    name = str(row["card_name"])
+                    cards.append(
+                        {
+                            "card_name": name,
+                            "oracle_id": str(row["oracle_id"]) if row["oracle_id"] else "",
+                            "card_id": "",
+                            "slug": to_playgroup_slug(name),
+                        }
+                    )
         finally:
             conn.close()
         return cards
 
-    raise ValueError("No valid source specified for target cards (store, crosswalk, or explicit)")
+    raise ValueError("No valid public source specified for target cards (corpus, crosswalk, or explicit)")
+
+
+TTL_404_SECONDS = 7 * 86400  # 7 days expiration for 404 cache
 
 
 def fetch_card_html(
@@ -150,10 +184,18 @@ def fetch_card_html(
 
     cache_404 = cache_dir / f"{slug}.404"
     if cache_404.exists():
-        return None, 404, "Cached HTTP 404: Not Found"
+        try:
+            age = time.time() - cache_404.stat().st_mtime
+            if age < TTL_404_SECONDS:
+                return None, 404, "Cached HTTP 404: Not Found"
+            else:
+                cache_404.unlink(missing_ok=True)
+        except Exception:
+            cache_404.unlink(missing_ok=True)
 
     if offline_only:
-        return None, 404, "Offline only: not in cache"
+        # Uncached in offline mode is UNKNOWN (status 0), not NOT_FOUND
+        return None, 0, "Offline only: not in cache"
 
     url = f"{PLAYGROUP_BASE_URL}/{slug}"
     req = urllib.request.Request(
@@ -266,6 +308,29 @@ def run_collection(
             )
             records.append(rec)
             status_counts[fetch_status] = status_counts.get(fetch_status, 0) + 1
+
+            if fetch_status == "BLOCKED":
+                logger.error(
+                    "HTTP %d received for %s (%s). Aborting loop to avoid further blocked requests.",
+                    status,
+                    name,
+                    slug,
+                )
+                for remaining in items_to_process[idx:]:
+                    rem_name = str(remaining["card_name"])
+                    rem_slug = str(remaining["slug"])
+                    records.append(
+                        PlaygroupCardRecord(
+                            card_name=rem_name,
+                            slug=rem_slug,
+                            card_id=str(remaining.get("card_id") or "") or None,
+                            oracle_id=str(remaining.get("oracle_id") or "") or None,
+                            fetch_status="UNKNOWN",
+                            quality_warnings=("Aborted due to preceding BLOCKED status",),
+                        )
+                    )
+                    status_counts["UNKNOWN"] = status_counts.get("UNKNOWN", 0) + 1
+                break
 
     # Export JSON
     json_path = out_dir / "playgroup_card_atlas.json"

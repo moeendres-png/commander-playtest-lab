@@ -409,8 +409,8 @@ def test_import_playgroup_atlas_tsv_and_cli(tmp_path: Path, capsys: object) -> N
     assert out["records_imported"] == 1
 
 
-def test_load_target_cards_chulane_priority(tmp_path: Path) -> None:
-    """Verify load_target_cards orders Chulane-legal cards before non-Chulane cards."""
+def test_load_target_cards_public_corpus(tmp_path: Path) -> None:
+    """Verify load_target_cards queries public corpus decks without touching private collection."""
     import sqlite3
     import sys
 
@@ -424,29 +424,25 @@ def test_load_target_cards_chulane_priority(tmp_path: Path) -> None:
     with sqlite3.connect(db_path) as conn:
         conn.execute(
             """
-            CREATE TABLE card_fact (
-                card_id TEXT PRIMARY KEY,
+            CREATE TABLE corpus_deck_card (
+                deck_id TEXT NOT NULL,
+                card_name TEXT NOT NULL,
                 oracle_id TEXT,
-                oracle_name TEXT NOT NULL,
-                color_identity TEXT NOT NULL,
-                commander_legal INTEGER NOT NULL
+                quantity INTEGER,
+                section TEXT,
+                normalization_status TEXT
             )
             """
         )
-        conn.execute("INSERT INTO card_fact VALUES ('c1', 'o1', 'Lightning Bolt', 'R', 1)")
-        conn.execute("INSERT INTO card_fact VALUES ('c2', 'o2', 'Birds of Paradise', 'G', 1)")
-        conn.execute("INSERT INTO card_fact VALUES ('c3', 'o3', 'Dark Ritual', 'B', 1)")
-        conn.execute("INSERT INTO card_fact VALUES ('c4', 'o4', 'Banned Bant Card', 'G,W,U', 0)")
+        conn.execute("INSERT INTO corpus_deck_card VALUES ('d1', 'Sol Ring', 'o1', 1, 'mainboard', 'OK')")
+        conn.execute("INSERT INTO corpus_deck_card VALUES ('d1', 'Birds of Paradise', 'o2', 1, 'mainboard', 'OK')")
+        conn.execute("INSERT INTO corpus_deck_card VALUES ('d2', 'Birds of Paradise', 'o2', 1, 'mainboard', 'OK')")
 
     targets = load_target_cards(store_path=db_path)
-    assert len(targets) == 4
-    # First card must be Birds of Paradise (Bant legal, commander_legal=1)
+    assert len(targets) == 2
+    # Cards must be sorted alphabetically by name
     assert targets[0]["card_name"] == "Birds of Paradise"
-    assert targets[0]["is_chulane_legal"] == 1
-    # Other cards must have is_chulane_legal == 0
-    assert targets[1]["is_chulane_legal"] == 0
-    assert targets[2]["is_chulane_legal"] == 0
-    assert targets[3]["is_chulane_legal"] == 0
+    assert targets[1]["card_name"] == "Sol Ring"
 
 
 def test_fetch_card_html_caching_and_404(tmp_path: Path) -> None:
@@ -462,10 +458,11 @@ def test_fetch_card_html_caching_and_404(tmp_path: Path) -> None:
     cache_dir = tmp_path / "cache"
     cache_dir.mkdir()
 
-    # 1. Uncached offline request
+    # 1. Uncached offline request returns status 0 (UNKNOWN)
     html, status, err = fetch_card_html("test-card", cache_dir=cache_dir, offline_only=True)
     assert html is None
-    assert status == 404
+    assert status == 0
+    assert "not in cache" in err
 
     # 2. Cached HTML hit
     (cache_dir / "test-card.html").write_text("<html><body>test</body></html>", encoding="utf-8")
