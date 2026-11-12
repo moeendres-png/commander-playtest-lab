@@ -18,7 +18,16 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
-from . import builder, card_outcomes, games, launch, strength_view, universe, universe_view
+from . import (
+    builder,
+    card_outcomes,
+    data_report,
+    games,
+    launch,
+    strength_view,
+    universe,
+    universe_view,
+)
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
@@ -30,6 +39,7 @@ from .decks import (
 )
 from .images import cached_image, cached_image_by_name, public_card
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
+from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -127,6 +137,7 @@ class UniverseBody(BaseModel):
     date_to: str | None = Field(default=None, max_length=10)
     min_main_cards: StrictInt | None = None
     min_universe: StrictInt | None = Field(default=None, ge=1)
+    must_contain: list[str] | None = Field(default=None, max_length=20)
 
 
 class StrengthBody(BaseModel):
@@ -142,6 +153,17 @@ class StrengthBody(BaseModel):
 class StrengthProfileBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     settings: dict[str, object]
+
+
+def _inventory_summary() -> dict[str, object]:
+    """Compact form of the qualified evidence-source inventory for /api/status:
+    how many source layers exist and how they split over the review states."""
+    inventory = source_inventory_payload()
+    return {
+        "schema_version": inventory["schema_version"],
+        "total_sources": inventory["total_sources"],
+        "status_counts": inventory["status_counts"],
+    }
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -194,8 +216,24 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # says how many of them are bound to a commander at all.
                 "source_data_binding": store.binding_counts(),
                 "decks": store.count("deck"),
+                "universe_profiles": store.count("universe_profile"),
+                # The qualified evidence-source layers and their review states
+                # (register in `sources.py`), so the data state is visible here;
+                # the counted detail of every layer is under /api/data-report.
+                "source_inventory": _inventory_summary(),
                 "sources": sources,
             }
+        finally:
+            store.close()
+
+    @app.get("/api/data-report")
+    def data_report_route() -> dict[str, object]:
+        """The counts-only data report (same payload as the CLI command), so the
+        state of every data layer — collection, corpus, universes — is readable
+        in the tool itself. No card name, deck address or note text leaves here."""
+        store = open_store()
+        try:
+            return data_report.data_report(store)
         finally:
             store.close()
 
@@ -394,6 +432,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/universe/profiles/{name}")
+    def delete_universe_profile(
+        name: str = PathParam(min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            universe.delete_profile(store, name)
+            return {"deleted": name}
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
         finally:
             store.close()
 

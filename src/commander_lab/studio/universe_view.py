@@ -32,6 +32,7 @@ from .universe import (
     UniverseDecks,
     UniverseSpec,
     cooccurrence_in_decks,
+    excluded_by_card_filter,
     excluded_no_date,
     get_profile,
     inclusion,
@@ -51,10 +52,12 @@ MEANING = (
 class ProfileSummary(TypedDict):
     profile: str
     spec: UniverseSpec
+    version: int
     denominator: int
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
+    excluded_by_card_filter: int
     min_universe: int
     below_min_universe: bool
     snapshot_id: str
@@ -82,11 +85,13 @@ class CardSpread(TypedDict):
 
 class SpreadUniverse(TypedDict):
     profile: str
+    version: int
     snapshot_id: str
     denominator: int
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
+    excluded_by_card_filter: int
     min_universe: int
     below_min_universe: bool
     data_class: str
@@ -120,6 +125,7 @@ class CardCooccurrence(TypedDict):
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
+    excluded_by_card_filter: int
     pairs: list[CooccurrencePair]
     data_class: str
 
@@ -143,10 +149,12 @@ def profile_summary(
     return {
         "profile": name,
         "spec": profile["spec"],
+        "version": profile["version"],
         "denominator": counted["denominator"],
         "denominator_by_platform": counted["denominator_by_platform"],
         "denominator_by_bracket": counted["denominator_by_bracket"],
         "excluded_no_date": counted["excluded_no_date"],
+        "excluded_by_card_filter": counted["excluded_by_card_filter"],
         "min_universe": min_universe,
         "below_min_universe": counted["denominator"] < min_universe,
         "snapshot_id": snapshot_id(store, profile=name, commander_names=commander_names),
@@ -278,11 +286,13 @@ def pool_spread(
     return {
         "universe": {
             "profile": profile,
+            "version": get_profile(store, profile)["version"],
             "snapshot_id": universe["snapshot_id"],
             "denominator": universe["denominator"],
             "denominator_by_platform": universe["denominator_by_platform"],
             "denominator_by_bracket": universe["denominator_by_bracket"],
             "excluded_no_date": excluded_no_date(store, universe["spec"]),
+            "excluded_by_card_filter": excluded_by_card_filter(store, universe["spec"]),
             "min_universe": params.min_universe,
             "below_min_universe": universe["denominator"] < params.min_universe,
             "data_class": universe["data_class"],
@@ -338,6 +348,7 @@ def card_cooccurrence(
         "denominator_by_platform": universe["denominator_by_platform"],
         "denominator_by_bracket": universe["denominator_by_bracket"],
         "excluded_no_date": excluded_no_date(store, universe["spec"]),
+        "excluded_by_card_filter": excluded_by_card_filter(store, universe["spec"]),
         "pairs": [],
         "data_class": universe["data_class"],
     }
