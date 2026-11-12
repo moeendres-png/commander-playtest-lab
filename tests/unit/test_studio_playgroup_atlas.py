@@ -407,3 +407,75 @@ def test_import_playgroup_atlas_tsv_and_cli(tmp_path: Path, capsys: object) -> N
     captured = capsys.readouterr()  # type: ignore[attr-defined]
     out = json.loads(captured.out)
     assert out["records_imported"] == 1
+
+
+def test_load_target_cards_chulane_priority(tmp_path: Path) -> None:
+    """Verify load_target_cards orders Chulane-legal cards before non-Chulane cards."""
+    import sqlite3
+    import sys
+
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+
+    from scripts.collect_playgroup_card_atlas import load_target_cards
+
+    db_path = tmp_path / "test_store.sqlite3"
+    with sqlite3.connect(db_path) as conn:
+        conn.execute(
+            """
+            CREATE TABLE card_fact (
+                card_id TEXT PRIMARY KEY,
+                oracle_id TEXT,
+                oracle_name TEXT NOT NULL,
+                color_identity TEXT NOT NULL,
+                commander_legal INTEGER NOT NULL
+            )
+            """
+        )
+        conn.execute("INSERT INTO card_fact VALUES ('c1', 'o1', 'Lightning Bolt', 'R', 1)")
+        conn.execute("INSERT INTO card_fact VALUES ('c2', 'o2', 'Birds of Paradise', 'G', 1)")
+        conn.execute("INSERT INTO card_fact VALUES ('c3', 'o3', 'Dark Ritual', 'B', 1)")
+        conn.execute("INSERT INTO card_fact VALUES ('c4', 'o4', 'Banned Bant Card', 'G,W,U', 0)")
+
+    targets = load_target_cards(store_path=db_path)
+    assert len(targets) == 4
+    # First card must be Birds of Paradise (Bant legal, commander_legal=1)
+    assert targets[0]["card_name"] == "Birds of Paradise"
+    assert targets[0]["is_chulane_legal"] == 1
+    # Other cards must have is_chulane_legal == 0
+    assert targets[1]["is_chulane_legal"] == 0
+    assert targets[2]["is_chulane_legal"] == 0
+    assert targets[3]["is_chulane_legal"] == 0
+
+
+def test_fetch_card_html_caching_and_404(tmp_path: Path) -> None:
+    """Verify fetch_card_html cache reading and .404 marker detection."""
+    import sys
+
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+
+    from scripts.collect_playgroup_card_atlas import fetch_card_html
+
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+
+    # 1. Uncached offline request
+    html, status, err = fetch_card_html("test-card", cache_dir=cache_dir, offline_only=True)
+    assert html is None
+    assert status == 404
+
+    # 2. Cached HTML hit
+    (cache_dir / "test-card.html").write_text("<html><body>test</body></html>", encoding="utf-8")
+    html, status, err = fetch_card_html("test-card", cache_dir=cache_dir, offline_only=True)
+    assert html == "<html><body>test</body></html>"
+    assert status == 200
+
+    # 3. Cached .404 marker hit
+    (cache_dir / "missing-card.404").touch()
+    html, status, err = fetch_card_html("missing-card", cache_dir=cache_dir, offline_only=False)
+    assert html is None
+    assert status == 404
+    assert "Cached HTTP 404" in err

@@ -102,9 +102,13 @@ def load_target_cards(
         try:
             for row in conn.execute(
                 """
-                SELECT card_id, oracle_id, oracle_name, commander_legal
+                SELECT card_id, oracle_id, oracle_name, commander_legal,
+                       CASE
+                           WHEN color_identity NOT LIKE '%B%' AND color_identity NOT LIKE '%R%' AND commander_legal = 1 THEN 1
+                           ELSE 0
+                       END AS is_chulane_legal
                 FROM card_fact
-                ORDER BY commander_legal DESC, oracle_name ASC
+                ORDER BY is_chulane_legal DESC, commander_legal DESC, oracle_name ASC
                 """
             ):
                 name = str(row["oracle_name"])
@@ -114,6 +118,7 @@ def load_target_cards(
                         "oracle_id": str(row["oracle_id"]) if row["oracle_id"] else "",
                         "card_id": str(row["card_id"]) if row["card_id"] else "",
                         "commander_legal": int(row["commander_legal"] or 0),
+                        "is_chulane_legal": int(row["is_chulane_legal"] or 0),
                         "slug": to_playgroup_slug(name),
                     }
                 )
@@ -143,6 +148,10 @@ def fetch_card_html(
         except Exception as e:
             logger.warning("Failed to read cache file %s: %s", cache_file, e)
 
+    cache_404 = cache_dir / f"{slug}.404"
+    if cache_404.exists():
+        return None, 404, "Cached HTTP 404: Not Found"
+
     if offline_only:
         return None, 404, "Offline only: not in cache"
 
@@ -165,10 +174,14 @@ def fetch_card_html(
             cache_file.write_text(content, encoding="utf-8")
             return content, status, ""
     except urllib.error.HTTPError as e:
-        if e.code == 429:
+        if e.code == 404:
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            (cache_dir / f"{slug}.404").touch()
+            return None, 404, "HTTP 404: Not Found"
+        if e.code in (403, 429):
             retry_after = e.headers.get("Retry-After", "10")
             wait_time = float(retry_after) if retry_after.isdigit() else 10.0
-            logger.warning("HTTP 429 Rate limited. Waiting %s seconds...", wait_time)
+            logger.warning("HTTP %d Rate limited/blocked. Waiting %s seconds...", e.code, wait_time)
             time.sleep(wait_time)
             # Retry once
             try:
@@ -178,7 +191,7 @@ def fetch_card_html(
                     cache_file.write_text(content, encoding="utf-8")
                     return content, retry_resp.status, ""
             except Exception as retry_err:
-                return None, 429, str(retry_err)
+                return None, e.code, str(retry_err)
         return None, e.code, str(e)
     except Exception as e:
         return None, 0, str(e)
@@ -190,7 +203,7 @@ def run_collection(
     out_dir: Path,
     cache_dir: Path,
     user_agent: str = DEFAULT_USER_AGENT,
-    delay: float = 1.0,
+    delay: float = 1.1,
     offline_only: bool = False,
     limit: int | None = None,
 ) -> dict[str, object]:
@@ -207,8 +220,16 @@ def run_collection(
         slug = str(card["slug"])
         oracle_id = str(card.get("oracle_id") or "")
         card_id = str(card.get("card_id") or "")
+        is_chulane = card.get("is_chulane_legal", 0)
 
-        logger.info("[%d/%d] Processing %s (%s)...", idx, len(items_to_process), name, slug)
+        logger.info(
+            "[%d/%d] (Chulane: %s) Processing %s (%s)...",
+            idx,
+            len(items_to_process),
+            is_chulane,
+            name,
+            slug,
+        )
 
         html, status, err = fetch_card_html(
             slug,
@@ -228,7 +249,12 @@ def run_collection(
             records.append(rec)
             status_counts[rec.fetch_status] = status_counts.get(rec.fetch_status, 0) + 1
         else:
-            fetch_status = "NOT_FOUND" if status == 404 else "FETCH_ERROR"
+            if status == 404:
+                fetch_status = "NOT_FOUND"
+            elif status in (403, 429):
+                fetch_status = "BLOCKED"
+            else:
+                fetch_status = "UNKNOWN"
             warning = f"HTTP {status}: {err}" if err else f"HTTP {status}"
             rec = PlaygroupCardRecord(
                 card_name=name,
@@ -392,7 +418,7 @@ def main() -> int:
     parser.add_argument("--out-dir", default="data/research/playgroup", help="Output directory")
     parser.add_argument("--cache-dir", default=".cache/playgroup_cards", help="Cache directory")
     parser.add_argument(
-        "--delay", type=float, default=1.0, help="Delay between HTTP requests in seconds"
+        "--delay", type=float, default=1.1, help="Delay between HTTP requests in seconds"
     )
     parser.add_argument(
         "--offline-only", action="store_true", help="Only read from cache, no network requests"
