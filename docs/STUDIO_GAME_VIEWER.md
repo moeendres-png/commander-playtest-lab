@@ -86,3 +86,23 @@ i.e. 290 / 0.071 = about 4,100 games of that deck. +-3 pp needs about 800 expose
 11,300 games. The difference interval is a little wider than this because the "without" group
 adds its own noise. Each game seats four decks, so these are games in which the deck sat at
 the table. With fewer games the table says so in its warnings.
+
+### How to read the numbers (limits)
+
+- **Intent to treat.** The measure is the effect of the card being in the *first dealt seven*.
+  The "without" group includes games in which the card was drawn later, and a hand kept after a
+  mulligan differs from the first seven, so the effect of owning the card in play is diluted
+  towards zero.
+- **Independence.** Games that share a seed or a pod are treated as independent. They are not
+  fully independent, so the intervals are somewhat too narrow.
+- **Duplicates and seats.** Logs sharing a `game_id` are the same game: it is counted once (the
+  first file by name) and `duplicate_logs_ignored` reports the rest. When a deck sits at more
+  than one seat of a game, only its lowest seat counts for that game; `multi_seat_games`
+  reports how often.
+- **Many comparisons.** With N cards compared at 95 %, about 0.05 * N will look different from 0
+  by chance (`comparisons`, `expected_chance_findings`). Treat the ends of the list as
+  hypotheses to re-test with new games, not as verdicts.
+- **Cache.** Each finished packed log is read once; the extracted exposure is kept next to the
+  logs in `games/.outcomes-cache/<log name>.json`, keyed by the log's size, modification time
+  and a format version. A changed or damaged entry is rebuilt, and logs still being written are
+  never cached. Deleting the folder is safe: the next request rebuilds it from the logs.

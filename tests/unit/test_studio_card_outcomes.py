@@ -4,19 +4,22 @@ from __future__ import annotations
 
 import gzip
 import json
+import math
+import shutil
 from collections.abc import Sequence
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-from commander_lab.studio import StudioStore
+from commander_lab.studio import StudioStore, card_outcomes
 from commander_lab.studio.__main__ import main
 from commander_lab.studio.card_outcomes import (
     DATA_CLASS,
     GameExposure,
     SeatExposure,
     aggregate,
+    format_table,
     game_exposures,
     load_exposures,
     newcombe_difference,
@@ -359,3 +362,133 @@ def test_command_prints_table_and_writes_json(
     assert "games 3" in text and "INSUFFICIENT_SAMPLE" in text
     written = json.loads(out.read_text(encoding="utf-8"))
     assert written["games_total"] == 3 and written["data_class"] == "SIMULATED_RESULT"
+
+
+# --- one read per log, each game once, chance findings ----------------------------------
+
+
+def _long_frames() -> list[dict[str, object]]:
+    frames = _simple_frames(["Forest", "Spell"])
+    for turn in range(1, 9):
+        for seat in (0, 1):
+            frames.append(
+                _frame(
+                    len(frames) + 1,
+                    seat,
+                    "choose_object",
+                    hand=[f"Card {turn}", "Forest"],
+                    turn=turn,
+                    active=seat,
+                )
+            )
+    frames.append(_frame(99, 0, "mulligan", hand=["Late"], chosen=["Take mulligan"], turn=9))
+    return frames
+
+
+def test_fast_extraction_equals_full_parse_and_parses_fewer_lines(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = _write_log(tmp_path, "long", _long_frames())
+    full = card_outcomes._read(path, fast=False)
+    calls = {"n": 0}
+    real = json.loads
+
+    def counting(text: str | bytes) -> object:
+        calls["n"] += 1
+        return real(text)
+
+    monkeypatch.setattr(card_outcomes.json, "loads", counting)
+    fast = card_outcomes._read(path, fast=True)
+    fast_calls = calls["n"]
+    calls["n"] = 0
+    card_outcomes._read(path, fast=False)
+    assert fast == full and fast[0] is not None
+    assert fast_calls < calls["n"]
+
+
+def test_cache_is_used_on_second_call_and_invalidated_by_change(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = _write_log(tmp_path, "g1", _simple_frames(["X"]))
+    calls = {"n": 0}
+    real = card_outcomes._read_log
+
+    def counting(p: Path, *, fast: bool = True) -> object:
+        calls["n"] += 1
+        return real(p, fast=fast)
+
+    monkeypatch.setattr(card_outcomes, "_read_log", counting)
+    first = load_exposures(tmp_path)
+    second = load_exposures(tmp_path)
+    assert calls["n"] == 1 and first == second
+    assert list((tmp_path / ".outcomes-cache").glob("*.json"))
+    _write_log(tmp_path, "g1", _simple_frames(["Changed"]))
+    third = load_exposures(tmp_path)
+    assert calls["n"] == 2
+    assert third["exposures"][0]["seats"][0]["first_dealt_hand"] == ["Changed"]
+    del path
+
+
+def test_corrupt_cache_entry_is_rebuilt_and_running_logs_are_not_cached(tmp_path: Path) -> None:
+    _write_log(tmp_path, "g1", _simple_frames(["X"]))
+    _write_log(tmp_path, "run", _simple_frames(["X"]), status=None, gz=False)
+    load_exposures(tmp_path)
+    cache = tmp_path / ".outcomes-cache"
+    assert [p.name for p in cache.glob("*.json")] == ["g1.jsonl.gz.json"]
+    (cache / "g1.jsonl.gz.json").write_text("{not json", encoding="utf-8")
+    report = load_exposures(tmp_path)
+    assert [g["game_id"] for g in report["exposures"]] == ["g1"]
+    assert json.loads((cache / "g1.jsonl.gz.json").read_text(encoding="utf-8"))
+
+
+def test_same_game_id_under_different_names_counts_once(tmp_path: Path) -> None:
+    first = _write_log(tmp_path, "g1", _simple_frames(["X"]))
+    for name in ("copy-a", "copy-b"):
+        shutil.copy(first, tmp_path / f"{name}.jsonl.gz")
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["games_total"] == 1
+    assert table["duplicate_logs_ignored"] == 2
+    assert any("duplicate" in w for w in table["warnings"])
+
+
+def _two_seat_game(deck_a: str, deck_b: str) -> GameExposure:
+    return {
+        "game_id": "m",
+        "seed": 1,
+        "engine_commit": COMMIT,
+        "pilot": "P1",
+        "decision_policy": "policy-1",
+        "winner_seats": [1],
+        "seats": [_seat(0, deck_a, ["Low"], 0.0), _seat(1, deck_b, ["High"], 1.0)],
+    }
+
+
+def test_deck_at_two_seats_counts_only_the_lowest_seat() -> None:
+    table = aggregate([_two_seat_game(DECK, DECK)], deck_id=DECK, min_exposed=1)
+    assert table["games_total"] == 1 and table["multi_seat_games"] == 1
+    assert [c["card"] for c in table["cards"]] == ["Low"]
+
+
+def test_table_reports_comparisons_and_expected_chance_findings() -> None:
+    games = _synthetic(_block("A", 5, 3) + _block("B", 5, 2))
+    table = aggregate(games, deck_id=DECK, min_exposed=1)
+    measured = sum(1 for c in table["cards"] if c["status"] == "MEASURED")
+    assert table["comparisons"] == measured
+    assert table["expected_chance_findings"] == round(0.05 * measured, 1)
+    text = format_table(table)
+    assert "by chance" in text and "hypotheses to re-test, not as verdicts" in text
+    assert f"{measured} cards compared at 95 %" in text
+
+
+def test_newcombe_uses_unrounded_wilson_bounds() -> None:
+    games = _synthetic(_block("A", 37, 11) + _block("B", 58, 29))
+    row = next(
+        c for c in aggregate(games, deck_id=DECK, min_exposed=1)["cards"] if c["card"] == "A"
+    )
+    n_in, w_in = row["games_in_first_hand"], row["wins_in_first_hand"]
+    n_not, w_not = row["games_not_in_first_hand"], row["wins_not_in_first_hand"]
+    ci_in = card_outcomes.wilson_unrounded(w_in, n_in)
+    ci_not = card_outcomes.wilson_unrounded(w_not, n_not)
+    _, lo, hi = newcombe_difference(w_in / n_in, ci_in, w_not / n_not, ci_not)
+    assert row["difference_ci95_pp"] == [round(lo * 100, 3), round(hi * 100, 3)]
+    assert math.isclose(ci_in[0], wilson_score_interval(w_in, n_in)[0], abs_tol=5e-5)

@@ -14,13 +14,17 @@ effect draws and mulligan bottoms depend on play, so that set is NOT randomised.
 
 from __future__ import annotations
 
+import gzip
+import json
 import math
+import os
+import re
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Literal, TypedDict
+from typing import Literal, TypedDict, cast
 
-from .games import LOG_SCHEMA, _lines
+from .games import LOG_SCHEMA
 from .simulations import wilson_score_interval
 
 SCHEMA = "studio-card-outcomes-1"
@@ -35,6 +39,10 @@ TAKE_MULLIGAN_LABEL = "Take mulligan"
 OWN_TURNS_SECONDARY = 3
 # A typical card is in the first seven of a 99-card library about 7 % of the time.
 EXPECTED_EXPOSURE = 7 / 99
+CACHE_DIR = ".outcomes-cache"
+CACHE_VERSION = 1
+CHANCE_RATE = 0.05
+_KIND = re.compile(r'\{\s*"kind"\s*:\s*"([a-z_]+)"')
 
 Result = Literal["win", "loss", "draw"]
 CardStatus = Literal["MEASURED", "INSUFFICIENT_SAMPLE"]
@@ -101,6 +109,10 @@ class CardOutcomeTable(TypedDict):
     games_skipped: int
     games_skipped_unreadable: int
     seats_without_opening_hand: int
+    duplicate_logs_ignored: int
+    multi_seat_games: int
+    comparisons: int
+    expected_chance_findings: float
     draw_games: int
     mulligans_taken: int
     engine_commits: list[str]
@@ -129,6 +141,7 @@ class LoadReport(TypedDict):
     skipped_with_deck: dict[str, int]
     skipped_unreadable: int
     skipped_ids: list[str]
+    duplicate_logs: int
 
 
 # --- reading one log -------------------------------------------------------------------
@@ -146,13 +159,6 @@ def _names(value: object) -> list[str] | None:
     if not isinstance(value, list):
         return None
     return [item for item in value if isinstance(item, str)]
-
-
-def _entries(path: Path) -> list[dict[str, object]] | None:
-    try:
-        return list(_lines(path))
-    except (OSError, EOFError, ValueError):
-        return None
 
 
 def _credit(seat: int, winners: Sequence[int]) -> tuple[Result, float]:
@@ -215,18 +221,73 @@ def _hand_of(frame: dict[str, object], seat: int) -> list[str] | None:
     return None
 
 
-def _read(path: Path) -> tuple[GameExposure | None, list[str]]:
+def _scan(
+    path: Path, *, fast: bool
+) -> tuple[dict[str, object] | None, dict[str, object] | None, list[dict[str, object]]]:
+    """Header, last result record and the frames that can matter, from one line stream.
+
+    ``fast`` skips ``json.loads`` for a frame line once every seat has passed its
+    ``OWN_TURNS_SECONDARY``-th own turn and has its first hand, unless the line mentions a
+    mulligan; a line whose kind cannot be told from its start is always parsed.
+    """
+    header: dict[str, object] | None = None
+    result: dict[str, object] | None = None
+    frames: list[dict[str, object]] = []
+    own_turns: dict[int, set[int]] = {}
+    has_first: set[int] = set()
+    opener = gzip.open if path.suffix == ".gz" else open
+    with opener(path, "rt", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.endswith("\n"):
+                break  # a running game: the last entry is still being written
+            if fast and own_turns and "mulligan" not in line:
+                match = _KIND.match(line)
+                if (
+                    match is not None
+                    and match.group(1) == "frame"
+                    and all(
+                        len(turns) > OWN_TURNS_SECONDARY and seat in has_first
+                        for seat, turns in own_turns.items()
+                    )
+                ):
+                    continue
+            entry = json.loads(line)
+            if not isinstance(entry, dict):
+                continue
+            kind = entry.get("kind")
+            if kind == "header":
+                if header is None:
+                    header = entry
+                    rows = entry.get("seats")
+                    for row in rows if isinstance(rows, list) else []:
+                        seat = _int(row.get("seat")) if isinstance(row, dict) else None
+                        if seat is not None:
+                            own_turns[seat] = set()
+            elif kind == "result":
+                result = entry
+            elif kind == "frame":
+                frames.append(entry)
+                turn, active = _int(entry.get("turn")), _int(entry.get("active_seat"))
+                if active in own_turns and turn is not None:
+                    own_turns[active].add(turn)
+                deciding = _int(entry.get("seat"))
+                if deciding in own_turns and _hand_of(entry, deciding):
+                    if entry.get("decision_class") == MULLIGAN_CLASS:
+                        has_first.add(deciding)
+    return header, result, frames
+
+
+def _read_log(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, list[str]]:
     """The exposure of one log (or None) and the deck ids named in its header."""
-    entries = _entries(path)
-    if entries is None:
+    try:
+        header, result, frames = _scan(path, fast=fast)
+    except (OSError, EOFError, ValueError):
         return None, []
-    header = next((e for e in entries if e.get("kind") == "header"), None)
     if header is None or header.get("schema") != LOG_SCHEMA:
         return None, []
     seats_raw = header.get("seats")
     seat_rows = [s for s in seats_raw if isinstance(s, dict)] if isinstance(seats_raw, list) else []
     deck_ids = [d for d in (_str(s.get("deck_id")) for s in seat_rows) if d]
-    result = next((e for e in reversed(entries) if e.get("kind") == "result"), None)
     if result is None or result.get("status") != "finished":
         return None, deck_ids
     winners_raw = result.get("winner_seats")
@@ -235,7 +296,6 @@ def _read(path: Path) -> tuple[GameExposure | None, list[str]]:
         if isinstance(winners_raw, list)
         else []
     )
-    frames = [e for e in entries if e.get("kind") == "frame"]
     seats: list[SeatExposure] = []
     for row in seat_rows:
         seat, deck_id = _int(row.get("seat")), _str(row.get("deck_id"))
@@ -254,6 +314,68 @@ def _read(path: Path) -> tuple[GameExposure | None, list[str]]:
         "winner_seats": winners,
         "seats": seats,
     }, deck_ids
+
+
+def _cache_file(path: Path) -> Path:
+    return path.parent / CACHE_DIR / f"{path.name}.json"
+
+
+def _cached(cache: Path, size: int, mtime_ns: int) -> tuple[GameExposure, list[str]] | None:
+    try:
+        data = json.loads(cache.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(data, dict):
+        return None
+    exposure, deck_ids = data.get("exposure"), data.get("deck_ids")
+    if (
+        data.get("version") != CACHE_VERSION
+        or data.get("size") != size
+        or data.get("mtime_ns") != mtime_ns
+        or not isinstance(exposure, dict)
+        or not isinstance(exposure.get("game_id"), str)
+        or not isinstance(exposure.get("seats"), list)
+        or not isinstance(deck_ids, list)
+    ):
+        return None
+    return cast(GameExposure, exposure), [d for d in deck_ids if isinstance(d, str)]
+
+
+def _store(
+    cache: Path, size: int, mtime_ns: int, exposure: GameExposure, deck_ids: list[str]
+) -> None:
+    payload = {
+        "version": CACHE_VERSION,
+        "size": size,
+        "mtime_ns": mtime_ns,
+        "exposure": exposure,
+        "deck_ids": deck_ids,
+    }
+    temp = cache.with_name(f"{cache.name}.{os.getpid()}.tmp")
+    try:
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        temp.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+        os.replace(temp, cache)
+    except OSError:
+        temp.unlink(missing_ok=True)  # a cache that cannot be written is only slower
+
+
+def _read(path: Path, *, fast: bool = True) -> tuple[GameExposure | None, list[str]]:
+    """``_read_log`` through the per-log cache (finished packed logs only)."""
+    if not fast or path.suffix != ".gz":
+        return _read_log(path, fast=fast)
+    try:
+        stat = path.stat()
+    except OSError:
+        return None, []
+    cache = _cache_file(path)
+    hit = _cached(cache, stat.st_size, stat.st_mtime_ns)
+    if hit is not None:
+        return hit
+    exposure, deck_ids = _read_log(path, fast=True)
+    if exposure is not None:
+        _store(cache, stat.st_size, stat.st_mtime_ns, exposure, deck_ids)
+    return exposure, deck_ids
 
 
 def game_exposures(log_path: str | Path) -> GameExposure | None:
@@ -279,9 +401,15 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
     skipped_with_deck: Counter[str] = Counter()
     unreadable = 0
     skipped_ids: list[str] = []
-    for key, path in paths.items():
+    seen_games: set[str] = set()
+    duplicates = 0
+    for key, path in sorted(paths.items()):
         exposure, deck_ids = _read(path)
         if exposure is not None:
+            if exposure["game_id"] in seen_games:
+                duplicates += 1  # the same game under another file name: first name wins
+                continue
+            seen_games.add(exposure["game_id"])
             exposures.append(exposure)
             continue
         skipped_ids.append(key)
@@ -294,6 +422,7 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
         "skipped_with_deck": dict(skipped_with_deck),
         "skipped_unreadable": unreadable,
         "skipped_ids": skipped_ids,
+        "duplicate_logs": duplicates,
     }
 
 
@@ -311,6 +440,20 @@ def newcombe_difference(
     lower = d - math.sqrt((p1 - ci1[0]) ** 2 + (ci2[1] - p2) ** 2)
     upper = d + math.sqrt((ci1[1] - p1) ** 2 + (p2 - ci2[0]) ** 2)
     return d, lower, upper
+
+
+def wilson_unrounded(wins: float, total: int) -> tuple[float, float]:
+    """The Wilson 95 % bounds of ``simulations.wilson_score_interval`` without rounding."""
+    if total <= 0:
+        return (0.0, 0.0)
+    p = max(0.0, min(1.0, wins / total))
+    z = 1.95996
+    denom = 1.0 + (z * z) / total
+    center = (p + (z * z) / (2.0 * total)) / denom
+    spread = (
+        z * math.sqrt(max(0.0, (p * (1.0 - p)) / total + (z * z) / (4.0 * total * total)))
+    ) / denom
+    return (max(0.0, center - spread), min(1.0, center + spread))
 
 
 def _pp(value: float) -> float:
@@ -335,8 +478,10 @@ def _card_row(
     ci_not = wilson_score_interval(wins_not, n_not) if n_not else None
     diff: float | None = None
     diff_ci: list[float] | None = None
-    if rate_in is not None and rate_not is not None and ci_in is not None and ci_not is not None:
-        d, lo, hi = newcombe_difference(rate_in, ci_in, rate_not, ci_not)
+    if rate_in is not None and rate_not is not None:
+        d, lo, hi = newcombe_difference(
+            rate_in, wilson_unrounded(wins_in, n_in), rate_not, wilson_unrounded(wins_not, n_not)
+        )
         diff, diff_ci = _pp(d), [_pp(lo), _pp(hi)]
     reasons = []
     if n_in < min_exposed:
@@ -382,6 +527,10 @@ def empty_table(deck_id: str, *, min_exposed: int = DEFAULT_MIN_EXPOSED) -> Card
         "games_skipped": 0,
         "games_skipped_unreadable": 0,
         "seats_without_opening_hand": 0,
+        "duplicate_logs_ignored": 0,
+        "multi_seat_games": 0,
+        "comparisons": 0,
+        "expected_chance_findings": 0.0,
         "draw_games": 0,
         "mulligans_taken": 0,
         "engine_commits": [],
@@ -403,16 +552,20 @@ def aggregate(
     allow_mixed: bool = False,
     games_skipped: int = 0,
     games_skipped_unreadable: int = 0,
+    duplicate_logs_ignored: int = 0,
 ) -> CardOutcomeTable:
     """The card table of one deck. Mixed engine commits or pilots raise unless allowed."""
     table = empty_table(deck_id, min_exposed=min_exposed)
     table["games_skipped"] = games_skipped
     table["games_skipped_unreadable"] = games_skipped_unreadable
+    table["duplicate_logs_ignored"] = duplicate_logs_ignored
     units: list[tuple[GameExposure, SeatExposure]] = []
+    multi_seat = 0
     for game in exposures:
-        for seat in game["seats"]:
-            if seat["deck_id"] == deck_id:
-                units.append((game, seat))
+        own = sorted((s for s in game["seats"] if s["deck_id"] == deck_id), key=lambda s: s["seat"])
+        if own:
+            units.append((game, own[0]))  # one seat per deck and game: the lowest
+            multi_seat += len(own) > 1
     if not units:
         return table
     commits = _distinct(g["engine_commit"] for g, _ in units)
@@ -465,6 +618,15 @@ def aggregate(
         for pod, count in sorted(pods.items(), key=lambda kv: (-kv[1], kv[0]))
     ]
     table["commanders_excluded"] = commanders
+    table["multi_seat_games"] = multi_seat
+    if multi_seat:
+        warnings.append(
+            f"{multi_seat} game(s) seat this deck more than once: only the lowest seat is counted"
+        )
+    if duplicate_logs_ignored:
+        warnings.append(
+            f"{duplicate_logs_ignored} duplicate log(s) with an already counted game_id ignored"
+        )
     if no_hand:
         warnings.append(f"{no_hand} seat(s) without a recorded opening hand were left out")
     if total < math.ceil(min_exposed / EXPECTED_EXPOSURE):
@@ -473,7 +635,7 @@ def aggregate(
             f"{EXPECTED_EXPOSURE:.0%} of games, so few cards can reach {min_exposed} exposed games"
         )
     table["warnings"] = warnings
-    table["cards"] = [
+    rows = [
         _card_row(
             card,
             total=total,
@@ -486,6 +648,9 @@ def aggregate(
         )
         for card in names
     ]
+    table["cards"] = rows
+    table["comparisons"] = sum(1 for row in rows if row["status"] == "MEASURED")
+    table["expected_chance_findings"] = round(CHANCE_RATE * table["comparisons"], 1)
     return table
 
 
@@ -522,6 +687,7 @@ def outcomes_for_folder(
         allow_mixed=allow_mixed,
         games_skipped=report["skipped_with_deck"].get(deck_id, 0),
         games_skipped_unreadable=report["skipped_unreadable"],
+        duplicate_logs_ignored=report["duplicate_logs"],
     )
 
 
@@ -543,6 +709,11 @@ def format_table(table: CardOutcomeTable, *, limit: int = 15) -> str:
         f"measured {len(ranking['ranked'])}  unmeasured (INSUFFICIENT_SAMPLE) "
         f"{len(ranking['unranked'])}",
     ]
+    lines.append(
+        f"{table['comparisons']} cards compared at 95 %: about "
+        f"{table['expected_chance_findings']} will look different from 0 by chance; treat the "
+        "ends of the list as hypotheses to re-test, not as verdicts"
+    )
     lines += [f"WARNING {w}" for w in table["warnings"]]
     rows = ranking["ranked"]
     shown = rows[:limit] + rows[limit:][-limit:]
