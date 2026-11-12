@@ -434,9 +434,15 @@ def test_load_target_cards_public_corpus(tmp_path: Path) -> None:
             )
             """
         )
-        conn.execute("INSERT INTO corpus_deck_card VALUES ('d1', 'Sol Ring', 'o1', 1, 'mainboard', 'OK')")
-        conn.execute("INSERT INTO corpus_deck_card VALUES ('d1', 'Birds of Paradise', 'o2', 1, 'mainboard', 'OK')")
-        conn.execute("INSERT INTO corpus_deck_card VALUES ('d2', 'Birds of Paradise', 'o2', 1, 'mainboard', 'OK')")
+        conn.execute(
+            "INSERT INTO corpus_deck_card VALUES ('d1', 'Sol Ring', 'o1', 1, 'mainboard', 'OK')"
+        )
+        conn.execute(
+            "INSERT INTO corpus_deck_card VALUES ('d1', 'Birds of Paradise', 'o2', 1, 'mainboard', 'OK')"
+        )
+        conn.execute(
+            "INSERT INTO corpus_deck_card VALUES ('d2', 'Birds of Paradise', 'o2', 1, 'mainboard', 'OK')"
+        )
 
     targets = load_target_cards(store_path=db_path)
     assert len(targets) == 2

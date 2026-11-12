@@ -157,7 +157,9 @@ def load_target_cards(
             conn.close()
         return cards
 
-    raise ValueError("No valid public source specified for target cards (corpus, crosswalk, or explicit)")
+    raise ValueError(
+        "No valid public source specified for target cards (corpus, crosswalk, or explicit)"
+    )
 
 
 TTL_404_SECONDS = 7 * 86400  # 7 days expiration for 404 cache
