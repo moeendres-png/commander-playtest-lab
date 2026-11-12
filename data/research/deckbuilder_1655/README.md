@@ -36,5 +36,9 @@ Der Secret-Pattern-Scan der CI (Muster `sk-[A-Za-z0-9_-]{20,}`) trifft in
 `commander_bracket_signals_optimized_3.csv` den Karten-Slug
 `zask-skittering-swarmlord` (Karte: Zask, Skittering Swarmlord). Das ist ein
 publizierter EDHREC-Bezeichner und Join-Schlüssel dieser Datei, kein Secret.
-Die Behebung gehört in die Workflow-Definition (Ausschluss von
-`data/research/**`), nicht in die Daten.
+Behoben in der Scan-Definition (#1247): das Muster ist an Token-Grenzen
+verankert; die Daten bleiben unverändert und `data/research/**` wird weiter gescannt.
+
+## Spielernamen
+
+Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Datei, in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
