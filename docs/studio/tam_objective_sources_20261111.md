@@ -4,20 +4,19 @@
 
 ## Autorität und Zugang
 
-- `main` ist der maßgebliche **Code**-Stand; der persönliche Kartenbestand, die einzelnen Decklisten und die historischen Originalantworten verbleiben außerhalb dieses **öffentlichen** Repositorys auf berechtigtem [Google Drive](https://drive.google.com/drive/folders/1muyGu8uQNLGvc_LBdkdRyhF406O2WWAC) beziehungsweise im lokalen Owner-Datenordner.
-- **Maschinenlesbarer Einstieg:** [`data/provenance/commander_studio_drive_sources_20261111.json`](../../data/provenance/commander_studio_drive_sources_20261111.json). Alle 16 referenzierten Dateien sind dort mit `drive_url`, Quellmanifest, SHA-256-Angabe des jeweiligen Manifests, erwarteter Zeilenanzahl, Rolle und Importstatus verzeichnet.
-- Die SHA-256-Werte im GitHub-Index sind **aus den bestehenden Drive-Manifesten übernommen**; sie wurden für diesen Commit **nicht erneut byteweise berechnet**. Vor lokalen Importen Originaldateien herunterladen und ihre Hashes gegen die Quelle prüfen.
-- Ein Zugriff auf den Drive-Link setzt die jeweiligen Drive-Berechtigungen voraus. Das Manifest ersetzt keine Kopie und erweitert keine Freigaben.
+- `main` ist der maßgebliche **Code**-Stand. Der persönliche Kartenbestand und die eigenen Decklisten liegen im lokalen Owner-Datenordner (`COMMANDER_LAB_OWNER_DATA`), nie in diesem Repository. Daten, die das Programm braucht (öffentliche Kartendaten, gezählte Auswertungen öffentlicher Decklisten), gehören ins Repository; externe Ablagen sind keine Laufzeit-Quelle.
+- **Maschinenlesbarer Einstieg:** [`data/provenance/commander_studio_sources_20261111.json`](../../data/provenance/commander_studio_sources_20261111.json). Alle 16 Dateien sind dort mit Dateiname, SHA-256-Angabe des Quellmanifests, erwarteter Zeilenanzahl, Rolle und Importstatus verzeichnet. Der Index enthält keine Speicher-Links.
+- Die SHA-256-Werte im Index sind **aus den bestehenden Quellmanifesten übernommen**; sie wurden für diesen Commit **nicht erneut byteweise berechnet**. Vor lokalen Importen die Hashes der Dateien gegen den Index prüfen.
 
 ## Kohorten (streng getrennt)
 
 | Datensatz | Umfang | Befund/Evidenz | Status |
 |---|---:|---|---|
-| Chulane V010 | 994 Quelldecks, 87.156 Mainboard-CSV-Zeilen, 98.406 Kartenexemplare | Zahlen aus dem bestehenden Drive-Importmanifest; 994 × 99; ein historischer Oracle-Namensfall offen; 975 eindeutige Deckinhalte laut Audit | separater Chulane-Korpus |
-| TAM 91 | 91 × (99+1), 8.488 Mainboard-Zeilen, 9.009 Exemplare, 91 Commander | **CSV-Inhalte in dieser Sitzung erneut gezählt:** 91 Decks mit je 99 Mainboard-Kopien; 0 leere Oracle-IDs; 91/91 strukturelle QA | `ACTIVE` **nur im Drive-Quellvertrag**, nicht als Live-Import auf Owner-Rechner bestätigt |
+| Chulane V010 | 994 Quelldecks, 87.156 Mainboard-CSV-Zeilen, 98.406 Kartenexemplare | Zahlen aus dem bestehenden Importmanifest; 994 × 99; ein historischer Oracle-Namensfall offen; 975 eindeutige Deckinhalte laut Audit | separater Chulane-Korpus |
+| TAM 91 | 91 × (99+1), 8.488 Mainboard-Zeilen, 9.009 Exemplare, 91 Commander | **CSV-Inhalte in dieser Sitzung erneut gezählt:** 91 Decks mit je 99 Mainboard-Kopien; 0 leere Oracle-IDs; 91/91 strukturelle QA | `ACTIVE` **nur im Quellvertrag**, nicht als Live-Import auf Owner-Rechner bestätigt |
 | TAM/Chandra 381 | 381 × (99+1), 35.728 Mainboard-Zeilen, 37.719 Exemplare, 381 Commander | **CSV-Inhalte erneut gezählt:** 381 Decks mit je 99 Mainboard-Kopien und einem Commander; 0 leere Oracle-IDs | `REVIEW`, **automatic_import=false** |
 | TAM EDHREC | 78 Themenansichten, 16.023 CardRec-Zeilen | historischer Quellenvertrag; getrennte Nenner pro Thema | `OBSERVATION`, kein Deckkorpus |
-| Chulane EDHREC | 1.379 historische Quellzeilen | bestehendes Drive-Manifest, fehlende Snapshotzeiten bleiben UNKNOWN | `OBSERVATION`, kein Deckkorpus |
+| Chulane EDHREC | 1.379 historische Quellzeilen | bestehendes Quellmanifest, fehlende Snapshotzeiten bleiben UNKNOWN | `OBSERVATION`, kein Deckkorpus |
 
 **Weitere Gate-Fakten:**
 - TAM 91: 70 `SOURCE_BACKED_70` und 21 `USER_PASTED_TEXT_NO_MOXFIELD_URL`; im aktuellen Register **91/91 `original_url` leer**. „Source-backed“ ist eine Archivklassifikation, **kein in dieser Runde unabhängig nachgewiesener Original-Weblink**.
@@ -28,8 +27,8 @@
 
 ## Reproduzierbarer Agentenablauf
 
-1. Aus dem JSON-Index genau die benötigte Kohorte und Dateien anhand von `dataset`, `role` und `drive_url` auswählen. **Nicht** die gesamte historische Drive-Ordnerstruktur rekursiv importieren.
-2. Die Dateien über den authentifizierten Drive-Zugang lokal beziehen, Rohbytes mit den *manifest-deklarierten* SHA-256-Werten abgleichen und anschließend mit CSV-Header, Anzahl, eindeutiger `deck_id`, `oracle_id`, Summen und 99+1 prüfen. Nicht übereinstimmende Dateien als `REVIEW` isolieren, keine stillen Reparaturen.
+1. Aus dem JSON-Index genau die benötigte Kohorte und Dateien anhand von `dataset`, `role` und `file_name` auswählen. **Nicht** ganze Ordner rekursiv importieren.
+2. Die Dateien aus dem lokalen Owner-Datenordner nehmen, Rohbytes mit den *manifest-deklarierten* SHA-256-Werten abgleichen und anschließend mit CSV-Header, Anzahl, eindeutiger `deck_id`, `oracle_id`, Summen und 99+1 prüfen. Nicht übereinstimmende Dateien als `REVIEW` isolieren, keine stillen Reparaturen.
 3. In separater SQLite-Testdatenbank TAM 91 und Chulane 994 importieren; source cohort/commander sind bei jeder Card-Inclusion-Query zwingende Filter. Quoten immer als `included_decks / eligible_decks` ausweisen. Im lokalen Owner-Datenbestand **keine** Änderungen ohne eigene Freigabe.
 4. **PR #1183** prüft deckweise überlappende CSV-Teile; bis der Importfix auf dem geprüften Stand verfügbar ist, keine Mehrteildateien mit möglicherweise gleichen IDs unkontrolliert importieren.
 5. TAM 381 gesondert auf Bracket-Originalbeleg, Oracle-Legalität, Deckhash, Überlappungen und Snapshot-Zeit prüfen. **Unbekannte Brackets bleiben unbekannt.** Keinen LIVE-Import durchführen.
@@ -38,6 +37,6 @@
 
 ## Schutzgrenzen
 
-Das Repository ist öffentlich. **Keine persönlichen Sammlungs- und Deckexports, Mengen, Notizen, Besitzerverknüpfungen, vollständigen Rohdecks oder Drive-Berechtigungsänderungen hier einchecken.** Diese Grenze folgt dem bisherigen Studio-Owner-Vertrag und `AGENTS.md` §12. Vollständige Daten verbleiben im Drive als zugriffskontrollierte Originale; dieser Index macht sie für berechtigte Agents auffindbar, ohne sie global zu veröffentlichen.
+Das Repository ist öffentlich. **Keine persönlichen Sammlungs- und Deckexports, Mengen, Notizen, Besitzerverknüpfungen, vollständigen Rohdecks hier einchecken.** Diese Grenze folgt dem bisherigen Studio-Owner-Vertrag und `AGENTS.md` §12. Vollständige persönliche Daten bleiben im lokalen Owner-Datenordner; dieser Index beschreibt sie nur.
 
 Siehe außerdem [#1176](https://github.com/moeendres-png/commander-playtest-lab/issues/1176), [#1182](https://github.com/moeendres-png/commander-playtest-lab/issues/1182), [PR #1183](https://github.com/moeendres-png/commander-playtest-lab/pull/1183) und [PR #1184](https://github.com/moeendres-png/commander-playtest-lab/pull/1184).
