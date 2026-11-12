@@ -20,6 +20,7 @@ import argparse
 import gzip
 import hashlib
 import json
+import math
 import time
 import urllib.request
 from collections import Counter
@@ -54,6 +55,10 @@ NON_DECK_LAYOUTS = frozenset(
         "front_card",
     }
 )
+MULTIFACE_LAYOUTS = frozenset({"adventure", "flip", "modal_dfc", "prepare", "split", "transform"})
+SINGLEFACE_LAYOUTS = frozenset(
+    {"case", "class", "leveler", "meld", "mutate", "normal", "prototype", "saga"}
+)
 
 
 def deck_card_names(paths: Iterable[Path]) -> list[str]:
@@ -82,35 +87,116 @@ def _int_or_none(value: Any) -> int | None:
         return None
 
 
+def _printed_strings(value: object, field: str, *, nonempty: bool = False) -> str:
+    if not isinstance(value, str) or (nonempty and not value.strip()):
+        raise ValueError(f"printed card requires a valid {field}")
+    return value
+
+
+def _string_list(value: object, field: str, allowed: frozenset[str] | None = None) -> list[str]:
+    if not isinstance(value, list) or any(
+        not isinstance(item, str) or not item or (allowed is not None and item not in allowed)
+        for item in value
+    ):
+        raise ValueError(f"printed card requires a valid {field} list")
+    return value
+
+
+def _validate_printed_card(card: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Reject incomplete printed data before any defaults in the projection are used."""
+    _printed_strings(card.get("name"), "name", nonempty=True)
+    layout = _printed_strings(card.get("layout"), "layout", nonempty=True)
+    if layout not in MULTIFACE_LAYOUTS | SINGLEFACE_LAYOUTS:
+        raise ValueError("unsupported printed card layout")
+    _printed_strings(card.get("type_line"), "type_line", nonempty=True)
+    cmc = card.get("cmc")
+    try:
+        finite_cmc = (
+            not isinstance(cmc, bool) and isinstance(cmc, (int, float)) and math.isfinite(cmc)
+        )
+    except OverflowError:
+        finite_cmc = False
+    if not finite_cmc or cmc < 0:
+        raise ValueError("printed card requires a finite nonnegative cmc")
+    if "oracle_text" in card:
+        _printed_strings(card["oracle_text"], "oracle_text")
+    if "mana_cost" in card:
+        _printed_strings(card["mana_cost"], "mana_cost")
+    colors = frozenset({"W", "U", "B", "R", "G"})
+    _string_list(card.get("color_identity"), "color_identity", colors)
+    _string_list(card.get("keywords"), "keywords")
+    if "colors" in card:
+        _string_list(card["colors"], "colors", colors)
+    if "produced_mana" in card:
+        _string_list(card["produced_mana"], "produced_mana", colors | {"C"})
+
+    raw_faces = card.get("card_faces")
+    if layout in MULTIFACE_LAYOUTS:
+        if (
+            not isinstance(raw_faces, list)
+            or len(raw_faces) != 2
+            or not all(isinstance(f, dict) for f in raw_faces)
+        ):
+            raise ValueError("multiface card requires two face objects")
+        faces = raw_faces
+        for face in faces:
+            _printed_strings(face.get("name"), "face name", nonempty=True)
+            face_type = _printed_strings(face.get("type_line"), "face type_line", nonempty=True)
+            _printed_strings(face.get("oracle_text"), "face oracle_text")
+            if "mana_cost" in face:
+                _printed_strings(face["mana_cost"], "face mana_cost")
+            elif "Land" not in face_type.split(" — ")[0].split():
+                raise ValueError("nonland face requires mana_cost")
+            if "colors" in face:
+                _string_list(face["colors"], "face colors", colors)
+        if card["name"] != " // ".join(face["name"] for face in faces):
+            raise ValueError("multiface card name does not match face names")
+        front = faces[0]
+    else:
+        if raw_faces is not None:
+            raise ValueError("unexpected faces for single-face card")
+        _printed_strings(card.get("oracle_text"), "oracle_text")
+        if "mana_cost" in card:
+            _printed_strings(card["mana_cost"], "mana_cost")
+        elif "Land" not in card["type_line"].split(" — ")[0].split():
+            raise ValueError("nonland card requires mana_cost")
+        faces = []
+        front = card
+    if "colors" not in front and "colors" not in card:
+        raise ValueError("printed card requires colors for the front face")
+    return front, faces
+
+
 def project_card(card: dict[str, Any]) -> dict[str, Any]:
     """Keep only the printed, public facts a pilot ranks with.
 
     For multi-faced cards the front face describes what is cast or played from
     hand; a split card keeps its full name and combined text.
     """
-    faces = card.get("card_faces")
-    front = faces[0] if isinstance(faces, list) and faces and "type_line" in faces[0] else card
-    layout = str(card.get("layout", "normal"))
-    if layout in {"split", "adventure"} and isinstance(faces, list):
-        oracle_text = "\n//\n".join(str(face.get("oracle_text", "")) for face in faces)
+    front, faces = _validate_printed_card(card)
+    layout = card["layout"]
+    if layout in {"split", "adventure"}:
+        oracle_text = "\n//\n".join(face["oracle_text"] for face in faces)
     else:
-        oracle_text = str(front.get("oracle_text", card.get("oracle_text", "")))
-    type_line = str(front.get("type_line", card.get("type_line", "")))
-    return {
-        "name": str(card["name"]),
+        oracle_text = front["oracle_text"]
+    result = {
+        "name": card["name"],
         "layout": layout,
-        "mana_cost": str(front.get("mana_cost", card.get("mana_cost", ""))),
-        "mana_value": float(card.get("cmc", 0.0)),
-        "type_line": type_line,
+        "mana_cost": front.get("mana_cost", ""),
+        "mana_value": float(card["cmc"]),
+        "type_line": front["type_line"],
         "oracle_text": oracle_text,
         "power": _int_or_none(front.get("power")),
         "toughness": _int_or_none(front.get("toughness")),
         "loyalty": _int_or_none(front.get("loyalty")),
-        "keywords": sorted(str(word) for word in card.get("keywords", [])),
-        "colors": sorted(str(color) for color in front.get("colors", card.get("colors", []))),
-        "color_identity": sorted(str(color) for color in card.get("color_identity", [])),
-        "produced_mana": sorted(str(color) for color in card.get("produced_mana", [])),
+        "keywords": sorted(card["keywords"]),
+        "colors": sorted(front.get("colors", card.get("colors"))),
+        "color_identity": sorted(card["color_identity"]),
     }
+    # Scryfall omits produced_mana for many records; absence is not an observed empty list.
+    if "produced_mana" in card:
+        result["produced_mana"] = sorted(card["produced_mana"])
+    return result
 
 
 def fetch_cards(names: Sequence[str]) -> tuple[dict[str, dict[str, Any]], list[str]]:

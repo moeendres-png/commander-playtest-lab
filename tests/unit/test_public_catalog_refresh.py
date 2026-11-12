@@ -34,6 +34,10 @@ def _card(name: str, oracle_id: str, **fields: object) -> dict[str, object]:
         "type_line": "Creature — Cat",
         "oracle_text": "Flying",
         "cmc": 2,
+        "mana_cost": "{1}{U}",
+        "colors": ["U"],
+        "color_identity": ["U"],
+        "keywords": ["Flying"],
         **fields,
     }
 
@@ -109,8 +113,13 @@ def test_bulk_extension_retains_existing_and_provenance_and_is_offline(
             "four",
             layout="transform",
             card_faces=[
-                {"type_line": "Creature — Cat", "oracle_text": "Front ability", "mana_cost": "{U}"},
-                {"type_line": "Land", "oracle_text": "Back ability"},
+                {
+                    "name": "Front",
+                    "type_line": "Creature — Cat",
+                    "oracle_text": "Front ability",
+                    "mana_cost": "{U}",
+                },
+                {"name": "Back", "type_line": "Land", "oracle_text": "Back ability"},
             ],
         ),
     ]
@@ -137,6 +146,7 @@ def test_bulk_extension_retains_existing_and_provenance_and_is_offline(
     assert set(data["cards"]) == {"Old", "New", "Front // Back", "Banned"}
     assert data["cards"]["Old"]["oracle_text"] == "newer"
     assert data["cards"]["Front // Back"]["oracle_text"] == "Front ability"
+    assert "produced_mana" not in data["cards"]["New"]
     assert data["custom"] == 7
     assert (
         data["source"] == "Retained catalog and local Scryfall bulk snapshot (printed Oracle data)"
@@ -201,7 +211,10 @@ def test_bulk_mixed_formats_and_face_names(tmp_path: Path) -> None:
         "Front // Back",
         "1",
         layout="split",
-        card_faces=[{"oracle_text": "Left"}, {"oracle_text": "Right"}],
+        card_faces=[
+            {"name": "Front", "type_line": "Instant", "oracle_text": "Left", "mana_cost": "{U}"},
+            {"name": "Back", "type_line": "Sorcery", "oracle_text": "Right", "mana_cost": "{U}"},
+        ],
     )
     one = tmp_path / "one.bin"
     two = tmp_path / "two.json"
@@ -259,13 +272,131 @@ def test_offline_lookup_does_not_accept_wrong_back_face(
     module = _script("build_pilot_card_knowledge")
     source = tmp_path / "cards.bin"
     source.write_text(
-        json.dumps(_card("Front // Back", "id", layout="transform")), encoding="utf-8"
+        json.dumps(
+            _card(
+                "Front // Back",
+                "id",
+                layout="transform",
+                card_faces=[
+                    {
+                        "name": "Front",
+                        "type_line": "Creature",
+                        "oracle_text": "",
+                        "mana_cost": "{U}",
+                    },
+                    {"name": "Back", "type_line": "Land", "oracle_text": "", "mana_cost": ""},
+                ],
+            )
+        ),
+        encoding="utf-8",
     )
     monkeypatch.setattr(module, "deck_card_names", lambda paths: ["Front // Different"])
     monkeypatch.setattr(module, "fetch_cards", lambda *args: pytest.fail("network accessed"))
     output = tmp_path / "out.json"
     assert module.main(["--bulk-file", str(source), "--output", str(output)]) == 1
     assert json.loads(output.read_text())["cards"] == {}
+
+
+@pytest.mark.parametrize(
+    "change",
+    [
+        {"cmc": None},
+        {"cmc": True},
+        {"cmc": float("nan")},
+        {"cmc": -1},
+        {"type_line": None},
+        {"type_line": ""},
+        {"oracle_text": None},
+        {"mana_cost": None},
+        {"colors": "U"},
+        {"color_identity": [3]},
+        {"keywords": "Flying"},
+        {"produced_mana": ["garbage"]},
+        {"layout": "unknown_future_layout"},
+        {"layout": "transform", "card_faces": [{"name": "Front"}]},
+        {"card_faces": []},
+    ],
+)
+def test_incomplete_printed_facts_fail_before_output_write(
+    tmp_path: Path, change: dict[str, object]
+) -> None:
+    module = _script("build_pilot_card_knowledge")
+    source = tmp_path / "bad.json"
+    source.write_text(
+        json.dumps([_card("Valid", "1"), _card("Bad", "2", **change)]), encoding="utf-8"
+    )
+    output = tmp_path / "out.json"
+    original = '{"cards": {"Retained": {"name": "Retained"}}}'
+    output.write_text(original, encoding="utf-8")
+    with pytest.raises(ValueError):
+        module.main(["--all-cards", "--bulk-file", str(source), "--output", str(output)])
+    assert output.read_text(encoding="utf-8") == original
+
+
+def test_missing_required_data_and_broken_face_are_rejected(tmp_path: Path) -> None:
+    module = _script("build_pilot_card_knowledge")
+    path = tmp_path / "bad.json"
+    base = _card("Ordinary", "id")
+    for field in (
+        "cmc",
+        "type_line",
+        "oracle_text",
+        "mana_cost",
+        "colors",
+        "color_identity",
+        "keywords",
+    ):
+        malformed = dict(base)
+        del malformed[field]
+        path.write_text(json.dumps([malformed]), encoding="utf-8")
+        with pytest.raises(ValueError):
+            module.load_bulk([path])
+    bad_face = _card(
+        "Front // Back",
+        "id",
+        layout="transform",
+        card_faces=[
+            {"name": "Front", "type_line": "Creature", "oracle_text": "", "mana_cost": "{U}"},
+            {"name": "Wrong", "type_line": "Land", "oracle_text": "", "mana_cost": ""},
+        ],
+    )
+    path.write_text(json.dumps([bad_face]), encoding="utf-8")
+    with pytest.raises(ValueError, match="face names"):
+        module.load_bulk([path])
+
+
+def test_vanilla_and_land_can_have_empty_printed_fields(tmp_path: Path) -> None:
+    module = _script("build_pilot_card_knowledge")
+    land = _card("Land", "land", type_line="Basic Land — Island", oracle_text="", colors=[])
+    del land["mana_cost"]
+    path = tmp_path / "cards.json"
+    path.write_text(json.dumps([land]), encoding="utf-8")
+    result = module.load_bulk([path])["Land"]
+    assert result["oracle_text"] == "" and result["mana_cost"] == ""
+    assert "produced_mana" not in result
+
+
+@pytest.mark.parametrize("field", ["name", "type_line", "oracle_text", "mana_cost"])
+def test_incomplete_nonland_face_fails_before_output_write(tmp_path: Path, field: str) -> None:
+    module = _script("build_pilot_card_knowledge")
+    face = {"name": "Front", "type_line": "Creature", "oracle_text": "", "mana_cost": "{U}"}
+    del face[field]
+    card = _card(
+        "Front // Back",
+        "id",
+        layout="transform",
+        card_faces=[
+            face,
+            {"name": "Back", "type_line": "Land", "oracle_text": "", "mana_cost": ""},
+        ],
+    )
+    path = tmp_path / "bad.json"
+    path.write_text(json.dumps([card]), encoding="utf-8")
+    output = tmp_path / "out.json"
+    output.write_text('{"cards": {}}', encoding="utf-8")
+    with pytest.raises(ValueError):
+        module.main(["--all-cards", "--bulk-file", str(path), "--output", str(output)])
+    assert output.read_text(encoding="utf-8") == '{"cards": {}}'
 
 
 def test_network_requires_explicit_public_inputs(
