@@ -202,7 +202,7 @@ def test_reimport_of_the_original_keeps_it_canonical(store: StudioStore, tmp_pat
         ).fetchone()[0]
         == "edhrec:aaa"
     )
-    counted = universe.inclusion(store, card_names=["Sol Ring"])
+    counted = universe.inclusion(store, card_names=["Sol Ring"], commander_names=None)
     assert counted["denominator"] == 1 and counted["rows"][0]["hits"] == 1
 
 
@@ -211,9 +211,9 @@ def test_reimport_of_a_folder_with_duplicates_is_stable(store: StudioStore, tmp_
     _edhrec_file(tmp_path, "aaa", cards)
     _edhrec_file(tmp_path, "bbb", cards)
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    snapshot_first = universe.snapshot_id(store)
+    snapshot_first = universe.snapshot_id(store, commander_names=None)
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    assert universe.snapshot_id(store) == snapshot_first
+    assert universe.snapshot_id(store, commander_names=None) == snapshot_first
     rows = dict(
         store.connection.execute("SELECT deck_id, duplicate_of FROM corpus_deck").fetchall()
     )
@@ -243,22 +243,26 @@ def test_universe_inclusion_counts_only_the_selected_decks(
     _edhrec_file(tmp_path, "bbb", [(CHULANE, 1), ("Island", 9)], bracket=4, variante="optimized")
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
 
-    everything = universe.inclusion(store)
+    everything = universe.inclusion(store, commander_names=None)
     assert everything["denominator"] == 2
     by_name = {row["card_name"]: row for row in everything["rows"]}
     assert by_name["Sol Ring"]["hits"] == 1 and by_name["Sol Ring"]["share"] == 0.5
 
     universe.save_profile(store, "nur-bracket-3", {"cohorts": ["bracket:3"]})
-    only_b3 = universe.inclusion(store, profile="nur-bracket-3", card_names=["Sol Ring", "Island"])
+    only_b3 = universe.inclusion(
+        store, profile="nur-bracket-3", card_names=["Sol Ring", "Island"], commander_names=None
+    )
     assert only_b3["denominator"] == 1
     rows = {row["card_name"]: row for row in only_b3["rows"]}
     assert rows["Sol Ring"]["hits"] == 1 and rows["Island"]["hits"] == 0
 
-    empty = universe.inclusion(store, spec={"cohorts": ["bracket:5"]}, card_names=["Sol Ring"])
+    empty = universe.inclusion(
+        store, spec={"cohorts": ["bracket:5"]}, card_names=["Sol Ring"], commander_names=None
+    )
     assert empty["denominator"] == 0 and empty["rows"][0]["share"] is None
 
     with pytest.raises(KeyError):
-        universe.inclusion(store, profile="gibt-es-nicht")
+        universe.inclusion(store, profile="gibt-es-nicht", commander_names=None)
     with pytest.raises(ValueError):
         universe.save_profile(store, "kaputt", {"farbe": ["gruen"]})
 
@@ -271,7 +275,7 @@ def test_universe_date_and_size_filters_and_cooccurrence(
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
     assert universe.resolve_universe(store, {"date_from": "2026-01-01"}) == ["edhrec:aaa"]
     assert universe.resolve_universe(store, {"min_main_cards": 5}) == ["edhrec:aaa"]
-    pairs = universe.cooccurrence(store, "Sol Ring")
+    pairs = universe.cooccurrence(store, "Sol Ring", commander_names=None)
     assert pairs["decks_with_card"] == 2
     assert {pair["card_name"] for pair in pairs["pairs"]} == {CHULANE, "Forest"}
 
@@ -291,7 +295,7 @@ def test_cooccurrence_counts_each_deck_once_and_spec_types_are_checked(
         ],
     )
     decklist_import.import_decklists(store, tmp_path, format="archidekt")
-    pairs = universe.cooccurrence(store, "Sol Ring")
+    pairs = universe.cooccurrence(store, "Sol Ring", commander_names=None)
     assert pairs["decks_with_card"] == 1
     with pytest.raises(ValueError):
         universe.resolve_universe(store, {"platforms": "edhrec"})
@@ -302,10 +306,10 @@ def test_cooccurrence_counts_each_deck_once_and_spec_types_are_checked(
 def test_snapshot_changes_when_a_decks_cards_change(store: StudioStore, tmp_path: Path) -> None:
     _edhrec_file(tmp_path, "s1", [(CHULANE, 1), ("Sol Ring", 1)])
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    before = universe.snapshot_id(store)
+    before = universe.snapshot_id(store, commander_names=None)
     _edhrec_file(tmp_path, "s1", [(CHULANE, 1), ("Black Lotus", 1)])
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    assert universe.snapshot_id(store) != before
+    assert universe.snapshot_id(store, commander_names=None) != before
 
 
 def test_tier_params_keep_an_explicitly_empty_cut_list() -> None:
@@ -326,8 +330,8 @@ def test_tiers_are_pure_counts_with_a_u_state(store: StudioStore, tmp_path: Path
             + ([("Rare Card", 1)] if index == 0 else []),
         )
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    counted = universe.inclusion(store)
-    snapshot = universe.snapshot_id(store)
+    counted = universe.inclusion(store, commander_names=None)
+    snapshot = universe.snapshot_id(store, commander_names=None)
     params = tiers.TierParams(min_universe=30)
     result = {
         row["card_name"]: row
@@ -350,7 +354,7 @@ def test_tiers_are_pure_counts_with_a_u_state(store: StudioStore, tmp_path: Path
     # A new deck changes the snapshot: figures counted later cite a different universe.
     _edhrec_file(tmp_path, "d4", [(CHULANE, 1)])
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    assert universe.snapshot_id(store) != snapshot
+    assert universe.snapshot_id(store, commander_names=None) != snapshot
 
 
 def test_changed_reimport_releases_stale_duplicate_marks(
@@ -359,10 +363,10 @@ def test_changed_reimport_releases_stale_duplicate_marks(
     _edhrec_file(tmp_path, "a", [(CHULANE, 1), ("Sol Ring", 1)])
     _edhrec_file(tmp_path, "b", [(CHULANE, 1), ("Sol Ring", 1)])
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    assert universe.inclusion(store)["denominator"] == 1
+    assert universe.inclusion(store, commander_names=None)["denominator"] == 1
     _edhrec_file(tmp_path, "a", [(CHULANE, 1), ("Black Lotus", 1)])
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    counted = universe.inclusion(store, card_names=["Sol Ring"])
+    counted = universe.inclusion(store, card_names=["Sol Ring"], commander_names=None)
     assert counted["denominator"] == 2
     assert counted["rows"][0]["hits"] == 1
     marks = dict(store.connection.execute("SELECT deck_id, duplicate_of FROM corpus_deck"))
@@ -376,9 +380,11 @@ def test_duplicates_are_collapsed_inside_the_selected_universe(
     _edhrec_file(tmp_path, "a", cards, savedate="2026-05-01")
     _edhrec_file(tmp_path, "b", cards, savedate="2020-05-01")
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    old = universe.inclusion(store, spec={"date_to": "2021-01-01"}, card_names=["Sol Ring"])
+    old = universe.inclusion(
+        store, spec={"date_to": "2021-01-01"}, card_names=["Sol Ring"], commander_names=None
+    )
     assert old["denominator"] == 1 and old["rows"][0]["hits"] == 1
-    assert universe.inclusion(store)["denominator"] == 1
+    assert universe.inclusion(store, commander_names=None)["denominator"] == 1
 
 
 @pytest.mark.parametrize("quantity", [0, -1])
@@ -387,10 +393,13 @@ def test_non_positive_quantities_are_not_hits(
 ) -> None:
     _edhrec_file(tmp_path, "q", [(CHULANE, 1), ("Sol Ring", 1), ("Ghost Card", quantity)])
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    ghost = universe.inclusion(store, card_names=["Ghost Card"])["rows"][0]
+    ghost = universe.inclusion(store, card_names=["Ghost Card"], commander_names=None)["rows"][0]
     assert ghost["hits"] == 0
-    assert universe.cooccurrence(store, "Ghost Card")["decks_with_card"] == 0
-    names = {pair["card_name"] for pair in universe.cooccurrence(store, "Sol Ring")["pairs"]}
+    assert universe.cooccurrence(store, "Ghost Card", commander_names=None)["decks_with_card"] == 0
+    names = {
+        pair["card_name"]
+        for pair in universe.cooccurrence(store, "Sol Ring", commander_names=None)["pairs"]
+    }
     assert "Ghost Card" not in names
     # Even a row that reached the table directly is not counted by the queries.
     store.connection.execute(
@@ -398,8 +407,11 @@ def test_non_positive_quantities_are_not_hits(
         "normalization_status) VALUES ('edhrec:q', 'Raw Ghost', 'main', NULL, ?, 'source_name')",
         (quantity,),
     )
-    assert universe.inclusion(store, card_names=["Raw Ghost"])["rows"][0]["hits"] == 0
-    assert universe.cooccurrence(store, "Raw Ghost")["decks_with_card"] == 0
+    assert (
+        universe.inclusion(store, card_names=["Raw Ghost"], commander_names=None)["rows"][0]["hits"]
+        == 0
+    )
+    assert universe.cooccurrence(store, "Raw Ghost", commander_names=None)["decks_with_card"] == 0
 
 
 def test_tier_params_are_validated() -> None:
@@ -437,16 +449,16 @@ def test_pooled_universe_reports_its_composition(store: StudioStore, tmp_path: P
     _archidekt_file(archidekt, 5, [_card(CHULANE, 1, ["Commander"]), _card("Forest")])
     decklist_import.import_decklists(store, edhrec, format="edhrec")
     decklist_import.import_decklists(store, archidekt, format="archidekt")
-    counted = universe.inclusion(store)
+    counted = universe.inclusion(store, commander_names=None)
     assert counted["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
     assert counted["denominator_by_bracket"] == {"bracket:3": 2, "bracket:4": 1}
-    snapshot = universe.snapshot_id(store)
+    snapshot = universe.snapshot_id(store, commander_names=None)
     row = tiers.tiers_for_universe(
         counted, universe_snapshot=snapshot, params=tiers.TierParams(min_universe=1)
     )[0]
     assert row["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
     assert row["denominator_by_bracket"] == {"bracket:3": 2, "bracket:4": 1}
-    co = universe.cooccurrence(store, "Sol Ring")
+    co = universe.cooccurrence(store, "Sol Ring", commander_names=None)
     assert co["denominator"] == 3
     assert co["denominator_by_platform"] == {"archidekt": 1, "edhrec": 2}
 
@@ -456,9 +468,14 @@ def test_cooccurrence_limit_is_validated(store: StudioStore, tmp_path: Path) -> 
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
     for bad in (0, -1):
         with pytest.raises(ValueError):
-            universe.cooccurrence(store, "Sol Ring", limit=bad)
-    assert len(universe.cooccurrence(store, "Sol Ring", limit=None)["pairs"]) == 2
-    assert len(universe.cooccurrence(store, "Sol Ring", limit=1)["pairs"]) == 1
+            universe.cooccurrence(store, "Sol Ring", limit=bad, commander_names=None)
+    assert (
+        len(universe.cooccurrence(store, "Sol Ring", limit=None, commander_names=None)["pairs"])
+        == 2
+    )
+    assert (
+        len(universe.cooccurrence(store, "Sol Ring", limit=1, commander_names=None)["pairs"]) == 1
+    )
 
 
 def _raw_deck(
@@ -496,7 +513,7 @@ def test_empty_fingerprints_are_unknown_and_never_collapsed(store: StudioStore) 
     _raw_deck(store, "d1", [("Sol Ring", "main", 1)], fingerprint="")
     _raw_deck(store, "d2", [("Forest", "main", 1)], fingerprint="")
     assert universe.resolve_universe(store, {}) == ["d1", "d2"]
-    result = universe.inclusion(store)
+    result = universe.inclusion(store, commander_names=None)
     assert result["denominator"] == 2
     assert {row["card_name"]: row["hits"] for row in result["rows"]} == {
         "Sol Ring": 1,
@@ -510,7 +527,7 @@ def test_decks_without_a_counted_card_row_leave_the_denominator(store: StudioSto
     _raw_deck(store, "side", [("Sol Ring", "sideboard", 1)], fingerprint="f3")
     _raw_deck(store, "bare", [], fingerprint="f4")
     assert universe.resolve_universe(store, {}) == ["full"]
-    assert universe.inclusion(store)["denominator"] == 1
+    assert universe.inclusion(store, commander_names=None)["denominator"] == 1
 
 
 def test_several_bracket_cohorts_are_reported_as_multiple(store: StudioStore) -> None:
@@ -523,7 +540,7 @@ def test_several_bracket_cohorts_are_reported_as_multiple(store: StudioStore) ->
         cohorts=("bracket:2", "bracket:4"),
     )
     _raw_deck(store, "c", [("Island", "main", 1)], fingerprint="f3")
-    result = universe.inclusion(store)
+    result = universe.inclusion(store, commander_names=None)
     assert result["denominator_by_bracket"] == {"bracket:3": 1, "multiple": 1, "unknown": 1}
     assert sum(result["denominator_by_bracket"].values()) == result["denominator"]
 
@@ -539,16 +556,16 @@ def test_large_universe_exceeds_the_sql_variable_limit(store: StudioStore) -> No
             fingerprint=f"fp{index}",
             cohorts=("bracket:3",),
         )
-    result = universe.inclusion(store)
+    result = universe.inclusion(store, commander_names=None)
     assert result["denominator"] == 1200
     assert result["denominator_by_platform"] == {"raw": 1200}
     assert result["denominator_by_bracket"] == {"bracket:3": 1200}
     hits = {row["card_name"]: row["hits"] for row in result["rows"]}
     assert hits == {"Sol Ring": 1200, "Unique 0": 400, "Unique 1": 400, "Unique 2": 400}
-    together = universe.cooccurrence(store, "Sol Ring", limit=None)
+    together = universe.cooccurrence(store, "Sol Ring", limit=None, commander_names=None)
     assert together["decks_with_card"] == 1200
     assert {p["card_name"]: p["decks_together"] for p in together["pairs"]}["Unique 1"] == 400
-    assert universe.snapshot_id(store).endswith(":1200")
+    assert universe.snapshot_id(store, commander_names=None).endswith(":1200")
 
 
 def test_read_only_queries_leave_no_open_transaction(store: StudioStore, tmp_path: Path) -> None:
@@ -557,9 +574,9 @@ def test_read_only_queries_leave_no_open_transaction(store: StudioStore, tmp_pat
     decklist_import.import_decklists(store, tmp_path, format="edhrec")
     store.connection.commit()
     assert store.connection.in_transaction is False
-    universe.inclusion(store, spec={})
+    universe.inclusion(store, spec={}, commander_names=None)
     assert store.connection.in_transaction is False
-    universe.cooccurrence(store, "Sol Ring", spec={})
+    universe.cooccurrence(store, "Sol Ring", spec={}, commander_names=None)
     assert store.connection.in_transaction is False
 
 
@@ -573,3 +590,59 @@ def test_corpus_importer_mainboard_section_is_counted(store: StudioStore) -> Non
     result = universe.inclusion(store, spec={}, card_names=["Sol Ring"])
     assert result["denominator"] == 2
     assert result["rows"][0]["hits"] == 2
+
+
+def test_universe_counts_only_decks_bound_to_the_commander(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    first, second = tmp_path / "first", tmp_path / "second"
+    first.mkdir()
+    second.mkdir()
+    _edhrec_file(first, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    _edhrec_file(first, "bbb", [(CHULANE, 1), ("Island", 1)])
+    _edhrec_file(second, "ccc", [("Second Commander", 1), ("Sol Ring", 1), ("Swamp", 1)])
+    decklist_import.import_decklists(store, first, format="edhrec")
+    store.bind_unbound(CHULANE)
+    decklist_import.import_decklists(store, second, format="edhrec")
+
+    # Without a commander every stored deck is selected; the third deck is still unbound.
+    assert (
+        universe.inclusion(store, card_names=["Sol Ring"], commander_names=None)["denominator"] == 3
+    )
+    mine = universe.inclusion(store, card_names=["Sol Ring"], commander_names=[CHULANE])
+    assert (mine["rows"][0]["hits"], mine["denominator"]) == (1, 2)
+    assert mine["spec"]["commanders"] == [CHULANE]
+    other = ["Second Commander"]
+    assert universe.inclusion(store, commander_names=other)["denominator"] == 0
+    store.bind_unbound("Second Commander")
+    assert universe.inclusion(store, commander_names=other)["denominator"] == 1
+    assert universe.inclusion(store, commander_names=[CHULANE])["denominator"] == 2
+    assert universe.snapshot_id(store, commander_names=[CHULANE]) != universe.snapshot_id(
+        store, commander_names=other
+    )
+    assert universe.cooccurrence(store, "Sol Ring", commander_names=other)["decks_with_card"] == 1
+
+
+def test_a_profile_of_one_commander_is_not_read_for_another(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    store.bind_unbound(CHULANE)
+    universe.save_profile(store, "mine", {"commanders": [CHULANE]})
+    assert universe.inclusion(store, profile="mine", commander_names=[CHULANE])["denominator"] == 1
+    with pytest.raises(ValueError, match="not for"):
+        universe.inclusion(store, profile="mine", commander_names=["Second Commander"])
+
+
+def test_a_deck_list_of_another_commander_is_refused(store: StudioStore, tmp_path: Path) -> None:
+    _edhrec_file(
+        tmp_path, "ccc", [("Second Commander", 1), ("Sol Ring", 1)], commanders=["Second Commander"]
+    )
+    with pytest.raises(ValueError, match="another commander"):
+        decklist_import.import_decklists(store, tmp_path, format="edhrec", commander=CHULANE)
+    assert store.count("corpus_deck") == 0
+    result = decklist_import.import_decklists(
+        store, tmp_path, format="edhrec", commander="Second Commander"
+    )
+    assert result["decks"] == 1
