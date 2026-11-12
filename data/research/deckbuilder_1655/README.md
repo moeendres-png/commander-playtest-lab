@@ -18,6 +18,8 @@ hier liegen ausschliesslich Aggregate.
 | `card_tagger_bulk_1655.csv` | Tagger-Claims (Subtree-Vereinigung) — 1.033 Karten mit Claims | Scryfall Bulk `oracle_tags` (taggings + Kind-Tags), 2026-11-12 |
 | `edhrec_salt.csv` | 100 Zeilen: EDHREC-Salt-Top-100 (Wert + Rang); nur 4 davon in der Sammlung — Karten ausserhalb haben keinen publizierten Wert in dieser Liste (nicht 0) | EDHREC `/pages/top/salt.json`, Abruf 2026-11-12 |
 | `edhrec_chulane_combos.csv` | 100 Combo-Listen für Chulane mit EDHREC-Deck-Zählern (beobachtete Combos; getrennt von Spellbook zu führen) | EDHREC-Comboseite Chulane, Abruf 2026-11-12 |
+| `topdeck_chulane_decks.csv` | 572 Zeilen: 6 Chulane-Turnierlisten (je 100 Karten) mit Turnier, Datum, W/D/L | TopDeck.gg API v2, Abruf 2026-11-12. Data provided by TopDeck.gg (https://topdeck.gg) |
+| `topdeck_commander_presence.csv` | 107 Zeilen: Turnier-Präsenz je Commander (90 Tage); Zählbasis 71.080 Standings, 24.536 mit Leader-Angabe — Zähler sind Untergrenzen | TopDeck.gg API v2, Abruf 2026-11-12. Data provided by TopDeck.gg (https://topdeck.gg) |
 | `mtgjson_printings_1655_{1..3}.jsonl` | 16.658 Drucke zu 1.655/1.655 Identitäten, 61.725 Fremdnamen; KEINE Preise (Owner-Entscheid: keine Preisdaten im Tool) | MTGJSON AllPrintings (Build 2026-11-11), gefiltert per scryfallOracleId |
 
 Bekannte Grenzen: EDHREC-Werte sind Momentaufnahmen des Abrufs;
