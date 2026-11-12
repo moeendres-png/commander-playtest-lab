@@ -15,8 +15,8 @@ displayed tier can be recomputed and checked.
 from __future__ import annotations
 
 from collections.abc import Mapping
-from itertools import pairwise
 from dataclasses import dataclass, field
+from itertools import pairwise
 from typing import TypedDict
 
 from ._coerce import iterate, to_float, to_int
