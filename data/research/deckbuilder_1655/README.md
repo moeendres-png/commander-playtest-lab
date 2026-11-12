@@ -29,3 +29,12 @@ nicht (NOT_FOUND). Gap-Matrix zum selben Stand:
 `data/research/chulane_legal_pool_gap_matrix.json` (PR #1229).
 
 Teilungs-Schema: Dateien über ~2 MB sind in nummerierte Teile `<name>_1`, `<name>_2`, … zerlegt (Connector-Limit je Datei); CSV-Teile tragen je eine eigene Kopfzeile und werden zum Lesen in Nummern-Reihenfolge aneinandergehängt (Kopfzeile nur vom ersten Teil übernehmen).
+
+## Bekannte CI-Wechselwirkung (2026-11-12)
+
+Der Secret-Pattern-Scan der CI (Muster `sk-[A-Za-z0-9_-]{20,}`) trifft in
+`commander_bracket_signals_optimized_3.csv` den Karten-Slug
+`zask-skittering-swarmlord` (Karte: Zask, Skittering Swarmlord). Das ist ein
+publizierter EDHREC-Bezeichner und Join-Schlüssel dieser Datei, kein Secret.
+Die Behebung gehört in die Workflow-Definition (Ausschluss von
+`data/research/**`), nicht in die Daten.
