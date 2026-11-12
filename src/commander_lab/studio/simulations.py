@@ -366,6 +366,18 @@ def save_batch_to_store(
             "cast_count, mean_first_cast_round) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             card_rows,
         )
+        # A series belongs to the commander of the deck revision it played; it is shown
+        # only under that commander and never added to another commander's figures.
+        db.execute(
+            "DELETE FROM commander_binding WHERE kind = 'simulation_run' AND key = ?", (run_id,)
+        )
+        db.execute(
+            "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+            "SELECT 'simulation_run', ?, f.oracle_name, 'DECK_REVISION_COMMANDER' "
+            "FROM deck_revision_card rc JOIN card_fact f ON f.card_id = rc.card_id "
+            "WHERE rc.revision_id = ? AND rc.zone = 'commander'",
+            (run_id, batch.revision_id),
+        )
 
     return run_id
 

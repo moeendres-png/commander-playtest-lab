@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import sqlite3
+from collections.abc import Sequence
 
+from .builder import bound_to
 from .decks import color_set
 from .store import StudioStore
 
@@ -29,16 +31,22 @@ def legal_pool(store: StudioStore, commander_names: list[str]) -> list[sqlite3.R
 
 
 def corpus_inclusion(
-    store: StudioStore, card_name: str, *, play_group: str | None = None
+    store: StudioStore,
+    card_name: str,
+    commander_names: Sequence[str],
+    *,
+    play_group: str | None = None,
 ) -> dict[str, object]:
-    """In how many distinct source decks a card appears: hits and denominator.
+    """In how many distinct source decks of the commander a card appears: hits and
+    denominator. Decks bound to another commander or to none are never counted.
 
     Exact duplicates count once. ``play_group`` narrows the cohort (for example
     ``community`` or ``turnier_cedh``); the denominator is the number of distinct decks of
     that cohort. No decks in the cohort means the share is unknown, not zero.
     """
-    where = "d.duplicate_of IS NULL"
-    parameters: list[str] = []
+    bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
+    where = f"d.duplicate_of IS NULL{bound}"
+    parameters: list[str] = [*bound_args]
     if play_group is not None:
         where += " AND d.play_group = ?"
         parameters.append(play_group)
@@ -56,6 +64,7 @@ def corpus_inclusion(
     )
     return {
         "card_name": card_name,
+        "commander": list(commander_names),
         "play_group": play_group or "all",
         "hits": hits,
         "denominator": denominator,
