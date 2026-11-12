@@ -38,8 +38,9 @@ The live pin is in `config/rules_engines.json`. The Freeze binds the Owner decis
 limitation: pilots run out of process and no foreign code runs in the engine JVM; stronger
 isolation must hold before any untrusted pilot is admitted.
 
-Do not create the Production Repository (Owner-only). Do not change the Rules Core or the
-pin without a new Owner decision and requalification.
+Do not create the Production Repository (Owner-only). Do not change the Rules Core (the
+engine fork) or the pin without a new Owner decision and requalification. The Java bridge
+in `engine-bridge/` may change for the Studio under the Studio bridge gate (§10).
 
 The end state is a production-quality simulation system: real 100-card decks under a
 qualified full-rules Rules Core, authoritative legal Decision Options, externally
@@ -366,6 +367,33 @@ These still need the Owner's explicit go before merge: pushes to the engine fork
 (`moeendres-png/mage`), repins, and any change that touches signed or sealed qualification
 records or the reseal-bound files (`requirements/lock.txt`, its digest, `pyproject.toml`).
 Self-merge never bypasses branch protection, an admin override or the hard boundaries above.
+
+### Studio bridge gate
+
+`STUDIO_BRIDGE_GATE = ENABLED` (Owner decision 2026-11-12).
+
+A change under `engine-bridge/` made for the Studio (speed, the human seat, an engine
+look-ahead for pilots) merges without a new sealed qualification epoch when all of this
+holds:
+
+- **Declared kind.** The PR says whether the change is meant to leave every game unchanged
+  (`NEUTRAL`) or to change play (`BEHAVIOUR`).
+- **`NEUTRAL`:** the semantic transcript hash of every game of the fixed reference set is
+  identical before and after, on the same pin. The reference set and the command are in
+  `docs/STUDIO_PLAN_SIMULATOR.md`; a single different hash makes the change `BEHAVIOUR`.
+- **`BEHAVIOUR`:** the bridge test suites pass, the real four-player smoke game completes,
+  default settings leave the reference set unchanged where the change is behind a setting,
+  and the PR states what was measured and what stays `UNKNOWN`.
+- **Review and checks.** An independent review without blocking findings and the required
+  checks on the exact head, as for every MATERIAL change.
+
+The sealed qualification records stay as they are: they describe the bridge and pin they
+were sealed on, and nobody rewrites them. After the first change merged under this gate the
+running bridge is no longer the sealed one, so every Studio result names the bridge jar
+digest it was produced with, and nothing produced on a later bridge is presented as
+covered by the sealed epoch. The Rules Core stays the only rules authority (§2): a bridge
+change never decides a rule, never picks an option for a seat and never widens what a
+principal may see (§5). The fork and the pin stay behind the Owner's go.
 
 ## 11. Git, worktree, ownership
 
