@@ -117,8 +117,8 @@ def test_summary_equals_the_inclusion_denominators(client: TestClient, folder: P
         assert summary["denominator"] == counted["denominator"] == 43
         assert summary["denominator_by_platform"] == counted["denominator_by_platform"]
         assert summary["denominator_by_bracket"] == counted["denominator_by_bracket"]
-        assert summary["denominator_by_platform"] == {"archidekt": 20, "edhrec": 20}
-        assert summary["denominator_by_bracket"] == {"bracket:3": 20, "bracket:4": 20}
+        assert summary["denominator_by_platform"] == {"archidekt": 20, "edhrec": 20, "example": 3}
+        assert summary["denominator_by_bracket"] == {"bracket:3": 20, "bracket:4": 20, "unknown": 3}
         assert summary["snapshot_id"] == universe.snapshot_id(store, profile="alle")
     finally:
         store.close()
