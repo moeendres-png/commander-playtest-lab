@@ -7,30 +7,34 @@ card is played in the chosen decks, not how strong it is: it does not touch the 
 model or its unrated policy, and favourites, excludes and notes are never read here.
 
 Name mapping: universe counts are keyed by the raw ``card_name`` of the imported decks.
-A Studio card may appear there as its oracle name, its engine name or the front face of a
-double-faced name. Names are compared case-insensitively (``str.casefold``). When several
-spellings occur, their hits are NOT summed (a deck may list a card under one spelling
-only, but the spellings of one card can overlap across sources): the largest count is
-reported and every spelling is listed with its own count. When no spelling occurs in the
-universe, absence cannot be told from a spelling mismatch, so the card is reported as
-unmatched: level ``U``, share ``None``, never a zero.
+A Studio card's name keys are its oracle name and its engine name, plus the front face of
+a double-faced name unless another Studio card has that exact name (then the card is
+flagged ``ambiguous_front_face``). Keys are compared case-insensitively
+(``str.casefold``). A card's hits are the number of DISTINCT universe decks that list at
+least one of its keys, so a deck listing two spellings counts once and spellings are never
+summed; every raw spelling is still listed with its own deck count, and ``matched_name`` is
+the spelling with the most decks. When no key occurs in the universe, absence cannot be
+told from a spelling mismatch, so the card is reported as unmatched: level ``U``, share
+``None``, never a zero.
 """
 
 from __future__ import annotations
 
+from collections import Counter
 from collections.abc import Sequence
-from typing import TypedDict
+from typing import NotRequired, TypedDict
 
 from .store import StudioStore
 from .tiers import TierParams, TierParamsDict, tier_for_share
 from .universe import (
     CooccurrenceRow,
-    InclusionResult,
+    UniverseDecks,
     UniverseSpec,
-    cooccurrence,
+    cooccurrence_in_decks,
     get_profile,
     inclusion,
     snapshot_id,
+    universe_decks,
 )
 
 NAME_NOT_FOUND = "NAME_NOT_FOUND_IN_UNIVERSE"
@@ -66,6 +70,7 @@ class CardSpread(TypedDict):
     level: str
     reason: str
     spellings: list[Spelling]
+    ambiguous_front_face: NotRequired[bool]
 
 
 class SpreadUniverse(TypedDict):
@@ -115,88 +120,110 @@ def profile_summary(store: StudioStore, name: str) -> ProfileSummary:
     }
 
 
-def _spellings(oracle_name: str, engine_name: str) -> list[str]:
-    candidates = [
-        oracle_name,
-        engine_name,
-        oracle_name.split(" // ")[0].strip(),
-        engine_name.split(" // ")[0].strip(),
-    ]
-    seen: set[str] = set()
-    result: list[str] = []
-    for candidate in candidates:
-        if candidate and candidate.casefold() not in seen:
-            seen.add(candidate.casefold())
-            result.append(candidate)
-    return result
+def _front(name: str) -> str:
+    return name.split(" // ")[0].strip()
 
 
-def _universe_counts(counted: InclusionResult) -> dict[str, tuple[str, int]]:
-    """Casefolded name -> (raw name with the most hits, those hits)."""
-    best: dict[str, tuple[str, int]] = {}
-    for row in counted["rows"]:
-        key = row["card_name"].casefold()
-        if key not in best or row["hits"] > best[key][1]:
-            best[key] = (row["card_name"], row["hits"])
-    return best
+def _name_keys(card: CardRow, taken: Counter[str]) -> tuple[list[str], bool]:
+    """Casefolded name keys of a card and whether a front face was withheld as ambiguous.
+
+    Keys are the oracle and engine names. The front face of a double-faced name is added
+    only when no other Studio card has that exact name as its oracle or engine name."""
+    own = [name.casefold() for name in (card[1], card[2]) if name]
+    keys = list(dict.fromkeys(own))
+    ambiguous = False
+    for name in (card[1], card[2]):
+        front = _front(name).casefold()
+        if not front or front in keys:
+            continue
+        if taken[front] > 0:
+            ambiguous = True
+        else:
+            keys.append(front)
+    return keys, ambiguous
 
 
-def _card_rows(store: StudioStore, card_ids: Sequence[str] | None) -> list[tuple[str, str, str]]:
-    sql = "SELECT card_id, oracle_name, engine_name FROM card_fact"
-    if card_ids is None:
-        rows = store.connection.execute(sql + " ORDER BY oracle_name, card_id").fetchall()
-    else:
-        rows = []
-        for card_id in card_ids:
-            row = store.connection.execute(sql + " WHERE card_id = ?", (card_id,)).fetchone()
-            if row is None:
-                raise KeyError(card_id)
-            rows.append(row)
+CardRow = tuple[str, str, str]
+
+
+def _all_card_rows(store: StudioStore) -> list[CardRow]:
+    rows = store.connection.execute(
+        "SELECT card_id, oracle_name, engine_name FROM card_fact ORDER BY oracle_name, card_id"
+    ).fetchall()
     return [(str(r["card_id"]), str(r["oracle_name"]), str(r["engine_name"])) for r in rows]
 
 
+def _chosen(rows: list[CardRow], card_ids: Sequence[str] | None) -> list[CardRow]:
+    if card_ids is None:
+        return rows
+    by_id = {row[0]: row for row in rows}
+    chosen: list[CardRow] = []
+    for card_id in card_ids:
+        if card_id not in by_id:
+            raise KeyError(card_id)
+        chosen.append(by_id[card_id])
+    return chosen
+
+
 def _spread_of(
-    card: tuple[str, str, str],
-    counts: dict[str, tuple[str, int]],
-    denominator: int,
+    card: CardRow,
+    keys: list[str],
+    ambiguous: bool,
+    universe: UniverseDecks,
+    by_key: dict[str, list[str]],
     params: TierParams,
-) -> CardSpread:
-    card_id, oracle_name, engine_name = card
-    found = [
-        counts[key]
-        for key in (name.casefold() for name in _spellings(oracle_name, engine_name))
-        if key in counts and counts[key][1] > 0
-    ]
-    unique = list({raw: (raw, hits) for raw, hits in found}.values())
-    spellings: list[Spelling] = [{"name": raw, "hits": hits} for raw, hits in unique]
-    if not unique:
-        return {
-            "card_id": card_id,
-            "name": oracle_name,
-            "matched": False,
-            "matched_name": None,
-            "hits": None,
-            "denominator": denominator,
-            "share": None,
-            "level": "U",
-            "reason": NAME_NOT_FOUND,
-            "spellings": [],
-        }
-    matched_name, hits = max(unique, key=lambda item: item[1])
-    share = hits / denominator if denominator else None
-    level, reason = tier_for_share(share, denominator, params)
-    return {
+) -> tuple[CardSpread, set[str]]:
+    card_id, oracle_name, _ = card
+    denominator = universe["denominator"]
+    decks_by_name = universe["decks_by_name"]
+    raw_names = sorted({raw for key in keys for raw in by_key.get(key, [])})
+    union: set[str] = set()
+    for raw in raw_names:
+        union |= decks_by_name[raw]
+    spellings: list[Spelling] = sorted(
+        ({"name": raw, "hits": len(decks_by_name[raw])} for raw in raw_names),
+        key=lambda item: (-item["hits"], item["name"]),
+    )
+    result: CardSpread = {
         "card_id": card_id,
         "name": oracle_name,
-        "matched": True,
-        "matched_name": matched_name,
-        "hits": hits,
+        "matched": bool(union),
+        "matched_name": spellings[0]["name"] if union else None,
+        "hits": len(union) if union else None,
         "denominator": denominator,
-        "share": share,
-        "level": level,
-        "reason": reason,
-        "spellings": spellings,
+        "share": None,
+        "level": "U",
+        "reason": NAME_NOT_FOUND,
+        "spellings": spellings if union else [],
     }
+    if ambiguous:
+        result["ambiguous_front_face"] = True
+    if union:
+        share = len(union) / denominator if denominator else None
+        result["share"] = share
+        result["level"], result["reason"] = tier_for_share(share, denominator, params)
+    return result, union
+
+
+def _spread_all(
+    store: StudioStore, profile: str, card_ids: Sequence[str] | None
+) -> tuple[UniverseDecks, list[tuple[CardSpread, set[str], list[str]]]]:
+    universe = universe_decks(store, profile=profile)
+    rows = _all_card_rows(store)
+    taken: Counter[str] = Counter()
+    for _, oracle_name, engine_name in rows:
+        for name in {oracle_name.casefold(), engine_name.casefold()}:
+            taken[name] += 1
+    by_key: dict[str, list[str]] = {}
+    for raw in universe["decks_by_name"]:
+        by_key.setdefault(raw.casefold(), []).append(raw)
+    params = TierParams()
+    entries: list[tuple[CardSpread, set[str], list[str]]] = []
+    for card in _chosen(rows, card_ids):
+        keys, ambiguous = _name_keys(card, taken)
+        spread, decks = _spread_of(card, keys, ambiguous, universe, by_key, params)
+        entries.append((spread, decks, keys))
+    return universe, entries
 
 
 def pool_spread(
@@ -204,40 +231,34 @@ def pool_spread(
 ) -> PoolSpread:
     """Counted spread of Studio cards (all, or the given ids) in one profile's universe.
 
-    Raises KeyError for an unknown profile or card id."""
-    summary = profile_summary(store, profile)
-    counted = inclusion(store, profile=profile)
-    counts = _universe_counts(counted)
-    params = TierParams()
-    denominator = summary["denominator"]
+    A card's hits are the distinct universe decks listing at least one of its name keys
+    (casefolded) in a counted section. Raises KeyError for an unknown profile or card id."""
+    universe, entries = _spread_all(store, profile, card_ids)
     return {
         "universe": {
             "profile": profile,
-            "snapshot_id": summary["snapshot_id"],
-            "denominator": denominator,
-            "denominator_by_platform": summary["denominator_by_platform"],
-            "denominator_by_bracket": summary["denominator_by_bracket"],
-            "data_class": summary["data_class"],
+            "snapshot_id": universe["snapshot_id"],
+            "denominator": universe["denominator"],
+            "denominator_by_platform": universe["denominator_by_platform"],
+            "denominator_by_bracket": universe["denominator_by_bracket"],
+            "data_class": universe["data_class"],
         },
-        "params": params.to_dict(),
+        "params": TierParams().to_dict(),
         "meaning": MEANING,
-        "cards": [
-            _spread_of(card, counts, denominator, params) for card in _card_rows(store, card_ids)
-        ],
+        "cards": [spread for spread, _, _ in entries],
     }
 
 
 def card_cooccurrence(
     store: StudioStore, profile: str, card_id: str, limit: int = 25
 ) -> CardCooccurrence:
-    """Cards played together with one card in the universe, for the matched spelling.
+    """Cards played together with one card in the universe, over the card's counted decks.
 
     Raises KeyError for an unknown profile or card, ValueError when ``limit`` < 1."""
     if limit < 1:
         raise ValueError("limit must be at least 1")
-    spread = pool_spread(store, profile, [card_id])
-    card = spread["cards"][0]
-    universe = spread["universe"]
+    universe, entries = _spread_all(store, profile, [card_id])
+    card, decks, keys = entries[0]
     base: CardCooccurrence = {
         "card_id": card_id,
         "matched": card["matched"],
@@ -253,12 +274,10 @@ def card_cooccurrence(
         "pairs": [],
         "data_class": universe["data_class"],
     }
-    matched_name = card["matched_name"]
-    if matched_name is None:
+    if not card["matched"]:
         return base
-    result = cooccurrence(store, matched_name, profile=profile, limit=limit)
-    base["decks_with_card"] = result["decks_with_card"]
-    base["pairs"] = result["pairs"]
+    base["decks_with_card"] = len(decks)
+    base["pairs"] = cooccurrence_in_decks(store, decks, set(keys), limit)
     return base
 
 

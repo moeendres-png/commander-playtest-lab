@@ -182,13 +182,15 @@ def test_front_face_and_case_variants_map_to_the_card(client: TestClient) -> Non
     front = cards["Filler 01 // Back Side"]
     assert front["matched"] and front["hits"] == 20 and front["matched_name"] == "Filler 01"
     rat = cards["Swarm Rat"]
-    assert rat["matched"] and rat["hits"] == 25 and rat["matched_name"] == "swarm rat"
+    # 25 decks spell it "swarm rat"; two corpus decks spell it "Swarm Rat": 27 distinct decks.
+    assert rat["matched"] and rat["hits"] == 27 and rat["matched_name"] == "swarm rat"
 
 
-def test_two_spellings_with_hits_are_not_summed(client: TestClient) -> None:
+def test_two_spellings_count_the_union_of_their_decks(client: TestClient) -> None:
     _put(client, "alle", {})
     card = _spread(client, "alle")["Filler 02 // Back Side"]
-    assert card["hits"] == 15 and card["matched_name"] == "Filler 02 // Back Side"
+    # decks 00-09 list "Filler 02", decks 10-24 the full name: disjoint, so 25 distinct decks.
+    assert card["hits"] == 25 and card["matched_name"] == "Filler 02 // Back Side"
     assert {item["name"]: item["hits"] for item in card["spellings"]} == {
         "Filler 02 // Back Side": 15,
         "Filler 02": 10,
@@ -231,11 +233,11 @@ def test_cooccurrence_has_both_denominators_and_checks_the_limit(client: TestCli
     _put(client, "alle", {})
     url = "/api/cards/card:project:0007/cooccurrence"
     data = client.get(url, params={"profile": "alle", "limit": 3}).json()
-    assert data["decks_with_card"] == 25 and data["denominator"] == 43
+    assert data["decks_with_card"] == 27 and data["denominator"] == 43
     assert data["decks_with_card_label"] and data["denominator_label"]
     assert len(data["pairs"]) == 3
     assert {"Forest", "Filler 03"} == {pair["card_name"] for pair in data["pairs"][:2]}
-    assert data["pairs"][0]["decks_together"] == 25
+    assert data["pairs"][0]["decks_together"] == 26
     assert client.get(url, params={"profile": "alle", "limit": 0}).status_code == 422
     unmatched = client.get(
         "/api/cards/card:project:0006/cooccurrence", params={"profile": "alle"}

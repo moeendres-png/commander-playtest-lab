@@ -16,7 +16,7 @@ from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
 from . import builder, games, launch, universe, universe_view
 from . import evidence as evidence_model
@@ -121,7 +121,7 @@ class UniverseBody(BaseModel):
     cohorts: list[str] | None = Field(default=None, max_length=100)
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
-    min_main_cards: int | None = None
+    min_main_cards: StrictInt | None = None
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
