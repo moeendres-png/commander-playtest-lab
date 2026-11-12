@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -174,6 +174,12 @@ CREATE TABLE IF NOT EXISTS corpus_cohort (
     cohort TEXT NOT NULL,
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
     PRIMARY KEY (cohort, deck_id)
+);
+CREATE TABLE IF NOT EXISTS universe_profile (
+    profile_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    spec TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS corpus_deck_part (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id) DEFERRABLE INITIALLY DEFERRED,
@@ -527,6 +533,7 @@ class StudioStore:
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
+            "universe_profile",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])
