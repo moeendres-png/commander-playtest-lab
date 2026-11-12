@@ -7,9 +7,9 @@ and must never change a count or a level.
 from __future__ import annotations
 
 import json
-from typing import Any
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -272,7 +272,10 @@ def test_unknown_profile_or_card_is_404(client: TestClient) -> None:
     assert client.get("/api/universe/profiles/nope/summary").status_code == 404
     assert client.get("/api/universe/spread", params={"profile": "nope"}).status_code == 404
     assert client.get("/api/cards/x/universe", params={"profile": "alle"}).status_code == 404
-    assert client.get("/api/cards/card:project:0002/universe?profile=nope").status_code == 404
+    assert (
+        client.get("/api/cards/card:project:0002/universe", params={"profile": "nope"}).status_code
+        == 404
+    )
     assert client.get("/api/cards/x/cooccurrence", params={"profile": "alle"}).status_code == 404
 
 
