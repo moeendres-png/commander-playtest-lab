@@ -38,7 +38,7 @@ From `docs/performance/XMAGE_FULL_GAME_SPEED_2026-10-12.md` and
 | S1 | Studio series play several games per JVM on several workers with the fast JVM flags. Proof: every game of a batch has the same semantic hash as played alone. | Python only |
 | S2 | Card outcomes (`studio/card_outcomes.py`) for every seat of every game, not only the Owner's deck; series stop when the interval of the question asked is narrow enough; results on the Tierliste page as their own field next to the counted spread. | Python only |
 | S3 | Removal in three PRs: (a) OpenCode and Foundry tooling, its workflows and tests; (b) packages no live path reaches (`whole_deck`, `tools`, optimizer, mulligan lab, RogShai, candidate workflow, old CLIs and others); (c) nine workflows that guard only those. Then `AGENTS.md` and `CLAUDE.md` are shortened to the current state. | Required checks; (b) updates `WS17_SHA256SUMS` |
-| S4 | Leaner bridge: one state view per decision instead of two, state hash only where it is used, no deep copy while polling. Declared `NEUTRAL`. | Studio bridge gate |
+| S4 | Leaner bridge: one state view per decision instead of two, state hash only where it is used, no deep copy while polling. `NEUTRAL` only if the frames the pilots receive stay identical; a change that removes frame content is `BEHAVIOUR`. Its first PR adds the normalized frame digest to the benchmark and to `compare`. | Studio bridge gate |
 | S5 | Engine look-ahead as a measured experiment: the bridge offers a pilot "play this option on a copy of the game" and reports only that seat's principal-scoped view of the copy. Hidden zones of the copy are redetermined from public information and the seat's own knowledge; the copy uses its own recorded RNG, never the real game's; every choice inside the copy is made by the pilots or ends the look-ahead (fail closed, no engine AI). A test proves that no hidden card identity is returned. Default off; becomes default only if a paired series shows a benefit. Declared `BEHAVIOUR`. | Studio bridge gate |
 | S6 | Human seat: decision time limit configurable (default two minutes), then the play page (issue #1169, requirements in `docs/research/PLAY_HUMAN_SEAT_REQUIREMENTS.md`). | Studio bridge gate |
 | S7 | Real-game outcomes: Playgroup data collected from a public card list on the Owner's machine, shown next to the simulated outcomes, never mixed. | Python only |
@@ -69,10 +69,12 @@ gate that the command alone does not enforce:
 - The PR changes neither `scripts/benchmark_xmage_full_games.py` nor the transcript-hash
   code in `src/commander_lab/engine/rules/full_game.py`.
 - The transcript hash covers decisions and outcomes, not what a pilot was shown. A `NEUTRAL`
-  change therefore also compares the frames the pilots received (their digests per
-  decision), and the hidden-information tests pass.
-- One AFTER run with `--games-per-jvm 1` on at least 6 seeds, so that batching cannot hide
-  state carried from one game to the next.
+  change therefore also compares the frames the pilots received, per decision, after the
+  same identifier normalization the transcript hash uses (per-run object ids always
+  differ). No tool does that yet: the first `NEUTRAL` PR adds the normalized frame digest to
+  the benchmark rows and to `compare`. The hidden-information tests pass.
+- One AFTER run with `--games-per-jvm 1` on at least 6 seeds whose hashes equal BEFORE, so
+  that batching cannot hide state carried from one game to the next.
 
 ## What a result must always say
 

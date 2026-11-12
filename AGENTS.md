@@ -382,7 +382,10 @@ holds:
   (`NEUTRAL`) or to change play (`BEHAVIOUR`).
 - **`NEUTRAL`:** on the fixed reference set, before and after on the same pin, every game
   finishes, the semantic transcript hash of every game is identical, and the frames each
-  pilot received for every decision are identical (or their digests are). A different hash
+  pilot received for every decision are identical after the same identifier normalization
+  the transcript hash uses (per-run object ids differ between any two runs). The first
+  `NEUTRAL` PR adds that per-decision normalized frame digest to the benchmark rows and to
+  `compare`; until a tool compares the frames, a `NEUTRAL` claim is `UNKNOWN`, not PASS. A different hash
   or frame, a failed game or a missing game FAILS a `NEUTRAL` change; it never reclassifies
   it. BEFORE is the bridge at the merge base, AFTER the exact PR head, and the two jar
   digests differ. The PR changes neither the comparison script nor the code that computes
