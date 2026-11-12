@@ -1,0 +1,194 @@
+{
+  "dataset": "Public Chulane EDHREC HTTP events 2026-11-11 (review-only)",
+  "automatic_import": false,
+  "historical_C079_timestamp_backfilled": false,
+  "historical_C079_missing_utc_still_unknown": 1304,
+  "previously_exact_historical_utc_untouched": 75,
+  "new_http200_events": 20,
+  "distinct_page_card_pairs_at_capture": 4945,
+  "matched_historical_name_theme_pairs": 1298,
+  "not_listed_in_new_cardlists_UNKNOWN": 6,
+  "source_github_actions": "https://github.com/moeendres-png/commander-playtest-lab/actions/runs/43024442970",
+  "records": [
+    {
+      "event_id": "EDHREC_NEW_bfba2e79bacb36ec39b099ab",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales.json",
+      "request_start_utc": "2026-11-11T12:54:59.352Z",
+      "response_complete_utc": "2026-11-11T12:54:59.435Z",
+      "raw_response_sha256": "d9b25088d0ee96308aa14443f7a3fc4a32da2e952037ec2672d8e03ebf86eafb",
+      "raw_size_bytes": 109770,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_d6e35c09388b9a99fc2a2360",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/big-mana.json",
+      "request_start_utc": "2026-11-11T12:55:00.939Z",
+      "response_complete_utc": "2026-11-11T12:55:01.124Z",
+      "raw_response_sha256": "96b562ebb814f12396c8de624518e76aa05dba2b3093e437adee64b0cdb02c85",
+      "raw_size_bytes": 99563,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_24e9f9ca5f146a34383d05f8",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/birthing-pod.json",
+      "request_start_utc": "2026-11-11T12:55:02.808Z",
+      "response_complete_utc": "2026-11-11T12:55:02.984Z",
+      "raw_response_sha256": "f91a16f3cad76cab94d59f50a50e32c4098f8486b5b635b97859d1073f275b92",
+      "raw_size_bytes": 98476,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_ccdccac209dc83b96907600e",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/blink.json",
+      "request_start_utc": "2026-11-11T12:55:04.487Z",
+      "response_complete_utc": "2026-11-11T12:55:04.668Z",
+      "raw_response_sha256": "5016903f66037fe77e7f9a41b30eaf02e6c941bd5eb3a06f5b9050c4276a4704",
+      "raw_size_bytes": 105312,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_5a0939985df02c75d8bdd0ff",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/bounce.json",
+      "request_start_utc": "2026-11-11T12:55:06.171Z",
+      "response_complete_utc": "2026-11-11T12:55:06.315Z",
+      "raw_response_sha256": "1575db9eaf7a8d1d705f61decb8a2dc712c3b19de01fa35ceb80f2c1a3f619d2",
+      "raw_size_bytes": 99079,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_c3b4167ae7af6de584ae1516",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/card-draw.json",
+      "request_start_utc": "2026-11-11T12:55:07.916Z",
+      "response_complete_utc": "2026-11-11T12:55:08.087Z",
+      "raw_response_sha256": "4023faf06ed67db24152fb3b492686173237a556c28ac5c0a7c6f6f4df3825b6",
+      "raw_size_bytes": 96407,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_e12fcef1c719ed41b4485b27",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/clues.json",
+      "request_start_utc": "2026-11-11T12:55:09.676Z",
+      "response_complete_utc": "2026-11-11T12:55:09.851Z",
+      "raw_response_sha256": "1213f1bf2089a713fc060fd2f7fdc4e161aa5fc66c6c6eb8e2b9dc47be3ce242",
+      "raw_size_bytes": 85042,
+      "cardlists": 10
+    },
+    {
+      "event_id": "EDHREC_NEW_45733a6bc6969bb60c833656",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/combo.json",
+      "request_start_utc": "2026-11-11T12:55:11.430Z",
+      "response_complete_utc": "2026-11-11T12:55:11.586Z",
+      "raw_response_sha256": "201731cfbd023fd6c824612d62d914d603988955ea11a2846430359e6101c60b",
+      "raw_size_bytes": 104896,
+      "cardlists": 13
+    },
+    {
+      "event_id": "EDHREC_NEW_d68294b63e7f3956579cd7e8",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/control.json",
+      "request_start_utc": "2026-11-11T12:55:13.091Z",
+      "response_complete_utc": "2026-11-11T12:55:13.277Z",
+      "raw_response_sha256": "93a34774e28790bb1a5a9a5409513b242cc45143b734f3a1e9ffea595424b5f7",
+      "raw_size_bytes": 103389,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_9be0c93acc1777187d386b30",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/etb.json",
+      "request_start_utc": "2026-11-11T12:55:14.834Z",
+      "response_complete_utc": "2026-11-11T12:55:15.017Z",
+      "raw_response_sha256": "baaf42983d0fd55b12a0f4bd0218675430f7238e8dea39af22e5f9ff660f8c5c",
+      "raw_size_bytes": 103255,
+      "cardlists": 11
+    },
+    {
+      "event_id": "EDHREC_NEW_d2ce18f5eaa776d4b162a08a",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/good-stuff.json",
+      "request_start_utc": "2026-11-11T12:55:16.526Z",
+      "response_complete_utc": "2026-11-11T12:55:16.692Z",
+      "raw_response_sha256": "1807c588145e5676a17aa4a7d18bafbea30db96e37e819efe041a2ca0a4f86d2",
+      "raw_size_bytes": 99740,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_332a62a8ff9b9306286f0097",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/landfall.json",
+      "request_start_utc": "2026-11-11T12:55:18.195Z",
+      "response_complete_utc": "2026-11-11T12:55:18.376Z",
+      "raw_response_sha256": "a95e0758cc1d2895d2e9b2be01ef1c4f9591c0848aa4878beb4da6a217660506",
+      "raw_size_bytes": 97939,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_224dc465e18a7953570a31de",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/lands-matter.json",
+      "request_start_utc": "2026-11-11T12:55:19.894Z",
+      "response_complete_utc": "2026-11-11T12:55:20.054Z",
+      "raw_response_sha256": "63a2239d02b7863a6e10efd05dfe5a411a57fd982ecbb731b7faab82ac3645aa",
+      "raw_size_bytes": 101411,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_d86f471ab73caa73b9649713",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/midrange.json",
+      "request_start_utc": "2026-11-11T12:55:21.557Z",
+      "response_complete_utc": "2026-11-11T12:55:21.731Z",
+      "raw_response_sha256": "92c1764fb2b70f9a2e9e52f3e9c4f496445baf3e338f2879289f04fd09be5866",
+      "raw_size_bytes": 99066,
+      "cardlists": 13
+    },
+    {
+      "event_id": "EDHREC_NEW_9a5fdbfcf8a24afd9e3a888f",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/plus-1-plus-1-counters.json",
+      "request_start_utc": "2026-11-11T12:55:23.283Z",
+      "response_complete_utc": "2026-11-11T12:55:23.462Z",
+      "raw_response_sha256": "8badaca79c86750fbdb76a7e88bc6c043275bd6462a02aa1f1a400e581d4a169",
+      "raw_size_bytes": 102212,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_491b1f2c57787af23a2cc572",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/ramp.json",
+      "request_start_utc": "2026-11-11T12:55:24.965Z",
+      "response_complete_utc": "2026-11-11T12:55:25.118Z",
+      "raw_response_sha256": "f66c4417637e78536f8da4cb2a773e1dd4d484797aa18b8e90621b892f83c0aa",
+      "raw_size_bytes": 98618,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_f9e66232aa90bcf10c274c21",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/stax.json",
+      "request_start_utc": "2026-11-11T12:55:26.621Z",
+      "response_complete_utc": "2026-11-11T12:55:26.810Z",
+      "raw_response_sha256": "7573e0416564c97ea849f7d15caeb08ddab176c78064ad119e0405cdc77890a2",
+      "raw_size_bytes": 109777,
+      "cardlists": 13
+    },
+    {
+      "event_id": "EDHREC_NEW_6d44b2acb655b6174c08c9dd",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/storm.json",
+      "request_start_utc": "2026-11-11T12:55:28.333Z",
+      "response_complete_utc": "2026-11-11T12:55:28.471Z",
+      "raw_response_sha256": "d80f9c3c464344ebbdc3a6b85a0627a52bda96d87c841036db1494c1bfa93b23",
+      "raw_size_bytes": 103435,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_2c23cc36c0f1566d84be6d9e",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/tokens.json",
+      "request_start_utc": "2026-11-11T12:55:29.974Z",
+      "response_complete_utc": "2026-11-11T12:55:30.135Z",
+      "raw_response_sha256": "495780c616ce73c3b770407f6d35a992597c770b8470ebf8263c16c7da8a70ef",
+      "raw_size_bytes": 101097,
+      "cardlists": 12
+    },
+    {
+      "event_id": "EDHREC_NEW_b5a8cccc1b80ba7594e93e73",
+      "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/toolbox.json",
+      "request_start_utc": "2026-11-11T12:55:31.792Z",
+      "response_complete_utc": "2026-11-11T12:55:31.966Z",
+      "raw_response_sha256": "a1d273a68556743f9819f540c1db922367f7f13bedd54a1c63bee8ab7095eb70",
+      "raw_size_bytes": 106763,
+      "cardlists": 11
+    }
+  ]
+}
