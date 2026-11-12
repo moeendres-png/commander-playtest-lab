@@ -482,3 +482,111 @@ def test_fetch_card_html_caching_and_404(tmp_path: Path) -> None:
     assert html is None
     assert status == 404
     assert "Cached HTTP 404" in err
+
+
+def test_load_target_cards_coverage_and_pool_prioritization(tmp_path: Path) -> None:
+    """Verify loading from coverage matrix with Chulane pool prioritization and store resolution."""
+    import json
+    import sqlite3
+    import sys
+
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+
+    from scripts.collect_playgroup_card_atlas import load_target_cards, run_collection
+
+    # Create mock coverage matrix
+    cov_path = tmp_path / "coverage_matrix.csv"
+    cov_path.write_text(
+        "card_name,other_col\n"
+        "Sol Ring,val1\n"
+        "Swords to Plowshares,val2\n"
+        "Birds of Paradise,val3\n"
+        "Kaervek the Merciless,val4\n",
+        encoding="utf-8",
+    )
+
+    # Create mock pool gap matrix (Sol Ring, Birds of Paradise, Swords to Plowshares are in pool)
+    pool_path = tmp_path / "pool_gap.json"
+    pool_path.write_text(
+        json.dumps(
+            {
+                "cards": [
+                    {"card_name": "Sol Ring"},
+                    {"card_name": "Birds of Paradise"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    # Create mock store with scryfall_card table
+    store_db = tmp_path / "store.sqlite3"
+    conn = sqlite3.connect(store_db)
+    conn.execute(
+        "CREATE TABLE scryfall_card (front_name TEXT, name TEXT, oracle_id TEXT, layout TEXT, color_identity TEXT, commander_legality TEXT, keywords TEXT, produced_mana TEXT)"
+    )
+    conn.execute(
+        "INSERT INTO scryfall_card VALUES ('Birds of Paradise', 'Birds of Paradise', 'oid-bop', 'normal', 'G', 'legal', '[]', '[]')"
+    )
+    conn.execute(
+        "INSERT INTO scryfall_card VALUES ('Sol Ring', 'Sol Ring', 'oid-sol', 'normal', 'C', 'legal', '[]', '[]')"
+    )
+    conn.execute(
+        "INSERT INTO scryfall_card VALUES ('Swords to Plowshares', 'Swords to Plowshares', 'oid-stp', 'normal', 'W', 'legal', '[]', '[]')"
+    )
+    conn.execute(
+        "INSERT INTO scryfall_card VALUES ('Kaervek the Merciless', 'Kaervek the Merciless', 'oid-kaer', 'normal', 'BR', 'legal', '[]', '[]')"
+    )
+    conn.commit()
+    conn.close()
+
+    targets = load_target_cards(
+        store_path=store_db,
+        coverage_matrix_path=cov_path,
+        pool_gap_matrix_path=pool_path,
+    )
+
+    assert len(targets) == 4
+    # Pool cards first, sorted alphabetically
+    assert targets[0]["card_name"] == "Birds of Paradise"
+    assert targets[0]["is_pool"] is True
+    assert targets[0]["oracle_id"] == "oid-bop"
+
+    assert targets[1]["card_name"] == "Sol Ring"
+    assert targets[1]["is_pool"] is True
+    assert targets[1]["oracle_id"] == "oid-sol"
+
+    # Rest cards second, sorted alphabetically
+    assert targets[2]["card_name"] == "Kaervek the Merciless"
+    assert targets[2]["is_pool"] is False
+    assert targets[2]["oracle_id"] == "oid-kaer"
+
+    assert targets[3]["card_name"] == "Swords to Plowshares"
+    assert targets[3]["is_pool"] is False
+    assert targets[3]["oracle_id"] == "oid-stp"
+
+    # Verify run_collection counts breakdown
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    sample_html = (FIXTURES_DIR / "koma-cosmos-serpent.html").read_text(encoding="utf-8")
+    (cache_dir / "birds-of-paradise.html").write_text(sample_html, encoding="utf-8")
+    (cache_dir / "sol-ring.404").touch()
+
+    out_dir = tmp_path / "out"
+    summary = run_collection(
+        targets,
+        out_dir=out_dir,
+        cache_dir=cache_dir,
+        offline_only=True,
+    )
+
+    assert summary["total_cards"] == 4
+    assert summary["cache_hits"] == 2
+    assert summary["pool_status_counts"]["AVAILABLE"] == 1
+    assert summary["pool_status_counts"]["NOT_FOUND"] == 1
+    assert summary["rest_status_counts"]["UNKNOWN"] == 2
+    assert summary["total_status_counts"]["AVAILABLE"] == 1
+    assert summary["total_status_counts"]["NOT_FOUND"] == 1
+    assert summary["total_status_counts"]["UNKNOWN"] == 2
