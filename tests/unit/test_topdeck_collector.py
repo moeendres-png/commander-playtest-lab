@@ -156,3 +156,15 @@ def test_process_tournaments_and_completeness(tmp_path: Path) -> None:
     readme_text = readme_file.read_text(encoding="utf-8")
     assert "Data provided by TopDeck.gg (https://topdeck.gg)" in readme_text
     assert "The Gitrog Monster" in readme_text
+
+
+def test_get_api_key(monkeypatch) -> None:
+    import pytest
+    from scripts.collect_topdeck_decks import get_api_key
+
+    monkeypatch.setenv("TOPDECK_API_KEY", "test-key-12345")
+    assert get_api_key() == "test-key-12345"
+
+    monkeypatch.delenv("TOPDECK_API_KEY", raising=False)
+    with pytest.raises(RuntimeError, match="TOPDECK_API_KEY environment variable"):
+        get_api_key()

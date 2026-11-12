@@ -163,19 +163,11 @@ def to_safe_slug(name: str) -> str:
 
 
 def get_api_key() -> str:
-    """Retrieve API key from env or secure local config."""
+    """Retrieve API key from TOPDECK_API_KEY environment variable."""
     key = os.environ.get("TOPDECK_API_KEY", "").strip()
     if key:
         return key
-    cfg_file = Path("~/.config/commander-studio/topdeck_api_key").expanduser()
-    if cfg_file.is_file():
-        key = cfg_file.read_text().strip()
-        if key:
-            return key
-    raise RuntimeError(
-        "TopDeck API key not found. Set TOPDECK_API_KEY environment variable "
-        "or create ~/.config/commander-studio/topdeck_api_key"
-    )
+    raise RuntimeError("TopDeck API key not found. Set TOPDECK_API_KEY environment variable.")
 
 
 def extract_cards_from_section(section_data: object) -> list[tuple[str, int]]:
