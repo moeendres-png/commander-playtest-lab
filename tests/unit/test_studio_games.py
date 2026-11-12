@@ -257,6 +257,16 @@ def test_engine_command_comes_from_the_environment_or_the_data_folder(
     assert launch.engine_command(tmp_path) is None
     assert "Java" in str(launch.engine_state(tmp_path)["reason"])
     monkeypatch.setattr(launch.shutil, "which", lambda name: "/usr/bin/java")
+    # a Java that is known to be too old is named instead of failing inside the engine
+    monkeypatch.setattr(launch, "_java_major", lambda java: 8)
+    assert launch.engine_command(tmp_path) is None
+    old = launch.engine_state(tmp_path)
+    assert old["ready"] is False and old["java_version"] == 8
+    assert "zu alt" in str(old["reason"]) and "17" in str(old["reason"])
+    # an unreadable version does not block: the engine process decides
+    monkeypatch.setattr(launch, "_java_major", lambda java: None)
+    assert launch.engine_state(tmp_path)["ready"] is True
+    monkeypatch.setattr(launch, "_java_major", lambda java: 21)
     assert launch.engine_command(tmp_path) == (
         "/usr/bin/java", "-Xmx3g", "-jar", str(jar), "full-game",
     )  # fmt: skip
@@ -529,3 +539,11 @@ def test_engine_command_with_java_home(tmp_path: Path, monkeypatch: pytest.Monke
     cmd = launch.engine_command(tmp_path)
     assert cmd is not None
     assert cmd[0] == str(fake_java)
+
+
+def test_java_major_version_is_read_from_both_version_formats() -> None:
+    assert launch._parse_java_major('openjdk version "17.0.9" 2023-10-17') == 17
+    assert launch._parse_java_major('java version "1.8.0_392"') == 8
+    assert launch._parse_java_major('openjdk version "21" 2023-09-19') == 21
+    assert launch._parse_java_major("keine Versionsangabe") is None
+    assert launch._java_major("/nonexistent/java-binary") is None
