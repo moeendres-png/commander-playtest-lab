@@ -21,3 +21,13 @@ td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:8px}
 .policy{border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel2);border-radius:0 6px 6px 0;margin:8px 0;font-size:12px}
 th{top:0}
 .layer .name{cursor:pointer;font-weight:600}
+#universe-panel{padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px}
+#universe-panel .facts{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline}
+#universe-panel details{margin-top:6px}
+#universe-panel form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
+#universe-panel label{display:flex;flex-direction:column;font-size:12px;color:var(--muted)}
+.spread{display:inline-block;min-width:96px;padding:1px 8px;border-radius:6px;border:1px solid var(--line);font-size:12px;white-space:nowrap}
+.spread .level{font-weight:700;margin-right:6px}
+.spread.lvl-U{color:var(--muted);font-style:italic}
+.spread.none{color:var(--muted);border-style:dotted}
+.universe-box .spellings{font-size:12px}
