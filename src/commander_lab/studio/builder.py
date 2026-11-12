@@ -230,9 +230,18 @@ def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     return hits
 
 
-def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, object]:
+def pool_cards(
+    store: StudioStore, commander_names: Sequence[str], *, profile: str | None = None
+) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
-    builder shows per card. Without any commander the colour filter is off (all legal cards)."""
+    builder shows per card. Without any commander the colour filter is off (all legal cards).
+
+    With ``profile`` each card additionally carries its counted spread in that deck
+    universe (``universe`` per card, plus one ``universe`` block for the whole pool):
+    the same figures the tier list shows for the profile, from the same snapshot, so
+    the builder and the tier list never show two denominators for one universe. The
+    legacy cohort figures stay untouched either way. Raises KeyError for an unknown
+    profile and ValueError when the profile is defined for other commanders."""
     db = store.connection
     identity: frozenset[str] = frozenset() if commander_names else frozenset("WUBRG")
     commander_ids: list[str] = []
@@ -335,7 +344,7 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
                 },
             }
         )
-    return {
+    result: dict[str, object] = {
         "commander_ids": commander_ids,
         "identity": "".join(sorted(identity, key="WUBRG".index)),
         "cohorts": cohort_sizes(store, commander_names),
@@ -344,6 +353,32 @@ def pool_cards(store: StudioStore, commander_names: Sequence[str]) -> dict[str, 
         "roles": [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")],
         "cards": cards,
     }
+    if profile is not None:
+        # Imported here, not at module level: sources.py imports this module, and
+        # universe_view imports sources — a top-level import would close the circle.
+        from . import universe_view
+
+        spread = universe_view.pool_spread(store, profile, commander_names=commander_names)
+        by_card = {item["card_id"]: item for item in spread["cards"]}
+        for card in cards:
+            item = by_card.get(str(card["card_id"]))
+            if item is None:
+                continue
+            card["universe"] = {
+                "matched": item["matched"],
+                "hits": item["hits"],
+                "denominator": item["denominator"],
+                "share": item["share"],
+                "level": item["level"],
+                "reason": item["reason"],
+            }
+        result["universe"] = {
+            **spread["universe"],
+            "params": spread["params"],
+            "model_version": spread["model_version"],
+            "meaning": spread["meaning"],
+        }
+    return result
 
 
 def card_cooccurrence(

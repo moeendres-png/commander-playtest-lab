@@ -11,7 +11,14 @@ from pathlib import Path
 
 import pytest
 
-from commander_lab.studio import StudioStore, decklist_import, tiers, universe
+from commander_lab.studio import (
+    StudioStore,
+    decklist_import,
+    sources,
+    tiers,
+    universe,
+    universe_view,
+)
 
 CHULANE = "Chulane, Teller of Tales"
 
@@ -654,3 +661,430 @@ def test_the_sources_commander_statement_decides_without_a_card_row(
     _edhrec_file(tmp_path, "ddd", [("Sol Ring", 1)], commanders=["Second Commander"])
     with pytest.raises(ValueError, match="another commander"):
         decklist_import.import_decklists(store, tmp_path, format="edhrec", commander=CHULANE)
+
+
+# ---------- steps 1-3: spec validation, options, counted exclusions ----------
+
+
+def test_save_profile_rejects_values_the_store_does_not_hold(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    store.bind_unbound(CHULANE)
+    # A typo must be refused, not silently counted as an empty universe.
+    with pytest.raises(ValueError, match="unknown universe platform"):
+        universe.save_profile(store, "x", {"platforms": ["archidekt"]})
+    with pytest.raises(ValueError, match="unknown universe cohort"):
+        universe.save_profile(store, "x", {"cohorts": ["bracket:9"]})
+    with pytest.raises(ValueError, match="unknown universe commander"):
+        universe.save_profile(store, "x", {"commanders": ["Nobody"]})
+    assert universe.list_profiles(store) == []
+    saved = universe.save_profile(
+        store,
+        "ok",
+        {"platforms": ["edhrec"], "cohorts": ["bracket:3"], "commanders": [CHULANE]},
+    )
+    assert saved["spec"]["commanders"] == [CHULANE]
+
+
+def test_save_profile_accepts_values_of_a_dimension_whose_stock_is_empty(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # No decks at all: nothing can be checked, everything is accepted as-is.
+    universe.save_profile(store, "leer", {"platforms": ["future"], "commanders": ["Anyone"]})
+    _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    # Decks exist but none is bound yet: commander values cannot be checked …
+    universe.save_profile(store, "ungebunden", {"commanders": ["Anyone"]})
+    # … while the platform dimension, whose stock is known, is checked.
+    with pytest.raises(ValueError, match="unknown universe platform"):
+        universe.save_profile(store, "x", {"platforms": ["nope"]})
+
+
+def test_min_universe_is_validated_and_stored(store: StudioStore, tmp_path: Path) -> None:
+    _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    for bad in (0, -3):
+        with pytest.raises(ValueError, match="min_universe"):
+            universe.save_profile(store, "x", {"min_universe": bad})
+    universe.save_profile(store, "klein", {"min_universe": 5})
+    assert universe.get_profile(store, "klein")["spec"]["min_universe"] == 5
+    counted = universe.inclusion(store, profile="klein", commander_names=None)
+    assert counted["spec"]["min_universe"] == 5
+
+
+def _dated_deck(store: StudioStore, deck_id: str, deck_date: str | None, cards: list[str]) -> None:
+    db = store.connection
+    db.execute(
+        "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('raw', 'DERIVED_DESCRIPTIVE', 'raw', 'x', '2026-01-01')"
+    )
+    db.execute(
+        "INSERT INTO corpus_deck(deck_id, cohort, url, platform, play_group, deck_date, tags, "
+        "fingerprint, duplicate_of, legality_audit, source_id) "
+        "VALUES (?, 'c', '', 'raw', 'g', ?, '[]', ?, NULL, 'not_audited', 'raw')",
+        (deck_id, deck_date, f"fp-{deck_id}"),
+    )
+    db.executemany(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+        "normalization_status) VALUES (?, ?, 'main', NULL, 1, 'source_name')",
+        [(deck_id, name) for name in cards],
+    )
+
+
+def test_excluded_no_date_counts_only_undated_decks_the_filter_drops(
+    store: StudioStore,
+) -> None:
+    _dated_deck(store, "neu", "2026-10-01", ["Sol Ring"])
+    _dated_deck(store, "ohne-datum", None, ["Sol Ring"])
+    _dated_deck(store, "alt", "2020-01-01", ["Sol Ring"])
+    store.connection.commit()
+    spec = {"date_from": "2026-01-01"}
+    assert universe.resolve_universe(store, spec) == ["neu"]
+    # "ohne-datum" is dropped only because it has no date; "alt" is dropped by its date.
+    assert universe.excluded_no_date(store, spec) == 1
+    counted = universe.inclusion(store, spec=spec, card_names=["Sol Ring"], commander_names=None)
+    assert counted["excluded_no_date"] == 1 and counted["denominator"] == 1
+    assert universe.excluded_no_date(store, {}) == 0
+    # Even a range every dated deck passes drops the undated one: it has no date to check.
+    assert universe.excluded_no_date(store, {"date_from": "2019-01-01"}) == 1
+    assert universe.excluded_no_date(store, {"date_to": "2021-01-01"}) == 1
+
+
+def test_options_report_the_stored_values_with_deck_counts(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    _edhrec_file(tmp_path, "bbb", [(CHULANE, 1), ("Island", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    _dated_deck(store, "raw1", "2026-10-01", ["Forest"])
+    store.connection.execute(
+        "INSERT INTO corpus_cohort(cohort, deck_id) VALUES ('bracket:4', 'raw1')"
+    )
+    store.bind_unbound(CHULANE)
+    store.connection.execute(
+        "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('corpus_deck', 'raw1', ?, 'TEST')",
+        (CHULANE,),
+    )
+    store.connection.commit()
+    found = universe.options(store)
+    assert {item["value"]: item["decks"] for item in found["platforms"]} == {
+        "edhrec": 2,
+        "raw": 1,
+    }
+    cohorts = {item["value"]: item["decks"] for item in found["cohorts"]}
+    assert cohorts["bracket:3"] == 2 and cohorts["bracket:4"] == 1
+    assert found["commanders"] == [{"value": CHULANE, "decks": 3}]
+    assert universe.options(store, commander_names=[CHULANE]) == found
+    empty = universe.options(store, commander_names=["Second Commander"])
+    assert empty == {"platforms": [], "cohorts": [], "commanders": [], "cards": []}
+
+
+# ---------- step 2 (profile min_universe, model version) and A5 (lift, combos) ----------
+
+
+def _studio_card(store: StudioStore, card_id: str, name: str) -> None:
+    store.connection.execute(
+        "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('raw', 'DERIVED_DESCRIPTIVE', 'raw', 'x', '2026-01-01')"
+    )
+    store.connection.execute(
+        "INSERT INTO card(card_id, oracle_id, oracle_name, color_identity, source_id) "
+        "VALUES (?, NULL, ?, 'C', 'raw')",
+        (card_id, name),
+    )
+
+
+def test_a_profile_min_universe_grades_a_small_universe(store: StudioStore, tmp_path: Path) -> None:
+    for index in range(3):
+        _edhrec_file(tmp_path, f"m{index}", [(CHULANE, 1), ("Sol Ring", 1), (f"Filler {index}", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    _studio_card(store, "card:t:sol", "Sol Ring")
+    store.connection.commit()
+    universe.save_profile(store, "streng", {})
+    universe.save_profile(store, "locker", {"min_universe": 3})
+
+    strict = universe_view.pool_spread(store, "streng", commander_names=None)
+    loose = universe_view.pool_spread(store, "locker", commander_names=None)
+    strict_sol = next(card for card in strict["cards"] if card["name"] == "Sol Ring")
+    loose_sol = next(card for card in loose["cards"] if card["name"] == "Sol Ring")
+    # Three decks are below the model default of 30: U. The profile's own minimum of 3 grades.
+    assert strict_sol["level"] == "U" and strict_sol["reason"] == "UNIVERSE_TOO_SMALL"
+    assert strict["universe"]["below_min_universe"] is True
+    assert strict["params"]["min_universe"] == 30
+    assert loose_sol["level"] == "S" and loose_sol["hits"] == 3
+    assert loose["universe"]["below_min_universe"] is False
+    assert loose["params"]["min_universe"] == 3
+    # The cuts are model constants: identical in both, and the model version is reported.
+    assert (
+        loose["params"]["cuts"] == strict["params"]["cuts"] == tiers.TierParams().to_dict()["cuts"]
+    )
+    assert strict["model_version"] == loose["model_version"] == tiers.MODEL_VERSION
+    summary = universe_view.profile_summary(store, "locker", commander_names=None)
+    assert summary["min_universe"] == 3 and summary["below_min_universe"] is False
+    assert summary["excluded_no_date"] == 0
+
+
+def test_cooccurrence_pairs_carry_lift_and_combo_partners(
+    store: StudioStore, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _edhrec_file(
+        tmp_path, "d1", [(CHULANE, 1), ("Base Card", 1), ("Alpha Card", 1), ("Gamma Card", 1)]
+    )
+    _edhrec_file(tmp_path, "d2", [(CHULANE, 1), ("Base Card", 1), ("Alpha Card", 1)])
+    _edhrec_file(tmp_path, "d3", [(CHULANE, 1), ("Gamma Card", 1)])
+    _edhrec_file(tmp_path, "d4", [(CHULANE, 1), ("Gamma Card", 1), ("Delta Card", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    store.bind_unbound(CHULANE)
+    _studio_card(store, "card:t:base", "Base Card")
+    store.connection.commit()
+    combos = tmp_path / "combos.json"
+    combos.write_text(
+        json.dumps(
+            {
+                "combos": [
+                    {"cards": ["Base Card", "Alpha Card"], "commander": "Chulane, Teller of Tales"},
+                    {"cards": ["Base Card", "Gamma Card"], "commander": "Other, Person"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(universe_view, "_COMBOS_PATH", combos)
+    universe.save_profile(store, "alle", {})
+
+    result = universe_view.card_cooccurrence(
+        store, "alle", "card:t:base", commander_names=[CHULANE]
+    )
+    assert result["decks_with_card"] == 2 and result["denominator"] == 4
+    pairs = {pair["card_name"]: pair for pair in result["pairs"]}
+    # Alpha: together 2 of 2 decks with the card; in 2 of 4 universe decks -> lift 2.
+    assert pairs["Alpha Card"]["decks_together"] == 2
+    assert pairs["Alpha Card"]["lift"] == pytest.approx(2.0)
+    assert pairs["Alpha Card"]["combo_partner"] is True
+    # Gamma: together 1 of 2; in 3 of 4 universe decks -> lift (1/2)/(3/4) = 2/3.
+    assert pairs["Gamma Card"]["lift"] == pytest.approx(2 / 3)
+    # The Gamma combo is listed for another commander: it must not mark the pair here.
+    assert pairs["Gamma Card"]["combo_partner"] is False
+    assert "Delta Card" not in pairs
+
+
+def test_cli_save_profile_flags_and_tiers_fallback(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    from commander_lab.studio.__main__ import main
+
+    folder = tmp_path / "studio"
+    decks = tmp_path / "decks"
+    decks.mkdir()
+    for index in range(3):
+        _edhrec_file(decks, f"c{index}", [(CHULANE, 1), ("Sol Ring", 1), (f"Filler {index}", 1)])
+    store = StudioStore.open(folder)
+    decklist_import.import_decklists(store, decks, format="edhrec")
+    store.bind_unbound(CHULANE)
+    store.close()
+
+    assert (
+        main(
+            [
+                "--data",
+                str(folder),
+                "save-profile",
+                "cli",
+                "--platform",
+                "edhrec",
+                "--commander",
+                CHULANE,
+                "--min-universe",
+                "3",
+            ]
+        )
+        == 0
+    )
+    saved = json.loads(capsys.readouterr().out)
+    assert saved["spec"]["commanders"] == [CHULANE]
+    assert saved["spec"]["min_universe"] == 3
+
+    # Without --min-universe the tiers command uses the profile's own minimum (3):
+    # three decks are enough, Sol Ring (3 of 3) is graded instead of U.
+    assert main(["--data", str(folder), "tiers", "--profile", "cli", "--commander", CHULANE]) == 0
+    result = json.loads(capsys.readouterr().out)
+    sol = next(row for row in result["tiers"] if row["card_name"] == "Sol Ring")
+    assert sol["tier"] == "S"
+    # An explicit flag wins over the profile value.
+    assert (
+        main(
+            [
+                "--data",
+                str(folder),
+                "tiers",
+                "--profile",
+                "cli",
+                "--commander",
+                CHULANE,
+                "--min-universe",
+                "30",
+            ]
+        )
+        == 0
+    )
+    result = json.loads(capsys.readouterr().out)
+    sol = next(row for row in result["tiers"] if row["card_name"] == "Sol Ring")
+    assert sol["tier"] == "U"
+
+    with pytest.raises(ValueError, match="unknown universe platform"):
+        main(["--data", str(folder), "save-profile", "bad", "--platform", "nope"])
+
+
+def test_spellbook_combo_partners_follow_the_commander_of_the_combo(tmp_path: Path) -> None:
+    combos = tmp_path / "combos.json"
+    combos.write_text(
+        json.dumps(
+            {
+                "combos": [
+                    {"cards": ["Base Card", "Alpha Card"], "commander": "Chulane, Teller of Tales"},
+                    {"cards": ["Base Card", "Gamma Card"], "commander": "Other, Person"},
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    assert sources.load_spellbook_combo_partners(combos, commander="Chulane") == {
+        "base card": {"alpha card"},
+        "alpha card": {"base card"},
+    }
+    assert sources.load_spellbook_combo_partners(combos, commander="Nobody") == {}
+    assert sources.load_spellbook_combo_partners(tmp_path / "fehlt.json") == {}
+
+
+# ---------- steps 4-7: profile lifecycle (version, delete) and the card filter ----------
+
+
+def _sectioned_deck(
+    store: StudioStore,
+    deck_id: str,
+    rows: list[tuple[str, str]],
+    commander: str | None = None,
+) -> None:
+    """One raw corpus deck; rows are (card_name, section), quantity 1 each."""
+    db = store.connection
+    db.execute(
+        "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('raw', 'DERIVED_DESCRIPTIVE', 'raw', 'x', '2026-01-01')"
+    )
+    db.execute(
+        "INSERT INTO corpus_deck(deck_id, cohort, url, platform, play_group, deck_date, tags, "
+        "fingerprint, duplicate_of, legality_audit, source_id) "
+        "VALUES (?, 'c', '', 'raw', 'g', NULL, '[]', ?, NULL, 'not_audited', 'raw')",
+        (deck_id, f"fp-{deck_id}"),
+    )
+    db.executemany(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+        "normalization_status) VALUES (?, ?, ?, NULL, 1, 'source_name')",
+        [(deck_id, name, section) for name, section in rows],
+    )
+    if commander is not None:
+        db.execute(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+            "VALUES ('corpus_deck', ?, ?, 'TEST')",
+            (deck_id, commander),
+        )
+    db.commit()
+
+
+def test_profile_versions_rise_and_created_at_survives_a_replace(store: StudioStore) -> None:
+    first = universe.save_profile(store, "leben", {"platforms": ["raw"]})
+    assert first["version"] == 1
+    assert first["created_at"] == first["updated_at"]
+    second = universe.save_profile(store, "leben", {"cohorts": ["bracket:3"]})
+    assert second["version"] == 2
+    assert second["created_at"] == first["created_at"]
+    assert second["updated_at"] >= first["updated_at"]
+    profile = universe.get_profile(store, "leben")
+    assert profile["version"] == 2 and profile["created_at"] == first["created_at"]
+    listed = universe.list_profiles(store)
+    assert listed[0]["version"] == 2 and listed[0]["updated_at"] == second["updated_at"]
+
+
+def test_delete_profile_removes_it_and_a_second_delete_is_an_error(store: StudioStore) -> None:
+    universe.save_profile(store, "weg", {})
+    universe.delete_profile(store, "weg")
+    assert universe.list_profiles(store) == []
+    with pytest.raises(KeyError):
+        universe.get_profile(store, "weg")
+    with pytest.raises(KeyError):
+        universe.delete_profile(store, "weg")
+    with pytest.raises(KeyError):
+        universe.delete_profile(store, "nie-da")
+
+
+def test_must_contain_counts_mainboard_commander_exception_and_intersection(
+    store: StudioStore,
+) -> None:
+    for card_id, name in (
+        ("card:a", "Alpha"),
+        ("card:b", "Beta"),
+        ("card:o", "Other Commander"),
+    ):
+        _studio_card(store, card_id, name)
+    # d1: Alpha and Beta in the main deck.
+    _sectioned_deck(store, "d1", [("Alpha", "main"), ("Beta", "main")])
+    # d2: Alpha in the main deck, spelled in capitals (names match case-insensitively).
+    _sectioned_deck(store, "d2", [("ALPHA", "main")])
+    # d3: Beta in the main deck, Alpha only in the sideboard — never a hit.
+    _sectioned_deck(store, "d3", [("Beta", "mainboard"), ("Alpha", "sideboard")])
+    # d4: Alpha only as a commander-section row, but the deck is bound to another
+    # commander — the row alone is not containment.
+    _sectioned_deck(store, "d4", [("Alpha", "commander")], commander="Other Commander")
+    # d5: no Alpha row at all, but Alpha IS this deck's commander (the exception),
+    # and Beta is in its main deck.
+    _sectioned_deck(store, "d5", [("Beta", "main")], commander="Alpha")
+
+    def decks(spec: dict[str, object]) -> list[str]:
+        return universe.resolve_universe(store, spec)
+
+    assert decks({}) == ["d1", "d2", "d3", "d4", "d5"]
+    assert decks({"must_contain": ["Alpha"]}) == ["d1", "d2", "d5"]
+    assert decks({"must_contain": ["Beta"]}) == ["d1", "d3", "d5"]
+    # Two required cards are an intersection, not a union.
+    assert decks({"must_contain": ["Alpha", "Beta"]}) == ["d1", "d5"]
+    assert universe.excluded_by_card_filter(store, {"must_contain": ["Alpha"]}) == 2
+    assert universe.excluded_by_card_filter(store, {}) == 0
+    counted = universe.inclusion(store, spec={"must_contain": ["Alpha"]}, commander_names=None)
+    assert counted["denominator"] == 3 and counted["excluded_by_card_filter"] == 2
+
+
+def test_must_contain_front_faces_and_ambiguous_fronts(store: StudioStore) -> None:
+    _studio_card(store, "card:f", "Front // Back")
+    _studio_card(store, "card:s1", "Shared // One")
+    _studio_card(store, "card:s2", "Shared // Two")
+    _sectioned_deck(store, "e1", [("Front", "main")])
+    _sectioned_deck(store, "e2", [("Shared", "main")])
+    _sectioned_deck(store, "e3", [("Shared // One", "main")])
+    # An unambiguous front face is a spelling of its card.
+    assert universe.resolve_universe(store, {"must_contain": ["Front // Back"]}) == ["e1"]
+    # A front face two cards share is a spelling of each of them (the counted spread
+    # attributes such a deck to both cards, and the filter reads names the same way),
+    # but it names no single card, so it cannot state a requirement itself.
+    assert universe.resolve_universe(store, {"must_contain": ["Shared // One"]}) == ["e2", "e3"]
+    assert universe.resolve_universe(store, {"must_contain": ["Shared // Two"]}) == ["e2"]
+    with pytest.raises(ValueError, match="Shared"):
+        universe.save_profile(store, "mehrdeutig", {"must_contain": ["Shared"]})
+
+
+def test_must_contain_unknown_cards_are_refused_and_names_normalized(
+    store: StudioStore,
+) -> None:
+    _studio_card(store, "card:f", "Front // Back")
+    with pytest.raises(ValueError, match="Nichtda"):
+        universe.save_profile(store, "kaputt", {"must_contain": ["Nichtda"]})
+    assert universe.list_profiles(store) == []
+    with pytest.raises(ValueError, match="Nichtda"):
+        universe.inclusion(store, spec={"must_contain": ["Nichtda"]}, commander_names=None)
+    saved = universe.save_profile(store, "ok", {"must_contain": ["front"]})
+    assert saved["spec"]["must_contain"] == ["Front // Back"]
+    # An empty requirement list is no filter at all.
+    plain = universe.save_profile(store, "leer", {"must_contain": []})
+    assert "must_contain" not in plain["spec"]

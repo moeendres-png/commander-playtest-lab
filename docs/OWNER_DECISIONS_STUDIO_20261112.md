@@ -38,6 +38,7 @@ When a later Owner instruction differs, the later instruction wins and this file
 | B7 | The Owner sets which decks count: deck universe profiles (source, bracket, theme, period, minimum sample) are a setting in every view that shows inclusion. | Issue #1205 |
 | B8 | The corrected inventory workbook is the canonical inventory format. A difference between workbook and public card data is listed and decided by the Owner, never silently overwritten. | Issue #1208 |
 | B9 | Pool membership of newly added cards is only a reliable state together with their engine status; a card the pinned engine does not know is `UNKNOWN` or `NOT_MEASURED`. | Issue #1209 |
+| B10 | The tier list shall show card strength better, use the collected data, and give the Owner settings. It gets a strength index per card and commander: an estimate from usage signals (EDHREC inclusion per commander and bracket, counted deck lists, tournament lists, synergy, combo counts), each turned into a rank within the commander's pool and combined with weights the Owner sets. It always shows its components with numerator and denominator, is labelled as an estimate and not as a measured win rate, and gives "too little data" instead of a guessed tier. The outcome-based field stays unrated until games support it (B5, B6). Own marks never enter it (B4). | Owner message 2026-11-12 |
 
 **Reading by the agents on B5 and B6 (to be confirmed by the Owner).** A counted tier
 describes how often a card is observed in the chosen deck universe. It is shown with its
@@ -54,6 +55,7 @@ field stays unrated.
 | S3 | Results are observations of one series: with denominator and uncertainty range, base against variant only paired on the same seeds, and "no reliable difference" shown plainly. Aborted or failed games are reported separately and are not losses. | Issue #1170 |
 | S4 | XMage's own AI players are not used as seats. | Owner decision 2026-11-10 |
 | S5 | An engine look-ahead in Java may be built as a measured experiment under the Studio bridge gate; the measurement of 2026-11-11 (look-ahead by restart) left its benefit undecided. It becomes the default only if a paired series shows a benefit. | Issue #1168, Owner decision 2026-11-12 (evening) |
+| S6 | No own rules engine in another language: XMage stays the rules authority (A2). Series are made faster around it: several games per JVM, parallel engine processes, a leaner exchange per decision, measured before and after. A draw and mana simulator without rules may answer hand and land questions. | Owner message 2026-11-12 (decision delegated), issue #1251 |
 
 ## PLAY: playing Commander oneself, 2 to 6 seats
 
@@ -69,8 +71,8 @@ field stays unrated.
 
 ## Open Owner decisions
 
-1. Confirm or correct the reading on B5 and B6 above (counted tier next to an unrated strength
-   field).
+1. The default weights and presets of the strength index (B10) are placeholders the Owner
+   can change in the page; the reading on B5 and B6 stays for the outcome-based field.
 2. (Decided 2026-11-12, evening: bridge changes for the Studio go through the Studio bridge gate.)
 3. The one recorded fact difference of issue #1208 (workbook against public card data).
 4. Release of five and six seats after their own qualification (A8).

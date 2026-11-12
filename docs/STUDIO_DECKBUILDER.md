@@ -166,6 +166,67 @@ Routes: `GET /api/universe/profiles`, `PUT /api/universe/profiles/{name}`,
 `GET /api/cards/{card_id}/universe?profile=NAME`,
 `GET /api/cards/{card_id}/cooccurrence?profile=NAME&limit=25`.
 
+### Strength index ("Stärke-Index", schema 11)
+
+A configurable estimate of card strength per commander, built from usage signals. It is
+`DERIVED_DESCRIPTIVE`. It is not a measured win rate and not a statement about outcomes; the
+outcome-based evidence field stays `UNRATED`, and the counted "Verbreitung" column is unchanged.
+
+Import (all files optional, split parts `<name>_1.csv`, `_2.csv` are read in number order;
+price columns are never read):
+
+```
+python -m commander_lab.studio import-signals FOLDER [--commander NAME]
+```
+
+The command reports rows read, written and skipped per file. Signals are stored in
+`card_signal(commander_name, signal, card_name, value, numerator, denominator, source_id)`:
+`edhrec_commander_inclusion|synergy` and `edhrec_bracket_inclusion:<core|upgraded|optimized|cedh>`
+per commander of the files, `edhrec_global_inclusion` and `spellbook_variants` commander
+independent (commander name empty), and
+`tournament_lists` (lists of the commander that contain the card over all its lists, main and
+commander section only) under `--commander` (default: the standard commander). The commander
+file's lift column and the spellbook file's partner count are not stored: no strength
+component reads them, and the values remain in the source files (the lift also in the
+observation pipeline). Stores imported earlier keep the rows of the two signals they
+already hold until `card_signal` is rebuilt; nothing reads them. A value the
+source does not publish is NULL (unknown), never 0; a card a source does not list has no row;
+rows of a source fetch that was not `AVAILABLE` are not stored. The tournament player column
+is never stored. Re-importing replaces the rows of the signals it writes.
+
+Formula, per commander (`strength.py`, pure):
+
+1. Share signals (inclusion, bracket inclusion, deck lists, tournament lists, global) use the
+   lower bound of the 95 % Wilson interval of numerator/denominator, so a small sample does
+   not rank high by chance. Synergy and combo counts are used as published.
+2. Each value becomes a percentile rank (0..1) among the commander's legal pool cards that
+   have a value for that signal; ties share the mean rank.
+3. Index = weighted mean of the present percentiles x 100 (one decimal); a missing component
+   is left out and the weights are renormalised. `coverage` = weight of present components /
+   weight of all components with a weight above 0.
+4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
+   `min_components` weighted components are present; otherwise S/A/B/C/D by the index cuts
+   (default 90/75/55/35). A card absent from a source is a missing observation: it lowers
+   the coverage, never the percentile.
+
+Settings: a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
+universe 2, synergy 1, tournament lists 1, global inclusion 1, combos 1, simulation 0), the
+bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile (the page uses
+the Universum selector), `min_coverage` (0.4), `min_components` (2) and the cuts. Presets:
+Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. The simulation
+component is `NOT_COLLECTED`: stored simulation rows are not an outcome model.
+
+The Owner's marks (favorite, excluded, note) never enter the index (Owner decision B4;
+pinned by a test). On the page the settings panel "Stärke-Index" holds preset, bracket, one
+input per weight, the minimum coverage and a named save; the choice is remembered in the
+browser. The new column sorts by index with tier U last; the card drawer lists every
+component with value, numerator/denominator, Wilson bound, percentile, weight and status.
+
+Routes: `POST /api/strength` (body `commander` plus at most one of `preset`, `profile`,
+`settings`; needs the `X-Studio` header like every non-GET route, 422 without commander),
+`GET /api/strength/presets`, `GET /api/strength/profiles`,
+`GET|PUT|DELETE /api/strength/profiles/{name}`.
+
 ### Data report
 
 `data-report` prints JSON with numbers only: every figure is a count with its denominator, a

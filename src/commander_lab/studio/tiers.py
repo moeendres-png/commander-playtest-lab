@@ -2,8 +2,11 @@
 
 A tier here is not a judgement stored anywhere: it is computed, on demand, from the
 inclusion share of a card in one deck universe (see ``universe.py``) and the parameters
-below. The parameter *values* in ``TierParams`` are code defaults so the function can
-run; they are settings the owner can change per profile or per call, not findings.
+below. The cut *values* in ``TierParams`` are model constants of this module (version
+``MODEL_VERSION``), not settings: the only owner-set value a universe profile carries
+is ``min_universe``, the smallest denominator the function still grades. Changing a
+cut means changing this module and its model version, so a displayed level always
+names the exact model it was counted with.
 A card lands in tier ``U`` (insufficient data) — never in a guessed tier — when the
 universe is smaller than ``min_universe`` decks or the card has no counted denominator.
 
@@ -21,6 +24,10 @@ from typing import TypedDict
 
 from ._coerce import iterate, to_float, to_int
 from .universe import InclusionResult
+
+#: Version of the counted-spread model: the cut set and fallback of ``TierParams``.
+#: Bump it whenever the cuts change; views cite it next to the thresholds they show.
+MODEL_VERSION = "counted-spread-1"
 
 
 class TierParamsDict(TypedDict):
@@ -49,7 +56,9 @@ class CardTier(TypedDict):
 
 @dataclass(frozen=True)
 class TierParams:
-    """Owner-set parameters of the tier function (defaults are placeholders)."""
+    """Parameters of the tier function. The cuts and the fallback tier are model
+    constants (``MODEL_VERSION``); ``min_universe`` is the one value a universe
+    profile may set, everything else stays at the model default."""
 
     min_universe: int = 30
     # Descending (tier, minimum inclusion share) cuts; the first cut a card reaches wins.

@@ -43,6 +43,7 @@ GAMES_PER_JVM_PROPERTY = "commanderlab.fullGame.gamesPerJvm"
 
 import run_real_4p_full_game_smoke as smoke  # noqa: E402
 
+from commander_lab.engine.rules.fast_jvm_options import fast_jvm_options  # noqa: E402
 from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
 
 COVERAGE_DIR = ROOT / "data/coverage_decks/collection"
@@ -188,23 +189,6 @@ def _play_batch(
         print(json.dumps(row), flush=True)
         rows.append(row)
     return rows
-
-
-def fast_jvm_options(jar: Path) -> list[str]:
-    """Launch options that make a bridge JVM cheaper without changing a game.
-
-    Serial GC: the live set is small and the games allocate about 1 GB/s, so one collector
-    thread beats G1's concurrent threads (measured -10 % CPU, identical transcripts). With an
-    AppCDS archive next to the jar (``<jar>.jsa`` from ``build_xmage_cds_archive.py``) the JVM
-    also maps its classes instead of loading them; JVM logging then goes to stderr, because the
-    JVM's own warning (a stale archive) would otherwise reach the protocol on stdout.
-    """
-    # H2 AUTO_SERVER listens on every interface by default; the bridge needs the loopback only.
-    options = ["-XX:+UseSerialGC", "-Dh2.bindAddress=127.0.0.1"]
-    archive = jar.resolve().with_suffix(".jsa")
-    if archive.is_file():
-        options += ["-Xlog:disable", "-Xlog:all=warning:stderr", f"-XX:SharedArchiveFile={archive}"]
-    return options
 
 
 def bridge_command(jar: Path, jvm_options: list[str]) -> tuple[str, ...]:
