@@ -35,7 +35,7 @@ HANDOFF instead of growing one giant conversation.
 
 **Model tiers** (`AGENTS.md` §7, Owner instruction 2026-11-12). The lead session keeps
 understanding, planning, adjudication and merge decisions. Hand implementation, review
-passes, log/CI digestion and check-watching to a helper on a smaller model or lower effort
+passes, log/CI digestion and check-watching to a helper on a smaller model at its declared level
 (`ci-triage`, `log-scanner`, a Sonnet worker in its own worktree), with a bounded brief, and
 check the result before relying on it. This does not replace the worker the Owner selected
 for a session, and it never replaces the independent review a MATERIAL change needs
