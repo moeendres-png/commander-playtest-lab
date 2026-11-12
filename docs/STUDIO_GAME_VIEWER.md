@@ -42,6 +42,53 @@ stack, the hand of the deciding seat, and a chronological list of actions with l
 Playback has start, step, next turn, a speed setting and a position slider; passing and mana
 payment can be skipped. A running game is followed live.
 
+## Simulation series: several games per engine process
+
+A series (`python -m commander_lab.studio simulate`, `POST /api/simulations/batch`) plays its
+games in chunks. One `play-batch` process plays a chunk in one bridge JVM, one game after the
+other; `workers` chunks run at once. Options (CLI `--workers`, `--games-per-jvm`; the same
+names in the API body):
+
+| Option | Range | Default |
+| --- | --- | --- |
+| `workers` | 1 to 16 | `min(4, cpu count - 1)`, at least 1 |
+| `games_per_jvm` | 1 to 24 | 6 |
+
+A chunk is never larger than `games_per_jvm`; there are at least `workers` chunks (as far as
+there are games), so a short series still uses every worker. The bridge starts with the fast
+options of `fast_jvm_options` (`src/commander_lab/engine/rules/fast_jvm_options.py`, the helper
+of `benchmark_xmage_full_games.py --fast`): serial GC, and the AppCDS archive `<jar>.jsa` only if
+it exists next to the jar (the JVM ignores one that does not match the jar). Build it with
+`scripts/build_xmage_cds_archive.py`. With `workers` above 1 each bridge JVM uses its own copy of
+the card repository. A launcher that is not `java` runs as it is, one game per process.
+
+Every game keeps its own log, seed, table row and status. A game that fails is a failed row: its
+JVM is discarded, the rest of the chunk continues in a fresh one, and a neighbour whose JVM was
+killed by the failure is played again alone (`run_batch`). Cancelling a series terminates the
+running engine processes; games that never started have no row. A row appears when its chunk
+has finished, so progress moves in steps of up to `games_per_jvm` games.
+
+The series record (API `execution`, `<games>/<batch id>.series.json`, and the title of the
+saved source) names the execution identity: `workers`, `games_per_jvm`, the chunks, the JVM
+flags (heap, serial GC, AppCDS, batch size) and whether serial GC and AppCDS were used.
+
+"Same game" means: for the same seed, deck and pod, the semantic transcript SHA-256
+(`semantic_transcript_sha256`, the field `benchmark_xmage_full_games.py` records as
+`semantic`, now also in the closing entry of every game log), the winner seats and the
+decision count are equal to those of the game played alone, one game per JVM, default JVM
+options. `scripts/check_studio_series_identity.py` checks it on the real engine (Chulane,
+`precon` pod of `deckbau_eval.py`, seeds 1-6: alone versus a series with 2 workers, 3 games
+per JVM, fast options) and exits non-zero on any difference. Result of the
+run of 2026-11-12 (jar built from the pinned source, AppCDS archive present): 6 of 6 games
+identical in hash, winners and decisions. Wall times of that run (a loaded machine, a
+measurement only): 588 s alone against 314 s as a series. Unit tests
+(`tests/unit/test_studio_series_fast.py`) check chunking, per-game logs, failure isolation,
+cancellation and the option ranges with fake engines.
+
+Evidence and qualification lanes are untouched and keep one game per JVM; the files that may
+batch games are listed in `test_only_known_files_can_batch_games`. The single game started
+with "Neue Partie" stays one game per JVM.
+
 ## Not in this step
 
 Every seat is a pilot. A human seat needs the engine to wait for a person and is a later
