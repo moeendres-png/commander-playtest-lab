@@ -28,7 +28,6 @@
   "checksum_scheme": "For *.json.gz archive members sha256 and size refer to GZIP-DECOMPRESSED logical bytes. All other ZIP members use raw bytes. Group derives from first slash-separated path component, or 'exports' for root-level members. Compare multiset, not order.",
   "source_multiset_file": "source_multiset.csv",
   "source_index_drive_file_id": "1KB71NZ9038PdMk-hfWnCxpP1TSivpJ2Z",
-  "original_corpus_drive_folder_url": "https://drive.google.com/drive/folders/1kqpx6hdq0bKC1wTsYt7poln_VGZ22S_n",
   "raw_archive_storage": "PRIVATE_GOOGLE_DRIVE_ONLY",
   "git_payload": "SHA-256/byte-count multiset and aggregate source manifest only; no scraped HTML, response bodies, screenshots, private decks, collection, tokens or browser-profile data.",
   "importer_rule": "never import the 470 preview IDs as complete 99-card decks; no aggregate inclusion frequency/denominator is derivable from those IDs alone",
@@ -81,6 +80,5 @@
     "validator": "scripts/verify_edhrec_v5_archive.py"
   },
   "source_archive_drive_file_id": "11_-2NEeyZcBaRIh8SveUvQeB7tz5qCIb",
-  "source_archive_drive_url": "https://drive.google.com/file/d/11_-2NEeyZcBaRIh8SveUvQeB7tz5qCIb/view",
   "source_archive_drive_sha256_readback_verified": true
 }

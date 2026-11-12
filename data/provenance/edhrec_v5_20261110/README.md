@@ -2,7 +2,7 @@
 
 **Status:** `REVIEW / ORIGINAL_SOURCE_INDEX`, `automatic_import=false`.
 
-Dieses Verzeichnis referenziert das gesamte eingefrorene V5-Quellarchiv **ohne** Rohantworten oder private Deck-/Sammlungsdaten in das öffentliche Repository zu kopieren. Das unveränderte [Original-ZIP](https://drive.google.com/file/d/11_-2NEeyZcBaRIh8SveUvQeB7tz5qCIb/view) liegt zusätzlich zum [V011-Drive-Archiv](https://drive.google.com/drive/folders/1kqpx6hdq0bKC1wTsYt7poln_VGZ22S_n) bereit. Sein SHA-256 wurde nach erneutem Herunterladen geprüft. Autorität für Programmcode ist GitHub `main`, Autorität für Rohbelege ist das unveränderte Drive-Original.
+Dieses Verzeichnis referenziert das gesamte eingefrorene V5-Quellarchiv **ohne** Rohantworten oder private Deck-/Sammlungsdaten in das öffentliche Repository zu kopieren. Das unveränderte Original-ZIP (im lokalen Owner-Datenordner) liegt zusätzlich zum V011-Drive-Archiv (im lokalen Owner-Datenordner) bereit. Sein SHA-256 wurde nach erneutem Herunterladen geprüft. Autorität für Programmcode ist GitHub `main`, Autorität für Rohbelege ist das unveränderte Drive-Original.
 
 | Inhalt des Original-ZIP | Anzahl | Bedeutung |
 |---|---:|---|
@@ -25,11 +25,11 @@ Der Prüfer liest die Originaldateien **nur lokal**, vergleicht ZIP-SHA, logisch
 
 ## Nicht mit anderen EDHREC-Kohorten vermischen
 
-- **Chulane C079 historisch:** 1.379 beobachtete Karten/Themenseiten-Zeilen; 75 ursprüngliche exakte UTC-Abrufe, 1.304 `UNKNOWN`. [Drive-Importquelle](https://drive.google.com/file/d/1J9ADkvg_rvHBkPx7UQx7crD0K6cUmYUP/view). Neuabruf kann historische Zeit nicht reparieren.
+- **Chulane C079 historisch:** 1.379 beobachtete Karten/Themenseiten-Zeilen; 75 ursprüngliche exakte UTC-Abrufe, 1.304 `UNKNOWN`. Drive-Importquelle (im lokalen Owner-Datenordner). Neuabruf kann historische Zeit nicht reparieren.
 - **Chulane 20 HTTP200-Neuquellen (2026-11-11):** 4.945 Cardlist-Zeilen; unabhängige aktuelle Datenlane [Issue #1186](https://github.com/moeendres-png/commander-playtest-lab/issues/1186) / [gemergter PR #1193](https://github.com/moeendres-png/commander-playtest-lab/pull/1193) (ersetzt den geschlossenen, nicht gemergten #1184). Kein V5-Zeitstempelersatz.
-- **Chulane V010 Forschungshub:** 9.831 EDHREC-Index-IDs als **Indexbelege**; keine weiteren 9.831 vollständigen 99er-Decks. [Private Quelle](https://drive.google.com/drive/folders/1KqmAco70VgOo5fc_OzzSZmSY1qHIT9xv).
-- **Tam / The Possibility:** 78 EDHREC-Themenseiten mit 16.023 CardRec-Beobachtungen; je Seite eigener Nenner. [Private Quelle](https://drive.google.com/drive/folders/1uVes8IRBtII_BXSvCBVX7Awbs_v2DZ2o).
-- **Tam + Chandra:** 381 kuratierte EDHREC-Quelllisten, separate **REVIEW**-Kohorte (187 qualifizierbare Kandidaten, keine automatische Aktivierung). [Drive-Review](https://drive.google.com/drive/folders/1iXmksjwQE6-V0Ds3xzxy9Ai-EqCM22oX).
+- **Chulane V010 Forschungshub:** 9.831 EDHREC-Index-IDs als **Indexbelege**; keine weiteren 9.831 vollständigen 99er-Decks. Private Quelle (im lokalen Owner-Datenordner).
+- **Tam / The Possibility:** 78 EDHREC-Themenseiten mit 16.023 CardRec-Beobachtungen; je Seite eigener Nenner. Private Quelle (im lokalen Owner-Datenordner).
+- **Tam + Chandra:** 381 kuratierte EDHREC-Quelllisten, separate **REVIEW**-Kohorte (187 qualifizierbare Kandidaten, keine automatische Aktivierung). Drive-Review (im lokalen Owner-Datenordner).
 
 ## Grenzen
 
