@@ -10,146 +10,22 @@
 |---|---|---|---|
 | `chulane_legal_pool_gap_matrix.json` | JSON | OK | 927 Karten |
 | `chulane_decklist_inclusion_20261112.csv` | CSV | OK | 15038 Datenzeilen |
-| `pilot_card_knowledge.json` | JSON | OK | 7231 Karten |
+| `pilot_card_knowledge.json` | JSON | OK | 32820 Karten |
 | `commander_flags.json` | JSON | OK | 53 Game Changers, 83 Banned |
 | `official_precon_oracle_cards.json` | JSON | OK | 512 Karten |
 
 ## 2. Namens-Mengen und Dubletten
 
 ### 2.1 Gap-Matrix-Karten ohne Eintrag in `pilot_card_knowledge`
-- **Exakte Namensgleichheit:** 123 Karten
-- **Normalisiert (casefold + strip):** 123 Karten
-- **Betroffene Karten:**
-  * `Afterthought Sentry`
-  * `Arcane Amphisbaena`
-  * `Burdened Stoneback`
-  * `Campus Crier`
-  * `Cryotheory Adept`
-  * `Dawn's Light Archer`
-  * `Glamermite`
-  * `Inspired Tethermage`
-  * `Kraven's Cats`
-  * `Kulrath Mystic`
-  * `Lys Alana Dignitary`
-  * `Lys Alana Informant`
-  * `Mysterio's Phantasm`
-  * `Prudent Fateseer // Peer Review`
-  * `Reluctant Dounguard`
-  * `Summit Sentinel`
-  * `Sureshot Sower`
-  * `Surly Farrier`
-  * `Vinebred Brawler`
-  * `Crossroads Watcher`
-  * `Emergency Phytomedic // Seed Suture`
-  * `Flitterwing Nuisance`
-  * `Foraging Wickermaw`
-  * `Mary Jane Watson`
-  * `Spider-Man, Web-Slinger`
-  * `Timid Shieldbearer`
-  * `Wary Farmer`
-  * `Goldmeadow Nomad`
-  * `Lurking Lizards`
-  * `Gravelgill Scoundrel`
-  * `Tributary Vaulter`
-  * `Mindseeker Oculus`
-  * `Silvergill Peddler`
-  * `Teyo, Lightshield Expert`
-  * `Brigid, Clachan's Heart // Brigid, Doun's Mind`
-  * `Rhys, the Evermore`
-  * `Wanderbrine Preacher`
-  * `Archive Arbiter`
-  * `Chitinous Graspling`
-  * `Doc Ock, Sinister Scientist`
-  * `Illusion Spinners`
-  * `Luminollusk`
-  * `Mind Meanderer`
-  * `Mistmeadow Council`
-  * `Pummeler for Hire`
-  * `Safewright Cavalry`
-  * `Saheeli, Consul of Oversight`
-  * `Shore Lurker`
-  * `Sun-Spider, Nimble Webber`
-  * `Tanufel Rimespeaker`
-  * `Titanbones, Towering Heart`
-  * `Wildvine Pummeler`
-  * `Wrecking Gecko`
-  * `Gallant Fowlknight`
-  * `Kithkeeper`
-  * `Shinestriker`
-  * `Sun-Dappled Celebrant`
-  * `Wanderwine Distracter`
-  * `Web-Warriors`
-  * `Bristlebane Outrider`
-  * `Kinsbaile Aspirant`
-  * `Yargle, Goliath of Otaria`
-  * `Bristlebane Battler`
-  * `Changeling Wayfinder`
-  * `Chomping Changeling`
-  * `Deepchannel Duelist`
-  * `Dundoolin Weaver`
-  * `Eclipsed Kithkin`
-  * `Gilanra, Caller of Wirewood`
-  * `Great Forest Druid`
-  * `Kinscaer Sentry`
-  * `Lizard, Connors's Curse`
-  * `Loot, the Nexus`
-  * `Studious First-Year // Rampant Growth`
-  * `Thoughtweft Lieutenant`
-  * `Academic Ascent`
-  * `Appeal to Eirdu`
-  * `Assert Perfection`
-  * `Evershrike's Gift`
-  * `Flourishing Grapple`
-  * `Hexhaven Battalion`
-  * `Icy Reception`
-  * `Infinite Coursework`
-  * `Midnight Tilling`
-  * `Perfected Theory`
-  * `Pitiless Fists`
-  * `Predictive Preparations`
-  * `Protege's Awakening`
-  * `Puca's Eye`
-  * `Rime Chill`
-  * `Tam's Resistance`
-  * `Tethermage's Advantage`
-  * `Unforgiving Aim`
-  * `Wall Crawl`
-  * `Aquitect's Defenses`
-  * `Bark of Doran`
-  * `Shimmerwilds Growth`
-  * `Stalactite Dagger`
-  * `Hexhaven Invigorator`
-  * `Merrow Skyswimmer`
-  * `Grow Extra Arms`
-  * `Kapow!`
-  * `Spiral into Solitude`
-  * `Subway Train`
-  * `Whoosh!`
-  * `Wild Unraveling`
-  * `Champions of the Perfect`
-  * `Firdoch Core`
-  * `Hapatra, the Desert Frost`
-  * `Omni-Changeling`
-  * `Spellbook Seeker // Careful Study`
-  * `Tam, Observant Sequencer // Deep Sight`
-  * `Tend the Sprigs`
-  * `Spider-Man No More`
-  * `Bagel and Schmear`
-  * `Clachan Festival`
-  * `Unexpected Assistance`
-  * `Brigid's Command`
-  * `Gathering Stone`
-  * `Kinbinding`
-  * `Personify`
-  * `Prismatic Undercurrents`
-  * `Vigorbloom Charm`
+- **Exakte Namensgleichheit:** 0 Karten
+- **Normalisiert (casefold + strip):** 0 Karten
 
 ### 2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag
 - **Distinkte Kartennamen in Inclusion-CSV:** 6543
 - **Karten im Chulane-Legal-Pool (Gap-Matrix):** 927
 - **Karten der Inclusion-CSV ohne Gap-Matrix-Eintrag (exakt):** 6084
 - **Karten der Inclusion-CSV ohne Gap-Matrix-Eintrag (normalisiert):** 6084
-- **Befund:** Die Inclusion-CSV deckt das gesamte 4-Player-Deck-Universum ab (inkl. Gegner- und Formatkarten außerhalb des Chulane-Pools). 417 der 801 Chulane-Pool-Karten erscheinen in der Inclusion-CSV; 6.126 Universumskarten liegen außerhalb des 801-Pools.
+- **Befund:** Die Inclusion-CSV deckt das gesamte 4-Player-Deck-Universum ab (inkl. Gegner- und Formatkarten außerhalb des Chulane-Pools). 459 der 927 Chulane-Pool-Karten erscheinen in der Inclusion-CSV; 6084 Universumskarten liegen außerhalb des 927-Pools.
 
 ### 2.3 Dubletten je Datei
 - `chulane_legal_pool_gap_matrix.json`: 0 Dubletten
@@ -203,8 +79,8 @@
 | Prüfung | Ergebnis | Anzahl | Details-Datei/Abschnitt |
 |---|---|---|---|
 | 1.1 Parsebarkeit der 5 Datendateien | OK | 0 | Abschnitt 1: 0 Parse-Fehler über alle 5 Dateien |
-| 2.1 Gap-Matrix-Karten ohne Eintrag in pilot_card_knowledge | ABWEICHUNG | 123 | Abschnitt 2.1: 3 benutzerdefinierte/geteilte Karten fehlen in PCK |
-| 2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag (Universum vs. Chulane-Pool) | ABWEICHUNG | 6084 | Abschnitt 2.2: 6.126 Universums-Karten außerhalb des 801-Chulane-Pools |
+| 2.1 Gap-Matrix-Karten ohne Eintrag in pilot_card_knowledge | OK | 0 | Abschnitt 2.1: 0 Gap-Matrix-Karten fehlen in PCK |
+| 2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag (Universum vs. Chulane-Pool) | ABWEICHUNG | 6084 | Abschnitt 2.2: 6084 Universums-Karten außerhalb des 927-Chulane-Pools |
 | 2.3 Dubletten je Datei | OK | 0 | Abschnitt 2.3: 0 Dubletten in allen 5 Dateien |
 | 3.1 Inclusion-CSV: Kohorten-Nenner konstant | OK | 0 | Abschnitt 3.1: Alle 4 Kohorten haben exakt 1 konstanten Nenner |
 | 3.2 Inclusion-CSV: Wertebereiche (0 <= decks <= universe_decks; 0.0 <= share <= 1.0) | OK | 0 | Abschnitt 3.2: 0 Wertebereichsverletzungen |
