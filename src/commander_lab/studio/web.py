@@ -170,6 +170,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "source_decks": store.count("corpus_deck"),
                 "neutral_board_rows": store.count("neutral_board_row"),
                 "simulation_runs": store.count("simulation_run"),
+                # The three counts above are store totals over all commanders; this
+                # says how many of them are bound to a commander at all.
+                "source_data_binding": store.binding_counts(),
                 "decks": store.count("deck"),
                 "sources": sources,
             }
@@ -186,19 +189,33 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/cohorts")
-    def cohorts() -> list[dict[str, object]]:
+    @app.get("/api/commanders")
+    def commanders(collection: bool = False) -> list[dict[str, object]]:
         store = open_store()
         try:
-            return builder.cohort_shapes(store)
+            return builder.list_commanders(store, include_collection=collection)
+        finally:
+            store.close()
+
+    @app.get("/api/cohorts")
+    def cohorts(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> list[dict[str, object]]:
+        store = open_store()
+        try:
+            return builder.cohort_shapes(store, commander)
         finally:
             store.close()
 
     @app.get("/api/cards/{card_id}")
-    def card(card_id: str, cohort: str = builder.ALL_DECKS) -> dict[str, object]:
+    def card(
+        card_id: str,
+        commander: list[str] = Query(min_length=1, max_length=2),
+        cohort: str = builder.ALL_DECKS,
+    ) -> dict[str, object]:
         store = open_store()
         try:
-            return builder.card_detail(store, card_id, cohort=cohort)
+            return builder.card_detail(store, card_id, commander, cohort=cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
         finally:
@@ -322,10 +339,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.get("/api/simulations")
-    def simulations() -> list[dict[str, object]]:
+    def simulations(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> list[dict[str, object]]:
         store = open_store()
         try:
-            return builder.list_simulations(store)
+            return builder.list_simulations(store, commander)
         finally:
             store.close()
 
