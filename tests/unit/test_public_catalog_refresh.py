@@ -265,6 +265,36 @@ def test_engine_subset_keeps_missing_separate_from_all_rows() -> None:
     assert result["missing"] == ["Searched But Missing"]
 
 
+def test_engine_subset_accounts_for_shared_fronts_and_half_only_names() -> None:
+    module = _script("export_xmage_card_facts")
+    base = {
+        "P": "",
+        "T": "",
+        "L": "",
+        "MV": "1",
+        "TY": "ARTIFACT",
+        "ST": "",
+        "SP": "",
+        "MC": "{1}",
+        "R": "",
+        "F": "",
+        "S": "",
+        "O": "",
+        "D": "",
+    }
+    rows = [
+        {"NAME": "Shared // One", "H": "FALSE", **base},
+        {"NAME": "Shared // Two", "H": "FALSE", **base},
+        {"NAME": "Orphan", "H": "TRUE", **base},
+    ]
+    result = module.build_facts(rows, {"Shared", "Orphan"})
+    # Every searched name is accounted for: a front shared by two whole cards
+    # and a name that exists only as a split half are ambiguous, never dropped.
+    assert result["cards"] == {}
+    assert result["missing"] == []
+    assert result["ambiguous"] == ["Orphan", "Shared"]
+
+
 def test_engine_provenance_hashes_actual_copied_database(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

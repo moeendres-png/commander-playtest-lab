@@ -25,7 +25,7 @@
 - **Karten im Chulane-Legal-Pool (Gap-Matrix):** 927
 - **Karten der Inclusion-CSV ohne Gap-Matrix-Eintrag (exakt):** 6084
 - **Karten der Inclusion-CSV ohne Gap-Matrix-Eintrag (normalisiert):** 6084
-- **Befund:** Die Inclusion-CSV deckt das gesamte 4-Player-Deck-Universum ab (inkl. Gegner- und Formatkarten außerhalb des Chulane-Pools). 417 der 801 Chulane-Pool-Karten erscheinen in der Inclusion-CSV; 6.126 Universumskarten liegen außerhalb des 801-Pools.
+- **Befund:** Die Inclusion-CSV deckt das gesamte 4-Player-Deck-Universum ab (inkl. Gegner- und Formatkarten außerhalb des Chulane-Pools). 459 der 927 Chulane-Pool-Karten erscheinen in der Inclusion-CSV; 6084 Universumskarten liegen außerhalb des 927-Pools.
 
 ### 2.3 Dubletten je Datei
 - `chulane_legal_pool_gap_matrix.json`: 0 Dubletten
