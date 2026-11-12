@@ -30,9 +30,9 @@
 1. Aus dem JSON-Index genau die benötigte Kohorte und Dateien anhand von `dataset`, `role` und `file_name` auswählen. **Nicht** ganze Ordner rekursiv importieren.
 2. Die Dateien aus dem lokalen Owner-Datenordner nehmen, Rohbytes mit den *manifest-deklarierten* SHA-256-Werten abgleichen und anschließend mit CSV-Header, Anzahl, eindeutiger `deck_id`, `oracle_id`, Summen und 99+1 prüfen. Nicht übereinstimmende Dateien als `REVIEW` isolieren, keine stillen Reparaturen.
 3. In separater SQLite-Testdatenbank TAM 91 und Chulane 994 importieren; source cohort/commander sind bei jeder Card-Inclusion-Query zwingende Filter. Quoten immer als `included_decks / eligible_decks` ausweisen. Im lokalen Owner-Datenbestand **keine** Änderungen ohne eigene Freigabe.
-4. **PR #1183** prüft deckweise überlappende CSV-Teile; bis der Importfix auf dem geprüften Stand verfügbar ist, keine Mehrteildateien mit möglicherweise gleichen IDs unkontrolliert importieren.
+4. Mehrteilige CSV-Dateien nur über den Studio-Importer einlesen, der überlappende Deck-IDs zwischen Teilen prüft (auf `main` seit #1193).
 5. TAM 381 gesondert auf Bracket-Originalbeleg, Oracle-Legalität, Deckhash, Überlappungen und Snapshot-Zeit prüfen. **Unbekannte Brackets bleiben unbekannt.** Keinen LIVE-Import durchführen.
-6. EDHREC-Importadapter (`count`, `denominator`, `source_view`, `captured_at`) getrennt behandeln; pro Thema/Snapshot nie Nenner addieren. Aktuelle historische Zeitprobleme: **PR #1184**.
+6. EDHREC-Importadapter (`count`, `denominator`, `source_view`, `captured_at`) getrennt behandeln; pro Thema/Snapshot nie Nenner addieren.
 7. Ergebnis als Zahlen, Fehlertypen, Source IDs/Hashes und Testbelege dokumentieren. Keine subjektiven Tierlisten, Planeswalker-Synergiegewichte, künstlichen Rollenfit-Scores oder ungeprüften Siegraten.
 
 ## Schutzgrenzen
