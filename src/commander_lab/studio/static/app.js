@@ -1,7 +1,7 @@
 "use strict";
 // Commander Studio deck builder. All text from data is set as text, never as HTML.
 
-const COMMANDER = "Chulane, Teller of Tales";
+const COMMANDER = StudioCommander.current;
 const GROUPS = ["Creature", "Planeswalker", "Battle", "Artifact", "Enchantment", "Instant", "Sorcery", "Land", "Other"];
 const GROUP_NAMES = { Creature: "Kreaturen", Planeswalker: "Planeswalker", Battle: "Schlachten", Artifact: "Artefakte", Enchantment: "Verzauberungen", Instant: "Spontanzauber", Sorcery: "Hexereien", Land: "Länder", Other: "Sonstige" };
 const COHORT_NAMES = {
@@ -509,7 +509,7 @@ function pollBatch(batchId) {
       state.activeBatch = batch;
       if (batch.status === "completed" || batch.status === "cancelled" || batch.status === "failed") {
         const [sims, recordedGames] = await Promise.all([
-          api("/api/simulations").catch(() => []),
+          api("/api/simulations?" + StudioCommander.query).catch(() => []),
           api("/api/games").catch(() => []),
         ]);
         state.simulations = sims || [];
@@ -741,7 +741,7 @@ async function openCard(card) {
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."), extra);
   box.append(left, right); $("modal").hidden = false;
   try {
-    const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?cohort=${encodeURIComponent(state.cohort)}`);
+    const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
     const parts = [];
     if (detail.used_in && detail.used_in.length) {
       parts.push(h("h3", {}, "Verwendet in gespeicherten Varianten"),
@@ -831,10 +831,12 @@ async function openCard(card) {
 
 // ---------- decks, variants, saving ----------
 async function loadDecks() {
-  state.decks = await api("/api/decks");
+  // Only the decks of the chosen commander; a deck never changes its commander here.
+  const mine = (decks) => decks.filter((deck) => (deck.commanders || []).includes(COMMANDER));
+  state.decks = mine(await api("/api/decks"));
   if (!state.decks.length) {
-    const created = await api("/api/decks", "POST", { name: "Chulane", commander_card_ids: state.commanderIds });
-    state.deckId = created.deck_id; state.decks = await api("/api/decks");
+    const created = await api("/api/decks", "POST", { name: StudioCommander.shortName(COMMANDER), commander_card_ids: state.commanderIds });
+    state.deckId = created.deck_id; state.decks = mine(await api("/api/decks"));
   }
   if (!state.decks.some((deck) => deck.deck_id === state.deckId)) state.deckId = state.decks[0].deck_id;
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
@@ -920,17 +922,18 @@ function setupControls() {
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
 }
 async function start() {
+  await StudioCommander.fill($("commander-select"));
   try {
     const stored = JSON.parse(localStorage.getItem("studio-columns") || "null");
     if (Array.isArray(stored)) state.columns = new Set(stored);
   } catch (error) { /* view setting only */ }
   try {
-    const [pool, shapes, sims, recordedGames] = await Promise.all([api("/api/pool?commander=" + encodeURIComponent(COMMANDER)), api("/api/cohorts"), api("/api/simulations"), api("/api/games").catch(() => [])]);
+    const [pool, shapes, sims, recordedGames] = await Promise.all([api("/api/pool?" + StudioCommander.query), api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => [])]);
     state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
     state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
-    $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, "Sind Sammlung und Kartendaten importiert?"));
+    $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));
   }
 }
 start();

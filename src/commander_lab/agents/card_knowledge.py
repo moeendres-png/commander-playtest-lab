@@ -151,7 +151,7 @@ def card_facts(name: str | None, path: Path | None = None) -> CardFacts | None:
 def _lookup(name: str, path: str) -> CardFacts | None:
     catalog = _catalog(path)
     key = name.strip().casefold()
-    return catalog.get(key) or catalog.get(key.split(" // ")[0])
+    return catalog.get(key)
 
 
 @lru_cache(maxsize=4)

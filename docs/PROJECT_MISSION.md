@@ -26,7 +26,8 @@ optimization.
   product priority), PLAY (one human against AI seats) and SIMULATE (AI games, their logs and
   win rates). Pilots aim at generally strong play with a deck game plan; new series of small
   per-decision measurements are frozen. See
-  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`.
+  `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`; the decisions taken since
+  then for the three areas are collected in `docs/OWNER_DECISIONS_STUDIO_20261112.md`.
 
 ## Outcome-first architecture and research
 

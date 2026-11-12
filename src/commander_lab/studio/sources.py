@@ -516,8 +516,13 @@ def write_source_inventory_json(path: str | Path, *, status: SourceStatus | None
     return out_path
 
 
-def load_spellbook_combo_cards(combos_path: str | Path | None = None) -> set[str]:
-    """Load the set of card names participating in verified combos for Chulane."""
+def load_spellbook_combo_cards(
+    combos_path: str | Path | None = None, *, commander: str = "Chulane"
+) -> set[str]:
+    """Load the set of card names participating in verified combos listed for ``commander``
+    (matched against the combo's ``commander`` field; another commander's combos never count)."""
+    if not commander:
+        return set()
     target_path = Path(combos_path) if combos_path else Path("data/meta/spellbook_combos.json")
     if not target_path.is_file():
         return set()
@@ -530,7 +535,7 @@ def load_spellbook_combo_cards(combos_path: str | Path | None = None) -> set[str
     if not isinstance(combos, list):
         return set()
     for combo in combos:
-        if isinstance(combo, dict) and "Chulane" in str(combo.get("commander", "")):
+        if isinstance(combo, dict) and commander in str(combo.get("commander", "")):
             combo_cards = combo.get("cards")
             if isinstance(combo_cards, list):
                 for c in combo_cards:

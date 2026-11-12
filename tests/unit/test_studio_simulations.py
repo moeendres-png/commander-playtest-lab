@@ -264,7 +264,9 @@ def test_save_batch_to_store(tmp_path: Path) -> None:
         assert run["mean_rounds"] == 10.0
 
         # Verify list_simulations readback
-        sim_list = builder.list_simulations(store)
+        # the series is bound to the commander of the deck revision it played
+        assert builder.list_simulations(store, ["Another Commander"]) == []
+        sim_list = builder.list_simulations(store, ["Chulane, Teller of Tales"])
         assert len(sim_list) == 1
         assert sim_list[0]["run_id"] == batch.run_id
         assert sim_list[0]["pod"] == "precon"

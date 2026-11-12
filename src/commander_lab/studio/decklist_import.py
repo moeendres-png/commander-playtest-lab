@@ -51,6 +51,7 @@ class _Deck(TypedDict):
     rows: list[tuple[str, str, int]]
     cohorts: list[str]
     title: str
+    commanders: list[str]
 
 
 def _merge_rows(rows: list[tuple[str, str, int]]) -> list[tuple[str, str, int]]:
@@ -151,6 +152,7 @@ def _edhrec_deck(raw: Mapping[str, object], path: Path) -> _Deck:
             f"commander:{COMMANDER_COHORT}",
         ],
         "title": path.name,
+        "commanders": sorted(commanders),
     }
 
 
@@ -192,18 +194,22 @@ def _archidekt_deck(raw: Mapping[str, object], path: Path) -> _Deck:
             f"commander:{COMMANDER_COHORT}",
         ],
         "title": path.name,
+        "commanders": sorted({name for name, section, _ in rows if section == "commander"}),
     }
 
 
 _PARSERS = {"edhrec": _edhrec_deck, "archidekt": _archidekt_deck}
 
 
-def import_decklists(store: StudioStore, folder: str | Path, *, format: str) -> dict[str, int]:
+def import_decklists(
+    store: StudioStore, folder: str | Path, *, format: str, commander: str | None = None
+) -> dict[str, int]:
     """Import every normalized deck file of one source format from ``folder``.
 
     ``format`` is ``edhrec`` or ``archidekt``. Returns counts of decks written, decks
     marked as exact duplicates of an earlier deck, card rows written and files skipped
     because they carried no cards. The whole folder is written in one transaction.
+    With ``commander``, a list whose commander section does not name it is refused.
     """
     parser = _PARSERS.get(format)
     if parser is None:
@@ -212,6 +218,18 @@ def import_decklists(store: StudioStore, folder: str | Path, *, format: str) -> 
     if not files:
         raise ValueError(f"no deck files found in {folder}")
     decks = [parser(_read_json(file), file) for file in files]
+    if commander is not None:
+        # A list that names its own commander is only imported for that commander.
+        # The source's own commander statement decides, also when the card list omits it.
+        foreign = sorted(
+            deck["title"]
+            for deck in decks
+            if deck["commanders"] and commander not in deck["commanders"]
+        )
+        if foreign:
+            raise ValueError(
+                f"deck lists of another commander than {commander!r}: " + ", ".join(foreign[:10])
+            )
     deck_ids = [deck["deck_id"] for deck in decks]
     if len(set(deck_ids)) != len(deck_ids):
         raise ValueError(

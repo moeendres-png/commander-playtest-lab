@@ -10,17 +10,20 @@
 <body>
 <header id="top">
   <h1>Commander Studio <span>Tierliste</span></h1>
+  <label>Commander <select id="commander-select"></select></label>
   <label>Ansicht <select id="view"></select></label>
   <span id="deck-pick" hidden>
     <label>Deck <select id="deck-select"></select></label>
     <label>Variante <select id="branch-select"></select></label>
   </span>
+  <label>Universum <select id="universe-select" title="Deck-Universum für die gezählte Verbreitung"></select></label>
   <span id="tier-pill" class="pill warn" title="Ein Tier braucht ein Modell mit Ergebnisdaten. Ein solches Modell gibt es noch nicht.">alle unbewertet</span>
   <span class="spacer"></span>
   <a class="nav" href="index.html">Deckbau</a>
   <a class="nav" href="partie.html">Partien</a>
 </header>
 <div id="notice"></div>
+<div id="universe-panel"></div>
 <div id="filters">
   <input id="q" type="search" placeholder="Suche in Name und Typ" autocomplete="off">
   <select id="type-filter"></select>
@@ -35,6 +38,7 @@
 <div id="pool-body"></div>
 <div id="modal" hidden><div id="modal-box" class="plain"></div></div>
 <div id="toast" hidden></div>
+<script src="commander.js"></script>
 <script src="tierliste.js"></script>
 </body>
 </html>
