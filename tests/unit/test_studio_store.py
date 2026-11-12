@@ -729,3 +729,48 @@ def test_lab_deck_and_simulation_report_import(store: StudioStore, tmp_path: Pat
     assert sim_res["games_completed"] == 12
     assert store.count("simulation_run") == 1
     assert store.count("simulation_card") == 1
+
+
+def test_schema_12_adds_profile_lifecycle_columns_to_an_older_store(tmp_path: Path) -> None:
+    import sqlite3
+
+    from commander_lab.studio import universe
+
+    folder = tmp_path / "studio"
+    folder.mkdir()
+    raw = sqlite3.connect(folder / "studio.sqlite3")
+    raw.execute("CREATE TABLE meta (key TEXT PRIMARY KEY, value TEXT NOT NULL)")
+    raw.execute("INSERT INTO meta(key, value) VALUES ('schema_version', '11')")
+    raw.execute(
+        "CREATE TABLE universe_profile (profile_id TEXT PRIMARY KEY, "
+        "name TEXT NOT NULL UNIQUE, spec TEXT NOT NULL, created_at TEXT NOT NULL)"
+    )
+    raw.execute(
+        "INSERT INTO universe_profile VALUES ('universe:alt', 'alt', '{}', '2026-01-01T00:00:00Z')"
+    )
+    raw.commit()
+    raw.close()
+    store = StudioStore.open(folder)
+    version = store.connection.execute(
+        "SELECT value FROM meta WHERE key = 'schema_version'"
+    ).fetchone()[0]
+    assert version == "12"
+    profile = universe.get_profile(store, "alt")
+    assert profile["version"] == 1 and profile["updated_at"] is None
+    assert profile["created_at"] == "2026-01-01T00:00:00Z"
+    saved = universe.save_profile(store, "alt", {})
+    assert saved["version"] == 2 and saved["created_at"] == "2026-01-01T00:00:00Z"
+    store.close()
+
+
+def test_cli_universe_profile_lifecycle(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    data = tmp_path / "data"
+    assert studio_main(["--data", str(data), "save-profile", "cli-profil"]) == 0
+    saved = json.loads(capsys.readouterr().out)
+    assert saved["version"] == 1
+    assert studio_main(["--data", str(data), "delete-profile", "cli-profil"]) == 0
+    assert json.loads(capsys.readouterr().out) == {"deleted": "cli-profil"}
+    assert studio_main(["--data", str(data), "profiles"]) == 0
+    assert json.loads(capsys.readouterr().out) == {"profiles": []}
+    with pytest.raises(SystemExit, match="unknown universe profile"):
+        studio_main(["--data", str(data), "delete-profile", "cli-profil"])
