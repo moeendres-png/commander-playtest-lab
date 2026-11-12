@@ -245,9 +245,13 @@ def _universe_table(store: StudioStore, deck_ids: list[str]) -> Iterator[str]:
     name = "temp.universe_deck"
     db = store.connection
     db.execute(f"DROP TABLE IF EXISTS {name}")
-    db.execute("CREATE TEMP TABLE universe_deck (deck_id TEXT PRIMARY KEY)")
+    # CREATE ... AS SELECT is one statement with one bound variable and, unlike an INSERT,
+    # opens no implicit transaction: a read-only query must not leave the connection locked.
+    db.execute(
+        "CREATE TEMP TABLE universe_deck AS SELECT value AS deck_id FROM json_each(?)",
+        (json.dumps(deck_ids),),
+    )
     try:
-        db.executemany(f"INSERT INTO {name}(deck_id) VALUES (?)", [(i,) for i in deck_ids])
         yield name
     finally:
         db.execute(f"DROP TABLE IF EXISTS {name}")

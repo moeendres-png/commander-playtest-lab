@@ -549,3 +549,15 @@ def test_large_universe_exceeds_the_sql_variable_limit(store: StudioStore) -> No
     assert together["decks_with_card"] == 1200
     assert {p["card_name"]: p["decks_together"] for p in together["pairs"]}["Unique 1"] == 400
     assert universe.snapshot_id(store).endswith(":1200")
+
+
+def test_read_only_queries_leave_no_open_transaction(store: StudioStore, tmp_path: Path) -> None:
+    _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    _edhrec_file(tmp_path, "bbb", [(CHULANE, 1), ("Sol Ring", 1), ("Forest", 3)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    store.connection.commit()
+    assert store.connection.in_transaction is False
+    universe.inclusion(store, spec={})
+    assert store.connection.in_transaction is False
+    universe.cooccurrence(store, "Sol Ring", spec={})
+    assert store.connection.in_transaction is False
