@@ -9,12 +9,24 @@ from collections import Counter
 from pathlib import Path
 
 from . import catalog, decklist_import, importers, roles, tiers, universe
+from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
 from .marks import import_owner_marks
 from .queries import corpus_inclusion, legal_pool
-from .store import StudioStore
+from .store import LEGACY_COMMANDER, StudioStore
+
+_SOURCE_DATA_COMMANDS = (
+    "import-corpus-register",
+    "import-decklists",
+    "import-edhrec",
+    "import-edhrec-cardrecs",
+    "import-edhrec-delta",
+    "import-edhrec-manifest",
+    "import-hub",
+    "import-simulation",
+)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -88,13 +100,25 @@ def _parser() -> argparse.ArgumentParser:
         "universe-inclusion", help="per-card deck counts over one deck universe"
     )
     universe_inclusion.add_argument("--profile")
+    universe_inclusion.add_argument("--commander", default=LEGACY_COMMANDER)
     universe_inclusion.add_argument("--card", action="append", dest="cards")
     tiers_cmd = commands.add_parser(
         "tiers", help="card tiers as a pure function of one universe's inclusion counts"
     )
     tiers_cmd.add_argument("--profile")
+    tiers_cmd.add_argument("--commander", default=LEGACY_COMMANDER)
     tiers_cmd.add_argument("--min-universe", type=int)
     tiers_cmd.add_argument("--limit", type=int, default=50)
+    commander_help = (
+        "commander this source data belongs to (default: the commander of the standard "
+        "data packages); figures of two commanders are never counted together"
+    )
+    bind = commands.add_parser(
+        "bind-commander", help="bind all source data without a commander to this commander"
+    )
+    bind.add_argument("--commander", required=True)
+    commands.add_parser("commanders", help="commanders with saved decks or source data")
+    inclusion.add_argument("--commander", default=LEGACY_COMMANDER, help=commander_help)
     cohort = commands.add_parser("import-cohort")
     cohort.add_argument("path")
     cohort.add_argument("--name", required=True)
@@ -195,6 +219,10 @@ def _parser() -> argparse.ArgumentParser:
         action="store_true",
         help="generate and print a concrete sample report with representative cards for each coverage grade (P0)",
     )
+    for name in _SOURCE_DATA_COMMANDS:
+        commands.choices[name].add_argument(
+            "--commander", default=LEGACY_COMMANDER, help=commander_help
+        )
     return parser
 
 
@@ -357,7 +385,12 @@ def main(argv: list[str] | None = None) -> int:
     store = StudioStore.open(args.data)
     try:
         result: object
-        if args.command == "import-inventory":
+        if args.command == "bind-commander":
+            added = store.bind_unbound(args.commander, basis="OWNER_DECLARED")
+            result = {"commander": args.commander, "commander_bindings_added": added}
+        elif args.command == "commanders":
+            result = list_commanders(store)
+        elif args.command == "import-inventory":
             result = importers.import_inventory_workbook(store, args.path)
         elif args.command == "import-corpus-register":
             result = importers.import_corpus_register(store, args.path)
@@ -447,7 +480,9 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "data-report":
             result = data_report(store)
         elif args.command == "inclusion":
-            result = corpus_inclusion(store, args.card_name, play_group=args.group)
+            result = corpus_inclusion(
+                store, args.card_name, [args.commander], play_group=args.group
+            )
         elif args.command == "import-decklists":
             result = decklist_import.import_decklists(store, args.path, format=args.format)
         elif args.command == "profiles":
@@ -462,19 +497,29 @@ def main(argv: list[str] | None = None) -> int:
             }
             result = universe.save_profile(store, args.name, spec)
         elif args.command == "universe-inclusion":
-            result = universe.inclusion(store, profile=args.profile, card_names=args.cards)
+            result = universe.inclusion(
+                store,
+                profile=args.profile,
+                card_names=args.cards,
+                commander_names=[args.commander],
+            )
         elif args.command == "tiers":
             if args.limit < 0:
                 raise ValueError("--limit must not be negative")
-            counted = universe.inclusion(store, profile=args.profile)
+            counted = universe.inclusion(
+                store, profile=args.profile, commander_names=[args.commander]
+            )
             params = tiers.TierParams(
                 min_universe=args.min_universe
                 if args.min_universe is not None
                 else tiers.TierParams().min_universe
             )
-            snapshot = universe.snapshot_id(store, profile=args.profile)
+            snapshot = universe.snapshot_id(
+                store, profile=args.profile, commander_names=[args.commander]
+            )
             result = {
                 "profile": args.profile,
+                "commander": args.commander,
                 "universe_snapshot": snapshot,
                 "denominator": counted["denominator"],
                 "denominator_by_platform": counted["denominator_by_platform"],
@@ -491,6 +536,10 @@ def main(argv: list[str] | None = None) -> int:
                               "scryfall_card", "corpus_cohort", "neutral_board_row",
                               "simulation_run", "universe_profile")
             }  # fmt: skip
+        if args.command in _SOURCE_DATA_COMMANDS and isinstance(result, dict):
+            # Source data is always bound to one commander; nothing is counted without it.
+            added = store.bind_unbound(args.commander)
+            result = {**result, "commander": args.commander, "commander_bindings_added": added}
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0
     finally:

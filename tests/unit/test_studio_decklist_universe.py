@@ -561,3 +561,44 @@ def test_read_only_queries_leave_no_open_transaction(store: StudioStore, tmp_pat
     assert store.connection.in_transaction is False
     universe.cooccurrence(store, "Sol Ring", spec={})
     assert store.connection.in_transaction is False
+
+
+def test_universe_counts_only_decks_bound_to_the_commander(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    first, second = tmp_path / "first", tmp_path / "second"
+    first.mkdir()
+    second.mkdir()
+    _edhrec_file(first, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    _edhrec_file(first, "bbb", [(CHULANE, 1), ("Island", 1)])
+    _edhrec_file(second, "ccc", [("Second Commander", 1), ("Sol Ring", 1), ("Swamp", 1)])
+    decklist_import.import_decklists(store, first, format="edhrec")
+    store.bind_unbound(CHULANE)
+    decklist_import.import_decklists(store, second, format="edhrec")
+
+    # Without a commander every stored deck is selected; the third deck is still unbound.
+    assert universe.inclusion(store, card_names=["Sol Ring"])["denominator"] == 3
+    mine = universe.inclusion(store, card_names=["Sol Ring"], commander_names=[CHULANE])
+    assert (mine["rows"][0]["hits"], mine["denominator"]) == (1, 2)
+    assert mine["spec"]["commanders"] == [CHULANE]
+    other = ["Second Commander"]
+    assert universe.inclusion(store, commander_names=other)["denominator"] == 0
+    store.bind_unbound("Second Commander")
+    assert universe.inclusion(store, commander_names=other)["denominator"] == 1
+    assert universe.inclusion(store, commander_names=[CHULANE])["denominator"] == 2
+    assert universe.snapshot_id(store, commander_names=[CHULANE]) != universe.snapshot_id(
+        store, commander_names=other
+    )
+    assert universe.cooccurrence(store, "Sol Ring", commander_names=other)["decks_with_card"] == 1
+
+
+def test_a_profile_of_one_commander_is_not_read_for_another(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    store.bind_unbound(CHULANE)
+    universe.save_profile(store, "mine", {"commanders": [CHULANE]})
+    assert universe.inclusion(store, profile="mine", commander_names=[CHULANE])["denominator"] == 1
+    with pytest.raises(ValueError, match="not for"):
+        universe.inclusion(store, profile="mine", commander_names=["Second Commander"])

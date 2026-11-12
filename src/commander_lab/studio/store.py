@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 9
+SCHEMA_VERSION = 10
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -186,6 +186,15 @@ CREATE TABLE IF NOT EXISTS corpus_deck_part (
     part_name TEXT NOT NULL,
     source_id TEXT NOT NULL REFERENCES source(source_id)
 );
+CREATE TABLE IF NOT EXISTS commander_binding (
+    kind TEXT NOT NULL CHECK (kind IN
+        ('corpus_deck', 'observation_cohort', 'simulation_run', 'neutral_source')),
+    key TEXT NOT NULL,
+    commander_name TEXT NOT NULL,
+    basis TEXT NOT NULL,
+    PRIMARY KEY (kind, key, commander_name)
+);
+CREATE INDEX IF NOT EXISTS commander_binding_name ON commander_binding(commander_name, kind);
 CREATE TABLE IF NOT EXISTS corpus_deck_stat (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id),
     cards INTEGER NOT NULL,
@@ -434,6 +443,33 @@ def rebuild_corpus_deck_role(db: sqlite3.Connection) -> None:
     )
 
 
+LEGACY_COMMANDER = "Chulane, Teller of Tales"
+BINDING_KINDS: dict[str, str] = {
+    "corpus_deck": "SELECT deck_id AS k FROM corpus_deck",
+    "observation_cohort": "SELECT DISTINCT cohort AS k FROM observation",
+    "simulation_run": "SELECT run_id AS k FROM simulation_run",
+    "neutral_source": "SELECT DISTINCT source_key AS k FROM neutral_board_row",
+}
+
+
+def _bind_unbound(connection: sqlite3.Connection, commander_name: str, basis: str) -> int:
+    """Bind every source row that has no commander yet to ``commander_name``.
+
+    Rows already bound to any commander are left alone, so data of another commander is never
+    re-labelled. Returns the number of new bindings."""
+    added = 0
+    for kind, keys in BINDING_KINDS.items():
+        cursor = connection.execute(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+            f"SELECT ?, src.k, ?, ? FROM ({keys}) AS src "
+            "WHERE NOT EXISTS (SELECT 1 FROM commander_binding b "
+            "WHERE b.kind = ? AND b.key = src.k)",
+            (kind, commander_name, basis, kind),
+        )
+        added += cursor.rowcount
+    return added
+
+
 class StudioStore:
     """One open Studio database."""
 
@@ -470,6 +506,9 @@ class StudioStore:
             )
         elif int(row["value"]) < SCHEMA_VERSION:
             # Every schema step so far only adds tables and views (created above).
+            if int(row["value"]) < 10:
+                # Before schema 10 the Studio held the source data of one commander only.
+                _bind_unbound(connection, LEGACY_COMMANDER, "LEGACY_SINGLE_COMMANDER_STORE")
             connection.execute(
                 "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
@@ -496,6 +535,13 @@ class StudioStore:
             (source_id, data_class.value, title, sha256, snapshot_date, url, now_utc()),
         )
         return source_id
+
+    def bind_unbound(self, commander_name: str, *, basis: str = "IMPORT_DECLARED") -> int:
+        """Bind all source rows without a commander to ``commander_name`` (see ``_bind_unbound``)."""
+        if not commander_name.strip():
+            raise ValueError("a commander name is required")
+        with self.connection as db:
+            return _bind_unbound(db, commander_name.strip(), basis)
 
     def card_id_by_name(self, oracle_name: str) -> str | None:
         rows = self.connection.execute(

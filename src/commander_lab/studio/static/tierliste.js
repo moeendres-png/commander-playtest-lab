@@ -2,8 +2,8 @@
 // Commander Studio tier list. Shows the evidence per card; it never rates a card.
 // All text from data is set as text, never as HTML.
 
-const COMMANDER = new URLSearchParams(location.search).get("commander") || "Chulane, Teller of Tales";
-const VIEW_NAMES = { commander: "Chulane", global: "Global (ohne Commander)", deck: "Aktuelle Deckrevision" };
+const COMMANDER = StudioCommander.current;
+const VIEW_NAMES = { commander: StudioCommander.shortName(COMMANDER), global: "Global (ohne Commander)", deck: "Aktuelle Deckrevision" };
 const ROLE_NAMES = { ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp", card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip", tutor: "Tutor", removal: "Entfernung", board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink", recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass", lifegain: "Lebensgewinn" };
 const ORIGIN_NAMES = { SCRYFALL_TAGGER_ORIGINAL: "Tagger", CROSSWALK_NORMALIZED: "Zuordnung", ORACLE_TEXT_REVIEW: "Oracle-Text", LEGACY_UNSPECIFIED: "Altbestand" };
 const FEATURE_NAMES = { creature_spell: "Kreaturenzauber", land: "Land", enters_trigger_text: "ETB-Text", produces_mana: "erzeugt Mana" };
@@ -219,7 +219,7 @@ function render() {
   const cards = visibleCards();
   $("count").textContent = `${cards.length} Karten`;
   if (state.tab === "research") {
-    if (state.view === "global") { body.append(h("p", { class: "note" }, "Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht Chulane.")); return; }
+    if (state.view === "global") { body.append(h("p", { class: "note" }, `Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht ${VIEW_NAMES.commander}.`)); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
     const select = h("select", { id: "need-filter", onchange: () => { state.need = select.value; render(); } }, h("option", { value: "" }, "alle Lücken"), needs.map((need) => h("option", { value: need }, NEED_NAMES[need] || need)));
     const previous = needs.includes(state.need) ? state.need : "";
@@ -234,13 +234,23 @@ function render() {
 }
 
 // ---------- notice ----------
+// Source decks are counted per commander only; decks of another commander or without one are named, never added.
+function bindingLine() {
+  const binding = state.data.corpus_binding;
+  if (state.view === "global" || !binding) return null;
+  const parts = [`Quelldecks für ${VIEW_NAMES.commander}: ${binding.bound_decks}`];
+  if (binding.other_commander_decks) parts.push(`${binding.other_commander_decks} gehören zu anderen Commandern und zählen hier nicht`);
+  if (binding.unbound_decks) parts.push(`${binding.unbound_decks} ohne Commander-Zuordnung zählen nirgends`);
+  return h("div", { class: "summary" }, parts.join(" · "), binding.bound_decks ? "" : " · Für diesen Commander sind noch keine Quelldecks importiert: fehlende Beobachtung, keine Schwäche.");
+}
 function renderNotice() {
   const summary = state.data.summary, policy = state.data.tier_policy;
   const status = summary.layer_status;
   const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
   $("notice").replaceChildren(
     h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, "Noch kein Tier vergeben. "), POLICY_TEXT),
-    h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game", "simulated_result"].map(line).join(" · ")));
+    h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game", "simulated_result"].map(line).join(" · ")),
+    bindingLine());
   $("tier-pill").textContent = `${summary.unrated} von ${summary.cards} unbewertet`;
 }
 
@@ -374,7 +384,7 @@ async function setView(view) {
   state.view = view;
   $("deck-pick").hidden = view !== "deck";
   if (view === "deck" && !state.decks.length) {
-    state.decks = await api("/api/decks");
+    state.decks = (await api("/api/decks")).filter((deck) => (deck.commanders || []).includes(COMMANDER));
     $("deck-select").replaceChildren(state.decks.map((deck) => h("option", { value: deck.deck_id }, deck.name)));
     fillBranches();
   }
@@ -397,6 +407,7 @@ async function init() {
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) $("modal").hidden = true; });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") $("modal").hidden = true; });
   renderTabs();
+  await StudioCommander.fill($("commander-select"));
   try {
     const pool = await api(`/api/pool?commander=${encodeURIComponent(COMMANDER)}`);
     for (const card of pool.cards) state.marks.set(card.card_id, { favorite: card.favorite, excluded: card.excluded });
