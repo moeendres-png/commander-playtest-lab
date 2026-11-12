@@ -168,6 +168,17 @@ def _parser() -> argparse.ArgumentParser:
     sim.add_argument("--seed-step", type=int, default=1, help="seed increment per game")
     sim.add_argument("--style", type=float, default=None, help="AI pilot style from 0.0 to 1.0")
     commands.add_parser("games")
+    outcomes = commands.add_parser(
+        "card-outcomes",
+        help="per-card win rate with the card in the first dealt hand versus not (simulated games)",
+    )
+    outcomes.add_argument("--deck-id", required=True)
+    outcomes.add_argument("--games-dir", help="folder of game logs (default: the Studio games)")
+    outcomes.add_argument("--min-exposed", type=int, default=100)
+    outcomes.add_argument("--out", help="write the full table as JSON to this file")
+    outcomes.add_argument(
+        "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
+    )
     commands.add_parser("status")
     commands.add_parser(
         "data-report", help="counts-only report on what the store has, lacks and does not know"
@@ -196,6 +207,34 @@ def _parser() -> argparse.ArgumentParser:
         help="generate and print a concrete sample report with representative cards for each coverage grade (P0)",
     )
     return parser
+
+
+def _card_outcomes(args: argparse.Namespace) -> int:
+    import sys
+
+    from . import card_outcomes
+    from .games import games_folder
+    from .store import studio_data_dir
+
+    folder = (
+        Path(args.games_dir)
+        if args.games_dir
+        else games_folder(Path(args.data).resolve() if args.data else studio_data_dir())
+    )
+    try:
+        table = card_outcomes.outcomes_for_folder(
+            folder,
+            deck_id=args.deck_id,
+            min_exposed=args.min_exposed,
+            allow_mixed=args.allow_mixed,
+        )
+    except ValueError as error:
+        print(f"refused: {error}", file=sys.stderr)
+        return 2
+    if args.out:
+        Path(args.out).write_text(json.dumps(table, indent=2, ensure_ascii=False) + "\n", "utf-8")
+    print(card_outcomes.format_table(table))
+    return 0
 
 
 def _games(args: argparse.Namespace) -> int:
@@ -265,6 +304,8 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
         return _serve(args.data, args.port, args.open)
+    if args.command == "card-outcomes":
+        return _card_outcomes(args)
     if args.command in {"play", "games"}:
         return _games(args)
     if args.command == "simulate":
