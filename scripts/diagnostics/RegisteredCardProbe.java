@@ -14,6 +14,10 @@ import java.util.*;
 
 /** Local diagnostic only: registration/construction is not game behavior. */
 public final class RegisteredCardProbe {
+    private static boolean matchesResolvedIdentity(CardInfo info, Card card) {
+        return info != null && card != null && info.getName().equals(card.getName());
+    }
+
     public static void main(String[] args) throws Exception {
         System.setProperty("java.awt.headless", "true");
         if (Files.exists(Path.of("db"))) throw new IllegalStateException("Fresh DB required");
@@ -55,6 +59,7 @@ public final class RegisteredCardProbe {
             row.put("resolved_name", info == null ? null : info.getName());
             row.put("constructed_name", card == null ? null : card.getName());
             row.put("constructed", card != null);
+            row.put("identity_matches", matchesResolvedIdentity(info, card));
             cards.add(row);
         }
         report.put("cards", cards);
@@ -63,10 +68,18 @@ public final class RegisteredCardProbe {
         Card invalid = CardImpl.createCard(String.class,
             new CardSetInfo("CPL invalid constructor", "ECL", "1227", Rarity.COMMON), constructorErrors);
         boolean invalidRejected = invalid == null && !constructorErrors.isEmpty();
-        report.put("negative_controls", Map.of("unknown_name_rejected",unknownRejected,"bad_constructor_rejected",invalidRejected));
+        CardInfo forest = CardRepository.instance.findCard("Forest", true);
+        CardInfo island = CardRepository.instance.findCard("Island", true);
+        boolean matchingIdentityAccepted = matchesResolvedIdentity(forest, forest.createCard());
+        boolean wrongIdentityRejected = !matchesResolvedIdentity(forest, island.createCard());
+        report.put("negative_controls", Map.of("unknown_name_rejected",unknownRejected,
+            "bad_constructor_rejected",invalidRejected,"wrong_constructed_identity_rejected",wrongIdentityRejected,
+            "matching_identity_accepted",matchingIdentityAccepted));
         Files.writeString(Path.of(args[0]), new GsonBuilder().setPrettyPrinting().serializeNulls().create().toJson(report)+"\n");
         System.out.println("public names="+cards.size()+"; scan errors="+scanErrors.size()+"; controls="+(unknownRejected&&invalidRejected));
-        boolean allConstructed = cards.stream().allMatch(row -> Boolean.TRUE.equals(row.get("constructed")));
-        System.exit(scanErrors.isEmpty() && setFailures == 0 && allConstructed && unknownRejected && invalidRejected ? 0 : 1);
+        boolean allConstructed = cards.stream().allMatch(row -> Boolean.TRUE.equals(row.get("constructed"))
+            && Boolean.TRUE.equals(row.get("identity_matches")));
+        System.exit(scanErrors.isEmpty() && setFailures == 0 && allConstructed && unknownRejected
+            && invalidRejected && wrongIdentityRejected && matchingIdentityAccepted ? 0 : 1);
     }
 }
