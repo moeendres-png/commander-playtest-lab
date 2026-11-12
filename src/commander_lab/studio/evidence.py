@@ -258,7 +258,10 @@ def _card_evidence(
                 "note": "global popularity rank from the Scryfall bulk; lower is more popular",
             }
         )
-        deck_status = PRESENT
+        # The global rank says nothing about this commander: it sets the status only in
+        # the global view, never in the commander view.
+        if not commander_view:
+            deck_status = PRESENT
     if commander_view:
         decks = card.get("decks")
         hits = decks if isinstance(decks, dict) else {}
@@ -274,13 +277,14 @@ def _card_evidence(
                 }
             )
         total = cohorts.get(ALL_DECKS, 0)
-        if int(hits.get(ALL_DECKS, 0)) > 0:
+        # A stored row without a value is an unknown, not an observation.
+        measured = [row for row in edhrec_rows if row["value"] is not None]
+        if int(hits.get(ALL_DECKS, 0)) > 0 or measured:
             deck_status = PRESENT
-        elif total > 0 and deck_status != PRESENT:
+        elif total > 0:
             deck_status = ABSENT_IN_KNOWN_CORPUS
-        edhrec = _edhrec_summary(edhrec_rows)
-        if edhrec_rows:
-            deck_status = PRESENT
+        edhrec = _edhrec_summary(measured)
+        edhrec["rows_without_value"] = len(edhrec_rows) - len(measured)
     deck_layer: dict[str, object] = {
         "status": deck_status,
         "items": deck_items,
@@ -328,7 +332,7 @@ def _card_evidence(
         }
         sim = simulations.get(card_id)
         sim_layer: dict[str, object] = {
-            "status": PRESENT if sim else NONE_RECORDED,
+            "status": PRESENT if sim else NONE_RECORDED if simulations else NOT_COLLECTED,
             "data_class": "SIMULATED_RESULT",
             "totals": None
             if sim is None
@@ -515,6 +519,7 @@ def role_alternatives(
     commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
     *,
     in_deck: Sequence[str] = (),
+    skip: Sequence[str] = (),
     limit: int = 25,
 ) -> dict[str, object]:
     """Free pool cards that hold at least one role of ``card_id``: function alternatives.
@@ -522,7 +527,9 @@ def role_alternatives(
     This is a comparison of function, not a claim that a swap is better. The order is
     deterministic and descriptive only: more shared roles first, then the smaller difference
     in mana value, then the name. No outcome evidence exists, so ``improvement_claimed`` is
-    always false. Marks are not read; the caller filters excluded cards for display.
+    always false. Marks are not read: the caller names the cards it does not want listed
+    (``skip``, for example the ones the Owner excluded), which changes only which candidates
+    are listed and never their order or any figure.
     """
     result = pool_evidence(store, commander_names, view=VIEW_COMMANDER)
     cards = result["cards"]
@@ -541,11 +548,11 @@ def role_alternatives(
         raise KeyError(card_id)
     target_roles = roles_of(target)
     target_mv = float(str(target["mana_value"] or 0))
-    skip = {card_id, *in_deck}
+    left_out = {card_id, *in_deck, *skip}
     found: list[tuple[int, float, str, dict[str, object]]] = []
     for card in cards:
         available = card["available"]
-        if card["card_id"] in skip or not isinstance(available, int) or available <= 0:
+        if card["card_id"] in left_out or not isinstance(available, int) or available <= 0:
             continue
         shared = sorted(target_roles & roles_of(card))
         if not shared:
@@ -567,6 +574,7 @@ def role_alternatives(
             )
         )
     found.sort(key=lambda item: item[:3])
+    # ``total`` counts every candidate; the page says how many of them it does not show.
     return {
         "schema": EVIDENCE_SCHEMA,
         "card": target,

@@ -43,7 +43,7 @@ const SMALL_FIRST = new Set(["name", "mv"]);
 
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
-  deckCards: null, deckRoles: {}, ticket: 0, sortKey: "name", sortDir: 1, shown: 150,
+  deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -115,7 +115,7 @@ function visibleCards() {
     if (state.view === "deck" && !(state.deckCards && state.deckCards.has(card.card_id))) return false;
     if (type && card.group !== type) return false;
     if (role && !cardRoles(card).includes(role)) return false;
-    if (free && !(card.available > 0)) return false;
+    if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
     if (!showExcluded && mark.excluded) return false;
     const hay = `${card.name} ${card.type_line}`.toLowerCase();
@@ -199,7 +199,7 @@ function cardsTable(cards) {
   return h("table", {}, h("thead", {}, h("tr", {}, head.map((label) => h("th", {}, label)))), h("tbody", {}, rows));
 }
 function researchTable(cards) {
-  const wanted = $("need-filter") ? $("need-filter").value : "";
+  const wanted = state.need || "";
   const rows = cards.filter((card) => card.coverage.needs.length && (!wanted || card.coverage.needs.includes(wanted))).slice(0, 200).map((card) => {
     const priority = card.coverage.research_priority;
     return h("tr", {},
@@ -221,8 +221,9 @@ function render() {
   if (state.tab === "research") {
     if (state.view === "global") { body.append(h("p", { class: "note" }, "Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht Chulane.")); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
-    const select = h("select", { id: "need-filter", onchange: render }, h("option", { value: "" }, "alle Lücken"), needs.map((need) => h("option", { value: need }, NEED_NAMES[need] || need)));
-    const previous = $("need-filter") ? $("need-filter").value : "";
+    const select = h("select", { id: "need-filter", onchange: () => { state.need = select.value; render(); } }, h("option", { value: "" }, "alle Lücken"), needs.map((need) => h("option", { value: need }, NEED_NAMES[need] || need)));
+    const previous = needs.includes(state.need) ? state.need : "";
+    state.need = previous;
     body.append(h("p", { class: "note" }, "Reihenfolge aus fehlender Evidenz mal Deck-Relevanz. Eine Lücke ist kein schlechtes Urteil über die Karte."), h("label", {}, "Lücke ", select));
     select.value = previous;
     body.append(researchTable(cards));
@@ -302,7 +303,7 @@ function drawer(card) {
 }
 async function alternativesBox(card) {
   const inDeck = state.view === "deck" && state.deckCards ? [...state.deckCards.keys()] : [];
-  const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/alternatives`, { commander: [COMMANDER], in_deck: inDeck });
+  const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/alternatives`, { commander: [COMMANDER], in_deck: inDeck, skip: [...state.marks].filter(([, mark]) => mark.excluded).map(([id]) => id) });
   const box = h("div", { class: "layer" }, h("h3", {}, "Funktionsalternativen (Tauschvergleich)"));
   if (data.status === "NO_ROLE_CLAIM") { box.append(h("p", {}, "Für diese Karte ist keine Rolle erfasst. Ohne Rolle gibt es keinen Funktionsvergleich.")); return box; }
   const shown = data.alternatives.filter((item) => !(state.marks.get(item.card.card_id) || {}).excluded);

@@ -151,7 +151,7 @@ def test_game_combo_and_simulation_layers_say_what_is_missing(studio: StudioStor
     assert game["status"] == NOT_COLLECTED
     assert game["atlas"] is None
     sim = _layer(forest, "simulated_result")
-    assert sim["status"] == "NONE_RECORDED"
+    assert sim["status"] == NOT_COLLECTED  # no simulation stored at all
     assert sim["totals"] is None
     _add_atlas(studio, "Forest", insufficient=1)
     cards = _cards(studio)
@@ -282,6 +282,10 @@ def test_role_alternatives_compare_function_and_never_claim_an_improvement(
     assert items[2]["mana_value_delta"] == -2.0
     without = role_alternatives(studio, filler1, COMMANDER, in_deck=[forest])
     assert "Forest" not in [item["card"]["name"] for item in without["alternatives"]]  # type: ignore[union-attr]
+    # cards the caller does not want listed drop out before the cut, the order stays
+    skipped = role_alternatives(studio, filler1, COMMANDER, skip=[forest], limit=2)
+    assert [item["card"]["name"] for item in skipped["alternatives"]] == ["Filler 02", "Swarm Rat"]  # type: ignore[union-attr]
+    assert skipped["total"] == 2
     none = role_alternatives(studio, str(studio.card_id_by_name("Filler 05")), COMMANDER)
     assert none["status"] == "NO_ROLE_CLAIM"
     assert none["alternatives"] == []
@@ -313,3 +317,26 @@ def test_the_web_api_serves_evidence_and_the_tier_list_page(studio: StudioStore)
         assert answer.status_code == 200
         assert answer.json()["status"] == "NO_ROLE_CLAIM"
         assert client.post(f"/api/cards/{forest}/alternatives", json=body).status_code == 403
+
+
+def test_a_global_rank_or_a_row_without_value_is_no_observation_for_the_commander(
+    studio: StudioStore,
+) -> None:
+    # Filler 05 is in none of the three source decks. A global popularity rank and a stored
+    # row without a value must not turn that into an observation under this commander.
+    with studio.connection as db:
+        db.execute("UPDATE scryfall_card SET edhrec_rank = 7 WHERE name = 'Filler 05'")
+    _add_observation(studio, "Filler 05", "lift", value=None)
+    cards = _cards(studio)
+    deck = _layer(cards["Filler 05"], "observed_deck")
+    assert [item["rank"] for item in deck["items"] if item["kind"] == "edhrec_rank_global"] == [7]  # type: ignore[union-attr]
+    assert deck["status"] == ABSENT_IN_KNOWN_CORPUS
+    assert deck["edhrec"]["lift_views"] == 0  # type: ignore[index]
+    assert deck["edhrec"]["rows_without_value"] == 1  # type: ignore[index]
+    assert "NOT_OBSERVED_IN_CORPUS" in cards["Filler 05"]["coverage"]["needs"]  # type: ignore[index]
+    # in the global view the rank is what that view has, so it counts there
+    global_cards = pool_evidence(studio, COMMANDER, view="global")["cards"]
+    filler = next(c for c in global_cards if c["name"] == "Filler 05")  # type: ignore[union-attr]
+    assert _layer(filler, "observed_deck")["status"] == PRESENT
+    # without any stored simulation the layer says so instead of "nothing recorded"
+    assert _layer(cards["Forest"], "simulated_result")["status"] == NOT_COLLECTED

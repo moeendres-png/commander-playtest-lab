@@ -106,7 +106,7 @@ the repository.
 per card, five layers side by side: `fact` (facts, rule-based mechanical features with the rule
 and its version, roles with their origin), `observed_deck` (source decks per cohort as
 count of denominator, EDHREC rows with numerator, denominator and snapshot time, or unknown),
-`observed_game` (real game events; none are imported yet, #1192), `combo_verified` and
+`observed_game` (real game events from the Playgroup card atlas once it is imported, #1192), `combo_verified` and
 `simulated_result`. Inclusion, lift and synergy are separate metrics and are never merged into
 one field. A missing source is `NOT_COLLECTED`, zero hits in a known corpus is
 `ABSENT_IN_KNOWN_CORPUS` (a missing observation, not weakness), and every card is `UNRATED`

@@ -109,6 +109,7 @@ class PrefilterBody(BaseModel):
 class AlternativesBody(BaseModel):
     commander: list[str] = Field(min_length=1, max_length=2)
     in_deck: list[str] = Field(default_factory=list, max_length=300)
+    skip: list[str] = Field(default_factory=list, max_length=5000)
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -233,7 +234,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return evidence_model.role_alternatives(
-                store, card_id, body.commander, in_deck=body.in_deck
+                store, card_id, body.commander, in_deck=body.in_deck, skip=body.skip
             )
         except KeyError as error:
             raise HTTPException(404, "unknown card or commander") from error
