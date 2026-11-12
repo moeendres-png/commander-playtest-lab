@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import csv
 import gzip
+import json
 from pathlib import Path
 
 import pytest
@@ -35,8 +36,11 @@ from scripts.extract_scryfall_prices import (
 FIXTURE_PATH = Path("tests/fixtures/scryfall_default_cards_fixture.jsonl")
 
 
-def test_fixture_file_exists() -> None:
-    assert FIXTURE_PATH.is_file(), f"Fixture file not found: {FIXTURE_PATH}"
+def test_fixture_file_valid_structure() -> None:
+    lines = FIXTURE_PATH.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 5
+    records = [json.loads(line) for line in lines]
+    assert all("id" in r and "prices" in r for r in records)
 
 
 def test_price_value_normalization() -> None:
