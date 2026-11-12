@@ -1,13 +1,9 @@
 name: C079 Public EDHREC Fresh Capture (review only)
 
 # Only public Chulane EDHREC URLs; not a historical timestamp repair.
-# Never run on a schedule; no import or modification of Studio ACTIVE sources.
+# Explicit manual operation only; never run on a schedule or for unrelated PRs.
+# No import or modification of Studio ACTIVE sources.
 on:
-  pull_request:
-    paths:
-      - "scripts/studio_edhrec_provenance/**"
-      - "data/studio_public/edhrec_chulane_original_20_urls.txt"
-      - ".github/workflows/studio-edhrec-proof-capture.yml"
   workflow_dispatch:
 
 permissions:
@@ -43,6 +39,41 @@ jobs:
           python3 scripts/studio_edhrec_provenance/capture_public_chulane.py \
             --urls data/studio_public/edhrec_chulane_original_20_urls.txt \
             --out edhrec-fresh-evidence --pause 1.5 --limit 20
+      - name: Verify every new HTTP event and replay full import offline
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          from commander_lab.studio.edhrec_capture_proof import verify_captures
+          from commander_lab.studio.importers import import_edhrec_capture_manifest
+          from commander_lab.studio.store import StudioStore
+          manifest = Path("edhrec-fresh-evidence/manifest.json")
+          capture_events = verify_captures(manifest)
+          assert len(capture_events) == 20
+          store = StudioStore.in_memory()
+          try:
+              first = import_edhrec_capture_manifest(store, manifest)
+              assert first["events"] == 20
+              assert first["unique_card_pages"] > 1000
+              assert store.count("source_capture_event") == 20
+              events = store.connection.execute(
+                  "SELECT event_id, request_start_utc, response_complete_utc "
+                  "FROM source_capture_event"
+              ).fetchall()
+              proof_by_id = {item.event_id: item for item in capture_events}
+              for row in events:
+                  proof = proof_by_id[row["event_id"]]
+                  assert row["request_start_utc"] == proof.request_start_utc
+                  assert row["response_complete_utc"] == proof.response_complete_utc
+              count = store.count("observation")
+              import_edhrec_capture_manifest(store, manifest)
+              assert store.count("observation") == count, "not idempotent"
+              print(f"VERIFIED: {len(capture_events)} independent immutable HTTP events, "
+                    f"{first['unique_card_pages']} unique visible page-card pairs, "
+                    f"{count} observations, no historical timestamp backfill")
+          finally:
+              store.close()
+          PY
       - name: Preserve source response and any denial evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2

@@ -36,6 +36,50 @@ def _seed_card(store: StudioStore, card_id: str, oracle_name: str) -> None:
     store.connection.commit()
 
 
+def _make_proven_capture(
+    root: Path,
+    url: str,
+    raw_bytes: bytes,
+    *,
+    started: str = "2026-11-11T12:54:59.352Z",
+    completed: str = "2026-11-11T12:54:59.435Z",
+) -> dict[str, str]:
+    """A self-consistent, tamper-checkable mock HTTP event."""
+    digest = hashlib.sha256(raw_bytes).hexdigest()
+    event_id = (
+        "EDHREC_NEW_"
+        + hashlib.sha256((url + "\n" + started + "\n" + digest).encode()).hexdigest()[:24]
+    )
+    raw_rel = f"raw/{event_id}.json"
+    metadata_rel = f"observations/{event_id}.json"
+    (root / "raw").mkdir(parents=True, exist_ok=True)
+    (root / "observations").mkdir(parents=True, exist_ok=True)
+    (root / raw_rel).write_bytes(raw_bytes)
+    cardlists = json.loads(raw_bytes)["container"]["json_dict"]["cardlists"]
+    meta = {
+        "event_id": event_id,
+        "url": url,
+        "http_status": 200,
+        "request_start_utc": started,
+        "response_complete_utc": completed,
+        "raw_response_sha256": digest,
+        "raw_size_bytes": len(raw_bytes),
+        "cardlists": len(cardlists),
+        "provenance_class": "NEW_HTTP_CAPTURE_ONLY",
+        "historical_C079_timestamp_backfilled": False,
+        "automatic_import": False,
+    }
+    (root / metadata_rel).write_text(json.dumps(meta), encoding="utf-8")
+    return {
+        "event_id": event_id,
+        "url": url,
+        "raw": raw_rel,
+        "metadata": metadata_rel,
+        "sha256": digest,
+        "observed_utc": completed,
+    }
+
+
 def test_import_card_marks_csv_and_json(tmp_path: Path) -> None:
     store = StudioStore.in_memory()
     try:
@@ -131,27 +175,21 @@ def test_import_edhrec_capture_manifest_fixture(tmp_path: Path) -> None:
             }
         }
         raw_bytes_2 = json.dumps(content_2).encode("utf-8")
-        sha_2 = hashlib.sha256(raw_bytes_2).hexdigest()
         (raw_dir / "event_2.json").write_bytes(raw_bytes_2)
 
-        manifest = {
-            "records": [
-                {
-                    "event_id": "EDHREC_NEW_1",
-                    "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales.json",
-                    "raw": "raw/event_1.json",
-                    "sha256": sha_1,
-                    "observed_utc": "2026-11-11T12:54:59.435Z",
-                },
-                {
-                    "event_id": "EDHREC_NEW_2",
-                    "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/big-mana.json",
-                    "raw": "raw/event_2.json",
-                    "sha256": sha_2,
-                    "observed_utc": "2026-11-11T12:55:01.124Z",
-                },
-            ]
-        }
+        rec1 = _make_proven_capture(
+            tmp_path,
+            "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales.json",
+            raw_bytes_1,
+        )
+        rec2 = _make_proven_capture(
+            tmp_path,
+            "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales/big-mana.json",
+            raw_bytes_2,
+            started="2026-11-11T12:55:00.100Z",
+            completed="2026-11-11T12:55:01.124Z",
+        )
+        manifest = {"records": [rec1, rec2]}
         manifest_file = tmp_path / "manifest.json"
         manifest_file.write_text(json.dumps(manifest), encoding="utf-8")
 
@@ -170,9 +208,14 @@ def test_import_edhrec_capture_manifest_fixture(tmp_path: Path) -> None:
             "SELECT * FROM source_capture_event ORDER BY event_id"
         ).fetchall()
         assert len(events) == 2
-        assert events[0]["event_id"] == "EDHREC_NEW_1"
-        assert events[0]["provenance_class"] == "NEW_HTTP_CAPTURE_ONLY"
-        assert events[0]["raw_response_sha256"] == sha_1
+        by_event = {row["event_id"]: row for row in events}
+        assert rec1["event_id"] in by_event
+        assert rec2["event_id"] in by_event
+        first_event = by_event[rec1["event_id"]]
+        assert first_event["provenance_class"] == "NEW_HTTP_CAPTURE_ONLY"
+        assert first_event["raw_response_sha256"] == sha_1
+        assert first_event["request_start_utc"] == "2026-11-11T12:54:59.352Z"
+        assert first_event["response_complete_utc"] == "2026-11-11T12:54:59.435Z"
 
         # Check observations
         obs = store.connection.execute(
@@ -202,8 +245,8 @@ def test_import_edhrec_capture_manifest_fixture(tmp_path: Path) -> None:
         re_result = importers.import_edhrec_capture_manifest(store, manifest_file)
         assert re_result["events"] == 2
         count_after = store.connection.execute("SELECT COUNT(*) FROM observation").fetchone()[0]
-        # 3 observations per card * 2 cards = 6
-        assert count_after == 6
+        # 3 observations per card * 2 cards + 1 unlisted comparison card = 7
+        assert count_after == 7
     finally:
         store.close()
 
@@ -216,17 +259,13 @@ def test_sha_mismatch_fails_closed(tmp_path: Path) -> None:
         bad_bytes = b'{"container":{"json_dict":{"cardlists":[]}}}'
         (raw_dir / "bad.json").write_bytes(bad_bytes)
 
-        manifest = {
-            "records": [
-                {
-                    "event_id": "EDHREC_NEW_BAD",
-                    "url": "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales.json",
-                    "raw": "raw/bad.json",
-                    "sha256": "deadbeef" * 8,
-                    "observed_utc": "2026-11-11T12:54:59.435Z",
-                }
-            ]
-        }
+        rec = _make_proven_capture(
+            tmp_path,
+            "https://json.edhrec.com/pages/commanders/chulane-teller-of-tales.json",
+            bad_bytes,
+        )
+        rec["sha256"] = "deadbeef" * 8
+        manifest = {"records": [rec]}
         manifest_file = tmp_path / "manifest.json"
         manifest_file.write_text(json.dumps(manifest), encoding="utf-8")
 

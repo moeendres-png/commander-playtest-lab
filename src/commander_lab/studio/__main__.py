@@ -8,7 +8,7 @@ import os
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, importers, roles
+from . import catalog, decklist_import, importers, roles, tiers, universe
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
@@ -68,6 +68,33 @@ def _parser() -> argparse.ArgumentParser:
     inclusion = commands.add_parser("inclusion")
     inclusion.add_argument("card_name")
     inclusion.add_argument("--group")
+    decklists = commands.add_parser(
+        "import-decklists",
+        help="complete public deck lists (normalized per-deck JSON files of one folder)",
+    )
+    decklists.add_argument("path")
+    decklists.add_argument("--format", choices=("edhrec", "archidekt"), required=True)
+    commands.add_parser("profiles", help="list the stored deck-universe profiles")
+    save_profile = commands.add_parser(
+        "save-profile", help="store a deck-universe profile (which decks count)"
+    )
+    save_profile.add_argument("name")
+    save_profile.add_argument("--platform", action="append", dest="platforms")
+    save_profile.add_argument("--cohort", action="append", dest="cohorts")
+    save_profile.add_argument("--date-from")
+    save_profile.add_argument("--date-to")
+    save_profile.add_argument("--min-main-cards", type=int)
+    universe_inclusion = commands.add_parser(
+        "universe-inclusion", help="per-card deck counts over one deck universe"
+    )
+    universe_inclusion.add_argument("--profile")
+    universe_inclusion.add_argument("--card", action="append", dest="cards")
+    tiers_cmd = commands.add_parser(
+        "tiers", help="card tiers as a pure function of one universe's inclusion counts"
+    )
+    tiers_cmd.add_argument("--profile")
+    tiers_cmd.add_argument("--min-universe", type=int)
+    tiers_cmd.add_argument("--limit", type=int, default=50)
     cohort = commands.add_parser("import-cohort")
     cohort.add_argument("path")
     cohort.add_argument("--name", required=True)
@@ -421,13 +448,48 @@ def main(argv: list[str] | None = None) -> int:
             result = data_report(store)
         elif args.command == "inclusion":
             result = corpus_inclusion(store, args.card_name, play_group=args.group)
+        elif args.command == "import-decklists":
+            result = decklist_import.import_decklists(store, args.path, format=args.format)
+        elif args.command == "profiles":
+            result = {"profiles": universe.list_profiles(store)}
+        elif args.command == "save-profile":
+            spec = {
+                "platforms": args.platforms or [],
+                "cohorts": args.cohorts or [],
+                "date_from": args.date_from,
+                "date_to": args.date_to,
+                "min_main_cards": args.min_main_cards,
+            }
+            result = universe.save_profile(store, args.name, spec)
+        elif args.command == "universe-inclusion":
+            result = universe.inclusion(store, profile=args.profile, card_names=args.cards)
+        elif args.command == "tiers":
+            if args.limit < 0:
+                raise ValueError("--limit must not be negative")
+            counted = universe.inclusion(store, profile=args.profile)
+            params = tiers.TierParams(
+                min_universe=args.min_universe
+                if args.min_universe is not None
+                else tiers.TierParams().min_universe
+            )
+            snapshot = universe.snapshot_id(store, profile=args.profile)
+            result = {
+                "profile": args.profile,
+                "universe_snapshot": snapshot,
+                "denominator": counted["denominator"],
+                "denominator_by_platform": counted["denominator_by_platform"],
+                "denominator_by_bracket": counted["denominator_by_bracket"],
+                "tiers": tiers.tiers_for_universe(
+                    counted, universe_snapshot=snapshot, params=params
+                )[: args.limit],
+            }
         else:
             result = {
                 table: store.count(table)
                 for table in ("source", "card", "inventory", "deck", "deck_revision",
                               "corpus_deck", "corpus_deck_card", "observation",
                               "scryfall_card", "corpus_cohort", "neutral_board_row",
-                              "simulation_run")
+                              "simulation_run", "universe_profile")
             }  # fmt: skip
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0
