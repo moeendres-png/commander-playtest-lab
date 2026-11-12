@@ -64,6 +64,8 @@ def _add_observation(
         "data_class, snapshot, source_id) VALUES (?, ?, ?, ?, ?, ?, 'ORIGINAL_SOURCE', ?, ?)",
         (name, metric, cohort, value, numerator, denominator, snapshot, source),
     )
+    store.connection.commit()
+    store.bind_unbound("Test Commander")
 
 
 def test_every_card_is_unrated_and_a_zero_in_a_known_corpus_is_not_weakness(
