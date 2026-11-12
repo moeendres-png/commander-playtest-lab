@@ -60,16 +60,33 @@ def _read_json(path: Path) -> dict[str, Any]:
     return raw
 
 
+def _card_rows(raw: dict[str, Any], path: Path) -> list[dict[str, Any]]:
+    cards = raw.get("cards")
+    if not isinstance(cards, list):
+        raise ValueError(f"{path.name}: deck file without a cards list")
+    for card in cards:
+        if not isinstance(card, dict) or not card.get("name") or card.get("quantity") is None:
+            raise ValueError(f"{path.name}: card entry without name or quantity")
+    return cards
+
+
+def _bracket(raw: dict[str, Any], path: Path) -> int:
+    bracket = raw.get("bracket")
+    if bracket is None:
+        raise ValueError(f"{path.name}: deck file without a bracket")
+    return int(bracket)
+
+
 def _edhrec_deck(raw: dict[str, Any], path: Path) -> dict[str, Any]:
     urlhash = str(raw.get("urlhash") or path.stem)
     commanders = {str(name) for name in raw.get("commanders", [])}
     rows: list[tuple[str, str, int]] = []
-    for card in raw.get("cards", []):
+    for card in _card_rows(raw, path):
         name = str(card["name"])
         section = "commander" if name in commanders else "main"
         rows.append((name, section, int(card["quantity"])))
     variant = str(raw.get("variante") or "")
-    bracket = raw.get("bracket")
+    bracket = _bracket(raw, path)
     tags = [f"bracket:{bracket}", f"variant:{variant}", f"sum:{raw.get('karten_summe')}"]
     if raw.get("parse_status"):
         tags.append(f"parse:{raw['parse_status']}")
@@ -107,9 +124,9 @@ def _archidekt_deck(raw: dict[str, Any], path: Path) -> dict[str, Any]:
     deck_id = str(raw.get("id") or path.stem)
     rows = [
         (str(card["name"]), _archidekt_section(card), int(card["quantity"]))
-        for card in raw.get("cards", [])
+        for card in _card_rows(raw, path)
     ]
-    bracket = raw.get("bracket")
+    bracket = _bracket(raw, path)
     tags = [
         f"bracket:{bracket}",
         f"sum-main:{raw.get('summe_hauptdeck')}",
@@ -148,12 +165,24 @@ def import_decklists(store: StudioStore, folder: str | Path, *, format: str) -> 
     if not files:
         raise ValueError(f"no deck files found in {folder}")
     decks = [parser(_read_json(file), file) for file in files]
+    deck_ids = [deck["deck_id"] for deck in decks]
+    if len(set(deck_ids)) != len(deck_ids):
+        raise ValueError(
+            "two files in the folder describe the same deck: "
+            + ", ".join(sorted({d for d in deck_ids if deck_ids.count(d) > 1}))
+        )
     skipped = 0
     with store.connection as db:
-        known_fingerprints: dict[str, str] = {
-            str(row[0]): str(row[1])
-            for row in db.execute("SELECT fingerprint, deck_id FROM corpus_deck")
-        }
+        # Only decks that are not themselves duplicates may be duplicate targets.
+        # (A map over every stored deck lets a later duplicate win the fingerprint;
+        # re-importing the original then marked it as a duplicate of its own
+        # duplicate, and both vanished from every universe.)
+        known_fingerprints: dict[str, str] = {}
+        for fingerprint, deck_id in db.execute(
+            "SELECT fingerprint, deck_id FROM corpus_deck "
+            "WHERE duplicate_of IS NULL ORDER BY deck_id"
+        ):
+            known_fingerprints.setdefault(str(fingerprint), str(deck_id))
         written = duplicates = card_rows = 0
         for deck in decks:
             rows = _merge_rows(deck["rows"])
@@ -203,7 +232,8 @@ def import_decklists(store: StudioStore, folder: str | Path, *, format: str) -> 
                 "INSERT INTO corpus_cohort(cohort, deck_id) VALUES (?, ?)",
                 [(cohort, deck["deck_id"]) for cohort in deck["cohorts"]],
             )
-            known_fingerprints.setdefault(fingerprint, deck["deck_id"])
+            if duplicate_of is None:
+                known_fingerprints.setdefault(fingerprint, deck["deck_id"])
             written += 1
             card_rows += len(rows)
             duplicates += 1 if duplicate_of else 0

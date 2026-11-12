@@ -456,6 +456,8 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "universe-inclusion":
             result = universe.inclusion(store, profile=args.profile, card_names=args.cards)
         elif args.command == "tiers":
+            if args.limit < 0:
+                raise ValueError("--limit must not be negative")
             counted = universe.inclusion(store, profile=args.profile)
             params = tiers.TierParams(
                 min_universe=args.min_universe
@@ -477,7 +479,7 @@ def main(argv: list[str] | None = None) -> int:
                 for table in ("source", "card", "inventory", "deck", "deck_revision",
                               "corpus_deck", "corpus_deck_card", "observation",
                               "scryfall_card", "corpus_cohort", "neutral_board_row",
-                              "simulation_run")
+                              "simulation_run", "universe_profile")
             }  # fmt: skip
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0

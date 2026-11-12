@@ -169,6 +169,72 @@ def test_import_merges_split_rows_of_one_section(store: StudioStore, tmp_path: P
     assert row[0] == 10
 
 
+def test_reimport_of_the_original_keeps_it_canonical(store: StudioStore, tmp_path: Path) -> None:
+    # Review regression: A imported, identical B marked as A's duplicate, then A
+    # re-imported (the refresh workflow). A must stay canonical; with the first
+    # implementation both pointed at each other and vanished from every universe.
+    first = tmp_path / "first"
+    first.mkdir()
+    second = tmp_path / "second"
+    second.mkdir()
+    cards = [(CHULANE, 1), ("Sol Ring", 1), ("Forest", 10)]
+    _edhrec_file(first, "aaa", cards)
+    _archidekt_file(
+        second,
+        43,
+        [_card(CHULANE, 1, ["Commander"]), _card("Sol Ring"), _card("Forest", 10)],
+    )
+    decklist_import.import_decklists(store, first, format="edhrec")
+    decklist_import.import_decklists(store, second, format="archidekt")
+    result = decklist_import.import_decklists(store, first, format="edhrec")
+    assert result["duplicates_marked"] == 0
+    db = store.connection
+    assert (
+        db.execute("SELECT duplicate_of FROM corpus_deck WHERE deck_id = 'edhrec:aaa'").fetchone()[
+            0
+        ]
+        is None
+    )
+    assert (
+        db.execute(
+            "SELECT duplicate_of FROM corpus_deck WHERE deck_id = 'archidekt:43'"
+        ).fetchone()[0]
+        == "edhrec:aaa"
+    )
+    counted = universe.inclusion(store, card_names=["Sol Ring"])
+    assert counted["denominator"] == 1 and counted["rows"][0]["hits"] == 1
+
+
+def test_reimport_of_a_folder_with_duplicates_is_stable(store: StudioStore, tmp_path: Path) -> None:
+    cards = [(CHULANE, 1), ("Sol Ring", 1), ("Forest", 10)]
+    _edhrec_file(tmp_path, "aaa", cards)
+    _edhrec_file(tmp_path, "bbb", cards)
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    snapshot_first = universe.snapshot_id(store)
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    assert universe.snapshot_id(store) == snapshot_first
+    rows = dict(
+        store.connection.execute("SELECT deck_id, duplicate_of FROM corpus_deck").fetchall()
+    )
+    assert rows == {"edhrec:aaa": None, "edhrec:bbb": "edhrec:aaa"}
+
+
+def test_import_rejects_broken_deck_files_with_the_file_name(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    (tmp_path / "kaputt.json").write_text(
+        json.dumps({"bracket": 3, "cards": [{"quantity": 1}]}), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match=r"kaputt\.json"):
+        decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    (tmp_path / "kaputt.json").write_text(
+        json.dumps({"cards": [{"name": "Sol Ring", "quantity": 1}]}), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match=r"kaputt\.json"):
+        decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    assert store.count("corpus_deck") == 0
+
+
 def test_universe_inclusion_counts_only_the_selected_decks(
     store: StudioStore, tmp_path: Path
 ) -> None:
@@ -207,6 +273,47 @@ def test_universe_date_and_size_filters_and_cooccurrence(
     pairs = universe.cooccurrence(store, "Sol Ring")
     assert pairs["decks_with_card"] == 2
     assert {pair["card_name"] for pair in pairs["pairs"]} == {CHULANE, "Forest"}
+
+
+def test_cooccurrence_counts_each_deck_once_and_spec_types_are_checked(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # One deck whose Sol Ring sits in two counted sections (commander + main):
+    # decks_with_card must still be 1.
+    _archidekt_file(
+        tmp_path,
+        11,
+        [
+            _card(CHULANE, 1, ["Commander"]),
+            _card("Sol Ring", 1, ["Commander"]),
+            _card("Sol Ring", 1, []),
+        ],
+    )
+    decklist_import.import_decklists(store, tmp_path, format="archidekt")
+    pairs = universe.cooccurrence(store, "Sol Ring")
+    assert pairs["decks_with_card"] == 1
+    with pytest.raises(ValueError):
+        universe.resolve_universe(store, {"platforms": "edhrec"})
+    with pytest.raises(ValueError):
+        universe.resolve_universe(store, {"date_from": "gestern"})
+
+
+def test_snapshot_changes_when_a_decks_cards_change(store: StudioStore, tmp_path: Path) -> None:
+    _edhrec_file(tmp_path, "s1", [(CHULANE, 1), ("Sol Ring", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    before = universe.snapshot_id(store)
+    _edhrec_file(tmp_path, "s1", [(CHULANE, 1), ("Black Lotus", 1)])
+    decklist_import.import_decklists(store, tmp_path, format="edhrec")
+    assert universe.snapshot_id(store) != before
+
+
+def test_tier_params_keep_an_explicitly_empty_cut_list() -> None:
+    params = tiers.TierParams.from_dict({"cuts": [], "min_universe": 5})
+    assert params.cuts == ()
+    tier, reason = tiers.tier_for_share(0.9, 10, params)
+    assert (tier, reason) == ("D", "BELOW_LOWEST_CUT")
+    defaulted = tiers.TierParams.from_dict({"min_universe": 5})
+    assert defaulted.cuts == tiers.TierParams().cuts
 
 
 def test_tiers_are_pure_counts_with_a_u_state(store: StudioStore, tmp_path: Path) -> None:

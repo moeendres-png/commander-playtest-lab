@@ -16,6 +16,7 @@ yields a universe of size 0; shares over it are ``None`` (unknown), never zero.
 
 from __future__ import annotations
 
+import datetime
 import json
 from typing import Any
 
@@ -32,13 +33,18 @@ def _validate_spec(spec: dict[str, Any]) -> dict[str, Any]:
     cleaned: dict[str, Any] = {}
     for key in ("platforms", "cohorts"):
         values = spec.get(key) or []
+        if isinstance(values, str) or not isinstance(values, (list, tuple)):
+            raise ValueError(f"universe spec {key} must be a list of non-empty strings")
         if not all(isinstance(value, str) and value for value in values):
             raise ValueError(f"universe spec {key} must be a list of non-empty strings")
         if values:
             cleaned[key] = sorted(set(values))
     for key in ("date_from", "date_to"):
         if spec.get(key):
-            cleaned[key] = str(spec[key])[:10]
+            try:
+                cleaned[key] = datetime.date.fromisoformat(str(spec[key])[:10]).isoformat()
+            except ValueError:
+                raise ValueError(f"universe spec {key} must be an ISO date (YYYY-MM-DD)") from None
     if spec.get("min_main_cards") is not None:
         minimum = int(spec["min_main_cards"])
         if minimum < 0:
@@ -152,7 +158,8 @@ def inclusion(
     With ``card_names`` only those cards are returned (missing ones with 0 hits); without
     it, every card that appears in the universe is returned, ordered by hits.
     """
-    deck_ids = resolve_universe(store, _universe_spec(store, profile, spec))
+    resolved_spec = _universe_spec(store, profile, spec)
+    deck_ids = resolve_universe(store, resolved_spec)
     denominator = len(deck_ids)
     counts: dict[str, int] = {}
     if deck_ids:
@@ -178,7 +185,7 @@ def inclusion(
     ]
     return {
         "profile": profile,
-        "spec": _universe_spec(store, profile, spec),
+        "spec": resolved_spec,
         "denominator": denominator,
         "rows": rows,
         "data_class": "DERIVED_DESCRIPTIVE",
@@ -204,10 +211,12 @@ def cooccurrence(
             f"SELECT deck_id FROM corpus_deck_card WHERE deck_id IN ({marks}) "
             f"AND section IN ({sections}) AND card_name = ?"
         )
-        with_card = [
-            str(row[0])
-            for row in store.connection.execute(base, [*deck_ids, *COUNTED_SECTIONS, card_name])
-        ]
+        with_card = sorted(
+            {
+                str(row[0])
+                for row in store.connection.execute(base, [*deck_ids, *COUNTED_SECTIONS, card_name])
+            }
+        )
         denominator = len(with_card)
         if with_card:
             marks2 = ", ".join("?" for _ in with_card)
@@ -234,20 +243,26 @@ def cooccurrence(
 def snapshot_id(
     store: StudioStore, *, profile: str | None = None, spec: dict[str, Any] | None = None
 ) -> str:
-    """A short fingerprint of a universe: its spec plus the deck ids it currently selects.
+    """A short fingerprint of a universe: its spec plus what it currently selects.
 
-    Two snapshots with the same id select the same decks under the same spec; any import
-    that changes the selection changes the id, so figures can cite the exact universe
+    The digest covers the spec, the selected deck ids and each deck's stored card
+    fingerprint, so a snapshot id changes when the selection changes *or* when a
+    selected deck's cards are replaced by a later import. Two equal snapshot ids mean
+    the same spec over the same deck contents; figures can cite the exact universe
     they were counted over.
     """
     import hashlib
 
     cleaned = _universe_spec(store, profile, spec)
     deck_ids = resolve_universe(store, cleaned)
+    fingerprints = {
+        str(row[0]): str(row[1])
+        for row in store.connection.execute("SELECT deck_id, fingerprint FROM corpus_deck")
+    }
     digest = hashlib.sha256()
     digest.update(json.dumps(cleaned, sort_keys=True).encode())
     for deck_id in deck_ids:
-        digest.update(f"\n{deck_id}".encode())
+        digest.update(f"\n{deck_id}:{fingerprints.get(deck_id, '')}".encode())
     return f"universe:{digest.hexdigest()[:16]}:{len(deck_ids)}"
 
 

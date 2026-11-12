@@ -38,10 +38,15 @@ class TierParams:
 
     @classmethod
     def from_dict(cls, raw: dict[str, Any]) -> TierParams:
-        cuts = tuple((str(tier), float(cut)) for tier, cut in raw.get("cuts", []))
+        # An explicitly empty cuts list is an owner setting (every counted card lands
+        # in the fallback tier), not a missing value: only an absent key defaults.
+        if "cuts" in raw:
+            cuts = tuple((str(tier), float(cut)) for tier, cut in raw["cuts"])
+        else:
+            cuts = cls().cuts
         return cls(
             min_universe=int(raw.get("min_universe", 30)),
-            cuts=cuts or cls().cuts,
+            cuts=cuts,
             fallback_tier=str(raw.get("fallback_tier", "D")),
         )
 
