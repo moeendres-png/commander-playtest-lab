@@ -871,7 +871,8 @@ function renderUniverseInfo() {
   if (!box) return;
   const u = state.universeInfo;
   if (!u) { box.textContent = ""; return; }
-  const parts = [`Universum ${u.profile}: ${u.denominator} Decks (Nenner), Stand ${u.snapshot_id}`];
+  const parts = [`Universum ${u.profile} (Version ${u.version}): ${u.denominator} Decks (Nenner), Stand ${u.snapshot_id}`];
+  if (u.excluded_by_card_filter) parts.push(`${u.excluded_by_card_filter} durch den Karten-Filter ausgeschlossen`);
   if (u.excluded_no_date) parts.push(`${u.excluded_no_date} ohne Zeitstempel ausgeschlossen`);
   if (u.below_min_universe) parts.push(`unter dem Mindest-Universum ${u.min_universe}: alle Stufen U`);
   box.textContent = parts.join(" · ");

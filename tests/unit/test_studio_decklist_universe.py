@@ -779,7 +779,7 @@ def test_options_report_the_stored_values_with_deck_counts(
     assert found["commanders"] == [{"value": CHULANE, "decks": 3}]
     assert universe.options(store, commander_names=[CHULANE]) == found
     empty = universe.options(store, commander_names=["Second Commander"])
-    assert empty == {"platforms": [], "cohorts": [], "commanders": []}
+    assert empty == {"platforms": [], "cohorts": [], "commanders": [], "cards": []}
 
 
 # ---------- step 2 (profile min_universe, model version) and A5 (lift, combos) ----------
@@ -957,3 +957,134 @@ def test_spellbook_combo_partners_follow_the_commander_of_the_combo(tmp_path: Pa
     }
     assert sources.load_spellbook_combo_partners(combos, commander="Nobody") == {}
     assert sources.load_spellbook_combo_partners(tmp_path / "fehlt.json") == {}
+
+
+# ---------- steps 4-7: profile lifecycle (version, delete) and the card filter ----------
+
+
+def _sectioned_deck(
+    store: StudioStore,
+    deck_id: str,
+    rows: list[tuple[str, str]],
+    commander: str | None = None,
+) -> None:
+    """One raw corpus deck; rows are (card_name, section), quantity 1 each."""
+    db = store.connection
+    db.execute(
+        "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('raw', 'DERIVED_DESCRIPTIVE', 'raw', 'x', '2026-01-01')"
+    )
+    db.execute(
+        "INSERT INTO corpus_deck(deck_id, cohort, url, platform, play_group, deck_date, tags, "
+        "fingerprint, duplicate_of, legality_audit, source_id) "
+        "VALUES (?, 'c', '', 'raw', 'g', NULL, '[]', ?, NULL, 'not_audited', 'raw')",
+        (deck_id, f"fp-{deck_id}"),
+    )
+    db.executemany(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+        "normalization_status) VALUES (?, ?, ?, NULL, 1, 'source_name')",
+        [(deck_id, name, section) for name, section in rows],
+    )
+    if commander is not None:
+        db.execute(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+            "VALUES ('corpus_deck', ?, ?, 'TEST')",
+            (deck_id, commander),
+        )
+    db.commit()
+
+
+def test_profile_versions_rise_and_created_at_survives_a_replace(store: StudioStore) -> None:
+    first = universe.save_profile(store, "leben", {"platforms": ["raw"]})
+    assert first["version"] == 1
+    assert first["created_at"] == first["updated_at"]
+    second = universe.save_profile(store, "leben", {"cohorts": ["bracket:3"]})
+    assert second["version"] == 2
+    assert second["created_at"] == first["created_at"]
+    assert second["updated_at"] >= first["updated_at"]
+    profile = universe.get_profile(store, "leben")
+    assert profile["version"] == 2 and profile["created_at"] == first["created_at"]
+    listed = universe.list_profiles(store)
+    assert listed[0]["version"] == 2 and listed[0]["updated_at"] == second["updated_at"]
+
+
+def test_delete_profile_removes_it_and_a_second_delete_is_an_error(store: StudioStore) -> None:
+    universe.save_profile(store, "weg", {})
+    universe.delete_profile(store, "weg")
+    assert universe.list_profiles(store) == []
+    with pytest.raises(KeyError):
+        universe.get_profile(store, "weg")
+    with pytest.raises(KeyError):
+        universe.delete_profile(store, "weg")
+    with pytest.raises(KeyError):
+        universe.delete_profile(store, "nie-da")
+
+
+def test_must_contain_counts_mainboard_commander_exception_and_intersection(
+    store: StudioStore,
+) -> None:
+    for card_id, name in (
+        ("card:a", "Alpha"),
+        ("card:b", "Beta"),
+        ("card:o", "Other Commander"),
+    ):
+        _studio_card(store, card_id, name)
+    # d1: Alpha and Beta in the main deck.
+    _sectioned_deck(store, "d1", [("Alpha", "main"), ("Beta", "main")])
+    # d2: Alpha in the main deck, spelled in capitals (names match case-insensitively).
+    _sectioned_deck(store, "d2", [("ALPHA", "main")])
+    # d3: Beta in the main deck, Alpha only in the sideboard — never a hit.
+    _sectioned_deck(store, "d3", [("Beta", "mainboard"), ("Alpha", "sideboard")])
+    # d4: Alpha only as a commander-section row, but the deck is bound to another
+    # commander — the row alone is not containment.
+    _sectioned_deck(store, "d4", [("Alpha", "commander")], commander="Other Commander")
+    # d5: no Alpha row at all, but Alpha IS this deck's commander (the exception),
+    # and Beta is in its main deck.
+    _sectioned_deck(store, "d5", [("Beta", "main")], commander="Alpha")
+
+    def decks(spec: dict[str, object]) -> list[str]:
+        return universe.resolve_universe(store, spec)
+
+    assert decks({}) == ["d1", "d2", "d3", "d4", "d5"]
+    assert decks({"must_contain": ["Alpha"]}) == ["d1", "d2", "d5"]
+    assert decks({"must_contain": ["Beta"]}) == ["d1", "d3", "d5"]
+    # Two required cards are an intersection, not a union.
+    assert decks({"must_contain": ["Alpha", "Beta"]}) == ["d1", "d5"]
+    assert universe.excluded_by_card_filter(store, {"must_contain": ["Alpha"]}) == 2
+    assert universe.excluded_by_card_filter(store, {}) == 0
+    counted = universe.inclusion(store, spec={"must_contain": ["Alpha"]}, commander_names=None)
+    assert counted["denominator"] == 3 and counted["excluded_by_card_filter"] == 2
+
+
+def test_must_contain_front_faces_and_ambiguous_fronts(store: StudioStore) -> None:
+    _studio_card(store, "card:f", "Front // Back")
+    _studio_card(store, "card:s1", "Shared // One")
+    _studio_card(store, "card:s2", "Shared // Two")
+    _sectioned_deck(store, "e1", [("Front", "main")])
+    _sectioned_deck(store, "e2", [("Shared", "main")])
+    _sectioned_deck(store, "e3", [("Shared // One", "main")])
+    # An unambiguous front face is a spelling of its card.
+    assert universe.resolve_universe(store, {"must_contain": ["Front // Back"]}) == ["e1"]
+    # A front face two cards share is a spelling of each of them (the counted spread
+    # attributes such a deck to both cards, and the filter reads names the same way),
+    # but it names no single card, so it cannot state a requirement itself.
+    assert universe.resolve_universe(store, {"must_contain": ["Shared // One"]}) == ["e2", "e3"]
+    assert universe.resolve_universe(store, {"must_contain": ["Shared // Two"]}) == ["e2"]
+    with pytest.raises(ValueError, match="Shared"):
+        universe.save_profile(store, "mehrdeutig", {"must_contain": ["Shared"]})
+
+
+def test_must_contain_unknown_cards_are_refused_and_names_normalized(
+    store: StudioStore,
+) -> None:
+    _studio_card(store, "card:f", "Front // Back")
+    with pytest.raises(ValueError, match="Nichtda"):
+        universe.save_profile(store, "kaputt", {"must_contain": ["Nichtda"]})
+    assert universe.list_profiles(store) == []
+    with pytest.raises(ValueError, match="Nichtda"):
+        universe.inclusion(store, spec={"must_contain": ["Nichtda"]}, commander_names=None)
+    saved = universe.save_profile(store, "ok", {"must_contain": ["front"]})
+    assert saved["spec"]["must_contain"] == ["Front // Back"]
+    # An empty requirement list is no filter at all.
+    plain = universe.save_profile(store, "leer", {"must_contain": []})
+    assert "must_contain" not in plain["spec"]
