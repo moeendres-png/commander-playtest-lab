@@ -543,6 +543,13 @@ def main(argv: list[str] | None = None) -> int:
         if args.command in _SOURCE_DATA_COMMANDS:
             # Source data is always bound to one commander: every row this import writes
             # is bound to it, and a key that belongs to another commander is refused.
+            if args.command == "import-hub" and store.other_commanders(args.commander):
+                # The hub import replaces the whole deck corpus and all neutral rows.
+                raise SystemExit(
+                    "import-hub: refused. The hub import replaces all source decks and "
+                    "neutral rows, and this store holds source data of another commander "
+                    f"than {args.commander!r}."
+                )
             before = store.count("commander_binding")
             try:
                 with store.importing_for(args.commander):
@@ -551,9 +558,10 @@ def main(argv: list[str] | None = None) -> int:
                 if BOUND_ELSEWHERE not in str(error):
                     raise
                 raise SystemExit(
-                    f"{args.command}: nothing imported. The import writes a deck, cohort, "
-                    f"run or neutral source that is bound to another commander than "
-                    f"{args.commander!r}."
+                    f"{args.command}: stopped. The import writes a deck, cohort, run or "
+                    f"neutral source that is bound to another commander than "
+                    f"{args.commander!r}. Nothing of that file was written; with a folder, "
+                    f"files imported before it stay imported for {args.commander!r}."
                 ) from None
             if isinstance(result, dict):
                 added = store.count("commander_binding") - before

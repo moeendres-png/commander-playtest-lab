@@ -584,9 +584,11 @@ class StudioStore:
     def importing_for(self, commander_name: str) -> Iterator[None]:
         """Bind every source row written inside the block to ``commander_name``.
 
-        Only the keys the import writes are bound; rows that were unbound before stay
-        unbound. Writing into a deck, cohort, run or neutral source that is bound to
-        another commander aborts the import, so one key never holds two commanders."""
+        Only the keys the import writes are bound; a key the import does not touch keeps
+        its state. Writing into a deck, cohort, run or neutral source that is bound to
+        another commander aborts the running transaction, so one key never holds two
+        commanders. An importer that commits file by file keeps the files it finished
+        before the refused one."""
         name = commander_name.strip()
         if not name:
             raise ValueError("a commander name is required")
@@ -604,9 +606,13 @@ class StudioStore:
             )
             db.execute(
                 f"CREATE TEMP TRIGGER bind_write_{kind} AFTER INSERT ON main.{table} BEGIN "
-                "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
-                f"SELECT '{kind}', NEW.{column}, name, 'IMPORT_DECLARED' FROM import_commander; "
-                "END"
+                # WHERE NOT EXISTS, not OR IGNORE: a conflict clause here would follow the
+                # importer's own INSERT OR REPLACE and overwrite the basis of a binding.
+                "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+                f"SELECT '{kind}', NEW.{column}, name, 'IMPORT_DECLARED' FROM import_commander "
+                "WHERE NOT EXISTS (SELECT 1 FROM commander_binding b "
+                f"WHERE b.kind = '{kind}' AND b.key = NEW.{column} "
+                "AND b.commander_name = import_commander.name); END"
             )
         db.commit()
         try:
@@ -618,6 +624,18 @@ class StudioStore:
                 db.execute(f"DROP TRIGGER IF EXISTS bind_write_{kind}")
             db.execute("DROP TABLE IF EXISTS import_commander")
             db.commit()
+
+    def other_commanders(self, commander_name: str) -> list[str]:
+        """Commanders other than ``commander_name`` that source decks or neutral rows belong to."""
+        return [
+            str(row[0])
+            for row in self.connection.execute(
+                "SELECT DISTINCT commander_name FROM commander_binding "
+                "WHERE kind IN ('corpus_deck', 'neutral_source') AND commander_name != ? "
+                "ORDER BY commander_name",
+                (commander_name.strip(),),
+            )
+        ]
 
     def binding_counts(self) -> dict[str, dict[str, int]]:
         """Per kind of source data: keys in the store, bound to a commander, unbound."""

@@ -131,6 +131,41 @@ only as filters and as a star. API: `GET /api/evidence`, `GET /api/cards/{id}/ev
 `import-marks` (older command) replaces all three mark fields of every listed card;
 `import-owner-marks` only changes the fields a file states. Prefer the latter for partial files.
 
+### Deck universe and "Verbreitung (gezählt)"
+
+The tier list page has a **Universum** selector in its header. A universe is a saved profile
+that selects source decks by platform, cohort (for example `bracket:3`), deck date and a
+minimum main-deck size. Pick a saved profile, or open "Universum anlegen" in the panel below
+the header, fill the fields and save (`PUT /api/universe/profiles/{name}`; unknown keys and bad
+dates are rejected). The page remembers the last choice in the browser only. Without a profile
+the column shows "kein Universum gewählt".
+
+For every card the column **Verbreitung (gezählt)** shows a level (S to D, or U) and
+`hits/denominator`: the number of distinct decks of the chosen universe that contain the
+card, over the number of decks in the universe. The panel shows the denominator with its
+split by platform and by bracket, and a short snapshot id of the exact decks counted. The
+card drawer repeats the numbers, the cut parameters, every spelling found, and loads
+"Zusammen gespielt mit" (co-occurrence) on demand.
+
+- It is a count of how often a card is played. It says nothing about how strong a card is.
+  The "Unbewertet" tier cell and the evidence policy are unchanged, and the level is not an
+  input to them.
+- The level is computed from the share with the owner-set cuts (`tiers.py`); U means too few
+  decks in the universe or an unknown denominator. A card whose name occurs in no universe
+  deck is "unbekannt" (U, `NAME_NOT_FOUND_IN_UNIVERSE`), never a zero and never a low level,
+  because absence cannot be told from a name mismatch.
+- Names are matched case-insensitively against the oracle name, the engine name and the
+  front face. If several spellings occur, the largest count is shown and all are listed;
+  they are never added.
+- Favourites, excludes and notes only filter the list. They change no count and no level.
+- Platforms and brackets are always shown as separate breakdowns; cohorts are not merged
+  silently.
+
+Routes: `GET /api/universe/profiles`, `PUT /api/universe/profiles/{name}`,
+`GET /api/universe/profiles/{name}/summary`, `GET /api/universe/spread?profile=NAME`,
+`GET /api/cards/{card_id}/universe?profile=NAME`,
+`GET /api/cards/{card_id}/cooccurrence?profile=NAME&limit=25`.
+
 ### Data report
 
 `data-report` prints JSON with numbers only: every figure is a count with its denominator, a

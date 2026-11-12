@@ -13,11 +13,12 @@ from dataclasses import asdict
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi import Path as PathParam
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
-from . import builder, games, launch
+from . import builder, games, launch, universe, universe_view
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
@@ -110,6 +111,17 @@ class AlternativesBody(BaseModel):
     commander: list[str] = Field(min_length=1, max_length=2)
     in_deck: list[str] = Field(default_factory=list, max_length=300)
     skip: list[str] = Field(default_factory=list, max_length=5000)
+
+
+class UniverseBody(BaseModel):
+    """A universe spec as sent by the browser; absent fields mean "no filter"."""
+
+    model_config = ConfigDict(extra="forbid")
+    platforms: list[str] | None = Field(default=None, max_length=50)
+    cohorts: list[str] | None = Field(default=None, max_length=100)
+    date_from: str | None = Field(default=None, max_length=10)
+    date_to: str | None = Field(default=None, max_length=10)
+    min_main_cards: StrictInt | None = None
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -242,6 +254,98 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return evidence_model.card_evidence(store, card_id, commander, view=view)
         except KeyError as error:
             raise HTTPException(404, "unknown card or card outside this view") from error
+        finally:
+            store.close()
+
+    @app.get("/api/universe/profiles")
+    def universe_profiles() -> list[dict[str, object]]:
+        store = open_store()
+        try:
+            return universe.list_profiles(store)
+        finally:
+            store.close()
+
+    @app.put("/api/universe/profiles/{name}")
+    def save_universe_profile(
+        body: UniverseBody,
+        name: str = PathParam(min_length=1, max_length=80),
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            universe.save_profile(store, name, body.model_dump(exclude_none=True))
+            return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/universe/profiles/{name}/summary")
+    def universe_profile_summary(
+        name: str, commander: str = Query(min_length=1, max_length=200)
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
+        finally:
+            store.close()
+
+    @app.get("/api/universe/spread")
+    def universe_spread(
+        profile: str = Query(min_length=1, max_length=80),
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        """Counted spread of every Studio card in one universe. Marks are not part of it."""
+        store = open_store()
+        try:
+            return dict(universe_view.pool_spread(store, profile, commander_names=[commander]))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
+        finally:
+            store.close()
+
+    @app.get("/api/cards/{card_id}/universe")
+    def card_universe(
+        card_id: str,
+        profile: str = Query(min_length=1, max_length=80),
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return dict(
+                universe_view.pool_spread(store, profile, [card_id], commander_names=[commander])
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile or card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/cards/{card_id}/cooccurrence")
+    def card_cooccurrence(
+        card_id: str,
+        profile: str = Query(min_length=1, max_length=80),
+        limit: int = Query(default=25, ge=1, le=500),
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return dict(
+                universe_view.card_cooccurrence(
+                    store, profile, card_id, limit, commander_names=[commander]
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile or card") from error
         finally:
             store.close()
 

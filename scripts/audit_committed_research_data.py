@@ -2,9 +2,9 @@
 """Consistency audit script for committed research and card data files.
 
 Audit Scope:
-- data/research/chulane_legal_pool_gap_matrix.json (801 cards)
+- data/research/chulane_legal_pool_gap_matrix.json (927 cards)
 - data/research/chulane_decklist_inclusion_20261112.csv (15,038 rows)
-- data/cards/pilot_card_knowledge.json (7,231 cards)
+- data/cards/pilot_card_knowledge.json (32,820 cards)
 - data/cards/commander_flags.json (53 game changers, 83 commander banned)
 - data/cards/official_precon_oracle_cards.json (512 cards)
 
@@ -168,7 +168,7 @@ def run_audit(repo_root: Path) -> tuple[list[AuditRow], str]:
             "2.1 Gap-Matrix-Karten ohne Eintrag in pilot_card_knowledge",
             "OK" if len(gap_missing_pck) == 0 else "ABWEICHUNG",
             len(gap_missing_pck),
-            "Abschnitt 2.1: 3 benutzerdefinierte/geteilte Karten fehlen in PCK",
+            f"Abschnitt 2.1: {len(gap_missing_pck)} Gap-Matrix-Karten fehlen in PCK",
         )
     )
 
@@ -192,7 +192,7 @@ def run_audit(repo_root: Path) -> tuple[list[AuditRow], str]:
             "2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag (Universum vs. Chulane-Pool)",
             "OK" if len(inc_missing_gap) == 0 else "ABWEICHUNG",
             len(inc_missing_gap),
-            "Abschnitt 2.2: 6.126 Universums-Karten außerhalb des 801-Chulane-Pools",
+            f"Abschnitt 2.2: {len(inc_missing_gap)} Universums-Karten außerhalb des 927-Chulane-Pools",
         )
     )
 
@@ -205,9 +205,11 @@ def run_audit(repo_root: Path) -> tuple[list[AuditRow], str]:
     lines.append(
         f"- **Karten der Inclusion-CSV ohne Gap-Matrix-Eintrag (normalisiert):** {len(inc_missing_gap_norm)}"
     )
+    pool_in_inclusion = len(set(gap_names_exact) & inc_names_unique)
     lines.append(
         "- **Befund:** Die Inclusion-CSV deckt das gesamte 4-Player-Deck-Universum ab (inkl. Gegner- und Formatkarten außerhalb des Chulane-Pools). "
-        "417 der 801 Chulane-Pool-Karten erscheinen in der Inclusion-CSV; 6.126 Universumskarten liegen außerhalb des 801-Pools."
+        f"{pool_in_inclusion} der {len(gap_cards)} Chulane-Pool-Karten erscheinen in der Inclusion-CSV; "
+        f"{len(inc_missing_gap)} Universumskarten liegen außerhalb des {len(gap_cards)}-Pools."
     )
     lines.append("")
 

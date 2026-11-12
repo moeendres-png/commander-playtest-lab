@@ -18,7 +18,9 @@ from pathlib import Path
 from commander_lab.agents.card_knowledge import card_facts as pilot_card_facts
 from commander_lab.engine.structural.card_facts import (
     CARD_FACTS_SCHEMA_VERSION,
+    apply_retained_lookup,
     engine_lookup_key,
+    fact_name_index,
 )
 from commander_lab.models import RulesDeckInput
 
@@ -80,25 +82,34 @@ class _CardData:
                 f"{facts_payload.get('schema_version')}"
             )
         cards_map = facts_payload.get("cards", {})
-        self._facts_keys = {engine_lookup_key(name) for name in cards_map} | {
-            engine_lookup_key(name.split(" // ")[0]) for name in cards_map if " // " in name
-        }
+        if not isinstance(cards_map, dict) or not all(isinstance(name, str) for name in cards_map):
+            raise ValueError("card facts cards must be a mapping")
+        index = fact_name_index(set(cards_map), facts_payload.get("aliases", {}))
+        apply_retained_lookup(index, cards_map, facts_payload.get("retained_lookup", {}))
+        self._facts_keys = set(index)
         missing_list = facts_payload.get("missing", [])
-        self._missing_keys = {engine_lookup_key(name) for name in missing_list} | {
-            engine_lookup_key(name.split(" // ")[0]) for name in missing_list if " // " in name
-        }
+        ambiguous = facts_payload.get("ambiguous", [])
+        if not isinstance(missing_list, list) or not all(
+            isinstance(name, str) for name in missing_list
+        ):
+            raise ValueError("card facts missing names must be a list")
+        if not isinstance(ambiguous, list) or not all(isinstance(name, str) for name in ambiguous):
+            raise ValueError("card facts ambiguous names must be a list")
+        self._missing_keys = {engine_lookup_key(name) for name in missing_list}
+        self._ambiguous_keys = {engine_lookup_key(name) for name in ambiguous}
         if not pilot_knowledge_path.is_file():
             raise FileNotFoundError(f"pilot card knowledge not found: {pilot_knowledge_path}")
         self._pilot_knowledge_path = pilot_knowledge_path
 
     def status_of(self, name: str) -> CardReadinessStatus:
         key = engine_lookup_key(name)
-        front = engine_lookup_key(name.split(" // ")[0]) if " // " in name else None
-        if key in self._facts_keys or (front is not None and front in self._facts_keys):
+        if key in self._ambiguous_keys:
+            return CardReadinessStatus.NO_CARD_FACTS
+        if key in self._facts_keys:
             if pilot_card_facts(name, self._pilot_knowledge_path) is None:
                 return CardReadinessStatus.NO_PILOT_KNOWLEDGE
             return CardReadinessStatus.OK
-        if key in self._missing_keys or (front is not None and front in self._missing_keys):
+        if key in self._missing_keys:
             return CardReadinessStatus.KNOWN_MISSING_IN_XMAGE
         return CardReadinessStatus.NO_CARD_FACTS
 
@@ -114,7 +125,7 @@ def check_deck(
     Each unique card name (commanders, mainboard, sideboard) gets one of OK,
     NO_CARD_FACTS, KNOWN_MISSING_IN_XMAGE or NO_PILOT_KNOWLEDGE. The deck is
     ready only when every card is OK. Name lookup mirrors the exporters:
-    ``engine_lookup_key``, with double-faced names resolved by their front face.
+    ``engine_lookup_key``, with complete names resolved only by known cards or explicit aliases.
     """
     data = _CardData(facts_path or _CARD_FACTS_PATH, pilot_knowledge_path or _PILOT_KNOWLEDGE_PATH)
     cards = tuple(

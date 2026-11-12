@@ -19,17 +19,17 @@ def test_run_audit_against_repo() -> None:
     assert results_by_check["1.1 Parsebarkeit der 5 Datendateien"].result == "OK"
     assert results_by_check["1.1 Parsebarkeit der 5 Datendateien"].count == 0
 
-    # 2.1 Gap matrix vs PCK
+    # 2.1 Gap matrix vs PCK (gap closed by the full public catalog, Refs #1227)
     r21 = results_by_check["2.1 Gap-Matrix-Karten ohne Eintrag in pilot_card_knowledge"]
-    assert r21.result == "ABWEICHUNG"
-    assert r21.count == 3
+    assert r21.result == "OK"
+    assert r21.count == 0
 
     # 2.2 Inclusion CSV vs Gap Matrix
     r22 = results_by_check[
         "2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag (Universum vs. Chulane-Pool)"
     ]
     assert r22.result == "ABWEICHUNG"
-    assert r22.count == 6126
+    assert r22.count == 6084
 
     # 2.3 Duplicates
     assert results_by_check["2.3 Dubletten je Datei"].result == "OK"
@@ -61,7 +61,9 @@ def test_run_audit_against_repo() -> None:
 
     # Markdown checks
     assert "# Daten-Konsistenz-Audit der committed Research- und Kartendaten" in markdown_text
-    assert "Spellbook Seeker // Careful Study" in markdown_text
+    assert (
+        "| 2.1 Gap-Matrix-Karten ohne Eintrag in pilot_card_knowledge | OK | 0 |" in markdown_text
+    )
     assert "Gesamt-Tabelle aller Prüfungen" in markdown_text
 
 

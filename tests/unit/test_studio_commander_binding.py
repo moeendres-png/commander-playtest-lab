@@ -275,3 +275,17 @@ def test_migration_leaves_decks_of_another_commander_unbound_and_is_stable(
         assert [tuple(row) for row in rows] == [("d1", LEGACY_COMMANDER)]
         assert reopened.binding_counts()["corpus_deck"]["unbound"] == 1
         reopened.close()
+
+
+def test_an_import_keeps_the_basis_of_an_existing_binding(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    register = _write_csv(tmp_path / "register.csv", [_register_row("d1", "community")])
+    importers.import_corpus_register(store, register)
+    store.bind_unbound("Test Commander", basis="OWNER_DECLARED")
+    with store.importing_for("Test Commander"):
+        importers.import_corpus_register(store, register)
+    rows = store.connection.execute("SELECT key, basis FROM commander_binding").fetchall()
+    assert [tuple(row) for row in rows] == [("d1", "OWNER_DECLARED")]
+    assert store.other_commanders("Test Commander") == []
+    assert store.other_commanders("Second Commander") == ["Test Commander"]
+    store.close()

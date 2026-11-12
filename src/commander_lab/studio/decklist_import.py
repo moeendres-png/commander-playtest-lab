@@ -51,6 +51,7 @@ class _Deck(TypedDict):
     rows: list[tuple[str, str, int]]
     cohorts: list[str]
     title: str
+    commanders: list[str]
 
 
 def _merge_rows(rows: list[tuple[str, str, int]]) -> list[tuple[str, str, int]]:
@@ -151,6 +152,7 @@ def _edhrec_deck(raw: Mapping[str, object], path: Path) -> _Deck:
             f"commander:{COMMANDER_COHORT}",
         ],
         "title": path.name,
+        "commanders": sorted(commanders),
     }
 
 
@@ -192,6 +194,7 @@ def _archidekt_deck(raw: Mapping[str, object], path: Path) -> _Deck:
             f"commander:{COMMANDER_COHORT}",
         ],
         "title": path.name,
+        "commanders": sorted({name for name, section, _ in rows if section == "commander"}),
     }
 
 
@@ -217,11 +220,11 @@ def import_decklists(
     decks = [parser(_read_json(file), file) for file in files]
     if commander is not None:
         # A list that names its own commander is only imported for that commander.
+        # The source's own commander statement decides, also when the card list omits it.
         foreign = sorted(
             deck["title"]
             for deck in decks
-            if (named := {name for name, section, _ in deck["rows"] if section == "commander"})
-            and commander not in named
+            if deck["commanders"] and commander not in deck["commanders"]
         )
         if foreign:
             raise ValueError(

@@ -634,3 +634,23 @@ def test_a_deck_list_of_another_commander_is_refused(store: StudioStore, tmp_pat
         store, tmp_path, format="edhrec", commander="Second Commander"
     )
     assert result["decks"] == 1
+
+
+def test_corpus_importer_mainboard_section_is_counted(store: StudioStore) -> None:
+    """The corpus importer writes "mainboard"; such decks must not vanish from a universe."""
+    _raw_deck(store, "corpus1", [("Sol Ring", "mainboard", 1)], fingerprint="f1")
+    _raw_deck(store, "list1", [("Sol Ring", "main", 1), ("Forest", "main", 5)], fingerprint="f2")
+    _raw_deck(store, "side1", [("Sol Ring", "sideboard", 1)], fingerprint="f3")
+    store.connection.commit()
+    assert universe.resolve_universe(store, {}) == ["corpus1", "list1"]
+    result = universe.inclusion(store, spec={}, card_names=["Sol Ring"], commander_names=None)
+    assert result["denominator"] == 2
+    assert result["rows"][0]["hits"] == 2
+
+
+def test_the_sources_commander_statement_decides_without_a_card_row(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _edhrec_file(tmp_path, "ddd", [("Sol Ring", 1)], commanders=["Second Commander"])
+    with pytest.raises(ValueError, match="another commander"):
+        decklist_import.import_decklists(store, tmp_path, format="edhrec", commander=CHULANE)

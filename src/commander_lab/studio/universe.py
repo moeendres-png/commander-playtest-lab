@@ -4,16 +4,19 @@ A *universe* is a stored profile (``universe_profile``) whose spec selects sourc
 from the corpus: by platform, by cohort membership (``corpus_cohort`` rows such as
 ``bracket:3`` or ``source:edhrec``), by deck date range and by a minimum main-deck size.
 Every figure computed over a universe is a plain count with its denominator: inclusion of
-a card is the number of distinct universe decks whose main, commander or companion
-sections contain it, over the number of decks in the universe. Exact duplicates
+a card is the number of distinct universe decks whose counted sections (``main`` and
+``mainboard``, the same section under the spelling of the decklist and the corpus importer,
+plus ``commander`` and ``companion``) contain it, over the number of decks in the universe. Exact duplicates
 never count twice: decks of the universe that share a content fingerprint count once
 (the lowest deck id), so the same list stored under two ids is one deck *inside the
 selected universe*, whatever its siblings outside it look like. An empty fingerprint
 means "content unknown": such a deck is its own key and is never deduplicated. Only cards
 with a quantity above zero count, and a deck without any such row in a counted section is
 not part of any universe. A deck carrying several bracket cohorts is reported under the
-bucket ``multiple`` in the bracket breakdown. Unlike that older per-group helper, sections ``sideboard`` and ``maybeboard`` are both
-excluded here, because both are outside the deck that was played.
+bucket ``multiple`` in the bracket breakdown. Sections ``sideboard`` and ``maybeboard`` are
+both excluded here, because both are outside the deck that was played. The minimum deck size
+counts each card once per deck and section group: a card listed in both ``main`` and
+``mainboard`` contributes its larger quantity, not the sum.
 
 An empty spec selects every stored source deck. A profile whose filters match no deck
 yields a universe of size 0; shares over it are ``None`` (unknown), never zero.
@@ -30,7 +33,8 @@ from typing import TypedDict
 from ._coerce import to_int
 from .store import StudioStore, now_utc
 
-COUNTED_SECTIONS = ("main", "commander", "companion")
+# The corpus importer stores the main deck as "mainboard", the decklist importer as "main".
+COUNTED_SECTIONS = ("main", "mainboard", "commander", "companion")
 _SPEC_KEYS = {"platforms", "cohorts", "commanders", "date_from", "date_to", "min_main_cards"}
 
 
@@ -233,11 +237,16 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
     minimum = cleaned.get("min_main_cards")
     if minimum:
         sections = ", ".join("?" for _ in COUNTED_SECTIONS)
+        # "main" and "mainboard" are one section: per (deck, card) the larger quantity.
         sizes = {
             str(row[0]): int(row[1])
             for row in store.connection.execute(
-                f"SELECT deck_id, SUM(quantity) FROM corpus_deck_card "
-                f"WHERE section IN ({sections}) GROUP BY deck_id",
+                f"SELECT deck_id, SUM(quantity) FROM ("
+                f"SELECT deck_id, card_name, "
+                f"CASE WHEN section IN ('main', 'mainboard') THEN 'main' ELSE section END AS grp, "
+                f"MAX(quantity) AS quantity FROM corpus_deck_card "
+                f"WHERE section IN ({sections}) GROUP BY deck_id, card_name, grp) "
+                f"GROUP BY deck_id",
                 COUNTED_SECTIONS,
             )
         }
@@ -443,6 +452,74 @@ def cooccurrence(
     }
 
 
+class UniverseDecks(TypedDict):
+    """One resolved universe with the deck ids behind every raw card name."""
+
+    spec: UniverseSpec
+    denominator: int
+    denominator_by_platform: dict[str, int]
+    denominator_by_bracket: dict[str, int]
+    snapshot_id: str
+    data_class: str
+    decks_by_name: dict[str, set[str]]
+
+
+def universe_decks(
+    store: StudioStore, *, profile: str, commander_names: Sequence[str] | None
+) -> UniverseDecks:
+    """Resolve a profile once: its figures and, per raw card name, the universe decks that
+    list it in a counted section with a quantity above zero."""
+    spec = _universe_spec(store, profile, None, commander_names)
+    deck_ids = resolve_universe(store, spec)
+    by_platform, by_bracket = _composition(store, deck_ids)
+    decks_by_name: dict[str, set[str]] = {}
+    if deck_ids:
+        sections = ", ".join("?" for _ in COUNTED_SECTIONS)
+        with _universe_table(store, deck_ids) as universe_deck:
+            for name, deck_id in store.connection.execute(
+                f"SELECT DISTINCT c.card_name, c.deck_id FROM corpus_deck_card c "
+                f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+                f"WHERE c.section IN ({sections}) AND c.quantity > 0",
+                COUNTED_SECTIONS,
+            ):
+                decks_by_name.setdefault(str(name), set()).add(str(deck_id))
+    return {
+        "spec": spec,
+        "denominator": len(deck_ids),
+        "denominator_by_platform": by_platform,
+        "denominator_by_bracket": by_bracket,
+        "snapshot_id": _snapshot_of(store, spec, deck_ids),
+        "data_class": "DERIVED_DESCRIPTIVE",
+        "decks_by_name": decks_by_name,
+    }
+
+
+def cooccurrence_in_decks(
+    store: StudioStore, deck_ids: set[str], exclude: set[str], limit: int
+) -> list[CooccurrenceRow]:
+    """Cards listed together within ``deck_ids`` (a card's own decks), most common first.
+
+    ``exclude`` holds casefolded names left out of the pairs (the card's own spellings)."""
+    if not deck_ids:
+        return []
+    sections = ", ".join("?" for _ in COUNTED_SECTIONS)
+    with _universe_table(store, sorted(deck_ids)) as universe_deck:
+        rows = [
+            (str(row[0]), int(row[1]))
+            for row in store.connection.execute(
+                f"SELECT o.card_name, COUNT(DISTINCT o.deck_id) FROM corpus_deck_card o "
+                f"JOIN {universe_deck} u ON u.deck_id = o.deck_id "
+                f"WHERE o.section IN ({sections}) AND o.quantity > 0 GROUP BY o.card_name",
+                COUNTED_SECTIONS,
+            )
+        ]
+    kept = sorted(
+        (item for item in rows if item[0].casefold() not in exclude),
+        key=lambda item: (-item[1], item[0]),
+    )
+    return [{"card_name": name, "decks_together": count} for name, count in kept[:limit]]
+
+
 def snapshot_id(
     store: StudioStore,
     *,
@@ -458,10 +535,13 @@ def snapshot_id(
     the same spec over the same deck contents; figures can cite the exact universe
     they were counted over.
     """
+    cleaned = _universe_spec(store, profile, spec, commander_names)
+    return _snapshot_of(store, cleaned, resolve_universe(store, cleaned))
+
+
+def _snapshot_of(store: StudioStore, cleaned: UniverseSpec, deck_ids: list[str]) -> str:
     import hashlib
 
-    cleaned = _universe_spec(store, profile, spec, commander_names)
-    deck_ids = resolve_universe(store, cleaned)
     fingerprints = {
         str(row[0]): str(row[1])
         for row in store.connection.execute("SELECT deck_id, fingerprint FROM corpus_deck")
@@ -479,12 +559,15 @@ __all__ = [
     "InclusionResult",
     "Profile",
     "SavedProfile",
+    "UniverseDecks",
     "UniverseSpec",
     "cooccurrence",
+    "cooccurrence_in_decks",
     "get_profile",
     "inclusion",
     "list_profiles",
     "resolve_universe",
     "save_profile",
     "snapshot_id",
+    "universe_decks",
 ]
