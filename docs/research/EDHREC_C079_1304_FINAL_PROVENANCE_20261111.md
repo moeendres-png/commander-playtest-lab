@@ -22,13 +22,13 @@ Die 20 neu aufgenommenen Quellen stammen aus dem Fenster **2026-11-11T12:54:59.3
 
 ## Quellen und Prüfnachweise
 
-- Vollständiges 24-Dateien-Prüfpaket mit SHA-256: https://drive.google.com/file/d/1eX670LPagB4K6Sp2t1XrzwaUhuo_LgbB/view
-- Audit-Ordner: https://drive.google.com/drive/folders/1kAFbIlvD6Qv1rcJRSMbILaNeOgd6PkWy
-- Einzeln entpackte originale HTTP-JSON-Antworten (20): https://drive.google.com/drive/folders/1J3au0H6Rj-OCY8DpyauwrSb4-yjPnIak
-- Per-HTTP-Request-UTC-/Status-/SHA-Belege (20): https://drive.google.com/drive/folders/1Ry1py7awQHgmBG3F4MhPhWbFof-BPOpw
-- Quellevent-Dateimanifest: https://drive.google.com/file/d/1_gjmtw_rgE-lA4wqVVvRwAhyA_8She9f/view
+- Vollständiges 24-Dateien-Prüfpaket mit SHA-256: im lokalen Owner-Datenordner
+- Audit-Ordner: im lokalen Owner-Datenordner
+- Einzeln entpackte originale HTTP-JSON-Antworten (20): im lokalen Owner-Datenordner
+- Per-HTTP-Request-UTC-/Status-/SHA-Belege (20): im lokalen Owner-Datenordner
+- Quellevent-Dateimanifest: im lokalen Owner-Datenordner
 - Ursprünglicher Live-Abruf (grüne GitHub Actions): https://github.com/moeendres-png/commander-playtest-lab/actions/runs/43024442970
-- Einzeln geprüfte 1.379 Historie-Zeilen: https://drive.google.com/file/d/1_5rp7FnIDKRRUfknJxWTJYQi7JG_dNWG/view
+- Einzeln geprüfte 1.379 Historie-Zeilen: im lokalen Owner-Datenordner
 - Öffentlicher Event-Hash-/Zeitindex ohne Sammlungsdaten: `data/studio_public/edhrec_chulane_20261111_review_manifest.json`.
 
 ## Codevertrag: nur neue HTTP-Zeitpunkte
