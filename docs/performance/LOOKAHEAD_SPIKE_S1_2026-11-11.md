@@ -95,7 +95,7 @@ verglichen, wo die Partien schon auseinandergelaufen sind:
 * Verfahren "Neustart" nicht weiterentwickeln und nicht als Pilot einbauen.
 * Wenn Vorausschau gewollt ist, dann in der JVM: Der Spielzustand wird dort kopiert
   (`Game.copy()` in XMage) und der Rollout läuft ohne Neustart und ohne Replay. Das ist eine
-  Änderung an der Java-Bridge. Sie braucht das ausdrückliche Go von Moritz und danach die
+  Änderung an der Java-Bridge. Sie braucht das ausdrückliche Go des Owners und danach die
   Requalifikation (PB-03, Siegel, `current_qualification`). Ohne dieses Go wird nichts davon
   begonnen.
 * Vorher klären, ob der Nutzen die Mühe trägt: Die Rollouts hier sehen die echte

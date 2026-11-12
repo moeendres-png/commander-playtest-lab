@@ -429,7 +429,7 @@ die anderen sechs Karten sind neu.
     nicht als Quelle). Vier ähnlich gebaute Karten (`IvoraInsatiableHeir`, `JadeOrbOfDragonkind`,
     `MisfortuneTeller`, `TomeboundLich`) lesen für das Eintreten die Ziel-ID und sind nicht betroffen.
     Die Änderung liegt als Patch vor (`/mnt/project-files/fork-fixes-2026-10-21/`); ein Fork-Push
-    braucht Hans' Go.
+    braucht das Go des Owners.
   Ein Spiel je Pod, keine Passquote. Pilotvergleich vorher/nachher auf zehn Seeds (1–10, gleiches Jar):
   alle Entscheidungs- und Verhaltenszähler identisch; nur `wall_s` liegt im zweiten Lauf um etwa 12 %
   höher (`pilot_s` innerhalb des Konfidenzintervalls gleich), also Maschinenrauschen, nicht der Pilot.

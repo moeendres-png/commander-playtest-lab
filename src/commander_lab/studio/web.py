@@ -81,6 +81,16 @@ class GameBody(BaseModel):
     seat_styles: list[float] | None = None
 
 
+class BatchSimulationBody(BaseModel):
+    revision_id: str = Field(min_length=1, max_length=200)
+    pod: str = Field(default="precon", max_length=50)
+    opponent_ids: list[str] | None = None
+    games_count: int = Field(default=10, ge=1, le=100)
+    base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
+    seed_step: int = Field(default=1, ge=1, le=1000)
+    style: float | None = Field(default=None, ge=0.0, le=1.0)
+
+
 class NamesBody(BaseModel):
     names: list[str] = Field(max_length=2000)
 
@@ -237,6 +247,58 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return builder.list_simulations(store)
         finally:
             store.close()
+
+    @app.post("/api/simulations/batch")
+    def run_simulation_batch(body: BatchSimulationBody) -> dict[str, object]:
+        store = open_store()
+        try:
+            from .simulations import simulation_manager
+
+            batch = simulation_manager.start_batch(
+                store,
+                games_home(),
+                revision_id=body.revision_id,
+                pod=body.pod,
+                opponent_ids=body.opponent_ids,
+                games_count=body.games_count,
+                base_seed=body.base_seed,
+                seed_step=body.seed_step,
+                style=body.style,
+            )
+            return {"batch_id": batch.batch_id, "status": batch.status}
+        except KeyError as error:
+            raise HTTPException(404, "unknown deck revision") from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        finally:
+            store.close()
+
+    @app.get("/api/simulations/batch/{batch_id}")
+    def get_simulation_batch(batch_id: str) -> dict[str, object]:
+        from .simulations import simulation_manager
+
+        batch = simulation_manager.get_batch(batch_id)
+        if batch is None:
+            raise HTTPException(404, "unknown batch")
+        return batch.to_dict()
+
+    @app.post("/api/simulations/batch/{batch_id}/cancel")
+    def cancel_simulation_batch(batch_id: str) -> dict[str, object]:
+        from .simulations import simulation_manager
+
+        cancelled = simulation_manager.cancel_batch(batch_id)
+        if not cancelled:
+            raise HTTPException(404, "unknown batch")
+        batch = simulation_manager.get_batch(batch_id)
+        return batch.to_dict() if batch else {"cancelled": True}
+
+    @app.get("/api/simulations/batches")
+    def list_simulation_batches() -> list[dict[str, object]]:
+        from .simulations import simulation_manager
+
+        return simulation_manager.list_batches()
 
     @app.post("/api/diff")
     def diff(body: DiffBody) -> dict[str, object]:
@@ -456,6 +518,29 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "opponents": launch.opponent_decks(),
                 "pods": {k: list(v) for k, v in launch.POD_PRESETS.items()},
             }
+        finally:
+            store.close()
+
+    @app.get("/api/engine/missing-cards")
+    def engine_missing_cards(revision_id: str | None = None) -> dict[str, object]:
+        """Check for cards missing pilot knowledge or unsupported by XMage."""
+        store = open_store()
+        try:
+            if revision_id:
+                snapshot = lab_snapshot(store, revision_id)
+                return {
+                    "revision_id": revision_id,
+                    "unknown_to_pilots": launch.cards_unknown_to_pilots(snapshot),
+                    "unsupported_by_engine": launch.cards_unsupported_by_engine(snapshot),
+                }
+            return {
+                "collection_unknown_to_pilots": launch.collection_cards_unknown_to_pilots(store),
+                "collection_unsupported_by_engine": launch.collection_cards_unsupported_by_engine(
+                    store
+                ),
+            }
+        except KeyError as error:
+            raise HTTPException(404, "unknown revision") from error
         finally:
             store.close()
 
