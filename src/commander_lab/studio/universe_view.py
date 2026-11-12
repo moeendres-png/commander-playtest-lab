@@ -105,17 +105,19 @@ class CardCooccurrence(TypedDict):
     data_class: str
 
 
-def profile_summary(store: StudioStore, name: str) -> ProfileSummary:
+def profile_summary(
+    store: StudioStore, name: str, *, commander_names: Sequence[str] | None
+) -> ProfileSummary:
     """Spec, deck count, breakdowns and snapshot of a stored profile (KeyError if unknown)."""
     profile = get_profile(store, name)
-    counted = inclusion(store, profile=name, card_names=[])
+    counted = inclusion(store, profile=name, card_names=[], commander_names=commander_names)
     return {
         "profile": name,
         "spec": profile["spec"],
         "denominator": counted["denominator"],
         "denominator_by_platform": counted["denominator_by_platform"],
         "denominator_by_bracket": counted["denominator_by_bracket"],
-        "snapshot_id": snapshot_id(store, profile=name),
+        "snapshot_id": snapshot_id(store, profile=name, commander_names=commander_names),
         "data_class": counted["data_class"],
     }
 
@@ -206,9 +208,12 @@ def _spread_of(
 
 
 def _spread_all(
-    store: StudioStore, profile: str, card_ids: Sequence[str] | None
+    store: StudioStore,
+    profile: str,
+    card_ids: Sequence[str] | None,
+    commander_names: Sequence[str] | None,
 ) -> tuple[UniverseDecks, list[tuple[CardSpread, set[str], list[str]]]]:
-    universe = universe_decks(store, profile=profile)
+    universe = universe_decks(store, profile=profile, commander_names=commander_names)
     rows = _all_card_rows(store)
     taken: Counter[str] = Counter()
     for _, oracle_name, engine_name in rows:
@@ -227,13 +232,17 @@ def _spread_all(
 
 
 def pool_spread(
-    store: StudioStore, profile: str, card_ids: Sequence[str] | None = None
+    store: StudioStore,
+    profile: str,
+    card_ids: Sequence[str] | None = None,
+    *,
+    commander_names: Sequence[str] | None,
 ) -> PoolSpread:
     """Counted spread of Studio cards (all, or the given ids) in one profile's universe.
 
     A card's hits are the distinct universe decks listing at least one of its name keys
     (casefolded) in a counted section. Raises KeyError for an unknown profile or card id."""
-    universe, entries = _spread_all(store, profile, card_ids)
+    universe, entries = _spread_all(store, profile, card_ids, commander_names)
     return {
         "universe": {
             "profile": profile,
@@ -250,14 +259,19 @@ def pool_spread(
 
 
 def card_cooccurrence(
-    store: StudioStore, profile: str, card_id: str, limit: int = 25
+    store: StudioStore,
+    profile: str,
+    card_id: str,
+    limit: int = 25,
+    *,
+    commander_names: Sequence[str] | None,
 ) -> CardCooccurrence:
     """Cards played together with one card in the universe, over the card's counted decks.
 
     Raises KeyError for an unknown profile or card, ValueError when ``limit`` < 1."""
     if limit < 1:
         raise ValueError("limit must be at least 1")
-    universe, entries = _spread_all(store, profile, [card_id])
+    universe, entries = _spread_all(store, profile, [card_id], commander_names)
     card, decks, keys = entries[0]
     base: CardCooccurrence = {
         "card_id": card_id,

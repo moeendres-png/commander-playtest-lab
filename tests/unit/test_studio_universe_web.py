@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
@@ -19,6 +20,7 @@ from tests.unit.test_studio_builder import _fill
 
 MARK = {"X-Studio": "1"}
 COMMANDER = {"view": "commander", "commander": "Test Commander"}
+NAMES = [COMMANDER["commander"]]
 
 
 def _deck(
@@ -47,6 +49,12 @@ def _deck(
     )
     db.execute(
         "INSERT INTO corpus_cohort(cohort, deck_id) VALUES (?, ?)", (f"bracket:{bracket}", deck_id)
+    )
+    # Deck figures are only counted for a named commander: bind every test deck to one.
+    db.execute(
+        "INSERT OR IGNORE INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('corpus_deck', ?, ?, 'TEST')",
+        (deck_id, COMMANDER["commander"]),
     )
 
 
@@ -93,9 +101,20 @@ def _add_card(folder: Path, card_id: str, name: str, decks: list[list[str]]) -> 
         store.close()
 
 
+class _CommanderClient(TestClient):
+    """Sends the commander with every universe request, as the page does."""
+
+    def request(self, method: str, url: Any, **kwargs: Any) -> Any:
+        if "/universe" in str(url) or "/cooccurrence" in str(url):
+            params = dict(kwargs.get("params") or {})
+            params.setdefault("commander", COMMANDER["commander"])
+            kwargs["params"] = params
+        return super().request(method, url, **kwargs)
+
+
 @pytest.fixture
 def client(folder: Path) -> Iterator[TestClient]:
-    with TestClient(create_app(folder)) as test_client:
+    with _CommanderClient(create_app(folder)) as test_client:
         yield test_client
 
 
@@ -137,13 +156,15 @@ def test_summary_equals_the_inclusion_denominators(client: TestClient, folder: P
     summary = client.get("/api/universe/profiles/alle/summary").json()
     store = StudioStore.open(folder)
     try:
-        counted = universe.inclusion(store, profile="alle", card_names=[])
+        counted = universe.inclusion(store, profile="alle", card_names=[], commander_names=NAMES)
         assert summary["denominator"] == counted["denominator"] == 43
         assert summary["denominator_by_platform"] == counted["denominator_by_platform"]
         assert summary["denominator_by_bracket"] == counted["denominator_by_bracket"]
         assert summary["denominator_by_platform"] == {"archidekt": 20, "edhrec": 20, "example": 3}
         assert summary["denominator_by_bracket"] == {"bracket:3": 20, "bracket:4": 20, "unknown": 3}
-        assert summary["snapshot_id"] == universe.snapshot_id(store, profile="alle")
+        assert summary["snapshot_id"] == universe.snapshot_id(
+            store, profile="alle", commander_names=NAMES
+        )
     finally:
         store.close()
 
@@ -251,7 +272,10 @@ def test_unknown_profile_or_card_is_404(client: TestClient) -> None:
     assert client.get("/api/universe/profiles/nope/summary").status_code == 404
     assert client.get("/api/universe/spread", params={"profile": "nope"}).status_code == 404
     assert client.get("/api/cards/x/universe", params={"profile": "alle"}).status_code == 404
-    assert client.get("/api/cards/card:project:0002/universe?profile=nope").status_code == 404
+    assert (
+        client.get("/api/cards/card:project:0002/universe", params={"profile": "nope"}).status_code
+        == 404
+    )
     assert client.get("/api/cards/x/cooccurrence", params={"profile": "alle"}).status_code == 404
 
 
@@ -324,3 +348,14 @@ def test_the_profile_body_is_strict_about_min_main_cards(client: TestClient) -> 
     url = "/api/universe/profiles/x"
     assert client.put(url, json={"min_main_cards": True}, headers=MARK).status_code == 422
     assert client.put(url, json={"min_main_cards": 1}, headers=MARK).status_code == 200
+
+
+def test_universe_figures_need_a_commander_and_are_not_shared(folder: Path) -> None:
+    with TestClient(create_app(folder)) as plain:
+        assert plain.put("/api/universe/profiles/alle", json={}, headers=MARK).status_code == 422
+        assert plain.get("/api/universe/spread", params={"profile": "alle"}).status_code == 422
+        other = {"commander": "Second Commander"}
+        saved = plain.put("/api/universe/profiles/alle", json={}, headers=MARK, params=other)
+        assert saved.status_code == 200 and saved.json()["denominator"] == 0
+        mine = plain.get("/api/universe/profiles/alle/summary", params=COMMANDER).json()
+        assert mine["denominator"] == 43

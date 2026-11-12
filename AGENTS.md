@@ -22,6 +22,12 @@ optimization). Governing mission policy: `docs/PROJECT_MISSION.md`.
   supported where useful.
 - Owner decision 2026-11-10: the simulator is one part of the local Commander Studio
   (BUILD, PLAY, SIMULATE): `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`.
+- The Owner decisions for the three Studio areas (deck building, simulating with 2 to 6
+  seats, playing with 2 to 6 seats) are collected in `docs/OWNER_DECISIONS_STUDIO_20261112.md`;
+  read it before any Studio work. Binding in short: only objective data with provenance,
+  every count with its denominator, cohorts never added, source data bound to one commander,
+  the Owner's marks (favorites, exclusions, notes) never a rating, no guessed tier, and one
+  working owner per issue when several agents work in parallel.
 
 `ARCHITECTURE_FREEZE = CLAIMED` (2026-10-10, Owner-signed:
 `docs/architecture_freeze_20261010/ARCHITECTURE_FREEZE_ADR.md`).

@@ -372,12 +372,19 @@ def test_corpus_inclusion_counts_distinct_decks_with_a_denominator(
         "SELECT quantity FROM corpus_deck_card WHERE deck_id = 'd1' AND card_name = 'Forest'"
     ).fetchone()
     assert merged["quantity"] == 5
-    everything = corpus_inclusion(store, "Swarm Rat")
+    named = ["Test Commander"]
+    # without a binding no deck is counted: unknown, not zero percent
+    unbound = corpus_inclusion(store, "Swarm Rat", named)
+    assert (unbound["hits"], unbound["denominator"], unbound["share"]) == (0, 0, None)
+    assert store.bind_unbound("Test Commander") == 4
+    assert store.bind_unbound("Other Commander") == 0  # bound rows are never re-labelled
+    assert corpus_inclusion(store, "Swarm Rat", ["Other Commander"])["denominator"] == 0
+    everything = corpus_inclusion(store, "Swarm Rat", named)
     assert (everything["hits"], everything["denominator"]) == (2, 3)
     assert everything["share"] == pytest.approx(2 / 3)
-    community = corpus_inclusion(store, "Swarm Rat", play_group="community")
+    community = corpus_inclusion(store, "Swarm Rat", named, play_group="community")
     assert (community["hits"], community["denominator"]) == (1, 2)
-    empty = corpus_inclusion(store, "Swarm Rat", play_group="no_such_group")
+    empty = corpus_inclusion(store, "Swarm Rat", named, play_group="no_such_group")
     assert empty["denominator"] == 0
     assert empty["share"] is None
 
@@ -592,7 +599,8 @@ def test_hub_corpus_import_excludes_bracket_one_and_isolates_neutral_boards(
         "neutral_board_rows": 2,
     }
     # Swarm Rat is only in MAYBEBOARD, so its mainboard corpus inclusion is 0
-    assert corpus_inclusion(store, "Swarm Rat")["hits"] == 0
+    store.bind_unbound("Test Commander")
+    assert corpus_inclusion(store, "Swarm Rat", ["Test Commander"])["hits"] == 0
 
 
 def test_edhrec_delta_and_cardrecs_preserve_null_denominators_and_synergy(

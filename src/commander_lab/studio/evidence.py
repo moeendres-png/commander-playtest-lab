@@ -20,7 +20,7 @@ import sqlite3
 from collections.abc import Sequence
 from pathlib import Path
 
-from .builder import ALL_DECKS, SMALL_DENOMINATOR, pool_cards
+from .builder import ALL_DECKS, SMALL_DENOMINATOR, bound_to, pool_cards
 from .sources import calculate_card_coverage_record, load_spellbook_combo_cards
 from .store import StudioStore
 
@@ -123,13 +123,25 @@ def _is_game_cohort(cohort: str) -> bool:
 
 
 def _observations(
-    db: sqlite3.Connection, name_to_id: dict[str, str]
+    db: sqlite3.Connection, name_to_id: dict[str, str], commander_names: Sequence[str]
 ) -> dict[str, list[dict[str, object]]]:
-    """Stored observation rows per card id, keeping numerator, denominator and snapshot."""
+    """Stored observation rows per card id, keeping numerator, denominator and snapshot.
+
+    Only cohorts bound to the commander; without a commander only cohorts bound to none."""
     rows: dict[str, list[dict[str, object]]] = {}
+    if commander_names:
+        bound, bound_args = bound_to("observation_cohort", "o.cohort", commander_names)
+    else:
+        bound, bound_args = (
+            " AND NOT EXISTS (SELECT 1 FROM commander_binding cb "
+            "WHERE cb.kind = 'observation_cohort' AND cb.key = o.cohort)",
+            [],
+        )
     for row in db.execute(
-        "SELECT card_id, card_name, cohort, metric, value, numerator, denominator, data_class, "
-        "url, snapshot FROM observation ORDER BY cohort, metric, denominator DESC"
+        "SELECT o.card_id, o.card_name, o.cohort, o.metric, o.value, o.numerator, "
+        f"o.denominator, o.data_class, o.url, o.snapshot FROM observation o WHERE 1{bound} "
+        "ORDER BY o.cohort, o.metric, o.denominator DESC",
+        bound_args,
     ):
         card_id = row["card_id"] or name_to_id.get(str(row["card_name"]))
         if card_id is None:
@@ -155,12 +167,16 @@ def _observations(
 
 
 def _simulations(
-    db: sqlite3.Connection, name_to_id: dict[str, str]
+    db: sqlite3.Connection, name_to_id: dict[str, str], commander_names: Sequence[str]
 ) -> dict[str, dict[str, object]]:
+    """Cast totals per card over the simulation runs bound to the commander."""
     totals: dict[str, dict[str, object]] = {}
+    bound, bound_args = bound_to("simulation_run", "sc.run_id", commander_names)
     for row in db.execute(
         "SELECT sc.card_id, sc.card_name, sc.run_id, sc.games_offered, "
-        "sc.games_cast_after_offer, sc.cast_count FROM simulation_card sc ORDER BY sc.run_id"
+        f"sc.games_cast_after_offer, sc.cast_count FROM simulation_card sc WHERE 1{bound} "
+        "ORDER BY sc.run_id",
+        bound_args,
     ):
         card_id = row["card_id"] or name_to_id.get(str(row["card_name"]))
         if card_id is None:
@@ -414,7 +430,7 @@ def _card_evidence(
 
 def pool_evidence(
     store: StudioStore,
-    commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
+    commander_names: Sequence[str],
     *,
     view: str = VIEW_COMMANDER,
     only_card_id: str | None = None,
@@ -439,9 +455,12 @@ def pool_evidence(
         name_to_id[str(row["oracle_name"])] = str(row["card_id"])
         name_to_id.setdefault(str(row["engine_name"]), str(row["card_id"]))
     roles = _role_claims(db)
-    observations = _observations(db, name_to_id)
-    simulations = _simulations(db, name_to_id)
-    combo_cards = load_spellbook_combo_cards(_COMBOS_PATH) if view == VIEW_COMMANDER else set()
+    observations = _observations(db, name_to_id, names)
+    simulations = _simulations(db, name_to_id, names)
+    combo_cards: set[str] = set()
+    for name in names:
+        # The combo file names commanders by their short name (the part before the comma).
+        combo_cards |= load_spellbook_combo_cards(_COMBOS_PATH, commander=name.split(",")[0])
     atlas_collected = (
         db.execute(
             "SELECT 1 FROM playgroup_card_atlas WHERE fetch_status = 'OK' LIMIT 1"
@@ -479,6 +498,7 @@ def pool_evidence(
         "commander": list(names),
         "tier_policy": TIER_POLICY,
         "cohorts": cohorts,
+        "corpus_binding": pool["corpus_binding"],
         "small_denominator": SMALL_DENOMINATOR,
         "summary": {
             "cards": len(cards),
@@ -492,7 +512,7 @@ def pool_evidence(
 def card_evidence(
     store: StudioStore,
     card_id: str,
-    commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
+    commander_names: Sequence[str],
     *,
     view: str = VIEW_COMMANDER,
 ) -> dict[str, object]:
@@ -516,7 +536,7 @@ def card_evidence(
 def role_alternatives(
     store: StudioStore,
     card_id: str,
-    commander_names: Sequence[str] = ("Chulane, Teller of Tales",),
+    commander_names: Sequence[str],
     *,
     in_deck: Sequence[str] = (),
     skip: Sequence[str] = (),

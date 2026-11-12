@@ -325,7 +325,7 @@ def test_import_playgroup_atlas_html_and_builder_integration(tmp_path: Path) -> 
     assert pg["status"] == "OK"
 
     # 6. Verify builder.card_detail
-    detail = builder.card_detail(store, "card:project:koma-uuid")
+    detail = builder.card_detail(store, "card:project:koma-uuid", ["Koma, Cosmos Serpent"])
     assert detail["playgroup"] is not None
     pg_detail = detail["playgroup"]
     assert pg_detail["card_name"] == "Koma, Cosmos Serpent"

@@ -2,8 +2,8 @@
 // Commander Studio tier list. Shows the evidence per card; it never rates a card.
 // All text from data is set as text, never as HTML.
 
-const COMMANDER = new URLSearchParams(location.search).get("commander") || "Chulane, Teller of Tales";
-const VIEW_NAMES = { commander: "Chulane", global: "Global (ohne Commander)", deck: "Aktuelle Deckrevision" };
+const COMMANDER = StudioCommander.current;
+const VIEW_NAMES = { commander: StudioCommander.shortName(COMMANDER), global: "Global (ohne Commander)", deck: "Aktuelle Deckrevision" };
 const ROLE_NAMES = { ramp: "Ramp", mana_rock: "Manastein", mana_dork: "Mana-Kreatur", land_ramp: "Land-Ramp", card_draw: "Karten ziehen", card_advantage: "Kartenvorteil", cantrip: "Cantrip", tutor: "Tutor", removal: "Entfernung", board_wipe: "Massenentfernung", counterspell: "Konter", bounce: "Bounce", flicker: "Blink", recursion: "Rückholen", protection: "Schutz", graveyard_hate: "Friedhofshass", lifegain: "Lebensgewinn" };
 const ORIGIN_NAMES = { SCRYFALL_TAGGER_ORIGINAL: "Tagger", CROSSWALK_NORMALIZED: "Zuordnung", ORACLE_TEXT_REVIEW: "Oracle-Text", LEGACY_UNSPECIFIED: "Altbestand" };
 const FEATURE_NAMES = { creature_spell: "Kreaturenzauber", land: "Land", enters_trigger_text: "ETB-Text", produces_mana: "erzeugt Mana" };
@@ -238,7 +238,7 @@ function render() {
   const cards = visibleCards();
   $("count").textContent = `${cards.length} Karten`;
   if (state.tab === "research") {
-    if (state.view === "global") { body.append(h("p", { class: "note" }, "Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht Chulane.")); return; }
+    if (state.view === "global") { body.append(h("p", { class: "note" }, `Der Forschungsbedarf wird je Commander berechnet. Wähle die Ansicht ${VIEW_NAMES.commander}.`)); return; }
     const needs = [...new Set(state.data.cards.flatMap((card) => card.coverage.needs))].sort();
     const select = h("select", { id: "need-filter", onchange: () => { state.need = select.value; render(); } }, h("option", { value: "" }, "alle Lücken"), needs.map((need) => h("option", { value: need }, NEED_NAMES[need] || need)));
     const previous = needs.includes(state.need) ? state.need : "";
@@ -253,13 +253,23 @@ function render() {
 }
 
 // ---------- notice ----------
+// Source decks are counted per commander only; decks of another commander or without one are named, never added.
+function bindingLine() {
+  const binding = state.data.corpus_binding;
+  if (state.view === "global" || !binding) return null;
+  const parts = [`Quelldecks für ${VIEW_NAMES.commander}: ${binding.bound_decks}`];
+  if (binding.other_commander_decks) parts.push(`${binding.other_commander_decks} gehören zu anderen Commandern und zählen hier nicht`);
+  if (binding.unbound_decks) parts.push(`${binding.unbound_decks} ohne Commander-Zuordnung zählen nirgends`);
+  return h("div", { class: "summary" }, parts.join(" · "), binding.bound_decks ? "" : " · Für diesen Commander sind noch keine Quelldecks importiert: fehlende Beobachtung, keine Schwäche.");
+}
 function renderNotice() {
   const summary = state.data.summary, policy = state.data.tier_policy;
   const status = summary.layer_status;
   const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
   $("notice").replaceChildren(
     h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, "Noch kein Tier vergeben. "), POLICY_TEXT),
-    h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game", "simulated_result"].map(line).join(" · ")));
+    h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game", "simulated_result"].map(line).join(" · ")),
+    bindingLine());
   $("tier-pill").textContent = `${summary.unrated} von ${summary.cards} unbewertet`;
 }
 
@@ -348,7 +358,7 @@ async function universeBox(card) {
   const uni = state.universe;
   const box = h("div", { class: "layer universe-box" }, h("h3", {}, SPREAD_LABEL));
   if (!uni.name) { box.append(h("p", {}, NO_UNIVERSE + ". Wähle oben ein Universum, um die gezählte Verbreitung zu sehen.")); return box; }
-  const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/universe?profile=${encodeURIComponent(uni.name)}`);
+  const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/universe?profile=${encodeURIComponent(uni.name)}&commander=${encodeURIComponent(COMMANDER)}`);
   const item = data.cards[0], universe = data.universe;
   box.append(h("p", {}, spreadBadge(item, universe), " ", item.matched ? `${item.hits} von ${item.denominator} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
   box.append(h("p", {}, `Grund: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile} (${universe.data_class}), Stand ${universe.snapshot_id}.`));
@@ -361,7 +371,7 @@ async function universeBox(card) {
   const button = h("button", { type: "button", onclick: async () => {
     button.disabled = true;
     try {
-      const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(uni.name)}&limit=25`);
+      const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(uni.name)}&limit=25&commander=${encodeURIComponent(COMMANDER)}`);
       result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), pairsTable(co)]));
     } catch (error) { result.replaceChildren(h("p", {}, `Fehler: ${error.message}`)); button.disabled = false; }
   } }, "Zusammen gespielt mit");
@@ -410,7 +420,7 @@ function renderUniversePanel() {
     if ($("u-to").value) body.date_to = $("u-to").value;
     if ($("u-min").value !== "") body.min_main_cards = Number($("u-min").value);
     try {
-      await api(`/api/universe/profiles/${encodeURIComponent(name)}`, body, "PUT");
+      await api(`/api/universe/profiles/${encodeURIComponent(name)}?commander=${encodeURIComponent(COMMANDER)}`, body, "PUT");
       uni.profiles = await api("/api/universe/profiles");
       fillUniverseSelect(name);
       await selectUniverse(name);
@@ -442,7 +452,7 @@ function fillUniverseSelect(selected) {
 async function selectUniverse(name) {
   const uni = state.universe, ticket = ++uni.ticket;
   if (!name) { Object.assign(uni, { name: "", summary: null, spread: null }); rememberUniverse(""); renderUniversePanel(); render(); return; }
-  const [summary, spread] = await Promise.all([api(`/api/universe/profiles/${encodeURIComponent(name)}/summary`), api(`/api/universe/spread?profile=${encodeURIComponent(name)}`)]);
+  const [summary, spread] = await Promise.all([api(`/api/universe/profiles/${encodeURIComponent(name)}/summary?commander=${encodeURIComponent(COMMANDER)}`), api(`/api/universe/spread?profile=${encodeURIComponent(name)}&commander=${encodeURIComponent(COMMANDER)}`)]);
   if (ticket !== uni.ticket) return;
   const map = new Map(spread.cards.map((item) => [item.card_id, item]));
   map.universe = spread.universe;
@@ -496,7 +506,7 @@ async function setView(view) {
   state.view = view;
   $("deck-pick").hidden = view !== "deck";
   if (view === "deck" && !state.decks.length) {
-    state.decks = await api("/api/decks");
+    state.decks = (await api("/api/decks")).filter((deck) => (deck.commanders || []).includes(COMMANDER));
     $("deck-select").replaceChildren(...state.decks.map((deck) => h("option", { value: deck.deck_id }, deck.name)));
     fillBranches();
   }
@@ -519,6 +529,7 @@ async function init() {
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) $("modal").hidden = true; });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") $("modal").hidden = true; });
   renderTabs();
+  await StudioCommander.fill($("commander-select"));
   try {
     const pool = await api(`/api/pool?commander=${encodeURIComponent(COMMANDER)}`);
     for (const card of pool.cards) state.marks.set(card.card_id, { favorite: card.favorite, excluded: card.excluded });
