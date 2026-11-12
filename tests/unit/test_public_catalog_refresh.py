@@ -59,6 +59,11 @@ def test_all_engine_facts_bypass_names_and_preserve_distinct_exact_names(
             "SP": "",
             "MC": "{1}@@@{U}",
             "R": "Flying",
+            "H": "FALSE",
+            "F": "",
+            "S": "",
+            "O": "",
+            "D": "",
         }
         for name in ("Élan", "Elan")
     ]
@@ -249,6 +254,11 @@ def test_engine_subset_keeps_missing_separate_from_all_rows() -> None:
         "SP": "",
         "MC": "{1}",
         "R": "",
+        "H": "FALSE",
+        "F": "",
+        "S": "",
+        "O": "",
+        "D": "",
     }
     result = module.build_facts([row], {"Present", "Searched But Missing"})
     assert set(result["cards"]) == {"Present"}
