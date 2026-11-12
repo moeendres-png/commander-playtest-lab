@@ -122,9 +122,11 @@ class UniverseBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     platforms: list[str] | None = Field(default=None, max_length=50)
     cohorts: list[str] | None = Field(default=None, max_length=100)
+    commanders: list[str] | None = Field(default=None, max_length=10)
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
     min_main_cards: StrictInt | None = None
+    min_universe: StrictInt | None = Field(default=None, ge=1)
 
 
 class StrengthBody(BaseModel):
@@ -198,11 +200,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.get("/api/pool")
-    def pool(commander: list[str] = Query(min_length=1, max_length=2)) -> dict[str, object]:
+    def pool(
+        commander: list[str] = Query(min_length=1, max_length=2),
+        profile: str | None = Query(default=None, max_length=80),
+    ) -> dict[str, object]:
         store = open_store()
         try:
-            return builder.pool_cards(store, commander)
+            return builder.pool_cards(store, commander, profile=profile)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         except KeyError as error:
+            if profile is not None and str(error).strip("'") == profile:
+                raise HTTPException(404, f"unknown universe profile: {error}") from error
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
             store.close()
@@ -347,6 +356,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/universe/options")
+    def universe_options(
+        commander: str | None = Query(default=None, max_length=200),
+    ) -> dict[str, object]:
+        """The spec values the store holds, with deck counts — the only values a
+        profile form should offer. With a commander, counts cover its bound decks."""
+        store = open_store()
+        try:
+            names = [commander] if commander else None
+            return dict(universe.options(store, commander_names=names))
+        finally:
+            store.close()
+
     @app.get("/api/universe/profiles")
     def universe_profiles() -> list[dict[str, object]]:
         store = open_store()
@@ -363,6 +385,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
+            if body.commanders and commander not in body.commanders:
+                raise HTTPException(
+                    422,
+                    f"the universe is defined for {sorted(body.commanders)}, not for {commander}",
+                )
             universe.save_profile(store, name, body.model_dump(exclude_none=True))
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:

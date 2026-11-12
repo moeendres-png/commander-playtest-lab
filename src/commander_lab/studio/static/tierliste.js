@@ -54,7 +54,7 @@ const SMALL_FIRST = new Set(["name", "mv"]);
 
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
-  universe: { profiles: [], name: "", summary: null, spread: null },
+  universe: { profiles: [], name: "", summary: null, spread: null, options: null },
   strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0 },
   deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
 };
@@ -383,7 +383,13 @@ async function alternativesBox(card) {
   return box;
 }
 function pairsTable(data) {
-  return table(["Karte", "Decks zusammen", "Anteil der Decks mit dieser Karte"], data.pairs.map((pair) => [pair.card_name, `${pair.decks_together}/${data.decks_with_card}`, pct(pair.decks_together, data.decks_with_card)]));
+  return table(["Karte", "Decks zusammen", "Anteil der Decks mit dieser Karte", "Lift", "Kombo-Partner"], data.pairs.map((pair) => [
+    pair.card_name,
+    `${pair.decks_together}/${data.decks_with_card}`,
+    pct(pair.decks_together, data.decks_with_card),
+    pair.lift === null || pair.lift === undefined ? unknown("–") : pair.lift.toFixed(2),
+    pair.combo_partner ? "ja (Spellbook-Kombo)" : "–",
+  ]));
 }
 async function universeBox(card) {
   const uni = state.universe;
@@ -393,7 +399,8 @@ async function universeBox(card) {
   const item = data.cards[0], universe = data.universe;
   box.append(h("p", {}, spreadBadge(item, universe), " ", item.matched ? `${item.hits} von ${item.denominator} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
   box.append(h("p", {}, `Grund: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile} (${universe.data_class}), Stand ${universe.snapshot_id}.`));
-  box.append(h("p", {}, `Schwellen: Universum mindestens ${data.params.min_universe} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${(100 * cut).toFixed(0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
+  box.append(h("p", {}, `Schwellen (Modell ${data.model_version || "unbekannt"}): Universum mindestens ${data.params.min_universe} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${(100 * cut).toFixed(0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
+  if (universe.excluded_no_date) box.append(h("p", { class: "rule" }, `${universe.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter des Universums heraus und zählen nicht im Nenner.`));
   if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${s.hits}`).join(" · ")));
   const parts = (label, map) => `${label}: ${Object.entries(map).map(([key, n]) => `${key} ${n}`).join(", ") || "–"}`;
   box.append(h("p", { class: "rule" }, parts("Nenner nach Plattform", universe.denominator_by_platform), " · ", parts("nach Bracket", universe.denominator_by_bracket)));
@@ -438,6 +445,16 @@ function breakdown(label, map) {
   const entries = Object.entries(map || {});
   return h("span", {}, `${label}: `, entries.length ? entries.map(([key, n]) => `${key} ${n}`).join(", ") : unknown("–"));
 }
+function optionChecks(id, options, selected) {
+  const box = h("div", { class: "checks", id });
+  if (!options) { box.append(h("span", { class: "muted" }, "Werte nicht verfügbar")); return box; }
+  if (!options.length) { box.append(h("span", { class: "muted" }, "keine Werte im Bestand")); return box; }
+  for (const option of options) {
+    box.append(h("label", {}, h("input", { type: "checkbox", value: option.value, checked: selected.includes(option.value) }), ` ${option.value} (${option.decks} Decks)`));
+  }
+  return box;
+}
+const checkedValues = (id) => [...document.querySelectorAll(`#${id} input:checked`)].map((input) => input.value);
 function renderUniversePanel() {
   const uni = state.universe, panel = $("universe-panel"), summary = uni.summary;
   const spec = summary ? summary.spec : {};
@@ -447,11 +464,12 @@ function renderUniversePanel() {
     const name = $("u-name").value.trim();
     if (!name) { toast("Name des Universums fehlt"); return; }
     const body = {};
-    if (listText($("u-platforms").value).length) body.platforms = listText($("u-platforms").value);
-    if (listText($("u-cohorts").value).length) body.cohorts = listText($("u-cohorts").value);
+    if (checkedValues("u-platforms").length) body.platforms = checkedValues("u-platforms");
+    if (checkedValues("u-cohorts").length) body.cohorts = checkedValues("u-cohorts");
     if ($("u-from").value) body.date_from = $("u-from").value;
     if ($("u-to").value) body.date_to = $("u-to").value;
     if ($("u-min").value !== "") body.min_main_cards = Number($("u-min").value);
+    if ($("u-minuni").value !== "") body.min_universe = Number($("u-minuni").value);
     try {
       await api(`/api/universe/profiles/${encodeURIComponent(name)}?commander=${encodeURIComponent(COMMANDER)}`, body, "PUT");
       uni.profiles = await api("/api/universe/profiles");
@@ -461,11 +479,12 @@ function renderUniversePanel() {
     } catch (error) { toast(`Universum nicht gespeichert: ${error.message}`); }
   } },
     field("Name", "u-name", uni.name),
-    field("Plattformen (Komma)", "u-platforms", (spec.platforms || []).join(", ")),
-    field("Kohorten (Komma, z. B. bracket:3)", "u-cohorts", (spec.cohorts || []).join(", ")),
+    h("span", {}, "Plattformen", optionChecks("u-platforms", uni.options && uni.options.platforms, spec.platforms || [])),
+    h("span", {}, "Kohorten", optionChecks("u-cohorts", uni.options && uni.options.cohorts, spec.cohorts || [])),
     field("Datum ab", "u-from", spec.date_from, "date"),
     field("Datum bis", "u-to", spec.date_to, "date"),
     field("Mindestgröße Hauptdeck", "u-min", spec.min_main_cards, "number"),
+    field("Mindest-Universum (Nenner für Stufen)", "u-minuni", spec.min_universe, "number"),
     h("button", { type: "submit" }, "Universum speichern"));
   const facts = !uni.name || !summary
     ? h("div", { class: "facts" }, h("b", {}, NO_UNIVERSE), h("span", { class: "muted" }, uni.profiles.length ? "Wähle oben ein gespeichertes Universum." : "Noch keines gespeichert. Lege unten eines an. Ohne Filter zählt es alle importierten Quelldecks."))
@@ -474,6 +493,8 @@ function renderUniversePanel() {
       h("span", {}, `${summary.denominator} Decks (Nenner)`),
       breakdown("Plattform", summary.denominator_by_platform),
       breakdown("Bracket", summary.denominator_by_bracket),
+      summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
+      summary.below_min_universe ? h("span", { class: "badge warn" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
       h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
       h("span", { class: "muted", title: summary.data_class }, "gezählt, Teilmengen addieren sich zum Nenner"));
   panel.replaceChildren(facts, h("div", { class: "muted" }, SPREAD_NOTE), h("details", {}, h("summary", {}, uni.name ? "Universum ändern oder neu anlegen" : "Universum anlegen"), form));
@@ -507,6 +528,7 @@ async function initUniverse() {
   const uni = state.universe;
   uni.ticket = 0;
   try { uni.profiles = await api("/api/universe/profiles"); } catch (error) { toast("Universen konnten nicht geladen werden: " + error.message); uni.profiles = []; }
+  try { uni.options = await api(`/api/universe/options?commander=${encodeURIComponent(COMMANDER)}`); } catch (error) { uni.options = null; }
   const wanted = rememberedUniverse();
   const name = uni.profiles.some((p) => p.name === wanted) ? wanted : "";
   fillUniverseSelect(name);
