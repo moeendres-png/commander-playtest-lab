@@ -28,6 +28,8 @@ const SORTS = [
   ["name", "Name"],
   ["mv", "Manawert"],
   ["strength", "Stärke-Index (Schätzung, zu wenig Daten zuletzt)"],
+  ["spread", "Verbreitung (gezählt): Anteil im Universum"],
+  ["spread_level", "Verbreitung (gezählt): Stufe im Universum"],
   ["layers", "Anzahl vorhandener Schichten"],
   ["corpus", "Anteil in Quelldecks (nur Lesehilfe)"],
   ["edhrec", "EDHREC Inclusion (nur Lesehilfe)"],
@@ -41,6 +43,7 @@ const GAME_NOTES = {
   NOT_COLLECTED: "Noch keine Spielquelle importiert (Playgroup Card Atlas).",
 };
 const SPREAD_LABEL = "Verbreitung (gezählt)";
+const LEVEL_RANK = { S: 5, A: 4, B: 3, C: 2, D: 1, U: 0 };
 const NO_UNIVERSE = "kein Universum gewählt";
 const SPREAD_NOTE = "Gezählt: in wie vielen Decks des gewählten Universums die Karte steht. Das ist keine Kartenstärke und kein Tier. Favoriten, Ausschlüsse und Notizen ändern keine Zählung.";
 const REASON_NAMES = { SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)" };
@@ -110,6 +113,8 @@ function sortValue(card, key) {
   if (key === "name") return card.name.toLowerCase();
   if (key === "mv") return card.mana_value;
   if (key === "strength") { const item = strengthItem(card); return item && item.tier !== "U" ? item.index : null; } // tier U sorts last
+  if (key === "spread") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item && item.share !== null && item.share !== undefined ? item.share : null; }
+  if (key === "spread_level") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item ? (LEVEL_RANK[item.level] ?? 0) + (item.share || 0) : null; }
   if (key === "layers") return presentCount(card);
   if (key === "corpus") { const c = corpusAll(card); return c && c.of ? c.decks / c.of : null; }
   if (key === "edhrec") { const w = widest(card); return w ? w.value : null; }
@@ -123,12 +128,14 @@ function cardRoles(card) { return layer(card, "fact").roles.map((claim) => claim
 function visibleCards() {
   const words = $("q").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const type = $("type-filter").value, role = $("role-filter").value;
+  const spreadLevel = $("spread-filter") ? $("spread-filter").value : "";
   const free = $("f-free").checked, fav = $("f-fav").checked, showExcluded = $("f-excl").checked;
   let rows = state.data.cards.filter((card) => {
     const mark = state.marks.get(card.card_id) || {};
     if (state.view === "deck" && !(state.deckCards && state.deckCards.has(card.card_id))) return false;
     if (type && card.group !== type) return false;
     if (role && !cardRoles(card).includes(role)) return false;
+    if (spreadLevel && state.universe.spread) { const item = state.universe.spread.get(card.card_id); if (!item || item.level !== spreadLevel) return false; }
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
     if (!showExcluded && mark.excluded) return false;
@@ -459,6 +466,30 @@ function renderUniversePanel() {
   const uni = state.universe, panel = $("universe-panel"), summary = uni.summary;
   const spec = summary ? summary.spec : {};
   const field = (label, id, value, type = "text") => h("label", {}, label, h("input", { id, type, value: value ?? "" }));
+  const cardPicker = () => {
+    const options = (uni.options && uni.options.cards) || [];
+    const chosen = [...(spec.must_contain || [])];
+    const chips = h("span", { class: "chips" });
+    const draw = () => chips.replaceChildren(...chosen.map((name) => h("button", { type: "button", class: "chip", title: `${name} entfernen`, onclick: () => { chosen.splice(chosen.indexOf(name), 1); draw(); } }, `${name} ✕`)));
+    const input = h("input", { id: "u-card", list: "u-card-list", placeholder: "Karte aus dem Bestand …", autocomplete: "off" });
+    const add = () => {
+      const value = input.value.trim();
+      if (!value) return;
+      const hit = options.find((option) => option.value.toLowerCase() === value.toLowerCase());
+      const name = hit ? hit.value : value;
+      if (!chosen.includes(name)) { chosen.push(name); draw(); }
+      input.value = "";
+    };
+    input.addEventListener("change", add);
+    draw();
+    return {
+      chosen: () => [...chosen],
+      node: h("span", {}, input,
+        h("datalist", { id: "u-card-list" }, ...options.map((option) => h("option", { value: option.value }, `${option.decks} Decks`))),
+        h("button", { type: "button", onclick: add }, "hinzufügen"), chips),
+    };
+  };
+  const picker = cardPicker();
   const form = h("form", { id: "universe-form", onsubmit: async (event) => {
     event.preventDefault();
     const name = $("u-name").value.trim();
@@ -470,6 +501,7 @@ function renderUniversePanel() {
     if ($("u-to").value) body.date_to = $("u-to").value;
     if ($("u-min").value !== "") body.min_main_cards = Number($("u-min").value);
     if ($("u-minuni").value !== "") body.min_universe = Number($("u-minuni").value);
+    if (picker.chosen().length) body.must_contain = picker.chosen();
     try {
       await api(`/api/universe/profiles/${encodeURIComponent(name)}?commander=${encodeURIComponent(COMMANDER)}`, body, "PUT");
       uni.profiles = await api("/api/universe/profiles");
@@ -481,18 +513,32 @@ function renderUniversePanel() {
     field("Name", "u-name", uni.name),
     h("span", {}, "Plattformen", optionChecks("u-platforms", uni.options && uni.options.platforms, spec.platforms || [])),
     h("span", {}, "Kohorten", optionChecks("u-cohorts", uni.options && uni.options.cohorts, spec.cohorts || [])),
+    h("span", {}, "Muss enthalten (alle, im Hauptdeck)", picker.node),
     field("Datum ab", "u-from", spec.date_from, "date"),
     field("Datum bis", "u-to", spec.date_to, "date"),
     field("Mindestgröße Hauptdeck", "u-min", spec.min_main_cards, "number"),
     field("Mindest-Universum (Nenner für Stufen)", "u-minuni", spec.min_universe, "number"),
-    h("button", { type: "submit" }, "Universum speichern"));
+    h("button", { type: "submit" }, "Universum speichern"),
+    uni.name ? h("button", { type: "button", onclick: async () => {
+      const name = uni.name;
+      try {
+        await api(`/api/universe/profiles/${encodeURIComponent(name)}`, {}, "DELETE");
+        state.universe.profiles = await api("/api/universe/profiles");
+        fillUniverseSelect("");
+        await selectUniverse("");
+        toast(`Universum „${name}“ gelöscht`);
+      } catch (error) { toast(`Universum nicht gelöscht: ${error.message}`); }
+    } }, "Universum löschen") : null);
   const facts = !uni.name || !summary
     ? h("div", { class: "facts" }, h("b", {}, NO_UNIVERSE), h("span", { class: "muted" }, uni.profiles.length ? "Wähle oben ein gespeichertes Universum." : "Noch keines gespeichert. Lege unten eines an. Ohne Filter zählt es alle importierten Quelldecks."))
     : h("div", { class: "facts" },
       h("b", {}, uni.name),
+      h("span", { class: "muted" }, `Version ${summary.version}`),
       h("span", {}, `${summary.denominator} Decks (Nenner)`),
       breakdown("Plattform", summary.denominator_by_platform),
       breakdown("Bracket", summary.denominator_by_bracket),
+      (summary.spec.must_contain || []).length ? h("span", {}, `nur Decks mit: ${summary.spec.must_contain.join(", ")}`) : null,
+      summary.excluded_by_card_filter ? h("span", { class: "muted" }, `${summary.excluded_by_card_filter} Decks durch den Karten-Filter ausgeschlossen`) : null,
       summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
       summary.below_min_universe ? h("span", { class: "badge warn" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
       h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
@@ -705,7 +751,7 @@ async function init() {
   $("deck-select").addEventListener("change", () => { fillBranches(); loadDeck().catch((error) => toast(error.message)); });
   $("branch-select").addEventListener("change", () => loadDeck().catch((error) => toast(error.message)));
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; render(); });
-  for (const id of ["q", "type-filter", "role-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
+  for (const id of ["q", "type-filter", "role-filter", "spread-filter", "f-free", "f-fav", "f-excl"]) $(id).addEventListener("input", () => { state.shown = 150; render(); });
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) $("modal").hidden = true; });
   document.addEventListener("keydown", (event) => { if (event.key === "Escape") $("modal").hidden = true; });
   renderTabs();
