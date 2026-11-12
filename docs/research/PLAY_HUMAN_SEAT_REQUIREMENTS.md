@@ -1,0 +1,26 @@
+# Anforderungsliste: Bedienung des Menschen-Platzes (PLAY)
+
+- **Dokument-ID:** `docs/research/PLAY_HUMAN_SEAT_REQUIREMENTS.md`
+- **Datum:** 2026-11-12
+- **Kontext:** GitHub-Issue #1213 (Grundlagenermittlung für Commander Studio PLAY, #1169)
+- **Bezugsquelle:** `docs/research/PLAY_HUMAN_SEAT_UX.md`
+- **Architektur-Grundsatz:** Single Source Rules Authority — die Engine entscheidet verbindlich über Legalität, Kosten und Timing. Der Client besitzt kein zweites Regelsystem.
+
+---
+
+## 1. Matrix der Bedien-Anforderungen
+
+| Nr. | Anforderung | Quelle (Programm & Bericht-Beleg) | Kategorie | Vorausgesetzte Engine-Entscheidungsklasse |
+|---|---|---|---|---|
+| **REQ-01** | **Prioritäts-Signal & Aktionsauswahl:** Optische „Du bist am Zug“-Hervorhebung, Pass-Button und Rendern der autoritativen Entscheidungs-Optionen. | XMage (*[Player]: Priority, Pass/OK*), Forge (*Prompt-Leuchten, OK/Pass*), MTGA (*Pulsierendes Porträt, Pass/Resolve*), MTGO (*Prompt Cast Spells / Activate Abilities*) — *Bericht Abschn. 2 (Frage 1), Abschn. 4 (Nr. 1)* | **Anzeige** | `PRIORITY_ACTION` |
+| **REQ-02** | **Verbot clientseitiger Legalitätsfilterung:** Der Client darf Handkarten nicht eigenmächtig als legal einstufen; es werden exakt die von der Engine autorisierten Aktionen aktiviert. | Single Source Rules Authority (*Bericht Abschn. 3; AGENTS.md; OWNER_DECISIONS_20261010*) | **Regelausschluss** | `PRIORITY_ACTION` |
+| **REQ-03** | **Zielauswahl & Mindestmengen:** Klickbare Hervorhebung der von der Engine gelieferten `legal_target_ids` (CSS `.legal-target`), Zähleranzeige („X von Y gewählt“) und Bestätigung erst bei Erreichen der Mindestanzahl. | XMage (*Choose up to X targets, Done-Button*), Forge (*Select X targets. Currently selected: Y*), MTGA (*Choose 1 of 2 targets, Submit Target*), MTGO (*Select targets 0 of X*) — *Bericht Abschn. 2 (Frage 2), Abschn. 4 (Nr. 2)* | **Anzeige** | `SELECT_TARGETS` |
+| **REQ-04** | **Verbot clientseitiger Zielprüfung:** Keine Interpretation von Hexproof, Shroud, Ward, Schutz vor Farben oder Timing-Restriktionen im JavaScript. | Verbot clientseitiger Regelprüfung (*Bericht Abschn. 3, Punkt 3*) | **Regelausschluss** | `SELECT_TARGETS` |
+| **REQ-05** | **Kampf-Zuweisung:** Interaktive Zuordnung eigener klickbarer Kreaturen zu den legalen Angriffs- bzw. Blockzielen der Engine (Gegner-Avatar, Planeswalker, Angreifer). | XMage (*Klick Angreifer -> Zielgegner/Planeswalker; Blocker -> Angreifer*), Forge (*Dropdown/Klick-Paarung*), MTGA (*Drag & Drop*), MTGO (*Farb-Pfeile*) — *Bericht Abschn. 2 (Frage 2 & 5), Abschn. 4 (Nr. 3)* | **Anzeige** | `DECLARE_ATTACKERS`, `DECLARE_BLOCKERS` |
+| **REQ-06** | **Verbot clientseitiger Kampfberechnung:** Keine clientseitige Berechnung von Einsatzverzögerung, Vigilance, Fliegen, Bedrohlich oder Kosten (z. B. Propaganda). | Verbot von Einsatzverzögerungs- und Kampfmechanik-Berechnung im Browser (*Bericht Abschn. 3, Punkt 1*) | **Regelausschluss** | `DECLARE_ATTACKERS`, `DECLARE_BLOCKERS` |
+| **REQ-07** | **Modale Wahlen & Mana-Entscheidungen:** Schlichtes modales Auswahlelement (Radio-Buttons oder Kacheln) für diskrete Optionen (z. B. Modus-Wahl bei „Wähle zwei“ oder Farbentscheidungen). | XMage (*Farbauswahl-Dialog*), Forge (*Auto-Pay Mana Prompt*), MTGA (*Floating-Mana-Blase*), MTGO (*Farboptionen-Prompt*) — *Bericht Abschn. 2 (Frage 3), Abschn. 4 (Nr. 5)* | **Anzeige** | `MODAL_CHOICE`, `MANA_PAYMENT_ALTERNATIVE` |
+| **REQ-08** | **Verbot clientseitiger Auto-Tapper:** Keine Vorabberechnung im Browser, welche Länder für einen Spruch getappt werden müssen; Farbreduktionen und Restriktionen wickelt die Engine ab. | Verbot clientseitiger Manaberechnung (*Bericht Abschn. 3, Punkt 2*) | **Regelausschluss** | `MANA_PAYMENT_ALTERNATIVE` |
+| **REQ-09** | **Trigger-Reihenfolge bei gleichzeitigen Auslösern:** Modales Listen-Element mit Klick- bzw. Nummerierungs-Reihenfolge, um gleichzeitig auslösende Fähigkeiten auf den Stapel zu legen. | XMage (*Dialog Choose order of triggered abilities*), Forge (*Stapel-Dialog mit Klick-Reihenfolge*), MTGA (*Trigger-Anordnungsdialog*), MTGO (*Trigger-Auswahlfenster*) — *Bericht Abschn. 2 (Frage 4), Abschn. 4 (Nr. 4)* | **Anzeige** | `ORDER_TRIGGERED_ABILITIES` |
+| **REQ-10** | **Verbot von freiem Rückgängigmachen (Undo):** Kein beliebiges Zurückrollen von Spielzügen („Take back“) oder Sandkasten-Rückabwicklungen im Client. | Verbot von freiem Rollback (*Bericht Abschn. 3, Punkt 4; OWNER_DECISIONS_20261010*) | **Regelausschluss** | `GAME_STATE` |
+| **REQ-11** | **Vier-Spieler-Tischansicht & Ereignisprotokoll:** Skalierte Vier-Quadranten-/Zonen-Darstellung der Schlachtfelder mit Avataren, Zonen und chronologischem Aktionsprotokoll. | XMage (*Geteiltes Zonen-Layout, farbiges Chat-Protokoll*), Forge (*Mehrspieler-Ring/Raster, Chat-Panel*), MTGO (*4-Player-Quadranten, Spielprotokoll*) — *Bericht Abschn. 2 (Frage 5)* | **Anzeige** | Keine (Statusdarstellung) |
+| **REQ-12** | **Client-Tempo & Auto-Pass bis zum eigenen Zug:** Schieberegler für Schrittgeschwindigkeit (100–2000 ms) und Checkbox für Auto-Pass, bis die Engine den Menschen adressiert. | MTGA (*Geschwindigkeit/Zündschnur*), Forge (*Phase-Tracker*), XMage (*F4/F9 Pass until action*) — *Bericht Abschn. 2 (Frage 1), Abschn. 4 (Nr. 6)* | **Anzeige** | Keine (Client-Orchestrierung) |
