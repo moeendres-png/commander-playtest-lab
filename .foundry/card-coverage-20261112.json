@@ -14,7 +14,11 @@
     "new associated unit tests",
     "data/cards/xmage_card_facts.json",
     "data/cards/pilot_card_knowledge.json",
-    "docs/coverage new report"
+    "docs/coverage new report",
+    "src/commander_lab/engine/structural/card_facts.py",
+    "src/commander_lab/agents/card_knowledge.py catalog lookup only",
+    "src/commander_lab/deck_readiness.py",
+    "associated identity tests"
   ],
   "read_only": [
     "engine-bridge",
@@ -42,7 +46,7 @@
     "runtime where claimed"
   ],
   "status": "IN_PROGRESS",
-  "next_action": "Commit public catalogs + reproducible probes, run integration tests and >=10 real-game seeds; independent review.",
+  "next_action": "Final 10-seed paired run; final full CI and targeted independent review on exact head.",
   "ownership": "card-coverage-20261112",
   "local_counts": {
     "identities": 1655,
@@ -65,9 +69,11 @@
       "bad_constructor": "rejected"
     },
     "public_registered_names_constructed": 33402,
-    "facts_catalog_cards": 32832,
     "pilot_catalog_cards": 32820,
     "inventory_OK": 1655,
-    "gameplay_behavior": "UNKNOWN"
+    "gameplay_behavior": "UNKNOWN",
+    "facts_catalog_entries": 32615,
+    "public_ambiguous_UNKNOWN": 4,
+    "prior_lookup_changes": 0
   }
 }

@@ -7,8 +7,12 @@ identities already have active registrations in the pinned engine, construct suc
 and import through `XmageDeckImporter` into concrete 100-card Commander fixtures. No fork
 card implementation, bridge runtime code, engine pin or qualification record changed.
 
-The public engine catalog now covers every distinct database card name, independently of
-any inventory or deck selection. The pilot catalog extends from an archived Scryfall bulk,
+The public engine catalog covers unambiguous whole-card database names, independently of
+any inventory or deck selection. Split-half rows are excluded; four conflicting public names
+are explicitly UNKNOWN and absent from both known facts and known-missing lists. Coherent
+rows replace columnwise aggregation. Engine-provided complete-face aliases are explicit;
+unattested combined names are rejected. Verified prior Unicode and combined-name keys are
+retained, including every prior implicit-front lookup (7,261 keys, zero changes). The pilot catalog extends from an archived Scryfall bulk,
 filtered to English paper cards with legal/banned/restricted Commander status and excluding
 non-card layouts. Banned cards can have printed knowledge; the engine still decides legality.
 Existing 7,231 pilot entries are retained byte-equivalent as objects, and all 7,231 previous
@@ -33,7 +37,8 @@ the original gzip was unavailable for independent comparison. Documentation:
 https://scryfall.com/docs/api/bulk-data. No named-card API requests were made.
 
 Use `scripts/export_xmage_card_facts.py --all-cards --db DB --h2-jar H2_JAR
---engine-commit COMMIT --engine-source-url https://github.com/moeendres-png/mage --out FACTS`.
+--engine-commit COMMIT --engine-source-url https://github.com/moeendres-png/mage
+--retain-catalog PRIOR_PUBLIC_FACTS --out FACTS`.
 Build DB from a fresh source-locked scanner run. The exporter measures the copied DB hash;
 a caller-declared commit alone does not attest the DB's build identity.
 
@@ -46,7 +51,12 @@ The standalone diagnostic sources are `scripts/diagnostics/RegisteredCardProbe.j
 `PrivateImportProbe.java`. Compile with the exact engine/bridge runtime classpath. Run the
 registration probe in a new working directory without `db/`; it creates the scanner DB,
 checks all public names and ECL/FRA/SPM printings, and rejects an unknown name and an
-invalid constructor. Nonzero exit covers scanner, printing and construction failures.
+invalid constructor. A real mismatched constructed identity is rejected, with a matching
+identity positive control. Nonzero exit covers scanner, printing, construction and identity failures.
 The import probe accepts a local JSON array of engine names and a local output path;
 it prints counts only. Keep its input and detailed output outside Git. It also rejects
 an invented name and a mismatched combined identity. Neither probe runs game behavior.
+
+The first full Python regression selection failed after the initial naive full export lost
+canonical aliases; this was repaired rather than accepted. Targeted identity/schema controls
+now pass; final full CI and the paired game report are tracked in PR #1236.
