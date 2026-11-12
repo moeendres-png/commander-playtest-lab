@@ -133,6 +133,29 @@ Run every executor at the effort the Owner selected. A project-level `--effort` 
 describes task and authority routing only; it never lowers an executor's native level.
 Record the actual native identity and level used; never relabel it.
 
+### Model tiers inside a session (Owner instruction 2026-11-12)
+
+Every tool splits its own work the same way, so tokens go where judgement is needed:
+
+- **Lead model** (the tool's strongest model, the one the Owner launched): understanding the
+  task, planning, architecture, Rules and evidence adjudication, gate and merge decisions,
+  and the final check of delegated work.
+- **Token-efficient helpers** (the tool's smaller model or a lower effort): implementation
+  from a complete brief, test/fix loops, code review passes, log and CI digestion, and
+  watching checks. A helper gets a bounded brief (objective, source lock, exact commands,
+  stop condition, report limit) and reports back; it decides nothing reserved in §8.
+- A helper's result counts only after the lead has checked it against the evidence rules
+  (§4). A MATERIAL change still needs the independent review of §10.
+
+Two fixed exceptions:
+
+- **Gemini**: Flash 3.8 at `high` is the minimum for the session and for every subagent it
+  starts; nothing smaller or lower is used.
+- **Muse**: always `high` to `max`, including its subagents.
+
+This tiering never lowers an Owner-selected level for the lead model and never changes
+authority: the session that owns the work stays accountable for it.
+
 ## 8. Technical decision authority
 
 `TECHNICAL_DECISION_AUTHORITY = AUTONOMOUS_WITHIN_CONTRACT`

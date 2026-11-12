@@ -33,6 +33,14 @@ HANDOFF instead of growing one giant conversation.
    (Sonnet, medium), built-in `Explore` for read-only lookups. Claude Sonnet may also be an
    implementation worker; the evidence and review rules apply to it.
 
+**Model tiers** (`AGENTS.md` §7, Owner instruction 2026-11-12). The lead session keeps
+understanding, planning, adjudication and merge decisions. Hand implementation, review
+passes, log/CI digestion and check-watching to a helper on a smaller model or lower effort
+(`ci-triage`, `log-scanner`, a Sonnet worker in its own worktree), with a bounded brief, and
+check the result before relying on it. Use `evidence-reviewer` for Rules, evidence,
+containment and security changes. Do the work inline only when a brief would cost more
+than the task.
+
 Custom Claude helpers are flat: their tool allowlists contain no `Agent` tool, so they must not
 spawn children. Do not create agent teams or recursive coordinator/worker trees for normal work.
 
