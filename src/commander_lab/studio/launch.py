@@ -8,6 +8,8 @@ where the engine is, which decks can sit at the table, and the process start.
 
 from __future__ import annotations
 
+import contextlib
+import hashlib
 import json
 import os
 import shlex
@@ -15,6 +17,7 @@ import shutil
 import subprocess
 import sys
 import time
+from collections.abc import Sequence
 from functools import lru_cache
 from pathlib import Path
 
@@ -53,6 +56,18 @@ def _repository_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
+def _java_executable() -> str | None:
+    java = shutil.which("java") or shutil.which("java.exe")
+    if java:
+        return java
+    java_home = os.environ.get("JAVA_HOME")
+    if java_home:
+        candidate = Path(java_home) / "bin" / ("java.exe" if os.name == "nt" else "java")
+        if candidate.is_file():
+            return str(candidate)
+    return None
+
+
 def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     """How the rules engine is started here, or ``None`` when it is not set up.
 
@@ -61,21 +76,93 @@ def engine_command(data_folder: str | Path) -> tuple[str, ...] | None:
     """
     raw = os.environ.get(ENGINE_COMMAND_ENV, "").strip()
     if raw:
-        return tuple(shlex.split(raw))
+        return tuple(shlex.split(raw, posix=(os.name != "nt")))
     jar = Path(data_folder) / ENGINE_JAR
-    java = shutil.which("java")
+    java = _java_executable()
     if jar.is_file() and java:
         return (java, "-Xmx3g", "-jar", str(jar), "full-game")
     return None
 
 
+@lru_cache(maxsize=16)
+def _file_sha256_cached(path_str: str, mtime_ns: int, size: int) -> str:
+    path = Path(path_str)
+    hasher = hashlib.sha256()
+    with path.open("rb") as f:
+        while chunk := f.read(65536):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def _file_sha256(path: Path) -> str | None:
+    try:
+        stat = path.stat()
+        return _file_sha256_cached(str(path.resolve()), stat.st_mtime_ns, stat.st_size)
+    except OSError:
+        return None
+
+
 def engine_state(data_folder: str | Path) -> dict[str, object]:
-    if engine_command(data_folder) is not None:
-        return {"ready": True, "reason": ""}
+    from commander_lab.qualification.current_boundary.bridge_launcher import (
+        canonical_xmage_engine_pin,
+    )
+
+    pin = canonical_xmage_engine_pin()
     jar = Path(data_folder) / ENGINE_JAR
+    jar_path = str(jar) if jar.is_file() else None
+    jar_sha256 = _file_sha256(jar) if jar.is_file() else None
+
+    # Check companion pin file if present
+    pin_file = jar.parent / "ENGINE_PIN.txt" if jar.is_file() else None
+    recorded_pin = (
+        pin_file.read_text(encoding="utf-8").strip() if pin_file and pin_file.is_file() else None
+    )
+    pin_matches = (recorded_pin == pin) if recorded_pin else None
+
+    warning = None
+    if recorded_pin and recorded_pin != pin:
+        warning = (
+            f"Die installierte Engine-Datei stammt von Pin {recorded_pin[:10]}, "
+            f"erwartet wird jedoch {pin[:10]} aus config/rules_engines.json."
+        )
+
+    if engine_command(data_folder) is not None:
+        return {
+            "ready": True,
+            "reason": "",
+            "pin": pin,
+            "jar_path": jar_path,
+            "jar_sha256": jar_sha256,
+            "recorded_pin": recorded_pin,
+            "pin_matches": pin_matches if pin_matches is not None else True,
+            "warning": warning,
+            "command": list(engine_command(data_folder) or ()),
+        }
+
     if not jar.is_file():
-        return {"ready": False, "reason": f"Die Engine-Datei fehlt: {jar}"}
-    return {"ready": False, "reason": "Java ist nicht installiert (Java 17 oder neuer)."}
+        return {
+            "ready": False,
+            "reason": f"Die Engine-Datei fehlt: {jar}",
+            "pin": pin,
+            "jar_path": None,
+            "jar_sha256": None,
+            "recorded_pin": None,
+            "pin_matches": False,
+            "warning": f"Engine-Datei fehlt unter {jar}",
+            "command": None,
+        }
+
+    return {
+        "ready": False,
+        "reason": "Java ist nicht installiert (Java 17 oder neuer).",
+        "pin": pin,
+        "jar_path": jar_path,
+        "jar_sha256": jar_sha256,
+        "recorded_pin": recorded_pin,
+        "pin_matches": pin_matches,
+        "warning": "Java 17 oder neuer fehlt im PATH.",
+        "command": None,
+    }
 
 
 @lru_cache(maxsize=1)
@@ -146,6 +233,62 @@ def cards_unknown_to_pilots(snapshot: dict[str, object]) -> list[str]:
     return [name for name in names if card_facts(name) is None]
 
 
+def cards_unsupported_by_engine(snapshot: dict[str, object]) -> list[str]:
+    """Card names of a deck snapshot that the pinned XMage rules engine does not know or support.
+
+    Detects missing engine cards pre-flight before `import_deck` fails.
+    """
+    from commander_lab.studio.builder import sim_readiness_status
+
+    cards = snapshot.get("cards")
+    names = sorted(
+        {
+            str(card.get("oracle_name") or card.get("name") or "")
+            for card in (cards if isinstance(cards, list) else [])
+            if isinstance(card, dict)
+        }
+    )
+    unsupported: list[str] = []
+    for name in names:
+        if not name:
+            continue
+        status = sim_readiness_status(name)
+        if status in {"KNOWN_MISSING_IN_XMAGE", "NO_CARD_FACTS"}:
+            unsupported.append(name)
+    return unsupported
+
+
+def collection_cards_unknown_to_pilots(store: StudioStore) -> list[str]:
+    """Find all cards in the studio collection that are missing from the pilots' card knowledge catalog."""
+    from commander_lab.agents.card_knowledge import card_facts
+
+    rows = store.connection.execute(
+        "SELECT DISTINCT oracle_name FROM card ORDER BY oracle_name"
+    ).fetchall()
+    missing: list[str] = []
+    for r in rows:
+        name = str(r["oracle_name"])
+        if card_facts(name) is None:
+            missing.append(name)
+    return missing
+
+
+def collection_cards_unsupported_by_engine(store: StudioStore) -> list[str]:
+    """Find all cards in the studio collection that the pinned XMage engine does not know."""
+    from commander_lab.studio.builder import sim_readiness_status
+
+    rows = store.connection.execute(
+        "SELECT DISTINCT oracle_name FROM card ORDER BY oracle_name"
+    ).fetchall()
+    unsupported: list[str] = []
+    for r in rows:
+        name = str(r["oracle_name"])
+        status = sim_readiness_status(name)
+        if status in {"KNOWN_MISSING_IN_XMAGE", "NO_CARD_FACTS"}:
+            unsupported.append(name)
+    return unsupported
+
+
 def start_game(
     store: StudioStore,
     data_folder: str | Path,
@@ -153,6 +296,8 @@ def start_game(
     revision_id: str,
     opponent_ids: list[str],
     seed: int,
+    style: float | None = None,
+    seat_styles: Sequence[float] | None = None,
 ) -> str:
     """Start the game process and return the id of the game it records.
 
@@ -169,6 +314,12 @@ def start_game(
     paths = {deck_id: path for deck_id, _name, _commanders, _year, path in _precons()}
     opponents = [paths[deck_id] for deck_id in opponent_ids]
     snapshot = lab_snapshot(store, revision_id)
+    engine_unsupported = cards_unsupported_by_engine(snapshot)
+    if engine_unsupported:
+        raise ValueError(
+            "Die Regeln-Engine XMage unterstützt diese Karten noch nicht: "
+            + ", ".join(engine_unsupported[:8])
+        )
     unknown = cards_unknown_to_pilots(snapshot)
     if unknown:
         raise ValueError(
@@ -186,6 +337,11 @@ def start_game(
     ]  # fmt: skip
     for path in opponents:
         command += ["--deck", str(path)]
+    if style is not None:
+        command += ["--style", str(style)]
+    if seat_styles:
+        for idx, s in enumerate(seat_styles, start=1):
+            command += ["--seat-style", f"{idx}:{s}"]
     folder = games_folder(data_folder)
     with (folder / f"{game_id}.out").open("w", encoding="utf-8") as output:
         process = subprocess.Popen(
@@ -201,4 +357,12 @@ def start_game(
         time.sleep(0.2)
     if any(folder.glob(f"{game_id}.jsonl*")):
         return game_id
+    out_file = folder / f"{game_id}.out"
+    detail = ""
+    if out_file.is_file():
+        with contextlib.suppress(OSError):
+            detail = out_file.read_text(encoding="utf-8", errors="replace").strip()
+    if detail:
+        tail = "\n".join(detail.splitlines()[-5:])
+        raise RuntimeError(f"Die Partie konnte nicht gestartet werden: {tail}")
     raise RuntimeError("Die Partie konnte nicht gestartet werden.")

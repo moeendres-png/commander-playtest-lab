@@ -18,4 +18,24 @@ $python = Join-Path $repo '.venv\Scripts\python.exe'
 if (-not (Test-Path $python)) { $python = 'python' }
 $env:PYTHONPATH = Join-Path $repo 'src'
 Write-Host "Studio data: $env:COMMANDER_LAB_STUDIO_DATA"
+
+# Check prerequisites (Issue #1172)
+$javaCmd = Get-Command java -ErrorAction SilentlyContinue
+if (-not $javaCmd -and -not $env:JAVA_HOME) {
+    Write-Warning "Java wurde nicht gefunden. Fuer 'Neue Partie' und 'Simulieren' wird Java 17 oder neuer benoetigt (z.B. Eclipse Temurin 17)."
+} else {
+    try {
+        $verOutput = (& java -version 2>&1 | Select-Object -First 1)
+        if ($verOutput -match 'version "([0-9]+)') {
+            $verNum = [int]$matches[1]
+            if ($verNum -lt 17) {
+                Write-Warning "Gefundenes Java hat Version $verNum. Fuer 'Neue Partie' und 'Simulieren' wird Java 17 oder neuer benoetigt."
+            }
+        }
+    } catch {}
+}
+if (-not (Test-Path $studioJar) -and -not (Test-Path $bridgeJar)) {
+    Write-Warning "Die Engine-Datei fehlt noch: $studioJar`nFuer Simulationen: Lege xmage-engine-bridge.jar dort ab oder baue sie im Ordner engine-bridge."
+}
+
 & $python -m commander_lab.studio serve --open @args

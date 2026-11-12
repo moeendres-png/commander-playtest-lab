@@ -8,8 +8,9 @@ and means unknown, never zero.
 from __future__ import annotations
 
 import csv
+import hashlib
 import json
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from pathlib import Path
 
 from openpyxl import load_workbook
@@ -310,18 +311,15 @@ def import_corpus_register(store: StudioStore, path: str | Path) -> dict[str, in
     return {"decks": count}
 
 
-def import_corpus_cards(store: StudioStore, path: str | Path) -> dict[str, int]:
-    """Read the normalized card rows of the source decks. Needs the register first."""
-    cards_path = Path(path)
-    store.register_source(
-        data_class=DataClass.NORMALIZED_SOURCE,
-        title=cards_path.name,
-        sha256=sha256_file(cards_path),
-    )
-    known = {str(row[0]) for row in store.connection.execute("SELECT deck_id FROM corpus_deck")}
-    merged: dict[tuple[str, str, str], tuple[str | None, int, str]] = {}
+_MERGED = dict[tuple[str, str, str], tuple[str | None, int, str]]
+_EXAMPLES = 5
+
+
+def _read_corpus_part(path: Path, known: set[str]) -> tuple[_MERGED, int]:
+    """Rows of one part file, equal (deck, card, section) rows merged, unregistered decks left out."""
+    merged: _MERGED = {}
     skipped = 0
-    for row in _csv_rows(cards_path):
+    for row in _csv_rows(path):
         if row["deck_id"] not in known:
             skipped += 1
             continue
@@ -329,26 +327,110 @@ def import_corpus_cards(store: StudioStore, path: str | Path) -> dict[str, int]:
         previous = merged.get(key)
         quantity = int(row["quantity"]) + (previous[1] if previous else 0)
         merged[key] = (row["oracle_id"] or None, quantity, row["normalization_status"])
+    return merged, skipped
+
+
+def _example_ids(deck_ids: Iterable[str]) -> str:
+    ordered = sorted(set(deck_ids))
+    shown = ", ".join(ordered[:_EXAMPLES])
+    return f"{shown} (and {len(ordered) - _EXAMPLES} more)" if len(ordered) > _EXAMPLES else shown
+
+
+def import_corpus_card_parts(
+    store: StudioStore, paths: Sequence[str | Path], *, allow_deck_move: bool = False
+) -> dict[str, int]:
+    """Read the normalized card rows of the source decks, one or several part files at once.
+
+    Each file is one partition of a larger corpus: it replaces the rows of the decks it holds
+    and leaves every other deck alone, so repeating a file is harmless. A deck must live in
+    exactly one part (named by the file name). Before anything is written the import checks that
+
+    * no deck is listed in two of the given files,
+    * no deck is already held by a part with another file name (a deck split over two
+      files, or a part renamed, would otherwise lose rows silently) unless
+      ``allow_deck_move`` says the move is intended,
+    * every row is readable.
+
+    Decks that an older program version imported have no recorded part and are accepted.
+    All files are written in one transaction: if one fails, none is imported.
+    """
+    files = [Path(path) for path in paths]
+    if not files:
+        raise ValueError("no card file given")
+    if len({file.name for file in files}) != len(files):
+        raise ValueError("two of the given files have the same name")
+    known = {str(row[0]) for row in store.connection.execute("SELECT deck_id FROM corpus_deck")}
+    parts = [(file, *_read_corpus_part(file, known)) for file in files]
+    owner_of: dict[str, str] = {}
+    shared: set[str] = set()
+    for file, merged, _ in parts:
+        for deck_id in {key[0] for key in merged}:
+            if deck_id in owner_of:
+                shared.add(deck_id)
+            owner_of[deck_id] = file.name
+    if shared:
+        raise ValueError(
+            f"{len(shared)} deck(s) appear in more than one of the given files: "
+            f"{_example_ids(shared)}. A deck must be complete in one file; nothing was imported"
+        )
+    recorded = {
+        str(row[0]): str(row[1])
+        for row in store.connection.execute("SELECT deck_id, part_name FROM corpus_deck_part")
+    }
+    moved = {
+        deck_id
+        for deck_id, name in owner_of.items()
+        if deck_id in recorded and recorded[deck_id] != name
+    }
+    if moved and not allow_deck_move:
+        raise ValueError(
+            f"{len(moved)} deck(s) are already held by a part with another file name: "
+            f"{_example_ids(moved)}. Import the deck from its original file, or pass "
+            "--allow-deck-move if the deck now lives in this file; nothing was imported"
+        )
     with store.connection as db:
-        # Each input file is one partition of a larger corpus. Replace only the decks
-        # present in this partition, retaining other previously imported partitions.
-        # This also makes re-importing the same partition idempotent.
-        db.executemany(
-            "DELETE FROM corpus_deck_card WHERE deck_id = ?",
-            ((deck_id,) for deck_id in {key[0] for key in merged}),
-        )
-        db.executemany(
-            "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
-            "normalization_status) VALUES (?, ?, ?, ?, ?, ?)",
-            [(*key, *value) for key, value in merged.items()],
-        )
+        for file, merged, _ in parts:
+            source_id = store.register_source(
+                data_class=DataClass.NORMALIZED_SOURCE,
+                title=file.name,
+                sha256=sha256_file(file),
+            )
+            deck_ids = sorted({key[0] for key in merged})
+            # Replace only the decks present in this part; other parts stay untouched.
+            db.executemany(
+                "DELETE FROM corpus_deck_card WHERE deck_id = ?", [(d,) for d in deck_ids]
+            )
+            db.executemany(
+                "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+                "normalization_status) VALUES (?, ?, ?, ?, ?, ?)",
+                [(*key, *value) for key, value in merged.items()],
+            )
+            db.executemany(
+                "INSERT OR REPLACE INTO corpus_deck_part(deck_id, part_name, source_id) "
+                "VALUES (?, ?, ?)",
+                [(deck_id, file.name, source_id) for deck_id in deck_ids],
+            )
     # The deck builder must see complete structural comparisons after the final
     # CSV partition, even when Scryfall was imported before the source decks.
     if store.count("scryfall_card"):
-        from .catalog import refresh_corpus_stats
-
         refresh_corpus_stats(store)
-    return {"rows": len(merged), "rows_without_registered_deck": skipped}
+    return {
+        "rows": sum(len(merged) for _, merged, _ in parts),
+        "rows_without_registered_deck": sum(skipped for _, _, skipped in parts),
+        "decks": len(owner_of),
+        "decks_moved_from_another_part": len(moved),
+    }
+
+
+def import_corpus_cards(
+    store: StudioStore, path: str | Path, *, allow_deck_move: bool = False
+) -> dict[str, int]:
+    """Read the normalized card rows of the source decks from one part file."""
+    result = import_corpus_card_parts(store, [path], allow_deck_move=allow_deck_move)
+    return {
+        "rows": result["rows"],
+        "rows_without_registered_deck": result["rows_without_registered_deck"],
+    }
 
 
 def _number(value: str) -> float | None:
@@ -905,3 +987,700 @@ def import_simulation_report(
     return _import_one_simulation_file(
         store, target, engine_pin=engine_pin, pilot_policy=pilot_policy
     )
+
+
+def import_card_marks(store: StudioStore, path: str | Path) -> dict[str, int]:
+    """Import card marks (favorite, excluded, note) from CSV or JSON.
+
+    Supports G2 (user-provided markings). Idempotent and validates against known cards.
+    """
+    marks_path = Path(path)
+    if not marks_path.exists():
+        raise FileNotFoundError(f"Marks file not found: {marks_path}")
+
+    rows: list[dict[str, object]] = []
+    if marks_path.suffix.lower() == ".json":
+        data = json.loads(marks_path.read_text(encoding="utf-8"))
+        if isinstance(data, list):
+            for item in data:
+                if isinstance(item, dict):
+                    rows.append(dict(item))
+        elif isinstance(data, dict):
+            for cid, details in data.items():
+                if isinstance(details, dict):
+                    rows.append({"card_id": cid, **details})
+                else:
+                    rows.append({"card_id": cid, "note": str(details)})
+    else:
+        for r in _csv_rows(marks_path):
+            rows.append(dict(r))
+
+    count = 0
+    updated_at = now_utc()
+    with store.connection as db:
+        for row_dict in rows:
+            card_id = str(row_dict.get("card_id") or "").strip()
+            card_name = str(row_dict.get("card_name") or row_dict.get("name") or "").strip()
+            if not card_id and card_name:
+                resolved = store.card_id_by_oracle_or_name(None, card_name)
+                if resolved:
+                    card_id = resolved
+            if not card_id:
+                continue
+
+            fav_raw: object = (
+                row_dict.get("favorite") if "favorite" in row_dict else row_dict.get("fav", 0)
+            )
+            excl_raw: object = (
+                row_dict.get("excluded") if "excluded" in row_dict else row_dict.get("excl", 0)
+            )
+            note_raw = str(row_dict.get("note") or row_dict.get("notes") or "")
+
+            try:
+                fav = 1 if int(str(fav_raw)) else 0
+            except (ValueError, TypeError):
+                fav = 1 if str(fav_raw).lower() in ("true", "1", "yes") else 0
+
+            try:
+                excl = 1 if int(str(excl_raw)) else 0
+            except (ValueError, TypeError):
+                excl = 1 if str(excl_raw).lower() in ("true", "1", "yes") else 0
+
+            db.execute(
+                "INSERT INTO card_mark(card_id, favorite, excluded, note, updated_at) "
+                "VALUES (?, ?, ?, ?, ?) "
+                "ON CONFLICT(card_id) DO UPDATE SET "
+                "favorite = excluded.favorite, "
+                "excluded = excluded.excluded, "
+                "note = excluded.note, "
+                "updated_at = excluded.updated_at",
+                (card_id, fav, excl, note_raw, updated_at),
+            )
+            count += 1
+    return {"marks_imported": count}
+
+
+def import_edhrec_capture_manifest(
+    store: StudioStore,
+    manifest_path: str | Path,
+    *,
+    raw_folder: str | Path | None = None,
+    target_comparison_cards: set[str] | None = None,
+) -> dict[str, int]:
+    """Import immutable 20 HTTP200 EDHREC public captures with full request/response provenance.
+
+    Refs #1186. Never backfills or overwrites historical C079 timestamps.
+    Separates cohorts, computes derived inclusion, verifies SHA-256 integrity,
+    and handles unlisted cards as UNKNOWN.
+    """
+    manifest_file = Path(manifest_path)
+    if not manifest_file.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_file}")
+
+    manifest_data = json.loads(manifest_file.read_text(encoding="utf-8"))
+    records = manifest_data.get("records")
+    if not isinstance(records, list) or not records:
+        raise ValueError("Manifest contains no records")
+
+    raw_dir = Path(raw_folder) if raw_folder else manifest_file.parent
+
+    # Pre-validation: verify all raw files and SHA-256 before any database write
+    validated_records: list[tuple[dict[str, object], bytes, dict[str, object]]] = []
+    for rec in records:
+        event_id = str(rec.get("event_id") or "").strip()
+        url = str(rec.get("url") or "").strip()
+        raw_rel = str(rec.get("raw") or "").strip()
+        expected_sha = str(rec.get("sha256") or "").strip()
+        observed_utc = str(rec.get("observed_utc") or "").strip()
+
+        if not event_id or not url or not raw_rel or not expected_sha or not observed_utc:
+            raise ValueError(f"Incomplete record in manifest: {rec}")
+
+        raw_path = raw_dir / raw_rel
+        if not raw_path.exists():
+            raise FileNotFoundError(f"Raw capture file not found: {raw_path}")
+
+        raw_bytes = raw_path.read_bytes()
+        actual_sha = hashlib.sha256(raw_bytes).hexdigest()
+        if actual_sha != expected_sha:
+            raise ValueError(
+                f"SHA-256 mismatch for {event_id}: expected {expected_sha}, got {actual_sha}"
+            )
+
+        try:
+            parsed = json.loads(raw_bytes.decode("utf-8"))
+        except Exception as exc:
+            raise ValueError(f"Malformed JSON in {raw_path}") from exc
+
+        container = parsed.get("container") if isinstance(parsed, dict) else None
+        json_dict = container.get("json_dict") if isinstance(container, dict) else None
+        raw_cardlists = json_dict.get("cardlists") if isinstance(json_dict, dict) else None
+        if not isinstance(raw_cardlists, list):
+            raise ValueError(f"Missing cardlists in {raw_path}")
+
+        validated_records.append((rec, raw_bytes, parsed))
+
+    unique_card_page_pairs: set[tuple[str, str]] = set()
+    total_observations = 0
+    all_seen_cards: set[str] = set()
+
+    with store.connection as db:
+        for rec, raw_bytes, parsed in validated_records:
+            event_id = str(rec["event_id"])
+            url = str(rec["url"])
+            observed_utc = str(rec["observed_utc"])
+            sha256_hash = str(rec["sha256"])
+
+            source_id = store.register_source(
+                data_class=DataClass.ORIGINAL_SOURCE,
+                title=f"EDHREC:{event_id}",
+                sha256=sha256_hash,
+                snapshot_date=observed_utc[:10],
+                url=url,
+            )
+
+            container = parsed.get("container") if isinstance(parsed, dict) else None
+            json_dict = container.get("json_dict") if isinstance(container, dict) else None
+            cardlists_val = json_dict.get("cardlists") if isinstance(json_dict, dict) else None
+            page_cardlists: list[dict[str, object]] = (
+                [cl for cl in cardlists_val if isinstance(cl, dict)]
+                if isinstance(cardlists_val, list)
+                else []
+            )
+            db.execute(
+                "INSERT INTO source_capture_event("
+                "event_id, source_url, request_start_utc, response_complete_utc, "
+                "raw_response_sha256, http_status, provenance_class, raw_size_bytes, "
+                "cardlists_count, automatic_import, source_id) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) "
+                "ON CONFLICT(event_id) DO UPDATE SET "
+                "source_id = excluded.source_id, "
+                "raw_response_sha256 = excluded.raw_response_sha256",
+                (
+                    event_id,
+                    url,
+                    observed_utc,
+                    observed_utc,
+                    sha256_hash,
+                    200,
+                    "NEW_HTTP_CAPTURE_ONLY",
+                    len(raw_bytes),
+                    len(page_cardlists),
+                    0,
+                    source_id,
+                ),
+            )
+
+            # Idempotent re-import: remove prior observations for this exact source
+            db.execute("DELETE FROM observation WHERE source_id = ?", (source_id,))
+
+            # Determine theme slug from URL
+            theme_slug = url.rstrip("/").split("/")[-1].replace(".json", "")
+            if theme_slug == "chulane-teller-of-tales":
+                theme_slug = "commander_core"
+            cohort = f"edhrec_snapshot_20261111:{theme_slug}"
+            snapshot_label = f"{event_id} ({observed_utc})"
+
+            seen_in_page: set[str] = set()
+            for cl in page_cardlists:
+                cardviews = cl.get("cardviews")
+                if not isinstance(cardviews, list):
+                    continue
+                for cv in cardviews:
+                    if not isinstance(cv, dict):
+                        continue
+                    card_name = str(cv.get("name") or "").strip()
+                    if not card_name:
+                        continue
+                    all_seen_cards.add(card_name)
+                    if card_name in seen_in_page:
+                        continue
+                    seen_in_page.add(card_name)
+                    unique_card_page_pairs.add((theme_slug, card_name))
+
+                    card_id = store.card_id_by_oracle_or_name(None, card_name)
+
+                    num = int(str(cv["num_decks"])) if cv.get("num_decks") is not None else None
+                    den = (
+                        int(str(cv["potential_decks"]))
+                        if cv.get("potential_decks") is not None
+                        else None
+                    )
+                    lift = float(str(cv["lift"])) if cv.get("lift") is not None else None
+                    synergy = float(str(cv["synergy"])) if cv.get("synergy") is not None else None
+
+                    inc = (
+                        round((num / den) * 100.0, 2)
+                        if num is not None and den is not None and den > 0
+                        else None
+                    )
+
+                    # 1. Inclusion (derived descriptive)
+                    db.execute(
+                        "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                        "numerator, denominator, data_class, url, snapshot, source_id) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            card_id,
+                            card_name,
+                            cohort,
+                            "inclusion_pct",
+                            inc,
+                            num,
+                            den,
+                            DataClass.DERIVED_DESCRIPTIVE.value
+                            if inc is not None
+                            else DataClass.UNKNOWN.value,
+                            url,
+                            snapshot_label,
+                            source_id,
+                        ),
+                    )
+                    total_observations += 1
+
+                    # 2. Lift (original source)
+                    db.execute(
+                        "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                        "numerator, denominator, data_class, url, snapshot, source_id) "
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        (
+                            card_id,
+                            card_name,
+                            cohort,
+                            "lift",
+                            lift,
+                            None,
+                            None,
+                            DataClass.ORIGINAL_SOURCE.value
+                            if lift is not None
+                            else DataClass.UNKNOWN.value,
+                            url,
+                            snapshot_label,
+                            source_id,
+                        ),
+                    )
+                    total_observations += 1
+
+                    # 3. Synergy (if present)
+                    if synergy is not None:
+                        db.execute(
+                            "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                            "numerator, denominator, data_class, url, snapshot, source_id) "
+                            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                            (
+                                card_id,
+                                card_name,
+                                cohort,
+                                "synergy_pct",
+                                round(synergy * 100.0, 2),
+                                None,
+                                None,
+                                DataClass.ORIGINAL_SOURCE.value,
+                                url,
+                                snapshot_label,
+                                source_id,
+                            ),
+                        )
+                        total_observations += 1
+
+        # Check target comparison cards for unlisted ones
+        unlisted_count = 0
+        if target_comparison_cards:
+            missing_cards = sorted(target_comparison_cards - all_seen_cards)
+            for missing_name in missing_cards:
+                cid = store.card_id_by_oracle_or_name(None, missing_name)
+                rec0 = validated_records[0][0]
+                rec0_sha = str(rec0.get("sha256") or "")[:16]
+                first_src_id = f"src:{rec0_sha}"
+                db.execute(
+                    "INSERT INTO observation(card_id, card_name, cohort, metric, value, "
+                    "numerator, denominator, data_class, url, snapshot, source_id) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        cid,
+                        missing_name,
+                        "edhrec_snapshot_20261111:not_listed",
+                        "status",
+                        None,
+                        None,
+                        None,
+                        DataClass.UNKNOWN.value,
+                        None,
+                        "NOT_LISTED_IN_NEW_CARDLIST_UNKNOWN",
+                        first_src_id,
+                    ),
+                )
+                unlisted_count += 1
+                total_observations += 1
+
+    return {
+        "events": len(validated_records),
+        "unique_card_pages": len(unique_card_page_pairs),
+        "observations_written": total_observations,
+        "unlisted_comparison_cards": unlisted_count if target_comparison_cards else 0,
+    }
+
+
+def _int_or_none(value: object) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        return int(float(str(value)))
+    except (ValueError, TypeError):
+        return None
+
+
+def _float_or_none(value: object) -> float | None:
+    if value is None or value == "":
+        return None
+    try:
+        return float(str(value))
+    except (ValueError, TypeError):
+        return None
+
+
+def import_playgroup_atlas(
+    store: StudioStore,
+    path: str | Path,
+    *,
+    source_title: str | None = None,
+    snapshot_date: str | None = None,
+) -> dict[str, int]:
+    """Import Playgroup.gg Card Atlas records into the Studio store.
+
+    Accepts:
+    - HTML file of a single card page (e.g. fixtures or scraped pages)
+    - JSON file containing a list of card records or a single card record
+    - JSONL file (one card record per line)
+    - TSV or CSV file conforming to STUDIO_PLAYGROUP_ATLAS_SCHEMA.md
+    """
+    from .playgroup_parser import (
+        parse_playgroup_card_html,
+        to_playgroup_slug,
+    )
+
+    file_path = Path(path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    source_id = store.register_source(
+        data_class=DataClass.NORMALIZED_SOURCE,
+        title=source_title or f"playgroup_atlas:{file_path.name}",
+        sha256=sha256_file(file_path),
+        snapshot_date=snapshot_date,
+        url="https://playgroup.gg/cards",
+    )
+
+    records: list[dict[str, object]] = []
+
+    suffix = file_path.suffix.lower()
+    if suffix in {".html", ".htm"}:
+        html_content = file_path.read_text(encoding="utf-8")
+        parsed = parse_playgroup_card_html(html_content, slug=file_path.stem)
+        records.append(parsed.to_dict())
+    elif suffix in {".tsv", ".csv"}:
+        delimiter = "\t" if suffix == ".tsv" else ","
+        with file_path.open("r", encoding="utf-8") as handle:
+            reader = csv.DictReader(handle, delimiter=delimiter)
+            for row in reader:
+                records.append(dict(row))
+    else:
+        # JSON or JSONL
+        content = file_path.read_text(encoding="utf-8").strip()
+        if content.startswith("{") or content.startswith("["):
+            try:
+                loaded = json.loads(content)
+                if isinstance(loaded, list):
+                    records = [dict(item) for item in loaded if isinstance(item, dict)]
+                elif isinstance(loaded, dict):
+                    if "cards" in loaded and isinstance(loaded["cards"], list):
+                        records = [dict(item) for item in loaded["cards"] if isinstance(item, dict)]
+                    elif "records" in loaded and isinstance(loaded["records"], list):
+                        records = [
+                            dict(item) for item in loaded["records"] if isinstance(item, dict)
+                        ]
+                    else:
+                        records = [loaded]
+            except json.JSONDecodeError:
+                # Try JSONL fallback
+                for line in content.splitlines():
+                    line = line.strip()
+                    if line:
+                        records.append(json.loads(line))
+        else:
+            for line in content.splitlines():
+                line = line.strip()
+                if line:
+                    records.append(json.loads(line))
+
+    db = store.connection
+    timestamp = now_utc()
+    records_imported = 0
+    top_commanders_imported = 0
+    final_zones_imported = 0
+
+    with db:
+        for row in records:
+            card_name = _text(row.get("card_name") or row.get("name")) or ""
+            oracle_id = _text(row.get("oracle_id"))
+            if not oracle_id and card_name:
+                found = db.execute(
+                    "SELECT oracle_id FROM card WHERE oracle_name = ? "
+                    "UNION SELECT oracle_id FROM scryfall_card WHERE name = ?",
+                    (card_name, card_name),
+                ).fetchone()
+                if found:
+                    oracle_id = str(found[0])
+
+            if not oracle_id:
+                # If still no oracle_id, skip or cannot identify
+                continue
+
+            raw_card_id = _text(row.get("card_id"))
+            card_id: str | None = None
+            if (
+                raw_card_id
+                and db.execute("SELECT 1 FROM card WHERE card_id = ?", (raw_card_id,)).fetchone()
+            ):
+                card_id = raw_card_id
+            if not card_id:
+                card_id = store.card_id_by_oracle_or_name(oracle_id, card_name)
+            slug = _text(row.get("slug")) or to_playgroup_slug(card_name)
+            format_mode = _text(row.get("format_mode")) or "multiplayer"
+
+            raw_warnings = row.get("quality_warnings")
+            if isinstance(raw_warnings, list | tuple):
+                warnings_json = json.dumps(list(raw_warnings), ensure_ascii=False)
+            elif isinstance(raw_warnings, str):
+                if raw_warnings.startswith("["):
+                    warnings_json = raw_warnings
+                else:
+                    warnings_json = json.dumps([raw_warnings], ensure_ascii=False)
+            else:
+                warnings_json = str(row.get("quality_warnings_json") or "[]")
+
+            insufficient_sample = _flag(row.get("insufficient_sample")) or 0
+
+            db.execute(
+                """
+                INSERT INTO playgroup_card_atlas (
+                    oracle_id, format_mode, card_id, card_name, slug, card_type, set_name,
+                    live_inclusion_pct, deck_inclusion_pct, times_brought, decks_running, unique_players,
+                    median_cast_turn, drawn_to_played_pct, first_cast_n,
+                    turn_1_pct, turn_2_pct, turn_3_pct, turn_4_pct, turn_5_pct, turn_6_to_9_pct, turn_10_plus_pct,
+                    p25_cast_turn, p75_cast_turn, max_cast_turn,
+                    on_curve_pct, on_curve_count, on_curve_denominator, on_curve_turn,
+                    cast_same_turn_as_drawn_pct, turns_in_hand,
+                    funnel_brought_n, funnel_players_n, ever_drawn_n, reached_battlefield_n, still_on_board_at_end_n,
+                    battlefield_survival_pct,
+                    winrate_when_cast_pct, winrate_when_cast_n,
+                    winrate_when_in_library_pct, winrate_when_in_library_n,
+                    winrate_when_in_hand_pct, winrate_when_in_hand_n,
+                    observed_winrate_gap_pp, ci_95_lower_pp, ci_95_upper_pp,
+                    conservative_ranking_indicator, final_zones_instances_n,
+                    fetch_status, quality_warnings_json, insufficient_sample,
+                    retrieved_at_utc, source_id, created_at, updated_at
+                ) VALUES (
+                    ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?, ?, ?,
+                    ?, ?, ?,
+                    ?, ?, ?, ?, ?, ?, ?,
+                    ?, ?, ?,
+                    ?, ?, ?, ?,
+                    ?, ?,
+                    ?, ?, ?, ?, ?,
+                    ?,
+                    ?, ?,
+                    ?, ?,
+                    ?, ?,
+                    ?, ?, ?,
+                    ?, ?,
+                    ?, ?, ?,
+                    ?, ?, ?, ?
+                )
+                ON CONFLICT(oracle_id, format_mode) DO UPDATE SET
+                    card_id = COALESCE(excluded.card_id, playgroup_card_atlas.card_id),
+                    card_name = excluded.card_name,
+                    slug = excluded.slug,
+                    card_type = excluded.card_type,
+                    set_name = excluded.set_name,
+                    live_inclusion_pct = excluded.live_inclusion_pct,
+                    deck_inclusion_pct = excluded.deck_inclusion_pct,
+                    times_brought = excluded.times_brought,
+                    decks_running = excluded.decks_running,
+                    unique_players = excluded.unique_players,
+                    median_cast_turn = excluded.median_cast_turn,
+                    drawn_to_played_pct = excluded.drawn_to_played_pct,
+                    first_cast_n = excluded.first_cast_n,
+                    turn_1_pct = excluded.turn_1_pct,
+                    turn_2_pct = excluded.turn_2_pct,
+                    turn_3_pct = excluded.turn_3_pct,
+                    turn_4_pct = excluded.turn_4_pct,
+                    turn_5_pct = excluded.turn_5_pct,
+                    turn_6_to_9_pct = excluded.turn_6_to_9_pct,
+                    turn_10_plus_pct = excluded.turn_10_plus_pct,
+                    p25_cast_turn = excluded.p25_cast_turn,
+                    p75_cast_turn = excluded.p75_cast_turn,
+                    max_cast_turn = excluded.max_cast_turn,
+                    on_curve_pct = excluded.on_curve_pct,
+                    on_curve_count = excluded.on_curve_count,
+                    on_curve_denominator = excluded.on_curve_denominator,
+                    on_curve_turn = excluded.on_curve_turn,
+                    cast_same_turn_as_drawn_pct = excluded.cast_same_turn_as_drawn_pct,
+                    turns_in_hand = excluded.turns_in_hand,
+                    funnel_brought_n = excluded.funnel_brought_n,
+                    funnel_players_n = excluded.funnel_players_n,
+                    ever_drawn_n = excluded.ever_drawn_n,
+                    reached_battlefield_n = excluded.reached_battlefield_n,
+                    still_on_board_at_end_n = excluded.still_on_board_at_end_n,
+                    battlefield_survival_pct = excluded.battlefield_survival_pct,
+                    winrate_when_cast_pct = excluded.winrate_when_cast_pct,
+                    winrate_when_cast_n = excluded.winrate_when_cast_n,
+                    winrate_when_in_library_pct = excluded.winrate_when_in_library_pct,
+                    winrate_when_in_library_n = excluded.winrate_when_in_library_n,
+                    winrate_when_in_hand_pct = excluded.winrate_when_in_hand_pct,
+                    winrate_when_in_hand_n = excluded.winrate_when_in_hand_n,
+                    observed_winrate_gap_pp = excluded.observed_winrate_gap_pp,
+                    ci_95_lower_pp = excluded.ci_95_lower_pp,
+                    ci_95_upper_pp = excluded.ci_95_upper_pp,
+                    conservative_ranking_indicator = excluded.conservative_ranking_indicator,
+                    final_zones_instances_n = excluded.final_zones_instances_n,
+                    fetch_status = excluded.fetch_status,
+                    quality_warnings_json = excluded.quality_warnings_json,
+                    insufficient_sample = excluded.insufficient_sample,
+                    retrieved_at_utc = excluded.retrieved_at_utc,
+                    source_id = excluded.source_id,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    oracle_id,
+                    format_mode,
+                    card_id,
+                    card_name,
+                    slug,
+                    _text(row.get("card_type")),
+                    _text(row.get("set_name")),
+                    _float_or_none(row.get("live_inclusion_pct")),
+                    _float_or_none(row.get("deck_inclusion_pct")),
+                    _int_or_none(row.get("times_brought")),
+                    _int_or_none(row.get("decks_running")),
+                    _int_or_none(row.get("unique_players")),
+                    _float_or_none(row.get("median_cast_turn")),
+                    _float_or_none(row.get("drawn_to_played_pct")),
+                    _int_or_none(row.get("first_cast_n")),
+                    _float_or_none(row.get("turn_1_pct")),
+                    _float_or_none(row.get("turn_2_pct")),
+                    _float_or_none(row.get("turn_3_pct")),
+                    _float_or_none(row.get("turn_4_pct")),
+                    _float_or_none(row.get("turn_5_pct")),
+                    _float_or_none(row.get("turn_6_to_9_pct")),
+                    _float_or_none(row.get("turn_10_plus_pct")),
+                    _float_or_none(row.get("p25_cast_turn")),
+                    _float_or_none(row.get("p75_cast_turn")),
+                    _float_or_none(row.get("max_cast_turn")),
+                    _float_or_none(row.get("on_curve_pct")),
+                    _int_or_none(row.get("on_curve_count")),
+                    _int_or_none(row.get("on_curve_denominator")),
+                    _text(row.get("on_curve_turn")),
+                    _float_or_none(row.get("cast_same_turn_as_drawn_pct")),
+                    _float_or_none(row.get("turns_in_hand")),
+                    _int_or_none(row.get("funnel_brought_n")),
+                    _int_or_none(row.get("funnel_players_n")),
+                    _int_or_none(row.get("ever_drawn_n")),
+                    _int_or_none(row.get("reached_battlefield_n")),
+                    _int_or_none(row.get("still_on_board_at_end_n")),
+                    _float_or_none(row.get("battlefield_survival_pct")),
+                    _float_or_none(row.get("winrate_when_cast_pct")),
+                    _int_or_none(row.get("winrate_when_cast_n")),
+                    _float_or_none(row.get("winrate_when_in_library_pct")),
+                    _int_or_none(row.get("winrate_when_in_library_n")),
+                    _float_or_none(row.get("winrate_when_in_hand_pct")),
+                    _int_or_none(row.get("winrate_when_in_hand_n")),
+                    _float_or_none(row.get("observed_winrate_gap_pp")),
+                    _float_or_none(row.get("ci_95_lower_pp")),
+                    _float_or_none(row.get("ci_95_upper_pp")),
+                    _text(row.get("conservative_ranking_indicator")),
+                    _int_or_none(row.get("final_zones_instances_n")),
+                    _text(row.get("fetch_status")) or "OK",
+                    warnings_json,
+                    insufficient_sample,
+                    _text(row.get("retrieved_at_utc")),
+                    source_id,
+                    timestamp,
+                    timestamp,
+                ),
+            )
+            records_imported += 1
+
+            # Top commanders
+            top_commanders = row.get("top_commanders")
+            if isinstance(top_commanders, str) and top_commanders.startswith("["):
+                try:
+                    top_commanders = json.loads(top_commanders)
+                except Exception:
+                    top_commanders = []
+            if isinstance(top_commanders, list | tuple):
+                db.execute(
+                    "DELETE FROM playgroup_top_commander WHERE oracle_id = ? AND format_mode = ?",
+                    (oracle_id, format_mode),
+                )
+                for tc in top_commanders:
+                    if isinstance(tc, dict):
+                        tc_rank = _int_or_none(tc.get("rank")) or 1
+                        tc_name = _text(tc.get("commander_name")) or ""
+                        tc_slug = _text(tc.get("commander_slug")) or to_playgroup_slug(tc_name)
+                        tc_color = _text(tc.get("color_identity")) or ""
+                        tc_count = _int_or_none(tc.get("decks_count")) or 0
+                        db.execute(
+                            """
+                            INSERT INTO playgroup_top_commander (
+                                oracle_id, format_mode, rank, commander_name, commander_slug,
+                                color_identity, decks_count, created_at
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            """,
+                            (
+                                oracle_id,
+                                format_mode,
+                                tc_rank,
+                                tc_name,
+                                tc_slug,
+                                tc_color,
+                                tc_count,
+                                timestamp,
+                            ),
+                        )
+                        top_commanders_imported += 1
+
+            # Final zones
+            final_zones = row.get("final_zones")
+            if isinstance(final_zones, str) and final_zones.startswith("["):
+                try:
+                    final_zones = json.loads(final_zones)
+                except Exception:
+                    final_zones = []
+            if isinstance(final_zones, list | tuple):
+                db.execute(
+                    "DELETE FROM playgroup_final_zone WHERE oracle_id = ? AND format_mode = ?",
+                    (oracle_id, format_mode),
+                )
+                for fz in final_zones:
+                    if isinstance(fz, dict):
+                        fz_name = _text(fz.get("zone_name")) or ""
+                        fz_pct = _float_or_none(fz.get("pct")) or 0.0
+                        fz_inst = _int_or_none(fz.get("instances_n"))
+                        if fz_name:
+                            db.execute(
+                                """
+                                INSERT INTO playgroup_final_zone (
+                                    oracle_id, format_mode, zone_name, pct, instances_n, created_at
+                                ) VALUES (?, ?, ?, ?, ?, ?)
+                                """,
+                                (oracle_id, format_mode, fz_name, fz_pct, fz_inst, timestamp),
+                            )
+                            final_zones_imported += 1
+
+    return {
+        "records_imported": records_imported,
+        "top_commanders_imported": top_commanders_imported,
+        "final_zones_imported": final_zones_imported,
+    }

@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html class='h-screen' lang='en'>
+<head>
+<meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="csrf-param" content="authenticity_token" />
+<meta name="csrf-token" content="ONbgPBVu305ROPLplNi8Tov4IxP4DofM5h3Bmoo9TXBxAuJdBA2hrg3jE-bJ3UtR1MZHy-px054tj4MRFxQwEQ" />
+
+
+<script type="importmap" data-turbo-track="reload">{
+  "imports": {
+    "application": "https://playgroup.gg/assets/application-026286d31ffa9314c9cfdcd8a6da0d9c427caf11fb43c8ad5cffb306becf2f87.js",
+    "chartkick": "https://playgroup.gg/assets/chartkick-8eb76e6cbdb540d495739fce84049fd038e59e7fd55c9e08e47b0b5a74b62db4.js",
+    "Chart.bundle": "https://playgroup.gg/assets/Chart.bundle-f8cbd12f96f40621d748f50e7c4b03245673e70081388fcc60ff79094413d16c.js",
+    "flowbite": "https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.turbo.min.js",
+    "driver.js": "https://playgroup.gg/assets/driver-5ef0ddbb2a2a6e42c69c002a729c11abe578a44382044e33a108c451270238ec.js",
+    "@hotwired/turbo-rails": "https://playgroup.gg/assets/turbo.min-0a1e5a7b7eec74cc22c4575a1a202c0e9e7507faf8da857a9c71263254a295b1.js",
+    "@hotwired/stimulus": "https://playgroup.gg/assets/@hotwired--stimulus-379f09adbcd004e5b2c2793635d128b6e72c08d1ef5337bf8a5d1e260aaa403e.js",
+    "@hotwired/stimulus-loading": "https://playgroup.gg/assets/stimulus-loading-3576ce92b149ad5d6959438c6f291e2426c86df3b874c525b30faad51b0d96b3.js",
+    "@rails/actioncable": "https://playgroup.gg/assets/actioncable.esm-b66d83871f0a453b10ba8b4c147c2bafa655caaa5d13fa34e9bf361c1c2aedb7.js",
+    "stimulus-autocomplete": "https://ga.jspm.io/npm:stimulus-autocomplete@3.0.2/src/autocomplete.js",
+    "moment": "https://ga.jspm.io/npm:moment@2.29.4/moment.js",
+    "html2canvas": "https://ga.jspm.io/npm:html2canvas@1.4.1/dist/html2canvas.js",
+    "tom-select": "https://playgroup.gg/assets/tom-select-8f12dd47d16ec2ec6576e1bb44907f8dd4d51a27c2a378920ba610043d48f2e1.js",
+    "leaflet": "https://playgroup.gg/assets/leaflet-df8cad8209f4c881748f4a80602b1db6b35fd939bdeba37ddbd0402f3782648b.js",
+    "leaflet-geosearch": "https://playgroup.gg/assets/leaflet-geosearch-901096b7470eb75d6ae27f3e11d6e5f48bacd5a600372efaa8f514d19885bbbb.js",
+    "leaflet.markercluster": "https://playgroup.gg/assets/leaflet.markercluster-2fa1131106d5417f384f2f5c7470d0e123bf4c75517fcaef5743dd8ba151d1dd.js",
+    "canvas-confetti": "https://playgroup.gg/assets/canvas-confetti-e83cfc972f929042395bbb67a955d854811d1bb7f9573df38d6eb74d181d27c9.js",
+    "stimulus-easepick": "https://playgroup.gg/assets/stimulus-easepick-69051eb4e82795ea752c051974bb54bc41b307fe12f58dfd33e697ca0b792e04.js",
+    "@easepick/bundle": "https://playgroup.gg/assets/@easepick--bundle-1691ef3431c4c9d9c88db6bf8eb7c238fca29ec47e7a0cde5c81bb1dcb9c02c4.js",
+    "d3": "https://playgroup.gg/assets/d3-d3bd5904fefb6d829d7a90b4a1c6d5d06261e3084518e89a5a39cbfda59e7d61.js",
+    "d3-array": "https://playgroup.gg/assets/d3-array-63a5a42ad587f642c7398b4e5a038fb09a4ffbacd732cec8846415fa93558eba.js",
+    "d3-axis": "https://playgroup.gg/assets/d3-axis-eb0f99823e8191ead59ff8b2ed5b46e92b9bb8ee3db4437ffe5c198705b6a4e3.js",
+    "d3-brush": "https://playgroup.gg/assets/d3-brush-96e92af52f59397acba7c6dda04afaf4e8c8b4ca205e6cba33e5185f0412bd45.js",
+    "d3-chord": "https://playgroup.gg/assets/d3-chord-5d164078acb15da9996fcebb603226b8a9bee6f4e1a9cf6d1d0d461bd3165a2d.js",
+    "d3-color": "https://playgroup.gg/assets/d3-color-d40b0a64c88297a18c54110e7a4a64c6e9f8afa560e40af2ba35f42d155e4e36.js",
+    "d3-contour": "https://playgroup.gg/assets/d3-contour-f345fdcef13a2da35346965a397b9f69d9ac53541c12de1da159eb70ca1914d7.js",
+    "d3-delaunay": "https://playgroup.gg/assets/d3-delaunay-530337666b915843570d5a97b8673ce1c111ad3d7bf4704a19798e3282810ebe.js",
+    "d3-dispatch": "https://playgroup.gg/assets/d3-dispatch-c2b1e8792533c2ba33f45401d9e713cab4e28510f30cee4e000244101a9c3f22.js",
+    "d3-drag": "https://playgroup.gg/assets/d3-drag-8c5b16cfccf49d6a8413254dad956c2f15338883e7d4760d33fce34e6d9ad4b2.js",
+    "d3-dsv": "https://playgroup.gg/assets/d3-dsv-c2eb94452568055cfc44c4533130880eb3dc0f0de93dd46ae59086db7fe9bc73.js",
+    "d3-ease": "https://playgroup.gg/assets/d3-ease-aef21f953064a9884d18fd0b21e0197b2ac21526592031fb15718049437b2473.js",
+    "d3-fetch": "https://playgroup.gg/assets/d3-fetch-a59221084e211cc287b89f0ad8733e647b6745690ef65ec5907fcf0b797da683.js",
+    "d3-force": "https://playgroup.gg/assets/d3-force-5aa87b3e72372d237ca6b6659148a99285252fd745840bdbc1005f48b2a6fec4.js",
+    "d3-format": "https://playgroup.gg/assets/d3-format-211ec8aa8af662f6f6e14057b96467fd60d8eb42d5a9cacd698d91c89dc569ac.js",
+    "d3-geo": "https://playgroup.gg/assets/d3-geo-55bb920a5b1ffa65973e191e5b797c99063d2834531b4f85e04dc08f0d758c54.js",
+    "d3-hierarchy": "https://playgroup.gg/assets/d3-hierarchy-278099ca4448925824465e7cb70afdfad352aac707889a4fd130bf6c5038a9ad.js",
+    "d3-interpolate": "https://playgroup.gg/assets/d3-interpolate-530755752e84533951e9b09ca45abfe8575dc367144527657abf508050f6e5e6.js",
+    "d3-path": "https://playgroup.gg/assets/d3-path-2fc15ad0d172e45239c7472d2a178b519cc5db854c32c1d8b8aeffd6bd13d966.js",
+    "d3-polygon": "https://playgroup.gg/assets/d3-polygon-5903ab9f3b4417573e04e9c596c3a5b57e2cea0ce7b80da618ab982b5932d855.js",
+    "d3-quadtree": "https://playgroup.gg/assets/d3-quadtree-afcd3d63bb896fe5debd2c7a0c3f2de451f469624fd2f09c2852cb2b804a349e.js",
+    "d3-random": "https://playgroup.gg/assets/d3-random-a5135c63c07d497c6fb3851160f31f30dd4f38fc38cecd4e49c1d27937a96a66.js",
+    "d3-scale": "https://playgroup.gg/assets/d3-scale-ac6a4a02a219b3a1255e3a62946a29d986d874b55e40861e50daa3b262489065.js",
+    "d3-scale-chromatic": "https://playgroup.gg/assets/d3-scale-chromatic-7b789e135d81389a4fc0fea59f6f8c1e212b75a703cafb0c8befe7f75887d00d.js",
+    "d3-selection": "https://playgroup.gg/assets/d3-selection-19219280ccbe216e28c84ee63fb86ad133cd85132dc8c044d8770181af063571.js",
+    "d3-shape": "https://playgroup.gg/assets/d3-shape-0f523058a08ef2d41633204f8aa57f8faa449b943815ac7c43480c5432c4f88c.js",
+    "d3-time": "https://playgroup.gg/assets/d3-time-7cd62e935b61fc29b1b92997ba66fc9206027724f0798fc79816b3de015706b0.js",
+    "d3-time-format": "https://playgroup.gg/assets/d3-time-format-738e4a24c4064592d14484b3cf71860c3ff11c3226f8a220a69f9c666b3bf44d.js",
+    "d3-timer": "https://playgroup.gg/assets/d3-timer-0536ff799c7e8bf887e4bd03c89a376c1bc19d2eb68136d6be3f25f32a715caa.js",
+    "d3-transition": "https://playgroup.gg/assets/d3-transition-a2ffc99137575b666a0e0948d5d6c61ac333e2601179186ba10ca1dd38774a44.js",
+    "d3-zoom": "https://playgroup.gg/assets/d3-zoom-208d8251bb566d0aa4b8296c27af4e838650cb7846b3467bf4f1d820388b2447.js",
+    "delaunator": "https://playgroup.gg/assets/delaunator-04a47c296d94cdf6c3ad767e2ea5db73617463ccec20232cf04f632502a58e94.js",
+    "internmap": "https://playgroup.gg/assets/internmap-3caed1335dc96a9fe78311c9cc1fa60a1b30fdc655b27f266a10dee20495ca4d.js",
+    "robust-predicates": "https://playgroup.gg/assets/robust-predicates-062971a7eccec1670941e47fc1657c9f8318ebeb1857b063556b07617e34da46.js",
+    "controllers/adblock_controller": "https://playgroup.gg/assets/controllers/adblock_controller-e7a43f2b1e229dee3ab79263c9a864ae9bc9709630760b887c83f18c78ff37e6.js",
+    "controllers/admin_passkey_controller": "https://playgroup.gg/assets/controllers/admin_passkey_controller-2fdf2ecaa47a8a29444f0dfa498096b99638a3dd54f095dc568e19cfd632dbe3.js",
+    "controllers/app_confirm_controller": "https://playgroup.gg/assets/controllers/app_confirm_controller-aa1d049c42564b5048e9b1b1b4c7fec6cb4fcaf0d6eb59959b19fd2afa964258.js",
+    "controllers/app_deck_fetch_controller": "https://playgroup.gg/assets/controllers/app_deck_fetch_controller-28489c37228dd08c43be3f586c18206461855347e472f6dae33db4de8c6d6ad5.js",
+    "controllers/app_deck_fill_controller": "https://playgroup.gg/assets/controllers/app_deck_fill_controller-6ef57fd1fb4136c491c90aca72d6db762eb139ae66f2062916721b28af035960.js",
+    "controllers/app_deck_sheet_controller": "https://playgroup.gg/assets/controllers/app_deck_sheet_controller-951d33128fc3096319d05b057118cf218053c9244de996c957d374072d486028.js",
+    "controllers/app_deck_sync_controller": "https://playgroup.gg/assets/controllers/app_deck_sync_controller-507ed27dc10b483bac9d6c84b3383d7d0ee31c950194310d9b412f5b2235b9a9.js",
+    "controllers/app_decks_controller": "https://playgroup.gg/assets/controllers/app_decks_controller-31e6d2a8eefc3bddd8c49cbdc3ad9a0235a136771adb57ebe7191385295b6b70.js",
+    "controllers/app_first_run_controller": "https://playgroup.gg/assets/controllers/app_first_run_controller-737b0af159de671bf611da57a05130c06ff3f3ad825b589237e761dc1e8b9c3a.js",
+    "controllers/app_flash_controller": "https://playgroup.gg/assets/controllers/app_flash_controller-8e6bd9208aa77d481cf9dd3807ec063158a341fd15d81bfc591bda9e538d618b.js",
+    "controllers/app_hint_controller": "https://playgroup.gg/assets/controllers/app_hint_controller-c2f02d75aa185da2666e9e412d3eeada7d07ff0bed967197417fa6fa18855411.js",
+    "controllers/app_import_controller": "https://playgroup.gg/assets/controllers/app_import_controller-6f2232580026d1e3a31e27cd5e9e4a852555b732339ab1986bbc33c5f6175d28.js",
+    "controllers/app_loading_controller": "https://playgroup.gg/assets/controllers/app_loading_controller-97b800982427922035a2a1ac0101af931388b0b96bdf51177416be61a378dc5e.js",
+    "controllers/app_picker_controller": "https://playgroup.gg/assets/controllers/app_picker_controller-ccbce2f61c4be872ea61431218afff3e07fc7f40adcd38abe2aac90a1a15ed40.js",
+    "controllers/app_play_tabs_controller": "https://playgroup.gg/assets/controllers/app_play_tabs_controller-bfdde87205d3c4024d7005eef9b00bfc5d7c48586727fa3b8ea67aca52c050e5.js",
+    "controllers/app_sheet_controller": "https://playgroup.gg/assets/controllers/app_sheet_controller-8ad33ec8d7338216607fa23a558382f5df288b02ea1d4c3f369bb225c1796528.js",
+    "controllers/app_social_sign_in_controller": "https://playgroup.gg/assets/controllers/app_social_sign_in_controller-f1107e021f58fbf68a59b26d3cd59367af78454d8fcbba8b7b88606df00ad522.js",
+    "controllers/app_store_nudge_controller": "https://playgroup.gg/assets/controllers/app_store_nudge_controller-e79d71f3e39857ca57db1878f2e50a05aa1b21d4941c4aa0dad1debcd84cc801.js",
+    "controllers/app_tabbar_controller": "https://playgroup.gg/assets/controllers/app_tabbar_controller-8ec0f92f8008655980b14f967ba75465392b92bd068a3fd29b06eb55a1524198.js",
+    "controllers/app_viewport_controller": "https://playgroup.gg/assets/controllers/app_viewport_controller-f728fec829ecb51a23537a4eaa6f08c37d816cb67c9cbd424caf7517b2259caa.js",
+    "controllers/application": "https://playgroup.gg/assets/controllers/application-368d98631bccbf2349e0d4f8269afb3fe9625118341966de054759d96ea86c7e.js",
+    "controllers/archetype_search_controller": "https://playgroup.gg/assets/controllers/archetype_search_controller-bf602eb668c9c27a65f45a3a1f9c12d6127dc36d7f450bd1f1199c62723af450.js",
+    "controllers/auto_dismiss_controller": "https://playgroup.gg/assets/controllers/auto_dismiss_controller-061908fa412c5237ddebd8a59fcca04fd7cdcba5f6132e5c9b163a236310318a.js",
+    "controllers/auto_submit_controller": "https://playgroup.gg/assets/controllers/auto_submit_controller-4240df891d895a58f597afdb6c4daa815c8994d94ba686a8d0c111ec881b9a69.js",
+    "controllers/avoid_filter_controller": "https://playgroup.gg/assets/controllers/avoid_filter_controller-cba7a3ee92f3871708084e4c65e2e65e53f3f0ef0487a77b77009f06501e040c.js",
+    "controllers/banner_focus_controller": "https://playgroup.gg/assets/controllers/banner_focus_controller-6302cacde11e62316b85a33dc42944f6b6f02d1d3d1b853fd117abac2d40d83c.js",
+    "controllers/bracket_form_controller": "https://playgroup.gg/assets/controllers/bracket_form_controller-f4a0408a91143737050e2126e6cbb596749494a66cf7b45cc5a512b099e7a7a8.js",
+    "controllers/brew_bracket_controller": "https://playgroup.gg/assets/controllers/brew_bracket_controller-65155bcd0a8b279daf934649e2648d492e05af66739f15746e6ee9e4a6639d00.js",
+    "controllers/brew_buy_controller": "https://playgroup.gg/assets/controllers/brew_buy_controller-51cb4c6b52235bbed00101b46e7ec608fb040fbe7c00c546639d5f0022552cf6.js",
+    "controllers/brew_share_controller": "https://playgroup.gg/assets/controllers/brew_share_controller-b96737d1977a90bcfac0ec38a9fb9cbadae617a576e6356b25ad6fcecaae7eb8.js",
+    "controllers/brew_start_controller": "https://playgroup.gg/assets/controllers/brew_start_controller-34eaab4569aefe18ea26f203fa2fd313418771ecf5688e37aadc148b91f380ff.js",
+    "controllers/brew_tour_controller": "https://playgroup.gg/assets/controllers/brew_tour_controller-6c978a914e26184aa8ffa63db1fb859a9a6ee5dade88f59bb197545ebc960177.js",
+    "controllers/browser_context_controller": "https://playgroup.gg/assets/controllers/browser_context_controller-1a60066c262ec9da7b767b5ae780ae97c8e5e13b7a816ad60edf32a702d1e91a.js",
+    "controllers/browser_context_url_controller": "https://playgroup.gg/assets/controllers/browser_context_url_controller-5e865264f587d460d966f08e87c1f3e1eab50774f8c839420759e8f50a4eb721.js",
+    "controllers/browser_languages_controller": "https://playgroup.gg/assets/controllers/browser_languages_controller-bd8741fb291ecdc9256981defd4a365e4cbddd4c8e7cc9b18a0bd0222dde79ff.js",
+    "controllers/calendar_toggle_controller": "https://playgroup.gg/assets/controllers/calendar_toggle_controller-39590572a403df0c8c5aa607e4e4a5f6a4c45d8085b9cdbd354d9d3b96110564.js",
+    "controllers/card_browser_controller": "https://playgroup.gg/assets/controllers/card_browser_controller-0733eee59e5b3893b911b6897f57feebd78401ea7b662412aba8ff9279a63422.js",
+    "controllers/card_context_menu_controller": "https://playgroup.gg/assets/controllers/card_context_menu_controller-f5344e248f28236d5514c615e29a0cf37b128bacecac7bbcd7c2460935f37202.js",
+    "controllers/card_detail_modal_controller": "https://playgroup.gg/assets/controllers/card_detail_modal_controller-45fd7ccf183818cb71b51e93586d5a7e6f1270be41c4bbc451d3597f92f3314b.js",
+    "controllers/card_flip_controller": "https://playgroup.gg/assets/controllers/card_flip_controller-49ed2d1d1f1455365fcaa3d9940b6fe485df7cf40488a79b9a10a34af6ce70e1.js",
+    "controllers/card_hover_preview_controller": "https://playgroup.gg/assets/controllers/card_hover_preview_controller-84808577cab8135b395f70beee79ed8b1755aced49f0a9a92d669f0a17efa85d.js",
+    "controllers/card_performance_filter_controller": "https://playgroup.gg/assets/controllers/card_performance_filter_controller-47afbd1d0d43e8b105311753d8de18acd98f73ccfb79fc346d7f4e61142d7edc.js",
+    "controllers/card_scry_game_controller": "https://playgroup.gg/assets/controllers/card_scry_game_controller-8d4f95060f38273270e5743b54676aaf07674a3fc3b16f15f74af3d3ada6e82e.js",
+    "controllers/card_scry_workbench_controller": "https://playgroup.gg/assets/controllers/card_scry_workbench_controller-c2a691009724757b18a6e34be965a6ddca15160233b51fb5bcced57e73b39253.js",
+    "controllers/card_search_controller": "https://playgroup.gg/assets/controllers/card_search_controller-8201bd9cd94bb01d684cbb11a0983960695ccf8aa1598dd66959fc6c0cb494f7.js",
+    "controllers/cards_lookup_controller": "https://playgroup.gg/assets/controllers/cards_lookup_controller-cfb3aada864e2dca68d9aadcbf60bf7c8ce6322dd1610fd2ecf5622a21bec861.js",
+    "controllers/char_count_controller": "https://playgroup.gg/assets/controllers/char_count_controller-03b8675d7fe9afd44c8ac00c54925ca10b9d5a47282c5741029cb197fb8bb9de.js",
+    "controllers/clip_preview_controller": "https://playgroup.gg/assets/controllers/clip_preview_controller-cb5a297ee32bc15ee3a9a2e2aa65dbe3708208d574d8b28e6e69bac89dba01d2.js",
+    "controllers/clipboard_controller": "https://playgroup.gg/assets/controllers/clipboard_controller-0823d60b8db5c40d8ac330217ee403d50c31378fa6504abd9c07a49a20a6a9db.js",
+    "controllers/collapsible_section_controller": "https://playgroup.gg/assets/controllers/collapsible_section_controller-c94e38fd155904de63e64bc84e8b1f2fc2519aaff09ec4066faafc3e05abdbae.js",
+    "controllers/collection_choice_controller": "https://playgroup.gg/assets/controllers/collection_choice_controller-899c8e886d65f9a0071f2f86d4620dca22867fddee99a99b279fafe496faae71.js",
+    "controllers/collection_filter_controller": "https://playgroup.gg/assets/controllers/collection_filter_controller-514eff233ffd048291fb8afa4c92522b08f553f5d7e56bd0e9334fcf0c9a1aed.js",
+    "controllers/collection_import_preview_controller": "https://playgroup.gg/assets/controllers/collection_import_preview_controller-4b61dd56c2e2e9e930748523cb56fdbe0d8ef8aa6d99f773c07c3cc9a6847fea.js",
+    "controllers/collection_menu_controller": "https://playgroup.gg/assets/controllers/collection_menu_controller-c817f6fdc7a85a625c1f851707b9b32f013dc1e6e46fca710f58d6cfa30fefe7.js",
+    "controllers/collection_select_controller": "https://playgroup.gg/assets/controllers/collection_select_controller-a67d103db65929a92242744d664e9914d9938087e195cb9d31a09ac0963e5747.js",
+    "controllers/column_chart_controller": "https://playgroup.gg/assets/controllers/column_chart_controller-e9ad1d88942a433f33855efe772e113b14769c81d8beea15f219508fd7990568.js",
+    "controllers/commander_desk_controller": "https://playgroup.gg/assets/controllers/commander_desk_controller-a7b65e61c9f26e7e6cd2a848e58070345b664aaa3de3b6ff7f2e892df442843d.js",
+    "controllers/commander_profile_controller": "https://playgroup.gg/assets/controllers/commander_profile_controller-3891ca01a5e4932da70dfda07a21db6ee8a2f1503394dfe0b35edacb5d4d7125.js",
+    "controllers/commander_search_controller": "https://playgroup.gg/assets/controllers/commander_search_controller-48b80b67039f3a21d98c5f2113d0f8e732759636abbfca5bb7d5c6d0c91de906.js",
+    "controllers/commander_tabs_controller": "https://playgroup.gg/assets/controllers/commander_tabs_controller-3e88d8a0da66fa6ae9c6b06eaf6e2102ecccbf5f1bcf397ca2441c3689e92804.js",
+    "controllers/commander_time_window_controller": "https://playgroup.gg/assets/controllers/commander_time_window_controller-37b5b61826899070854ff7ca852810460ab63a467ee9921cc307cdd187f74280.js",
+    "controllers/commander_treemap_controller": "https://playgroup.gg/assets/controllers/commander_treemap_controller-1167c01a580bdd8053bfaeb91c23335590fb5dd396c3b2fdb260b19932231528.js",
+    "controllers/community_image_controller": "https://playgroup.gg/assets/controllers/community_image_controller-4b57970f77675f8287ae4ac44c9479cb6bf768c6a431290e11b2fd887810c301.js",
+    "controllers/confetti_controller": "https://playgroup.gg/assets/controllers/confetti_controller-e8612d33c3ac3cd7b15e524cbe397f066105171faebc85e2055b507a33c190a9.js",
+    "controllers/connection_status_controller": "https://playgroup.gg/assets/controllers/connection_status_controller-e142c65602739425df078cd87f8637917792a978ddf33d27fc7cc3e6f03870bc.js",
+    "controllers/copy_field_controller": "https://playgroup.gg/assets/controllers/copy_field_controller-ab3a6b1a006cf1ab2c8559a7c6249f2f3840216d6eb17d9cf153a980a4f8a81f.js",
+    "controllers/cosmetic_collections_controller": "https://playgroup.gg/assets/controllers/cosmetic_collections_controller-5b374f7ab582f1540baf7c7a2955ae4f8d71d09e62450c1845c0a3a72c7dc773.js",
+    "controllers/cosmetic_viewer_controller": "https://playgroup.gg/assets/controllers/cosmetic_viewer_controller-ffc56d08d22673d32be0baab4bb1f9c137e01f4e126e4b1ef6dfb48674ba44cd.js",
+    "controllers/counter_controller": "https://playgroup.gg/assets/controllers/counter_controller-c3d8f4d2348d86fcf2bf08dff12a266be065bcd593561b465cbe0874111a1b7d.js",
+    "controllers/cube_draft_card_zoom_controller": "https://playgroup.gg/assets/controllers/cube_draft_card_zoom_controller-ca4512c71e3a0117d5c22ce34c71531968372a1f2083e4125e6ebcaa8b9bcf42.js",
+    "controllers/cube_draft_channel_controller": "https://playgroup.gg/assets/controllers/cube_draft_channel_controller-d4c4f764893f447fc3f3e684dac5d76590dc7dac5f2166714431742f3147017c.js",
+    "controllers/cube_draft_countdown_controller": "https://playgroup.gg/assets/controllers/cube_draft_countdown_controller-7ca8b0a19fbe391c609364141d86dfed335390ee1e486ec9c2dd2e626a222fb5.js",
+    "controllers/cube_draft_filter_controller": "https://playgroup.gg/assets/controllers/cube_draft_filter_controller-11a5006f94e080a2550ab9f26cca228687cd21d75676ac2be9a89ad1f916313b.js",
+    "controllers/cube_draft_pick_controller": "https://playgroup.gg/assets/controllers/cube_draft_pick_controller-a1cc202c3958dac975f179c6b9008d695ede46e8e30338b7aed9a1079d6473b8.js",
+    "controllers/cube_draft_room_controller": "https://playgroup.gg/assets/controllers/cube_draft_room_controller-9228d3617848707bd7e5e6aa463dc2f5f86a2c033daf4d1aa042e70dbc6d84a7.js",
+    "controllers/cube_invite_controller": "https://playgroup.gg/assets/controllers/cube_invite_controller-6fb327f04741d093193ba152acd7418423c638f7674954ea1b34b101045ff5b9.js",
+    "controllers/cube_list_filter_controller": "https://playgroup.gg/assets/controllers/cube_list_filter_controller-11dd4f49137f79c963a20e3b1710c55cd7190386b213454f12755e70c0541946.js",
+    "controllers/cube_lobby_option_controller": "https://playgroup.gg/assets/controllers/cube_lobby_option_controller-9251373a4d23b1b0ad76c8daa1a52e290284a076fde8c557d90758058ed23cf4.js",
+    "controllers/cube_start_controller": "https://playgroup.gg/assets/controllers/cube_start_controller-270370e875b4c49f8c73cf1cb041345269fdbf708780fdfa2fbe6ff614360efe.js",
+    "controllers/deck_card_filter_controller": "https://playgroup.gg/assets/controllers/deck_card_filter_controller-e1e688f2e3b774ff97808d68742bf059b2d34dbd86fc4d53730688e865ae15e4.js",
+    "controllers/deck_cards_controller": "https://playgroup.gg/assets/controllers/deck_cards_controller-b3638aca9b2a0ffa9b32cb7c42ee84407aecfd51f98db17f098c041c67ec0215.js",
+    "controllers/deck_details_controller": "https://playgroup.gg/assets/controllers/deck_details_controller-3a2c523817aa80f8a9580ce1c14b84463ff5a9eb0180288ac737a153e06a1b80.js",
+    "controllers/deck_dialog_controller": "https://playgroup.gg/assets/controllers/deck_dialog_controller-0d97e5fa53743de5c51014c3cde3076d51d4d8e62eadb6f0fdf84fc602dca64d.js",
+    "controllers/deck_group_sort_controller": "https://playgroup.gg/assets/controllers/deck_group_sort_controller-2a580fd6afa468004e6b88cd2f070c12e90f2834662399da7128f4ce452efbe3.js",
+    "controllers/deck_import_controller": "https://playgroup.gg/assets/controllers/deck_import_controller-5def2ce06e834456f78e7a99e920edc92911833561da3278ae7aadde9027b2af.js",
+    "controllers/deck_import_progress_controller": "https://playgroup.gg/assets/controllers/deck_import_progress_controller-b11c7a550104402287a51210485d6eb2642423d810467366890f612f928de4c7.js",
+    "controllers/deck_intake_controller": "https://playgroup.gg/assets/controllers/deck_intake_controller-d1457d09697b3bb027968faa49da1fabf434c341573d6447f4ccf757d46a3b22.js",
+    "controllers/deck_link_hint_controller": "https://playgroup.gg/assets/controllers/deck_link_hint_controller-5747c4c58fdda68cf1ae83dcf90aa26f2c887f6802e5fa8dd2018d03dc90327b.js",
+    "controllers/deck_live_refresh_controller": "https://playgroup.gg/assets/controllers/deck_live_refresh_controller-f4b17023e0b852268eba2204da137f20ec4a2a4d9544ec22a34858eab45f0939.js",
+    "controllers/deck_menu_controller": "https://playgroup.gg/assets/controllers/deck_menu_controller-7e2c686dc5fff773dd1e7f3e7b0435f489fc9188579c288e1d38fcb121004815.js",
+    "controllers/deck_picker_controller": "https://playgroup.gg/assets/controllers/deck_picker_controller-3452b94c923b837fc98976757c514490b03838c605f3f146fd595fefb296f0d0.js",
+    "controllers/deck_preview_controller": "https://playgroup.gg/assets/controllers/deck_preview_controller-a6c316ebbbac92d3d5c0279b1e724be6e231a6be202346064fa0680d4f61935a.js",
+    "controllers/deck_readiness_controller": "https://playgroup.gg/assets/controllers/deck_readiness_controller-af4d07e56a14b8e2d1646f62f6af6211dd24e749de6d266555630f077b9d3fbe.js",
+    "controllers/deck_resync_controller": "https://playgroup.gg/assets/controllers/deck_resync_controller-0d100b71e44f5d4a14e3b82264a7cf29b56645168c68204099bf41cffa9c569c.js",
+    "controllers/deck_scanner_controller": "https://playgroup.gg/assets/controllers/deck_scanner_controller-d2ab6ab416b1c7aba54c3da15dbc34b8d67e615738df54d0e984bf22c0ef32a6.js",
+    "controllers/deck_sync_status_controller": "https://playgroup.gg/assets/controllers/deck_sync_status_controller-83e50c7a9fb013628e9f947070d5010801a179fa1ad3272b8c99e6cff7fff011.js",
+    "controllers/deck_tabs_controller": "https://playgroup.gg/assets/controllers/deck_tabs_controller-e26251ebf186dad0c9c8e748e1b9c1ada98b420d510332511b787773598ec749.js",
+    "controllers/deck_text_view_controller": "https://playgroup.gg/assets/controllers/deck_text_view_controller-cad8b0ee5396dac9fc7367896caeea191e5e57e8c7c25c87b2c64282c052536d.js",
+    "controllers/deck_usage_bubble_controller": "https://playgroup.gg/assets/controllers/deck_usage_bubble_controller-37467f4aed8647393dd38d295bd7cf3f2179d31f72956933d4845773f0be0119.js",
+    "controllers/deck_usage_controller": "https://playgroup.gg/assets/controllers/deck_usage_controller-84bed06d428ac5a58c7b6583a8dc300001c2bf66ecaf0cd70dab2150a7e6f03e.js",
+    "controllers/deck_view_toggle_controller": "https://playgroup.gg/assets/controllers/deck_view_toggle_controller-8fc00670ca28d0d3a6e86750d7dfa3c609f57411d7d6c4dd1aaa4e0cf40b4b29.js",
+    "controllers/decklist_import_controller": "https://playgroup.gg/assets/controllers/decklist_import_controller-c2dd88ef3b33e22acc985d2a634b009b2f7ce25d264c4061f4ef5ab7d8e6fe4b.js",
+    "controllers/details_menu_controller": "https://playgroup.gg/assets/controllers/details_menu_controller-da630a4540981d244bcc7ec20a58aab501ea50a1b766eb160ceb6377e98e0fd6.js",
+    "controllers/device_settings_controller": "https://playgroup.gg/assets/controllers/device_settings_controller-7fbf4778bdaad1fb7125631e5ca7b002cdbf20910e44656b15c14c47282f4ee7.js",
+    "controllers/device_setup_controller": "https://playgroup.gg/assets/controllers/device_setup_controller-359d856a672804d5eda703adb97e43ffa3321a9713f8ff30b99ed5e730fb1f65.js",
+    "controllers/duration_calculator_controller": "https://playgroup.gg/assets/controllers/duration_calculator_controller-c1e36805ac0d476b16b74ec934818a4ff9dd6b8702d87be7d551da175d22b5b3.js",
+    "controllers/elapsed_time_controller": "https://playgroup.gg/assets/controllers/elapsed_time_controller-d249db22c89438e05c8bf002a57085f38cc720c2b03164cfb96523ba99c16d5a.js",
+    "controllers/elo_highlight_controller": "https://playgroup.gg/assets/controllers/elo_highlight_controller-9e0067ad6eac8bd29fc29f31eb2d3a05285fda79bb04dea8e47d892953b97a91.js",
+    "controllers/fade_in_controller": "https://playgroup.gg/assets/controllers/fade_in_controller-ef746927e1974e5408ac68afab2afc71a23c1037efd119a3b3b93e1a94d18d55.js",
+    "controllers/file_drop_controller": "https://playgroup.gg/assets/controllers/file_drop_controller-c0e67263705ef01694dcba6683688483942acbc131f4566fa94755a400dfa016.js",
+    "controllers/filters_dialog_controller": "https://playgroup.gg/assets/controllers/filters_dialog_controller-66f745514350b13f009c06b7a8887caa5469a0641180c3c1d4da31f8c17de042.js",
+    "controllers/form_controller": "https://playgroup.gg/assets/controllers/form_controller-3d5d2f73e52b0c9c460c8a6204e8ac2d972e56e8c57bd508f35577bbcc8a7e3f.js",
+    "controllers/game_changers_table_controller": "https://playgroup.gg/assets/controllers/game_changers_table_controller-22a487c557f488f506e39c6e235bfabbb68f1dd763696196cfb7cf12707e4adb.js",
+    "controllers/game_night_presence_controller": "https://playgroup.gg/assets/controllers/game_night_presence_controller-4f94188c2dd3725d16e3f1f01df9810a4000cee38e65f73ba0488586b7611aae.js",
+    "controllers/game_night_table_controller": "https://playgroup.gg/assets/controllers/game_night_table_controller-f7465d55fca21630ea5c7c4b6f2d2d471b6bf5b67c17c105726d0fac2682b15e.js",
+    "controllers/game_screenshot_controller": "https://playgroup.gg/assets/controllers/game_screenshot_controller-949011620de976ec33d1c681b172672e88ef98e9e5b0bd68ce0a3262a306864d.js",
+    "controllers/game_tabs_controller": "https://playgroup.gg/assets/controllers/game_tabs_controller-ea641f125c4745d38932ac93740b9b54534272ed38740df49668175103b55be1.js",
+    "controllers/game_times_controller": "https://playgroup.gg/assets/controllers/game_times_controller-75c35ffb8b8a06fc083635c598dc69f932e6b22d498515c4fa9dbbcd12dd2ce1.js",
+    "controllers/games_filter_controller": "https://playgroup.gg/assets/controllers/games_filter_controller-999974876c5ac40f4c6aaddafd17a64f8569bff601eb1b13b56a3301f93fcf10.js",
+    "controllers/hello_controller": "https://playgroup.gg/assets/controllers/hello_controller-d1601b891edf80fb3534226b83bda1dbbf68c366f192087bbe0b1f58e40c4b18.js",
+    "controllers/history_sheet_controller": "https://playgroup.gg/assets/controllers/history_sheet_controller-b35df6c7a94f3466a3cf1bd7673c9dc85d06c94da043f5471e0b09939bc02b50.js",
+    "controllers/horizontal_bar_chart_controller": "https://playgroup.gg/assets/controllers/horizontal_bar_chart_controller-5b821a4040f710de2e23bd996d226eabb404a7b3a8caed44df715b33de0d94d0.js",
+    "controllers/host_disconnect_countdown_controller": "https://playgroup.gg/assets/controllers/host_disconnect_countdown_controller-dfb3278794c169685ef3e740147e96d3d1af6603915ac7d6cc0f7355b417e29a.js",
+    "controllers/hour_ribbon_controller": "https://playgroup.gg/assets/controllers/hour_ribbon_controller-d4e298cff11fbf72e3d0a2468ac4ec9b5501a84e31c1a89c7d87c1beba9a1180.js",
+    "controllers/iana_zone_controller": "https://playgroup.gg/assets/controllers/iana_zone_controller-a3ffe21be3ba8340757044a8215e00b886ab5704fa9cd8c17b192a5094c92bc1.js",
+    "controllers/identity_tabs_controller": "https://playgroup.gg/assets/controllers/identity_tabs_controller-46c00869559c4cdfaea96dc0c52cfdee6fc6bc32cffbf65f267c1dd3ce5f9938.js",
+    "controllers": "https://playgroup.gg/assets/controllers/index-b6d94be13aa4db2ab8db38aa79f1d7ec9c0100ae1a51e8ce648fcf92a7c6099e.js",
+    "controllers/info_popover_controller": "https://playgroup.gg/assets/controllers/info_popover_controller-e5709130d04a7f4ca77aba2a774014705f03877220cc9c837fb9903845be77b3.js",
+    "controllers/invite_link_controller": "https://playgroup.gg/assets/controllers/invite_link_controller-ec78bacc2106b0d08f410c6e113777754afafe0ef8d281c0891e6683ef77f29a.js",
+    "controllers/join_alert_controller": "https://playgroup.gg/assets/controllers/join_alert_controller-f01ffbc43bcd3e7f2b315ea58cea4e70c266bd3a98cc0c7a31def95ca1fccf13.js",
+    "controllers/join_sound_controller": "https://playgroup.gg/assets/controllers/join_sound_controller-4b75115b7092c10d189904371ee4daddaaa3d6961a86124587b22e2862d4ca5d.js",
+    "controllers/journey_event_controller": "https://playgroup.gg/assets/controllers/journey_event_controller-38dbdcec04afe74978648c61a4045bb674b74ff07280d11f2d71391b670944ba.js",
+    "controllers/land_browser_controller": "https://playgroup.gg/assets/controllers/land_browser_controller-2cdcf7b5df229919243ca6143431d1c8ab17499395c27532c9be7a23831cd727.js",
+    "controllers/land_calculator_controller": "https://playgroup.gg/assets/controllers/land_calculator_controller-4674be4b22431f2074f685da0e2f78c802f88aa7f602caa960ebd79b05119ac1.js",
+    "controllers/land_finder_controller": "https://playgroup.gg/assets/controllers/land_finder_controller-2b0bb68233aa357935541faa0c94a20c6643a094f5afec98c0f8ab42cd2df7d6.js",
+    "controllers/language_hub_tables_controller": "https://playgroup.gg/assets/controllers/language_hub_tables_controller-9bf27facc28c57f20e3b95a0f2c920581171af855ae95cfa902bda4085b79078.js",
+    "controllers/language_picker_controller": "https://playgroup.gg/assets/controllers/language_picker_controller-59854bc37742fa1ad4d32d95b7f018ba54f1bdcc7de8bdc8a4929536e449c4ce.js",
+    "controllers/leaderboard_filters_controller": "https://playgroup.gg/assets/controllers/leaderboard_filters_controller-d9f796b91c6a1670664fec120c62742987dc05ae6b4577cfb016af5a98385c74.js",
+    "controllers/league_creation_controller": "https://playgroup.gg/assets/controllers/league_creation_controller-c845af7497909abf6918045c370152bba9976ecd2a2767b8e9b9d47e19e282a0.js",
+    "controllers/league_placement_mode_controller": "https://playgroup.gg/assets/controllers/league_placement_mode_controller-1c5160f5c142a026349e14ceb90191a234663184f93017f343004b406251af62.js",
+    "controllers/line_chart_controller": "https://playgroup.gg/assets/controllers/line_chart_controller-7046eff20946edf182d12d0c26fec9fed4188f0ff098b6eb599e37254e960037.js",
+    "controllers/link_share_controller": "https://playgroup.gg/assets/controllers/link_share_controller-c3802aea84f80dfaecc734734442423d6db0fabbe7a7ac9db0de45ab1822ac62.js",
+    "controllers/listed_policy_default_controller": "https://playgroup.gg/assets/controllers/listed_policy_default_controller-d4b4013a94af5ee1213bca1e58c8f289a594cd7ddb545559a6a5595516d8d02e.js",
+    "controllers/live_session_form_controller": "https://playgroup.gg/assets/controllers/live_session_form_controller-c8ed1992ffc7a81f0dc867cab0cb88e621ffdabb5bd5d13aa965ed37e696b61e.js",
+    "controllers/lobby_actions_controller": "https://playgroup.gg/assets/controllers/lobby_actions_controller-e09fec8ff2d887cea6857434ba39eacff236e3115d6970feab16e4c9ed39fc8c.js",
+    "controllers/lobby_bell_controller": "https://playgroup.gg/assets/controllers/lobby_bell_controller-c7cbf6f6ad0a1441b40daa98074cc7f269e7d351d8deb09ed6bab856619108b3.js",
+    "controllers/lobby_bracket_controller": "https://playgroup.gg/assets/controllers/lobby_bracket_controller-e09d0e84d1c9ebccedecc5194c82aeca966b5b00a5a6bf163eeed9449708f557.js",
+    "controllers/lobby_bracket_fit_controller": "https://playgroup.gg/assets/controllers/lobby_bracket_fit_controller-c41eda1650af9a4cef43637d2a4ee5ff0bc5fc2e0fcbea2f71c300dc46cedff0.js",
+    "controllers/lobby_bracket_popover_controller": "https://playgroup.gg/assets/controllers/lobby_bracket_popover_controller-6072581eb846daadf23cae46ab3d8f5faaca12c64f98473071af32318ac84490.js",
+    "controllers/lobby_index_filter_controller": "https://playgroup.gg/assets/controllers/lobby_index_filter_controller-15da3f401d77d334d287cb414f91cf0567d88858f738636537916dcd7aaae284.js",
+    "controllers/lobby_index_presence_controller": "https://playgroup.gg/assets/controllers/lobby_index_presence_controller-075ae0c29759df8301899cee4a1668211a81fe0970dd4674ee7c7d93d92adfc7.js",
+    "controllers/lobby_own_game_controller": "https://playgroup.gg/assets/controllers/lobby_own_game_controller-1cda90f78216081c701833efe59a4199497a64ed94a1dc62d5fabd2f82b854c3.js",
+    "controllers/lobby_player_card_controller": "https://playgroup.gg/assets/controllers/lobby_player_card_controller-da6672b4d404d60d1fb14dd631abe3b8cb72a3013fb1300fc8394075e62db296.js",
+    "controllers/lobby_redirect_controller": "https://playgroup.gg/assets/controllers/lobby_redirect_controller-3bcdedfcdefcd241ce6916cb913e3b747f3d581229f9983167a4fce406d86ab4.js",
+    "controllers/lobby_row_fold_controller": "https://playgroup.gg/assets/controllers/lobby_row_fold_controller-195b185fc9d17540512ebc61ae300cc482e501869f4060c6553c066239bc4d79.js",
+    "controllers/lobby_warmup_controller": "https://playgroup.gg/assets/controllers/lobby_warmup_controller-c26848ca489eeb96e5bfba82b787c705c83e1823b9d23e3aa94c5321d27b3625.js",
+    "controllers/local_datetime_controller": "https://playgroup.gg/assets/controllers/local_datetime_controller-e1c3b8459e6652b2e01cd947dbad634e134113a4bf5d04de637838cb476d794a.js",
+    "controllers/local_time_controller": "https://playgroup.gg/assets/controllers/local_time_controller-914fd5b79106a6f23f180585749d0c9c1f68ab1fd5aeb4773dc6cb75d46d0b73.js",
+    "controllers/location_picker_controller": "https://playgroup.gg/assets/controllers/location_picker_controller-7ae70942e8445f1bf9104ebfc564cc9aa105f2acb8f32e7c8dc48fbf6e70d630.js",
+    "controllers/mana_color_distribution_chart_controller": "https://playgroup.gg/assets/controllers/mana_color_distribution_chart_controller-c062f93e44be4f1d99d6c19ac6d8487755684ca939db370db1407816522091bf.js",
+    "controllers/monthly_games_hours_chart_controller": "https://playgroup.gg/assets/controllers/monthly_games_hours_chart_controller-4b9eb1c42deb7efeff61d96788588da26e7e93905563c0252ffadc008ae90040.js",
+    "controllers/mulligan_counter_controller": "https://playgroup.gg/assets/controllers/mulligan_counter_controller-ce315253bf4dd2ce75cc27c5f865dea51962f37ac148167f5ca88cc6a6a0bed1.js",
+    "controllers/news_announcement_controller": "https://playgroup.gg/assets/controllers/news_announcement_controller-aed9cbbaa3c36d8c910b638a43b73714c0edf1252d661756662ac7578ce042eb.js",
+    "controllers/news_post_finished_controller": "https://playgroup.gg/assets/controllers/news_post_finished_controller-ce3883c66cb8b3ae621d7231e7e58f0c911041c93720ba8edf1afa2908e01362.js",
+    "controllers/news_toc_controller": "https://playgroup.gg/assets/controllers/news_toc_controller-a68c2f5b19f4aef7671ac7852ba173452d0663f2616e586ec3d0eee111e8313c.js",
+    "controllers/notification_bell_controller": "https://playgroup.gg/assets/controllers/notification_bell_controller-dc9d560f31269134b73a14d0bbe213b6f3c176b1b9fa1d475ecef7a86bee28d1.js",
+    "controllers/notification_channel_controller": "https://playgroup.gg/assets/controllers/notification_channel_controller-d8dc32253fe0d79932babe672ffccd3cc6c75584b2901309e46a3305822fdb8b.js",
+    "controllers/notification_toast_controller": "https://playgroup.gg/assets/controllers/notification_toast_controller-e31cab5e97e20d1aa9bbdca6bd223706a465ac6c661fc9c27aec7c177052c94c.js",
+    "controllers/onboarding_path_controller": "https://playgroup.gg/assets/controllers/onboarding_path_controller-f5ce3e9576e38b67fb4a55330724913774996164766a0dfcde579edcced97968.js",
+    "controllers/paper_deck_list_controller": "https://playgroup.gg/assets/controllers/paper_deck_list_controller-c673719537c162849a5c83e0cf690008f4086c328651256c404bcf6780ac3a11.js",
+    "controllers/play_mode_fields_controller": "https://playgroup.gg/assets/controllers/play_mode_fields_controller-def1a877d22ef9f9798697710283a7365a93029ff46d3088f28e66ef3b8543ce.js",
+    "controllers/player_focus_graph_controller": "https://playgroup.gg/assets/controllers/player_focus_graph_controller-7e44d7e58422efd4667d8c44971e54833ff754343724455e9b561b21b4aa1b28.js",
+    "controllers/playgroup_creation_controller": "https://playgroup.gg/assets/controllers/playgroup_creation_controller-97c7775158f9eb23a8737cc5e9a87773f3739ee6912850bfc8621116ba7fab45.js",
+    "controllers/playgroup_locations_controller": "https://playgroup.gg/assets/controllers/playgroup_locations_controller-3337a8a3bb8f61db76288d4a4ed349626be2822ad5e676b130dd657a885bda7a.js",
+    "controllers/playgroup_presence_controller": "https://playgroup.gg/assets/controllers/playgroup_presence_controller-045b70a9bf6f88d1f86d8807060a3ba5295ecd7d142e04631d2f9885f8560680.js",
+    "controllers/playscore_counters_controller": "https://playgroup.gg/assets/controllers/playscore_counters_controller-c75e765c9be87ab59b91454b374a7578d2670387c7f8fd77d6703147853448af.js",
+    "controllers/playtest_intake_controller": "https://playgroup.gg/assets/controllers/playtest_intake_controller-4ecd32fed612ff897210df53f24426ceee1c7eda842929f68d454f499cd1c0b8.js",
+    "controllers/playtest_launcher_controller": "https://playgroup.gg/assets/controllers/playtest_launcher_controller-ed7cf2f37704aab56ecf9fd77134863f7a72eba211c2c45cb7a2a6a177fedfb4.js",
+    "controllers/pool_filter_controller": "https://playgroup.gg/assets/controllers/pool_filter_controller-05b32bd61825a06ab7a1319b0576802299626cf4d4231fb0dc79fe37cc8049d4.js",
+    "controllers/pregame_channel_controller": "https://playgroup.gg/assets/controllers/pregame_channel_controller-5b6ef3f5565f4426a927f537bd1dfad87df3b295ceae47bc29cd284015e8987c.js",
+    "controllers/printing_filter_controller": "https://playgroup.gg/assets/controllers/printing_filter_controller-16c7d37a1ca9eb75ecd5e23c1cc368459027ff4b428be8368fa302856c75185a.js",
+    "controllers/public_map_controller": "https://playgroup.gg/assets/controllers/public_map_controller-837210b24fa1d48c6a58fbd04a5d21d8dff21c42c1d674cb4e8406270c845673.js",
+    "controllers/report_reason_controller": "https://playgroup.gg/assets/controllers/report_reason_controller-1fd7efee2d6e66537cb29e103fc08a05096f88def13b27ec2b0e90937c78de82.js",
+    "controllers/rewind_deck_usage_bubble_controller": "https://playgroup.gg/assets/controllers/rewind_deck_usage_bubble_controller-28df1f894cbe3af495352c38ff6c7dfb5c439f4b8ac4b845b8b250518ea17d8c.js",
+    "controllers/rewind_deck_usage_treemap_controller": "https://playgroup.gg/assets/controllers/rewind_deck_usage_treemap_controller-fdeaa5d538b2c1664ebf16b371db4b28f4bd9078dbab319f4da205eac4d61b4b.js",
+    "controllers/rewind_screenshot_controller": "https://playgroup.gg/assets/controllers/rewind_screenshot_controller-998b21df7b314063cfe80e8a3ad3943f20b1471454a4fc1239475652e53b4e40.js",
+    "controllers/rulebreaker_color_picker_controller": "https://playgroup.gg/assets/controllers/rulebreaker_color_picker_controller-1d8c96e5cc5e5ddfde5ad5d379dfec4e65bdecb45b69be9e9f6275af43e2b7c9.js",
+    "controllers/scan_phone_pair_controller": "https://playgroup.gg/assets/controllers/scan_phone_pair_controller-1ed0051c94d291a9ed3c432b01ea84aad36283ac157c590e6abdaf2685d67969.js",
+    "controllers/scheduled_time_controller": "https://playgroup.gg/assets/controllers/scheduled_time_controller-40625dd0c366495259f742b8b37ee2bcc7736a3641f979dc9817ea941539c7fc.js",
+    "controllers/score_action_fields_controller": "https://playgroup.gg/assets/controllers/score_action_fields_controller-5818ff27e6818ba878054fba87f4abec5e93ca740c5ac4bd5e1fb3501cbdad79.js",
+    "controllers/score_rule_fields_controller": "https://playgroup.gg/assets/controllers/score_rule_fields_controller-9a57aa7447a1887cb783d6122ee27807a1c8a9d98b4d1cb92c2826e6a117af1b.js",
+    "controllers/screenshot_controller": "https://playgroup.gg/assets/controllers/screenshot_controller-981acec2dc478c0a9b454cc433dd0cd786db8f6c8dfb8860b1212a505b61e490.js",
+    "controllers/scroll_into_view_controller": "https://playgroup.gg/assets/controllers/scroll_into_view_controller-4910cad20f327ec6a39edae2e42565a041c3ec2cd8363f9dc73348bc4c6450c3.js",
+    "controllers/search_location_controller": "https://playgroup.gg/assets/controllers/search_location_controller-161d18d0c3610dff617caea53c2a2f9af368f5c0ed9feff690ef48817550d5cc.js",
+    "controllers/searchable_select_controller": "https://playgroup.gg/assets/controllers/searchable_select_controller-33a622eedb4eeaa52ce2a440450604761226f3828af209f6e1b69723b349ff2a.js",
+    "controllers/segmented_controller": "https://playgroup.gg/assets/controllers/segmented_controller-c9a578c839ec1c2ab85cd02cdb226432115fc047358535bbe9d69040408c888e.js",
+    "controllers/select_controller": "https://playgroup.gg/assets/controllers/select_controller-493e2ad343034a5aa14e572c1a3ba760c03c6253fa273ba3081a258b49477ba3.js",
+    "controllers/set_cards_filter_controller": "https://playgroup.gg/assets/controllers/set_cards_filter_controller-ec113e035c69d2461b895393176a1a9a1d7ec19d75d1d8d214b7249ebe10ba32.js",
+    "controllers/set_playtest_launcher_controller": "https://playgroup.gg/assets/controllers/set_playtest_launcher_controller-ed7cf2f37704aab56ecf9fd77134863f7a72eba211c2c45cb7a2a6a177fedfb4.js",
+    "controllers/share_controller": "https://playgroup.gg/assets/controllers/share_controller-3e5cf1f5e769641d8407ed33e8b3665262ac8935cb72ac989044993ed39e43ad.js",
+    "controllers/show_more_controller": "https://playgroup.gg/assets/controllers/show_more_controller-74ff1575f2f1541ec0ae739f69199ef1684682108c20335ea8c313c3155421f0.js",
+    "controllers/signup_context_controller": "https://playgroup.gg/assets/controllers/signup_context_controller-553043516933e6dd674268ba35a50d7fe6b37ed350592a0b448cab7c8caae893.js",
+    "controllers/site_notice_controller": "https://playgroup.gg/assets/controllers/site_notice_controller-a9549839a8b6c59335bd13034d2aa02f74de3f9a8eb02e3e29103987684856ab.js",
+    "controllers/social_link_field_controller": "https://playgroup.gg/assets/controllers/social_link_field_controller-c6206084b87c79a923e3a0bf03aa4958041211bc9216f69ffa8637d1b3eb9936.js",
+    "controllers/starting_player_picker_controller": "https://playgroup.gg/assets/controllers/starting_player_picker_controller-258c751d58b20dba3f8d81dfbbb70f80e61aaf084da786535ed990bf6308b568.js",
+    "controllers/stats_range_controller": "https://playgroup.gg/assets/controllers/stats_range_controller-09d5cb4570ff0750a210b2a9eb257be11d09d08bd6d5bd1ae7d15de2987eb488.js",
+    "controllers/subscription_controller": "https://playgroup.gg/assets/controllers/subscription_controller-bbb506cc0cf56123e264d05b3af163b729c8af2c50dcb6db03ca0330dd1bcaf6.js",
+    "controllers/swiper_controller": "https://playgroup.gg/assets/controllers/swiper_controller-8ce7b9816603b1a7f5e13096a79c87f7a7b609eb6ff8d4c0446cf235f534cf04.js",
+    "controllers/tier_expand_controller": "https://playgroup.gg/assets/controllers/tier_expand_controller-0d7933aa34cca9806bd65b92e079aa7c75e84c04ff37cdcd7a6518f372012739.js",
+    "controllers/toggle_controls_controller": "https://playgroup.gg/assets/controllers/toggle_controls_controller-021c0b554678a982b21426d82e3e201e255407f82d2984aa3a9e8aff9a90a7e2.js",
+    "controllers/toggle_visibility_controller": "https://playgroup.gg/assets/controllers/toggle_visibility_controller-cf233b2fa92ff907f8378ab8632b82fbd5eb9d7fc7a1e50c75df06082817e577.js",
+    "controllers/turbo_frame_refresh_controller": "https://playgroup.gg/assets/controllers/turbo_frame_refresh_controller-0fede5d1b8a7ef5354b602b215a20737b6e60acc1e0347931644cf6a131c7cc3.js",
+    "controllers/video_embed_controller": "https://playgroup.gg/assets/controllers/video_embed_controller-df2244e47be009af9d6d5246ca77f713e4100b6e0e6b5f2c08f727871442286d.js",
+    "controllers/visibility_status_controller": "https://playgroup.gg/assets/controllers/visibility_status_controller-313a4da5c08abaab1e66c6b546386fcc375211d192fb662900c1de805f981ea8.js",
+    "controllers/voice_controls_controller": "https://playgroup.gg/assets/controllers/voice_controls_controller-41ae970942a2a8a8509b2d89199750687143b9fe8c50ce18ae0f233fcd276119.js",
+    "channels/consumer": "https://playgroup.gg/assets/channels/consumer-98c575055f3104eefdcd7eef486ad242e4cfc45901aaa783ef098f698db23e17.js",
+    "channels": "https://playgroup.gg/assets/channels/index-7874dbf3476fba0deae25a3e0ac12e6281b021c17d237b4968c24606a155e974.js",
+    "lib/appDialog": "https://playgroup.gg/assets/lib/appDialog-f07c0c1a6fd2ca6ccb74f9ef2c283c5cddc02cd657208b7b68730340ea1b5705.js",
+    "lib/appPicker": "https://playgroup.gg/assets/lib/appPicker-a7c01be1fb936a0bc41048e88b5f36586f7776054355a15861b689fd8cf839dc.js",
+    "lib/appSocialSignIn": "https://playgroup.gg/assets/lib/appSocialSignIn-594565a15110698eb70252a21518a2100bad03545d2f6376ca532c7a12782223.js",
+    "lib/appTabNav": "https://playgroup.gg/assets/lib/appTabNav-05e93ab22c62fbaf3548ee7b1e8df6e8a5d8d6ac2ae0ccb2080470762816e5c8.js",
+    "lib/bracketFit": "https://playgroup.gg/assets/lib/bracketFit-fdbe5736d0f648d032200c853039cedcd5f59e71ea7d232df823c4730c604f32.js",
+    "lib/brew_tour_steps": "https://playgroup.gg/assets/lib/brew_tour_steps-c457c45c1238eba39f9bf554bbbb8cd7e6db63da464677b04ebd15ea7752ebda.js",
+    "lib/browserLanguages": "https://playgroup.gg/assets/lib/browserLanguages-b2ecae3bcdca961252a1580b7d8b9832883ca04be701bac465a7f1a33ada0122.js",
+    "lib/chartTooltips": "https://playgroup.gg/assets/lib/chartTooltips-87b398b6989ce1ed9120944cc938c9c60a5565fad1df81e90a812f7c3f8a2a9d.js",
+    "lib/cookies": "https://playgroup.gg/assets/lib/cookies-61ee66da9f6f004135ecea52e5f2c80b04ffb43e1430f8d40653f6324652214f.js",
+    "lib/countdown": "https://playgroup.gg/assets/lib/countdown-58fd57413b85078dfb22739986f335855852383caecdae5838afe1495a1fcd50.js",
+    "lib/damageColors": "https://playgroup.gg/assets/lib/damageColors-70a735d124e49e86590cd44d138f4021ed544fba36d4fd60c4de8288331267a1.js",
+    "lib/deckCategory": "https://playgroup.gg/assets/lib/deckCategory-1fc6b67960e91a8ce04558affe26bf75405ebdce4b9129360a078c331d52f1fe.js",
+    "lib/deckInputClassifier": "https://playgroup.gg/assets/lib/deckInputClassifier-b82ee74d4be1141aec7be6e1640187e847da5ae6e8100f3ab7a7fd51a6537740.js",
+    "lib/deck_source": "https://playgroup.gg/assets/lib/deck_source-7e430042de63423ff7052cd1645290e8167f5d2d5399bdb06e2e1233cd741093.js",
+    "lib/focusTable": "https://playgroup.gg/assets/lib/focusTable-75c07a36cdf9d9fdece37f0ecf0d5b4a038dac59606da97b54e6ea434d998b73.js",
+    "lib/formFields": "https://playgroup.gg/assets/lib/formFields-c762f33a7420c0b4652bbd18c76cba4a9c4a8f40817cd1eaad91e0e211037ea4.js",
+    "lib/inputPresence": "https://playgroup.gg/assets/lib/inputPresence-ec297ff6a221911644317c987f085b110b6842bc8f0b513f4f1eeb6667df6ac8.js",
+    "lib/journeyEvents": "https://playgroup.gg/assets/lib/journeyEvents-736d042ab18e97c0a016f1276f3d9d4ce2a3a17b349a50c94358f01e13ea42c4.js",
+    "lib/keepImages": "https://playgroup.gg/assets/lib/keepImages-a14654006f39cfe19925d8ed2be0a3026061d09c3bcd9b55080e2c29fe376ab8.js",
+    "lib/keyboardInset": "https://playgroup.gg/assets/lib/keyboardInset-80835d2a7aa3674dd3badeedec3436c4ecf7e8919b8a71ee074aa355401e8945.js",
+    "lib/landFinder": "https://playgroup.gg/assets/lib/landFinder-f072637f71e8f140c7d162d1026d36a3d1f459e409ab83065b509376f3155b62.js",
+    "lib/lobbyCards": "https://playgroup.gg/assets/lib/lobbyCards-dfaea814f3360436a98ea5419a82d66cd1515d3cc5cab03f0906a154b35c1748.js",
+    "lib/openSheet": "https://playgroup.gg/assets/lib/openSheet-f1bf74a1b588365c2e4c5cfeeafadd241a0ec5f527f0c76cb247f51ccc762348.js",
+    "lib/phoneDevice": "https://playgroup.gg/assets/lib/phoneDevice-6e9733a5804976cc346dfd25ac12a2ce070c5e16419f3d33327e19c80a600df8.js",
+    "lib/pluralLabel": "https://playgroup.gg/assets/lib/pluralLabel-8f201fa0460fb06a104aa97a82b6cd708976ee5c9c782d42cd18c3aba6049963.js",
+    "lib/pregame/deckSelectionStore": "https://playgroup.gg/assets/lib/pregame/deckSelectionStore-409a532eb0bc2a5eb68081e0c66963950266330603a9742a8f0d88477bfae0ee.js",
+    "lib/pregame/pregameEventSender": "https://playgroup.gg/assets/lib/pregame/pregameEventSender-a856e5106612e221094107eeea350656c811b4bad2ac52600447328be85ff802.js",
+    "lib/pregame/primerFetcher": "https://playgroup.gg/assets/lib/pregame/primerFetcher-c435098a38b27b3c8feb3db0ae67f1e6a627fb1ab7ffcf2ab5718f83bfe08321.js",
+    "lib/pregame/statsLoader": "https://playgroup.gg/assets/lib/pregame/statsLoader-262ad03a5e5e85cda73ca0970157ed20a916a32a896b05f31c1567d2eec2ee33.js",
+    "lib/pregame/winChanceCardRenderer": "https://playgroup.gg/assets/lib/pregame/winChanceCardRenderer-7fa843e2fa2095f4acd9aa918ec4f6aee5514e32da7912035fb0583bd58fa71e.js",
+    "lib/printingFilter": "https://playgroup.gg/assets/lib/printingFilter-8506549b4f669ec257e7e29674888d8c92b4ee584034d8ebf0f44a4989f0850f.js",
+    "lib/pushClient": "https://playgroup.gg/assets/lib/pushClient-184684112f5c3511b0b24fe11588e39d94204e8d46c4094171954a47faac671b.js",
+    "lib/pushTap": "https://playgroup.gg/assets/lib/pushTap-aa85487003eae8ab14183e23b262928d2132d0a3fd5727fe057e3db7ec98fa82.js",
+    "lib/shellNavigation": "https://playgroup.gg/assets/lib/shellNavigation-fcff94d1f3a44bea0014b26b39eae94ce18a2e1ffd022dd01a811907c5c9926f.js",
+    "lib/shellOrientation": "https://playgroup.gg/assets/lib/shellOrientation-fca2512726525aa613c503899d2d3ade6bf0c6e7d1b983f3dfe2623a89ffdc77.js",
+    "lib/stripColors": "https://playgroup.gg/assets/lib/stripColors-ab8d668b9f96f2c33a001a2d6a92b9f37455e99324d0047614530b1fb665c633.js",
+    "lib/time": "https://playgroup.gg/assets/lib/time-294ece107df0c0b0e6561cd12042943a51f268bc7dd5ade0977eebd3f222e2f9.js",
+    "lib/turboStreamRequest": "https://playgroup.gg/assets/lib/turboStreamRequest-7f59c6717f21a91cacc494de6031639d0d145b10dc09d7ffdbd5f7f47f99e34e.js",
+    "lib/videoPreview": "https://playgroup.gg/assets/lib/videoPreview-99bc225d9c92b4fff90909cb8379253702baef945021b7e07a7088d323fad5d7.js"
+  }
+}</script>
+<link rel="modulepreload" href="https://playgroup.gg/assets/application-026286d31ffa9314c9cfdcd8a6da0d9c427caf11fb43c8ad5cffb306becf2f87.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/chartkick-8eb76e6cbdb540d495739fce84049fd038e59e7fd55c9e08e47b0b5a74b62db4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/Chart.bundle-f8cbd12f96f40621d748f50e7c4b03245673e70081388fcc60ff79094413d16c.js">
+<link rel="modulepreload" href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.turbo.min.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/driver-5ef0ddbb2a2a6e42c69c002a729c11abe578a44382044e33a108c451270238ec.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/turbo.min-0a1e5a7b7eec74cc22c4575a1a202c0e9e7507faf8da857a9c71263254a295b1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/@hotwired--stimulus-379f09adbcd004e5b2c2793635d128b6e72c08d1ef5337bf8a5d1e260aaa403e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/stimulus-loading-3576ce92b149ad5d6959438c6f291e2426c86df3b874c525b30faad51b0d96b3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/actioncable.esm-b66d83871f0a453b10ba8b4c147c2bafa655caaa5d13fa34e9bf361c1c2aedb7.js">
+<link rel="modulepreload" href="https://ga.jspm.io/npm:stimulus-autocomplete@3.0.2/src/autocomplete.js">
+<link rel="modulepreload" href="https://ga.jspm.io/npm:moment@2.29.4/moment.js">
+<link rel="modulepreload" href="https://ga.jspm.io/npm:html2canvas@1.4.1/dist/html2canvas.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/tom-select-8f12dd47d16ec2ec6576e1bb44907f8dd4d51a27c2a378920ba610043d48f2e1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/leaflet-df8cad8209f4c881748f4a80602b1db6b35fd939bdeba37ddbd0402f3782648b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/leaflet-geosearch-901096b7470eb75d6ae27f3e11d6e5f48bacd5a600372efaa8f514d19885bbbb.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/leaflet.markercluster-2fa1131106d5417f384f2f5c7470d0e123bf4c75517fcaef5743dd8ba151d1dd.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/canvas-confetti-e83cfc972f929042395bbb67a955d854811d1bb7f9573df38d6eb74d181d27c9.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/stimulus-easepick-69051eb4e82795ea752c051974bb54bc41b307fe12f58dfd33e697ca0b792e04.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/@easepick--bundle-1691ef3431c4c9d9c88db6bf8eb7c238fca29ec47e7a0cde5c81bb1dcb9c02c4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-d3bd5904fefb6d829d7a90b4a1c6d5d06261e3084518e89a5a39cbfda59e7d61.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-array-63a5a42ad587f642c7398b4e5a038fb09a4ffbacd732cec8846415fa93558eba.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-axis-eb0f99823e8191ead59ff8b2ed5b46e92b9bb8ee3db4437ffe5c198705b6a4e3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-brush-96e92af52f59397acba7c6dda04afaf4e8c8b4ca205e6cba33e5185f0412bd45.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-chord-5d164078acb15da9996fcebb603226b8a9bee6f4e1a9cf6d1d0d461bd3165a2d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-color-d40b0a64c88297a18c54110e7a4a64c6e9f8afa560e40af2ba35f42d155e4e36.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-contour-f345fdcef13a2da35346965a397b9f69d9ac53541c12de1da159eb70ca1914d7.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-delaunay-530337666b915843570d5a97b8673ce1c111ad3d7bf4704a19798e3282810ebe.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-dispatch-c2b1e8792533c2ba33f45401d9e713cab4e28510f30cee4e000244101a9c3f22.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-drag-8c5b16cfccf49d6a8413254dad956c2f15338883e7d4760d33fce34e6d9ad4b2.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-dsv-c2eb94452568055cfc44c4533130880eb3dc0f0de93dd46ae59086db7fe9bc73.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-ease-aef21f953064a9884d18fd0b21e0197b2ac21526592031fb15718049437b2473.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-fetch-a59221084e211cc287b89f0ad8733e647b6745690ef65ec5907fcf0b797da683.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-force-5aa87b3e72372d237ca6b6659148a99285252fd745840bdbc1005f48b2a6fec4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-format-211ec8aa8af662f6f6e14057b96467fd60d8eb42d5a9cacd698d91c89dc569ac.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-geo-55bb920a5b1ffa65973e191e5b797c99063d2834531b4f85e04dc08f0d758c54.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-hierarchy-278099ca4448925824465e7cb70afdfad352aac707889a4fd130bf6c5038a9ad.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-interpolate-530755752e84533951e9b09ca45abfe8575dc367144527657abf508050f6e5e6.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-path-2fc15ad0d172e45239c7472d2a178b519cc5db854c32c1d8b8aeffd6bd13d966.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-polygon-5903ab9f3b4417573e04e9c596c3a5b57e2cea0ce7b80da618ab982b5932d855.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-quadtree-afcd3d63bb896fe5debd2c7a0c3f2de451f469624fd2f09c2852cb2b804a349e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-random-a5135c63c07d497c6fb3851160f31f30dd4f38fc38cecd4e49c1d27937a96a66.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-scale-ac6a4a02a219b3a1255e3a62946a29d986d874b55e40861e50daa3b262489065.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-scale-chromatic-7b789e135d81389a4fc0fea59f6f8c1e212b75a703cafb0c8befe7f75887d00d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-selection-19219280ccbe216e28c84ee63fb86ad133cd85132dc8c044d8770181af063571.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-shape-0f523058a08ef2d41633204f8aa57f8faa449b943815ac7c43480c5432c4f88c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-time-7cd62e935b61fc29b1b92997ba66fc9206027724f0798fc79816b3de015706b0.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-time-format-738e4a24c4064592d14484b3cf71860c3ff11c3226f8a220a69f9c666b3bf44d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-timer-0536ff799c7e8bf887e4bd03c89a376c1bc19d2eb68136d6be3f25f32a715caa.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-transition-a2ffc99137575b666a0e0948d5d6c61ac333e2601179186ba10ca1dd38774a44.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/d3-zoom-208d8251bb566d0aa4b8296c27af4e838650cb7846b3467bf4f1d820388b2447.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/delaunator-04a47c296d94cdf6c3ad767e2ea5db73617463ccec20232cf04f632502a58e94.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/internmap-3caed1335dc96a9fe78311c9cc1fa60a1b30fdc655b27f266a10dee20495ca4d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/robust-predicates-062971a7eccec1670941e47fc1657c9f8318ebeb1857b063556b07617e34da46.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/adblock_controller-e7a43f2b1e229dee3ab79263c9a864ae9bc9709630760b887c83f18c78ff37e6.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/admin_passkey_controller-2fdf2ecaa47a8a29444f0dfa498096b99638a3dd54f095dc568e19cfd632dbe3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_confirm_controller-aa1d049c42564b5048e9b1b1b4c7fec6cb4fcaf0d6eb59959b19fd2afa964258.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_deck_fetch_controller-28489c37228dd08c43be3f586c18206461855347e472f6dae33db4de8c6d6ad5.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_deck_fill_controller-6ef57fd1fb4136c491c90aca72d6db762eb139ae66f2062916721b28af035960.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_deck_sheet_controller-951d33128fc3096319d05b057118cf218053c9244de996c957d374072d486028.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_deck_sync_controller-507ed27dc10b483bac9d6c84b3383d7d0ee31c950194310d9b412f5b2235b9a9.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_decks_controller-31e6d2a8eefc3bddd8c49cbdc3ad9a0235a136771adb57ebe7191385295b6b70.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_first_run_controller-737b0af159de671bf611da57a05130c06ff3f3ad825b589237e761dc1e8b9c3a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_flash_controller-8e6bd9208aa77d481cf9dd3807ec063158a341fd15d81bfc591bda9e538d618b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_hint_controller-c2f02d75aa185da2666e9e412d3eeada7d07ff0bed967197417fa6fa18855411.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_import_controller-6f2232580026d1e3a31e27cd5e9e4a852555b732339ab1986bbc33c5f6175d28.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_loading_controller-97b800982427922035a2a1ac0101af931388b0b96bdf51177416be61a378dc5e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_picker_controller-ccbce2f61c4be872ea61431218afff3e07fc7f40adcd38abe2aac90a1a15ed40.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_play_tabs_controller-bfdde87205d3c4024d7005eef9b00bfc5d7c48586727fa3b8ea67aca52c050e5.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_sheet_controller-8ad33ec8d7338216607fa23a558382f5df288b02ea1d4c3f369bb225c1796528.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_social_sign_in_controller-f1107e021f58fbf68a59b26d3cd59367af78454d8fcbba8b7b88606df00ad522.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_store_nudge_controller-e79d71f3e39857ca57db1878f2e50a05aa1b21d4941c4aa0dad1debcd84cc801.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_tabbar_controller-8ec0f92f8008655980b14f967ba75465392b92bd068a3fd29b06eb55a1524198.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/app_viewport_controller-f728fec829ecb51a23537a4eaa6f08c37d816cb67c9cbd424caf7517b2259caa.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/application-368d98631bccbf2349e0d4f8269afb3fe9625118341966de054759d96ea86c7e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/archetype_search_controller-bf602eb668c9c27a65f45a3a1f9c12d6127dc36d7f450bd1f1199c62723af450.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/auto_dismiss_controller-061908fa412c5237ddebd8a59fcca04fd7cdcba5f6132e5c9b163a236310318a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/auto_submit_controller-4240df891d895a58f597afdb6c4daa815c8994d94ba686a8d0c111ec881b9a69.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/avoid_filter_controller-cba7a3ee92f3871708084e4c65e2e65e53f3f0ef0487a77b77009f06501e040c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/banner_focus_controller-6302cacde11e62316b85a33dc42944f6b6f02d1d3d1b853fd117abac2d40d83c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/bracket_form_controller-f4a0408a91143737050e2126e6cbb596749494a66cf7b45cc5a512b099e7a7a8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/brew_bracket_controller-65155bcd0a8b279daf934649e2648d492e05af66739f15746e6ee9e4a6639d00.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/brew_buy_controller-51cb4c6b52235bbed00101b46e7ec608fb040fbe7c00c546639d5f0022552cf6.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/brew_share_controller-b96737d1977a90bcfac0ec38a9fb9cbadae617a576e6356b25ad6fcecaae7eb8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/brew_start_controller-34eaab4569aefe18ea26f203fa2fd313418771ecf5688e37aadc148b91f380ff.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/brew_tour_controller-6c978a914e26184aa8ffa63db1fb859a9a6ee5dade88f59bb197545ebc960177.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/browser_context_controller-1a60066c262ec9da7b767b5ae780ae97c8e5e13b7a816ad60edf32a702d1e91a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/browser_context_url_controller-5e865264f587d460d966f08e87c1f3e1eab50774f8c839420759e8f50a4eb721.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/browser_languages_controller-bd8741fb291ecdc9256981defd4a365e4cbddd4c8e7cc9b18a0bd0222dde79ff.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/calendar_toggle_controller-39590572a403df0c8c5aa607e4e4a5f6a4c45d8085b9cdbd354d9d3b96110564.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_browser_controller-0733eee59e5b3893b911b6897f57feebd78401ea7b662412aba8ff9279a63422.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_context_menu_controller-f5344e248f28236d5514c615e29a0cf37b128bacecac7bbcd7c2460935f37202.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_detail_modal_controller-45fd7ccf183818cb71b51e93586d5a7e6f1270be41c4bbc451d3597f92f3314b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_flip_controller-49ed2d1d1f1455365fcaa3d9940b6fe485df7cf40488a79b9a10a34af6ce70e1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_hover_preview_controller-84808577cab8135b395f70beee79ed8b1755aced49f0a9a92d669f0a17efa85d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_performance_filter_controller-47afbd1d0d43e8b105311753d8de18acd98f73ccfb79fc346d7f4e61142d7edc.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_scry_game_controller-8d4f95060f38273270e5743b54676aaf07674a3fc3b16f15f74af3d3ada6e82e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_scry_workbench_controller-c2a691009724757b18a6e34be965a6ddca15160233b51fb5bcced57e73b39253.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/card_search_controller-8201bd9cd94bb01d684cbb11a0983960695ccf8aa1598dd66959fc6c0cb494f7.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cards_lookup_controller-cfb3aada864e2dca68d9aadcbf60bf7c8ce6322dd1610fd2ecf5622a21bec861.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/char_count_controller-03b8675d7fe9afd44c8ac00c54925ca10b9d5a47282c5741029cb197fb8bb9de.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/clip_preview_controller-cb5a297ee32bc15ee3a9a2e2aa65dbe3708208d574d8b28e6e69bac89dba01d2.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/clipboard_controller-0823d60b8db5c40d8ac330217ee403d50c31378fa6504abd9c07a49a20a6a9db.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/collapsible_section_controller-c94e38fd155904de63e64bc84e8b1f2fc2519aaff09ec4066faafc3e05abdbae.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/collection_choice_controller-899c8e886d65f9a0071f2f86d4620dca22867fddee99a99b279fafe496faae71.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/collection_filter_controller-514eff233ffd048291fb8afa4c92522b08f553f5d7e56bd0e9334fcf0c9a1aed.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/collection_import_preview_controller-4b61dd56c2e2e9e930748523cb56fdbe0d8ef8aa6d99f773c07c3cc9a6847fea.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/collection_menu_controller-c817f6fdc7a85a625c1f851707b9b32f013dc1e6e46fca710f58d6cfa30fefe7.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/collection_select_controller-a67d103db65929a92242744d664e9914d9938087e195cb9d31a09ac0963e5747.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/column_chart_controller-e9ad1d88942a433f33855efe772e113b14769c81d8beea15f219508fd7990568.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/commander_desk_controller-a7b65e61c9f26e7e6cd2a848e58070345b664aaa3de3b6ff7f2e892df442843d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/commander_profile_controller-3891ca01a5e4932da70dfda07a21db6ee8a2f1503394dfe0b35edacb5d4d7125.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/commander_search_controller-48b80b67039f3a21d98c5f2113d0f8e732759636abbfca5bb7d5c6d0c91de906.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/commander_tabs_controller-3e88d8a0da66fa6ae9c6b06eaf6e2102ecccbf5f1bcf397ca2441c3689e92804.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/commander_time_window_controller-37b5b61826899070854ff7ca852810460ab63a467ee9921cc307cdd187f74280.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/commander_treemap_controller-1167c01a580bdd8053bfaeb91c23335590fb5dd396c3b2fdb260b19932231528.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/community_image_controller-4b57970f77675f8287ae4ac44c9479cb6bf768c6a431290e11b2fd887810c301.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/confetti_controller-e8612d33c3ac3cd7b15e524cbe397f066105171faebc85e2055b507a33c190a9.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/connection_status_controller-e142c65602739425df078cd87f8637917792a978ddf33d27fc7cc3e6f03870bc.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/copy_field_controller-ab3a6b1a006cf1ab2c8559a7c6249f2f3840216d6eb17d9cf153a980a4f8a81f.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cosmetic_collections_controller-5b374f7ab582f1540baf7c7a2955ae4f8d71d09e62450c1845c0a3a72c7dc773.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cosmetic_viewer_controller-ffc56d08d22673d32be0baab4bb1f9c137e01f4e126e4b1ef6dfb48674ba44cd.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/counter_controller-c3d8f4d2348d86fcf2bf08dff12a266be065bcd593561b465cbe0874111a1b7d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_draft_card_zoom_controller-ca4512c71e3a0117d5c22ce34c71531968372a1f2083e4125e6ebcaa8b9bcf42.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_draft_channel_controller-d4c4f764893f447fc3f3e684dac5d76590dc7dac5f2166714431742f3147017c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_draft_countdown_controller-7ca8b0a19fbe391c609364141d86dfed335390ee1e486ec9c2dd2e626a222fb5.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_draft_filter_controller-11a5006f94e080a2550ab9f26cca228687cd21d75676ac2be9a89ad1f916313b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_draft_pick_controller-a1cc202c3958dac975f179c6b9008d695ede46e8e30338b7aed9a1079d6473b8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_draft_room_controller-9228d3617848707bd7e5e6aa463dc2f5f86a2c033daf4d1aa042e70dbc6d84a7.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_invite_controller-6fb327f04741d093193ba152acd7418423c638f7674954ea1b34b101045ff5b9.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_list_filter_controller-11dd4f49137f79c963a20e3b1710c55cd7190386b213454f12755e70c0541946.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_lobby_option_controller-9251373a4d23b1b0ad76c8daa1a52e290284a076fde8c557d90758058ed23cf4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/cube_start_controller-270370e875b4c49f8c73cf1cb041345269fdbf708780fdfa2fbe6ff614360efe.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_card_filter_controller-e1e688f2e3b774ff97808d68742bf059b2d34dbd86fc4d53730688e865ae15e4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_cards_controller-b3638aca9b2a0ffa9b32cb7c42ee84407aecfd51f98db17f098c041c67ec0215.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_details_controller-3a2c523817aa80f8a9580ce1c14b84463ff5a9eb0180288ac737a153e06a1b80.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_dialog_controller-0d97e5fa53743de5c51014c3cde3076d51d4d8e62eadb6f0fdf84fc602dca64d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_group_sort_controller-2a580fd6afa468004e6b88cd2f070c12e90f2834662399da7128f4ce452efbe3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_import_controller-5def2ce06e834456f78e7a99e920edc92911833561da3278ae7aadde9027b2af.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_import_progress_controller-b11c7a550104402287a51210485d6eb2642423d810467366890f612f928de4c7.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_intake_controller-d1457d09697b3bb027968faa49da1fabf434c341573d6447f4ccf757d46a3b22.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_link_hint_controller-5747c4c58fdda68cf1ae83dcf90aa26f2c887f6802e5fa8dd2018d03dc90327b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_live_refresh_controller-f4b17023e0b852268eba2204da137f20ec4a2a4d9544ec22a34858eab45f0939.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_menu_controller-7e2c686dc5fff773dd1e7f3e7b0435f489fc9188579c288e1d38fcb121004815.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_picker_controller-3452b94c923b837fc98976757c514490b03838c605f3f146fd595fefb296f0d0.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_preview_controller-a6c316ebbbac92d3d5c0279b1e724be6e231a6be202346064fa0680d4f61935a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_readiness_controller-af4d07e56a14b8e2d1646f62f6af6211dd24e749de6d266555630f077b9d3fbe.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_resync_controller-0d100b71e44f5d4a14e3b82264a7cf29b56645168c68204099bf41cffa9c569c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_scanner_controller-d2ab6ab416b1c7aba54c3da15dbc34b8d67e615738df54d0e984bf22c0ef32a6.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_sync_status_controller-83e50c7a9fb013628e9f947070d5010801a179fa1ad3272b8c99e6cff7fff011.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_tabs_controller-e26251ebf186dad0c9c8e748e1b9c1ada98b420d510332511b787773598ec749.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_text_view_controller-cad8b0ee5396dac9fc7367896caeea191e5e57e8c7c25c87b2c64282c052536d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_usage_bubble_controller-37467f4aed8647393dd38d295bd7cf3f2179d31f72956933d4845773f0be0119.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_usage_controller-84bed06d428ac5a58c7b6583a8dc300001c2bf66ecaf0cd70dab2150a7e6f03e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/deck_view_toggle_controller-8fc00670ca28d0d3a6e86750d7dfa3c609f57411d7d6c4dd1aaa4e0cf40b4b29.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/decklist_import_controller-c2dd88ef3b33e22acc985d2a634b009b2f7ce25d264c4061f4ef5ab7d8e6fe4b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/details_menu_controller-da630a4540981d244bcc7ec20a58aab501ea50a1b766eb160ceb6377e98e0fd6.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/device_settings_controller-7fbf4778bdaad1fb7125631e5ca7b002cdbf20910e44656b15c14c47282f4ee7.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/device_setup_controller-359d856a672804d5eda703adb97e43ffa3321a9713f8ff30b99ed5e730fb1f65.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/duration_calculator_controller-c1e36805ac0d476b16b74ec934818a4ff9dd6b8702d87be7d551da175d22b5b3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/elapsed_time_controller-d249db22c89438e05c8bf002a57085f38cc720c2b03164cfb96523ba99c16d5a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/elo_highlight_controller-9e0067ad6eac8bd29fc29f31eb2d3a05285fda79bb04dea8e47d892953b97a91.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/fade_in_controller-ef746927e1974e5408ac68afab2afc71a23c1037efd119a3b3b93e1a94d18d55.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/file_drop_controller-c0e67263705ef01694dcba6683688483942acbc131f4566fa94755a400dfa016.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/filters_dialog_controller-66f745514350b13f009c06b7a8887caa5469a0641180c3c1d4da31f8c17de042.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/form_controller-3d5d2f73e52b0c9c460c8a6204e8ac2d972e56e8c57bd508f35577bbcc8a7e3f.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/game_changers_table_controller-22a487c557f488f506e39c6e235bfabbb68f1dd763696196cfb7cf12707e4adb.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/game_night_presence_controller-4f94188c2dd3725d16e3f1f01df9810a4000cee38e65f73ba0488586b7611aae.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/game_night_table_controller-f7465d55fca21630ea5c7c4b6f2d2d471b6bf5b67c17c105726d0fac2682b15e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/game_screenshot_controller-949011620de976ec33d1c681b172672e88ef98e9e5b0bd68ce0a3262a306864d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/game_tabs_controller-ea641f125c4745d38932ac93740b9b54534272ed38740df49668175103b55be1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/game_times_controller-75c35ffb8b8a06fc083635c598dc69f932e6b22d498515c4fa9dbbcd12dd2ce1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/games_filter_controller-999974876c5ac40f4c6aaddafd17a64f8569bff601eb1b13b56a3301f93fcf10.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/hello_controller-d1601b891edf80fb3534226b83bda1dbbf68c366f192087bbe0b1f58e40c4b18.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/history_sheet_controller-b35df6c7a94f3466a3cf1bd7673c9dc85d06c94da043f5471e0b09939bc02b50.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/horizontal_bar_chart_controller-5b821a4040f710de2e23bd996d226eabb404a7b3a8caed44df715b33de0d94d0.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/host_disconnect_countdown_controller-dfb3278794c169685ef3e740147e96d3d1af6603915ac7d6cc0f7355b417e29a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/hour_ribbon_controller-d4e298cff11fbf72e3d0a2468ac4ec9b5501a84e31c1a89c7d87c1beba9a1180.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/iana_zone_controller-a3ffe21be3ba8340757044a8215e00b886ab5704fa9cd8c17b192a5094c92bc1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/identity_tabs_controller-46c00869559c4cdfaea96dc0c52cfdee6fc6bc32cffbf65f267c1dd3ce5f9938.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/index-b6d94be13aa4db2ab8db38aa79f1d7ec9c0100ae1a51e8ce648fcf92a7c6099e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/info_popover_controller-e5709130d04a7f4ca77aba2a774014705f03877220cc9c837fb9903845be77b3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/invite_link_controller-ec78bacc2106b0d08f410c6e113777754afafe0ef8d281c0891e6683ef77f29a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/join_alert_controller-f01ffbc43bcd3e7f2b315ea58cea4e70c266bd3a98cc0c7a31def95ca1fccf13.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/join_sound_controller-4b75115b7092c10d189904371ee4daddaaa3d6961a86124587b22e2862d4ca5d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/journey_event_controller-38dbdcec04afe74978648c61a4045bb674b74ff07280d11f2d71391b670944ba.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/land_browser_controller-2cdcf7b5df229919243ca6143431d1c8ab17499395c27532c9be7a23831cd727.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/land_calculator_controller-4674be4b22431f2074f685da0e2f78c802f88aa7f602caa960ebd79b05119ac1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/land_finder_controller-2b0bb68233aa357935541faa0c94a20c6643a094f5afec98c0f8ab42cd2df7d6.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/language_hub_tables_controller-9bf27facc28c57f20e3b95a0f2c920581171af855ae95cfa902bda4085b79078.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/language_picker_controller-59854bc37742fa1ad4d32d95b7f018ba54f1bdcc7de8bdc8a4929536e449c4ce.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/leaderboard_filters_controller-d9f796b91c6a1670664fec120c62742987dc05ae6b4577cfb016af5a98385c74.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/league_creation_controller-c845af7497909abf6918045c370152bba9976ecd2a2767b8e9b9d47e19e282a0.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/league_placement_mode_controller-1c5160f5c142a026349e14ceb90191a234663184f93017f343004b406251af62.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/line_chart_controller-7046eff20946edf182d12d0c26fec9fed4188f0ff098b6eb599e37254e960037.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/link_share_controller-c3802aea84f80dfaecc734734442423d6db0fabbe7a7ac9db0de45ab1822ac62.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/listed_policy_default_controller-d4b4013a94af5ee1213bca1e58c8f289a594cd7ddb545559a6a5595516d8d02e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/live_session_form_controller-c8ed1992ffc7a81f0dc867cab0cb88e621ffdabb5bd5d13aa965ed37e696b61e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_actions_controller-e09fec8ff2d887cea6857434ba39eacff236e3115d6970feab16e4c9ed39fc8c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_bell_controller-c7cbf6f6ad0a1441b40daa98074cc7f269e7d351d8deb09ed6bab856619108b3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_bracket_controller-e09d0e84d1c9ebccedecc5194c82aeca966b5b00a5a6bf163eeed9449708f557.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_bracket_fit_controller-c41eda1650af9a4cef43637d2a4ee5ff0bc5fc2e0fcbea2f71c300dc46cedff0.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_bracket_popover_controller-6072581eb846daadf23cae46ab3d8f5faaca12c64f98473071af32318ac84490.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_index_filter_controller-15da3f401d77d334d287cb414f91cf0567d88858f738636537916dcd7aaae284.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_index_presence_controller-075ae0c29759df8301899cee4a1668211a81fe0970dd4674ee7c7d93d92adfc7.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_own_game_controller-1cda90f78216081c701833efe59a4199497a64ed94a1dc62d5fabd2f82b854c3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_player_card_controller-da6672b4d404d60d1fb14dd631abe3b8cb72a3013fb1300fc8394075e62db296.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_redirect_controller-3bcdedfcdefcd241ce6916cb913e3b747f3d581229f9983167a4fce406d86ab4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_row_fold_controller-195b185fc9d17540512ebc61ae300cc482e501869f4060c6553c066239bc4d79.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/lobby_warmup_controller-c26848ca489eeb96e5bfba82b787c705c83e1823b9d23e3aa94c5321d27b3625.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/local_datetime_controller-e1c3b8459e6652b2e01cd947dbad634e134113a4bf5d04de637838cb476d794a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/local_time_controller-914fd5b79106a6f23f180585749d0c9c1f68ab1fd5aeb4773dc6cb75d46d0b73.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/location_picker_controller-7ae70942e8445f1bf9104ebfc564cc9aa105f2acb8f32e7c8dc48fbf6e70d630.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/mana_color_distribution_chart_controller-c062f93e44be4f1d99d6c19ac6d8487755684ca939db370db1407816522091bf.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/monthly_games_hours_chart_controller-4b9eb1c42deb7efeff61d96788588da26e7e93905563c0252ffadc008ae90040.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/mulligan_counter_controller-ce315253bf4dd2ce75cc27c5f865dea51962f37ac148167f5ca88cc6a6a0bed1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/news_announcement_controller-aed9cbbaa3c36d8c910b638a43b73714c0edf1252d661756662ac7578ce042eb.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/news_post_finished_controller-ce3883c66cb8b3ae621d7231e7e58f0c911041c93720ba8edf1afa2908e01362.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/news_toc_controller-a68c2f5b19f4aef7671ac7852ba173452d0663f2616e586ec3d0eee111e8313c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/notification_bell_controller-dc9d560f31269134b73a14d0bbe213b6f3c176b1b9fa1d475ecef7a86bee28d1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/notification_channel_controller-d8dc32253fe0d79932babe672ffccd3cc6c75584b2901309e46a3305822fdb8b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/notification_toast_controller-e31cab5e97e20d1aa9bbdca6bd223706a465ac6c661fc9c27aec7c177052c94c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/onboarding_path_controller-f5ce3e9576e38b67fb4a55330724913774996164766a0dfcde579edcced97968.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/paper_deck_list_controller-c673719537c162849a5c83e0cf690008f4086c328651256c404bcf6780ac3a11.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/play_mode_fields_controller-def1a877d22ef9f9798697710283a7365a93029ff46d3088f28e66ef3b8543ce.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/player_focus_graph_controller-7e44d7e58422efd4667d8c44971e54833ff754343724455e9b561b21b4aa1b28.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/playgroup_creation_controller-97c7775158f9eb23a8737cc5e9a87773f3739ee6912850bfc8621116ba7fab45.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/playgroup_locations_controller-3337a8a3bb8f61db76288d4a4ed349626be2822ad5e676b130dd657a885bda7a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/playgroup_presence_controller-045b70a9bf6f88d1f86d8807060a3ba5295ecd7d142e04631d2f9885f8560680.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/playscore_counters_controller-c75e765c9be87ab59b91454b374a7578d2670387c7f8fd77d6703147853448af.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/playtest_intake_controller-4ecd32fed612ff897210df53f24426ceee1c7eda842929f68d454f499cd1c0b8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/playtest_launcher_controller-ed7cf2f37704aab56ecf9fd77134863f7a72eba211c2c45cb7a2a6a177fedfb4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/pool_filter_controller-05b32bd61825a06ab7a1319b0576802299626cf4d4231fb0dc79fe37cc8049d4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/pregame_channel_controller-5b6ef3f5565f4426a927f537bd1dfad87df3b295ceae47bc29cd284015e8987c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/printing_filter_controller-16c7d37a1ca9eb75ecd5e23c1cc368459027ff4b428be8368fa302856c75185a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/public_map_controller-837210b24fa1d48c6a58fbd04a5d21d8dff21c42c1d674cb4e8406270c845673.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/report_reason_controller-1fd7efee2d6e66537cb29e103fc08a05096f88def13b27ec2b0e90937c78de82.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/rewind_deck_usage_bubble_controller-28df1f894cbe3af495352c38ff6c7dfb5c439f4b8ac4b845b8b250518ea17d8c.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/rewind_deck_usage_treemap_controller-fdeaa5d538b2c1664ebf16b371db4b28f4bd9078dbab319f4da205eac4d61b4b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/rewind_screenshot_controller-998b21df7b314063cfe80e8a3ad3943f20b1471454a4fc1239475652e53b4e40.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/rulebreaker_color_picker_controller-1d8c96e5cc5e5ddfde5ad5d379dfec4e65bdecb45b69be9e9f6275af43e2b7c9.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/scan_phone_pair_controller-1ed0051c94d291a9ed3c432b01ea84aad36283ac157c590e6abdaf2685d67969.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/scheduled_time_controller-40625dd0c366495259f742b8b37ee2bcc7736a3641f979dc9817ea941539c7fc.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/score_action_fields_controller-5818ff27e6818ba878054fba87f4abec5e93ca740c5ac4bd5e1fb3501cbdad79.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/score_rule_fields_controller-9a57aa7447a1887cb783d6122ee27807a1c8a9d98b4d1cb92c2826e6a117af1b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/screenshot_controller-981acec2dc478c0a9b454cc433dd0cd786db8f6c8dfb8860b1212a505b61e490.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/scroll_into_view_controller-4910cad20f327ec6a39edae2e42565a041c3ec2cd8363f9dc73348bc4c6450c3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/search_location_controller-161d18d0c3610dff617caea53c2a2f9af368f5c0ed9feff690ef48817550d5cc.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/searchable_select_controller-33a622eedb4eeaa52ce2a440450604761226f3828af209f6e1b69723b349ff2a.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/segmented_controller-c9a578c839ec1c2ab85cd02cdb226432115fc047358535bbe9d69040408c888e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/select_controller-493e2ad343034a5aa14e572c1a3ba760c03c6253fa273ba3081a258b49477ba3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/set_cards_filter_controller-ec113e035c69d2461b895393176a1a9a1d7ec19d75d1d8d214b7249ebe10ba32.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/set_playtest_launcher_controller-ed7cf2f37704aab56ecf9fd77134863f7a72eba211c2c45cb7a2a6a177fedfb4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/share_controller-3e5cf1f5e769641d8407ed33e8b3665262ac8935cb72ac989044993ed39e43ad.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/show_more_controller-74ff1575f2f1541ec0ae739f69199ef1684682108c20335ea8c313c3155421f0.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/signup_context_controller-553043516933e6dd674268ba35a50d7fe6b37ed350592a0b448cab7c8caae893.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/site_notice_controller-a9549839a8b6c59335bd13034d2aa02f74de3f9a8eb02e3e29103987684856ab.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/social_link_field_controller-c6206084b87c79a923e3a0bf03aa4958041211bc9216f69ffa8637d1b3eb9936.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/starting_player_picker_controller-258c751d58b20dba3f8d81dfbbb70f80e61aaf084da786535ed990bf6308b568.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/stats_range_controller-09d5cb4570ff0750a210b2a9eb257be11d09d08bd6d5bd1ae7d15de2987eb488.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/subscription_controller-bbb506cc0cf56123e264d05b3af163b729c8af2c50dcb6db03ca0330dd1bcaf6.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/swiper_controller-8ce7b9816603b1a7f5e13096a79c87f7a7b609eb6ff8d4c0446cf235f534cf04.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/tier_expand_controller-0d7933aa34cca9806bd65b92e079aa7c75e84c04ff37cdcd7a6518f372012739.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/toggle_controls_controller-021c0b554678a982b21426d82e3e201e255407f82d2984aa3a9e8aff9a90a7e2.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/toggle_visibility_controller-cf233b2fa92ff907f8378ab8632b82fbd5eb9d7fc7a1e50c75df06082817e577.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/turbo_frame_refresh_controller-0fede5d1b8a7ef5354b602b215a20737b6e60acc1e0347931644cf6a131c7cc3.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/video_embed_controller-df2244e47be009af9d6d5246ca77f713e4100b6e0e6b5f2c08f727871442286d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/visibility_status_controller-313a4da5c08abaab1e66c6b546386fcc375211d192fb662900c1de805f981ea8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/controllers/voice_controls_controller-41ae970942a2a8a8509b2d89199750687143b9fe8c50ce18ae0f233fcd276119.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/channels/consumer-98c575055f3104eefdcd7eef486ad242e4cfc45901aaa783ef098f698db23e17.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/channels/index-7874dbf3476fba0deae25a3e0ac12e6281b021c17d237b4968c24606a155e974.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/appDialog-f07c0c1a6fd2ca6ccb74f9ef2c283c5cddc02cd657208b7b68730340ea1b5705.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/appPicker-a7c01be1fb936a0bc41048e88b5f36586f7776054355a15861b689fd8cf839dc.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/appSocialSignIn-594565a15110698eb70252a21518a2100bad03545d2f6376ca532c7a12782223.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/appTabNav-05e93ab22c62fbaf3548ee7b1e8df6e8a5d8d6ac2ae0ccb2080470762816e5c8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/bracketFit-fdbe5736d0f648d032200c853039cedcd5f59e71ea7d232df823c4730c604f32.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/brew_tour_steps-c457c45c1238eba39f9bf554bbbb8cd7e6db63da464677b04ebd15ea7752ebda.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/browserLanguages-b2ecae3bcdca961252a1580b7d8b9832883ca04be701bac465a7f1a33ada0122.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/chartTooltips-87b398b6989ce1ed9120944cc938c9c60a5565fad1df81e90a812f7c3f8a2a9d.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/cookies-61ee66da9f6f004135ecea52e5f2c80b04ffb43e1430f8d40653f6324652214f.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/countdown-58fd57413b85078dfb22739986f335855852383caecdae5838afe1495a1fcd50.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/damageColors-70a735d124e49e86590cd44d138f4021ed544fba36d4fd60c4de8288331267a1.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/deckCategory-1fc6b67960e91a8ce04558affe26bf75405ebdce4b9129360a078c331d52f1fe.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/deckInputClassifier-b82ee74d4be1141aec7be6e1640187e847da5ae6e8100f3ab7a7fd51a6537740.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/deck_source-7e430042de63423ff7052cd1645290e8167f5d2d5399bdb06e2e1233cd741093.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/focusTable-75c07a36cdf9d9fdece37f0ecf0d5b4a038dac59606da97b54e6ea434d998b73.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/formFields-c762f33a7420c0b4652bbd18c76cba4a9c4a8f40817cd1eaad91e0e211037ea4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/inputPresence-ec297ff6a221911644317c987f085b110b6842bc8f0b513f4f1eeb6667df6ac8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/journeyEvents-736d042ab18e97c0a016f1276f3d9d4ce2a3a17b349a50c94358f01e13ea42c4.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/keepImages-a14654006f39cfe19925d8ed2be0a3026061d09c3bcd9b55080e2c29fe376ab8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/keyboardInset-80835d2a7aa3674dd3badeedec3436c4ecf7e8919b8a71ee074aa355401e8945.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/landFinder-f072637f71e8f140c7d162d1026d36a3d1f459e409ab83065b509376f3155b62.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/lobbyCards-dfaea814f3360436a98ea5419a82d66cd1515d3cc5cab03f0906a154b35c1748.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/openSheet-f1bf74a1b588365c2e4c5cfeeafadd241a0ec5f527f0c76cb247f51ccc762348.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/phoneDevice-6e9733a5804976cc346dfd25ac12a2ce070c5e16419f3d33327e19c80a600df8.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pluralLabel-8f201fa0460fb06a104aa97a82b6cd708976ee5c9c782d42cd18c3aba6049963.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pregame/deckSelectionStore-409a532eb0bc2a5eb68081e0c66963950266330603a9742a8f0d88477bfae0ee.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pregame/pregameEventSender-a856e5106612e221094107eeea350656c811b4bad2ac52600447328be85ff802.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pregame/primerFetcher-c435098a38b27b3c8feb3db0ae67f1e6a627fb1ab7ffcf2ab5718f83bfe08321.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pregame/statsLoader-262ad03a5e5e85cda73ca0970157ed20a916a32a896b05f31c1567d2eec2ee33.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pregame/winChanceCardRenderer-7fa843e2fa2095f4acd9aa918ec4f6aee5514e32da7912035fb0583bd58fa71e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/printingFilter-8506549b4f669ec257e7e29674888d8c92b4ee584034d8ebf0f44a4989f0850f.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pushClient-184684112f5c3511b0b24fe11588e39d94204e8d46c4094171954a47faac671b.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/pushTap-aa85487003eae8ab14183e23b262928d2132d0a3fd5727fe057e3db7ec98fa82.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/shellNavigation-fcff94d1f3a44bea0014b26b39eae94ce18a2e1ffd022dd01a811907c5c9926f.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/shellOrientation-fca2512726525aa613c503899d2d3ade6bf0c6e7d1b983f3dfe2623a89ffdc77.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/stripColors-ab8d668b9f96f2c33a001a2d6a92b9f37455e99324d0047614530b1fb665c633.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/time-294ece107df0c0b0e6561cd12042943a51f268bc7dd5ade0977eebd3f222e2f9.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/turboStreamRequest-7f59c6717f21a91cacc494de6031639d0d145b10dc09d7ffdbd5f7f47f99e34e.js">
+<link rel="modulepreload" href="https://playgroup.gg/assets/lib/videoPreview-99bc225d9c92b4fff90909cb8379253702baef945021b7e07a7088d323fad5d7.js">
+<script type="module">import "application"</script>
+
+
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<link rel="stylesheet" href="https://playgroup.gg/assets/application-6517d7f7e0fe6a1e519ab9e56bc6370ebeb55fbc3b83d12fba07622aef94313d.css" data-turbo-track="reload" />
+<meta content='noindex, nofollow' name='robots'>
+<link href='https://playgroup.gg/cards/esperzoa' rel='canonical'>
+
+<title>Esperzoa in Commander | Playgroup | Playgroup.gg</title>
+<meta name="description" content="Live Commander play data for Esperzoa: inclusion rate, cast-turn distribution, and final-zone breakdown from real games tracked on Playgroup Live.">
+<link rel="canonical" href="https://playgroup.gg/cards/esperzoa">
+<meta property="og:site_name" content="Playgroup.gg">
+<meta property="og:title" content="Esperzoa in Commander | Playgroup">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://playgroup.gg/cards/esperzoa">
+<meta property="og:description" content="Live Commander play data for Esperzoa: inclusion rate, cast-turn distribution, and final-zone breakdown from real games tracked on Playgroup Live.">
+<meta property="og:image" content="https://cards.scryfall.io/large/front/7/2/7269b26a-058c-4a5c-aadf-733ea60f3de0.jpg?1783930199">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Esperzoa in Commander | Playgroup">
+<meta name="twitter:url" content="https://playgroup.gg/cards/esperzoa">
+<meta name="twitter:description" content="Live Commander play data for Esperzoa: inclusion rate, cast-turn distribution, and final-zone breakdown from real games tracked on Playgroup Live.">
+<meta name="twitter:image" content="https://cards.scryfall.io/large/front/7/2/7269b26a-058c-4a5c-aadf-733ea60f3de0.jpg?1783930199">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization","name":"Playgroup.gg","legalName":"Arcane Digital B.V.","url":"https://playgroup.gg/","logo":"https://playgroup.gg/assets/logo-2-8946607a4d3ad6922e7c834ef6fc42fd2088730dc7c816ec7f0fc2667d09fec3.svg","sameAs":["https://discord.gg/wAG8aApDU5","https://www.instagram.com/playgroupgg/","https://apps.apple.com/app/id1669028870","https://play.google.com/store/apps/details?id=gg.playgroup.playgroup"]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Playgroup.gg","applicationCategory":"GameApplication","operatingSystem":"Android, iOS, Web","url":"https://playgroup.gg/","description":"EDH tracking app for Magic: The Gathering Commander games. Track life, stats, ELO, and decks for your playgroup.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"SiteNavigationElement","name":"Play Commander Live","url":"https://playgroup.gg/playgroup-live"},{"@type":"SiteNavigationElement","name":"Find a Game","url":"https://playgroup.gg/live_sessions"},{"@type":"SiteNavigationElement","name":"MTG Deck Tester","url":"https://playgroup.gg/playtest"},{"@type":"SiteNavigationElement","name":"Commander Deck Builder","url":"https://playgroup.gg/commander/deck-builder"},{"@type":"SiteNavigationElement","name":"Commander Stats","url":"https://playgroup.gg/commanders"},{"@type":"SiteNavigationElement","name":"Commander Tier List","url":"https://playgroup.gg/commanders/tier-list"},{"@type":"SiteNavigationElement","name":"Color Win Rates","url":"https://playgroup.gg/commanders/colors"},{"@type":"SiteNavigationElement","name":"Card Atlas","url":"https://playgroup.gg/cards"},{"@type":"SiteNavigationElement","name":"Commander Staples","url":"https://playgroup.gg/commander/staples"},{"@type":"SiteNavigationElement","name":"MTG Board Wipes","url":"https://playgroup.gg/commander/board-wipes"},{"@type":"SiteNavigationElement","name":"MTG Tutors","url":"https://playgroup.gg/commander/tutors"},{"@type":"SiteNavigationElement","name":"MTG Ramp","url":"https://playgroup.gg/commander/ramp"},{"@type":"SiteNavigationElement","name":"MTG Counterspells","url":"https://playgroup.gg/commander/counterspells"},{"@type":"SiteNavigationElement","name":"Game Stats","url":"https://playgroup.gg/stats"},{"@type":"SiteNavigationElement","name":"Metagame Reports","url":"https://playgroup.gg/metagame"},{"@type":"SiteNavigationElement","name":"MTG Release Schedule","url":"https://playgroup.gg/sets"},{"@type":"SiteNavigationElement","name":"Find a Playgroup","url":"https://playgroup.gg/map"},{"@type":"SiteNavigationElement","name":"News","url":"https://playgroup.gg/posts"},{"@type":"SiteNavigationElement","name":"FAQ","url":"https://playgroup.gg/faqs"}]}</script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<link rel="stylesheet" href="https://playgroup.gg/assets/tailwind-53b6a4e336441aa4c6524a41939b0ab8036e31e32137af2804d71437d07abbb6.css" data-turbo-track="reload" />
+<link rel="stylesheet" href="https://playgroup.gg/assets/inter-font-0bea3f6ac92b0658085f9533b393a9316034d7f4b7ac248db6c8c024761310c5.css" data-turbo-track="reload" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Marcellus&family=Orbitron:wght@700&family=Pirata+One&family=Poiret+One&family=Press+Start+2P&family=Share+Tech+Mono&family=Shippori+Mincho:wght@700&family=Uncial+Antiqua&family=VT323&display=swap" rel="stylesheet">
+
+
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@100;200;300;400;500;600;700&family=Rajdhani:wght@500;600;700&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="//cdn.jsdelivr.net/npm/mana-font@latest/css/mana.css" rel="stylesheet" type="text/css" /> 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0" />
+<meta name="msapplication-TileColor" content="#2d89ef">
+<meta name="theme-color" content="#ffffff">
+
+<style>
+:root {
+  --animate-delay: 0.3s;
+}
+</style>
+
+
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('set', 'autoConfig', false, '1366461758373327');
+fbq('init', '1366461758373327');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=1366461758373327&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
+
+
+
+<!-- Google tag (gtag.js) -->
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FR3QBS9DWP"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FR3QBS9DWP');
+</script>
+<!--  Google tag (gtag.js) End -->
+
+</head>
+<body class='h-screen flex flex-col'>
+
+<main class='mb-auto px-5'>
+<div class='z-30 flex flex-col items-center relative'>
+<div class='flex flex-row w-full max-w-screen-xl mx-auto py-2 md:py-4 justify-between md:px-0 gap-y-4'>
+<div class='flex flex-row items-center'>
+<div class='justify-start flex items-center pr-2 z-40 relative'>
+<a class="flex items-center" href="/"><img alt="Playgroup.gg" class="h-10 w-auto max-w-none" src="https://playgroup.gg/brand/playgroup-logo-tagline-teal.svg" />
+
+</a></div>
+</div>
+<div class='flex flex-row justify-center'>
+<div class='md:flex items-center gap-y-3 flex-row space-x-4 hidden'>
+<a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn active" aria-current="page" href="/"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>home</i>
+</div>
+Home
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn" href="/playgroup-live"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>sports_esports</i>
+</div>
+Play Commander
+<span class='inline-flex items-center justify-center font-bold uppercase leading-none text-on-error bg-error rounded-full tracking-wider text-[10px] px-1.5 py-0.5 ml-1.5'>NEW</span>
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn" href="/playtest"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>play_arrow</i>
+</div>
+Playtest
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn md:hidden xl:flex" href="/commander/deck-builder"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>construction</i>
+</div>
+Build a deck
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn" href="/research"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>query_stats</i>
+</div>
+Research Hub
+</a><div class='flex flex-row px-5 md:pt-0 pt-6 gap-x-4'>
+<a class="w-full whitespace-nowrap h-fit button animate__animated animate__delay-1s animate__fadeIn" href="/users/sign_up">Sign up
+</a><a class="w-full h-fit button_inverse animate__animated animate__delay-1s animate__fadeIn" href="/users/sign_in">Login
+</a></div>
+
+</div>
+<div class='flex md:hidden order-last'>
+<button class='material-symbols-outlined relative justify-center w-12 h-12 gap-x-2 px-6 text-sm text-center font-medium !inline-flex !items-center py-2.5 rounded-[6.25rem] tracking-[.00714em]' data-target='#dialog_small_menu' data-type='dialogs'>
+<i class='mi-o mi-menu leading-none'></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class='z-20 relative'>
+<div class='max-w-screen-xl mx-auto px-4 py-8 md:px-6 lg:px-8'>
+<nav aria-label='Breadcrumb' class='text-xs text-on-surface_variant mb-6'>
+<a class="hover:text-primary" href="/">Home</a>
+<span class='mx-1'>/</span>
+<a class="hover:text-primary" href="/cards">Cards</a>
+<span class='mx-1'>/</span>
+<span class='text-on-surface'>Esperzoa</span>
+</nav>
+
+<section class='bg-surface_container rounded-2xl overflow-hidden shadow-md mb-8'>
+<div class='relative overflow-hidden min-h-[260px] md:min-h-[320px] 2xl:min-h-[380px]'>
+<img alt='Esperzoa card art' class='absolute inset-0 w-full h-full object-cover' loading='eager' src='https://cards.scryfall.io/art_crop/front/7/2/7269b26a-058c-4a5c-aadf-733ea60f3de0.jpg?1783930199' style='object-position: center 32%;'>
+<div class='absolute inset-0' style='background: linear-gradient(180deg, rgba(14,21,19,0.05) 0%, rgba(14,21,19,0.45) 40%, rgba(14,21,19,0.97) 100%);'></div>
+<div class='absolute inset-0 pointer-events-none' style='background: radial-gradient(ellipse at 100% 100%, rgba(28,222,202,0.14) 0%, transparent 55%);'></div>
+<div class='relative z-10 flex flex-col justify-end h-full p-6 min-h-[260px] md:min-h-[320px] 2xl:min-h-[380px] md:p-8 2xl:p-10'>
+<div class='flex items-end justify-between gap-6 flex-wrap'>
+<div class='flex-1 min-w-0'>
+<div class='flex items-center gap-3 mb-2'>
+<div class='text-primary uppercase font-medium text-[10px] tracking-[0.25em]'>
+Card Preview
+</div>
+<div class='h-px bg-primary w-10 opacity-50'></div>
+</div>
+<h1 class='font-oswald text-white mb-3 uppercase text-3xl md:text-5xl 2xl:text-6xl leading-[0.95] tracking-tight'>
+Esperzoa
+</h1>
+<div class='flex flex-wrap items-center gap-x-3 gap-y-1 text-on-surface_variant text-sm'>
+<span class='text-on-surface leading-none'><img class="mana-symbol" src="https://svgs.scryfall.io/card-symbols/2.svg" alt="{2}" title="{2}"> <img class="mana-symbol" src="https://svgs.scryfall.io/card-symbols/U.svg" alt="{U}" title="{U}"></span>
+<span class='text-outline_variant'>·</span>
+<span>Artifact Creature — Jellyfish</span>
+<span class='text-outline_variant'>·</span>
+<span>Double Masters (2XM)</span>
+</div>
+</div>
+<div class='text-right flex-shrink-0'>
+<div class='font-oswald text-primary leading-none tabular-nums text-4xl md:text-6xl 2xl:text-7xl'>
+0%
+</div>
+<div class='text-on-surface_variant uppercase mt-2 text-[10px] tracking-[0.2em]'>Decklist Inclusion</div>
+</div>
+</div>
+<div class='mt-4'>
+<a target="_blank" rel="noopener nofollow sponsored" class="inline-flex items-center justify-center px-4 py-2 gap-2 rounded-lg text-sm font-medium whitespace-nowrap bg-primary text-on-primary transition-colors hover:bg-primary/90" href="https://partner.tcgplayer.com/c/7115353/1830156/21018?subId1=playgroup-card-page&amp;u=https%3A%2F%2Fwww.tcgplayer.com%2Fproduct%2F219563%3Fpage%3D1"><i class='mi-o mi-shopping_cart mi-md-18 leading-none'></i>
+<span>Buy on TCGplayer</span>
+</a>
+</div>
+</div>
+</div>
+<div class='border-t border-outline_variant border-opacity-50'>
+<div class='grid gap-x-8 gap-y-4 p-5 grid-cols-2 md:grid-cols-4 md:p-6'>
+<div>
+<div class='text-on-surface_variant uppercase font-medium mb-1 text-[10px] tracking-[0.2em]'>Times Brought</div>
+<div class='font-oswald text-on-surface tabular-nums text-2xl md:text-3xl'>9</div>
+</div>
+<div>
+<div class='text-on-surface_variant uppercase font-medium mb-1 text-[10px] tracking-[0.2em]'>Decks Running</div>
+<div class='font-oswald text-on-surface tabular-nums text-2xl md:text-3xl'>5</div>
+</div>
+<div>
+<div class='text-on-surface_variant uppercase font-medium mb-1 text-[10px] tracking-[0.2em]'>In Decks</div>
+<div class='font-oswald text-on-surface tabular-nums text-2xl md:text-3xl'>
+30
+</div>
+</div>
+<div>
+<div class='text-on-surface_variant uppercase font-medium mb-1 text-[10px] tracking-[0.2em]'>Decklist Inclusion</div>
+<div class='font-oswald text-on-surface tabular-nums text-2xl md:text-3xl'>
+0%
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<div class='flex items-center gap-3 mb-6'>
+<span class='text-on-surface_variant text-[10px] uppercase tracking-[0.2em]'>Format</span>
+<div class='inline-flex rounded-lg overflow-hidden border border-outline_variant'>
+<a class="px-3 py-1 text-sm bg-primary text-on-primary" href="/cards/esperzoa">Multiplayer</a>
+<a class="px-3 py-1 text-sm text-on-surface_variant hover:text-on-surface" href="/cards/esperzoa?pod=duel">1v1</a>
+</div>
+</div>
+<section class='bg-surface_container rounded-2xl shadow-md mb-8 p-5 md:p-6' data-testid='card-text'>
+<div class='flex items-center gap-3 mb-5'>
+<div class='text-primary uppercase font-medium text-[10px] tracking-[0.25em]'>Card text</div>
+<div class='h-px flex-1 bg-outline_variant opacity-50'></div>
+</div>
+<div class='flex flex-col gap-6 md:flex-row md:gap-8'>
+<div class='shrink-0 mx-auto w-56 md:mx-0 md:w-60'>
+<img alt='Esperzoa card' class='w-full rounded-xl shadow-md' loading='lazy' src='https://cards.scryfall.io/normal/front/7/2/7269b26a-058c-4a5c-aadf-733ea60f3de0.jpg?1783930199'>
+</div>
+<div class='flex-1 min-w-0 flex flex-col md:justify-center max-w-2xl'>
+<div class='space-y-7'>
+<div>
+<div class='flex items-baseline gap-3 flex-wrap'>
+<h2 class='font-oswald text-on-surface uppercase tracking-tight text-xl md:text-2xl leading-none'>Esperzoa</h2>
+<span class='text-on-surface leading-none shrink-0 text-lg'><img class="mana-symbol" src="https://svgs.scryfall.io/card-symbols/2.svg" alt="{2}" title="{2}"> <img class="mana-symbol" src="https://svgs.scryfall.io/card-symbols/U.svg" alt="{U}" title="{U}"></span>
+</div>
+<div class='text-on-surface_variant uppercase font-medium mt-2 text-[11px] tracking-[0.15em]'>Artifact Creature — Jellyfish</div>
+<div class='relative mt-3 mb-4'>
+<div class='bg-surface_container_low rounded-xl p-4 md:p-5 pb-7'>
+<div class='text-on-surface leading-relaxed whitespace-pre-line text-sm md:text-[15px]'>Flying
+At the beginning of your upkeep, return an artifact you control to its owner&#39;s hand.</div>
+</div>
+<div class='absolute bg-surface_container border border-outline_variant rounded-lg shadow-md -bottom-3 right-4 border-opacity-50 px-3 py-1'>
+<div class='font-oswald text-on-surface tabular-nums leading-none text-xl'>4 / 3</div>
+</div>
+</div>
+</div>
+</div>
+<div class='pt-6'>
+<div class='text-on-surface_variant text-xs'>
+<span>Double Masters (2XM)</span>
+<span class='text-outline_variant mx-1'>·</span>
+<span>Uncommon</span>
+<span class='text-outline_variant mx-1'>·</span>
+<span>Illustrated by Warren Mahy</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<div class='bg-surface_container rounded-2xl shadow-md overflow-hidden'>
+<div class='flex items-center gap-3 p-5 md:p-6'>
+<h2 class='text-primary uppercase font-medium text-[10px] tracking-[0.25em]'>Frequently Asked</h2>
+<div class='h-px flex-1 bg-outline_variant opacity-50'></div>
+</div>
+<div class='divide-y divide-outline_variant/40'>
+<details class='group px-5 md:px-6' open>
+<summary class='flex items-center justify-between gap-4 py-4 cursor-pointer select-none list-none'>
+<span class='font-oswald text-on-surface text-base md:text-lg'>Why isn&#39;t there more data on this card?</span>
+<i class='mi mi-expand_more leading-none text-on-surface_variant transition-transform group-open:rotate-180' style='font-size: 22px;'></i>
+</summary>
+<div class='text-sm text-on-surface_variant leading-relaxed pb-5 md:pb-6'>Playgroup Live collects per-card gameplay data from real Commander games. Play counts appear once a card reaches 100 tracked games, and the full charts need a sample of at least 25 observed games that is not dominated by a single pilot. Until this card clears those bars you&#39;re seeing only the basic counts. Stats refresh nightly.</div>
+</details>
+<details class='group px-5 md:px-6'>
+<summary class='flex items-center justify-between gap-4 py-4 cursor-pointer select-none list-none'>
+<span class='font-oswald text-on-surface text-base md:text-lg'>How is Playgroup Live card data collected?</span>
+<i class='mi mi-expand_more leading-none text-on-surface_variant transition-transform group-open:rotate-180' style='font-size: 22px;'></i>
+</summary>
+<div class='text-sm text-on-surface_variant leading-relaxed pb-5 md:pb-6'>Players using Playgroup Live import their decklists before a game and log card actions as they play. Each cast, zone change, and resolution is recorded as a real game event. Stats on this site are computed from those events, not from decklist scrapes or theorycrafting. Playgroup has recorded 780,000+ Commander games overall, and this card-level play data comes from the Playgroup Live seats playing virtual cards, a subset of that corpus.</div>
+</details>
+</div>
+</div>
+
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why isn't there more data on this card?","acceptedAnswer":{"@type":"Answer","text":"Playgroup Live collects per-card gameplay data from real Commander games. Play counts appear once a card reaches 100 tracked games, and the full charts need a sample of at least 25 observed games that is not dominated by a single pilot. Until this card clears those bars you're seeing only the basic counts. Stats refresh nightly."}},{"@type":"Question","name":"How is Playgroup Live card data collected?","acceptedAnswer":{"@type":"Answer","text":"Players using Playgroup Live import their decklists before a game and log card actions as they play. Each cast, zone change, and resolution is recorded as a real game event. Stats on this site are computed from those events, not from decklist scrapes or theorycrafting. Playgroup has recorded 780,000+ Commander games overall, and this card-level play data comes from the Playgroup Live seats playing virtual cards, a subset of that corpus."}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://playgroup.gg/"},{"@type":"ListItem","position":2,"name":"Cards","item":"https://playgroup.gg/cards"},{"@type":"ListItem","position":3,"name":"Esperzoa","item":"https://playgroup.gg/cards/esperzoa"}]}</script>
+</div>
+
+</div>
+</main>
+<div class='z-30 relative opacity-0 w-full h-0 overflow-auto fixed left-0 top-0 flex items-center justify-center transition-all duration-200 [&amp;.show]:opacity-100 [&amp;.show]:h-full [&amp;.show]:inset-0' id='dialog_small_menu'>
+<!-- dialogs -->
+<div class='dialog hidden flex-col gap-2 fixed bg-surface_container_low'>
+<!-- header -->
+<div class='flex flex-col items-center w-full min-h-[56px]'>
+<div class='flex flex-col w-full'>
+<div class='flex justify-between flex-row'>
+<div class='flex flex-row items-center pl-5 pt-1'>
+<div class='justify-start flex items-center pr-2 z-40 relative'>
+<a class="flex items-center" href="/"><img alt="Playgroup.gg" class="h-10 w-auto max-w-none" src="https://playgroup.gg/brand/playgroup-logo-tagline-teal.svg" />
+
+</a></div>
+</div>
+<div class='flex flex-row justify-end py-4 px-5 items-center text-on-surface_variant'>
+<button class='relative flex flex-row items-center justify-center gap-x-2 text-sm font-medium text-primary-600 hover:bg-surface-200 focus:bg-surface-400 dark:text-primary-200 dark:hover:bg-surfacedark-200 dark:focus:bg-surfacedark-400 p-2.5 rounded-[6.25rem] tracking-[.00714em]' data-close='#dialog_small_menu'>
+<i class='mi mi-close leading-none'></i>
+</button>
+</div>
+</div>
+<a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn active" aria-current="page" href="/"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>home</i>
+</div>
+Home
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn" href="/playgroup-live"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>sports_esports</i>
+</div>
+Play Commander
+<span class='inline-flex items-center justify-center font-bold uppercase leading-none text-on-error bg-error rounded-full tracking-wider text-[10px] px-1.5 py-0.5 ml-1.5'>NEW</span>
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn" href="/playtest"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>play_arrow</i>
+</div>
+Playtest
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn" href="/commander/deck-builder"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>construction</i>
+</div>
+Build a deck
+</a><a class="md:nav-item mobile-nav-item animate__animated animate__delay-1s animate__fadeIn" href="/research"><div class='flex md:hidden'>
+<i class='mi mi-md-18'>query_stats</i>
+</div>
+Research Hub
+</a><div class='flex flex-row px-5 md:pt-0 pt-6 gap-x-4'>
+<a class="w-full whitespace-nowrap h-fit button animate__animated animate__delay-1s animate__fadeIn" href="/users/sign_up">Sign up
+</a><a class="w-full h-fit button_inverse animate__animated animate__delay-1s animate__fadeIn" href="/users/sign_in">Login
+</a></div>
+
+</div>
+</div>
+</div>
+</div>
+<footer class='flex w-full text-xs text-on-surface_variant py-10 bg-surface_container_low mt-24'>
+<div class='flex flex-col gap-y-10 max-w-screen-xl mx-auto w-full p-5 text-sm xl:px-0'>
+<div class='grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-6'>
+<div class='flex flex-col gap-y-4 col-span-2 md:col-span-2'>
+<a class="flex flex-row items-center w-fit" href="/"><img alt="Playgroup.gg" class="h-8 w-auto max-w-none" src="https://playgroup.gg/brand/playgroup-logo-teal.svg" />
+
+</a><p class='leading-relaxed max-w-[16rem]'>The home for Magic: The Gathering Commander. Track games, play online, and follow the metagame.</p>
+<div class='flex flex-row gap-x-4 text-xl pt-1'>
+<a aria-label="Discord" class="hover:text-primary transition-colors duration-150" data-turbo="false" href="/go/discord?from=footer"><i class='fa-brands fa-discord'></i>
+</a><a aria-label="X (Twitter)" class="hover:text-primary transition-colors duration-150" href="https://twitter.com/PlaygroupGG"><i class='fa-brands fa-x-twitter'></i>
+</a><a aria-label="Instagram" class="hover:text-primary transition-colors duration-150" href="https://www.instagram.com/playgroupgg/"><i class='fa-brands fa-instagram'></i>
+</a><a aria-label="Threads" class="hover:text-primary transition-colors duration-150" href="https://www.threads.net/@playgroupgg"><i class='fa-brands fa-threads'></i>
+</a><a aria-label="TikTok" class="hover:text-primary transition-colors duration-150" href="https://www.tiktok.com/@playgroup.gg"><i class='fa-brands fa-tiktok'></i>
+</a></div>
+</div>
+<nav aria-label='Play' class='flex flex-col gap-y-3'>
+<div class='flex items-center gap-x-2'>
+<span class='text-primary uppercase font-medium text-[10px] tracking-[0.25em]'>Play</span>
+<span class='h-px bg-primary w-10 opacity-50'></span>
+</div>
+<ul class='flex flex-col gap-y-2'>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/playgroup-live">Play Commander Live</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/how-to-play">How to Play Commander</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/playgroup-live/play-commander-online">How to Play Commander Online</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/playgroup-live/spelltable-alternative">SpellTable Alternative</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/live_sessions">Find a Game</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/playtest">MTG Deck Tester</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/deck-builder">Commander Deck Builder</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/playscore">Playscore</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/tracker">MTG Life Counter</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/tracker/log-games">Log Past Games</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/download">Download Tracker</a>
+</li>
+</ul>
+</nav>
+<nav aria-label='Stats' class='flex flex-col gap-y-3'>
+<div class='flex items-center gap-x-2'>
+<span class='text-primary uppercase font-medium text-[10px] tracking-[0.25em]'>Stats</span>
+<span class='h-px bg-primary w-10 opacity-50'></span>
+</div>
+<ul class='flex flex-col gap-y-2'>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commanders">Commander Stats</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commanders/tier-list">Tier List</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commanders/colors">Color Win Rates</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/staples">Commander Staples</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/how-many-lands">How Many Lands</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/lands">Commander Lands</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/turn-order">Turn Order</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/playgroup-live/leaderboard">Player Leaderboard</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/stats">Game Stats</a>
+</li>
+</ul>
+</nav>
+<nav aria-label='Meta &amp; Sets' class='flex flex-col gap-y-3'>
+<div class='flex items-center gap-x-2'>
+<span class='text-primary uppercase font-medium text-[10px] tracking-[0.25em]'>Meta &amp; Sets</span>
+<span class='h-px bg-primary w-10 opacity-50'></span>
+</div>
+<ul class='flex flex-col gap-y-2'>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/metagame">Metagame Reports</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/game-changers">Game Changers</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/most-fun">Most Fun Commanders</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/power-level">Power Level</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/bracket-calculator">Bracket Calculator</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/deck-template">Deck Template</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/commander/precons">Precon Tier List</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/sets">MTG Release Schedule</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/posts">News</a>
+</li>
+</ul>
+</nav>
+<nav aria-label='Community' class='flex flex-col gap-y-3'>
+<div class='flex items-center gap-x-2'>
+<span class='text-primary uppercase font-medium text-[10px] tracking-[0.25em]'>Community</span>
+<span class='h-px bg-primary w-10 opacity-50'></span>
+</div>
+<ul class='flex flex-col gap-y-2'>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/about">About Playgroup</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/map">Find a Playgroup</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/support?src=footer">Support Playgroup</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/faqs">FAQ</a>
+</li>
+<li>
+<a class="hover:text-primary transition-colors duration-150" href="/contact">Contact</a>
+</li>
+</ul>
+</nav>
+</div>
+<div class='flex flex-col gap-y-4 border-t border-outline_variant pt-6 md:flex-row md:items-center md:justify-between'>
+<p class='text-xs leading-relaxed max-w-[44rem]'>Playgroup is unofficial Fan Content permitted under the Fan Content Policy. Not approved/endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.</p>
+<div class='flex flex-row gap-x-4 shrink-0'>
+<a class="hover:text-primary transition-colors duration-150" href="/legal">Legal</a>
+<a class="hover:text-primary transition-colors duration-150" href="/privacy">Privacy</a>
+</div>
+</div>
+</div>
+
+</footer>
+<script src='https://aribudin.github.io/tailmater/src/js/tailmater.js'>:cdata</script>
+<script>
+  function openMenu() {
+    if ( document.getElementById("nav").classList.contains('opacity-0') ) {
+      document.getElementById("nav").classList.replace('opacity-0', 'opacity-100');
+      document.getElementById("nav").classList.replace('-left-72', 'left-0');
+       }
+      else {
+      document.getElementById("nav").classList.replace('opacity-100', 'opacity-0');
+      document.getElementById("nav").classList.replace('left-0', '-left-72');
+        }
+      }
+</script>
+</body>
+</html>

@@ -4,7 +4,7 @@
 
 const PHASES = { beginning: "Beginn", precombat_main: "Hauptphase 1", combat: "Kampf", postcombat_main: "Hauptphase 2", end: "Ende" };
 const STEPS = { untap: "Enttappen", upkeep: "Versorgung", draw: "Ziehen", precombat_main: "Hauptphase 1", beginning_combat: "Kampfbeginn", declare_attackers: "Angreifer", declare_blockers: "Blocker", first_combat_damage: "Erstschlagschaden", combat_damage: "Kampfschaden", end_combat: "Kampfende", postcombat_main: "Hauptphase 2", end_turn: "Endsegment", cleanup: "Aufräumen" };
-const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge" };
+const CLASSES = { priority: "Aktion", mana_payment: "Mana zahlen", choose_object: "Auswahl", choose_use: "Ja oder Nein", target: "Ziel", declare_attacker: "Angriff", declare_blocker: "Block", mulligan: "Mulligan", choice: "Wahl", trigger_order: "Reihenfolge", announce_x: "Wert für X", multi_amount: "Verteilung", mode: "Modus", pile: "Stapelwahl", target_amount: "Zielmenge", replacement_effect: "Ersatzeffekt", order: "Reihenfolge" };
 const SPEEDS = [[2000, "langsam"], [1000, "1 pro Sekunde"], [500, "2 pro Sekunde"], [250, "4 pro Sekunde"], [120, "8 pro Sekunde"], [50, "sehr schnell"]];
 
 const state = { games: [], gameId: null, header: null, result: null, running: false, frames: [], index: 0, playing: false, timer: 0, facts: {}, noImage: new Set(), lines: [], seatKeys: [], poll: 0 };
@@ -57,6 +57,25 @@ function isCreature(name, card) {
   return Boolean(card && (card.power || card.toughness));
 }
 
+function localizeActionText(text) {
+  if (!text) return "";
+  let s = text.replace(/Full Game Seat (\d)/g, "Sitz $1");
+  if (s.startsWith("Play ")) s = "Spiele " + s.slice(5);
+  else if (s.startsWith("Cast ")) s = "Wirke " + s.slice(5);
+  else if (s.startsWith("Activate: ")) s = "Aktiviere: " + s.slice(10);
+  else if (s.startsWith("Activate ")) s = "Aktiviere " + s.slice(9);
+  else if (s.startsWith("Discard ")) s = "Wirf ab: " + s.slice(8);
+  else if (s === "Pass priority") s = "Priorität abgeben";
+  if (s.includes(" attacks ")) {
+    const [att, def] = s.split(" attacks ", 2);
+    s = `${att} greift ${def} an`;
+  } else if (s.includes(" blocks ")) {
+    const [blk, att] = s.split(" blocks ", 2);
+    s = `${blk} blockt ${att}`;
+  }
+  return s;
+}
+
 function answer(frame) {
   if (isPass(frame)) return "passt";
   const parts = [...frame.chosen];
@@ -67,9 +86,11 @@ function answer(frame) {
   if (frame.decision_class === "declare_attacker" && !parts.length) return "greift nicht an";
   if (frame.decision_class === "choose_use" && parts.length === 1) return `${frame.prompt} ${parts[0] === "Yes" ? "Ja" : parts[0] === "No" ? "Nein" : parts[0]}`;
   if (!parts.length) return "wählt nichts";
-  const text = parts.map((part) => (part.includes(" — ") ? part.split(" — ").slice(1).join(" — ").replace("{this}", part.split(" — ")[0]) : part)).join("; ");
-  const local = text.replace(/Full Game Seat (\d)/g, "Sitz $1");
-  return frame.decision_class === "priority" ? local : `${CLASSES[frame.decision_class] || frame.decision_class}: ${local}`;
+  const text = parts.map((part) => {
+    const clean = part.includes(" — ") ? part.split(" — ").slice(1).join(" — ").replace("{this}", part.split(" — ")[0]) : part;
+    return localizeActionText(clean);
+  }).join("; ");
+  return frame.decision_class === "priority" ? text : `${CLASSES[frame.decision_class] || frame.decision_class}: ${text}`;
 }
 
 // ---- cards ---------------------------------------------------------------------------------
@@ -93,10 +114,22 @@ function move(event) {
   box.style.top = `${Math.max(8, Math.min(event.clientY - 120, window.innerHeight - 380))}px`;
 }
 function cardTile(name, options = {}) {
-  const el = h("div", { class: `card${options.tapped ? " tapped" : ""}${options.small ? " small" : ""}`, title: name }, cardFace(name));
+  const classes = [
+    "card",
+    options.tapped && "tapped",
+    options.small && "small",
+    options.attacking && "attacking",
+    options.blocking && "blocking",
+    options.targeted && "targeted"
+  ].filter(Boolean).join(" ");
+  const el = h("div", { class: classes, title: options.title || name }, cardFace(name));
   if (options.count > 1) el.append(h("span", { class: "badge count" }, `×${options.count}`));
   if (options.pt) el.append(h("span", { class: `badge pt${options.damage ? " hurt" : ""}` }, options.pt));
   if (options.counters) el.append(h("span", { class: "badge counter" }, options.counters));
+  if (options.combatBadge) {
+    const bClass = `badge combat${options.blocking ? " blocking" : ""}${options.targeted ? " targeted" : ""}`;
+    el.append(h("span", { class: bClass, title: options.combatBadge }, options.combatBadge));
+  }
   hover(el, name);
   return el;
 }
@@ -110,10 +143,42 @@ function grouped(cards) {
   }
   return [...groups.values()];
 }
-function permanentTile({ card, count }) {
+function permanentTile({ card, count }, frame) {
   const counters = card.counters ? Object.entries(card.counters).map(([type, amount]) => `${amount} ${type}`).join(", ") : null;
   const pt = isCreature(card.name, card) ? `${card.power}/${card.toughness}${card.damage ? ` −${card.damage}` : ""}` : null;
-  return cardTile(card.name, { tapped: card.tapped, count, pt, damage: card.damage, counters });
+  let attacking = false;
+  let blocking = false;
+  let targeted = false;
+  let combatBadge = null;
+  if (frame) {
+    if (frame.combat) {
+      const atk = (frame.combat.attacks || []).find((a) => a.attacker === card.name);
+      if (atk) {
+        attacking = true;
+        combatBadge = `⚔️ ${atk.target}`;
+      }
+      const blk = (frame.combat.blocks || []).find((b) => b.blocker === card.name);
+      if (blk) {
+        blocking = true;
+        combatBadge = `🛡️ ${blk.attacker}`;
+      }
+    }
+    if (frame.targets && frame.targets.includes(card.name)) {
+      targeted = true;
+      combatBadge = "🎯 Ziel";
+    }
+  }
+  return cardTile(card.name, {
+    tapped: card.tapped,
+    count,
+    pt,
+    damage: card.damage,
+    counters,
+    attacking,
+    blocking,
+    targeted,
+    combatBadge
+  });
 }
 
 // ---- table ---------------------------------------------------------------------------------
@@ -121,10 +186,40 @@ function seatPanel(player, frame) {
   const info = seatInfo(player.seat);
   const winners = (state.result && state.result.winner_seats) || [];
   const last = state.index === state.frames.length - 1 && !state.running;
-  const classes = ["seat", frame.active_seat === player.seat && "active", frame.seat === player.seat && "acting", player.lost && "out", last && winners.includes(player.seat) && "winner"].filter(Boolean).join(" ");
+  const isTargetSeat = Boolean(
+    frame.combat &&
+    (frame.combat.attacks || []).some((atk) => {
+      const tgt = atk.target || "";
+      return (
+        tgt === `Sitz ${player.seat + 1}` ||
+        tgt === `Full Game Seat ${player.seat}` ||
+        tgt === `Full Game Seat ${player.seat + 1}` ||
+        tgt === `p${player.seat}` ||
+        tgt === `Seat ${player.seat}` ||
+        tgt === `Seat ${player.seat + 1}`
+      );
+    })
+  );
+  const classes = [
+    "seat",
+    frame.active_seat === player.seat && "active",
+    frame.seat === player.seat && "acting",
+    isTargetSeat && "attacked",
+    player.lost && "out",
+    last && winners.includes(player.seat) && "winner"
+  ].filter(Boolean).join(" ");
   const lands = grouped(player.battlefield.filter((card) => isLand(card.name)));
   const others = grouped(player.battlefield.filter((card) => !isLand(card.name)));
   const yard = h("span", { class: "stat link", title: "Friedhof ansehen", onclick: () => showList(`Friedhof von ${seatName(player.seat)}`, player.graveyard) }, `Friedhof ${player.graveyard.length}`);
+  const exileList = player.exile || [];
+  const exileCount = player.exile_count || exileList.length;
+  const exileStat = exileCount
+    ? h("span", {
+        class: "stat link",
+        title: "Exil ansehen",
+        onclick: () => showList(`Exil von ${seatName(player.seat)}`, exileList)
+      }, `Exil ${exileCount}`)
+    : null;
   return h("div", { class: classes },
     h("div", { class: "seat-head" },
       h("span", { class: `life${player.life !== null && player.life <= 10 ? " low" : ""}` }, player.life === null ? "?" : player.life),
@@ -132,23 +227,42 @@ function seatPanel(player, frame) {
       h("span", null, seatLabel(player.seat)),
       h("span", { class: "muted" }, info.deck_id || ""),
       frame.active_seat === player.seat && h("span", { class: "pill good" }, "am Zug"),
+      isTargetSeat && h("span", { class: "pill bad" }, "⚔️ Ziel"),
+      info.style !== undefined && h("span", { class: "pill", title: `KI-Stil: ${info.style} (${info.style_name || ""})` }, `Stil ${info.style}`),
+      info.deck_plan && h("span", { class: "pill link", title: "Spielplan ansehen (abgeleitet)", onclick: () => showDeckPlan(seatName(player.seat), info.deck_plan) }, "Plan"),
       player.lost && h("span", { class: "pill bad" }, "ausgeschieden"),
       last && winners.includes(player.seat) && h("span", { class: "pill warn" }, "Sieger")),
     h("div", { class: "seat-head" },
       h("span", { class: "stat" }, `Hand ${player.hand_count ?? "?"}`),
       h("span", { class: "stat" }, `Bibliothek ${player.library_count ?? "?"}`),
       yard,
-      player.exile_count ? h("span", { class: "stat" }, `Exil ${player.exile_count}`) : null,
+      exileStat,
       player.poison ? h("span", { class: "stat" }, `Gift ${player.poison}`) : null,
       player.mana_pool ? h("span", { class: "stat" }, `Mana ${Object.entries(player.mana_pool).map(([color, amount]) => `${amount} ${color}`).join(", ")}`) : null),
     player.command.length ? h("div", null, h("div", { class: "zone-title" }, "Kommandozone"), h("div", { class: "cards" }, player.command.map((name) => cardTile(name, { small: true })))) : null,
     h("div", { class: "zone-title" }, `Spielfeld (${player.battlefield.length})`),
-    h("div", { class: "cards" }, others.map(permanentTile)),
-    lands.length ? h("div", { class: "cards lands" }, lands.map(permanentTile)) : null);
+    h("div", { class: "cards" }, others.map((item) => permanentTile(item, frame))),
+    lands.length ? h("div", { class: "cards lands" }, lands.map((item) => permanentTile(item, frame))) : null);
 }
 function showList(title, names) {
   const box = $("modal-box"); box.textContent = "";
   box.append(h("h2", null, title), names.length ? h("div", { class: "cards" }, names.map((name) => cardTile(name))) : h("p", { class: "muted" }, "leer"), h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen")));
+  $("modal").hidden = false;
+}
+function showDeckPlan(title, plan) {
+  const box = $("modal-box"); box.textContent = "";
+  box.append(
+    h("h2", null, `Spielplan (${title})`),
+    h("p", { class: "muted" }, `Herkunft: ${plan.provenance || "abgeleitet, nicht gemessen"}`),
+    h("div", { class: "plan-details", style: "display:flex; flex-direction:column; gap:0.5rem; margin:1rem 0;" },
+      h("p", null, h("b", null, "Fokus: "), plan.focus || "–"),
+      h("p", null, h("b", null, "Gewinn-Plan: "), plan.win_condition || "–"),
+      h("p", null, h("b", null, "Motoren: "), (plan.engines || []).join(", ") || "–"),
+      h("p", null, h("b", null, "Antworten: "), (plan.answers || []).join(", ") || "–"),
+      plan.key_cards && plan.key_cards.length ? h("p", null, h("b", null, "Schlüsselkarten: "), plan.key_cards.join(", ")) : null
+    ),
+    h("p", null, h("button", { type: "button", onclick: () => { $("modal").hidden = true; } }, "Schließen"))
+  );
   $("modal").hidden = false;
 }
 
@@ -158,13 +272,24 @@ function render() {
   if (!frame) {
     table.textContent = ""; state.seatKeys = [];
     table.append(h("div", { class: "empty" }, state.running ? "Die Engine startet und mischt die Decks. Gleich geht es los." : `Diese Partie hat keine Entscheidung aufgezeichnet. ${endText()}`));
+    if (state.result && state.result.stdout && state.result.status !== "finished") {
+      table.append(h("pre", { class: "error-out" }, state.result.stdout));
+    }
     $("where").textContent = "";
     return;
   }
   const finished = state.index === state.frames.length - 1 && !state.running;
   const banner = finished ? `banner:${JSON.stringify(state.result)}` : "";
   const keys = frame.players.map((player) => JSON.stringify([player, frame.active_seat, frame.seat, finished]));
-  if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) { table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner; if (finished) table.append(h("div", { class: "banner" }, endText())); }
+  if (table.dataset.banner !== banner || keys.length !== state.seatKeys.length) {
+    table.textContent = ""; state.seatKeys = []; table.dataset.banner = banner;
+    if (finished) {
+      table.append(h("div", { class: "banner" }, endText()));
+      if (state.result && state.result.stdout && state.result.status !== "finished") {
+        table.append(h("pre", { class: "error-out" }, state.result.stdout));
+      }
+    }
+  }
   const offset = finished ? 1 : 0;
   frame.players.forEach((player, position) => {
     if (state.seatKeys[position] === keys[position]) return;
@@ -178,7 +303,8 @@ function render() {
   now.append(
     h("div", { class: "who" }, h("span", { class: `s${frame.seat}` }, seatName(frame.seat)), ` · ${seatLabel(frame.seat)}`),
     h("div", { class: "what" }, answer(frame)),
-    h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")));
+    h("div", { class: "ask" }, [CLASSES[frame.decision_class] || frame.decision_class, frame.prompt, frame.source ? `Quelle: ${frame.source}` : null, `${frame.options} Möglichkeiten`].filter(Boolean).join(" · ")),
+    h("div", { class: "hint" }, "Der Spielstand zeigt den Tisch zum Zeitpunkt der Frage; das Ergebnis der gewählten Aktion wird im nächsten Schritt sichtbar."));
   const stack = $("stack"); stack.textContent = "";
   if (frame.stack.length) frame.stack.forEach((name) => stack.append(name.startsWith("stack ability") ? h("div", { class: "muted" }, name.replace(/^stack ability \(/, "Fähigkeit: ").replace(/\)$/, "")) : cardTile(name, { small: true })));
   else stack.append(h("span", { class: "muted" }, "leer"));
@@ -197,7 +323,10 @@ function render() {
 }
 function endText() {
   const result = state.result || {};
-  if (result.status !== "finished") return `Die Partie wurde nicht zu Ende gespielt (${result.failure_message || result.failure_class || "abgebrochen"}).`;
+  if (result.status !== "finished") {
+    const reason = result.failure_message || result.failure_class || "abgebrochen";
+    return `Die Partie wurde nicht zu Ende gespielt (${reason}).`;
+  }
   const winners = result.winner_seats || [];
   return winners.length ? `Partie beendet. Sieger: ${winners.map((seat) => `${seatName(seat)} (${seatLabel(seat)})`).join(", ")}` : "Partie beendet ohne Sieger.";
 }
@@ -333,21 +462,32 @@ async function newGame() {
   const revisions = table.decks.flatMap((deck) => deck.branches.map((branch) => ({ id: branch.revision_id, label: `${deck.name} · ${branch.branch} (${branch.cards} Karten)`, cards: branch.cards })));
   if (!revisions.length) { box.append(h("p", null, "Es gibt noch kein gespeichertes Deck. Speichere zuerst im Deckbau einen Stand."), h("p", null, close)); return; }
   const own = h("select", null, revisions.map((entry) => h("option", { value: entry.id }, entry.label)));
+  const styleOptions = () => [
+    h("option", { value: "0.0" }, "0.0 · Aggressiv"),
+    h("option", { value: "0.25" }, "0.25 · Druckvoll"),
+    h("option", { value: "0.5", selected: true }, "0.50 · Ausgeglichen"),
+    h("option", { value: "0.75" }, "0.75 · Defensiv"),
+    h("option", { value: "1.0" }, "1.00 · Kontrollierend")
+  ];
+  const ownStyle = h("select", { class: "style-pick" }, ...styleOptions());
   const count = h("select", null, [1, 2, 3, 4, 5].map((n) => h("option", { value: String(n) }, `${n + 1} Spieler`)));
   count.value = "3";
   const seats = h("div", { class: "seat-picks" });
   const pick = () => Math.floor(Math.random() * table.opponents.length);
   const fill = () => {
-    const chosen = [...seats.querySelectorAll("select")].map((el) => el.value);
+    const chosen = [...seats.querySelectorAll(".opp-deck")].map((el) => el.value);
+    const chosenStyles = [...seats.querySelectorAll(".opp-style")].map((el) => el.value);
     seats.textContent = "";
     const used = new Set();
     for (let index = 0; index < Number(count.value); index += 1) {
       let value = chosen[index];
       while (!value || used.has(value)) value = table.opponents[pick()].deck_id;
       used.add(value);
-      const select = h("select", null, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
+      const select = h("select", { class: "opp-deck" }, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
       select.value = value;
-      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select));
+      const sSelect = h("select", { class: "opp-style style-pick" }, ...styleOptions());
+      if (chosenStyles[index]) sSelect.value = chosenStyles[index];
+      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select, " Stil ", sSelect));
     }
   };
   count.addEventListener("change", fill); fill();
@@ -355,9 +495,10 @@ async function newGame() {
     count.value = String(ids.length);
     seats.textContent = "";
     ids.forEach((id, index) => {
-      const select = h("select", null, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
+      const select = h("select", { class: "opp-deck" }, table.opponents.map((deck) => h("option", { value: deck.deck_id }, `${deck.commanders.join(" + ")} · ${deck.name} ${deck.year}`)));
       select.value = id;
-      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select));
+      const sSelect = h("select", { class: "opp-style style-pick" }, ...styleOptions());
+      seats.append(h("label", null, `Sitz ${index + 2} (KI) `, select, " Stil ", sSelect));
     });
   };
   const podButtons = table.pods ? Object.entries(table.pods).map(([name, ids]) =>
@@ -366,20 +507,29 @@ async function newGame() {
   const go = h("button", { type: "button", class: "primary" }, "Partie starten");
   const note = h("p", { class: "muted" });
   go.addEventListener("click", async () => {
-    const opponents = [...seats.querySelectorAll("select")].map((el) => el.value);
+    const opponents = [...seats.querySelectorAll(".opp-deck")].map((el) => el.value);
+    const oppStyles = [...seats.querySelectorAll(".opp-style")].map((el) => Number(el.value));
+    const seatStyles = [Number(ownStyle.value), ...oppStyles];
     if (new Set(opponents).size !== opponents.length) { note.textContent = "Jeder Sitz braucht ein anderes Deck."; return; }
     go.disabled = true; note.textContent = "Die Engine startet. Das dauert etwa 20 Sekunden.";
     try {
-      const made = await api("/api/games", "POST", { revision_id: own.value, opponent_ids: opponents, seed: Number(seed.value) || 0 });
+      const made = await api("/api/games", "POST", {
+        revision_id: own.value,
+        opponent_ids: opponents,
+        seed: Number(seed.value) || 0,
+        style: Number(ownStyle.value),
+        seat_styles: seatStyles,
+      });
       $("modal").hidden = true;
       await listGames(made.game_id);
       setPlaying(true);
     } catch (error) { note.textContent = `Start nicht möglich: ${error.message}`; go.disabled = false; }
   });
   box.append(
-    h("p", { class: "muted" }, "Alle Plätze spielt die KI. XMage entscheidet jede Regel. Die Partie wird mitgeschrieben und läuft hier direkt mit."),
+    h("p", { class: "muted" }, `Alle Plätze spielt die KI. XMage entscheidet jede Regel (${table.engine && table.engine.pin ? table.engine.pin.slice(0, 10) : "gepinnt"}). Die Partie wird mitgeschrieben und läuft hier direkt mit.`),
+    table.engine && table.engine.warning ? h("p", { class: "pill warn", style: "display:inline-block;margin:4px 0" }, table.engine.warning) : null,
     h("div", { class: "form" },
-      h("label", null, "Dein Deck auf Sitz 1 (KI) ", own),
+      h("label", null, "Dein Deck auf Sitz 1 (KI) ", own, " Stil ", ownStyle),
       h("label", null, "Tisch ", count),
       seats,
       h("div", { class: "actions" },
@@ -392,7 +542,20 @@ async function listGames(wanted) {
   state.games = await api("/api/games");
   const select = $("game-select"); select.textContent = "";
   for (const game of state.games) select.append(h("option", { value: game.game_id }, gameTitle(game)));
-  if (!state.games.length) return false;
+  if (!state.games.length) {
+    state.gameId = null;
+    state.frames = [];
+    state.lines = [];
+    $("game-info").textContent = "";
+    $("now").textContent = "";
+    $("stack").textContent = "";
+    $("hand").textContent = "";
+    $("log").textContent = "";
+    $("position").value = "0";
+    $("position").max = "0";
+    $("where").textContent = "";
+    return false;
+  }
   const first = state.games.some((game) => game.game_id === wanted) ? wanted : state.games[0].game_id;
   select.value = first;
   $("table").classList.remove("one");
@@ -410,6 +573,24 @@ async function start() {
   $("position").addEventListener("input", () => go(Number($("position").value)));
   $("game-select").addEventListener("change", () => openGame($("game-select").value));
   $("modal").addEventListener("click", (event) => { if (event.target === $("modal")) $("modal").hidden = true; });
+  $("delete-game").addEventListener("click", async () => {
+    if (!state.gameId) return;
+    if (!confirm(`Soll die Partie „${state.gameId}“ wirklich gelöscht werden?`)) return;
+    try {
+      await api(`/api/games/${encodeURIComponent(state.gameId)}`, "DELETE");
+      toast("Partie gelöscht.");
+      const any = await listGames();
+      if (!any) {
+        $("table").classList.add("one");
+        $("table").textContent = "";
+        $("table").append(h("div", { class: "empty" },
+          h("h2", null, "Noch keine Partie aufgezeichnet"),
+          h("p", null, "Eine Partie wird von der Regel-Engine XMage gespielt, mit einer KI auf jedem Platz, und dabei mitgeschrieben. Starte eine mit „Neue Partie“.")));
+      }
+    } catch (error) {
+      toast(`Fehler beim Löschen: ${error.message}`);
+    }
+  });
   document.addEventListener("keydown", (event) => {
     if (["INPUT", "SELECT", "TEXTAREA"].includes(event.target.tagName) && event.target.type !== "range") return;
     if (event.key === " ") { event.preventDefault(); setPlaying(!state.playing); }
@@ -422,6 +603,7 @@ async function start() {
   try { any = await listGames(new URLSearchParams(location.search).get("partie")); } catch (error) { toast(`Partien konnten nicht geladen werden: ${error.message}`); return; }
   if (!any) {
     $("table").classList.add("one");
+    $("table").textContent = "";
     $("table").append(h("div", { class: "empty" },
       h("h2", null, "Noch keine Partie aufgezeichnet"),
       h("p", null, "Eine Partie wird von der Regel-Engine XMage gespielt, mit einer KI auf jedem Platz, und dabei mitgeschrieben. Starte eine mit „Neue Partie“.")));

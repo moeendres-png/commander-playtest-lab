@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from collections import Counter
 from pathlib import Path
 
 from . import catalog, importers, roles
+from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
 from .queries import corpus_inclusion, legal_pool
@@ -21,13 +23,22 @@ def _parser() -> argparse.ArgumentParser:
     for name in (
         "import-inventory",
         "import-corpus-register",
-        "import-corpus-cards",
         "import-edhrec",
         "import-edhrec-cardrecs",
         "import-edhrec-delta",
         "import-hub",
     ):
         commands.add_parser(name).add_argument("path")
+    corpus_cards = commands.add_parser(
+        "import-corpus-cards",
+        help="source-deck card rows from one or several part files (one transaction)",
+    )
+    corpus_cards.add_argument("paths", nargs="+")
+    corpus_cards.add_argument(
+        "--allow-deck-move",
+        action="store_true",
+        help="a deck that an earlier import took from another part file now lives in this file",
+    )
     scryfall = commands.add_parser("import-scryfall")
     scryfall.add_argument("path")
     scryfall.add_argument("--disambiguation")
@@ -61,6 +72,18 @@ def _parser() -> argparse.ArgumentParser:
     cohort.add_argument("--name", required=True)
     images = commands.add_parser("fetch-images")
     images.add_argument("--commander", action="append", required=True)
+    marks = commands.add_parser("import-marks")
+    marks.add_argument("path")
+    pg_atlas = commands.add_parser(
+        "import-playgroup-atlas",
+        help="import Playgroup.gg Card Atlas records (HTML, JSON, JSONL, or TSV/CSV)",
+    )
+    pg_atlas.add_argument("path", help="path to HTML, JSON, JSONL, or TSV/CSV Playgroup file")
+    pg_atlas.add_argument("--source-title", help="optional custom source title")
+    pg_atlas.add_argument("--snapshot-date", help="optional snapshot date (YYYY-MM-DD)")
+    edhrec_manifest = commands.add_parser("import-edhrec-manifest")
+    edhrec_manifest.add_argument("path")
+    edhrec_manifest.add_argument("--raw-folder")
     fetch_roles = commands.add_parser("fetch-roles")
     fetch_roles.add_argument("--identity", required=True, help="color identity, for example WUG")
     fetch_roles.add_argument("--out", required=True, help="role file to write, then imported")
@@ -85,8 +108,60 @@ def _parser() -> argparse.ArgumentParser:
     play.add_argument("--seed", type=int, required=True)
     play.add_argument("--game-id", default=None)
     play.add_argument("--max-decisions", type=int, default=50_000)
+    play.add_argument(
+        "--style",
+        type=float,
+        default=None,
+        help="AI pilot style from 0.0 (aggressive) to 1.0 (control). Defaults to 0.5 (balanced).",
+    )
+    play.add_argument(
+        "--seat-style",
+        action="append",
+        default=None,
+        help="Seat-specific style in seat:style format (e.g. 1:0.0 or 2:1.0).",
+    )
+    sim = commands.add_parser(
+        "simulate", help="run a batch simulation series of multiple games in isolated processes"
+    )
+    sim.add_argument("--revision", required=True, help="candidate deck revision id (e.g. rev@...)")
+    sim.add_argument(
+        "--pod",
+        default="precon",
+        choices=["precon", "mixed", "optimized"],
+        help="pod preset",
+    )
+    sim.add_argument("--count", type=int, default=10, help="number of games to simulate")
+    sim.add_argument("--base-seed", type=int, default=1000, help="starting random seed")
+    sim.add_argument("--seed-step", type=int, default=1, help="seed increment per game")
+    sim.add_argument("--style", type=float, default=None, help="AI pilot style from 0.0 to 1.0")
     commands.add_parser("games")
     commands.add_parser("status")
+    sources_cmd = commands.add_parser(
+        "sources", help="print or write the evidence sources inventory and gap matrix (P0)"
+    )
+    sources_cmd.add_argument("--out", help="optional output path to write source_inventory.json")
+    sources_cmd.add_argument(
+        "--verified-only",
+        action="store_true",
+        help="filter the evidence sources output to only VERIFIED sources",
+    )
+    sources_cmd.add_argument(
+        "--gap-report",
+        action="store_true",
+        help="calculate and export the 801-card pool gap matrix",
+    )
+    sources_cmd.add_argument(
+        "--gap-out",
+        help="optional output path for gap matrix JSON (default: data/research/chulane_legal_pool_gap_matrix.json)",
+    )
+    sources_cmd.add_argument(
+        "--example-report",
+        action="store_true",
+        help="generate and print a concrete sample report with representative cards for each coverage grade (P0)",
+    )
+    commands.add_parser(
+        "data-report", help="counts-only report on what the store has, lacks and does not know"
+    )
     return parser
 
 
@@ -101,11 +176,20 @@ def _games(args: argparse.Namespace) -> int:
     if args.command == "play":
         from .play import play_recorded_game
 
+        seat_styles = {}
+        if args.seat_style:
+            for item in args.seat_style:
+                parts = item.split(":", 1)
+                if len(parts) == 2:
+                    seat_styles[int(parts[0])] = float(parts[1])
+
         result = play_recorded_game(
             folder,
             [Path(path) for path in args.deck],
             seed=args.seed,
             game_id=args.game_id,
+            style=args.style,
+            seat_styles=seat_styles or None,
             max_decisions=args.max_decisions,
         )
     else:
@@ -150,8 +234,92 @@ def main(argv: list[str] | None = None) -> int:
         return _serve(args.data, args.port, args.open)
     if args.command in {"play", "games"}:
         return _games(args)
+    if args.command == "simulate":
+        import time
+
+        from .simulations import SimulationBatchManager
+        from .store import studio_data_dir
+
+        folder = Path(args.data).resolve() if args.data else studio_data_dir()
+        store = StudioStore.open(folder)
+        try:
+            mgr = SimulationBatchManager()
+            batch = mgr.start_batch(
+                store,
+                folder,
+                revision_id=args.revision,
+                pod=args.pod,
+                games_count=args.count,
+                base_seed=args.base_seed,
+                seed_step=args.seed_step,
+                style=args.style,
+            )
+            try:
+                while batch.status in {"pending", "running"}:
+                    time.sleep(0.5)
+            except KeyboardInterrupt:
+                batch.cancel()
+                raise
+            print(json.dumps(batch.to_dict(), indent=2, ensure_ascii=False))
+            return 0 if batch.status == "completed" else 1
+        finally:
+            store.close()
     if args.command == "check-role-labels":
         print(json.dumps(roles.check_role_labels(_read_labels(args.path)), indent=2))
+        return 0
+    if args.command == "sources":
+        from .sources import (
+            SourceStatus,
+            calculate_pool_gap_matrix,
+            generate_gap_example_report,
+            source_inventory_payload,
+            write_gap_matrix_json,
+            write_source_inventory_json,
+        )
+
+        data_folder = args.data
+        if not data_folder and not os.environ.get("COMMANDER_LAB_STUDIO_DATA"):
+            default_user_dir = Path.home() / ".local/share/commander-studio"
+            if default_user_dir.is_dir():
+                data_folder = str(default_user_dir)
+
+        if getattr(args, "gap_report", False):
+            store = StudioStore.open(data_folder)
+            matrix = calculate_pool_gap_matrix(store)
+            default_gap_path = Path("data/research/chulane_legal_pool_gap_matrix.json")
+            target_path = Path(args.gap_out) if getattr(args, "gap_out", None) else default_gap_path
+            written = write_gap_matrix_json(store, target_path, payload=matrix)
+            summary = {
+                "written": str(written),
+                "total_cards": matrix["total_cards"],
+                "corpus_denominator": matrix["corpus_denominator"],
+                "summary_counts": matrix["summary_counts"],
+            }
+            print(json.dumps(summary, indent=2))
+            return 0
+
+        if getattr(args, "example_report", False):
+            store = StudioStore.open(data_folder)
+            matrix = calculate_pool_gap_matrix(store)
+            report = generate_gap_example_report(matrix)
+            print(json.dumps(report, indent=2, ensure_ascii=False))
+            return 0
+
+        status_filter: SourceStatus | None = (
+            "VERIFIED" if getattr(args, "verified_only", False) else None
+        )
+
+        if getattr(args, "out", None):
+            written = write_source_inventory_json(args.out, status=status_filter)
+            print(json.dumps({"written": str(written)}, indent=2))
+        else:
+            print(
+                json.dumps(
+                    source_inventory_payload(status=status_filter),
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
         return 0
     store = StudioStore.open(args.data)
     try:
@@ -161,9 +329,21 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "import-corpus-register":
             result = importers.import_corpus_register(store, args.path)
         elif args.command == "import-corpus-cards":
-            result = importers.import_corpus_cards(store, args.path)
+            result = importers.import_corpus_card_parts(
+                store, args.paths, allow_deck_move=args.allow_deck_move
+            )
         elif args.command == "import-edhrec":
             result = importers.import_edhrec_table(store, args.path)
+        elif args.command == "import-edhrec-manifest":
+            result = importers.import_edhrec_capture_manifest(
+                store, args.path, raw_folder=args.raw_folder
+            )
+        elif args.command == "import-marks":
+            result = importers.import_card_marks(store, args.path)
+        elif args.command == "import-playgroup-atlas":
+            result = importers.import_playgroup_atlas(
+                store, args.path, source_title=args.source_title, snapshot_date=args.snapshot_date
+            )
         elif args.command == "import-edhrec-cardrecs":
             result = importers.import_edhrec_cardrecs_csv(store, args.path)
         elif args.command == "import-edhrec-delta":
@@ -229,6 +409,8 @@ def main(argv: list[str] | None = None) -> int:
                 encoding="utf-8",
             )
             result = {"written": args.out}
+        elif args.command == "data-report":
+            result = data_report(store)
         elif args.command == "inclusion":
             result = corpus_inclusion(store, args.card_name, play_group=args.group)
         else:

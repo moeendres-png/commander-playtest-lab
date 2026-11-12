@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from enum import StrEnum
 from typing import Literal
 
@@ -71,6 +72,8 @@ class PilotConfig(FrozenModel):
     strength: PilotStrength = PilotStrength.AVERAGE
     mode: PilotDecisionMode = PilotDecisionMode.DETERMINISTIC
     weights: PilotUtilityWeights | None = None
+    style: float | None = Field(default=None, ge=0.0, le=1.0)
+    deck_plan: Mapping[str, object] | None = None
     temperature: float | None = Field(default=None, gt=0.0, le=5.0)
     mistake_rate: float | None = Field(default=None, ge=0.0, le=0.5)
     reserve_mana_target: float | None = Field(default=None, ge=0.0, le=10.0)
