@@ -24,6 +24,7 @@ CANONICAL_XMAGE_PIN = "f4d12f6e8066203fba7aa38bd35ea3358117393d"
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
 
+
 def _flat(text: str) -> str:
     """Collapse all whitespace so line-wrapped Markdown still matches."""
     return " ".join(text.split())
