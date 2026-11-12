@@ -151,3 +151,37 @@ def test_command_prints_json_and_changes_nothing(
     report = json.loads(capsys.readouterr().out)
     assert report["schema"] == "studio-data-report-1"
     assert report["roles"]["fingerprint"] == before
+
+
+def test_report_counts_universes_without_naming_profiles_or_cards(
+    studio: StudioStore,
+) -> None:
+    from commander_lab.studio import universe
+
+    universe.save_profile(studio, "geheim-profil", {"must_contain": ["Forest"]})
+    universe.save_profile(studio, "geheim-profil", {"must_contain": ["Forest"]})
+    universe.save_profile(studio, "zweites", {})
+    report = data_report(studio, today=TODAY)
+    section = _section(report, "universes")
+    assert section["profiles"] == 2
+    assert section["model_version"] == "counted-spread-1"
+    details = section["details"]
+    assert isinstance(details, list) and len(details) == 2
+    by_version = sorted(details, key=lambda entry: entry["version"])  # type: ignore[index]
+    assert by_version[-1]["version"] == 2  # the re-saved profile
+    filtered = next(
+        entry
+        for entry in details
+        if entry["spec_dimensions"]["must_contain_cards"] == 1  # type: ignore[index]
+    )
+    counted = universe.inclusion(
+        studio, profile="geheim-profil", card_names=[], commander_names=None
+    )
+    assert filtered["denominator"] == counted["denominator"]
+    assert filtered["excluded_by_card_filter"] == counted["excluded_by_card_filter"]
+    assert filtered["snapshot_id"] == universe.snapshot_id(
+        studio, profile="geheim-profil", commander_names=None
+    )
+    text = json.dumps(report)
+    for forbidden in ("geheim-profil", "zweites", "Forest"):
+        assert forbidden not in text

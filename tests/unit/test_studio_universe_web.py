@@ -378,7 +378,7 @@ def test_options_endpoint_lists_the_stored_values_with_counts(
     assert data["commanders"] == [{"value": "Test Commander", "decks": 43}]
     with TestClient(create_app(folder)) as plain:
         other = plain.get("/api/universe/options", params={"commander": "Second Commander"}).json()
-        assert other == {"platforms": [], "cohorts": [], "commanders": []}
+        assert other == {"platforms": [], "cohorts": [], "commanders": [], "cards": []}
 
 
 def test_put_rejects_unknown_values_and_saves_nothing(client: TestClient) -> None:
@@ -607,3 +607,136 @@ def test_the_pages_carry_the_universe_controls() -> None:
     assert "/api/universe/options" in tier_script
     assert "model_version" in tier_script and "excluded_no_date" in tier_script
     assert "combo_partner" in tier_script and "combo_partner" in builder_script
+
+
+# ---------- steps 4-7: profile lifecycle, card filter, spread controls, data state ----------
+
+
+def test_delete_universe_profile_route_and_its_errors(client: TestClient) -> None:
+    client.put("/api/universe/profiles/weg", json={}, headers=MARK, params=COMMANDER)
+    deleted = client.delete("/api/universe/profiles/weg", headers=MARK)
+    assert deleted.status_code == 200 and deleted.json() == {"deleted": "weg"}
+    assert client.get("/api/universe/profiles").json() == []
+    assert client.get("/api/universe/profiles/weg/summary", params=COMMANDER).status_code == 404
+    missing = client.delete("/api/universe/profiles/weg", headers=MARK)
+    assert missing.status_code == 404
+    client.put("/api/universe/profiles/bleibt", json={}, headers=MARK, params=COMMANDER)
+    assert client.delete("/api/universe/profiles/bleibt").status_code == 403
+    assert len(client.get("/api/universe/profiles").json()) == 1
+
+
+def test_a_resaved_profile_rises_in_version_everywhere(client: TestClient) -> None:
+    url = "/api/universe/profiles/versionen"
+    first = client.put(url, json={}, headers=MARK, params=COMMANDER).json()
+    assert first["version"] == 1
+    second = client.put(url, json={"min_universe": 5}, headers=MARK, params=COMMANDER).json()
+    assert second["version"] == 2
+    listed = client.get("/api/universe/profiles").json()
+    assert listed[0]["version"] == 2 and listed[0]["updated_at"] is not None
+    spread = client.get("/api/universe/spread", params={"profile": "versionen", **COMMANDER}).json()
+    assert spread["universe"]["version"] == 2
+
+
+def test_card_filter_counts_chulane_decks_by_hand(tmp_path: Path) -> None:
+    folder = tmp_path / "studio"
+    store = StudioStore.open(folder)
+    try:
+        _chulane_store(store, tmp_path)
+    finally:
+        store.close()
+    params = {"commander": CHULANE_NAME}
+    with TestClient(create_app(folder)) as client:
+
+        def saved(body: dict[str, object]) -> dict[str, object]:
+            return client.put(
+                "/api/universe/profiles/filter", json=body, headers=MARK, params=params
+            ).json()
+
+        ring = saved({"must_contain": ["Sol Ring"]})
+        assert ring["denominator"] == 30 and ring["excluded_by_card_filter"] == 0
+        forest = saved({"must_contain": ["Forest"]})
+        assert forest["denominator"] == 15 and forest["excluded_by_card_filter"] == 15
+        both = saved({"must_contain": ["Sol Ring", "Forest"]})
+        assert both["denominator"] == 15  # the intersection, not the union
+        # The commander himself: no deck lists him in its main deck, but every deck
+        # is bound to him, so the commander exception carries all 30.
+        own = saved({"must_contain": [CHULANE_NAME]})
+        assert own["denominator"] == 30
+        combined = saved({"must_contain": ["Forest"], "cohorts": ["bracket:3"]})
+        assert combined["denominator"] == 15
+        assert combined["denominator_by_bracket"] == {"bracket:3": 15}
+        refused = client.put(
+            "/api/universe/profiles/filter",
+            json={"must_contain": ["Black Lotus"]},
+            headers=MARK,
+            params=params,
+        )
+        assert refused.status_code == 422 and "Black Lotus" in refused.json()["detail"]
+        summary = client.get("/api/universe/profiles/filter/summary", params=params).json()
+        assert summary["version"] == 5  # the refused save changed nothing
+        assert summary["spec"]["must_contain"] == ["Forest"]
+
+
+def test_options_offer_cards_with_their_filtered_denominator(tmp_path: Path) -> None:
+    folder = tmp_path / "studio"
+    store = StudioStore.open(folder)
+    try:
+        _chulane_store(store, tmp_path)
+    finally:
+        store.close()
+    with TestClient(create_app(folder)) as client:
+        data = client.get("/api/universe/options", params={"commander": CHULANE_NAME}).json()
+    cards = {item["value"]: item["decks"] for item in data["cards"]}
+    assert cards["Sol Ring"] == 30 and cards["Forest"] == 15
+    assert cards[CHULANE_NAME] == 30
+
+
+def test_marks_do_not_change_a_filtered_count(client: TestClient) -> None:
+    client.put(
+        "/api/universe/profiles/marken",
+        json={"must_contain": ["Forest"]},
+        headers=MARK,
+        params=COMMANDER,
+    )
+    before = client.get("/api/universe/spread", params={"profile": "marken", **COMMANDER}).text
+    summary_before = client.get("/api/universe/profiles/marken/summary", params=COMMANDER).text
+    marked = client.put(
+        "/api/cards/card:project:0002/mark",
+        json={"favorite": True, "excluded": True, "note": "nur eine Notiz"},
+        headers=MARK,
+    )
+    assert marked.status_code == 200
+    assert (
+        client.get("/api/universe/spread", params={"profile": "marken", **COMMANDER}).text == before
+    )
+    assert (
+        client.get("/api/universe/profiles/marken/summary", params=COMMANDER).text == summary_before
+    )
+
+
+def test_status_and_data_report_routes_show_the_data_state(client: TestClient) -> None:
+    status = client.get("/api/status").json()
+    assert status["universe_profiles"] == 0
+    inventory = status["source_inventory"]
+    assert inventory["total_sources"] > 0
+    assert set(inventory["status_counts"]) == {"VERIFIED", "REVIEW", "UNAVAILABLE"}
+    report = client.get("/api/data-report").json()
+    assert report["schema"] == "studio-data-report-1"
+    assert report["universes"]["profiles"] == 0
+    assert report["universes"]["model_version"] == "counted-spread-1"
+    client.put("/api/universe/profiles/stand", json={}, headers=MARK, params=COMMANDER)
+    assert client.get("/api/status").json()["universe_profiles"] == 1
+    assert client.get("/api/data-report").json()["universes"]["profiles"] == 1
+
+
+def test_the_tier_page_carries_the_steps_4_to_7_controls() -> None:
+    page = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    builder_script = (STATIC / "app.js").read_text(encoding="utf-8")
+    assert 'id="spread-filter"' in page
+    assert '"spread"' in script and '"spread_level"' in script
+    assert "LEVEL_RANK" in script and "spread-filter" in script
+    assert "must_contain" in script and "u-card-list" in script
+    assert "Universum löschen" in script and '"DELETE"' in script
+    assert "excluded_by_card_filter" in script and "excluded_by_card_filter" in builder_script
+    assert "Version" in script and "version" in builder_script
