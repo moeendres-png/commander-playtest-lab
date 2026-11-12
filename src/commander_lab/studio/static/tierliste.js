@@ -39,10 +39,16 @@ const GAME_NOTES = {
   NONE_RECORDED: "Die Spielquelle hat für diese Karte keine verwertbare Zeile.",
   NOT_COLLECTED: "Noch keine Spielquelle importiert (Playgroup Card Atlas).",
 };
+const SPREAD_LABEL = "Verbreitung (gezählt)";
+const NO_UNIVERSE = "kein Universum gewählt";
+const SPREAD_NOTE = "Gezählt: in wie vielen Decks des gewählten Universums die Karte steht. Das ist keine Kartenstärke und kein Tier. Favoriten, Ausschlüsse und Notizen ändern keine Zählung.";
+const REASON_NAMES = { SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)" };
+const UNIVERSE_KEY = "studio.universe.profile";
 const SMALL_FIRST = new Set(["name", "mv"]);
 
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
+  universe: { profiles: [], name: "", summary: null, spread: null },
   deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
 };
 
@@ -62,9 +68,9 @@ function h(tag, props, ...children) {
   }
   return el;
 }
-async function api(path, body) {
+async function api(path, body, method) {
   const options = { headers: { "X-Studio": "1" } };
-  if (body !== undefined) { options.method = "POST"; options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
+  if (body !== undefined) { options.method = method || "POST"; options.headers["Content-Type"] = "application/json"; options.body = JSON.stringify(body); }
   const response = await fetch(path, options);
   if (!response.ok) {
     let detail = response.statusText;
@@ -171,6 +177,18 @@ function simCell(card) {
   if (!sim.totals) return unknown("nicht simuliert");
   return `${sim.totals.games_cast_after_offer}/${sim.totals.games_offered} Partien`;
 }
+function spreadCell(card) {
+  const uni = state.universe;
+  if (!uni.name || !uni.spread) return h("span", { class: "spread none" }, NO_UNIVERSE);
+  const item = uni.spread.get(card.card_id);
+  if (!item) return h("span", { class: "spread lvl-U" }, "unbekannt");
+  return spreadBadge(item, uni.spread.universe);
+}
+function spreadBadge(item, universe) {
+  const counted = item.matched ? `${item.hits}/${item.denominator}` : "unbekannt";
+  const title = `${SPREAD_LABEL}: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile}, ${universe.denominator} Decks, Stand ${universe.snapshot_id}.`;
+  return h("span", { class: `spread lvl-${item.level}`, title }, h("span", { class: "level" }, item.level), counted);
+}
 function statusBadge(status) {
   const [text, kind] = STATUS_NAMES[status] || [status, "dim"];
   return h("span", { class: `badge ${kind}` }, text);
@@ -182,12 +200,13 @@ function needBadges(card) {
 // ---------- tables ----------
 function cardsTable(cards) {
   const commander = state.view !== "global";
-  const head = ["Tier", "Karte", "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele", "Simulation"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
+  const head = ["Tier", SPREAD_LABEL, "Karte", "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele", "Simulation"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
   const rows = cards.slice(0, state.shown).map((card) => {
     const mark = state.marks.get(card.card_id) || {};
     const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
     return h("tr", {},
       h("td", {}, h("span", { class: "tier", title: "Kein Modell mit Ergebnisdaten: unbewertet" }, "Unbewertet")),
+      h("td", {}, spreadCell(card)),
       h("td", { class: "cardcell name", onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name),
       h("td", { class: "num" }, card.mana_value),
       h("td", {}, featureBadges(card)),
@@ -322,6 +341,33 @@ async function alternativesBox(card) {
   if (data.total > data.alternatives.length) box.append(h("p", {}, `${data.total - data.alternatives.length} weitere nicht gezeigt.`));
   return box;
 }
+function pairsTable(data) {
+  return table(["Karte", "Decks zusammen", "Anteil der Decks mit dieser Karte"], data.pairs.map((pair) => [pair.card_name, `${pair.decks_together}/${data.decks_with_card}`, pct(pair.decks_together, data.decks_with_card)]));
+}
+async function universeBox(card) {
+  const uni = state.universe;
+  const box = h("div", { class: "layer universe-box" }, h("h3", {}, SPREAD_LABEL));
+  if (!uni.name) { box.append(h("p", {}, NO_UNIVERSE + ". Wähle oben ein Universum, um die gezählte Verbreitung zu sehen.")); return box; }
+  const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/universe?profile=${encodeURIComponent(uni.name)}`);
+  const item = data.cards[0], universe = data.universe;
+  box.append(h("p", {}, spreadBadge(item, universe), " ", item.matched ? `${item.hits} von ${item.denominator} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
+  box.append(h("p", {}, `Grund: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile} (${universe.data_class}), Stand ${universe.snapshot_id}.`));
+  box.append(h("p", {}, `Schwellen: Universum mindestens ${data.params.min_universe} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${(100 * cut).toFixed(0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
+  if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${s.hits}`).join(" · ")));
+  const parts = (label, map) => `${label}: ${Object.entries(map).map(([key, n]) => `${key} ${n}`).join(", ") || "–"}`;
+  box.append(h("p", { class: "rule" }, parts("Nenner nach Plattform", universe.denominator_by_platform), " · ", parts("nach Bracket", universe.denominator_by_bracket)));
+  box.append(h("p", { class: "rule" }, data.meaning));
+  const result = h("div", {});
+  const button = h("button", { type: "button", onclick: async () => {
+    button.disabled = true;
+    try {
+      const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(uni.name)}&limit=25`);
+      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), pairsTable(co)]));
+    } catch (error) { result.replaceChildren(h("p", {}, `Fehler: ${error.message}`)); button.disabled = false; }
+  } }, "Zusammen gespielt mit");
+  box.append(button, result);
+  return box;
+}
 async function openCard(card) {
   const modal = $("modal"), content = $("modal-box");
   content.replaceChildren(h("h2", {}, card.name), h("p", { class: "muted" }, "lädt …"));
@@ -336,8 +382,84 @@ async function openCard(card) {
       h("p", { class: "muted" }, full.type_line),
       h("div", { class: "policy" }, h("b", {}, "Tier: unbewertet. "), `Grund: ${full.rating.reason}. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein.`),
       ...drawer(full));
+    try { content.append(await universeBox(full)); } catch (error) { content.append(h("p", {}, `Verbreitung nicht ladbar: ${error.message}`)); }
     if (state.view !== "global") content.append(await alternativesBox(full));
   } catch (error) { content.append(h("p", {}, `Fehler: ${error.message}`)); }
+}
+
+// ---------- deck universe ----------
+function rememberUniverse(name) { try { localStorage.setItem(UNIVERSE_KEY, name); } catch (error) { /* private mode: no memory */ } }
+function rememberedUniverse() { try { return localStorage.getItem(UNIVERSE_KEY) || ""; } catch (error) { return ""; } }
+const listText = (text) => text.split(",").map((part) => part.trim()).filter(Boolean);
+function breakdown(label, map) {
+  const entries = Object.entries(map || {});
+  return h("span", {}, `${label}: `, entries.length ? entries.map(([key, n]) => `${key} ${n}`).join(", ") : unknown("–"));
+}
+function renderUniversePanel() {
+  const uni = state.universe, panel = $("universe-panel"), summary = uni.summary;
+  const spec = summary ? summary.spec : {};
+  const field = (label, id, value, type = "text") => h("label", {}, label, h("input", { id, type, value: value ?? "" }));
+  const form = h("form", { id: "universe-form", onsubmit: async (event) => {
+    event.preventDefault();
+    const name = $("u-name").value.trim();
+    if (!name) { toast("Name des Universums fehlt"); return; }
+    const body = {};
+    if (listText($("u-platforms").value).length) body.platforms = listText($("u-platforms").value);
+    if (listText($("u-cohorts").value).length) body.cohorts = listText($("u-cohorts").value);
+    if ($("u-from").value) body.date_from = $("u-from").value;
+    if ($("u-to").value) body.date_to = $("u-to").value;
+    if ($("u-min").value !== "") body.min_main_cards = Number($("u-min").value);
+    try {
+      await api(`/api/universe/profiles/${encodeURIComponent(name)}`, body, "PUT");
+      uni.profiles = await api("/api/universe/profiles");
+      fillUniverseSelect(name);
+      await selectUniverse(name);
+      toast(`Universum „${name}“ gespeichert`);
+    } catch (error) { toast(`Universum nicht gespeichert: ${error.message}`); }
+  } },
+    field("Name", "u-name", uni.name),
+    field("Plattformen (Komma)", "u-platforms", (spec.platforms || []).join(", ")),
+    field("Kohorten (Komma, z. B. bracket:3)", "u-cohorts", (spec.cohorts || []).join(", ")),
+    field("Datum ab", "u-from", spec.date_from, "date"),
+    field("Datum bis", "u-to", spec.date_to, "date"),
+    field("Mindestgröße Hauptdeck", "u-min", spec.min_main_cards, "number"),
+    h("button", { type: "submit" }, "Universum speichern"));
+  const facts = !uni.name || !summary
+    ? h("div", { class: "facts" }, h("b", {}, NO_UNIVERSE), h("span", { class: "muted" }, uni.profiles.length ? "Wähle oben ein gespeichertes Universum." : "Noch keines gespeichert. Lege unten eines an. Ohne Filter zählt es alle importierten Quelldecks."))
+    : h("div", { class: "facts" },
+      h("b", {}, uni.name),
+      h("span", {}, `${summary.denominator} Decks (Nenner)`),
+      breakdown("Plattform", summary.denominator_by_platform),
+      breakdown("Bracket", summary.denominator_by_bracket),
+      h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
+      h("span", { class: "muted", title: summary.data_class }, "gezählt, Teilmengen addieren sich zum Nenner"));
+  panel.replaceChildren(facts, h("div", { class: "muted" }, SPREAD_NOTE), h("details", {}, h("summary", {}, uni.name ? "Universum ändern oder neu anlegen" : "Universum anlegen"), form));
+}
+function fillUniverseSelect(selected) {
+  $("universe-select").replaceChildren(h("option", { value: "" }, "kein Universum"), ...state.universe.profiles.map((p) => h("option", { value: p.name }, p.name)));
+  $("universe-select").value = selected || "";
+}
+async function selectUniverse(name) {
+  const uni = state.universe, ticket = ++uni.ticket;
+  if (!name) { Object.assign(uni, { name: "", summary: null, spread: null }); rememberUniverse(""); renderUniversePanel(); render(); return; }
+  const [summary, spread] = await Promise.all([api(`/api/universe/profiles/${encodeURIComponent(name)}/summary`), api(`/api/universe/spread?profile=${encodeURIComponent(name)}`)]);
+  if (ticket !== uni.ticket) return;
+  const map = new Map(spread.cards.map((item) => [item.card_id, item]));
+  map.universe = spread.universe;
+  Object.assign(uni, { name, summary, spread: map });
+  rememberUniverse(name);
+  renderUniversePanel();
+  render();
+}
+async function initUniverse() {
+  const uni = state.universe;
+  uni.ticket = 0;
+  try { uni.profiles = await api("/api/universe/profiles"); } catch (error) { toast("Universen konnten nicht geladen werden: " + error.message); uni.profiles = []; }
+  const wanted = rememberedUniverse();
+  const name = uni.profiles.some((p) => p.name === wanted) ? wanted : "";
+  fillUniverseSelect(name);
+  $("universe-select").addEventListener("change", () => selectUniverse($("universe-select").value).catch((error) => toast(error.message)));
+  await selectUniverse(name).catch((error) => { toast(error.message); renderUniversePanel(); });
 }
 
 // ---------- loading ----------
@@ -350,8 +472,8 @@ async function loadEvidence() {
   state.data = data;
   const groups = [...new Set(state.data.cards.map((card) => card.group))].sort();
   const roles = [...new Set(state.data.cards.flatMap(cardRoles))].sort((a, b) => roleName(a).localeCompare(roleName(b)));
-  $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), groups.map((group) => h("option", { value: group }, group)));
-  $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), roles.map((role) => h("option", { value: role }, roleName(role))));
+  $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...groups.map((group) => h("option", { value: group }, group)));
+  $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), ...roles.map((role) => h("option", { value: role }, roleName(role))));
   renderNotice();
   render();
 }
@@ -368,14 +490,14 @@ async function loadDeck() {
 }
 function fillBranches() {
   const deck = state.decks.find((entry) => entry.deck_id === $("deck-select").value);
-  $("branch-select").replaceChildren((deck ? deck.branches : []).map((entry) => h("option", { value: entry.branch }, entry.branch)));
+  $("branch-select").replaceChildren(...(deck ? deck.branches : []).map((entry) => h("option", { value: entry.branch }, entry.branch)));
 }
 async function setView(view) {
   state.view = view;
   $("deck-pick").hidden = view !== "deck";
   if (view === "deck" && !state.decks.length) {
     state.decks = await api("/api/decks");
-    $("deck-select").replaceChildren(state.decks.map((deck) => h("option", { value: deck.deck_id }, deck.name)));
+    $("deck-select").replaceChildren(...state.decks.map((deck) => h("option", { value: deck.deck_id }, deck.name)));
     fillBranches();
   }
   await loadEvidence();
@@ -401,6 +523,6 @@ async function init() {
     const pool = await api(`/api/pool?commander=${encodeURIComponent(COMMANDER)}`);
     for (const card of pool.cards) state.marks.set(card.card_id, { favorite: card.favorite, excluded: card.excluded });
   } catch (error) { toast("Markierungen konnten nicht geladen werden: " + error.message); }
-  await setView("commander");
+  await Promise.all([setView("commander"), initUniverse()]);
 }
 init().catch((error) => toast(error.message));

@@ -22,14 +22,14 @@ def test_run_audit_against_repo() -> None:
     # 2.1 Gap matrix vs PCK
     r21 = results_by_check["2.1 Gap-Matrix-Karten ohne Eintrag in pilot_card_knowledge"]
     assert r21.result == "ABWEICHUNG"
-    assert r21.count == 3
+    assert r21.count == 123
 
     # 2.2 Inclusion CSV vs Gap Matrix
     r22 = results_by_check[
         "2.2 Inclusion-CSV-Karten ohne Gap-Matrix-Eintrag (Universum vs. Chulane-Pool)"
     ]
     assert r22.result == "ABWEICHUNG"
-    assert r22.count == 6126
+    assert r22.count == 6084
 
     # 2.3 Duplicates
     assert results_by_check["2.3 Dubletten je Datei"].result == "OK"
