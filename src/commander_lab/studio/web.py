@@ -18,7 +18,7 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
-from . import builder, games, launch, universe, universe_view
+from . import builder, games, launch, strength_view, universe, universe_view
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
@@ -122,6 +122,21 @@ class UniverseBody(BaseModel):
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
     min_main_cards: StrictInt | None = None
+
+
+class StrengthBody(BaseModel):
+    """Compute the strength index of one commander's pool; at most one settings source."""
+
+    model_config = ConfigDict(extra="forbid")
+    commander: str = Field(min_length=1, max_length=200)
+    preset: str | None = Field(default=None, max_length=80)
+    profile: str | None = Field(default=None, max_length=80)
+    settings: dict[str, object] | None = None
+
+
+class StrengthProfileBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    settings: dict[str, object]
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -254,6 +269,78 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return evidence_model.card_evidence(store, card_id, commander, view=view)
         except KeyError as error:
             raise HTTPException(404, "unknown card or card outside this view") from error
+        finally:
+            store.close()
+
+    @app.get("/api/strength/presets")
+    def strength_presets() -> dict[str, object]:
+        return strength_view.presets()
+
+    @app.post("/api/strength")
+    def strength_index(body: StrengthBody) -> dict[str, object]:
+        """Strength index per pool card of one commander: an estimate from usage signals,
+        not a measured win rate. Marks are not part of it. Needs the X-Studio header
+        like every non-GET route, although it changes nothing."""
+        store = open_store()
+        try:
+            settings = strength_view.resolve_settings(
+                store, preset=body.preset, profile=body.profile, settings=body.settings
+            )
+            return dict(strength_view.compute(store, body.commander, settings))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(
+                404, f"unknown commander, preset, profile or universe profile: {error}"
+            ) from error
+        finally:
+            store.close()
+
+    @app.get("/api/strength/profiles")
+    def strength_profiles() -> list[dict[str, object]]:
+        store = open_store()
+        try:
+            return strength_view.list_profiles(store)
+        finally:
+            store.close()
+
+    @app.get("/api/strength/profiles/{name}")
+    def get_strength_profile(
+        name: str = PathParam(min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return strength_view.get_profile(store, name)
+        except KeyError as error:
+            raise HTTPException(404, "unknown strength profile") from error
+        finally:
+            store.close()
+
+    @app.put("/api/strength/profiles/{name}")
+    def save_strength_profile(
+        body: StrengthProfileBody, name: str = PathParam(min_length=1, max_length=80)
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            settings = strength_view.resolve_settings(
+                store, preset=None, profile=None, settings=body.settings
+            )
+            return strength_view.save_profile(store, name, settings)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/strength/profiles/{name}")
+    def delete_strength_profile(
+        name: str = PathParam(min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            strength_view.delete_profile(store, name)
+            return {"deleted": name}
+        except KeyError as error:
+            raise HTTPException(404, "unknown strength profile") from error
         finally:
             store.close()
 
