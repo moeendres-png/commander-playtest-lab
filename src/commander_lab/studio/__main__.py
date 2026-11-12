@@ -117,9 +117,11 @@ def _parser() -> argparse.ArgumentParser:
     save_profile.add_argument("name")
     save_profile.add_argument("--platform", action="append", dest="platforms")
     save_profile.add_argument("--cohort", action="append", dest="cohorts")
+    save_profile.add_argument("--commander", action="append", dest="commanders")
     save_profile.add_argument("--date-from")
     save_profile.add_argument("--date-to")
     save_profile.add_argument("--min-main-cards", type=int)
+    save_profile.add_argument("--min-universe", type=int)
     universe_inclusion = commands.add_parser(
         "universe-inclusion", help="per-card deck counts over one deck universe"
     )
@@ -525,9 +527,11 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         spec = {
             "platforms": args.platforms or [],
             "cohorts": args.cohorts or [],
+            "commanders": args.commanders or [],
             "date_from": args.date_from,
             "date_to": args.date_to,
             "min_main_cards": args.min_main_cards,
+            "min_universe": args.min_universe,
         }
         result = universe.save_profile(store, args.name, spec)
     elif args.command == "universe-inclusion":
@@ -544,7 +548,7 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         params = tiers.TierParams(
             min_universe=args.min_universe
             if args.min_universe is not None
-            else tiers.TierParams().min_universe
+            else counted["spec"].get("min_universe", tiers.TierParams().min_universe)
         )
         snapshot = universe.snapshot_id(
             store, profile=args.profile, commander_names=[args.commander]
