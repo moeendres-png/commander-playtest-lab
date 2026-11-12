@@ -1,10 +1,10 @@
 # Commander Simulator Next — Repository Agent Policy
 
 Binding instructions for every agent working on `moeendres-png/commander-playtest-lab`,
-whatever tool or model the Owner selects (Claude Code, OpenCode Foundry, Cline, GitHub
+whatever tool or model the Owner selects (Claude Code, Cline, GitHub
 Copilot, Google agents, others). Stable rules only: no SHAs, run IDs, PASS counts,
 diagnoses, prices or rate limits. Session facts live in the Workstream Contract and the
-workstream's explicit state file (the `--state` path given to the launcher);
+workstream's explicit state file;
 there is no implicit active repository-root state.
 
 ## 1. Mission and scope
@@ -112,23 +112,20 @@ adjudication and required requalification.
 
 The Owner selects the tool and model for each session manually. This file names no
 model allowlist (the two floors in §7 are Owner-set minimums, not an allowlist); every executor works under exactly these rules, at the effort the Owner
-selected, never silently lowered. Tool configuration that enforces executor identity
-(for example the OpenCode Foundry launcher and `.foundry/executor-profiles.json`) is
-technical configuration, not policy; there is no automatic fallback between executors.
+selected, never silently lowered; there is no automatic fallback between executors.
 
 - **Coordinator**: an explicitly launched Claude Opus 5.5 session under the delegation in §8
   (architecture, Source Truth, Rules adjudication, qualification design, gate decisions,
   review and, when authorized, campaign execution).
-- **Worker**: any other executor. OpenCode Foundry and Claude Sonnet workers inside an
+- **Worker**: any other executor. Claude Sonnet workers inside an
   owned workstream may merge as §10 delegates. Muse (the Owner's Meta agent) may merge its
   own PRs under the Owner-delegated self-merge in §10. GitHub Copilot, Google agents, Cline
   and any other external agent work on their own branch and PR and never merge. No worker decides
   Owner-only reservations (§8); results count as evidence only after the same review and
   CI gates as any other executor.
 
-Tool and runtime capabilities are never inferred from model identity. A call outside the
-Foundry launcher (for example a Claude-side OpenCode call) names the Owner-selected model
-explicitly and never relies on a tool's default model.
+Tool and runtime capabilities are never inferred from model identity. A call to another
+model names the Owner-selected model explicitly and never relies on a tool's default model.
 
 Historical model names in dated records are provenance only; they authorize nothing and
 create no migration or governance work by themselves.
@@ -250,7 +247,7 @@ integration campaign may own several disjoint surfaces when one objective needs 
 each must be freshly verified, declared, free of another active writer (or transferred
 by a persisted handoff). Undeclared, foreign-active or unknown-owner surfaces stay
 read-only. It re-reads authority and ownership before material mutation; unavailable,
-ask-gated or denied operations stay real boundaries, and it never bypasses Foundry
+ask-gated or denied operations stay real boundaries, and it never bypasses
 sandboxing, another worker's ownership, protected branches, Owner-only decisions or a
 hard prohibition in this file.
 
@@ -357,10 +354,9 @@ Claude sessions (Coordinator and thread sessions) and Muse may merge their own P
 `moeendres-png/commander-playtest-lab` through the normal GitHub merge path once the PR is
 merge-ready: the required checks (`quality`, `security`, `infrastructure`) are green on the
 exact head, there is no merge conflict, no review thread is unresolved, and a MATERIAL
-change has an independent review PASS (`/ro-review`, or an independent Claude review with
-no blocking findings when no review lane is available). After merging, the agent reports
-the merge in one line with the PR link. One-shot OpenCode lane dispatches still open PRs and never merge;
-the session that owns the PR merges it.
+change has an independent review PASS (an independent Claude review with
+no blocking findings). After merging, the agent reports
+the merge in one line with the PR link. The session that owns the PR merges it.
 
 These still need the Owner's explicit go before merge: pushes to the engine fork
 (`moeendres-png/mage`), repins, and any change that touches signed or sealed qualification
@@ -381,21 +377,18 @@ valid evidence.
 
 ### Cross-workstream access
 
-Project-wide understanding does not imply project-wide write authority. A normal Foundry
+Project-wide understanding does not imply project-wide write authority. A normal
 run owns one writable worktree; a bounded integration task may declare more surfaces:
 
 - `read-only`: exact repository + HEAD/tree, materialized into a disposable detached
   runtime snapshot; the source worktree stays non-writable;
 - `owned-write`: exact repository + branch + HEAD/tree + state path + matching ownership;
   for cross-workstream mutation the checkout is standalone (checkout-local `.git`), its
-  state lives under that checkout's `.foundry`, and writable surfaces are disjoint.
+  state is explicit, and writable surfaces are disjoint.
 
 Owned-write surfaces name the current workstream as state owner, are locked before the
-OpenCode child starts and stay locked for its lifetime. Foreign-active, unknown-owner and
-undeclared worktrees stay non-writable. Cross-workstream children run under Bubblewrap
-with the host filesystem read-only and only the declared writable surfaces, a unique
-runtime directory and narrow tool caches rebound read-write. Missing Bubblewrap is a
-launch refusal (as is unusable Bubblewrap), never a silent downgrade; agents never use sudo or bypass the sandbox.
+work starts and stay locked for its lifetime. Foreign-active, unknown-owner and
+undeclared worktrees stay non-writable. Agents never use sudo or bypass a sandbox.
 
 ## 12. Privacy
 

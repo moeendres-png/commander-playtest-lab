@@ -25,11 +25,3 @@ asserts that the runner identity receipt never contains it."""
 condition = "AND"
 paths = ['''^tests/qualification/test_current_boundary_environment_identity\.py$''']
 regexes = ['''^s3cr3t-sentinel-0d9f$''']
-
-[[rules.allowlists]]
-description = """\
-Fabricated redaction fixture: the test passes this value as FOUNDRY_SENTINEL_TOKEN \
-and asserts that safe_push never prints it."""
-condition = "AND"
-paths = ['''^tests/foundry/test_safe_push\.py$''']
-regexes = ['''^sentinel-abc-123$''']

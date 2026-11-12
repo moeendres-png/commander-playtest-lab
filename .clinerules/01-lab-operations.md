@@ -6,18 +6,15 @@ For owner-deck building/evaluation, read `docs/OWNER_DECK_FOCUS_CURRENT.md`: Chu
 Cline is a worker (`AGENTS.md` §6): own branch `cline/<topic>`, draft PR, never merge,
 no Owner-only decisions, no edits to sealed evidence under `qualification/`.
 
-Model and effort (Cline runs DeepSeek V4.1 Flash):
-- Use the highest reasoning effort the Cline model settings offer (`max`; never below `high`).
+Model and effort:
+- Use the highest reasoning effort the Cline model settings offer (never below `high`).
   Cline sets effort in its UI model settings, so this file states the expectation: check it first.
-- Use Plan mode to analyse, then Act mode to change. Phrase tasks per
-  `docs/foundry-execution/EXECUTOR_PROMPTING.md`.
-- Before a matching task load its skill file (`.opencode/skills/<name>/SKILL.md` or
-  `.claude/skills/<name>/SKILL.md`) and say which one you loaded.
+- Use Plan mode to analyse, then Act mode to change.
+- Before a matching task load its skill file (`.claude/skills/<name>/SKILL.md`) and say which one you loaded.
 - Prefer the deterministic scripts over improvising: `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`
-  (lane status), `oc_dispatch.py`, `pb03_packet.py`, `real_rows.py`.
-- Request budget (free tier is request-capped): batch reads, fewer bigger steps, one test command per
-  surface, one job at a time, no parallel runs. A quota refusal is `BLOCKED_SERVICE`: checkpoint, stop,
-  resume the next day; never switch models.
+  (PR/CI status), `pb03_packet.py`, `real_rows.py`.
+- Request budget: batch reads, fewer bigger steps, one test command per surface, one job at a time,
+  no parallel runs. A quota refusal ends the run: checkpoint, stop; never switch models.
 
 Practical points an outside agent does not know:
 - Setup (Python 3.12): `pip install --require-hashes -r requirements/lock.txt`, then
