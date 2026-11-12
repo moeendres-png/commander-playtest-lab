@@ -10,7 +10,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, decklist_import, importers, roles, tiers, universe
+from . import catalog, decklist_import, importers, roles, signals, tiers, universe
 from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
@@ -100,6 +100,16 @@ def _parser() -> argparse.ArgumentParser:
     )
     decklists.add_argument("path")
     decklists.add_argument("--format", choices=("edhrec", "archidekt"), required=True)
+    import_signals = commands.add_parser(
+        "import-signals",
+        help="usage signals for the strength index (EDHREC, Spellbook, tournament lists)",
+    )
+    import_signals.add_argument("folder")
+    import_signals.add_argument(
+        "--commander",
+        default=LEGACY_COMMANDER,
+        help="commander the tournament lists belong to (EDHREC signals carry their own)",
+    )
     commands.add_parser("profiles", help="list the stored deck-universe profiles")
     save_profile = commands.add_parser(
         "save-profile", help="store a deck-universe profile (which decks count)"
@@ -436,6 +446,11 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = importers.import_edhrec_delta_jsonl(store, args.path)
     elif args.command == "import-hub":
         result = importers.import_hub_corpus(store, args.path)
+    elif args.command == "import-signals":
+        try:
+            result = signals.import_signals(store, args.folder, commander=args.commander)
+        except ValueError as error:
+            raise SystemExit(f"import-signals: {error}") from None
     elif args.command == "import-scryfall":
         result = catalog.import_scryfall_oracle(
             store, args.path, disambiguation_path=args.disambiguation
