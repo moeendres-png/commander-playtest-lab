@@ -92,12 +92,63 @@ class CardFacts:
         return min(power, 30.0)
 
 
+def fact_name_index(names: set[str], aliases: object) -> dict[str, str]:
+    """Index exact names, then unambiguous front faces and validated explicit aliases."""
+    index = {engine_lookup_key(name): name for name in sorted(names)}
+    fronts: dict[str, set[str]] = {}
+    for name in names:
+        if " // " in name:
+            fronts.setdefault(engine_lookup_key(name.split(" // ")[0]), set()).add(name)
+    for key, targets in fronts.items():
+        if len(targets) == 1:
+            index.setdefault(key, next(iter(targets)))
+    if not isinstance(aliases, dict):
+        raise ValueError("card facts aliases must be a mapping")
+    seen_aliases: dict[str, str] = {}
+    for alias, target in aliases.items():
+        if not isinstance(alias, str) or not isinstance(target, str) or target not in names:
+            raise ValueError("card facts alias has an invalid target")
+        key = engine_lookup_key(alias)
+        if key in seen_aliases and seen_aliases[key] != target:
+            raise ValueError("card facts alias maps to conflicting targets")
+        seen_aliases[key] = target
+        index.setdefault(key, target)
+    return index
+
+
+def apply_retained_lookup(
+    index: dict[str, str], cards: dict[str, object], retained: object
+) -> None:
+    """Restore prior canonical keys only where any competing fresh fact is identical."""
+    if not isinstance(retained, dict):
+        raise ValueError("retained lookup must be a mapping")
+    for key, target in retained.items():
+        if (
+            not isinstance(key, str)
+            or engine_lookup_key(key) != key
+            or not isinstance(target, str)
+            or target not in cards
+        ):
+            raise ValueError("retained lookup has an invalid target")
+        existing = index.get(key)
+        if existing is not None and cards[existing] != cards[target]:
+            raise ValueError("retained lookup conflicts with a fresh engine fact")
+        index[key] = target
+
+
 class CardFactsCatalog:
-    def __init__(self, facts: dict[str, CardFacts]) -> None:
-        self._by_key = {engine_lookup_key(name): fact for name, fact in facts.items()}
-        for name, fact in facts.items():
-            if " // " in name:
-                self._by_key.setdefault(engine_lookup_key(name.split(" // ")[0]), fact)
+    def __init__(
+        self,
+        facts: dict[str, CardFacts],
+        aliases: dict[str, str] | None = None,
+        ambiguous: tuple[str, ...] = (),
+        retained_index: dict[str, str] | None = None,
+    ) -> None:
+        index = fact_name_index(set(facts), aliases if aliases is not None else {})
+        if retained_index is not None:
+            index.update(retained_index)
+        unknown_keys = {engine_lookup_key(name) for name in ambiguous}
+        self._by_key = {key: facts[name] for key, name in index.items() if key not in unknown_keys}
         self._facts = tuple(dict.fromkeys(self._by_key.values()))
         self._profiles: tuple[StructuralCardProfile, ...] | None = None
 
@@ -120,13 +171,15 @@ class CardFactsCatalog:
             )
             for name, row in payload["cards"].items()
         }
-        return cls(facts)
+        ambiguous = payload.get("ambiguous", [])
+        if not isinstance(ambiguous, list) or not all(isinstance(name, str) for name in ambiguous):
+            raise ValueError("card facts ambiguous names must be a list of strings")
+        index = fact_name_index(set(facts), payload.get("aliases", {}))
+        apply_retained_lookup(index, payload["cards"], payload.get("retained_lookup", {}))
+        return cls(facts, payload.get("aliases", {}), tuple(ambiguous), index)
 
     def get(self, name: str) -> CardFacts | None:
-        fact = self._by_key.get(engine_lookup_key(name))
-        if fact is None and " // " in name:
-            fact = self._by_key.get(engine_lookup_key(name.split(" // ")[0]))
-        return fact
+        return self._by_key.get(engine_lookup_key(name))
 
     def facts(self) -> tuple[CardFacts, ...]:
         return self._facts

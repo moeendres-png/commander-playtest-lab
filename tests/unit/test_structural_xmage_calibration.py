@@ -197,12 +197,14 @@ def test_facts_mark_finishers_from_their_text() -> None:
     assert profile.role_strengths[CardRole.FINISHER] == 1.0
 
 
-def test_fact_lookup_ignores_case_accents_and_back_faces() -> None:
+def test_fact_lookup_ignores_case_accents_and_uses_attested_back_faces() -> None:
     catalog = CardFactsCatalog(
-        {"Troll of Khazad-dum": _facts("Troll of Khazad-dum", power=6.0), "Wear": _facts("Wear")}
+        {"Troll of Khazad-dum": _facts("Troll of Khazad-dum", power=6.0), "Wear": _facts("Wear")},
+        aliases={"Wear // Tear": "Wear"},
     )
     assert catalog.get("Troll of Khazad-dûm") is not None
     assert catalog.get("Wear // Tear") is not None
+    assert catalog.get("Wear // Wrong") is None
     assert catalog.get("Nothing Here") is None
 
 

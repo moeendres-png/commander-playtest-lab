@@ -119,6 +119,7 @@ def _fill(store: StudioStore, folder: Path) -> dict[str, object]:
         "decks": 1,
         "unknown_decks": 1,
     }
+    store.bind_unbound("Test Commander")
     return report
 
 
@@ -189,7 +190,7 @@ def test_pool_carries_counts_with_denominators(studio: StudioStore) -> None:
 
 
 def test_source_deck_shapes_leave_out_unresolved_decks(studio: StudioStore) -> None:
-    shapes = {shape["cohort"]: shape for shape in builder.cohort_shapes(studio)}
+    shapes = {shape["cohort"]: shape for shape in builder.cohort_shapes(studio, ["Test Commander"])}
     assert shapes["all"]["decks"] == 3
     assert shapes["all"]["decks_counted"] == 2
     assert shapes["community"]["lands"] == {"median": 33.0, "p25": 31.5, "p75": 34.5}
@@ -318,9 +319,18 @@ def test_web_application_round_trip(studio: StudioStore) -> None:
             client.put("/api/cards/card:project:0007/mark", json=mark, headers=marker).status_code
             == 200
         )
-        assert client.get("/api/cards/card:project:0007").json()["observations"] == []
-        assert client.get("/api/cards/card:project:9999").status_code == 404
-        assert client.get("/api/cohorts").json()[0]["cohort"] == "all"
+        named = {"commander": "Test Commander"}
+        card_url = "/api/cards/card:project:0007"
+        assert client.get(card_url, params=named).json()["observations"] == []
+        assert client.get("/api/cards/card:project:9999", params=named).status_code == 404
+        assert client.get("/api/cohorts", params=named).json()[0]["cohort"] == "all"
+        # deck figures are never served without a commander
+        assert client.get(card_url).status_code == 422
+        assert client.get("/api/cohorts").status_code == 422
+        assert client.get("/api/simulations").status_code == 422
+        known = {item["name"]: item for item in client.get("/api/commanders").json()}
+        assert known["Test Commander"]["source_decks"] == 3
+        assert known["Test Commander"]["in_collection"] is True
         diff_resp = client.post(
             "/api/diff",
             json={"base_revision_id": saved["revision_id"], "cards": cards},
@@ -375,7 +385,7 @@ def test_roles_are_read_from_a_role_file_and_counted(studio: StudioStore, tmp_pa
     assert cards["Swarm Rat"]["roles"] == ["removal"]
     assert cards["Filler 02"]["roles"] == []
     assert builder.deck_roles(studio, _deck()) == {"ramp": 30}
-    shapes = {shape["cohort"]: shape for shape in builder.cohort_shapes(studio)}
+    shapes = {shape["cohort"]: shape for shape in builder.cohort_shapes(studio, ["Test Commander"])}
     assert shapes["community"]["roles"] == {
         "ramp": {"median": 33.0, "p25": 31.5, "p75": 34.5},
         "removal": {"median": 0.5, "p25": 0.25, "p75": 0.75},
@@ -421,7 +431,7 @@ def test_role_fetch_asks_only_the_card_search(
 def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
     studio: StudioStore, tmp_path: Path
 ) -> None:
-    co = builder.card_cooccurrence(studio, "card:project:0007")
+    co = builder.card_cooccurrence(studio, "card:project:0007", ["Test Commander"])
     assert co["card_decks"] == 2
     assert co["data_class"] == "DERIVED_DESCRIPTIVE"
     assert co["cards"] == [
@@ -478,7 +488,7 @@ def test_cooccurrence_neutral_boards_diff_and_draw_probabilities(
     cards_by_name = {card["name"]: card for card in pool["cards"]}  # type: ignore[union-attr]
     assert cards_by_name["Forest"]["sim_status"] == "OK"
     assert cards_by_name["Swarm Rat"]["sim_status"] == "NO_CARD_FACTS"
-    detail = builder.card_detail(studio, "card:project:0002")
+    detail = builder.card_detail(studio, "card:project:0002", ["Test Commander"])
     assert detail["sim_status"] == "OK"
     # prefilter_lists requires 100 cards in both lists, and returns HEURISTIC_MODEL when met
     short_pf = builder.prefilter_lists(studio, base_cards[:10], target_cards, trials=100)

@@ -170,6 +170,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "source_decks": store.count("corpus_deck"),
                 "neutral_board_rows": store.count("neutral_board_row"),
                 "simulation_runs": store.count("simulation_run"),
+                # The three counts above are store totals over all commanders; this
+                # says how many of them are bound to a commander at all.
+                "source_data_binding": store.binding_counts(),
                 "decks": store.count("deck"),
                 "sources": sources,
             }
@@ -186,19 +189,33 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
-    @app.get("/api/cohorts")
-    def cohorts() -> list[dict[str, object]]:
+    @app.get("/api/commanders")
+    def commanders(collection: bool = False) -> list[dict[str, object]]:
         store = open_store()
         try:
-            return builder.cohort_shapes(store)
+            return builder.list_commanders(store, include_collection=collection)
+        finally:
+            store.close()
+
+    @app.get("/api/cohorts")
+    def cohorts(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> list[dict[str, object]]:
+        store = open_store()
+        try:
+            return builder.cohort_shapes(store, commander)
         finally:
             store.close()
 
     @app.get("/api/cards/{card_id}")
-    def card(card_id: str, cohort: str = builder.ALL_DECKS) -> dict[str, object]:
+    def card(
+        card_id: str,
+        commander: list[str] = Query(min_length=1, max_length=2),
+        cohort: str = builder.ALL_DECKS,
+    ) -> dict[str, object]:
         store = open_store()
         try:
-            return builder.card_detail(store, card_id, cohort=cohort)
+            return builder.card_detail(store, card_id, commander, cohort=cohort)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
         finally:
@@ -250,33 +267,44 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.put("/api/universe/profiles/{name}")
     def save_universe_profile(
-        body: UniverseBody, name: str = PathParam(min_length=1, max_length=80)
+        body: UniverseBody,
+        name: str = PathParam(min_length=1, max_length=80),
+        commander: str = Query(min_length=1, max_length=200),
     ) -> dict[str, object]:
         store = open_store()
         try:
             universe.save_profile(store, name, body.model_dump(exclude_none=True))
-            return dict(universe_view.profile_summary(store, name))
+            return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 
     @app.get("/api/universe/profiles/{name}/summary")
-    def universe_profile_summary(name: str) -> dict[str, object]:
+    def universe_profile_summary(
+        name: str, commander: str = Query(min_length=1, max_length=200)
+    ) -> dict[str, object]:
         store = open_store()
         try:
-            return dict(universe_view.profile_summary(store, name))
+            return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error
         finally:
             store.close()
 
     @app.get("/api/universe/spread")
-    def universe_spread(profile: str = Query(min_length=1, max_length=80)) -> dict[str, object]:
+    def universe_spread(
+        profile: str = Query(min_length=1, max_length=80),
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> dict[str, object]:
         """Counted spread of every Studio card in one universe. Marks are not part of it."""
         store = open_store()
         try:
-            return dict(universe_view.pool_spread(store, profile))
+            return dict(universe_view.pool_spread(store, profile, commander_names=[commander]))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile") from error
         finally:
@@ -284,11 +312,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/cards/{card_id}/universe")
     def card_universe(
-        card_id: str, profile: str = Query(min_length=1, max_length=80)
+        card_id: str,
+        profile: str = Query(min_length=1, max_length=80),
+        commander: str = Query(min_length=1, max_length=200),
     ) -> dict[str, object]:
         store = open_store()
         try:
-            return dict(universe_view.pool_spread(store, profile, [card_id]))
+            return dict(
+                universe_view.pool_spread(store, profile, [card_id], commander_names=[commander])
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile or card") from error
         finally:
@@ -299,10 +333,17 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         card_id: str,
         profile: str = Query(min_length=1, max_length=80),
         limit: int = Query(default=25, ge=1, le=500),
+        commander: str = Query(min_length=1, max_length=200),
     ) -> dict[str, object]:
         store = open_store()
         try:
-            return dict(universe_view.card_cooccurrence(store, profile, card_id, limit))
+            return dict(
+                universe_view.card_cooccurrence(
+                    store, profile, card_id, limit, commander_names=[commander]
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile or card") from error
         finally:
@@ -322,10 +363,12 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             store.close()
 
     @app.get("/api/simulations")
-    def simulations() -> list[dict[str, object]]:
+    def simulations(
+        commander: list[str] = Query(min_length=1, max_length=2),
+    ) -> list[dict[str, object]]:
         store = open_store()
         try:
-            return builder.list_simulations(store)
+            return builder.list_simulations(store, commander)
         finally:
             store.close()
 

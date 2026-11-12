@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-12",
+  "issue": "https://github.com/moeendres-png/commander-playtest-lab/issues/1227",
+  "source_lock": {
+    "lab_base": "564b14d104f436314aa7e9be2f0ed70feed8f76d",
+    "merged_main": "1da310c06b8bd0304986f442e67dfb4bf099db9b",
+    "engine_commit": "f4d12f6e8066203fba7aa38bd35ea3358117393d",
+    "engine_repository": "https://github.com/moeendres-png/mage"
+  },
+  "catalogs": {
+    "data/cards/xmage_card_facts.json": {
+      "entries": 32615,
+      "sha256": "7ddba520570f22948993c8b8cdd6b6c1c3449d4ba9fe4cae6b187394ba62b049"
+    },
+    "data/cards/pilot_card_knowledge.json": {
+      "entries": 32820,
+      "sha256": "0619e43ada057cc1ed2032c2341f5e933d43f93b1373beed4ff3581e39e1af54"
+    }
+  },
+  "local_inventory_counts": {
+    "identities": 1655,
+    "before": {
+      "OK": 1425,
+      "NO_CARD_FACTS": 230
+    },
+    "after": {
+      "OK": 1655
+    },
+    "chulane_pool": 927,
+    "list_published": false
+  },
+  "construction": {
+    "evidence": "LOCAL_OBSERVED",
+    "public_names": 33402,
+    "constructed": 33402,
+    "scanner_errors": 0,
+    "previously_missing_constructed": 230,
+    "sets": {
+      "ECL": {
+        "printings": 413,
+        "names": 273,
+        "failures": 0
+      },
+      "FRA": {
+        "printings": 441,
+        "names": 278,
+        "failures": 0
+      },
+      "SPM": {
+        "printings": 286,
+        "names": 193,
+        "failures": 0
+      }
+    },
+    "identity_mismatches": 0
+  },
+  "real_import": {
+    "evidence": "LOCAL_OBSERVED",
+    "synthetic_100_card_decks": 230,
+    "imported": 230,
+    "failures": 0,
+    "description": "Each previously absent engine identity was loaded with 98 basic lands, the card under test and a five-color commander in a concrete 100-card fixture; engine names follow the existing Studio contract."
+  },
+  "negative_controls": {
+    "unknown_name": "REJECTED",
+    "mismatched_mechanical_identity": "REJECTED",
+    "invalid_constructor": "REJECTED",
+    "wrong_constructed_identity": "REJECTED",
+    "matching_constructed_identity": "ACCEPTED",
+    "unknown_combined_name": "REJECTED"
+  },
+  "gameplay_behavior": "UNKNOWN",
+  "strength_verdict": "UNDECIDED",
+  "qualification_note": "No engine/bridge runtime source, pin, capability manifest, lock or sealed record changed. These local probes grant no qualification credit.",
+  "bridge_verify": {
+    "evidence": "LOCAL_OBSERVED",
+    "exit_code": 0,
+    "suites": 209,
+    "tests": 1191,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "existing_skipped_reason": "START-2 case superseded by CR 103.8a successor semantics in executed XmageFirstTurnDrawRuleTest; skipped case remains NOT_RUN."
+  },
+  "prior_engine_lookups": {
+    "keys": 7261,
+    "missing": 0,
+    "changed_values": 0
+  },
+  "engine_ambiguities": {
+    "status": "UNKNOWN",
+    "count": 4,
+    "names": [
+      "Despair",
+      "Everythingamajig",
+      "Garbage Elemental",
+      "Syndicate Enforcer"
+    ],
+    "included_in_cards": false,
+    "included_in_known_missing": false
+  },
+  "engine_aliases": {
+    "verified_complete_names": 723,
+    "retained_entries": 7231
+  },
+  "baseline_games": {
+    "seeds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "players": 4,
+    "deck": "Chulane",
+    "pod": "mixed",
+    "completed": 10,
+    "failed": 0,
+    "status": "LOCAL_OBSERVED",
+    "source_head": "a24deabeb52e1b1d3d5ec83e7f470eebabfe1b67",
+    "final_comparison": "NOT_RUN"
+  },
+  "binary_hashes": {
+    "xmage-engine-bridge-0.1.0-SNAPSHOT.jar": "14f6bb9ee6a6f6d24a17559c39c2308774dbd215d6688e2f196c6ccc97554b2e",
+    "mage-1.4.62.jar": "c074e08ca09a5a325438304904d93e1d20b5cc19e8fa5e1c27628e6d5c561656",
+    "mage-sets-1.4.62.jar": "4b9714ee39e380c08386c555331b0f871c8725e46a1536178f0e82f79815acd9"
+  }
+}

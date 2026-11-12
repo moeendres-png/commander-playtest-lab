@@ -26,7 +26,7 @@ from __future__ import annotations
 
 import datetime
 import json
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from typing import TypedDict
 
@@ -35,7 +35,7 @@ from .store import StudioStore, now_utc
 
 # The corpus importer stores the main deck as "mainboard", the decklist importer as "main".
 COUNTED_SECTIONS = ("main", "mainboard", "commander", "companion")
-_SPEC_KEYS = {"platforms", "cohorts", "date_from", "date_to", "min_main_cards"}
+_SPEC_KEYS = {"platforms", "cohorts", "commanders", "date_from", "date_to", "min_main_cards"}
 
 
 class UniverseSpec(TypedDict, total=False):
@@ -43,6 +43,7 @@ class UniverseSpec(TypedDict, total=False):
 
     platforms: list[str]
     cohorts: list[str]
+    commanders: list[str]
     date_from: str
     date_to: str
     min_main_cards: int
@@ -124,6 +125,9 @@ def _validate_spec(spec: Mapping[str, object]) -> UniverseSpec:
     cohorts = _string_list(spec, "cohorts")
     if cohorts:
         cleaned["cohorts"] = cohorts
+    commanders = _string_list(spec, "commanders")
+    if commanders:
+        cleaned["commanders"] = commanders
     date_from = _iso_date(spec, "date_from")
     if date_from is not None:
         cleaned["date_from"] = date_from
@@ -218,6 +222,18 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
             )
         }
         deck_ids = [deck_id for deck_id in deck_ids if deck_id in members]
+    for commander in cleaned.get("commanders", []):
+        # Only decks bound to the commander count; a deck without a binding is counted
+        # for no commander, so figures of two commanders never share a denominator.
+        bound = {
+            str(row[0])
+            for row in store.connection.execute(
+                "SELECT key FROM commander_binding "
+                "WHERE kind = 'corpus_deck' AND commander_name = ?",
+                (commander,),
+            )
+        }
+        deck_ids = [deck_id for deck_id in deck_ids if deck_id in bound]
     minimum = cleaned.get("min_main_cards")
     if minimum:
         sections = ", ".join("?" for _ in COUNTED_SECTIONS)
@@ -297,11 +313,25 @@ def _composition(store: StudioStore, deck_ids: list[str]) -> tuple[dict[str, int
 
 
 def _universe_spec(
-    store: StudioStore, profile: str | None, spec: Mapping[str, object] | None
+    store: StudioStore,
+    profile: str | None,
+    spec: Mapping[str, object] | None,
+    commander_names: Sequence[str] | None,
 ) -> UniverseSpec:
+    """The spec of a profile or a free spec, narrowed to ``commander_names`` when given.
+
+    A spec that already names other commanders is not silently widened or replaced."""
     if profile is not None:
-        return get_profile(store, profile)["spec"]
-    return _validate_spec(spec or {})
+        resolved = get_profile(store, profile)["spec"]
+    else:
+        resolved = _validate_spec(spec or {})
+    if commander_names:
+        wanted = sorted({str(name) for name in commander_names})
+        stored = resolved.get("commanders")
+        if stored and sorted(stored) != wanted:
+            raise ValueError(f"the universe is defined for {sorted(stored)}, not for {wanted}")
+        resolved = {**resolved, "commanders": wanted}
+    return resolved
 
 
 def inclusion(
@@ -310,13 +340,14 @@ def inclusion(
     profile: str | None = None,
     spec: Mapping[str, object] | None = None,
     card_names: list[str] | None = None,
+    commander_names: Sequence[str] | None,
 ) -> InclusionResult:
     """Per-card deck counts over one universe: hits, denominator, share.
 
     With ``card_names`` only those cards are returned (missing ones with 0 hits); without
     it, every card that appears in the universe is returned, ordered by hits.
     """
-    resolved_spec = _universe_spec(store, profile, spec)
+    resolved_spec = _universe_spec(store, profile, spec, commander_names)
     deck_ids = resolve_universe(store, resolved_spec)
     denominator = len(deck_ids)
     by_platform, by_bracket = _composition(store, deck_ids)
@@ -362,13 +393,14 @@ def cooccurrence(
     profile: str | None = None,
     spec: Mapping[str, object] | None = None,
     limit: int | None = 25,
+    commander_names: Sequence[str] | None,
 ) -> CooccurrenceResult:
     """How many universe decks contain ``card_name`` together with each other card.
 
     ``limit`` caps the pair list (``None`` = all pairs); it must be at least 1."""
     if limit is not None and limit < 1:
         raise ValueError("limit must be at least 1 (or None for no limit)")
-    deck_ids = resolve_universe(store, _universe_spec(store, profile, spec))
+    deck_ids = resolve_universe(store, _universe_spec(store, profile, spec, commander_names))
     universe_size = len(deck_ids)
     by_platform, by_bracket = _composition(store, deck_ids)
     denominator = 0
@@ -432,10 +464,12 @@ class UniverseDecks(TypedDict):
     decks_by_name: dict[str, set[str]]
 
 
-def universe_decks(store: StudioStore, *, profile: str) -> UniverseDecks:
+def universe_decks(
+    store: StudioStore, *, profile: str, commander_names: Sequence[str] | None
+) -> UniverseDecks:
     """Resolve a profile once: its figures and, per raw card name, the universe decks that
     list it in a counted section with a quantity above zero."""
-    spec = _universe_spec(store, profile, None)
+    spec = _universe_spec(store, profile, None, commander_names)
     deck_ids = resolve_universe(store, spec)
     by_platform, by_bracket = _composition(store, deck_ids)
     decks_by_name: dict[str, set[str]] = {}
@@ -487,7 +521,11 @@ def cooccurrence_in_decks(
 
 
 def snapshot_id(
-    store: StudioStore, *, profile: str | None = None, spec: Mapping[str, object] | None = None
+    store: StudioStore,
+    *,
+    profile: str | None = None,
+    spec: Mapping[str, object] | None = None,
+    commander_names: Sequence[str] | None,
 ) -> str:
     """A short fingerprint of a universe: its spec plus what it currently selects.
 
@@ -497,7 +535,7 @@ def snapshot_id(
     the same spec over the same deck contents; figures can cite the exact universe
     they were counted over.
     """
-    cleaned = _universe_spec(store, profile, spec)
+    cleaned = _universe_spec(store, profile, spec, commander_names)
     return _snapshot_of(store, cleaned, resolve_universe(store, cleaned))
 
 

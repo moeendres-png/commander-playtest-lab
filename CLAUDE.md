@@ -16,6 +16,11 @@ protected branches.
 
 **Deck focus.** For new owner-deck evaluation/deckbuilding assignments, read `docs/OWNER_DECK_FOCUS_CURRENT.md`: Chulane only. RogShai remains historical/regression data, not active optimization. Do not read `data/collections/**` in this lane.
 
+**Studio.** For Studio work (deck building, simulating, playing) read
+`docs/OWNER_DECISIONS_STUDIO_20261112.md` (the Owner decisions) and
+`docs/STUDIO_ROADMAP_20261112.md` (plan with recommendations). Other agents work in parallel:
+before touching an issue or pull request, check that no other agent holds it.
+
 **Cold start.** Read `docs/claude/state/HANDOFF.md` (regenerate it when stale), the active
 lane contract, then run `python3 .claude/skills/lab-ops/scripts/gh_ops.py brief`.
 Git/GitHub, tests and sealed evidence are Source Truth; HANDOFF is only a continuation
@@ -71,6 +76,8 @@ changes to signed or sealed qualification records wait for the Owner's explicit 
   is not required (required: `quality`, `security`, `infrastructure`); never weaken it.
   A change to `.github/workflows/production-qualification.yml` needs its digest updated in
   `WS17_SHA256SUMS`.
+- CI findings and recommendations: `docs/CI_GATES_IMPROVEMENT_PLAN_20261112.md`. It is a plan;
+  a change to a required check or gate definition is an Owner decision.
 - `.claude/settings.json` sets `CLAUDE_CODE_SUBAGENT_MODEL=sonnet` only as the default for
   unassigned helpers; agent frontmatter wins. `log-scanner` and `ci-triage` use
   `omitClaudeMd: true` on purpose; `evidence-reviewer` keeps project context. No custom
