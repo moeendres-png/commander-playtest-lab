@@ -32,8 +32,11 @@ from scripts.process_scryfall_rulings import (
 FIXTURE_PATH = Path("tests/fixtures/scryfall_rulings_fixture.jsonl")
 
 
-def test_fixture_file_exists() -> None:
-    assert FIXTURE_PATH.is_file(), f"Fixture file not found: {FIXTURE_PATH}"
+def test_fixture_file_valid_structure() -> None:
+    lines = FIXTURE_PATH.read_text(encoding="utf-8").strip().splitlines()
+    assert len(lines) == 8
+    records = [json.loads(line) for line in lines]
+    assert all(r.get("object") == "ruling" for r in records)
 
 
 def test_filter_rulings_exact_fixture_counts(tmp_path: Path) -> None:
