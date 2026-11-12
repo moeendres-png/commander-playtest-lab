@@ -6,14 +6,23 @@ import argparse
 import json
 import os
 import sqlite3
+import sys
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, decklist_import, importers, roles, tiers, universe
+from . import catalog, decklist_import, importers, roles, signals, tiers, universe
 from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
+from .launch import (
+    DEFAULT_GAMES_PER_JVM,
+    MAX_GAMES_PER_JVM,
+    MAX_WORKERS,
+    MIN_GAMES_PER_JVM,
+    MIN_WORKERS,
+    checked_series_settings,
+)
 from .marks import import_owner_marks
 from .queries import corpus_inclusion, legal_pool
 from .store import BOUND_ELSEWHERE, LEGACY_COMMANDER, StudioStore
@@ -91,6 +100,16 @@ def _parser() -> argparse.ArgumentParser:
     )
     decklists.add_argument("path")
     decklists.add_argument("--format", choices=("edhrec", "archidekt"), required=True)
+    import_signals = commands.add_parser(
+        "import-signals",
+        help="usage signals for the strength index (EDHREC, Spellbook, tournament lists)",
+    )
+    import_signals.add_argument("folder")
+    import_signals.add_argument(
+        "--commander",
+        default=LEGACY_COMMANDER,
+        help="commander the tournament lists belong to (EDHREC signals carry their own)",
+    )
     commands.add_parser("profiles", help="list the stored deck-universe profiles")
     save_profile = commands.add_parser(
         "save-profile", help="store a deck-universe profile (which decks count)"
@@ -98,9 +117,21 @@ def _parser() -> argparse.ArgumentParser:
     save_profile.add_argument("name")
     save_profile.add_argument("--platform", action="append", dest="platforms")
     save_profile.add_argument("--cohort", action="append", dest="cohorts")
+    save_profile.add_argument("--commander", action="append", dest="commanders")
     save_profile.add_argument("--date-from")
     save_profile.add_argument("--date-to")
     save_profile.add_argument("--min-main-cards", type=int)
+    save_profile.add_argument("--min-universe", type=int)
+    save_profile.add_argument(
+        "--must-contain",
+        action="append",
+        dest="must_contain",
+        help="collection card every deck of the universe must contain (repeatable)",
+    )
+    delete_profile = commands.add_parser(
+        "delete-profile", help="delete a stored deck-universe profile"
+    )
+    delete_profile.add_argument("name")
     universe_inclusion = commands.add_parser(
         "universe-inclusion", help="per-card deck counts over one deck universe"
     )
@@ -182,8 +213,20 @@ def _parser() -> argparse.ArgumentParser:
         default=None,
         help="Seat-specific style in seat:style format (e.g. 1:0.0 or 2:1.0).",
     )
+    chunk = commands.add_parser(
+        "play-batch",
+        help="play several games in one rules-engine process (used by simulation series)",
+    )
+    chunk.add_argument("--deck", action="append", required=True)
+    chunk.add_argument(
+        "--game", action="append", required=True, help="SEED:GAME_ID, once per game, in order"
+    )
+    chunk.add_argument("--max-decisions", type=int, default=50_000)
+    chunk.add_argument("--style", type=float, default=None)
+    chunk.add_argument("--private-card-repository", action="store_true")
     sim = commands.add_parser(
-        "simulate", help="run a batch simulation series of multiple games in isolated processes"
+        "simulate",
+        help="run a batch simulation series of several games, several per engine process",
     )
     sim.add_argument("--revision", required=True, help="candidate deck revision id (e.g. rev@...)")
     sim.add_argument(
@@ -196,7 +239,31 @@ def _parser() -> argparse.ArgumentParser:
     sim.add_argument("--base-seed", type=int, default=1000, help="starting random seed")
     sim.add_argument("--seed-step", type=int, default=1, help="seed increment per game")
     sim.add_argument("--style", type=float, default=None, help="AI pilot style from 0.0 to 1.0")
+    sim.add_argument(
+        "--workers",
+        type=int,
+        default=None,
+        help=f"games played at once, {MIN_WORKERS} to {MAX_WORKERS} (default: min(4, cpu count - 1))",
+    )
+    sim.add_argument(
+        "--games-per-jvm",
+        type=int,
+        default=None,
+        help=f"games one engine process plays, {MIN_GAMES_PER_JVM} to {MAX_GAMES_PER_JVM} "
+        f"(default: {DEFAULT_GAMES_PER_JVM})",
+    )
     commands.add_parser("games")
+    outcomes = commands.add_parser(
+        "card-outcomes",
+        help="per-card win rate with the card in the first dealt hand versus not (simulated games)",
+    )
+    outcomes.add_argument("--deck-id", required=True)
+    outcomes.add_argument("--games-dir", help="folder of game logs (default: the Studio games)")
+    outcomes.add_argument("--min-exposed", type=int, default=100)
+    outcomes.add_argument("--out", help="write the full table as JSON to this file")
+    outcomes.add_argument(
+        "--allow-mixed", action="store_true", help="pool mixed engine commits or pilots"
+    )
     commands.add_parser("status")
     commands.add_parser(
         "data-report", help="counts-only report on what the store has, lacks and does not know"
@@ -229,6 +296,34 @@ def _parser() -> argparse.ArgumentParser:
             "--commander", default=LEGACY_COMMANDER, help=commander_help
         )
     return parser
+
+
+def _card_outcomes(args: argparse.Namespace) -> int:
+    import sys
+
+    from . import card_outcomes
+    from .games import games_folder
+    from .store import studio_data_dir
+
+    folder = (
+        Path(args.games_dir)
+        if args.games_dir
+        else games_folder(Path(args.data).resolve() if args.data else studio_data_dir())
+    )
+    try:
+        table = card_outcomes.outcomes_for_folder(
+            folder,
+            deck_id=args.deck_id,
+            min_exposed=args.min_exposed,
+            allow_mixed=args.allow_mixed,
+        )
+    except ValueError as error:
+        print(f"refused: {error}", file=sys.stderr)
+        return 2
+    if args.out:
+        Path(args.out).write_text(json.dumps(table, indent=2, ensure_ascii=False) + "\n", "utf-8")
+    print(card_outcomes.format_table(table))
+    return 0
 
 
 def _games(args: argparse.Namespace) -> int:
@@ -265,6 +360,41 @@ def _games(args: argparse.Namespace) -> int:
         ]
     print(json.dumps(result, indent=2, ensure_ascii=False))
     return 0
+
+
+def _play_batch(args: argparse.Namespace) -> int:
+    import signal
+
+    from .play_batch import SeriesGame, play_recorded_games
+    from .store import studio_data_dir
+
+    folder = Path(args.data).resolve() if args.data else studio_data_dir()
+    games: list[SeriesGame] = []
+    for item in args.game:
+        seed, _, game_id = item.partition(":")
+        if not game_id:
+            raise SystemExit(f"--game needs SEED:GAME_ID, got {item!r}")
+        games.append(SeriesGame(int(seed), game_id))
+
+    def _stop(_signal: int, _frame: object) -> None:
+        # a cancelled series ends this process; leaving the with-blocks shuts the engine down
+        raise SystemExit(143)
+
+    signal.signal(signal.SIGTERM, _stop)
+
+    def _report(summary: dict[str, object]) -> None:
+        print(json.dumps({"game_id": summary["game_id"], "status": summary["status"]}), flush=True)
+
+    summaries = play_recorded_games(
+        folder,
+        [Path(path) for path in args.deck],
+        games,
+        style=args.style,
+        max_decisions=args.max_decisions,
+        private_card_repository=args.private_card_repository,
+        on_game=_report,
+    )
+    return 0 if all(item["status"] == "finished" for item in summaries) else 1
 
 
 def _serve(data: str | None, port: int, open_browser: bool) -> int:
@@ -328,6 +458,11 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = importers.import_edhrec_delta_jsonl(store, args.path)
     elif args.command == "import-hub":
         result = importers.import_hub_corpus(store, args.path)
+    elif args.command == "import-signals":
+        try:
+            result = signals.import_signals(store, args.folder, commander=args.commander)
+        except ValueError as error:
+            raise SystemExit(f"import-signals: {error}") from None
     elif args.command == "import-scryfall":
         result = catalog.import_scryfall_oracle(
             store, args.path, disambiguation_path=args.disambiguation
@@ -402,11 +537,20 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         spec = {
             "platforms": args.platforms or [],
             "cohorts": args.cohorts or [],
+            "commanders": args.commanders or [],
             "date_from": args.date_from,
             "date_to": args.date_to,
             "min_main_cards": args.min_main_cards,
+            "min_universe": args.min_universe,
+            "must_contain": args.must_contain or [],
         }
         result = universe.save_profile(store, args.name, spec)
+    elif args.command == "delete-profile":
+        try:
+            universe.delete_profile(store, args.name)
+        except KeyError:
+            raise SystemExit(f"delete-profile: unknown universe profile: {args.name}") from None
+        result = {"deleted": args.name}
     elif args.command == "universe-inclusion":
         result = universe.inclusion(
             store,
@@ -421,7 +565,7 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         params = tiers.TierParams(
             min_universe=args.min_universe
             if args.min_universe is not None
-            else tiers.TierParams().min_universe
+            else counted["spec"].get("min_universe", tiers.TierParams().min_universe)
         )
         snapshot = universe.snapshot_id(
             store, profile=args.profile, commander_names=[args.commander]
@@ -452,8 +596,12 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
         return _serve(args.data, args.port, args.open)
+    if args.command == "card-outcomes":
+        return _card_outcomes(args)
     if args.command in {"play", "games"}:
         return _games(args)
+    if args.command == "play-batch":
+        return _play_batch(args)
     if args.command == "simulate":
         import time
 
@@ -461,6 +609,11 @@ def main(argv: list[str] | None = None) -> int:
         from .store import studio_data_dir
 
         folder = Path(args.data).resolve() if args.data else studio_data_dir()
+        try:
+            checked_series_settings(args.workers, args.games_per_jvm)
+        except ValueError as error:
+            print(f"error: {error}", file=sys.stderr)
+            return 2
         store = StudioStore.open(folder)
         try:
             mgr = SimulationBatchManager()
@@ -473,6 +626,8 @@ def main(argv: list[str] | None = None) -> int:
                 base_seed=args.base_seed,
                 seed_step=args.seed_step,
                 style=args.style,
+                workers=args.workers,
+                games_per_jvm=args.games_per_jvm,
             )
             try:
                 while batch.status in {"pending", "running"}:

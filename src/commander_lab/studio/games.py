@@ -282,6 +282,12 @@ class GameRecorder:
         self.frames += 1
         self._write(frame_of(self.frames, decision, response, combat=combat_data))
 
+    def discard(self) -> None:
+        """Stop writing without closing the log: the game is played again from its start."""
+        handle, self._handle = self._handle, None
+        if handle is not None:
+            handle.close()
+
     def save_event_log(self, events: object) -> None:
         if isinstance(events, list):
             self._events = [item for item in events if isinstance(item, dict)]

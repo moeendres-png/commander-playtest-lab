@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 12
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -181,7 +181,9 @@ CREATE TABLE IF NOT EXISTS universe_profile (
     profile_id TEXT PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
     spec TEXT NOT NULL,
-    created_at TEXT NOT NULL
+    created_at TEXT NOT NULL,
+    version INTEGER NOT NULL DEFAULT 1,
+    updated_at TEXT
 );
 CREATE TABLE IF NOT EXISTS corpus_deck_part (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id) DEFERRABLE INITIALLY DEFERRED,
@@ -366,6 +368,21 @@ CREATE TABLE IF NOT EXISTS playgroup_final_zone (
     instances_n INTEGER,
     created_at TEXT NOT NULL,
     PRIMARY KEY (oracle_id, format_mode, zone_name)
+);
+CREATE TABLE IF NOT EXISTS card_signal (
+    commander_name TEXT NOT NULL,
+    signal TEXT NOT NULL,
+    card_name TEXT NOT NULL,
+    value REAL,
+    numerator INTEGER,
+    denominator INTEGER,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (commander_name, signal, card_name)
+);
+CREATE TABLE IF NOT EXISTS strength_profile (
+    name TEXT PRIMARY KEY,
+    spec TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
@@ -559,7 +576,22 @@ class StudioStore:
                 f"Studio store has schema {row['value']}, this code needs {SCHEMA_VERSION}"
             )
         elif int(row["value"]) < SCHEMA_VERSION:
-            # Every schema step so far only adds tables and views (created above).
+            # Every schema step so far only adds tables and views (created above); schema 11
+            # adds card_signal and strength_profile.
+            if int(row["value"]) < 12:
+                # Schema 12 adds the universe profile lifecycle columns (version,
+                # updated_at) to the existing table; purely additive, existing rows
+                # keep version 1 and a NULL updated_at (never updated since creation).
+                columns = {
+                    str(r["name"])
+                    for r in connection.execute("PRAGMA table_info(universe_profile)")
+                }
+                if "version" not in columns:
+                    connection.execute(
+                        "ALTER TABLE universe_profile ADD COLUMN version INTEGER NOT NULL DEFAULT 1"
+                    )
+                if "updated_at" not in columns:
+                    connection.execute("ALTER TABLE universe_profile ADD COLUMN updated_at TEXT")
             if int(row["value"]) < 10:
                 # Before schema 10 the Studio held the source data of one commander only.
                 _bind_legacy(connection)
@@ -722,7 +754,7 @@ class StudioStore:
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
-            "universe_profile", "commander_binding",
+            "universe_profile", "commander_binding", "card_signal", "strength_profile",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

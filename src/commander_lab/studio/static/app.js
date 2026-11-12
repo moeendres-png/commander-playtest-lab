@@ -22,6 +22,7 @@ const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", co
 
 const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
+  universe: "", universeInfo: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
@@ -82,6 +83,21 @@ function freqText(card, cohort = state.cohort) {
   const f = freq(card, cohort);
   return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
 }
+// With a universe profile chosen, the pool shows that universe's counted spread
+// (same snapshot as the tier list) instead of the legacy cohort figures. A card the
+// universe does not name is "unbekannt" (hits null), never 0.
+function displayFreq(card) {
+  if (state.universe) {
+    const u = card.universe;
+    if (u) return { hits: u.matched ? u.hits : null, total: u.denominator, share: u.share };
+  }
+  return freq(card);
+}
+function displayFreqText(card) {
+  const f = displayFreq(card);
+  if (f.hits === null) return "unbekannt";
+  return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
+}
 const qty = (id) => state.list.get(id) || 0;
 const deckTotal = () => state.commanderIds.length + [...state.list.values()].reduce((a, b) => a + b, 0);
 function maxCopies(card) {
@@ -121,7 +137,7 @@ function filtered() {
   });
   const key = state.sortKey, dir = state.sortDir;
   const value = (card) => {
-    if (key === "freq") return freq(card).hits;
+    if (key === "freq") return displayFreq(card).hits ?? -1;
     if (key === "edhrec") return card.edhrec ? card.edhrec.pct : -1;
     if (key === "edhrec_rank") return card.edhrec_rank === null ? Infinity : card.edhrec_rank;
     if (key === "playgroup") return card.playgroup && card.playgroup.live_inclusion_pct !== null ? card.playgroup.live_inclusion_pct : -1;
@@ -156,7 +172,7 @@ function tile(card) {
     ? image(card, "")
     : h("div", { class: "fallback" }, h("b", {}, card.name), mana(card.mana_cost), h("span", { class: "muted" }, card.type_line), h("span", {}, card.text));
   face.addEventListener("click", () => openCard(card));
-  const f = freq(card);
+  const f = displayFreq(card);
   return h("div", { class: "tile" + (count ? " in" : "") + (card.available < 1 ? " none" : "") },
     face, card.favorite && h("span", { class: "star" }, "★"),
     h("div", { class: "bar" },
@@ -164,7 +180,7 @@ function tile(card) {
       count ? h("button", { class: "small", type: "button", title: "aus dem Deck", onclick: () => remove(card) }, "−") : null,
       count ? h("b", {}, count + "×") : null,
       h("span", { class: "spacer" }),
-      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: "Decks der Vergleichsgruppe mit dieser Karte" }, f.total ? `${f.hits}/${f.total}` : "–")));
+      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: state.universe ? "Decks des gewählten Universums mit dieser Karte" : "Decks der Vergleichsgruppe mit dieser Karte" }, f.hits === null ? "unbekannt" : f.total ? `${f.hits}/${f.total}` : "–")));
 }
 const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
@@ -180,7 +196,7 @@ function cell(card, key) {
   if (key === "text") return h("td", { class: "text" }, card.text);
   if (key === "roles") return h("td", {}, card.roles.map(roleName).join(", "));
   if (key === "pt") return h("td", {}, card.power !== null ? `${card.power}/${card.toughness}` : "");
-  if (key === "freq") { const f = freq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, freqText(card)); }
+  if (key === "freq") { const f = displayFreq(card); return h("td", { class: "num" + (f.total && f.total < state.small ? " low" : "") }, displayFreqText(card)); }
   if (key === "edhrec") {
     if (!card.edhrec) return h("td", { class: "num muted" }, "unbekannt");
     const e = card.edhrec;
@@ -360,13 +376,13 @@ function renderCompare(body) {
       state.shapes.map((row) => h("tr", { class: row.decks < state.small ? "low" : "" }, h("td", {}, cohortName(row.cohort)), h("td", { class: "num" }, row.decks_counted === row.decks ? row.decks : `${row.decks_counted} von ${row.decks}`),
         h("td", { class: "num" }, span(row.lands)), h("td", { class: "num" }, span(row.creatures)), h("td", { class: "num" }, span(row.mana_value))))));
   body.append(h("h3", {}, "Aufbau im Vergleich"), table, h("p", { class: "note" }, "Median und mittlere Hälfte der Quelldecks. Gelb: Gruppe mit weniger als 30 Decks, sehr unsicher. Länder nach Vorderseite gezählt."));
-  const name = cohortName(state.cohort);
+  const name = state.universe ? `Universum ${state.universe}` : cohortName(state.cohort);
   const candidates = state.pool.filter((card) => !qty(card.card_id) && !state.commanderIds.includes(card.card_id) && card.available > 0 && !card.excluded && !card.basic)
-    .sort((a, b) => freq(b).hits - freq(a).hits).slice(0, 20);
-  const rare = deckCards().filter((card) => !card.basic).sort((a, b) => freq(a).hits - freq(b).hits).slice(0, 20);
+    .sort((a, b) => (displayFreq(b).hits ?? -1) - (displayFreq(a).hits ?? -1)).slice(0, 20);
+  const rare = deckCards().filter((card) => !card.basic).sort((a, b) => (displayFreq(a).hits ?? -1) - (displayFreq(b).hits ?? -1)).slice(0, 20);
   const listing = (cards, withAdd) => h("div", {}, cards.map((card) => {
     const label = h("span", { class: "nm", onclick: () => openCard(card) }, card.name); hoverPreview(label, card);
-    return h("div", { class: "row" }, label, h("span", { class: "muted" }, freqText(card)),
+    return h("div", { class: "row" }, label, h("span", { class: "muted" }, displayFreqText(card)),
       withAdd ? h("button", { class: "small", type: "button", onclick: () => add(card) }, "+") : h("button", { class: "small", type: "button", onclick: () => remove(card) }, "−"));
   }));
   body.append(h("h3", {}, `Oft gespielt (${name}), frei in deiner Sammlung, nicht im Deck`), listing(candidates, true),
@@ -738,7 +754,8 @@ async function openCard(card) {
       h("button", { type: "button", onclick: () => saveMark({ excluded: !card.excluded }) }, card.excluded ? "Ausschluss aufheben" : "Ausschließen"),
       h("button", { type: "button", onclick: closeModal }, "Schließen")),
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
-    h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."), extra);
+    h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
+    card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null, extra);
   box.append(left, right); $("modal").hidden = false;
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
@@ -747,7 +764,26 @@ async function openCard(card) {
       parts.push(h("h3", {}, "Verwendet in gespeicherten Varianten"),
         h("p", {}, detail.used_in.map((u) => `${u.name} (${u.branch})`).join(" · ")));
     }
-    if (detail.cooccurrence && detail.cooccurrence.cards && detail.cooccurrence.cards.length) {
+    if (state.universe) {
+      try {
+        const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(state.universe)}&limit=25&commander=${encodeURIComponent(COMMANDER)}`);
+        if (co.decks_with_card === null) {
+          parts.push(h("h3", {}, `Zusammen gespielt im Universum ${co.profile}`), h("p", { class: "muted" }, "unbekannt: die Karte kommt im Universum nicht vor"));
+        } else {
+          parts.push(h("h3", {}, `Zusammen gespielt im Universum ${co.profile} (Nenner: ${co.decks_with_card} Decks mit dieser Karte, Universum: ${co.denominator} Decks)`),
+            h("table", {},
+              h("thead", {}, h("tr", {}, h("th", {}, "Karte"), h("th", { class: "num" }, "gemeinsam / mit Karte"), h("th", { class: "num" }, "Anteil"), h("th", { class: "num" }, "Lift"), h("th", {}, "Kombo-Partner"))),
+              h("tbody", {}, co.pairs.map((pair) => h("tr", {},
+                h("td", {}, pair.card_name),
+                h("td", { class: "num" }, `${pair.decks_together}/${co.decks_with_card}`),
+                h("td", { class: "num" }, `${(100 * pair.decks_together / co.decks_with_card).toFixed(1)} %`),
+                h("td", { class: "num" }, pair.lift === null ? "unbekannt" : pair.lift.toFixed(2)),
+                h("td", {}, pair.combo_partner ? "ja (Spellbook-Kombo)" : "–"))))),
+            h("p", { class: "note" }, "Reine Zählung im gewählten Universum (DERIVED_DESCRIPTIVE). Lift: Anteil unter den Decks mit dieser Karte geteilt durch den Anteil im ganzen Universum; über 1 heißt überproportional oft zusammen gespielt. Kombo-Partner: beide Karten stehen in einer geprüften Spellbook-Kombo dieses Commanders." + (co.excluded_no_date ? ` ${co.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter heraus.` : "")));
+        }
+      } catch (error) { parts.push(h("p", { class: "muted" }, "Universum-Kookkurrenz nicht lesbar: " + error.message)); }
+    }
+    if (!state.universe && detail.cooccurrence && detail.cooccurrence.cards && detail.cooccurrence.cards.length) {
       const co = detail.cooccurrence;
       const coRows = co.cards.filter((item) => {
         const other = state.byId.get(item.card_id);
@@ -829,6 +865,32 @@ async function openCard(card) {
   } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "Zusatzdaten nicht lesbar: " + error.message)); }
 }
 
+// ---------- pool loading (with the chosen universe profile) ----------
+function renderUniverseInfo() {
+  const box = $("universe-info");
+  if (!box) return;
+  const u = state.universeInfo;
+  if (!u) { box.textContent = ""; return; }
+  const parts = [`Universum ${u.profile} (Version ${u.version}): ${u.denominator} Decks (Nenner), Stand ${u.snapshot_id}`];
+  if (u.excluded_by_card_filter) parts.push(`${u.excluded_by_card_filter} durch den Karten-Filter ausgeschlossen`);
+  if (u.excluded_no_date) parts.push(`${u.excluded_no_date} ohne Zeitstempel ausgeschlossen`);
+  if (u.below_min_universe) parts.push(`unter dem Mindest-Universum ${u.min_universe}: alle Stufen U`);
+  box.textContent = parts.join(" · ");
+}
+function applyPool(pool) {
+  state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
+  state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y)));
+  state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids;
+  state.universeInfo = pool.universe || null;
+  renderUniverseInfo();
+}
+async function loadPool() {
+  const query = StudioCommander.query + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
+  applyPool(await api("/api/pool?" + query));
+  try { localStorage.setItem("studio.universe.profile", state.universe); } catch (error) { /* view setting only */ }
+  if ($("cohort")) $("cohort").disabled = Boolean(state.universe);
+}
+
 // ---------- decks, variants, saving ----------
 async function loadDecks() {
   // Only the decks of the chosen commander; a deck never changes its commander here.
@@ -898,6 +960,12 @@ function setupControls() {
   $("type-filter").replaceChildren(h("option", { value: "" }, "alle Typen"), ...GROUPS.map((group) => h("option", { value: group }, GROUP_NAMES[group])));
   $("role-filter").replaceChildren(h("option", { value: "" }, "alle Rollen"), ...state.roles.map((role) => h("option", { value: role }, roleName(role))), h("option", { value: "-" }, "ohne Rollenmarke"));
   $("cohort").replaceChildren(...Object.entries(state.cohorts).map(([key, size]) => h("option", { value: key }, `${cohortName(key)} (${size})`)));
+  $("universe").replaceChildren(h("option", { value: "" }, "kein Universum"), ...(state.universeProfiles || []).map((p) => h("option", { value: p.name, selected: p.name === state.universe }, p.name)));
+  $("universe").addEventListener("change", async () => {
+    state.universe = $("universe").value;
+    try { await loadPool(); renderAll(); } catch (error) { toast("Fehler: " + error.message); }
+  });
+  $("cohort").disabled = Boolean(state.universe);
   const sorts = [["freq:-1", "Häufigkeit in Quelldecks"], ["name:1", "Name"], ["mana_value:1", "Manawert"], ["edhrec:-1", "EDHREC-Anteil"], ["edhrec_rank:1", "EDHREC-Rang"], ["available:-1", "freie Kopien"]];
   $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
   $("sort").addEventListener("change", () => { if (!$("sort").value) return; const [key, dir] = $("sort").value.split(":"); state.sortKey = key; state.sortDir = Number(dir); renderPool(); });
@@ -928,9 +996,19 @@ async function start() {
     if (Array.isArray(stored)) state.columns = new Set(stored);
   } catch (error) { /* view setting only */ }
   try {
-    const [pool, shapes, sims, recordedGames] = await Promise.all([api("/api/pool?" + StudioCommander.query), api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => [])]);
-    state.pool = pool.cards; state.byId = new Map(pool.cards.map((card) => [card.card_id, card]));
-    state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y))); state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids; state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
+    let remembered = "";
+    try { remembered = localStorage.getItem("studio.universe.profile") || ""; } catch (error) { /* view setting only */ }
+    state.universeProfiles = await api("/api/universe/profiles").catch(() => []);
+    state.universe = state.universeProfiles.some((p) => p.name === remembered) ? remembered : "";
+    const poolQuery = StudioCommander.query + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
+    const pool = await api("/api/pool?" + poolQuery).catch(async (error) => {
+      if (!state.universe) throw error; // a remembered profile of another commander must not block the builder
+      state.universe = "";
+      return api("/api/pool?" + StudioCommander.query);
+    });
+    const [shapes, sims, recordedGames] = await Promise.all([api("/api/cohorts?" + StudioCommander.query), api("/api/simulations?" + StudioCommander.query), api("/api/games").catch(() => [])]);
+    applyPool(pool);
+    state.shapes = shapes; state.simulations = sims || []; state.recordedGames = recordedGames || [];
     setupControls(); await loadDecks(); await loadBranch();
   } catch (error) {
     $("pool-body").replaceChildren(h("p", {}, "Das Studio konnte die Daten nicht laden: " + error.message), h("p", { class: "muted" }, `Gewählter Commander: ${COMMANDER}. Er muss in der Sammlung stehen; sonst oben einen anderen Commander wählen. Sind Sammlung und Kartendaten importiert?`));

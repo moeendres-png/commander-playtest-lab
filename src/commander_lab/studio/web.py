@@ -18,7 +18,16 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
-from . import builder, games, launch, universe, universe_view
+from . import (
+    builder,
+    card_outcomes,
+    data_report,
+    games,
+    launch,
+    strength_view,
+    universe,
+    universe_view,
+)
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
@@ -29,6 +38,8 @@ from .decks import (
     validate_rows,
 )
 from .images import cached_image, cached_image_by_name, public_card
+from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
+from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
 
 STATIC = Path(__file__).resolve().parent / "static"
@@ -90,6 +101,8 @@ class BatchSimulationBody(BaseModel):
     base_seed: int = Field(default=1000, ge=0, le=2_000_000_000)
     seed_step: int = Field(default=1, ge=1, le=1000)
     style: float | None = Field(default=None, ge=0.0, le=1.0)
+    workers: int | None = Field(default=None, ge=MIN_WORKERS, le=MAX_WORKERS)
+    games_per_jvm: int | None = Field(default=None, ge=MIN_GAMES_PER_JVM, le=MAX_GAMES_PER_JVM)
 
 
 class NamesBody(BaseModel):
@@ -119,9 +132,38 @@ class UniverseBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     platforms: list[str] | None = Field(default=None, max_length=50)
     cohorts: list[str] | None = Field(default=None, max_length=100)
+    commanders: list[str] | None = Field(default=None, max_length=10)
     date_from: str | None = Field(default=None, max_length=10)
     date_to: str | None = Field(default=None, max_length=10)
     min_main_cards: StrictInt | None = None
+    min_universe: StrictInt | None = Field(default=None, ge=1)
+    must_contain: list[str] | None = Field(default=None, max_length=20)
+
+
+class StrengthBody(BaseModel):
+    """Compute the strength index of one commander's pool; at most one settings source."""
+
+    model_config = ConfigDict(extra="forbid")
+    commander: str = Field(min_length=1, max_length=200)
+    preset: str | None = Field(default=None, max_length=80)
+    profile: str | None = Field(default=None, max_length=80)
+    settings: dict[str, object] | None = None
+
+
+class StrengthProfileBody(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    settings: dict[str, object]
+
+
+def _inventory_summary() -> dict[str, object]:
+    """Compact form of the qualified evidence-source inventory for /api/status:
+    how many source layers exist and how they split over the review states."""
+    inventory = source_inventory_payload()
+    return {
+        "schema_version": inventory["schema_version"],
+        "total_sources": inventory["total_sources"],
+        "status_counts": inventory["status_counts"],
+    }
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -174,17 +216,40 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # says how many of them are bound to a commander at all.
                 "source_data_binding": store.binding_counts(),
                 "decks": store.count("deck"),
+                "universe_profiles": store.count("universe_profile"),
+                # The qualified evidence-source layers and their review states
+                # (register in `sources.py`), so the data state is visible here;
+                # the counted detail of every layer is under /api/data-report.
+                "source_inventory": _inventory_summary(),
                 "sources": sources,
             }
         finally:
             store.close()
 
-    @app.get("/api/pool")
-    def pool(commander: list[str] = Query(min_length=1, max_length=2)) -> dict[str, object]:
+    @app.get("/api/data-report")
+    def data_report_route() -> dict[str, object]:
+        """The counts-only data report (same payload as the CLI command), so the
+        state of every data layer — collection, corpus, universes — is readable
+        in the tool itself. No card name, deck address or note text leaves here."""
         store = open_store()
         try:
-            return builder.pool_cards(store, commander)
+            return data_report.data_report(store)
+        finally:
+            store.close()
+
+    @app.get("/api/pool")
+    def pool(
+        commander: list[str] = Query(min_length=1, max_length=2),
+        profile: str | None = Query(default=None, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return builder.pool_cards(store, commander, profile=profile)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         except KeyError as error:
+            if profile is not None and str(error).strip("'") == profile:
+                raise HTTPException(404, f"unknown universe profile: {error}") from error
             raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
             store.close()
@@ -257,6 +322,91 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         finally:
             store.close()
 
+    @app.get("/api/strength/presets")
+    def strength_presets() -> dict[str, object]:
+        return strength_view.presets()
+
+    @app.post("/api/strength")
+    def strength_index(body: StrengthBody) -> dict[str, object]:
+        """Strength index per pool card of one commander: an estimate from usage signals,
+        not a measured win rate. Marks are not part of it. Needs the X-Studio header
+        like every non-GET route, although it changes nothing."""
+        store = open_store()
+        try:
+            settings = strength_view.resolve_settings(
+                store, preset=body.preset, profile=body.profile, settings=body.settings
+            )
+            return dict(strength_view.compute(store, body.commander, settings))
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except KeyError as error:
+            raise HTTPException(
+                404, f"unknown commander, preset, profile or universe profile: {error}"
+            ) from error
+        finally:
+            store.close()
+
+    @app.get("/api/strength/profiles")
+    def strength_profiles() -> list[dict[str, object]]:
+        store = open_store()
+        try:
+            return strength_view.list_profiles(store)
+        finally:
+            store.close()
+
+    @app.get("/api/strength/profiles/{name}")
+    def get_strength_profile(
+        name: str = PathParam(min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            return strength_view.get_profile(store, name)
+        except KeyError as error:
+            raise HTTPException(404, "unknown strength profile") from error
+        finally:
+            store.close()
+
+    @app.put("/api/strength/profiles/{name}")
+    def save_strength_profile(
+        body: StrengthProfileBody, name: str = PathParam(min_length=1, max_length=80)
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            settings = strength_view.resolve_settings(
+                store, preset=None, profile=None, settings=body.settings
+            )
+            return strength_view.save_profile(store, name, settings)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/strength/profiles/{name}")
+    def delete_strength_profile(
+        name: str = PathParam(min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            strength_view.delete_profile(store, name)
+            return {"deleted": name}
+        except KeyError as error:
+            raise HTTPException(404, "unknown strength profile") from error
+        finally:
+            store.close()
+
+    @app.get("/api/universe/options")
+    def universe_options(
+        commander: str | None = Query(default=None, max_length=200),
+    ) -> dict[str, object]:
+        """The spec values the store holds, with deck counts — the only values a
+        profile form should offer. With a commander, counts cover its bound decks."""
+        store = open_store()
+        try:
+            names = [commander] if commander else None
+            return dict(universe.options(store, commander_names=names))
+        finally:
+            store.close()
+
     @app.get("/api/universe/profiles")
     def universe_profiles() -> list[dict[str, object]]:
         store = open_store()
@@ -273,10 +423,28 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
+            if body.commanders and commander not in body.commanders:
+                raise HTTPException(
+                    422,
+                    f"the universe is defined for {sorted(body.commanders)}, not for {commander}",
+                )
             universe.save_profile(store, name, body.model_dump(exclude_none=True))
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/universe/profiles/{name}")
+    def delete_universe_profile(
+        name: str = PathParam(min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            universe.delete_profile(store, name)
+            return {"deleted": name}
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
         finally:
             store.close()
 
@@ -388,8 +556,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 base_seed=body.base_seed,
                 seed_step=body.seed_step,
                 style=body.style,
+                workers=body.workers,
+                games_per_jvm=body.games_per_jvm,
             )
-            return {"batch_id": batch.batch_id, "status": batch.status}
+            return {
+                "batch_id": batch.batch_id,
+                "status": batch.status,
+                "execution": batch.execution(),
+            }
         except KeyError as error:
             raise HTTPException(404, "unknown deck revision") from error
         except ValueError as error:
@@ -630,6 +804,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/games")
     def game_list() -> list[dict[str, object]]:
         return games.list_games(games_home())
+
+    @app.get("/api/outcomes")
+    def outcomes(
+        deck_id: str = Query(min_length=1, max_length=200),
+        min_exposed: int = Query(default=card_outcomes.DEFAULT_MIN_EXPOSED, ge=1, le=100_000),
+    ) -> dict[str, object]:
+        """Per-card win rate with the card in the first dealt hand versus not (simulated)."""
+        try:
+            table = card_outcomes.outcomes_for_folder(
+                games.games_folder(games_home()), deck_id=deck_id, min_exposed=min_exposed
+            )
+        except ValueError as error:
+            raise HTTPException(409, str(error)) from error
+        return dict(table)
 
     @app.get("/api/table")
     def table() -> dict[str, object]:

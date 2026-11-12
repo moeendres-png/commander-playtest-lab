@@ -11,12 +11,14 @@ import contextlib
 import hashlib
 import json
 import math
+import os
 import re
 import subprocess
 import sys
 import threading
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -24,7 +26,15 @@ from commander_lab.qualification.current_boundary.bridge_launcher import canonic
 
 from .decks import lab_snapshot
 from .games import games_folder, read_game
-from .launch import POD_PRESETS, engine_command, engine_state
+from .launch import (
+    ENGINE_COMMAND_ENV,
+    POD_PRESETS,
+    SeriesEngine,
+    checked_series_settings,
+    command_text,
+    engine_state,
+    series_engine,
+)
 from .store import DataClass, StudioStore, now_utc
 
 PILOT_POLICY = "GenericCommanderPilot 1.0.0"
@@ -295,14 +305,20 @@ def save_batch_to_store(
             "pod": batch.pod_name,
             "seeds": batch.seeds,
             "completed": summary.get("games_completed"),
+            "execution": batch.execution(),
         },
         sort_keys=True,
     )
     source_sha = hashlib.sha256(source_payload.encode("utf-8")).hexdigest()
 
+    engine_flags = batch.engine.jvm_flags if batch.engine is not None else ()
     source_id = store.register_source(
         data_class=DataClass.SIMULATED_RESULT,
-        title=f"Studio Batch Simulation {batch.batch_id} ({batch.pod_name})",
+        title=(
+            f"Studio Batch Simulation {batch.batch_id} ({batch.pod_name}); "
+            f"workers={batch.workers} games_per_jvm={batch.games_per_jvm} "
+            f"jvm_flags={' '.join(engine_flags)}"
+        ),
         sha256=source_sha,
     )
 
@@ -382,8 +398,40 @@ def save_batch_to_store(
     return run_id
 
 
+#: How a chunk of games is played: the seeds in, one summary per game out as each finishes.
+ChunkRunner = Callable[[Sequence[int]], Iterator[GameSummary]]
+
+CHUNK_SECONDS_PER_GAME = 300.0
+
+
+def plan_chunks(seeds: Sequence[int], workers: int, games_per_jvm: int) -> list[list[int]]:
+    """Split ``seeds`` into chunks, one engine process each, in seed order.
+
+    No chunk is larger than ``games_per_jvm``. There are at least ``workers`` chunks (as far as
+    there are games), so that every worker has work; the sizes differ by at most one.
+    """
+    total = len(seeds)
+    if total == 0:
+        return []
+    count = max(-(-total // games_per_jvm), min(workers, total))
+    base, extra = divmod(total, count)
+    chunks: list[list[int]] = []
+    start = 0
+    for index in range(count):
+        size = base + (1 if index < extra else 0)
+        chunks.append(list(seeds[start : start + size]))
+        start += size
+    return chunks
+
+
 class BatchSimulation:
-    """Manages execution and status of a multi-game simulation series."""
+    """Manages execution and status of a multi-game simulation series.
+
+    The games of a series are split into chunks (``plan_chunks``). A chunk is played by one
+    ``play-batch`` process, whose bridge JVM plays the chunk's games one after the other
+    (``games_per_jvm``); ``workers`` chunks run at once. Every game has its own log, its own
+    seed, its own row and its own status. Evidence and qualification lanes do not use this path.
+    """
 
     def __init__(
         self,
@@ -397,6 +445,10 @@ class BatchSimulation:
         *,
         style: float | None = None,
         game_executor: Callable[..., dict[str, object]] | None = None,
+        workers: int | None = None,
+        games_per_jvm: int | None = None,
+        engine: SeriesEngine | None = None,
+        chunk_runner: ChunkRunner | None = None,
     ) -> None:
         self.batch_id = batch_id
         self.data_folder = Path(data_folder)
@@ -407,6 +459,12 @@ class BatchSimulation:
         self.seeds = list(seeds)
         self.style = style
         self.game_executor = game_executor
+        self.chunk_runner = chunk_runner
+        self.engine = engine
+        self.workers, requested = checked_series_settings(workers, games_per_jvm)
+        # a launcher that cannot play several games per process (not java) says so here
+        self.games_per_jvm = engine.games_per_jvm if engine is not None else requested
+        self.chunks = plan_chunks(self.seeds, self.workers, self.games_per_jvm)
 
         self.status = "pending"  # pending, running, completed, cancelled, failed
         self.current_index = 0
@@ -417,26 +475,47 @@ class BatchSimulation:
         self.run_id: str | None = None
 
         self._cancel_requested = False
-        self._current_process: subprocess.Popen[str] | None = None
+        self._processes: set[subprocess.Popen[str]] = set()
         self._games: list[GameSummary] = []
         self._summary: dict[str, object] | None = None
         self._lock = threading.Lock()
 
+    def game_id_of(self, seed: int) -> str:
+        return f"batch-{self.batch_id}-s{seed}"
+
+    def execution(self) -> dict[str, object]:
+        """The execution identity of the series: how its games were run, not what they were."""
+        engine = self.engine
+        return {
+            "workers": self.workers,
+            "games_per_jvm": self.games_per_jvm,
+            "chunks": [list(chunk) for chunk in self.chunks],
+            "jvm_flags": list(engine.jvm_flags) if engine is not None else [],
+            "serial_gc": engine.serial_gc if engine is not None else False,
+            "appcds": engine.appcds if engine is not None else False,
+            "engine_command": list(engine.command) if engine is not None else [],
+        }
+
     def cancel(self) -> None:
-        """Gracefully request cancellation and terminate the active game process."""
+        """Gracefully request cancellation and terminate the active engine processes."""
         with self._lock:
             self._cancel_requested = True
-            if self._current_process is not None:
+            for process in self._processes:
                 with contextlib.suppress(OSError):
-                    self._current_process.terminate()
+                    process.terminate()
 
     @property
     def is_cancelled(self) -> bool:
         with self._lock:
             return self._cancel_requested
 
+    def _games_in_seed_order(self) -> list[GameSummary]:
+        order = {self.game_id_of(seed): index for index, seed in enumerate(self.seeds)}
+        return sorted(self._games, key=lambda game: order.get(game.game_id, len(order)))
+
     def to_dict(self) -> dict[str, object]:
         with self._lock:
+            games = self._games_in_seed_order()
             return {
                 "batch_id": self.batch_id,
                 "deck_id": self.deck_id,
@@ -444,16 +523,17 @@ class BatchSimulation:
                 "pod": self.pod_name,
                 "status": self.status,
                 "games_planned": len(self.seeds),
-                "games_completed": sum(1 for g in self._games if g.status == "finished"),
-                "games_failed": sum(1 for g in self._games if g.status != "finished"),
+                "games_completed": sum(1 for g in games if g.status == "finished"),
+                "games_failed": sum(1 for g in games if g.status != "finished"),
                 "current_index": self.current_index,
                 "current_game_id": self.current_game_id,
                 "started_at": self.started_at,
                 "ended_at": self.ended_at,
                 "error": self.error,
                 "run_id": self.run_id,
+                "execution": self.execution(),
                 "summary": self._summary,
-                "games": [g.to_dict() for g in self._games],
+                "games": [g.to_dict() for g in games],
             }
 
     def run_worker(
@@ -466,57 +546,23 @@ class BatchSimulation:
         self.status = "running"
 
         try:
-            for idx, seed in enumerate(self.seeds, start=1):
-                if self.is_cancelled:
-                    break
-
-                self.current_index = idx
-                game_id = f"batch-{self.batch_id}-s{seed}"
-                self.current_game_id = game_id
-
-                if self.game_executor is not None:
-                    # Test or custom executor
-                    exec_res = self.game_executor(
-                        data_folder=self.data_folder,
-                        deck_paths=[own_deck_path, *self.opponent_paths]
-                        if own_deck_path
-                        else list(self.opponent_paths),
-                        seed=seed,
-                        game_id=game_id,
-                        style=self.style,
-                    )
-                    status = str(exec_res.get("status") or "finished")
-                    raw_winners = exec_res.get("winner_seats")
-                    winners: list[int] = (
-                        [_as_int(w) for w in raw_winners if isinstance(w, (int, float, str))]
-                        if isinstance(raw_winners, list)
-                        else []
-                    )
-                    decisions_count = _as_int(exec_res.get("decision_count"), 0)
-                    summary = GameSummary(
-                        game_id=game_id,
-                        seed=seed,
-                        status=status,
-                        winner_seats=winners,
-                        decision_count=decisions_count,
-                        rounds=_as_int(exec_res.get("rounds"), 10),
-                        candidate_won=0 in winners,
-                    )
-                else:
-                    # Isolated process execution
-                    summary = self._run_game_process(game_id, seed, own_deck_path)
-
-                with self._lock:
-                    self._games.append(summary)
-
-                if self.is_cancelled:
-                    break
+            if self.chunks:
+                with ThreadPoolExecutor(
+                    max_workers=min(self.workers, len(self.chunks)),
+                    thread_name_prefix=f"series-{self.batch_id}",
+                ) as pool:
+                    futures = [
+                        pool.submit(self._run_chunk, chunk, own_deck_path) for chunk in self.chunks
+                    ]
+                    for future in futures:
+                        future.result()
 
             # Finish batch
             with self._lock:
                 if self._cancel_requested:
                     self.status = "cancelled"
                 self.ended_at = now_utc()
+                self._games = self._games_in_seed_order()
                 self._summary = aggregate_batch_results(self._games)
 
             # Persist into StudioStore if available
@@ -534,6 +580,7 @@ class BatchSimulation:
             with self._lock:
                 if not self._cancel_requested:
                     self.status = "completed"
+            self._write_record()
 
         except Exception as exc:
             with self._lock:
@@ -541,20 +588,114 @@ class BatchSimulation:
                 self.error = str(exc)
                 self.ended_at = now_utc()
 
-    def _run_game_process(
-        self,
-        game_id: str,
-        seed: int,
-        own_deck_path: Path | None,
-    ) -> GameSummary:
-        """Launch commander_lab.studio play in an isolated child process."""
-        if own_deck_path is None:
-            return GameSummary(
+    def _write_record(self) -> None:
+        """The series record next to the game logs: results and the execution that made them."""
+        folder = games_folder(self.data_folder)
+        with contextlib.suppress(OSError):
+            (folder / f"{self.batch_id}.series.json").write_text(
+                json.dumps(self.to_dict(), indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+
+    def _run_chunk(self, seeds: Sequence[int], own_deck_path: Path | None) -> None:
+        """Play one chunk and record a row per game; a failure here is a failed row, never a crash."""
+        if self.is_cancelled:
+            return
+        runner = self.chunk_runner or self._chunk_runner(own_deck_path)
+        reported: set[int] = set()
+        by_game = {self.game_id_of(seed): seed for seed in seeds}
+        with self._lock:
+            self.current_game_id = self.game_id_of(seeds[0])
+        try:
+            for summary in runner(seeds):
+                reported.add(by_game.get(summary.game_id, summary.seed))
+                self._add_game(summary)
+        except Exception as exc:
+            for seed in seeds:
+                if seed not in reported:
+                    reported.add(seed)
+                    self._add_game(self._failed(seed, type(exc).__name__, str(exc)))
+        for seed in seeds:
+            if seed in reported:
+                continue
+            if self.is_cancelled and not self._log_exists(self.game_id_of(seed)):
+                continue  # never started
+            reason = "cancelled" if self.is_cancelled else "the chunk ended without this game"
+            self._add_game(
+                self._failed(seed, "Cancelled" if self.is_cancelled else "NotPlayed", reason)
+            )
+
+    def _add_game(self, summary: GameSummary) -> None:
+        with self._lock:
+            self._games.append(summary)
+            self.current_index = len(self._games)
+            self.current_game_id = summary.game_id
+
+    def _failed(self, seed: int, failure_class: str, message: str) -> GameSummary:
+        return GameSummary(
+            game_id=self.game_id_of(seed),
+            seed=seed,
+            status="failed",
+            failure_class=failure_class,
+            failure_message=message,
+        )
+
+    def _log_exists(self, game_id: str) -> bool:
+        return any(games_folder(self.data_folder).glob(f"{game_id}.jsonl*"))
+
+    def _chunk_runner(self, own_deck_path: Path | None) -> ChunkRunner:
+        if self.game_executor is not None:
+            return lambda seeds: self._executor_chunk(seeds, own_deck_path)
+        return lambda seeds: self._process_chunk(seeds, own_deck_path)
+
+    def _executor_chunk(
+        self, seeds: Sequence[int], own_deck_path: Path | None
+    ) -> Iterator[GameSummary]:
+        """Test or custom executor: the games of the chunk one after the other."""
+        executor = self.game_executor
+        if executor is None:
+            return
+        for seed in seeds:
+            if self.is_cancelled:
+                return
+            game_id = self.game_id_of(seed)
+            exec_res = executor(
+                data_folder=self.data_folder,
+                deck_paths=[own_deck_path, *self.opponent_paths]
+                if own_deck_path
+                else list(self.opponent_paths),
+                seed=seed,
+                game_id=game_id,
+                style=self.style,
+            )
+            status = str(exec_res.get("status") or "finished")
+            raw_winners = exec_res.get("winner_seats")
+            winners: list[int] = (
+                [_as_int(w) for w in raw_winners if isinstance(w, (int, float, str))]
+                if isinstance(raw_winners, list)
+                else []
+            )
+            yield GameSummary(
                 game_id=game_id,
                 seed=seed,
-                status="failed",
-                failure_message="No own deck path provided",
+                status=status,
+                winner_seats=winners,
+                decision_count=_as_int(exec_res.get("decision_count"), 0),
+                rounds=_as_int(exec_res.get("rounds"), 10),
+                candidate_won=0 in winners,
             )
+
+    def _process_chunk(
+        self, seeds: Sequence[int], own_deck_path: Path | None
+    ) -> Iterator[GameSummary]:
+        """Launch ``commander_lab.studio play-batch`` for the chunk in a child process.
+
+        The child plays the games in one bridge JVM and prints one line per finished game; the
+        summary of a game is read back from its log, as for a game played alone.
+        """
+        if own_deck_path is None:
+            for seed in seeds:
+                yield self._failed(seed, "NoDeck", "No own deck path provided")
+            return
 
         cmd = [
             sys.executable,
@@ -562,57 +703,103 @@ class BatchSimulation:
             "commander_lab.studio",
             "--data",
             str(self.data_folder),
-            "play",
-            "--seed",
-            str(seed),
-            "--game-id",
-            game_id,
+            "play-batch",
             "--deck",
             str(own_deck_path),
         ]
         for opp in self.opponent_paths:
             cmd.extend(["--deck", str(opp)])
+        for seed in seeds:
+            cmd.extend(["--game", f"{seed}:{self.game_id_of(seed)}"])
         if self.style is not None:
             cmd.extend(["--style", str(self.style)])
+        if self.workers > 1:
+            # parallel bridge JVMs would collide on the shared card database (#739)
+            cmd.append("--private-card-repository")
+        env = dict(os.environ)
+        if self.engine is not None:
+            env[ENGINE_COMMAND_ENV] = command_text(self.engine.command)
 
-        folder = games_folder(self.data_folder)
-        out_file = folder / f"{game_id}.out"
-        try:
-            with out_file.open("w", encoding="utf-8") as out:
-                proc = subprocess.Popen(cmd, stdout=out, stderr=subprocess.STDOUT, text=True)
-                with self._lock:
-                    self._current_process = proc
-                    if self._cancel_requested:
-                        with contextlib.suppress(OSError):
-                            proc.terminate()
-
-                # Wait for child process to terminate
-                proc.wait(timeout=300.0)
-
+        out_file = games_folder(self.data_folder) / f"{self.batch_id}-chunk-s{seeds[0]}.out"
+        expected = {self.game_id_of(seed): seed for seed in seeds}
+        done: set[str] = set()
+        timed_out = threading.Event()
+        with out_file.open("w", encoding="utf-8") as err:
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=err,
+                stdin=subprocess.DEVNULL,
+                text=True,
+                env=env,
+            )
             with self._lock:
-                self._current_process = None
+                self._processes.add(proc)
+                if self._cancel_requested:
+                    with contextlib.suppress(OSError):
+                        proc.terminate()
 
-            # Read back game log
-            return extract_game_log_telemetry(self.data_folder, game_id, candidate_seat=0)
+            def _expire() -> None:
+                timed_out.set()
+                with contextlib.suppress(OSError):
+                    proc.kill()
 
-        except subprocess.TimeoutExpired:
-            if proc:
-                proc.kill()
-            return GameSummary(
-                game_id=game_id,
-                seed=seed,
-                status="failed",
-                failure_class="TimeoutExpired",
-                failure_message="Game execution timed out after 300s",
-            )
-        except Exception as exc:
-            return GameSummary(
-                game_id=game_id,
-                seed=seed,
-                status="failed",
-                failure_class=type(exc).__name__,
-                failure_message=str(exc),
-            )
+            watchdog = threading.Timer(CHUNK_SECONDS_PER_GAME * len(seeds), _expire)
+            watchdog.daemon = True
+            watchdog.start()
+            try:
+                if proc.stdout is not None:
+                    for line in proc.stdout:
+                        game_id = _reported_game(line)
+                        if game_id in expected and game_id not in done:
+                            done.add(game_id)
+                            yield extract_game_log_telemetry(
+                                self.data_folder, game_id, candidate_seat=0
+                            )
+                code = proc.wait()
+            finally:
+                watchdog.cancel()
+                if proc.poll() is None:
+                    with contextlib.suppress(OSError):
+                        proc.kill()
+                    proc.wait()
+                with self._lock:
+                    self._processes.discard(proc)
+        for game_id, seed in expected.items():
+            if game_id in done:
+                continue
+            if timed_out.is_set():
+                limit = int(CHUNK_SECONDS_PER_GAME * len(seeds))
+                yield self._failed(seed, "TimeoutExpired", f"Chunk timed out after {limit}s")
+            elif self.is_cancelled:
+                if self._log_exists(game_id):
+                    yield self._failed(seed, "Cancelled", "The series was cancelled")
+            elif self._log_exists(game_id):
+                # the engine process ended before this game's log was closed
+                summary = extract_game_log_telemetry(self.data_folder, game_id, candidate_seat=0)
+                if summary.status == "finished":
+                    yield summary
+                else:
+                    yield self._failed(
+                        seed,
+                        "ChunkProcessExited",
+                        f"The engine process ended with exit code {code} during this game",
+                    )
+            else:
+                yield self._failed(
+                    seed, "ChunkProcessExited", f"The chunk process ended with exit code {code}"
+                )
+
+
+def _reported_game(line: str) -> str | None:
+    """The game id of a ``play-batch`` report line; other output lines are ignored."""
+    try:
+        raw = json.loads(line)
+    except ValueError:
+        return None
+    if isinstance(raw, dict) and isinstance(raw.get("game_id"), str):
+        return str(raw["game_id"])
+    return None
 
 
 class SimulationBatchManager:
@@ -635,14 +822,25 @@ class SimulationBatchManager:
         seed_step: int = 1,
         style: float | None = None,
         game_executor: Callable[..., dict[str, object]] | None = None,
+        workers: int | None = None,
+        games_per_jvm: int | None = None,
+        chunk_runner: ChunkRunner | None = None,
     ) -> BatchSimulation:
-        """Prepare and start a new batch simulation in a background thread."""
+        """Prepare and start a new batch simulation in a background thread.
+
+        ``workers`` (1..16, default ``min(4, cpu count - 1)``) chunks of games run at once; one
+        engine process plays up to ``games_per_jvm`` (1..24, default 6) games of its chunk.
+        """
         data_path = Path(data_folder).resolve()
+        used_workers, used_games_per_jvm = checked_series_settings(workers, games_per_jvm)
 
         # Engine preflight check
-        if game_executor is None and engine_command(data_path) is None:
-            state = engine_state(data_path)
-            raise RuntimeError(str(state.get("reason") or "Engine is not ready"))
+        engine: SeriesEngine | None = None
+        if game_executor is None and chunk_runner is None:
+            engine = series_engine(data_path, used_games_per_jvm)
+            if engine is None:
+                state = engine_state(data_path)
+                raise RuntimeError(str(state.get("reason") or "Engine is not ready"))
 
         # Resolve opponent decks
         if opponent_ids:
@@ -702,6 +900,10 @@ class SimulationBatchManager:
             seeds=seeds,
             style=style,
             game_executor=game_executor,
+            workers=used_workers,
+            games_per_jvm=used_games_per_jvm,
+            engine=engine,
+            chunk_runner=chunk_runner,
         )
 
         with self._lock:

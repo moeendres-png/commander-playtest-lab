@@ -551,6 +551,45 @@ def load_spellbook_combo_cards(
     return cards
 
 
+def load_spellbook_combo_partners(
+    combos_path: str | Path | None = None, *, commander: str = "Chulane"
+) -> dict[str, set[str]]:
+    """Combo partners per card from the verified combos listed for ``commander``:
+    ``{casefolded card name: {casefolded partner names}}``. The commander matching is
+    the one of ``load_spellbook_combo_cards`` (the combo's ``commander`` field must
+    name the commander), so another commander's combos never mark a pair."""
+    partners: dict[str, set[str]] = {}
+    if not commander:
+        return partners
+    target_path = Path(combos_path) if combos_path else Path("data/meta/spellbook_combos.json")
+    if not target_path.is_file():
+        return partners
+    try:
+        data = json.loads(target_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return partners
+    combos = data.get("combos")
+    if not isinstance(combos, list):
+        return partners
+    for combo in combos:
+        if not isinstance(combo, dict) or commander not in str(combo.get("commander", "")):
+            continue
+        names: set[str] = set()
+        combo_cards = combo.get("cards")
+        if isinstance(combo_cards, list):
+            names.update(c for c in combo_cards if isinstance(c, str))
+        any_groups = combo.get("any_of")
+        if isinstance(any_groups, list):
+            for any_group in any_groups:
+                if isinstance(any_group, list):
+                    names.update(c for c in any_group if isinstance(c, str))
+        for name in names:
+            partners.setdefault(name.casefold(), set()).update(
+                other.casefold() for other in names if other != name
+            )
+    return partners
+
+
 def calculate_card_coverage_record(
     card: dict[str, object],
     spellbook_combo_cards: set[str],

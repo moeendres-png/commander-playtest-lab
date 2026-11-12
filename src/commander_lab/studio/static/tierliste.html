@@ -24,10 +24,20 @@
 </header>
 <div id="notice"></div>
 <div id="universe-panel"></div>
+<div id="strength-panel"></div>
 <div id="filters">
   <input id="q" type="search" placeholder="Suche in Name und Typ" autocomplete="off">
   <select id="type-filter"></select>
   <select id="role-filter"></select>
+  <select id="spread-filter" title="Nach gezählter Verbreitungs-Stufe im gewählten Universum filtern">
+    <option value="">Verbreitung: alle Stufen</option>
+    <option value="S">Verbreitung: Stufe S</option>
+    <option value="A">Verbreitung: Stufe A</option>
+    <option value="B">Verbreitung: Stufe B</option>
+    <option value="C">Verbreitung: Stufe C</option>
+    <option value="D">Verbreitung: Stufe D</option>
+    <option value="U">Verbreitung: Stufe U (unbekannt)</option>
+  </select>
   <label><input id="f-free" type="checkbox" checked> nur freie</label>
   <label><input id="f-fav" type="checkbox"> Favoriten</label>
   <label><input id="f-excl" type="checkbox"> Ausgeschlossene zeigen</label>

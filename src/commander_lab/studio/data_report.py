@@ -3,7 +3,9 @@
 The report answers "what do we have, what is missing, what is unknown" with numbers: every
 figure is a count with its denominator, a missing value is counted as unknown (never as zero),
 and no card name, deck address or note text leaves the database. It can therefore be pasted
-into an issue or a Drive document.
+into an issue or a Drive document. The universes section follows the same rule: a stored
+universe profile is identified by its snapshot id and its version, never by its name or by
+the card names its spec requires — only how many values each spec dimension selects.
 
 ``role_fingerprint`` hashes the role tables so that a before/after comparison around an import
 shows at a glance whether anything outside the imported scope changed.
@@ -14,9 +16,12 @@ from __future__ import annotations
 import hashlib
 import sqlite3
 from datetime import UTC, date, datetime
+from typing import cast
 
+from . import universe
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
+from .tiers import MODEL_VERSION, TierParams
 
 REPORT_SCHEMA = "studio-data-report-1"
 SMALL_DENOMINATOR = 30
@@ -308,6 +313,56 @@ def _marks_and_games(db: sqlite3.Connection) -> dict[str, object]:
     }
 
 
+def _selected(spec: dict[str, object], key: str) -> int:
+    value = spec.get(key)
+    return len(value) if isinstance(value, list) else 0
+
+
+def _universes(store: StudioStore) -> dict[str, object]:
+    """The stored deck universes, counts only: per profile its snapshot, version,
+    spec shape (how many values each dimension selects — never the values), its
+    denominator with both breakdowns, and the decks its date and card filters drop."""
+    details: list[dict[str, object]] = []
+    below = 0
+    for profile in universe.list_profiles(store):
+        name = str(profile["name"])
+        spec = cast("dict[str, object]", profile["spec"])
+        counted = universe.inclusion(store, profile=name, card_names=[], commander_names=None)
+        min_universe = spec.get("min_universe")
+        effective = min_universe if isinstance(min_universe, int) else TierParams().min_universe
+        is_below = counted["denominator"] < effective
+        below += 1 if is_below else 0
+        details.append(
+            {
+                "snapshot_id": universe.snapshot_id(store, profile=name, commander_names=None),
+                "version": profile["version"],
+                "created_at": profile["created_at"],
+                "updated_at": profile["updated_at"],
+                "spec_dimensions": {
+                    "platforms": _selected(spec, "platforms"),
+                    "cohorts": _selected(spec, "cohorts"),
+                    "commanders": _selected(spec, "commanders"),
+                    "must_contain_cards": _selected(spec, "must_contain"),
+                    "date_filter": bool(spec.get("date_from") or spec.get("date_to")),
+                    "min_main_cards": spec.get("min_main_cards"),
+                },
+                "min_universe": effective,
+                "below_min_universe": is_below,
+                "denominator": counted["denominator"],
+                "denominator_by_platform": counted["denominator_by_platform"],
+                "denominator_by_bracket": counted["denominator_by_bracket"],
+                "excluded_no_date": counted["excluded_no_date"],
+                "excluded_by_card_filter": counted["excluded_by_card_filter"],
+            }
+        )
+    return {
+        "profiles": len(details),
+        "model_version": MODEL_VERSION,
+        "below_min_universe": below,
+        "details": details,
+    }
+
+
 def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, object]:
     """The counts-only report. ``today`` is only injectable for tests."""
     db = store.connection
@@ -321,6 +376,7 @@ def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, o
         "roles": _roles(db),
         "corpus": _corpus(db),
         "observations": _observations(db),
+        "universes": _universes(store),
         **_marks_and_games(db),
         "not_measured_here": list(NOT_MEASURED),
     }
