@@ -181,11 +181,15 @@ python -m commander_lab.studio import-signals FOLDER [--commander NAME]
 
 The command reports rows read, written and skipped per file. Signals are stored in
 `card_signal(commander_name, signal, card_name, value, numerator, denominator, source_id)`:
-`edhrec_commander_inclusion|synergy|lift` and `edhrec_bracket_inclusion:<core|upgraded|optimized|cedh>`
-per commander of the files, `edhrec_global_inclusion`, `spellbook_variants` and
-`spellbook_partners_in_collection` commander independent (commander name empty), and
+`edhrec_commander_inclusion|synergy` and `edhrec_bracket_inclusion:<core|upgraded|optimized|cedh>`
+per commander of the files, `edhrec_global_inclusion` and `spellbook_variants` commander
+independent (commander name empty), and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
-commander section only) under `--commander` (default: the standard commander). A value the
+commander section only) under `--commander` (default: the standard commander). The commander
+file's lift column and the spellbook file's partner count are not stored: no strength
+component reads them, and the values remain in the source files (the lift also in the
+observation pipeline). Stores imported earlier keep the rows of the two signals they
+already hold until `card_signal` is rebuilt; nothing reads them. A value the
 source does not publish is NULL (unknown), never 0; a card a source does not list has no row;
 rows of a source fetch that was not `AVAILABLE` are not stored. The tournament player column
 is never stored. Re-importing replaces the rows of the signals it writes.

@@ -7,12 +7,15 @@ Files (a large file may be split into ``<name>_1.csv``, ``<name>_2.csv``, ...; e
 has its own header and the parts are read one after another in number order):
 
 - ``commander_card_signals``: per commander and card, EDHREC inclusion (decks with the card
-  over decks of the commander), synergy and lift.
+  over decks of the commander) and synergy. The file's lift column is not stored: no
+  strength component reads it, and the value stays available in the source file and in
+  the observation pipeline.
 - ``commander_bracket_signals_<core|upgraded|optimized|cedh>``: the same per bracket page.
 - ``card_global_signals``: EDHREC inclusion over all decks (commander independent). Price
   columns of this file are not read.
-- ``spellbook_card_links``: number of combo variants a card is part of, and of partner
-  cards in the collection (commander independent).
+- ``spellbook_card_links``: number of combo variants a card is part of (commander
+  independent). The file's partner count is not stored: no strength component reads it,
+  and the value stays available in the source file.
 - ``topdeck_chulane_decks``: complete tournament lists of one commander. The player
   column is never read into storage; a list is only counted, per tournament and date.
 
@@ -45,11 +48,9 @@ LIST_SECTIONS = frozenset({"main", "commander"})
 
 SIGNAL_INCLUSION = "edhrec_commander_inclusion"
 SIGNAL_SYNERGY = "edhrec_commander_synergy"
-SIGNAL_LIFT = "edhrec_commander_lift"
 SIGNAL_BRACKET = "edhrec_bracket_inclusion"
 SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
-SIGNAL_PARTNERS = "spellbook_partners_in_collection"
 SIGNAL_TOURNAMENT = "tournament_lists"
 
 _Row = tuple[str, str, str, float | None, int | None, int | None]  # commander, signal, card, ...
@@ -124,7 +125,6 @@ def _commander_rows(
     ]
     if not variant:
         rows.append((commander, SIGNAL_SYNERGY, card, _number(row.get("synergy")), None, None))
-        rows.append((commander, SIGNAL_LIFT, card, _number(row.get("lift")), None, None))
     return rows
 
 
@@ -155,7 +155,7 @@ def _empty(paths: list[Path]) -> FileReport:
 
 def _read_commander_file(paths: list[Path], variant: str | None, report: FileReport) -> list[_Row]:
     required = {"commander_name", "card_name", "num_decks", "potential_decks"}
-    required |= set() if variant else {"synergy", "lift"}
+    required |= set() if variant else {"synergy"}
     if variant:
         required.add("variant")
     pairs: list[tuple[tuple[str, str, str], _Row]] = []
@@ -215,14 +215,6 @@ def _global_rows(row: dict[str, str], card: str) -> list[_Row]:
 def _spellbook_rows(row: dict[str, str], card: str) -> list[_Row]:
     return [
         ("", SIGNAL_VARIANTS, card, _number(row.get("variant_count")), None, None),
-        (
-            "",
-            SIGNAL_PARTNERS,
-            card,
-            _number(row.get("partners_in_collection")),
-            None,
-            None,
-        ),
     ]
 
 
@@ -294,7 +286,7 @@ def _read_file(
         required = {"card_name", "fetch_status", "num_decks", "potential_decks"}
         return _read_independent(paths, required, _global_rows, report)
     if file_name == SPELLBOOK_FILE:
-        required = {"card_name", "fetch_status", "variant_count", "partners_in_collection"}
+        required = {"card_name", "fetch_status", "variant_count"}
         return _read_independent(paths, required, _spellbook_rows, report)
     return _read_tournament_lists(paths, commander, report)
 
