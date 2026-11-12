@@ -469,6 +469,8 @@ def main(argv: list[str] | None = None) -> int:
                 "profile": args.profile,
                 "universe_snapshot": snapshot,
                 "denominator": counted["denominator"],
+                "denominator_by_platform": counted["denominator_by_platform"],
+                "denominator_by_bracket": counted["denominator_by_bracket"],
                 "tiers": tiers.tiers_for_universe(
                     counted, universe_snapshot=snapshot, params=params
                 )[: args.limit],

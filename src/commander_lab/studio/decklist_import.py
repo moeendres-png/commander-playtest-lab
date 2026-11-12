@@ -15,9 +15,11 @@ categories name a sideboard or maybeboard keep that section, a flagged companion
 so section assignment here follows category names only; the source file's own main-deck
 total is preserved in the deck tags for reference.
 
-An exact duplicate (same card multiset in the same sections) that is already stored under
-another deck id is marked in ``duplicate_of`` instead of being counted twice; the first
-imported copy wins. Re-importing the same folder replaces the decks it contains and
+Card rows with a quantity of zero or less are dropped. An exact duplicate (same card
+multiset in the same sections) stored under another deck id is marked in
+``duplicate_of`` (informational; the first imported copy wins, and marks left stale by a
+changed re-import are released). Universe counts do not read this mark: they collapse
+decks with the same content fingerprint inside the selected universe (``universe.py``). Re-importing the same folder replaces the decks it contains and
 leaves every other deck alone. Legality of the imported lists is ``not_audited``: the
 importer records what the source published, it does not judge it.
 """
@@ -26,6 +28,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import sqlite3
 from collections.abc import Mapping
 from pathlib import Path
 from typing import TypedDict
@@ -57,6 +60,8 @@ def _merge_rows(rows: list[tuple[str, str, int]]) -> list[tuple[str, str, int]]:
     exactly like the corpus part importer merges its rows."""
     merged: dict[tuple[str, str], int] = {}
     for name, section, quantity in rows:
+        if quantity <= 0:
+            continue  # a zero or negative quantity is not a card in the deck
         merged[(name, section)] = merged.get((name, section), 0) + quantity
     return [(name, section, quantity) for (name, section), quantity in sorted(merged.items())]
 
@@ -66,6 +71,31 @@ def _fingerprint(rows: list[tuple[str, str, int]]) -> str:
     for card_name, section, quantity in sorted(rows):
         digest.update(f"{card_name}\x00{section}\x00{quantity}\n".encode())
     return digest.hexdigest()
+
+
+def _release_stale_marks(db: sqlite3.Connection) -> None:
+    """Re-derive ``duplicate_of`` for decks whose mark no longer matches the target.
+
+    A deck marked as a duplicate of X is stale once X is gone or X's cards changed. The
+    first stale deck (by id) of a fingerprint group becomes canonical unless a canonical
+    deck of that fingerprint exists; the rest point at it."""
+    canonical: dict[str, str] = {}
+    for fingerprint, deck_id in db.execute(
+        "SELECT fingerprint, deck_id FROM corpus_deck WHERE duplicate_of IS NULL ORDER BY deck_id"
+    ):
+        canonical.setdefault(str(fingerprint), str(deck_id))
+    stale = db.execute(
+        "SELECT d.deck_id, d.fingerprint FROM corpus_deck d "
+        "LEFT JOIN corpus_deck t ON t.deck_id = d.duplicate_of "
+        "WHERE d.duplicate_of IS NOT NULL "
+        "AND (t.deck_id IS NULL OR t.fingerprint != d.fingerprint) ORDER BY d.deck_id"
+    ).fetchall()
+    for deck_id, fingerprint in stale:
+        target = canonical.setdefault(str(fingerprint), str(deck_id))
+        db.execute(
+            "UPDATE corpus_deck SET duplicate_of = ? WHERE deck_id = ?",
+            (None if target == deck_id else target, deck_id),
+        )
 
 
 def _read_json(path: Path) -> dict[str, object]:
@@ -254,6 +284,7 @@ def import_decklists(store: StudioStore, folder: str | Path, *, format: str) -> 
             written += 1
             card_rows += len(rows)
             duplicates += 1 if duplicate_of else 0
+        _release_stale_marks(db)
     return {
         "decks": written,
         "duplicates_marked": duplicates,

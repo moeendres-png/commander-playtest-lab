@@ -40,6 +40,8 @@ class CardTier(TypedDict):
     denominator: int
     share: float | None
     universe_snapshot: str
+    denominator_by_platform: dict[str, int]
+    denominator_by_bracket: dict[str, int]
     params: TierParamsDict
     data_class: str
 
@@ -54,6 +56,20 @@ class TierParams:
         default_factory=lambda: (("S", 0.50), ("A", 0.35), ("B", 0.20), ("C", 0.10))
     )
     fallback_tier: str = "D"
+
+    def __post_init__(self) -> None:
+        if self.min_universe < 1:
+            raise ValueError("tier parameter min_universe must be at least 1")
+        labels = [tier for tier, _ in self.cuts]
+        if any(not label for label in labels) or not self.fallback_tier:
+            raise ValueError("tier labels must not be empty")
+        if len(set(labels)) != len(labels):
+            raise ValueError("tier labels in cuts must be unique")
+        shares = [cut for _, cut in self.cuts]
+        if any(not 0 < share <= 1 for share in shares):
+            raise ValueError("every tier cut share must be in (0, 1]")
+        if any(later >= earlier for earlier, later in zip(shares, shares[1:], strict=False)):
+            raise ValueError("tier cuts must be strictly descending by share")
 
     def to_dict(self) -> TierParamsDict:
         return {
@@ -100,6 +116,8 @@ def card_tier(
     denominator: int,
     universe_snapshot: str,
     params: TierParams,
+    denominator_by_platform: Mapping[str, int] | None = None,
+    denominator_by_bracket: Mapping[str, int] | None = None,
 ) -> CardTier:
     share = hits / denominator if denominator else None
     tier, reason = tier_for_share(share, denominator, params)
@@ -111,6 +129,8 @@ def card_tier(
         "denominator": denominator,
         "share": share,
         "universe_snapshot": universe_snapshot,
+        "denominator_by_platform": dict(denominator_by_platform or {}),
+        "denominator_by_bracket": dict(denominator_by_bracket or {}),
         "params": params.to_dict(),
         "data_class": "DERIVED_DESCRIPTIVE",
     }
@@ -127,6 +147,8 @@ def tiers_for_universe(
             denominator=int(row["denominator"]),
             universe_snapshot=universe_snapshot,
             params=params,
+            denominator_by_platform=inclusion_result["denominator_by_platform"],
+            denominator_by_bracket=inclusion_result["denominator_by_bracket"],
         )
         for row in inclusion_result["rows"]
     ]

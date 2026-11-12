@@ -6,8 +6,10 @@ from the corpus: by platform, by cohort membership (``corpus_cohort`` rows such 
 Every figure computed over a universe is a plain count with its denominator: inclusion of
 a card is the number of distinct universe decks whose main, commander or companion
 sections contain it, over the number of decks in the universe. Exact duplicates
-(``corpus_deck.duplicate_of``) never count, matching ``queries.corpus_inclusion``;
-unlike that older per-group helper, sections ``sideboard`` and ``maybeboard`` are both
+never count twice: decks of the universe that share a content fingerprint count once
+(the lowest deck id), so the same list stored under two ids is one deck *inside the
+selected universe*, whatever its siblings outside it look like. Only cards with a
+quantity above zero count. Unlike that older per-group helper, sections ``sideboard`` and ``maybeboard`` are both
 excluded here, because both are outside the deck that was played.
 
 An empty spec selects every stored source deck. A profile whose filters match no deck
@@ -62,6 +64,8 @@ class InclusionResult(TypedDict):
     profile: str | None
     spec: UniverseSpec
     denominator: int
+    denominator_by_platform: dict[str, int]
+    denominator_by_bracket: dict[str, int]
     rows: list[InclusionRow]
     data_class: str
 
@@ -74,6 +78,9 @@ class CooccurrenceRow(TypedDict):
 class CooccurrenceResult(TypedDict):
     card_name: str
     profile: str | None
+    denominator: int
+    denominator_by_platform: dict[str, int]
+    denominator_by_bracket: dict[str, int]
     decks_with_card: int
     pairs: list[CooccurrenceRow]
     data_class: str
@@ -170,7 +177,7 @@ def get_profile(store: StudioStore, name: str) -> Profile:
 def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str]:
     """Deck ids of the universe a spec selects, in stable order."""
     cleaned = _validate_spec(spec)
-    where = ["d.duplicate_of IS NULL"]
+    where = ["1 = 1"]
     parameters: list[str] = []
     if cleaned.get("platforms"):
         marks = ", ".join("?" for _ in cleaned["platforms"])
@@ -182,8 +189,9 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
     if cleaned.get("date_to"):
         where.append("d.deck_date <= ?")
         parameters.append(cleaned["date_to"])
-    sql = f"SELECT d.deck_id FROM corpus_deck d WHERE {' AND '.join(where)}"
-    deck_ids = [str(row[0]) for row in store.connection.execute(sql, parameters)]
+    sql = f"SELECT d.deck_id, d.fingerprint FROM corpus_deck d WHERE {' AND '.join(where)}"
+    selected = [(str(row[0]), str(row[1])) for row in store.connection.execute(sql, parameters)]
+    deck_ids = [deck_id for deck_id, _ in selected]
     for cohort in cleaned.get("cohorts", []):
         members = {
             str(row[0])
@@ -204,7 +212,39 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
             )
         }
         deck_ids = [deck_id for deck_id in deck_ids if sizes.get(deck_id, 0) >= minimum]
-    return sorted(deck_ids)
+    # Query-time dedupe inside the selected universe: one deck per content fingerprint,
+    # the lowest deck id wins.
+    fingerprints = dict(selected)
+    first_by_fingerprint: dict[str, str] = {}
+    for deck_id in sorted(deck_ids):
+        first_by_fingerprint.setdefault(fingerprints[deck_id], deck_id)
+    return sorted(first_by_fingerprint.values())
+
+
+def _composition(store: StudioStore, deck_ids: list[str]) -> tuple[dict[str, int], dict[str, int]]:
+    """Denominator split by source platform and by bracket cohort (``unknown`` if none)."""
+    by_platform: dict[str, int] = {}
+    by_bracket: dict[str, int] = {}
+    if not deck_ids:
+        return by_platform, by_bracket
+    marks = ", ".join("?" for _ in deck_ids)
+    for platform, count in store.connection.execute(
+        f"SELECT platform, COUNT(*) FROM corpus_deck WHERE deck_id IN ({marks}) "
+        f"GROUP BY platform ORDER BY platform",
+        deck_ids,
+    ):
+        by_platform[str(platform)] = int(count)
+    bracket_of: dict[str, str] = {}
+    for deck_id, cohort in store.connection.execute(
+        f"SELECT deck_id, cohort FROM corpus_cohort WHERE deck_id IN ({marks}) "
+        f"AND cohort LIKE 'bracket:%' ORDER BY cohort",
+        deck_ids,
+    ):
+        bracket_of.setdefault(str(deck_id), str(cohort))
+    for deck_id in deck_ids:
+        label = bracket_of.get(deck_id, "unknown")
+        by_bracket[label] = by_bracket.get(label, 0) + 1
+    return by_platform, dict(sorted(by_bracket.items()))
 
 
 def _universe_spec(
@@ -230,6 +270,7 @@ def inclusion(
     resolved_spec = _universe_spec(store, profile, spec)
     deck_ids = resolve_universe(store, resolved_spec)
     denominator = len(deck_ids)
+    by_platform, by_bracket = _composition(store, deck_ids)
     counts: dict[str, int] = {}
     if deck_ids:
         marks = ", ".join("?" for _ in deck_ids)
@@ -238,7 +279,8 @@ def inclusion(
             str(row[0]): int(row[1])
             for row in store.connection.execute(
                 f"SELECT card_name, COUNT(DISTINCT deck_id) FROM corpus_deck_card "
-                f"WHERE deck_id IN ({marks}) AND section IN ({sections}) GROUP BY card_name",
+                f"WHERE deck_id IN ({marks}) AND section IN ({sections}) AND quantity > 0 "
+                f"GROUP BY card_name",
                 [*deck_ids, *COUNTED_SECTIONS],
             )
         }
@@ -256,6 +298,8 @@ def inclusion(
         "profile": profile,
         "spec": resolved_spec,
         "denominator": denominator,
+        "denominator_by_platform": by_platform,
+        "denominator_by_bracket": by_bracket,
         "rows": rows,
         "data_class": "DERIVED_DESCRIPTIVE",
     }
@@ -267,10 +311,16 @@ def cooccurrence(
     *,
     profile: str | None = None,
     spec: Mapping[str, object] | None = None,
-    limit: int = 25,
+    limit: int | None = 25,
 ) -> CooccurrenceResult:
-    """How many universe decks contain ``card_name`` together with each other card."""
+    """How many universe decks contain ``card_name`` together with each other card.
+
+    ``limit`` caps the pair list (``None`` = all pairs); it must be at least 1."""
+    if limit is not None and limit < 1:
+        raise ValueError("limit must be at least 1 (or None for no limit)")
     deck_ids = resolve_universe(store, _universe_spec(store, profile, spec))
+    universe_size = len(deck_ids)
+    by_platform, by_bracket = _composition(store, deck_ids)
     denominator = 0
     pairs: list[CooccurrenceRow] = []
     if deck_ids:
@@ -278,7 +328,7 @@ def cooccurrence(
         sections = ", ".join("?" for _ in COUNTED_SECTIONS)
         base = (
             f"SELECT deck_id FROM corpus_deck_card WHERE deck_id IN ({marks}) "
-            f"AND section IN ({sections}) AND card_name = ?"
+            f"AND section IN ({sections}) AND quantity > 0 AND card_name = ?"
         )
         with_card = sorted(
             {
@@ -295,14 +345,17 @@ def cooccurrence(
                     f"SELECT card_name, COUNT(DISTINCT deck_id) AS decks_together "
                     f"FROM corpus_deck_card "
                     f"WHERE deck_id IN ({marks2}) AND section IN ({sections}) "
-                    f"AND card_name != ? GROUP BY card_name "
+                    f"AND quantity > 0 AND card_name != ? GROUP BY card_name "
                     f"ORDER BY decks_together DESC, card_name LIMIT ?",
-                    [*with_card, *COUNTED_SECTIONS, card_name, limit],
+                    [*with_card, *COUNTED_SECTIONS, card_name, -1 if limit is None else limit],
                 )
             ]
     return {
         "card_name": card_name,
         "profile": profile,
+        "denominator": universe_size,
+        "denominator_by_platform": by_platform,
+        "denominator_by_bracket": by_bracket,
         "decks_with_card": denominator,
         "pairs": pairs,
         "data_class": "DERIVED_DESCRIPTIVE",

@@ -14,13 +14,13 @@ vermischt.
   `corpus_deck_card` / `corpus_cohort`. Sektionen folgen den Quelldaten (Commander,
   Main, Companion, Sideboard, Maybeboard); geteilte Zeilen einer Sektion werden wie
   beim Korpus-Part-Importer summiert. Exakte Duplikate (gleiche Kartenmultimenge) werden
-  per Fingerprint in `duplicate_of` markiert und nie doppelt gezählt; Legalität der
+  per Fingerprint in `duplicate_of` markiert (informativ); Universen zählen gleiche Fingerprints innerhalb des gewählten Universums genau einmal (niedrigste Deck-ID); Kartenzeilen mit Menge ≤ 0 werden verworfen und zählen nie; Legalität der
   Listen ist `not_audited`.
 - `studio/universe.py` — Deck-Universen als gespeicherte Profile (Tabelle
   `universe_profile`, Schema v9). Eine Spec wählt Decks nach Plattform, Kohorten
   (`source:*`, `bracket:*`, `variant:*`, `commander:*`), Datumsbereich und
   Mindest-Hauptdeckgröße. Inclusion ist eine reine Zählung über dem Universum
-  (Treffer/Nenner/Anteil, Nenner 0 → Anteil `None`). Dazu Co-Occurrence-Zählungen und
+  (Treffer/Nenner/Anteil, Nenner 0 → Anteil `None`), mit Aufschlüsselung des Nenners je Plattform und Bracket, damit ein gepooltes Universum nie stumm bleibt. Dazu Co-Occurrence-Zählungen und
   eine Snapshot-ID (Spec + gewählte Deck-IDs), mit der jede Zahl ihr Universum zitiert.
 - `studio/tiers.py` — Tiers als reine Funktion über der Inclusion eines Universums mit
   Owner-Parametern (`min_universe`, Anteil-Schnitte, Fallback). Unterhalb der
