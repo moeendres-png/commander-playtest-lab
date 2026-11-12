@@ -174,13 +174,16 @@ def test_report_counts_universes_without_naming_profiles_or_cards(
         for entry in details
         if entry["spec_dimensions"]["must_contain_cards"] == 1  # type: ignore[index]
     )
+    # Deliberately changed with the per-commander report (Refs #1205): a profile is counted
+    # once per commander that has bound decks, never over all commanders at once.
+    (entry,) = filtered["per_commander"]  # type: ignore[index]
     counted = universe.inclusion(
-        studio, profile="geheim-profil", card_names=[], commander_names=None
+        studio, profile="geheim-profil", card_names=[], commander_names=entry["commanders"]
     )
-    assert filtered["denominator"] == counted["denominator"]
-    assert filtered["excluded_by_card_filter"] == counted["excluded_by_card_filter"]
-    assert filtered["snapshot_id"] == universe.snapshot_id(
-        studio, profile="geheim-profil", commander_names=None
+    assert entry["denominator"] == counted["denominator"]
+    assert entry["excluded_by_card_filter"] == counted["excluded_by_card_filter"]
+    assert entry["snapshot_id"] == universe.snapshot_id(
+        studio, profile="geheim-profil", commander_names=entry["commanders"]
     )
     text = json.dumps(report)
     for forbidden in ("geheim-profil", "zweites", "Forest"):

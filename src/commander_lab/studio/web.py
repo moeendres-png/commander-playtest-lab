@@ -396,14 +396,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/universe/options")
     def universe_options(
-        commander: str | None = Query(default=None, max_length=200),
+        commander: list[str] = Query(min_length=1, max_length=2),
     ) -> dict[str, object]:
         """The spec values the store holds, with deck counts — the only values a
-        profile form should offer. With a commander, counts cover its bound decks."""
+        profile form should offer. The commander is required: the counts cover the decks
+        bound to exactly this commander (or pair), never a figure mixed over commanders."""
         store = open_store()
         try:
-            names = [commander] if commander else None
-            return dict(universe.options(store, commander_names=names))
+            return dict(universe.options(store, commander_names=commander))
         finally:
             store.close()
 

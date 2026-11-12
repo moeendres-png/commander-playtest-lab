@@ -2,10 +2,11 @@
 
 The report answers "what do we have, what is missing, what is unknown" with numbers: every
 figure is a count with its denominator, a missing value is counted as unknown (never as zero),
-and no card name, deck address or note text leaves the database. It can therefore be pasted
-into an issue or a Drive document. The universes section follows the same rule: a stored
-universe profile is identified by its snapshot id and its version, never by its name or by
-the card names its spec requires — only how many values each spec dimension selects.
+and no card name (apart from the commander names every figure is bound to), deck address or
+note text leaves the database. It can therefore be pasted into an issue or a Drive document.
+The universes section follows the same rule: a stored universe profile is identified by its
+version, never by its name or by the card names its spec requires — only how many values each
+spec dimension selects — and it is counted per commander, never over all commanders at once.
 
 ``role_fingerprint`` hashes the role tables so that a before/after comparison around an import
 shows at a glance whether anything outside the imported scope changed.
@@ -318,23 +319,53 @@ def _selected(spec: dict[str, object], key: str) -> int:
     return len(value) if isinstance(value, list) else 0
 
 
+def _universe_entry(
+    store: StudioStore, name: str, commanders: list[str], min_universe: int
+) -> dict[str, object]:
+    """One profile counted for one commander (or partner pair), with its own denominator."""
+    counted = universe.inclusion(store, profile=name, card_names=[], commander_names=commanders)
+    return {
+        "commanders": commanders,
+        "snapshot_id": universe.snapshot_id(store, profile=name, commander_names=commanders),
+        "denominator": counted["denominator"],
+        "denominator_by_platform": counted["denominator_by_platform"],
+        "denominator_by_bracket": counted["denominator_by_bracket"],
+        "excluded_no_date": counted["excluded_no_date"],
+        "excluded_by_card_filter": counted["excluded_by_card_filter"],
+        "min_universe": min_universe,
+        "below_min_universe": counted["denominator"] < min_universe,
+    }
+
+
 def _universes(store: StudioStore) -> dict[str, object]:
-    """The stored deck universes, counts only: per profile its snapshot, version,
-    spec shape (how many values each dimension selects — never the values), its
-    denominator with both breakdowns, and the decks its date and card filters drop."""
+    """The stored deck universes, counts only: per profile its version, spec shape (how
+    many values each dimension selects — never the values) and, **per commander** that has
+    bound source decks, the snapshot, denominator with both breakdowns and the decks its
+    date and card filters drop.
+
+    A profile is never counted over all commanders at once: that denominator would mix
+    the decks of several commanders and ``below_min_universe`` computed from it would be
+    meaningless. A profile that names its commanders is reported for exactly that set."""
     details: list[dict[str, object]] = []
     below = 0
+    entries_total = 0
+    sets = universe.bound_commander_sets(store)
     for profile in universe.list_profiles(store):
         name = str(profile["name"])
         spec = cast("dict[str, object]", profile["spec"])
-        counted = universe.inclusion(store, profile=name, card_names=[], commander_names=None)
         min_universe = spec.get("min_universe")
         effective = min_universe if isinstance(min_universe, int) else TierParams().min_universe
-        is_below = counted["denominator"] < effective
-        below += 1 if is_below else 0
+        named = spec.get("commanders")
+        wanted = (
+            [sorted(str(item) for item in named)] if isinstance(named, list) and named else sets
+        )
+        per_commander = [
+            _universe_entry(store, name, commanders, effective) for commanders in wanted
+        ]
+        below += sum(1 for entry in per_commander if entry["below_min_universe"])
+        entries_total += len(per_commander)
         details.append(
             {
-                "snapshot_id": universe.snapshot_id(store, profile=name, commander_names=None),
                 "version": profile["version"],
                 "created_at": profile["created_at"],
                 "updated_at": profile["updated_at"],
@@ -347,17 +378,14 @@ def _universes(store: StudioStore) -> dict[str, object]:
                     "min_main_cards": spec.get("min_main_cards"),
                 },
                 "min_universe": effective,
-                "below_min_universe": is_below,
-                "denominator": counted["denominator"],
-                "denominator_by_platform": counted["denominator_by_platform"],
-                "denominator_by_bracket": counted["denominator_by_bracket"],
-                "excluded_no_date": counted["excluded_no_date"],
-                "excluded_by_card_filter": counted["excluded_by_card_filter"],
+                "per_commander": per_commander,
             }
         )
     return {
         "profiles": len(details),
         "model_version": MODEL_VERSION,
+        "commander_sets": len(sets),
+        "entries": entries_total,
         "below_min_universe": below,
         "details": details,
     }
@@ -370,7 +398,10 @@ def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, o
     return {
         "schema": REPORT_SCHEMA,
         "generated_on": moment.isoformat(),
-        "privacy": "counts only: no card names, no deck addresses, no notes",
+        "privacy": (
+            "counts only: no card names (except the commander names the figures are bound to), "
+            "no deck addresses, no notes"
+        ),
         "collection": _collection(db),
         "scryfall_facts": _scryfall(db, moment),
         "roles": _roles(db),
