@@ -65,7 +65,7 @@ stored seed list, and a visible "x of n" in the page.
 
 | Step | Content | Recommendation |
 |---|---|---|
-| P-1 | Bridge: decision time limit through a system property, default unchanged (P7) | Prepare on a branch with the bridge test; merge after the Owner's go; requalify once. |
+| P-1 | Bridge: decision time limit through a system property, default unchanged (P7) | Merges under the Studio bridge gate (`AGENTS.md` §10, Owner decision 2026-11-12, evening); no new sealed epoch. |
 | P-2 | Python: a policy that waits for the page for the human seat and asks the pilots for all other seats | Can be built and tested now against a fake engine, without the bridge change. |
 | P-3 | Own read path for play mode (P5) | Build before the page. The log of a game contains the AI hands at their decisions; play mode must be served from the human seat's published view only. Test: no card of an AI hand appears in any play-mode response. |
 | P-4 | Page: options as buttons and clickable cards, multiple choice with minimum and maximum, number input, pass only where the engine offers it; no undo (P4) | Reuse the spectator view; the page only shows options and returns the choice (A2). |

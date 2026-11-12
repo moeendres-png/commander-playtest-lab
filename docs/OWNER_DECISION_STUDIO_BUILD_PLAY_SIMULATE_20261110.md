@@ -75,6 +75,9 @@ XMage's own AI players are still not used as seats.
 
 ## Steps that need their own Owner go
 
+(Superseded for Studio bridge changes on 2026-11-12: they merge under the Studio bridge gate,
+`AGENTS.md` §10. Fork pushes, repins and the other items below still need the Owner's go.)
+
 - Any change to the Java bridge (for example a configurable decision timeout for the human
   seat, or an engine look-ahead interface for stronger pilots), every fork push, repin and new
   qualification epoch.

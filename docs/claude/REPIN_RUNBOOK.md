@@ -83,6 +83,10 @@ Build the fork jar and add the Lab bridge classes of `main` (`engine-bridge/` bu
    artifact digest and the Lab commit of that run). Merge, then regenerate
    `docs/claude/state/HANDOFF.md`: the pin line must show no `PIN AHEAD OF QUALIFICATION`.
 
+(Since 2026-11-12 a bridge change made for the Studio does not go through this runbook: it
+merges under the Studio bridge gate, `AGENTS.md` §10, and is not sealed. The paragraph below
+applies when a new sealed epoch is wanted.)
+
 **Without a pin move (a bridge Java change on the same pin) one run is enough.** The AF11
 adjudication of the pin already exists, so PB-03 no. 1 reports AF11 PASS (check the seal output)
 and steps 3 and 4 add nothing: seal that run once, and in the same PR point
