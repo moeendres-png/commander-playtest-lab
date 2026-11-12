@@ -9,13 +9,14 @@ from __future__ import annotations
 import csv
 import sqlite3
 from collections.abc import Iterator
+from itertools import pairwise
 from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
 from commander_lab.studio import StudioStore, builder, signals, strength, strength_view
-from commander_lab.studio.strength import Observation, StrengthSettings
+from commander_lab.studio.strength import Observation, PoolContext, StrengthSettings
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _fill
 from tests.unit.test_studio_universe_web import _deck
@@ -314,8 +315,8 @@ def test_wilson_lower_bound_matches_a_hand_calculation() -> None:
     assert bound is not None and bound == pytest.approx(0.2366, abs=5e-4)
     assert strength.wilson_lower(0, 10) == 0.0
     assert strength.wilson_lower(1, 0) is None
-    small, large = strength.wilson_lower(1, 1), strength.wilson_lower(50, 100)
-    assert small is not None and large is not None and small < large  # a tiny sample ranks lower
+    # (the old assertion "a tiny sample ranks lower" proved nothing about protection: it is
+    # replaced by the tests of the minimum denominator and of the shared denominator below)
 
 
 def test_percentile_ranks_share_the_mean_rank_on_ties() -> None:
@@ -475,7 +476,9 @@ def test_deck_list_universe_is_a_counted_component(store: StudioStore, tmp_path:
     store.connection.commit()
     from commander_lab.studio import universe
 
-    universe.save_profile(store, "alle", {})
+    # Changed with the minimum-denominator rule (Refs #1205): ten decks are below the
+    # default minimum universe of 30, so this test names the minimum it counts with.
+    universe.save_profile(store, "alle", {"min_universe": 10})
     settings = StrengthSettings(universe_profile="alle")
     result = strength_view.compute(store, COMMANDER, settings)
     cards = _by_name(result)
@@ -588,3 +591,502 @@ def test_tier_list_page_has_the_strength_panel_without_inline_code() -> None:
     assert 'id="strength-panel"' in html and "<script>" not in html and "style=" not in html
     assert "innerHTML" not in script and "/api/strength" in script
     assert "zu wenig Daten" in script and "keine gemessene Siegrate" in script
+
+
+# ---------- review of the merged tier list (Refs #1205) ----------
+
+
+def _only(*components: str, **extra: object) -> StrengthSettings:
+    weights = {name: 0.0 for name in strength.COMPONENTS} | {name: 1.0 for name in components}
+    return StrengthSettings(weights=weights, min_coverage=0.0, min_components=1, **extra)  # type: ignore[arg-type]
+
+
+def _row(card: dict[str, strength.CardStrength], key: str, name: str) -> strength.ComponentResult:
+    return next(item for item in card[key]["components"] if item["component"] == name)
+
+
+def test_wilson_is_exactly_zero_without_successes_and_keeps_the_order_of_one_denominator() -> None:
+    for denominator in (1, 3, 10, 755, 10**6):
+        assert strength.wilson_lower(0, denominator) == 0.0
+    bounds = [strength.wilson_lower(k, 40) for k in range(41)]
+    assert all(a is not None and b is not None and a < b for a, b in pairwise(bounds))
+    # Wilson reorders only across denominators: 1 of 1 sits below 50 of 100
+    one, fifty = strength.wilson_lower(1, 1), strength.wilson_lower(50, 100)
+    assert one is not None and fifty is not None and one < fifty
+
+
+def test_without_a_minimum_three_lists_still_spread_percentiles_over_zero_to_one() -> None:
+    """The reviewed defect: one shared denominator, so Wilson cannot protect."""
+    observations = {
+        key: {"tournament_lists": Observation(n / 3, n, 3)}
+        for key, n in (("a", 3), ("b", 2), ("c", 1), ("d", 1))
+    }
+    open_settings = _only("tournament_lists", min_denominators={"edhrec": 30, "tournament": 0})
+    scored = strength.score_pool(open_settings, observations, {"tournament_lists"})
+    assert scored["a"]["index"] == 100.0 and scored["c"]["index"] == 16.7  # spread from 3 lists
+    guarded = strength.score_pool(_only("tournament_lists"), observations, {"tournament_lists"})
+    for card in observations:
+        row = _row(guarded, card, "tournament_lists")
+        assert row["status"] == strength.NO_VALUE and row["percentile"] is None
+        assert row["reason"] == strength.BELOW_MIN_DENOMINATOR
+        assert "Mindest-Nenner 5" in row["note"] and "Nenner 3" in row["note"]
+        assert guarded[card]["index"] is None and guarded[card]["tier"] == "U"
+
+
+def test_below_minimum_is_the_reason_for_every_card_even_an_unlisted_one() -> None:
+    observations = {
+        "a": {"commander_inclusion": Observation(20 / 25, 20, 25)},
+        "b": {},
+    }
+    scored = strength.score_pool(
+        _only("commander_inclusion"), observations, {"commander_inclusion"}
+    )
+    assert {_row(scored, key, "commander_inclusion")["reason"] for key in "ab"} == {
+        strength.BELOW_MIN_DENOMINATOR
+    }
+    enough = {"a": {"commander_inclusion": Observation(0.8, 24, 30)}, "b": {}}
+    scored = strength.score_pool(_only("commander_inclusion"), enough, {"commander_inclusion"})
+    assert _row(scored, "a", "commander_inclusion")["status"] == strength.PRESENT
+    assert _row(scored, "b", "commander_inclusion")["reason"] == strength.NOT_LISTED
+
+
+def test_the_deck_universe_minimum_comes_from_the_profile() -> None:
+    observations = {"a": {"deck_universe": _share(8, 10)}, "b": {"deck_universe": _share(2, 10)}}
+    settings = _only("deck_universe")
+    low = strength.score_pool(
+        settings, observations, {"deck_universe"}, context=PoolContext(universe_minimum=30)
+    )
+    assert _row(low, "a", "deck_universe")["reason"] == strength.BELOW_MIN_DENOMINATOR
+    assert _row(low, "a", "deck_universe")["min_denominator"] == 30
+    ok = strength.score_pool(
+        settings, observations, {"deck_universe"}, context=PoolContext(universe_minimum=10)
+    )
+    assert _row(ok, "a", "deck_universe")["status"] == strength.PRESENT
+
+
+def _grouped(
+    count_type_a: int, count_type_b: int
+) -> tuple[dict[str, dict[str, Observation]], PoolContext]:
+    observations: dict[str, dict[str, Observation]] = {}
+    groups: dict[str, str] = {}
+    for index in range(count_type_a):
+        observations[f"a{index}"] = {"synergy": Observation(float(index))}
+        groups[f"a{index}"] = "Creature"
+    for index in range(count_type_b):
+        observations[f"b{index}"] = {"synergy": Observation(100.0 + index)}
+        groups[f"b{index}"] = "Instant"
+    return observations, PoolContext(type_group=groups, mana_band=groups)
+
+
+def test_percentiles_are_taken_within_the_chosen_group_with_a_pool_fallback() -> None:
+    observations, context = _grouped(6, 3)
+    pool = strength.score_pool(_only("synergy"), observations, {"synergy"}, context=context)
+    typed = strength.score_pool(
+        _only("synergy", rank_group="type"), observations, {"synergy"}, context=context
+    )
+    # in the pool every Instant outranks every Creature; within the type the best Creature is 1.0
+    assert _row(pool, "a5", "synergy")["percentile"] < 0.7
+    assert _row(typed, "a5", "synergy")["percentile"] == 1.0
+    assert _row(typed, "a5", "synergy")["group"] == "Creature"
+    assert _row(typed, "a5", "synergy")["group_size"] == 6
+    # three Instants are fewer than five: they keep their pool rank and the row says so
+    fallback = _row(typed, "b2", "synergy")
+    assert fallback["group_fallback"] is True and fallback["reason"] == strength.GROUP_TOO_SMALL
+    assert fallback["percentile"] == _row(pool, "b2", "synergy")["percentile"]
+    assert "weniger als 5" in fallback["note"] and "ganzen Pool" in fallback["note"]
+    banded = strength.score_pool(
+        _only("synergy", rank_group="mana_band"), observations, {"synergy"}, context=context
+    )
+    assert _row(banded, "a5", "synergy")["percentile"] == 1.0
+
+
+def test_mana_value_bands_and_lands() -> None:
+    bands = [strength.mana_band(value, is_land=False) for value in (0, 1, 2, 3, 4, 5, 9)]
+    assert bands == ["0-1", "0-1", "2", "3", "4", "5+", "5+"]
+    assert strength.mana_band(3, is_land=True) == "Land"
+    assert strength.mana_band(None, is_land=False) == "unbekannt"  # unknown, never band 0
+
+
+def test_raw_share_and_wilson_differ_across_denominators() -> None:
+    observations = {
+        "tiny": {"deck_universe": Observation(1.0, 1, 1)},
+        "big": {"deck_universe": Observation(0.5, 50, 100)},
+    }
+    context = PoolContext(universe_minimum=0)
+    wilson = strength.score_pool(
+        _only("deck_universe"), observations, {"deck_universe"}, context=context
+    )
+    raw = strength.score_pool(
+        _only("deck_universe", share_measure="raw"),
+        observations,
+        {"deck_universe"},
+        context=context,
+    )
+    assert wilson["big"]["index"] == 100.0 and wilson["tiny"]["index"] == 0.0
+    assert raw["tiny"]["index"] == 100.0 and raw["big"]["index"] == 0.0
+    assert _row(raw, "big", "deck_universe")["wilson"] is None
+    assert _row(wilson, "big", "deck_universe")["wilson"] is not None
+
+
+def test_missing_as_lowest_is_a_setting_for_three_signals_and_named_in_the_row() -> None:
+    observations = {
+        "a": {"commander_inclusion": Observation(0.9, 900, 1000)},
+        "b": {"commander_inclusion": Observation(0.1, 100, 1000)},
+        "c": {},
+    }
+    collected = {"commander_inclusion"}
+    default = strength.score_pool(_only("commander_inclusion"), observations, collected)
+    assert _row(default, "c", "commander_inclusion")["status"] == strength.NO_VALUE
+    assert default["c"]["index"] is None  # absent is a missing observation (B5)
+    lowest = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "lowest"}),
+        observations,
+        collected,
+    )
+    row = _row(lowest, "c", "commander_inclusion")
+    assert row["status"] == strength.MISSING_AS_LOWEST and row["percentile"] == 0.0
+    assert row["note"] == "nicht gelistet, als niedrigster Rang gezählt (Einstellung)"
+    assert lowest["c"]["index"] == 0.0
+    for component in ("synergy", "tournament_lists", "global_inclusion", "combos"):
+        with pytest.raises(ValueError, match="missing_value"):
+            StrengthSettings(missing_value={component: "lowest"})
+    with pytest.raises(ValueError):
+        StrengthSettings(missing_value={"commander_inclusion": "zero"})
+    # a signal that is not usable (below the minimum) is not turned into ranks
+    small = {"a": {"commander_inclusion": Observation(0.9, 9, 10)}, "c": {}}
+    scored = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "lowest"}),
+        small,
+        collected,
+    )
+    assert _row(scored, "c", "commander_inclusion")["status"] == strength.NO_VALUE
+
+
+def test_commander_and_basic_lands_are_not_ranked_unless_switched_on() -> None:
+    observations = {
+        "boss": {"synergy": Observation(99.0)},
+        "land": {"synergy": Observation(98.0)},
+        "x": {"synergy": Observation(1.0)},
+        "y": {"synergy": Observation(2.0)},
+    }
+    context = PoolContext(
+        unranked={
+            "boss": strength.NOT_RANKED_COMMANDER,
+            "land": strength.NOT_RANKED_BASIC_LAND,
+        }
+    )
+    off = strength.score_pool(_only("synergy"), observations, {"synergy"}, context=context)
+    assert off["boss"]["tier"] == "N" and off["boss"]["note"] == "nicht bewertet (Commander)"
+    assert off["land"]["note"] == "nicht bewertet (Standardland)"
+    assert off["boss"]["index"] is None and off["boss"]["coverage"] is None
+    assert off["y"]["index"] == 100.0 and off["x"]["index"] == 0.0  # they take no top rank
+    on = strength.score_pool(
+        _only("synergy", rank_commander_and_basics=True),
+        observations,
+        {"synergy"},
+        context=context,
+    )
+    assert on["boss"]["index"] == 100.0 and on["y"]["index"] == 33.3
+
+
+def test_filter_cards_are_marked_not_ranked_and_do_not_move_the_others() -> None:
+    observations = {
+        "need": {"deck_universe": _share(2, 2)},
+        "p": {"deck_universe": _share(2, 2)},
+        "q": {"deck_universe": _share(1, 2)},
+    }
+    settings = _only("deck_universe")
+    base = PoolContext(universe_minimum=0)
+    marked = PoolContext(universe_minimum=0, filter_cards={"need"})
+    without = strength.score_pool(settings, observations, {"deck_universe"}, context=base)
+    with_filter = strength.score_pool(settings, observations, {"deck_universe"}, context=marked)
+    assert _row(without, "need", "deck_universe")["percentile"] == 0.75  # the defect
+    row = _row(with_filter, "need", "deck_universe")
+    assert row["status"] == strength.FILTER_CARD and row["percentile"] is None
+    assert row["reason"] == strength.FILTER_CARD and "Filterkarte" in row["note"]
+    assert with_filter["need"]["index"] is None
+    assert _row(with_filter, "p", "deck_universe")["percentile"] == 1.0
+    assert _row(with_filter, "q", "deck_universe")["percentile"] == 0.0
+
+
+def test_new_settings_are_validated_serialised_and_round_trip() -> None:
+    settings = StrengthSettings.from_dict(
+        {
+            "rank_group": "type",
+            "share_measure": "raw",
+            "min_denominators": {"edhrec": 50, "tournament": 8},
+            "missing_value": {"deck_universe": "lowest"},
+            "rank_commander_and_basics": True,
+            "tier_cuts": {"S": 95, "A": 80, "B": 60, "C": 40},
+        }
+    )
+    assert StrengthSettings.from_dict(settings.to_dict()) == settings
+    assert settings.to_dict()["missing_value"] == {
+        "commander_inclusion": "skip",
+        "bracket_inclusion": "skip",
+        "deck_universe": "lowest",
+    }
+    for bad in (
+        {"rank_group": "colour"},
+        {"share_measure": "mean"},
+        {"min_denominators": {"edhrec": -1}},
+        {"min_denominators": {"edhrec": 1.5}},
+        {"min_denominators": {"universe": 3}},
+        {"rank_commander_and_basics": "yes"},
+        {"tier_cuts": {"S": 50, "A": 50, "B": 40, "C": 30}},
+        {"missing_value": {"synergy": "lowest"}},
+    ):
+        with pytest.raises(ValueError):
+            StrengthSettings.from_dict(bad)
+    default = StrengthSettings()
+    assert (default.rank_group, default.share_measure) == ("pool", "wilson")
+    assert default.min_denominators == {"edhrec": 30, "tournament": 5}
+    assert default.rank_commander_and_basics is False
+    assert set(default.missing_value.values()) == {"skip"}
+
+
+# ---------- store side of the review ----------
+
+
+def _add_pool_card(
+    store: StudioStore, card_id: str, name: str, type_line: str = "Creature", mv: float = 2.0
+) -> None:
+    source = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    store.connection.execute(
+        "INSERT INTO card(card_id, oracle_id, oracle_name, color_identity, mana_value, type_line, "
+        "commander_legal, source_id) VALUES (?, NULL, ?, 'C', ?, ?, 1, ?)",
+        (card_id, name, mv, type_line, source),
+    )
+    store.connection.execute(
+        "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
+        "available_lower_bound, quantity_exact, source_id) VALUES (?, 1, 1, 0, 1, 1, ?)",
+        (card_id, source),
+    )
+
+
+def _put_signal(
+    store: StudioStore, signal: str, card: str, num: int, den: int, commander: str = COMMANDER
+) -> None:
+    source = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    store.connection.execute(
+        "INSERT OR REPLACE INTO card_signal VALUES (?, ?, ?, ?, ?, ?, ?)",
+        (commander, signal, card, num / den, num, den, source),
+    )
+
+
+def test_a_name_two_cards_claim_is_reported_not_dropped_and_exact_names_win(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    _add_pool_card(store, "card:test:twin1", "Twin Moon // Left Half")
+    _add_pool_card(store, "card:test:twin2", "Twin Moon // Right Half")
+    _add_pool_card(store, "card:test:solo1", "Solo Card")
+    _add_pool_card(store, "card:test:solo2", "Solo Card // Back Face")
+    for name in ("Twin Moon", "Solo Card", "Solo Card // Back Face"):
+        _put_signal(store, signals.SIGNAL_INCLUSION, name, 40, 100)
+    _put_signal(store, signals.SIGNAL_INCLUSION, "Solo Card // Back Face", 10, 100)
+    store.connection.commit()
+    result = strength_view.compute(store, COMMANDER, StrengthSettings())
+    cards = _by_name(result)
+    assert result["ambiguous_names"] == [
+        {
+            "signal": signals.SIGNAL_INCLUSION,
+            "name": "Twin Moon",
+            "candidates": ["Twin Moon // Left Half", "Twin Moon // Right Half"],
+        }
+    ]
+    for name in ("Twin Moon // Left Half", "Twin Moon // Right Half"):
+        assert _component(cards[name], "commander_inclusion")["status"] == strength.NO_VALUE
+    # "Solo Card" is the exact name of one card; the double-faced card keeps its own row
+    assert _component(cards["Solo Card"], "commander_inclusion")["numerator"] == 40
+    assert _component(cards["Solo Card // Back Face"], "commander_inclusion")["numerator"] == 10
+    again = strength_view.compute(store, COMMANDER, StrengthSettings())
+    assert again["ambiguous_names"] == result["ambiguous_names"]  # deterministic
+
+
+def test_commander_and_basic_land_get_no_stage_and_no_rank(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    for name in (COMMANDER, "Forest"):
+        _put_signal(store, signals.SIGNAL_INCLUSION, name, 99, 100)
+    store.connection.commit()
+    off = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))
+    assert off[COMMANDER]["tier"] == "N" and off[COMMANDER]["note"] == "nicht bewertet (Commander)"
+    assert off["Forest"]["tier"] == "N" and off["Forest"]["note"] == "nicht bewertet (Standardland)"
+    assert _component(off["Filler 00"], "commander_inclusion")["percentile"] == 1.0
+    on = _by_name(
+        strength_view.compute(store, COMMANDER, StrengthSettings(rank_commander_and_basics=True))
+    )
+    assert on[COMMANDER]["tier"] != "N"
+    assert _component(on["Filler 00"], "commander_inclusion")["percentile"] < 1.0
+
+
+def test_a_universe_below_its_minimum_is_not_used_and_says_why(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    from commander_lab.studio import universe
+
+    _import(store, tmp_path)
+    for index in range(10):
+        _deck(store, f"s{index}", "edhrec", 3, ["Filler 01"] + (["Filler 02"] if index < 3 else []))
+    store.connection.commit()
+    universe.save_profile(store, "klein", {})  # default minimum universe: 30 decks
+    result = strength_view.compute(store, COMMANDER, StrengthSettings(universe_profile="klein"))
+    row = _component(_by_name(result)["Filler 01"], "deck_universe")
+    assert row["status"] == strength.NO_VALUE and row["reason"] == strength.BELOW_MIN_DENOMINATOR
+    assert (row["numerator"], row["denominator"], row["min_denominator"]) == (10, 13, 30)
+    assert result["universe"] is not None and result["universe"]["below_min_universe"] is True
+    universe.save_profile(store, "klein", {"min_universe": 10})
+    ok = strength_view.compute(store, COMMANDER, StrengthSettings(universe_profile="klein"))
+    assert _component(_by_name(ok)["Filler 01"], "deck_universe")["status"] == strength.PRESENT
+
+
+def test_card_filter_marks_the_required_cards_and_names_the_subset(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    from commander_lab.studio import universe, universe_view
+
+    _import(store, tmp_path)
+    for index in range(10):
+        _deck(store, f"s{index}", "edhrec", 3, ["Filler 01"] + (["Filler 02"] if index < 6 else []))
+    for index in range(4):
+        _deck(store, f"t{index}", "edhrec", 3, ["Filler 03"])
+    store.connection.commit()
+    universe.save_profile(store, "filter", {"must_contain": ["Filler 01"], "min_universe": 5})
+    result = strength_view.compute(store, COMMANDER, StrengthSettings(universe_profile="filter"))
+    cards = _by_name(result)
+    need = _component(cards["Filler 01"], "deck_universe")
+    assert need["status"] == strength.FILTER_CARD and need["percentile"] is None
+    assert need["numerator"] is None  # no 10/10 shown as if it were a finding
+    assert _component(cards["Filler 02"], "deck_universe")["status"] == strength.PRESENT
+    summary = result["universe"]
+    assert summary is not None and summary["denominator"] == 10
+    assert summary["subset_note"] == (
+        "Teilmenge: nur Decks mit Filler 01 (7 Decks durch den Kartenfilter ausgeschlossen)"
+    )
+    spread = universe_view.pool_spread(store, "filter", commander_names=[COMMANDER])
+    flagged = {item["name"]: item for item in spread["cards"] if item["filter_card"]}
+    assert set(flagged) == {"Filler 01"}
+    assert flagged["Filler 01"]["level"] == "F" and flagged["Filler 01"]["share"] is None
+    assert spread["universe"]["subset_note"] == summary["subset_note"]
+    assert spread["universe"]["must_contain"] == ["Filler 01"]
+    co = universe_view.card_cooccurrence(
+        store, "filter", flagged["Filler 01"]["card_id"], commander_names=[COMMANDER]
+    )
+    assert co["subset_note"] == summary["subset_note"] and co["filter_card"] is True
+    unfiltered = universe.save_profile(store, "alle", {})
+    assert unfiltered["name"] == "alle"
+    plain = universe_view.profile_summary(store, "alle", commander_names=[COMMANDER])
+    assert plain["subset_note"] is None
+
+
+def test_the_group_setting_reaches_the_component_rows_of_a_real_pool(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    pool = strength_view.compute(store, COMMANDER, StrengthSettings())
+    typed = strength_view.compute(store, COMMANDER, StrengthSettings(rank_group="type"))
+    row = _component(_by_name(typed)["Filler 00"], "commander_inclusion")
+    assert (row["group"], row["group_size"], row["group_fallback"]) == ("Creature", 9, False)
+    assert pool["settings"]["rank_group"] == "pool" and typed["settings"]["rank_group"] == "type"
+    banded = strength_view.compute(store, COMMANDER, StrengthSettings(rank_group="mana_band"))
+    band = _component(_by_name(banded)["Filler 01"], "commander_inclusion")
+    assert (band["group"], band["group_size"]) == ("2", 8)  # Filler 01 to 08 have mana value 2
+    lone = _component(_by_name(banded)["Filler 00"], "commander_inclusion")
+    assert lone["group"] == "3" and lone["group_fallback"] is True  # the only card of its band
+
+
+def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
+    client: TestClient,
+) -> None:
+    meta = client.get("/api/strength/presets").json()
+    assert meta["recommended"] == StrengthSettings().to_dict() == meta["defaults"]
+    labels = meta["panel"]["labels"]
+    assert "(empfohlen: 3)" in labels["weights.commander_inclusion"]
+    assert "upgraded für Chulane im Bracket 3; bei Turnierausrichtung cedh" in labels["bracket"]
+    assert "(empfohlen: ganzer Pool)" in labels["rank_group"]
+    assert "(empfohlen: Wilson-Untergrenze)" in labels["share_measure"]
+    assert "30 Decks" in labels["min_denominators.edhrec"]
+    assert "5 Listen" in labels["min_denominators.tournament"]
+    assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
+    assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
+    assert "(empfohlen: aus)" in labels["rank_commander_and_basics"]
+    assert "(empfohlen: 0,4)" in labels["min_coverage"]
+    assert "(empfohlen: 2)" in labels["min_components"]
+    assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
+        "(empfohlen: 90 / 75 / 55 / 35)"
+    )
+    for group in meta["panel"]["groups"]:
+        assert all(key in labels and key in meta["panel"]["help"] for key in group["keys"])
+
+
+def test_a_dangling_universe_reference_falls_back_visibly(
+    client: TestClient, tmp_path: Path
+) -> None:
+    from commander_lab.studio import universe
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        universe.save_profile(store, "weg", {})
+    finally:
+        store.close()
+    saved = client.put(
+        "/api/strength/profiles/mit-universum",
+        json={"settings": {"universe_profile": "weg"}},
+        headers=HEADER,
+    )
+    assert saved.status_code == 200
+    assert client.delete("/api/universe/profiles/weg", headers=HEADER).status_code == 200
+    listed = {item["name"]: item for item in client.get("/api/strength/profiles").json()}
+    assert listed["mit-universum"]["valid"] is True
+    assert listed["mit-universum"]["universe_missing"] == "weg"
+    computed = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "profile": "mit-universum"},
+        headers=HEADER,
+    )
+    assert computed.status_code == 200
+    body = computed.json()
+    assert body["universe"] is None and body["universe_missing"] == "weg"
+    assert body["settings"]["universe_profile"] is None
+    assert "„weg“" in body["notices"][0] and "kein Universum" in body["notices"][0]
+    # explicit settings still name a real universe
+    explicit = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "settings": {"universe_profile": "weg"}},
+        headers=HEADER,
+    )
+    assert explicit.status_code == 404
+
+
+def test_an_invalid_stored_profile_is_listed_with_a_reason_not_a_500(
+    client: TestClient, tmp_path: Path
+) -> None:
+    client.put("/api/strength/profiles/gut", json={"settings": {"bracket": "cedh"}}, headers=HEADER)
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        store.connection.execute(
+            "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+            ("kaputt", '{"bracket": "bracket 9"}'),
+        )
+        store.connection.execute(
+            "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+            ("kein-json", "not json"),
+        )
+        store.connection.commit()
+    finally:
+        store.close()
+    answer = client.get("/api/strength/profiles")
+    assert answer.status_code == 200
+    listed = {item["name"]: item for item in answer.json()}
+    assert listed["gut"]["valid"] is True and listed["gut"]["settings"]["bracket"] == "cedh"
+    assert listed["kaputt"]["valid"] is False and listed["kaputt"]["settings"] is None
+    assert "bracket" in listed["kaputt"]["reason"]
+    assert listed["kein-json"]["valid"] is False
+    one = client.get("/api/strength/profiles/kaputt")
+    assert one.status_code == 200 and one.json()["valid"] is False
+    used = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": "kaputt"}, headers=HEADER
+    )
+    assert used.status_code == 422 and "kaputt" in used.json()["detail"]

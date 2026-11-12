@@ -584,6 +584,7 @@ def test_chulane_end_to_end_over_builder_and_tier_list_routes(tmp_path: Path) ->
             "share": 1.0,
             "level": "S",
             "reason": "SHARE_CUT",
+            "filter_card": False,  # added with the filter-card marking (Refs #1205)
         }
         forest = next(item for item in pool["cards"] if item["name"] == "Forest")
         assert forest["universe"]["hits"] == 15 and forest["universe"]["level"] == "S"

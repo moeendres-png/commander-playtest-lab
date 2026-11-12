@@ -371,6 +371,7 @@ def pool_cards(
                 "share": item["share"],
                 "level": item["level"],
                 "reason": item["reason"],
+                "filter_card": item["filter_card"],
             }
         result["universe"] = {
             **spread["universe"],

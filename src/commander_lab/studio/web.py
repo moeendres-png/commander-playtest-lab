@@ -336,7 +336,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             settings = strength_view.resolve_settings(
                 store, preset=body.preset, profile=body.profile, settings=body.settings
             )
-            return dict(strength_view.compute(store, body.commander, settings))
+            return dict(
+                strength_view.compute(
+                    store,
+                    body.commander,
+                    settings,
+                    # a saved profile may point to a universe deleted since: fall back
+                    # visibly instead of failing; explicit settings must name a real one
+                    dangling_universe_ok=body.profile is not None,
+                )
+            )
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
@@ -350,7 +359,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def strength_profiles() -> list[dict[str, object]]:
         store = open_store()
         try:
-            return strength_view.list_profiles(store)
+            return [dict(item) for item in strength_view.list_profiles(store)]
         finally:
             store.close()
 
@@ -360,7 +369,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
-            return strength_view.get_profile(store, name)
+            return dict(strength_view.get_profile(store, name))
         except KeyError as error:
             raise HTTPException(404, "unknown strength profile") from error
         finally:
@@ -375,7 +384,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             settings = strength_view.resolve_settings(
                 store, preset=None, profile=None, settings=body.settings
             )
-            return strength_view.save_profile(store, name, settings)
+            return dict(strength_view.save_profile(store, name, settings))
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
