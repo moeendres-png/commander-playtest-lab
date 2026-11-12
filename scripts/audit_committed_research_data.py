@@ -2,7 +2,7 @@
 """Consistency audit script for committed research and card data files.
 
 Audit Scope:
-- data/research/chulane_legal_pool_gap_matrix.json (801 cards)
+- data/research/chulane_legal_pool_gap_matrix.json (927 cards)
 - data/research/chulane_decklist_inclusion_20261112.csv (15,038 rows)
 - data/cards/pilot_card_knowledge.json (7,231 cards)
 - data/cards/commander_flags.json (53 game changers, 83 commander banned)
