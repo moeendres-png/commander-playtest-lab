@@ -1,0 +1,73 @@
+{
+  "workstream": "card-coverage-20261112",
+  "owner": "Codex",
+  "date": "2026-11-12",
+  "repo": "moeendres-png/commander-playtest-lab",
+  "branch": "engine/card-coverage-20261112",
+  "audit_base_sha": "564b14d104f436314aa7e9be2f0ed70feed8f76d",
+  "audit_base_tree": "90ae65bece76ec967686fe57c9ead5b053c98aba",
+  "issue": 1227,
+  "objective": "Distinguish missing catalog facts from actual missing XMage coverage; repair verified gaps.",
+  "owned_write": [
+    "scripts/export_xmage_card_facts.py",
+    "scripts/build_pilot_card_knowledge.py",
+    "new associated unit tests",
+    "data/cards/xmage_card_facts.json",
+    "data/cards/pilot_card_knowledge.json",
+    "docs/coverage new report"
+  ],
+  "read_only": [
+    "engine-bridge",
+    "config/rules_engines.json",
+    "other data",
+    "/workspace/work/mage-pin"
+  ],
+  "out_of_scope": [
+    "Muse data work",
+    "other open PRs",
+    "Deckbuild Studio",
+    "sealed records"
+  ],
+  "hard_gates": [
+    "no fork push or repin without direct owner go",
+    "no inventory or deck subsets in Git or remote requests",
+    "runtime verification before behavior claim",
+    "independent review before MATERIAL merge"
+  ],
+  "authority": "AUTONOMOUS_WITHIN_CONTRACT",
+  "evidence_required": [
+    "source locks",
+    "meaningful negative controls",
+    "focused tests",
+    "runtime where claimed"
+  ],
+  "status": "IN_PROGRESS",
+  "next_action": "Commit public catalogs + reproducible probes, run integration tests and >=10 real-game seeds; independent review.",
+  "ownership": "card-coverage-20261112",
+  "local_counts": {
+    "identities": 1655,
+    "OK": 1425,
+    "NO_CARD_FACTS": 230
+  },
+  "base_drift": {
+    "previous": "564b14d104f436314aa7e9be2f0ed70feed8f76d",
+    "merged_main": "1da310c06b8bd0304986f442e67dfb4bf099db9b",
+    "overlap_with_owned_files": false
+  },
+  "measured": {
+    "source_registered_missing": 230,
+    "constructed_missing": 230,
+    "real_imports": 230,
+    "real_import_failures": 0,
+    "negative_controls": {
+      "unknown_name": "rejected",
+      "mismatched_identity": "rejected",
+      "bad_constructor": "rejected"
+    },
+    "public_registered_names_constructed": 33402,
+    "facts_catalog_cards": 32832,
+    "pilot_catalog_cards": 32820,
+    "inventory_OK": 1655,
+    "gameplay_behavior": "UNKNOWN"
+  }
+}
