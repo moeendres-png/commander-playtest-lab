@@ -6,6 +6,7 @@ All decks here are invented. No network, no engine.
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -458,3 +459,93 @@ def test_cooccurrence_limit_is_validated(store: StudioStore, tmp_path: Path) -> 
             universe.cooccurrence(store, "Sol Ring", limit=bad)
     assert len(universe.cooccurrence(store, "Sol Ring", limit=None)["pairs"]) == 2
     assert len(universe.cooccurrence(store, "Sol Ring", limit=1)["pairs"]) == 1
+
+
+def _raw_deck(
+    store: StudioStore,
+    deck_id: str,
+    cards: list[tuple[str, str, int]],
+    *,
+    fingerprint: str,
+    cohorts: tuple[str, ...] = (),
+) -> None:
+    """Write a deck straight to the tables, as another importer might."""
+    db = store.connection
+    db.execute(
+        "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('raw', 'DERIVED_DESCRIPTIVE', 'raw', 'x', '2026-01-01')"
+    )
+    db.execute(
+        "INSERT INTO corpus_deck(deck_id, cohort, url, platform, play_group, deck_date, tags, "
+        "fingerprint, duplicate_of, legality_audit, source_id) "
+        "VALUES (?, 'c', '', 'raw', 'g', NULL, '[]', ?, NULL, 'not_audited', 'raw')",
+        (deck_id, fingerprint),
+    )
+    db.executemany(
+        "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+        "normalization_status) VALUES (?, ?, ?, NULL, ?, 'source_name')",
+        [(deck_id, name, section, qty) for name, section, qty in cards],
+    )
+    db.executemany(
+        "INSERT INTO corpus_cohort(cohort, deck_id) VALUES (?, ?)",
+        [(cohort, deck_id) for cohort in cohorts],
+    )
+
+
+def test_empty_fingerprints_are_unknown_and_never_collapsed(store: StudioStore) -> None:
+    _raw_deck(store, "d1", [("Sol Ring", "main", 1)], fingerprint="")
+    _raw_deck(store, "d2", [("Forest", "main", 1)], fingerprint="")
+    assert universe.resolve_universe(store, {}) == ["d1", "d2"]
+    result = universe.inclusion(store)
+    assert result["denominator"] == 2
+    assert {row["card_name"]: row["hits"] for row in result["rows"]} == {
+        "Sol Ring": 1,
+        "Forest": 1,
+    }
+
+
+def test_decks_without_a_counted_card_row_leave_the_denominator(store: StudioStore) -> None:
+    _raw_deck(store, "full", [("Sol Ring", "main", 1)], fingerprint="f1")
+    _raw_deck(store, "zero", [("Sol Ring", "main", 0)], fingerprint="f2")
+    _raw_deck(store, "side", [("Sol Ring", "sideboard", 1)], fingerprint="f3")
+    _raw_deck(store, "bare", [], fingerprint="f4")
+    assert universe.resolve_universe(store, {}) == ["full"]
+    assert universe.inclusion(store)["denominator"] == 1
+
+
+def test_several_bracket_cohorts_are_reported_as_multiple(store: StudioStore) -> None:
+    _raw_deck(store, "a", [("Sol Ring", "main", 1)], fingerprint="f1", cohorts=("bracket:3",))
+    _raw_deck(
+        store,
+        "b",
+        [("Forest", "main", 1)],
+        fingerprint="f2",
+        cohorts=("bracket:2", "bracket:4"),
+    )
+    _raw_deck(store, "c", [("Island", "main", 1)], fingerprint="f3")
+    result = universe.inclusion(store)
+    assert result["denominator_by_bracket"] == {"bracket:3": 1, "multiple": 1, "unknown": 1}
+    assert sum(result["denominator_by_bracket"].values()) == result["denominator"]
+
+
+def test_large_universe_exceeds_the_sql_variable_limit(store: StudioStore) -> None:
+    # Emulate an old sqlite build (999 bound variables) on any runtime.
+    store.connection.setlimit(sqlite3.SQLITE_LIMIT_VARIABLE_NUMBER, 900)
+    for index in range(1200):
+        _raw_deck(
+            store,
+            f"deck{index:04d}",
+            [("Sol Ring", "main", 1), (f"Unique {index % 3}", "main", 1)],
+            fingerprint=f"fp{index}",
+            cohorts=("bracket:3",),
+        )
+    result = universe.inclusion(store)
+    assert result["denominator"] == 1200
+    assert result["denominator_by_platform"] == {"raw": 1200}
+    assert result["denominator_by_bracket"] == {"bracket:3": 1200}
+    hits = {row["card_name"]: row["hits"] for row in result["rows"]}
+    assert hits == {"Sol Ring": 1200, "Unique 0": 400, "Unique 1": 400, "Unique 2": 400}
+    together = universe.cooccurrence(store, "Sol Ring", limit=None)
+    assert together["decks_with_card"] == 1200
+    assert {p["card_name"]: p["decks_together"] for p in together["pairs"]}["Unique 1"] == 400
+    assert universe.snapshot_id(store).endswith(":1200")

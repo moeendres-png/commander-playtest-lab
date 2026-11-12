@@ -8,8 +8,11 @@ a card is the number of distinct universe decks whose main, commander or compani
 sections contain it, over the number of decks in the universe. Exact duplicates
 never count twice: decks of the universe that share a content fingerprint count once
 (the lowest deck id), so the same list stored under two ids is one deck *inside the
-selected universe*, whatever its siblings outside it look like. Only cards with a
-quantity above zero count. Unlike that older per-group helper, sections ``sideboard`` and ``maybeboard`` are both
+selected universe*, whatever its siblings outside it look like. An empty fingerprint
+means "content unknown": such a deck is its own key and is never deduplicated. Only cards
+with a quantity above zero count, and a deck without any such row in a counted section is
+not part of any universe. A deck carrying several bracket cohorts is reported under the
+bucket ``multiple`` in the bracket breakdown. Unlike that older per-group helper, sections ``sideboard`` and ``maybeboard`` are both
 excluded here, because both are outside the deck that was played.
 
 An empty spec selects every stored source deck. A profile whose filters match no deck
@@ -20,7 +23,8 @@ from __future__ import annotations
 
 import datetime
 import json
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from contextlib import contextmanager
 from typing import TypedDict
 
 from ._coerce import to_int
@@ -192,6 +196,16 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
     sql = f"SELECT d.deck_id, d.fingerprint FROM corpus_deck d WHERE {' AND '.join(where)}"
     selected = [(str(row[0]), str(row[1])) for row in store.connection.execute(sql, parameters)]
     deck_ids = [deck_id for deck_id, _ in selected]
+    counted_marks = ", ".join("?" for _ in COUNTED_SECTIONS)
+    with_cards = {
+        str(row[0])
+        for row in store.connection.execute(
+            f"SELECT DISTINCT deck_id FROM corpus_deck_card "
+            f"WHERE section IN ({counted_marks}) AND quantity > 0",
+            COUNTED_SECTIONS,
+        )
+    }
+    deck_ids = [deck_id for deck_id in deck_ids if deck_id in with_cards]
     for cohort in cleaned.get("cohorts", []):
         members = {
             str(row[0])
@@ -217,32 +231,54 @@ def resolve_universe(store: StudioStore, spec: Mapping[str, object]) -> list[str
     fingerprints = dict(selected)
     first_by_fingerprint: dict[str, str] = {}
     for deck_id in sorted(deck_ids):
-        first_by_fingerprint.setdefault(fingerprints[deck_id], deck_id)
+        fingerprint = fingerprints[deck_id]
+        key = fingerprint if fingerprint else f"\x00unknown:{deck_id}"
+        first_by_fingerprint.setdefault(key, deck_id)
     return sorted(first_by_fingerprint.values())
 
 
+@contextmanager
+def _universe_table(store: StudioStore, deck_ids: list[str]) -> Iterator[str]:
+    """Load the deck ids into a TEMP table so queries never bind one variable per deck.
+
+    SQLite caps bound variables (999 on older builds); a universe can be larger."""
+    name = "temp.universe_deck"
+    db = store.connection
+    db.execute(f"DROP TABLE IF EXISTS {name}")
+    db.execute("CREATE TEMP TABLE universe_deck (deck_id TEXT PRIMARY KEY)")
+    try:
+        db.executemany(f"INSERT INTO {name}(deck_id) VALUES (?)", [(i,) for i in deck_ids])
+        yield name
+    finally:
+        db.execute(f"DROP TABLE IF EXISTS {name}")
+
+
 def _composition(store: StudioStore, deck_ids: list[str]) -> tuple[dict[str, int], dict[str, int]]:
-    """Denominator split by source platform and by bracket cohort (``unknown`` if none)."""
+    """Denominator split by source platform and by bracket cohort.
+
+    Decks without a bracket cohort count as ``unknown``, decks with several different
+    bracket cohorts as ``multiple``; the buckets sum to the denominator."""
     by_platform: dict[str, int] = {}
     by_bracket: dict[str, int] = {}
     if not deck_ids:
         return by_platform, by_bracket
-    marks = ", ".join("?" for _ in deck_ids)
-    for platform, count in store.connection.execute(
-        f"SELECT platform, COUNT(*) FROM corpus_deck WHERE deck_id IN ({marks}) "
-        f"GROUP BY platform ORDER BY platform",
-        deck_ids,
-    ):
-        by_platform[str(platform)] = int(count)
-    bracket_of: dict[str, str] = {}
-    for deck_id, cohort in store.connection.execute(
-        f"SELECT deck_id, cohort FROM corpus_cohort WHERE deck_id IN ({marks}) "
-        f"AND cohort LIKE 'bracket:%' ORDER BY cohort",
-        deck_ids,
-    ):
-        bracket_of.setdefault(str(deck_id), str(cohort))
+    with _universe_table(store, deck_ids) as universe_deck:
+        for platform, count in store.connection.execute(
+            f"SELECT d.platform, COUNT(*) FROM corpus_deck d "
+            f"JOIN {universe_deck} u ON u.deck_id = d.deck_id "
+            f"GROUP BY d.platform ORDER BY d.platform"
+        ):
+            by_platform[str(platform)] = int(count)
+        brackets_of: dict[str, set[str]] = {}
+        for deck_id, cohort in store.connection.execute(
+            f"SELECT c.deck_id, c.cohort FROM corpus_cohort c "
+            f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+            f"WHERE c.cohort LIKE 'bracket:%'"
+        ):
+            brackets_of.setdefault(str(deck_id), set()).add(str(cohort))
     for deck_id in deck_ids:
-        label = bracket_of.get(deck_id, "unknown")
+        labels = brackets_of.get(deck_id, set())
+        label = "unknown" if not labels else "multiple" if len(labels) > 1 else next(iter(labels))
         by_bracket[label] = by_bracket.get(label, 0) + 1
     return by_platform, dict(sorted(by_bracket.items()))
 
@@ -273,17 +309,18 @@ def inclusion(
     by_platform, by_bracket = _composition(store, deck_ids)
     counts: dict[str, int] = {}
     if deck_ids:
-        marks = ", ".join("?" for _ in deck_ids)
         sections = ", ".join("?" for _ in COUNTED_SECTIONS)
-        counts = {
-            str(row[0]): int(row[1])
-            for row in store.connection.execute(
-                f"SELECT card_name, COUNT(DISTINCT deck_id) FROM corpus_deck_card "
-                f"WHERE deck_id IN ({marks}) AND section IN ({sections}) AND quantity > 0 "
-                f"GROUP BY card_name",
-                [*deck_ids, *COUNTED_SECTIONS],
-            )
-        }
+        with _universe_table(store, deck_ids) as universe_deck:
+            counts = {
+                str(row[0]): int(row[1])
+                for row in store.connection.execute(
+                    f"SELECT c.card_name, COUNT(DISTINCT c.deck_id) FROM corpus_deck_card c "
+                    f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+                    f"WHERE c.section IN ({sections}) AND c.quantity > 0 "
+                    f"GROUP BY c.card_name",
+                    COUNTED_SECTIONS,
+                )
+            }
     names = card_names if card_names is not None else sorted(counts, key=lambda n: (-counts[n], n))
     rows: list[InclusionRow] = [
         {
@@ -324,32 +361,40 @@ def cooccurrence(
     denominator = 0
     pairs: list[CooccurrenceRow] = []
     if deck_ids:
-        marks = ", ".join("?" for _ in deck_ids)
         sections = ", ".join("?" for _ in COUNTED_SECTIONS)
-        base = (
-            f"SELECT deck_id FROM corpus_deck_card WHERE deck_id IN ({marks}) "
-            f"AND section IN ({sections}) AND quantity > 0 AND card_name = ?"
-        )
-        with_card = sorted(
-            {
-                str(row[0])
-                for row in store.connection.execute(base, [*deck_ids, *COUNTED_SECTIONS, card_name])
-            }
-        )
-        denominator = len(with_card)
-        if with_card:
-            marks2 = ", ".join("?" for _ in with_card)
-            pairs = [
-                {"card_name": str(row[0]), "decks_together": int(row[1])}
-                for row in store.connection.execute(
-                    f"SELECT card_name, COUNT(DISTINCT deck_id) AS decks_together "
-                    f"FROM corpus_deck_card "
-                    f"WHERE deck_id IN ({marks2}) AND section IN ({sections}) "
-                    f"AND quantity > 0 AND card_name != ? GROUP BY card_name "
-                    f"ORDER BY decks_together DESC, card_name LIMIT ?",
-                    [*with_card, *COUNTED_SECTIONS, card_name, -1 if limit is None else limit],
-                )
-            ]
+        with _universe_table(store, deck_ids) as universe_deck:
+            denominator = int(
+                store.connection.execute(
+                    f"SELECT COUNT(DISTINCT c.deck_id) FROM corpus_deck_card c "
+                    f"JOIN {universe_deck} u ON u.deck_id = c.deck_id "
+                    f"WHERE c.section IN ({sections}) AND c.quantity > 0 AND c.card_name = ?",
+                    [*COUNTED_SECTIONS, card_name],
+                ).fetchone()[0]
+            )
+            if denominator:
+                pairs = [
+                    {"card_name": str(row[0]), "decks_together": int(row[1])}
+                    for row in store.connection.execute(
+                        f"SELECT o.card_name, COUNT(DISTINCT o.deck_id) AS decks_together "
+                        f"FROM corpus_deck_card o JOIN {universe_deck} u "
+                        f"ON u.deck_id = o.deck_id "
+                        f"WHERE o.section IN ({sections}) AND o.quantity > 0 "
+                        f"AND o.card_name != ? AND o.deck_id IN ("
+                        f"SELECT c.deck_id FROM corpus_deck_card c "
+                        f"JOIN {universe_deck} v ON v.deck_id = c.deck_id "
+                        f"WHERE c.section IN ({sections}) AND c.quantity > 0 "
+                        f"AND c.card_name = ?) "
+                        f"GROUP BY o.card_name "
+                        f"ORDER BY decks_together DESC, o.card_name LIMIT ?",
+                        [
+                            *COUNTED_SECTIONS,
+                            card_name,
+                            *COUNTED_SECTIONS,
+                            card_name,
+                            -1 if limit is None else limit,
+                        ],
+                    )
+                ]
     return {
         "card_name": card_name,
         "profile": profile,

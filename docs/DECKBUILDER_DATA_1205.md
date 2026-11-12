@@ -63,6 +63,20 @@ Snapshot-ID des Universums. Erzeugt mit `universe.inclusion` über den oben bena
 Beständen; Stichproben gegen die Rohlisten nachgerechnet (z. B. Sol Ring: EDHREC B3
 544/755, EDHREC B4 573/695; Whitemane Lion: 328/755 bzw. 441/695).
 
+Stand der Datei: Sie wurde mit Commit d310ab343 erzeugt, also vor der Dedupe je
+Universum nach Fingerprint, der Regel „nur Mengen > 0“ und den Regeln für leere
+Universen. Ihre `universe_snapshot`-IDs und Nenner sind die dieser Version. Vor jedem
+Vergleich einer Zahl daraus mit aktueller Ausgabe muss sie mit `universe-inclusion` aus
+einem lokalen Import neu erzeugt werden.
+
+Fingerprint-Regeln: Der Fingerprint deckt alle Sektionen ab, auch Sideboard und
+Maybeboard; zwei Listen mit gleichem Maindeck, aber verschiedenem Sideboard sind also
+verschiedene Decks. Ein leerer Fingerprint heißt „Inhalt unbekannt“ und wird nie
+dedupliziert. Der Korpus-Importer (`importers.py`) nutzt ein anderes Fingerprint-Schema;
+Duplikate zwischen beiden Importern werden deshalb nicht zusammengelegt. Decks ohne
+Karte mit Menge > 0 in einer gezählten Sektion gehören zu keinem Universum; Decks mit
+mehreren Bracket-Kohorten erscheinen in der Bracket-Aufteilung unter `multiple`.
+
 ## Weitere gezählte Fakten
 
 - EDHREC zählt für Chulane selbst 9.824 Decks in der Kartenstatistik; die
