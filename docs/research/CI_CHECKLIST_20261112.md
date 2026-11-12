@@ -15,10 +15,10 @@
 
 | Prio | Maßnahme | Erwarteter Effekt (mit Quellenbeleg) | Risiko / Fallstrick | Betroffene Datei & Stelle |
 |---|---|---|---|---|
-| **P1** | **Step-Level Timeout & `compression-level: 0` für Artefakt-Uploads** | Verhindert 11-minütige Hänger bei Uploads; eliminiert doppelte Kompression bereits gepackter Wheels/Archive (*Bericht Abschn. 2, S. 3; actions/upload-artifact v4 README*) | Bei extrem instabilem Netzwerk könnte ein Upload nach 3 Minuten abbrechen | `.github/workflows/ci.yml` (Schritt `Upload distribution and test evidence`), `.github/workflows/production-qualification.yml` (Schritt `Upload qualification artifacts`) |
-| **P2** | **Klassifizierer-Schritt für reine Dokument-Änderungen in Pflicht-Prüfungen** | Reduziert CI-Laufzeit bei reinen Doku-PRs von ca. 8–13 min auf < 2 min; verhindert `Pending`-Hänger der Branch Protection (*Bericht Abschn. 1, S. 1–2; GitHub Docs: Handling skipped status checks*) | Fehlerhafter Pfad-Regex könnte Code-Änderungen als Doku einstufen und Tests überspringen (Fail-Closed-Absicherung zwingend) | `.github/workflows/ci.yml` (Jobs `quality` und `security`, vor Schritt `Run pytest shards`) |
-| **P3** | **Maven-Zwischenspeicher mit `--strict-checksums` in Java-Builds** | Spart das wiederholte Herunterladen von Maven-Plugins und Abhängigkeiten; Zeitersparnis ca. 60–120 s pro Java-Build (*Bericht Abschn. 6, S. 6–7; actions/setup-java v4 README*) | Cache-Poisoning bei unsicheren Mirrors (Abhilfe: `--strict-checksums` und `--batch-mode`) | `.github/workflows/package-engine-bridge.yml` (Schritt `Set up JDK 17`) |
-| **P4** | **Beibehaltung des Single-Runner-Modells (`--shards=4`)** | Spart 4-fachen VM-Setup- und Pip-Overhead (~4–8 min Runner-Zeit kumuliert); vermeidet Queue-Blockaden durch Concurrency-Limits (*Bericht Abschn. 3, S. 4; GitHub Docs: Usage limits*) | 1 Runner teilt sich CPU-Ressourcen für 4 Teilprozesse | `.github/workflows/ci.yml` (Job `quality`, Schritt `Run pytest shards`, `tests/pytest_shards.py`) |
+| **P1** | **Step-Level Timeout & `compression-level: 0` für Artefakt-Uploads** | Verhindert Hänger bei Uploads; eliminiert doppelte Kompression bereits gepackter Wheels/Archive (*Bericht Abschn. 2, S. 3; actions/upload-artifact v4 README*) | Bei extrem instabilem Netzwerk könnte ein Upload nach 3 Minuten abbrechen | `.github/workflows/ci.yml` (Schritte `actions/upload-artifact` mit `name: ci-evidence` [Z. 141] und `name: security-evidence` [Z. 237]), `.github/workflows/production-qualification.yml` (Schritt `actions/upload-artifact` [Z. 117]) |
+| **P2** | **Klassifizierer-Schritt für reine Dokument-Änderungen in Pflicht-Prüfungen (Grundsatzentscheidung)** | Verkürzt Laufzeit bei reinen Doku-PRs auf wenige Minuten (Schätzung); verhindert `Pending`-Hänger der Branch Protection (*Bericht Abschn. 1, S. 1–2; GitHub Docs: Handling skipped status checks*) | **Hohes Risiko:** Schwächt Pflicht-Checks (`quality`, `security`, `infrastructure`), falls Tests/Scans übersprungen werden. Zwingend explizite Owner-Freigabe erforderlich. | `.github/workflows/ci.yml` (Jobs `quality`, `security`), `.github/workflows/production-qualification.yml` (Job `infrastructure`) |
+| **P3** | **Strikte Maven-Flags (`--strict-checksums`, `--batch-mode`) in Java-Builds** | Erhöht Build-Reproduzierbarkeit und Schutz vor korrupten Artefakten (*Bericht Abschn. 6, S. 6–7*). Hinweis: `cache: maven` ist in `package-engine-bridge.yml` bereits aktiv (Z. 41). | Strengere Checksum-Prüfung schlägt bei defekten Upstream-Metadaten fehl | `.github/workflows/package-engine-bridge.yml` (Schritte mit `mvn`-Aufrufen) |
+| **P4** | **Beibehaltung des Single-Runner-Modells (`--shards=4`)** | Spart mehrfachen VM-Setup- und Pip-Overhead; vermeidet Queue-Blockaden durch Runner-Limits (*Bericht Abschn. 3, S. 4; GitHub Docs: Usage limits*) | 1 Runner teilt sich CPU-Ressourcen für 4 Teilprozesse | `.github/workflows/ci.yml` (Job `quality`, Schritt `Test suite` [Z. 64], `tests/pytest_shards.py`) |
 | **P5** | **Nicht-blockierende Prüfungen via `$GITHUB_STEP_SUMMARY` & `::notice`** | Transparente Darstellung beratender Befunde direkt in der PR-Zusammenfassung bei grünem Exit-Code 0 (*Bericht Abschn. 5, S. 5–6; GitHub Blog: Supercharging GitHub Actions with Job Summaries*) | Reine Hinweise könnten von Reviewern übersehen werden, wenn sie nicht blockieren | Zukünftige Benchmark- und Doku-Audit-Schritte in `.github/workflows/` |
 | **P6** | **ChatOps-Entkopplung für künftige `issue_comment`-Workflows** | Vollständiges Unterbinden von Runner-Allokationen bei normalen PR-Kommentaren (*Bericht Abschn. 4, S. 5; GitHub Docs: Events that trigger workflows - issue_comment*) | Tippfehler im Slash-Kommando führen zu stillem Ignorieren | Zukünftige `.github/workflows/*comment*.yml` |
 
@@ -29,56 +29,53 @@
 ### P1: Step-Level Timeout & `compression-level: 0` für Artefakt-Uploads
 
 - **Konkrete Maßnahme:**
-  An jedem Aufruf von `actions/upload-artifact` wird ein explizites `timeout-minutes: 3` hinterlegt und der Parameter `compression-level: 0` gesetzt, sofern bereits komprimierte Artefakte (Wheels, `.tar.gz`, gecachte JSONL) übertragen werden.
+  An den bestehenden Aufrufen von `actions/upload-artifact` wird ein explizites `timeout-minutes: 3` hinterlegt und der Parameter `compression-level: 0` gesetzt, sofern bereits komprimierte Artefakte (Wheels, `.tar.gz`, gecachte JSONL) übertragen werden.
 - **Erwarteter Effekt:**
-  - Vermeidung von Deadlocks/Hängern im GitHub-Blob-Storage-Uploader, die in früheren Läufen bis zu 11 Minuten ungenutzte Runner-Zeit blockierten.
-  - Wegfall der CPU-seitigen Neukompression spart 10–20 Sekunden I/O-Last.
+  - Vermeidung von Deadlocks/Hängern im GitHub-Blob-Storage-Uploader.
+  - Wegfall der CPU-seitigen Neukompression spart I/O-Last und CPU-Zyklen.
   - *Quelle:* `docs/research/CI_PRACTICES_GITHUB_ACTIONS.md`, Abschnitt 2; offizielle Dokumentation von `actions/upload-artifact@v4`.
 - **Risiko:**
   Sollte das Netzwerk temporär gedrosselt sein, bricht der Upload nach 3 Minuten ab.
-  *Abmilderung:* `timeout-minutes: 3` reicht bei typischen Artefaktgrößen des Repos (< 50 MB) bei normaler GitHub-Runner-Bandbreite (ca. 50–100 MB/s) um ein Vielfaches aus.
+  *Abmilderung:* `timeout-minutes: 3` reicht bei typischen Artefaktgrößen des Repos (< 50 MB, Schätzung) bei normaler GitHub-Runner-Netzwerkanbindung (heuristischer Richtwert) im Regelfall aus.
 - **Exakte Datei und Stelle:**
-  - `.github/workflows/ci.yml`: Schritt `Upload distribution and test evidence` (Zeilen ca. 85–95).
-  - `.github/workflows/production-qualification.yml`: Schritt `Upload qualification artifacts` (Zeilen ca. 120–130).
+  - `.github/workflows/ci.yml`: Unbenannter `actions/upload-artifact`-Schritt mit `name: ci-evidence` (Zeile 141) sowie unbenannter Schritt mit `name: security-evidence` (Zeile 237).
+  - `.github/workflows/production-qualification.yml`: Unbenannter `actions/upload-artifact`-Schritt mit `name: production-qualification-${{ github.sha }}` (Zeile 117).
 - **Entscheidungsfrage an den Owner:**
   > Soll für sämtliche Artefakt-Uploads in `ci.yml` und `production-qualification.yml` verbindlich `timeout-minutes: 3` und `compression-level: 0` festgeschrieben werden?
 
 ---
 
-### P2: Klassifizierer-Schritt für reine Dokumentenänderungen
+### P2: Klassifizierer-Schritt für reine Dokumentenänderungen (Grundsatzentscheidung)
 
-- **Konkrete Maßnahme:**
-  In den Pflicht-Jobs `quality` und `security` wird als erster Schritt nach dem Checkout eine Änderungssatz-Prüfung (`git diff`) ausgeführt. Sind ausschließlich Dateien unter `docs/**` oder `*.md` betroffen, überspringen nachfolgende schwere Schritte (`pytest`, Typprüfungen) die Ausführung. Der Job schließt nach Ausführung einer schnellen Syntax- und Secret-Sentinel-Prüfung mit `success` ab. Es wird **kein** `paths-ignore` auf Workflow-Ebene verwendet.
+- **Konkrete Maßnahme (Vorschlag zur Grundsatzentscheidung):**
+  Prüfung, ob in den Pflicht-Jobs `quality` und `security` (`ci.yml`) sowie `infrastructure` (`production-qualification.yml`) ein Pfadfilter-Klassifizierer vorgeschaltet werden soll, wenn ausschließlich Dokumente (`docs/**`, `*.md`) geändert wurden. Es wird **kein** `paths-ignore` auf Workflow-Ebene verwendet.
 - **Erwarteter Effekt:**
-  - Reine Dokumentations-PRs melden innerhalb von 1–2 Minuten ein valides, grünes `success`-Signal an die GitHub Branch Protection.
-  - Die Pflicht-Checks `quality` und `security` bleiben zu keinem Zeitpunkt im Zustand `Pending / Expected` hängen.
+  - Reine Dokumentations-PRs könnten schneller ein valides `success`-Signal an die Branch Protection melden (Schätzung: wenige Minuten statt voller Testlauf).
+  - Die Pflicht-Checks bleiben zu keinem Zeitpunkt im Zustand `Pending / Expected` hängen.
   - *Quelle:* `docs/research/CI_PRACTICES_GITHUB_ACTIONS.md`, Abschnitt 1; GitHub Docs "Handling skipped status checks".
-- **Risiko:**
-  Ein zu lockerer Regulärer Ausdruck könnte Codeänderungen als Dokumentänderung klassifizieren und Tests fälschlicherweise auslassen.
-  *Abmilderung:* Strikter Negativ-Filter (`grep -qvE '^(docs/|.*\.md$)'`), der bei der kleinsten Unklarheit oder Existenz von Python-/Java-/Workflow-Code sofort `code_changed=true` ausgibt (Fail-Closed).
+- **Kritisches Risiko / Einschränkung:**
+  **Pflicht-Checks `quality` und `security`, die Erfolg melden, ohne `pytest`, `mypy` und den Secret-Scan auszuführen, schwächen die Schutzwirkung der Branch Protection fundamental.** Ein fehlerhafter Pfad-Regex könnte Code-Änderungen als Dokumentänderung einstufen. Dies darf **keinesfalls als Routine-Maßnahme** eingeführt werden, sondern bedarf einer expliziten Risiko-Abwägung durch den Owner.
 - **Exakte Datei und Stelle:**
-  - `.github/workflows/ci.yml`: Jobs `quality` und `security`, direkt nach dem Schritt `Checkout repository source`.
+  - `.github/workflows/ci.yml`: Jobs `quality` und `security`, nach `Checkout repository source`.
+  - `.github/workflows/production-qualification.yml`: Job `infrastructure`.
 - **Entscheidungsfrage an den Owner:**
-  > Gibt der Owner die Einführung eines Klassifizierer-Schritts für `quality` und `security` in `ci.yml` frei, und welche Verzeichnisse sollen exakt als reine Dokumentationspfade gelten (`docs/`, `*.md`)?
+  > Soll die Schutzwirkung der Pflicht-Checks für reine Dokumentations-PRs zugunsten kürzerer Durchlaufzeiten durch einen Pfad-Klassifizierer gelockert werden, oder bleibt die vollständige Test- und Scan-Ausführung für jeden Commit zwingend obligatorisch?
 
 ---
 
-### P3: Maven-Zwischenspeicher mit `--strict-checksums` in Java-Builds
+### P3: Strikte Maven-Flags (`--strict-checksums`, `--batch-mode`) in Java-Builds
 
 - **Konkrete Maßnahme:**
-  In Workflows, die Maven-Aufrufe für Java-Komponenten enthalten, wird `cache: maven` in `actions/setup-java` aktiviert. Maven-Aufrufe werden mit `--strict-checksums` und `--batch-mode` versehen.
+  In Workflows mit Maven-Aufrufen für Java-Komponenten werden die Aufrufe einheitlich mit `--strict-checksums` und `--batch-mode` versehen. *(Hinweis: `cache: maven` ist in `.github/workflows/package-engine-bridge.yml` im Schritt `Set up JDK 17` [Zeilen 36–41] bereits aktiv).*
 - **Erwarteter Effekt:**
-  - Das lokale Maven-Repository (`~/.m2/repository`) bleibt über Workflow-Läufe hinweg gecacht.
-  - Beseitigt redundante Downloads von Dutzenden XMage- und Build-Plugins über Maven Central.
-  - Netto-Laufzeitverkürzung bei Java-Builds um ca. 60–120 Sekunden.
-  - *Quelle:* `docs/research/CI_PRACTICES_GITHUB_ACTIONS.md`, Abschnitt 6; offizielle Dokumentation `actions/setup-java@v4`.
+  - Erhöhte Build-Reproduzierbarkeit und sofortiger Abbruch bei beschädigten oder manipulierten Upstream-Artefakten.
+  - *Quelle:* `docs/research/CI_PRACTICES_GITHUB_ACTIONS.md`, Abschnitt 6.
 - **Risiko:**
-  Beschädigte oder manipulierte Artefakte im Cache.
-  *Abmilderung:* Der Schalter `--strict-checksums` erzwingt den sofortigen Abbruch bei Prüfsummen-Abweichungen; GitHub Actions isoliert Caches strikt per Branch/Repository.
+  Strengere Checksum-Prüfung schlägt fehl, falls Upstream-Repositories unvollständige SHA-Metadaten bereitstellen.
 - **Exakte Datei und Stelle:**
-  - `.github/workflows/package-engine-bridge.yml`: Schritt `Set up JDK 17` (Hinzufügen von `cache: maven`).
+  - `.github/workflows/package-engine-bridge.yml`: Maven-Befehlsaufrufe.
 - **Entscheidungsfrage an den Owner:**
-  > Soll `cache: maven` in `package-engine-bridge.yml` für `actions/setup-java` aktiviert werden?
+  > Sollen alle Maven-Aufrufe in den Engine-Bridge-Workflows verbindlich mit `--strict-checksums` und `--batch-mode` gehärtet werden?
 
 ---
 
@@ -87,15 +84,15 @@
 - **Konkrete Maßnahme:**
   Die Ausführung der Python-Testsuite verbleibt auf einem einzigen GitHub-Runner und nutzt dort 4 parallele Prozesse (`pytest --shards=4`, gesteuert durch `tests/pytest_shards.py`). Auf ein Aufblähen in eine GitHub-Matrix (`strategy.matrix`) wird verzichtet.
 - **Erwarteter Effekt:**
-  - Entfall von mehrfachem VM-Initialisierungs- und `pip install`-Overhead (ca. 1–2 Minuten pro Matrix-Job).
+  - Entfall von mehrfachem VM-Initialisierungs- und `pip install`-Overhead.
   - Keine Erschöpfung des Kontingents paralleler Runner (Limit 20 Slots bei Standard-Accounts), insbesondere wenn mehrere Agenten gleichzeitig Branches aktualisieren.
   - Ein einziges konsolidiertes Prüfsignal für `quality` ohne vorgeschalteten Aggregator-Job.
   - *Quelle:* `docs/research/CI_PRACTICES_GITHUB_ACTIONS.md`, Abschnitt 3; GitHub Docs "Usage limits, billing, and administration".
 - **Risiko:**
-  Ein Runner besitzt begrenzte CPU-Kerne (Standard: 2 vCPUs). Bei wachsendem Testvolumen könnte eine Single-VM an Durchsatzgrenzen stoßen.
-  *Abmilderung:* Aktuelle Laufzeit liegt stabil bei ca. 8–12 Minuten; Profiling zeigt, dass Sharding auf 4 Prozesse die 2 vCPUs optimal auslastet.
+  Ein Runner besitzt begrenzte CPU-Kerne. Bei stark wachsendem Testvolumen könnte eine Single-VM an Durchsatzgrenzen stoßen.
+  *Abmilderung:* Gemäß Workflow-Kommentar (`ci.yml` Zeilen 71–73) läuft der Schritt `Test suite` auf einem 4-Kern-Runner ("four parallel pytest processes on the 4-core runner"). Die 4 Shards nutzen diese Ressourcen direkt lokal ohne Virtualisierungs-Overhead.
 - **Exakte Datei und Stelle:**
-  - `.github/workflows/ci.yml`: Job `quality`, Schritt `Run pytest shards`.
+  - `.github/workflows/ci.yml`: Job `quality`, Schritt `Test suite` (Zeile 64).
 - **Entscheidungsfrage an den Owner:**
   > Bestätigt der Owner die architektonische Entscheidung, das Single-Runner-Mehrprozess-Modell (`pytest --shards=4`) als Standard beizubehalten?
 
@@ -128,7 +125,7 @@
   - *Quelle:* `docs/research/CI_PRACTICES_GITHUB_ACTIONS.md`, Abschnitt 4; GitHub Docs "Events that trigger workflows - issue_comment".
 - **Risiko:**
   Tippfehler im Befehl führen dazu, dass der Workflow gar nicht startet.
-  *Abmilderung:* Dokumentation der erlaubten Slash-Befehle in `CONTRIBUTING.md` bzw. `AGENTS.md`.
+  *Abmilderung:* Dokumentation der erlaubten Slash-Befehle in den entsprechenden Projektdokumenten (`AGENTS.md`).
 - **Exakte Datei und Stelle:**
   - Richtlinie für künftige Kommentar-Workflows in `.github/workflows/`.
 - **Entscheidungsfrage an den Owner:**
