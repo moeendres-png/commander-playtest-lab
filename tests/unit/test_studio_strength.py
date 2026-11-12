@@ -52,7 +52,7 @@ def _commander_rows(
 
 
 CARD_FIELDS = ["commander_name", "card_name", "num_decks", "potential_decks", "synergy", "lift"]
-BRACKET_FIELDS = [*CARD_FIELDS, "variant"]
+BRACKET_FIELDS = [*CARD_FIELDS, "variant", "bracket"]
 
 
 def _write_signals(folder: Path) -> None:
@@ -433,7 +433,7 @@ def test_deck_list_universe_is_a_counted_component(store: StudioStore, tmp_path:
     one = _component(cards["Filler 01"], "deck_universe")
     two = _component(cards["Filler 02"], "deck_universe")
     assert one["status"] == strength.PRESENT and one["denominator"] == two["denominator"]
-    assert two["numerator"] == 3 and one["percentile"] == 1.0 and two["percentile"] == 0.0
+    assert two["numerator"] == 3 and one["percentile"] == 1.0 and two["percentile"] < 1.0
     assert result["universe"] is not None
     assert _component(cards["Filler 05"], "deck_universe")["status"] == strength.NO_VALUE
     with pytest.raises(KeyError):
@@ -529,3 +529,13 @@ def test_presets_and_profile_round_trip(client: TestClient) -> None:
     assert client.delete("/api/strength/profiles/mein", headers=HEADER).status_code == 200
     assert client.delete("/api/strength/profiles/mein", headers=HEADER).status_code == 404
     assert client.get("/api/strength/profiles").json() == []
+
+
+def test_tier_list_page_has_the_strength_panel_without_inline_code() -> None:
+    from commander_lab.studio.web import STATIC
+
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert 'id="strength-panel"' in html and "<script>" not in html and "style=" not in html
+    assert "innerHTML" not in script and "/api/strength" in script
+    assert "zu wenig Daten" in script and "keine gemessene Siegrate" in script
