@@ -1,26 +1,26 @@
 # TopDeck.gg Turnier-Decklisten & Präsenz (90 Tage)
 
 Erstellt durch Gemini Flash (Paket C, Refs #1205, #1208).
-Abrufdatum: 2026-11-12.
+Abrufdatum: 2026-11-13.
 
 > **Hinweis zur Datenquelle:**
 > Data provided by TopDeck.gg (https://topdeck.gg).
 
 ## 1. Zählprotokoll
-- **Untersuchungsfenster:** 90 Tage (2026-08-14 bis 2026-11-12)
-- **Erfasste Turniere (distinkt):** 4311
-- **Standings gesamt:** 70732
-- **Standings mit Leader:** 24498
+- **Untersuchungsfenster:** 90 Tage (2026-08-15 bis 2026-11-13)
+- **Erfasste Turniere (distinkt):** 4321
+- **Standings gesamt:** 70894
+- **Standings mit Leader:** 24583
 - **Untersuchte Commander:** 107
 - **Commander mit Turnier-Präsenz (>0 Einträge):** 30
-- **Exportierte Commander (außer Chulane, mit vollständigen Listen):** 29
-- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** 333
+- **Exportierte Commander:** 30 (29 in `topdeck_20261112/` + Chulane in `deckbuilder_1655/`)
+- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** 339 (333 in `topdeck_20261112/` + 6 Chulane)
 - **Unvollständige Decklisten (gezählt, aber nicht exportiert):** 0
 
 ## 2. Dateien
 - `topdeck_commander_presence.csv`: Aktualisierte Präsenz-Zählung aller 107 Commander.
-- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste.
-- `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte × Commander (Refs #1205).
+- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`).
+- `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte × Commander gemäß docs/TOPDECK.md §6 (Refs #1205).
 
 ## 3. Übersicht je Commander mit Präsenz
 | Commander | Einträge 90d | Einträge mit Liste | Vollständig exportiert | Unvollständig |

@@ -150,6 +150,9 @@ def test_process_tournaments_and_completeness(tmp_path: Path) -> None:
         assert rows[1]["section"] == "main"
         assert rows[0]["player"] == "Alice"
         assert rows[0]["wins"] == "3"
+        assert "top_cut" in rows[0]
+        assert "wins_bracket" in rows[0]
+        assert "losses_bracket" in rows[0]
 
     readme_file = out_dir / "README.md"
     assert readme_file.is_file()
