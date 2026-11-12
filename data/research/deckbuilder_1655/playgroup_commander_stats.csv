@@ -1,0 +1,108 @@
+commander_id,commander_name,playgroup_url,cached_elo,global_rank,average_commander_damage_per_game,average_damage_per_game,average_kills_per_game,average_poison_counters_per_game,average_turn_length_seconds,average_wins_by_turn,decks_count,games_count,games_lost,games_won,total_seconds_played,win_rate,source_file
+1043,"Kykar, Wind's Fury",https://playgroup.gg/commanders/1043-kykar-wind-s-fury,1562,986,4,145380,0.7,3,123.67,9,1139,2860,1901,949,2966127,33,1043.json
+110,"Anowon, the Ruin Sage",https://playgroup.gg/commanders/110-anowon-the-ruin-sage,1539,1334,5,4,0.49,2,96.6,10,37,106,73,33,97565,31,110.json
+1162,"Zetalpa, Primal Dawn",https://playgroup.gg/commanders/1162-zetalpa-primal-dawn,1563,972,12,5,0.6,,96.84,9,35,45,30,15,38058,33,1162.json
+1168,"Sram, Senior Edificer",https://playgroup.gg/commanders/1168-sram-senior-edificer,1386,5358,8,7,0.73,6,120.36,9,187,392,266,124,380563,31,1168.json
+1196,"Lavinia, Azorius Renegade",https://playgroup.gg/commanders/1196-lavinia-azorius-renegade,1431,5065,2,4,0.32,2,240.11,11,248,467,369,91,1049049,19,1196.json
+1274,Arcanis the Omnipotent,https://playgroup.gg/commanders/1274-arcanis-the-omnipotent,1722,25,4,7,0.49,4,94.16,9,105,208,124,80,155921,38,1274.json
+13,"Uurg, Spawn of Turg",https://playgroup.gg/commanders/13-uurg-spawn-of-turg,1481,4340,9,17,0.53,8,119.47,11,52,92,72,20,98084,21,13.json
+132,"Lonis, Cryptozoologist",https://playgroup.gg/commanders/132-lonis-cryptozoologist,1540,1311,2,1674,0.53,4,131.28,9,391,910,641,266,980938,29,132.json
+1387,"Alandra, Sky Dreamer",https://playgroup.gg/commanders/1387-alandra-sky-dreamer,1587,694,6,10,0.79,2,120.44,9,172,615,388,225,632187,36,1387.json
+1415,"Korvold, Fae-Cursed King",https://playgroup.gg/commanders/1415-korvold-fae-cursed-king,1613,483,10,174201,0.7,6,105.05,8,1723,5429,3488,1903,4021631,35,1415.json
+1433,"Esix, Fractal Bloom",https://playgroup.gg/commanders/1433-esix-fractal-bloom,1693,68,6,665155,0.6,8,120.16,9,350,1260,849,406,1261418,32,1433.json
+1514,The Gitrog Monster,https://playgroup.gg/commanders/1514-the-gitrog-monster,1704,51,7,7955,0.63,4,144.72,7,707,1826,1216,600,1833690,32,1514.json
+1538,"Brudiclad, Telchor Engineer",https://playgroup.gg/commanders/1538-brudiclad-telchor-engineer,1429,5088,6,410129,0.64,4,114.99,9,639,1842,1273,561,1708886,30,1538.json
+1622,"Jeska, Thrice Reborn",https://playgroup.gg/commanders/1622-jeska-thrice-reborn,1550,1148,8,5,0.64,3,117.04,8,210,535,346,186,432456,34,1622.json
+1637,"Halana and Alena, Partners",https://playgroup.gg/commanders/1637-halana-and-alena-partners,1501,2094,7,119,0.69,8,349.04,8,374,1233,817,403,3296672,32,1637.json
+1643,Loran of the Third Path,https://playgroup.gg/commanders/1643-loran-of-the-third-path,1698,57,2,11,0.55,,109.39,10,12,58,38,20,62463,34,1643.json
+1645,Tor Wauki the Younger,https://playgroup.gg/commanders/1645-tor-wauki-the-younger,1546,1206,3,3,0.65,3,110.74,9,204,528,379,147,474171,27,1645.json
+1658,"Selvala, Explorer Returned",https://playgroup.gg/commanders/1658-selvala-explorer-returned,1583,731,6,853879,0.49,4,156.98,8,287,632,466,162,737346,25,1658.json
+166,"Adrix and Nev, Twincasters",https://playgroup.gg/commanders/166-adrix-and-nev-twincasters,1571,872,7040967,2382027,0.55,4,105.86,9,1032,3003,2083,901,2665632,30,166.json
+1718,"Rionya, Fire Dancer",https://playgroup.gg/commanders/1718-rionya-fire-dancer,1718,31,4,218,0.92,5,124.12,7,288,715,417,295,617622,41,1718.json
+1738,Jedit Ojanen of Efrava,https://playgroup.gg/commanders/1738-jedit-ojanen-of-efrava,1454,4827,7,6,0.44,,111.7,8,13,32,21,11,29043,34,1738.json
+1742,"Fynn, the Fangbearer",https://playgroup.gg/commanders/1742-fynn-the-fangbearer,1412,5222,2,407004,0.57,2,104.87,7,1345,3117,2164,928,2444666,29,1742.json
+1792,Kaervek the Merciless,https://playgroup.gg/commanders/1792-kaervek-the-merciless,1422,5144,5,3,0.5,4,100.31,10,201,526,406,114,457414,21,1792.json
+1886,"Titania, Protector of Argoth",https://playgroup.gg/commanders/1886-titania-protector-of-argoth,1611,499,5,18,0.7,17,119.24,8,211,445,285,158,399796,35,1886.json
+190,"Kamahl, Pit Fighter",https://playgroup.gg/commanders/190-kamahl-pit-fighter,1480,4364,9,9,0.46,,157.0,9,8,13,9,4,15700,30,190.json
+1927,"Veyran, Voice of Duality",https://playgroup.gg/commanders/1927-veyran-voice-of-duality,1611,499,9,6,0.78,2,118.84,8,1088,3547,2275,1263,3272729,35,1927.json
+1969,"Kediss, Emberclaw Familiar",https://playgroup.gg/commanders/1969-kediss-emberclaw-familiar,1646,244,4,5,0.72,2,105.03,7,295,580,388,187,435871,32,1969.json
+1987,"Linden, the Steadfast Queen",https://playgroup.gg/commanders/1987-linden-the-steadfast-queen,1435,5032,5,5,0.24,2,113.43,9,49,97,82,14,105150,14,1987.json
+2006,"Esior, Wardwing Familiar",https://playgroup.gg/commanders/2006-esior-wardwing-familiar,1550,1148,5,5,0.73,14,120.56,8,97,243,182,61,224246,25,2006.json
+201,"Lathliss, Dragon Queen",https://playgroup.gg/commanders/201-lathliss-dragon-queen,1513,1860,4397585,481148,0.52,7,131.74,9,1272,2182,1440,665,2360805,30,201.json
+2023,"Mazirek, Kraul Death Priest",https://playgroup.gg/commanders/2023-mazirek-kraul-death-priest,1488,4147,12,9,0.7,2,115.26,8,252,667,477,190,617345,28,2023.json
+2024,"Braids, Arisen Nightmare",https://playgroup.gg/commanders/2024-braids-arisen-nightmare,1570,889,3,44,0.74,2,212.3,9,769,1891,1277,597,3194765,31,2024.json
+2089,"Ayli, Eternal Pilgrim",https://playgroup.gg/commanders/2089-ayli-eternal-pilgrim,1494,3959,3,4,0.58,3,26.97,11,126,262,174,84,68925,32,2089.json
+2097,"Agrus Kos, Wojek Veteran",https://playgroup.gg/commanders/2097-agrus-kos-wojek-veteran,1500,2116,,,0,,0.0,,4,0,0,0,0,0,2097.json
+2143,"Chulane, Teller of Tales",https://playgroup.gg/commanders/2143-chulane-teller-of-tales,1665,150,6,370145,0.55,5,115.39,8,748,2110,1317,782,1903738,37,2143.json
+215,"Bennie Bracks, Zoologist",https://playgroup.gg/commanders/215-bennie-bracks-zoologist,1638,288,4,8,0.92,2,109.53,10,29,39,24,15,36146,38,215.json
+2155,"Yargle, Glutton of Urborg",https://playgroup.gg/commanders/2155-yargle-glutton-of-urborg,1517,1766,12,2,0.74,2,92.61,10,36,91,72,19,75476,20,2155.json
+217,"Omnath, Locus of Rage",https://playgroup.gg/commanders/217-omnath-locus-of-rage,1537,1365,6,174,0.7,3,96.73,8,890,2624,1741,867,1958703,33,217.json
+220,God-Eternal Bontu,https://playgroup.gg/commanders/220-god-eternal-bontu,1528,1560,5,3,0.56,,113.64,10,17,48,31,16,43296,33,220.json
+2253,"Jolrael, Mwonvuli Recluse",https://playgroup.gg/commanders/2253-jolrael-mwonvuli-recluse,1391,5333,4,13,0.51,,116.48,10,39,130,100,30,121141,23,2253.json
+2264,Galazeth Prismari,https://playgroup.gg/commanders/2264-galazeth-prismari,1653,200,4,788,0.73,3,136.17,8,335,1015,666,342,1091914,33,2264.json
+2275,"Surrak, the Hunt Caller",https://playgroup.gg/commanders/2275-surrak-the-hunt-caller,1463,4697,5,5,0.14,,103.12,7,13,21,15,5,16499,23,2275.json
+2367,"Ovika, Enigma Goliath",https://playgroup.gg/commanders/2367-ovika-enigma-goliath,1524,1628,7,2744,0.88,3,308.95,8,918,2846,1715,1110,6682542,39,2367.json
+2521,Plargg and Nassari,https://playgroup.gg/commanders/2521-plargg-and-nassari,1504,2048,6,5,0.58,,155.49,9,102,197,152,44,249255,22,2521.json
+2626,"Ruby, Daring Tracker",https://playgroup.gg/commanders/2626-ruby-daring-tracker,1588,682,2,25,0.66,12,129.16,8,274,1050,692,350,1038569,33,2626.json
+2818,"Morska, Undersea Sleuth",https://playgroup.gg/commanders/2818-morska-undersea-sleuth,1404,5268,7,7,0.53,3,121.09,10,1271,4235,3046,1179,4512193,27,2818.json
+2821,"Sophia, Dogged Detective",https://playgroup.gg/commanders/2821-sophia-dogged-detective,1464,4670,5,8,0.53,3,128.03,10,390,1156,828,318,1280693,27,2821.json
+326,Durnan of the Yawning Portal,https://playgroup.gg/commanders/326-durnan-of-the-yawning-portal,1671,131,4,6,0.72,4,139.62,8,161,683,460,223,732152,32,326.json
+3350,"Tromell, Seymour's Butler",https://playgroup.gg/commanders/3350-tromell-seymour-s-butler,1628,370,4,12,0.62,3,130.25,8,27,59,37,22,59526,37,3350.json
+3380,"Szarel, Genesis Shepherd",https://playgroup.gg/commanders/3380-szarel-genesis-shepherd,1470,4559,5,215115,0.58,2,164.41,9,1168,3375,2364,977,4615376,28,3380.json
+3401,"Doc Ock, Sinister Scientist",https://playgroup.gg/commanders/3401-doc-ock-sinister-scientist,1515,1810,,13,0.75,,117.67,10,5,8,3,5,7413,62,3401.json
+3432,Spider-Man Noir,https://playgroup.gg/commanders/3432-spider-man-noir,1533,1443,8,5,0.5,,143.08,10,13,20,13,5,23609,25,3432.json
+3434,"Spider-Man, Web-Slinger",https://playgroup.gg/commanders/3434-spider-man-web-slinger,1500,2117,,4,0.5,,116.6,8,2,2,1,1,1749,50,3434.json
+3437,Stegron the Dinosaur Man,https://playgroup.gg/commanders/3437-stegron-the-dinosaur-man,1500,2117,,,0,,0.0,,1,0,0,0,0,0,3437.json
+3461,"Venom, Evil Unleashed",https://playgroup.gg/commanders/3461-venom-evil-unleashed,1387,5351,9,4,0.17,,79.51,9,5,36,30,6,22263,16,3461.json
+3475,"Carnage, Crimson Chaos",https://playgroup.gg/commanders/3475-carnage-crimson-chaos,1462,4715,4,4,0.31,,131.56,10,31,32,23,8,37757,25,3475.json
+3509,"Prowler, Clawed Thief",https://playgroup.gg/commanders/3509-prowler-clawed-thief,1352,5441,4,4,0.17,,140.3,8,33,53,46,7,62152,13,3509.json
+3510,"Rhino, Barreling Brute",https://playgroup.gg/commanders/3510-rhino-barreling-brute,1528,1560,8,6,0.88,,102.29,8,13,24,17,7,19946,29,3510.json
+3531,"Vulture, Scheming Scavenger",https://playgroup.gg/commanders/3531-vulture-scheming-scavenger,1470,4559,,4,0.33,,100.82,,2,3,3,0,2218,0,3531.json
+3557,"Lizard, Connors's Curse",https://playgroup.gg/commanders/3557-lizard-connors-s-curse,1514,1834,4,8,0.52,,99.84,9,9,31,25,6,26357,19,3557.json
+3559,Mary Jane Watson,https://playgroup.gg/commanders/3559-mary-jane-watson,1424,5125,3,5,0.13,1,119.26,,7,8,8,0,11568,0,3559.json
+3561,"Molten Man, Inferno Incarnate",https://playgroup.gg/commanders/3561-molten-man-inferno-incarnate,1395,5319,7,3,0.38,,95.44,8,12,39,30,8,30733,20,3561.json
+3573,"Sun-Spider, Nimble Webber",https://playgroup.gg/commanders/3573-sun-spider-nimble-webber,1495,3930,4,4,0.21,,140.6,5,12,14,12,2,14482,14,3573.json
+3575,"Swarm, Being of Bees",https://playgroup.gg/commanders/3575-swarm-being-of-bees,1500,2117,,,0,,0.0,,0,0,0,0,0,0,3575.json
+3701,Bre of Clan Stoutarm,https://playgroup.gg/commanders/3701-bre-of-clan-stoutarm,1518,1747,5,7,0.5,2,130.55,10,257,655,498,152,738646,23,3701.json
+3702,"Brigid, Clachan's Heart // Brigid, Doun's Mind",https://playgroup.gg/commanders/3702-brigid-clachan-s-heart-brigid-doun-s-mind,1603,555,6672,110935,0.62,3,586.96,7,333,1169,735,416,4884700,35,3702.json
+3703,"Doran, Besieged by Time",https://playgroup.gg/commanders/3703-doran-besieged-by-time,1539,1332,8,44,0.48,8,115.87,9,659,1808,1328,459,1781324,25,3703.json
+3707,"Kirol, Attentive First-Year",https://playgroup.gg/commanders/3707-kirol-attentive-first-year,1653,200,3,6,0.65,2,134.14,9,34,105,73,30,117104,28,3707.json
+3708,"Lluwen, Imperfect Naturalist",https://playgroup.gg/commanders/3708-lluwen-imperfect-naturalist,1542,1278,2,7,0.5,9,76.57,10,73,224,159,61,143271,27,3708.json
+3709,"Maralen, Fae Ascendant",https://playgroup.gg/commanders/3709-maralen-fae-ascendant,1499,3861,649458,6,0.42,4,363.96,9,1081,3106,2218,846,9282168,27,3709.json
+3711,"Rhys, the Evermore",https://playgroup.gg/commanders/3711-rhys-the-evermore,1470,4558,,5,0.0,,116.71,10,2,5,4,1,6069,20,3711.json
+3713,"Tam, Mindful First-Year",https://playgroup.gg/commanders/3713-tam-mindful-first-year,1662,165,4,7,0.79,,136.79,10,27,38,23,14,46646,36,3713.json
+3761,"Rootha, Mastering the Moment",https://playgroup.gg/commanders/3761-rootha-mastering-the-moment,1509,1951,3,9,0.73,3,353.93,9,1310,3442,2159,1229,10025366,35,3761.json
+3828,"Tam, Observant Sequencer // Deep Sight",https://playgroup.gg/commanders/3828-tam-observant-sequencer-deep-sight,1574,836,4,8,0.54,,170.31,7,21,35,27,8,48708,22,3828.json
+3830,"Sanar, Unfinished Genius // Wild Idea",https://playgroup.gg/commanders/3830-sanar-unfinished-genius-wild-idea,1592,637,27,8,0.59,3,139.83,8,36,152,100,48,152552,31,3830.json
+3838,"Muddle, the Ever-Changing",https://playgroup.gg/commanders/3838-muddle-the-ever-changing,1515,1810,4,7,0.65,2,143.18,8,267,741,569,166,824843,22,3838.json
+3844,"Mica, Reader of Ruins",https://playgroup.gg/commanders/3844-mica-reader-of-ruins,1644,255,4,5,0.74,,134.49,8,42,95,67,28,97238,29,3844.json
+411,Soul of Windgrace,https://playgroup.gg/commanders/411-soul-of-windgrace,1655,191,6,249,0.76,1,146.34,9,194,399,272,126,485421,31,411.json
+439,Prime Speaker Zegana,https://playgroup.gg/commanders/439-prime-speaker-zegana,1559,1028,12,14,0.76,4,116.7,9,94,304,189,113,293737,37,439.json
+4397,"Titanbones, Towering Heart",https://playgroup.gg/commanders/4397-titanbones-towering-heart,1455,4814,10,2,0.36,,82.51,6,18,14,9,1,8581,7,4397.json
+4399,"Tinybones, Pocket Nuisance",https://playgroup.gg/commanders/4399-tinybones-pocket-nuisance,1539,1331,3,2,0.6,2,118.39,11,37,43,28,12,48065,27,4399.json
+457,"Juri, Master of the Revue",https://playgroup.gg/commanders/457-juri-master-of-the-revue,1569,905,5,4,0.7,6,115.37,9,575,1749,1205,538,1635568,30,457.json
+4833,"Winter, Team Player",https://playgroup.gg/commanders/4833-winter-team-player,1500,2117,,,0,,0.0,,0,0,0,0,0,0,4833.json
+4836,"Winter, Tormented Loner",https://playgroup.gg/commanders/4836-winter-tormented-loner,1520,1709,,6,2.0,,112.0,10,1,1,0,1,1120,100,4836.json
+4846,"Yargle, Goliath of Otaria",https://playgroup.gg/commanders/4846-yargle-goliath-of-otaria,1500,2117,,,0,,0.0,,2,0,0,0,0,0,4846.json
+4856,Gideon the Oathless,https://playgroup.gg/commanders/4856-gideon-the-oathless,1491,4043,,1,0.0,,57.81,,4,2,2,0,925,0,4856.json
+4887,"Hapatra, the Desert Fang",https://playgroup.gg/commanders/4887-hapatra-the-desert-fang,1491,4043,,2,0.0,,79.29,5,2,3,2,1,1665,33,4887.json
+4888,"Hapatra, the Desert Frost",https://playgroup.gg/commanders/4888-hapatra-the-desert-frost,1500,2117,,,0,,0.0,,1,0,0,0,0,0,4888.json
+4891,"Teyo, Lightshield Expert",https://playgroup.gg/commanders/4891-teyo-lightshield-expert,1500,2117,,,0,,0.0,,0,0,0,0,0,0,4891.json
+4892,"Teyo, Diamondblade Mage",https://playgroup.gg/commanders/4892-teyo-diamondblade-mage,1500,2117,,,0,,0.0,,0,0,0,0,0,0,4892.json
+4896,"Loot, the Nexus",https://playgroup.gg/commanders/4896-loot-the-nexus,1500,2117,,,0,,0.0,,1,0,0,0,0,0,4896.json
+4925,"Tam, the Possibility",https://playgroup.gg/commanders/4925-tam-the-possibility,1634,320,21913102,1455601,0.35,3,169.83,9,492,955,563,341,1316508,35,4925.json
+4928,"Saheeli, Jewel of Avishkar",https://playgroup.gg/commanders/4928-saheeli-jewel-of-avishkar,1573,845,6,6,0.73,4,641.85,9,58,208,143,62,967269,29,4928.json
+4933,"Saheeli, Consul of Oversight",https://playgroup.gg/commanders/4933-saheeli-consul-of-oversight,1500,2117,,,0,,0.0,,0,0,0,0,0,0,4933.json
+502,"Rootha, Mercurial Artist",https://playgroup.gg/commanders/502-rootha-mercurial-artist,1397,5312,2,7,0.35,,130.35,8,38,82,67,14,91769,17,502.json
+573,"Ramos, Dragon Engine",https://playgroup.gg/commanders/573-ramos-dragon-engine,1482,4317,21,7,0.57,3,754.06,9,1111,2839,2013,801,17485066,28,573.json
+581,"Garna, Bloodfist of Keld",https://playgroup.gg/commanders/581-garna-bloodfist-of-keld,1579,782,4,3,0.68,3,114.68,9,126,274,199,75,272940,27,581.json
+63,"Tatyova, Benthic Druid",https://playgroup.gg/commanders/63-tatyova-benthic-druid,1648,228,4,694354,0.64,1,211.61,9,777,1894,1172,706,3319715,37,63.json
+680,"Ishai, Ojutai Dragonspeaker",https://playgroup.gg/commanders/680-ishai-ojutai-dragonspeaker,1505,2020,9,9,0.7,5,104.4,9,501,1424,978,443,1162150,31,680.json
+686,"Multani, Yavimaya's Avatar",https://playgroup.gg/commanders/686-multani-yavimaya-s-avatar,1698,57,13,22,0.83,,130.85,9,56,109,67,41,115281,37,686.json
+687,"Gilanra, Caller of Wirewood",https://playgroup.gg/commanders/687-gilanra-caller-of-wirewood,1429,5088,6,10,0.64,4,118.53,8,219,671,443,226,626533,33,687.json
+798,"Rograkh, Son of Rohgahh",https://playgroup.gg/commanders/798-rograkh-son-of-rohgahh,1616,457,8,119780,0.53,8,402.91,6,1591,5851,3958,1827,12361414,31,798.json
+810,Lyra Dawnbringer,https://playgroup.gg/commanders/810-lyra-dawnbringer,1604,550,6,8,0.61,2,106.32,10,185,481,303,167,486934,34,810.json
+826,Myojin of Night's Reach,https://playgroup.gg/commanders/826-myojin-of-night-s-reach,1500,2117,,,0,,0.0,,0,0,0,0,0,0,826.json
+845,"Syr Alin, the Lion's Claw",https://playgroup.gg/commanders/845-syr-alin-the-lion-s-claw,1492,4013,5,2,0.0,,49.82,,2,1,1,0,548,0,845.json
+885,"Moraug, Fury of Akoum",https://playgroup.gg/commanders/885-moraug-fury-of-akoum,1509,1951,8,5,0.57,1,116.86,8,46,88,64,24,80631,27,885.json
+982,"Koma, Cosmos Serpent",https://playgroup.gg/commanders/982-koma-cosmos-serpent,1634,320,8,17,0.74,9,-1135.91,9,708,1855,1190,648,-17171541,34,982.json
