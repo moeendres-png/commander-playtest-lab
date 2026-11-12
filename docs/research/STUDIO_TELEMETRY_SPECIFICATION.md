@@ -3,7 +3,6 @@
 - **Dokument-ID:** `STUDIO_TELEMETRY_SPECIFICATION`
 - **Referenz:** GitHub-Issue #1205 (Arbeitspaket P3 / G10)
 - **Status:** `NOT_MEASURED` (Stand 2026-11-12)
-- **Autor / Prüfer:** Ausführungs-Lane Gemini Flash 3.8 High
 - **Verbindliche Vorgaben:** `AGENTS.md` (Evidenzsemantik: `UNKNOWN != PASS`, `NOT_MEASURED != 0`, Fail-Closed)
 
 ---
@@ -21,50 +20,69 @@ Dieses Dokument definiert:
 
 ---
 
-## 2. Ableitbare Telemetrie-Felder pro Karte
+## 2. Ableitbare Telemetrie-Felder pro Karte (Code-Stand)
 
-Das Studio-Schema in `src/commander_lab/studio/store.py` (`simulation_card`) und die Ereignis-Hooks des XMage-Full-Game-Lane-Bridges erfassen folgende Basiskennzahlen pro Karte und Simulationslauf:
+Das Studio-Schema in `src/commander_lab/studio/store.py` (`simulation_card`) und die Berechnungslogik in `src/commander_lab/studio/simulations.py` (Zeilen 245–270) erfassen folgende Basiskennzahlen pro Karte und Simulationslauf:
 
-| Schema-Feld | Typ | Definition / Messpunkt |
-|---|---|---|
-| `games_completed` | `INTEGER` | Gesamtzahl der gültig beendeten Spiele des Simulationslaufs (\(N_{\text{games}}\)). |
-| `games_offered` | `INTEGER` | Anzahl der Spiele, in denen die Karte dem Piloten tatsächlich zur Verfügung stand (in der Eröffnungshand, regulär gezogen oder per Tutor in die Hand/Zone überführt). |
-| `games_cast_after_offer` | `INTEGER` | Anzahl der Spiele, in denen die Karte nach Erhalt auch tatsächlich gewirkt (oder aktiviert) wurde. |
-| `games_rotted` | `INTEGER` | Anzahl der Spiele, in denen die Karte auf der Hand verblieb („Handleiche“ / Dead Draw) und bis Spielende nie gewirkt wurde. |
-| `offered_castable` | `INTEGER` | Anzahl von Prioritätsfenstern bzw. Zügen, in denen die Karte im legalen Sinne wirkbar war (ausreichend Mana, gültiges Timing, legale Ziele), unabhängig davon, ob der Pilot sie wirkte. |
-| `cast_count` | `INTEGER` | Gesamtzahl der Ausführungen/Casts über alle Spiele (erfasst Recursion, Bounce-and-Replay, z. B. Loops von *Shrieking Drake*). |
-| `mean_first_cast_round` | `REAL` | Durchschnittliche Spielrunde (Turn Number), in der die Karte zum ersten Mal erfolgreich gewirkt wurde. |
+| Schema-Feld | Typ | Tatsächliche Code-Berechnung (`simulations.py`) | Nenner / Bezug | Einschränkung / Abgrenzung |
+|---|---|---|---|---|
+| `games_completed` | `INTEGER` | Anzahl gültig beendeter Partien des Laufs | Gesamtlauf | Nur beendete Spiele (`len(completed)`) |
+| `games_offered` | `INTEGER` | Anzahl Partien, in denen die Karte im Spielverlauf mindestens einmal legal wirkbar angeboten wurde | `games_completed` | **Kein physisches Ziehen gemessen:** Handeintritt und Verweildauer auf der Hand sind im Engine-Bridge-Event-Stream `NOT_MEASURED` (`docs/research/PLAYGROUP_LIVE_PHASE7_CARD_INSIGHTS_METRICS_SPEC_20261108.md`, Z. 41). |
+| `games_cast_after_offer` | `INTEGER` | Anzahl Partien, in denen die angebotene Karte mindestens einmal tatsächlich gewirkt wurde | `games_offered` | Zählt Partien mit mindestens einem Cast, nicht die Zahl der Cast-Ereignisse. |
+| `games_rotted` | `INTEGER` | `max(0, games_offered - games_cast_after_offer)` | `games_offered` | Reine Differenz: Karte wurde angeboten, aber in dieser Partie nie gewirkt. Bedeutet **nicht**, dass die Karte physisch auf der Hand verblieb. |
+| `offered_castable` | `INTEGER` | Identisch mit `games_offered` (`simulations.py` Z. 257: `offered_castable: offered_games`) | `games_completed` | **Keine Zahl von Prioritätsfenstern.** Entspricht exakt `games_offered`. |
+| `cast_count` | `INTEGER` | Summe aller erfolgreichen Wirkausführungen über alle Partien | - | Erfasst Mehrfachausführungen (Recursion, Bounce-Loops wie *Shrieking Drake*). |
+| `mean_first_cast_round` | `REAL` | Arithmetisches Mittel von `first_cast_round` über alle Partien mit Cast | Partien mit Cast | Eigene Zugnummer des Piloten (*own turn count*, nicht globale Rundenzahl). |
 
 ### Abgeleitete Ratios und Kennzahlen
 
-Aus den Basisbeobachtungen lassen sich folgende dimensionslose Kennzahlen bilden:
-
 1. **Offer-Rate (\(R_{\text{offer}}\)):**
    $$R_{\text{offer}} = \frac{\text{games\_offered}}{\text{games\_completed}}$$
-   Wahrscheinlichkeit, dass die Karte in einem Spiel gesehen wird.
+   Anteil der Partien, in denen die Karte dem Piloten mindestens einmal legal angeboten wurde.
 
 2. **Cast-Conversion-Rate (\(R_{\text{conv}}\)):**
-   $$R_{\text{conv}} = \frac{\text{games\_cast\_after\_offer}}{\text{games\_offered}} \quad (\text{nur definiert für } \text{games\_offered} > 0)$$
-   Gibt an, wie oft eine angebotene Karte tatsächlich gewirkt wird. Ein niedriger Wert signalisiert Situationalität oder zu hohe Kosten.
+   $$R_{\text{conv}} = \frac{\text{games\_cast\_after\_offer}}{\text{games\_offered}} \quad (\text{definiert für } \text{games\_offered} > 0)$$
+   Anteil der Partien mit Angebot, in denen die Karte auch tatsächlich gewirkt wurde.
 
 3. **Rot-Rate (\(R_{\text{rot}}\)):**
    $$R_{\text{rot}} = \frac{\text{games\_rotted}}{\text{games\_offered}} = 1 - R_{\text{conv}}$$
-   Anteil der Spiele, in denen die Karte ungenutzt auf der Hand verrottet.
+   Anteil der Partien mit Angebot, in denen kein Wirken stattfand.
 
-4. **Cast-Opportunity-Efficiency (\(E_{\text{cast}}\)):**
-   $$E_{\text{cast}} = \frac{\text{games\_cast\_after\_offer}}{\text{offered\_castable}}$$
-   Verhältnis zwischen tatsächlichem Ausspielen und theoretischen Gelegenheiten.
+4. **Timing-Velocity (\(V_{\text{round}}\)):**
+   Arithmetisches Mittel `mean_first_cast_round` (eigene Spielrunden des Piloten).
 
-5. **Timing-Velocity (\(V_{\text{round}}\)):**
-   Arithmetisches Mittel `mean_first_cast_round`. Dient zur Einordnung in Früh-, Mittel- oder Spätspiel.
+> [!IMPORTANT]
+> **Nicht gemessene Größen (`NOT_MEASURED`):**
+> - Physische Handkarten-Ziehungen (*draw count*)
+> - Dauer des Verbleibs auf der Hand (*turns in hand*)
+> - Zahl durchlaufener Prioritätsfenster (*priority windows*)
+> Diese Größen werden vom XMage-Bridge-Event-Stream aus Entkopplungs- und Geheimhaltungsgründen nicht pro Karte erfasst.
 
 ---
 
-## 3. Methodische Voraussetzungen: Power-Analyse für Win-Rate-Deltas
+## 3. Methodische Voraussetzungen: Kausalmessung und Power-Analyse für Win-Rate-Deltas
 
-Soll einer Karte ein kausaler Einfluss auf den Spielerfolg zugeschrieben werden (z. B. *„Karte A erhöht die Win-Rate des Decks um mindestens 5 Prozentpunkte“*), muss ein statistischer Zweistichproben-Vergleich (Z-Test für Proportionen bzw. logistische Regression) gerechnet werden.
+Soll einer Karte ein kausaler Einfluss auf den Spielerfolg zugeschrieben werden (z. B. *„Karte A erhöht die Win-Rate des Decks um mindestens 5 Prozentpunkte gegenüber Alternative B“*), muss das Studiendesign methodisch sauber aufgesetzt sein.
 
-### 3.1 Statistische Parameter im 4-Spieler-Commander
+### 3.1 Unzulässigkeit naiver In-Game-Vergleiche
+
+Naive Gegenüberstellungen innerhalb desselben Simulationslaufs sind statistisch schwer verzerrt:
+- **„Angeboten vs. Nicht angeboten“:** Eine Karte wird in längeren Spielen häufiger gesehen als in kurzen. Spiele, die bis Runde 10 dauern, weisen völlig andere Siegchancen und Matchup-Dynamiken auf als schnelle 5-Runden-Spiele.
+- **„Gespielt vs. Nicht gezogen / Nicht gewirkt“:** Verursacht massiven Überlebenden-Effekt (*survivor bias*). Karten werden bevorzugt gewirkt, wenn der Pilot bereits Board-Kontrolle oder ausreichend Mana besitzt.
+- **Keine Randomisierung:** Im laufenden Spiel wird eine Karte nicht zufällig zugeteilt, sondern unterliegt Mulligan-Entscheidungen, Draw-Spells und Spielsituationen.
+
+### 3.2 Kausalmaß: Kontrafaktischer Deck-Tausch (A/B-Swap)
+
+Das einzige methodisch saubere Maß für den individuellen Karteneffekt ist der **Deck-Tausch**:
+1. Zwei Decklisten \(D_{\text{Test}}\) und \(D_{\text{Kontrolle}}\), die sich ausschließlich um die eine untersuchte Karte (bzw. den 1:1-Kartentausch) unterscheiden.
+2. Identische Runden- und Zufalls-Seeds für beide Testreihen.
+3. Identischer Tisch (gleiche 3 Gegner-Decks, gleiche Sitzplatzrotationen).
+4. Das Siegmaß pro Arm ist definiert als:
+   $$\text{Win-Rate} = \frac{\text{wins\_fractional}}{\text{games\_completed}}$$
+5. Der kausale Effekt ist das beobachtete Delta:
+   $$\Delta p = \text{Win-Rate}(D_{\text{Test}}) - \text{Win-Rate}(D_{\text{Kontrolle}})$$
+
+### 3.3 Statistische Parameter im 4-Spieler-Commander
 
 - **Baseline-Win-Rate (Nullhypothese \(H_0\)):** In einem balancierten 4-Personen-Pod beträgt die erwartete Win-Rate:
   $$p_0 = 0{,}25 \quad (25\,\%)$$
@@ -73,9 +91,9 @@ Soll einer Karte ein kausaler Einfluss auf den Spielerfolg zugeschrieben werden 
 - **Signifikanzniveau (\(\alpha\)):** \(\alpha = 0{,}05\) (zweiseitig, kritischer Z-Wert \(Z_{\alpha/2} = 1{,}96\)).
 - **Statistische Power (\(1 - \beta\)):** \(80\,\%\) (\(\beta = 0{,}20\), Z-Wert \(Z_\beta = 0{,}8416\)).
 
-### 3.2 Formel für den benötigten Stichprobenumfang
+### 3.4 Formel für den benötigten Stichprobenumfang
 
-Für den unpaarigen Proportionenvergleich gilt für die Fallzahl pro Gruppe (\(n\)):
+Für den unpaarigen Proportionenvergleich zweier unabhängiger Simulationsarme gilt für die Fallzahl pro Arm (\(n\)):
 
 $$n = \frac{\left(Z_{\alpha/2} + Z_\beta\right)^2 \cdot \left[p_0(1 - p_0) + p_1(1 - p_1)\right]}{(\Delta p)^2}$$
 
@@ -88,14 +106,12 @@ $$\text{Summe der Varianzen} = 0{,}1875 + 0{,}2100 = 0{,}3975$$
 
 $$(\Delta p)^2 = (0{,}05)^2 = 0{,}0025$$
 
-$$n = \frac{7{,}849 \cdot 0{,}3975}{0{,}0025} = \frac{3{,}120}{0{,}0025} \approx 1{.}248 \text{ Spiele pro Gruppe}$$
+$$n = \frac{7{,}849 \cdot 0{,}3975}{0{,}0025} = \frac{3{,}120}{0{,}0025} \approx 1{.}248 \text{ beendete Spiele pro Arm}$$
 
-### 3.3 Konsequenz für die Simulation
+### 3.5 Konsequenz für die Simulation
 
-- Um einen Win-Rate-Unterschied von \(+5\,\%\) mit \(80\,\%\) Power nachzuweisen, müssen mindestens **1.248 Spiele** der Bedingung *„Karte gezogen/gewirkt“* und **1.248 Spiele** der Kontrollbedingung *„Karte nicht im Deck bzw. nicht gezogen“* ausgewertet werden.
-- Gesamtzahl erforderlicher Volllauf-Spiele: **mindestens 2.500 Partien** pro zu testender Kartenvariation.
-- Wird eine Karte nur in \(50\,\%\) aller Spiele regulär gezogen (\(R_{\text{offer}} \approx 0{,}5\)), erhöht sich der Gesamt-Simulationsbedarf für diese einzelne Karte auf:
-  $$N_{\text{total}} = \frac{1{.}248}{0{,}5} \approx 2{.}500 \text{ Spiele je Deck-Konfiguration}$$
+- Um einen Win-Rate-Unterschied von \(+5\,\%\) mit \(80\,\%\) Power nachzuweisen, müssen mindestens **1.248 Spiele** für Deck \(D_{\text{Test}}\) und mindestens **1.248 Spiele** für Deck \(D_{\text{Kontrolle}}\) unter identischen Bedingungen simuliert werden.
+- Gesamtzahl erforderlicher Volllauf-Spiele: **mindestens 2.496 Partien** pro 1-Karten-Vergleich.
 
 ---
 
@@ -103,19 +119,19 @@ $$n = \frac{7{,}849 \cdot 0{,}3975}{0{,}0025} = \frac{3{,}120}{0{,}0025} \approx
 
 ### 4.1 Ist-Bestand im StudioStore
 
-Im aktuellen `StudioStore` (`~/.local/share/commander-studio/studio.sqlite3`) befinden sich:
+Im lokalen `StudioStore` (`~/.local/share/commander-studio/studio.sqlite3`) befinden sich *(lokale, ungeprüfte Beobachtung aus einer Test-Instanz, im Repository nicht testiert)*:
 - `simulation_run`: 3 Läufe (`chulane:mixed`, `chulane:optimized`, `chulane:precon`) mit je **12 Spielen**.
-- `simulation_card`: 192 Zeilen (reine Explorationsläufe für das Schema).
+- `simulation_card`: 192 Zeilen (reine Schema-Exploration).
 
 ### 4.2 Begründung für NOT_MEASURED
 
-1. **Unzureichender Stichprobenumfang (\(N = 12 \ll 2{.}500\)):** Bei \(N = 12\) beträgt der \(95\,\%\)-Konfidenzintervall-Radius für eine beobachtete Win-Rate \(\pm 25\) Prozentpunkte. Ein Win-Rate-Delta von 5 Prozentpunkten liegt vollständig im Rauschen.
-2. **Keine kontrafaktischen Kontrollgruppen:** Die 12 Spiele wurden nicht als isolierte A/B-Swaps (Deck mit Karte vs. Deck ohne Karte bei identischen Seeds und Gegner-Pods) durchgeführt.
+1. **Unzureichender Stichprobenumfang (\(N = 12 \ll 2{.}496\)):** Bei \(N = 12\) beträgt der \(95\,\%\)-Konfidenzintervall-Radius für eine beobachtete Win-Rate \(\pm 24{,}5\) Prozentpunkte. Ein Win-Rate-Delta von 5 Prozentpunkten liegt vollständig im statistischen Rauschen.
+2. **Keine kontrafaktischen A/B-Swaps:** Die vorhandenen Läufe testen unterschiedliche Gesamtdecks gegeneinander, keine isolierten 1-Karten-Swaps.
 3. **Regel- und Evidenzkonformität nach AGENTS.md:** 
    Gemäß `AGENTS.md` (§ 4) gilt:
    > `UNKNOWN != PASS`, `NOT_RUN != PASS`, `CODE_DERIVED != RUNTIME_VERIFIED`.
    
-   Es ist ausdrücklich verboten, aus unzureichenden oder fehlenden Messungen einen Standardwert (wie `0.0` oder `Default Tier C`) zu fabrizieren.
+   Es ist unzulässig, aus unzureichenden oder fehlenden Messungen einen Standardwert (wie `0.0` oder `Default Tier C`) zu fabrizieren.
 4. **Ergebnis:** Das Telemetrie-Signal für individuelle Karten im Tierlist- und Scoring-System wird verbindlich als **`NOT_MEASURED`** geführt.
 
 ---
@@ -124,8 +140,8 @@ Im aktuellen `StudioStore` (`~/.local/share/commander-studio/studio.sqlite3`) be
 
 Wenn künftige Simulations-Kampagnen (M5/Studio-Batch-Execution) Telemetriedaten erzeugen, gelten folgende Bindungen:
 
-1. **Schwellenwert-Gate:** Ein Karten-Win-Rate-Delta darf erst in Scoring- oder Tierlist-Funktionen einfließen, wenn `games_offered >= 1000` und die Power-Bedingung erfüllt ist.
+1. **Schwellenwert-Gate (Vorschlag):** Ein kausales Karten-Win-Rate-Delta darf erst in Scoring- oder Tierlist-Funktionen einfließen, wenn beide Arme des Deck-Tauschs mindestens je \(n = 1{.}248\) beendete Spiele aufweisen und das \(95\,\%\)-Konfidenzintervall den Nullpunkt ausschließt.
 2. **Trennung von Deskription und Kausalität:** 
-   - Deskriptive Werte wie `R_conv`, `R_rot` und `mean_first_cast_round` dürfen ab `games_offered >= 50` als *deskriptive Beobachtung* (`DataClass.DERIVED_DESCRIPTIVE`) angezeigt werden.
+   - Rein deskriptive Werte wie \(R_{\text{conv}}\), \(R_{\text{rot}}\) und `mean_first_cast_round` dürfen (Vorschlag: ab `games_offered >= 50`) als deskriptive Beobachtung (`"DERIVED_DESCRIPTIVE"`) angezeigt werden.
    - Kausale Urteile (*„Karte macht das Deck stärker“*) bleiben bis zum Erreichen der statistischen Power als `NOT_MEASURED` bzw. `UNKNOWN` deklariert.
 3. **Keine synthetische Auffüllung:** Fehlende Telemetrie darf in UI und Algorithmen nicht mit 0 ersetzt werden, sondern muss explizit als `Status: NOT_MEASURED` ausgewiesen werden.
