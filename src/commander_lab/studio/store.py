@@ -12,7 +12,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 9
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -174,6 +174,12 @@ CREATE TABLE IF NOT EXISTS corpus_cohort (
     cohort TEXT NOT NULL,
     deck_id TEXT NOT NULL REFERENCES corpus_deck(deck_id),
     PRIMARY KEY (cohort, deck_id)
+);
+CREATE TABLE IF NOT EXISTS universe_profile (
+    profile_id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    spec TEXT NOT NULL,
+    created_at TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS corpus_deck_part (
     deck_id TEXT PRIMARY KEY REFERENCES corpus_deck(deck_id) DEFERRABLE INITIALLY DEFERRED,
