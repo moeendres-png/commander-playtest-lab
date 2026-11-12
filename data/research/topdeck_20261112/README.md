@@ -54,3 +54,7 @@ Abrufdatum: 2026-11-12.
 | Saheeli, Jewel of Avishkar | 2 | 2 | 2 | 0 |
 | Ramos, Dragon Engine | 1 | 1 | 1 | 0 |
 | Tatyova, Benthic Druid | 7 | 7 | 7 | 0 |
+
+## Spielernamen
+
+Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Datei, in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
