@@ -21,7 +21,14 @@ MARK = {"X-Studio": "1"}
 COMMANDER = {"view": "commander", "commander": "Test Commander"}
 
 
-def _deck(store: StudioStore, deck_id: str, platform: str, bracket: int, cards: list[str]) -> None:
+def _deck(
+    store: StudioStore,
+    deck_id: str,
+    platform: str,
+    bracket: int,
+    cards: list[str],
+    section: str = "main",
+) -> None:
     db = store.connection
     db.execute(
         "INSERT OR IGNORE INTO source(source_id, data_class, title, sha256, imported_at) "
@@ -35,8 +42,8 @@ def _deck(store: StudioStore, deck_id: str, platform: str, bracket: int, cards: 
     )
     db.executemany(
         "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
-        "normalization_status) VALUES (?, ?, 'main', NULL, 1, 'source_name')",
-        [(deck_id, name) for name in cards],
+        "normalization_status) VALUES (?, ?, ?, NULL, 1, 'source_name')",
+        [(deck_id, name, section) for name in cards],
     )
     db.execute(
         "INSERT INTO corpus_cohort(cohort, deck_id) VALUES (?, ?)", (f"bracket:{bracket}", deck_id)
@@ -67,6 +74,23 @@ def folder(tmp_path: Path) -> Iterator[Path]:
     db.commit()
     store.close()
     yield tmp_path / "studio"
+
+
+def _add_card(folder: Path, card_id: str, name: str, decks: list[list[str]]) -> None:
+    """A Studio card without scryfall facts (engine name = oracle name) and its decks."""
+    store = StudioStore.open(folder)
+    try:
+        store.connection.execute(
+            "INSERT INTO card(card_id, oracle_id, oracle_name, color_identity, source_id) "
+            "VALUES (?, NULL, ?, 'C', 'raw')",
+            (card_id, name),
+        )
+        known = store.connection.execute("SELECT COUNT(*) FROM corpus_deck").fetchone()[0]
+        for index, listed in enumerate(decks):
+            _deck(store, f"x{card_id[-3:]}{known + index:03d}", "edhrec", 3, listed)
+        store.connection.commit()
+    finally:
+        store.close()
 
 
 @pytest.fixture
@@ -236,3 +260,65 @@ def test_the_page_carries_the_new_field_and_stays_free_of_inline_code() -> None:
     assert 'id="universe-select"' in page and 'id="universe-panel"' in page
     assert "Unbewertet" in script
     assert "<script>" not in page and " style=" not in page and " onclick=" not in page
+
+
+def test_case_variants_across_decks_count_distinct_decks(client: TestClient, folder: Path) -> None:
+    _add_card(
+        folder,
+        "card:t:sol",
+        "Sol Ring",
+        [["Sol Ring"], ["sol ring"], ["SOL RING"], ["Sol Ring", "sol ring"]],
+    )
+    _put(client, "alle", {})
+    card = _spread(client, "alle")["Sol Ring"]
+    assert card["hits"] == 4 and card["matched_name"] == "Sol Ring"
+    assert {item["name"]: item["hits"] for item in card["spellings"]} == {
+        "Sol Ring": 2,
+        "sol ring": 2,
+        "SOL RING": 1,
+    }
+    together = client.get("/api/cards/card:t:sol/cooccurrence", params={"profile": "alle"}).json()
+    assert together["decks_with_card"] == 4
+
+
+def test_a_front_face_shared_with_another_card_is_not_used(
+    client: TestClient, folder: Path
+) -> None:
+    _add_card(folder, "card:t:fire", "Fire", [["Fire"], ["Fire"]])
+    _add_card(folder, "card:t:ice", "Fire // Ice", [["Fire // Ice"], ["Fire"]])
+    _put(client, "alle", {})
+    cards = _spread(client, "alle")
+    assert cards["Fire // Ice"]["hits"] == 1
+    assert cards["Fire // Ice"]["ambiguous_front_face"] is True
+    assert cards["Fire"]["hits"] == 3 and "ambiguous_front_face" not in cards["Fire"]
+
+
+def test_a_double_faced_card_listed_only_by_its_front_face_is_matched(
+    client: TestClient, folder: Path
+) -> None:
+    _add_card(folder, "card:t:kala", "Kala // Verso", [["Kala"]] * 5)
+    _put(client, "alle", {})
+    card = _spread(client, "alle")["Kala // Verso"]
+    assert card["matched"] and card["hits"] == 5 and card["matched_name"] == "Kala"
+
+
+def test_min_main_cards_counts_a_card_in_main_and_mainboard_once(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        _deck(store, "a", "edhrec", 3, ["X", "Y"], section="main")
+        _deck(store, "b", "edhrec", 3, ["X", "Y", "Z"], section="mainboard")
+        store.connection.execute(
+            "INSERT INTO corpus_deck_card(deck_id, card_name, section, oracle_id, quantity, "
+            "normalization_status) VALUES ('a', 'X', 'mainboard', NULL, 1, 'source_name')"
+        )
+        store.connection.commit()
+        assert universe.resolve_universe(store, {"min_main_cards": 3}) == ["b"]
+        assert universe.resolve_universe(store, {"min_main_cards": 2}) == ["a", "b"]
+    finally:
+        store.close()
+
+
+def test_the_profile_body_is_strict_about_min_main_cards(client: TestClient) -> None:
+    url = "/api/universe/profiles/x"
+    assert client.put(url, json={"min_main_cards": True}, headers=MARK).status_code == 422
+    assert client.put(url, json={"min_main_cards": 1}, headers=MARK).status_code == 200
