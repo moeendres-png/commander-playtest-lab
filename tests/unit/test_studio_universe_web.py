@@ -54,6 +54,8 @@ def folder(tmp_path: Path) -> Iterator[Path]:
     db.execute(
         "UPDATE card SET oracle_name = 'Filler 02 // Back Side' WHERE card_id = 'card:project:0102'"
     )
+    # _fill already wrote three corpus-importer decks ("mainboard" section); with the
+    # forty below the universe holds 43 decks.
     for index in range(40):
         cards = ["Forest", "Filler 03"]
         if index < 25:
@@ -112,7 +114,7 @@ def test_summary_equals_the_inclusion_denominators(client: TestClient, folder: P
     store = StudioStore.open(folder)
     try:
         counted = universe.inclusion(store, profile="alle", card_names=[])
-        assert summary["denominator"] == counted["denominator"] == 40
+        assert summary["denominator"] == counted["denominator"] == 43
         assert summary["denominator_by_platform"] == counted["denominator_by_platform"]
         assert summary["denominator_by_bracket"] == counted["denominator_by_bracket"]
         assert summary["denominator_by_platform"] == {"archidekt": 20, "edhrec": 20}
@@ -126,7 +128,8 @@ def test_card_spread_carries_hits_denominator_share_and_snapshot(client: TestCli
     summary = _put(client, "alle", {})
     forest = client.get("/api/universe/spread", params={"profile": "alle"}).json()
     card = next(item for item in forest["cards"] if item["name"] == "Forest")
-    assert (card["hits"], card["denominator"], card["share"]) == (40, 40, 1.0)
+    assert (card["hits"], card["denominator"]) == (42, 43)
+    assert card["share"] == pytest.approx(42 / 43)
     assert card["matched"] is True and card["level"] == "S" and card["reason"] == "SHARE_CUT"
     assert forest["universe"]["snapshot_id"] == summary["snapshot_id"]
     assert forest["universe"]["data_class"] == "DERIVED_DESCRIPTIVE"
@@ -204,7 +207,7 @@ def test_cooccurrence_has_both_denominators_and_checks_the_limit(client: TestCli
     _put(client, "alle", {})
     url = "/api/cards/card:project:0007/cooccurrence"
     data = client.get(url, params={"profile": "alle", "limit": 3}).json()
-    assert data["decks_with_card"] == 25 and data["denominator"] == 40
+    assert data["decks_with_card"] == 25 and data["denominator"] == 43
     assert data["decks_with_card_label"] and data["denominator_label"]
     assert len(data["pairs"]) == 3
     assert {"Forest", "Filler 03"} == {pair["card_name"] for pair in data["pairs"][:2]}
