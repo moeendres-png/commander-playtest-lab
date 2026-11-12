@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import sqlite3
 from collections import Counter
 from pathlib import Path
 
@@ -15,7 +16,7 @@ from .decks import lab_snapshot, validate_revision
 from .images import fetch_images
 from .marks import import_owner_marks
 from .queries import corpus_inclusion, legal_pool
-from .store import LEGACY_COMMANDER, StudioStore
+from .store import BOUND_ELSEWHERE, LEGACY_COMMANDER, StudioStore
 
 _SOURCE_DATA_COMMANDS = (
     "import-corpus-register",
@@ -289,6 +290,160 @@ def _read_labels(path: str) -> list[str]:
     return text.splitlines()
 
 
+def _run(args: argparse.Namespace, store: StudioStore) -> object:
+    """Run one store command and return its printable result."""
+    result: object
+    if args.command == "bind-commander":
+        added = store.bind_unbound(args.commander, basis="OWNER_DECLARED")
+        result = {"commander": args.commander, "commander_bindings_added": added}
+    elif args.command == "commanders":
+        result = list_commanders(store)
+    elif args.command == "import-inventory":
+        result = importers.import_inventory_workbook(store, args.path)
+    elif args.command == "import-corpus-register":
+        result = importers.import_corpus_register(store, args.path)
+    elif args.command == "import-corpus-cards":
+        result = importers.import_corpus_card_parts(
+            store, args.paths, allow_deck_move=args.allow_deck_move
+        )
+    elif args.command == "import-edhrec":
+        result = importers.import_edhrec_table(store, args.path)
+    elif args.command == "import-edhrec-manifest":
+        result = importers.import_edhrec_capture_manifest(
+            store, args.path, raw_folder=args.raw_folder
+        )
+    elif args.command == "import-marks":
+        result = importers.import_card_marks(store, args.path)
+    elif args.command == "import-playgroup-atlas":
+        result = importers.import_playgroup_atlas(
+            store, args.path, source_title=args.source_title, snapshot_date=args.snapshot_date
+        )
+    elif args.command == "import-edhrec-cardrecs":
+        result = importers.import_edhrec_cardrecs_csv(store, args.path)
+    elif args.command == "import-edhrec-delta":
+        result = importers.import_edhrec_delta_jsonl(store, args.path)
+    elif args.command == "import-hub":
+        result = importers.import_hub_corpus(store, args.path)
+    elif args.command == "import-scryfall":
+        result = catalog.import_scryfall_oracle(
+            store, args.path, disambiguation_path=args.disambiguation
+        )
+    elif args.command == "import-simulation":
+        result = importers.import_simulation_report(
+            store,
+            args.path,
+            engine_pin=args.engine_pin,
+            pilot_policy=args.pilot_policy,
+        )
+    elif args.command == "import-lab-deck":
+        result = importers.import_lab_deck_snapshot(
+            store,
+            args.path,
+            deck_id=args.deck_id,
+            name=args.name,
+            branch=args.branch,
+        )
+    elif args.command == "import-cohort":
+        result = catalog.import_cohort(store, args.path, cohort=args.name)
+    elif args.command == "fetch-images":
+        pool = legal_pool(store, args.commander)
+        result = fetch_images(store, [str(row["card_id"]) for row in pool])
+    elif args.command == "fetch-roles":
+        result = roles.import_roles(
+            store,
+            roles.fetch_role_file(args.identity, args.out),
+            allow_scope_replace=args.replace_scope,
+        )
+    elif args.command == "import-roles":
+        result = roles.import_roles(store, args.path, allow_scope_replace=args.replace_scope)
+    elif args.command == "import-owner-marks":
+        result = import_owner_marks(store, args.path)
+    elif args.command == "import-selection":
+        result = importers.import_studio_selection(
+            store, args.path, deck_id=args.deck_id, name=args.name,
+            commander_names=args.commander,
+        )  # fmt: skip
+    elif args.command == "pool":
+        pool = legal_pool(store, args.commander)
+        result = {
+            "legal": len(pool),
+            "available": sum(1 for row in pool if row["available"] > 0),
+        }
+    elif args.command == "check":
+        issues = validate_revision(store, args.revision_id, owned_only=not args.allow_unowned)
+        result = {
+            "revision_id": args.revision_id,
+            "errors": sum(1 for issue in issues if issue.severity == "error"),
+            "by_code": dict(Counter(issue.code for issue in issues)),
+            "issues": [issue.message for issue in issues],
+        }
+    elif args.command == "export":
+        Path(args.out).parent.mkdir(parents=True, exist_ok=True)
+        Path(args.out).write_text(
+            json.dumps(lab_snapshot(store, args.revision_id), indent=2, ensure_ascii=False) + "\n",
+            encoding="utf-8",
+        )
+        result = {"written": args.out}
+    elif args.command == "data-report":
+        result = data_report(store)
+    elif args.command == "inclusion":
+        result = corpus_inclusion(store, args.card_name, [args.commander], play_group=args.group)
+    elif args.command == "import-decklists":
+        result = decklist_import.import_decklists(
+            store, args.path, format=args.format, commander=args.commander
+        )
+    elif args.command == "profiles":
+        result = {"profiles": universe.list_profiles(store)}
+    elif args.command == "save-profile":
+        spec = {
+            "platforms": args.platforms or [],
+            "cohorts": args.cohorts or [],
+            "date_from": args.date_from,
+            "date_to": args.date_to,
+            "min_main_cards": args.min_main_cards,
+        }
+        result = universe.save_profile(store, args.name, spec)
+    elif args.command == "universe-inclusion":
+        result = universe.inclusion(
+            store,
+            profile=args.profile,
+            card_names=args.cards,
+            commander_names=[args.commander],
+        )
+    elif args.command == "tiers":
+        if args.limit < 0:
+            raise ValueError("--limit must not be negative")
+        counted = universe.inclusion(store, profile=args.profile, commander_names=[args.commander])
+        params = tiers.TierParams(
+            min_universe=args.min_universe
+            if args.min_universe is not None
+            else tiers.TierParams().min_universe
+        )
+        snapshot = universe.snapshot_id(
+            store, profile=args.profile, commander_names=[args.commander]
+        )
+        result = {
+            "profile": args.profile,
+            "commander": args.commander,
+            "universe_snapshot": snapshot,
+            "denominator": counted["denominator"],
+            "denominator_by_platform": counted["denominator_by_platform"],
+            "denominator_by_bracket": counted["denominator_by_bracket"],
+            "tiers": tiers.tiers_for_universe(counted, universe_snapshot=snapshot, params=params)[
+                : args.limit
+            ],
+        }
+    else:
+        result = {
+            table: store.count(table)
+            for table in ("source", "card", "inventory", "deck", "deck_revision",
+                          "corpus_deck", "corpus_deck_card", "observation",
+                          "scryfall_card", "corpus_cohort", "neutral_board_row",
+                          "simulation_run", "universe_profile")
+        }  # fmt: skip
+    return result
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
@@ -385,161 +540,30 @@ def main(argv: list[str] | None = None) -> int:
     store = StudioStore.open(args.data)
     try:
         result: object
-        if args.command == "bind-commander":
-            added = store.bind_unbound(args.commander, basis="OWNER_DECLARED")
-            result = {"commander": args.commander, "commander_bindings_added": added}
-        elif args.command == "commanders":
-            result = list_commanders(store)
-        elif args.command == "import-inventory":
-            result = importers.import_inventory_workbook(store, args.path)
-        elif args.command == "import-corpus-register":
-            result = importers.import_corpus_register(store, args.path)
-        elif args.command == "import-corpus-cards":
-            result = importers.import_corpus_card_parts(
-                store, args.paths, allow_deck_move=args.allow_deck_move
-            )
-        elif args.command == "import-edhrec":
-            result = importers.import_edhrec_table(store, args.path)
-        elif args.command == "import-edhrec-manifest":
-            result = importers.import_edhrec_capture_manifest(
-                store, args.path, raw_folder=args.raw_folder
-            )
-        elif args.command == "import-marks":
-            result = importers.import_card_marks(store, args.path)
-        elif args.command == "import-playgroup-atlas":
-            result = importers.import_playgroup_atlas(
-                store, args.path, source_title=args.source_title, snapshot_date=args.snapshot_date
-            )
-        elif args.command == "import-edhrec-cardrecs":
-            result = importers.import_edhrec_cardrecs_csv(store, args.path)
-        elif args.command == "import-edhrec-delta":
-            result = importers.import_edhrec_delta_jsonl(store, args.path)
-        elif args.command == "import-hub":
-            result = importers.import_hub_corpus(store, args.path)
-        elif args.command == "import-scryfall":
-            result = catalog.import_scryfall_oracle(
-                store, args.path, disambiguation_path=args.disambiguation
-            )
-        elif args.command == "import-simulation":
-            result = importers.import_simulation_report(
-                store,
-                args.path,
-                engine_pin=args.engine_pin,
-                pilot_policy=args.pilot_policy,
-            )
-        elif args.command == "import-lab-deck":
-            result = importers.import_lab_deck_snapshot(
-                store,
-                args.path,
-                deck_id=args.deck_id,
-                name=args.name,
-                branch=args.branch,
-            )
-        elif args.command == "import-cohort":
-            result = catalog.import_cohort(store, args.path, cohort=args.name)
-        elif args.command == "fetch-images":
-            pool = legal_pool(store, args.commander)
-            result = fetch_images(store, [str(row["card_id"]) for row in pool])
-        elif args.command == "fetch-roles":
-            result = roles.import_roles(
-                store,
-                roles.fetch_role_file(args.identity, args.out),
-                allow_scope_replace=args.replace_scope,
-            )
-        elif args.command == "import-roles":
-            result = roles.import_roles(store, args.path, allow_scope_replace=args.replace_scope)
-        elif args.command == "import-owner-marks":
-            result = import_owner_marks(store, args.path)
-        elif args.command == "import-selection":
-            result = importers.import_studio_selection(
-                store, args.path, deck_id=args.deck_id, name=args.name,
-                commander_names=args.commander,
-            )  # fmt: skip
-        elif args.command == "pool":
-            pool = legal_pool(store, args.commander)
-            result = {
-                "legal": len(pool),
-                "available": sum(1 for row in pool if row["available"] > 0),
-            }
-        elif args.command == "check":
-            issues = validate_revision(store, args.revision_id, owned_only=not args.allow_unowned)
-            result = {
-                "revision_id": args.revision_id,
-                "errors": sum(1 for issue in issues if issue.severity == "error"),
-                "by_code": dict(Counter(issue.code for issue in issues)),
-                "issues": [issue.message for issue in issues],
-            }
-        elif args.command == "export":
-            Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-            Path(args.out).write_text(
-                json.dumps(lab_snapshot(store, args.revision_id), indent=2, ensure_ascii=False)
-                + "\n",
-                encoding="utf-8",
-            )
-            result = {"written": args.out}
-        elif args.command == "data-report":
-            result = data_report(store)
-        elif args.command == "inclusion":
-            result = corpus_inclusion(
-                store, args.card_name, [args.commander], play_group=args.group
-            )
-        elif args.command == "import-decklists":
-            result = decklist_import.import_decklists(store, args.path, format=args.format)
-        elif args.command == "profiles":
-            result = {"profiles": universe.list_profiles(store)}
-        elif args.command == "save-profile":
-            spec = {
-                "platforms": args.platforms or [],
-                "cohorts": args.cohorts or [],
-                "date_from": args.date_from,
-                "date_to": args.date_to,
-                "min_main_cards": args.min_main_cards,
-            }
-            result = universe.save_profile(store, args.name, spec)
-        elif args.command == "universe-inclusion":
-            result = universe.inclusion(
-                store,
-                profile=args.profile,
-                card_names=args.cards,
-                commander_names=[args.commander],
-            )
-        elif args.command == "tiers":
-            if args.limit < 0:
-                raise ValueError("--limit must not be negative")
-            counted = universe.inclusion(
-                store, profile=args.profile, commander_names=[args.commander]
-            )
-            params = tiers.TierParams(
-                min_universe=args.min_universe
-                if args.min_universe is not None
-                else tiers.TierParams().min_universe
-            )
-            snapshot = universe.snapshot_id(
-                store, profile=args.profile, commander_names=[args.commander]
-            )
-            result = {
-                "profile": args.profile,
-                "commander": args.commander,
-                "universe_snapshot": snapshot,
-                "denominator": counted["denominator"],
-                "denominator_by_platform": counted["denominator_by_platform"],
-                "denominator_by_bracket": counted["denominator_by_bracket"],
-                "tiers": tiers.tiers_for_universe(
-                    counted, universe_snapshot=snapshot, params=params
-                )[: args.limit],
-            }
+        if args.command in _SOURCE_DATA_COMMANDS:
+            # Source data is always bound to one commander: every row this import writes
+            # is bound to it, and a key that belongs to another commander is refused.
+            before = store.count("commander_binding")
+            try:
+                with store.importing_for(args.commander):
+                    result = _run(args, store)
+            except sqlite3.IntegrityError as error:
+                if BOUND_ELSEWHERE not in str(error):
+                    raise
+                raise SystemExit(
+                    f"{args.command}: nothing imported. The import writes a deck, cohort, "
+                    f"run or neutral source that is bound to another commander than "
+                    f"{args.commander!r}."
+                ) from None
+            if isinstance(result, dict):
+                added = store.count("commander_binding") - before
+                result = {
+                    **result,
+                    "commander": args.commander,
+                    "commander_bindings_added": added,
+                }
         else:
-            result = {
-                table: store.count(table)
-                for table in ("source", "card", "inventory", "deck", "deck_revision",
-                              "corpus_deck", "corpus_deck_card", "observation",
-                              "scryfall_card", "corpus_cohort", "neutral_board_row",
-                              "simulation_run", "universe_profile")
-            }  # fmt: skip
-        if args.command in _SOURCE_DATA_COMMANDS and isinstance(result, dict):
-            # Source data is always bound to one commander; nothing is counted without it.
-            added = store.bind_unbound(args.commander)
-            result = {**result, "commander": args.commander, "commander_bindings_added": added}
+            result = _run(args, store)
         print(json.dumps(result, indent=2, ensure_ascii=False))
         return 0
     finally:

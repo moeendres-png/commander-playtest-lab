@@ -70,7 +70,12 @@ def bound_to(kind: str, column: str, commander_names: Sequence[str]) -> tuple[st
         " AND EXISTS (SELECT 1 FROM commander_binding cb WHERE "
         f"cb.kind = '{kind}' AND cb.key = {column} AND cb.commander_name = ?)"
     )
-    return one * len(commander_names), [str(name) for name in commander_names]
+    # Exactly the named commanders: a row bound to a pair is not a row of one of them.
+    exact = (
+        " AND (SELECT COUNT(*) FROM commander_binding cb WHERE "
+        f"cb.kind = '{kind}' AND cb.key = {column}) = {len(set(commander_names))}"
+    )
+    return one * len(commander_names) + exact, [str(name) for name in commander_names]
 
 
 def corpus_binding(store: StudioStore, commander_names: Sequence[str]) -> dict[str, object]:

@@ -158,6 +158,9 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "source_decks": store.count("corpus_deck"),
                 "neutral_board_rows": store.count("neutral_board_row"),
                 "simulation_runs": store.count("simulation_run"),
+                # The three counts above are store totals over all commanders; this
+                # says how many of them are bound to a commander at all.
+                "source_data_binding": store.binding_counts(),
                 "decks": store.count("deck"),
                 "sources": sources,
             }

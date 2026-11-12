@@ -23,14 +23,14 @@ const StudioCommander = (() => {
       const response = await fetch("/api/commanders?collection=true");
       if (response.ok) known = await response.json();
     } catch (error) { /* the current commander stays selectable */ }
-    if (!known.some((item) => item.name === current)) known.push({ name: current, in_collection: true, has_data: true, source_decks: null, saved_decks: 0 });
+    if (!known.some((item) => item.name === current)) known.push({ name: current, unknown: true, in_collection: null, has_data: false, source_decks: null, saved_decks: 0 });
     known.sort((a, b) => a.name.localeCompare(b.name));
     const entry = (item) => {
       const option = document.createElement("option");
       option.value = item.name;
       option.selected = item.name === current;
       const decks = item.has_data && item.source_decks !== null ? ` · ${item.source_decks} Quelldecks` : "";
-      option.textContent = (item.has_data ? shortName(item.name) : item.name) + decks + (item.in_collection ? "" : " · nicht in der Sammlung");
+      option.textContent = (item.has_data ? shortName(item.name) : item.name) + decks + (item.unknown ? " · dem Studio unbekannt" : item.in_collection ? "" : " · nicht in der Sammlung");
       option.title = item.name;
       return option;
     };

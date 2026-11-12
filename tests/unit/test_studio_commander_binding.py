@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -12,7 +13,7 @@ from commander_lab.studio import builder, importers
 from commander_lab.studio.__main__ import main
 from commander_lab.studio.evidence import pool_evidence
 from commander_lab.studio.queries import corpus_inclusion
-from commander_lab.studio.store import LEGACY_COMMANDER, StudioStore
+from commander_lab.studio.store import BOUND_ELSEWHERE, LEGACY_COMMANDER, StudioStore
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _fill
 from tests.unit.test_studio_store import _card_row, _register_row, _write_csv
@@ -186,3 +187,91 @@ def test_web_serves_deck_figures_only_for_a_named_commander(studio: StudioStore)
         shapes = client.get("/api/cohorts", params={"commander": "Second Commander"}).json()
         assert {shape["cohort"]: shape["decks"] for shape in shapes}["all"] == 2
         assert client.get("/api/evidence", params={"view": "global"}).json()["cohorts"] == {}
+
+
+def test_an_import_binds_only_what_it_writes_and_refuses_a_foreign_key(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    left = _write_csv(tmp_path / "left.csv", [_register_row("u1", "community")])
+    importers.import_corpus_register(store, left)  # stays without a commander
+    mine = _write_csv(tmp_path / "mine.csv", [_register_row("d1", "community")])
+    with store.importing_for("Test Commander"):
+        importers.import_corpus_register(store, mine)
+    bound = store.connection.execute(
+        "SELECT key, commander_name, basis FROM commander_binding"
+    ).fetchall()
+    assert [tuple(row) for row in bound] == [("d1", "Test Commander", "IMPORT_DECLARED")]
+    assert store.binding_counts()["corpus_deck"] == {"total": 2, "bound": 1, "unbound": 1}
+
+    # the same deck id written for another commander is refused; nothing changes
+    with (
+        pytest.raises(sqlite3.IntegrityError, match=BOUND_ELSEWHERE),
+        store.importing_for("Second Commander"),
+    ):
+        importers.import_corpus_register(store, mine)
+    assert builder.cohort_sizes(store, SECOND) == {"all": 0}
+    assert builder.cohort_sizes(store, FIRST)["all"] == 1
+    # the same commander may import again, and the guard is gone outside the block
+    with store.importing_for("Test Commander"):
+        importers.import_corpus_register(store, mine)
+    importers.import_corpus_register(store, left)
+    store.close()
+
+
+def test_the_command_line_refuses_a_cohort_of_another_commander(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    data = tmp_path / "data"
+    register = _write_csv(tmp_path / "register.csv", [_register_row("d1", "community")])
+    assert main(["--data", str(data), "import-corpus-register", str(register)]) == 0
+    capsys.readouterr()
+    other = ["--commander", "Second Commander"]
+    with pytest.raises(SystemExit, match="bound to another commander"):
+        main(["--data", str(data), "import-corpus-register", str(register), *other])
+    assert main(["--data", str(data), "commanders"]) == 0
+    listed = {item["name"]: item["source_decks"] for item in json.loads(capsys.readouterr().out)}
+    assert listed == {LEGACY_COMMANDER: 1}
+
+
+def test_a_run_bound_to_a_pair_is_not_a_run_of_one_commander(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    register = _write_csv(tmp_path / "register.csv", [_register_row("d1", "community")])
+    importers.import_corpus_register(store, register)
+    with store.connection as db:
+        db.executemany(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+            "VALUES ('corpus_deck', 'd1', ?, 'TEST')",
+            [("First Partner",), ("Second Partner",)],
+        )
+    assert builder.cohort_sizes(store, ["First Partner"]) == {"all": 0}
+    assert builder.cohort_sizes(store, ["First Partner", "Second Partner"])["all"] == 1
+    store.close()
+
+
+def test_migration_leaves_decks_of_another_commander_unbound_and_is_stable(
+    tmp_path: Path,
+) -> None:
+    store = StudioStore.open(tmp_path / "old")
+    register = _write_csv(
+        tmp_path / "register.csv",
+        [_register_row("d1", "community"), _register_row("x1", "community")],
+    )
+    cards = _write_csv(
+        tmp_path / "cards.csv",
+        [
+            {**_card_row("d1", LEGACY_COMMANDER), "section": "commander"},
+            {**_card_row("x1", "Second Commander"), "section": "commander"},
+        ],
+    )
+    importers.import_corpus_register(store, register)
+    importers.import_corpus_cards(store, cards)
+    with store.connection as db:
+        db.execute("UPDATE meta SET value = '9' WHERE key = 'schema_version'")
+    store.close()
+    for _ in range(2):  # the second open must not bind anything more
+        reopened = StudioStore.open(tmp_path / "old")
+        rows = reopened.connection.execute(
+            "SELECT key, commander_name FROM commander_binding ORDER BY key"
+        ).fetchall()
+        assert [tuple(row) for row in rows] == [("d1", LEGACY_COMMANDER)]
+        assert reopened.binding_counts()["corpus_deck"]["unbound"] == 1
+        reopened.close()

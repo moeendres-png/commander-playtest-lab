@@ -307,7 +307,7 @@ def _universe_spec(
     store: StudioStore,
     profile: str | None,
     spec: Mapping[str, object] | None,
-    commander_names: Sequence[str] | None = None,
+    commander_names: Sequence[str] | None,
 ) -> UniverseSpec:
     """The spec of a profile or a free spec, narrowed to ``commander_names`` when given.
 
@@ -331,7 +331,7 @@ def inclusion(
     profile: str | None = None,
     spec: Mapping[str, object] | None = None,
     card_names: list[str] | None = None,
-    commander_names: Sequence[str] | None = None,
+    commander_names: Sequence[str] | None,
 ) -> InclusionResult:
     """Per-card deck counts over one universe: hits, denominator, share.
 
@@ -384,7 +384,7 @@ def cooccurrence(
     profile: str | None = None,
     spec: Mapping[str, object] | None = None,
     limit: int | None = 25,
-    commander_names: Sequence[str] | None = None,
+    commander_names: Sequence[str] | None,
 ) -> CooccurrenceResult:
     """How many universe decks contain ``card_name`` together with each other card.
 
@@ -448,7 +448,7 @@ def snapshot_id(
     *,
     profile: str | None = None,
     spec: Mapping[str, object] | None = None,
-    commander_names: Sequence[str] | None = None,
+    commander_names: Sequence[str] | None,
 ) -> str:
     """A short fingerprint of a universe: its spec plus what it currently selects.
 
