@@ -15,7 +15,6 @@ These checks keep the workflows safe against that audience:
 
 from __future__ import annotations
 
-import json
 import re
 from pathlib import Path
 
@@ -60,7 +59,7 @@ def _steps(document: dict) -> list[dict]:
 
 def test_workflows_are_discovered() -> None:
     assert len(WORKFLOWS) >= 10
-    assert (ROOT / ".github/workflows/opencode.yml") in WORKFLOWS
+    assert (ROOT / ".github/workflows/ci.yml") in WORKFLOWS
 
 
 @pytest.mark.parametrize("path", WORKFLOWS, ids=lambda p: p.name)
@@ -284,44 +283,6 @@ def test_job_level_env_context_use_is_detected() -> None:
     assert _job_level_env_context_uses(in_steps) == []
 
 
-# A custom OpenCode provider reads its API key only from the variables named in its
-# own ``env`` list. Exporting ZAI_API_KEY alone is not enough: the request then goes
-# out without an Authorization header and fails with HTTP 401 (reproduced against
-# the pinned CLI v1.18.30; the first /oc-zai-review run failed this way).
-ZAI_WORKFLOW = ROOT / ".github/workflows/opencode-zai.yml"
-ZAI_LANE_JOBS = {"oc-zai", "oc-zai-review"}
-
-
-def _zai_lane_key_problems(workflow: dict) -> list[str]:
-    problems: list[str] = []
-    jobs = workflow["jobs"]
-    if set(jobs) != ZAI_LANE_JOBS:
-        problems.append(f"unexpected jobs: {sorted(jobs)}")
-    for name, job in jobs.items():
-        config = json.loads(job["env"]["OPENCODE_CONFIG_CONTENT"])
-        if config["provider"]["zai"].get("env") != ["ZAI_API_KEY"]:
-            problems.append(f"{name}: provider.zai.env does not name ZAI_API_KEY")
-        for step in job["steps"]:
-            takes_key = step.get("name", "").startswith(("Preflight", "Run opencode"))
-            if takes_key and step.get("env", {}).get("ZAI_API_KEY") != "${{ secrets.ZAI_API_KEY }}":
-                problems.append(f"{name}: step '{step['name']}' does not pass the secret")
-    return problems
-
-
-def test_zai_lanes_hand_their_api_key_to_the_provider() -> None:
-    assert _zai_lane_key_problems(_load(ZAI_WORKFLOW)) == []
-
-
-def test_zai_lane_without_a_key_source_is_detected() -> None:
-    workflow = _load(ZAI_WORKFLOW)
-    config = json.loads(workflow["jobs"]["oc-zai-review"]["env"]["OPENCODE_CONFIG_CONTENT"])
-    del config["provider"]["zai"]["env"]
-    workflow["jobs"]["oc-zai-review"]["env"]["OPENCODE_CONFIG_CONTENT"] = json.dumps(config)
-    assert _zai_lane_key_problems(workflow) == [
-        "oc-zai-review: provider.zai.env does not name ZAI_API_KEY"
-    ]
-
-
 # --- behavioral evaluation of the GitHub Actions `if` expressions -----------
 #
 # The trust properties below are semantic: the workflow's condition text is
@@ -516,138 +477,6 @@ def condition_result(condition: str, context: dict) -> bool:
     return bool(_expr_eval(_ExprParser(_expr_tokens(condition)).parse(), context))
 
 
-def _event_context(
-    *,
-    commenter: str,
-    target: str,
-    target_login: str,
-    body: str,
-    is_pr: bool = False,
-) -> dict:
-    issue: dict = {
-        "author_association": target,
-        "user": {"login": target_login},
-        "pull_request": {} if is_pr else None,
-        "number": 1,
-    }
-    event: dict = {
-        "comment": {"author_association": commenter, "body": body},
-        "issue": issue,
-    }
-    if is_pr:
-        event["pull_request"] = {
-            "author_association": target,
-            "user": {"login": target_login},
-            "number": 1,
-        }
-    return {"github": {"event": event}}
-
-
-# --- first-token lane triggers (issue #814) -----------------------------------
-#
-# A command that merely appears later in a comment never starts a lane: the
-# command must be the comment's first token. The constants make every accepted
-# trigger shape explicit and stay aligned with what the pinned CLI's MENTIONS
-# check admits (github.handler.ts v1.18.30:747-769).
-
-OPENCODE_LANE_COMMANDS = {
-    "opencode": ("/oc", "/opencode"),
-    "opencode-assure": ("/assure",),
-    "opencode-ro-review": ("/ro-review",),
-}
-
-
-def _firing_lanes(body: str) -> set[str]:
-    """The lanes whose job condition a trusted comment with this body starts."""
-    context = _event_context(
-        commenter="OWNER", target="OWNER", target_login="maintainer", body=body
-    )
-    workflow = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    return {
-        name
-        for name, job in workflow["jobs"].items()
-        if condition_result(str(job["if"]), context) is True
-    }
-
-
-@pytest.mark.parametrize(
-    ("body", "firing"),
-    [
-        # The command is the first token: only its own lane fires.
-        ("/oc do the task", {"opencode"}),
-        ("/assure audit this", {"opencode-assure"}),
-        ("/ro-review review exact SHA", {"opencode-ro-review"}),
-        ("/opencode run", {"opencode"}),
-        ("/oc  two spaces", {"opencode"}),
-        # The whole comment is exactly the command.
-        ("/oc", {"opencode"}),
-        ("/assure", {"opencode-assure"}),
-        ("/ro-review", {"opencode-ro-review"}),
-        # The first line is exactly the command (LF, as the REST API sends it).
-        ("/oc\ntask text", {"opencode"}),
-        ("/assure\ntask text", {"opencode-assure"}),
-        ("/ro-review\ntask text", {"opencode-ro-review"}),
-        # CRLF, as the GitHub web comment box sends it.
-        ("/oc\r\ntask text", {"opencode"}),
-        ("/assure\r\ntask text", {"opencode-assure"}),
-        ("/ro-review\r\ntask text", {"opencode-ro-review"}),
-        # A command later in the text never triggers a lane.
-        ("please /oc do the task", set()),
-        ("note: /assure and /ro-review are elsewhere", set()),
-        # The command first plus any mention later: only the leading lane (the
-        # regression of #813 was /oc task text naming /oc-th).
-        ("/oc task naming /oc-th, /assure and /ro-review", {"opencode"}),
-        # The /oc-th lane was retired 2026-10-16 (Owner instruction): a comment
-        # starting with the retired command fires no lane at all.
-        ("/oc-th task naming /oc", set()),
-        ("/oc-th do the task", set()),
-        ("/oc-th", set()),
-        ("/assure task naming /ro-review", {"opencode-assure"}),
-        ("/ro-review task naming /assure", {"opencode-ro-review"}),
-        ("/opencode task naming /oc-th", {"opencode"}),
-        # Not the command: an extension or a non-separating character.
-        ("/octh do the task", set()),
-        ("/oc-extra do the task", set()),
-        ("/assure-extra audit", set()),
-        ("/ro-review-extra", set()),
-        ("unrelated comment", set()),
-        ("", set()),
-        # Decision: leading whitespace or a tab separator does not trigger. The
-        # command must be the first character (oc_dispatch.py post writes it so).
-        (" /oc do the task", set()),
-        ("\n/oc do the task", set()),
-        ("/oc\tdo the task", set()),
-    ],
-)
-def test_the_first_token_rule_starts_exactly_the_named_lane(body: str, firing: set[str]) -> None:
-    assert _firing_lanes(body) == firing
-
-
-def test_lane_mentions_admit_exactly_the_lane_commands() -> None:
-    """Each job's MENTIONS must admit the comment its first-token rule selects.
-
-    The pinned CLI (github.handler.ts v1.18.30:747-769) keeps the default
-    `/opencode,/oc` for an empty MENTIONS and accepts a comment only when its
-    lowercased body names one of the phrases. Every trigger form therefore
-    names the lane's own command, and no other lane's.
-    """
-    workflow = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    mentions = {
-        name: next(step for step in job["steps"] if step.get("name") == "Run opencode")["env"][
-            "MENTIONS"
-        ]
-        for name, job in workflow["jobs"].items()
-    }
-    assert mentions == {
-        "opencode": "",  # empty selects the CLI default `/opencode,/oc`
-        "opencode-assure": "/assure",
-        "opencode-ro-review": "/ro-review",
-    }
-    for name, commands in OPENCODE_LANE_COMMANDS.items():
-        admitted = {"/opencode", "/oc"} if mentions[name] == "" else {mentions[name]}
-        assert admitted == set(commands), name
-
-
 def test_expression_evaluator_tracks_boolean_semantics() -> None:
     """The evaluator is non-vacuous: it detects a conjunction->disjunction swap."""
     context = {"github": {"event": {"comment": {"author_association": "NONE"}}}}
@@ -676,128 +505,6 @@ def test_expression_evaluator_matches_the_literal_newline_semantics() -> None:
     )
 
 
-def test_opencode_agent_refuses_untrusted_targets() -> None:
-    """An agent run holding OPENCODE_API_KEY never targets untrusted content.
-
-    Evaluated semantically per job: an untrusted commenter is refused, and a
-    trusted commenter on an untrusted target (an issue/PR whose author has no
-    write-level association, including a bot-authored thread) is refused. A
-    fork PR is refused structurally before anything is checked out.
-    """
-    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    jobs = doc["jobs"]
-    assert jobs, "opencode.yml has no jobs"
-    for name, job in jobs.items():
-        condition = str(job["if"])
-        untrusted_commenter = _event_context(
-            commenter="NONE", target="OWNER", target_login="maintainer", body="/oc work"
-        )
-        assert condition_result(condition, untrusted_commenter) is False, (
-            f"{name}: an untrusted commenter can start the job"
-        )
-        untrusted_target = _event_context(
-            commenter="OWNER", target="NONE", target_login="stranger", body="/oc work"
-        )
-        assert condition_result(condition, untrusted_target) is False, (
-            f"{name}: an untrusted target can start the job"
-        )
-        first = job["steps"][0]
-        assert first["name"] == "Refuse fork pull requests as agent targets", name
-        assert first["if"] == "github.event.issue.pull_request || github.event.pull_request", name
-        assert first["env"]["PR_NUMBER"] == (
-            "${{ github.event.issue.number || github.event.pull_request.number }}"
-        ), name
-        assert "--jq '.head.repo.full_name'" in first["run"], name
-        assert '"$head_repo" != "$GITHUB_REPOSITORY"' in first["run"], name
-        assert "exit 1" in first["run"], name
-
-
-def test_trusted_comments_start_each_opencode_lane() -> None:
-    """Positive reachability: trusted comments select exactly the intended lane."""
-    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    jobs = doc["jobs"]
-    implementation = _event_context(
-        commenter="OWNER", target="OWNER", target_login="maintainer", body="/oc continue"
-    )
-    bootstrap = _event_context(
-        commenter="OWNER", target="OWNER", target_login="maintainer", body="/assure audit this"
-    )
-    review_pr = _event_context(
-        commenter="MEMBER",
-        target="OWNER",
-        target_login="maintainer",
-        body="/ro-review review exact SHA",
-        is_pr=True,
-    )
-    assert condition_result(str(jobs["opencode"]["if"]), implementation) is True
-    assert condition_result(str(jobs["opencode-assure"]["if"]), bootstrap) is True
-    assert condition_result(str(jobs["opencode-ro-review"]["if"]), review_pr) is True
-
-
-def test_step_bootstrap_lane_is_not_selected_by_the_direct_marker() -> None:
-    """`/ro-review` must never fall through to the writable /assure lane."""
-    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    direct_body = _event_context(
-        commenter="OWNER",
-        target="OWNER",
-        target_login="maintainer",
-        body="/ro-review review this",
-    )
-    assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), direct_body) is False
-    assert condition_result(str(doc["jobs"]["opencode-ro-review"]["if"]), direct_body) is True
-    # The first-token rule replaced the old exclusion clause: an /assure comment
-    # whose text names /ro-review runs the writable lane it starts with, and the
-    # later mention does not start the read-only lane.
-    both_markers = _event_context(
-        commenter="OWNER",
-        target="OWNER",
-        target_login="maintainer",
-        body="/assure and /ro-review this",
-    )
-    assert condition_result(str(doc["jobs"]["opencode-assure"]["if"]), both_markers) is True
-    assert condition_result(str(doc["jobs"]["opencode-ro-review"]["if"]), both_markers) is False
-
-
-def test_step_review_lane_stays_closed_for_untrusted_principals() -> None:
-    """Both the commenter and the thread author must be write-level trusted."""
-    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    condition = str(doc["jobs"]["opencode-ro-review"]["if"])
-    untrusted_commenter = _event_context(
-        commenter="NONE",
-        target="NONE",
-        target_login="opencode-agent[bot]",
-        body="/ro-review review this",
-        is_pr=True,
-    )
-    assert condition_result(condition, untrusted_commenter) is False
-    untrusted_target = _event_context(
-        commenter="OWNER",
-        target="NONE",
-        target_login="stranger",
-        body="/ro-review review this",
-        is_pr=True,
-    )
-    assert condition_result(condition, untrusted_target) is False
-    # A bot-authored thread is not exempt: the review lane matches the other
-    # lanes' thread-author gate and refuses `opencode-agent[bot]` threads.
-    bot_target = _event_context(
-        commenter="OWNER",
-        target="NONE",
-        target_login="opencode-agent[bot]",
-        body="/ro-review review this",
-        is_pr=True,
-    )
-    assert condition_result(condition, bot_target) is False
-    wrong_mention = _event_context(
-        commenter="OWNER",
-        target="NONE",
-        target_login="opencode-agent[bot]",
-        body="/oc do implementation work",
-        is_pr=True,
-    )
-    assert condition_result(condition, wrong_mention) is False
-
-
 def test_pull_request_target_checkouts_never_persist_credentials() -> None:
     checked = 0
     for path in WORKFLOWS:
@@ -811,62 +518,3 @@ def test_pull_request_target_checkouts_never_persist_credentials() -> None:
                     assert (step.get("with") or {}).get("persist-credentials") is False, path.name
                     checked += 1
     assert checked >= 1, "no pull_request_target checkout found: the check is vacuous"
-
-
-def test_opencode_rescue_runs_only_on_failure_keeps_tokens_read_only_and_skips_untracked_files():
-    # A run that outlives the action's one-hour token keeps its work as an
-    # artifact; that path must not widen the job token or collect untracked files.
-    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    for job_name in ("opencode", "opencode-assure"):
-        job = doc["jobs"][job_name]
-        assert job["permissions"].get("contents") == "read", job_name
-        names = [step.get("name") for step in job["steps"]]
-        collect = job["steps"][names.index("Collect unpublished agent work")]
-        upload = job["steps"][names.index("Upload unpublished agent work")]
-        assert names.index("Collect unpublished agent work") > names.index("Run opencode")
-        assert collect["if"] == "failure() || cancelled()", job_name
-        script = collect["run"]
-        assert "--untracked-files=no" in script
-        assert 'rm -rf "$out"' in script
-        assert "--all" not in script and "HEAD --branches" in script
-        for forbidden in ("git push", "GH_TOKEN", "secrets.", " add ", "stash", "tar ", "cp "):
-            assert forbidden not in script, (job_name, forbidden)
-        assert "env" not in collect
-        scan = job["steps"][names.index("Secret-scan unpublished agent work")]
-        assert (
-            names.index("Collect unpublished agent work")
-            < names.index("Secret-scan unpublished agent work")
-            < names.index("Upload unpublished agent work")
-        )
-        assert scan["id"] == "rescue_scan" and scan["if"] == "failure() || cancelled()"
-        assert "set -euo pipefail" in scan["run"]
-        assert '"${GITHUB_SHA}:scripts/run_broad_secret_scan.py"' in scan["run"]
-        assert '"${GITHUB_SHA}:.gitleaks.toml"' in scan["run"]
-        assert scan["run"].count("--exit-code 1") == 2
-        assert upload["if"] == (
-            "(failure() || cancelled()) && steps.rescue_scan.outputs.clean == 'true'"
-        )
-        assert upload["with"]["path"] == "${{ runner.temp }}/opencode-rescue"
-        assert upload["uses"].startswith("actions/upload-artifact@")
-        assert re.fullmatch(r"actions/upload-artifact@[0-9a-f]{40}", upload["uses"].split()[0])
-        assert upload["with"]["retention-days"] <= 7
-    review = doc["jobs"]["opencode-ro-review"]
-    assert "Collect unpublished agent work" not in [s.get("name") for s in review["steps"]]
-
-
-def test_opencode_runs_have_an_enforced_time_box_within_the_token_lifetime():
-    # A prompt time box is advisory; only a step timeout ends a hung agent, and
-    # it must end before the one-hour action token expires so the failure()
-    # rescue path, not a silent token loss, takes over.
-    doc = yaml.safe_load((ROOT / ".github/workflows/opencode.yml").read_text(encoding="utf-8"))
-    runs = [
-        (job_name, step)
-        for job_name, job in doc["jobs"].items()
-        for step in job["steps"]
-        if step.get("name") == "Run opencode"
-    ]
-    # Three lanes remain: /oc, /assure, /ro-review (the /oc-th lane was
-    # retired 2026-10-16 by Owner instruction).
-    assert len(runs) == 3
-    for job_name, step in runs:
-        assert 0 < step.get("timeout-minutes", 0) <= 55, job_name
