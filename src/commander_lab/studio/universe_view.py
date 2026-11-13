@@ -352,7 +352,7 @@ def _spread_all(
 
 def pool_spread(
     store: StudioStore,
-    profile: str,
+    profile: str | None,
     card_ids: Sequence[str] | None = None,
     *,
     commander_names: Sequence[str] | None,
@@ -361,12 +361,14 @@ def pool_spread(
 
     A card's hits are the distinct universe decks listing at least one of its name keys
     (casefolded) in a counted section. Raises KeyError for an unknown profile or card id."""
+    prof_name = profile if profile is not None else "lokale Decks"
+    prof_version = get_profile(store, profile)["version"] if profile is not None else 1
     universe, entries, params = _spread_all(store, profile, card_ids, commander_names)
     excluded_cards = excluded_by_card_filter(store, universe["spec"])
     return {
         "universe": {
-            "profile": profile,
-            "version": get_profile(store, profile)["version"],
+            "profile": prof_name,
+            "version": prof_version,
             "snapshot_id": universe["snapshot_id"],
             "denominator": universe["denominator"],
             "denominator_by_platform": universe["denominator_by_platform"],

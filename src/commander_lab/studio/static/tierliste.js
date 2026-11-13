@@ -50,11 +50,11 @@ const LEVEL_RANK = { S: 5, A: 4, B: 3, C: 2, D: 1, U: 0 };
 const NO_UNIVERSE = "kein Universum gewählt";
 const FILTER_LABEL = "Filterkarte";
 const SPREAD_NOTE = "Gezählt: in wie vielen Decks des gewählten Universums die Karte steht. Das ist keine Kartenstärke und kein Tier. Favoriten, Ausschlüsse und Notizen ändern keine Zählung.";
-const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)" };
+const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)", NO_COMMANDER_SIGNAL: "Kein Commander-spezifisches Signal vorhanden (nur globale Daten)" };
 const UNIVERSE_KEY = "studio.universe.profile";
 const STRENGTH_KEY = "studio.strength.settings";
 const SORT_KEY = "studio.tier.sort";
-const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Abdeckung, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
+const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Datenlage, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
 const UNKNOWN_TIER = "zu wenig Daten";
 const BRACKET_NAMES = { core: "Core (Bracket 1–2)", upgraded: "Upgraded (Bracket 3)", optimized: "Optimized (Bracket 4)", cedh: "cEDH (Bracket 5)", none: "kein Bracket" };
 const COMPONENT_STATUS = {
@@ -210,7 +210,7 @@ function strengthCell(card) {
   if (state.view === "global") return neutral("nur je Commander", "Der Stärke-Index wird je Commander berechnet.");
   const item = strengthItem(card);
   if (!item) return neutral(state.strength.map ? "nicht berechnet" : "–", "Für diese Karte liegt keine Berechnung vor.");
-  const title = `Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${(100 * item.coverage).toFixed(0)} %, ${item.present} Signale vorhanden.`;
+  const title = `Schätzung aus Nutzungssignalen, keine Siegrate. Datenlage ${(100 * item.coverage).toFixed(0)} %, ${item.present} Signale vorhanden.`;
   if (item.tier === "N") return neutral(item.note, `${item.note}: Commander und Standardländer bekommen keine Stufe.`);
   if (item.tier === "U") return neutral(UNKNOWN_TIER, `Zu wenig Daten für eine Stufe. ${title} Das sagt nichts über die Stärke der Karte.`);
   return tierBadge(item.tier, item.index.toFixed(1), title);
@@ -385,7 +385,7 @@ function strengthBox(card) {
     h("p", {}, STRENGTH_NOTE));
   if (!item) { box.append(h("p", {}, state.view === "global" ? "Der Index wird je Commander berechnet." : "Für diese Karte liegt keine Berechnung vor.")); return box; }
   if (item.tier === "N") { box.append(h("p", {}, `${item.note}: ${item.reason === "NOT_RANKED_COMMANDER" ? "der Commander" : "ein Standardland"} bekommt keine Stufe und nimmt keinem Rang einen Platz weg. Die Einstellung „Commander und Standardländer bewerten“ ändert das.`)); }
-  else box.append(h("p", {}, `Abdeckung ${(100 * item.coverage).toFixed(0)} % (Gewicht der vorhandenen Signale an allen gewichteten). ${item.tier === "U" ? "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte." : ""}`));
+  else box.append(h("p", {}, `Datenlage ${(100 * item.coverage).toFixed(0)} % (Gewicht der vorhandenen Signale an allen gewichteten). ${item.tier === "U" ? (item.note ? `${item.note}. Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte.` : "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte.") : ""}`));
   const universe = state.strength.result && state.strength.result.universe;
   if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
   box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status", "Hinweis"], item.components.map((c) => {

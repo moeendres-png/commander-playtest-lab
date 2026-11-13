@@ -487,7 +487,12 @@ def test_deck_list_universe_is_a_counted_component(store: StudioStore, tmp_path:
     assert one["status"] == strength.PRESENT and one["denominator"] == two["denominator"]
     assert two["numerator"] == 3 and one["percentile"] == 1.0 and two["percentile"] < 1.0
     assert result["universe"] is not None
-    assert _component(cards["Filler 05"], "deck_universe")["status"] == strength.NO_VALUE
+    five = _component(cards["Filler 05"], "deck_universe")
+    assert (
+        five["status"] == strength.PRESENT
+        and five["numerator"] == 0
+        and five["percentile"] < two["percentile"]
+    )
     with pytest.raises(KeyError):
         strength_view.compute(store, COMMANDER, StrengthSettings(universe_profile="gibt es nicht"))
 
@@ -1236,7 +1241,7 @@ def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) ->
     client = TestClient(create_app(tmp_path / "studio.db"))
     meta = client.get("/api/strength/presets").json()
     assert meta["recommended"]["weights"]["simulation"] == 0.0
-    assert meta["panel"]["labels"]["min_coverage"] == "Mindestabdeckung in % (empfohlen: 40)"
+    assert meta["panel"]["labels"]["min_coverage"] == "Mindest-Datenlage in % (empfohlen: 40)"
     assert (
         meta["panel"]["labels"]["weights.simulation"]
         == "Simulation (empfohlen: 0, derzeit ohne Daten)"
@@ -1608,3 +1613,88 @@ def test_a_mana_value_of_five_is_the_last_band_and_four_is_not() -> None:
     assert strength.mana_band(4.5, is_land=False) == "4"
     assert strength.mana_band(1.5, is_land=False) == "0-1"
     assert strength.mana_band(2, is_land=False) == "2"
+
+
+def test_card_with_only_global_signals_stays_tier_u_without_commander_signal() -> None:
+    observations = {
+        "c1": {
+            strength.GLOBAL_INCLUSION: Observation(0.5, 50, 100),
+            strength.COMBOS: Observation(3.0),
+        },
+        "c2": {
+            strength.COMMANDER_INCLUSION: Observation(0.8, 80, 100),
+            strength.GLOBAL_INCLUSION: Observation(0.5, 50, 100),
+        },
+    }
+    settings = StrengthSettings(min_coverage=0.1, min_components=1)
+    scored = strength.score_pool(
+        settings,
+        observations,
+        {strength.COMMANDER_INCLUSION, strength.GLOBAL_INCLUSION, strength.COMBOS},
+    )
+    # c1 has enough coverage and components, but no commander-specific signal -> Tier U
+    assert scored["c1"]["tier"] == strength.TIER_UNKNOWN
+    assert scored["c1"]["reason"] == strength.NO_COMMANDER_SIGNAL
+    assert "Kein Commander-spezifisches Signal" in scored["c1"]["note"]
+    # c2 has a commander-specific signal -> normal tier
+    assert scored["c2"]["tier"] in ("S", "A", "B", "C", "D")
+    assert scored["c2"]["reason"] == "ENOUGH_DATA"
+
+
+def test_deck_universe_zero_hits_is_real_zero_and_pulls_to_lower_tier() -> None:
+    observations = {
+        "staple": {
+            strength.DECK_UNIVERSE: Observation(0.8, 80, 100),
+            strength.GLOBAL_INCLUSION: Observation(0.5, 50, 100),
+        },
+        "unplayed": {
+            strength.DECK_UNIVERSE: Observation(0.0, 0, 100),
+            strength.GLOBAL_INCLUSION: Observation(0.5, 50, 100),
+        },
+    }
+    settings = StrengthSettings(min_coverage=0.1, min_components=1)
+    scored = strength.score_pool(
+        settings, observations, {strength.DECK_UNIVERSE, strength.GLOBAL_INCLUSION}
+    )
+    unplayed = scored["unplayed"]
+    assert unplayed["tier"] == "D"
+    assert unplayed["reason"] == "ENOUGH_DATA"
+    deck_row = next(c for c in unplayed["components"] if c["component"] == strength.DECK_UNIVERSE)
+    assert deck_row["status"] == strength.PRESENT
+    assert deck_row["numerator"] == 0
+    assert deck_row["denominator"] == 100
+    assert deck_row["wilson"] == 0.0
+    assert deck_row["percentile"] == 0.0
+
+
+def test_deck_universe_counts_by_default_and_slider_weight_zero_turns_off(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    source = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    store.connection.execute(
+        "INSERT INTO card(card_id, oracle_id, oracle_name, color_identity, mana_value, type_line, "
+        "commander_legal, source_id) VALUES (?, NULL, ?, 'WUG', 5.0, 'Legendary Creature — Human Druid', 1, ?)",
+        ("card:test:chulane", "Chulane, Teller of Tales", source),
+    )
+    store.connection.execute(
+        "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
+        "available_lower_bound, quantity_exact, source_id) VALUES (?, 1, 1, 0, 1, 1, ?)",
+        ("card:test:chulane", source),
+    )
+    store.connection.commit()
+
+    # For Chulane, counted decklists count by default even without setting universe_profile
+    result = strength_view.compute(store, "Chulane, Teller of Tales", StrengthSettings())
+    assert result["universe"] is not None
+    assert result["universe"]["denominator"] > 0
+    assert "deck_universe" in result["collected"]
+
+    # Weight 0 turns off deck universe
+    no_universe_weights = {**strength.DEFAULT_WEIGHTS, strength.DECK_UNIVERSE: 0.0}
+    settings_off = StrengthSettings(weights=no_universe_weights, min_coverage=0.0)
+    result_off = strength_view.compute(store, "Chulane, Teller of Tales", settings_off)
+    # Cards without another commander signal now become U with NO_COMMANDER_SIGNAL
+    u_cards = [c for c in result_off["cards"] if c["reason"] == strength.NO_COMMANDER_SIGNAL]
+    assert len(u_cards) > 0
+    assert u_cards[0]["tier"] == "U"

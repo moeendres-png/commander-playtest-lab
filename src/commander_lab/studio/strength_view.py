@@ -24,6 +24,7 @@ import json
 from collections import Counter
 from collections.abc import Mapping, Sequence
 from dataclasses import replace
+from pathlib import Path
 from typing import TypedDict
 
 from . import signals, strength, universe
@@ -237,6 +238,94 @@ def _float(value: object) -> float | None:
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
 
+def _repo_decklist_csv_for(commander: str) -> Path | None:
+    """Find a repo-provided decklist inclusion CSV for the commander, if present."""
+    root = Path(__file__).resolve().parents[3] / "data" / "research"
+    if not root.is_dir():
+        return None
+    if commander == "Chulane, Teller of Tales":
+        candidate = root / "chulane_decklist_inclusion_20261112.csv"
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def _load_repo_decklist_inclusion(
+    commander: str,
+    ids: list[str],
+    claims: _Claims,
+) -> tuple[ProfileSummary | None, list[dict[str, object]] | None]:
+    """Load counted decklist inclusion from repo CSV when local DB has no decklists."""
+    csv_path = _repo_decklist_csv_for(commander)
+    if csv_path is None or not csv_path.is_file():
+        return None, None
+
+    import csv
+
+    with open(csv_path, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        snapshot_decks: dict[str, int] = {}
+        platforms: Counter[str] = Counter()
+        brackets: Counter[str] = Counter()
+        card_hits: Counter[str] = Counter()
+        seen_snaps: set[str] = set()
+        for row in reader:
+            snap = str(row["universe_snapshot"])
+            u_decks = int(row["universe_decks"])
+            snapshot_decks[snap] = u_decks
+            if snap not in seen_snaps:
+                seen_snaps.add(snap)
+                platforms[str(row["source"])] += u_decks
+                brackets[str(row["bracket"])] += u_decks
+            hits = int(row["decks_with_card"])
+            card_hits[row["card_name"].casefold()] += hits
+
+    total_denominator = sum(snapshot_decks.values())
+    if total_denominator <= 0:
+        return None, None
+
+    hits_per_card: dict[str, tuple[int, int]] = {}
+    for raw_name, hits in card_hits.items():
+        found = claims.get(raw_name)
+        if not found:
+            continue
+        kind = min(item[0] for item in found)
+        owners = [card for item_kind, card in found if item_kind == kind]
+        if len(owners) == 1:
+            card_id = owners[0]
+            curr = hits_per_card.get(card_id)
+            if curr is None or kind < curr[0] or (kind == curr[0] and hits > curr[1]):
+                hits_per_card[card_id] = (kind, hits)
+
+    summary: ProfileSummary = {
+        "profile": csv_path.name,
+        "spec": {},
+        "version": 1,
+        "denominator": total_denominator,
+        "denominator_by_platform": dict(platforms),
+        "denominator_by_bracket": dict(brackets),
+        "excluded_no_date": 0,
+        "excluded_by_card_filter": 0,
+        "min_universe": 30,
+        "below_min_universe": total_denominator < 30,
+        "subset_note": None,
+        "snapshot_id": f"repo_csv:{csv_path.stem}:{total_denominator}",
+        "data_class": "REPRESENTATIVE_CORPUS",
+    }
+    cards_out: list[dict[str, object]] = []
+    for card_id in ids:
+        hits = hits_per_card[card_id][1] if card_id in hits_per_card else 0
+        cards_out.append(
+            {
+                "card_id": card_id,
+                "filter_card": False,
+                "hits": hits,
+                "denominator": total_denominator,
+            }
+        )
+    return summary, cards_out
+
+
 def compute(
     store: StudioStore,
     commander: str,
@@ -264,6 +353,7 @@ def compute(
     notices = list(notices)
     universe_missing: str | None = None
     summary: ProfileSummary | None = None
+    repo_cards: list[dict[str, object]] | None = None
     if settings.universe_profile:
         try:
             summary = profile_summary(store, settings.universe_profile, commander_names=[commander])
@@ -276,6 +366,33 @@ def compute(
                 f"Das Universum „{universe_missing}“ dieser Einstellung gibt es nicht mehr: "
                 "die Rechnung läuft mit „kein Universum“."
             )
+    elif universe_missing is None and (
+        commander == "Chulane, Teller of Tales" or _repo_decklist_csv_for(commander) is not None
+    ):
+        # Default universe resolution: local DB takes precedence over repo CSV.
+        local_decks = universe.universe_decks(store, profile=None, commander_names=[commander])
+        if local_decks["denominator"] > 0:
+            min_universe = TierParams().min_universe
+            summary = {
+                "profile": "lokale Decks",
+                "spec": local_decks["spec"],
+                "version": 1,
+                "denominator": local_decks["denominator"],
+                "denominator_by_platform": local_decks["denominator_by_platform"],
+                "denominator_by_bracket": local_decks["denominator_by_bracket"],
+                "excluded_no_date": 0,
+                "excluded_by_card_filter": 0,
+                "min_universe": min_universe,
+                "below_min_universe": local_decks["denominator"] < min_universe,
+                "subset_note": None,
+                "snapshot_id": local_decks["snapshot_id"],
+                "data_class": local_decks["data_class"],
+            }
+        else:
+            repo_summary, loaded_cards = _load_repo_decklist_inclusion(commander, ids, claims)
+            if repo_summary is not None:
+                summary = repo_summary
+                repo_cards = loaded_cards
 
     per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
     collected: set[str] = set()
@@ -304,14 +421,27 @@ def compute(
         universe_minimum = summary["min_universe"]
         if summary["denominator"] > 0:
             collected.add(DECK_UNIVERSE)
-            spread = pool_spread(store, summary["profile"], ids, commander_names=[commander])
-            for item in spread["cards"]:
-                if item["filter_card"]:
-                    filter_cards.add(item["card_id"])
-                elif item["hits"] is not None:
-                    per_card[item["card_id"]][DECK_UNIVERSE] = Observation(
-                        item["hits"] / item["denominator"], item["hits"], item["denominator"]
-                    )
+            if repo_cards is not None:
+                for item in repo_cards:
+                    hits = int(item["hits"])
+                    denom = int(item["denominator"])
+                    card_id = str(item["card_id"])
+                    per_card[card_id][DECK_UNIVERSE] = Observation(hits / denom, hits, denom)
+            else:
+                spread = pool_spread(
+                    store,
+                    None if summary["profile"] == "lokale Decks" else summary["profile"],
+                    ids,
+                    commander_names=[commander],
+                )
+                for item in spread["cards"]:
+                    if item["filter_card"]:
+                        filter_cards.add(item["card_id"])
+                    else:
+                        hits = item["hits"] if item["hits"] is not None else 0
+                        per_card[item["card_id"]][DECK_UNIVERSE] = Observation(
+                            hits / item["denominator"], hits, item["denominator"]
+                        )
 
     type_group: dict[str, str] = {}
     bands: dict[str, str] = {}
@@ -574,7 +704,7 @@ def _panel_texts() -> dict[str, object]:
         "(„nicht bewertet“) und nehmen keinen Rang weg."
     )
     labels["min_coverage"] = (
-        f"Mindestabdeckung in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
+        f"Mindest-Datenlage in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
     )
     helps["min_coverage"] = (
         "Anteil des Gewichts, der vorhanden sein muss, sonst „zu wenig Daten“. Bei 0 kann eine "

@@ -67,7 +67,7 @@ MEANING = (
     "Stärke-Index: eine Schätzung aus Nutzungssignalen (wie oft eine Karte bei diesem "
     "Commander, in einem Bracket, in den gewählten Decklisten und in Turnierlisten gespielt "
     "wird). Er ist keine gemessene Siegrate und keine Aussage über Ergebnisse. Fehlende "
-    "Beobachtungen senken die Abdeckung, nie die Karte. Favoriten, Ausschlüsse und Notizen "
+    "Beobachtungen senken die Datenlage, nie die Karte. Favoriten, Ausschlüsse und Notizen "
     "fließen nicht ein."
 )
 
@@ -85,6 +85,7 @@ VALUE_UNKNOWN = "VALUE_UNKNOWN"
 GROUP_TOO_SMALL = "GROUP_TOO_SMALL"
 NOT_RANKED_COMMANDER = "NOT_RANKED_COMMANDER"
 NOT_RANKED_BASIC_LAND = "NOT_RANKED_BASIC_LAND"
+NO_COMMANDER_SIGNAL = "NO_COMMANDER_SIGNAL"
 
 TIER_UNKNOWN = "U"
 TIER_NOT_RANKED = "N"
@@ -132,6 +133,10 @@ COMPONENTS = (
     COMBOS,
     SIMULATION,
 )
+COMMANDER_SPECIFIC_SIGNALS = frozenset(
+    {COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE, SYNERGY, TOURNAMENT_LISTS}
+)
+GLOBAL_SIGNALS = frozenset({GLOBAL_INCLUSION, COMBOS, SIMULATION})
 LABELS: dict[str, str] = {
     COMMANDER_INCLUSION: "Aufnahme beim Commander (EDHREC)",
     BRACKET_INCLUSION: "Aufnahme im Bracket (EDHREC)",
@@ -799,15 +804,34 @@ def score_pool(
                 "components": components,
             }
             continue
+        has_commander_signal = any(
+            c["component"] in COMMANDER_SPECIFIC_SIGNALS
+            and c["percentile"] is not None
+            and c["weight"] > 0
+            for c in components
+        )
         coverage = present_weight / total_weight if total_weight > 0 else 0.0
         index = round(100.0 * weighted / present_weight, 1) if present_weight > 0 else None
-        enough = coverage >= settings.min_coverage and present >= settings.min_components
+        enough = (
+            coverage >= settings.min_coverage
+            and present >= settings.min_components
+            and has_commander_signal
+        )
+        if enough:
+            card_reason = "ENOUGH_DATA"
+            card_note = ""
+        elif not has_commander_signal and present > 0:
+            card_reason = NO_COMMANDER_SIGNAL
+            card_note = "Kein Commander-spezifisches Signal vorhanden (nur globale Daten)"
+        else:
+            card_reason = "TOO_LITTLE_DATA"
+            card_note = ""
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
             "tier": _tier(index, settings, enough),
-            "reason": "ENOUGH_DATA" if enough else "TOO_LITTLE_DATA",
-            "note": "",
+            "reason": card_reason,
+            "note": card_note,
             "present": present,
             "components": components,
         }
