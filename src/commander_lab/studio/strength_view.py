@@ -602,7 +602,10 @@ def compute(
         "universe_choice": choice,
         "universe_missing": universe_missing,
         "notices": notices,
-        "collected": sorted(collected),
+        # the index sources; a weighted layer is listed in ``layer_summary.weighted`` instead
+        "collected": sorted(
+            name for name in collected if not name.startswith(strength.LAYER_PREFIX)
+        ),
         "tier_counts": {tier: tiers.get(tier, 0) for tier in (*strength.TIERS, "U", "N")},
         "ambiguous_names": [
             {"signal": signal, "name": name, "candidates": candidates}
