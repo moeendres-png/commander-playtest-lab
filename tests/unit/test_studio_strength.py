@@ -1240,3 +1240,116 @@ def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) ->
         == "Simulation (empfohlen: 0, derzeit ohne Daten)"
     )
     assert all(item["settings"]["weights"]["simulation"] == 0.0 for item in meta["presets"])
+
+
+# ---------- pooled tournament files and the exact commander set (Refs #1205) ----------
+
+LIST_FIELDS = [
+    "tournament",
+    "date",
+    "player",
+    "wins",
+    "draws",
+    "losses",
+    "card_name",
+    "quantity",
+    "section",
+]
+
+
+def _lists_file(path: Path, lists: list[tuple[str, str, str, list[str], list[str]]]) -> None:
+    """One list = (tournament, date, player key, commander section, main-deck cards)."""
+    rows: list[dict[str, object]] = []
+    for tournament, date, player, commander_section, cards in lists:
+        rows += [_list_row(tournament, date, player, c, "commander") for c in commander_section]
+        rows += [_list_row(tournament, date, player, card, "main") for card in cards]
+    _write(path, rows, LIST_FIELDS)
+
+
+def _tournament_rows(store: StudioStore, commander: str = COMMANDER) -> int:
+    return int(
+        store.connection.execute(
+            "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?",
+            (commander, signals.SIGNAL_TOURNAMENT),
+        ).fetchone()[0]
+    )
+
+
+def test_two_tournament_files_of_one_commander_are_pooled_not_overwritten(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "pooled"
+    folder.mkdir()
+    first = [("Cup P", "2026-11-01", f"Key {n}", [COMMANDER], ["Filler 01"]) for n in range(6)]
+    second = [("Cup Q", "2026-11-02", f"Key {n}", [COMMANDER], ["Filler 02"]) for n in range(3)]
+    # the very same list (tournament, date, player key, cards) read from a second file
+    second.append(first[0])
+    _lists_file(folder / "topdeck_aaa_decks.csv", first)
+    _lists_file(folder / "topdeck_bbb_decks.csv", second)
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    files = report["files"]
+    assert isinstance(files, dict)
+    one = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 01")
+    two = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 02")
+    assert one is not None and (one["numerator"], one["denominator"]) == (6, 9)
+    assert two is not None and (two["numerator"], two["denominator"]) == (3, 9)
+    assert files["topdeck_aaa_decks"]["lists_read"] == 6
+    assert files["topdeck_bbb_decks"]["lists_read"] == 4
+    assert files["topdeck_aaa_decks"]["commander"] == COMMANDER
+    assert files["topdeck_bbb_decks"]["commander"] == COMMANDER
+    stored = _tournament_rows(store)
+    assert stored == 2
+    assert report["rows_written"] == stored and report["rows_replaced"] == 0
+    # a second import replaces exactly what the first one stored, not rows it just wrote
+    again = signals.import_signals(store, folder, commander=COMMANDER)
+    assert again["rows_written"] == stored and again["rows_replaced"] == stored
+    assert sum(entry["rows_written"] for entry in again["files"].values()) == stored  # type: ignore[attr-defined]
+    assert sum(entry["rows_replaced"] for entry in again["files"].values()) == stored  # type: ignore[attr-defined]
+    assert _tournament_rows(store) == stored
+
+
+def test_only_lists_with_exactly_the_commander_count_and_pairs_are_reported(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "pairs"
+    folder.mkdir()
+    lists = [
+        ("Cup R", "2026-11-03", f"Pair {n}", [COMMANDER, "Pair Mate"], ["Filler 03"])
+        for n in range(3)
+    ]
+    lists += [("Cup R", "2026-11-03", f"Solo {n}", [COMMANDER], ["Filler 04"]) for n in range(4)]
+    _lists_file(folder / "topdeck_mixed_decks.csv", lists)
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    entry = report["files"]["topdeck_mixed_decks"]  # type: ignore[index]
+    assert entry["commander"] == COMMANDER and entry["lists_read"] == 7
+    assert entry["skipped_reasons"]["OTHER_COMMANDER_SET"] == 3
+    solo = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 04")
+    assert solo is not None and (solo["numerator"], solo["denominator"]) == (4, 4)
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 03") is None  # pair-only card
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, "Pair Mate") is None
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, COMMANDER) is None  # never a deck card
+    names = {
+        row[0]
+        for row in store.connection.execute(
+            "SELECT card_name FROM card_signal WHERE signal = ?", (signals.SIGNAL_TOURNAMENT,)
+        )
+    }
+    assert "Pair Mate" not in names and COMMANDER not in names
+
+
+def test_a_file_with_only_pair_lists_stores_nothing_for_a_single_commander(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "onlypairs"
+    folder.mkdir()
+    lists = [
+        ("Cup S", "2026-11-04", f"Pair {n}", [COMMANDER, "Pair Mate"], ["Filler 03"])
+        for n in range(3)
+    ]
+    _lists_file(folder / "topdeck_pairs_decks.csv", lists)
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    entry = report["files"]["topdeck_pairs_decks"]  # type: ignore[index]
+    assert entry["status"] == "NOTHING_REPLACED"
+    assert entry["rows_written"] == 0 and entry["commander"] is None
+    assert entry["skipped_reasons"] == {"OTHER_COMMANDER_SET": 3}
+    assert store.count("card_signal") == 0
