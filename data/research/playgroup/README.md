@@ -19,8 +19,12 @@ because of per-file upload limits. Each record carries its nested
 the harvest cannot populate the two nested tables and are therefore
 not the canonical form.
 
-Fetch status in this snapshot: 724 OK, 860 PARTIAL (small sample,
-`insufficient_sample`), 70 NO_DATA, 1 NOT_FOUND (Craftwork Crusher).
+Fetch status in this snapshot (updated 2026-11-13 for the 71 unobserved cards):
+724 OK, 861 PARTIAL (small sample, `insufficient_sample`), 69 NO_DATA, 1 NOT_FOUND (Craftwork Crusher).
+All 71 rechecked cards carry their explicit `retrieved_at_utc` timestamp; Infectious Rage
+moved from NO_DATA to PARTIAL (times_brought=1, decks_running=1); 69 cards confirmed quellenleer (NO_DATA)
+and 1 card confirmed not found (NOT_FOUND).
+The 71 dated recheck records are also provided as `playgroup_card_atlas_recheck_71.jsonl`.
 
 ## Load
 
