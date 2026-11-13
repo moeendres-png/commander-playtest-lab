@@ -445,7 +445,7 @@ def _panel_texts() -> dict[str, object]:
         "eingeholt noch verarbeitet. Das Gewicht bleibt als Option bestehen und steht auf 0."
     )
     labels["bracket"] = (
-        "Bracket-Signal (empfohlen: upgraded für Chulane im Bracket 3; bei Turnierausrichtung cedh)"
+        "Bracket-Signal (empfohlen: upgraded, passend zum Bracket 3; bei Turnierausrichtung cedh)"
     )
     helps["bracket"] = "Welche Bracket-Seite von EDHREC als Bracket-Signal zählt."
     labels["rank_group"] = (
@@ -468,7 +468,9 @@ def _panel_texts() -> dict[str, object]:
         f"Mindest-Nenner EDHREC-Signale (empfohlen: {rec.min_denominators['edhrec']} Decks)"
     )
     helps["min_denominators.edhrec"] = (
-        "Hat die Quelle weniger Decks, wird das Signal für alle Karten nicht verwendet. 0 = kein Minimum."
+        "Liegt der Referenz-Nenner der Quelle (der größte Nenner des Signals) unter dem Minimum, "
+        "wird das Signal für alle Karten nicht verwendet; liegt nur der eigene Nenner einer "
+        "einzelnen Karte darunter, entfällt das Signal nur für diese Karte. 0 = kein Minimum."
     )
     labels["min_denominators.deck_universe"] = (
         "Mindest-Nenner Decklisten-Universum (empfohlen: das Mindest-Universum des "

@@ -1004,7 +1004,9 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert meta["recommended"] == StrengthSettings().to_dict() == meta["defaults"]
     labels = meta["panel"]["labels"]
     assert "(empfohlen: 3)" in labels["weights.commander_inclusion"]
-    assert "upgraded für Chulane im Bracket 3; bei Turnierausrichtung cedh" in labels["bracket"]
+    assert "empfohlen: upgraded" in labels["bracket"] and "Chulane" not in labels["bracket"]
+    edhrec_help = meta["panel"]["help"]["min_denominators.edhrec"]
+    assert "für alle Karten" in edhrec_help and "einzelnen Karte" in edhrec_help
     assert "(empfohlen: ganzer Pool)" in labels["rank_group"]
     assert "(empfohlen: Wilson-Untergrenze)" in labels["share_measure"]
     assert "30 Decks" in labels["min_denominators.edhrec"]
