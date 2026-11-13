@@ -1088,3 +1088,22 @@ def test_must_contain_unknown_cards_are_refused_and_names_normalized(
     # An empty requirement list is no filter at all.
     plain = universe.save_profile(store, "leer", {"must_contain": []})
     assert "must_contain" not in plain["spec"]
+
+
+def test_options_for_a_pair_scope_offer_no_single_commander_spec(store: StudioStore) -> None:
+    pair = ("Test Commander", "Pair Mate")
+    _raw_deck(store, "pair1", [("Sol Ring", "main", 1)], fingerprint="p1", cohorts=("bracket:3",))
+    _raw_deck(store, "solo1", [("Sol Ring", "main", 1)], fingerprint="s1", cohorts=("bracket:3",))
+    store.connection.executemany(
+        "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+        "VALUES ('corpus_deck', ?, ?, 'TEST')",
+        [("pair1", pair[0]), ("pair1", pair[1]), ("solo1", pair[0])],
+    )
+    store.connection.commit()
+    single = universe.options(store, commander_names=[pair[0]])
+    assert single["commanders"] == [{"value": pair[0], "decks": 1}]  # the solo deck only
+    both = universe.options(store, commander_names=list(pair))
+    # a single name would select the solo universe, not the pair's: none is offered
+    assert both["commanders"] == []
+    assert both["platforms"] == [{"value": "raw", "decks": 1}]  # the pair's own deck
+    assert both["cohorts"] == [{"value": "bracket:3", "decks": 1}]

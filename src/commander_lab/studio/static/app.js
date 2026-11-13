@@ -89,12 +89,15 @@ function freqText(card, cohort = state.cohort) {
 function displayFreq(card) {
   if (state.universe) {
     const u = card.universe;
-    if (u) return { hits: u.matched ? u.hits : null, total: u.denominator, share: u.share };
+    // A card the universe's card filter requires is in every deck of the subset by
+    // definition: it has no count to show, only the label "Filterkarte".
+    if (u) return { hits: u.matched && !u.filter_card ? u.hits : null, total: u.denominator, share: u.share, filter: Boolean(u.filter_card) };
   }
   return freq(card);
 }
 function displayFreqText(card) {
   const f = displayFreq(card);
+  if (f.filter) return "Filterkarte";
   if (f.hits === null) return "unbekannt";
   return f.total ? `${f.hits}/${f.total} · ${(100 * f.share).toFixed(0)} %` : "unbekannt";
 }
@@ -180,7 +183,7 @@ function tile(card) {
       count ? h("button", { class: "small", type: "button", title: "aus dem Deck", onclick: () => remove(card) }, "−") : null,
       count ? h("b", {}, count + "×") : null,
       h("span", { class: "spacer" }),
-      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: state.universe ? "Decks des gewählten Universums mit dieser Karte" : "Decks der Vergleichsgruppe mit dieser Karte" }, f.hits === null ? "unbekannt" : f.total ? `${f.hits}/${f.total}` : "–")));
+      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: state.universe ? "Decks des gewählten Universums mit dieser Karte" : "Decks der Vergleichsgruppe mit dieser Karte" }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${f.hits}/${f.total}` : "–")));
 }
 const COLUMNS = [
   ["img", "Bild", null], ["name", "Karte", "name"], ["mana_cost", "Kosten", "mana_value"], ["mana_value", "Manawert", "mana_value"],
@@ -379,7 +382,16 @@ function renderCompare(body) {
   const name = state.universe ? `Universum ${state.universe}` : cohortName(state.cohort);
   const candidates = state.pool.filter((card) => !qty(card.card_id) && !state.commanderIds.includes(card.card_id) && card.available > 0 && !card.excluded && !card.basic)
     .sort((a, b) => (displayFreq(b).hits ?? -1) - (displayFreq(a).hits ?? -1)).slice(0, 20);
-  const rare = deckCards().filter((card) => !card.basic).sort((a, b) => (displayFreq(a).hits ?? -1) - (displayFreq(b).hits ?? -1)).slice(0, 20);
+  // Ascending by hits, but a card with unknown hits (no count, or a filter card) is not "rarely
+  // played": it sorts last and is labelled unknown by displayFreqText.
+  const byRarity = (a, b) => {
+    const x = displayFreq(a).hits, y = displayFreq(b).hits;
+    if (x === null && y === null) return a.name.localeCompare(b.name);
+    if (x === null) return 1;
+    if (y === null) return -1;
+    return x - y;
+  };
+  const rare = deckCards().filter((card) => !card.basic).sort(byRarity).slice(0, 20);
   const listing = (cards, withAdd) => h("div", {}, cards.map((card) => {
     const label = h("span", { class: "nm", onclick: () => openCard(card) }, card.name); hoverPreview(label, card);
     return h("div", { class: "row" }, label, h("span", { class: "muted" }, displayFreqText(card)),
@@ -387,7 +399,8 @@ function renderCompare(body) {
   }));
   body.append(h("h3", {}, `Oft gespielt (${name}), frei in deiner Sammlung, nicht im Deck`), listing(candidates, true),
     h("h3", {}, `Im Deck, selten gespielt (${name})`), listing(rare, false),
-    h("p", { class: "note" }, "Häufigkeit sagt, was andere spielen, nicht, was stärker ist."));
+    h("p", { class: "note" }, "Häufigkeit sagt, was andere spielen, nicht, was stärker ist. Unbekannte Werte stehen am Ende der Liste „selten gespielt“: unbekannt ist nicht selten."),
+    ...(state.universeInfo && state.universeInfo.subset_note ? [h("p", { class: "note" }, state.universeInfo.subset_note)] : []));
 }
 async function renderDiff(body) {
   const deck = state.decks.find((item) => item.deck_id === state.deckId);
@@ -755,7 +768,8 @@ async function openCard(card) {
       h("button", { type: "button", onclick: closeModal }, "Schließen")),
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
-    card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null, extra);
+    card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, extra);
   box.append(left, right); $("modal").hidden = false;
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
@@ -779,7 +793,8 @@ async function openCard(card) {
                 h("td", { class: "num" }, `${(100 * pair.decks_together / co.decks_with_card).toFixed(1)} %`),
                 h("td", { class: "num" }, pair.lift === null ? "unbekannt" : pair.lift.toFixed(2)),
                 h("td", {}, pair.combo_partner ? "ja (Spellbook-Kombo)" : "–"))))),
-            h("p", { class: "note" }, "Reine Zählung im gewählten Universum (DERIVED_DESCRIPTIVE). Lift: Anteil unter den Decks mit dieser Karte geteilt durch den Anteil im ganzen Universum; über 1 heißt überproportional oft zusammen gespielt. Kombo-Partner: beide Karten stehen in einer geprüften Spellbook-Kombo dieses Commanders." + (co.excluded_no_date ? ` ${co.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter heraus.` : "")));
+            h("p", { class: "note" }, "Reine Zählung im gewählten Universum (DERIVED_DESCRIPTIVE). Lift: Anteil unter den Decks mit dieser Karte geteilt durch den Anteil im ganzen Universum; über 1 heißt überproportional oft zusammen gespielt. Kombo-Partner: beide Karten stehen in einer geprüften Spellbook-Kombo dieses Commanders." + (co.excluded_no_date ? ` ${co.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter heraus.` : "")),
+            ...(co.subset_note ? [h("p", { class: "note" }, `${co.subset_note}. Der Nenner ${co.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`)] : []));
         }
       } catch (error) { parts.push(h("p", { class: "muted" }, "Universum-Kookkurrenz nicht lesbar: " + error.message)); }
     }
@@ -872,7 +887,7 @@ function renderUniverseInfo() {
   const u = state.universeInfo;
   if (!u) { box.textContent = ""; return; }
   const parts = [`Universum ${u.profile} (Version ${u.version}): ${u.denominator} Decks (Nenner), Stand ${u.snapshot_id}`];
-  if (u.excluded_by_card_filter) parts.push(`${u.excluded_by_card_filter} durch den Karten-Filter ausgeschlossen`);
+  if (u.subset_note) parts.push(u.subset_note);
   if (u.excluded_no_date) parts.push(`${u.excluded_no_date} ohne Zeitstempel ausgeschlossen`);
   if (u.below_min_universe) parts.push(`unter dem Mindest-Universum ${u.min_universe}: alle Stufen U`);
   box.textContent = parts.join(" · ");

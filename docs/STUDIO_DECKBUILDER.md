@@ -163,6 +163,9 @@ card drawer repeats the numbers, the cut parameters, every spelling found, and l
 
 Routes: `GET /api/universe/profiles`, `PUT /api/universe/profiles/{name}`,
 `GET /api/universe/profiles/{name}/summary`, `GET /api/universe/spread?profile=NAME`,
+`GET /api/universe/options?commander=NAME` (the commander is required, 422 without; at most
+two names for a partner pair; the counts and offered values are those of that commander's
+decks only),
 `GET /api/cards/{card_id}/universe?profile=NAME`,
 `GET /api/cards/{card_id}/cooccurrence?profile=NAME&limit=25`.
 
@@ -179,13 +182,20 @@ price columns are never read):
 python -m commander_lab.studio import-signals FOLDER [--commander NAME]
 ```
 
-The command reports rows read, written and skipped per file. Signals are stored in
+The command reports rows read, written, replaced (existing rows of the same commander and
+signal that were swapped for the new ones) and, for a file without a valid row, kept (the
+existing rows that stayed) per file,
+the commander names it imported and the names it did not recognise; when nothing was
+replaced the status is `NOTHING_REPLACED`. Signals are stored in
 `card_signal(commander_name, signal, card_name, value, numerator, denominator, source_id)`:
 `edhrec_commander_inclusion|synergy` and `edhrec_bracket_inclusion:<core|upgraded|optimized|cedh>`
 per commander of the files, `edhrec_global_inclusion` and `spellbook_variants` commander
 independent (commander name empty), and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
-commander section only) under `--commander` (default: the standard commander). The commander
+commander section only) under `--commander` (default: the standard commander). Tournament
+files are any `topdeck_*_decks.csv` (split parts `_1`, `_2` allowed); the commander of a
+file is taken from its commander section and matched case-insensitively against the commander
+names of the store, so a file of another commander is never stored under the wrong name. The commander
 file's lift column and the spellbook file's partner count are not stored: no strength
 component reads them, and the values remain in the source files (the lift also in the
 observation pipeline). Stores imported earlier keep the rows of the two signals they
@@ -197,24 +207,61 @@ is never stored. Re-importing replaces the rows of the signals it writes.
 Formula, per commander (`strength.py`, pure):
 
 1. Share signals (inclusion, bracket inclusion, deck lists, tournament lists, global) use the
-   lower bound of the 95 % Wilson interval of numerator/denominator, so a small sample does
-   not rank high by chance. Synergy and combo counts are used as published.
-2. Each value becomes a percentile rank (0..1) among the commander's legal pool cards that
-   have a value for that signal; ties share the mean rank.
+   share measure from the settings: the lower bound of the 95 % Wilson interval of
+   numerator/denominator (recommended) or the raw share. Caveat: at one fixed denominator
+   the Wilson bound is monotone in the numerator, so it keeps the raw order; it does not
+   protect against small samples by itself, and `wilson_lower(0, n)` is exactly 0.0. The
+   protection is the **minimum denominator per signal**: a share whose denominator is below
+   the minimum is not ranked (component status `BELOW_MIN_DENOMINATOR`, a missing
+   observation). Synergy and combo counts are used as published.
+2. Each value becomes a percentile rank (0..1). The comparison group is the whole legal pool
+   (recommended) or the card's type group or mana-value band; a group of fewer than 5 cards
+   falls back to the whole pool and the card says so. Ties share the mean rank. The
+   commander card and the basic lands are not ranked by default (tier `N`, "nicht
+   bewertet"); the setting can include them. Cards the universe requires (card filter,
+   `must_contain`) are filter cards: status `FILTER_CARD`, not ranked, labelled
+   "Filterkarte".
 3. Index = weighted mean of the present percentiles x 100 (one decimal); a missing component
    is left out and the weights are renormalised. `coverage` = weight of present components /
    weight of all components with a weight above 0.
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
    `min_components` weighted components are present; otherwise S/A/B/C/D by the index cuts
-   (default 90/75/55/35). A card absent from a source is a missing observation: it lowers
-   the coverage, never the percentile.
+   (default 90/75/55/35, editable). A card absent from a source is a missing observation: it
+   lowers the coverage, never the percentile. The setting "missing value" decides per share
+   signal what a card without a value does: `skip` (recommended, the component is left out)
+   or `lowest` (counts as the lowest percentile, 0; an explicit choice, never the default). With
+   `min_coverage` 0 a card with a single weak signal can outrank a card listed by a source at
+   1 of 755 decks, which is why the recommendation is 0.4.
+5. A deck universe that is a subset (card filter) says so wherever its denominator is shown:
+   "Teilmenge: nur Decks mit ..." with the number of excluded decks. The universe's
+   `min_universe` is honoured by the strength view (below it: `UNIVERSE_TOO_SMALL`).
 
-Settings: a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
+Counts are per commander: the universe of a strength request is resolved for the exact set
+of the bound commanders (a partner pair matches only its own decks, as `builder.bound_to`
+does), and a saved profile whose universe was deleted falls back to "no universe" with a
+visible notice instead of failing the request; a profile list entry with an invalid stored
+spec is marked invalid and does not break the list. Card names are matched deterministically
+(oracle name, then engine name, then front face); a name claimed by two cards is reported in
+`ambiguous_names`.
+
+Settings (every label on the page carries its recommendation in parentheses; the
+recommended values live in one place, `StrengthSettings` defaults in `strength.py`, and are
+served by `GET /api/strength/presets` as `recommended`; the button "Empfohlene Werte" applies
+them, an empty weight field means the recommended value and shows it): a weight per component (commander inclusion 3, bracket inclusion 2, deck-list
 universe 2, synergy 1, tournament lists 1, global inclusion 1, combos 1, simulation 0), the
 bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile (the page uses
-the Universum selector), `min_coverage` (0.4), `min_components` (2) and the cuts. Presets:
-Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. The simulation
-component is `NOT_COLLECTED`: stored simulation rows are not an outcome model.
+the Universum selector), the comparison group (`rank_group`: `pool`), the share measure
+(`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
+tournament 5; the deck-universe minimum is the universe's own `min_universe`), the missing
+value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
+`min_coverage` (0.4), `min_components` (2) and the editable cuts (`tier_cuts` 90/75/55/35).
+The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
+component. Presets:
+Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. Simulation results
+do not count in the tier list and are for now neither collected nor processed for it (Owner
+decision B11, 2026-11-12): the `simulation` weight stays as an option, is 0 in the defaults
+and in every preset, and the component is `NOT_COLLECTED`. The page's layer count ("Schichten",
+sort key and coverage list) does not count the simulation layer either.
 
 The Owner's marks (favorite, excluded, note) never enter the index (Owner decision B4;
 pinned by a test). On the page the settings panel "Stärke-Index" holds preset, bracket, one
@@ -227,6 +274,10 @@ Routes: `POST /api/strength` (body `commander` plus at most one of `preset`, `pr
 `GET /api/strength/presets`, `GET /api/strength/profiles`,
 `GET|PUT|DELETE /api/strength/profiles/{name}`.
 
+The page names two different things and never mixes them: "Stärke-Index (Schätzung aus
+Nutzungsdaten)" (this index) and "Ergebnis aus Partien (noch nicht bewertet)" (the outcome
+evidence, `UNRATED`).
+
 ### Data report
 
 `data-report` prints JSON with numbers only: every figure is a count with its denominator, a
@@ -235,7 +286,11 @@ is included, so the output can go into an issue or a shared document. `roles.fin
 hashes of `card_role_claim` (in total and per origin and scope), `card_role` and
 `corpus_deck_role`: run the report before and after an import. An import limited to one scope
 must leave the hash of every other scope unchanged, and an identical second import must leave
-all hashes unchanged. The report states what
+all hashes unchanged. The universe section reports each profile per bound commander (never mixed across
+commanders), and the `commanders` section gives, per commander, the pool size, the number
+of collection cards excluded for unknown legality, and the signal layer (rows per signal and
+the coverage over the pool); commander names appear there, collection card names never do.
+The report states what
 it cannot measure (`not_measured_here`: pilot knowledge and engine card support for the
 collection, collection changes since the last export). The plan for closing the gaps is #1182.
 
