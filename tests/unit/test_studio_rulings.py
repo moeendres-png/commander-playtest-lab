@@ -47,6 +47,16 @@ def _dump(store: StudioStore) -> list[tuple[object, ...]]:
     ]
 
 
+def _links(store: StudioStore) -> list[tuple[object, ...]]:
+    return [
+        tuple(row)
+        for row in store.connection.execute(
+            "SELECT oracle_id, published_at, comment, source_id FROM card_ruling_source "
+            "ORDER BY oracle_id, published_at, comment, source_id"
+        )
+    ]
+
+
 def test_import_reports_counts_and_stores_rows_in_date_order(tmp_path: Path) -> None:
     path = _file(
         tmp_path / "card_rulings_1655.jsonl",
@@ -84,9 +94,12 @@ def test_reimport_changes_nothing(tmp_path: Path) -> None:
     store = StudioStore.in_memory()
     rulings.import_rulings(store, [path])
     before = _dump(store)
+    links_before = _links(store)
     report = rulings.import_rulings(store, [path])
     assert _dump(store) == before
+    assert _links(store) == links_before
     assert report["rows_before"] == 2 and report["rulings"] == 2
+    assert report["rows_linked"] == 0
     store.close()
 
 
@@ -105,6 +118,40 @@ def test_a_changed_file_replaces_only_its_own_rows(tmp_path: Path) -> None:
     assert report["rows_before"] == 3 and report["rulings"] == 2
     comments = sorted(str(row[4]) for row in _dump(store))
     assert comments == ["Kept.", "New text."]
+    store.close()
+
+
+def test_a_shared_ruling_survives_replacing_one_of_its_files(tmp_path: Path) -> None:
+    first = _file(
+        tmp_path / "first.jsonl",
+        [
+            _line(ORACLE_A, "2019-07-12", "Shared."),
+            _line(ORACLE_A, "2019-07-12", "Only first."),
+        ],
+    )
+    second = _file(
+        tmp_path / "second.jsonl",
+        [
+            _line(ORACLE_A, "2019-07-12", "Shared."),
+            _line(ORACLE_B, "2020-01-01", "Only second."),
+        ],
+    )
+    store = StudioStore.in_memory()
+    report = rulings.import_rulings(store, [first, second])
+    assert report["rulings"] == 3
+    files = report["files"]
+    assert isinstance(files, list)
+    assert files[0]["rows_written"] == 2 and files[1]["rows_written"] == 1
+    assert files[1]["rows_linked"] == 1 and report["rows_linked"] == 1
+    _file(first, [_line(ORACLE_A, "2021-01-01", "Replacement.")])
+    report = rulings.import_rulings(store, [first])
+    assert report["rows_before"] == 3 and report["rulings"] == 3
+    comments = sorted(str(row[4]) for row in _dump(store))
+    assert comments == ["Only second.", "Replacement.", "Shared."]
+    _file(second, [_line(ORACLE_B, "2020-01-01", "Only second.")])
+    rulings.import_rulings(store, [second])
+    comments = sorted(str(row[4]) for row in _dump(store))
+    assert comments == ["Only second.", "Replacement."]
     store.close()
 
 
@@ -208,6 +255,7 @@ def test_schema_13_migration_opens_a_schema_12_store(tmp_path: Path) -> None:
     ).fetchone()[0]
     assert version == "13"
     assert store.count("card_ruling") == 0
+    assert store.count("card_ruling_source") == 0
     assert store.connection.execute("SELECT COUNT(*) FROM universe_profile").fetchone()[0] == 1
     store.close()
 

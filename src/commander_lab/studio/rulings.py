@@ -4,8 +4,9 @@ A ruling is a public statement of the rules, published with a date and a source 
 Coast or Scryfall). The files are JSON lines, one ruling per line (``oracle_id``, ``source``,
 ``published_at``, ``comment``). The bulk lists only cards that have rulings: a card that is not
 in the table has none published, while an empty table means the rulings were never imported
-(unknown). An import replaces the rulings of the files it reads (by file name) and keeps the
-rulings of other files, so repeating it changes nothing.
+(unknown). An import replaces the rulings of the files it reads (by file name); every ruling
+remembers which files provide it (``card_ruling_source``), so a ruling listed by two files
+stays as long as one of them still provides it, and repeating an import changes nothing.
 """
 
 from __future__ import annotations
@@ -27,6 +28,7 @@ class RulingFileReport(TypedDict):
     sha256: str
     rows_read: int
     rows_written: int
+    rows_linked: int
     rows_skipped: int
     skipped_reasons: dict[str, int]
 
@@ -37,12 +39,17 @@ def _text(value: object) -> str:
 
 def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str, object]:
     """Read one or several rulings files; the rulings of each file replace the rulings stored
-    from a file of the same name, and the rulings of every other file stay.
+    from a file of the same name.
 
-    A ruling listed twice in one file (same card, date and text) is kept once. A line that is
-    not a JSON object with ``oracle_id``, ``published_at`` and ``comment`` is skipped and
-    counted with its reason. A file without any importable ruling is refused and nothing
-    changes. One transaction: a failure leaves the earlier rulings in place."""
+    Every ruling remembers the files that provide it (``card_ruling_source``): replacing a
+    file removes exactly the rulings no other imported file still provides, so a ruling
+    listed by two files survives replacing one of them. In the per-file report,
+    ``rows_written`` counts ruling rows this file created and ``rows_linked`` counts rulings
+    that were already stored from another file and only gained this file as one more
+    provider. A ruling listed twice in one file (same card, date and text) is kept once. A
+    line that is not a JSON object with ``oracle_id``, ``published_at`` and ``comment`` is
+    skipped and counted with its reason. A file without any importable ruling is refused and
+    nothing changes. One transaction: a failure leaves the earlier rulings in place."""
     files = [Path(path) for path in paths]
     if not files:
         raise ValueError("no rulings file given")
@@ -50,7 +57,7 @@ def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str,
         raise ValueError("two of the given files have the same name")
     rows_before = store.count("card_ruling")
     reports: list[RulingFileReport] = []
-    fresh: list[tuple[str, str, str, str, str]] = []  # oracle, published, source, comment, source
+    current_ids: list[str] = []
     with store.connection as db:
         for file in files:
             digest = sha256_file(file)
@@ -60,12 +67,14 @@ def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str,
                 sha256=digest,
                 url="https://scryfall.com/docs/api/rulings",
             )
+            current_ids.append(source_id)
             report: RulingFileReport = {
                 "file": file.name,
                 "source_id": source_id,
                 "sha256": digest,
                 "rows_read": 0,
                 "rows_written": 0,
+                "rows_linked": 0,
                 "rows_skipped": 0,
                 "skipped_reasons": {},
             }
@@ -76,9 +85,7 @@ def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str,
                         continue
                     report["rows_read"] += 1
                     reason = _read_line(line, collected)
-                    if reason is None:
-                        report["rows_written"] += 1
-                    else:
+                    if reason is not None:
                         report["rows_skipped"] += 1
                         reasons = report["skipped_reasons"]
                         reasons[reason] = reasons.get(reason, 0) + 1
@@ -86,55 +93,85 @@ def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str,
                 raise ValueError(
                     f"{file.name}: no ruling in the file; the stored rulings were not changed"
                 )
-            fresh += [(o, d, src, c, source_id) for (o, d, c), src in collected.items()]
+            next_ordinal: dict[str, int] = {}
+            for (oracle_id, published_at, comment), ruling_source in collected.items():
+                key = (oracle_id, published_at, comment)
+                stored = db.execute(
+                    "SELECT 1 FROM card_ruling WHERE oracle_id = ? AND published_at = ? "
+                    "AND comment = ?",
+                    key,
+                ).fetchone()
+                if stored is None:
+                    if oracle_id not in next_ordinal:
+                        top = db.execute(
+                            "SELECT COALESCE(MAX(ordinal), 0) FROM card_ruling WHERE oracle_id = ?",
+                            (oracle_id,),
+                        ).fetchone()
+                        next_ordinal[oracle_id] = int(top[0])
+                    next_ordinal[oracle_id] += 1
+                    db.execute(
+                        "INSERT INTO card_ruling(oracle_id, ordinal, published_at, "
+                        "ruling_source, comment, source_id) VALUES (?, ?, ?, ?, ?, ?)",
+                        (
+                            oracle_id,
+                            next_ordinal[oracle_id],
+                            published_at,
+                            ruling_source,
+                            comment,
+                            source_id,
+                        ),
+                    )
+                    report["rows_written"] += 1
+                link = db.execute(
+                    "INSERT OR IGNORE INTO card_ruling_source(oracle_id, published_at, "
+                    "comment, source_id) VALUES (?, ?, ?, ?)",
+                    (*key, source_id),
+                )
+                if stored is not None and link.rowcount:
+                    report["rows_linked"] += 1
             reports.append(report)
-        # Rows of a source this call re-reads, or of an older version of a file of the same
-        # name (same title, other content), go; every other file's rows stay. The replaced
-        # source rows stay in ``source`` as provenance. A ruling already stored (same card,
-        # date and text) keeps its first source, so the table never holds it twice.
-        ids = [report["source_id"] for report in reports]
+        # The older versions of the re-read files (same title, other content) lose their
+        # provenance links; a ruling no imported file provides any more goes with them. The
+        # replaced source rows stay in ``source`` as provenance.
         names = [file.name for file in files]
-        marks_ids = ",".join("?" * len(ids))
         marks_names = ",".join("?" * len(names))
-        kept = [
-            (str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]))
-            for r in db.execute(
-                "SELECT r.oracle_id, r.published_at, r.ruling_source, r.comment, r.source_id "
-                "FROM card_ruling r JOIN source s USING (source_id) "
-                f"WHERE r.source_id NOT IN ({marks_ids}) "
-                f"AND NOT (s.title IN ({marks_names})) ORDER BY r.oracle_id, r.ordinal",
-                [*ids, *names],
-            )
-        ]
-        seen = {(row[0], row[1], row[3]) for row in kept}
-        added: list[tuple[str, str, str, str, str]] = []
-        for row in fresh:
-            key = (row[0], row[1], row[3])
-            if key not in seen:
-                seen.add(key)
-                added.append(row)
-        ordered = sorted(
-            enumerate([*kept, *added]), key=lambda item: (item[1][0], item[1][1], item[0])
+        marks_ids = ",".join("?" * len(current_ids))
+        db.execute(
+            "DELETE FROM card_ruling_source WHERE source_id IN (SELECT source_id FROM source "
+            f"WHERE title IN ({marks_names}) AND source_id NOT IN ({marks_ids}))",
+            [*names, *current_ids],
         )
-        db.execute("DELETE FROM card_ruling")
-        ordinals: dict[str, int] = {}
-        rows: list[tuple[str, int, str, str, str, str]] = []
-        for _, (oracle_id, published_at, ruling_source, comment, source_id) in ordered:
-            ordinals[oracle_id] = ordinals.get(oracle_id, 0) + 1
-            rows.append(
-                (oracle_id, ordinals[oracle_id], published_at, ruling_source, comment, source_id)
-            )
-        db.executemany(
-            "INSERT INTO card_ruling(oracle_id, ordinal, published_at, ruling_source, comment, "
-            "source_id) VALUES (?, ?, ?, ?, ?, ?)",
-            rows,
+        db.execute(
+            "DELETE FROM card_ruling WHERE NOT EXISTS (SELECT 1 FROM card_ruling_source s "
+            "WHERE s.oracle_id = card_ruling.oracle_id "
+            "AND s.published_at = card_ruling.published_at AND s.comment = card_ruling.comment)"
         )
+        # The ordinal presents a card's rulings in publication order: renumber by date
+        # (the old ordinal breaks a same-day tie, so the order is stable across imports).
+        # The offset keeps the (oracle_id, ordinal) key free while the numbers are written.
+        stored_rows = db.execute(
+            "SELECT oracle_id, published_at, ordinal FROM card_ruling "
+            "ORDER BY oracle_id, published_at, ordinal"
+        ).fetchall()
+        counters: dict[str, int] = {}
+        renumbered: list[tuple[int, str, int]] = []
+        for oracle_id, _published_at, ordinal in stored_rows:
+            counters[oracle_id] = counters.get(oracle_id, 0) + 1
+            renumbered.append((counters[oracle_id], oracle_id, ordinal))
+        if any(new != old for new, _oracle, old in renumbered):
+            db.execute("UPDATE card_ruling SET ordinal = ordinal + 1000000")
+            db.executemany(
+                "UPDATE card_ruling SET ordinal = ? WHERE oracle_id = ? AND ordinal = ?",
+                [(new, oracle, old + 1000000) for new, oracle, old in renumbered],
+            )
+    cards = store.connection.execute("SELECT COUNT(DISTINCT oracle_id) FROM card_ruling").fetchone()
     return {
         "files": reports,
         "rows_before": rows_before,
-        "rulings": len(rows),
-        "cards_with_rulings": len(ordinals),
+        "rulings": store.count("card_ruling"),
+        "cards_with_rulings": int(cards[0]),
         "rows_skipped": sum(report["rows_skipped"] for report in reports),
+        "rows_linked": sum(report["rows_linked"] for report in reports),
     }
 
 
@@ -160,7 +197,8 @@ def rulings_for_card(store: StudioStore, card_id: str) -> dict[str, object]:
     """The rulings of one collection card; ``KeyError`` for an unknown card.
 
     ``status``: ``NOT_IMPORTED`` (no rulings in the store at all: unknown), ``NONE_PUBLISHED``
-    (rulings are imported and the card has none) or ``AVAILABLE``."""
+    (rulings are imported and the card has none), ``AVAILABLE`` (the card has rulings) or
+    ``UNKNOWN`` (the card has no oracle id, so it cannot be looked up at all)."""
     row = store.connection.execute(
         "SELECT oracle_id FROM card_fact WHERE card_id = ?", (card_id,)
     ).fetchone()
