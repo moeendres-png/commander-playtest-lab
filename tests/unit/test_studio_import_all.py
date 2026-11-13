@@ -209,3 +209,43 @@ def test_layer_overview_names_the_import_call_of_each_missing_layer(tmp_path: Pa
     assert '--decklists "<Ordner>"' in layers["decklists"]["command"]
     assert f'--commander "{COMMANDER}"' in layers["roles"]["command"]
     assert "--signals" in body["signals_command"]
+
+
+_SIGNAL_LAYERS = {
+    "signal:edhrec_commander_inclusion",
+    "signal:edhrec_bracket_inclusion:core",
+    "signal:edhrec_bracket_inclusion:upgraded",
+    "signal:edhrec_bracket_inclusion:optimized",
+    "signal:edhrec_bracket_inclusion:cedh",
+    "signal:edhrec_commander_synergy",
+    "signal:edhrec_global_inclusion",
+    "signal:spellbook_variants",
+    "signal:tournament_lists",
+    "signal:edhtop16_commander_play_rate",
+}
+
+
+def test_every_signal_layer_is_listed_as_missing_in_a_store_without_signals(
+    tmp_path: Path,
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio import importers
+    from commander_lab.studio.web import create_app
+
+    files = _files(tmp_path)
+    store = StudioStore.open(tmp_path / "studio")
+    importers.import_inventory_workbook(store, files["inventory"])
+    _size, table = import_all.completeness(store, COMMANDER)
+    store.close()
+    signal_rows = {item["key"]: item for item in table if item["key"].startswith("signal:")}
+    assert set(signal_rows) == _SIGNAL_LAYERS
+    assert {item["status"] for item in signal_rows.values()} == {"MISSING"}
+    with TestClient(create_app(tmp_path / "studio")) as client:
+        body = client.get("/api/layers", params={"commander": COMMANDER}).json()
+    api_rows = {item["key"]: item for item in body["layers"] if item["key"].startswith("signal:")}
+    assert set(api_rows) == _SIGNAL_LAYERS
+    assert all("--signals" in item["command"] for item in api_rows.values())
+    assert "--signals" in body["signals_command"]
+    script = (Path(import_all.__file__).parent / "static" / "ui.js").read_text(encoding="utf-8")
+    assert "overview.signals_command" in script

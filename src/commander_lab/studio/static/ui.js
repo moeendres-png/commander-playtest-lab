@@ -195,6 +195,7 @@ const StudioUI = (() => {
       el("div", { class: "table-wrap" }, el("table", {},
         el("thead", {}, el("tr", {}, ["Schicht", "Zeilen", "Pool abgedeckt", "Stand", "Befehl zum Importieren"].map((label, index) => el("th", { class: index === 1 || index === 2 ? "num" : "" }, label)))),
         el("tbody", {}, rows))),
+      missing.some((layer) => layer.key.startsWith("signal:")) ? el("p", { class: "note" }, "Nutzungsdaten (EDHREC, Turnierlisten, Kombos) laden: ", el("code", { class: "cmd" }, overview.signals_command)) : null,
       el("p", { class: "note" }, `Ein Aufruf mit allen Dateien: ${overview.doc}. Unter Windows kommt vor „import-all“ die Option --data "$env:LOCALAPPDATA\\CommanderStudio".`)));
   }
 

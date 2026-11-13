@@ -26,7 +26,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import strength, universe
+from . import signals, strength, universe
 from .builder import pool_cards
 from .store import StudioStore, now_utc
 from .strength import (
@@ -147,6 +147,20 @@ class SignalCoverage(TypedDict):
     pool_size: int
 
 
+def expected_signals() -> list[str]:
+    """The usage signals the importers can store, a fixed list from the code (not from what
+    happens to be stored): a signal without rows is then shown as missing, never left out."""
+    return [
+        strength.signal_for(COMMANDER_INCLUSION, strength.BRACKET_NONE),
+        *(f"{signals.SIGNAL_BRACKET}:{variant}" for variant in signals.BRACKET_VARIANTS),
+        strength.signal_for(SYNERGY, strength.BRACKET_NONE),
+        strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
+        strength.signal_for(COMBOS, strength.BRACKET_NONE),
+        strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
+        signals.SIGNAL_EDHTOP16,
+    ]
+
+
 def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCoverage]:
     """Per stored signal: its rows and how many of the commander's pool cards it gives a
     value (the same name matching as the index). Counts only. A signal without rows for
@@ -161,8 +175,11 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
     claims = _claim_index(store, ids)
     db = store.connection
     result: dict[str, SignalCoverage] = {}
-    for row in db.execute("SELECT DISTINCT signal FROM card_signal ORDER BY signal"):
-        signal = str(row[0])
+    stored = [str(row[0]) for row in db.execute("SELECT DISTINCT signal FROM card_signal")]
+    names = expected_signals()
+    for signal in sorted(set(stored) - set(names)):
+        names.append(signal)
+    for signal in names:
         owner = "" if signal in _INDEPENDENT else commander
         counted = db.execute(
             "SELECT COUNT(*), COUNT(value) FROM card_signal "
