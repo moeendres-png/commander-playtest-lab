@@ -162,19 +162,59 @@ def test_numbered_parts_are_read_in_order(store: StudioStore, tmp_path: Path) ->
     assert len(universe_choice.counted_universes(store, COMMANDER)) == 2
 
 
-def test_a_file_whose_commander_is_not_in_every_deck_is_refused_whole(
+def test_only_the_universe_that_fails_the_commander_check_is_refused(
     store: StudioStore, tmp_path: Path
 ) -> None:
-    # The second universe lists the commander in 499 of 500 decks: the whole file is refused.
-    rows = _rows("edhrec", 3, 200, {"Filler 01": 150}) + _rows(
-        "archidekt", 4, 500, {"Filler 01": 100}, own=499
+    # Three universes; the archidekt one lists the commander in 499 of 500 decks.
+    rows = (
+        _rows("edhrec", 3, 200, {"Filler 01": 150})
+        + _rows("edhrec", 4, 300, {"Filler 01": 90})
+        + _rows("archidekt", 3, 500, {"Filler 01": 100}, own=499)
     )
     report = _import_counted(store, _write_counted(tmp_path / "bad", rows))
     file_report = _file_report(report)
-    assert file_report["status"] == signals.REFUSED
+    assert file_report["status"] == "IMPORTED" and report["files_refused"] == 0
+    assert report["universes_refused"] == 1
     assert file_report["skipped_reasons"] == {signals.COMMANDER_NOT_IN_EVERY_DECK: 1}
-    assert report["files_refused"] == 1
-    assert _stored(store) == 0 and file_report["rows_written"] == 0
+    assert file_report["universes_refused"] == [
+        {
+            "source": "archidekt",
+            "bracket": "3",
+            "reason": signals.COMMANDER_NOT_IN_EVERY_DECK,
+            "commander_decks": 499,
+            "universe_decks": 500,
+        }
+    ]
+    stored = universe_choice.counted_universes(store, COMMANDER)
+    assert [(item["source"], item["bracket"]) for item in stored] == [
+        ("edhrec", "3"),
+        ("edhrec", "4"),
+    ]
+    assert _stored(store) == file_report["rows_written"] > 0
+    # The refused universe is no option: not listed, and asking for it names nothing.
+    result = _compute(store, universe_source="counted:archidekt:3")
+    assert result["universe_choice"]["kind"] == universe_choice.KIND_NONE
+
+
+def test_the_step_report_of_import_all_names_the_refused_universe(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    research = tmp_path / "research"
+    rows = _rows("edhrec", 3, 200, {"Filler 01": 1}) + _rows(
+        "archidekt", 4, 199, {"Filler 01": 1}, own=198
+    )
+    _write_counted(research, rows)
+    monkeypatch.setattr(import_all, "_RESEARCH", research)
+    store = StudioStore.open(tmp_path / "all")
+    steps = {step["step"]: step for step in import_all.run(_all_args(tmp_path), store)["steps"]}
+    detail = steps["Signale research"]["detail"]
+    assert "files_refused=0" in detail
+    assert "Universum archidekt/4 abgelehnt" in detail
+    assert "Commander in 198 von 199 Decks" in detail
+    assert [item["source"] for item in universe_choice.counted_universes(store, COMMANDER)] == [
+        "edhrec"
+    ]
+    store.close()
 
 
 def test_a_file_of_another_commander_is_refused_for_this_one(
@@ -206,9 +246,7 @@ def test_a_commander_row_missing_from_a_universe_refuses_the_file(
     assert _stored(store) == 0
 
 
-def test_mixed_denominators_inside_one_universe_refuse_the_file(
-    store: StudioStore, tmp_path: Path
-) -> None:
+def test_mixed_denominators_refuse_only_that_universe(store: StudioStore, tmp_path: Path) -> None:
     rows = _rows("edhrec", 3, 200, {"Filler 01": 150})
     rows[1]["universe_decks"] = 199
     report = _import_counted(store, _write_counted(tmp_path / "mixed", rows))
@@ -216,6 +254,16 @@ def test_mixed_denominators_inside_one_universe_refuse_the_file(
     assert file_report["status"] == signals.REFUSED
     assert file_report["skipped_reasons"] == {signals.MIXED_DENOMINATORS: 1}
     assert _stored(store) == 0
+    # Next to a clean universe only the mixed one is refused.
+    both = _write_counted(tmp_path / "mixed2", rows + _rows("archidekt", 4, 50, {"Filler 01": 5}))
+    file_report = _file_report(_import_counted(store, both))
+    assert file_report["status"] == "IMPORTED"
+    assert [item["reason"] for item in file_report["universes_refused"]] == [
+        signals.MIXED_DENOMINATORS
+    ]
+    assert [item["source"] for item in universe_choice.counted_universes(store, COMMANDER)] == [
+        "archidekt"
+    ]
 
 
 @pytest.mark.parametrize("bad", ["201", "-1", "x", "1.5"])

@@ -290,11 +290,15 @@ one `(source, bracket)` pair. `import-signals FOLDER` (and `import-all`, which a
 `data/research` itself when it holds such a file) stores per universe one signal
 `decklist_universe:<source>:<bracket>` (value = share, numerator, denominator; the snapshot id of
 the file is kept in the title of the universe's source row). The file has no commander column,
-so the commander is the `--commander` of the import and is **checked**: in every universe the
-commander's own card must be in every deck (`decks_with_card == universe_decks`), otherwise the
-whole file is refused for this commander (report status `REFUSED`, reason
-`COMMANDER_NOT_IN_EVERY_DECK`) and nothing is stored. Mixed denominators inside one universe
-(`MIXED_DENOMINATORS`) and an invalid count (`INVALID_COUNT`) refuse the file as well; duplicate
+so the commander is the `--commander` of the import and is **checked per universe**: in a
+universe the commander's own card must be in every deck (`decks_with_card == universe_decks`),
+otherwise that universe alone is refused (reason `COMMANDER_NOT_IN_EVERY_DECK`) and nothing of
+it is stored; the other universes of the file are stored. Mixed denominators inside one
+universe (`MIXED_DENOMINATORS`) and an invalid count (`INVALID_COUNT`) refuse that universe the
+same way. The report names every refused universe (`universes_refused`: source, bracket,
+reason, the commander's decks, the universe's decks; `import-all` prints it in the step
+detail); the file is `REFUSED` only when none of its universes can be stored. A refused
+universe is never an option of `universe_source`. Duplicate
 card rows keep the first and are counted. `expected_signals()`, the completeness table and
 `/api/layers` list the stored universes, or one generic row `Signal decklist_universe` as
 `MISSING` while none exists.

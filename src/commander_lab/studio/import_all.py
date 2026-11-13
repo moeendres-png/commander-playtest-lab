@@ -129,6 +129,15 @@ def _count(store: StudioStore, sql: str, params: Sequence[object] = ()) -> int:
     return int(store.connection.execute(sql, tuple(params)).fetchone()[0])
 
 
+def _refused_universe(file_name: str, refused: dict[str, object]) -> str:
+    """One refused counted universe: its source, bracket, reason and the two numbers."""
+    return (
+        f"{file_name}: Universum {refused['source']}/{refused['bracket']} abgelehnt "
+        f"({refused['reason']}: Commander in {refused['commander_decks']} von "
+        f"{refused['universe_decks']} Decks)"
+    )
+
+
 def _summary(result: object) -> str:
     """A short, count-only line of an importer result; a refused file names its reason."""
     if isinstance(result, dict):
@@ -141,9 +150,13 @@ def _summary(result: object) -> str:
         files = result.get("files")
         if isinstance(files, dict):
             for name, report in files.items():
-                if isinstance(report, dict) and report.get("status") == signals.REFUSED:
+                if not isinstance(report, dict):
+                    continue
+                if report.get("status") == signals.REFUSED:
                     reasons = report.get("skipped_reasons", {})
                     parts.append(f"{name}: abgelehnt ({', '.join(sorted(reasons))})")
+                for refused in report.get("universes_refused") or []:
+                    parts.append(_refused_universe(name, refused))
         return ", ".join(parts)
     return ""
 

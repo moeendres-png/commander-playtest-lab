@@ -41,10 +41,13 @@ has its own header and the parts are read one after another in number order):
   card without a row is a true 0 of ``universe_decks``, not unknown. The file has no commander
   column: it belongs to the commander of the import, and that is CHECKED. In every universe
   the commander's own card must be in every deck (``decks_with_card == universe_decks``),
-  otherwise the whole file is refused for this commander (``COMMANDER_NOT_IN_EVERY_DECK``) and
-  nothing is stored. Mixed denominators inside one universe (``MIXED_DENOMINATORS``) and an
-  invalid count (``INVALID_COUNT``: not a whole number, negative, or above the denominator)
-  refuse the file too: dropping such a row would turn it into a false zero. Duplicate card
+  otherwise THAT universe alone is refused for this commander (``COMMANDER_NOT_IN_EVERY_DECK``)
+  and nothing of it is stored; the other universes of the file are stored. Mixed denominators
+  inside one universe (``MIXED_DENOMINATORS``) and an invalid count (``INVALID_COUNT``: not a
+  whole number, negative, or above the denominator) refuse that universe too: dropping such a
+  row would turn it into a false zero. Each refused universe is named in the report
+  (``universes_refused``: source, bracket, reason, the commander's decks and the universe's
+  decks); the file is ``REFUSED`` only when no universe of it could be stored. Duplicate card
   rows keep the first and are counted in the report. Per universe one signal
   ``decklist_universe:<source>:<bracket>`` is stored (value the share, numerator the decks
   with the card, denominator the decks of the universe); its source row carries the snapshot
@@ -103,6 +106,14 @@ DECKLIST_COLUMNS = {"card_name", "source", "bracket", "decks_with_card", "univer
 _Row = tuple[str, str, str, float | None, int | None, int | None]  # commander, signal, card, ...
 
 
+class RefusedUniverse(TypedDict):
+    source: str
+    bracket: str
+    reason: str
+    commander_decks: int | None  # decks_with_card of the commander's own row, None when absent
+    universe_decks: int  # the denominator of the universe (the largest one when they are mixed)
+
+
 class FileReport(TypedDict):
     status: str
     parts: list[str]
@@ -115,6 +126,7 @@ class FileReport(TypedDict):
     commander: str | None
     lists_read: int  # tournament files: distinct lists read from this file
     pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
+    universes_refused: list[RefusedUniverse]  # counted deck-list files: refused universes
 
 
 def _number(text: str | None) -> float | None:
@@ -249,6 +261,7 @@ def _empty(paths: list[Path]) -> FileReport:
         "commander": None,
         "lists_read": 0,
         "pooled_into": None,
+        "universes_refused": [],
     }
 
 
@@ -467,6 +480,7 @@ class _Universe:
         self.cards: dict[str, tuple[int, int]] = {}
         self.denominators: set[int] = set()
         self.snapshot = ""
+        self.invalid = 0
 
 
 def _bump(report: FileReport, reason: str, count: int = 1) -> None:
@@ -475,11 +489,10 @@ def _bump(report: FileReport, reason: str, count: int = 1) -> None:
 
 def _read_decklist_universes(
     paths: list[Path], report: FileReport
-) -> tuple[dict[tuple[str, str], _Universe], str]:
-    """The universes of a counted deck-list file and the reason the file must be refused
-    (empty when it can be used). First row wins for a duplicated card."""
+) -> dict[tuple[str, str], _Universe]:
+    """The universes of a counted deck-list file, each with the rows it was given. First row
+    wins for a duplicated card. A universe with an invalid count is marked (``invalid``)."""
     universes: dict[tuple[str, str], _Universe] = {}
-    invalid = 0
     for row in _rows(paths, DECKLIST_COLUMNS):
         report["rows_read"] += 1
         card = row["card_name"].strip()
@@ -488,11 +501,11 @@ def _read_decklist_universes(
             report["rows_skipped"] += 1
             _bump(report, "NAME_MISSING")
             continue
+        universe = universes.setdefault((source, bracket), _Universe())
         decks, total = _count(row["decks_with_card"]), _count(row["universe_decks"])
         if decks is None or total is None or total <= 0 or decks > total:
-            invalid += 1
+            universe.invalid += 1
             continue
-        universe = universes.setdefault((source, bracket), _Universe())
         universe.denominators.add(total)
         universe.snapshot = universe.snapshot or row.get("universe_snapshot", "").strip()
         if card in universe.cards:
@@ -501,29 +514,22 @@ def _read_decklist_universes(
             _bump(report, "DUPLICATE_SAME_FIGURES" if same else "DUPLICATE_CONFLICT")
             continue
         universe.cards[card] = (decks, total)
-    if invalid:
-        _bump(report, INVALID_COUNT, invalid)
-        return universes, INVALID_COUNT
-    mixed = sum(1 for universe in universes.values() if len(universe.denominators) > 1)
-    if mixed:
-        _bump(report, MIXED_DENOMINATORS, mixed)
-        return universes, MIXED_DENOMINATORS
-    return universes, ""
+    return universes
 
 
-def _commander_in_every_deck(
-    universes: dict[tuple[str, str], _Universe], names: set[str], report: FileReport
-) -> bool:
-    """Whether the commander's own card is in every deck of every universe of the file."""
+def _universe_refusal(universe: _Universe, names: set[str]) -> tuple[str, int | None]:
+    """Why a universe cannot be stored for the commander (empty reason: it can), and the
+    decks the commander's own row counts (None when it has no single row)."""
     wanted = {name.casefold() for name in names}
-    failing = 0
-    for universe in universes.values():
-        own = [figures for card, figures in universe.cards.items() if card.casefold() in wanted]
-        if len(own) != 1 or own[0][0] != own[0][1]:
-            failing += 1
-    if failing:
-        _bump(report, COMMANDER_NOT_IN_EVERY_DECK, failing)
-    return failing == 0
+    own = [figures for card, figures in universe.cards.items() if card.casefold() in wanted]
+    commander_decks = own[0][0] if len(own) == 1 else None
+    if universe.invalid:
+        return INVALID_COUNT, commander_decks
+    if len(universe.denominators) > 1:
+        return MIXED_DENOMINATORS, commander_decks
+    if len(own) != 1 or own[0][0] != own[0][1]:
+        return COMMANDER_NOT_IN_EVERY_DECK, commander_decks
+    return "", commander_decks
 
 
 def _import_decklists(
@@ -533,28 +539,42 @@ def _import_decklists(
     raw_name: str,
     reports: dict[str, FileReport],
 ) -> None:
-    """Read every counted deck-list file of the folder; a file whose commander check or counts
-    fail is refused as a whole and stores nothing."""
+    """Read every counted deck-list file of the folder. A universe whose commander check or
+    counts fail is refused alone and named in the report; the other universes of the file are
+    stored. The file is ``REFUSED`` when none of its universes can be stored."""
     for base in _decklist_bases(root):
         paths = _parts(root, base)
         report = _empty(paths)
         reports[base] = report
-        universes, reason = _read_decklist_universes(paths, report)
-        if not reason and not universes:
+        universes = _read_decklist_universes(paths, report)
+        if not universes:
             report["status"] = "NOTHING_REPLACED"
             continue
-        if not reason and not _commander_in_every_deck(universes, {commander, raw_name}, report):
-            reason = COMMANDER_NOT_IN_EVERY_DECK
-        if reason:
+        usable: dict[tuple[str, str], _Universe] = {}
+        for (source, bracket), universe in sorted(universes.items()):
+            reason, commander_decks = _universe_refusal(universe, {commander, raw_name})
+            if not reason:
+                usable[(source, bracket)] = universe
+                continue
+            _bump(report, reason)
+            report["universes_refused"].append(
+                {
+                    "source": source,
+                    "bracket": bracket,
+                    "reason": reason,
+                    "commander_decks": commander_decks,
+                    "universe_decks": max(universe.denominators, default=0),
+                }
+            )
+        report["commander"] = commander
+        if not usable:
             report["status"] = REFUSED
-            report["commander"] = commander
             report["rows_kept"] = _kept_decklist_rows(store, commander)
             continue
-        report["commander"] = commander
         file_hash = hashlib.sha256(
             "".join(sha256_file(path) for path in paths).encode()
         ).hexdigest()
-        for (source, bracket), universe in sorted(universes.items()):
+        for (source, bracket), universe in usable.items():
             signal = decklist_signal(source, bracket)
             source_id = store.register_source(
                 data_class=DataClass.NORMALIZED_SOURCE,
@@ -788,6 +808,7 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
         "tournament_commander": preferred,
         "files": reports,
         "files_refused": sum(1 for report in reports.values() if report["status"] == REFUSED),
+        "universes_refused": sum(len(report["universes_refused"]) for report in reports.values()),
         "rows_written": sum(report["rows_written"] for report in reports.values()),
         "rows_replaced": sum(report["rows_replaced"] for report in reports.values()),
         "rows_kept": sum(report["rows_kept"] for report in reports.values()),
