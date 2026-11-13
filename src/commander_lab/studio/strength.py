@@ -753,9 +753,7 @@ def score_pool(
     commander_weight = {
         name: settings.effective_weight(name)
         for name in COMPONENTS
-        if settings.effective_weight(name) > 0
-        and name in collected
-        and rankings[name].usable
+        if settings.effective_weight(name) > 0 and name in collected and rankings[name].usable
     }
     any_positive_weight = any(settings.effective_weight(name) > 0 for name in COMPONENTS)
     result: dict[str, CardStrength] = {}
