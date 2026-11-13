@@ -81,7 +81,10 @@ class _Normalizer:
         return placeholder
 
     def _text(self, raw: str) -> str:
-        mapped = _UUID_RE.sub(lambda match: self._ident(match.group(0)), raw)
+        # Cheap guards: a text without these characters cannot match the patterns below.
+        mapped = _UUID_RE.sub(lambda match: self._ident(match.group(0)), raw) if "-" in raw else raw
+        if "[" not in mapped and "object_id" not in mapped.lower():
+            return mapped
         return str(XmageFullGameRunner._semantic_text(mapped))
 
     def value(self, value: object, path: tuple[str, ...] = ()) -> Json:
