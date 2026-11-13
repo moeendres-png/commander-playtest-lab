@@ -25,6 +25,9 @@ release/
 # Ephemeral local runtime state
 .runtime/
 
+# Collector raw-response caches (TopDeck slices contain player names; never commit)
+.cache/
+
 # Foundry launcher telemetry spool (sealed into evidence/docs, never committed raw)
 .foundry/metrics.jsonl
 
