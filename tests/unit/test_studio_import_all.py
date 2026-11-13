@@ -139,16 +139,22 @@ def test_full_delivery_fills_every_layer_and_counts_computed_pool(tmp_path: Path
     layers = _layers(report)
     assert set(layers) == {
         "inventory", "public_card_facts", "commander_legality", "roles", "commander_inclusion",
-        "bracket_inclusion", "global_inclusion", "synergy", "combos", "salt", "tournament",
+        "bracket_inclusion_core",
+        "bracket_inclusion_upgraded",
+        "bracket_inclusion_optimized",
+        "bracket_inclusion_cedh", "global_inclusion", "synergy", "combos", "salt", "tournament",
         "rulings", "corpus_decks", "universe_profiles", "playgroup",
     }  # fmt: skip
     assert layers["inventory"]["status"] == completeness.COMPLETE
-    assert layers["commander_inclusion"]["n"] == 10 and layers["commander_inclusion"]["of"] == pool
+    assert layers["commander_inclusion"]["n"] == 10
+    assert layers["commander_inclusion"]["of"] == pool - 1
     assert layers["commander_inclusion"]["status"] == completeness.PARTIAL
     assert layers["commander_inclusion"]["capture_date"] == "2026-11-12"
     assert layers["roles"]["n"] == 5
     assert layers["salt"]["n"] == 1
-    assert layers["rulings"]["n"] == 1 and layers["rulings"]["status"] == completeness.COMPLETE
+    assert (
+        layers["rulings"]["n"] == 1 and layers["rulings"]["status"] == completeness.RULINGS_STATUS
+    )
     assert layers["bracket_inclusion"]["status"] == completeness.NOT_DELIVERED
     assert layers["playgroup"]["status"] == completeness.NOT_DELIVERED
     assert layers["corpus_decks"]["n"] is not None and layers["corpus_decks"]["n"] >= 2

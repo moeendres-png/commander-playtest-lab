@@ -25,6 +25,7 @@ from typing import TypedDict
 from . import research_import, universe
 from .queries import legal_pool
 from .signals import (
+    BRACKET_VARIANTS,
     SIGNAL_BRACKET,
     SIGNAL_COMBO_DECKS,
     SIGNAL_EDHTOP16,
@@ -72,6 +73,7 @@ class _Layer:
     title: str
     readme_keys: tuple[str, ...]
     note: str = ""
+    exclude_commander: bool = False
 
 
 @dataclass
@@ -100,9 +102,10 @@ def _signal_data(
             args,
         )
     }
+    # rows of other commanders are not rows of this layer: the layer is then not delivered
     rows = int(
         db.execute(
-            f"SELECT COUNT(*) FROM card_signal WHERE signal IN ({marks})", signals
+            f"SELECT COUNT(*) FROM card_signal WHERE signal IN ({marks}){scope}", args
         ).fetchone()[0]
     )
     sources = [
@@ -115,16 +118,6 @@ def _signal_data(
         )
     ]
     return _Data(names, set(), set(), rows, sources)
-
-
-def _like_signal_data(db: sqlite3.Connection, prefix: str, commander: str) -> _Data:
-    kinds = [
-        str(r[0])
-        for r in db.execute(
-            "SELECT DISTINCT signal FROM card_signal WHERE signal LIKE ?", (prefix + ":%",)
-        )
-    ]
-    return _signal_data(db, kinds or [prefix + ":none"], commander, per_commander=True)
 
 
 def _merge(parts: Sequence[_Data]) -> _Data:
@@ -222,23 +215,44 @@ def _universe(store: StudioStore, commander: str) -> _Data:
     return _Data(names, set(), set(), profiles, [])
 
 
+EXCLUDES = "Commander selbst nicht mitgezählt (er steht in seinen eigenen Listen)"
+RULINGS_STATUS = "ERFASST (Quelle nennt nur Karten mit Regeltext)"
+
 _LAYERS: tuple[_Layer, ...] = (
     _Layer("inventory", "Bestand (Sammlung)", ()),
     _Layer("public_card_facts", "Öffentliche Kartendaten (Scryfall)", ()),
     _Layer("commander_legality", "Commander-Legalität bekannt", ()),
     _Layer("roles", "Rollen (Tagger)", ("card_tagger_bulk",)),
     _Layer(
-        "commander_inclusion", "Einsatzrate beim Commander (EDHREC)", ("commander_card_signals",)
+        "commander_inclusion",
+        "Einsatzrate beim Commander (EDHREC)",
+        ("commander_card_signals",),
+        EXCLUDES,
+        exclude_commander=True,
     ),
-    _Layer("bracket_inclusion", "Einsatzrate je Bracket (EDHREC)", ("commander_bracket_signals",)),
+    *(
+        _Layer(
+            f"bracket_inclusion_{variant}",
+            f"Einsatzrate Bracket {variant} (EDHREC)",
+            ("commander_bracket_signals",),
+        )
+        for variant in BRACKET_VARIANTS
+    ),
     _Layer("global_inclusion", "Einsatzrate global (EDHREC)", ("card_global_signals",)),
-    _Layer("synergy", "Synergie (EDHREC)", ("commander_card_signals",)),
+    _Layer(
+        "synergy",
+        "Synergie (EDHREC)",
+        ("commander_card_signals",),
+        EXCLUDES,
+        exclude_commander=True,
+    ),
     _Layer(
         "combos",
         "Combos (Spellbook, EDHREC)",
         ("spellbook_card_links", "edhrec_chulane_combos"),
         "Spellbook: Anzahl bekannter Varianten (0 ist ein veröffentlichter Wert); "
-        "EDHREC: beobachtete Combo-Listen des Commanders",
+        f"EDHREC: beobachtete Combo-Listen des Commanders. {EXCLUDES}",
+        exclude_commander=True,
     ),
     _Layer(
         "salt",
@@ -301,28 +315,42 @@ def _source_text(sources: list[tuple[str, str | None]]) -> str:
 
 
 def _cards(db: sqlite3.Connection, card_ids: Sequence[str] | None) -> list[_Card]:
+    """Collection cards with the names a source may use for them (case-folded).
+
+    The full name always counts. A front-face name counts only when exactly one collection
+    card has it, so a shared front face is credited to none of the cards."""
     rows = db.execute(
         "SELECT f.card_id, f.oracle_id, f.oracle_name, f.engine_name FROM card_fact f "
         "JOIN inventory i USING (card_id) ORDER BY f.card_id"
     ).fetchall()
+    fronts: dict[str, int] = {}
+    for row in rows:
+        name = str(row["oracle_name"])
+        for key in {str(row["engine_name"]).casefold(), name.split(" // ")[0].casefold()}:
+            if key != name.casefold():
+                fronts[key] = fronts.get(key, 0) + 1
     wanted = set(card_ids) if card_ids is not None else None
     cards: list[_Card] = []
     for row in rows:
         if wanted is not None and row["card_id"] not in wanted:
             continue
         name = str(row["oracle_name"])
-        names = {name, str(row["engine_name"]), name.split(" // ")[0]}
+        names = {name.casefold()}
+        for key in (str(row["engine_name"]).casefold(), name.split(" // ")[0].casefold()):
+            if fronts.get(key, 0) == 1:
+                names.add(key)
         cards.append(_Card(str(row["card_id"]), row["oracle_id"], frozenset(names)))
     return cards
 
 
 def _count(cards: Sequence[_Card], data: _Data) -> int:
+    wanted = {name.casefold() for name in data.names}
     return sum(
         1
         for card in cards
         if card.card_id in data.card_ids
         or (card.oracle_id is not None and card.oracle_id in data.oracle_ids)
-        or bool(card.names & data.names)
+        or bool(card.names & wanted)
     )
 
 
@@ -364,7 +392,10 @@ def _layer_data(store: StudioStore, commander: str) -> dict[str, _Data]:
     data["commander_inclusion"] = _signal_data(
         db, [SIGNAL_INCLUSION], commander, per_commander=True
     )
-    data["bracket_inclusion"] = _like_signal_data(db, SIGNAL_BRACKET, commander)
+    for variant in BRACKET_VARIANTS:
+        data[f"bracket_inclusion_{variant}"] = _signal_data(
+            db, [f"{SIGNAL_BRACKET}:{variant}"], commander, per_commander=True
+        )
     data["global_inclusion"] = _signal_data(db, [SIGNAL_GLOBAL], commander, per_commander=False)
     data["synergy"] = _signal_data(db, [SIGNAL_SYNERGY], commander, per_commander=True)
     data["combos"] = _merge(
@@ -405,15 +436,20 @@ def build_layers(
         pool = _cards(db, pool_ids)
     data = _layer_data(store, commander)
     rows: list[LayerRow] = []
+    own = commander.casefold()
     for layer in _LAYERS:
         held = data[layer.key]
-        n_all = _count(everything, held)
-        n_pool = _count(pool, held) if pool is not None else None
-        of = len(pool) if pool is not None else None
+        scope_all, scope_pool = everything, pool
+        if layer.exclude_commander:
+            scope_all = [card for card in everything if own not in card.names]
+            scope_pool = [card for card in pool if own not in card.names] if pool else pool
+        n_all = _count(scope_all, held)
+        n_pool = _count(scope_pool, held) if scope_pool is not None else None
+        of = len(scope_pool) if scope_pool is not None else None
         basis = n_pool if n_pool is not None else n_all
-        status = _status(basis, of if of is not None else len(everything), held.rows_in_store)
-        if layer.key == "rulings" and held.rows_in_store > 0 and of:
-            status = COMPLETE  # the source lists only cards with rulings
+        status = _status(basis, of if of is not None else len(scope_all), held.rows_in_store)
+        if layer.key == "rulings" and n_pool:
+            status = RULINGS_STATUS  # n of N as always; the source lists only cards with rulings
         capture, basis_text = _capture(held.sources, readmes, layer.readme_keys)
         rows.append(
             {
@@ -422,7 +458,7 @@ def build_layers(
                 "n": n_pool,
                 "of": of,
                 "collection_n": n_all,
-                "collection_of": len(everything),
+                "collection_of": len(scope_all),
                 "status": status,
                 "source": _source_text(held.sources),
                 "capture_date": capture,
@@ -469,6 +505,8 @@ def format_table(report: dict[str, object]) -> str:
                 f"{row['title']:<40} {own:>14} {whole:>14}  {row['status']:<15} "
                 f"{row['source'] or '-'} / {stand}"
             )
+            if row.get("note"):
+                lines.append(f"{'':<4}Hinweis: {row['note']}")
     return "\n".join(lines)
 
 

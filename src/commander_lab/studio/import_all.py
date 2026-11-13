@@ -70,6 +70,7 @@ _NO_CONSUMER: tuple[tuple[str, str], ...] = (
     ),
 )
 _IGNORED = frozenset({"README.md"})
+NOT_READ = "nicht gelesen (Lauf abgebrochen)"
 
 
 class StepRecord(TypedDict):
