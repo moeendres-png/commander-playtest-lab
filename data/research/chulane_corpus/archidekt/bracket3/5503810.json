@@ -1,0 +1,850 @@
+{
+ "id": 5503810,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane: Human Tribal",
+ "updated_at": "2026-08-12T21:18:30.067349Z",
+ "cards": [
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Damning Verdict",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "King Darien XLVIII",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Narset's Reversal",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plaza of Heroes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hero of Precinct One",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coat of Arms",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Greymond, Avacyn's Stalwart",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gregor, Shrewd Magistrate",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champion of the Parish",
+   "quantity": 1,
+   "categories": [
+    "One Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hengegate Pathway // Mistgate Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kyler, Sigardian Emissary",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dennick, Pious Apprentice // Dennick, Pious Apparition",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barkchannel Pathway // Tidechannel Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sigarda, Champion of Light",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Giant Killer // Chop Down",
+   "quantity": 1,
+   "categories": [
+    "One Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tomik, Distinguished Advokist",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thalia's Lieutenant",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angel of Glory's Rise",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "One Drops",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shanna, Purifying Blade",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ranger of Eos",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Weathered Wayfarer",
+   "quantity": 1,
+   "categories": [
+    "One Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Immortal Sun",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leinore, Autumn Sovereign",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia of the Tenth",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intrepid Adversary",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mayor of Avabruck // Howlpack Alpha",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Promise of Tomorrow",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Katilda, Dawnhart Prime",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ascend from Avernus",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heronblade Elite",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saffi Eriksdotter",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reflector Mage",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Odric, Lunarch Marshal",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "One Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "True Conviction",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Vial",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hanweir Militia Captain // Westvale Cult Leader",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Branchloft Pathway // Boulderloft Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kytheon, Hero of Akros // Gideon, Battle-Forged",
+   "quantity": 1,
+   "categories": [
+    "One Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Serra Ascendant",
+   "quantity": 1,
+   "categories": [
+    "One Drops"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Transit Mage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treasure Mage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 104,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

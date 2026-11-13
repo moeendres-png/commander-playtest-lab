@@ -1,0 +1,646 @@
+{
+ "id": 21275538,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Chulane",
+ "updated_at": "2026-04-07T15:34:33.061869Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Analyze the Pollen",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archdruid's Charm",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Attune with Aether",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Mana Dorks",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathar Commando",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chocobo Racetrack",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Curious Farm Animals",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disallow",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Duelist's Heritage",
+   "quantity": 1,
+   "categories": [
+    "Pump"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1,
+   "categories": [
+    "Landfall",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eumidian Terrabotanist",
+   "quantity": 1,
+   "categories": [
+    "Lifegain",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eusocial Engineering",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frog Butler",
+   "quantity": 1,
+   "categories": [
+    "Mana Dorks",
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fugitive Droid",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghalta, Primal Hunger",
+   "quantity": 1,
+   "categories": [
+    "Finisher",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacier Godmaw",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glen Elendra Guardian",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glyph Elemental",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Great Forest Druid",
+   "quantity": 1,
+   "categories": [
+    "Mana Dorks",
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Combo Pieces",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lay of the Land",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leatherhead, Swamp Stalker",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Mana Dorks",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mightform Harmonizer",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Momo, Playful Pet",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mona Lisa, Science Geek",
+   "quantity": 1,
+   "categories": [
+    "Mana Dorks",
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Negate",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Novice Inspector",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otherworldly Escort",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1,
+   "categories": [
+    "No Maximum Handsize",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quakestrider Ceratops",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Raucous Audience",
+   "quantity": 1,
+   "categories": [
+    "Mana Dorks",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sazh's Chocobo",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Secret of Bloodbending",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Combo Pieces",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spirit Water Revival",
+   "quantity": 1,
+   "categories": [
+    "No Maximum Handsize",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stasis",
+   "quantity": 1,
+   "categories": [
+    "Combo Pieces"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Lifegain",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Transdimensional Bovine",
+   "quantity": 1,
+   "categories": [
+    "Mana Dorks",
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Traveling Chocobo",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Traverse the Ulvenwald",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Virulent Emissary",
+   "quantity": 1,
+   "categories": [
+    "Lifegain",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wistfulness",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 16,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Combo Pieces",
+    "Ramp"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

@@ -1,0 +1,733 @@
+{
+ "id": 17666172,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "All the Things, All at Once",
+ "updated_at": "2025-11-23T23:27:59.344791Z",
+ "cards": [
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "M10"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scryb Ranger",
+   "quantity": 1,
+   "categories": [
+    "TSP"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Narset's Reversal",
+   "quantity": 1,
+   "categories": [
+    "PPTHB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "RNA"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1,
+   "categories": [
+    "THB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "EXP"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1,
+   "categories": [
+    "PPTHB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Instill Energy",
+   "quantity": 1,
+   "categories": [
+    "5ED"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1,
+   "categories": [
+    "AVR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1,
+   "categories": [
+    "C17"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "CMD"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1,
+   "categories": [
+    "CMR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1,
+   "categories": [
+    "WAR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1,
+   "categories": [
+    "ELD"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "AFC"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "RNA"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shimmering Grotto",
+   "quantity": 1,
+   "categories": [
+    "CN2"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Humble Naturalist",
+   "quantity": 1,
+   "categories": [
+    "IKO"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Null Rod",
+   "quantity": 1,
+   "categories": [
+    "WTH"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "ZNC"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [
+    "JMP"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1,
+   "categories": [
+    "IMA"
+   ],
+   "companion": false
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1,
+   "categories": [
+    "CHR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "MIR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "2X2"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "GRN"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1,
+   "categories": [
+    "LIST"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1,
+   "categories": [
+    "WAR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1,
+   "categories": [
+    "ICE"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1,
+   "categories": [
+    "CMA"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1,
+   "categories": [
+    "LARP"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1,
+   "categories": [
+    "LIST"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growing Rites of Itlimoc // Itlimoc, Cradle of the Sun",
+   "quantity": 1,
+   "categories": [
+    "XLN"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gitaxian Probe",
+   "quantity": 1,
+   "categories": [
+    "NPH"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wirewood Symbiote",
+   "quantity": 1,
+   "categories": [
+    "EVG"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boreal Druid",
+   "quantity": 1,
+   "categories": [
+    "CSP"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grafdigger's Cage",
+   "quantity": 1,
+   "categories": [
+    "MM3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "CMR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [
+    "ICE"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1,
+   "categories": [
+    "RNA"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Abundance",
+   "quantity": 1,
+   "categories": [
+    "M20"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seton, Krosan Protector",
+   "quantity": 1,
+   "categories": [
+    "ODY"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Joraga Treespeaker",
+   "quantity": 1,
+   "categories": [
+    "ROE"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1,
+   "categories": [
+    "C17"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "3ED"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra's Acolyte",
+   "quantity": 1,
+   "categories": [
+    "GBP"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "A25"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "ZNC"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vitalize",
+   "quantity": 1,
+   "categories": [
+    "WTH"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "DOM"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "GN3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tangleroot",
+   "quantity": 1,
+   "categories": [
+    "MRD"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "ELD"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Archdruid",
+   "quantity": 1,
+   "categories": [
+    "DDU"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Devoted Druid",
+   "quantity": 1,
+   "categories": [
+    "LIST"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Containment Priest",
+   "quantity": 1,
+   "categories": [
+    "M21"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quirion Ranger",
+   "quantity": 1,
+   "categories": [
+    "VIS"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1,
+   "categories": [
+    "PC2"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "VIS"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1,
+   "categories": [
+    "BFZ"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1,
+   "categories": [
+    "WWK"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1,
+   "categories": [
+    "RNA"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "PPM21"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1,
+   "categories": [
+    "DDO"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "M15"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "C16"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "LIST"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1,
+   "categories": [
+    "BNG"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1,
+   "categories": [
+    "C19"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quirion Elves",
+   "quantity": 1,
+   "categories": [
+    "MIR"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "CMA"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "PC2"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1,
+   "categories": [
+    "C18"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1,
+   "categories": [
+    "A25"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "C20"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "CN2"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1,
+   "categories": [
+    "M20"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voyaging Satyr",
+   "quantity": 1,
+   "categories": [
+    "THS"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thespian's Stage",
+   "quantity": 1,
+   "categories": [
+    "C19"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 2,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

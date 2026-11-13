@@ -1,0 +1,1738 @@
+{
+ "id": 11644934,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Beastiary",
+ "updated_at": "2025-03-02T21:20:15.788942Z",
+ "cards": [
+  {
+   "name": "Blackblade Reforged",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Agility Bobblehead",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champion's Helm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Replicating Ring",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Everflowing Chalice",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Perception Bobblehead",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mimic Vat",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strionic Resonator",
+   "quantity": 1,
+   "categories": [
+    "Copy",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Semblance Anvil",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seer's Sundial",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sonic Screwdriver",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thran Dynamo",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whispersilk Cloak",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trailblazer's Boots",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Winged Boots",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Invasion of Muraganda // Primordial Plasm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Battle"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma, Angel of Wrath",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Invasion of Moag // Bloomwielder Dryads",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Battle"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abzan Falconer",
+   "quantity": 1,
+   "categories": [
+    "Counters",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Invasion of Pyrulea // Gargantuan Slabhorn",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Battle"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1,
+   "categories": [
+    "big mofos",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aragorn and Arwen, Wed",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angelic Aberration",
+   "quantity": 1,
+   "categories": [
+    "extra spice",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archon of Coronation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archon of Valor's Reach",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Artisan of Kozilek",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archers of Qarsi",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bane of Bala Ged",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bighorner Rancher",
+   "quantity": 1,
+   "categories": [
+    "mana generators"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beanstalk Wurm // Plant Beans",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Caller of the Pack",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Caravan Escort",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brawn",
+   "quantity": 1,
+   "categories": [
+    "trample enabler",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1,
+   "categories": [
+    "Tokens",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathedral Acolyte",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conspiracy Unraveler",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Darien, King of Kjeldor",
+   "quantity": 1,
+   "categories": [
+    "Tokens",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deathbloom Gardener",
+   "quantity": 1,
+   "categories": [
+    "mana generators"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fangorn, Tree Shepherd",
+   "quantity": 1,
+   "categories": [
+    "type change combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Druid of the Cowl",
+   "quantity": 1,
+   "categories": [
+    "mana generators",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "mana generators"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elder Gargaroth",
+   "quantity": 1,
+   "categories": [
+    "set up creatures",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1,
+   "categories": [
+    "Proliferate",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flayer of Loyalties",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1,
+   "categories": [
+    "extra spice",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghastbark Twins",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fleecemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flourishing Hunter",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghalta and Mavren",
+   "quantity": 1,
+   "categories": [
+    "big mofos",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Humble Naturalist",
+   "quantity": 1,
+   "categories": [
+    "mana generators"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gnottvold Hermit // Chrome Host Hulk",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hydra Broodmaster",
+   "quantity": 1,
+   "categories": [
+    "big mofos",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1,
+   "categories": [
+    "set up creatures",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1,
+   "categories": [
+    "Tokens",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1,
+   "categories": [
+    "cascade enabler",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Tribe",
+   "quantity": 1,
+   "categories": [
+    "mana generators"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirror Image",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Clones",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Needletooth Pack",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moldgraf Monstrosity",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oblivion Sower",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phantom Nishoba",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lifegain",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1,
+   "categories": [
+    "mana generators"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1,
+   "categories": [
+    "big mofos",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quakestrider Ceratops",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spawnbed Protector",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vrestin, Menoptra Leader",
+   "quantity": 1,
+   "categories": [
+    "Tokens",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trygon Predator",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zetalpa, Primal Dawn",
+   "quantity": 1,
+   "categories": [
+    "big mofos",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nylea, God of the Hunt",
+   "quantity": 1,
+   "categories": [
+    "trample enabler",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Stone Idol",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Curie, Emergent Intelligence",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Metalwork Colossus",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myr Battlesphere",
+   "quantity": 1,
+   "categories": [
+    "Tokens",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phyrexian Triniform",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fertile Ground",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Citizen's Arrest",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grasp of Fate",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Greater Good",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Duelist's Heritage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Death's Presence",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bred for the Hunt",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Renata, Called to the Hunt",
+   "quantity": 1,
+   "categories": [
+    "Counters",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Awakening Zone",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nyxbloom Ancient",
+   "quantity": 1,
+   "categories": [
+    "mana combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "extra spice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Legion Loyalty",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "extra spice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1,
+   "categories": [
+    "counterspells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Reflection",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growing Ranks",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "extra spice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Privileged Position",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heartbeat of Spring",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "New Horizons",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "counterspells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verdant Embrace",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skrelv's Hive",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Song of the Worldsoul",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "extra spice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Xenograft",
+   "quantity": 1,
+   "categories": [
+    "type change combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomass Mutation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "counterspells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Demystify",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dive Down",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saw It Coming",
+   "quantity": 1,
+   "categories": [
+    "counterspells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Obscuring Haze",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pact of Negation",
+   "quantity": 1,
+   "categories": [
+    "counterspells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Negate",
+   "quantity": 1,
+   "categories": [
+    "counterspells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shore Up",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Basalt Monolith",
+   "quantity": 1,
+   "categories": [
+    "mana combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "commander combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elfhame Palace",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dark Depths",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flood Plain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lair of the Hydra",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Reborn",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Remote Farm",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spawning Bed",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 199,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

@@ -1,0 +1,21 @@
+{
+ "id": 19930271,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Storytime with Uncle Chulane",
+ "updated_at": "2026-02-13T05:12:54.044308Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 1,
+ "summe_gesamt": 1,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

@@ -1,0 +1,362 @@
+{
+ "urlhash": "Z5_k81Kq_Utvc0_JpMloQQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-09-30",
+ "price": 467,
+ "salt": 42.392556748818606,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/yRignk7WOEiSlDrltEG64A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Apothecary Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Ballynock Cohort",
+   "quantity": 1
+  },
+  {
+   "name": "Ballynock Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Ballyrush Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Barrenton Cragtreads",
+   "quantity": 1
+  },
+  {
+   "name": "Battletide Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Hero of Kinsbaile",
+   "quantity": 1
+  },
+  {
+   "name": "Burrenton Forge-Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Heir",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Galepowder Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Dodger",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Balloonist",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Borderguard",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Cavalier",
+   "quantity": 1
+  },
+  {
+   "name": "Kinscaer Harpoonist",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Billyrider",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Daggerdare",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Mourncaller",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Shielddare",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Zephyrnaut",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Meadowgrain",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Skulk",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Vanisher",
+   "quantity": 1
+  },
+  {
+   "name": "Order of Whiteclay",
+   "quantity": 1
+  },
+  {
+   "name": "Patrol Signaler",
+   "quantity": 1
+  },
+  {
+   "name": "Plover Knights",
+   "quantity": 1
+  },
+  {
+   "name": "Preeminent Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Resplendent Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Wizened Cenn",
+   "quantity": 1
+  },
+  {
+   "name": "And They Shall Know No Fear",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Surge of Thoughtweft",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Banner of Kinship",
+   "quantity": 1
+  },
+  {
+   "name": "Coat of Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Blind Obedience",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Legion Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Militia's Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

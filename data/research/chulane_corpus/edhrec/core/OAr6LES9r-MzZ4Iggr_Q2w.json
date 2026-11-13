@@ -1,0 +1,386 @@
+{
+ "urlhash": "OAr6LES9r-MzZ4Iggr_Q2w",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-10-21",
+ "price": 233,
+ "salt": 44.23696120781824,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/aOnwxcnz20-bOlh68WPhEw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar of Burgeoning Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Interrupter",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Bartz and Boko",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Choco, Seeker of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Derevi, Empyrial Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrean Eagle",
+   "quantity": 1
+  },
+  {
+   "name": "Esior, Wardwing Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Gwaihir the Windlord",
+   "quantity": 1
+  },
+  {
+   "name": "Hermes, Overseer of Elpis",
+   "quantity": 1
+  },
+  {
+   "name": "Ishai, Ojutai Dragonspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Jackdaw Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Jubilant Skybonder",
+   "quantity": 1
+  },
+  {
+   "name": "Judge's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Kangee, Sky Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Kastral, the Windcrested",
+   "quantity": 1
+  },
+  {
+   "name": "Mockingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Salvation Swan",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh Katzroy",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh's Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Choco/Mog",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Fat Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Tawnos, the Toymaker",
+   "quantity": 1
+  },
+  {
+   "name": "The Lord of the Eagles",
+   "quantity": 1
+  },
+  {
+   "name": "Traveling Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Valley Floodcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Warden of Evos Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher of the Spheres",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Flurry of Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Perch Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Portent",
+   "quantity": 1
+  },
+  {
+   "name": "Airborne Aid",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Kick",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Gysahl Greens",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Banner of Kinship",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Racetrack",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Bower Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Murmuration",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Ride the Shoopuf",
+   "quantity": 1
+  },
+  {
+   "name": "Sidequest: Raise a Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Soulcatchers' Aerie",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Camp",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief, the Vastwood",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenger Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

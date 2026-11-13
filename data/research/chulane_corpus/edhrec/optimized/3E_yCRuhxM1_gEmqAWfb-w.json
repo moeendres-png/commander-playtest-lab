@@ -1,0 +1,423 @@
+{
+ "urlhash": "3E_yCRuhxM1_gEmqAWfb-w",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2026-09-04",
+ "price": 3007,
+ "salt": 50.027111606672406,
+ "tags": [
+  "Toolbox",
+  "Combo",
+  "Energy",
+  "Lands Matter"
+ ],
+ "source_url": "https://moxfield.com/decks/qdTlUJFe-0GoefjWGYshPQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aethergeode Miner",
+   "quantity": 1
+  },
+  {
+   "name": "Architect of the Untamed",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Greenbelt Rampager",
+   "quantity": 1
+  },
+  {
+   "name": "Guide of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Worldsoul Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Shardless Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx of the Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Erode",
+   "quantity": 1
+  },
+  {
+   "name": "Flusterstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Mental Misstep",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Radstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Strix Serenade",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Tune the Narrative",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Wash Away",
+   "quantity": 1
+  },
+  {
+   "name": "Attune with Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Jolted Awake",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherworks Marvel",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Basalt Monolith",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Coalition Relic",
+   "quantity": 1
+  },
+  {
+   "name": "Decoction Module",
+   "quantity": 1
+  },
+  {
+   "name": "Fabrication Module",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Pentad Prism",
+   "quantity": 1
+  },
+  {
+   "name": "Relic of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Springleaf Drum",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Consulate Surveillance",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Prayers",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Hub",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Emergence Zone",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Ghost Town",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

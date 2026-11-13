@@ -1,0 +1,350 @@
+{
+ "urlhash": "q6AAByAVQF4k8GHOwBXzWw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-03-10",
+ "price": 94,
+ "salt": 36.73664860473946,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/wtmpYORF2kelzLd3SoQuvQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Glory's Rise",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Coppercoat Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnbringer Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Devout Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Guardmage",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Spellbinder",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gor Muldrak, Amphinologist",
+   "quantity": 1
+  },
+  {
+   "name": "Heron's Grace Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Humble Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Jacob Hauken, Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Juniper Order Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda, Dawnhart Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Lagrella, the Magpie",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Shield of Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Portal Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Riders of Gavony",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Sisay's Legacy",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Heron's Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Steward of Valeron",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Battlemage",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia's Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "The Council of Four",
+   "quantity": 1
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Tobias, Doomed Conqueror",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Weathered Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Entish Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Repel the Abominable",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Dust",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Devastating Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "End Hostilities",
+   "quantity": 1
+  },
+  {
+   "name": "Mass Appeal",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Inversion",
+   "quantity": 1
+  },
+  {
+   "name": "Preposterous Proportions",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Command",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Heirloom Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Icon of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Call to the Kindred",
+   "quantity": 1
+  },
+  {
+   "name": "Laid to Rest",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Destiny",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctuary Lockdown",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Demolition Field",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Windbrisk Heights",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

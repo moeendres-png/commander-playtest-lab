@@ -1,0 +1,181 @@
+{
+ "id": 11683924,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Bant Blink",
+ "updated_at": "2025-03-02T08:35:37.845511Z",
+ "cards": [
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thassa, Deep-Dwelling",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ishai, Ojutai Dragonspeaker",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trostani, Selesnya's Voice",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Círdan the Shipwright",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vendilion Clique",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sink into Stupor // Soporific Springs",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 21,
+ "summe_gesamt": 21,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

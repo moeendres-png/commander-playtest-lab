@@ -1,0 +1,412 @@
+{
+ "urlhash": "Pkyi-EMzhryeu916R8-RHw",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2025-10-15",
+ "price": 3198,
+ "salt": 62.92692252621055,
+ "tags": [
+  "Ramp"
+ ],
+ "source_url": "https://moxfield.com/decks/QuX2_Y0qHkmfTbgpUQwP4g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Anticausal Vestige",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1
+  },
+  {
+   "name": "Artisan of Kozilek",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Anomaly",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Cemetery Prowler",
+   "quantity": 1
+  },
+  {
+   "name": "Chittering Dispatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit of Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul's Messenger",
+   "quantity": 1
+  },
+  {
+   "name": "Goreclaw, Terror of Qal Sisma",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek, Butcher of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Nulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivion Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Pollywog Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Shardless Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Skittering Cicada",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Voidcraw",
+   "quantity": 1
+  },
+  {
+   "name": "Sowing Mycospawn",
+   "quantity": 1
+  },
+  {
+   "name": "Territory Culler",
+   "quantity": 1
+  },
+  {
+   "name": "Thief of Existence",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Ulamog, the Defiler",
+   "quantity": 1
+  },
+  {
+   "name": "Wastescape Battlemage",
+   "quantity": 1
+  },
+  {
+   "name": "World Breaker",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Immunity",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Binding",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1
+  },
+  {
+   "name": "Hour of Promise",
+   "quantity": 1
+  },
+  {
+   "name": "Rishkar's Expertise",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chimil, the Inner Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Sensei's Divining Top",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Thran Turbine",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek's Unsealing",
+   "quantity": 1
+  },
+  {
+   "name": "Monstrous Vortex",
+   "quantity": 1
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Up the Beanstalk",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of Ugin",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctum of Ugin",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Labyrinth",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Power Plant",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Saga",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

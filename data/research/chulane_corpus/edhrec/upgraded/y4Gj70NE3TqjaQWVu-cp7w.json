@@ -1,0 +1,370 @@
+{
+ "urlhash": "y4Gj70NE3TqjaQWVu-cp7w",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-04-14",
+ "price": 3059,
+ "salt": 63.907881228253245,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/SiHH3PGRV0myvcI-aDr_bQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Cliffside Rescuer",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivator Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Drake",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Gwenna, Eyes of Gaea",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Ledger Shredder",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger of Eos",
+   "quantity": 1
+  },
+  {
+   "name": "Rescuer Chwinga",
+   "quantity": 1
+  },
+  {
+   "name": "Rishkar, Peema Renegade",
+   "quantity": 1
+  },
+  {
+   "name": "Saiba Cryptomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1
+  },
+  {
+   "name": "Spark Double",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1
+  },
+  {
+   "name": "Spellseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Guardian of Thraben",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Yeva, Nature's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Calamity's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Gush",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

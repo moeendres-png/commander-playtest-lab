@@ -1,0 +1,1064 @@
+{
+ "id": 6466338,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane Ramp/Bounce (Extra Meat)",
+ "updated_at": "2026-10-22T02:20:53.388311Z",
+ "cards": [
+  {
+   "name": "Acidic Slime",
+   "quantity": 1,
+   "categories": [
+    "Control"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Non-creature ramp",
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Bounce/airbend"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Frillback",
+   "quantity": 1,
+   "categories": [
+    "Control"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1,
+   "categories": [
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Throne of the God-Pharaoh",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "WinCon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reflector Mage",
+   "quantity": 1,
+   "categories": [
+    "Control"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Titan of Industry",
+   "quantity": 1,
+   "categories": [
+    "WinCon",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend",
+    "Sidedeck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "WinCon",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inquisitor Exarch",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Sidedeck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quickling",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Niambi, Esteemed Speaker",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bramble Sovereign",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sidedeck",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "WinCon",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce/airbend",
+    "Control"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloud of Faeries",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Non-creature ramp",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "WinCon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ezzaroot Channeler",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jeskai Barricade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce/airbend"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dust Elemental",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce/airbend"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverwing Squadron",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "WinCon",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emergence Zone",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "WinCon",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dissipation Field",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tempest Caller",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thragtusk",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Symmetry Matrix",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dundoolin Weaver",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1,
+   "categories": [
+    "Non-creature ramp",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trailtracker Scout",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature ramp",
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bronzebeak Foragers",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Supportive Parents",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Control"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Proud Pack-Rhino",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Proliferate"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Radagast of Rhosgobel",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dawnbringer Cleric",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Astral Dragon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savvy Trader",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Lifegain",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Virulent Emissary",
+   "quantity": 1,
+   "categories": [
+    "Lifegain",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voice of Many",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Airbender Ascension",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aang, Swift Savior // Aang and La, Ocean's Fury",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend",
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Monk Gyatso",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Appa, Steadfast Guardian",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Portal Manipulator",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Splinter, Aging Champion",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Portal Mage",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Control"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1,
+   "categories": [
+    "Non-creature ramp",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1,
+   "categories": [
+    "Non-creature ramp",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flash Thompson, Spider-Fan",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deputy of Detention",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Harbinger",
+   "quantity": 1,
+   "categories": [
+    "Creature ramp",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Bounce/airbend",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Helpful Hunter",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia of the Tenth",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1,
+   "categories": [
+    "WinCon",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Circuit Mender",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tax Collector",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pierce Strider",
+   "quantity": 1,
+   "categories": [
+    "Burn"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 2,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1,
+   "categories": [
+    "WinCon",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Appa, Loyal Sky Bison",
+   "quantity": 1,
+   "categories": [
+    "Bounce/airbend",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kindly Customer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 134,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

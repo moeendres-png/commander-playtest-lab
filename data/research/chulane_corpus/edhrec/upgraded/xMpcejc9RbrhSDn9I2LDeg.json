@@ -1,0 +1,346 @@
+{
+ "urlhash": "xMpcejc9RbrhSDn9I2LDeg",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-07-15",
+ "price": 171,
+ "salt": 48.60786231420934,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/H6S2OJp7RkWwk3-wHvdtLA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Cyberdrive Awakener",
+   "quantity": 1
+  },
+  {
+   "name": "Deepglow Skate",
+   "quantity": 1
+  },
+  {
+   "name": "Emry, Lurker of the Loch",
+   "quantity": 1
+  },
+  {
+   "name": "Erdwal Illuminator",
+   "quantity": 1
+  },
+  {
+   "name": "Etherium Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Filigree Vector",
+   "quantity": 1
+  },
+  {
+   "name": "Flight-Deck Coordinator",
+   "quantity": 1
+  },
+  {
+   "name": "Flux Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Jadzi, Oracle of Arcavios",
+   "quantity": 1
+  },
+  {
+   "name": "Junk Diver",
+   "quantity": 1
+  },
+  {
+   "name": "Kappa Cannoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Patrolling Peacemaker",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Rashmi, Eternities Crafter",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmer Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Steel Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Surge Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "Tekuthal, Inquiry Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Monitor",
+   "quantity": 1
+  },
+  {
+   "name": "Emergency Eject",
+   "quantity": 1
+  },
+  {
+   "name": "Focus Fire",
+   "quantity": 1
+  },
+  {
+   "name": "Ripples of Potential",
+   "quantity": 1
+  },
+  {
+   "name": "Steady Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Thirst for Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Contentious Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Astral Cornucopia",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bespoke Battlewagon",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Reactor",
+   "quantity": 1
+  },
+  {
+   "name": "Golem Foundry",
+   "quantity": 1
+  },
+  {
+   "name": "Imposter Mech",
+   "quantity": 1
+  },
+  {
+   "name": "Insight Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Lux Cannon",
+   "quantity": 1
+  },
+  {
+   "name": "Pinnacle Starcage",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Specimen Freighter",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Uthros Research Craft",
+   "quantity": 1
+  },
+  {
+   "name": "Weatherlight",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Anti-Magic Aura",
+   "quantity": 1
+  },
+  {
+   "name": "Hardlight Containment",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Mechanized Production",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Tezzeret, Betrayer of Flesh",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Den",
+   "quantity": 1
+  },
+  {
+   "name": "Buried Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Lonely Sandbar",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Crater",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Razortide Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seat of the Synod",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Spire of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the Dragon Queen",
+   "quantity": 1
+  },
+  {
+   "name": "The Mycosynth Gardens",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Cave",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

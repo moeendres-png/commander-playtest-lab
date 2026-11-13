@@ -1,0 +1,362 @@
+{
+ "urlhash": "DEapXnSV8UliXKU3YEDPiQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-11-07",
+ "price": 2755,
+ "salt": 56.4342104755342,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Up-7IyGr4E6I3DXcKHaxWA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Alphinaud Leveilleur",
+   "quantity": 1
+  },
+  {
+   "name": "Ambassador Laquatus",
+   "quantity": 1
+  },
+  {
+   "name": "Aphetto Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Arcanis the Omnipotent",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage of Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Beguiler of Wills",
+   "quantity": 1
+  },
+  {
+   "name": "Biophagus",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Sisay",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Fatestitcher",
+   "quantity": 1
+  },
+  {
+   "name": "Galecaster Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Gandalf the White",
+   "quantity": 1
+  },
+  {
+   "name": "Information Dealer",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Treespeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Kydele, Chosen of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Lulu, Stern Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Magus of the Candelabra",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Naban, Dean of Iteration",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Plagon, Lord of the Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Pol Jamaar, Illusionist",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Vannifar",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Director",
+   "quantity": 1
+  },
+  {
+   "name": "Shaman of Forgotten Ways",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Soul of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Spellseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Spelltithe Enforcer",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Inquisitor",
+   "quantity": 1
+  },
+  {
+   "name": "Thrasios, Triton Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Tribute Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Trophy Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Lens",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Fertile Ground",
+   "quantity": 1
+  },
+  {
+   "name": "Grafted Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Market Festival",
+   "quantity": 1
+  },
+  {
+   "name": "New Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Sheltered Aerie",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Utopia Sprawl",
+   "quantity": 1
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon, Martial Paragon",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Ingenious Mind-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, the Mind Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Temporal Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Temporal Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Time Raveler",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Who Slows the Sunset",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Laboratory",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

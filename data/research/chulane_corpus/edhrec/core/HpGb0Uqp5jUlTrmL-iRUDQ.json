@@ -1,0 +1,290 @@
+{
+ "urlhash": "HpGb0Uqp5jUlTrmL-iRUDQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-12",
+ "price": 111,
+ "salt": 44.337041426450014,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/x4zDU-q3n0-bsGuqlQhTdQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Agatha's Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Aquatic Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Archive Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Besotted Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Chancellor of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Elusive Otter",
+   "quantity": 1
+  },
+  {
+   "name": "Ferocious Werefox",
+   "quantity": 1
+  },
+  {
+   "name": "Galvanic Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Gingerbrute",
+   "quantity": 1
+  },
+  {
+   "name": "Hamlet Glutton",
+   "quantity": 1
+  },
+  {
+   "name": "Horned Loch-Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Galefang",
+   "quantity": 1
+  },
+  {
+   "name": "Ingenious Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Mocking Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Pests of Honor",
+   "quantity": 1
+  },
+  {
+   "name": "Picklock Prankster",
+   "quantity": 1
+  },
+  {
+   "name": "Rootrider Faun",
+   "quantity": 1
+  },
+  {
+   "name": "Stormkeld Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Storyteller Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Hart",
+   "quantity": 1
+  },
+  {
+   "name": "The Goose Mother",
+   "quantity": 1
+  },
+  {
+   "name": "Threadbind Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Tough Cookie",
+   "quantity": 1
+  },
+  {
+   "name": "Troyan, Gutsy Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Twining Twins",
+   "quantity": 1
+  },
+  {
+   "name": "Vantress Transmuter",
+   "quantity": 1
+  },
+  {
+   "name": "Werefox Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Yorvo, Lord of Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Break the Spell",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interference",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Out",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Royal Treatment",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Stutter",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Water Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Brave the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Feral Encounter",
+   "quantity": 1
+  },
+  {
+   "name": "Return from the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderous Debut",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Collector's Vault",
+   "quantity": 1
+  },
+  {
+   "name": "The Irencrag",
+   "quantity": 1
+  },
+  {
+   "name": "Cooped Up",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Omen",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Up the Beanstalk",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,362 @@
+{
+ "urlhash": "VOyjzfc1DOUsIklh_5FViQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-02-10",
+ "price": 221,
+ "salt": 43.2986963018775,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/17qpUji0kU65kARz_Nq-MA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Survivalist",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Chromeshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Den Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptive Pitmage",
+   "quantity": 1
+  },
+  {
+   "name": "Duplicant",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Dragonslayer",
+   "quantity": 1
+  },
+  {
+   "name": "Hooded Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Kheru Spellsnatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Meloku the Clouded Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Murkfiend Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Nantuko Vigilante",
+   "quantity": 1
+  },
+  {
+   "name": "Perplexing Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Rift Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Spellskite",
+   "quantity": 1
+  },
+  {
+   "name": "Stone-Seeder Hierophant",
+   "quantity": 1
+  },
+  {
+   "name": "Stratus Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Vannifar, Evolved Enigma",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Mastermind",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Voidmage Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Voyaging Satyr",
+   "quantity": 1
+  },
+  {
+   "name": "Willbender",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Estates",
+   "quantity": 1
+  },
+  {
+   "name": "Neurok Stealthsuit",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand-Year Elixir",
+   "quantity": 1
+  },
+  {
+   "name": "Asceticism",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Cunning Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Mutavault",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "The Fair Basilica",
+   "quantity": 1
+  },
+  {
+   "name": "The Hunter Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Zoetic Cavern",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

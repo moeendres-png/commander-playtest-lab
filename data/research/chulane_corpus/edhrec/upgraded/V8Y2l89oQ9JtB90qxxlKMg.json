@@ -1,0 +1,408 @@
+{
+ "urlhash": "V8Y2l89oQ9JtB90qxxlKMg",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-04-22",
+ "price": 903,
+ "salt": 55.071638971567154,
+ "tags": [
+  "Blink"
+ ],
+ "source_url": "https://moxfield.com/decks/uR2xmMGLuEKlUKEt77c3Tw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Disciple of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia of the Tenth",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Vastwood Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Nurturing Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, Deep-Dwelling",
+   "quantity": 1
+  },
+  {
+   "name": "Thragtusk",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "White Orchid Phantom",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Negation",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Sink into Stupor",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Savor the Moment",
+   "quantity": 1
+  },
+  {
+   "name": "Temporal Manipulation",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Time Warp",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Valor in Akros",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1
+  },
+  {
+   "name": "The Eternal Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 2
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

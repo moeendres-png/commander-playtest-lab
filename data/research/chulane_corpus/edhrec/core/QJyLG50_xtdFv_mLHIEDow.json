@@ -1,0 +1,386 @@
+{
+ "urlhash": "QJyLG50_xtdFv_mLHIEDow",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2024-12-24",
+ "price": 280,
+ "salt": 40.235497176647186,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/ZO_z4tPMqUWlhWI7hSoBvg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Anurid Brushhopper",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Clifftop Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Crafty Cutpurse",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamdew Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Impostors",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Froghemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Galloping Lizrog",
+   "quantity": 1
+  },
+  {
+   "name": "Genku, Future Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Glitch Interpreter",
+   "quantity": 1
+  },
+  {
+   "name": "Green Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Grolnok, the Omnivore",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Kianne, Corrupted Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Long River Lurker",
+   "quantity": 1
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Octomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Overcharged Amalgam",
+   "quantity": 1
+  },
+  {
+   "name": "Phantom Steed",
+   "quantity": 1
+  },
+  {
+   "name": "Plaxcaster Frogling",
+   "quantity": 1
+  },
+  {
+   "name": "Pollywog Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Sister of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Trollbred Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Twenty-Toed Toad",
+   "quantity": 1
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Valley Mightcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Detection",
+   "quantity": 1
+  },
+  {
+   "name": "Familiar's Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Get Out",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Polliwallop",
+   "quantity": 1
+  },
+  {
+   "name": "Polymorphist's Jest",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Croaking Counterpart",
+   "quantity": 1
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1
+  },
+  {
+   "name": "Splash Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Shard",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Amphibian Downpour",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Adaptation",
+   "quantity": 1
+  },
+  {
+   "name": "Cunning Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Guildless Commons",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Lilypad Village",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro, Palace in the Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

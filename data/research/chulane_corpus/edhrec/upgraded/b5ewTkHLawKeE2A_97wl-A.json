@@ -1,0 +1,382 @@
+{
+ "urlhash": "b5ewTkHLawKeE2A_97wl-A",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-03-05",
+ "price": 502,
+ "salt": 48.60197243234143,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20126392?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Absolute Virtue",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Extortionist",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Interrupter",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Clifftop Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Disciple of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptor of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Rejuvenator",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Errant and Giada",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Impostors",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Eternal Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroelectric Specimen",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Malcolm, Alluring Scoundrel",
+   "quantity": 1
+  },
+  {
+   "name": "Mutable Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys, the Evermore",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Salvation Swan",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Smirking Spelljacker",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Spectacular Spider-Man",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Volatile Stormdrake",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherspouts",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Flux",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostway",
+   "quantity": 1
+  },
+  {
+   "name": "Hide on the Ceiling",
+   "quantity": 1
+  },
+  {
+   "name": "Momentary Blink",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Parting Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Personify",
+   "quantity": 1
+  },
+  {
+   "name": "Sink into Stupor",
+   "quantity": 1
+  },
+  {
+   "name": "Waterbender's Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Ultima",
+   "quantity": 1
+  },
+  {
+   "name": "Airbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Static Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

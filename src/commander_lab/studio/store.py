@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 12
+SCHEMA_VERSION = 13
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -384,6 +384,24 @@ CREATE TABLE IF NOT EXISTS strength_profile (
     spec TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS card_ruling (
+    oracle_id TEXT NOT NULL,
+    ordinal INTEGER NOT NULL,
+    published_at TEXT NOT NULL,
+    ruling_source TEXT NOT NULL,
+    comment TEXT NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (oracle_id, ordinal)
+);
+CREATE UNIQUE INDEX IF NOT EXISTS card_ruling_unique
+    ON card_ruling(oracle_id, published_at, comment);
+CREATE TABLE IF NOT EXISTS card_ruling_source (
+    oracle_id TEXT NOT NULL,
+    published_at TEXT NOT NULL,
+    comment TEXT NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (oracle_id, published_at, comment, source_id)
+);
 CREATE VIEW IF NOT EXISTS card_fact AS
 SELECT c.card_id,
        c.oracle_name,
@@ -577,7 +595,8 @@ class StudioStore:
             )
         elif int(row["value"]) < SCHEMA_VERSION:
             # Every schema step so far only adds tables and views (created above); schema 11
-            # adds card_signal and strength_profile.
+            # adds card_signal and strength_profile, schema 13 adds card_ruling and its
+            # per-file provenance table card_ruling_source.
             if int(row["value"]) < 12:
                 # Schema 12 adds the universe profile lifecycle columns (version,
                 # updated_at) to the existing table; purely additive, existing rows
@@ -754,7 +773,8 @@ class StudioStore:
             "card_mark", "deck_draft", "corpus_cohort", "corpus_deck_stat", "corpus_deck_part", "card_role",
             "card_role_claim", "corpus_deck_role", "neutral_board_row", "simulation_run", "simulation_card",
             "source_capture_event", "playgroup_card_atlas", "playgroup_top_commander", "playgroup_final_zone",
-            "universe_profile", "commander_binding", "card_signal", "strength_profile",
+            "universe_profile", "commander_binding", "card_signal", "strength_profile", "card_ruling",
+            "card_ruling_source",
         }:  # fmt: skip
             raise ValueError(table)
         return int(self.connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0])

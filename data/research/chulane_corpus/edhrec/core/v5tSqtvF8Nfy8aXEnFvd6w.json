@@ -1,0 +1,414 @@
+{
+ "urlhash": "v5tSqtvF8Nfy8aXEnFvd6w",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-01-21",
+ "price": 5011,
+ "salt": 44.234633665531874,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/8vxrrWBZlEGl_D16uqEBpg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adorned Pouncer",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Sunstriker",
+   "quantity": 1
+  },
+  {
+   "name": "Alms Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Arahbo, the First Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bronzehide Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Feline Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Fleecemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Fleetfoot Panther",
+   "quantity": 1
+  },
+  {
+   "name": "Forum Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Highcliff Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "Hungry Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Jareth, Leonine Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Jedit Ojanen of Efrava",
+   "quantity": 1
+  },
+  {
+   "name": "Jewel Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Kaheera, the Orphanguard",
+   "quantity": 1
+  },
+  {
+   "name": "King of the Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil's Flanker",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Relic-Warder",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Ocelot Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Phantom Nishoba",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Serpopard",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Pridemage",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Caracal",
+   "quantity": 1
+  },
+  {
+   "name": "Sacred Cat",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctuary Cat",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah Lions",
+   "quantity": 1
+  },
+  {
+   "name": "Scythe Leopard",
+   "quantity": 1
+  },
+  {
+   "name": "Scythe Tiger",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Skyhunter Strike Force",
+   "quantity": 1
+  },
+  {
+   "name": "Skyknight Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Stalking Leonin",
+   "quantity": 1
+  },
+  {
+   "name": "Steppe Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Tabaxi Toucaneers",
+   "quantity": 1
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1
+  },
+  {
+   "name": "Trained Caracal",
+   "quantity": 1
+  },
+  {
+   "name": "Trove Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Palisade",
+   "quantity": 1
+  },
+  {
+   "name": "Winnowing",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Command Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

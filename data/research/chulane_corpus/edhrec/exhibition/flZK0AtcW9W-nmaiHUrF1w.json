@@ -1,0 +1,410 @@
+{
+ "urlhash": "flZK0AtcW9W-nmaiHUrF1w",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2026-11-10",
+ "price": 5562,
+ "salt": 47.08468843763694,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/po9IaKTsVEOHCbOJnrlkZA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Drowner of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroelectric Specimen",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Ojer Kaslem, Deepest Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Ojer Pakpatiq, Deepest Epoch",
+   "quantity": 1
+  },
+  {
+   "name": "Ojer Taq, Deepest Foundation",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Florahedron",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Inversion",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Symbiosis",
+   "quantity": 1
+  },
+  {
+   "name": "Hadana's Climb",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Argoth, Sanctum of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodstained Mire",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dark Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Demolition Field",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Dust Bowl",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Fountainport",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Gemstone Caverns",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Chasm",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "HELIOS One",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of the Bandit Lord",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Inkmoth Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Lair of the Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Field",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Maze of Ith",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Mutavault",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Strip Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Talon Gates of Madara",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Thespian's Stage",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Tyrite Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Factory",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Power Plant",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuva",
+   "quantity": 1
+  },
+  {
+   "name": "Wasteland",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Zanarkand, Ancient Metropolis",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

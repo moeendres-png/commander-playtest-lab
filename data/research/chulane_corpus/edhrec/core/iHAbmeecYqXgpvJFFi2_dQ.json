@@ -1,0 +1,326 @@
+{
+ "urlhash": "iHAbmeecYqXgpvJFFi2_dQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-07-10",
+ "price": 213,
+ "salt": 49.16811406239867,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/blHFONQpmUOj_ldDNOnDAw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Berta, Wise Extrapolator",
+   "quantity": 1
+  },
+  {
+   "name": "Brambleguard Veteran",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Cuboid Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Decimator of the Provinces",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Flutterfox",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Helica Glider",
+   "quantity": 1
+  },
+  {
+   "name": "Hexdrinker",
+   "quantity": 1
+  },
+  {
+   "name": "Hushbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Ishai, Ojutai Dragonspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Kastral, the Windcrested",
+   "quantity": 1
+  },
+  {
+   "name": "Keen-Eyed Curator",
+   "quantity": 1
+  },
+  {
+   "name": "Nessian Boar",
+   "quantity": 1
+  },
+  {
+   "name": "Nettle Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Nezahal, Primal Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Novablast Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Seedpod Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Skyskipper Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Teshar, Ancestor's Apostle",
+   "quantity": 1
+  },
+  {
+   "name": "Thing in the Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Players",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Thundertrap Trainer",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Valley Mightcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Warren Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Cycle of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Embrace the Paradox",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Oko's Hospitality",
+   "quantity": 1
+  },
+  {
+   "name": "Return of the Wildspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "For the Common Good",
+   "quantity": 1
+  },
+  {
+   "name": "See the Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Starfall Invocation",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptor Flute",
+   "quantity": 1
+  },
+  {
+   "name": "Grafdigger's Cage",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Nyx Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Locket",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Locket",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Cage of Hands",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Sanctity",
+   "quantity": 1
+  },
+  {
+   "name": "Stormchaser's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Strength of the Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, the Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Fountainport",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Ishgard, the Holy See",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Windurst, Federation Center",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,685 @@
+{
+ "id": 22249339,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Helix.",
+ "updated_at": "2026-05-03T09:24:42.781569Z",
+ "cards": [
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Awakening",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloud of Faeries",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeritus of Abundance // Regrowth",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeritus of Truce // Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fog",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frog Butler",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Helix Pinnacle",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kwain, Itinerant Meddler",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Reflection",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nyxbloom Ancient",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Omnath, Locus of Mana",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyshroud Claim",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Studious First-Year // Rampant Growth",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

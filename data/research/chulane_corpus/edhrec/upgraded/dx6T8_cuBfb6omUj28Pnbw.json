@@ -1,0 +1,374 @@
+{
+ "urlhash": "dx6T8_cuBfb6omUj28Pnbw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-08-11",
+ "price": 543,
+ "salt": 51.39525590883568,
+ "tags": [
+  "Combo",
+  "Blink",
+  "Toolbox"
+ ],
+ "source_url": "https://moxfield.com/decks/WEZRX9QtJkevTgnT7Fabtg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, Swift Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, at the Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, the Last Airbender",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Loyal Sky Bison",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Steadfast Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Delney, Streetwise Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Environmental Scientist",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Great Forest Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Man-o'-War",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Safekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "The Unagi of Kyoshi Island",
+   "quantity": 1
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Retrieval",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Chain of Vapor",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Erode",
+   "quantity": 1
+  },
+  {
+   "name": "Glorious Decay",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Reprieve",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unsubstantiate",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Fragmentize",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Helm of Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Semblance Anvil",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Fertile Ground",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Static Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Hub",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Nimbus Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

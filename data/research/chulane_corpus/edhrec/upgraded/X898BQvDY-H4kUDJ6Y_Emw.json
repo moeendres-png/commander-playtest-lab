@@ -1,0 +1,335 @@
+{
+ "urlhash": "X898BQvDY-H4kUDJ6Y_Emw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-11-07",
+ "price": 275,
+ "salt": 71.34603880904615,
+ "tags": [
+  "Midrange",
+  "Hatebears",
+  "Prison",
+  "Stax"
+ ],
+ "source_url": "https://archidekt.com/decks/4826462?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Jubilation",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Arbiter",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Brightglass Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Containment Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Dismantler",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonlord Dromoka",
+   "quantity": 1
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Druid of Purification",
+   "quantity": 1
+  },
+  {
+   "name": "Eidolon of Rhetoric",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fatespinner",
+   "quantity": 1
+  },
+  {
+   "name": "Fleetfoot Panther",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Heartwood Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Hushbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Karn, Argent Defender",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Gatekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Palace Jailer",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Runic Armasaur",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctifier en-Vec",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silent Arbiter",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Soulless Jailer",
+   "quantity": 1
+  },
+  {
+   "name": "Spelltithe Enforcer",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Strict Proctor",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Preserver",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Thalia, the Survivor",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Frillback",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1
+  },
+  {
+   "name": "Voidstone Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Vryn Wingmare",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Archaic",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Erode",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Altar of the Brood",
+   "quantity": 1
+  },
+  {
+   "name": "Frozen Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Field of Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Nephalia Academy",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 15
+  },
+  {
+   "name": "Stirring Wildwood",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

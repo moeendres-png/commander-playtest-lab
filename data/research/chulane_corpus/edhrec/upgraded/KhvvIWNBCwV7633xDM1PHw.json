@@ -1,0 +1,362 @@
+{
+ "urlhash": "KhvvIWNBCwV7633xDM1PHw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-09-23",
+ "price": 866,
+ "salt": 64.7786372974515,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/QGm6oEcSn0iglbRXqHLzHw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Appa, Steadfast Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Interrupter",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Cataclysmic Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Derevi, Empyrial Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Piper",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Flickering Hound",
+   "quantity": 1
+  },
+  {
+   "name": "Flopsie, Bumi's Buddy",
+   "quantity": 1
+  },
+  {
+   "name": "Formidable Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, the Radiant Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Lizard, Connors's Curse",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Hauntwoods",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast of Rhosgobel",
+   "quantity": 1
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Rescue Girl, First Responder",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Siren Stormtamer",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Smirking Spelljacker",
+   "quantity": 1
+  },
+  {
+   "name": "Spellseeker",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, Deep-Dwelling",
+   "quantity": 1
+  },
+  {
+   "name": "Tiller Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of the Swine",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Mists of Lórien",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Thoughts",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Ishgard, the Holy See",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro, Palace in the Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenger Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Talon Gates of Madara",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Cave",
+   "quantity": 1
+  },
+  {
+   "name": "Winding Canyons",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,717 @@
+{
+ "id": 27398549,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane",
+ "updated_at": "2026-10-13T19:36:59.737826Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudblazer",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inspiring Overseer",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Priest of Ancient Lore",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Circuit Mender",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flickerwisp",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sevinne's Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Creature Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Creature Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1,
+   "categories": [
+    "Creature Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reflector Mage",
+   "quantity": 1,
+   "categories": [
+    "Creature Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Creature Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angel of the Ruins",
+   "quantity": 1,
+   "categories": [
+    "Creature Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tamiyo's Safekeeping",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1,
+   "categories": [
+    "Threats and Finishers"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thunderfoot Baloth",
+   "quantity": 1,
+   "categories": [
+    "Threats and Finishers"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "Threats and Finishers"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hornet Queen",
+   "quantity": 1,
+   "categories": [
+    "Threats and Finishers"
+   ],
+   "companion": false
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1,
+   "categories": [
+    "Threats and Finishers"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 6,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 5,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 4,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "Creature Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1,
+   "categories": [
+    "Creature Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1,
+   "categories": [
+    "Blink and Recovery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Creature Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Draw and Value"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Lands"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1,
+   "categories": [
+    "Threats and Finishers"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Spells and Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

@@ -1,0 +1,386 @@
+{
+ "urlhash": "uc_29bhXyH-ZFKYrSzWHMw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-06-10",
+ "price": 391,
+ "salt": 47.52299832133576,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/q1q0UmobwEWymkaNs3AUNQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aisling Leprechaun",
+   "quantity": 1
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Brazen Borrower",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud of Faeries",
+   "quantity": 1
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1
+  },
+  {
+   "name": "Dionus, Elvish Archdruid",
+   "quantity": 1
+  },
+  {
+   "name": "Disciple of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Earthshaker Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fey Steed",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gilt-Leaf Archdruid",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Restorer",
+   "quantity": 1
+  },
+  {
+   "name": "Kudo, King Among Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lumra, Bellow of the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Murkfiend Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sower of Temptation",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Vendilion Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Werefox Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Wilt-Leaf Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Wistful Selkie",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1
+  },
+  {
+   "name": "Deglamer",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Familiar's Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Strix Serenade",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Asinine Antics",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Fade from History",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Burial",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Amphibian Downpour",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Kenrith's Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Lignify",
+   "quantity": 1
+  },
+  {
+   "name": "Song of the Dryads",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rivendell",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Creek",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Vivid Meadow",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

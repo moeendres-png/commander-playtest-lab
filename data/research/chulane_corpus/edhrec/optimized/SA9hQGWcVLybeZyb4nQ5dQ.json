@@ -1,0 +1,374 @@
+{
+ "urlhash": "SA9hQGWcVLybeZyb4nQ5dQ",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2026-08-27",
+ "price": 392,
+ "salt": 56.5319438893348,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/c6CaXRonHUyrL2xZXDkuNw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Accomplished Alchemist",
+   "quantity": 1
+  },
+  {
+   "name": "Argothian Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivator Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Grazing Gladehart",
+   "quantity": 1
+  },
+  {
+   "name": "Greenweaver Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Impassioned Orator",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kelpie Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Ley Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Needlethorn Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Stone-Seeder Hierophant",
+   "quantity": 1
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1
+  },
+  {
+   "name": "Tideforce Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Deny the Divine",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Body of Research",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Open the Gates",
+   "quantity": 1
+  },
+  {
+   "name": "Retrieve",
+   "quantity": 1
+  },
+  {
+   "name": "Revoke Existence",
+   "quantity": 1
+  },
+  {
+   "name": "Take Vengeance",
+   "quantity": 1
+  },
+  {
+   "name": "Threats Undetected",
+   "quantity": 1
+  },
+  {
+   "name": "Nuka-Cola Vending Machine",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Shroud Costume",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of Domination",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand-Year Elixir",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Aqueous Form",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tyrite Sanctum",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

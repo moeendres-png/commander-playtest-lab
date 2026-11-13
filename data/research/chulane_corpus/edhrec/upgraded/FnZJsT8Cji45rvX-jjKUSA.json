@@ -1,0 +1,394 @@
+{
+ "urlhash": "FnZJsT8Cji45rvX-jjKUSA",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-08-07",
+ "price": 567,
+ "salt": 53.81215781113133,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/15097598?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodline Pretender",
+   "quantity": 1
+  },
+  {
+   "name": "Bonescythe Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Brenard, Ginger Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Brood Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Diffusion Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Fungus Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Galerider Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Gemhide Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Horned Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Lancer Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Lymph Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Manaweft Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Muscle Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Plated Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Pulmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Reflex Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Root Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttling Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sinew Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Spinneret Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Synchronous Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Talon Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Tempered Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Tender Wildguide",
+   "quantity": 1
+  },
+  {
+   "name": "Venom Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Brainsurge",
+   "quantity": 1
+  },
+  {
+   "name": "Consult the Star Charts",
+   "quantity": 1
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Leak",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Silkguard",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Beavers",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Stock Up",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of the Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Hivepool",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Omenpath Journey",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sliver Hive",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

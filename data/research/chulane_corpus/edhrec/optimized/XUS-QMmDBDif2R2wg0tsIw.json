@@ -1,0 +1,350 @@
+{
+ "urlhash": "XUS-QMmDBDif2R2wg0tsIw",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2025-02-15",
+ "price": 513,
+ "salt": 59.090655637905,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/tW-kSVMxLkapOc_-CyVAnw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aboleth Spawn",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis of the Gods",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Aftermath Analyst",
+   "quantity": 1
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Cosima, God of the Voyage",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Voice of Zhalfir",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Springheart Nantuko",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak and Goreclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Mage of Zhalfir",
+   "quantity": 1
+  },
+  {
+   "name": "Tiller Engine",
+   "quantity": 1
+  },
+  {
+   "name": "Toothy, Imaginary Friend",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Encircling Fissure",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Flusterstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1
+  },
+  {
+   "name": "Jaheira's Respite",
+   "quantity": 1
+  },
+  {
+   "name": "Parting Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Transcendent Message",
+   "quantity": 1
+  },
+  {
+   "name": "Turnabout",
+   "quantity": 1
+  },
+  {
+   "name": "Awaken the Woods",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Rude Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Scapeshift",
+   "quantity": 1
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Hero of Dominaria",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

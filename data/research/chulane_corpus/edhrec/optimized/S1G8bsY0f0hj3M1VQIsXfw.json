@@ -1,0 +1,354 @@
+{
+ "urlhash": "S1G8bsY0f0hj3M1VQIsXfw",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2026-10-04",
+ "price": 1259,
+ "salt": 73.46082526445389,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/27068234?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Bonescythe Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Constricting Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Diffusion Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Galerider Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Gemhide Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Hatchery Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Horned Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Lancer Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Manaweft Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Muscle Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Opaline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Poultice Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Questing Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Reflex Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sidewinder Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Synapse Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Tempered Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Tidespout Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Aethermage",
+   "quantity": 1
+  },
+  {
+   "name": "Virulent Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Evasive Action",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1
+  },
+  {
+   "name": "Foil",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Negation",
+   "quantity": 1
+  },
+  {
+   "name": "Force of Will",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Palisade",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Chrome Mox",
+   "quantity": 1
+  },
+  {
+   "name": "Hivestone",
+   "quantity": 1
+  },
+  {
+   "name": "Mox Amber",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Future Sight",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Precognition Field",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Cactus Preserve",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Gemstone Caverns",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sliver Hive",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

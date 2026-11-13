@@ -1,0 +1,362 @@
+{
+ "urlhash": "Tl-cMjHMFsC4YRSEvJFKVw",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2026-04-30",
+ "price": 140,
+ "salt": 34.7522066924721,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/pAZy8NgrgEWmAKvv7OcS7Q?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Apprentice Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Beloved Princess",
+   "quantity": 1
+  },
+  {
+   "name": "Benevolent Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Brightmare",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Daybreak Charger",
+   "quantity": 1
+  },
+  {
+   "name": "Devoted Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Distinguished Conjurer",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Fiendslayer Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Ent",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Gylwain, Casting Director",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Lathiel, the Bounteous Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Lonesome Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Majestic Auricorn",
+   "quantity": 1
+  },
+  {
+   "name": "Mesa Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Narwhal",
+   "quantity": 1
+  },
+  {
+   "name": "Neighborhood Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Nyxborn Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Opaline Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Pearled Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Pridemalkin",
+   "quantity": 1
+  },
+  {
+   "name": "Prized Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Prodigal Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Ronom Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Steadfast Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Contraband Livestock",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Entish Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Memory Lapse",
+   "quantity": 1
+  },
+  {
+   "name": "Miscast",
+   "quantity": 1
+  },
+  {
+   "name": "Moment of Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Once Upon a Time",
+   "quantity": 1
+  },
+  {
+   "name": "Tenacity",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurous Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Commune with Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Golden Ratio",
+   "quantity": 1
+  },
+  {
+   "name": "Horses of the Bruinen",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Bunnies",
+   "quantity": 1
+  },
+  {
+   "name": "Champion's Helm",
+   "quantity": 1
+  },
+  {
+   "name": "Honored Heirloom",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Fertile Ground",
+   "quantity": 1
+  },
+  {
+   "name": "Knightly Valor",
+   "quantity": 1
+  },
+  {
+   "name": "The Princess Takes Flight",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Gargoyle Castle",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Windbrisk Heights",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

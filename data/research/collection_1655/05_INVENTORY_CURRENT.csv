@@ -1,0 +1,1656 @@
+card_id,oracle_name,observed_quantity,physical_owned_quantity_lower_bound,reserved_for_opponents_quantity,available_for_own_decks_quantity_lower_bound,quantity_exact,quantity_semantics,number_of_lots,currently_available_for_own_decks,last_verified_at
+card:project:ec4a749e-1ee4-5f44-b175-00138faba8ed,Abbey Griffin,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8f7a0835-a03e-5a14-96cb-104b7fb6d3e4,Abolish,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8b95dfee-112c-5e9e-b892-23c49e232257,Abrade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9611eacf-3aa7-5794-a6f9-fdfb430f2af0,Abstract Performance,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:602a4d64-b090-5274-b80d-cacb8e88a94c,Academy Manufactor,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2c0ec446-4a91-5dee-b051-160ef137a7ff,Acid Web Spider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:619cc8ac-560b-5fe2-b11f-a2639b6cadfd,Acidic Slime,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8a1ba195-dcfb-5b51-8613-5aa58418ca95,Act of Treason,6,6,0,6,True,exact,1,True,2026-08-10
+card:project:891f0627-e53c-568f-95dc-3646c973fe06,Adaptive Automaton,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1067aba8-b3e1-5a74-90c1-6c945017a993,Adarkar Wastes,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3ccd46df-134e-56bf-b608-971cca43eec0,"Adrix and Nev, Twincasters",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5083a8ba-a6a2-5fc8-8dc0-ca95876d24cf,Aerial Extortionist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:01a1477e-e0f1-5a9f-abf6-5190e807ce31,Aether Adept,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:fb1b7b8d-0af1-58a5-8d77-9a469fdcfcb2,Aether Gale,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dd8626c2-77b2-5aa1-b69e-d8fd442e3c53,Aether Spellbomb,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:00b219da-a22a-5fd9-8755-6e0393c4c7f9,Aether Tradewinds,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7b5720bb-8502-523a-b747-caa7d312af8c,Aftermath Analyst,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f4bb7b7d-7b52-5392-8d4a-341a8f97107f,Ageless Entity,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2938564e-3864-56c9-97aa-bf2d903ef3ee,Agonizing Demise,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:95fb3a0e-a2a4-5c6d-a4f8-539d7524cb29,Agony Warp,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:14210c37-6a91-5071-9414-9098900e5bd0,"Agrus Kos, Wojek Veteran",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f6c79a78-05f7-56d0-aa17-e2e553442dc7,Air Servant,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:48b18ec7-4b37-5b65-b46d-bb79f00b0923,Ajani Vengeant,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7e239190-f8d5-5a13-aca6-de0133ecf01a,Ajani's Mantra,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c5abec1d-7751-5621-a10b-a1d1c34842ff,Ajani's Pridemate,5,5,0,5,True,exact,2,True,2026-08-10
+card:project:7fce5681-bf6e-53b7-8a5b-5aa6eb558532,Akoum Battlesinger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:accb087b-b459-5b65-a62c-39864ce23abf,"Alandra, Sky Dreamer",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f9629d2f-129a-58cf-a9ce-90fa25e612b3,Ambush Viper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bc37f890-b9a1-555d-bafd-ef4ff64f16ec,An Offer You Can't Refuse,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5ac500dc-2a31-50ad-9657-d6afb99d1a43,Anaba Shaman,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:331e7d4b-a49f-50bc-8891-4ade1195b690,Ancient Grudge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6d32e600-aa11-579b-a27a-53cff776e14b,Angel of Finality,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a0c6f025-0866-57b4-b3e6-494b6552fc1a,Angel of Salvation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4d849eee-7388-5aa9-babe-f56a2de87359,Angel of Vitality,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5133b163-9559-5c7a-931c-032f28eafe6b,Angel's Feather,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:924577c7-5849-5fa8-a88e-8d21a48bf6d5,Angel's Herald,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:28177100-3f79-5bbc-a1d5-1b9f2876f50a,Angel's Mercy,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:e76e2032-30c1-560e-9a0f-5b43d4ec5f4d,Angel's Tomb,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d435a58c-4579-5171-b7b3-8c52f22c1130,Angelic Destiny,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a9079e5d-992a-5104-95c7-cde14a7d276f,"Anowon, the Ruin Sage",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8c04d392-6faa-56e6-a225-4bfdbe89b089,Apex Hawks,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:4bb4346d-9cc8-59e4-93cd-97c0fc3bbab2,Arachnus Spinner,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6139c943-7e34-53e0-988a-9b3f0e9a2b5e,Arachnus Web,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:106fcec8-be8e-5861-bd79-99caed807f71,Arbalest Elite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:74134aed-082c-57b7-9c2c-600cc39c506b,Arbor Elf,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:35ec3947-7c89-52d4-a572-9eba690ef0ef,Arc Runner,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:36d332d9-dfe6-5502-902f-e644f13d7f2f,Arc Trail,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:531421d3-14ae-54bf-831e-d89de7c5f0ee,Arcane Denial,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5277503f-a717-5593-8f09-82aeefce5e61,Arcane Sanctum,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:86b66c52-71e3-5448-9381-27ff0322d513,Arcane Signet,6,6,0,6,True,exact,5,True,2026-08-10
+card:project:43403c4c-4307-5512-bd0a-e8c83c24aa10,Arcanis the Omnipotent,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b6447fd0-986d-51ff-ab9e-b11720500f20,Archmage Emeritus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b4e39fe4-e9c1-577b-9161-17806e538dc7,Archway Angel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3c51ea9d-b297-5ac9-b7b1-8215a91632b2,Ardent Plea,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5d4ff5ae-bcbf-5883-ae1d-900f5a7f4498,Ardent Recruit,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:8ad5aee6-8a2f-5778-bde5-80eb7a052b94,Argivian Restoration,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:702ffa5d-7834-5c76-a88f-73411ae8788c,Armed with Proof,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5a39b1a5-d493-543e-b9fa-6da35b5816fa,Armored Ascension,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:82ba8bde-2d0c-5183-b174-c842db3a38e4,Armored Cancrix,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:40c00d1b-2fa2-50b0-9f9b-2314afcec9aa,Arrest,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:af9d5148-c726-5d9a-835a-b7f5d5179af0,Arsenal Thresher,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ae1c43f6-28ef-5fd1-bd91-a843e32c4265,Ashmouth Hound,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7b6fce89-d256-506c-be1e-234cf5de4466,Assassin's Trophy,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:277e8ddf-8b00-55e9-8e70-9b50ec62b295,Assembly-Worker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8a3cbcb6-3a9c-5aae-b5af-ab13f715778a,Augur of Autumn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4c2c14ef-8c77-54b1-8e10-d6258d7d6794,Augury Owl,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:fbeb29d6-fcb3-5d7d-b726-ef4574c83710,Auramancer,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:ce254772-1b6b-52c5-ba95-11dc2bce85a4,Autumn's Veil,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c3e16b3b-670c-4279-85f5-0bbabc2bbd24,Avacyn's Pilgrim,1,1,0,1,True,exact,1,True,2026-11-02
+card:project:078da73d-4982-5818-a93a-4c999edb0251,Avatar of Discord,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:892c4cb8-d71f-5ef1-85c5-a19e4f213d9d,Avatar of Woe,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:93d74405-422d-5a94-b297-f490040d0f43,Aven Fisher,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:be41ce44-3900-5118-b813-6c8f2c166fb9,Aven Fleetwing,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:d1f647a1-0f7c-568e-9f91-bf9c3f4e56cf,Aven Flock,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0b305694-0159-5599-b14b-cdd9f0dfe2f2,Awakener Druid,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8a2608c8-ecd9-53ad-b93b-be11878ebfee,Axebane Stag,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8265093c-2a0d-5cd5-ad54-a703f33e3e5e,"Ayli, Eternal Pilgrim",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:535b95eb-3631-58d8-b750-ac62f5e0404c,Azorius Arrester,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9e1f235c-1b67-564f-beec-0309e6080d7d,Azorius Chancery,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4f03d0c9-82cf-5437-af96-4464579a89b2,Azorius Guildgate,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:2046c371-a36d-50a8-bfab-7dfbbc082e1f,Azorius Signet,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:85ee3ca3-3aa5-5313-8b15-169279da10fe,Azure Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:11d16cc6-f8e0-5028-8850-5038442ede78,Balance of Power,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:08f53e13-cf64-5256-a368-a34bad76f737,Balduvian Barbarians,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:431a8911-8b2c-5f07-8403-987828e8eb67,Ball Lightning,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e5cb6da4-cd7d-5e6c-bfb5-24d22d1a554e,Ballyrush Banneret,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:64423735-a14d-5c12-8d1a-ebc77db7625d,Baloth Prime,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:79378d83-1503-5872-9934-91ce36f6dce7,Banishment Decree,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f1aab8fb-df68-50f1-9057-658736cd62e9,Bant Sureblade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c4e51c17-6e03-5ebc-af69-05c3477c1e25,Bar the Door,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f007c27a-5dca-53fb-ae7e-ad6b04349298,Barbed Battlegear,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:367038e8-95a7-5275-b9f9-e3c319d0d3bf,Barrage Ogre,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:4bdf24cd-de03-5892-b569-15f5c6e6d5cd,Barren Moor,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:ec8d333b-aa74-5191-b7cb-cc31991f837a,Basilisk Collar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9c7e35bd-3bb3-5fd5-b446-af0536f5d1f2,Bastion Protector,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bd31e4cd-22ab-5288-952f-d706e33c521b,Battle Hurda,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b336ebca-536c-504e-b68f-4a65d2f363ba,Battlefield Forge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:41b19391-d5aa-5f49-b2f3-db4f7e5d6dd2,Battlesong Berserker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3740b08b-eeaa-5479-8c72-3e89ed33eb86,Bazaar Trader,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ce1269f3-a657-5295-bb81-b809f06c45eb,Beacon of Unrest,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:62d6ceaf-1be2-5d2c-ba1d-926a9d55e132,Beast Hunt,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b071251c-a39f-5257-a465-c8cf95d1296c,Beast Within,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:de8ec406-1fcd-536e-a2a7-54cb51eb8f12,"Bennie Bracks, Zoologist",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:34ae94bc-3e5b-5442-bfcd-92d877cb8b08,Big Score,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f89b3ba9-7b20-577d-9cbc-2c9dfdf5b1a1,Binding the Old Gods,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:de4f598f-3586-5cb3-842a-24697fa69d8a,Bituminous Blast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e260f88a-2d26-5fa4-8238-ef8540988ff0,Blackblade Reforged,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a9476824-e73c-5530-b26d-6d2b336b6506,Blackcleave Goblin,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f187c361-1baf-525b-bad6-8c82ba386337,Blacksmith's Skill,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:690740b3-1977-5f62-b124-1076a81fe717,Bladed Sentinel,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:fee7bc57-bd34-53fb-8228-7e0f039b4914,Blasphemous Act,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:d347de2a-db98-52f2-925f-4571264a997e,Blazing Specter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4f94e146-713c-5fe7-860d-56fee525f789,Blazing Torch,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9e093928-6cc6-5a99-a17a-390fb8320cc5,Blighted Agent,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4ce4878d-8e22-5994-ad9a-13aa803979f3,Blightwidow,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:35864024-199c-57d8-82a8-491cdc25b51d,Blinding Beam,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a6648f31-7e78-54aa-b7d5-02585bb38be8,Blinding Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0e2e6b40-c3d0-5466-913e-9033ad414749,Blisterstick Shaman,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f8bb3bc1-b2cf-5ffc-a67a-217e48a6c10c,Blood Seeker,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7a51c7e1-4eca-57ae-830e-8119ed6bc9e2,Bloodcrazed Neonate,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:33bbaafb-c9dd-5821-ba86-0997cddd5d5d,Bloodfell Caves,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:50846f50-4691-5fd7-9485-c691e54678f1,Bloodhusk Ritualist,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:591c20f8-05d7-55fa-818a-55ee41705a35,Bloodpyre Elemental,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:13977faa-2562-5af9-9990-93c8c9837672,Bloodrage Vampire,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7978b53b-f109-5096-879d-0004e81e1926,Bloodshot Cyclops,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5c7492a2-1dba-54e4-88b1-adcc3f6e13eb,Blossoming Sands,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:23364319-6641-53f0-a5ed-2fc4f436cafc,Blue Sun's Zenith,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cf2ba1f0-9874-5127-b158-dc5772ba208b,Blunt the Assault,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:86b1753e-c9c6-5d15-aead-d08f2b086692,Bog Imp,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a68e8758-cf50-5870-8772-909cfb8fddd9,Bog Tatters,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e62e9e6d-a3a1-5b69-9505-1a1599c29157,Bog Witch,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0f23e3db-028a-5b4b-8c50-da203e0b988c,Bog Wraith,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ed7936f1-5277-5f0d-aca6-c78c1048c4f2,Bogardan Hellkite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8ca95cf8-9f8b-5401-9ebd-ad7f3947ad5f,Bojuka Bog,3,3,0,3,True,exact,2,True,2026-08-10
+card:project:453f7cce-5612-58bf-9499-88f545d91a58,Bold Defense,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4ae08221-547c-5217-88cc-6bb82ade8cb7,Bolt Bend,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c5208a58-8ac8-51e3-9386-e0df37cc1b91,Bonebreaker Giant,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a22a2406-7365-5de2-9cde-00d1dfc2e646,Borderland Ranger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:15af314d-a0aa-5503-b00e-29f1bb905c06,Boros Charm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8b0348df-ae79-5b12-918c-c481584126f6,Boros Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3288adef-11de-514b-a50d-580b5daa2936,Boros Signet,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:abc6aed9-fe30-5352-9644-1b02840fad12,Bountiful Harvest,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:063e7787-c1df-5cc2-a9af-7d37eb1d3707,Brackwater Elemental,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:88a8114b-5d1a-598c-a3d7-d5f49f819177,"Braids, Arisen Nightmare",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f0ebcf49-0f8e-53b9-b65b-09fa3ad0fc01,Brain Weevil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:966535a0-d23f-5d5f-a34e-33459484360f,Brainbite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:aa0f1ee2-5056-53af-8803-071b918d8397,Branching Bolt,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:16cc5c74-7394-5215-bf89-da77a1ccfe45,Brazen Borrower // Petty Theft,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:38c8f593-8da6-5767-8f69-e9e8245cc37a,Breath of Malfegor,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7dae13f6-3811-5422-8199-617b2fc2cd93,Briarhorn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8166a871-8bab-5388-80fb-b3ece3293f7c,Brimstone Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a1a5f799-0193-5ba5-af96-e1fff9b64e27,Brimstone Volley,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c6e1cd10-5058-585b-b17b-052d46da66bb,Brindle Boar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d9682627-065f-5a23-af25-331367f82fd7,Brineborn Cutthroat,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:6e0420d5-0961-53d8-a722-6d0ad5a07f35,Brink of Disaster,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b8d47b1a-37c0-5a5e-951f-ceadee0a638b,Broken Wings,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:f085d994-bcc2-566e-b15e-8a89113999cd,"Brudiclad, Telchor Engineer",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e50b7b57-7c18-5af8-b8a0-e00ef492394d,Bull Rush,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4064d3d7-92ff-5c5e-8d5c-8afa341b79ee,Burn Down the House,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5bebdb7d-2c0b-563b-986f-786cdb5155b1,Burn the Impure,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c5207ef9-bcd1-50a8-b54c-d31ae649a1ea,Burning Oil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:15a809b2-f5d3-5450-94a2-6d579e0bd7d5,Burnished Hart,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5d0ce775-60ab-5a34-a215-fc79458a54c0,Burrenton Bombardier,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2781136b-1654-551f-aada-b056719a9704,Burst Lightning,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:cd6bb837-9001-5c2e-b509-4ab0450e77ce,Butcher of Malakir,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:5c2b3a81-38e3-5522-bef3-e4286e3db325,Cabaretti Courtyard,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a03b804f-cabf-5556-9e0b-9ef44e368bbd,Calcite Snapper,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:a807bd2f-1b48-5298-8cc1-acaef20ad1a1,Call to Heel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8b6715fe-9227-5b5e-bbc5-3cac313e3a92,Cancel,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:df2f0342-759d-50f4-97f2-7bae98730ba8,Canopy Cover,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:eafe45e4-4026-54f0-859b-fa23ff1f8297,Canopy Spider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b4a2f5d3-a5a5-5fad-84d9-e10709d242a5,Canopy Vista,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:87046451-324f-5edb-8787-b8a4101106e1,Canyon Minotaur,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ef74e1d3-edcd-5cf8-915e-aee5cda37dd8,Canyon Slough,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8799cbb8-a18c-5ca6-b4f3-2c6711806efd,Canyon Wildcat,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:44e9540e-5c6f-50d4-8b88-1ad44a901e04,Captured Sunlight,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f5a736d2-024c-562d-9070-1b0858377439,Carnifex Demon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:16430eb8-d796-5713-bb60-2c03d551cd95,Cascade Bluffs,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:db83f24c-dc9b-5b06-8c81-f212b13f6613,Cat Collector,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3fcb7a96-7a69-55c0-a9be-72e9cabcfcd5,Catapult Master,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:328f232c-b974-5aec-a89a-e21fdc391ab6,Caustic Crawler,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:15e776df-3c09-5ccd-bb50-6df53ee23dca,Caustic Hound,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6afdd81d-ce4e-5126-ab84-42eb3dafcfb4,Celestial Crusader,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7b24f614-9698-5e14-bcb5-3936570ef21a,Celestial Purge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:10da1ce7-1d40-5578-ae3c-bc8925d52919,Cemetery Reaper,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b4bd9d4d-efba-55c4-85ec-ce64f377959d,Centaur Vinecrasher,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c833b6f7-2199-5084-82a1-65ef5a251343,Cerebral Eruption,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c31e9910-9a59-5f53-94ab-b79035a287ec,Cerodon Yearling,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a80904a6-c2bd-5f42-bdd6-5146305e5883,Chain Reaction,4,4,0,4,True,exact,3,True,2026-08-10
+card:project:0eb8374e-6085-5111-8f60-7c196e9c1384,Champion of Lambholt,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1c11ecec-8705-5cb4-8e58-80dc5bbdf3f4,Chandra Nalaar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d785062c-89cd-527d-8dae-de9e944ba234,Chandra's Phoenix,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1c616a44-2690-50b2-b74c-84f92fface08,"Chandra, Torch of Defiance",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d1e197d0-ab86-5617-843d-7793074b30f9,Chaos Warp,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:cb056991-8b2a-5615-b250-87e9868c200e,Chart a Course,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e57fad6f-3b56-56a8-beb8-02f7f0d51fdb,Chasm Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0d82a3db-9f34-59bf-a404-5541cb3c842f,Child of Night,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:90ba7926-c5b1-5855-a7a7-51ccbdcd3da3,Chrome Steed,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:27545862-ce93-54c4-b189-15e50b311559,"Chulane, Teller of Tales",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:92425ede-c2a2-595c-a50d-9b18219e3f32,Cinder Glade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b7636672-77cd-517a-9af6-be2b4436fec8,Circle of Flame,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b742c74a-9320-5f6a-bbb1-c9d6b1fe53d7,Circle of Protection: Blue,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:45c4d132-7678-54a6-a80a-e7344c3328b9,Circuitous Route,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:040d6dc8-ff70-58f6-ba2d-0a4e6c6fb585,Clarion Ultimatum,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:28e22096-e7db-5807-8f93-8c9dcf7d0196,Claustrophobia,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bbd2657c-d0b9-58f4-975b-11669fc0eb46,Clever Impersonator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cf8771e7-daa5-50b7-a633-b96a8e9861b1,Clifftop Retreat,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:57f275bf-cb74-57fa-9346-0b55e75ff4e1,Clinquant Skymage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:99955502-01d9-58db-9c8e-30382598f61e,Clockwork Condor,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:482dab24-b2a7-5afb-b59d-41daf661b620,Clockwork Hydra,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e2f0db4b-cd84-5614-b094-a8b958d0c318,Cloud Elemental,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:5b40ca8f-9cab-540f-b2cd-4c0e67619de5,Cloudblazer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8fdb5d53-dbb2-5c37-a658-92ae4567a431,Cloudheath Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4b610b0d-2e5a-56d6-847b-222e0840471f,Coastal Peak,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:28a61f50-ae06-531c-bc65-76a9c3d8c034,Coercion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:172467d6-828f-5e88-8049-552b3d6f80bb,Combat Research,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e345144e-3ec2-5874-9586-39c05164181d,Combust,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:590fab18-b99f-593f-9203-4fdf2b40ebb9,Command Tower,6,6,0,6,True,exact,5,True,2026-08-10
+card:project:920dcbff-4e41-59c3-83c9-0ee2d0d22f56,Conclave Phalanx,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1e9f9775-78ec-5eff-b502-c6e49e2918b5,Condemn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:881961bf-712e-57ae-8f77-08af94523d95,Cone of Flame,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5e7178e1-9100-59bb-959f-5960f4b616dd,Confirm Suspicions,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c8d96d80-3b3d-59bc-b6a0-0cc3eacb5b6b,Confiscate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2a60c52d-333f-5a50-8f38-19aeb5a89a90,Consider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:086d5ea2-bc4d-5071-871f-ea4b3c4f8544,Consume Spirit,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:db9ed714-b84b-521f-9ef6-622d1dfe40c7,Consuming Aberration,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:22a3760e-0153-584e-95e2-b6733c775e1a,Conundrum Sphinx,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:194df537-5c34-5682-b6dc-7971d48cc1d3,Copper Carapace,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b7d3dec2-82ec-59ed-a52a-f958c19e71ef,Copper Myr,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7e47d0cd-702e-516d-9654-5e5bcca504a2,Coral Eel,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:96192e03-5a03-52c5-ade5-ba39af43dee4,Coral Merfolk,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1f676236-faf9-5b95-a758-405017c304ce,Corpse Connoisseur,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:09aeda63-0f13-5da5-927c-14169e396144,Corpse Cur,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3953fedf-b845-5f2e-a1e8-745e8054a7d5,Corpse Traders,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e756930d-a7a5-5ebe-9242-5c7a556e3b5c,Corrupted Conscience,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0c13c419-e738-5075-b4b4-a4957d6d6b2e,Cosi's Ravager,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:0d4a0033-9b17-5d7f-8453-181bc951a433,Counterspell,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6156cd22-e689-509a-9d7a-9bdb0da7de63,Countersquall,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ba6876ab-db55-5a53-b967-ff8b7eda1f98,Courier's Capsule,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e851f10f-cbe7-53e4-9473-6da3493ba10e,Covenant of Minds,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ed18942f-b882-5e52-a7a7-f7292d28c47f,Crawling Barrens,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:08239850-3281-5e7f-adb3-d3a2fd8bd4bf,Creative Technique,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c4a165c2-a229-5b7a-96c4-41f4b6788267,Crop Rotation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ebf0b53f-d8be-53cd-8ea2-37ddf67ecc23,Crossbow Infantry,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c6b93db1-d868-583f-8a5f-115b80bda048,Crosstown Courier,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:89297c5b-afb4-58b3-8bc2-1bf6e0ae5d25,Cruel Ultimatum,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:85e9489f-9534-57d4-aa85-b69e041f5777,Crumbling Colossus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0fa90137-feb6-53e7-9edb-46e0014ad94a,Crumbling Necropolis,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:786f4b47-5360-5aac-8b45-0c0088142682,Crusade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:82a1e959-4e29-5381-8858-3c715f0ab3e7,Crush,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a75c07f1-67fa-5d03-be29-f98de8e0769d,Crux of Fate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:69b078e6-c6eb-575e-b1d9-37b7ca0bbdaa,Cryptic Caves,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:162f5ebf-40ea-5f78-86e6-e3242c49c007,Crystal Ball,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f4383b10-00d6-53ad-920d-38779735a5bf,Cudgel Troll,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:ce9c41f6-0252-57b1-be61-d5c27975ac0c,Culling Dais,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3c1f37a2-52d8-5915-8754-9cd7cc84211b,Culling Ritual,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:97303fb2-b82d-503a-9efb-219893cdb193,Cultivate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a369e1ee-302e-5aab-ab69-49317c80a13e,Cultivator's Caravan,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c7cfe965-e69d-581d-a951-228d011a9935,Cunning Sparkmage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2d5015e8-dc7b-5240-89a2-360402728d7b,Curiosity,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6da3b703-b582-5767-9393-e13daf2c84a8,Curiosity Crafter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:992c2acd-ef4f-54ed-9a04-00c3782a8af9,Curse of Stalked Prey,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f9a0b818-38f6-57a9-b8b6-681547374004,Cursebreak,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e5d599aa-417c-5688-bc9d-e184da945d7c,Cursed Mirror,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:76892962-6682-5bc8-aed9-b0f50550eea5,Cut the Earthly Bond,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e6c4ff49-ac2f-5d63-9a48-5fdbd0635601,Dakmor Salvage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e24e8c20-7237-549b-bdb1-eef72e281768,Dance with Calamity,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:82b1e1bb-fd7b-5d88-a9b9-656dea06bda0,Dark Ritual,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b35a0658-748e-5427-a220-95417544db3f,Darkslick Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:68f2c474-9991-514e-8692-3e50e104230f,Darksteel Colossus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cb25a24b-d9f1-5d08-b8de-5abf3cd623dc,Dawnray Archer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2a4d09af-0af0-5581-9f0a-21eb2c401e34,Dawntreader Elk,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6b465d21-82f8-5f65-9462-89443a4defe2,Dead Reckoning,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:9c775e62-1ef6-5099-b5b3-2a4d7ea0a6b2,Deadly Brew,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cf274e0e-ac59-53ac-8c6b-683886be5334,Deadly Dispute,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1328e9bb-498a-5fa6-bc45-1999210ae2a1,Death Wind,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:13296a5a-c0f0-50a2-8440-b3fe006f66a4,Death's Shadow,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:56855d73-c9dd-5f94-8f24-04d05c1ff60d,Deathforge Shaman,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9fff724b-191c-53ae-a715-5d54a9cf677e,Deathgreeter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f6c63917-1600-512d-944f-beaceb5352ed,Deathmark,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:57f28b24-64ba-5d22-9889-5f7d8f76d206,Deep Analysis,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:51921a5a-cc91-537b-ab05-b0c6069dd7fb,Dehydration,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9497581f-bb74-5c72-b884-5d10bcf83fe2,Demolition Field,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4f864c0e-fd55-57eb-9a28-5c66d2e6a203,Demon's Horn,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:3fa474a9-f8c9-5e35-967d-d0ed21eba257,Demonic Pact,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a9f2ecb6-3160-5243-8ebc-93f5eacf4941,Demonspine Whip,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4930de85-fd78-5a26-b1a8-58fd252a7708,Deny Reality,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9d74d875-b4bf-55a8-b9bc-ae6c2ac620b0,Desecration Demon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:27169593-234b-5ff5-94fd-f930877385a2,Detective of the Month,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ad9a41df-cd0a-5b1a-8a0d-436d45ca753d,Determined Iteration,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:100ef7b6-90e3-50c9-810d-614701bb9926,Deviant Glee,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cc06ed6b-9e67-50c1-90cb-9f9b6c0090cc,Devouring Swarm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a3ceb1a6-cdf0-5cdf-9fc3-94e49848c373,Devout Decree,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:631905f4-f94b-5bf2-a8fc-fcdc90f0e2f0,Diabolic Tutor,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b0e73f2d-2d71-5a29-94ca-fccf5100d8ee,Diamond Mare,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:37d634a3-9906-5e03-9ca4-e6c325404ea8,Dictate of Kruphix,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4372a5b3-0c17-5fdd-b344-3f0c5fea5085,Dig Through Time,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:54be1e75-9510-5a82-8a5a-f9693a1744af,Dimir Cutpurse,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:eb46c00b-c484-5047-9038-af2d4461d05d,Dimir Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2f7bf801-0e8a-5ada-a6c1-016cab20e3d4,Diregraf Ghoul,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c8a74bda-a30c-5b00-bc2b-2c4c3c3d4aa4,Dirgur Focusmage // Braingeyser,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:19ef6213-e14e-58b3-bd23-17ca70f37f51,Disenchant,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cd79ab8a-1130-56df-9bab-8052672e83a8,Disintegrate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1e8d2fa8-f91a-5b98-87f1-2e392b7fe5d0,Dismal Backwater,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:09510f71-1f50-5701-8dd9-c6f89ba14eae,Disorder in the Court,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:21725853-21bf-5a9e-855a-fc12d1e97478,Dispel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c3b6b27f-1746-51d2-88be-602de4792543,Dispeller's Capsule,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9fbf95fa-c603-5e2a-ac2d-72c05dbc2810,Disperse,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:299c9cba-814e-5535-9642-bd3102b3636b,Distant Memories,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:407d0e39-7b80-5848-bcf2-0f9a6568a516,Distress,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9a29488a-6144-53fd-ae5b-9209a2ce5d3e,Dive Down,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2b732c57-2196-50cb-95fa-19fa63623ead,Divine Favor,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:75a90b63-5536-56d2-98d4-6f78de2081f0,Divine Offering,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:73529f53-6bca-5cc2-942f-c2efa1b32320,Divine Resilience,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fa9d5175-31e9-5e57-a856-08597fd68699,Doom Blade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:18ec4687-a2e2-5e22-b735-8c83fbb477c2,Dovin's Veto,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3469db14-f3e7-511b-a633-2fef6888140f,Dragon Fodder,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:47d03eee-9b3b-590b-8a36-c1f50d249aab,Dragon Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fb7ff13d-fe76-5171-8518-892fd6dc2aaa,Dragon Whelp,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7b58825e-70a7-59c4-ba7c-35795622788a,Dragonmaster Outcast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bc1dd5e1-f3a0-5e8a-8d7d-8a199b984b9c,Dragonspeaker Shaman,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a7079e62-3a1e-57aa-9390-ec40d127f0a8,Dread Statuary,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:104c0f82-8a0a-511b-a075-02af79e8cd93,Dread Summons,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3a2917e6-6706-561d-96c7-c64c83705d2c,Dreadwing Scavenger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:063470cb-5405-53c2-b4e7-e3ae91cbd543,Dream Twist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fb0b7d73-4a48-501a-89f2-7d2280e937b5,Dreg Reaver,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:54313cdd-b1d9-5459-a497-3cb3509b5d2e,Dregscape Zombie,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:550de918-abbc-5e46-ae97-4bcca94a350c,Drifting Shade,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:f5cc522b-d7c7-5411-839f-4bb01e1176af,Driver of the Dead,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2785cca7-77a2-530b-b8fb-77962c3f697a,Drogskol Reaver,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8d53e414-d498-5f14-8ca6-ed8846c5484d,Dross Crocodile,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:76137b1a-183d-51db-a210-19f4277f2b9c,Dross Hopper,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:4991d9af-bd8e-5f62-991b-81b7f7d6b8e7,Druid of the Anima,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5b857302-2ae0-5387-843b-0a653c6425ad,Dryad Militant,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0006cdf9-e674-58c3-9711-444ae188770f,Duelist's Heritage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:91d1826d-ae6d-5f98-83b4-7b193689c069,Duress,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:88fe8878-f835-56d4-b808-7cf395c88f3c,Dwynen's Elite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:26e2af59-2b9f-5003-abc4-a311c57429e1,Elder Cathar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4a84c7c1-07f8-55f8-b68e-886b7c5e0020,Elder Mastery,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d6ca822f-948f-5c31-a537-544e5f7ed681,Elixir of Immortality,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c3315a3c-d17e-5d4f-a1ed-79dab50b3806,"Elspeth, Knight-Errant",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4eab6f07-3483-44d3-84dc-50fe9d527c2f,Elvish Mystic,1,1,0,1,True,exact,1,True,2026-11-02
+card:project:e344845a-51d4-524b-a8cf-4e6464921b1e,Embersmith,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:840b7eb3-51db-5b34-8c7b-f6abe2d584bf,Empyrean Eagle,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:231aabf1-9a19-5c7a-81bb-a0ef800dc496,Enclave Elite,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:22bb0131-e1fa-5983-b6e3-ad230ce549d8,Enigma Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d827c7d7-b829-5d19-a781-a5163f27b90b,Erdwal Illuminator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9b5c875b-c9b1-5274-9eae-32471dcdd5dc,Escape to the Wilds,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6566eede-c90a-5b04-9005-c94f22feb704,Escape Tunnel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ac405121-2d71-5bf3-8be3-42183bcce97e,"Esior, Wardwing Familiar",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1bbccf0a-0d78-5c3b-8497-6031d6515826,"Esix, Fractal Bloom",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2eb559b4-aca3-5f29-8504-5d9a052c0d3d,Esper Stormblade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2a16e912-278e-5024-8d42-b49a800cd3e9,Esperzoa,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9f3bdeb5-b32a-5936-be1b-6121bf315b53,Essence Scatter,2,2,0,2,True,exact,2,True,2026-09-19 (photo additions)
+card:project:1a66f389-faae-5b94-8992-0a93cfbc2e23,Ethereal Investigator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b34f9022-fe33-5c1e-8bbd-9d8eb3f2628f,Etherium Astrolabe,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:de4e2865-83c6-5801-9b81-46eff265ff5a,Ethersworn Shieldmage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fa20bb42-f095-59e8-b8f6-28cdcb3ee02f,Eumidian Hatchery,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4579fd1f-ba40-5b59-879b-4157f06b5704,Eumidian Wastewaker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8aaf2ba2-dca4-5998-8c72-d80bd1856ba8,Evendo Brushrazer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8284c8a3-2e20-5011-b712-48e067020404,Evolving Wilds,4,4,0,4,True,exact,3,True,2026-11-11
+card:project:fad83dea-47fe-535f-a339-3a62b4cf8564,Excommunicate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:067a35e1-c9b3-5300-a286-e8183cef50d9,Execute,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3d9b2a6b-cc6f-5053-943c-a2659992cb8d,Executioner's Capsule,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7b182a03-25ed-595a-82ff-9441050def5e,Exotic Orchard,3,3,0,3,True,exact,3,True,2026-08-10
+card:project:23623a59-0d57-5e45-bfe7-31c8746379bf,Expedition Map,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8631e12f-ea7e-5f0e-9a03-b12a1f9e31bf,Exploration Broodship,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f6b05fbf-0d1d-5c5b-a921-72164db97163,Explore,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:38fc2802-76f1-5707-8c5d-a816c09fea23,Expressive Iteration,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bef99c10-373f-5c9b-8907-f5b223bd71ea,Exsanguinate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:502fd08b-8cac-53f7-9bad-c23b7ab8ed8b,Extractor Demon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:677b7be1-27c6-5ded-b4af-cd7cf133af16,Fabled Passage,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:ca332fba-f484-560a-a5e7-78ee160fc2fb,Faebloom Trick,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e8a3ef5b-90cc-5423-9fbd-94c3a6e461b6,Faerie Mastermind,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8280b35c-b8da-5808-8227-13eed75c6f1b,Faerie Mechanist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dd4c7401-9a8f-5bef-9a37-7a34282adf91,"Faithful Squire // Kaiso, Memory of Loyalty",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:74333daa-fb0f-57d0-8e5b-7ccb79f4faba,Fanatical Strength,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fc355f3c-fdfb-5980-8e9e-815e64f1a118,Fangren Marauder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:71dbded8-308c-5580-b924-ba398addf74a,Farewell,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c52caf6c-461f-58fd-93b5-5fe6db6a7dea,Farseek,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bd5b4aa3-5674-5741-8082-d52a8ef05bab,Fear,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f897a4ba-6917-5acd-ab64-040103387c02,Feast of Blood,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8b47ab90-9dd9-5d06-b327-5ab4a0c50fc4,Feed the Swarm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d200a387-f55e-5465-8e83-d410dd227ec3,Feldon's Cane,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:be91d11a-04a0-54c0-8620-dd521140f6a6,Felidar Cub,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8852332a-2db5-561a-8aa2-60a10f77f01a,Felidar Retreat,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f1c83da5-7027-5c23-96ac-ae7c0551d0ea,Fellwar Stone,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:4ecae181-5abc-5b45-a2a2-250871e4679d,Feral Contest,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:da204b15-884d-5876-8221-1d08cdc36244,Ferrous Lake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:20af9905-e43a-5b81-9611-934cfda4d6cf,Ferrovore,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f73a012b-4738-5059-92a1-bb60f807d8b6,Fertile Ground,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:04eab9c8-4940-505f-8e0a-2482891449cc,Festering Goblin,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1b594c9d-1dbd-5880-9c2c-e0aacaf8a2ac,Festering Thicket,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bb944f4a-1d51-5105-a964-42af2a6f2eea,Fiddlehead Kami,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6f2d8e75-a086-5ae0-95db-a28cfec8996f,Fiendish Panda,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8419cee0-9864-5f60-973a-eb8b38d88d55,Fierce Empath,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8865036b-399b-5b05-9d44-1aac0bd20b7e,Finale of Revelation,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:f36bc744-12ec-5d17-88d2-d2d40277537d,Fire Covenant,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:de43e336-d7d8-5081-8ac2-8571510ba9bb,Fire-Field Ogre,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3350dc42-1a8e-53cf-82f3-76ade90feed0,Fireball,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:3a3aa1f5-9d43-572d-a4dc-693364014374,Firebreathing,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:68833e76-c9f7-54fd-8531-7aae040b0e87,Firemane Angel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:116940d6-03da-501b-a6dd-1444bb9b4c02,Fires of Undeath,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a8eed6af-260f-59bc-8e54-505bb04f6b15,Fireshrieker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a64fddf0-63ad-5f10-bf6f-7925e50cbb41,Flame Slash,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:66b46791-e2dc-540a-80dc-da6cf447e928,Flameblast Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:422ac6c5-1b42-5d41-84bf-b38afb5588b4,Flameborn Hellion,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:47a572a3-5b67-562f-9ecc-e8e1898b7024,Flare of Duplication,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ebc11089-e973-5385-b2d5-3f6a53cfe2d0,Flashfreeze,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8db1f012-43fb-5280-aa5a-2826443605ea,Flayer Husk,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:19a485ff-6ddb-5277-afbe-5b2967c34bba,Fledgling Griffin,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:ef441def-3248-52ad-8983-422e375adc3e,Fleetfoot Panther,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:83908f60-500d-5cc0-b3ad-3f63d835499d,Fleeting Distraction,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:077889b5-a157-5722-9f2d-bf20d0414550,Flensermite,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:8c9762d5-6ffd-5536-8d58-d325d342e122,Flight,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9b77739f-1eb4-5d98-9e9d-1c413aa08c6f,Fling,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c04a7c33-c17f-5eeb-b2e9-fce995927822,Fog Bank,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0f9933d2-11d8-557d-bad4-d28df49c65ca,Foil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5837eaf2-7f3d-558a-850f-3e5a24fd4e28,Follow the Bodies,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:894e532f-32b6-548f-89bf-dc53983d7585,Foratog,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:19eb5a88-9030-5c2d-9add-dd9d193e9755,Foresee,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7dd5ce13-ee97-5a06-bd14-54d99f2d6318,Forest,14,51,0,51,False,lower_bound,6,True,2026-09-19 (photo additions)
+card:project:8ea01749-2425-5ef3-8b15-caef9797d718,Formless Genesis,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1b3c3aba-341f-590f-8f24-151349d53c8b,Frantic Salvage,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:dbc8e33d-55d3-53cf-aed8-31acff1ae738,Frost Breath,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6cbdb19e-6a9d-5ee5-a2c5-18aef48028a8,Frostboil Snarl,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d6c343d0-3aee-59c9-9fac-fc8084f9fea4,Fuel for the Cause,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e78617e8-4063-54f2-ba7d-5dc66777e1e7,Full Moon's Rise,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:16a6b7c2-4d4a-531d-abc3-a31f9994101a,Fume Spitter,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:882ec19e-8e23-5e6b-98f2-30838f071742,Fumigate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:019a830f-7746-50ad-93b2-4feb32ffdd3b,Furor of the Bitten,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:577f3b98-d239-569b-a8d5-2e2f124af423,Furygale Flocking,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d632d201-bfb6-584e-af1f-495261d32ed8,"Fynn, the Fangbearer",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cfd33a0c-963a-5010-b501-0aad23b57450,Galazeth Prismari,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bf0a8071-8d35-5135-830e-073d71522aaa,"Garna, Bloodfist of Keld",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cdeb4236-db4d-5713-89e8-9d5792892aa1,Garruk's Companion,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:dd56c32c-6870-5c60-84a2-6c854627ef52,Garruk's Uprising,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b2eacb11-1080-52fd-a434-aafd326a962b,Gate Colossus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c37607ee-8465-53a4-b472-cefdd323e030,Gatekeeper of Malakir,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b433f3fb-1325-5ebd-b73a-8549d614da9b,Gateway Sneak,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3f6e00ca-9628-5c95-b144-d14166685325,Gaze of Adamaro,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e1bb4ca7-66d2-57ba-90b3-06de1d3dfdac,Gaze of Granite,1,1,1,0,True,exact,1,False,2026-08-10
+card:project:8041ad60-4ab2-577b-953e-d82a3738a494,Geyser Glider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d16a572a-877b-5edc-94e0-1e304272f59f,Giant Badger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:742fe7ca-cefe-5a6d-9895-14b9edf83a5a,Giant Cindermaw,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:88265b25-2691-5728-b18e-22fda429e770,Giant Growth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fbd06fe4-6a97-5bc6-822f-080f48a0d69b,Giant Spider,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c44d7616-2e08-57a5-8c40-40fe041db0f9,Gideon Jura,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1e54f0a5-01cd-564c-9f4e-bd5c4cc6d2ff,Gigantomancer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9b90ab0c-c968-509c-8512-4c41fdc906ee,Gigantosaurus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b476a881-9d0d-5c4e-9a92-bf16a5bb194f,Gilded Lotus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:20a37f38-64ba-5512-80ed-ce6a8ca2cd25,Gix's Command,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0027d47a-dd13-5905-87fe-b83c400ea44c,Glacial Fortress,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c8389476-3fdb-593c-b14a-5e3909ef0297,Glaze Fiend,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:85ee83a7-6149-5458-94b6-cd9150f1cf84,Gleaming Barrier,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:49d462f6-e89f-5058-b9b7-ddfc535d09b7,Glimmerpoint Stag,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b319d823-2a92-5bc9-9a86-d9303a675db8,Glissa's Courier,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b24265cd-d448-5af2-8fe9-66f25ee56797,Glory Seeker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:223c79ce-1705-5ca2-bf1c-69409711d1db,Gnarlback Rhino,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bae30bd0-50fc-5fc3-90a6-4a8b1bb43d95,Gnarlid Colony,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:788e4092-28ca-5ff4-bbe1-cdf3a662588c,Gnarlid Pack,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b94aad21-fc04-516a-9260-3c76156abcb8,Gobbling Ooze,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f9549b17-fa9e-5495-9e4b-b9d191acaa60,Goblin Arsonist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a35c8d24-b438-51a8-8d59-cacb19983344,Goblin Assault,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:48192566-4e9c-5945-9260-995ade03ce5a,Goblin Balloon Brigade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4114482e-f8b1-528c-9a1b-c71b526d82d0,Goblin Bangchuckers,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a33f7611-a40b-5834-8829-9c281ac9ef6f,Goblin Boarders,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:185094e8-2dfa-5904-9f58-49a8c8dec247,Goblin Bombardment,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bf8a2c90-543b-5833-b25e-05b27c77c441,Goblin Chariot,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:469aec6b-7ef9-54a1-8768-c38fb6ed232a,Goblin Gaveleer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:03c9f045-cbd3-522b-99f4-14324060a505,Goblin Glider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cb16d179-cc65-563f-ac07-b10f88e52609,Goblin Mountaineer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6129cbb0-414a-5315-9f7b-a46194ea96e7,Goblin Negotiation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f5bb6a6c-51a7-5c87-b6fd-ce5b9bd6e9b8,Goblin Piker,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b21c1087-0ad8-5384-9772-5aec3b123162,Goblin Raider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ac09fa38-c908-588b-8ad7-d570cbc8ac4a,Goblin Roughrider,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:f0a85564-f3bc-5c64-903c-810fcff2d9b9,Goblin Surprise,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:507247c4-33be-5d7f-b9d4-5bf987914a0a,Goblin Tunneler,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:88be5070-7ca2-54a4-86fe-307f4f8312aa,Goblin Wardriver,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:39d76b20-81b8-5c03-9f1d-47cbf65b6bbf,God-Eternal Bontu,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1626caa8-b5c1-59e8-84fc-ce2425d76523,Godtracker of Jund,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:12a98f2d-27d3-5480-aac6-ae520ee258cb,Goldmeadow Harrier,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3a0e9525-2017-5bc9-8000-29a56437d7b0,Goldspan Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c0e426ff-8381-55de-92d8-8b97756aaf47,Goldvein Pick,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b993f84a-9085-57cb-9dc8-a6b9f5f324fc,Golgari Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:aae2589d-32e3-5589-b31e-118e49187724,Gorehorn Minotaurs,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:e64201e9-fb0d-53bb-9aea-094010c70ada,Graf Mole,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a4bdb522-51cc-5bf6-b64d-defaf6b41abb,Grappler Spider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d20c0d32-af0f-52a2-934c-fc8ed7028c0a,Gratuitous Violence,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1b0b514a-1ae1-5ae9-955a-992a58cee091,Grave Exchange,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e7142e12-fd64-5721-b041-12b7f4d76c95,Grave Titan,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f5b1676d-cddc-5fc1-830a-534573ef38ff,Gravedigger,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:7e9f9544-ba0d-550c-bbdf-cf1c283e0fe5,Graypelt Refuge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a5e118ac-5885-59e9-80ac-b4146489f832,Grazing Gladehart,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:12e805e3-9ec4-5fa8-985e-1f62d7555c17,Greater Basilisk,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:69b61513-5e8e-5553-8d1b-8091cd901c44,Greenweaver Druid,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:aef9a6ca-0c6e-5a9f-90e5-5a0b344f475b,Griffin Guide,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4fb965ef-3129-5302-bea8-cf4582b86f4e,Griffin Rider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6980cbb4-9810-58dd-88a9-869a549e3ee6,Griffin Sentinel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fc74a502-633f-5bce-b974-816a7494b758,Grim Backwoods,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b97920f4-1ccf-5453-914d-060e3bc61073,Grim Discovery,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:851a5c04-863b-5bee-b01a-627975240d3b,Grixis Charm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6ad6cf10-60cb-5254-b674-d3e614904ffc,Grixis Grimblade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d32581df-dc62-5ea2-ae6a-6ae1fa81b2a0,Grixis Panorama,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5cd4b9f3-560e-5ac1-a630-ab5730e7bb0f,Grixis Slavedriver,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a09807e2-4892-514f-9e4a-caf2e60242d9,Grixis Sojourners,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f24b942d-77a2-54a1-a996-6e9d9796baf0,Grizzled Leotau,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ded9562c-1a99-5265-ad7a-a7e57b896526,Grizzled Outcasts // Krallenhorde Wantons,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:32d96383-84e8-57fe-b36b-690bd6637d75,Grizzly Bears,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:22d26c49-4dbc-572f-b3fb-8c3eeab46143,Grotag Thrasher,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:9973cbd9-6a40-56d0-a066-4df441ab5214,Groundskeeper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b93eab55-147e-5036-ae13-6d8a9c00e620,Groundswell,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:e62c2e4a-58c1-53ed-9f01-07765d67033e,Gruesome Discovery,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:09c64045-8fb4-58a8-a861-6d0c31a1979c,Gruul Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0b0ba0c4-bae8-58de-9089-a30b0d6c0be2,Guardian Zendikon,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:5ed21c12-6da5-5055-9bfb-bffbe2c6b2eb,Guardians of Akrasa,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7b5982f8-b783-5ac0-bb92-314142e0035e,Gust-Skimmer,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:4a90ae2b-fffa-5ed2-8d02-ef95760e4ef8,Guttersnipe,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:0174abe2-c9cf-5f0c-b8d6-091e207af2b8,Hada Freeblade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4b68925f-536e-5995-bb27-7d568231f002,"Halana and Alena, Partners",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:233a37f7-e70b-50ef-86eb-9406ce4b9acb,Hall of Oracles,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:85d61434-0a30-581d-80dd-4552fc809530,Hamlet Captain,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ebb858d6-c005-5f62-bde4-f7e2aaa976d1,Hamlet Glutton,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2a7304b9-1d19-5398-bbc7-885f96a659fa,Hammer of Purphoros,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1911a63e-3587-561e-bc56-c44c83a4c2c2,Harbinger of the Tides,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5934a40f-3cd4-5683-b8a3-ec523dfa6f62,Harbor Serpent,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b73f2b5b-fd73-588f-9ee1-c15ab70eb128,Harmless Offering,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ac4d4471-127b-51d0-ab6f-e0af7592ba37,Harmonic Prodigy,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:62386048-bb30-53ba-a6be-1b2abdac9e79,Harrow,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2030d300-09e2-512c-b9fe-62cf04aafb07,Hateflayer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:995947d1-8f5f-538d-a3c8-9ef650b1a64e,Havengul Skaab,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1122436b-60c3-587b-ab09-c528c83a775d,Healing Salve,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:f2b27ca3-7b75-5418-b0fa-841d3830e590,"Hearthhull, the Worldseed",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f2fde8e3-5ec6-50b6-9afa-b3a970aa2df3,Hedron Archive,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:45d84cae-06e7-5c56-b85b-080cc5ab629f,Hedron Rover,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f3ad64a5-5f6f-56d4-8dae-ceff781320b1,Heirs of Stromkirk,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:523df3ae-ccea-578f-b9c1-50aedc235b2f,Hellfire Mongrel,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:69c7cca1-0b64-5d0c-b5d8-65fcf3e98f68,Hellkite Charger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bb47e1aa-0be6-52f9-95ab-b1bd15b7265e,Hellkite Igniter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4865a678-cdaa-5710-ad14-78b3d377d73c,Helpful Hunter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7290ab3c-fb40-5c93-8f37-dcc496419d1b,Heraldic Banner,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:9b95857a-bbbb-5253-8726-699f7106f9dc,Hero's Downfall,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:96ed9591-2b35-56cd-9680-aef1fe1dfeb0,Heroes' Bane,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:54acf768-7bad-5d10-9c80-5cef766bec6b,Hideous End,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:60a65692-49ca-5224-ad32-749a99aeb3dd,Hidetsugu's Second Rite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fda39723-3876-5ef1-84b7-b07bba23f2ad,Highland Berserker,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:3400dd79-6644-595e-bc41-34267d14ab47,Hill Giant,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:1ceb9d35-be52-5a47-8d9c-52f2189b67c6,Hoard-Smelter Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e5967f07-57c2-5826-9c75-b4c59c2f9e48,Hoarding Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:64895722-6d84-5494-b2c9-3265aa93a788,Holy Strength,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:be68e6ff-67e8-5a1b-b297-a27bfe7acb98,Horizon Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d9cd4f88-70d6-5aa5-83ea-30760f82b608,Horizon Explorer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e9713060-5161-5ff9-a80f-80e1d4b7c88c,Horizon Spellbomb,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:df3666cf-06e4-5d9d-83c1-64721fcf9c9e,Hornet Queen,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9b14f3d1-b67f-5ff0-87de-0cce7a2af41c,Hornet Sting,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:422f6f2b-7950-5a7e-a0f2-627d7fd8f278,Horrifying Revelation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dca561e2-48d8-5aee-996c-3a5057b684db,Hunter's Insight,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:8aa35040-fa03-5618-9acd-7e59b5f7ba06,Hydroid Krasis,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ac63b808-4a21-5090-bad5-3423bcb584ee,Hysterical Blindness,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:79e27058-332b-540a-8fb7-334422bedf0e,Ice Cage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0ab97893-c38d-5608-83c8-1e36b3d21f46,Ichor Wellspring,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:546616fe-1641-5c36-9b69-2a18fa5270d4,Ichorclaw Myr,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:2d05d603-75c1-5156-abcb-220b75d9dde7,Icy Manipulator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8cb651e0-82f7-5f3d-8461-b3fec4c5f535,Idol of Oblivion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5a8a366d-1df5-5ed8-9820-965293c12acd,Igneous Pouncer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:31bc15ac-aab4-525a-8545-64092177e86f,Ignoble Hierarch,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:96f6f3a9-a9b5-502b-80e5-6a892bedfa9a,Illusory Demon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:488962b7-2f5f-5525-be16-e6756b2f0d27,Immersturm Predator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dc2c5f9f-19d6-5a1e-bc36-76a4f8f3f97b,Imperious Perfect,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:cd6ffec4-9a5e-562d-809e-28a045c9d2bf,Imprisoned in the Moon,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:96a98f7a-f7b5-5c05-9f47-7e1aa93a105e,Incinerating Blast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:78464ef7-3767-540b-abb9-a6d9c23ba3bc,Incremental Blight,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:963ec35b-13c9-5da9-8066-a82089c828b3,Infantry Veteran,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2934be36-f01d-510d-b44e-ceba5c87ca07,Infectious Horror,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:2d23e010-79c5-5ad7-9687-aeb9980763c1,Infectious Rage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d721e07a-8ebf-578f-9fb8-0f9520e0bb5d,Infernal Grasp,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:34ffdb19-6d1f-5af2-8cc4-39f2b3ca91f4,Inferno Titan,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:12f1ae2c-c7e5-5e0f-b1f4-c18102d9599a,Inferno Trap,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0f230417-aeb7-519c-8f9e-d3ddc905933a,Infest,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:8c9d70e2-fd6b-572f-9472-4de292b57405,Infestation Sage,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:eb757fe8-0bfb-542a-a50d-ad5f1351133a,Innocuous Researcher,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fb027682-f8fc-5ea9-8404-a109f7aeb75d,Inspired Skypainter // Maestro's Gift,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b1826a36-4fae-5ef6-9712-f5a71d8f75c1,Inspiring Call,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:91bb3353-5018-5d94-a28b-0dc7a8a7f95c,Inspiring Statuary,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f88c1633-57ea-59fe-8efc-d83d3fd95057,Instill Infection,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:7bbb3362-8bc0-58f7-8fe7-1c052da2ab5a,Intimidation Bolt,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8146ec25-ed32-5f5f-a4a3-abdfc47de9ea,Into the Roil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2a71dabc-c6de-57ae-b030-9b16a08e81ef,Invader Parasite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5baf3c55-9cde-5461-9ee9-161b4210db2a,Involuntary Employment,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:94f04718-61b7-5242-9aae-b41a58527c70,Iona's Judgment,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c59ad764-956d-5a0c-a14e-dbfd5290986a,Iron Myr,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a787b57b-be19-5968-8d3c-d725f6bf6774,Irrigated Farmland,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e9fd6a6f-8b32-5ee9-be17-336d11b039fb,"Ishai, Ojutai Dragonspeaker",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f54a27f1-5a05-5c58-a053-099ad42fa1ea,Island,15,51,0,51,False,lower_bound,6,True,2026-09-19 (photo additions)
+card:project:ebab540c-2526-5958-b73f-ac731693b02b,Izzet Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3f258e5f-8565-5094-9e7b-d122e80a6f7e,Izzet Signet,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:87cd2fed-c5d9-5acc-9256-f8a0125bc236,Jace's Erasure,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:f10edbfa-3cda-50c5-bb3c-c5ad2a44af20,Jace's Ingenuity,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:cba4bcdb-a67b-5e15-8f5f-8ae5c32fdf29,Jade Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:58047c30-9aaf-5458-a122-42b4835e8954,Jagwasp Swarm,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:20f0a51d-a75e-5695-874b-da6b9b358314,Jedit Ojanen of Efrava,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4bff57c3-b49c-59e6-8343-f04a27c3549c,"Jeska, Thrice Reborn",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7dabe989-5622-5c66-a826-839fbe378bc1,Jhessian Infiltrator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6c632a9c-d856-558f-897b-eec56ecdb1ac,Jhessian Lookout,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a7227a6a-b40b-5a90-a729-69b18514efdd,Jhessian Zombies,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:40ea7a18-8777-5e00-9e26-493797cdebeb,"Jolrael, Mwonvuli Recluse",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d891d07d-d988-520a-bce5-003a8f534d69,Journey to Nowhere,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fa7f1f0c-cbfa-529c-b61f-6b17cde8ec37,Joust Through,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:98c8999e-a229-5d7e-a17d-61a1709a1a90,Judge's Familiar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6b40e588-d210-5268-9a7f-b17753deb6d9,Juggernaut,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2bca7b9f-db1a-5b95-88cb-871ca5a90405,Jund Panorama,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4a715a34-84c9-5a5c-80e3-124724bf2f75,Jungle Hollow,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:b839ed66-6157-5235-80d4-7e7090496dfb,Junk Winder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ed250b09-b114-51f7-bc84-89ffc199777c,"Juri, Master of the Revue",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a922bddf-6701-5e3c-ab33-dbb72fd1c394,Kabira Crossroads,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d35dee89-b201-52ca-a2b7-12caa9eda42e,Kaervek the Merciless,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:373841dc-c677-5cd5-9be2-0d15c3dd590d,Kagemaro's Clutch,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cff4bef4-8674-5f6b-993c-398557832b19,Kalastria Highborn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:795c4f65-3fce-5177-9666-7b78871d611e,"Kamahl, Pit Fighter",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6bfb405c-23aa-5369-96fc-3e76a06b6b83,Kappa Cannoneer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5da21351-bf12-553f-8e37-6837c95a1071,Karplusan Forest,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:336de58d-9c0c-560f-b200-1b11d0d6ae75,Kazandu Refuge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f260cf77-125b-5cec-94c3-181d016c968e,Kederekt Creeper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:90aa0d42-d1c8-5336-8fc0-b0bf62405636,Kederekt Leviathan,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8e27aa74-e6db-5f4c-bc41-523b4d4ef076,"Kediss, Emberclaw Familiar",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f2587830-e563-55a9-b0bf-aaddf0bfb859,Kemba's Legion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7d60e6d0-d3c1-5b12-b935-60290df8682c,Kemba's Skyguard,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2d115b60-3952-5e04-90e5-24a627c5f76e,Khalni Heart Expedition,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e94c9837-6413-5943-bf2e-0d526dbfdfe7,Killer Service,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8ecc9235-fad0-585b-959c-df5b8138df61,Kilnmouth Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:84e83920-9641-58ed-b1d0-2f104b6ffa4c,Kindercatch,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:56171f6d-648e-5087-b0e2-7a6e9f2a6ac8,Kitesail,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2c53c6c3-9dbb-5813-a015-2551a75205f1,Kitesail Apprentice,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b7a00d21-b408-5d21-8f82-b723fdb672ed,Knight of Malice,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:959da29a-d84f-5bb0-b02d-74d9f33e0c07,Knowledge Is Power,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:46b2f908-9c96-5582-8cb6-89548abe0491,"Koma, Cosmos Serpent",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9974f037-02e3-5c35-85f1-2d06c74a0a4f,Kor Aeronaut,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:f6c8bdfc-b30a-50bb-98e2-00fd07bed8fc,Kor Cartographer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a4b07cd3-c081-5226-b5c4-49b88b6c523d,Kor Firewalker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:42e8238a-9191-5970-9bee-13e09d85a9a0,Kor Hookmaster,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:52c39b06-f46e-5b58-ba10-1da1f68f2590,Kor Skyfisher,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:13f0c62e-ca99-5d0b-8630-d9a56d54b2b4,"Korvold, Fae-Cursed King",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d4f939af-fe26-5fbc-b634-4a1e4eec54ba,Krosan Verge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c0bcdb04-0a1e-5291-b404-cdf5a4a47da9,Kuldotha Flamefiend,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:eed859e4-836d-50b5-ad0e-0025bd052c90,Kuldotha Rebirth,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:2d84b1d0-32d0-588e-8e30-35f090b8258c,Kuldotha Ringleader,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9ecc2c52-2426-5f39-be03-82c4098300ba,"Kykar, Wind's Fury",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:83d13d05-7a3c-5064-a151-839e7985773e,"Lathliss, Dragon Queen",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4b481d55-6314-50d5-9cab-d7538a7276a6,Lava Axe,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:d9a3db0e-a544-5384-ad31-84b19f71d502,"Lavinia, Azorius Renegade",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:75c35910-3e21-585b-9a0a-87bcc70a048d,Lead the Stampede,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0c4cbc91-8912-55e6-8ddb-9afc8f185cb6,Leaden Myr,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:a068ff3c-947b-5c49-bab5-60efa42eac99,Leatherback Baloth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:94ee7d67-c109-5c16-9954-e03cce4bda2d,Leitmotif Composer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d955d94a-a13f-5243-9808-27487f78c40e,Leonin Relic-Warder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f8a52c8a-5c06-54be-a122-362025654743,Leonin Skyhunter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1b16fbb3-4083-5928-b6a2-6ea2a6744080,Levitation,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:d90790d7-0481-5af0-9051-30cc11e10bd4,Lifelink,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:4d4e64b8-d715-51a9-b813-8e5b505d4d58,Light of Hope,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:21f19ab5-918a-5e77-afe1-0130ace726fa,Lightkeeper of Emeria,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e7a86dea-43e9-5239-97e6-13ac094db2cb,Lightning Greaves,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6cb588a6-2bc9-56ee-9b70-d8123c250b0c,"Linden, the Steadfast Queen",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d4c5ffc9-7dae-5738-a19d-5b227ba1daef,Liquimetal Coating,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:388bf170-4598-56e3-81e6-dc062c295514,Llanowar Elves,4,4,0,4,True,exact,2,True,2026-08-10
+card:project:e4f43c09-834c-5582-846c-7404d14ba43d,Llanowar Wastes,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fe1f7f8a-bf9f-574e-98a8-7716a6997b53,Loam Lion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b5550513-affc-5350-956a-3ce757a8db4c,Loamcrafter Faun,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ea8c353a-c60e-5485-908b-c70d93457d38,Lofty Denial,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6c9a06b3-8658-5f85-bdca-f6ddd2be3161,Lonely Sandbar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:26fd3c35-f8ce-5c53-aa3d-4a9fd551ffd4,"Lonis, Cryptozoologist",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:00276de0-e39b-5cd4-966e-5459f0f2993b,Looming Shade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:89dd1a76-fdff-562c-a27c-e8df92a8a571,Loran of the Third Path,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:67e13b98-0939-5547-ba7a-6b041e2441d6,Loran's Escape,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:56b17ee5-0557-5b89-a96c-3155fde371ea,Lord of Shatterskull Pass,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7d7240f2-fdd8-5e17-a943-56e366cb464b,Louisoix's Sacrifice,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6a6ffef1-9262-5bcf-b402-20873e141b51,Loxodon Partisan,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b0afdb24-c053-571f-be59-6b9c54ce75e7,Loyal Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:79749dc1-35b6-5dc0-b932-c16ec6f04c1f,Loyal Sentry,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:79700914-3ee2-5d6b-8876-c5f972ca2159,Lure,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:92703544-2529-5bf6-9215-de61616a1db9,Lush Growth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f75b5e97-b329-58b3-bbcd-c2bd6a85ce13,Lyra Dawnbringer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:70c35837-93de-5e47-8af5-11b20067d604,Maelstrom Pulse,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ae6cd856-a6c8-5669-a272-c023e8a66bc6,Maestros Theater,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:19ac5d56-db84-5935-803f-8d77cef7fe4d,Magma Opus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:23a89864-8311-5c4e-87d0-d9cc965bbb3d,Magma Phoenix,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:938c677c-eb40-5ffb-a959-3595719dc66d,Magma Rift,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c2e8b326-ae9e-535e-8c28-1bdf30ce6fda,Magma Spray,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:313980dd-291d-53e0-ab70-c523e051b067,Magnifying Glass,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:06dca1ac-7013-5f09-b474-581361189c32,Make a Stand,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d4198e45-ca01-5a9f-a3d7-9747ad01482a,Makeshift Mannequin,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:61237cc2-f8f5-5ff8-b5a4-3ecffd08624a,Mana Geyser,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:aec6ce27-095e-5e9e-bb1e-54632ff5a8c3,Mana Leak,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:5b0d244b-b4a5-57a6-a782-0a135b18ab1a,Manaform Hellkite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ed88c743-d92b-515b-ac20-00916d774cc3,Manalith,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:1d42c4be-276f-5afb-9940-58277d060ddf,Manic Vandal,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:63842574-5af7-585c-9f9a-722594d5ef8c,Marauding Blight-Priest,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1f43fee1-5fe0-50af-97d9-54e34842ca27,Marisi's Twinclaws,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:979ffc29-4687-59ff-983f-7febf2951bd9,Maritime Guard,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:b2b60db5-80ab-51cf-a0ab-d828e7582341,Marrow Chomper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d5519f86-9e90-5292-a1b6-adfc13d63c5d,Marsh Threader,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1fad1d57-3a35-584c-a610-1d2078a7e9d5,Mask of Riddles,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fb0e618c-052c-5c8c-9871-b9aff911457a,Massacre Wurm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e4bc3aa9-5e9c-5808-ae2a-5dce17f4a9a0,Master's Call,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:5a2a4c44-49c3-5a66-866d-2a6e46d30006,Mayhem Devil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:650ca52f-590e-5613-9f81-c2d861631664,Maze's End,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1ea9d25b-f082-5031-9796-c22c00b2fa2d,Mazemind Tome,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cdff14e6-2281-560f-9146-a9a7e929eda8,"Mazirek, Kraul Death Priest",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d05c9dc4-dbcb-5f26-813f-3232be8c9cf8,Mechanized Production,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:04e36ede-11f6-53b3-a74d-5a02e925515d,Merchant of Truth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6e998dc7-7c11-594f-98f4-e5c61ce6eecc,Merfolk Looter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fde79149-3a52-5de1-8ad0-5db88a74e74f,Merfolk Mesmerist,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:5c76d5c8-2e6f-541a-8a99-d39a4315c3ea,Merfolk Spy,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:54e91cc0-f180-5d69-8b70-e4b49295721e,Meteor Golem,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b5a3e83a-ded4-5758-9db5-01a8ac27bc7d,Micromancer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b29af758-b471-5f2f-ad86-fb51d3012ade,Midnight Reaper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7def2aee-38f3-5cc5-8f16-adf57a036cc5,Midnight Snack,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:877a79c8-0508-5ec7-bedf-ccf49e83ded2,Mighty Emergence,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0a99a5f1-17e0-52e2-9cda-b6d8dc69e4ff,Mighty Leap,5,5,0,5,True,exact,1,True,2026-08-10
+card:project:ff1c6138-97c3-5904-bc77-2a1a415fd1b2,Minamo Scrollkeeper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6b157925-7c9d-5f64-9d8a-b787ce95f116,Mind Control,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:35c36986-8d17-5617-a2fc-a4a32dda4654,Mind Funeral,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e5e3e6c9-ca99-5947-b3fd-1a5be6ebf290,Mind Rot,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:35158cac-3f81-576d-96db-181ccff75883,Mind Stone,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:ffdce799-cea4-59b4-a3e0-bbf037d9dd9d,Mindsparker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4c606325-3165-54b6-99ae-59dacd195454,Mire's Toll,6,6,0,6,True,exact,1,True,2026-08-10
+card:project:4c8094f0-e92a-5f3f-a844-a1ace59004cc,Mirkwood Bats,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c25b35fc-37c5-50f8-a5ee-aa7df0c63085,Mirran Mettle,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bb23a62c-17be-54b0-a37e-06a9a12756cb,Mirran Spy,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:84705c44-1f7e-5760-990c-be9e58e44674,Mirrorwing Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a5132acd-a25f-50c3-a74e-5d293b643671,Mischievous Mystic,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:81fe1123-0060-50f3-ad71-549799730406,Mistvein Borderpost,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ff5c6e67-93f5-5857-8aba-55387bf08ffe,Moan of the Unhallowed,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:56308df8-d84f-5bd3-b339-ffc633c3422a,Mocking Sprite,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:bd59ce7a-a605-5eca-bce6-1ab29447c983,Mold Adder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:76cb1e59-688a-534d-895f-24d4add9622c,Molder Beast,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:91bb8537-93e1-5b20-9f43-95dd66b5a3d5,Molten Tributary,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b02373a8-4e11-5a42-aede-0d5dafc33abc,Moment of Craving,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:081e4817-5eba-540b-828e-e4ce459db8e0,Moment of Heroism,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:131e2f19-6528-52de-91dc-c267adc02a39,Moonglove Extract,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1f4f2c82-1813-5bae-9b12-7f3475a4dec0,"Moraug, Fury of Akoum",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:19810a7e-2fb0-5ce3-9d75-b0cedb53ff3b,Morbid Plunder,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:352ffd3d-4ac1-566c-8c07-3cd2df5cdcd8,Mordant Dragon,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:96ccb04f-ef2c-59c3-9828-0a840a6cf89b,Morgue Toad,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0cdb6e0e-1424-5bff-9783-36aaedbb428f,Moriok Reaver,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:99d318c4-b01a-5430-a4c5-376115ea6133,Moroii,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ee9331cb-493f-5f2d-a1b0-2aba3ddc15c9,"Morska, Undersea Sleuth",2,2,0,2,True,exact,2,True,2026-08-10
+card:project:03be6759-37f1-5cd4-a24f-374eab01c965,Mortarpod,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bf9b8359-e7a3-5c93-b21f-e5cf659633c6,Mortify,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e3cf3e38-9c3b-5711-ab46-e64124a72b89,Mosquito Guard,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:45d221f5-9472-5b78-8e31-69c8819f7ff7,Moss Monster,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:e5f6fc09-3201-5b0a-b536-2b0b40cf3dd9,Mountain,11,51,0,51,False,lower_bound,6,True,2026-09-19 (photo additions)
+card:project:8725b8b7-87f4-50c7-8e85-2ca0666fdb69,Mountain Valley,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:043cf0a2-cb78-52aa-a050-185397363641,"Muddle, the Ever-Changing",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1ce27a97-328a-5918-b53b-3192ecf8af97,"Multani, Yavimaya's Avatar",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:86694146-0099-5605-ac60-1cb83aebb1a5,Myojin of Night's Reach,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5add159e-9c18-58f5-877b-8779d6994cf2,Myr Sire,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9e412680-2956-5917-bae3-9f3d3664d344,Myriad Landscape,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c903089e-c15c-5d47-bf1e-b59e712d25ed,Mysteries of the Deep,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:f3839efd-a697-51f4-a6a4-8159a2abdea0,Mystic Monastery,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fb49e552-6ded-5fb7-a331-06ba6760f5fa,Mystic Sanctuary,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:23168440-6898-5562-a791-8ccc6d12ebff,Mystical Teachings,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8765583d-02b2-5948-b3e6-dc846b865b05,Nacatl Hunt-Pride,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:df6b7473-215d-5daa-ab85-d675cf4c4d12,Nacatl Outlander,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5c075d95-473c-52e0-b55d-5dca419bef69,Nadir Kraken,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:71c219ae-6186-5bb8-835b-0c0bd51e66af,Nantuko Disciple,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d5098c13-8f29-548c-8df0-5bae898904ad,Narrow Escape,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:166c48ff-9d83-5167-8a41-55b66d625015,"Narset, Parter of Veils",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d04d5e2f-797c-5501-a2dd-310b487463c7,Naturalize,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:9079d972-8850-563a-b030-4b7d69c84a56,Nature's Claim,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c08064e6-452e-5307-9308-b4da2af8fcad,Nature's Lore,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ef003b2b-bdf8-5115-919a-c54c815d9b2d,Naya Charm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:848c4b07-86e2-5f6f-a2bc-27e7f3aebeec,Naya Sojourners,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:20c6ae6e-43fe-595c-810e-730a1b584a9b,Nearheath Stalker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2af5a7dd-b3c8-52db-9a62-4700883f3dc2,Necrogen Censer,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:aae10fb6-4cef-537a-9696-90b47d7aee4d,Necrogenesis,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3da21d69-e306-5209-b13d-573772fe8b23,Needleshot Gourna,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:35b02511-63d1-5a2a-a889-738fe79b9b51,Negate,6,6,0,6,True,exact,2,True,2026-08-10
+card:project:094ff24f-9d47-5911-9254-c671078e8923,Nemesis Trap,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bb9af2a4-875e-557e-8966-05df68aaceed,Nested Ghoul,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:283f1791-afbc-530e-83cd-700eeaa03b94,Nettle Swine,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1fcccd63-b781-5db5-b730-4e67f8ee866f,Nettlecyst,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:138458d4-acd3-5d37-8365-2cb644086183,Neurok Replica,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:380c3b06-74e9-57f6-817b-c659c7b20645,"Nicol Bolas, Planeswalker",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b0824ad4-e648-51d4-ba5f-e2d31e47dc06,Night Revelers,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:37f4097f-4f4d-5062-9f05-cec93fde44cc,Night Terrors,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:97d42efa-1c88-5ad8-826e-a540afec7f6b,Night's Whisper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2e45567c-d520-5335-85d7-32ea7402e0bd,Nightbird's Clutches,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7c85106b-d12a-5369-8402-35ef7b29f6b9,Nightscape Familiar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d51deba7-3349-54c6-916d-57701573ee54,Nightwing Shade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:30db8755-8c2f-5830-accf-106a64594849,Noble Vestige,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dbcbb834-fe59-53aa-b41c-f651afa8c3c6,Noggle the Mind,2,2,0,2,True,exact,2,True,2026-11-11
+card:project:57bb9cbf-d879-513a-9aab-f7eaf052b44f,Nullpriest of Oblivion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:73de7c53-4339-5ca9-b865-1298db983b2e,Obelisk of Esper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:134f9f28-1f1d-5fc3-96d1-a57511254f06,Obelisk of Grixis,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c285e545-81a7-55d4-8a91-432e33e3d599,Ogre Resister,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:680f11e8-364b-5d9d-b9d0-ef8d605dac5a,Ogre Savant,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:950bc0a9-6241-52d2-ba83-0691d9127635,"Omnath, Locus of Rage",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:749eeeec-f62b-5cf3-abb6-db856a29f956,On the Trail,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3dede486-ad50-5503-a7f7-9ba4c9f68abf,Ongoing Investigation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a7793ce5-7d6d-5516-9d57-4452a79b1603,Onyx Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ead9815a-0665-5931-b25a-4b7e544c33d2,Opal Palace,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4cb81a5b-521e-5cd5-9159-470953445628,Open the Armory,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e23082d5-bb7a-5528-ac38-b59041445e43,Ophiomancer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a596a3f5-b6c6-52f3-8ce2-ca64ac9fba2f,Opt,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:ea4c2198-ff00-5868-ab77-ca61d7b559ca,Oracle of Mul Daya,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4e8cc693-6f74-5af5-b193-577e322d6421,Orchard Spirit,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:228dd146-b54e-5eab-a104-dfda864d1c3a,Orcish Cannonade,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8f5d08f4-6917-5346-a82f-da274537895e,Orcish Lumberjack,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ac6d04c7-eba9-539c-b51b-85fa02cb6bab,Orcish Spy,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ba895349-54a2-5e73-9a63-33da9cda2709,Ordeal of Nylea,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:64c4fad8-07fd-54de-8be0-c7bf1909ffcf,Organic Extinction,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:453c1410-5b6f-5f86-8d84-cc448ff3e21d,Orochi Ranger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e394fb77-40e4-5d92-bc7d-4fffdef258a2,Orzhov Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b616e9bd-293c-5b5e-88f6-71a95daaf712,Outrider of Jhess,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0a55251a-28a1-5975-b03d-65b3d768775e,Overrun,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:29c72926-b386-5fa7-97ee-9155e17f9bd7,"Ovika, Enigma Goliath",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:06ae9c73-80b4-548b-82f2-f40f1fc68a5b,Oxidda Scrapmelter,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7f1ff181-4fcc-57e2-bdf2-efc05de09c60,Pacifism,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:e11987b7-666e-56ea-8e03-f0e0885a0b92,Painsmith,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3734d4c0-60b5-5917-94d9-b91eefaebd01,Palace Guard,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:09e119f5-33c4-53bb-98a9-813e7724b7dd,Palladium Myr,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b960f8e3-ee0a-598b-a9e1-94d7c0eadb24,Panic Attack,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d2b07b34-aad3-523a-a51a-4b7f7291a02b,Panic Spellbomb,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5f56dfd7-53ba-5c49-a103-1c1233e9aae2,Path of Ancestry,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:86cfdc4e-6e4d-5e86-8c08-77c6e18422de,Path to Exile,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:94fc6356-5dde-56ee-99ca-2dd4af58d8fc,Pathbreaker Wurm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ff77e1d4-f2ad-5f5a-b203-ebad8c5f13c7,Pelakka Wurm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:add47bf0-6172-5189-acfa-b3e59c70981a,Peregrine Griffin,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:dcdebff0-ccb8-548b-81d7-a4c6636674f8,Perforating Artist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c6cb1c82-c04b-5a7f-ac8b-ff0699cf8174,Perimeter Captain,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:327bda63-6841-5aa4-9c76-61fa1e75388e,Pest Infestation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f13f5615-903b-53fd-b5bc-338d31e0a40d,Phantasmal Bear,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:62b96ffe-6980-565e-9d52-7a1a2c28fe21,Phantasmal Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f733c1e5-0103-5948-b1a7-96adf814f5be,Phyrexian Crusader,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:49c02beb-6c10-5add-96bb-0a2ec51c7cb9,Phyrexian Digester,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:01529b55-4730-5469-a4de-fb3d8a694d07,Phyrexian Hulk,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:33c9ce79-19cd-54e7-92c2-79d1d6cb24a4,Phyrexian Rager,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:18a1e42a-4584-52b2-9aec-eaa1d4bd1b72,Phyrexian Vatmother,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3c015c7a-fd31-5cc4-b612-2bde60fca179,Pierce Strider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7bb0576e-d08e-58bd-bb99-dc050a51355b,Pilgrim's Eye,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:64ebe869-bd90-54df-b07a-4603ad8cc41b,Piranha Marsh,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:31d76567-4280-5e07-9726-ce5541e7cff2,Piston Sledge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c04b7e0c-a6df-52e2-9a69-7fca738a7bd2,Pistus Strike,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:fbba9942-676d-5e48-868c-95ea8556ed89,Pitiless Plunderer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:22840eca-8803-5a27-a2c4-92e053ae48cb,Plaguemaw Beast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bb7d8bb0-b9ec-5c9d-b4ae-b59d1dfa8671,Plains,4,51,0,51,False,lower_bound,3,True,2026-09-19 (photo additions)
+card:project:cb2a72bf-1d7e-57a3-b619-e4b58829d4bf,Planetary Annihilation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:477e9014-5a04-501c-a7ed-5aff2a5e145c,Plargg and Nassari,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0e4e38dd-1172-5648-b1b1-2d5fc5b9ff4f,Plated Geopede,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a95a7d42-b7b8-5627-be25-7387879e9987,Port Town,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d7cfb8d3-dfde-541c-a59f-dda0eeea45c8,Portent of Betrayal,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:68248f83-5c96-50de-8ead-64d48a49cdcd,Prairie Stream,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:1999a4d6-b3bf-5621-9a67-8083bd72c7c8,Precinct Captain,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1f7a429e-5d33-511c-b827-1f34cebcd415,Predator Ooze,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:76c69866-8c46-5fee-8491-3a08c94850d4,Preordain,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e5fc52cf-5470-5744-9262-0cf69aadbe74,Pride Guardian,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e56bdb2e-6761-5f45-93b8-9dd75004087a,Pride of Lions,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bdfaf076-802d-5794-b539-c6144c84c043,Prideful Parent,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dcd67651-4ee3-5ba0-9f4e-059f36a66a89,Priests of Norn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9d20716e-4bcc-5ec6-8fc2-b3ab59cce23b,Primal Might,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:257f8d72-97c5-53d5-9901-1e5885fd73c6,Prime Speaker Zegana,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2090663e-0b2d-5da7-8f7a-445b5bf0be66,Primeval Bounty,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7acb1634-4aac-55d9-91ca-b6eb1bb8d8f3,Primordial Hydra,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:138e266f-5f4d-5565-adfb-876349727892,Prismari Campus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:226a7b7f-fa74-5b63-8ebb-42770e59399e,Prismari Charm,2,2,0,2,True,exact,2,True,2026-09-19 (photo additions)
+card:project:d1251aab-c7a6-59ad-9ec0-4108b0502ee6,Prismari Command,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1f4803f2-535a-5c6d-ba49-8fd2941f7d1b,Prismari Pianist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a9f12987-11df-5cf2-8a53-f80647812e6c,Prized Unicorn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2c372e5c-d006-5561-b0ed-3e8d18604d9d,Prodigal Pyromancer,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:cf3bd0ec-d3a6-53ad-89ab-a67c92974d5e,Profane Command,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6bac6aee-5d56-5d36-bf2b-eafc842e1586,Protean Hydra,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:025aaaa5-f897-55b6-bb4c-73db56b6471f,Psychosis Crawler,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cdef7c68-4c2b-5c52-aa77-58080fb88f2d,Psychotic Fury,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:71b2f811-a1be-5b8a-87be-97789c2182d2,Pulse Tracker,3,3,0,3,True,exact,2,True,2026-08-10
+card:project:f20a2dc3-17d8-50b8-8df8-66fad15c742f,Puppet Conjurer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:22eebcc0-b913-5a41-8501-e0bb290e8755,Purify the Grave,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:22833199-9240-5b4d-aafb-db321c6718da,Putrefy,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c480ee57-41e5-55b9-98a2-b5b3c2291a67,Pyromancer's Goggles,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d8564246-10bc-5f48-87c5-7b4a1604bc58,Pyrotechnics,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4f9fbac5-53a4-5aed-9a74-96c203aa20e1,Quakestrider Ceratops,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d10574b3-595b-5ed1-8103-67432263380e,Quest for the Goblin Lord,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:db1d2f86-022e-547b-97f3-a61658e0cf39,Quicksand,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:0364c752-2f1c-5f92-ac07-b4eeae29c88c,Quicksilver Geyser,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4ef84cbe-160f-5271-8359-f9bb7d84d034,Qumulox,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6c30ba58-857f-5287-96f6-3a14699c619e,Raise Dead,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e854e4d7-401c-5d9a-8884-e1b430c36938,Raise the Alarm,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:998000af-7809-502a-9f2a-1e62b0007b99,Rakdos Carnarium,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:eb9a2774-1a92-5e57-9dd6-f3270d9b3221,Rakdos Charm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bbf913cf-84d1-5db9-8d76-b22cdcfb619e,Rakdos Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4c0f70b9-7474-5094-a31f-de9fcbf03466,Rakdos Guildmage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:30302881-b51c-5ef6-be47-850aec6e4447,Rakdos Signet,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:ab5c1625-b6c8-5b3c-939b-f4e4aa7bc3a4,Rally the Forces,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:4f25a845-8163-5a68-8fbc-342728903a3f,Rally the Peasants,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:efa8dd27-86e5-517c-af34-145a8a24fe2c,"Ramos, Dragon Engine",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:399f4e26-14eb-5f5c-a951-48496202733e,Rampaging Baloths,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:0d907948-ef15-5ef3-aeb3-dfb394cb708e,Ramunap Excavator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:03a92059-fd7a-57ec-9626-f4059733763c,Ransom Note,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1e35fbf9-012b-5fc9-8e7c-74b789acf52e,Ravenous Giant,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f6e0b49c-f3cc-5936-bba2-cf304b594262,Razor Barrier,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9ad87ef1-8189-5deb-bb88-242eaf6d87ef,Razor Boomerang,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e2ad44fd-56a1-58cf-8094-21f244606a17,Razorfield Rhino,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:0db6646c-167a-5c16-a7b0-12a836a77c20,Razormane Masticore,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:edf32672-a275-5f8a-bef2-c4780d4aa0b4,Reality Shift,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:a7589ae4-32ae-51c2-9545-f04733cce3bf,Reassembling Skeleton,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:45f5ce70-edf7-58c1-a01e-d1d64f6cee79,Rebuke,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8108f09c-c75a-5f45-bf22-b4b89c90b9f0,Reclaim,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f04f7e33-b2a4-575c-9c25-9f3e0b660a80,Reclamation Sage,1,1,1,0,True,exact,1,False,2026-11-02
+card:project:67932dd8-f438-5611-8e28-3c194c984dfe,Recoil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4262aa7b-c0e1-507f-957c-1d8eb17161d9,Recumbent Bliss,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:01797d6f-4cca-5607-9ea5-a39ed06ac498,Redoubled Stormsinger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2bc08b6d-3042-5c09-a6ff-e751d46b47a4,Refute,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4338d95f-59c6-5755-9db9-f279e5af6fe5,Regal Caracal,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8d1ac45c-8f03-5da9-8c96-253789f7ccee,Release the Dogs,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:10ccfca6-d1bb-5361-af72-ef8432f6e5fe,Relentless Skaabs,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b6763d5c-a6f0-5cc9-92c2-478cbd913558,Relic of Legends,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0852c256-24a6-58ba-89bc-c33a3ee15209,Reliquary Tower,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:9ad48351-7d51-5929-9a4e-201ae09cb6d0,Renegade Bull,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c9f13a63-b816-57d9-98ea-ba1fd03e35a5,Replication Technique,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:903886c5-8e66-58f1-827c-e3630db2b379,Resculpt,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cbbcd89a-89c8-53b3-88d4-115ac188d717,Resolute Reinforcements,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b4398c36-02c2-501c-b2cf-e613057fe0e8,Resounding Roar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ead6594e-b89c-5096-80eb-3f5e9d49c912,Rest for the Weary,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e6b5a64e-366a-5da7-8828-fe5f239d008c,Restless Spire,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:863293dd-1f65-5619-b6db-d7a9d9cc79e6,Revenge of the Rats,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e5d37bab-f5ff-582a-8769-bb50a01d2b0a,Reverberate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3565e7c2-04e8-56d2-8ffd-d323833525ee,Revoke Existence,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c4641129-9f9b-53ff-af7a-fb795b4d8de2,Rhox,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b984740c-2567-5ba4-8b53-fbe7b8bf5914,Ricochet Trap,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7144b166-8fd0-5168-b0a2-916bf6b17438,"Rionya, Fire Dancer",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ec636cb5-8917-58ce-bc63-2d9873f61dbf,Rise // Fall,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5a41c76b-5af7-55fc-8c6f-7249dd508d30,Rise from the Grave,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:60486e48-4b01-5a91-8d63-31408bc4958b,Rite of Replication,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:dcdc07f4-81b8-5a91-b216-9612ce83ffc9,Rites of Flourishing,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a6c34b7c-b094-57d6-9529-9b41542d75b6,River's Rebuke,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:826a04a9-ef3a-5545-a80e-5bf5e4cd1130,Riveteers Overlook,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:236ed22d-0e96-5309-8bcc-c6cf5ff9cd95,Roc Egg,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1f41c8a3-3fac-5dc5-93bf-626d9d8c3f9c,Rocky Tar Pit,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2d4a2de1-0512-5888-a330-4190cce2e71b,"Rograkh, Son of Rohgahh",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:774bd9e9-ec55-5be0-8a4e-c8c06dbb44f2,Rogue's Passage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f054a02f-8015-5e3b-99a3-0ae746409ed1,Roiling Regrowth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a24b3fef-cfaa-5b79-8188-e376c5603599,Roiling Terrain,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:6d0f279d-ba53-587a-9cb8-4e6de5be2152,Rootborn Defenses,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b580fd34-b426-58d8-a109-089653141fdc,"Rootha, Mastering the Moment",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cfeb2e0f-5eb4-53ff-927e-0f75314f113e,"Rootha, Mercurial Artist",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:60d06e3c-9756-5ec1-b026-30b4cb5140d8,Rot Wolf,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cc7e7fed-f550-52b1-96f5-3b397097e769,Rotting Legion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:597937a7-574e-5e8f-9fda-e3720f6cceb0,Rousing Refrain,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:acad6879-bb5f-5172-aad9-62d1af7a1b19,Rubbleback Rhino,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:780862a8-88d1-5940-9fed-f407b641781f,"Ruby, Daring Tracker",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c930e697-383d-5d02-a3cd-84b67ef210ec,Rugged Highlands,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:cc67f4a9-3f0d-56bd-b3ac-9dd55bdb7ed4,Ruin Ghost,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:24b0b003-2ff4-58f4-aed8-cf42671c2b87,Rule of Law,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6c97151c-46b4-5f8b-a5af-855034c40a90,Rumbling Aftershocks,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:baa1c0dd-ca3b-51a4-9cbf-22dbf6d0e409,Runeclaw Bear,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:990e8ee4-afb4-54f7-8204-efa296c4c195,Runed Servitor,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:2d1a1845-6be4-563a-9b53-2ea9e15587f0,Runic Repetition,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f639c2d3-a544-58b4-b577-c96b1443b64d,Rupture Spire,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:750650ae-5f79-5069-89eb-804a008691a9,Rushwood Dryad,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a70d2754-8e1a-52dd-b994-469c4e87f4ca,Rusted Slasher,5,5,0,5,True,exact,1,True,2026-08-10
+card:project:7ab0b20a-0401-58df-ad74-8acd994f9901,Rustic Clachan,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4de68f85-6a3b-5815-8fd0-973a5aca2203,Ruthless Cullblade,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:58dc0b86-c8d8-552c-8207-7c57feb18395,Sabretooth Tiger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e368d432-c10d-5984-9056-877b7b84924f,Safe Passage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d61f84b6-9703-5467-9e31-f81c8133aa6f,Sage Owl,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b56b33fe-690e-5346-b74a-ca6273af6542,Sakura-Tribe Elder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d28597af-f022-5ede-9013-db42b15dae98,Saltblast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d8d0e7ef-ada4-5a94-89c5-8244467fd164,Sanctum Plowbeast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4ce4f809-8550-5702-9afe-538b8a958104,Sanguine Indulgence,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f63b0b62-99c8-590c-b5f0-c80a1b0cae06,Sapseep Forest,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ecd5a6e0-9790-5268-82d5-408d31ea471c,Satyr Wayfinder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:08a8dbac-264c-51a5-9e27-dde67d00fdb9,Savage Ventmaw,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:af6c017b-da22-53ec-a3ec-8a491453e299,Savannah Lions,3,3,0,3,True,exact,2,True,2026-08-10
+card:project:7d8e9c9d-d3b0-5997-832e-7490c0462fbe,Scab-Clan Mauler,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b8c15c05-3abc-55dc-90b1-138ab2943108,Scathe Zombies,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:af3ce1e8-6600-5166-a113-d511865d8906,Scattered Groves,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7fb641e5-4654-5123-8f0e-b76de5c32db3,Scepter of Empires,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b73bb4a6-6ceb-55db-94e4-f734d4eab49d,Scion of Darkness,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0ac8e1c2-3057-5581-a942-5f448de97889,Scorched Geyser,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a5192bf8-eb33-5e52-b233-26982c954925,Scoria Elemental,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:ebfb87bc-d6ef-571d-a74f-b4b1b9bba71c,Scoured Barrens,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:f9332a2e-5742-5f47-a17b-7dd1b1ecd09e,Scouring Swarm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b2b42a5a-ec74-5b02-b89f-f246e7e2869d,Scrambleverse,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:709c5a61-6e5c-5ca1-8664-7ffd63653470,Scroll Thief,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fb58e24f-9b0a-5bfe-8313-3e3360d6c68c,Search the Premises,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9d3301d1-c0e2-5d0f-be18-b336931784e6,Searing Blaze,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:bf46653b-7f84-5e75-9f5f-002cff2d4f53,Searing Meditation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:be33cc62-c03b-5e58-b96f-08c4149c7ebc,Seaside Citadel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0aa4f190-640f-50f6-a075-1c6bc0d6b1a9,Seasoned Marshal,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:04081be5-223e-55b9-a4db-9f14d681019f,Secluded Steppe,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b01806ce-3b5c-5919-9064-ade57a75f34d,Seeker's Folly,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:35b1d558-dc89-5c6a-a996-96c9847ca365,Seething Song,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b51bc21d-8132-53aa-919f-2f4a5e805e1e,Seismic Assault,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f6255763-57a9-5a44-9b55-ffcb6d617947,Seismic Rupture,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a96c1f82-2436-5a14-9ad3-16c97ef626ed,Sejiri Steppe,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:90196bdd-e05a-5333-ae4a-55b3322e9f0e,Selesnya Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:369d97a0-e273-5a3f-9e1a-677675fa8fae,Selesnya Sanctuary,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b969e147-7142-5e37-ab37-d3aeae23d7d0,Self-Reflection,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bf140f2b-a802-5300-b51b-2449c3939813,"Selvala, Explorer Returned",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bf517db2-24f3-58ef-8337-11f8063021b9,Sengir Vampire,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9eb04709-c535-5967-bb0b-9b794b371e0e,Serene Sleuth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:41f03592-a328-5a73-a331-ce91f14df9c4,Serrated Biskelion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dffd05b8-b481-5d9d-956e-b8dc70ea8ed8,Sever Soul,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:930a2b33-9b33-5ca8-bcd9-bd77e1a8ab63,Severed Legion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:22b59c8d-b7f1-53c7-8538-f4dbb272c17b,Shatter,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:ee16ead3-6a09-55ea-b6b8-2453e17d66a6,Sheltered Thicket,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:07d08eeb-e089-509a-a237-e81f3301bebd,Shimmer Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dfc4bcea-6c4c-5712-9ca4-f65cdde92972,Shinen of Stars' Light,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2caab32b-0fbc-57c0-bd6d-0b1219be26d1,Shipwreck Dowser,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:457fe5ae-f640-5383-8dcb-259eebb0b413,Shivan Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3b020e76-0563-5d4b-b71d-2a988c7acb2c,Shivan Hellkite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d0984427-2a6e-57c7-a2c9-7b71cdf7147d,Shivan Reef,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:94c40837-7f68-5c9b-a7c0-8b7d5da49674,Shoreline Salvager,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:233baf5d-6c0d-5805-b08d-d62c0a03708e,Shriekgeist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1a01e61a-33f0-5513-830a-5dfb6fe6b319,Shriekhorn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4c7507b4-6e9e-5b3a-8ce5-dd0fe388247d,Shriekmaw,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c46ddb55-2e24-5211-b1b4-3d2ba804d3cd,Siege Mastodon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e0976011-d621-5e8a-b8d1-b22cb56f62ef,Sign in Blood,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:39fcc82d-6c45-5075-98cc-86f4b05a28c8,Signal Pest,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:43dd0712-bfdc-5de8-aae3-7c001e7f6149,Silence,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1156c5d7-03f0-5421-a9cf-29963715af95,Silver Myr,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:adc45cd1-ee87-566d-92dd-f5a3befeb4de,Silverclaw Griffin,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f8f57207-5f3c-54b0-825f-b9013087a200,Silverskin Armor,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b95e4e7e-4a44-5d8e-ae1d-a71495c25e51,Simic Growth Chamber,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:05806841-6202-5cc1-9e56-6811a2d01511,Simic Guildgate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a5a85584-c40f-5460-8b9c-a3cdc94635d9,Simic Signet,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2cf5ca2d-d431-58dd-bedf-e13b92b76b93,Singe-Mind Ogre,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:abd15c72-b712-5d30-a58d-5a5d76739d86,Skeletal Grimace,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b03469ff-eba4-50dc-8049-16ce5194890b,Skinrender,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:817b6ea5-7d88-52b5-95f6-42841acdb090,Skinwing,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c829175d-e0ec-5a01-ad94-be61a220cd39,Skull Rend,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:75ffc755-ee4a-5084-95ae-3c78e7870b59,Sky-Eel School,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:20853aef-db32-5fd6-8b96-280be2d27091,Skycloud Expanse,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c5c2f1e7-ea63-56f2-8a80-e3bd568ed4e7,Skyshroud Claim,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:66e7c4d5-9307-506a-993d-864aa635c15a,Skywinder Drake,5,5,0,5,True,exact,1,True,2026-08-10
+card:project:8e7ae379-8ade-52a9-8c3a-40e8036aabe9,Slash the Ranks,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dc141459-728a-507f-9c1f-e3287aa83b86,Slave of Bolas,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c7719784-e4cf-50b3-b296-988dbb467ea9,Slavering Nulls,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1d82b808-cefb-5375-957e-9af8caf2bd90,Sleep,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:29159450-4fa8-597f-9baf-75e0d18c42fc,Slingbow Trap,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:75ba9d21-d553-500f-8dc4-d83259217d37,Slip Out the Back,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b0b2b763-32f8-50c9-a86e-cd9714cb07e5,Smoldering Marsh,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7fbb28c3-1f35-5302-8ccf-608d306027c5,Smoldering Spires,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:66b0ec3c-d8ec-5627-9a10-73444c754504,Snakeskin Veil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dc944d13-00da-5d32-b67d-ad76fd08495f,Snapback,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d8ae8ecd-5328-5c23-a693-02edd04dec8b,Snapping Creeper,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fe857998-ac26-5576-a469-4b1f6034d504,Sneaky Homunculus,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b13e6925-de70-51c3-8126-2da7f9f30357,Sol Ring,5,5,0,5,True,exact,5,True,2026-08-10
+card:project:b35e9130-c722-5873-8f9f-969a10d49caf,Solemn Offering,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bcec69ab-2e49-59a6-824e-4edc1c6163e4,Solemn Simulacrum,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:b31d8983-c1b7-5c5d-b9d0-717de96fc11d,Solidarity,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:807b1e33-e8e6-5879-a7ea-4e9f91c4bf8b,"Sophia, Dogged Detective",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4e6abb5f-d0b7-5055-975a-0d7fd634f9df,Sorcerer's Strongbox,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b15f85cb-3bee-52d7-98e6-7a4e0104a783,Sorcerous Spyglass,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d79602b7-3634-5b64-9b31-c9da91a03881,Sorin Markov,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5798da4f-bfc7-5a8c-9be4-1564f7007e2a,Sorin's Thirst,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:a0ff2705-d41d-50a3-ab7a-648dbd7240cd,Soul Burn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fb473622-a795-5509-b96d-94844a9f641f,Soul of Windgrace,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f4697cf5-1c1d-534e-8ab4-4da90676aa50,Soul Parry,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f066db67-03b6-5a11-89a3-a5eda2063781,Soul Seizer // Ghastly Haunting,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dd38131d-b2f2-567c-a021-eaa9a27def93,Soul's Grace,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a3b38bcb-44ff-54aa-ab21-cf22a0018105,Soul's Might,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:94ef1adc-10b7-5c52-aefe-b0ae80937135,Soul-Guide Lantern,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e125c175-0cae-53e9-aac9-9d575f4b9164,Soul-Shackled Zombie,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:def94213-65af-5d62-b549-78206d767410,Soulcage Fiend,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:e6675bb1-8d74-528b-93fa-b795e457cf00,Spectacle Summit,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d05f616e-bb54-5271-895c-8d831ff8f9de,Spectral Sailor,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:38dc852c-0090-5da0-b8da-32de4b576b3d,Sphere of the Suns,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5aaf18dd-1374-5eb6-b585-728e4983835e,Sphinx of the Final Word,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:71203465-92a5-506d-b0f2-7e9ef66be627,Spin Engine,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:787f49d6-9d81-57fd-bc23-d70c4297838a,Spire of Industry,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1ea84cd1-5bab-5c94-9f48-c35c4ff6da2a,Spire Serpent,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:673fcd03-91ce-5fa7-9527-9e485a7b809b,Spirit Mantle,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5cd07c84-355c-5108-8c60-d203b0317a8d,Spite // Malice,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0dc3717e-dec5-5892-9563-e98372bb3ac8,Spitemare,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:16be6885-72a7-547a-a95c-42d116e83274,Spitting Spider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:95b3a413-e9b4-52e3-99b4-29d7055cf461,Splendid Reclamation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:daadb78c-3885-5624-9985-c996d165d5d7,Spread the Sickness,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:dab2e0d0-62a1-5675-9a9e-dc884726a857,Springbloom Druid,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:fd452eb9-41b9-521a-a2a3-db7017682bcf,Springleaf Drum,2,2,0,2,True,exact,2,True,2026-11-11
+card:project:ab362c6a-6c29-5845-adbd-44a735c076ed,Sprouting Goblin,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4d603b9c-331f-57b8-9612-5291200f43d1,Squad Rallier,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:913463da-9f97-5416-817d-49b01b720763,Squee's Embrace,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:b9192d1e-9076-5cb5-acdc-43286437095b,"Sram, Senior Edificer",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fc3dcff7-df87-5ddc-a396-344f0b9bfffd,Staggering Insight,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e1d67818-a489-50d3-b0e7-190f7dbfbbda,Stampeding Rhino,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:a8b8ee8e-6585-537b-ae4c-3f4d9b51e265,Stasis Snare,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f9910d32-1116-561c-9652-7e467e53f851,Stave Off,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2417fd66-9002-529b-a6b4-29480bcef794,Steady Progress,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:6eab8b14-d83c-5133-8d1a-1ade03a999a1,Steal Artifact,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:0025f8b1-f667-5f07-b374-616cbd54cd05,Steamcore Weird,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b9875ac8-5bb5-5755-877c-88a8527fc89d,Steel Hellkite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:234ed498-ff64-550b-8c39-e9a76c8da3c6,Steel of the Godhead,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:297bbfb6-5e20-5438-9251-09b0ba76f6a1,Steel Sabotage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:59dffc0e-2b95-5b2f-88a7-41cd08e9bac6,Steel Wall,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1935491b-952c-5aef-8c71-790f2b42e7ee,Steppe Lynx,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e1e0bd89-2e90-5111-8cde-2cde3bc00323,Steward of Valeron,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:eda65677-ab33-5991-bd15-e674a702ff28,Stingerfling Spider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b074dadf-78aa-5f2a-bdd5-165cf9b62c42,Stoic Rebuttal,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f37849fa-bd8f-50c0-a736-b9905a90eda5,Stonehorn Dignitary,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:9c6b14b2-dd77-517c-8661-350be4be6a30,Stonework Puma,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ecf8e042-ee6a-590e-8e7f-8f4d71682e7d,Storm Crow,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:1b4b95d8-9e08-57ac-87b7-acb2fb9470d1,Storm Spirit,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:afeff9d3-0d71-563c-a535-b6c03ada2e19,Storm-Kiln Artist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:75378096-4985-59cf-9387-607358fbdc2d,Stormcaller's Boon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ca32d602-a993-5379-9fc9-1084d52af25c,Stormcatch Mentor,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5068a547-faa6-5447-9c42-29edd59002d6,Stormfront Pegasus,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:0fa1176b-4aba-583c-b8e0-e23ab2b4b371,Stormfront Riders,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:306a8117-bdd7-5845-b61a-37ed8f9cbb77,Stormtide Leviathan,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:948ec354-84fe-5ee9-84b4-defacf337a79,Strandwalker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:48bda693-d59f-5c3d-bdf1-546f007b6089,Stratosoarer,2,2,0,2,True,exact,2,True,2026-11-11
+card:project:d6f23077-48dd-5f52-9d57-ec13f48c3924,Stream of Life,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c13b89b9-32a6-5f3d-ae99-5ecaa881cf24,Streetbreaker Wurm,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1c07a6b5-bf5d-5a14-b836-9ea92c2ab96f,Strix Lookout,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b27859ac-c69b-50e9-92ad-6f87793e4d35,Stroke of Midnight,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:34876c74-8c56-51d1-ba20-090852c88d6b,Stromkirk Bloodthief,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1d2ff908-9a93-5e27-bed3-3d59479ee7ee,Stromkirk Noble,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c1ab4f33-7962-537c-8c1d-5cb63274f614,Strongbox Raider,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:53070fc2-611b-5390-adc9-da5c41c9299a,Study Hall,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:08e30a07-da2f-50f9-a3ba-5a03e040afa8,Sudden Impact,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3fa7966d-5074-54e7-907e-2518acde8877,Sulfur Falls,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:c5cdfe26-4a75-5912-97cc-99b4a7701b94,Sulfurous Springs,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c467bb63-de93-5a48-b350-ea1050fe8df5,Sungrass Prairie,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:07e49bcd-ba1b-5f61-b7ef-d366dc478a3a,"Sunhome, Fortress of the Legion",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:282e13b0-1f1d-5a00-b720-c1d8850720e5,Sunlance,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:278a9271-bd7f-52ba-861a-40b8c8c00e33,Suntail Hawk,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:93c56b79-e227-54bf-8449-6f6a2ade55ab,Surge to Victory,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fd5aba7a-bc7b-57b7-8354-77e1ff6b0130,"Surrak, the Hunt Caller",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9617e034-430e-54b3-9f07-be128aaa35da,Surrakar Marauder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:62161e71-8332-5501-b60e-f0b371e5a83b,Surveilling Sprite,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cf731ed4-50db-5c64-b5b4-3251e620f0ac,Suspicious Shambler,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e2c6005a-834b-59c1-ab37-3d0d36d304ea,Swamp,7,52,0,52,False,lower_bound,5,True,2026-09-19 (photo additions)
+card:project:71ceba42-c241-56b5-880f-dc97bbbfe2a2,Swell of Courage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e2ae024d-b3c1-5c65-a9f9-63df143d043e,Swiftfoot Boots,3,3,0,3,True,exact,2,True,2026-08-10
+card:project:5983d00c-0eed-556a-8243-cafd1fd68477,Swiftwater Cliffs,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:07996905-3e0f-5002-8f4f-e5d2e74e9f9a,Swords to Plowshares,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:c6a6fbe7-d5c3-5817-8a7f-ebc4347910e2,Sylvan Bounty,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:2c4b87a7-f5a3-56d3-9bc6-d9d2bd216363,Sylvan Ranger,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:e3ede5aa-f030-5623-9a27-bd164dd4e5a3,Sylvok Lifestaff,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:462bf173-fb80-5116-95da-467ab6dcee20,Sylvok Replica,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:899f9885-3422-5988-aed7-50a8a90f849f,Synod Centurion,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1f706fca-2895-5ec7-bc24-337a7e1f9e69,Syphon Mind,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:075877fd-8190-57b8-a116-f174d5ec9581,"Syr Alin, the Lion's Claw",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dc98fff2-81bb-59ce-a6da-6d8926b1b2bd,"Szarel, Genesis Shepherd",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3d6d9382-bbdb-5ed4-bbbf-719df13f41ba,Tainted Sigil,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:23091174-31f8-595e-a63d-0bea27734c95,Tainted Strike,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:89254a98-e82a-5655-803b-fda658dce2d2,Talisman of Creativity,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a0c1fe88-7b98-50e6-b106-663cdf622e90,Talisman of Curiosity,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:47331971-9f78-5a25-9cc1-f4a6e3701a99,Talisman of Progress,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:dab8d3fa-4805-59bb-9881-a9fe59498bf5,Talisman of Unity,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:63169ab4-fc7b-5bf0-a4b5-cbcb1bbe89ad,Talus Paladin,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:229ef730-7fb0-5702-85f4-47c1cafec0c8,Tangle Mantis,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:15ce5538-c611-5a86-a294-39c37b83f9ea,Tanglesap,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e6ef72d0-fe39-5522-8c7a-f7c65f12206a,Tangletrove Kelp,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cf09915c-daf1-5d10-a3e6-3ecd3fee4d86,Taste of Blood,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:66881ad2-7ae3-5ee9-8b45-c6c560f2a321,"Tatyova, Benthic Druid",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ef9024ad-7777-563f-8e38-e142fd8d4b81,Teach by Example,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f9b09550-0ba4-5b40-804e-1d97584cbe33,Tear Asunder,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:46524ce5-4362-5278-8088-b7a6c2c7e37f,Tectonic Edge,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:2467698e-02e5-58c2-ae4e-a88aedca7159,Teetering Peaks,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:0bd79b90-936e-5593-a3ce-f0bb9ff212e0,Teferi's Ageless Insight,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:940fe031-f2aa-58d6-999c-10740b7a0c8f,Tel-Jilad Defiance,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:9710603e-9c13-53a4-abf1-74418ae5250a,Tel-Jilad Fallen,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:be61951e-342b-5425-a93b-35cef6216658,Telepathy,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:51454dfc-12df-5e56-9aa6-19bddad28da2,Tempest Djinn,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:68650543-be8d-5b81-9f6e-cd30686af5a1,Temple Acolyte,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6a58190d-0334-5618-bdd6-79b56f297b47,Temple of Abandon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:030cb56e-7059-5391-9212-e474dfcf66bb,Temple of Deceit,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e0a36d41-3f63-5d79-81d3-6705ceafbfbe,Temple of Enlightenment,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:77e94e99-6229-5a80-907f-aa09640499b4,Temple of Epiphany,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:431ebf03-016d-5987-b3cc-186ea4c92c33,Temple of Malady,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c9f76b59-8683-52ca-8409-03d0c1408662,Temple of Malice,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0e6c5096-ac35-5001-bcb9-6ce2c1e73790,Temple of Mystery,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:aee188f7-a0bf-532c-a18b-2e458a623c28,Temple of Plenty,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:3ebd8e27-7fa1-5e9a-91a6-5272430052f5,Temple of Silence,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:c6cc1694-ca3e-5b4d-84ef-93f894059b81,Temple of the False God,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:d37b72e1-ab2f-5f14-bef8-35e8148a7993,Temur Battle Rage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:51a902c5-a88f-5c4a-bebb-56db328e0f81,Terastodon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:39fddc90-3cd8-58e2-87cd-246f909eb859,Terminate,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f745c272-b180-5200-b64e-84435a879ec2,Terramorphic Expanse,4,4,0,4,True,exact,3,True,2026-08-10
+card:project:a28623d2-c443-55a7-8b1e-0ae846161a5a,"Tezzeret, Betrayer of Flesh",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:11682b77-5c0e-5717-ac1f-acf8e65d2963,The Gitrog Monster,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:74d1f6f0-e6a2-56a2-acfd-376a8ac0cb79,The Royal Scions,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ea232343-6ed8-580e-901c-9059cd521d7d,Thieving Magpie,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ffe664b1-1621-5e41-9d57-bd074b7a0aba,Think Twice,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:930fdd4a-de42-5455-ae66-ad0cc60df530,Thirst for Knowledge,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:dd8fc71b-e3a9-51e4-800f-87c59c4d2bfb,Thorn-Thrash Viashino,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3ca848af-eba1-5237-8906-a5bbc81fa76b,Thornwood Falls,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:b54a25f2-a9ac-5dc9-905f-da53905479db,Thought Monitor,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b5ad379d-91bd-57c6-bb74-c0e80f987f03,Thoughtcutter Agent,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ebafc08a-7a41-56aa-ac80-5ce5ea1ac6f4,Thraben Sentry // Thraben Militia,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ceaea5f5-d06f-56ef-b839-39885e4bc643,Thran Golem,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:59a1d106-1477-577b-8db5-c9b29415de61,Three Tree Mascot,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:42a36cac-0678-5216-87c2-580ad4d7e457,Throes of Chaos,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fea44397-2072-5829-bab3-7e04e358f2f6,Throne of Geth,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:01b7d7fa-971f-571e-91b5-cefd1eb8cb62,Thrummingbird,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:75d9a748-6c50-5c6f-9852-27b1e426c08d,Thunder Dragon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5cbaa261-dae8-5803-bfde-4edac8db61e4,Thunderclap Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6bce9e5e-a927-525f-a1f1-713924838e70,Thunderous Wrath,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d46328aa-63ae-5f03-a4c4-4770f2c17c05,Timely Reinforcements,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:960c01ef-f392-5b94-96a7-0e5a8173812b,Tinder Wall,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:981f9563-9fa8-5766-82a8-8d30e5a1163b,Tine Shrike,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:c6eef09e-843e-5e79-b6e4-94e29a6782dc,Tireless Provisioner,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:eb75fa6b-0cbb-54dc-b3dd-33d4231d4a0d,Tireless Tracker,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:95d2338f-6f95-58ad-b0a1-0ed0c951c394,"Titania, Protector of Argoth",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e423e38d-74ce-56a3-a530-c7eae14c3b26,Titanic Growth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:223ce02f-d8bf-5ec4-8754-72a0611ee663,Titanic Ultimatum,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:13e196aa-c29e-55da-86f6-d3de6816cb30,Tolarian Terror,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:92bd7ba6-eb6c-5cfe-99d3-2a9db44337a5,Tomb Hex,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c8a24300-8fca-5410-bae1-5fa0e09fc1f4,Tor Wauki the Younger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:77d39c61-af05-59f7-a338-35d299a2a507,Tormented Soul,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fbed6128-ae4a-59f9-ac21-f902eb81abef,Torrent of Souls,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:92df9370-918d-56fc-9625-c03107d26101,Tower Geist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7fb9b898-502c-5996-a2dd-1260b4f2dd5a,Toxic Deluge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:43747eae-698c-5cbc-9f9d-9bb12b83ab01,Trained Armodon,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f8e1873e-5614-5c93-a54b-08030a1e0399,Traitorous Instinct,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4bd8956d-2eeb-5aa0-b57c-2d16d3a52fcd,Tranquil Cove,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e5bc6aa9-84fd-502c-a9df-4f7db74998be,Tranquil Thicket,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1780098b-588a-527d-af71-41bf1932493e,Treasure Cruise,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ebbf36a5-7074-5dcf-9fbd-40690afe0339,Treasure Hunt,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:47ea4feb-dcb8-5fee-a1a2-fd0166d313fd,Treasure Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:271f0baa-86b0-5c7e-af9f-9c2beae1a6e7,Tribute to Hunger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:57c7d675-dc6f-50e7-ab25-45c4aaaff2c6,Trigon of Mending,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:97d88af6-a6fe-50fe-b1ce-28e6a885ab6d,Trigon of Thought,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f0d2d9c3-c9cf-5304-bb8e-68dc7e2a6f72,Trinket Mage,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:ab78bb0d-61e9-551b-bf7f-2d072097ab4b,Trip Noose,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:64fe7848-343e-5ecb-8b43-bf35cf3056be,Trollhide,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bf007c91-4043-5565-9ee3-eea8db72b384,Trygon Predator,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a44f6666-b010-566f-97c3-4c8336ab8c92,Tuktuk Grunts,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bc2c1d60-4a1b-5e69-b336-095ddd082d5e,Tumble Magnet,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8b94ad07-19a0-56bf-8c81-4d71cfb85cf8,Tundra Wolves,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9019cb08-1538-54be-9dd2-f179dc4df58e,Turbulent Springs,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:82e3069c-0798-5f48-8b93-f82208980619,Turn the Tide,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:858ceaf8-6a5e-51cd-9a56-5f4b81a406dd,Turn to Frog,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b7b776fe-97cd-5237-b588-a962eceedf6c,Turn to Slag,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:06037572-e74b-531f-a695-9b2b675d77f7,Turntimber Basilisk,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0e5ef92c-e703-5ab6-bdb3-4d93b1fdfa75,Twilight Mire,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:17cdc4f1-4883-53b2-8a7b-8f18a31ed563,Twinblade Blessing,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:39a33eed-73db-59f9-9801-26534175c0bc,Twinflame,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6d5ed243-5829-5e50-9ad3-2afcc767e20e,Twisted Abomination,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:fcb0a342-60ab-58c6-902d-0a3c557f91ec,Twitch,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:16f91fa6-ee82-5d4c-ab35-740c6ed1dfcb,Tyvar's Stand,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d453cf43-f9ef-5f1b-a5b0-6132cee7335e,Ulvenwald Mysteries,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f888d435-6539-5d27-b2db-3c524e73bcdf,Undead Leotau,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:17e08d60-af99-59c3-a149-ee4191a91a24,Unflinching Courage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6d93bf70-d8c1-5bb8-96a2-26e5c319275e,Unholy Strength,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d9825fea-1b43-54c8-8087-5bb812cd9bb4,Unleash Fury,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5d94a6e6-b90a-5162-b2c3-99d323929f3f,Unnatural Predation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b1f941df-c76e-553c-b273-0dd5817997bf,Unruly Mob,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:90702239-05e4-5ab0-835a-327ae4cf236f,Unstable Footing,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cb6ad595-8964-51c4-ae59-6a7f444fba8f,Unsummon,4,4,0,4,True,exact,2,True,2026-08-10
+card:project:e5770419-1e41-5a04-a174-3dc062b58c44,Untamed Might,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:2db0f012-c0a0-573b-827c-b14dbbb27e78,Urborg Syphon-Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4e281691-66f9-594f-8a2e-da8cef74f174,Urborg Volcano,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8af60bae-bc5f-5265-b7d7-4b915eac5e15,Urge to Feed,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:78a87d55-7a01-5ca5-9c3a-01843dcba871,Urza's Rage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:881030dd-9c75-5cd8-8661-c18b47e9a217,"Uurg, Spawn of Turg",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cb4facbb-d992-52a4-b9d2-5e20ff41dac5,Valley Rannet,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:66a34f4a-2489-5149-b078-e141782666a5,Vampire Aristocrat,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:bc37fc6f-27ac-5365-96ac-7a36117dce94,Vampire Nighthawk,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:e5ab3f01-0f77-5143-a39f-6578be05396b,Vampiric Rites,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3895c8d5-c270-58eb-b4f3-989e1c99b934,Vandalblast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:777a80f4-4fc3-5f13-a2d6-b49f4787c82c,Vapor Snare,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1c8c0a54-d5b7-52c5-bc2c-69c76184528e,Vastwood Zendikon,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:2d872623-ea3c-565d-81d3-fb6cd89c0fc6,Vault Skyward,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0e7015c8-4da1-5876-95b3-11b3c5a0b5d4,Vector Asp,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:25de89b5-46e5-5402-a7a9-e0c60b58d461,Vedalken Anatomist,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:08235506-e350-5e76-92fd-e98f7e080e97,Vedalken Certarch,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3bb988f9-49eb-5418-a672-a2b3dbcedf3a,Vedalken Ghoul,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:9d1ee9fd-b353-5ce3-8929-af76f0fccb01,Veil of Summer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:24f2db55-4f2c-57c3-8ea4-89d013fb7a94,Venerable Monk,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e05186cb-5fa5-5cae-8cc8-d4e12b04ac1b,Vengeful Bloodwitch,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:09dc34cb-74b8-5937-9e47-9b80bd75d74d,Venom Connoisseur,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:deee3b5b-6096-596f-99f7-ff1026af5618,Vernal Fen,1,1,1,0,True,exact,1,False,2026-08-10
+card:project:3bc1b8eb-27e1-5ffe-93d3-06b2b3368854,Veteran's Reflexes,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:c8a73ce1-b97b-5d79-b725-ee9ea72b781d,"Veyran, Voice of Duality",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ce34dd9a-c0b0-59cc-bf5c-65d5ff3cc7cf,Viashino Racketeer,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:5017759d-ff8f-51b1-9038-94623c36eeff,Vicious Hunger,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c5f68954-d650-50a3-9c85-9e0e042f97f7,Victim of Night,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:36f821d1-f9c7-5473-8efc-fda1d913d196,Vile Entomber,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3882dd70-712d-52ab-987f-403b63350829,Village Ironsmith // Ironfang,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b7d20531-0c1e-5960-ad56-200919b63655,Vine Trellis,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f8db34ca-e6fa-5703-9ea6-81dd4999f236,Violent Outburst,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:7baa9c5c-b17e-5ee6-ae19-7ec00efe5b3e,Viridescent Bog,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e9a276be-8276-5ce1-80d0-6b5c98738236,Viridian Claw,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:63462aa6-8d02-5b66-8bc0-14e812710ffe,Viridian Emissary,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:e350e84e-be73-5bdf-b74c-1f9caf611e5e,Viridian Revel,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f5aff2d1-7d97-5b88-bba6-f55167c8fdef,Viscera Dragger,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:db468c0d-884f-53c9-9809-f3c42f40fb50,Vivisection,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:cca8ea56-e017-5515-9a43-467201ed18ad,Vizier of the Menagerie,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1fd7e89b-1bc6-5077-9964-757f2ffcd094,Volcanic Salvo,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:2cc03271-cfa7-52e0-8eca-f7fd32d83a31,Volcanic Torrent,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:595f45c1-e5d8-5a8f-8176-dee920de5ab8,Volt Charge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:720aad3b-3a25-5287-9819-5340f635a2bc,Voracious Greatshark,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0d948ce7-9685-5ade-94ea-0c584df0211e,Vulshok Heartstoker,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:85079e8d-ff7b-5af2-8339-022728a093db,Vulshok Replica,3,3,0,3,True,exact,1,True,2026-08-10
+card:project:20c17132-2061-51fe-bb89-ca22995a570b,Walking Atlas,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:24fe3b4d-0b5b-57b6-8354-40d881d4b35b,Walking Corpse,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:b962e244-7961-59c7-b500-37a3a2b21d9f,Wall of Frost,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:4fdc5b5d-7600-5855-9b82-0e296a002103,Wall of Stone,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:811334fa-1684-5999-adf1-3d27849359ed,Wall of Torches,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:1e1b8a86-5ad7-5421-9c35-79516f4c854f,Wardens of the Cycle,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d7d2bfcc-a45a-59e6-a141-cb28872e45f5,Warpath Ghoul,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:a9efad7f-f4d8-5ee7-ba98-791e979564dd,Warstorm Surge,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:be8ff7ff-68d2-5582-9bf3-b0d9d9cfdbe6,Wash Away,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fab91e9c-6323-59ee-a279-a924e8a24e22,Wastes,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6a197f96-edca-5add-bd78-a07aeb26a424,Water Servant,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:94155d80-15f8-5710-a5c3-ee1bb65d40ad,Wavesifter,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a7462469-9c85-5b0b-93de-cf3fa21a85d6,Wear // Tear,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:fd3f82ab-b5b1-5750-95a9-18dfa7b3e87b,Welkin Guide,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:aea1d208-657f-51e6-93a4-3e31bfd35e58,Whirler Rogue,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:18735427-f4f4-5e50-9471-48ed0a805eed,Whirlwind Denial,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:63df3bb2-7dd4-511f-838c-386da42f0b62,Whirlwind of Thought,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a8218dd8-6ad9-4fe7-a4e8-0ca55cbe1536,Whitemane Lion,1,1,0,1,True,exact,1,True,2026-11-02
+card:project:39cdaebc-a122-5e2f-91f3-b836bbaf8d1c,Wild Nacatl,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8ec8ea16-f4e6-5c8c-91b5-22db328dbaac,Wildborn Preserver,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:16b7dd5b-9cd1-5d18-ad6d-447fa54b9267,Wilderness Reclamation,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d4a8617b-b772-54ca-970f-6a102c93845f,Wildwood Geist,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:94498a83-1b8c-5c38-9dbf-85c355bbe3de,Wildwood Scourge,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f6b8ecfb-fc93-5d84-90be-0cde3ee4ee2b,Wilt-Leaf Liege,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6e81a8cf-8494-5000-ba0f-e23cbaa7646e,Wind Drake,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6da1b036-7ccd-59b1-a1b3-1ad3b85894ff,Wind Zendikon,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:4823f700-e492-5e15-877f-daf1d38a350f,Wind-Scarred Crag,4,4,0,4,True,exact,1,True,2026-08-10
+card:project:be73ffec-2979-55fd-9994-6812550075d8,Windgrace's Judgment,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:6a41a50d-c17b-5a15-8358-32762d6abca1,Winds of Rath,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:137e4fb5-8a68-5213-b603-9ea0382b377f,Windwright Mage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a78413da-e924-5b07-8dc7-f3e466f30fb4,Wishclaw Talisman,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:a05f8e5b-3a40-51ff-9f21-3ef8bfedb5a0,Witness Protection,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ec4afe88-0e8c-515f-8cdd-242cb9380220,Wolfbriar Elemental,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:7fd099b7-0d22-5611-b1be-a30ff050d00c,Wood Elves,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:ebba3372-4060-5121-8896-be6559a21220,Woolly Thoctar,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:3b3cfbb5-5e0f-5e1a-b7f8-9d0279e6b2cc,World Breaker,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:838a2013-2fa2-5547-99c1-8c69b68e3a23,Worldsoul's Rage,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:f1a814cc-4fac-592b-90a5-66153b1c0dfc,Wrack with Madness,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:13c1d472-ad77-530f-a4a8-db5ab1d59bf1,Wring Flesh,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:706e2532-72ca-519e-9ec0-ca631087100b,Wurm's Tooth,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:335ceb21-7227-5a0c-8841-2d7d962d23c9,Yoked Plowbeast,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:d25f6dc0-a74c-55d5-b0b1-37d70579de20,"Zetalpa, Primal Dawn",1,1,0,1,True,exact,1,True,2026-08-10
+card:project:0e03624d-6981-539c-a0e0-175b37f50528,Zombie Goliath,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:238e640c-299c-5857-9469-9c21d3317dff,Zombie Infestation,2,2,0,2,True,exact,1,True,2026-08-10
+card:project:c1e8e21e-5bf8-5366-9d30-3aa4e18a8373,Zombify,2,2,0,2,True,exact,2,True,2026-08-10
+card:project:46ef2a5e-9fec-59a7-a515-786b747f2a3e,Zuran Orb,1,1,0,1,True,exact,1,True,2026-08-10
+card:project:8fe2d478-65bf-5958-b877-51bc0243b608,Ancestral Anger,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:439acf32-e3a0-5769-82c1-68a78cc9053d,Banishing Betrayal,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:31def545-83da-5924-98d4-5982265957bb,Biblioplex Tomekeeper,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:0379cb8d-435a-5eea-be69-4685bc545d58,Blazing Firesinger,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:c80f2531-17a1-5a43-87b8-83a253df378f,Bogwater Lumaret,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:86a55082-143b-54dc-9a02-df02de84b209,Brush Off,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:4d09033a-3b89-53e9-9f30-31c1cf7cc959,Chase Inspiration,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:db7a6346-46ce-5ad2-a84f-3d6147f80049,Cheerful Osteomancer,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:94f0a575-d08d-5d3c-82e8-0e5229c0a8a5,Colossus of the Blood Age,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:991b914e-f0b1-5efe-9697-4493e5fd465e,Cost of Brilliance,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:28ac3278-b4a4-5648-aa72-9b53111e2f06,Deluge Virtuoso,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:1ccbe81c-9630-5075-b9ae-df222fa01954,Diary of Dreams,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:b086e727-0c2f-51fe-b7c5-b5d29ed232d0,Divergent Equation,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:857efe48-f460-53e2-9d98-bc1252bb28a0,Elemental Mascot,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:1bdf8cfe-d179-5ada-967f-3770f5a2b201,Embrace the Paradox,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:79fa0c6e-6437-5ad1-8f03-5b30a95da725,End of the Hunt,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:0440582e-6deb-5d72-95ad-49580b554855,Environmental Scientist,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:9f8bc69c-c6dd-535c-be58-aec89fff43fe,Flow State,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:4fd7943f-0196-58de-ae2a-dd823d61be4f,Galvanic Discharge,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:51d7e184-a127-5238-aef0-5ece06aa1845,Glorious Decay,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:8b2112a7-c72b-5511-8551-1bd9f2a2efc4,Goblin Glasswright,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:b8a3ae73-5a94-5788-8eec-87a35deca2ae,Grapple with Death,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:107897c4-4559-5e2f-b9b3-3bee604f6d58,Hydro-Channeler,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:6700cb2e-64ef-5759-8266-8d35081f0b90,Imperious Inkmage,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:d3b37e3b-6155-51c7-80c4-8e87b5906496,Kami of Jealous Thirst,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:ff5fccf4-aa14-5d03-95cd-78c627b3bc20,Killian's Confidence,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:12db3c50-3275-52c6-b372-4f757caf68b5,Last Gasp,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:8017bdf9-19c4-5d1e-9f37-9c9e4c7c9ae9,Masterful Flourish,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:84a2c885-3378-5514-acd7-5e6efab2ece9,Matterbending Mage,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:577f741a-c53c-5bdd-9bba-c67ee0617df9,"Mica, Reader of Ruins",1,1,0,1,True,exact,1,True,2026-09-19
+card:project:ae504ed9-ae48-5f38-bc76-1ed7b88714eb,Mindful Biomancer,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:57f0547d-102e-509d-be7e-80a0f8bd9972,Noxious Newt,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:743277b7-58e7-59b4-b55c-ebcffaed20ad,Paradox Surveyor,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:94d04d82-00ff-53ae-ba7f-0f6c257189d7,Potioner's Trove,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:c5c471b8-4484-5c87-8fcd-7c44bd1bfab2,Priest of Titania,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:3c797160-c65c-5b99-959f-ce7e44ff77ce,Procrastinate,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:1b6bf8b4-d815-5129-8b44-211830792615,Pull from the Grave,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:1ff36b83-82a5-5005-8398-0e6a01e40c89,Pursue the Past,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:e0a939b8-2b35-5e17-bebe-8c69080f5600,Quandrix Charm,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:cd7c8835-bd17-5157-9233-173415441617,Quick Study,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:324a8b03-cb73-5a11-bbff-d85a3dcd086c,Rabid Attack,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:1ce1b36b-30a9-5464-a078-297218d86ea9,Rubble Rouser,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:05b49e25-dc99-5ea5-9520-59d186844d86,"Sanar, Unfinished Genius",1,1,0,1,True,exact,1,True,2026-09-19
+card:project:db144bb1-a960-5e55-a1b5-ac9d99ec660f,Seize the Spoils,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:12702b44-c458-5907-9b53-bf9060245e27,Send in the Pest,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:0a8a4984-b285-5021-b673-1dce3497de33,Shattered Acolyte,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:de40c868-140e-549b-becf-6ddc672fe40e,Shrieking Drake,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:b4023038-cb7d-540e-b35e-6ddfeb688f5a,Silverquill Charm,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:6d0f3886-549a-5224-8942-c50cdeea1110,Skycoach Waypoint,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:23133095-68f5-5268-9b67-ccf886e2f817,Sneering Shadewriter,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:71752987-0073-530d-8754-2bffd0ef2195,Social Snub,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:4bc92c0c-cd8c-593a-ad5c-f32959874802,Spellbook Seeker,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:b21bb2cc-f27f-57fa-99b6-a2ee53abe1ab,Stirring Honormancer,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:c220f8cb-b71c-553b-9280-f9891a843ed4,Strixhaven Skycoach,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:efc470be-47b4-56cc-92eb-a953151c01ec,Studious First-Year,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:bb468a24-32cc-5392-a3f9-a88ba2252745,Summoned Dromedary,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:17973609-9c9d-5e1c-88d4-e7da9af2016e,Tablet of Discovery,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:91b359a7-5749-5279-83b1-5c59472a54f7,"Tam, Observant Sequencer",1,1,0,1,True,exact,1,True,2026-09-19
+card:project:041c7bcf-2282-5ae6-bfa9-d1498ff164a0,Thunderdrum Soloist,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:dd32fe82-d429-5794-af21-951f0f40ff37,Tome Blast,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:1f9f012d-b633-5ab2-87c7-26bbbe3e1e29,Wander Off,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:b7fe2d39-a794-5522-865c-d797e9ee8539,Witherbloom Charm,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:6bc407dc-d4d6-5037-925c-8a110c32e3e3,Zimone's Experiment,1,1,0,1,True,exact,1,True,2026-09-19
+card:project:b3d65dfd-c42e-5831-809f-b8b7f361f561,Run Away Together,2,2,0,2,True,exact,2,True,2026-11-11
+card:project:b8370bd8-f432-55c3-9c5c-70c63e4cca7c,Formidable Commons,1,1,0,1,True,exact,1,True,2026-11-07
+card:project:4a1bd989-b007-54d1-bcb2-7dc109a10734,Transformative Commons,1,1,0,1,True,exact,1,True,2026-11-07
+card:project:a2b57ef5-f5d5-51c1-aeff-70174f003cfe,Gardenize,1,1,0,1,True,exact,1,True,2026-11-07
+card:project:c09a273b-4678-5048-95af-7f01d6dc0e22,Loyal Tutor,1,1,0,1,True,exact,1,True,2026-11-07
+card:project:8ec10465-d04f-5317-b2c5-51f2584eec88,"Tam, Mindful First-Year",1,1,0,1,True,exact,1,True,2026-11-07
+card:project:09ed7486-3f51-536f-a288-601a06f18fce,"Tam, the Possibility",1,1,0,1,True,exact,1,True,2026-11-07
+card:project:419d5eaa-a535-56ae-ac11-044d3c0cad48,Blossoming Defense,2,2,0,2,True,exact,2,True,2026-11-11
+card:project:ac738939-b82d-5e67-99e6-1e602b72e82f,Lich's Relic,1,1,0,1,True,exact,1,True,2026-11-07
+card:project:5f203ab6-4a52-51ad-b981-745dcc3ffec7,Flickering Hound,1,1,0,1,True,exact,1,True,2026-11-07
+card:project:b7a33980-be45-5e83-8daf-2b1f7d158fe0,Chandra's Emberling,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:309e583d-b687-51c2-8e36-00970d5d7923,Artifist Acumen,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:6d3946a6-5b86-54eb-a982-11f17a79f115,"Winter, Team Player",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:091c7425-04ff-599c-8414-2a51deb93323,Theoretical Necromancer,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:627b8a43-f599-5a00-862b-698847a3d004,"Teyo, Diamondblade Mage",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d341d570-4787-5fce-a097-37dd36ba9919,Apex Witchstalker,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:959aff3f-fb17-5418-b362-bef20b3bbeda,"Winter, Tormented Loner",2,2,0,2,1,exact,2,1,2026-11-11
+card:project:d98acdca-7bf4-51a1-889d-0598d23b921d,Cast Away Doubt,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:8daaae51-69f8-5e9b-8405-950aa958881b,"Tinybones, Pocket Nuisance",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7279d3fb-6510-5a41-a6a2-57463ae81f91,Void Extrapolator // Omit Variables,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:af8bbcce-6c7a-5539-814a-45a40f9a44d3,Hexhaven Invigorator,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:ad9c7c57-e4eb-5162-b090-4e6e64f068ed,Cryotheory Adept,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:0d7050d8-d7cc-52e7-9812-09eabad4158f,Protege's Awakening,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:77cd6f03-907a-5b9b-856e-ac2c2c6611ca,Infinite Coursework,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:f6f635df-5d51-5c6d-8948-fb3889f91a12,Plan for All Outcomes,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c2c19a88-d4ad-5c66-8bb1-f8aae26dae69,Tethermage's Advantage,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:dbf9cc6a-a04d-53b5-bee4-5700fef5e538,Perfected Theory,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:740776cd-9a3c-56f8-bd2b-e065fdef7c74,"Yargle, Goliath of Otaria",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:8f02465d-1140-51d7-a97f-02053c7f9d8e,"Hapatra, the Desert Frost",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:842d3622-ab3d-5ec1-ad83-ff7cd859def6,"Loot, the Nexus",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:97cefc87-7a3b-555e-b958-4cbc654d8812,Sureshot Sower,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:078dd0f6-e238-503b-a948-3ad9fbf7f4f0,Gideon the Oathless,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:dd0c8e9f-c07e-59a5-beb2-03afedfeb07e,Icy Reception,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:0556e080-d11d-5e07-8371-a41d6a2ad44e,Mindseeker Oculus,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:61470125-7b1a-5975-b768-e8f109d2ea03,Flourishing Grapple,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7312d18e-6b34-5318-a52e-11838f1c1448,Skilled Battlecarver,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:645282f9-3b98-5944-b501-9a452714020e,Hallway Heckler // Vicious Verse,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:fed02895-9971-5c8d-a0fd-091bc201be39,Command the Stage,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:cbb7fd48-f60d-5cd9-9c71-5222f49bc643,No Admittance,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:78c90f94-acb9-5215-9b8b-d4dd874bf4ee,Eardrum Rattler,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:2300bb2b-a634-5e2b-a7ac-7de1ca17ef87,"Yargle, Glutton of Urborg",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a5fe0c8c-a68e-573e-b754-1dcbd3275fab,Extended Absence,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:5bdfa549-6869-587c-afe5-6a9e987bbc05,Campus Crier,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:e793176a-71cc-5e1e-8db0-c0a284223911,"Saheeli, Consul of Oversight",2,2,0,2,1,exact,2,1,2026-11-11
+card:project:581b3023-fb7e-5b39-a26b-e5dced443057,Hexhaven Battalion,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:0664669a-5d43-5643-9b4b-447ab02b5cbd,Arcane Amphisbaena,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:f1cd60ef-7167-52e1-9b7c-59e3d314d79c,Inspired Tethermage,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:b353c2f2-3b63-5c31-9f42-ee3392b675a7,Academic Ascent,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:3cb293d8-eab4-57b6-856e-b17c86d85ec4,Afterthought Sentry,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:8635ee81-2ca9-5478-b5db-6d723d7e7697,"Teyo, Lightshield Expert",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:dafedca3-791a-58be-9ca6-b0bfa6d76457,Predictive Preparations,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a2fa61d2-dfad-59fd-9e77-2e4aef7922c8,Archive Arbiter,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:48b0fa57-4350-598d-b81a-ae72a87bece6,Wrecking Gecko,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:621e7ab1-1238-5e88-b01e-0ce2d9922516,"Titanbones, Towering Heart",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d781748d-523f-553e-b024-175a2e2180a9,Emergency Phytomedic // Seed Suture,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:e17062b6-0b46-5082-89a8-915d3a40e7dd,Theorix Charm,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:45be6ee2-a69b-5445-8693-d275692861aa,Frostbite Pyromental,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7858d2ca-b907-56ad-814b-395ebe25fe02,Tam's Resistance,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:456bdf6c-6bcc-5699-b558-bab90bb2a9f9,"Saheeli, Jewel of Avishkar",3,3,0,3,1,exact,3,1,2026-11-11
+card:project:a9fbb4bd-f744-5de1-85ef-f1101ed02e54,Mind Meanderer,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:1db9a86c-c217-5f10-b786-c091a19224e8,Prudent Fateseer // Peer Review,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d4c3e501-4e20-5d96-b821-a8c40bee11ce,Grim Repriser,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7f0b9451-49a4-5c52-a959-aa03eb0cea42,Vigorbloom Charm,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:23aa09d7-b0f3-58e2-91f4-df7320c568d3,"Hapatra, the Desert Fang",2,2,0,2,1,exact,2,1,2026-11-11
+card:project:06142c73-5f92-5229-8537-8f0f93d110bc,Theorix Metamage // Omit Variables,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:9afce2e7-9465-54a8-9d2d-66aeb2467ade,Woodwork Prodigy // Soul Tether,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:e5f460f4-ed48-55cc-9824-e7dc68f9dd66,Twinned Vision,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:50c69b45-d02d-5bf7-b7bc-259e91d88b9e,Innovative Commons,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:51a24990-df76-5714-9a08-7fc820b24b5c,Primal Witchstalker,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:727bd399-4664-53a7-be88-f2dfce34ebb0,Craftwork Crusher,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:58e473f3-f873-51dc-8f2b-889183b2ce91,Whiplash Wordsmith // Vicious Verse,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:66b61666-7360-5445-8416-10ad87067649,Kapow!,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a514c809-cb05-5ae8-b305-6bf510127306,"Sun-Spider, Nimble Webber",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:86075db9-d68f-547b-ae23-081300aba1dc,Mob Lookout,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a6e0f069-daa7-5c8a-aca6-f93f53c98f66,"Carnage, Crimson Chaos",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a75d5273-25b2-5561-8c01-5b9ff119fe54,"Rhino, Barreling Brute",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:849d4f4f-400e-5117-9e54-af896c04194f,"Vulture, Scheming Scavenger",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:721d2b5c-d941-5707-8e85-5eb586869c17,Wall Crawl,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:fa15962d-b166-538a-b1a4-1bf7db1bda0a,"Lizard, Connors's Curse",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:9cae3044-4221-5029-8846-34eba26596e1,Whoosh!,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:4c2f7c61-a9e9-5bd4-af25-c54a700a657f,Web-Warriors,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7e4dfdfa-5728-5458-bc3e-7147b8860f00,Mary Jane Watson,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:13c86f31-a1cc-5b65-bbc8-87339d72b06e,"Prowler, Clawed Thief",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c0cee0d9-c223-53aa-b514-bf6c43e6cfe2,Mysterio's Phantasm,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:2398d694-20b1-5afa-9005-9a073b164bb6,Kraven's Cats,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:aef19cf4-05f9-50eb-bd13-bc0eee8f0c64,"Spider-Man, Web-Slinger",4,4,0,4,1,exact,4,1,2026-11-11
+card:project:24b95d5b-6a06-5376-b354-028cd9ac2a82,Stegron the Dinosaur Man,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:803b2260-99ef-56b0-bf92-da952fc59d85,Spider-Man No More,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:b6108f25-e08d-52a2-8420-89cbda55d575,"Doc Ock, Sinister Scientist",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:718f2649-ad7b-5a99-b150-5b4242540c03,Angry Rabble,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:59fd8fbf-1b01-5a92-867a-e4136a435361,Taxi Driver,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:e05443fd-60b5-5f7e-8510-f0294f33a4ab,Lurking Lizards,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:0a70e483-dd64-51c5-8d38-231f98ac8e51,Raging Goblinoids,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7b0b6e41-a559-569d-892b-d99dac2c7d8c,"Molten Man, Inferno Incarnate",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:9d394a99-246e-50d4-9f47-0c67ec952389,Grow Extra Arms,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:dc68893b-9796-57fd-8b6d-552fb23a7348,Bagel and Schmear,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:6d9ac3f8-3cc9-58d2-a0b1-9443023ad4f1,Eerie Gravestone,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:44515b56-7d2b-5d39-a1f5-9a2826bfc44a,Subway Train,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:99c6c809-02fe-5aac-b3d5-d997edf399cd,Venomized Cat,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:e11d5050-95d4-5608-b078-63ac7d63b80a,Spider-Man Noir,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:979dea3b-c8ba-5549-a67c-165a27b964c4,"Swarm, Being of Bees",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:e4a225d8-710a-556c-965e-fa0d0f9e1efb,Scorpion's Sting,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:ad913d2e-d688-5c0c-8a42-44f89660ab6d,Durnan of the Yawning Portal,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:81a951df-dadc-50e8-b165-f4871f6f08a8,Sinister Hideout,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:4e388710-d577-56a0-b645-ffa443a4a273,"Venom, Evil Unleashed",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:eb906e5f-11c7-5ee8-a811-1ee647d51636,Vibrant Cityscape,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c538f214-834f-5e14-9bf2-4acd04955059,"Gilanra, Caller of Wirewood",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c9e7b861-3f41-5752-963e-9219a1a701df,Yavimaya Elder,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:53aac8e5-bbce-5672-a939-018a1e417968,"Tromell, Seymour's Butler",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:747aa886-9e98-510d-ac78-c83f6b87379d,Sun-Dappled Celebrant,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:8eb2e89b-2308-5a25-b2a4-87440268fc3d,Kinsbaile Aspirant,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:3492d64b-7820-5c22-93de-32ed97cc8658,Crib Swap,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:facbafd2-b3fd-5778-9e34-3094a36fa0d3,Kinbinding,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:644ec6ee-46ff-5080-b576-8eb4c1a7db10,Goldmeadow Nomad,6,6,0,6,1,exact,6,1,2026-11-11
+card:project:eb00a153-5c28-5c1a-b65f-ab9044832b8f,Personify,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:0e454fe7-f670-508c-bc00-f020404acb5c,Timid Shieldbearer,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:daa63f10-f80b-56bc-9bd0-dcb1b97e1e29,Appeal to Eirdu,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:dcca4f86-8d25-5be3-a87c-e90d1f851cec,Gallant Fowlknight,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:285491e6-3b29-5679-93c0-466617e7f82b,Reluctant Dounguard,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:dcb344c6-6038-5684-af74-b82ca41586a2,Evershrike's Gift,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:9655f836-8e58-5dd8-98c3-3be47ae6f74f,Bark of Doran,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:20b35145-f091-50fd-a956-cbb8ccc3b308,"Rhys, the Evermore",3,3,0,3,1,exact,3,1,2026-11-11
+card:project:02cc8ea2-71cf-532a-897e-be5c377cc758,Kithkeeper,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:71c375af-38cd-553f-b836-838a58b5c005,Kinscaer Sentry,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:e4c0cfea-3800-51f9-a860-08233ca9d137,Prideful Feastling,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:6211600a-65c8-5733-acba-fde303103cf4,Burdened Stoneback,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d2923c1f-9577-5bf6-8a6b-a9c105683c2a,Feisty Spikeling,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:50dadf11-646f-5e30-adbc-69280138968a,Raiding Schemes,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:9ab3fb6d-b159-54fa-9330-ffb32a4600ca,Eclipsed Kithkin,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:3d939e0d-c0bd-536d-8990-d923d3099da4,Hovel Hurler,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:27ad1317-d678-517b-a5bf-a611061a50d7,Wary Farmer,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:b41fbc06-a529-5b79-a7cb-d55135f18f63,Chitinous Graspling,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:b70ee088-3d8a-5482-9c3d-85b94829a8ae,Brigid's Command,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c749e9a5-e8d6-51ab-8011-b717f375839e,Mischievous Sneakling,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:966f34d1-e41e-580c-8087-f88c42f13e9c,Goliath Daydreamer,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:58ef0baa-c481-5de1-9fc0-8465986a889e,Bre of Clan Stoutarm,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:661c9e15-6156-58d0-ab5f-e545fd0997bc,"Lluwen, Imperfect Naturalist",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:3059887c-6138-521d-ab31-523a2ed44dd2,Noggle Robber,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:d28c75f5-cec3-555e-b18d-a2fdfc1b8087,"Doran, Besieged by Time",2,2,0,2,1,exact,2,1,2026-11-11
+card:project:1c27fe26-8429-5b3b-aea6-c2f1146eacee,Chaos Spewer,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:28177f1e-f7c3-5403-89df-de7a2e1e6384,Voracious Tome-Skimmer,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7bfe443f-7cc0-562f-8269-3b28a5792e66,"Brigid, Clachan's Heart // Brigid, Doun's Mind",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:e20cb66b-5a39-562d-9f72-b2e6cb307b42,Eclipsed Boggart,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:d7f93d60-bd2c-530b-b3eb-cc92ac188ac8,Changeling Wayfinder,6,6,0,6,1,exact,6,1,2026-11-11
+card:project:b8bd728c-e0f4-5fba-959f-ce38188a24b0,Foraging Wickermaw,4,4,0,4,1,exact,4,1,2026-11-11
+card:project:aed5bd1e-8565-54fd-953c-9510edaaed65,Firdoch Core,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:579501af-53ef-5fee-9e08-09b16acc180a,Gangly Stompling,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:84580118-abb8-5d0d-82ad-be5444f927ac,Merrow Skyswimmer,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a12a3c9f-81e6-584d-9b9f-4c4472d1860d,Stalactite Dagger,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:cbff5d01-d542-5ab5-9f8b-b176772b356b,Thoughtweft Lieutenant,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:852aad00-2711-5c85-a366-4a6a8a5db297,"Maralen, Fae Ascendant",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7ad23828-0094-535a-8609-18ff40077428,"Kirol, Attentive First-Year",1,1,0,1,1,exact,1,1,2026-11-11
+card:project:86a04d83-d70a-5a4b-a063-30feee4b921c,Deepchannel Duelist,2,2,0,2,1,exact,2,True,2026-11-12
+card:project:61882b97-fdc3-5acc-a690-734da0b9beec,Gathering Stone,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d2a140ee-2c0b-5f86-a3aa-90e0215bc056,Clachan Festival,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d82896ee-268b-50ee-96f0-2d99d38d9f31,Wanderbrine Preacher,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:24cae207-42fd-537d-8464-4d8e602fb61f,Puca's Eye,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:42e9aabc-2e7b-5c7b-ad42-2ed3a01d7043,Spiral into Solitude,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:b0f03264-2f9e-5730-9099-9419f983902e,Tributary Vaulter,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:73b13b9b-f356-505f-b9b7-1b991d49d6aa,Shore Lurker,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:44ea54ad-8fd1-528f-887d-6002dcf2b9bb,Hexing Squelcher,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:bfd93630-354e-5d1f-96c2-84e4f25926e3,Feed the Flames,4,4,0,4,1,exact,4,1,2026-11-11
+card:project:0179f360-e6f0-593e-b021-0282bbf9d517,Warren Torchmaster,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:f6c1cf53-2421-52ed-9473-869078a42990,Enraged Flamecaster,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a929fcff-6ff7-5888-9ad8-64deccf9cf25,Kulrath Zealot,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:290f420e-44cb-530f-8086-cdffc09605ae,Reckless Ransacking,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:0cff3362-5161-5b71-9a95-3047e2815be1,Cinder Strike,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:9a2489a5-927c-57e5-91ce-6203270de967,Soulbright Seeker,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c5338c6a-073b-50b5-b8b5-987ad7e1ffcf,Sizzling Changeling,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:8d955442-486c-5b07-8e51-c30733923c26,Burning Curiosity,4,4,0,4,1,exact,4,1,2026-11-11
+card:project:9f6e53fb-88f0-55b1-9c8f-9ed3b05b8c08,Brambleback Brute,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:dca641f3-790a-5541-87a5-4f23935fa8cb,Boneclub Berserker,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:e5f6dc22-025c-53e2-a895-fc41bed2e630,Impolite Entrance,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:b42bdd27-cf21-5f99-91be-1239299604cf,Soul Immolation,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:4b2c9100-a28b-52ed-90a4-8f8c9be63f08,Sear,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:caff6dd7-5da5-5b3b-b59e-80a05a585c60,Gristle Glutton,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:ad1cb348-afd6-522d-ac37-16e8ba8ae474,Tweeze,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:9c716ac1-a761-5e3d-b026-9d9e2473236b,Flamekin Gildweaver,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:1ed55b00-ef28-575c-acd6-f39ac1812546,Iron-Shield Elf,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:eb9076a7-e03c-5ad3-9ba7-55f305326ec7,Barbed Bloodletter,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:a06c5095-cef4-5b21-b2ab-3b55aeb43fca,Moonglove Extractor,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:e925f562-8d49-5858-8bc6-09352ccc2efc,Auntie's Sentence,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:5391175b-b28a-5501-85a5-e3b2a5040131,Safewright Cavalry,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:474053af-64e8-541c-bb02-be72b0ef7a25,Mistmeadow Council,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:8ffe922f-cef6-56ca-8150-2c1eb30e4f30,Shadow Urchin,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:3413f0fc-a7e9-5f5c-86ea-66be81d8ed24,Great Forest Druid,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:93aaccb4-0c25-528e-ac58-a39df6d8b2c1,Prismatic Undercurrents,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:8519f6ed-d911-56dc-b8c9-8b558bc8404e,Scarblade's Malice,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:bf400f9d-e03d-5eaa-b122-2eed599339b1,Blighted Blackthorn,6,6,0,6,1,exact,6,1,2026-11-11
+card:project:694833aa-dc93-5337-b29f-870ed295952f,Stoic Grove-Guide,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:3d2e9978-e412-5b02-9d0f-f36575a17b4f,Twinflame Travelers,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:93dcc2f5-6317-5c4a-a69e-02f99ce6864d,Dawn's Light Archer,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:8b12728e-ff4f-5b82-be35-c3c5e34e6616,Tend the Sprigs,4,4,0,4,1,exact,4,1,2026-11-11
+card:project:531d4a64-37cd-58df-af42-ec3e57af63d6,Lys Alana Informant,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:2c728b38-7fe0-5b01-b72c-7ada079eef84,Chomping Changeling,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:2ea8ffe2-9a34-559c-b38f-7ecc7f20f7b6,Midnight Tilling,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:9de6a812-d3fc-59ff-a007-6185928be7e8,Shimmerwilds Growth,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:b0422951-87d0-50e7-8691-e50ac33c058e,Vinebred Brawler,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:e2d2f9ac-1617-5a43-a27e-f9303cea5726,Lys Alana Dignitary,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:2e788dce-f0c1-5e40-ad6e-90cec3011454,Wildvine Pummeler,4,4,0,4,1,exact,4,1,2026-11-11
+card:project:bd123925-0b28-585a-aeff-0bb408b55478,Bristlebane Battler,2,2,0,2,1,exact,2,True,2026-11-12
+card:project:458c1212-3843-5dcb-86ad-68e7595bfef3,Bristlebane Outrider,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c1221232-e759-54d4-94a4-e496eaafa2df,Unforgiving Aim,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:9d220aa7-814d-568f-8927-c957762e110e,Pitiless Fists,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d0ad9238-3844-59be-be25-c5f00dba3e40,Luminollusk,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:2da05db5-567c-5c42-aaac-6193b101059f,Assert Perfection,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:dc1ac293-3221-54fb-92f2-83540c230007,Champions of the Perfect,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:25153ddc-8fe3-5252-8a0f-3458b6363ec7,Crossroads Watcher,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:01bc8fe5-eb57-5443-a008-1ba05911be8a,Dream Seizer,5,5,0,5,1,exact,5,1,2026-11-11
+card:project:84c4b418-7a2d-54da-946b-84c7efe181d1,Nameless Inversion,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:63bd0a74-a9bc-5e72-8890-034eddfe3391,Blight Rot,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:03b97f48-ec61-55fb-8a9b-fdfba79755a7,Dawnhand Eulogist,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:359d3bed-94f0-5093-a81b-55213544f3f9,Boggart Prankster,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:83372825-00ca-5edc-ac49-a2cbc0f93177,Gnarlbark Elm,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:066d8c34-18f8-5062-a414-c73d03e3db31,Shimmercreep,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:c74d55bb-ba46-5ef5-bc8c-b813dbb03408,Unbury,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d5953904-fdc0-5393-83c7-c3ce64beeef7,Mornsong Aria,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:47e5a4ea-eb02-5277-a87e-e35fbedef9a4,Graveshifter,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:8671a6c5-9d13-584c-ae5d-408194ae5ddc,Goatnap,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:6ce85c31-044b-56a3-ba81-84825ff8b5bc,Squawkroaster,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:16f58334-9702-544b-a0e6-47c55f4bff8f,Bogslither's Embrace,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:5ab3f866-604b-5576-b51b-390363433afb,Darkness Descends,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:6028dbe0-6610-5aa8-ac73-1505be63bc58,Kindle the Inner Flame,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c011cc89-18ad-512d-915e-98720bd67fca,Gutsplitter Gang,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:1837f11d-284e-536f-b17b-2eb303252f10,Glamermite,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:9e363133-0e38-5357-8acb-cfc591910d0f,Shinestriker,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:e23aaea0-9cb5-55a7-b025-d28f5c56118b,Kulrath Mystic,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:e7196594-3d6c-56b4-9f80-d50da23020b7,Aquitect's Defenses,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:97fc1791-1a2f-5979-86ca-241f892658c8,Summit Sentinel,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:5129d16b-2d1c-50ad-853a-8fea5ca48c2a,Gravelgill Scoundrel,3,3,0,3,1,exact,3,1,2026-11-11
+card:project:71886829-4ab2-5e6d-972e-22afd4f9eadc,Unexpected Assistance,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7f5cdf94-0eb4-5ee7-a951-cd16e504abb6,Wild Unraveling,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:229d71cf-9b97-5c94-a2e2-d4ae8b0ef235,Flitterwing Nuisance,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:ab00b6ce-9000-595d-b237-2dc500b1b501,Rime Chill,2,2,0,2,1,exact,2,True,2026-11-12
+card:project:82a1fe2e-d919-5685-8932-ef72f5147d25,Wanderwine Distracter,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:872c3bbe-9d95-5343-8406-30b83c5a63c8,Illusion Spinners,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:d5ec962c-4460-5461-8ff5-1612e8a98017,Silvergill Peddler,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:81ceb631-9aed-5f25-a884-1d782121423e,Omni-Changeling,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:97634b33-c200-592a-9753-79d84a3aff8e,Flame-Chain Mauler,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:3857925d-a720-5e58-9508-0800183538d5,Elder Auntie,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c352a5a6-87ad-5ff8-8580-112ea8586751,Sourbread Auntie,2,2,0,2,1,exact,2,1,2026-11-11
+card:project:3349532c-2faa-5f11-81cb-8e468fd8f817,Retched Wretch,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:2669af75-c76b-5f09-95a6-c52aad566e83,Heirloom Auntie,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:a76dbcf7-c3cd-5e95-b367-ae62adbea84d,Bile-Vial Boggart,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:c3e72ea5-204e-58e4-9bf0-247d4ca79601,Scarblade Scout,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:7dfdf0c5-afb8-5626-93fb-60e98db6d91a,Twilight Diviner,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:bd051aca-4af3-5431-9302-0107a0af5b4d,Creakwood Safewright,1,1,0,1,1,exact,1,1,2026-11-11
+card:project:2729bd65-099c-58da-ac77-f23401943915,Surly Farrier,1,1,0,1,True,exact,1,True,2026-11-12
+card:project:a024cfc3-b884-5595-88c8-733e9f993675,Dundoolin Weaver,1,1,0,1,True,exact,1,True,2026-11-12
+card:project:c4494255-bfc6-50b4-982b-e310ee6017ab,Pummeler for Hire,1,1,0,1,True,exact,1,True,2026-11-12
+card:project:1742d238-9d7d-5c7b-9ff3-f07a5f91cbea,Tanufel Rimespeaker,1,1,0,1,True,exact,1,True,2026-11-12

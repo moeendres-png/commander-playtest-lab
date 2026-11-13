@@ -1,0 +1,346 @@
+{
+ "urlhash": "CEWHAZLvg_UA9ZrK1Y3qOw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-01-16",
+ "price": 148,
+ "salt": 48.869416827335954,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/8r0Np316ck-LIt4ki07ltg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Cold-Eyed Selkie",
+   "quantity": 1
+  },
+  {
+   "name": "Cursecatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Deepfathom Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Historian",
+   "quantity": 1
+  },
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1
+  },
+  {
+   "name": "Forerunner of the Heralds",
+   "quantity": 1
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Jadelight Spelunker",
+   "quantity": 1
+  },
+  {
+   "name": "Kopala, Warden of Waves",
+   "quantity": 1
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Library Larcenist",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Looter",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Mistbinder",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "Seafloor Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Singer of Swift Rivers",
+   "quantity": 1
+  },
+  {
+   "name": "Stonybrook Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Svyelun of Sea and Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Sygg, River Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Hexcatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Wave-Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Vorel of the Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Wake Thrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Waterfront Bouncer",
+   "quantity": 1
+  },
+  {
+   "name": "Whirlpool Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Zegana, Utopian Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Over the Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Windfall",
+   "quantity": 1
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Icon of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Call to the Kindred",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Waters",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Smuggler's Share",
+   "quantity": 1
+  },
+  {
+   "name": "Utopia Sprawl",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 14
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

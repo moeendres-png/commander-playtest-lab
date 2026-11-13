@@ -1,0 +1,326 @@
+{
+ "urlhash": "baBH1MrjbNxgUD7oAJ0Xag",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-07-07",
+ "price": 177,
+ "salt": 51.514567103236914,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/OB-fAUxnb3KmhX9KT1mOGQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani's Pridemate",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Imperiosaur",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Finality",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Bristly Bill, Spine Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Clifftop Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Farm Animals",
+   "quantity": 1
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Genemorph Imago",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta, Primal Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Helpful Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Managorger Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Noxious Newt",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix, the Proof",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Resolute Archangel",
+   "quantity": 1
+  },
+  {
+   "name": "Sire of Seven Deaths",
+   "quantity": 1
+  },
+  {
+   "name": "Tam, Mindful First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "The Earth King",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Essence",
+   "quantity": 1
+  },
+  {
+   "name": "Wildwood Scourge",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Airbending Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Cycle of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Origin of Metalbending",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Study",
+   "quantity": 1
+  },
+  {
+   "name": "Refute",
+   "quantity": 1
+  },
+  {
+   "name": "Repulse",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Felling Blow",
+   "quantity": 1
+  },
+  {
+   "name": "Match the Odds",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa's Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Engineering",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Storm the Seedcore",
+   "quantity": 1
+  },
+  {
+   "name": "Bender's Waterskin",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Blanchwood Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Encrust",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Honest Work",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "In the Trenches",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Sapling Nursery",
+   "quantity": 1
+  },
+  {
+   "name": "Stormchaser's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Scavenging",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien Reid",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

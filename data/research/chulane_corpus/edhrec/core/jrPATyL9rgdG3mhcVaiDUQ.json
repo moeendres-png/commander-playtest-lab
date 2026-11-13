@@ -1,0 +1,382 @@
+{
+ "urlhash": "jrPATyL9rgdG3mhcVaiDUQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-03-17",
+ "price": 243,
+ "salt": 37.824964528437704,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/yaR_dSICtk64XYHRHtIxhQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Cancrix",
+   "quantity": 1
+  },
+  {
+   "name": "Bedrock Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Charix, the Raging Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Chromeshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Crustacean Commando",
+   "quantity": 1
+  },
+  {
+   "name": "Crystacean",
+   "quantity": 1
+  },
+  {
+   "name": "Dreadlight Monstrosity",
+   "quantity": 1
+  },
+  {
+   "name": "Eddymurk Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Fortress Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Hightide Hermit",
+   "quantity": 1
+  },
+  {
+   "name": "Horseshoe Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Iceberg Cancrix",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Scuttler",
+   "quantity": 1
+  },
+  {
+   "name": "King Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Mirelurk Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorshell Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Oraxid",
+   "quantity": 1
+  },
+  {
+   "name": "Plagon, Lord of the Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Purple-Crystal Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttlegator",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttling Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Shambleshark",
+   "quantity": 1
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1
+  },
+  {
+   "name": "Skitter Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Skittering Crustacean",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Vexing Scuttler",
+   "quantity": 1
+  },
+  {
+   "name": "Wishcoin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Hard Evidence",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Plea for Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Promise of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "River's Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Icon of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Obelisk of Urd",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Grasp of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "High Alert",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Levitation",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttletide",
+   "quantity": 1
+  },
+  {
+   "name": "Huatli, the Sun's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Nimbus Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 4
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

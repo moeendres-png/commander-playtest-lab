@@ -1,0 +1,385 @@
+{
+ "urlhash": "30keFMI6QzS2tDlLzdEklQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-09-21",
+ "price": 833,
+ "salt": 54.37737748399377,
+ "tags": [
+  "Lands Matter",
+  "Landfall"
+ ],
+ "source_url": "https://archidekt.com/decks/18943688?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Adherent",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Badgermole Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Bard, King of Dale",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Champions of the Perfect",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivator Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gandalf, Westward Voyager",
+   "quantity": 1
+  },
+  {
+   "name": "Gilanra, Caller of Wirewood",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Greensleeves, Maro-Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Groundchuck & Dirtbag",
+   "quantity": 1
+  },
+  {
+   "name": "Gwenna, Eyes of Gaea",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Progenitus",
+   "quantity": 1
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Mightform Harmonizer",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Resurgent Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Eager Trailblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Heart of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Silk, Web Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Thranduil the Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderous Snapper",
+   "quantity": 1
+  },
+  {
+   "name": "Tidespout Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Troyan, Gutsy Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorform",
+   "quantity": 1
+  },
+  {
+   "name": "Necklace of Girion",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Dancing from Dark to Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Kinbinding",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek's Unsealing",
+   "quantity": 1
+  },
+  {
+   "name": "Leader's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Up the Beanstalk",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Archway",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Ghost Town",
+   "quantity": 1
+  },
+  {
+   "name": "Guildless Commons",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos, Shrine to Nyx",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Terrain Generator",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Turbulent Wilderness",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

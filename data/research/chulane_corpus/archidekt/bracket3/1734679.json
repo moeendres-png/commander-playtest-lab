@@ -1,0 +1,1804 @@
+{
+ "id": 1734679,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Cú Chulainn (Chulane, Teller of Tales)",
+ "updated_at": "2026-09-04T01:38:54.363788Z",
+ "cards": [
+  {
+   "name": "City of Brass",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Herald",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chain of Vapor",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Okina, Temple to the Grandfathers",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deafening Silence",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades",
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction",
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction",
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1,
+   "categories": [
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradoxical Outcome",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Linvala, Keeper of Silence",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crush of Tentacles",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yisan, the Wanderer Bard",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spirit of the Labyrinth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hushwing Gryff",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thalia, Guardian of Thraben",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Echoing Truth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathar Commando",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage & Selection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)",
+    "+1/+1 Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "+1/+1 Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Interaction",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)",
+    "Flicker"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonehorn Dignitary",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ruin Ghost",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vanish into Memory",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oketra's Monument",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)",
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)",
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biophagus",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage & Selection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dauntless Dismantler",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander",
+    "Village Alarm Combo",
+    "Card Advantage & Selection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maze of Ith",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage & Selection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deep Gnome Terramancer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dancing from Dark to Dawn",
+   "quantity": 1,
+   "categories": [
+    "Cast Creature (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Homeward Path",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quirion Ranger",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soulless Jailer",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Force of Will",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mindbreak Trap",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flusterstorm",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silence",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Endurance",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nissa, Resurgent Animist",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vitalize",
+   "quantity": 1,
+   "categories": [
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gilded Drake",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jwari Disruption // Jwari Ruins",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sejiri Shelter // Sejiri Glacier",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1,
+   "categories": [
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angelic Shield",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction",
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction",
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seeker of Skybreak",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tap/Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction",
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Combat"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1,
+   "categories": [
+    "Combat"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1,
+   "categories": [
+    "Bracket 4 Upgrades",
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ranger of Eos",
+   "quantity": 1,
+   "categories": [
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boromir, Warden of the Tower",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shaman of Forgotten Ways",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emergence Zone",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Delney, Streetwise Lookout",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Combat"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Razorgrass Ambush // Razorgrass Field",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Memory Lapse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galepowder Mage",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sink into Stupor // Soporific Springs",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Planar Guide",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Witch Enchanter // Witch-Blessed Meadow",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Serra Angel",
+   "quantity": 1,
+   "categories": [
+    "Pet Card"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1,
+   "categories": [
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage & Selection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Village Alarm Combo"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kamahl, Heart of Krosa",
+   "quantity": 1,
+   "categories": [
+    "Combat"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 2,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aang, Swift Savior // Aang and La, Ocean's Fury",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 2,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp & Cost Reduction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage & Selection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strip Mine",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Leak",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1,
+   "categories": [
+    "ETB (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windbrisk Heights",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Katara, Water Tribe's Hope",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1,
+   "categories": [
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage & Selection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meloku the Clouded Mirror",
+   "quantity": 1,
+   "categories": [
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stone-Seeder Hierophant",
+   "quantity": 1,
+   "categories": [
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1,
+   "categories": [
+    "Remove"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spider-Woman, Stunning Savior",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spore Cloud",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1,
+   "categories": [
+    "Landfall (Maybe)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Giver of Runes",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 223,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

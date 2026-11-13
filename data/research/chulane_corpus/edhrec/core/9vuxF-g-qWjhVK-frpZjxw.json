@@ -1,0 +1,394 @@
+{
+ "urlhash": "9vuxF-g-qWjhVK-frpZjxw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-03-02",
+ "price": 772,
+ "salt": 42.652285215910524,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20011927?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Archangel of Thune",
+   "quantity": 1
+  },
+  {
+   "name": "Attended Healer",
+   "quantity": 1
+  },
+  {
+   "name": "Auriok Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Brimaz, King of Oreskos",
+   "quantity": 1
+  },
+  {
+   "name": "Cat Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Clarion Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Cloakwood Swarmkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Crawling Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Exalted Sunborn",
+   "quantity": 1
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Healer of the Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Heron of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Impassioned Orator",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1
+  },
+  {
+   "name": "MJ, Rising Star",
+   "quantity": 1
+  },
+  {
+   "name": "Mondrak, Glory Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Nykthos Paragon",
+   "quantity": 1
+  },
+  {
+   "name": "Ojer Taq, Deepest Foundation",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Rhox Faithmender",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Vanguard Seraph",
+   "quantity": 1
+  },
+  {
+   "name": "Virulent Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Voice of the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Field-Tested Frying Pan",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormind Crown",
+   "quantity": 1
+  },
+  {
+   "name": "The Wind Crystal",
+   "quantity": 1
+  },
+  {
+   "name": "Well of Lost Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Aligned Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Boon Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Caretaker's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Sanctity",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Moonlit Meditation",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Outland Chaperone",
+   "quantity": 1
+  },
+  {
+   "name": "Basri Ket",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1
+  },
+  {
+   "name": "Adagia, Windswept Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Camp",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Cataract",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Nursery",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

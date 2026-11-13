@@ -1,0 +1,394 @@
+{
+ "urlhash": "8ntdpL3iUuYAhllwi-cv2g",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-09-02",
+ "price": 373,
+ "salt": 47.821183384396136,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/BQTqZj5WH0W3PwTCPqi7cA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Arwen, Mortal Queen",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Brutalizer Exarch",
+   "quantity": 1
+  },
+  {
+   "name": "Captain America, Living Legend",
+   "quantity": 1
+  },
+  {
+   "name": "Chameleon, Master of Disguise",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Druid of Purification",
+   "quantity": 1
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fatestitcher",
+   "quantity": 1
+  },
+  {
+   "name": "Forensic Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Formidable Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "Imperious Perfect",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Ioreth of the Healing House",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra's Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Tuskcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Kelpie Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kydele, Chosen of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Lizard, Connors's Curse",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "North Pole Patrol",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Pippin, Guard of the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Sally Sparrow",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1
+  },
+  {
+   "name": "Silk, Web Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Sister of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Mage of Zhalfir",
+   "quantity": 1
+  },
+  {
+   "name": "The Notary Hobbits",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Doomsayer",
+   "quantity": 1
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1
+  },
+  {
+   "name": "Voyaging Satyr",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Bilbo's Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1
+  },
+  {
+   "name": "Legolas's Quick Reflexes",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Erratic Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand-Year Elixir",
+   "quantity": 1
+  },
+  {
+   "name": "Vedalken Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Presence of Gond",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

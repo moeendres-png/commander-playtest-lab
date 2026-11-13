@@ -1,0 +1,310 @@
+{
+ "urlhash": "8YfKY2pOMwpn0rY2C1d6dQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-07-22",
+ "price": 455,
+ "salt": 56.08698814548552,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/14709470?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Adaptive Sporesinger",
+   "quantity": 1
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Aftermath Analyst",
+   "quantity": 1
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Wayfarer",
+   "quantity": 1
+  },
+  {
+   "name": "Airdrop Aeronauts",
+   "quantity": 1
+  },
+  {
+   "name": "Airlift Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Alisaie Leveilleur",
+   "quantity": 1
+  },
+  {
+   "name": "Alloy Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Alphinaud Leveilleur",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Imperiosaur",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Silver Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Invention",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Aragorn and Arwen, Wed",
+   "quantity": 1
+  },
+  {
+   "name": "Arashin Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 10
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Twinblade Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Access Denied",
+   "quantity": 1
+  },
+  {
+   "name": "Admiral's Order",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Retrieval",
+   "quantity": 1
+  },
+  {
+   "name": "Call the Coppercoats",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Advice from the Fae",
+   "quantity": 1
+  },
+  {
+   "name": "Aminatou's Augury",
+   "quantity": 1
+  },
+  {
+   "name": "Ace's Baseball Bat",
+   "quantity": 1
+  },
+  {
+   "name": "Aettir and Priwen",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1
+  },
+  {
+   "name": "All-Fates Scroll",
+   "quantity": 1
+  },
+  {
+   "name": "Amulet of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Feather",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Nuka-Cola Vending Machine",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Artificer Class",
+   "quantity": 1
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1
+  },
+  {
+   "name": "Fortune Teller's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Gossip's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Perilous Forays",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurer's Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

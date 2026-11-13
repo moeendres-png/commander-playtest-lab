@@ -1,0 +1,843 @@
+{
+ "id": 21371310,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane, Bounce",
+ "updated_at": "2026-06-05T07:56:28.569442Z",
+ "cards": [
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1,
+   "categories": [
+    "Massremoval",
+    "Removal",
+    "Bounce",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Self Bounce",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Art Ench Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [
+    "Finisher",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature",
+    "Self Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature",
+    "Counter"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Badgermole Cub",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1,
+   "categories": [
+    "Finisher",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1,
+   "categories": [
+    "Self Bounce",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1,
+   "categories": [
+    "Stax",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Niambi, Esteemed Speaker",
+   "quantity": 1,
+   "categories": [
+    "Self Bounce",
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Unagi of Kyoshi Island",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wan Shi Tong, Librarian",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bala Ged Recovery // Bala Ged Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disruptor of Currents",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1,
+   "categories": [
+    "Self Bounce",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeritus of Abundance // Regrowth",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Art Ench Removal",
+    "Creature",
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature",
+    "Token",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sink into Stupor // Soporific Springs",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Bounce",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycoach Conductor // All Aboard",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snapcaster Mage",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Appa, Steadfast Guardian",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hydroelectric Specimen // Hydroelectric Laboratory",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Creature",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Wandering Rescuer",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1,
+   "categories": [
+    "Self Bounce",
+    "Protection",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rootcoil Creeper",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil's Flanker",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brazen Borrower // Petty Theft",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Subtlety",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evendo, Waking Haven",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mosswort Bridge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistrise Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

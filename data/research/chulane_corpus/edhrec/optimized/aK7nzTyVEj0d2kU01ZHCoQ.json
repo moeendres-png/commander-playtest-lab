@@ -1,0 +1,326 @@
+{
+ "urlhash": "aK7nzTyVEj0d2kU01ZHCoQ",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2025-09-03",
+ "price": 770,
+ "salt": 77.1561189070344,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/15750799?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Beguiler of Wills",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Grovetender Druids",
+   "quantity": 1
+  },
+  {
+   "name": "Hada Freeblade",
+   "quantity": 1
+  },
+  {
+   "name": "Harabaz Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Irregular Cohort",
+   "quantity": 1
+  },
+  {
+   "name": "Katara, the Fearless",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Blademaster",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Entanglers",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Orvar, the All-Form",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Seascape Aerialist",
+   "quantity": 1
+  },
+  {
+   "name": "Shapesharer",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Warcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Voice of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Commandeer",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Crib Swap",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Fracturing Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Acquire",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Heist",
+   "quantity": 1
+  },
+  {
+   "name": "Blue Sun's Twilight",
+   "quantity": 1
+  },
+  {
+   "name": "Bribery",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chalice of Life",
+   "quantity": 1
+  },
+  {
+   "name": "Conqueror's Flail",
+   "quantity": 1
+  },
+  {
+   "name": "Crown of Empires",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Norn's Annex",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Scepter of Empires",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Throne of Empires",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Confiscate",
+   "quantity": 1
+  },
+  {
+   "name": "Control Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Corrupted Conscience",
+   "quantity": 1
+  },
+  {
+   "name": "Enchanted Evening",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere of Safety",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Time Raveler",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

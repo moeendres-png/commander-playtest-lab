@@ -1,0 +1,362 @@
+{
+ "urlhash": "BX4CMkWc68sb1YB-p_xLXg",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-04-04",
+ "price": 309,
+ "salt": 51.59285050770268,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/zEv0nVs2gkChDZf6ohGTdA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Alphinaud Leveilleur",
+   "quantity": 1
+  },
+  {
+   "name": "April O'Neil, Human Element",
+   "quantity": 1
+  },
+  {
+   "name": "April O'Neil, Kunoichi Trainee",
+   "quantity": 1
+  },
+  {
+   "name": "Arwen Undómiel",
+   "quantity": 1
+  },
+  {
+   "name": "Baird, Steward of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Hero of Kinsbaile",
+   "quantity": 1
+  },
+  {
+   "name": "Commander Eesha",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos of Meletis",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Delney, Streetwise Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Dosan the Falling Leaf",
+   "quantity": 1
+  },
+  {
+   "name": "Drafna, Founder of Lat-Nam",
+   "quantity": 1
+  },
+  {
+   "name": "Edric, Spymaster of Trest",
+   "quantity": 1
+  },
+  {
+   "name": "Emmara, Soul of the Accord",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, Lost on the Range",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Flash Thompson, Spider-Fan",
+   "quantity": 1
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1
+  },
+  {
+   "name": "Go-Shintai of Shared Purpose",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Gwafa Hazid, Profiteer",
+   "quantity": 1
+  },
+  {
+   "name": "Hanna, Ship's Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Hermes, Overseer of Elpis",
+   "quantity": 1
+  },
+  {
+   "name": "Ioreth of the Healing House",
+   "quantity": 1
+  },
+  {
+   "name": "Isamaru, Hound of Konda",
+   "quantity": 1
+  },
+  {
+   "name": "Jukai Naturalist",
+   "quantity": 1
+  },
+  {
+   "name": "Krile Baldesion",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys the Redeemed",
+   "quantity": 1
+  },
+  {
+   "name": "Spider-Byte, Web Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Angel's Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Boon of Safety",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1
+  },
+  {
+   "name": "Contractual Safeguard",
+   "quantity": 1
+  },
+  {
+   "name": "Defend the Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Dromoka's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge Unscathed",
+   "quantity": 1
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1
+  },
+  {
+   "name": "Everybody Lives!",
+   "quantity": 1
+  },
+  {
+   "name": "Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Horrid Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Intervention Pact",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Loran's Escape",
+   "quantity": 1
+  },
+  {
+   "name": "Moogles' Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Ojutai's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Overprotect",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Protection Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Command",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Safekeeping",
+   "quantity": 1
+  },
+  {
+   "name": "Ultimate Magic: Holy",
+   "quantity": 1
+  },
+  {
+   "name": "Valorous Stance",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Command",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Command",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Glaring Spotlight",
+   "quantity": 1
+  },
+  {
+   "name": "Meekstone",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Authority",
+   "quantity": 1
+  },
+  {
+   "name": "Unquestioned Authority",
+   "quantity": 1
+  },
+  {
+   "name": "Vigil for the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Meteor Crater",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

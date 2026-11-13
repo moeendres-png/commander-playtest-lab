@@ -449,6 +449,7 @@ class BatchSimulation:
         games_per_jvm: int | None = None,
         engine: SeriesEngine | None = None,
         chunk_runner: ChunkRunner | None = None,
+        initial_games: Sequence[GameSummary] | None = None,
     ) -> None:
         self.batch_id = batch_id
         self.data_folder = Path(data_folder)
@@ -464,10 +465,15 @@ class BatchSimulation:
         self.workers, requested = checked_series_settings(workers, games_per_jvm)
         # a launcher that cannot play several games per process (not java) says so here
         self.games_per_jvm = engine.games_per_jvm if engine is not None else requested
-        self.chunks = plan_chunks(self.seeds, self.workers, self.games_per_jvm)
 
-        self.status = "pending"  # pending, running, completed, cancelled, failed
-        self.current_index = 0
+        # Track completed vs remaining seeds for resumable execution
+        self._games: list[GameSummary] = list(initial_games or [])
+        completed_seeds = {g.seed for g in self._games if g.status == "finished"}
+        remaining_seeds = [s for s in self.seeds if s not in completed_seeds]
+        self.chunks = plan_chunks(remaining_seeds, self.workers, self.games_per_jvm)
+
+        self.status = "pending" if remaining_seeds else "completed"
+        self.current_index = len(self._games)
         self.current_game_id: str | None = None
         self.started_at: str | None = None
         self.ended_at: str | None = None
@@ -476,8 +482,9 @@ class BatchSimulation:
 
         self._cancel_requested = False
         self._processes: set[subprocess.Popen[str]] = set()
-        self._games: list[GameSummary] = []
-        self._summary: dict[str, object] | None = None
+        self._summary: dict[str, object] | None = (
+            aggregate_batch_results(self._games) if not remaining_seeds else None
+        )
         self._lock = threading.Lock()
 
     def game_id_of(self, seed: int) -> str:
@@ -518,6 +525,7 @@ class BatchSimulation:
             games = self._games_in_seed_order()
             return {
                 "batch_id": self.batch_id,
+                "seeds": list(self.seeds),
                 "deck_id": self.deck_id,
                 "revision_id": self.revision_id,
                 "pod": self.pod_name,
@@ -536,13 +544,110 @@ class BatchSimulation:
                 "games": [g.to_dict() for g in games],
             }
 
+    @classmethod
+    def from_saved_series(
+        cls,
+        data_folder: str | Path,
+        batch_id: str,
+        *,
+        opponent_paths: list[Path] | None = None,
+        workers: int | None = None,
+        games_per_jvm: int | None = None,
+        engine: SeriesEngine | None = None,
+        chunk_runner: ChunkRunner | None = None,
+        game_executor: Callable[..., dict[str, object]] | None = None,
+    ) -> BatchSimulation:
+        """Construct a BatchSimulation from a saved series record for resumption.
+
+        Raises KeyError when no record exists for ``batch_id`` and ValueError
+        when the stored record is not valid JSON. The original opponents are
+        not part of the record; without explicit ``opponent_paths`` they are
+        re-derived heuristically from the pod preset and the precon deck
+        folder, which can differ from the pod the series originally ran with.
+        """
+        data_path = Path(data_folder)
+        folder = games_folder(data_path)
+        series_file = folder / f"{batch_id}.series.json"
+        if not series_file.is_file():
+            raise KeyError(f"no series record found for batch_id {batch_id!r}")
+        try:
+            raw = json.loads(series_file.read_text(encoding="utf-8"))
+        except ValueError as error:
+            raise ValueError(f"corrupt series record for batch_id {batch_id!r}: {error}") from error
+
+        planned_seeds: list[int]
+        if "seeds" in raw and isinstance(raw["seeds"], list):
+            planned_seeds = [int(s) for s in raw["seeds"]]
+        else:
+            exec_chunks = raw.get("execution", {}).get("chunks")
+            if isinstance(exec_chunks, list):
+                planned_seeds = [
+                    int(s) for chunk in exec_chunks if isinstance(chunk, list) for s in chunk
+                ]
+            else:
+                planned_seeds = [int(g["seed"]) for g in raw.get("games", []) if "seed" in g]
+
+        # Scan for already completed games on disk
+        completed_games: list[GameSummary] = []
+        for seed in planned_seeds:
+            gid = f"batch-{batch_id}-s{seed}"
+            if any(folder.glob(f"{gid}.jsonl*")):
+                try:
+                    summary = extract_game_log_telemetry(data_path, gid, candidate_seat=0)
+                    if summary.status == "finished":
+                        completed_games.append(summary)
+                except Exception:
+                    pass
+
+        # Resolve opponents if needed
+        opp_paths = list(opponent_paths or [])
+        if not opp_paths:
+            pod = str(raw.get("pod") or "precon")
+            root = Path(__file__).resolve().parents[3]
+            preset = POD_PRESETS.get(pod, POD_PRESETS["precon"])
+            for oid in preset:
+                cand = root / f"data/decks/precons/{oid}.json"
+                if cand.is_file():
+                    opp_paths.append(cand)
+                else:
+                    for p in (root / "data/decks/precons").glob("*.json"):
+                        if p.stem.endswith(oid) or oid in p.stem:
+                            opp_paths.append(p)
+                            break
+            if not opp_paths:
+                all_p = sorted((root / "data/decks/precons").glob("*.json"))
+                opp_paths = all_p[:3] if len(all_p) >= 3 else all_p
+
+        deck_id = str(raw.get("deck_id") or "chulane")
+        revision_id = str(raw.get("revision_id") or "current")
+        pod_name = str(raw.get("pod") or "precon")
+        exec_info = raw.get("execution", {})
+        saved_workers = exec_info.get("workers")
+        saved_batch = exec_info.get("games_per_jvm")
+
+        return cls(
+            batch_id=batch_id,
+            data_folder=data_path,
+            deck_id=deck_id,
+            revision_id=revision_id,
+            pod_name=pod_name,
+            opponent_paths=opp_paths,
+            seeds=planned_seeds,
+            game_executor=game_executor,
+            workers=workers if workers is not None else saved_workers,
+            games_per_jvm=games_per_jvm if games_per_jvm is not None else saved_batch,
+            engine=engine,
+            chunk_runner=chunk_runner,
+            initial_games=completed_games,
+        )
+
     def run_worker(
         self,
         store_factory: Callable[[], StudioStore] | None = None,
         own_deck_path: Path | None = None,
     ) -> None:
         """Main execution loop running in a background thread."""
-        self.started_at = now_utc()
+        self.started_at = self.started_at or now_utc()
         self.status = "running"
 
         try:
@@ -926,6 +1031,79 @@ class SimulationBatchManager:
     def get_batch(self, batch_id: str) -> BatchSimulation | None:
         with self._lock:
             return self._batches.get(batch_id)
+
+    def resume_batch(
+        self,
+        store: StudioStore,
+        data_folder: str | Path,
+        batch_id: str,
+        *,
+        workers: int | None = None,
+        games_per_jvm: int | None = None,
+        chunk_runner: ChunkRunner | None = None,
+        game_executor: Callable[..., dict[str, object]] | None = None,
+    ) -> BatchSimulation:
+        """Resume an incomplete or interrupted batch simulation."""
+        data_path = Path(data_folder).resolve()
+        with self._lock:
+            existing = self._batches.get(batch_id)
+            if existing is not None and existing.status in ("pending", "running"):
+                raise RuntimeError(f"Batch {batch_id} is already active (status={existing.status})")
+
+        used_workers, used_games_per_jvm = checked_series_settings(workers, games_per_jvm)
+        engine: SeriesEngine | None = None
+        if game_executor is None and chunk_runner is None:
+            engine = series_engine(data_path, used_games_per_jvm)
+
+        if existing is not None:
+            completed_seeds = {g.seed for g in existing._games if g.status == "finished"}
+            remaining_seeds = [s for s in existing.seeds if s not in completed_seeds]
+            existing.chunks = plan_chunks(remaining_seeds, used_workers, used_games_per_jvm)
+            existing.workers = used_workers
+            existing.games_per_jvm = used_games_per_jvm
+            existing._cancel_requested = False
+            batch = existing
+        else:
+            batch = BatchSimulation.from_saved_series(
+                data_path,
+                batch_id,
+                workers=used_workers,
+                games_per_jvm=used_games_per_jvm,
+                engine=engine,
+                chunk_runner=chunk_runner,
+                game_executor=game_executor,
+            )
+
+        with self._lock:
+            self._batches[batch_id] = batch
+
+        if not batch.chunks:
+            batch.status = "completed"
+            return batch
+
+        # Locate or snapshot candidate deck
+        safe_rev = batch.revision_id.replace("@", "-").replace("/", "-")
+        deck_folder = games_folder(data_path) / "decks"
+        own_deck_path = deck_folder / f"{safe_rev}.json"
+        if not own_deck_path.is_file():
+            snapshot = lab_snapshot(store, batch.revision_id)
+            deck_folder.mkdir(parents=True, exist_ok=True)
+            own_deck_path.write_text(
+                json.dumps(snapshot, indent=1, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+
+        def _open_store() -> StudioStore:
+            if store.path is not None:
+                return StudioStore.open(store.path.parent)
+            return StudioStore.open(data_path)
+
+        thread = threading.Thread(
+            target=batch.run_worker,
+            kwargs={"store_factory": _open_store, "own_deck_path": own_deck_path},
+            daemon=True,
+        )
+        thread.start()
+        return batch
 
     def cancel_batch(self, batch_id: str) -> bool:
         batch = self.get_batch(batch_id)

@@ -1,0 +1,817 @@
+{
+ "id": 2155695,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "C-c-c-creature!",
+ "updated_at": "2026-11-10T20:48:13.086724Z",
+ "cards": [
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thassa's Oracle",
+   "quantity": 1,
+   "categories": [
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hengegate Pathway // Mistgate Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Combo 02"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1,
+   "categories": [
+    "Cost Reducer"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pili-Pala",
+   "quantity": 1,
+   "categories": [
+    "Combo 01"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Minamo, School at Water's Edge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1,
+   "categories": [
+    "Combo 02"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Architect",
+   "quantity": 1,
+   "categories": [
+    "Combo 01"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedcradle Witch",
+   "quantity": 1,
+   "categories": [
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1,
+   "categories": [
+    "Cost Reducer"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1,
+   "categories": [
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gemstone Mine",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1,
+   "categories": [
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Riftsweeper",
+   "quantity": 1,
+   "categories": [
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Mana",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cyclone Summoner",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Homeward Path",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Volatile Stormdrake",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1,
+   "categories": [
+    "Mana"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prime Speaker Vannifar",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistrise Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1,
+   "categories": [
+    "Untap",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1,
+   "categories": [
+    "Mana",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forbidden Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Combo 04"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vigean Graftmage",
+   "quantity": 1,
+   "categories": [
+    "Combo 02",
+    "Untap",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drake Familiar",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heliod, Sun-Crowned",
+   "quantity": 1,
+   "categories": [
+    "Combo 03",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sylvan Safekeeper",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Utility",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1,
+   "categories": [
+    "Cost Reducer",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hydroelectric Specimen // Hydroelectric Laboratory",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Utility",
+    "Combo 03"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1,
+   "categories": [
+    "Utility",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Utility",
+    "Combo 04"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myrel, Shield of Argive",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Utility"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kataki, War's Wage",
+   "quantity": 1,
+   "categories": [
+    "Control",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1,
+   "categories": [
+    "Combo 03",
+    "Wincon"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unctus, Grand Metatect",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 2,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shang-Chi, Master of Kung Fu",
+   "quantity": 1,
+   "categories": [
+    "Mana",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Colossal Skyturtle",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Formidable Speaker",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flickering Hound",
+   "quantity": 1,
+   "categories": [
+    "Utility",
+    "Creature"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 103,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

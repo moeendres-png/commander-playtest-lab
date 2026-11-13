@@ -1,0 +1,342 @@
+{
+ "urlhash": "KFRbyAJqqcEb0Q-tEyTkDA",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-08-04",
+ "price": 103,
+ "salt": 37.49395066080615,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/iNPEzWHBckOJHNXOTRmwew?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Glory's Rise",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beregond of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Coppercoat Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Dismantler",
+   "quantity": 1
+  },
+  {
+   "name": "Devout Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Extraction Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Heron's Grace Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Heronblade Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Honored Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Hopeful Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Paleontologist",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Voice of Zhalfir",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra's Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Katilda, Dawnhart Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy",
+   "quantity": 1
+  },
+  {
+   "name": "Kyler, Sigardian Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Lena, Selfless Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Minas Tirith Garrison",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Odric, Master Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Paladin Danse, Steel Maverick",
+   "quantity": 1
+  },
+  {
+   "name": "Reclusive Taxidermist",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Champion of Light",
+   "quantity": 1
+  },
+  {
+   "name": "Sita Varma, Masked Racer",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Stalwart Pathlighter",
+   "quantity": 1
+  },
+  {
+   "name": "Stone-Seeder Hierophant",
+   "quantity": 1
+  },
+  {
+   "name": "Sunblast Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Beastrider",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Whisperer of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, All-Questioning",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Resilience",
+   "quantity": 1
+  },
+  {
+   "name": "Duty Beyond Death",
+   "quantity": 1
+  },
+  {
+   "name": "Make a Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Tyvar's Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Doppelgang",
+   "quantity": 1
+  },
+  {
+   "name": "Overcome",
+   "quantity": 1
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Encounter",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Glorious Sunrise",
+   "quantity": 1
+  },
+  {
+   "name": "Laid to Rest",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Paladin Class",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Kazandu",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,370 @@
+{
+ "urlhash": "qa4MsUmdYQoIG42oRGP9aQ",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2026-03-17",
+ "price": 107,
+ "salt": 37.354086954146624,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/15774193?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Beast of Burden",
+   "quantity": 1
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Goobbue Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Tazeem",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Meloku the Clouded Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "Mightform Harmonizer",
+   "quantity": 1
+  },
+  {
+   "name": "Oasis Ritualist",
+   "quantity": 1
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "PuPu UFO",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Scaled Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Sporemound",
+   "quantity": 1
+  },
+  {
+   "name": "Stone-Seeder Hierophant",
+   "quantity": 1
+  },
+  {
+   "name": "Sutina, Speaker of the Tajuru",
+   "quantity": 1
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1
+  },
+  {
+   "name": "Territory Culler",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Rootweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Trench Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Vine Trellis",
+   "quantity": 1
+  },
+  {
+   "name": "Wylie Duke, Atiin Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Airship Crash",
+   "quantity": 1
+  },
+  {
+   "name": "Artistic Refusal",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Didn't Say Please",
+   "quantity": 1
+  },
+  {
+   "name": "Eject",
+   "quantity": 1
+  },
+  {
+   "name": "Fate of the Sun-Cryst",
+   "quantity": 1
+  },
+  {
+   "name": "Ice Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Insidious Will",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Jaheira's Respite",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Reverse the Polarity",
+   "quantity": 1
+  },
+  {
+   "name": "Tragic Lesson",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Kick",
+   "quantity": 1
+  },
+  {
+   "name": "Crisis of Conscience",
+   "quantity": 1
+  },
+  {
+   "name": "Eagle Vision",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Rydia's Return",
+   "quantity": 1
+  },
+  {
+   "name": "Chocobo Racetrack",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "White Auracite",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Eusocial Engineering",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Ride the Shoopuf",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Tutelage",
+   "quantity": 1
+  },
+  {
+   "name": "Trial of a Time Lord",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar's Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth Tirel",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Master of the Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Archway",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Crossroads Village",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Guadosalam, Farplane Gateway",
+   "quantity": 1
+  },
+  {
+   "name": "Guildless Commons",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Terminal Moraine",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Warped Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Windurst, Federation Center",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

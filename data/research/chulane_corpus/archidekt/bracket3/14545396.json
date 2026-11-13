@@ -1,0 +1,884 @@
+{
+ "id": 14545396,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Dorkin' Across The Universe",
+ "updated_at": "2026-01-06T00:30:31.502740Z",
+ "cards": [
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Fanatic of Rhonas",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Heart of the Wilds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Viridian Joiner",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Marwyn, the Nurturer",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Tactician",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Cradle Clearcutter",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Devoted Druid",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Dionus, Elvish Archdruid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Archdruid",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Elvish Harbinger",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ezuri, Claw of Progress",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gyre Sage",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Heronblade Elite",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Karametra's Acolyte",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Loamspeaker",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Tribe",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Regal Force",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Sylvan Caryatid",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Wirewood Channeler",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Concordant Crossroads",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Armored Scrapgorger",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Bighorner Rancher",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bramble Familiar // Fetch Quest",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Gilanra, Caller of Wirewood",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Goobbue Gardener",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gwenna, Eyes of Gaea",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Abundance",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Nyxbloom Ancient",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Quirion Elves",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Rainveil Rejuvenator",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Tangled Florahedron // Tangled Vale",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tender Wildguide",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Trailtracker Scout",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Whisperer of the Wilds",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Decimator of the Provinces",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [],
+   "companion": false
+  },
+  {
+   "name": "Myrel, Shield of Argive",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thunderfoot Baloth",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bugenhagen, Wise Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sigarda, Host of Herons",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 123,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

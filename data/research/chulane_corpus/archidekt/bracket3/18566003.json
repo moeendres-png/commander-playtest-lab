@@ -1,0 +1,765 @@
+{
+ "id": 18566003,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "39 - Fantastic Mister Fox",
+ "updated_at": "2026-09-20T06:09:55.329353Z",
+ "cards": [
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Innocuous Researcher",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Erdwal Illuminator",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Mass"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Finale of Revelation",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mechanized Production",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wavesifter",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whirler Rogue",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Armed with Proof",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Serene Sleuth",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tangletrove Kelp",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bennie Bracks, Zoologist",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Mass"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tezzeret, Betrayer of Flesh",
+   "quantity": 1,
+   "categories": [
+    "Acceleration",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thought Monitor",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ulvenwald Mysteries",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aerial Extortionist",
+   "quantity": 1,
+   "categories": [
+    "Acceleration",
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Mass"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Graf Mole",
+   "quantity": 1,
+   "categories": [
+    "Support",
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idol of Oblivion",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inspiring Statuary",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Junk Winder",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shimmer Dragon",
+   "quantity": 1,
+   "categories": [
+    "Acceleration"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merchant of Truth",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ongoing Investigation",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Search the Premises",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selfless Squire",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spider-Sense",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Another Round",
+   "quantity": 1,
+   "categories": [
+    "Support",
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aid from the Cowl",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mischievous Pup",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1,
+   "categories": [
+    "Disruption - Targeted"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mutable Explorer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Y'shtola Rhul",
+   "quantity": 1,
+   "categories": [
+    "Support",
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1,
+   "categories": [
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lair of the Hydra",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ransom Note",
+   "quantity": 1,
+   "categories": [
+    "Support",
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Acceleration",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1,
+   "categories": [
+    "Support",
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverquill Lecturer",
+   "quantity": 1,
+   "categories": [
+    "Support",
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1,
+   "categories": [
+    "Support",
+    "Game Plan"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mr. Foxglove",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lumbering Falls",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jyoti, Moag Ancient",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cactus Preserve",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kros, Defense Contractor",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldspine Wurm",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 105,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

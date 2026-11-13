@@ -1,0 +1,302 @@
+{
+ "urlhash": "b_gLbXv14ITB03fgfnwyTw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-02-13",
+ "price": 821,
+ "salt": 57.332877619192004,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/dDgNXXjCcESbCykFNVFBCg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Delney, Streetwise Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Innocence",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Exalted Sunborn",
+   "quantity": 1
+  },
+  {
+   "name": "Finneas, Ace Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 20
+  },
+  {
+   "name": "Mondrak, Glory Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Ojer Taq, Deepest Foundation",
+   "quantity": 1
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1
+  },
+  {
+   "name": "Echoing Courage",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Lae'zel's Acrobatics",
+   "quantity": 1
+  },
+  {
+   "name": "Mask of the Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Another Round",
+   "quantity": 1
+  },
+  {
+   "name": "Bifurcate",
+   "quantity": 1
+  },
+  {
+   "name": "Clarion Ultimatum",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Pack Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Return to the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Locket of Yesterdays",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormind Crown",
+   "quantity": 1
+  },
+  {
+   "name": "Obelisk of Urd",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Foundry",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Shrine",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Moonlit Meditation",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Remembrance",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Adagia, Windswept Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Hall of Heliod's Generosity",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Lupinflower Village",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

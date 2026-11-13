@@ -1,0 +1,822 @@
+{
+ "id": 10297552,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "49.76 (WUG) HUH WHAT",
+ "updated_at": "2026-08-27T06:10:48.896146Z",
+ "cards": [
+  {
+   "name": "Path of Peace",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path of Discovery",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Staff of the Storyteller",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glasses of Urza",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lost in a Labyrinth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Staff of Eden, Vault's Key",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fblthp, the Lost",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bookwurm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peace Talks",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spellbook Vendor",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peace of Mind",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lost in the Maze",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peacekeeper",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peace and Quiet",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Totally Lost",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Caltrops",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Droplet",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Camel",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Haunting Imitation",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dinosaur Egg",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Monkey Cage",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Feldon's Cane",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tree Monkey",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Candletrap",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lose Focus",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Haunted Library",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Get Lost",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overwhelming Denial",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prologue to Phyresis",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Court of Grace",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reach Through Mists",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "White Sun's Zenith",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Telepathy",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tragic Lesson",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun's Bounty",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Secret Arcade // Dusty Parlor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tragic Poet",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tragic Arrogance",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tower of the Magistrate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 12,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hall of Oracles",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sphere of Safety",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Norn's Annex",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 10,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Underworld Cookbook",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wedding Ring",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Study Hall",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Pets",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blue Sun's Zenith",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hot Soup",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Test of Faith",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Well of Knowledge",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Well of Lost Dreams",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jinxed Choker",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Venser's Journal",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Well of Life",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Happily Ever After",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Sovereign",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azor's Elocutors",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Test of Endurance",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Testament of Faith",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Book of Exalted Deeds",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Well of Ideas",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mutavault",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Hope",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Darien, King of Kjeldor",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forced Fruition",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 126,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

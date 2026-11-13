@@ -1,0 +1,354 @@
+{
+ "urlhash": "suHv4OT_aLPFsONwVJj0OQ",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2026-09-30",
+ "price": 629,
+ "salt": 65.98357236757874,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26252092?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, the Radiant Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Kira, Great Glass-Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Namor the Sub-Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Nessian Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Vannifar",
+   "quantity": 1
+  },
+  {
+   "name": "Puresight Merrow",
+   "quantity": 1
+  },
+  {
+   "name": "Sanctum Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Seafloor Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Setessan Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Safekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Sythis, Harvest's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Wave-Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Zameck Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Consign to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Flare of Fortitude",
+   "quantity": 1
+  },
+  {
+   "name": "Long River's Pull",
+   "quantity": 1
+  },
+  {
+   "name": "Orim's Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Rebuff the Wicked",
+   "quantity": 1
+  },
+  {
+   "name": "Roiling Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Strix Serenade",
+   "quantity": 1
+  },
+  {
+   "name": "Analyze the Pollen",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Everything Comes to Dust",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Harsh Mercy",
+   "quantity": 1
+  },
+  {
+   "name": "Morningtide's Light",
+   "quantity": 1
+  },
+  {
+   "name": "Halo Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Greed",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Springleaf Drum",
+   "quantity": 1
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Enchantress's Presence",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tribute to the World Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Trouble in Pairs",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderwine Hub",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

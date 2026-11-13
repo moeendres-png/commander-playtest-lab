@@ -1,0 +1,282 @@
+{
+ "urlhash": "qGGKOOgGD_rf4CcX7l-pyg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-05-11",
+ "price": 158,
+ "salt": 51.03067319840193,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/42_HuvbdE0S-XLzEuo5k9g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aberrant Mind Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Gold Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Archmage of Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonlord Ojutai",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Artisans",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Guidemother",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Feywild Caretaker",
+   "quantity": 1
+  },
+  {
+   "name": "Feywild Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Galvanic Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Gorion, Wise Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy, Gleeful Spellthief",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Daring Traveler",
+   "quantity": 1
+  },
+  {
+   "name": "Lady of Laughter",
+   "quantity": 1
+  },
+  {
+   "name": "Malleable Impostor",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Mocking Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Obyra's Attendants",
+   "quantity": 1
+  },
+  {
+   "name": "Ojutai, Soul of Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Rubinia Soulsinger",
+   "quantity": 1
+  },
+  {
+   "name": "Scion of Oona",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Stormcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Siani, Eye of the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Sire of the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Fleet Negotiator",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Stormchaser Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Stormwing Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Talion's Messenger",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwind Faeries",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Twining Twins",
+   "quantity": 1
+  },
+  {
+   "name": "Windstorm Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Trickery",
+   "quantity": 1
+  },
+  {
+   "name": "Flusterstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Storm of Forms",
+   "quantity": 1
+  },
+  {
+   "name": "Weather the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Brave the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Edge of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Slumber Party",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Storm the Festival",
+   "quantity": 1
+  },
+  {
+   "name": "Storm the Seedcore",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Eye of the Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Feywild Visitor",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan Joins Up",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Front",
+   "quantity": 1
+  },
+  {
+   "name": "Elminster",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 17
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

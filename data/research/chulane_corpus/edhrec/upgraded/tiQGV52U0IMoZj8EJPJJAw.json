@@ -1,0 +1,409 @@
+{
+ "urlhash": "tiQGV52U0IMoZj8EJPJJAw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-10-08",
+ "price": 5652,
+ "salt": 55.33745386265218,
+ "tags": [
+  "Tokens",
+  "Lands Matter",
+  "Keruga Companion",
+  "+1/+1 Counters"
+ ],
+ "source_url": "https://moxfield.com/decks/jjRI5ic-OUuhX5prGnKdqA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alrund, God of the Cosmos",
+   "quantity": 1
+  },
+  {
+   "name": "Bloomvine Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptor of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Emeritus of Ideation",
+   "quantity": 1
+  },
+  {
+   "name": "Exalted Sunborn",
+   "quantity": 1
+  },
+  {
+   "name": "Fecund Greenshell",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Greensleeves, Maro-Sorcerer",
+   "quantity": 1
+  },
+  {
+   "name": "Juniper Order Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Keruga, the Macrosage",
+   "quantity": 1
+  },
+  {
+   "name": "Lavinia of the Tenth",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Momir Vig, Simic Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Omni-Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Orysa, Tide Choreographer",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Floodpits",
+   "quantity": 1
+  },
+  {
+   "name": "Overlord of the Hauntwoods",
+   "quantity": 1
+  },
+  {
+   "name": "Quantum Riddler",
+   "quantity": 1
+  },
+  {
+   "name": "Railway Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Safewright",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Starbreach Whale",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Territory Culler",
+   "quantity": 1
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1
+  },
+  {
+   "name": "Wistfulness",
+   "quantity": 1
+  },
+  {
+   "name": "Misdirection",
+   "quantity": 1
+  },
+  {
+   "name": "Moogles' Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Repudiate // Replicate",
+   "quantity": 1
+  },
+  {
+   "name": "Submerge",
+   "quantity": 1
+  },
+  {
+   "name": "Hour of Promise",
+   "quantity": 1
+  },
+  {
+   "name": "Lórien Revealed",
+   "quantity": 1
+  },
+  {
+   "name": "Time Warp",
+   "quantity": 1
+  },
+  {
+   "name": "What Must Be Done",
+   "quantity": 1
+  },
+  {
+   "name": "The Arkenstone",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Dancing from Dark to Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Visitation",
+   "quantity": 1
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1
+  },
+  {
+   "name": "Eusocial Engineering",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Static Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1
+  },
+  {
+   "name": "Nissa, Who Shakes the World",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Calciform Pools",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Gemstone Caverns",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hickory Woodlot",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Mage-Ring Network",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Remote Farm",
+   "quantity": 1
+  },
+  {
+   "name": "Saltcrusted Steppe",
+   "quantity": 1
+  },
+  {
+   "name": "Saprazzan Skerry",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 101,
+ "parse_status": "error",
+ "parse_notes": [
+  "summe_101_statt_100"
+ ]
+}

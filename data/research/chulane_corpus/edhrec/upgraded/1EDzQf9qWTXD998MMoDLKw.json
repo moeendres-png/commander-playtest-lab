@@ -1,0 +1,326 @@
+{
+ "urlhash": "1EDzQf9qWTXD998MMoDLKw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-10-10",
+ "price": 190,
+ "salt": 45.37355918250978,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/LLkKLyZ51kCOORmq-vkMSg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abominable Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Fearless Fledgling",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Grazing Gladehart",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Tazeem",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Nectarpot",
+   "quantity": 1
+  },
+  {
+   "name": "Kruphix, God of Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Makindi Ox",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro Breezecaller",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "PuPu UFO",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Reflector Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Rimefeather Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Ghost",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Rainshaper",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit of the Aldergard",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Uyo, Silent Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Auroral Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Congregate",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Chant",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Sundering Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Tangle",
+   "quantity": 1
+  },
+  {
+   "name": "Blizzard Brawl",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Bow of Nylea",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Elixir of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Shelf",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 11
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

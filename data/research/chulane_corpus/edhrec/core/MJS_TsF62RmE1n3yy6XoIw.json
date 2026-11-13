@@ -1,0 +1,274 @@
+{
+ "urlhash": "MJS_TsF62RmE1n3yy6XoIw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-09-08",
+ "price": 513,
+ "salt": 76.31231486983597,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26182359?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancestor Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1
+  },
+  {
+   "name": "Forgotten Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, the Radiant Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Hope Estheim",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias, Core Augur",
+   "quantity": 1
+  },
+  {
+   "name": "Jin-Gitaxias, Progress Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "King Darien XLVIII",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Kudo, King Among Bears",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Keeper of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Managorger Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Master Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Mondrak, Glory Dominus",
+   "quantity": 1
+  },
+  {
+   "name": "Mr. Foxglove",
+   "quantity": 1
+  },
+  {
+   "name": "Ms. Bumbleflower",
+   "quantity": 1
+  },
+  {
+   "name": "Oketra the True",
+   "quantity": 1
+  },
+  {
+   "name": "Omo, Queen of Vesuva",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Purifying Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscorch Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Monstrous Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Xolatoyac, the Smiling Flood",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Consign to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Command",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Light of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Voidslime",
+   "quantity": 1
+  },
+  {
+   "name": "Animist's Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Camaraderie",
+   "quantity": 1
+  },
+  {
+   "name": "Harvest Season",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, the Greathearted",
+   "quantity": 1
+  },
+  {
+   "name": "Elminster",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

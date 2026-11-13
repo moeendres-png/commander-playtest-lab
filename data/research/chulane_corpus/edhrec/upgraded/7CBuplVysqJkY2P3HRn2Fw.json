@@ -1,0 +1,322 @@
+{
+ "urlhash": "7CBuplVysqJkY2P3HRn2Fw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-02-12",
+ "price": 85,
+ "salt": 40.459156568627805,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Gv0vSe38kE2Ac9dy7LhRhQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudkin Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Elite Guardmage",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Excavating Anurid",
+   "quantity": 1
+  },
+  {
+   "name": "Farsight Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Stray",
+   "quantity": 1
+  },
+  {
+   "name": "Helpful Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Jungle Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Messenger Falcons",
+   "quantity": 1
+  },
+  {
+   "name": "Nimble Innovator",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Priest of Ancient Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rhox Meditant",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue Refiner",
+   "quantity": 1
+  },
+  {
+   "name": "Roving Harper",
+   "quantity": 1
+  },
+  {
+   "name": "Sarulf's Packmate",
+   "quantity": 1
+  },
+  {
+   "name": "Search Party Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Skywarp Skaab",
+   "quantity": 1
+  },
+  {
+   "name": "Splitskin Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana, Voice of Thunder",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Treetop Sentries",
+   "quantity": 1
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Wistful Selkie",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Dismiss",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Detection",
+   "quantity": 1
+  },
+  {
+   "name": "Galestrike",
+   "quantity": 1
+  },
+  {
+   "name": "Grip of Amnesia",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Hindering Light",
+   "quantity": 1
+  },
+  {
+   "name": "Interdict",
+   "quantity": 1
+  },
+  {
+   "name": "Leadership Vacuum",
+   "quantity": 1
+  },
+  {
+   "name": "Poison the Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Remand",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeform",
+   "quantity": 1
+  },
+  {
+   "name": "True Love's Kiss",
+   "quantity": 1
+  },
+  {
+   "name": "Union of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Flux",
+   "quantity": 1
+  },
+  {
+   "name": "Scale the Heights",
+   "quantity": 1
+  },
+  {
+   "name": "Shatter the Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Confounding Conundrum",
+   "quantity": 1
+  },
+  {
+   "name": "Dress Down",
+   "quantity": 1
+  },
+  {
+   "name": "Kenrith's Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Nerd Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Proft's Eidetic Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Shielding Plax",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

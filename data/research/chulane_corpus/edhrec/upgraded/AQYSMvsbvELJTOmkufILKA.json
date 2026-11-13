@@ -1,0 +1,350 @@
+{
+ "urlhash": "AQYSMvsbvELJTOmkufILKA",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-01-28",
+ "price": 185,
+ "salt": 55.32624672167003,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/RTtMnwkYFEyUxn76DGKsIg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1
+  },
+  {
+   "name": "Armada Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Derevi, Empyrial Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Falco Spara, Pactweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Graceful Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1
+  },
+  {
+   "name": "Grasping Longneck",
+   "quantity": 1
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Mr. Foxglove",
+   "quantity": 1
+  },
+  {
+   "name": "Ms. Bumbleflower",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Roon of the Hidden Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Rubinia Soulsinger",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Mob",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Skyward Eye Prophets",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Stoic Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Storvald, Frost Giant Jarl",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfaring Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Join Shields",
+   "quantity": 1
+  },
+  {
+   "name": "Long-Term Plans",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Command",
+   "quantity": 1
+  },
+  {
+   "name": "Saving Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Grace",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Alive // Well",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Time of Need",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Alpha Status",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Grafted Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Monastery Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, the Greathearted",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

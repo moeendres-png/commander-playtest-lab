@@ -1,0 +1,362 @@
+{
+ "urlhash": "EZPhwVWg3pkPVgY99DE3NA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-01-06",
+ "price": 125,
+ "salt": 40.382660957053304,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/rEhFMuy_JUqaiEYMr10dVw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Arcades, the Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Axebane Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Bedrock Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Barricade",
+   "quantity": 1
+  },
+  {
+   "name": "Flumph",
+   "quantity": 1
+  },
+  {
+   "name": "Gleaming Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Grappling Sundew",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Nest",
+   "quantity": 1
+  },
+  {
+   "name": "Hover Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Jeskai Barricade",
+   "quantity": 1
+  },
+  {
+   "name": "Jungle Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Marble Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Mnemonic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Oathsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Battlement",
+   "quantity": 1
+  },
+  {
+   "name": "Resolute Watchdog",
+   "quantity": 1
+  },
+  {
+   "name": "Saruli Caretaker",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Shield Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Soulsworn Jury",
+   "quantity": 1
+  },
+  {
+   "name": "Stalwart Shield-Bearers",
+   "quantity": 1
+  },
+  {
+   "name": "Sunscape Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Tetsuko Umezawa, Fugitive",
+   "quantity": 1
+  },
+  {
+   "name": "Tree of Redemption",
+   "quantity": 1
+  },
+  {
+   "name": "Vine Trellis",
+   "quantity": 1
+  },
+  {
+   "name": "Wakestone Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mulch",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Stolen Identity",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Tanglecord",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Tower Defense",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Expel the Interlopers",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Overrun",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Meekstone",
+   "quantity": 1
+  },
+  {
+   "name": "Slagwurm Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Formation",
+   "quantity": 1
+  },
+  {
+   "name": "High Alert",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Huatli, the Sun's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

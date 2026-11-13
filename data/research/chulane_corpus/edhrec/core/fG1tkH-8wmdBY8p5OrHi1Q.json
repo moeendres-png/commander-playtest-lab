@@ -1,0 +1,354 @@
+{
+ "urlhash": "fG1tkH-8wmdBY8p5OrHi1Q",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-03-30",
+ "price": 185,
+ "salt": 49.0483558755368,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/-6aFgw2Qdk2Gk2FjzkUeBg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alseid of Life's Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Benevolent Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Ioreth of the Healing House",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra's Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Shield of Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys the Redeemed",
+   "quantity": 1
+  },
+  {
+   "name": "Rishkar, Peema Renegade",
+   "quantity": 1
+  },
+  {
+   "name": "Seeker of Skybreak",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Vigean Graftmage",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Abolish",
+   "quantity": 1
+  },
+  {
+   "name": "Brain Freeze",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Fateful Absence",
+   "quantity": 1
+  },
+  {
+   "name": "Hindering Light",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Perplexing Test",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Dust",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Harmony",
+   "quantity": 1
+  },
+  {
+   "name": "Silundi Vision",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unwanted Remake",
+   "quantity": 1
+  },
+  {
+   "name": "Vines of Vastwood",
+   "quantity": 1
+  },
+  {
+   "name": "Wash Away",
+   "quantity": 1
+  },
+  {
+   "name": "Wilt",
+   "quantity": 1
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1
+  },
+  {
+   "name": "Fragmentize",
+   "quantity": 1
+  },
+  {
+   "name": "Slaughter the Strong",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Isochron Scepter",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecrafter's Bestiary",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Pemmin's Aura",
+   "quantity": 1
+  },
+  {
+   "name": "Reconnaissance Mission",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidden Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Geier Reach Sanitarium",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Shifting Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Shire Terrace",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Wirewood Lodge",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

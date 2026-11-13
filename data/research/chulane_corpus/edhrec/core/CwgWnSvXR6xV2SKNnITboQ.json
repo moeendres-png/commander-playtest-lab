@@ -1,0 +1,354 @@
+{
+ "urlhash": "CwgWnSvXR6xV2SKNnITboQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-01-21",
+ "price": 387,
+ "salt": 54.08690735185519,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/OuHs5_Tsf0u8kfsWuyIT-A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Azami, Lady of Scrolls",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Aethermage",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Delney, Streetwise Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Floodbringer",
+   "quantity": 1
+  },
+  {
+   "name": "Genku, Future Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Jubilant Skybonder",
+   "quantity": 1
+  },
+  {
+   "name": "Meloku the Clouded Mirror",
+   "quantity": 1
+  },
+  {
+   "name": "Moonbow Illusionist",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro Breezecaller",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro Envoy",
+   "quantity": 1
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Sephara, Sky's Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Cloudskater",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Mindsweeper",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Mirror-Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Mirror-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Rainshaper",
+   "quantity": 1
+  },
+  {
+   "name": "Soratami Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Tameshi, Reality Architect",
+   "quantity": 1
+  },
+  {
+   "name": "Uyo, Silent Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Wonderscape Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Deprive",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Familiar's Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo's Safekeeping",
+   "quantity": 1
+  },
+  {
+   "name": "Thirst for Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1
+  },
+  {
+   "name": "Harvest Season",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer's Map",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Call for Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Confounding Conundrum",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Shoreline",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Kamigawa",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Branchloft Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Crumbling Vestige",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Laboratory",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

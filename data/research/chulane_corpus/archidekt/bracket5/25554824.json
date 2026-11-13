@@ -1,0 +1,21 @@
+{
+ "id": 25554824,
+ "bracket": 5,
+ "bracket_detail": 5,
+ "name": "Chulane Bant Creature Combo Landfall",
+ "updated_at": "2026-08-24T10:12:29.680481Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 1,
+ "summe_gesamt": 1,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

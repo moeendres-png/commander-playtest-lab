@@ -1,0 +1,346 @@
+{
+ "urlhash": "g2Jz7yHt7RYoPNDppgSv9A",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-08-13",
+ "price": 303,
+ "salt": 58.15121824666858,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Yfaf4mBawEavOjKHeQqCYA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ashaya, Soul of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Astelli Reclaimer",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Courser of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Círdan the Shipwright",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnbringer Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Gandalf the White",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Eternal Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Long River Lurker",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Ouroboroid",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelmed Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Sally Sparrow",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Seedship Agrarian",
+   "quantity": 1
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sokrates, Athenian Teacher",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Twitching Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Escape Detection",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Flux",
+   "quantity": 1
+  },
+  {
+   "name": "Nexus of Fate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Repulse",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Slip On the Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Unconscious",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Doppelgang",
+   "quantity": 1
+  },
+  {
+   "name": "Quantum Misalignment",
+   "quantity": 1
+  },
+  {
+   "name": "Splash Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Marina Vendrell's Grimoire",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Slate of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of the Paruns",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Curse of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Druid Class",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Monk Class",
+   "quantity": 1
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Idyllic Grange",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Lonely Sandbar",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Shire Terrace",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "The Shire",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

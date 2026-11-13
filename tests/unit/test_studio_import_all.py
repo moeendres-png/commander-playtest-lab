@@ -116,6 +116,7 @@ def test_a_step_that_is_not_given_is_not_provided(tmp_path: Path) -> None:
         inventory=str(files["inventory"]),
         scryfall=None,
         roles=None,
+        rulings=None,
         signals=None,
         decklists=None,
         decklist_format="edhrec",

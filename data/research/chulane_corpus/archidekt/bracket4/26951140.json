@@ -1,0 +1,810 @@
+{
+ "id": 26951140,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Chulane Landfall",
+ "updated_at": "2026-10-30T06:20:10.369577Z",
+ "cards": [
+  {
+   "name": "Forest",
+   "quantity": 10,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Landfall Doubler"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Planar Engineering",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sprouting Vines",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Interaction Removal",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1,
+   "categories": [
+    "Interaction Protection",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oran-Rief Hydra",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vinelasher Kudzu",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overburden",
+   "quantity": 1,
+   "categories": [
+    "Enchantments",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Omnipresence",
+   "quantity": 1,
+   "categories": [
+    "Enchantments"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of the Animist",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Dryad",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token",
+    "Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Queen Allenal of Ruadach",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Interaction Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arid Archway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1,
+   "categories": [
+    "Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Draw / Cardadvantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Interaction Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacier Godmaw",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Negate",
+   "quantity": 1,
+   "categories": [
+    "Interaction Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verdant Kraken",
+   "quantity": 1,
+   "categories": [
+    "Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guildless Commons",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1,
+   "categories": [
+    "Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Interaction Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Interaction Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Interaction Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Springheart Nantuko",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Interaction Removal",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1,
+   "categories": [
+    "Landfall Doubler"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Pioneer",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jaheira, Friend of the Forest",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quirion Trailblazer",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token",
+    "Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Undergrowth Champion",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Greensleeves, Maro-Sorcerer",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thranduil, Sindarin Liege // Silvan Rally",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dancing from Dark to Dawn",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sapling Nursery",
+   "quantity": 1,
+   "categories": [
+    "Landfall Token"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Enchantments"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Draw / Cardadvantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Draw / Cardadvantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Interaction Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mole Man, Moloid Master",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall Token",
+    "Landfall",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tifa Lockhart",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daze",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 88,
+ "summe_gesamt": 112,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

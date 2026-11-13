@@ -1,0 +1,29 @@
+{
+ "id": 15102615,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Chuman Tribal",
+ "updated_at": "2025-08-07T12:20:28.720610Z",
+ "cards": [
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 2,
+ "summe_gesamt": 2,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

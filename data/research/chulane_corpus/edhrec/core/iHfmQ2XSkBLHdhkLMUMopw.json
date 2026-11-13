@@ -1,0 +1,334 @@
+{
+ "urlhash": "iHfmQ2XSkBLHdhkLMUMopw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-04-12",
+ "price": 58,
+ "salt": 41.01414324203506,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/AR_8JTg60EyUcZvLQg8pyw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Scrapgorger",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Caustic Caterpillar",
+   "quantity": 1
+  },
+  {
+   "name": "Chameleon, Master of Disguise",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Deputy of Detention",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Drowner of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Eagles of the North",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Impostors",
+   "quantity": 1
+  },
+  {
+   "name": "Fecund Greenshell",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Gene Pollinator",
+   "quantity": 1
+  },
+  {
+   "name": "Genemorph Imago",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Glacier Godmaw",
+   "quantity": 1
+  },
+  {
+   "name": "Goldnight Commander",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Insidious Fungus",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Paleontologist",
+   "quantity": 1
+  },
+  {
+   "name": "Jazal Goldmane",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Master Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Naga Fleshcrafter",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Redemption Choir",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Eager Trailblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sigardian Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Silk, Web Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Skullwinder",
+   "quantity": 1
+  },
+  {
+   "name": "Somberwald Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1
+  },
+  {
+   "name": "Stampede Driver",
+   "quantity": 1
+  },
+  {
+   "name": "Starfield Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Supportive Parents",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Florahedron",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Kabira Takedown",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Consuming Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Tragic Arrogance",
+   "quantity": 1
+  },
+  {
+   "name": "Ash Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Pit of Offerings",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Steppe",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Vibrant Cityscape",
+   "quantity": 1
+  },
+  {
+   "name": "Volatile Fault",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

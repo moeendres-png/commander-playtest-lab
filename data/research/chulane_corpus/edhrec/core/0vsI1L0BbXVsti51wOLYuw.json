@@ -1,0 +1,350 @@
+{
+ "urlhash": "0vsI1L0BbXVsti51wOLYuw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-14",
+ "price": 190,
+ "salt": 44.833956211805344,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/6olRRIwsFEyf-2iA4ZqY2Q?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Agonasaur Rex",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Field Marshal",
+   "quantity": 1
+  },
+  {
+   "name": "Angler Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Bedrock Tortoise",
+   "quantity": 1
+  },
+  {
+   "name": "Blinding Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Caustic Caterpillar",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Faramir, Prince of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Hulking Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Siren",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Jaspera Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Mossborn Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Neverwinter Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Prognostic Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Rangers of Ithilien",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Sita Varma, Masked Racer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Tervigon",
+   "quantity": 1
+  },
+  {
+   "name": "Treeshaker Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Triskaidekaphile",
+   "quantity": 1
+  },
+  {
+   "name": "Tyranid Harridan",
+   "quantity": 1
+  },
+  {
+   "name": "Valkyrie Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1
+  },
+  {
+   "name": "Wakening Sun's Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Dromoka's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Endless Detour",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Natural Connection",
+   "quantity": 1
+  },
+  {
+   "name": "Perch Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Reality Shift",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Displacement Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Full Steam Ahead",
+   "quantity": 1
+  },
+  {
+   "name": "Communal Brewing",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Fight Rigging",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar's Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Razortide Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornglint Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
