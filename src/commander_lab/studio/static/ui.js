@@ -177,7 +177,7 @@ const StudioUI = (() => {
   document.addEventListener("DOMContentLoaded", mountBar);
 
   // ---------- data state: which layers are there, which are missing ----------
-  const STATUS_TEXT = { COMPLETE: "vollständig", PARTIAL: "teilweise", MISSING: "fehlt" };
+  const STATUS_TEXT = { COMPLETE: "vollständig", PARTIAL: "teilweise", MISSING: "fehlt", PRESENT: "vorhanden", NOT_PROVIDED: "nicht angegeben" };
   async function dataState(host, commander, { onlyWhenMissing = true } = {}) {
     let overview;
     try { overview = await request(`/api/layers?commander=${encodeURIComponent(commander)}`); } catch (error) { host.replaceChildren(); return; }

@@ -34,6 +34,8 @@ MISSING = "MISSING"
 
 EXIT_STEP_FAILED = 1
 EXIT_POOL_MISMATCH = 3
+EXIT_COMMANDER_UNKNOWN = 4
+PRESENT = "PRESENT"
 
 
 class StepResult(TypedDict):
@@ -51,6 +53,15 @@ class LayerResult(TypedDict):
     status: str
 
 
+class SignalRows(TypedDict):
+    """Stored usage-signal rows: this commander's (own name plus commander-independent rows)
+    and those of other commanders."""
+
+    for_commander: int
+    other_rows: int
+    other_commanders: int
+
+
 class ImportAllResult(TypedDict):
     commander: str
     steps: list[StepResult]
@@ -58,6 +69,7 @@ class ImportAllResult(TypedDict):
     pool_size: int | None
     expected_pool: int | None
     pool_ok: bool
+    signal_rows: SignalRows
     layers: list[LayerResult]
     data_report: dict[str, object]
 
@@ -157,13 +169,35 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         coverage = {}
     for signal, item in coverage.items():
         add(f"signal:{signal}", f"Signal {signal}", item["rows"], item["pool_cards_with_value"])
-    add(
-        "marks",
-        "Markierungen",
-        _count(store, "SELECT COUNT(*) FROM card_mark"),
-        sum(1 for card in cards if card["favorite"] or card["excluded"] or card["note"]),
+    # Marks are optional per card: present (with the count) or not provided, never partial.
+    marked = sum(1 for card in cards if card["favorite"] or card["excluded"] or card["note"])
+    layers.append(
+        {
+            "key": "marks",
+            "layer": "Markierungen",
+            "rows": marked,
+            "covered": marked,
+            "pool": size,
+            "status": PRESENT if marked else NOT_PROVIDED,
+        }
     )
     return size, layers
+
+
+def signal_rows(store: StudioStore, commander: str) -> SignalRows:
+    """Stored signal rows split into this commander's and the other commanders' (counts)."""
+    own = _count(
+        store, "SELECT COUNT(*) FROM card_signal WHERE commander_name IN (?, '')", (commander,)
+    )
+    other = _count(
+        store, "SELECT COUNT(*) FROM card_signal WHERE commander_name NOT IN (?, '')", (commander,)
+    )
+    names = _count(
+        store,
+        "SELECT COUNT(DISTINCT commander_name) FROM card_signal WHERE commander_name NOT IN (?, '')",
+        (commander,),
+    )
+    return {"for_commander": own, "other_rows": other, "other_commanders": names}
 
 
 _FLAG = {
@@ -281,6 +315,7 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         "pool_size": size,
         "expected_pool": expected,
         "pool_ok": expected is None or size == expected,
+        "signal_rows": signal_rows(store, commander),
         "layers": layers,
         "data_report": data_report(store),
     }
@@ -329,6 +364,13 @@ def render(result: ImportAllResult) -> str:
         "",
         f"Poolgröße: {'unbekannt (Commander nicht in der Sammlung)' if pool is None else pool}",
     ]
+    rows = result["signal_rows"]
+    parts.append(
+        f"Signalzeilen gespeichert: für {result['commander']} {rows['for_commander']} "
+        f"(mit den Zeilen ohne Commander), für andere Commander {rows['other_rows']} "
+        f"({rows['other_commanders']} Commander). Zeilen anderer Commander werden "
+        "gespeichert, aber nur bei diesen Commandern angezeigt."
+    )
     if result["expected_pool"] is not None:
         verdict = "stimmt" if result["pool_ok"] else "STIMMT NICHT"
         parts.append(f"Erwartete Poolgröße {result['expected_pool']}: {verdict}")
@@ -347,6 +389,13 @@ def run_command(args: argparse.Namespace) -> int:
         if result["failed"]:
             print("import-all: ein Schritt ist fehlgeschlagen.", file=sys.stderr)
             return EXIT_STEP_FAILED
+        if result["pool_size"] is None:
+            print(
+                f"import-all: Der Commander „{result['commander']}“ steht nicht in der "
+                "Sammlung, die Poolgröße ist unbekannt. Prüfe den Namen und die Sammlungsdatei.",
+                file=sys.stderr,
+            )
+            return EXIT_COMMANDER_UNKNOWN
         if not result["pool_ok"]:
             print(
                 f"import-all: Poolgröße {result['pool_size']}, erwartet {result['expected_pool']}.",

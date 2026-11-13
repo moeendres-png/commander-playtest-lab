@@ -104,7 +104,7 @@ def test_everything_given_is_imported_and_counted_per_layer(
     assert layers["Rollen"] == "MISSING"  # no role file given
     assert layers["Quelldecks (Decklisten)"] == "PARTIAL"
     assert layers["Signal edhrec_commander_inclusion"] == "PARTIAL"
-    assert layers["Markierungen"] == "PARTIAL"
+    assert layers["Markierungen"] == "PRESENT"
     assert "NOT_PROVIDED" in out  # roles
 
 
@@ -249,3 +249,69 @@ def test_every_signal_layer_is_listed_as_missing_in_a_store_without_signals(
     assert "--signals" in body["signals_command"]
     script = (Path(import_all.__file__).parent / "static" / "ui.js").read_text(encoding="utf-8")
     assert "overview.signals_command" in script
+
+
+def test_an_unknown_commander_exits_non_zero_with_a_german_sentence(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _files(tmp_path)
+    code = main(
+        [
+            "--data", str(tmp_path / "studio"),
+            "import-all", "--commander", "Nobody Atall",
+            "--inventory", str(files["inventory"]),
+        ]
+    )  # fmt: skip
+    captured = capsys.readouterr()
+    assert code == import_all.EXIT_COMMANDER_UNKNOWN
+    assert "steht nicht in der Sammlung" in captured.err
+
+
+def test_marks_are_present_or_not_provided_never_partial(tmp_path: Path) -> None:
+    from commander_lab.studio import importers
+
+    files = _files(tmp_path)
+    store = StudioStore.open(tmp_path / "studio")
+    importers.import_inventory_workbook(store, files["inventory"])
+    _size, before = import_all.completeness(store, COMMANDER)
+    with store.importing_for(COMMANDER):
+        from commander_lab.studio.marks import import_owner_marks
+
+        import_owner_marks(store, files["marks"])
+    _size, after = import_all.completeness(store, COMMANDER)
+    store.close()
+    assert [x["status"] for x in before if x["key"] == "marks"] == ["NOT_PROVIDED"]
+    marks = [x for x in after if x["key"] == "marks"]
+    assert [x["status"] for x in marks] == ["PRESENT"]
+    assert marks[0]["rows"] == 1
+
+
+def test_signal_rows_are_split_into_this_and_other_commanders(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _files(tmp_path)
+    (files["signals"] / "commander_card_signals.csv").write_text(
+        "commander_name,card_name,num_decks,potential_decks,synergy\n"
+        f"{COMMANDER},Filler 03,40,100,0.12\n"
+        "Other One,Filler 03,10,100,0.1\n"
+        "Other Two,Filler 04,10,100,0.1\n",
+        encoding="utf-8",
+    )
+    code = main(
+        [
+            "--data", str(tmp_path / "studio"),
+            "import-all", "--commander", COMMANDER,
+            "--inventory", str(files["inventory"]),
+            "--signals", str(files["signals"]),
+        ]
+    )  # fmt: skip
+    out = capsys.readouterr().out
+    assert code == 0, out
+    store = StudioStore.open(tmp_path / "studio")
+    rows = import_all.signal_rows(store, COMMANDER)
+    store.close()
+    assert rows["other_commanders"] == 2
+    assert rows["other_rows"] == 4  # inclusion and synergy of each other commander
+    assert rows["for_commander"] == 2
+    assert "für andere Commander 4 (2 Commander)" in out
+    assert "Zeilen anderer Commander werden gespeichert, aber nur bei diesen Commandern angezeigt." in out
