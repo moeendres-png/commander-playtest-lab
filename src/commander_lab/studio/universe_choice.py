@@ -1,8 +1,8 @@
 """Which deck universe the strength index (and the builder) counts with.
 
-Counted prevalence must not become a tier by default: the recommended ``universe_source`` is
-``profile`` (a selected stored profile, else no universe); ``auto`` and the counted universes
-are explicit options.
+The recommended ``universe_source`` is ``auto`` (Owner decision B12): counted prevalence counts
+in the index by default, with a weight the Owner sets (0 switches it off), and local deck lists
+take priority over the counted file in the repository.
 
 Three sources can give the deck-universe component its counts, never two at once:
 

@@ -252,20 +252,12 @@ def counted_observations(
 
 
 def builder_counted_universe(
-    store: StudioStore,
-    commander: str,
-    universe_source: str,
-    card_ids: list[str],
-    display: Mapping[str, str],
+    store: StudioStore, commander: str, card_ids: list[str], display: Mapping[str, str]
 ) -> tuple[UniverseChoice, dict[str, Observation]] | None:
-    """For the builder: the counted universe the Owner chose (``counted:<source>:<bracket>``)
-    through the same ``universe_choice.choose`` as the index, and the counts of the given
-    cards in it. ``None`` when it is not a stored counted universe of this commander."""
-    if strength.parse_universe_source(universe_source) is None:
-        return None
-    choice = universe_choice.choose(
-        store, commander, StrengthSettings(universe_source=universe_source), None
-    )
+    """For the builder: the counted universe the automatic choice takes (the same
+    ``universe_choice.choose`` as the index, default settings) and the counts of the given
+    cards in it. ``None`` when the choice is not a counted universe."""
+    choice = universe_choice.choose(store, commander, StrengthSettings(), None)
     if choice["kind"] != universe_choice.KIND_COUNTED:
         return None
     for item in universe_choice.counted_universes(store, commander):
@@ -626,6 +618,9 @@ def _panel_texts() -> dict[str, object]:
         "Simulationsergebnisse zählen nicht in die Tierliste und werden dafür vorerst weder "
         "eingeholt noch verarbeitet. Das Gewicht bleibt als Option bestehen und steht auf 0."
     )
+    helps[f"weights.{strength.DECK_UNIVERSE}"] = (
+        "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
+    )
     labels["bracket"] = (
         "Bracket-Signal (empfohlen: upgraded, passend zum Bracket 3; bei Turnierausrichtung cedh)"
     )
@@ -686,15 +681,15 @@ def _panel_texts() -> dict[str, object]:
         "aus: der Commander und die Standardländer bekommen keine Stufe "
         "(„nicht bewertet“) und nehmen keinen Rang weg."
     )
-    labels["universe_source"] = "Decklisten-Universum (empfohlen: keines, bis du eines wählst)"
+    labels["universe_source"] = "Decklisten-Universum (empfohlen: automatisch)"
     helps["universe_source"] = (
-        "Woher die Zählung „Decklisten-Universum“ kommt. Empfohlen ist: das oben gewählte "
-        "gespeicherte Universum, sonst keines. „Automatisch wählen“ nimmt ein gewähltes "
-        "Universum, sonst alle lokalen Decklisten ab dem Mindest-Universum, sonst gezählte "
-        "Decklisten aus dem Repo passend zum Bracket. Gezählte Decklisten sind vollständige "
-        "Listen, die dieser Commander in jedem Deck hat; eine Karte ohne Zeile steht in keinem "
-        "Deck und zählt als gezählte Null (0 von N), nicht als unbekannt. Ein Universum "
-        "zählt als Verbreitung in die Stufe, es wird nie ein zweites dazugerechnet."
+        "Woher die Zählung „Decklisten-Universum“ kommt. Automatisch: ein oben gewähltes "
+        "gespeichertes Universum, sonst alle lokalen Decklisten des Commanders ab dem "
+        "Mindest-Universum, sonst gezählte Decklisten aus dem Repo passend zum Bracket-Signal "
+        "(bei keinem passenden das größte), sonst keines. Gezählte Decklisten sind "
+        "vollständige Listen, die dieser Commander in jedem Deck hat; eine Karte ohne Zeile "
+        "steht in keinem Deck und zählt als gezählte Null (0 von N), nicht als unbekannt. Es "
+        "wird nie ein zweites Universum dazugerechnet."
     )
     labels["require_commander_signal"] = (
         f"Stufe nur mit Signal speziell für diesen Commander "
@@ -707,12 +702,11 @@ def _panel_texts() -> dict[str, object]:
         "Commander und reichen allein nicht: die Karte bleibt „zu wenig Daten“."
     )
     labels["min_coverage"] = (
-        f"Mindestabdeckung in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
+        f"Mindest-Datenlage in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
     )
     helps["min_coverage"] = (
-        "Anteil des Gewichts, der vorhanden sein muss, sonst „zu wenig Daten“. Bei 0 kann eine "
-        "nicht gelistete Karte (nur ihre anderen Signale zählen) eine Karte überholen, die "
-        "eine Quelle bei 1 von 755 Decks nennt."
+        "Anteil des Gewichts der Signale, die zu dieser Karte einen Wert haben. Darunter steht "
+        "„zu wenig Daten“. Das ist keine Schwelle für den Anteil in Decks."
     )
     labels["min_components"] = f"Mindestzahl Signale (empfohlen: {rec.min_components})"
     helps["min_components"] = "Wie viele gewichtete Signale mindestens vorhanden sein müssen."
@@ -764,16 +758,13 @@ def _panel_texts() -> dict[str, object]:
             "missing_value": _choices(_MISSING_CHOICES, strength.MISSING_SKIP),
             "universe_source": [
                 {
-                    "value": strength.UNIVERSE_PROFILE,
-                    "label": "Oben gewähltes Universum, sonst keines (empfohlen)",
+                    "value": strength.UNIVERSE_AUTO,
+                    "label": "Automatisch (empfohlen)",
                     "recommended": True,
                 },
                 {
-                    "value": strength.UNIVERSE_AUTO,
-                    "label": (
-                        "Automatisch wählen (lokale Decklisten, sonst gezählte Decklisten "
-                        "aus dem Repo)"
-                    ),
+                    "value": strength.UNIVERSE_PROFILE,
+                    "label": "Nur das oben gewählte Universum, sonst keines",
                     "recommended": False,
                 },
                 {"value": strength.UNIVERSE_NONE, "label": "keines", "recommended": False},

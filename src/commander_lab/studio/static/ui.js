@@ -59,7 +59,7 @@ const StudioUI = (() => {
   // ---------- German sentences for server errors ----------
   const FIELD_NAMES = {
     min_main_cards: "Mindestgröße Hauptdeck", min_universe: "Mindest-Universum", date_from: "Datum ab", date_to: "Datum bis",
-    min_coverage: "Mindest-Abdeckung", min_components: "Mindestanzahl Signale", must_contain: "Muss enthalten",
+    min_coverage: "Mindest-Datenlage", min_components: "Mindestanzahl Signale", must_contain: "Muss enthalten",
     platforms: "Plattformen", cohorts: "Kohorten", commanders: "Commander", weights: "Gewichte", tier_cuts: "Tier-Grenzen",
     min_denominators: "Mindest-Nenner", name: "Name", commander: "Commander", settings: "Einstellungen",
   };

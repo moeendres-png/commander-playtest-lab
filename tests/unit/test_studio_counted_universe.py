@@ -1,0 +1,642 @@
+"""Counted deck-list universes: signal import, the choice of the universe, scoring with a
+counted zero, the commander-specific tier rule. All data is synthetic."""
+
+from __future__ import annotations
+
+import argparse
+from collections.abc import Iterator
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+from commander_lab.studio import (
+    StudioStore,
+    builder,
+    import_all,
+    signals,
+    strength,
+    strength_view,
+    universe,
+    universe_choice,
+)
+from commander_lab.studio.strength import StrengthSettings
+from commander_lab.studio.web import create_app
+from tests.unit.test_studio_builder import _fill
+from tests.unit.test_studio_strength import (
+    COMMANDER,
+    OTHER,
+    _by_name,
+    _component,
+    _import,
+    _write,
+    _write_signals,
+)
+from tests.unit.test_studio_universe_web import _deck
+
+FIELDS = [
+    "card_name",
+    "source",
+    "bracket",
+    "decks_with_card",
+    "universe_decks",
+    "share",
+    "universe_snapshot",
+]
+FILE = "synthetic_decklist_inclusion_20261112.csv"
+HEADER = {"X-Studio": "1"}
+
+
+def _rows(
+    source: str,
+    bracket: int,
+    total: int,
+    counts: dict[str, int],
+    *,
+    commander: str = COMMANDER,
+    own: int | None = None,
+) -> list[dict[str, object]]:
+    snapshot = f"universe:{source}{bracket}:{total}"
+    listed = {commander: total if own is None else own, **counts}
+    return [
+        {
+            "card_name": name,
+            "source": source,
+            "bracket": bracket,
+            "decks_with_card": count,
+            "universe_decks": total,
+            "share": f"{count / total:.4f}",
+            "universe_snapshot": snapshot,
+        }
+        for name, count in listed.items()
+    ]
+
+
+def _write_counted(folder: Path, rows: list[dict[str, object]], name: str = FILE) -> Path:
+    folder.mkdir(parents=True, exist_ok=True)
+    _write(folder / name, rows, FIELDS)
+    return folder
+
+
+def _both(commander: str = COMMANDER) -> list[dict[str, object]]:
+    """Two universes: edhrec bracket 3 (200 decks) and archidekt bracket 4 (500 decks)."""
+    return _rows("edhrec", 3, 200, {"Filler 01": 150, "Filler 02": 20, "Filler 03": 5}) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100, "Filler 04": 400}, commander=commander
+    )
+
+
+@pytest.fixture
+def store(tmp_path: Path) -> Iterator[StudioStore]:
+    opened = StudioStore.open(tmp_path / "studio")
+    _fill(opened, tmp_path)
+    _write_signals(tmp_path / "signals")
+    yield opened
+    opened.close()
+
+
+def _stored(store: StudioStore, commander: str = COMMANDER) -> int:
+    return int(
+        store.connection.execute(
+            "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal LIKE ?",
+            (commander, "decklist_universe:%"),
+        ).fetchone()[0]
+    )
+
+
+def _import_counted(
+    store: StudioStore, folder: Path, commander: str = COMMANDER
+) -> dict[str, object]:
+    return signals.import_signals(store, folder, commander=commander)
+
+
+def _file_report(report: dict[str, object]) -> signals.FileReport:
+    files = report["files"]
+    assert isinstance(files, dict)
+    return files["synthetic_decklist_inclusion_20261112"]  # type: ignore[no-any-return]
+
+
+def _compute(store: StudioStore, **settings: object) -> strength_view.StrengthResult:
+    return strength_view.compute(store, COMMANDER, StrengthSettings(**settings))  # type: ignore[arg-type]
+
+
+# ---------- import ----------
+
+
+def test_each_universe_is_stored_as_its_own_signal_with_counts_and_snapshot(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = _write_counted(tmp_path / "counted", [*_both(), _both()[1]])  # one duplicate row
+    report = _import_counted(store, folder)
+    file_report = _file_report(report)
+    assert file_report["status"] == "IMPORTED" and report["files_refused"] == 0
+    assert file_report["skipped_reasons"] == {"DUPLICATE_SAME_FIGURES": 1}
+    row = store.connection.execute(
+        "SELECT * FROM card_signal WHERE commander_name = ? AND signal = ? AND card_name = ?",
+        (COMMANDER, "decklist_universe:edhrec:3", "Filler 01"),
+    ).fetchone()
+    assert row is not None
+    assert (row["numerator"], row["denominator"], row["value"]) == (150, 200, 0.75)
+    assert row["source_id"].startswith("src:")
+    found = universe_choice.counted_universes(store, COMMANDER)
+    assert [(item["source"], item["bracket"], item["denominator"]) for item in found] == [
+        ("archidekt", "4", 500),
+        ("edhrec", "3", 200),
+    ]
+    assert found[1]["snapshot_id"] == "universe:edhrec3:200"
+    assert found[1]["label"] == "Gezählte Decklisten (Repo): EDHREC, Bracket 3, 200 Decks"
+    assert _import_counted(store, folder)["rows_replaced"] == _stored(store)  # idempotent
+
+
+def test_numbered_parts_are_read_in_order(store: StudioStore, tmp_path: Path) -> None:
+    rows = _both()
+    folder = tmp_path / "parts"
+    _write_counted(folder, rows[:3], "synthetic_decklist_inclusion_20261112_1.csv")
+    _write_counted(folder, rows[3:], "synthetic_decklist_inclusion_20261112_2.csv")
+    report = _import_counted(store, folder)
+    parts = _file_report(report)["parts"]
+    assert parts == [
+        "synthetic_decklist_inclusion_20261112_1.csv",
+        "synthetic_decklist_inclusion_20261112_2.csv",
+    ]
+    assert len(universe_choice.counted_universes(store, COMMANDER)) == 2
+
+
+def test_a_file_whose_commander_is_not_in_every_deck_is_refused_whole(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    # The second universe lists the commander in 499 of 500 decks: the whole file is refused.
+    rows = _rows("edhrec", 3, 200, {"Filler 01": 150}) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100}, own=499
+    )
+    report = _import_counted(store, _write_counted(tmp_path / "bad", rows))
+    file_report = _file_report(report)
+    assert file_report["status"] == signals.REFUSED
+    assert file_report["skipped_reasons"] == {signals.COMMANDER_NOT_IN_EVERY_DECK: 1}
+    assert report["files_refused"] == 1
+    assert _stored(store) == 0 and file_report["rows_written"] == 0
+
+
+def test_a_file_of_another_commander_is_refused_for_this_one(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = _write_counted(
+        tmp_path / "other", _rows("edhrec", 3, 200, {"Filler 01": 9}, commander=OTHER)
+    )
+    report = _import_counted(store, folder)  # imported for COMMANDER, built around OTHER
+    assert _file_report(report)["status"] == signals.REFUSED
+    assert _stored(store) == 0 and _stored(store, OTHER) == 0
+    # Imported for the commander it was built around, it is accepted and stays that one's.
+    _import_counted(store, folder, commander=OTHER)
+    assert _stored(store, OTHER) > 0 and _stored(store) == 0
+    assert universe_choice.counted_universes(store, COMMANDER) == []
+    result = _compute(store, universe_source="counted:edhrec:3")
+    assert result["universe_choice"]["kind"] == universe_choice.KIND_NONE
+    assert strength.DECK_UNIVERSE not in result["collected"]
+
+
+def test_a_commander_row_missing_from_a_universe_refuses_the_file(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    rows = [
+        row for row in _rows("edhrec", 3, 200, {"Filler 01": 9}) if row["card_name"] != COMMANDER
+    ]
+    report = _import_counted(store, _write_counted(tmp_path / "nocmd", rows))
+    assert _file_report(report)["skipped_reasons"] == {signals.COMMANDER_NOT_IN_EVERY_DECK: 1}
+    assert _stored(store) == 0
+
+
+def test_mixed_denominators_inside_one_universe_refuse_the_file(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    rows = _rows("edhrec", 3, 200, {"Filler 01": 150})
+    rows[1]["universe_decks"] = 199
+    report = _import_counted(store, _write_counted(tmp_path / "mixed", rows))
+    file_report = _file_report(report)
+    assert file_report["status"] == signals.REFUSED
+    assert file_report["skipped_reasons"] == {signals.MIXED_DENOMINATORS: 1}
+    assert _stored(store) == 0
+
+
+@pytest.mark.parametrize("bad", ["201", "-1", "x", "1.5"])
+def test_an_invalid_count_refuses_the_file_instead_of_becoming_a_zero(
+    store: StudioStore, tmp_path: Path, bad: str
+) -> None:
+    rows = _rows("edhrec", 3, 200, {"Filler 01": 150})
+    rows[1]["decks_with_card"] = bad
+    report = _import_counted(store, _write_counted(tmp_path / "invalid", rows))
+    assert _file_report(report)["skipped_reasons"] == {signals.INVALID_COUNT: 1}
+    assert _stored(store) == 0
+
+
+def test_conflicting_duplicates_keep_the_first_row(store: StudioStore, tmp_path: Path) -> None:
+    rows = _rows("edhrec", 3, 200, {"Filler 01": 150})
+    rows.append({**rows[1], "decks_with_card": 3})
+    report = _import_counted(store, _write_counted(tmp_path / "dup", rows))
+    assert _file_report(report)["skipped_reasons"] == {"DUPLICATE_CONFLICT": 1}
+    row = store.connection.execute(
+        "SELECT numerator FROM card_signal WHERE signal = 'decklist_universe:edhrec:3' "
+        "AND card_name = 'Filler 01'"
+    ).fetchone()
+    assert row["numerator"] == 150
+
+
+# ---------- scoring: the counted zero ----------
+
+
+def test_a_card_without_a_row_is_a_counted_zero_ranked_with_the_universe_denominator(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    result = _compute(store, universe_source="counted:edhrec:3")
+    cards = _by_name(result)
+    listed = _component(cards["Filler 02"], "deck_universe")
+    zero = _component(cards["Filler 20"], "deck_universe")
+    assert listed["status"] == strength.PRESENT and (
+        listed["numerator"],
+        listed["denominator"],
+    ) == (20, 200)
+    assert zero["status"] == strength.ZERO_COUNT
+    assert (zero["numerator"], zero["denominator"]) == (0, 200)
+    assert zero["percentile"] is not None and zero["percentile"] < listed["percentile"]
+    assert "gezählt" in zero["note"] and "0 von 200" in zero["note"]
+    assert result["universe_choice"]["denominator"] == 200
+    assert result["universe_choice"]["snapshot_id"] == "universe:edhrec3:200"
+    # Only the chosen universe counts: the 500-deck universe is never combined with it.
+    assert {
+        _component(card, "deck_universe")["denominator"]
+        for card in cards.values()
+        if _component(card, "deck_universe")["denominator"]
+    } == {200}
+
+
+def test_a_stored_profile_universe_treats_cards_in_no_deck_the_same_way(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    for index in range(10):
+        _deck(store, f"s{index}", "edhrec", 3, ["Filler 01"] + (["Filler 02"] if index < 3 else []))
+    store.connection.commit()
+    universe.save_profile(store, "alle", {"min_universe": 10})
+    result = _compute(store, universe_profile="alle")
+    zero = _component(_by_name(result)["Filler 05"], "deck_universe")
+    assert zero["status"] == strength.ZERO_COUNT
+    assert (
+        zero["numerator"] == 0 and zero["denominator"] == result["universe_choice"]["denominator"]
+    )
+    assert zero["percentile"] is not None
+
+
+def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    without = _by_name(_compute(store))
+    with_universe = _by_name(_compute(store, universe_source="counted:edhrec:3"))
+    # Filler 09 is in no commander signal; global inclusion and combos exist for it.
+    assert without["Filler 09"]["coverage"] == pytest.approx(2 / 11, abs=1e-4)
+    assert without["Filler 09"]["tier"] == strength.TIER_UNKNOWN
+    # deck universe 2 + global 1 + combos 1 = 4 of 11 = 0.36, above the new minimum 0.3
+    assert with_universe["Filler 09"]["coverage"] == pytest.approx(4 / 11, abs=1e-4)
+    assert StrengthSettings().min_coverage == 0.3
+    assert with_universe["Filler 09"]["tier"] in strength.TIERS
+
+
+def test_an_ambiguous_name_leaves_its_candidates_unknown_not_zero(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    db = store.connection
+    db.execute(
+        "UPDATE card SET oracle_name = 'Twin Name // Left', oracle_id = NULL WHERE oracle_name = 'Filler 06'"
+    )
+    db.execute(
+        "UPDATE card SET oracle_name = 'Twin Name // Right', oracle_id = NULL WHERE oracle_name = 'Filler 07'"
+    )
+    db.commit()
+    rows = _rows("edhrec", 3, 200, {"Twin Name": 12, "Filler 01": 150})
+    _import(store, tmp_path)
+    _import_counted(store, _write_counted(tmp_path / "counted", rows))
+    result = _compute(store, universe_source="counted:edhrec:3")
+    cards = _by_name(result)
+    for name in ("Twin Name // Left", "Twin Name // Right"):
+        assert _component(cards[name], "deck_universe")["status"] == strength.NO_VALUE
+    assert result["ambiguous_names"]
+    assert _component(cards["Filler 20"], "deck_universe")["status"] == strength.ZERO_COUNT
+
+
+# ---------- two-part names: front face only, never the back half ----------
+
+
+def test_a_source_name_matches_a_two_part_card_by_oracle_name_or_front_face_only(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    db = store.connection
+    db.execute(
+        "UPDATE card SET oracle_name = 'Front Seven // Back Seven', oracle_id = NULL WHERE oracle_name = 'Filler 07'"
+    )
+    db.execute(
+        "UPDATE card SET oracle_name = 'Front Eight // Back Eight', oracle_id = NULL WHERE oracle_name = 'Filler 08'"
+    )
+    db.execute(
+        "UPDATE card SET oracle_name = 'Back Nine', oracle_id = NULL WHERE oracle_name = 'Filler 09'"
+    )
+    db.commit()
+    rows = _rows(
+        "edhrec",
+        3,
+        200,
+        {
+            "Back Seven": 50,  # the back half of a pool card: a different card, not attributed
+            "Front Eight": 40,  # the front face: attributed
+            "Back Nine": 30,  # the exact name of another pool card, not a back half there
+            "Front Nine // Back Nine": 7,  # a card that is not in the pool at all
+        },
+    )
+    _import(store, tmp_path)
+    _import_counted(store, _write_counted(tmp_path / "counted", rows))
+    cards = _by_name(_compute(store, universe_source="counted:edhrec:3"))
+    seven = _component(cards["Front Seven // Back Seven"], "deck_universe")
+    eight = _component(cards["Front Eight // Back Eight"], "deck_universe")
+    nine = _component(cards["Back Nine"], "deck_universe")
+    assert seven["status"] == strength.ZERO_COUNT and seven["numerator"] == 0
+    assert (eight["status"], eight["numerator"]) == (strength.PRESENT, 40)
+    assert (nine["status"], nine["numerator"]) == (strength.PRESENT, 30)
+    # Second spelling of the same card: the exact two-part name wins over the front face.
+    again = _rows("edhrec", 3, 200, {"Front Seven // Back Seven": 12, "Front Seven": 99})
+    _import_counted(store, _write_counted(tmp_path / "again", again))
+    cards = _by_name(_compute(store, universe_source="counted:edhrec:3"))
+    assert _component(cards["Front Seven // Back Seven"], "deck_universe")["numerator"] == 12
+
+
+# ---------- the choice of the universe ----------
+
+
+def _local_decks(store: StudioStore, total: int) -> None:
+    """Add decks bound to the commander until it has ``total`` (the fixture holds a few)."""
+    index = 0
+    while universe_choice.local_deck_count(store, COMMANDER) < total:
+        _deck(store, f"l{index}", "edhrec", 3, ["Filler 01"] + (["Filler 02"] if index < 5 else []))
+        store.connection.commit()
+        index += 1
+    assert universe_choice.local_deck_count(store, COMMANDER) == total
+
+
+def _choice(store: StudioStore, **settings: object) -> universe_choice.UniverseChoice:
+    return _compute(store, **settings)["universe_choice"]  # type: ignore[arg-type]
+
+
+def test_the_recommended_source_is_the_selected_profile_else_no_universe(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    _local_decks(store, 40)
+    assert StrengthSettings().universe_source == "profile"
+    choice = _choice(store)
+    assert choice["kind"] == universe_choice.KIND_NONE  # counted prevalence is never a default
+    assert strength.DECK_UNIVERSE not in _compute(store)["collected"]
+    universe.save_profile(store, "p", {})
+    assert _choice(store, universe_profile="p")["kind"] == universe_choice.KIND_PROFILE
+    assert _choice(store, universe_source="none", universe_profile="p")["kind"] == "none"
+
+
+def test_with_no_universe_the_tiers_are_those_of_main_except_the_two_rule_changes(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    recommended = _by_name(_compute(store))
+    assert recommended
+    assert strength.DECK_UNIVERSE not in _compute(store)["collected"]
+    without_rule = _by_name(_compute(store, require_commander_signal=False))
+    changed = {n for n, card in recommended.items() if card["tier"] != without_rule[n]["tier"]}
+    for name in changed:  # the rule only ever turns a tier into "zu wenig Daten"
+        assert recommended[name]["tier"] == strength.TIER_UNKNOWN
+        assert recommended[name]["reason"] == strength.NO_COMMANDER_SIGNAL
+    # Cards without a commander-specific ranked value are U, whatever global and combos say.
+    only_independent = {name: 0.0 for name in strength.COMPONENTS}
+    only_independent |= {strength.GLOBAL_INCLUSION: 5.0, strength.COMBOS: 5.0}
+    on = _by_name(_compute(store, weights=only_independent, min_components=1))
+    off = _by_name(
+        _compute(store, weights=only_independent, min_components=1, require_commander_signal=False)
+    )
+    assert on["Filler 05"]["tier"] == strength.TIER_UNKNOWN
+    assert on["Filler 05"]["reason"] == strength.NO_COMMANDER_SIGNAL
+    assert on["Filler 05"]["note"] == "kein Signal speziell für diesen Commander"
+    assert off["Filler 05"]["tier"] in strength.TIERS
+    assert off["Filler 05"]["reason"] == "ENOUGH_DATA"
+
+
+def test_require_commander_signal_counts_only_commander_specific_ranked_components(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    weights = {name: 0.0 for name in strength.COMPONENTS}
+    weights |= {strength.GLOBAL_INCLUSION: 3.0, strength.COMBOS: 3.0, strength.SYNERGY: 3.0}
+    settings = {"weights": weights, "min_coverage": 0.0, "min_components": 1}
+    on = _by_name(_compute(store, **settings))
+    # Filler 00 has no synergy value, Filler 05 has one: only the second has a commander signal.
+    assert on["Filler 00"]["tier"] == strength.TIER_UNKNOWN
+    assert on["Filler 05"]["tier"] in strength.TIERS
+    # A commander-specific component with weight 0 does not count either.
+    zero_weight = {**weights, strength.SYNERGY: 0.0}
+    again = _by_name(_compute(store, weights=zero_weight, min_coverage=0.0, min_components=1))
+    assert again["Filler 05"]["reason"] == strength.NO_COMMANDER_SIGNAL
+
+
+def test_auto_prefers_a_profile_then_local_decks_then_counted_then_none(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    auto = {"universe_source": "auto"}
+    assert _choice(store, **auto)["kind"] == universe_choice.KIND_NONE  # nothing at all
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    # counted, bracket "upgraded" = 3: the matching universe, although 500 decks is larger
+    matching = _choice(store, **auto)
+    assert (matching["kind"], matching["source"], matching["bracket"]) == ("counted", "edhrec", "3")
+    assert matching["automatic"] is True and "automatisch gewählt" in matching["reason"]
+    # optimized = 4 matches the other source's universe
+    assert _choice(store, bracket="optimized", **auto)["source"] == "archidekt"
+    # no bracket, or a bracket without a universe (cedh = 5): the largest denominator
+    for bracket in ("none", "cedh"):
+        largest = _choice(store, bracket=bracket, **auto)
+        assert (largest["source"], largest["denominator"]) == ("archidekt", 500)
+    # fewer local decks than the minimum universe do not count
+    _local_decks(store, 29)
+    assert _choice(store, **auto)["kind"] == universe_choice.KIND_COUNTED
+    # local decks (>= 30) win over the counted file
+    _local_decks(store, 30)
+    local = _choice(store, **auto)
+    assert (local["kind"], local["denominator"]) == (universe_choice.KIND_LOCAL, 30)
+    # a selected stored profile wins over everything
+    universe.save_profile(store, "p", {"min_universe": 1})
+    picked = _choice(store, universe_profile="p", **auto)
+    assert (picked["kind"], picked["profile"]) == (universe_choice.KIND_PROFILE, "p")
+
+
+def test_the_larger_denominator_wins_among_sources_of_the_matching_bracket(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    rows = _rows("edhrec", 3, 200, {"Filler 01": 1}) + _rows("archidekt", 3, 300, {"Filler 01": 1})
+    _import_counted(store, _write_counted(tmp_path / "counted", rows))
+    assert _choice(store, universe_source="auto")["source"] == "archidekt"
+
+
+def test_auto_with_local_decks_counts_cards_in_no_deck_as_zero(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    _local_decks(store, 30)
+    result = _compute(store, universe_source="auto")
+    assert result["universe_choice"]["kind"] == universe_choice.KIND_LOCAL
+    cards = _by_name(result)
+    assert _component(cards["Filler 01"], "deck_universe")["status"] == strength.PRESENT
+    zero = _component(cards["Filler 20"], "deck_universe")
+    assert (zero["status"], zero["numerator"], zero["denominator"]) == (strength.ZERO_COUNT, 0, 30)
+
+
+def test_an_explicit_counted_universe_that_is_not_stored_says_so(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    result = _compute(store, universe_source="counted:edhrec:4")
+    assert result["universe_choice"]["kind"] == universe_choice.KIND_NONE
+    assert any("edhrec" in notice for notice in result["notices"])
+
+
+def test_universe_source_values_and_stored_profiles_without_the_new_keys() -> None:
+    assert strength.parse_universe_source("counted:edhrec:3") == ("counted", "edhrec", "3")
+    for bad in ("counted:edhrec", "counted::3", "elsewhere", "counted:a:b:c"):
+        assert strength.parse_universe_source(bad) is None
+        with pytest.raises(ValueError, match="universe_source"):
+            StrengthSettings(universe_source=bad)
+    settings, ignored = StrengthSettings.from_stored({"weights": {"synergy": 2.0}})
+    assert ignored == []
+    assert settings.universe_source == "profile" and settings.require_commander_signal is True
+    assert settings.min_coverage == 0.3
+    with pytest.raises(ValueError, match="require_commander_signal"):
+        StrengthSettings.from_dict({"require_commander_signal": "yes"})
+
+
+def test_the_panel_texts_name_the_new_recommendations() -> None:
+    panel = strength_view.presets()["panel"]
+    assert isinstance(panel, dict)
+    labels = panel["labels"]
+    assert (
+        labels["universe_source"] == "Decklisten-Universum (empfohlen: keines, bis du eines wählst)"
+    )
+    assert "(empfohlen: an)" in labels["require_commander_signal"]
+    choices = panel["choices"]["universe_source"]
+    assert [item["value"] for item in choices if item["recommended"]] == ["profile"]
+    auto = next(item for item in choices if item["value"] == "auto")
+    assert auto["label"].startswith("Automatisch wählen") and not auto["recommended"]
+    assert all(
+        item["settings"]["require_commander_signal"] for item in strength_view.presets()["presets"]
+    )  # type: ignore[attr-defined,index]
+
+
+# ---------- signals listing, import-all, web, builder ----------
+
+
+def test_completeness_lists_the_counted_universes_or_one_generic_missing_row(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    def layers() -> dict[str, import_all.LayerResult]:
+        return {item["key"]: item for item in import_all.completeness(store, COMMANDER)[1]}
+
+    assert layers()["signal:decklist_universe"]["status"] == "MISSING"
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    found = layers()
+    assert "signal:decklist_universe" not in found
+    edhrec = found["signal:decklist_universe:edhrec:3"]
+    assert edhrec["rows"] == 4 and edhrec["status"] == "COMPLETE"  # every pool card has a count
+    assert "signal:decklist_universe:archidekt:4" in found
+    # another commander has none of them: the generic row is back for it
+    other = {item["key"]: item for item in import_all.completeness(store, OTHER)[1]}
+    assert other["signal:decklist_universe"]["status"] == "MISSING"
+
+
+def test_import_all_picks_up_the_counted_file_of_the_research_folder(
+    store: StudioStore, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    research = tmp_path / "research"
+    _write_counted(research, _both())
+    (research / "sub").mkdir()
+    monkeypatch.setattr(import_all, "_RESEARCH", research)
+    assert import_all.default_signal_folders() == [research]
+    args = argparse.Namespace(
+        commander=COMMANDER,
+        inventory=None,
+        scryfall=None,
+        roles=None,
+        signals=None,
+        decklists=None,
+        decklist_format="edhrec",
+        marks=None,
+        expect_pool=None,
+    )
+    result = import_all.run(args, store)
+    steps = {step["step"]: step for step in result["steps"]}
+    assert steps["Signale research"]["status"] == "IMPORTED"
+    assert "files_refused=0" in steps["Signale research"]["detail"]
+    keys = {layer["key"]: layer for layer in result["layers"]}
+    assert keys["signal:decklist_universe:edhrec:3"]["rows"] == 4
+    monkeypatch.setattr(import_all, "_RESEARCH", tmp_path / "nowhere")
+    assert import_all.default_signal_folders() == []
+
+
+def test_import_all_reports_a_refused_file(
+    store: StudioStore, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    research = tmp_path / "research"
+    _write_counted(research, _rows("edhrec", 3, 200, {"Filler 01": 1}, own=100))
+    monkeypatch.setattr(import_all, "_RESEARCH", research)
+    args = argparse.Namespace(
+        commander=COMMANDER,
+        inventory=None,
+        scryfall=None,
+        roles=None,
+        signals=None,
+        decklists=None,
+        decklist_format="edhrec",
+        marks=None,
+        expect_pool=None,
+    )
+    steps = {step["step"]: step for step in import_all.run(args, store)["steps"]}
+    assert "files_refused=1" in steps["Signale research"]["detail"]
+    assert _stored(store) == 0
+
+
+def test_the_web_lists_only_the_counted_universes_of_the_asked_commander(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    client = TestClient(create_app(tmp_path / "studio"))
+    body = client.get("/api/universe/counted", params={"commander": COMMANDER}).json()
+    assert [item["value"] for item in body] == ["counted:archidekt:4", "counted:edhrec:3"]
+    assert client.get("/api/universe/counted", params={"commander": OTHER}).json() == []
+    sent = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "settings": {"universe_source": "counted:edhrec:3"}},
+        headers=HEADER,
+    ).json()
+    assert sent["universe_choice"]["label"].startswith("Gezählte Decklisten (Repo): EDHREC")
+    assert sent["settings"]["universe_source"] == "counted:edhrec:3"
+
+
+def test_the_builder_uses_a_counted_universe_only_when_it_is_chosen(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    plain = builder.pool_cards(store, [COMMANDER])
+    assert "counted_universe" not in plain
+    assert all("counted" not in card for card in plain["cards"])  # type: ignore[attr-defined]
+    chosen = builder.pool_cards(store, [COMMANDER], counted="counted:edhrec:3")
+    block = chosen["counted_universe"]
+    assert isinstance(block, dict) and block["denominator"] == 200
+    by_name = {str(card["name"]): card for card in chosen["cards"]}  # type: ignore[attr-defined]
+    assert by_name["Filler 01"]["counted"] == {"hits": 150, "denominator": 200, "share": 0.75}
+    assert by_name["Filler 20"]["counted"]["hits"] == 0  # counted zero
+    with pytest.raises(ValueError, match="not stored"):
+        builder.pool_cards(store, [COMMANDER], counted="counted:edhrec:9")

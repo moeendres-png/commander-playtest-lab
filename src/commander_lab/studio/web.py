@@ -266,11 +266,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def pool(
         commander: list[str] = Query(min_length=1, max_length=2),
         profile: str | None = Query(default=None, max_length=80),
-        counted: str | None = Query(default=None, max_length=120),
     ) -> dict[str, object]:
         store = open_store()
         try:
-            return builder.pool_cards(store, commander, profile=profile, counted=counted)
+            return builder.pool_cards(store, commander, profile=profile)
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:

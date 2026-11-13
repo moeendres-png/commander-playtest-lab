@@ -113,16 +113,16 @@ MIN_TOURNAMENT = "tournament"
 MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT)
 MAX_MIN_DENOMINATOR = 100000
 
-# Where the deck-universe component takes its counts from (setting ``universe_source``): "profile"
-# (recommended) is the stored profile of ``universe_profile`` and no universe without one, as
-# before; "auto" chooses (see ``universe_choice``),
+# Where the deck-universe component takes its counts from (setting ``universe_source``): "auto"
+# (recommended) chooses (see ``universe_choice``), "profile" is the stored profile of
+# ``universe_profile`` and no universe without one,
 # "counted:<source>:<bracket>" one imported counted deck-list universe, "none" switches the
 # component off.
 UNIVERSE_AUTO = "auto"
 UNIVERSE_PROFILE = "profile"
 UNIVERSE_NONE = "none"
 UNIVERSE_COUNTED = "counted"
-DEFAULT_UNIVERSE_SOURCE = UNIVERSE_PROFILE
+DEFAULT_UNIVERSE_SOURCE = UNIVERSE_AUTO
 # Mana value bands of the comparison group "gleiches Manawert-Band"; lands are their own band.
 MANA_BANDS = ("0-1", "2", "3", "4", "5+")
 BAND_LAND = "Land"

@@ -222,6 +222,7 @@ _SIGNAL_LAYERS = {
     "signal:spellbook_variants",
     "signal:tournament_lists",
     "signal:edhtop16_commander_play_rate",
+    "signal:decklist_universe",
 }
 
 
