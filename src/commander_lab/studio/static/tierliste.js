@@ -79,7 +79,7 @@ const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
   strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" } },
-  deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
+  deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "strength", sortDir: -1, shown: 150,
   layerCols: new Set(), podFilter: "",
 };
 
@@ -303,20 +303,22 @@ function needBadges(card) {
 function cardsTable(cards) {
   const commander = state.view !== "global";
   const metas = shownLayers();
-  const head = ["Ergebnis aus Partien", "Stärke-Index (Schätzung)", ...metas.map(layerHead), SPREAD_LABEL, "Karte", "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele", "Simulation"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
+  // The counted spread is its own column only while a stored universe is chosen. There is no
+  // outcome column: no card has a result from games ("Unbewertet"), the pill above says so.
+  const spread = Boolean(state.universe.name && state.universe.spread);
+  const head = ["Stärke-Index (Schätzung)", "Karte", ...metas.map(layerHead), ...(spread ? [SPREAD_LABEL] : []), "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
   const rows = cards.slice(0, state.shown).map((card) => {
     const mark = state.marks.get(card.card_id) || {};
     const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
     return h("tr", {},
-      h("td", {}, neutral("Unbewertet", "Ergebnis aus Partien: noch nicht bewertet. Es gibt kein Modell mit Ergebnisdaten.")),
       h("td", {}, strengthCell(card)),
-      ...metas.map((meta) => h("td", {}, layerCell(card, meta))),
-      h("td", {}, spreadCell(card)),
       h("td", { class: "cardcell name", onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name),
+      ...metas.map((meta) => h("td", {}, layerCell(card, meta))),
+      ...(spread ? [h("td", {}, spreadCell(card))] : []),
       h("td", { class: "num" }, card.mana_value),
       h("td", {}, featureBadges(card)),
       h("td", {}, roleBadges(card)),
-      ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, gameCell(card)), h("td", {}, simCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${rank.rank}` : unknown("unbekannt")), h("td", {}, gameCell(card))]),
+      ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, gameCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${rank.rank}` : unknown("unbekannt")), h("td", {}, gameCell(card))]),
       h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${presentCount(card)}/4`),
       ...(state.view === "deck" ? [h("td", { class: "num" }, state.deckCards.get(card.card_id))] : []));
   });
@@ -378,7 +380,7 @@ function renderNotice() {
       h("p", {}, h("b", {}, `${OUTCOME_HEADING}: `), OUTCOME_TEXT)),
     h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game"].map(line).join(" · ")),
     ...[bindingLine()].filter(Boolean));
-  $("tier-pill").textContent = `Ergebnis aus Partien: ${summary.unrated} von ${summary.cards} noch nicht bewertet`;
+  $("tier-pill").textContent = "Stufen: Schätzung aus Nutzungsdaten · Ergebnis aus Partien: Unbewertet";
 }
 
 // ---------- evidence drawer ----------
@@ -454,7 +456,7 @@ function strengthBox(card) {
   box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status", "Hinweis"], item.components.map((c) => {
     const [text, kind] = COMPONENT_STATUS[c.status] || [c.status, "dim"];
     const percentile = c.percentile === null ? unknown("–") : c.group_fallback ? `${c.percentile.toFixed(3)} (Rang im ganzen Pool (Gruppe zu klein))` : `${c.percentile.toFixed(3)}${c.group ? ` (Gruppe ${c.group}, ${c.group_size})` : ""}`;
-    return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), c.denominator ? `${c.numerator}/${c.denominator}` : unknown("–"), c.wilson === null ? unknown("–") : c.wilson.toFixed(4), percentile, c.weight, h("span", { class: `badge ${kind}` }, text), c.note ? h("span", { class: "rule" }, c.note) : ""];
+    return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), c.denominator ? (c.numerator === null || c.numerator === undefined ? `n = ${c.denominator}` : `${c.numerator}/${c.denominator}`) : unknown("–"), c.wilson === null ? unknown("–") : c.wilson.toFixed(4), percentile, c.weight, h("span", { class: `badge ${kind}` }, text), c.note ? h("span", { class: "rule" }, c.note) : ""];
   })));
   return box;
 }
@@ -539,7 +541,7 @@ async function openCard(card) {
       h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { modal.hidden = true; } }, "Schließen")),
       h("h2", {}, full.name),
       h("p", { class: "muted" }, full.type_line),
-      h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), `Grund: ${full.rating.reason}. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein.`),
+      h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), "Es gibt kein geprüftes Modell mit Partiedaten. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein."),
       strengthSection,
       layersBox(card),
       ...drawer(full));
@@ -791,7 +793,7 @@ function universeLine(choice) {
   const verb = choice.automatic ? "automatisch gewählt" : "gewählt";
   if (choice.kind === "none") return `kein Decklisten-Universum (${choice.reason})`;
   const what = choice.kind === "counted" ? `Verbreitung (gezählt): ${choice.short_label}` : choice.label;
-  return `${what} · Nenner ${choice.denominator} Decks · Stand ${choice.snapshot_id} · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
+  return `${what} · Nenner ${choice.denominator} Decks · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
 }
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
@@ -892,6 +894,7 @@ const SETTING_GROUPS = [
   ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.")],
 ];
 const OPEN_GROUPS_KEY = "studio.strength.open-groups";
+const SETTINGS_OPEN_KEY = "studio.strength.settings-open";
 function renderStrengthFilters() {
   const s = state.strength;
   const previous = $("strength-filter");
@@ -975,10 +978,10 @@ function renderStrengthPanel() {
     return box;
   }).filter(Boolean);
   panel.replaceChildren(
-    h("details", { open: true },
-      h("summary", {}, `${INDEX_HEADING}: Einstellungen (was wie gezählt werden soll)`),
+    h("div", { class: "strength-head" }, h("b", {}, INDEX_HEADING), h("div", { id: "strength-summary", class: "facts" })),
+    h("details", { id: "strength-settings", open: StudioUI.recall(SETTINGS_OPEN_KEY, "") === "1", ontoggle: (event) => StudioUI.remember(SETTINGS_OPEN_KEY, event.currentTarget.open ? "1" : "") },
+      h("summary", {}, "Einstellungen: was wie stark gezählt werden soll (mit empfohlenen Werten)"),
       h("div", { class: "muted" }, STRENGTH_NOTE),
-      h("div", { id: "strength-summary", class: "facts" }),
       h("div", { class: "strength-form" },
         h("label", {}, "Voreinstellung", presetSelect),
         h("label", {}, "Universum (oben gewählt)", h("input", { type: "text", readOnly: true, value: state.universe.name || "keines" })),
@@ -1066,6 +1069,7 @@ async function init() {
   $("view").addEventListener("change", () => setView($("view").value).catch((error) => fail(error)));
   $("deck-select").addEventListener("change", () => { fillBranches(); loadDeck().catch((error) => fail(error)); });
   $("branch-select").addEventListener("change", () => loadDeck().catch((error) => fail(error)));
+  $("sort").value = state.sortKey;
   const savedSort = StudioUI.recall(SORT_KEY, "");
   if (savedSort && (SORTS.some((item) => item[0] === savedSort) || savedSort.startsWith(PERCENTILE_SORT) || savedSort.startsWith(LAYER_SORT))) { state.sortKey = savedSort; state.sortDir = SMALL_FIRST.has(savedSort) ? 1 : -1; $("sort").value = savedSort; }
   $("sort").addEventListener("change", () => { state.sortKey = $("sort").value; state.sortDir = SMALL_FIRST.has(state.sortKey) ? 1 : -1; StudioUI.remember(SORT_KEY, state.sortKey); render(); });

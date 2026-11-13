@@ -439,6 +439,22 @@ never counts). The recommended minimum data situation (`min_coverage`, shown as
 global 1 + combos 1 = 4 of 12 = 0.33 (total weight 12 with the Playgroup observation at 1; the
 minimum is reached without a Playgroup observation, with one it is 5 of 12).
 
+### Combos in the deck (schema 14)
+
+The combo list of a commander (`edhrec_<commander>_combos.csv`: `cards` separated by `;`,
+`num_decks`) is stored twice by the signal import: per card as the signal
+`edhrec_combo_decks` (a marker layer, never a rated component) and, since schema 14, as full
+card sets in the table `commander_combo`. A replacing import swaps the commander's list, an
+appending one only adds sets that are not stored yet.
+
+The deck check (`POST /api/check`, and a stored revision) returns `combos`: the listed combos
+the deck holds completely and the ones that lack exactly one card, each with the source's deck
+count. The statistics tab shows them under "Kombos im Deck" and says for a missing card whether
+it is in the pool. Names match by the full card name, then by the front face of a two-part card,
+never by the back half. Limits: only listed combos are known; without a stored list the section
+says so and never claims "no combos"; the deck count is the source's count over all its decks,
+not a count for this commander; it is a comparison of card sets, not a rating.
+
 ### Data report
 
 `data-report` prints JSON with numbers only: every figure is a count with its denominator, a
