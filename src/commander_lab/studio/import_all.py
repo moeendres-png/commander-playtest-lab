@@ -342,11 +342,8 @@ def _report(
     stopped_at: str | None,
     research: Path | None,
 ) -> dict[str, object]:
-    readme = research / "deckbuilder_1655" / "README.md" if research is not None else None
     readmes = [folder / "README.md" for folder in folders if (folder / "README.md").is_file()]
-    layers, pool, collection = completeness.build_layers(
-        store, commander, readme=readmes[-1] if readmes else readme
-    )
+    layers, pool, collection = completeness.build_layers(store, commander, readmes=readmes)
     failed = [s for s in steps if s["status"] == STEP_FAILED]
     warnings = [
         f"{s['step']}: {s['message']}" for s in steps if s["status"] == STEP_FAILED and s["message"]

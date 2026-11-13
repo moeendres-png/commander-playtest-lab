@@ -277,15 +277,19 @@ def _status(n: int, of: int, rows_in_store: int) -> str:
 
 
 def _capture(
-    sources: list[tuple[str, str | None]], readme: Path | None, keys: tuple[str, ...]
+    sources: list[tuple[str, str | None]], readmes: Sequence[Path], keys: tuple[str, ...]
 ) -> tuple[str | None, str]:
     stamped = sorted({str(day)[:10] for _, day in sources if day})
     if stamped:
         return stamped[-1], "Quelle"
-    if readme is not None:
-        found = [d for key in keys if (d := research_import.capture_date(readme, key))]
-        if found:
-            return max(found), "README der Lieferung"
+    found = [
+        day
+        for readme in readmes
+        for key in keys
+        if (day := research_import.capture_date(readme, key))
+    ]
+    if found:
+        return max(found), "README der Lieferung"
     return None, "unbekannt"
 
 
@@ -384,7 +388,7 @@ def _layer_data(store: StudioStore, commander: str) -> dict[str, _Data]:
 
 
 def build_layers(
-    store: StudioStore, commander: str, *, readme: Path | None = None
+    store: StudioStore, commander: str, *, readmes: Sequence[Path] = ()
 ) -> tuple[list[LayerRow], int | None, int]:
     """Per layer: cards with data of the commander's legal cards and of the whole collection.
 
@@ -410,7 +414,7 @@ def build_layers(
         status = _status(basis, of if of is not None else len(everything), held.rows_in_store)
         if layer.key == "rulings" and held.rows_in_store > 0 and of:
             status = COMPLETE  # the source lists only cards with rulings
-        capture, basis_text = _capture(held.sources, readme, layer.readme_keys)
+        capture, basis_text = _capture(held.sources, readmes, layer.readme_keys)
         rows.append(
             {
                 "layer": layer.key,
