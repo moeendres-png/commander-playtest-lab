@@ -168,7 +168,7 @@ def _parser() -> argparse.ArgumentParser:
         "--force",
         action="store_true",
         help="let the tagger roles replace more than half of their scope's earlier claims; "
-        "without it such a file only gives the warning \"Warnung: Tagger-Rollen ...\", changes "
+        'without it such a file only gives the warning "Warnung: Tagger-Rollen ...", changes '
         "nothing (exit code 0)",
     )
     import_all.add_argument(

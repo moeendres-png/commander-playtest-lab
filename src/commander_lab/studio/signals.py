@@ -990,7 +990,15 @@ def has_signal_files(folder: str | Path) -> bool:
     root = Path(folder)
     if not root.is_dir():
         return False
-    bases = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE, SALT_FILE]
+    bases = [
+        CARD_FILE,
+        GLOBAL_FILE,
+        SPELLBOOK_FILE,
+        EDHTOP16_FILE,
+        ATLAS_FILE,
+        SALT_FILE,
+        COMBOS_FILE,
+    ]
     bases += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
     bases += _tournament_bases(root)
     return any(_parts(root, base) for base in bases) or bool(_decklist_bases(root))

@@ -237,3 +237,15 @@ def test_salt_and_combo_signals(store: StudioStore, tmp_path: Path) -> None:
     written = report["rows_written"]
     assert isinstance(written, int)
     assert store.count("card_signal") == written
+
+
+def test_a_folder_with_only_a_combos_or_salt_file_is_a_signal_folder(tmp_path: Path) -> None:
+    combos = tmp_path / "combos"
+    combos.mkdir()
+    assert not signals.has_signal_files(combos)
+    (combos / f"{signals.COMBOS_FILE}.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+    assert signals.has_signal_files(combos)
+    salt = tmp_path / "salt"
+    salt.mkdir()
+    (salt / f"{signals.SALT_FILE}.csv").write_text("card_name,salt\nA,1\n", encoding="utf-8")
+    assert signals.has_signal_files(salt)

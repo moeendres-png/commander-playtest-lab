@@ -115,9 +115,7 @@ def _claims(tmp_path: Path) -> int:
 
 
 def _four(tmp_path: Path) -> Path:
-    return _tagger(
-        tmp_path / "bulk.csv", [(f"oracle-filler-0{n}", "ramp") for n in (1, 2, 3, 4)]
-    )
+    return _tagger(tmp_path / "bulk.csv", [(f"oracle-filler-0{n}", "ramp") for n in (1, 2, 3, 4)])
 
 
 def test_tagger_guard_warns_visibly_and_changes_nothing_above_half(
@@ -132,7 +130,9 @@ def test_tagger_guard_warns_visibly_and_changes_nothing_above_half(
     out = capsys.readouterr().out
     assert code == 0  # nothing was changed
     assert _claims(tmp_path) == before
-    assert any(line.startswith("Warnung: Tagger-Rollen") and "--force" in line for line in out.splitlines())
+    assert any(
+        line.startswith("Warnung: Tagger-Rollen") and "--force" in line for line in out.splitlines()
+    )
     assert "WARNING" in out
 
 
