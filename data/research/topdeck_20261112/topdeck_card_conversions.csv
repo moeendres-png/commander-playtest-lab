@@ -561,120 +561,120 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Doran, Besieged by Time",Weathered Sentinels,1,0,NULL,0
 "Doran, Besieged by Time",Welcoming Vampire,1,0,NULL,0
 "Doran, Besieged by Time",Woodland Cemetery,2,0,NULL,0
-"Fynn, the Fangbearer",Access Tunnel,3,1,NULL,1
+"Fynn, the Fangbearer",Access Tunnel,4,1,NULL,2
 "Fynn, the Fangbearer",Acidic Slime,1,0,NULL,0
 "Fynn, the Fangbearer",Allosaurus Shepherd,2,0,NULL,2
 "Fynn, the Fangbearer",Ambush Viper,1,0,NULL,0
 "Fynn, the Fangbearer",Ancient Tomb,2,0,NULL,2
 "Fynn, the Fangbearer",Arbor Elf,2,0,NULL,2
 "Fynn, the Fangbearer",Arcane Amphisbaena,1,0,NULL,0
-"Fynn, the Fangbearer",Arcane Signet,2,1,NULL,1
-"Fynn, the Fangbearer",Archdruid's Charm,4,1,NULL,3
+"Fynn, the Fangbearer",Arcane Signet,3,1,NULL,2
+"Fynn, the Fangbearer",Archdruid's Charm,5,1,NULL,4
 "Fynn, the Fangbearer",Asceticism,1,0,NULL,0
 "Fynn, the Fangbearer","Ashaya, Soul of the Wild",2,0,NULL,2
 "Fynn, the Fangbearer",Attercop,1,0,NULL,0
-"Fynn, the Fangbearer",Axebane Ferox,2,1,NULL,1
+"Fynn, the Fangbearer",Axebane Ferox,3,1,NULL,2
 "Fynn, the Fangbearer",Badgermole Cub,2,0,NULL,2
-"Fynn, the Fangbearer",Bala Ged Recovery,1,0,NULL,0
+"Fynn, the Fangbearer",Bala Ged Recovery,2,0,NULL,1
 "Fynn, the Fangbearer",Bala Ged Recovery // Bala Ged Sanctuary,1,1,NULL,1
 "Fynn, the Fangbearer",Beast Whisperer,1,0,NULL,0
-"Fynn, the Fangbearer",Beast Within,5,1,NULL,3
+"Fynn, the Fangbearer",Beast Within,6,1,NULL,4
 "Fynn, the Fangbearer",Birds of Paradise,2,0,NULL,2
-"Fynn, the Fangbearer",Blast Zone,2,1,NULL,1
-"Fynn, the Fangbearer",Bloated Contaminator,2,1,NULL,1
+"Fynn, the Fangbearer",Blast Zone,3,1,NULL,2
+"Fynn, the Fangbearer",Bloated Contaminator,3,1,NULL,2
 "Fynn, the Fangbearer",Bloodroot Apothecary,2,0,NULL,2
 "Fynn, the Fangbearer",Blossoming Defense,1,0,NULL,0
-"Fynn, the Fangbearer","Boseiju, Who Endures",4,1,NULL,3
-"Fynn, the Fangbearer",Bow of Nylea,2,1,NULL,1
-"Fynn, the Fangbearer",Bridgeworks Battle,1,0,NULL,0
+"Fynn, the Fangbearer","Boseiju, Who Endures",5,1,NULL,4
+"Fynn, the Fangbearer",Bow of Nylea,3,1,NULL,2
+"Fynn, the Fangbearer",Bridgeworks Battle,2,0,NULL,1
 "Fynn, the Fangbearer",Bridgeworks Battle // Tanglespan Bridgeworks,3,1,NULL,3
 "Fynn, the Fangbearer",Burrog Barrage,1,0,NULL,0
 "Fynn, the Fangbearer",Cankerbloom,1,0,NULL,0
-"Fynn, the Fangbearer",Carnivorous Cultivator // Enroot,1,0,NULL,0
+"Fynn, the Fangbearer",Carnivorous Cultivator // Enroot,2,0,NULL,1
 "Fynn, the Fangbearer",Carpet of Flowers,2,1,NULL,1
 "Fynn, the Fangbearer",Castle Garenbrig,2,0,NULL,2
 "Fynn, the Fangbearer",Cavern of Souls,2,0,NULL,2
 "Fynn, the Fangbearer",Champion of Lambholt,1,0,NULL,0
-"Fynn, the Fangbearer",Choke,1,1,NULL,1
+"Fynn, the Fangbearer",Choke,2,1,NULL,2
 "Fynn, the Fangbearer",Chord of Calling,2,0,NULL,2
-"Fynn, the Fangbearer",Chrome Mox,4,1,NULL,3
+"Fynn, the Fangbearer",Chrome Mox,5,1,NULL,4
 "Fynn, the Fangbearer",Circle of Dreams Druid,2,0,NULL,2
 "Fynn, the Fangbearer",Citanul Stalwart,1,0,NULL,1
-"Fynn, the Fangbearer",Collector Ouphe,2,1,NULL,1
-"Fynn, the Fangbearer",Command Beacon,2,1,NULL,1
-"Fynn, the Fangbearer",Command Tower,2,1,NULL,1
-"Fynn, the Fangbearer",Commander's Plate,2,1,NULL,1
+"Fynn, the Fangbearer",Collector Ouphe,3,1,NULL,2
+"Fynn, the Fangbearer",Command Beacon,3,1,NULL,2
+"Fynn, the Fangbearer",Command Tower,3,1,NULL,2
+"Fynn, the Fangbearer",Commander's Plate,3,1,NULL,2
 "Fynn, the Fangbearer",Commune with Nature,1,0,NULL,0
 "Fynn, the Fangbearer",Compel Brutality,1,0,NULL,0
-"Fynn, the Fangbearer",Compost,4,1,NULL,3
-"Fynn, the Fangbearer",Concordant Crossroads,4,1,NULL,3
+"Fynn, the Fangbearer",Compost,5,1,NULL,4
+"Fynn, the Fangbearer",Concordant Crossroads,5,1,NULL,4
 "Fynn, the Fangbearer",Contagion Clasp,1,0,NULL,0
 "Fynn, the Fangbearer",Cosmic Hunger,2,0,NULL,2
 "Fynn, the Fangbearer",Crashing Drawbridge,1,0,NULL,0
-"Fynn, the Fangbearer",Crop Rotation,3,1,NULL,3
+"Fynn, the Fangbearer",Crop Rotation,4,1,NULL,4
 "Fynn, the Fangbearer",Cultivate,1,0,NULL,0
-"Fynn, the Fangbearer",Cursed Totem,2,1,NULL,1
-"Fynn, the Fangbearer",Damping Sphere,2,1,NULL,1
+"Fynn, the Fangbearer",Cursed Totem,3,1,NULL,2
+"Fynn, the Fangbearer",Damping Sphere,3,1,NULL,2
 "Fynn, the Fangbearer",Deadly Recluse,1,0,NULL,0
-"Fynn, the Fangbearer",Defiler of Vigor,4,1,NULL,3
+"Fynn, the Fangbearer",Defiler of Vigor,5,1,NULL,4
 "Fynn, the Fangbearer",Delighted Halfling,1,0,NULL,1
-"Fynn, the Fangbearer",Demolition Field,2,1,NULL,1
+"Fynn, the Fangbearer",Demolition Field,3,1,NULL,2
 "Fynn, the Fangbearer",Disciple of Freyalise // Garden of Freyalise,2,0,NULL,2
 "Fynn, the Fangbearer",Disruptor Flute,1,0,NULL,0
-"Fynn, the Fangbearer",Dolmen Gate,3,1,NULL,1
-"Fynn, the Fangbearer",Dragon Sniper,3,1,NULL,1
-"Fynn, the Fangbearer",Dryad Arbor,4,1,NULL,3
+"Fynn, the Fangbearer",Dolmen Gate,4,1,NULL,2
+"Fynn, the Fangbearer",Dragon Sniper,4,1,NULL,2
+"Fynn, the Fangbearer",Dryad Arbor,5,1,NULL,4
 "Fynn, the Fangbearer",Eldritch Evolution,2,0,NULL,2
 "Fynn, the Fangbearer",Elvish Mystic,2,0,NULL,2
 "Fynn, the Fangbearer",Elvish Spirit Guide,2,0,NULL,2
 "Fynn, the Fangbearer",Emerald Charm,2,0,NULL,2
-"Fynn, the Fangbearer",Emerald Medallion,4,1,NULL,3
-"Fynn, the Fangbearer",Endurance,4,1,NULL,3
+"Fynn, the Fangbearer",Emerald Medallion,5,1,NULL,4
+"Fynn, the Fangbearer",Endurance,5,1,NULL,4
 "Fynn, the Fangbearer",Eternal Witness,2,0,NULL,2
 "Fynn, the Fangbearer",Evolution Sage,3,0,NULL,2
 "Fynn, the Fangbearer",Fang of Shigeki,1,0,NULL,0
 "Fynn, the Fangbearer",Fight for the Throne,1,0,NULL,0
 "Fynn, the Fangbearer",Finale of Devastation,2,0,NULL,2
 "Fynn, the Fangbearer",Follow the Lumarets,1,0,NULL,0
-"Fynn, the Fangbearer",Force of Vigor,4,1,NULL,3
-"Fynn, the Fangbearer",Forest,5,1,NULL,3
+"Fynn, the Fangbearer",Force of Vigor,5,1,NULL,4
+"Fynn, the Fangbearer",Forest,6,1,NULL,4
 "Fynn, the Fangbearer",Formidable Speaker,3,1,NULL,3
-"Fynn, the Fangbearer",Frog Butler,3,1,NULL,1
+"Fynn, the Fangbearer",Frog Butler,4,1,NULL,2
 "Fynn, the Fangbearer",Fyndhorn Elves,2,0,NULL,2
-"Fynn, the Fangbearer","Fynn, the Fangbearer",5,1,NULL,3
-"Fynn, the Fangbearer",Gaea's Cradle,4,1,NULL,3
+"Fynn, the Fangbearer","Fynn, the Fangbearer",6,1,NULL,4
+"Fynn, the Fangbearer",Gaea's Cradle,5,1,NULL,4
 "Fynn, the Fangbearer",Garruk's Uprising,1,0,NULL,0
-"Fynn, the Fangbearer",Geier Reach Sanitarium,2,1,NULL,1
+"Fynn, the Fangbearer",Geier Reach Sanitarium,3,1,NULL,2
 "Fynn, the Fangbearer",Gemstone Caverns,2,0,NULL,2
 "Fynn, the Fangbearer",Gene Pollinator,2,0,NULL,2
-"Fynn, the Fangbearer",Gnarlwood Dryad,3,1,NULL,1
-"Fynn, the Fangbearer",Grafdigger's Cage,2,1,NULL,1
+"Fynn, the Fangbearer",Gnarlwood Dryad,4,1,NULL,2
+"Fynn, the Fangbearer",Grafdigger's Cage,3,1,NULL,2
 "Fynn, the Fangbearer",Gran Pulse Ochu,1,0,NULL,0
 "Fynn, the Fangbearer",Green Sun's Zenith,2,0,NULL,2
 "Fynn, the Fangbearer",Grim Monolith,2,0,NULL,2
-"Fynn, the Fangbearer",Guardian Project,2,1,NULL,1
-"Fynn, the Fangbearer",Hall of Gemstone,1,1,NULL,1
+"Fynn, the Fangbearer",Guardian Project,3,1,NULL,2
+"Fynn, the Fangbearer",Hall of Gemstone,2,1,NULL,2
 "Fynn, the Fangbearer",Harmonize,1,0,NULL,0
-"Fynn, the Fangbearer",Haywire Mite,2,1,NULL,1
+"Fynn, the Fangbearer",Haywire Mite,3,1,NULL,2
 "Fynn, the Fangbearer",Heartwood Storyteller,2,0,NULL,2
-"Fynn, the Fangbearer",Heroic Intervention,3,1,NULL,1
-"Fynn, the Fangbearer",Hit-Monkey,2,1,NULL,1
+"Fynn, the Fangbearer",Heroic Intervention,4,1,NULL,2
+"Fynn, the Fangbearer",Hit-Monkey,3,1,NULL,2
 "Fynn, the Fangbearer",Hope Tender,2,0,NULL,2
 "Fynn, the Fangbearer",Hornet Nest,1,0,NULL,0
 "Fynn, the Fangbearer",Hornet Queen,3,0,NULL,2
 "Fynn, the Fangbearer",Horrific Assault,1,0,NULL,0
 "Fynn, the Fangbearer",Hunter's Axe,1,0,NULL,0
-"Fynn, the Fangbearer",Infectious Bite,4,1,NULL,3
-"Fynn, the Fangbearer",Inkmoth Nexus,2,1,NULL,1
+"Fynn, the Fangbearer",Infectious Bite,5,1,NULL,4
+"Fynn, the Fangbearer",Inkmoth Nexus,3,1,NULL,2
 "Fynn, the Fangbearer",Kappa Tech-Wrecker,1,0,NULL,0
 "Fynn, the Fangbearer",Karametra's Acolyte,2,0,NULL,2
-"Fynn, the Fangbearer",Karn's Bastion,3,1,NULL,1
-"Fynn, the Fangbearer","Karn, Argent Defender",1,0,NULL,0
+"Fynn, the Fangbearer",Karn's Bastion,4,1,NULL,2
+"Fynn, the Fangbearer","Karn, Argent Defender",2,0,NULL,1
 "Fynn, the Fangbearer","Karn, the Great Creator",2,0,NULL,2
-"Fynn, the Fangbearer",Kenrith's Transformation,2,1,NULL,1
-"Fynn, the Fangbearer",Khalni Ambush,1,0,NULL,0
+"Fynn, the Fangbearer",Kenrith's Transformation,3,1,NULL,2
+"Fynn, the Fangbearer",Khalni Ambush,2,0,NULL,1
 "Fynn, the Fangbearer",Khalni Ambush // Khalni Territory,1,1,NULL,1
-"Fynn, the Fangbearer",Krosan Grip,3,1,NULL,1
+"Fynn, the Fangbearer",Krosan Grip,4,1,NULL,2
 "Fynn, the Fangbearer",Lay of the Land,1,0,NULL,0
 "Fynn, the Fangbearer",Lead the Stampede,1,0,NULL,0
 "Fynn, the Fangbearer",Legolas's Quick Reflexes,2,0,NULL,2
@@ -686,35 +686,35 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Fynn, the Fangbearer",Mana Vault,2,0,NULL,2
 "Fynn, the Fangbearer",Manglehorn,4,1,NULL,3
 "Fynn, the Fangbearer","Marvin, Murderous Mimic",2,0,NULL,2
-"Fynn, the Fangbearer",Mirrex,3,1,NULL,1
+"Fynn, the Fangbearer",Mirrex,4,1,NULL,2
 "Fynn, the Fangbearer",Misty Rainforest,2,0,NULL,2
-"Fynn, the Fangbearer",Mithril Coat,2,1,NULL,1
+"Fynn, the Fangbearer",Mithril Coat,3,1,NULL,2
 "Fynn, the Fangbearer",Mox Amber,2,0,NULL,2
 "Fynn, the Fangbearer",Mox Diamond,2,0,NULL,2
 "Fynn, the Fangbearer",Mox Opal,2,0,NULL,2
 "Fynn, the Fangbearer",Mwonvuli Beast Tracker,1,0,NULL,0
-"Fynn, the Fangbearer",Narnam Renegade,2,1,NULL,1
+"Fynn, the Fangbearer",Narnam Renegade,3,1,NULL,2
 "Fynn, the Fangbearer",Natural Order,2,0,NULL,2
 "Fynn, the Fangbearer",Natural State,2,0,NULL,2
 "Fynn, the Fangbearer",Naturalize,1,0,NULL,0
-"Fynn, the Fangbearer",Nature's Claim,4,1,NULL,3
+"Fynn, the Fangbearer",Nature's Claim,5,1,NULL,4
 "Fynn, the Fangbearer",Nature's Rhythm,2,0,NULL,2
-"Fynn, the Fangbearer",Nephalia Academy,2,1,NULL,1
-"Fynn, the Fangbearer",Nightshade Dryad,4,1,NULL,3
-"Fynn, the Fangbearer",Noxious Newt,3,1,NULL,1
-"Fynn, the Fangbearer",Noxious Revival,2,1,NULL,1
+"Fynn, the Fangbearer",Nephalia Academy,3,1,NULL,2
+"Fynn, the Fangbearer",Nightshade Dryad,5,1,NULL,4
+"Fynn, the Fangbearer",Noxious Newt,4,1,NULL,2
+"Fynn, the Fangbearer",Noxious Revival,3,1,NULL,2
 "Fynn, the Fangbearer",Oakhame Adversary,1,0,NULL,0
-"Fynn, the Fangbearer",Ohran Frostfang,1,0,NULL,0
+"Fynn, the Fangbearer",Ohran Frostfang,2,0,NULL,1
 "Fynn, the Fangbearer",Pick Your Poison,1,0,NULL,0
 "Fynn, the Fangbearer",Pili-Pala,2,0,NULL,2
-"Fynn, the Fangbearer",Pithing Needle,2,1,NULL,1
+"Fynn, the Fangbearer",Pithing Needle,3,1,NULL,2
 "Fynn, the Fangbearer",Powerful Broker,1,0,NULL,0
 "Fynn, the Fangbearer",Priest of Titania,2,0,NULL,2
-"Fynn, the Fangbearer",Putrefax,1,0,NULL,0
+"Fynn, the Fangbearer",Putrefax,2,0,NULL,1
 "Fynn, the Fangbearer",Quarrel,1,0,NULL,0
-"Fynn, the Fangbearer",Questing Beast,3,1,NULL,1
+"Fynn, the Fangbearer",Questing Beast,4,1,NULL,2
 "Fynn, the Fangbearer",Quirion Ranger,2,0,NULL,2
-"Fynn, the Fangbearer",Radioactive Spider,2,1,NULL,1
+"Fynn, the Fangbearer",Radioactive Spider,3,1,NULL,2
 "Fynn, the Fangbearer",Ram Through,3,0,NULL,2
 "Fynn, the Fangbearer",Ranger's Guile,1,0,NULL,0
 "Fynn, the Fangbearer",Return to Nature,1,0,NULL,0
@@ -723,60 +723,60 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Fynn, the Fangbearer",Roiling Canopy,1,0,NULL,0
 "Fynn, the Fangbearer",Royal Treatment,1,0,NULL,0
 "Fynn, the Fangbearer",Run Over,1,0,NULL,0
-"Fynn, the Fangbearer","Saryth, the Viper's Fang",5,1,NULL,3
-"Fynn, the Fangbearer",Sedge Scorpion,2,1,NULL,1
+"Fynn, the Fangbearer","Saryth, the Viper's Fang",6,1,NULL,4
+"Fynn, the Fangbearer",Sedge Scorpion,3,1,NULL,2
 "Fynn, the Fangbearer",Seek the Horizon,1,0,NULL,0
-"Fynn, the Fangbearer",Serpent Specialist,2,1,NULL,1
+"Fynn, the Fangbearer",Serpent Specialist,3,1,NULL,2
 "Fynn, the Fangbearer","Shang-Chi, Master of Kung Fu",2,0,NULL,2
 "Fynn, the Fangbearer",Shared Roots,1,0,NULL,0
 "Fynn, the Fangbearer",Skullwinder,1,0,NULL,0
 "Fynn, the Fangbearer",Snake Umbra,1,0,NULL,0
 "Fynn, the Fangbearer",Snakeskin Veil,1,0,NULL,0
-"Fynn, the Fangbearer",Sol Ring,4,1,NULL,3
+"Fynn, the Fangbearer",Sol Ring,5,1,NULL,4
 "Fynn, the Fangbearer",Song of the Dryads,1,1,NULL,1
 "Fynn, the Fangbearer",Soul-Guide Lantern,2,0,NULL,2
-"Fynn, the Fangbearer",Soulless Jailer,2,1,NULL,1
+"Fynn, the Fangbearer",Soulless Jailer,3,1,NULL,2
 "Fynn, the Fangbearer",Springleaf Drum,2,0,NULL,2
 "Fynn, the Fangbearer",Staff of Compleation,1,0,NULL,0
 "Fynn, the Fangbearer",Staff of Domination,2,0,NULL,2
 "Fynn, the Fangbearer",Strip Mine,2,0,NULL,2
 "Fynn, the Fangbearer",Summoner's Pact,2,0,NULL,2
 "Fynn, the Fangbearer",Survival of the Fittest,2,0,NULL,2
-"Fynn, the Fangbearer",Swiftfoot Boots,2,1,NULL,1
+"Fynn, the Fangbearer",Swiftfoot Boots,3,1,NULL,2
 "Fynn, the Fangbearer",Sword of Truth and Justice,1,0,NULL,0
-"Fynn, the Fangbearer",Sylvan Library,4,1,NULL,3
-"Fynn, the Fangbearer",Tajuru Blightblade,2,1,NULL,1
+"Fynn, the Fangbearer",Sylvan Library,5,1,NULL,4
+"Fynn, the Fangbearer",Tajuru Blightblade,3,1,NULL,2
 "Fynn, the Fangbearer",Talon Gates of Madara,2,0,NULL,2
 "Fynn, the Fangbearer",Tempt with Discovery,1,0,NULL,0
 "Fynn, the Fangbearer",The One Ring,2,0,NULL,2
-"Fynn, the Fangbearer",Tormod's Crypt,2,1,NULL,1
-"Fynn, the Fangbearer",Torpor Orb,2,1,NULL,1
-"Fynn, the Fangbearer",Tower Winder,2,1,NULL,1
-"Fynn, the Fangbearer",Triumph of the Hordes,5,1,NULL,3
+"Fynn, the Fangbearer",Tormod's Crypt,3,1,NULL,2
+"Fynn, the Fangbearer",Torpor Orb,3,1,NULL,2
+"Fynn, the Fangbearer",Tower Winder,3,1,NULL,2
+"Fynn, the Fangbearer",Triumph of the Hordes,6,1,NULL,4
 "Fynn, the Fangbearer",Turntimber Basilisk,1,0,NULL,0
 "Fynn, the Fangbearer","Turntimber Symbiosis // Turntimber, Serpentine Wood",1,1,NULL,1
 "Fynn, the Fangbearer",Umbral Mantle,2,0,NULL,2
 "Fynn, the Fangbearer",Underdark Basilisk,1,0,NULL,0
 "Fynn, the Fangbearer",Urban Daggertooth,1,0,NULL,0
-"Fynn, the Fangbearer",Urza's Saga,2,1,NULL,1
-"Fynn, the Fangbearer",Utopia Sprawl,4,1,NULL,3
-"Fynn, the Fangbearer",Vastlands Scavenger // Bind to Life,2,1,NULL,1
-"Fynn, the Fangbearer",Veil of Summer,4,1,NULL,3
-"Fynn, the Fangbearer",Venerated Rotpriest,2,1,NULL,1
+"Fynn, the Fangbearer",Urza's Saga,3,1,NULL,2
+"Fynn, the Fangbearer",Utopia Sprawl,5,1,NULL,4
+"Fynn, the Fangbearer",Vastlands Scavenger // Bind to Life,3,1,NULL,2
+"Fynn, the Fangbearer",Veil of Summer,5,1,NULL,4
+"Fynn, the Fangbearer",Venerated Rotpriest,3,1,NULL,2
 "Fynn, the Fangbearer",Venom Sliver,1,0,NULL,0
 "Fynn, the Fangbearer",Verdant Catacombs,2,0,NULL,2
-"Fynn, the Fangbearer",Vexing Bauble,2,1,NULL,1
-"Fynn, the Fangbearer",Virulent Emissary,3,1,NULL,1
+"Fynn, the Fangbearer",Vexing Bauble,3,1,NULL,2
+"Fynn, the Fangbearer",Virulent Emissary,4,1,NULL,2
 "Fynn, the Fangbearer","Vivien, Champion of the Wilds",2,0,NULL,0
-"Fynn, the Fangbearer","Vorinclex, Monstrous Raider",1,0,NULL,0
+"Fynn, the Fangbearer","Vorinclex, Monstrous Raider",2,0,NULL,1
 "Fynn, the Fangbearer",Walking Ballista,2,0,NULL,2
-"Fynn, the Fangbearer",Wasteland Viper,2,1,NULL,1
-"Fynn, the Fangbearer",Wild Growth,4,1,NULL,3
+"Fynn, the Fangbearer",Wasteland Viper,3,1,NULL,2
+"Fynn, the Fangbearer",Wild Growth,5,1,NULL,4
 "Fynn, the Fangbearer",Windswept Heath,2,0,NULL,2
-"Fynn, the Fangbearer",Winter Moon,1,1,NULL,1
+"Fynn, the Fangbearer",Winter Moon,2,1,NULL,2
 "Fynn, the Fangbearer",Wooded Foothills,2,0,NULL,2
-"Fynn, the Fangbearer",Worldly Tutor,4,1,NULL,3
-"Fynn, the Fangbearer","Yavimaya, Cradle of Growth",4,1,NULL,3
+"Fynn, the Fangbearer",Worldly Tutor,5,1,NULL,4
+"Fynn, the Fangbearer","Yavimaya, Cradle of Growth",5,1,NULL,4
 "Korvold, Fae-Cursed King",Abrupt Decay,14,4,0.307692,13
 "Korvold, Fae-Cursed King",Academy Manufactor,1,0,NULL,0
 "Korvold, Fae-Cursed King",Ad Nauseam,52,10,0.204082,49
@@ -2316,77 +2316,77 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Lonis, Cryptozoologist",Yavimaya Coast,7,1,NULL,6
 "Lonis, Cryptozoologist","Yavimaya, Cradle of Growth",5,1,NULL,5
 "Maralen, Fae Ascendant",Aboleth Spawn,1,0,NULL,1
-"Maralen, Fae Ascendant",Abrupt Decay,23,1,0.058824,17
+"Maralen, Fae Ascendant",Abrupt Decay,24,1,0.058824,17
 "Maralen, Fae Ascendant",Ad Nauseam,13,3,0.300000,10
 "Maralen, Fae Ascendant",Agatha's Soul Cauldron,1,0,NULL,1
 "Maralen, Fae Ascendant",Alchemist's Refuge,1,0,NULL,1
-"Maralen, Fae Ascendant",Allosaurus Shepherd,17,1,0.083333,12
+"Maralen, Fae Ascendant",Allosaurus Shepherd,18,1,0.083333,12
 "Maralen, Fae Ascendant",Amphibian Downpour,1,1,NULL,1
-"Maralen, Fae Ascendant",An Offer You Can't Refuse,31,4,0.166667,24
-"Maralen, Fae Ascendant",Ancient Tomb,38,4,0.129032,31
+"Maralen, Fae Ascendant",An Offer You Can't Refuse,32,4,0.166667,24
+"Maralen, Fae Ascendant",Ancient Tomb,39,4,0.129032,31
 "Maralen, Fae Ascendant",Arbor Elf,8,1,NULL,8
-"Maralen, Fae Ascendant",Arcane Signet,36,4,0.133333,30
+"Maralen, Fae Ascendant",Arcane Signet,37,4,0.133333,30
 "Maralen, Fae Ascendant",Argothian Elder,2,1,NULL,2
 "Maralen, Fae Ascendant","Ashaya, Soul of the Wild",2,1,NULL,2
 "Maralen, Fae Ascendant",Assassin's Trophy,5,0,NULL,5
 "Maralen, Fae Ascendant",Autumn's Veil,2,0,NULL,2
-"Maralen, Fae Ascendant",Badgermole Cub,31,3,0.125000,24
+"Maralen, Fae Ascendant",Badgermole Cub,32,3,0.125000,24
 "Maralen, Fae Ascendant",Basalt Monolith,1,0,NULL,1
-"Maralen, Fae Ascendant",Bayou,38,4,0.125000,32
-"Maralen, Fae Ascendant",Beseech the Mirror,32,3,0.120000,25
+"Maralen, Fae Ascendant",Bayou,39,4,0.125000,32
+"Maralen, Fae Ascendant",Beseech the Mirror,33,3,0.120000,25
 "Maralen, Fae Ascendant",Birchlore Rangers,1,0,NULL,1
-"Maralen, Fae Ascendant",Birds of Paradise,34,4,0.142857,28
+"Maralen, Fae Ascendant",Birds of Paradise,35,4,0.142857,28
 "Maralen, Fae Ascendant",Bitterbloom Bearer,1,0,NULL,1
 "Maralen, Fae Ascendant",Bitterblossom,1,0,NULL,1
-"Maralen, Fae Ascendant",Bloodstained Mire,29,3,0.130435,23
-"Maralen, Fae Ascendant",Bloom Tender,28,2,0.090909,22
+"Maralen, Fae Ascendant",Bloodstained Mire,30,3,0.130435,23
+"Maralen, Fae Ascendant",Bloom Tender,29,2,0.090909,22
 "Maralen, Fae Ascendant",Boreal Druid,1,1,NULL,1
-"Maralen, Fae Ascendant",Borne Upon a Wind,35,3,0.107143,28
-"Maralen, Fae Ascendant","Boseiju, Who Endures",37,3,0.100000,30
+"Maralen, Fae Ascendant",Borne Upon a Wind,36,3,0.107143,28
+"Maralen, Fae Ascendant","Boseiju, Who Endures",38,3,0.100000,30
 "Maralen, Fae Ascendant",Brain Freeze,1,0,NULL,0
 "Maralen, Fae Ascendant",Brazen Borrower // Petty Theft,1,0,NULL,1
-"Maralen, Fae Ascendant",Breeding Pool,39,4,0.125000,32
+"Maralen, Fae Ascendant",Breeding Pool,40,4,0.125000,32
 "Maralen, Fae Ascendant",Cabal Ritual,14,2,0.153846,13
 "Maralen, Fae Ascendant",Carpet of Flowers,8,4,NULL,8
-"Maralen, Fae Ascendant",Cavern of Souls,16,1,0.100000,10
+"Maralen, Fae Ascendant",Cavern of Souls,17,1,0.100000,10
 "Maralen, Fae Ascendant",Cephalid Coliseum,1,0,NULL,1
 "Maralen, Fae Ascendant",Chain of Vapor,10,2,NULL,9
 "Maralen, Fae Ascendant",Chains of Mephistopheles,1,0,NULL,1
-"Maralen, Fae Ascendant",Chord of Calling,22,2,0.117647,17
+"Maralen, Fae Ascendant",Chord of Calling,23,2,0.117647,17
 "Maralen, Fae Ascendant",Chromatic Star,1,0,NULL,0
-"Maralen, Fae Ascendant",Chrome Mox,39,4,0.125000,32
+"Maralen, Fae Ascendant",Chrome Mox,40,4,0.125000,32
 "Maralen, Fae Ascendant",Circle of Dreams Druid,2,0,NULL,2
-"Maralen, Fae Ascendant",City of Brass,38,4,0.129032,31
+"Maralen, Fae Ascendant",City of Brass,39,4,0.129032,31
 "Maralen, Fae Ascendant",City of Solitude,1,1,NULL,1
 "Maralen, Fae Ascendant",City of Traitors,3,0,NULL,3
 "Maralen, Fae Ascendant",Clever Impersonator,11,0,0.000000,10
-"Maralen, Fae Ascendant",Cloud of Faeries,27,1,0.050000,20
+"Maralen, Fae Ascendant",Cloud of Faeries,28,1,0.050000,20
 "Maralen, Fae Ascendant",Cloudstone Curio,3,0,NULL,3
 "Maralen, Fae Ascendant",Collector Ouphe,1,0,NULL,1
-"Maralen, Fae Ascendant",Command Tower,38,4,0.129032,31
+"Maralen, Fae Ascendant",Command Tower,39,4,0.129032,31
 "Maralen, Fae Ascendant",Commandeer,8,2,NULL,8
 "Maralen, Fae Ascendant",Concordant Crossroads,1,0,NULL,1
 "Maralen, Fae Ascendant",Contamination,1,0,NULL,1
 "Maralen, Fae Ascendant",Copy Enchantment,4,0,NULL,2
 "Maralen, Fae Ascendant",Counterspell,1,0,NULL,1
-"Maralen, Fae Ascendant",Crop Rotation,37,4,0.133333,30
+"Maralen, Fae Ascendant",Crop Rotation,38,4,0.133333,30
 "Maralen, Fae Ascendant",Cryptolith Rite,1,0,NULL,0
-"Maralen, Fae Ascendant",Culling Ritual,36,4,0.133333,30
+"Maralen, Fae Ascendant",Culling Ritual,37,4,0.133333,30
 "Maralen, Fae Ascendant",Culling the Weak,20,3,0.176471,17
 "Maralen, Fae Ascendant",Cyclonic Rift,17,1,0.076923,13
-"Maralen, Fae Ascendant",Dark Ritual,39,4,0.125000,32
+"Maralen, Fae Ascendant",Dark Ritual,40,4,0.125000,32
 "Maralen, Fae Ascendant",Dauthi Voidwalker,2,0,NULL,2
 "Maralen, Fae Ascendant",Daze,9,2,NULL,9
 "Maralen, Fae Ascendant",Deadeye Navigator,13,1,0.100000,10
 "Maralen, Fae Ascendant",Deadly Rollick,9,0,NULL,8
-"Maralen, Fae Ascendant",Deathrite Shaman,38,3,0.096774,31
+"Maralen, Fae Ascendant",Deathrite Shaman,39,3,0.096774,31
 "Maralen, Fae Ascendant",Defense Grid,4,2,NULL,4
 "Maralen, Fae Ascendant",Delighted Halfling,11,1,0.090909,11
-"Maralen, Fae Ascendant",Demonic Consultation,38,3,0.096774,31
-"Maralen, Fae Ascendant",Demonic Tutor,39,4,0.125000,32
+"Maralen, Fae Ascendant",Demonic Consultation,39,3,0.096774,31
+"Maralen, Fae Ascendant",Demonic Tutor,40,4,0.125000,32
 "Maralen, Fae Ascendant",Destiny Spinner,11,2,0.200000,10
 "Maralen, Fae Ascendant",Devoted Druid,7,1,NULL,6
-"Maralen, Fae Ascendant",Diabolic Intent,26,4,0.200000,20
+"Maralen, Fae Ascendant",Diabolic Intent,27,4,0.200000,20
 "Maralen, Fae Ascendant",Dina's Guidance,1,0,NULL,1
 "Maralen, Fae Ascendant",Disciple of Freyalise // Garden of Freyalise,1,0,NULL,1
 "Maralen, Fae Ascendant",Dispel,5,0,NULL,5
@@ -2396,41 +2396,42 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Maralen, Fae Ascendant",Dryad Arbor,3,0,NULL,2
 "Maralen, Fae Ascendant","Eladamri, Korvecdal",3,0,NULL,3
 "Maralen, Fae Ascendant","Eladamri, Lord of Leaves",1,0,NULL,1
-"Maralen, Fae Ascendant",Eldritch Evolution,29,3,0.130435,23
+"Maralen, Fae Ascendant",Eldritch Evolution,30,3,0.130435,23
 "Maralen, Fae Ascendant","Elrond, Moon-Reader",2,1,NULL,2
-"Maralen, Fae Ascendant",Elves of Deep Shadow,34,4,0.137931,29
+"Maralen, Fae Ascendant",Elves of Deep Shadow,35,4,0.137931,29
 "Maralen, Fae Ascendant",Elvish Archdruid,1,0,NULL,1
 "Maralen, Fae Ascendant",Elvish Guidance,1,0,NULL,1
 "Maralen, Fae Ascendant",Elvish Harbinger,1,1,NULL,1
-"Maralen, Fae Ascendant",Elvish Mystic,30,4,0.160000,25
-"Maralen, Fae Ascendant",Elvish Spirit Guide,34,4,0.142857,28
-"Maralen, Fae Ascendant",Emergence Zone,28,4,0.166667,24
+"Maralen, Fae Ascendant",Elvish Mystic,31,4,0.160000,25
+"Maralen, Fae Ascendant",Elvish Spirit Guide,35,4,0.142857,28
+"Maralen, Fae Ascendant",Emergence Zone,29,4,0.166667,24
 "Maralen, Fae Ascendant",Endurance,10,2,0.200000,10
 "Maralen, Fae Ascendant",Enduring Vitality,7,0,NULL,6
 "Maralen, Fae Ascendant",Essence Warden,1,0,NULL,1
-"Maralen, Fae Ascendant",Eternal Scourge,37,4,0.133333,30
-"Maralen, Fae Ascendant",Eternal Witness,19,1,0.071429,14
-"Maralen, Fae Ascendant",Exotic Orchard,29,4,0.181818,22
-"Maralen, Fae Ascendant",Faerie Mastermind,38,4,0.129032,31
+"Maralen, Fae Ascendant",Eternal Scourge,38,4,0.133333,30
+"Maralen, Fae Ascendant",Eternal Witness,20,1,0.071429,14
+"Maralen, Fae Ascendant",Exotic Orchard,30,4,0.181818,22
+"Maralen, Fae Ascendant",Faerie Mastermind,39,4,0.129032,31
 "Maralen, Fae Ascendant",Fauna Shaman,1,1,NULL,1
 "Maralen, Fae Ascendant",Fellwar Stone,9,3,NULL,9
 "Maralen, Fae Ascendant",Fierce Guardianship,20,1,0.055556,18
-"Maralen, Fae Ascendant",Finale of Devastation,28,1,0.045455,22
+"Maralen, Fae Ascendant",Finale of Devastation,29,1,0.045455,22
 "Maralen, Fae Ascendant",Flash Photography,2,0,NULL,2
 "Maralen, Fae Ascendant",Flesh Duplicate,4,0,NULL,4
-"Maralen, Fae Ascendant",Flooded Strand,32,1,0.037037,27
-"Maralen, Fae Ascendant",Flusterstorm,38,4,0.129032,31
-"Maralen, Fae Ascendant",Food Chain,38,4,0.129032,31
+"Maralen, Fae Ascendant",Flooded Strand,33,1,0.037037,27
+"Maralen, Fae Ascendant",Flusterstorm,39,4,0.129032,31
+"Maralen, Fae Ascendant",Food Chain,39,4,0.129032,31
 "Maralen, Fae Ascendant",Forbidden Orchard,6,0,NULL,5
-"Maralen, Fae Ascendant",Force of Negation,36,3,0.103448,29
-"Maralen, Fae Ascendant",Force of Vigor,19,1,0.066667,15
-"Maralen, Fae Ascendant",Force of Will,38,4,0.129032,31
+"Maralen, Fae Ascendant",Force of Negation,37,3,0.103448,29
+"Maralen, Fae Ascendant",Force of Vigor,20,1,0.066667,15
+"Maralen, Fae Ascendant",Force of Will,39,4,0.129032,31
+"Maralen, Fae Ascendant",Foresight,1,0,NULL,0
 "Maralen, Fae Ascendant",Forest,2,0,NULL,2
-"Maralen, Fae Ascendant",Formidable Speaker,33,4,0.153846,26
+"Maralen, Fae Ascendant",Formidable Speaker,34,4,0.153846,26
 "Maralen, Fae Ascendant",Freed from the Real,2,0,NULL,1
-"Maralen, Fae Ascendant",Fyndhorn Elves,31,2,0.083333,24
-"Maralen, Fae Ascendant",Gaea's Cradle,36,4,0.137931,29
-"Maralen, Fae Ascendant",Gemstone Caverns,38,4,0.129032,31
+"Maralen, Fae Ascendant",Fyndhorn Elves,32,2,0.083333,24
+"Maralen, Fae Ascendant",Gaea's Cradle,37,4,0.137931,29
+"Maralen, Fae Ascendant",Gemstone Caverns,39,4,0.129032,31
 "Maralen, Fae Ascendant",Gemstone Mine,1,1,NULL,1
 "Maralen, Fae Ascendant",Gifts Ungiven,1,0,NULL,1
 "Maralen, Fae Ascendant",Gilded Drake,5,0,NULL,5
@@ -2445,14 +2446,15 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Maralen, Fae Ascendant",Hedge Maze,1,0,NULL,1
 "Maralen, Fae Ascendant",Heritage Druid,1,0,NULL,1
 "Maralen, Fae Ascendant",Hermit Druid,1,0,NULL,1
-"Maralen, Fae Ascendant",High Fae Trickster,31,2,0.080000,25
+"Maralen, Fae Ascendant",High Fae Trickster,32,2,0.080000,25
 "Maralen, Fae Ascendant",Hullbreaker Horror,3,0,NULL,2
-"Maralen, Fae Ascendant",Imperial Seal,32,3,0.115385,26
+"Maralen, Fae Ascendant",Imperial Seal,33,3,0.115385,26
 "Maralen, Fae Ascendant",Imposter Mech,1,0,NULL,1
 "Maralen, Fae Ascendant",Into the Flood Maw,16,2,0.125000,16
 "Maralen, Fae Ascendant",Intruder Alarm,1,0,NULL,1
 "Maralen, Fae Ascendant","Invasion of Ikoria // Zilortha, Apex of Ikoria",4,0,NULL,4
 "Maralen, Fae Ascendant",Island,6,1,NULL,6
+"Maralen, Fae Ascendant","Khan, Vengeful Heart",1,0,NULL,0
 "Maralen, Fae Ascendant","Kinnan, Bonder Prodigy",12,0,0.000000,11
 "Maralen, Fae Ascendant",Lantern of Insight,1,0,NULL,1
 "Maralen, Fae Ascendant","Lathril, Blade of the Elves",1,0,NULL,1
@@ -2460,64 +2462,64 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Maralen, Fae Ascendant",Lilysplash Mentor,5,0,NULL,4
 "Maralen, Fae Ascendant",Lim-Dûl's Vault,1,0,NULL,1
 "Maralen, Fae Ascendant",Lion's Eye Diamond,3,0,NULL,2
-"Maralen, Fae Ascendant",Llanowar Elves,38,3,0.096774,31
+"Maralen, Fae Ascendant",Llanowar Elves,39,3,0.096774,31
 "Maralen, Fae Ascendant",Llanowar Loamspeaker,1,0,NULL,0
 "Maralen, Fae Ascendant",Llanowar Wastes,1,0,NULL,0
-"Maralen, Fae Ascendant",Lotus Petal,37,4,0.129032,31
+"Maralen, Fae Ascendant",Lotus Petal,38,4,0.129032,31
 "Maralen, Fae Ascendant",Machine God's Effigy,4,1,NULL,3
 "Maralen, Fae Ascendant",Malevolent Hermit // Benevolent Geist,1,0,NULL,1
 "Maralen, Fae Ascendant",Malevolent Rumble,1,0,NULL,1
 "Maralen, Fae Ascendant",Malleable Impostor,1,0,NULL,1
-"Maralen, Fae Ascendant",Mana Confluence,36,4,0.137931,29
+"Maralen, Fae Ascendant",Mana Confluence,37,4,0.137931,29
 "Maralen, Fae Ascendant",Mana Drain,2,0,NULL,2
-"Maralen, Fae Ascendant",Mana Vault,39,4,0.125000,32
+"Maralen, Fae Ascendant",Mana Vault,40,4,0.125000,32
 "Maralen, Fae Ascendant",Manifold Key,1,0,NULL,1
 "Maralen, Fae Ascendant",Manipulate Fate,1,0,NULL,1
 "Maralen, Fae Ascendant",Maralen of the Mornsong,1,0,NULL,1
-"Maralen, Fae Ascendant","Maralen, Fae Ascendant",39,4,0.125000,32
+"Maralen, Fae Ascendant","Maralen, Fae Ascendant",40,4,0.125000,32
 "Maralen, Fae Ascendant",Marsh Flats,22,1,0.047619,21
 "Maralen, Fae Ascendant",Maskwood Nexus,1,0,NULL,1
-"Maralen, Fae Ascendant",Mental Misstep,37,4,0.133333,30
+"Maralen, Fae Ascendant",Mental Misstep,38,4,0.133333,30
 "Maralen, Fae Ascendant","Minamo, School at Water's Edge",4,0,NULL,2
-"Maralen, Fae Ascendant",Mindbreak Trap,37,4,0.133333,30
+"Maralen, Fae Ascendant",Mindbreak Trap,38,4,0.133333,30
 "Maralen, Fae Ascendant",Mirrormade,5,0,NULL,4
 "Maralen, Fae Ascendant",Miscast,1,0,NULL,0
 "Maralen, Fae Ascendant",Misdirection,14,0,0.000000,14
-"Maralen, Fae Ascendant",Misthollow Griffin,38,4,0.129032,31
+"Maralen, Fae Ascendant",Misthollow Griffin,39,4,0.129032,31
 "Maralen, Fae Ascendant",Mistrise Village,3,0,NULL,3
-"Maralen, Fae Ascendant",Misty Rainforest,35,4,0.133333,30
+"Maralen, Fae Ascendant",Misty Rainforest,36,4,0.133333,30
 "Maralen, Fae Ascendant",Mnemonic Betrayal,9,2,NULL,7
-"Maralen, Fae Ascendant",Mockingbird,34,3,0.111111,27
-"Maralen, Fae Ascendant",Morphic Pool,20,1,0.066667,15
+"Maralen, Fae Ascendant",Mockingbird,35,3,0.111111,27
+"Maralen, Fae Ascendant",Morphic Pool,21,1,0.066667,15
 "Maralen, Fae Ascendant",Mox Amber,11,1,0.090909,11
-"Maralen, Fae Ascendant",Mox Diamond,37,4,0.133333,30
+"Maralen, Fae Ascendant",Mox Diamond,38,4,0.133333,30
 "Maralen, Fae Ascendant",Mox Opal,8,1,NULL,8
-"Maralen, Fae Ascendant",Mystic Remora,39,4,0.125000,32
-"Maralen, Fae Ascendant",Mystical Tutor,27,3,0.142857,21
+"Maralen, Fae Ascendant",Mystic Remora,40,4,0.125000,32
+"Maralen, Fae Ascendant",Mystical Tutor,28,3,0.142857,21
 "Maralen, Fae Ascendant","Narset, Parter of Veils",1,0,NULL,1
-"Maralen, Fae Ascendant",Nature's Rhythm,28,1,0.047619,21
+"Maralen, Fae Ascendant",Nature's Rhythm,29,1,0.047619,21
 "Maralen, Fae Ascendant",Necrodominance,3,0,NULL,2
-"Maralen, Fae Ascendant",Necropotence,30,4,0.173913,23
+"Maralen, Fae Ascendant",Necropotence,31,4,0.173913,23
 "Maralen, Fae Ascendant",Neoform,6,1,NULL,6
 "Maralen, Fae Ascendant",Notion Thief,1,0,NULL,1
-"Maralen, Fae Ascendant",Noxious Revival,29,2,0.090909,22
+"Maralen, Fae Ascendant",Noxious Revival,30,2,0.090909,22
 "Maralen, Fae Ascendant",Nurturing Peatland,1,0,NULL,1
 "Maralen, Fae Ascendant",Oboro Breezecaller,3,0,NULL,2
 "Maralen, Fae Ascendant",Omni-Changeling,1,0,NULL,1
 "Maralen, Fae Ascendant","Oona, Queen of the Fae",1,0,NULL,1
-"Maralen, Fae Ascendant",Opposition Agent,27,3,0.142857,21
-"Maralen, Fae Ascendant",Orcish Bowmasters,32,3,0.115385,26
+"Maralen, Fae Ascendant",Opposition Agent,28,3,0.142857,21
+"Maralen, Fae Ascendant",Orcish Bowmasters,33,3,0.115385,26
 "Maralen, Fae Ascendant",Orochi Leafcaller,1,1,NULL,1
-"Maralen, Fae Ascendant","Otawara, Soaring City",32,3,0.120000,25
-"Maralen, Fae Ascendant",Overgrown Tomb,37,4,0.129032,31
-"Maralen, Fae Ascendant",Pact of Negation,38,4,0.129032,31
+"Maralen, Fae Ascendant","Otawara, Soaring City",33,3,0.120000,25
+"Maralen, Fae Ascendant",Overgrown Tomb,38,4,0.129032,31
+"Maralen, Fae Ascendant",Pact of Negation,39,4,0.129032,31
 "Maralen, Fae Ascendant",Peer into the Abyss,1,0,NULL,1
 "Maralen, Fae Ascendant",Phantasmal Image,11,1,0.090909,11
 "Maralen, Fae Ascendant",Phyrexian Metamorph,10,0,NULL,9
 "Maralen, Fae Ascendant",Phyrexian Tower,2,0,NULL,2
-"Maralen, Fae Ascendant","Pia, Aether Ascetic",9,0,NULL,7
-"Maralen, Fae Ascendant",Plunge into Darkness,13,1,NULL,8
-"Maralen, Fae Ascendant",Polluted Delta,39,4,0.125000,32
+"Maralen, Fae Ascendant","Pia, Aether Ascetic",10,0,NULL,7
+"Maralen, Fae Ascendant",Plunge into Darkness,14,1,NULL,8
+"Maralen, Fae Ascendant",Polluted Delta,40,4,0.125000,32
 "Maralen, Fae Ascendant",Pollywog Prodigy,1,0,NULL,0
 "Maralen, Fae Ascendant",Praetor's Grasp,12,3,0.272727,11
 "Maralen, Fae Ascendant",Presence of Gond,1,0,NULL,1
@@ -2528,23 +2530,23 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Maralen, Fae Ascendant",Reanimate,9,0,NULL,5
 "Maralen, Fae Ascendant",Reclamation Sage,1,1,NULL,1
 "Maralen, Fae Ascendant",Reflecting Pool,1,0,NULL,1
-"Maralen, Fae Ascendant",Rejuvenating Springs,21,2,0.125000,16
-"Maralen, Fae Ascendant",Rhystic Study,39,4,0.125000,32
+"Maralen, Fae Ascendant",Rejuvenating Springs,22,2,0.125000,16
+"Maralen, Fae Ascendant",Rhystic Study,40,4,0.125000,32
 "Maralen, Fae Ascendant",Roaming Throne,2,0,NULL,2
 "Maralen, Fae Ascendant",Root Maze,1,0,NULL,1
 "Maralen, Fae Ascendant","Samut, Tyrant of Naktamun",4,0,NULL,3
 "Maralen, Fae Ascendant",Scalding Tarn,13,0,0.000000,13
-"Maralen, Fae Ascendant",Scheming Symmetry,7,1,NULL,4
+"Maralen, Fae Ascendant",Scheming Symmetry,8,1,NULL,4
 "Maralen, Fae Ascendant",Seedborn Muse,1,1,NULL,1
 "Maralen, Fae Ascendant","Shang-Chi, Master of Kung Fu",7,1,NULL,5
-"Maralen, Fae Ascendant",Shifting Woodland,25,3,0.157895,19
+"Maralen, Fae Ascendant",Shifting Woodland,26,3,0.157895,19
 "Maralen, Fae Ascendant",Sink into Stupor,1,0,NULL,0
 "Maralen, Fae Ascendant",Sink into Stupor // Soporific Springs,5,0,NULL,4
-"Maralen, Fae Ascendant",Snap,19,1,0.076923,13
+"Maralen, Fae Ascendant",Snap,20,1,0.076923,13
 "Maralen, Fae Ascendant",Snapback,3,2,NULL,2
-"Maralen, Fae Ascendant",Snuff Out,6,0,NULL,5
-"Maralen, Fae Ascendant",Sol Ring,39,4,0.125000,32
-"Maralen, Fae Ascendant",Spellseeker,29,3,0.130435,23
+"Maralen, Fae Ascendant",Snuff Out,7,0,NULL,5
+"Maralen, Fae Ascendant",Sol Ring,40,4,0.125000,32
+"Maralen, Fae Ascendant",Spellseeker,30,3,0.130435,23
 "Maralen, Fae Ascendant",Spellstutter Sprite,1,0,NULL,1
 "Maralen, Fae Ascendant",Spider-Sense,1,0,NULL,1
 "Maralen, Fae Ascendant",Springleaf Parade,1,0,NULL,1
@@ -2555,21 +2557,21 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Maralen, Fae Ascendant",Strip Mine,1,0,NULL,1
 "Maralen, Fae Ascendant",Strix Serenade,2,1,NULL,1
 "Maralen, Fae Ascendant",Submerge,2,0,NULL,2
-"Maralen, Fae Ascendant",Subtlety,3,2,NULL,3
+"Maralen, Fae Ascendant",Subtlety,4,2,NULL,3
 "Maralen, Fae Ascendant",Sudden Substitution,1,0,NULL,1
 "Maralen, Fae Ascendant",Summoner's Pact,5,2,NULL,5
 "Maralen, Fae Ascendant",Survival of the Fittest,1,0,NULL,1
 "Maralen, Fae Ascendant",Swamp,6,1,NULL,6
-"Maralen, Fae Ascendant",Swan Song,35,4,0.137931,29
+"Maralen, Fae Ascendant",Swan Song,36,4,0.137931,29
 "Maralen, Fae Ascendant",Sylvan Library,5,0,NULL,4
-"Maralen, Fae Ascendant",Tainted Pact,35,3,0.103448,29
+"Maralen, Fae Ascendant",Tainted Pact,36,3,0.103448,29
 "Maralen, Fae Ascendant","Talion, the Kindly Lord",14,0,0.000000,13
 "Maralen, Fae Ascendant",Talisman of Curiosity,1,0,NULL,1
-"Maralen, Fae Ascendant",Talisman of Dominance,11,2,NULL,6
+"Maralen, Fae Ascendant",Talisman of Dominance,12,2,NULL,6
 "Maralen, Fae Ascendant",Talisman of Resilience,2,0,NULL,2
 "Maralen, Fae Ascendant",Talon Gates of Madara,12,2,0.181818,11
 "Maralen, Fae Ascendant","Tam, Mindful First-Year",1,0,NULL,1
-"Maralen, Fae Ascendant",Thassa's Oracle,37,3,0.100000,30
+"Maralen, Fae Ascendant",Thassa's Oracle,38,3,0.100000,30
 "Maralen, Fae Ascendant",The Cabbage Merchant,15,2,0.153846,13
 "Maralen, Fae Ascendant",The One Ring,7,0,NULL,5
 "Maralen, Fae Ascendant",The Unbeatable Squirrel Girl,1,0,NULL,1
@@ -2579,37 +2581,37 @@ commander,card_name,appearances,conversions,conversion_rate,sample_size_base
 "Maralen, Fae Ascendant",Three Tree City,1,0,NULL,1
 "Maralen, Fae Ascendant",Timetwister,2,0,NULL,2
 "Maralen, Fae Ascendant",Treasure Vault,1,1,NULL,1
-"Maralen, Fae Ascendant",Tropical Island,39,4,0.125000,32
+"Maralen, Fae Ascendant",Tropical Island,40,4,0.125000,32
 "Maralen, Fae Ascendant","Tyvar, Jubilant Brawler",3,1,NULL,3
 "Maralen, Fae Ascendant",Undercity Sewers,2,1,NULL,2
 "Maralen, Fae Ascendant",Underground Mortuary,5,2,NULL,5
 "Maralen, Fae Ascendant",Underground River,2,0,NULL,1
-"Maralen, Fae Ascendant",Underground Sea,39,4,0.125000,32
-"Maralen, Fae Ascendant",Undergrowth Stadium,20,3,0.214286,14
+"Maralen, Fae Ascendant",Underground Sea,40,4,0.125000,32
+"Maralen, Fae Ascendant",Undergrowth Stadium,21,3,0.214286,14
 "Maralen, Fae Ascendant",Urborg Elf,2,1,NULL,2
 "Maralen, Fae Ascendant","Urborg, Tomb of Yawgmoth",4,2,NULL,4
 "Maralen, Fae Ascendant",Urza's Cave,1,1,NULL,1
 "Maralen, Fae Ascendant",Urza's Saga,3,0,NULL,2
 "Maralen, Fae Ascendant",Utopia Sprawl,2,0,NULL,2
 "Maralen, Fae Ascendant",Valley Floodcaller,13,1,NULL,7
-"Maralen, Fae Ascendant",Vampiric Tutor,38,4,0.129032,31
-"Maralen, Fae Ascendant",Veil of Summer,38,4,0.129032,31
-"Maralen, Fae Ascendant",Verdant Catacombs,39,4,0.125000,32
+"Maralen, Fae Ascendant",Vampiric Tutor,39,4,0.129032,31
+"Maralen, Fae Ascendant",Veil of Summer,39,4,0.129032,31
+"Maralen, Fae Ascendant",Verdant Catacombs,40,4,0.125000,32
 "Maralen, Fae Ascendant",Verity Circle,1,0,NULL,0
 "Maralen, Fae Ascendant",Vexing Bauble,3,0,NULL,2
 "Maralen, Fae Ascendant",Volatile Stormdrake,8,1,NULL,8
 "Maralen, Fae Ascendant",Walking Ballista,3,0,NULL,3
-"Maralen, Fae Ascendant","Wan Shi Tong, Librarian",28,2,0.090909,22
-"Maralen, Fae Ascendant",Watery Grave,38,4,0.129032,31
+"Maralen, Fae Ascendant","Wan Shi Tong, Librarian",29,2,0.090909,22
+"Maralen, Fae Ascendant",Watery Grave,39,4,0.129032,31
 "Maralen, Fae Ascendant",Wild Growth,6,0,NULL,6
 "Maralen, Fae Ascendant",Windfall,1,0,NULL,1
-"Maralen, Fae Ascendant",Windswept Heath,30,2,0.083333,24
+"Maralen, Fae Ascendant",Windswept Heath,31,2,0.083333,24
 "Maralen, Fae Ascendant",Wirewood Channeler,1,0,NULL,1
 "Maralen, Fae Ascendant",Wirewood Lodge,1,0,NULL,1
 "Maralen, Fae Ascendant",Wirewood Symbiote,1,0,NULL,1
-"Maralen, Fae Ascendant",Wishclaw Talisman,30,4,0.166667,24
+"Maralen, Fae Ascendant",Wishclaw Talisman,31,4,0.166667,24
 "Maralen, Fae Ascendant",Wooded Foothills,18,0,0.000000,16
-"Maralen, Fae Ascendant",Worldly Tutor,28,4,0.181818,22
+"Maralen, Fae Ascendant",Worldly Tutor,29,4,0.181818,22
 "Maralen, Fae Ascendant","Yavimaya, Cradle of Growth",5,2,NULL,5
 "Maralen, Fae Ascendant",Yawgmoth's Will,8,0,NULL,6
 "Maralen, Fae Ascendant",Zagoth Triome,1,0,NULL,1
@@ -4860,8 +4862,8 @@ Tor Wauki the Younger,Yawgmoth's Will,1,0,NULL,1
 "Veyran, Voice of Duality","Veyran, Voice of Duality",1,0,NULL,0
 "Veyran, Voice of Duality",Wizard's Staff,1,0,NULL,0
 "Veyran, Voice of Duality",Young Pyromancer,1,0,NULL,0
-"Chulane, Teller of Tales","Aang, Swift Savior // Aang and La, Ocean's Fury",2,0,NULL,0
-"Chulane, Teller of Tales",Adarkar Wastes,2,0,NULL,0
+"Chulane, Teller of Tales","Aang, Swift Savior // Aang and La, Ocean's Fury",3,0,NULL,0
+"Chulane, Teller of Tales",Adarkar Wastes,3,0,NULL,0
 "Chulane, Teller of Tales",Aether Channeler,2,0,NULL,0
 "Chulane, Teller of Tales",Aetherflux Reservoir,1,0,NULL,0
 "Chulane, Teller of Tales",Alchemist's Refuge,1,0,NULL,1
@@ -4869,47 +4871,48 @@ Tor Wauki the Younger,Yawgmoth's Will,1,0,NULL,1
 "Chulane, Teller of Tales",An Offer You Can't Refuse,2,0,NULL,1
 "Chulane, Teller of Tales",Ancient Tomb,4,1,NULL,3
 "Chulane, Teller of Tales",Arbor Elf,2,0,NULL,1
-"Chulane, Teller of Tales",Arcane Denial,2,0,NULL,0
-"Chulane, Teller of Tales",Arcane Signet,2,0,NULL,0
+"Chulane, Teller of Tales",Arcane Denial,3,0,NULL,0
+"Chulane, Teller of Tales",Arcane Signet,3,0,NULL,0
 "Chulane, Teller of Tales",Arid Mesa,2,1,NULL,2
 "Chulane, Teller of Tales",Augur of Autumn,1,0,NULL,0
 "Chulane, Teller of Tales",Aura Shards,1,0,NULL,0
 "Chulane, Teller of Tales",Autumn's Veil,1,0,NULL,1
-"Chulane, Teller of Tales",Avacyn's Pilgrim,3,1,NULL,2
+"Chulane, Teller of Tales",Avacyn's Pilgrim,4,1,NULL,2
 "Chulane, Teller of Tales",Aven Interrupter,2,1,NULL,2
 "Chulane, Teller of Tales",Aven Mindcensor,2,1,NULL,2
-"Chulane, Teller of Tales",Azorius Chancery,2,0,NULL,0
+"Chulane, Teller of Tales",Azorius Chancery,3,0,NULL,0
 "Chulane, Teller of Tales",Badgermole Cub,4,1,NULL,3
 "Chulane, Teller of Tales",Basalt Monolith,1,0,NULL,0
-"Chulane, Teller of Tales",Beast Within,2,0,NULL,0
+"Chulane, Teller of Tales",Beast Within,3,0,NULL,0
 "Chulane, Teller of Tales",Biomancer's Familiar,2,0,NULL,0
-"Chulane, Teller of Tales",Birds of Paradise,4,1,NULL,3
+"Chulane, Teller of Tales",Birds of Paradise,5,1,NULL,3
 "Chulane, Teller of Tales",Blind Obedience,2,1,NULL,2
-"Chulane, Teller of Tales",Bloom Tender,4,1,NULL,3
+"Chulane, Teller of Tales",Bloom Tender,5,1,NULL,3
 "Chulane, Teller of Tales",Borne Upon a Wind,2,1,NULL,1
 "Chulane, Teller of Tales","Boromir, Warden of the Tower",1,0,NULL,1
 "Chulane, Teller of Tales","Boseiju, Who Endures",4,1,NULL,3
-"Chulane, Teller of Tales",Bountiful Promenade,2,0,NULL,0
-"Chulane, Teller of Tales",Breeding Pool,6,1,NULL,3
-"Chulane, Teller of Tales",Brushland,2,0,NULL,0
-"Chulane, Teller of Tales",Canopy Vista,2,0,NULL,0
+"Chulane, Teller of Tales",Bountiful Promenade,3,0,NULL,0
+"Chulane, Teller of Tales",Breeding Pool,7,1,NULL,3
+"Chulane, Teller of Tales",Brushland,3,0,NULL,0
+"Chulane, Teller of Tales",Canopy Vista,3,0,NULL,0
 "Chulane, Teller of Tales","Captain America, Living Legend",1,0,NULL,1
 "Chulane, Teller of Tales",Carpet of Flowers,1,1,NULL,1
 "Chulane, Teller of Tales",Cathars' Crusade,2,0,NULL,0
 "Chulane, Teller of Tales",Cavern of Souls,2,1,NULL,2
 "Chulane, Teller of Tales",Chord of Calling,3,1,NULL,3
 "Chulane, Teller of Tales",Chrome Mox,2,1,NULL,2
-"Chulane, Teller of Tales","Chulane, Teller of Tales",6,1,NULL,3
-"Chulane, Teller of Tales",City of Brass,3,1,NULL,3
+"Chulane, Teller of Tales","Chulane, Teller of Tales",7,1,NULL,3
+"Chulane, Teller of Tales",City of Brass,4,1,NULL,3
 "Chulane, Teller of Tales",City of Traitors,2,1,NULL,2
-"Chulane, Teller of Tales",Cloud of Faeries,4,1,NULL,2
+"Chulane, Teller of Tales",Cloud of Faeries,5,1,NULL,2
 "Chulane, Teller of Tales",Cloudshift,2,0,NULL,0
-"Chulane, Teller of Tales",Cloudstone Curio,5,1,NULL,2
-"Chulane, Teller of Tales",Coiling Oracle,2,0,NULL,0
+"Chulane, Teller of Tales",Cloudstone Curio,6,1,NULL,2
+"Chulane, Teller of Tales",Coiling Oracle,3,0,NULL,0
 "Chulane, Teller of Tales",Collector Ouphe,1,0,NULL,1
 "Chulane, Teller of Tales",Colossal Skyturtle,1,0,NULL,1
-"Chulane, Teller of Tales",Command Tower,6,1,NULL,3
-"Chulane, Teller of Tales",Craterhoof Behemoth,2,0,NULL,0
+"Chulane, Teller of Tales",Command Tower,7,1,NULL,3
+"Chulane, Teller of Tales",Counterspell,1,0,NULL,0
+"Chulane, Teller of Tales",Craterhoof Behemoth,3,0,NULL,0
 "Chulane, Teller of Tales",Crop Rotation,3,1,NULL,2
 "Chulane, Teller of Tales",Cryptolith Rite,2,0,NULL,1
 "Chulane, Teller of Tales",Day of Judgment,2,0,NULL,0
@@ -4917,17 +4920,17 @@ Tor Wauki the Younger,Yawgmoth's Will,1,0,NULL,1
 "Chulane, Teller of Tales",Deafening Silence,3,1,NULL,3
 "Chulane, Teller of Tales",Defense Grid,1,0,NULL,0
 "Chulane, Teller of Tales",Delighted Halfling,4,1,NULL,3
-"Chulane, Teller of Tales","Delney, Streetwise Lookout",3,1,NULL,3
+"Chulane, Teller of Tales","Delney, Streetwise Lookout",4,1,NULL,3
 "Chulane, Teller of Tales",Destiny Spinner,1,0,NULL,1
-"Chulane, Teller of Tales",Disallow,2,0,NULL,0
+"Chulane, Teller of Tales",Disallow,3,0,NULL,0
 "Chulane, Teller of Tales",Dispel,1,0,NULL,1
-"Chulane, Teller of Tales",Dour Port-Mage,2,0,NULL,0
+"Chulane, Teller of Tales",Dour Port-Mage,3,0,NULL,0
 "Chulane, Teller of Tales",Dovin's Veto,1,0,NULL,1
 "Chulane, Teller of Tales",Drannith Magistrate,4,1,NULL,3
 "Chulane, Teller of Tales",Dryad Arbor,1,0,NULL,1
 "Chulane, Teller of Tales",Dusk // Dawn,2,0,NULL,0
 "Chulane, Teller of Tales",Earthcraft,3,1,NULL,2
-"Chulane, Teller of Tales",Eladamri's Call,4,1,NULL,3
+"Chulane, Teller of Tales",Eladamri's Call,5,1,NULL,3
 "Chulane, Teller of Tales",Eldrazi Displacer,1,0,NULL,1
 "Chulane, Teller of Tales",Elvish Spirit Guide,3,1,NULL,2
 "Chulane, Teller of Tales",Elvish Visionary,2,0,NULL,0
@@ -4938,65 +4941,68 @@ Tor Wauki the Younger,Yawgmoth's Will,1,0,NULL,1
 "Chulane, Teller of Tales",Enlightened Tutor,3,1,NULL,2
 "Chulane, Teller of Tales",Esper Sentinel,4,1,NULL,3
 "Chulane, Teller of Tales",Eternal Scourge,1,0,NULL,0
-"Chulane, Teller of Tales",Eternal Witness,3,1,NULL,1
-"Chulane, Teller of Tales",Evacuation,2,0,NULL,0
-"Chulane, Teller of Tales",Exotic Orchard,3,0,NULL,1
+"Chulane, Teller of Tales",Eternal Witness,4,1,NULL,1
+"Chulane, Teller of Tales",Evacuation,3,0,NULL,0
+"Chulane, Teller of Tales",Exotic Orchard,4,0,NULL,1
 "Chulane, Teller of Tales",Exploration,1,0,NULL,1
-"Chulane, Teller of Tales",Faeburrow Elder,5,1,NULL,3
+"Chulane, Teller of Tales",Faeburrow Elder,6,1,NULL,3
 "Chulane, Teller of Tales",Faerie Mastermind,4,1,NULL,3
-"Chulane, Teller of Tales",Farseek,2,0,NULL,0
+"Chulane, Teller of Tales",Farseek,3,0,NULL,0
 "Chulane, Teller of Tales",Fear of Impostors,1,0,NULL,1
-"Chulane, Teller of Tales",Felidar Retreat,2,0,NULL,0
-"Chulane, Teller of Tales",Fellwar Stone,2,0,NULL,0
+"Chulane, Teller of Tales",Felidar Retreat,3,0,NULL,0
+"Chulane, Teller of Tales",Fellwar Stone,3,0,NULL,0
 "Chulane, Teller of Tales",Fierce Guardianship,4,1,NULL,3
 "Chulane, Teller of Tales",Finale of Devastation,3,1,NULL,2
 "Chulane, Teller of Tales",Flickering Hound,2,1,NULL,2
-"Chulane, Teller of Tales",Flooded Strand,5,1,NULL,2
+"Chulane, Teller of Tales",Flooded Strand,6,1,NULL,2
 "Chulane, Teller of Tales",Floodfarm Verge,1,0,NULL,0
 "Chulane, Teller of Tales",Flusterstorm,4,1,NULL,3
 "Chulane, Teller of Tales",Food Chain,1,0,NULL,0
 "Chulane, Teller of Tales",Force of Negation,3,1,NULL,2
 "Chulane, Teller of Tales",Force of Vigor,2,1,NULL,2
 "Chulane, Teller of Tales",Force of Will,3,1,NULL,2
-"Chulane, Teller of Tales",Forest,5,1,NULL,2
+"Chulane, Teller of Tales",Forest,6,1,NULL,2
+"Chulane, Teller of Tales",Formidable Speaker,1,0,NULL,0
 "Chulane, Teller of Tales",Frilled Mystic,3,0,NULL,1
 "Chulane, Teller of Tales",Fyndhorn Elves,1,0,NULL,1
 "Chulane, Teller of Tales",Gaea's Cradle,4,1,NULL,3
 "Chulane, Teller of Tales",Gemstone Caverns,4,1,NULL,3
+"Chulane, Teller of Tales",Generous Gift,1,0,NULL,0
 "Chulane, Teller of Tales",Gilded Drake,1,0,NULL,1
-"Chulane, Teller of Tales",Glacial Fortress,2,0,NULL,0
+"Chulane, Teller of Tales",Glacial Fortress,3,0,NULL,0
 "Chulane, Teller of Tales",Gleaming Splendor,1,0,NULL,0
 "Chulane, Teller of Tales",Grand Abolisher,3,1,NULL,3
-"Chulane, Teller of Tales","Grazilaxx, Illithid Scholar",2,0,NULL,0
+"Chulane, Teller of Tales","Grazilaxx, Illithid Scholar",3,0,NULL,0
 "Chulane, Teller of Tales",Great Oak Guardian,2,0,NULL,0
 "Chulane, Teller of Tales",Green Sun's Zenith,3,1,NULL,3
-"Chulane, Teller of Tales",Guardian of Faith,2,0,NULL,0
-"Chulane, Teller of Tales",Hallowed Fountain,5,1,NULL,2
-"Chulane, Teller of Tales",Hinterland Harbor,2,0,NULL,0
+"Chulane, Teller of Tales",Guardian of Faith,3,0,NULL,0
+"Chulane, Teller of Tales",Hallowed Fountain,6,1,NULL,2
+"Chulane, Teller of Tales",Hinterland Harbor,3,0,NULL,0
 "Chulane, Teller of Tales",Homeward Path,1,0,NULL,1
 "Chulane, Teller of Tales",Hullbreaker Horror,1,0,NULL,0
-"Chulane, Teller of Tales",Inga and Esika,2,0,NULL,0
+"Chulane, Teller of Tales",Inga and Esika,3,0,NULL,0
 "Chulane, Teller of Tales",Into the Flood Maw,2,1,NULL,2
 "Chulane, Teller of Tales",Intruder Alarm,2,0,NULL,1
 "Chulane, Teller of Tales",Intuition,1,0,NULL,1
-"Chulane, Teller of Tales",Island,5,1,NULL,2
+"Chulane, Teller of Tales","Invasion of Ikoria // Zilortha, Apex of Ikoria",1,0,NULL,0
+"Chulane, Teller of Tales",Island,6,1,NULL,2
 "Chulane, Teller of Tales",Jennifer Walters // The Sensational She-Hulk,4,1,NULL,3
 "Chulane, Teller of Tales","Jolrael, Mwonvuli Recluse",2,0,NULL,0
 "Chulane, Teller of Tales","Kinnan, Bonder Prodigy",2,0,NULL,1
-"Chulane, Teller of Tales",Kodama of the East Tree,2,0,NULL,0
-"Chulane, Teller of Tales",Kor Skyfisher,2,0,NULL,0
+"Chulane, Teller of Tales",Kodama of the East Tree,3,0,NULL,0
+"Chulane, Teller of Tales",Kor Skyfisher,3,0,NULL,0
 "Chulane, Teller of Tales","Kutzil, Malamet Exemplar",1,0,NULL,1
-"Chulane, Teller of Tales",Laboratory Maniac,1,0,NULL,0
+"Chulane, Teller of Tales",Laboratory Maniac,2,0,NULL,0
 "Chulane, Teller of Tales","Lavinia, Azorius Renegade",1,0,NULL,1
 "Chulane, Teller of Tales",Legolas's Quick Reflexes,1,0,NULL,0
 "Chulane, Teller of Tales",Leyline of Anticipation,1,0,NULL,1
 "Chulane, Teller of Tales","Linvala, Keeper of Silence",1,0,NULL,0
 "Chulane, Teller of Tales",Llanowar Elves,3,1,NULL,2
-"Chulane, Teller of Tales",Lotus Cobra,6,1,NULL,3
+"Chulane, Teller of Tales",Lotus Cobra,7,1,NULL,3
 "Chulane, Teller of Tales",Lotus Petal,2,1,NULL,2
 "Chulane, Teller of Tales","Maja, Bretagard Protector",2,0,NULL,0
-"Chulane, Teller of Tales",Mana Breach,1,0,NULL,0
-"Chulane, Teller of Tales",Mana Confluence,5,1,NULL,3
+"Chulane, Teller of Tales",Mana Breach,2,0,NULL,0
+"Chulane, Teller of Tales",Mana Confluence,6,1,NULL,3
 "Chulane, Teller of Tales",Mana Vault,2,1,NULL,2
 "Chulane, Teller of Tales",Maraleaf Pixie,2,0,NULL,0
 "Chulane, Teller of Tales",Marsh Flats,2,1,NULL,2
@@ -5004,94 +5010,97 @@ Tor Wauki the Younger,Yawgmoth's Will,1,0,NULL,1
 "Chulane, Teller of Tales",Mindbreak Trap,3,1,NULL,3
 "Chulane, Teller of Tales",Misthollow Griffin,1,0,NULL,0
 "Chulane, Teller of Tales",Mistrise Village,2,0,NULL,1
-"Chulane, Teller of Tales",Misty Rainforest,5,1,NULL,2
+"Chulane, Teller of Tales",Misty Rainforest,6,1,NULL,2
 "Chulane, Teller of Tales",Mockingbird,2,1,NULL,2
 "Chulane, Teller of Tales",Mox Diamond,2,1,NULL,2
 "Chulane, Teller of Tales","Myrel, Shield of Argive",1,0,NULL,1
 "Chulane, Teller of Tales",Mystic Remora,4,1,NULL,3
-"Chulane, Teller of Tales",Mystic Snake,3,0,NULL,1
+"Chulane, Teller of Tales",Mystic Snake,4,0,NULL,1
 "Chulane, Teller of Tales",Mystical Tutor,1,0,NULL,0
 "Chulane, Teller of Tales",Nature's Rhythm,3,1,NULL,2
-"Chulane, Teller of Tales",Negate,2,0,NULL,0
+"Chulane, Teller of Tales",Negate,3,0,NULL,0
 "Chulane, Teller of Tales",Neoform,2,0,NULL,0
 "Chulane, Teller of Tales","Nissa, Resurgent Animist",2,1,NULL,2
-"Chulane, Teller of Tales",Noble Hierarch,4,1,NULL,3
+"Chulane, Teller of Tales",Noble Hierarch,5,1,NULL,3
 "Chulane, Teller of Tales",Noxious Revival,2,0,NULL,1
 "Chulane, Teller of Tales","Oboro, Palace in the Clouds",3,1,NULL,3
 "Chulane, Teller of Tales",Orim's Chant,1,0,NULL,1
-"Chulane, Teller of Tales","Otawara, Soaring City",4,1,NULL,3
+"Chulane, Teller of Tales","Otawara, Soaring City",5,1,NULL,3
 "Chulane, Teller of Tales",Overgrown Farmland,1,0,NULL,0
 "Chulane, Teller of Tales",Pact of Negation,2,1,NULL,2
 "Chulane, Teller of Tales",Paradise Druid,1,0,NULL,0
-"Chulane, Teller of Tales",Path to Exile,3,0,NULL,0
-"Chulane, Teller of Tales",Peregrine Drake,4,0,NULL,1
+"Chulane, Teller of Tales",Path to Exile,4,0,NULL,0
+"Chulane, Teller of Tales",Peregrine Drake,5,0,NULL,1
 "Chulane, Teller of Tales","Pia, Aether Ascetic",2,1,NULL,2
-"Chulane, Teller of Tales",Plains,4,0,NULL,1
-"Chulane, Teller of Tales",Prairie Stream,2,0,NULL,0
+"Chulane, Teller of Tales",Plains,5,0,NULL,1
+"Chulane, Teller of Tales",Prairie Stream,3,0,NULL,0
 "Chulane, Teller of Tales",Priest of Titania,1,0,NULL,1
 "Chulane, Teller of Tales",Prismatic Vista,1,0,NULL,1
 "Chulane, Teller of Tales",Ranger-Captain of Eos,4,1,NULL,3
 "Chulane, Teller of Tales",Recruiter of the Guard,3,1,NULL,3
 "Chulane, Teller of Tales",Reflecting Pool,1,0,NULL,1
 "Chulane, Teller of Tales",Rejuvenating Springs,2,0,NULL,1
-"Chulane, Teller of Tales",Reliquary Tower,4,0,NULL,1
-"Chulane, Teller of Tales",Rescuer Chwinga,2,0,NULL,0
-"Chulane, Teller of Tales",Reveillark,2,0,NULL,0
+"Chulane, Teller of Tales",Reliquary Tower,5,0,NULL,1
+"Chulane, Teller of Tales",Rescuer Chwinga,3,0,NULL,0
+"Chulane, Teller of Tales",Reveillark,3,0,NULL,0
 "Chulane, Teller of Tales",Rhystic Study,4,1,NULL,3
-"Chulane, Teller of Tales",Run Away Together,2,0,NULL,0
+"Chulane, Teller of Tales",Run Away Together,3,0,NULL,0
 "Chulane, Teller of Tales",Savannah,4,1,NULL,3
 "Chulane, Teller of Tales",Scalding Tarn,2,1,NULL,2
 "Chulane, Teller of Tales",Scute Swarm,2,0,NULL,0
 "Chulane, Teller of Tales",Seedborn Muse,1,0,NULL,1
-"Chulane, Teller of Tales",Selesnya Sanctuary,2,0,NULL,0
-"Chulane, Teller of Tales",Settle the Wreckage,2,0,NULL,0
+"Chulane, Teller of Tales",Selesnya Sanctuary,3,0,NULL,0
+"Chulane, Teller of Tales",Settle the Wreckage,3,0,NULL,0
 "Chulane, Teller of Tales",Sevinne's Reclamation,1,0,NULL,1
 "Chulane, Teller of Tales","Shang-Chi, Master of Kung Fu",2,0,NULL,2
-"Chulane, Teller of Tales",Shrieking Drake,4,1,NULL,3
+"Chulane, Teller of Tales",Shrieking Drake,5,1,NULL,3
 "Chulane, Teller of Tales",Silence,4,1,NULL,3
 "Chulane, Teller of Tales","Silk, Web Weaver",2,0,NULL,0
-"Chulane, Teller of Tales",Simic Growth Chamber,2,0,NULL,0
+"Chulane, Teller of Tales",Simic Growth Chamber,3,0,NULL,0
 "Chulane, Teller of Tales",Sink into Stupor // Soporific Springs,1,0,NULL,1
 "Chulane, Teller of Tales",Smothering Tithe,4,1,NULL,3
-"Chulane, Teller of Tales",Snap,4,1,NULL,2
-"Chulane, Teller of Tales",Sodden Verdure,2,0,NULL,0
-"Chulane, Teller of Tales",Sol Ring,5,1,NULL,2
-"Chulane, Teller of Tales",Soul-Guide Lantern,2,0,NULL,0
-"Chulane, Teller of Tales",Spirited Companion,2,0,NULL,0
+"Chulane, Teller of Tales",Snap,5,1,NULL,2
+"Chulane, Teller of Tales",Sodden Verdure,3,0,NULL,0
+"Chulane, Teller of Tales",Sol Ring,6,1,NULL,2
+"Chulane, Teller of Tales",Soul-Guide Lantern,3,0,NULL,0
+"Chulane, Teller of Tales",Spirited Companion,3,0,NULL,0
+"Chulane, Teller of Tales",Split Up,1,0,NULL,0
 "Chulane, Teller of Tales",Springleaf Drum,2,0,NULL,0
-"Chulane, Teller of Tales",Stonecloaker,2,0,NULL,0
+"Chulane, Teller of Tales",Stonecloaker,3,0,NULL,0
 "Chulane, Teller of Tales",Stony Silence,1,0,NULL,1
-"Chulane, Teller of Tales",Sun Titan,2,0,NULL,0
-"Chulane, Teller of Tales",Sunpearl Kirin,2,0,NULL,0
-"Chulane, Teller of Tales",Sunpetal Grove,2,0,NULL,0
-"Chulane, Teller of Tales",Swan Song,4,1,NULL,3
-"Chulane, Teller of Tales",Swords to Plowshares,3,0,NULL,0
+"Chulane, Teller of Tales",Sun Titan,3,0,NULL,0
+"Chulane, Teller of Tales",Sunpearl Kirin,3,0,NULL,0
+"Chulane, Teller of Tales",Sunpetal Grove,3,0,NULL,0
+"Chulane, Teller of Tales",Swan Song,5,1,NULL,3
+"Chulane, Teller of Tales",Swords to Plowshares,4,0,NULL,0
+"Chulane, Teller of Tales",Sylvan Library,1,0,NULL,0
 "Chulane, Teller of Tales",Talisman of Curiosity,2,0,NULL,0
 "Chulane, Teller of Tales",Tataru Taru,3,1,NULL,2
-"Chulane, Teller of Tales",Teferi's Ageless Insight,2,0,NULL,0
-"Chulane, Teller of Tales",Temple Garden,6,1,NULL,3
+"Chulane, Teller of Tales",Teferi's Ageless Insight,3,0,NULL,0
+"Chulane, Teller of Tales",Temple Garden,7,1,NULL,3
 "Chulane, Teller of Tales",Thassa's Oracle,2,0,NULL,1
 "Chulane, Teller of Tales",The Cabbage Merchant,2,1,NULL,2
-"Chulane, Teller of Tales",Thraben Charm,2,0,NULL,0
-"Chulane, Teller of Tales",Tireless Provisioner,4,1,NULL,3
-"Chulane, Teller of Tales",Tocasia's Welcome,2,0,NULL,0
-"Chulane, Teller of Tales",Training Grounds,2,0,NULL,0
+"Chulane, Teller of Tales",The One Ring,1,0,NULL,0
+"Chulane, Teller of Tales",Thraben Charm,3,0,NULL,0
+"Chulane, Teller of Tales",Tireless Provisioner,5,1,NULL,3
+"Chulane, Teller of Tales",Tocasia's Welcome,3,0,NULL,0
+"Chulane, Teller of Tales",Training Grounds,3,0,NULL,0
 "Chulane, Teller of Tales",Treva's Ruins,1,0,NULL,0
 "Chulane, Teller of Tales",Tropical Island,4,1,NULL,3
 "Chulane, Teller of Tales",Tundra,3,1,NULL,3
-"Chulane, Teller of Tales",Vedalken Mastermind,2,0,NULL,0
+"Chulane, Teller of Tales",Vedalken Mastermind,3,0,NULL,0
 "Chulane, Teller of Tales",Veil of Summer,3,1,NULL,3
 "Chulane, Teller of Tales","Venser, Shaper Savant",1,0,NULL,1
 "Chulane, Teller of Tales",Verdant Catacombs,2,1,NULL,2
 "Chulane, Teller of Tales",Vexing Bauble,1,0,NULL,1
-"Chulane, Teller of Tales",Village Bell-Ringer,4,1,NULL,2
+"Chulane, Teller of Tales",Village Bell-Ringer,5,1,NULL,2
 "Chulane, Teller of Tales",Voice of Victory,4,1,NULL,3
 "Chulane, Teller of Tales",Volatile Stormdrake,1,0,NULL,1
 "Chulane, Teller of Tales",Wargate,2,1,NULL,2
-"Chulane, Teller of Tales",Whitemane Lion,5,0,NULL,2
+"Chulane, Teller of Tales",Whitemane Lion,6,0,NULL,2
 "Chulane, Teller of Tales",Wild Growth,1,0,NULL,1
-"Chulane, Teller of Tales",Windswept Heath,5,1,NULL,2
+"Chulane, Teller of Tales",Windswept Heath,6,1,NULL,2
 "Chulane, Teller of Tales",Wooded Foothills,2,1,NULL,2
 "Chulane, Teller of Tales",Worldly Tutor,4,1,NULL,3
-"Chulane, Teller of Tales",Yavimaya Coast,3,0,NULL,0
+"Chulane, Teller of Tales",Yavimaya Coast,4,0,NULL,0
 "Chulane, Teller of Tales","Yavimaya, Cradle of Growth",1,0,NULL,1
