@@ -488,14 +488,14 @@ function renderCombos(body) {
     const where = combo.missing === undefined ? null
       : !known ? "nicht in deinem Pool"
       : card && card.available > 0 ? "im Pool, frei" : "im Pool, keine freie Kopie";
-    return h("tr", {}, h("td", {}, comboLine(combo)), h("td", { class: "num" }, combo.num_decks.toLocaleString("de-DE")), where === null ? null : h("td", {}, where));
+    return h("tr", {}, h("td", {}, comboLine(combo), where === null ? null : h("div", { class: "muted" }, `Fehlende Karte: ${where}`)), h("td", { class: "num" }, combo.num_decks.toLocaleString("de-DE")));
   };
   body.append(h("p", {}, `${combos.complete.length} von ${combos.listed} gelisteten Kombos sind vollständig im Deck, bei ${combos.one_missing.length} fehlt genau eine Karte.`));
   if (combos.complete.length) {
     body.append(h("table", { id: "combos-complete" }, h("thead", {}, h("tr", {}, h("th", {}, "Vollständig im Deck"), h("th", { class: "num" }, "Decks der Quelle"))), h("tbody", {}, combos.complete.map(row))));
   }
   if (combos.one_missing.length) {
-    body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte"), h("th", { class: "num" }, "Decks der Quelle"), h("th", {}, "Fehlende Karte"))), h("tbody", {}, combos.one_missing.map(row))));
+    body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte"), h("th", { class: "num" }, "Decks der Quelle"))), h("tbody", {}, combos.one_missing.map(row))));
   }
   body.append(h("p", { class: "note" }, combos.meaning));
 }
