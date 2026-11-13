@@ -1,15 +1,24 @@
 """Profile time components of XMage full games (Refs #1251).
 
-Measures and breaks down the exact time spent in:
+Breaks down the time spent in:
   1. JVM-Start: process spawn and protocol handshake
   2. Laden der Kartendaten: one-time CardScanner/H2 repository initialization
   3. Deck-Import: deck validation, card lookup, and game creation
   4. Entscheidungen (Decisions):
-     - Engine: XMage rules execution and state advancement
-     - Pilot: Python heuristic decision evaluation
-     - Transport: JSON encoding/decoding and IPC pipe communication
+     - Engine: residual share of the decision round trip (see method note)
+     - Pilot: Python heuristic decision evaluation (measured directly)
+     - Transport: fixed allowance per decision (see method note)
   5. Protokollschreiben: event log retrieval and game log file writing
   6. JVM-Shutdown: clean process shutdown
+
+Method note (review of PR #1278): only the pilot share is measured directly.
+The per-decision "Engine" share is a residual — round-trip wall time minus
+pilot time minus the transport allowance — and therefore also contains
+bridge work (building the decision payloads, stable-id hashing) and JVM-side
+serialization; it is NOT a pure measurement of XMage rules execution. The
+"Transport" share is a fixed allowance (150 µs plus outgoing payload
+serialization), not a measurement either. Splitting rules execution from
+bridge work requires a JVM-side profile.
 """
 
 from __future__ import annotations
@@ -124,7 +133,9 @@ class TimedFullGameClient(_RawFullGameClient):
         elif message_type == "start_full_game":
             self.t_start_game_s += t_total
         elif message_type == "submit_full_game_decision":
-            # Breakdown: serialize time + pipe transport vs engine processing wait
+            # Estimate, not a measurement (see the module docstring): the
+            # transport share is a fixed allowance, so the "engine" share is
+            # the residual round-trip time and includes bridge work.
             tr_est = t_ser + 0.00015  # ~150 microseconds for pipe I/O and JSON parse
             engine_est = max(0.0, t_total - tr_est)
             self.decision_transport_s += tr_est
