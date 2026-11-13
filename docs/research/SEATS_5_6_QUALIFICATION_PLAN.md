@@ -3,7 +3,7 @@
 - **Dokument-ID:** `docs/research/SEATS_5_6_QUALIFICATION_PLAN.md`
 - **Datum:** 2026-11-13
 - **Kontext:** GitHub-Issue #1212, Teil B (5 und 6 Plätze). Reine Recherche, kein Produktcode. Begleitdokument zu `docs/research/PILOT_STRENGTH_OPTIONS.md` (Teil A: stärkere Piloten ohne Java-Vorausschau); die Quellenliste steht dort in Abschnitt 9 und gilt für beide Dateien.
-- **Quellenstand:** Repo `commander-playtest-lab`, main `53f4836b`; Engine-Pin v15 `f4d12f6e80` (`config/rules_engines.json`). Alle Code-Fundstellen beziehen sich auf diesen Stand.
+- **Quellenstand:** Repo `commander-playtest-lab`, ursprünglich auf main `53f4836b` erstellt; die Fundstellen wurden bei der Review gegen main `0a62aaa6` neu geprüft. Engine-Pin v15 `f4d12f6e80` (`config/rules_engines.json`).
 - **Regeln:** Die Freigabe von 5 und 6 Plätzen ist eine Owner-Entscheidung (A8, `docs/OWNER_DECISIONS_STUDIO_20261112.md`) und wird hier nicht vorweggenommen. Nicht Belegbares ist als `UNKNOWN` geführt; Evidenz-Klassen nach `AGENTS.md` §4 stehen an den tragenden Aussagen. Keine Deck- oder Sammlungsdaten des Owners in diesem Dokument.
 
 ---
@@ -59,7 +59,7 @@ Die folgenden Punkte sind **Prüfpunkte** (aus den Regeln des Formats und den L�
 | Stand | 4 Plätze | 6 Plätze |
 |---|---|---|
 | 2026-11-06, 1 Worker, Seed 1, verschiedene Pods | 1.892 Entscheidungen, 50,36 s | 4.511 Entscheidungen, 161,93 s (2,38× Entscheidungen, 3,22× Zeit) |
-| 2026-11-05, Pin v14, Ø je Partie | 2.990 Entscheidungen | 4.025 Entscheidungen (1,35×) |
+| 2026-11-05, Pin v14, Ø je Partie | 2.990 Entscheidungen | 4.025 Entscheidungen (1,35×; Basis n = 4 Partien bei 4 Plätzen gegenüber n = 2 Partien bei 6 Plätzen, also nur Orientierung) |
 
 Dazu: Dokumentierte 6P-Ressourcen-Warnfälle (mehrere GiB Entscheidungs-Objekte → Ressourcen-Stopp, danach Disk-gestützte Berichte; ein 3.696-Fähigkeiten-Stapel in 6P) — die Extreme treiben Decks/Schleifen, nicht die Sitzzahl allein. Roadmap-Richtwert: Eine 4-Platz-Partie dauert etwa eine Minute auf vier Kernen; für S-6 ist **zuerst die Laufzeit zu messen** (`docs/STUDIO_ROADMAP_20261112.md` S-6).
 
