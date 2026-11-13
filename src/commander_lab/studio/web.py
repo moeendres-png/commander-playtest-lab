@@ -7,10 +7,12 @@ the data check reads stored facts, the Rules Core stays the binding check for pl
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
 from pathlib import Path
+from typing import cast
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
@@ -678,12 +680,46 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/simulations/batch/{batch_id}")
     def get_simulation_batch(batch_id: str) -> dict[str, object]:
+        from .games import games_folder
         from .simulations import simulation_manager
 
         batch = simulation_manager.get_batch(batch_id)
-        if batch is None:
-            raise HTTPException(404, "unknown batch")
-        return batch.to_dict()
+        if batch is not None:
+            return batch.to_dict()
+        series_file = games_folder(games_home()) / f"{batch_id}.series.json"
+        if series_file.is_file():
+            try:
+                payload = json.loads(series_file.read_text(encoding="utf-8"))
+            except ValueError:
+                raise HTTPException(422, "corrupt series record") from None
+            if isinstance(payload, dict):
+                return cast(dict[str, object], payload)
+        raise HTTPException(404, "unknown batch")
+
+    @app.post("/api/simulations/batch/{batch_id}/resume")
+    def resume_simulation_batch(batch_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            from .simulations import simulation_manager
+
+            batch = simulation_manager.resume_batch(
+                store,
+                games_home(),
+                batch_id=batch_id,
+            )
+            return {
+                "batch_id": batch.batch_id,
+                "status": batch.status,
+                "execution": batch.execution(),
+            }
+        except KeyError as error:
+            raise HTTPException(404, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
 
     @app.post("/api/simulations/batch/{batch_id}/cancel")
     def cancel_simulation_batch(batch_id: str) -> dict[str, object]:
