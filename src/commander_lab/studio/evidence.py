@@ -205,7 +205,7 @@ def _simulations(
 def _figure_row(figure: dict[str, object]) -> dict[str, object]:
     """The commander's inclusion figure as one evidence row, with its origin."""
     denominator = figure["denominator"]
-    captured = figure.get("captured_at")
+    captured = None
     return {
         "cohort": f"edhrec:{figure['page']}",
         "metric": "inclusion_pct",
@@ -213,13 +213,12 @@ def _figure_row(figure: dict[str, object]) -> dict[str, object]:
         "numerator": figure["numerator"],
         "denominator": denominator,
         "denominator_known": denominator is not None,
-        "small_denominator": bool(figure["small_denominator"]),
+        "small_denominator": isinstance(denominator, int) and denominator < SMALL_DENOMINATOR,
         "snapshot": captured,
         "snapshot_known": captured is not None,
         "data_class": "NORMALIZED_SOURCE",
         "url": None,
-        "source": figure["source"],
-        "source_id": figure.get("source_id"),
+        "source": "card_signal",
     }
 
 
@@ -344,7 +343,9 @@ def _card_evidence(
         # An observation figure is one of the observation rows already listed (the widest).
         figure = (
             raw_figure
-            if isinstance(raw_figure, dict) and raw_figure["source"] == "card_signal"
+            if isinstance(raw_figure, dict)
+            and raw_figure.get("origin") == "signal"
+            and raw_figure.get("pct") is not None
             else None
         )
         if figure is not None:

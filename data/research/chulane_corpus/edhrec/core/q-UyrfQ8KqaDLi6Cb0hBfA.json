@@ -1,0 +1,394 @@
+{
+ "urlhash": "q-UyrfQ8KqaDLi6Cb0hBfA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-04-10",
+ "price": 175,
+ "salt": 41.528923213947564,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/oU3VjlY6h0yixEJZwL7xbQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beza, the Bounding Spring",
+   "quantity": 1
+  },
+  {
+   "name": "Bloated Contaminator",
+   "quantity": 1
+  },
+  {
+   "name": "Bronzehide Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Falco Spara, Pactweaver",
+   "quantity": 1
+  },
+  {
+   "name": "Gwenna, Eyes of Gaea",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Lagrella, the Magpie",
+   "quantity": 1
+  },
+  {
+   "name": "Mockingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Palladium Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Printlifter Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Pridemage",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Beastcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Purifying Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Steel Seraph",
+   "quantity": 1
+  },
+  {
+   "name": "Stratus Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Yisan, the Wanderer Bard",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Cancel",
+   "quantity": 1
+  },
+  {
+   "name": "Consign to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Disallow",
+   "quantity": 1
+  },
+  {
+   "name": "Dissipate",
+   "quantity": 1
+  },
+  {
+   "name": "Druid's Deliverance",
+   "quantity": 1
+  },
+  {
+   "name": "Ertai's Scorn",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1
+  },
+  {
+   "name": "Kamahl's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Command",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Mithril Coat",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of Forge and Frontier",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Control Magic",
+   "quantity": 1
+  },
+  {
+   "name": "Crystallization",
+   "quantity": 1
+  },
+  {
+   "name": "Dictate of Heliod",
+   "quantity": 1
+  },
+  {
+   "name": "Petrify",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Buried Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Command Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Drifting Meadow",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Field of Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Cataract",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Nursery",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 3
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Labyrinth of Skophos",
+   "quantity": 1
+  },
+  {
+   "name": "Lonely Sandbar",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Vitu-Ghazi, the City-Tree",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

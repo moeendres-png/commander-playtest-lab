@@ -1,0 +1,90 @@
+{
+ "urlhash": "Qkk7lqshWMLORQwKl55e6g",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-08-07",
+ "price": 348,
+ "salt": 54.188689932227135,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/25087108?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Graaz, Unstoppable Juggernaut",
+   "quantity": 1
+  },
+  {
+   "name": "Templar Knight",
+   "quantity": 40
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "The Walls of Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Coat of Arms",
+   "quantity": 1
+  },
+  {
+   "name": "Helm of Awakening",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Pearl Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "The Immortal Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Plains",
+   "quantity": 26
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

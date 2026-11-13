@@ -47,6 +47,25 @@ def warm_up() -> None:
     sim_readiness_status("Sol Ring")
 
 
+def sim_readiness_available() -> bool:
+    """Whether the repo card-fact files behind the readiness status can be read at all."""
+    try:
+        _sim_card_data()
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def _sim_readiness_summary(cards: list[dict[str, object]]) -> dict[str, object]:
+    by_status = Counter(str(card["sim_status"]) for card in cards)
+    return {
+        "available": sim_readiness_available(),
+        "ready": by_status.get("OK", 0),
+        "total": len(cards),
+        "by_status": dict(sorted(by_status.items())),
+    }
+
+
 ALL_DECKS = "all"
 SMALL_DENOMINATOR = 30
 _TYPE_ORDER = (
@@ -285,8 +304,42 @@ def pool_members(store: StudioStore, commander_names: Sequence[str]) -> list[sql
     ]
 
 
+def _edhrec_entry(widest: sqlite3.Row | None, signal: object) -> dict[str, object] | None:
+    """The EDHREC figure of a card: the older table row when it has a value, else the
+    commander's stored inclusion signal (a share, shown as percent), else None (unknown)."""
+    if widest is not None and widest["value"] is not None:
+        return {
+            "page": str(widest["cohort"]).removeprefix("edhrec:"),
+            "pct": widest["value"],
+            "numerator": widest["numerator"],
+            "denominator": widest["denominator"],
+            "origin": "table",
+        }
+    if isinstance(signal, dict) and signal.get("value") is not None:
+        return {
+            "page": "Signal-Import (EDHREC)",
+            "pct": 100 * float(signal["value"]),
+            "numerator": signal.get("numerator"),
+            "denominator": signal.get("denominator"),
+            "origin": "signal",
+        }
+    if widest is not None:
+        return {
+            "page": str(widest["cohort"]).removeprefix("edhrec:"),
+            "pct": None,
+            "numerator": widest["numerator"],
+            "denominator": widest["denominator"],
+            "origin": "table",
+        }
+    return None
+
+
 def pool_cards(
-    store: StudioStore, commander_names: Sequence[str], *, profile: str | None = None
+    store: StudioStore,
+    commander_names: Sequence[str],
+    *,
+    profile: str | None = None,
+    with_signals: bool = True,
 ) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
     builder shows per card. Without any commander the colour filter is off (all legal cards).
@@ -296,14 +349,23 @@ def pool_cards(
     the same figures the tier list shows for the profile, from the same snapshot, so
     the builder and the tier list never show two denominators for one universe. The
     legacy cohort figures stay untouched either way. Raises KeyError for an unknown
-    profile and ValueError when the profile is defined for other commanders."""
+    profile and ValueError when the profile is defined for other commanders.
+
+    ``with_signals`` adds the commander's stored usage signals (``card_signal``, one
+    commander only) as ``signals`` per card. The older EDHREC value is used first; the
+    stored inclusion signal fills the card's ``edhrec`` entry only where that has no value."""
     db = store.connection
     identity, commander_ids = commander_identity(store, commander_names)
     hits = _corpus_hits(store, commander_names)
-    # Imported here, not at module level: inclusion.py imports this module.
-    from .inclusion import commander_inclusion
-
-    edhrec = commander_inclusion(store, commander_names)
+    edhrec: dict[str, sqlite3.Row] = {}
+    cohort_bound, cohort_args = bound_to("observation_cohort", "o.cohort", commander_names)
+    for row in db.execute(
+        "SELECT o.card_id, o.cohort, o.value, o.numerator, o.denominator FROM observation o "
+        f"WHERE o.metric = 'inclusion_pct' AND o.card_id IS NOT NULL{cohort_bound} "
+        "ORDER BY o.denominator DESC",
+        cohort_args,
+    ):
+        edhrec.setdefault(str(row["card_id"]), row)
     roles: dict[str, list[str]] = {}
     for row in db.execute("SELECT oracle_id, role FROM card_role ORDER BY role"):
         roles.setdefault(str(row["oracle_id"]), []).append(str(row["role"]))
@@ -318,6 +380,21 @@ def pool_cards(
             playgroup.setdefault(str(row["card_id"]), row)
         if row["oracle_id"]:
             playgroup.setdefault(str(row["oracle_id"]), row)
+    signal_values: dict[str, dict[str, object]] = {}
+    if with_signals and len(commander_names) == 1:
+        # Imported here: strength_view imports this module.
+        from . import strength_view
+
+        names = {
+            str(r["card_id"]): str(r["oracle_name"])
+            for r in db.execute("SELECT card_id, oracle_name FROM card_fact")
+        }
+        signal_values = {
+            card_id: dict(found)
+            for card_id, found in strength_view.card_signal_values(
+                store, commander_names[0], list(names), names
+            ).items()
+        }
     cards: list[dict[str, object]] = []
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
@@ -365,18 +442,8 @@ def pool_cards(
                 # readers); True: ``decks`` holds real counts per group, 0 included.
                 "decks": hits.get(str(row["oracle_name"]), {}),
                 "decks_known": str(row["oracle_name"]) in hits,
-                "edhrec": None
-                if widest is None
-                else {
-                    "page": widest["page"],
-                    "pct": widest["pct"],
-                    "numerator": widest["numerator"],
-                    "denominator": widest["denominator"],
-                    "small_denominator": widest["small_denominator"],
-                    "source": widest["source"],
-                    "source_id": widest["source_id"],
-                    "captured_at": widest["captured_at"],
-                },
+                "edhrec": _edhrec_entry(widest, signal_values.get(card_id, {}).get("inclusion")),
+                "signals": signal_values.get(card_id, {}),
                 "playgroup": None
                 if pg is None
                 else {
@@ -400,6 +467,7 @@ def pool_cards(
         "corpus_binding": corpus_binding(store, commander_names),
         "small_denominator": SMALL_DENOMINATOR,
         "roles": [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")],
+        "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
     if profile is not None:

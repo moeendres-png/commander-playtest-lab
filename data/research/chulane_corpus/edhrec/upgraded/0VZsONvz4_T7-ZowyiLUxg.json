@@ -1,0 +1,346 @@
+{
+ "urlhash": "0VZsONvz4_T7-ZowyiLUxg",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-03-22",
+ "price": 108,
+ "salt": 40.382597936317325,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/NKvmXBHJKEKL0bxrM_xO5Q?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Brineborn Cutthroat",
+   "quantity": 1
+  },
+  {
+   "name": "Cenote Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Deepchannel Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Deepway Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Disruptor of Currents",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Merrow",
+   "quantity": 1
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1
+  },
+  {
+   "name": "Gravelgill Scoundrel",
+   "quantity": 1
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Jadelight Spelunker",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Rising Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Cave-Diver",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Skyswimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "Omni-Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Pestered Wellguard",
+   "quantity": 1
+  },
+  {
+   "name": "River Herald Guide",
+   "quantity": 1
+  },
+  {
+   "name": "River Herald Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Seeker of Sunlight",
+   "quantity": 1
+  },
+  {
+   "name": "Silvergill Peddler",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Tributary Vaulter",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderbrine Preacher",
+   "quantity": 1
+  },
+  {
+   "name": "Wanderbrine Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Waterwind Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Brackish Blunder",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmium Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1
+  },
+  {
+   "name": "Family Reunion",
+   "quantity": 1
+  },
+  {
+   "name": "Hurl into History",
+   "quantity": 1
+  },
+  {
+   "name": "Keep Out",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Return to the Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurous Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Calamitous Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse the Core",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Buried Treasure",
+   "quantity": 1
+  },
+  {
+   "name": "Extraplanar Lens",
+   "quantity": 1
+  },
+  {
+   "name": "Glowcap Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Lodestone Needle",
+   "quantity": 1
+  },
+  {
+   "name": "Sorcerous Spyglass",
+   "quantity": 1
+  },
+  {
+   "name": "The Enigma Jewel",
+   "quantity": 1
+  },
+  {
+   "name": "The Skullspore Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfarer's Bauble",
+   "quantity": 1
+  },
+  {
+   "name": "Aquitect's Defenses",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Charmed Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Empathy",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Undercurrents",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Stupefaction",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Crashing Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Narset, Parter of Veils",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Arch of Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Echoing Deeps",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Realms",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Hidden Cataract",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Nursery",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Pit of Offerings",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

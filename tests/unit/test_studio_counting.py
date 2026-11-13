@@ -230,15 +230,13 @@ def web_store(tmp_path: Path) -> Iterator[tuple[TestClient, StudioStore]]:
         yield client, store
 
 
-def test_commander_inclusion_is_read_from_card_signal_in_every_view(
+def test_commander_inclusion_from_card_signal_reaches_the_tier_list_evidence(
     web_store: tuple[TestClient, StudioStore],
 ) -> None:
     client, _store = web_store
     pool = client.get("/api/pool", params={"commander": CMD}).json()
     alpha = next(card for card in pool["cards"] if card["name"] == "Alpha")
-    assert alpha["edhrec"]["pct"] == pytest.approx(75.0)
-    assert (alpha["edhrec"]["numerator"], alpha["edhrec"]["denominator"]) == (75, 100)
-    assert alpha["edhrec"]["source"] == "card_signal" and alpha["edhrec"]["source_id"]
+    assert alpha["edhrec"]["pct"] == pytest.approx(75.0) and alpha["edhrec"]["origin"] == "signal"
     beta = next(card for card in pool["cards"] if card["name"] == "Beta")
     assert beta["edhrec"] is None  # no row: unknown
     listing = client.get("/api/evidence", params={"view": "commander", "commander": CMD}).json()
@@ -253,30 +251,6 @@ def test_commander_inclusion_is_read_from_card_signal_in_every_view(
     assert rows and rows[0]["source"] == "card_signal" and rows[0]["denominator"] == 100
     beta_item = next(c for c in listing["cards"] if c["name"] == "Beta")
     assert beta_item["layers"]["observed_deck"]["edhrec"]["widest_inclusion"] is None
-
-
-def test_inclusion_falls_back_to_observations_when_no_signal(tmp_path: Path) -> None:
-    store = _basic_store()
-    add_deck(store, "d1", ["Alpha"])
-    db = store.connection
-    db.execute(
-        "INSERT INTO commander_binding(kind, key, commander_name, basis) "
-        "VALUES ('observation_cohort', 'edhrec:chulane', ?, 'TEST')",
-        (CMD,),
-    )
-    db.execute(
-        "INSERT INTO observation(card_id, card_name, metric, cohort, value, numerator, "
-        "denominator, data_class, snapshot, source_id) VALUES "
-        "('card:synth:alpha', 'Alpha', 'inclusion_pct', 'edhrec:chulane', 40.0, 40, 100, "
-        "'OBSERVED', '2026-10-01', 'src:synth')"
-    )
-    pool = builder.pool_cards(store, [CMD])
-    alpha = next(c for c in pool["cards"] if c["name"] == "Alpha")  # type: ignore[union-attr]
-    assert alpha["edhrec"]["pct"] == 40.0 and alpha["edhrec"]["source"] == "observation"
-    add_signal(store, CMD, "edhrec_commander_inclusion", "Alpha", 75, 100)
-    pool = builder.pool_cards(store, [CMD])
-    alpha = next(c for c in pool["cards"] if c["name"] == "Alpha")  # type: ignore[union-attr]
-    assert alpha["edhrec"]["source"] == "card_signal"  # one function, signal first
 
 
 # ---------- group 3: one tier concept ----------

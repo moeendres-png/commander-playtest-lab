@@ -1,0 +1,374 @@
+{
+ "urlhash": "5wc2hLY3bGIyS10rUGtcKQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-04-20",
+ "price": 597,
+ "salt": 57.946627505123615,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/iRvCjJiXGkKqkNdRKvaQIw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Bane of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Bramble Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Piper",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Empath",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta, Primal Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Realm Seekers",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Bunnicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "The Goose Mother",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Predator",
+   "quantity": 1
+  },
+  {
+   "name": "Vendilion Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Verdurous Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "War Priest of Thune",
+   "quantity": 1
+  },
+  {
+   "name": "Werefox Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Back to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Break the Spell",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1
+  },
+  {
+   "name": "Destroy Evil",
+   "quantity": 1
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Fracturing Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1
+  },
+  {
+   "name": "Legolas's Quick Reflexes",
+   "quantity": 1
+  },
+  {
+   "name": "Natural State",
+   "quantity": 1
+  },
+  {
+   "name": "Obscuring Haze",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Titanic Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurous Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Animist's Might",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Fragmentize",
+   "quantity": 1
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1
+  },
+  {
+   "name": "Preposterous Proportions",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "Mindlock Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Wedding Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Hero of Dominaria",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Temporal Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Kor Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "Lonely Sandbar",
+   "quantity": 1
+  },
+  {
+   "name": "Memorial to Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Waterlogged Grove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

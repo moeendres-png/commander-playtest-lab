@@ -1,0 +1,21 @@
+{
+ "id": 27518912,
+ "bracket": 5,
+ "bracket_detail": 5,
+ "name": "Chulane 1.0",
+ "updated_at": "2026-10-17T11:36:11.417124Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 1,
+ "summe_gesamt": 1,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

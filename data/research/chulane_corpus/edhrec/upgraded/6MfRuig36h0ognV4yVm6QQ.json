@@ -1,0 +1,404 @@
+{
+ "urlhash": "6MfRuig36h0ognV4yVm6QQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-03-14",
+ "price": 240,
+ "salt": 31.509269354399294,
+ "tags": [
+  "Morph"
+ ],
+ "source_url": "https://archidekt.com/decks/5630038?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Survivalist",
+   "quantity": 1
+  },
+  {
+   "name": "Aphetto Runecaster",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Liberator",
+   "quantity": 1
+  },
+  {
+   "name": "Brine Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Clifftop Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Daru Mender",
+   "quantity": 1
+  },
+  {
+   "name": "Daru Sanctifier",
+   "quantity": 1
+  },
+  {
+   "name": "Den Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Dulcet Sirens",
+   "quantity": 1
+  },
+  {
+   "name": "Echo Tracer",
+   "quantity": 1
+  },
+  {
+   "name": "Experiment Twelve",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Frontline Strategist",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Dragonslayer",
+   "quantity": 1
+  },
+  {
+   "name": "Icefeather Aven",
+   "quantity": 1
+  },
+  {
+   "name": "Ixidor, Reality Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Ixidron",
+   "quantity": 1
+  },
+  {
+   "name": "Jasmine Boreal of the Seven",
+   "quantity": 1
+  },
+  {
+   "name": "Kadena's Silencer",
+   "quantity": 1
+  },
+  {
+   "name": "Karona's Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Kheru Spellsnatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Quanar",
+   "quantity": 1
+  },
+  {
+   "name": "Mistfire Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Nantuko Vigilante",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea, Keen-Eyed",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Printlifter Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Salt Road Ambushers",
+   "quantity": 1
+  },
+  {
+   "name": "Scornful Egotist",
+   "quantity": 1
+  },
+  {
+   "name": "Shaper Parasite",
+   "quantity": 1
+  },
+  {
+   "name": "Stratus Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Thousand Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Unblinking Bleb",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Voidmage Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Weaver of Lies",
+   "quantity": 1
+  },
+  {
+   "name": "Willbender",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Archdruid's Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Energy Tap",
+   "quantity": 1
+  },
+  {
+   "name": "Open the Way",
+   "quantity": 1
+  },
+  {
+   "name": "Venture Forth",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Chisel",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Forge",
+   "quantity": 1
+  },
+  {
+   "name": "Panoptic Projektor",
+   "quantity": 1
+  },
+  {
+   "name": "Semblance Anvil",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Mastery of the Unseen",
+   "quantity": 1
+  },
+  {
+   "name": "Muraganda Petroglyphs",
+   "quantity": 1
+  },
+  {
+   "name": "Obscuring Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Plans",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "True Identity",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin, the Ineffable",
+   "quantity": 1
+  },
+  {
+   "name": "Aysen Abbey",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Branch of Vitu-Ghazi",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Flood Plain",
+   "quantity": 1
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tomb of the Spirit Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  },
+  {
+   "name": "Zoetic Cavern",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

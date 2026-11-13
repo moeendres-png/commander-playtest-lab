@@ -1,0 +1,337 @@
+{
+ "urlhash": "eRHOOIhXwjsk1sie5mo6zQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-05-02",
+ "price": 99,
+ "salt": 37.81782047683373,
+ "tags": [
+  "Storm",
+  "Artifacts"
+ ],
+ "source_url": "https://moxfield.com/decks/T5skDJ_GNEyjm6_8mfo8vw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancestral Statue",
+   "quantity": 1
+  },
+  {
+   "name": "Annex Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Automated Artificer",
+   "quantity": 1
+  },
+  {
+   "name": "Bonded Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Bronze Walrus",
+   "quantity": 1
+  },
+  {
+   "name": "Chief of the Foundry",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Eager Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Etched Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Etherium Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Foundry Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Scuttler",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Hangarback Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Heap Doll",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Hope of Ghirapur",
+   "quantity": 1
+  },
+  {
+   "name": "Hovermyr",
+   "quantity": 1
+  },
+  {
+   "name": "Ichorclaw Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Jhoira's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Liberator, Urza's Battlethopter",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning-Core Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Manakin",
+   "quantity": 1
+  },
+  {
+   "name": "Marketback Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Master of Etherium",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant's Dockhand",
+   "quantity": 1
+  },
+  {
+   "name": "Millikin",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Convert",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Custodian",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Galvanizer",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Superion",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Palladium Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Revoker",
+   "quantity": 1
+  },
+  {
+   "name": "Plague Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Riddlesmith",
+   "quantity": 1
+  },
+  {
+   "name": "Sanitation Automaton",
+   "quantity": 1
+  },
+  {
+   "name": "Scrap Trawler",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmer Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Signal Pest",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Skyscanner",
+   "quantity": 1
+  },
+  {
+   "name": "Sojourner's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Spectrum Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Starnheim Courser",
+   "quantity": 1
+  },
+  {
+   "name": "Steel Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1
+  },
+  {
+   "name": "Transit Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Transplant Theorist",
+   "quantity": 1
+  },
+  {
+   "name": "Traxos, Scourge of Kroog",
+   "quantity": 1
+  },
+  {
+   "name": "Tribute Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Trinket Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Trophy Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Voyager Quickwelder",
+   "quantity": 1
+  },
+  {
+   "name": "Yotian Frontliner",
+   "quantity": 1
+  },
+  {
+   "name": "Zenith Chronicler",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Semblance Anvil",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Razortide Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Spire of Industry",
+   "quantity": 1
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornglint Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

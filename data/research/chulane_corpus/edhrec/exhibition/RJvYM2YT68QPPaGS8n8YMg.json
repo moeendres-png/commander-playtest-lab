@@ -1,0 +1,410 @@
+{
+ "urlhash": "RJvYM2YT68QPPaGS8n8YMg",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2025-05-07",
+ "price": 40,
+ "salt": 20.881874189712107,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12980220?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Advanced Hoverguard",
+   "quantity": 1
+  },
+  {
+   "name": "Aerie Auxiliary",
+   "quantity": 1
+  },
+  {
+   "name": "Armasaur Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Wolf-Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Armory Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Initiate",
+   "quantity": 1
+  },
+  {
+   "name": "Bashful Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Bazaar Krovod",
+   "quantity": 1
+  },
+  {
+   "name": "Blood Servitor",
+   "quantity": 1
+  },
+  {
+   "name": "Bulette",
+   "quantity": 1
+  },
+  {
+   "name": "Caldaia Strongarm",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Manta",
+   "quantity": 1
+  },
+  {
+   "name": "Council of Echoes",
+   "quantity": 1
+  },
+  {
+   "name": "Daring Waverider",
+   "quantity": 1
+  },
+  {
+   "name": "Dawnhart Wardens",
+   "quantity": 1
+  },
+  {
+   "name": "Durkwood Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Fugitive Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Funnel-Web Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Gale Swooper",
+   "quantity": 1
+  },
+  {
+   "name": "Galewind Moose",
+   "quantity": 1
+  },
+  {
+   "name": "Geothermal Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Ghost-Lit Drifter",
+   "quantity": 1
+  },
+  {
+   "name": "Glint-Sleeve Artisan",
+   "quantity": 1
+  },
+  {
+   "name": "Golden-Scale Aeronaut",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Heavy Infantry",
+   "quantity": 1
+  },
+  {
+   "name": "Hekma Sentinels",
+   "quantity": 1
+  },
+  {
+   "name": "Hexplate Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Hill Giant Herdgorger",
+   "quantity": 1
+  },
+  {
+   "name": "Honor Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Hotshot Investigators",
+   "quantity": 1
+  },
+  {
+   "name": "Iron League Steed",
+   "quantity": 1
+  },
+  {
+   "name": "Jukai Preserver",
+   "quantity": 1
+  },
+  {
+   "name": "Kitesail Corsair",
+   "quantity": 1
+  },
+  {
+   "name": "Lightshell Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Lotusguard Disciple",
+   "quantity": 1
+  },
+  {
+   "name": "Lyev Skyknight",
+   "quantity": 1
+  },
+  {
+   "name": "Makeshift Mauler",
+   "quantity": 1
+  },
+  {
+   "name": "Malamet Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Melira's Keepers",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk of the Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Migrating Ketradon",
+   "quantity": 1
+  },
+  {
+   "name": "Night Market Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Adjudicators",
+   "quantity": 1
+  },
+  {
+   "name": "Battlewise Valor",
+   "quantity": 1
+  },
+  {
+   "name": "Bone to Ash",
+   "quantity": 1
+  },
+  {
+   "name": "Duel for Dominance",
+   "quantity": 1
+  },
+  {
+   "name": "Erratic Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Might",
+   "quantity": 1
+  },
+  {
+   "name": "Hold at Bay",
+   "quantity": 1
+  },
+  {
+   "name": "Mental Journey",
+   "quantity": 1
+  },
+  {
+   "name": "Misleading Motes",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx's Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Call of the Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Collision Course",
+   "quantity": 1
+  },
+  {
+   "name": "Engineered Might",
+   "quantity": 1
+  },
+  {
+   "name": "Join the Dance",
+   "quantity": 1
+  },
+  {
+   "name": "Blazing Torch",
+   "quantity": 1
+  },
+  {
+   "name": "Boarded Window",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Apparatus",
+   "quantity": 1
+  },
+  {
+   "name": "Glimmerlight",
+   "quantity": 1
+  },
+  {
+   "name": "Bound by Moonsilver",
+   "quantity": 1
+  },
+  {
+   "name": "Captured by Lagacs",
+   "quantity": 1
+  },
+  {
+   "name": "Hold for Ransom",
+   "quantity": 1
+  },
+  {
+   "name": "Base Camp",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Cataract",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Cavernous Maw",
+   "quantity": 1
+  },
+  {
+   "name": "Country Roads",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Spires",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Indomitable",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the Mindful",
+   "quantity": 1
+  },
+  {
+   "name": "Desert of the True",
+   "quantity": 1
+  },
+  {
+   "name": "Etched Cornfield",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Lakeside Shack",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Reborn",
+   "quantity": 1
+  },
+  {
+   "name": "Memorial to Genius",
+   "quantity": 1
+  },
+  {
+   "name": "Memorial to Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Nantuko Monastery",
+   "quantity": 1
+  },
+  {
+   "name": "Night Market",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Reef Roads",
+   "quantity": 1
+  },
+  {
+   "name": "Sandstone Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Terminal Moraine",
+   "quantity": 1
+  },
+  {
+   "name": "The Surgical Bay",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Uncharted Haven",
+   "quantity": 1
+  },
+  {
+   "name": "Unknown Shores",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,326 @@
+{
+ "urlhash": "sIIJJBGxFTBkssyrJWoVUg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-01-13",
+ "price": 149,
+ "salt": 36.04081524349749,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/CWMVsL9TJ0a6R7ZPx6942A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Armored Cancrix",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodline Pretender",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Charix, the Raging Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Crystacean",
+   "quantity": 1
+  },
+  {
+   "name": "Fortress Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Gladewalker",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Hightide Hermit",
+   "quantity": 1
+  },
+  {
+   "name": "Horseshoe Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Iceberg Cancrix",
+   "quantity": 1
+  },
+  {
+   "name": "Impostor of the Sixth Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Irregular Cohort",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Kinseekers",
+   "quantity": 1
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Mistwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Purple-Crystal Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Ruin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttlegator",
+   "quantity": 1
+  },
+  {
+   "name": "Shambleshark",
+   "quantity": 1
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1
+  },
+  {
+   "name": "Skitter Eel",
+   "quantity": 1
+  },
+  {
+   "name": "Skittering Crustacean",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa's Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Turtleshell Changeling",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Wake Thrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Wishcoin Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Crib Swap",
+   "quantity": 1
+  },
+  {
+   "name": "Decisive Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Dissolve",
+   "quantity": 1
+  },
+  {
+   "name": "Graven Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Mizzium Skin",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Pierce",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Into the North",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Open into Wonder",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aqueous Form",
+   "quantity": 1
+  },
+  {
+   "name": "Assault Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Glorious Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Rally the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Reconnaissance Mission",
+   "quantity": 1
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Scuttletide",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Kasmina, Enigmatic Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Access Tunnel",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Woodland",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 12
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

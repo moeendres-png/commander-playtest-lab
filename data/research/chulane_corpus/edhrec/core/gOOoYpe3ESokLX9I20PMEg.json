@@ -1,0 +1,354 @@
+{
+ "urlhash": "gOOoYpe3ESokLX9I20PMEg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-15",
+ "price": 259,
+ "salt": 45.590418396517634,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/2CfBcmMhNUC4w1KtnZvisw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Altered Ego",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Coronation",
+   "quantity": 1
+  },
+  {
+   "name": "Astral Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Biovisionary",
+   "quantity": 1
+  },
+  {
+   "name": "Body Double",
+   "quantity": 1
+  },
+  {
+   "name": "Borderland Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Impersonator",
+   "quantity": 1
+  },
+  {
+   "name": "Clone",
+   "quantity": 1
+  },
+  {
+   "name": "Duplicant",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Artisans",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of the Crescent Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Kwain, Itinerant Meddler",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Quanar",
+   "quantity": 1
+  },
+  {
+   "name": "Mocking Doppelganger",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Phantasmal Image",
+   "quantity": 1
+  },
+  {
+   "name": "Rootweaver Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Sakashima's Protege",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Stunt Double",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Stolen Identity",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherspouts",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Cackling Counterpart",
+   "quantity": 1
+  },
+  {
+   "name": "Double Major",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Theoretical Duplication",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Croaking Counterpart",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Quasiduplicate",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Replication Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Saheeli's Artistry",
+   "quantity": 1
+  },
+  {
+   "name": "Sakashima's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Rendezvous",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Reflections",
+   "quantity": 1
+  },
+  {
+   "name": "Windfall",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Coveted Jewel",
+   "quantity": 1
+  },
+  {
+   "name": "Font of Mythos",
+   "quantity": 1
+  },
+  {
+   "name": "Ghirapur Orrery",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Box",
+   "quantity": 1
+  },
+  {
+   "name": "Sculpting Steel",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Bell",
+   "quantity": 1
+  },
+  {
+   "name": "Dictate of Karametra",
+   "quantity": 1
+  },
+  {
+   "name": "Dictate of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Lurking Predators",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormade",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Struggle for Project Purity",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Geier Reach Sanitarium",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

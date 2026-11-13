@@ -1,0 +1,390 @@
+{
+ "urlhash": "y_CbqJLUiAelY_0TOMx5bw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-04-28",
+ "price": 226,
+ "salt": 42.172784814145416,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Q_tvjjqURUOiuT_O7hKd9g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Bonny Pall, Clearcutter",
+   "quantity": 1
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Courser of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Ephara, God of the Polis",
+   "quantity": 1
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Genku, Future Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Hama Pashar, Ruin Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Kydele, Chosen of Kruphix",
+   "quantity": 1
+  },
+  {
+   "name": "Meddling Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Revoker",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Roon of the Hidden Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sigrid, God-Favored",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Recruit",
+   "quantity": 1
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1
+  },
+  {
+   "name": "Thieving Skydiver",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Thragtusk",
+   "quantity": 1
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Dungeoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Troubadour",
+   "quantity": 1
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Yuan-Ti Malison",
+   "quantity": 1
+  },
+  {
+   "name": "Bar the Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Devastation Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rout",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1
+  },
+  {
+   "name": "You Find a Cursed Idol",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Delver's Torch",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Map",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Aid from the Cowl",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Cover",
+   "quantity": 1
+  },
+  {
+   "name": "Cowardice",
+   "quantity": 1
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1
+  },
+  {
+   "name": "Find the Path",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan Joins Up",
+   "quantity": 1
+  },
+  {
+   "name": "Parallax Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Prison Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Sunken Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Ellywick Tumblestrum",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Master of the Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Karoo",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 3
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rimewood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuva",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,370 @@
+{
+ "urlhash": "OXXK-ibLfr4A1I51a4jjnQ",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-10-01",
+ "price": 833,
+ "salt": 49.26636030897498,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26873936?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Adherent",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloomvine Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Bristly Bill, Spine Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Rhonas",
+   "quantity": 1
+  },
+  {
+   "name": "Choco, Seeker of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivator Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Dinosaur Egg",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Ellie and Alan, Paleontologists",
+   "quantity": 1
+  },
+  {
+   "name": "Flickering Hound",
+   "quantity": 1
+  },
+  {
+   "name": "Ghalta, Stampede Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Hammerhead Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Cryptic Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Starwinder",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Bahamut",
+   "quantity": 1
+  },
+  {
+   "name": "The Unagi of Kyoshi Island",
+   "quantity": 1
+  },
+  {
+   "name": "Traveling Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1
+  },
+  {
+   "name": "Absorb",
+   "quantity": 1
+  },
+  {
+   "name": "Clash of Wills",
+   "quantity": 1
+  },
+  {
+   "name": "Consider",
+   "quantity": 1
+  },
+  {
+   "name": "Dig Through Time",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Fracture",
+   "quantity": 1
+  },
+  {
+   "name": "Erode",
+   "quantity": 1
+  },
+  {
+   "name": "No More Lies",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Will",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Vigorbloom Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Bala Ged Recovery",
+   "quantity": 1
+  },
+  {
+   "name": "Bridgeworks Battle",
+   "quantity": 1
+  },
+  {
+   "name": "Echo of Eons",
+   "quantity": 1
+  },
+  {
+   "name": "Enter the Unknown",
+   "quantity": 1
+  },
+  {
+   "name": "Epic Fight",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse the Core",
+   "quantity": 1
+  },
+  {
+   "name": "Healing Technique",
+   "quantity": 1
+  },
+  {
+   "name": "Journey of Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Inversion",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Command",
+   "quantity": 1
+  },
+  {
+   "name": "Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Walk with the Ancestors",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Champion's Helm",
+   "quantity": 1
+  },
+  {
+   "name": "Hourglass of the Lost",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Anthem of Champions",
+   "quantity": 1
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1
+  },
+  {
+   "name": "Future Sight",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeological Dig",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Echoing Deeps",
+   "quantity": 1
+  },
+  {
+   "name": "Field of Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Havenwood Battleground",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Monumental Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Oboro, Palace in the Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunken Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

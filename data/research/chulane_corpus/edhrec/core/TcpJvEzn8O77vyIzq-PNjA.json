@@ -1,0 +1,278 @@
+{
+ "urlhash": "TcpJvEzn8O77vyIzq-PNjA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-12",
+ "price": 171,
+ "salt": 64.43352466262877,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/HlwjHCrpn02pNNuTNccYoQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Brood Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Constricting Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Crystalline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Diffusion Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Galerider Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Gemhide Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Lancer Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Manaweft Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Megantic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Muscle Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Opaline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Pulmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Reflex Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sidewinder Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Sinew Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Spinneret Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Talon Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tempered Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Venom Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Virulent Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Dramatic Reversal",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

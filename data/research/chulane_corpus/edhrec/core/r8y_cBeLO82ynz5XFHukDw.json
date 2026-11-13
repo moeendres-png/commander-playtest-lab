@@ -1,0 +1,349 @@
+{
+ "urlhash": "r8y_cBeLO82ynz5XFHukDw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-24",
+ "price": 93,
+ "salt": 37.45739052770659,
+ "tags": [
+  "Explore",
+  "+1/+1 Counters"
+ ],
+ "source_url": "https://archidekt.com/decks/11534278?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abzan Battle Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Abzan Falconer",
+   "quantity": 1
+  },
+  {
+   "name": "Ainok Bond-Kin",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Caradora, Heart of Alacria",
+   "quantity": 1
+  },
+  {
+   "name": "Cartographer's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Cenote Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Deepfathom Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Emissary of Sunrise",
+   "quantity": 1
+  },
+  {
+   "name": "Emperor's Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Insidious Fungus",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Ixalli's Diviner",
+   "quantity": 1
+  },
+  {
+   "name": "Jadelight Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Jadelight Spelunker",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Daring Traveler",
+   "quantity": 1
+  },
+  {
+   "name": "Kinjalli's Dawnrunner",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Branchwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Cave-Diver",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Miner's Guidewing",
+   "quantity": 1
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "River Herald Guide",
+   "quantity": 1
+  },
+  {
+   "name": "River Herald Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel of the Nameless City",
+   "quantity": 1
+  },
+  {
+   "name": "Siren Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Spyglass Siren",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Fleet Negotiator",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Topography Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Tuskguard Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Waterwind Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Wildgrowth Walker",
+   "quantity": 1
+  },
+  {
+   "name": "Brackish Blunder",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Divine Reckoning",
+   "quantity": 1
+  },
+  {
+   "name": "Enter the Unknown",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1
+  },
+  {
+   "name": "Over the Edge",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Scale the Heights",
+   "quantity": 1
+  },
+  {
+   "name": "Solar Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Thirsting Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1
+  },
+  {
+   "name": "Glowcap Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Lodestone Needle",
+   "quantity": 1
+  },
+  {
+   "name": "Shadowed Caravel",
+   "quantity": 1
+  },
+  {
+   "name": "Subterranean Schooner",
+   "quantity": 1
+  },
+  {
+   "name": "Branching Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Smuggler's Share",
+   "quantity": 1
+  },
+  {
+   "name": "Stocking the Pantry",
+   "quantity": 1
+  },
+  {
+   "name": "Twists and Turns",
+   "quantity": 1
+  },
+  {
+   "name": "Utter Insignificance",
+   "quantity": 1
+  },
+  {
+   "name": "Witness Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 4
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

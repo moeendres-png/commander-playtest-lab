@@ -1,0 +1,1634 @@
+{
+ "id": 26298608,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Cthulane combat controll",
+ "updated_at": "2026-10-06T21:44:22.503651Z",
+ "cards": [
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dryad Arbor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Food Chain",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "Thinking to be put in",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plaza of Heroes",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "Thinking to be put in",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jenara, Asura of War",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Edric, Spymaster of Trest",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deep Gnome Terramancer",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Muddle the Mixture",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reveillark",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Fire and Ice",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tribute Mage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Reclaimer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archivist of Oghma",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Giant Killer // Chop Down",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama of the West Tree",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Welcoming Vampire",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spellstutter Sprite",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1,
+   "categories": [
+    "Spells",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "Protection",
+    "Thinking to be put in"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lagrella, the Magpie",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adeline, Resplendent Cathar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Spells",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1,
+   "categories": [
+    "Spells",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Once and Future",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of War and Peace",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pendelhaven",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stirring Wildwood",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daxos of Meletis",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scavenging Ooze",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vendilion Clique",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trygon Predator",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Feast and Famine",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snapcaster Mage",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Conclave",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phantasmal Image",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sower of Temptation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Umezawa's Jitte",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shardless Agent",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Armageddon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Academy Ruins",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ranger of Eos",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonehewer Giant",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Qasali Pridemage",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of the Reliquary",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of the White Orchid",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dauntless Escort",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Negate",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stoneforge Mystic",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bant Charm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cold-Eyed Selkie",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "True-Name Nemesis",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coastal Piracy",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Truth and Justice",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Toski, Bearer of Secrets",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Forge and Frontier",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Hearth and Home",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selfless Spirit",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barkchannel Pathway // Tidechannel Pathway",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hengegate Pathway // Mistgate Pathway",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Spells",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lair of the Hydra",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cave of the Frost Dragon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mutavault",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Get Lost",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Branchloft Pathway // Boulderloft Pathway",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloud, Midgar Mercenary",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flickering Hound",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Erode",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Impostor Syndrome",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Rhythm",
+   "quantity": 1,
+   "categories": [
+    "Spells",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brightglass Gearhulk",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Field of the Dead",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Steelshaper's Gift",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unexpectedly Absent",
+   "quantity": 1,
+   "categories": [
+    "out for now"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1,
+   "categories": [
+    "Spells"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lion Sash",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skrelv, Defector Mite",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Minas Tirith",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deputy of Detention",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Innocence",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voice of Resurgence",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spellseeker",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thada Adel, Acquisitor",
+   "quantity": 1,
+   "categories": [
+    "out for now",
+    "not in deck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trophy Mage",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Halimar Depths",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverblade Paladin",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1,
+   "categories": [
+    "Creatures",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sword of Light and Shadow",
+   "quantity": 1,
+   "categories": [
+    "artefact and ench"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1,
+   "categories": [
+    "Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creatures"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 193,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

@@ -200,6 +200,30 @@ def _roles(db: sqlite3.Connection) -> dict[str, object]:
     }
 
 
+def _rulings(db: sqlite3.Connection) -> dict[str, object]:
+    """Official rulings: rows and cards overall, and how much of the collection (the cards
+    that carry an oracle id) has at least one ruling. A card without a row has no ruling
+    published or was never imported — the two read apart only in ``rulings_for_card``."""
+    total = _scalar(db, "SELECT COUNT(*) FROM card_ruling")
+    with_oracle = _scalar(db, "SELECT COUNT(*) FROM card_fact WHERE oracle_id IS NOT NULL")
+    covered = _scalar(
+        db,
+        "SELECT COUNT(DISTINCT f.card_id) FROM card_fact f "
+        "JOIN card_ruling r ON r.oracle_id = f.oracle_id",
+    )
+    span = db.execute("SELECT MIN(published_at), MAX(published_at) FROM card_ruling").fetchone()
+    return {
+        "rows": total,
+        "cards_with_rulings": _scalar(db, "SELECT COUNT(DISTINCT oracle_id) FROM card_ruling"),
+        "collection_cards_with_rulings": _share(covered, with_oracle),
+        "by_source": _counter(
+            db, "SELECT ruling_source, COUNT(*) FROM card_ruling GROUP BY ruling_source"
+        ),
+        "published_earliest": None if span is None else span[0],
+        "published_latest": None if span is None else span[1],
+    }
+
+
 def _corpus(db: sqlite3.Connection) -> dict[str, object]:
     decks = _scalar(db, "SELECT COUNT(*) FROM corpus_deck")
     card_rows = _scalar(db, "SELECT COUNT(*) FROM corpus_deck_card")
@@ -470,6 +494,7 @@ def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, o
         "collection": _collection(db),
         "scryfall_facts": _scryfall(db, moment),
         "roles": _roles(db),
+        "rulings": _rulings(db),
         "corpus": _corpus(db),
         "observations": _observations(db),
         "universes": _universes(store),

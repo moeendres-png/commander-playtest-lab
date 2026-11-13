@@ -1,0 +1,418 @@
+{
+ "urlhash": "-jhyggjoE_WMAKn5ZbEKOA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-06-04",
+ "price": 427,
+ "salt": 36.846041661687195,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/CMOUzfri6UKidx3Z8P38Hw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aarakocra Sneak",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of the Dire Hour",
+   "quantity": 1
+  },
+  {
+   "name": "Apex Altisaur",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Interrupter",
+   "quantity": 1
+  },
+  {
+   "name": "Avenging Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Clifftop Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Cloister Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Cyclone Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Eccentric Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Emeritus of Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Feywild Caretaker",
+   "quantity": 1
+  },
+  {
+   "name": "Goliath Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Hama Pashar, Ruin Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Merchant of Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Pathlighter",
+   "quantity": 1
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Overcharged Amalgam",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Solar",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of the Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Seasoned Dungeoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Sharp-Eyed Rookie",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak and Goreclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Tomb of Horrors Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Predator",
+   "quantity": 1
+  },
+  {
+   "name": "Undermountain Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Wastescape Battlemage",
+   "quantity": 1
+  },
+  {
+   "name": "Wavesifter",
+   "quantity": 1
+  },
+  {
+   "name": "White Plume Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Windshaper Planetar",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Wojek Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Yuan-Ti Malison",
+   "quantity": 1
+  },
+  {
+   "name": "Bar the Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Explore the Underdark",
+   "quantity": 1
+  },
+  {
+   "name": "You Find a Cursed Idol",
+   "quantity": 1
+  },
+  {
+   "name": "Delver's Torch",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Delver",
+   "quantity": 1
+  },
+  {
+   "name": "Fly",
+   "quantity": 1
+  },
+  {
+   "name": "Ongoing Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Thorough Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Undercellar Sweep",
+   "quantity": 1
+  },
+  {
+   "name": "Ellywick Tumblestrum",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Countryside",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Baldur's Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Basilisk Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Blinkmoth Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 1
+  },
+  {
+   "name": "Gateway Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Gond Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Heap Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Inkmoth Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 1
+  },
+  {
+   "name": "Manor Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Maze of Ith",
+   "quantity": 1
+  },
+  {
+   "name": "Maze's End",
+   "quantity": 1
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1
+  },
+  {
+   "name": "Pit of Offerings",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Plaza of Harmony",
+   "quantity": 1
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Starforge",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Talon Gates of Madara",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

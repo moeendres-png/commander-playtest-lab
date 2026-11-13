@@ -1,0 +1,278 @@
+{
+ "urlhash": "uO7Y7zWxHoz5ixcMBpvklw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-02",
+ "price": 174,
+ "salt": 50.312398970127106,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/8ZTf6pu2rEui2X8dRAPerg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Battlefield Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Clifftop Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Clinquant Skymage",
+   "quantity": 1
+  },
+  {
+   "name": "Combat Calligrapher",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamdew Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Eagle of Deliverance",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrean Eagle",
+   "quantity": 1
+  },
+  {
+   "name": "Esior, Wardwing Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Gustcloak Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Healer's Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Ishai, Ojutai Dragonspeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Jackdaw Savior",
+   "quantity": 1
+  },
+  {
+   "name": "Kastral, the Windcrested",
+   "quantity": 1
+  },
+  {
+   "name": "Knightfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Long River Lurker",
+   "quantity": 1
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Mockingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Nesting Dovehawk",
+   "quantity": 1
+  },
+  {
+   "name": "Nimble Obstructionist",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Escort",
+   "quantity": 1
+  },
+  {
+   "name": "Plumecreed Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Poison Dart Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Rustwing Falcon",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1
+  },
+  {
+   "name": "Shrike Force",
+   "quantity": 1
+  },
+  {
+   "name": "Skyboon Evangelist",
+   "quantity": 1
+  },
+  {
+   "name": "Skyskipper Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Speakeasy Server",
+   "quantity": 1
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tainted Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tazeem Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Watcher of the Spheres",
+   "quantity": 1
+  },
+  {
+   "name": "Windbrisk Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Plains",
+   "quantity": 14
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

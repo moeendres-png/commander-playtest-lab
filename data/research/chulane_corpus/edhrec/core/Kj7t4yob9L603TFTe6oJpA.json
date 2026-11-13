@@ -1,0 +1,306 @@
+{
+ "urlhash": "Kj7t4yob9L603TFTe6oJpA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-02-13",
+ "price": 191,
+ "salt": 45.525441500823945,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/op7HRgz-YEmOyeC7I_o83g?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Blighted Agent",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Caradora, Heart of Alacria",
+   "quantity": 1
+  },
+  {
+   "name": "Deathless Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk Legion Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fear of Impostors",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Gladehart Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Gruff Triplets",
+   "quantity": 1
+  },
+  {
+   "name": "Hamza, Guardian of Arashin",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Lane Denizen",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Projection",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Master Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "Quilled Greatwurm",
+   "quantity": 1
+  },
+  {
+   "name": "Railway Brawler",
+   "quantity": 1
+  },
+  {
+   "name": "Renata, Called to the Hunt",
+   "quantity": 1
+  },
+  {
+   "name": "Sab-Sunen, Luxa Embodied",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Mob",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Spearbreaker Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak and Goreclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Thrummingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Trygon Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Venerated Loxodon",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Call",
+   "quantity": 1
+  },
+  {
+   "name": "Council's Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Requisition Raid",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Key",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderous Velocipede",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan Defends the Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Empathy",
+   "quantity": 1
+  },
+  {
+   "name": "Privileged Position",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Emeria, the Sky Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Littjara Mirrorlake",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,318 @@
+{
+ "urlhash": "VhFnw_ixSDXf34TJ596KhA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-11-17",
+ "price": 98,
+ "salt": 41.876913592685014,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/siyRSddvFEGyeX6lFjBgdA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aggressive Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Finality",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Baloth Woodcrasher",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Elfsworn Giant",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Fertilid",
+   "quantity": 1
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Giver of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Greenweaver Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Howling Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Hyrax Tower Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Ilysian Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Iron Bully",
+   "quantity": 1
+  },
+  {
+   "name": "Ironshell Beetle",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Lumbering Battlement",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Nylea's Forerunner",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Patagia Viper",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Satyr Grovedancer",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Sphinx Mindbreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Thragtusk",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Verdurous Gearhulk",
+   "quantity": 1
+  },
+  {
+   "name": "Center Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Didn't Say Please",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Slip On the Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sudden Spinnerets",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Isolation",
+   "quantity": 1
+  },
+  {
+   "name": "Flower // Flourish",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Seek the Horizon",
+   "quantity": 1
+  },
+  {
+   "name": "Void Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Firemind Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Sanctity",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "The Legend of Kuruk",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, the Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien Reid",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Caves",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

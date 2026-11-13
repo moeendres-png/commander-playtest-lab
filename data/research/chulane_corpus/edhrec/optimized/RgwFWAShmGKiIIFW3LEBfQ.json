@@ -1,0 +1,392 @@
+{
+ "urlhash": "RgwFWAShmGKiIIFW3LEBfQ",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2026-05-27",
+ "price": 931,
+ "salt": 64.59393640607595,
+ "tags": [
+  "Combo"
+ ],
+ "source_url": "https://moxfield.com/decks/mxCcRiA63k-alcgcTex9KA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Bonescythe Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Brood Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Constricting Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Diffusion Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Dormant Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Spirit Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Galerider Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Gemhide Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Hatchery Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Lancer Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Manaweft Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Mnemonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Muscle Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Opaline Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Pulmonic Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Quick Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Reflex Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Root Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Sinew Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Spinneret Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Synapse Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Taunting Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Tempered Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "Titan of Littjara",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Ballista",
+   "quantity": 1
+  },
+  {
+   "name": "Ward Sliver",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Auroral Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad's Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Eldritch Evolution",
+   "quantity": 1
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1
+  },
+  {
+   "name": "Green Sun's Zenith",
+   "quantity": 1
+  },
+  {
+   "name": "Time Warp",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Birthing Pod",
+   "quantity": 1
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Petal",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Hivepool",
+   "quantity": 1
+  },
+  {
+   "name": "Urza's Incubator",
+   "quantity": 1
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Adaptation",
+   "quantity": 1
+  },
+  {
+   "name": "Defense of the Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Gemstone Caverns",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Mutavault",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Sliver Hive",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Turbulent Wilderness",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

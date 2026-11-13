@@ -1,0 +1,798 @@
+{
+ "id": 22725978,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "Token Bounce - ACTUAL Exodia",
+ "updated_at": "2026-05-22T11:41:50.903842Z",
+ "cards": [
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alley Evasion",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "You're Ambushed on the Road",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Light the Way",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rescue",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jeskai Barricade",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander",
+    "Draw",
+    "Ramp",
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Claire D'Loon, Joy Sculptor",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Y'shtola Rhul",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Applejack",
+   "quantity": 1,
+   "categories": [
+    "Core"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1,
+   "categories": [
+    "Main",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Main",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Main",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strix Serenade",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roaming Throne",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urza's Saga",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adric, Mathematical Genius",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peter Parker's Camera",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gogo, Master of Mimicry",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lithoform Engine",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Library of Leng",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sylvan Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Personal Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intervene",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strionic Resonator",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dispel",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Turn Aside",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rebuff the Wicked",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stubborn Denial",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Keep Safe",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Familiar's Ruse",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jaheira, Friend of the Forest",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Negate",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spider-Sense",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savage Vigor Head",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disarm",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Get a Leg Up",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alliance of Arms",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea Legs",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saving Grasp",
+   "quantity": 1,
+   "categories": [
+    "Main"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Spellbomb",
+   "quantity": 1,
+   "categories": [
+    "Main",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bandage",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Baral, Chief of Compliance",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opt",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bag of Holding",
+   "quantity": 1,
+   "categories": [
+    "Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Betrayal",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birthday Escape",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 105,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

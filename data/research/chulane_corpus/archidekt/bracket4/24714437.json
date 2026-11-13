@@ -1,0 +1,1550 @@
+{
+ "id": 24714437,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "S.A.A.C.S. (Stax, Aluren, Alarm, Chulane, Storm)",
+ "updated_at": "2026-09-04T22:16:18.013346Z",
+ "cards": [
+  {
+   "name": "Silence",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tataru Taru",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Champions of the Perfect",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 3: Backup Commanders"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1,
+   "categories": [
+    "Step 3: Backup Commanders"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Step 3: Backup Commanders"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reki, the History of Kamigawa",
+   "quantity": 1,
+   "categories": [
+    "Step 3: Backup Commanders"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Pandorica",
+   "quantity": 1,
+   "categories": [
+    "Step 6: Reset - Phasing & Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clever Concealment",
+   "quantity": 1,
+   "categories": [
+    "Step 6: Reset - Phasing & Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Priest of Titania",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1,
+   "categories": [
+    "Step 7: Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 6: Reset - Phasing & Recursion",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chord of Calling",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 4: Aluren (or Intruder Alarm)",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voice of Victory",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Starting Town",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thousand-Year Elixir",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 0: Flexible/Miscellaneous Picks",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1,
+   "categories": [
+    "Step 4: Aluren (or Intruder Alarm)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boromir, Warden of the Tower",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rite of Harmony",
+   "quantity": 1,
+   "categories": [
+    "Step 3: Backup Commanders"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1,
+   "categories": [
+    "Step 4: Aluren (or Intruder Alarm)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kinnan, Bonder Prodigy",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Collective Voyage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Burgeoning",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 6,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sanctum Weaver",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Storm the Festival",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi, Mage of Zhalfir",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Budget Version (to be replaced from maybeboard)",
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elder",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Step 0: Flexible/Miscellaneous Picks"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1,
+   "categories": [
+    "Step 4: Aluren (or Intruder Alarm)",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paladin Class",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Defense Grid",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conqueror's Flail",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shang-Chi, Master of Kung Fu",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tax Collector",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1,
+   "categories": [
+    "Step 4: Aluren (or Intruder Alarm)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1,
+   "categories": [
+    "Step 0: Flexible/Miscellaneous Picks"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dosan the Falling Leaf",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Archdruid",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mischievous Pup",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dazzling Theater // Prop Room",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beck // Call",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Step 3: Backup Commanders"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elven Raft-Steerer",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flock Impostor",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirkwood Nurturer",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Harbinger",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heartwood Storyteller",
+   "quantity": 1,
+   "categories": [
+    "Step 0: Flexible/Miscellaneous Picks"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rishkar, Peema Renegade",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1,
+   "categories": [
+    "Step 3: Backup Commanders",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1,
+   "categories": [
+    "Step 7: Finisher",
+    "Step 0: Flexible/Miscellaneous Picks"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Step 6: Reset - Phasing & Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wirewood Symbiote",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1,
+   "categories": [
+    "Step 0: Flexible/Miscellaneous Picks"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tempest Technique",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Waterbender's Restoration",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hunting Grounds",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blind Obedience",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Vitality",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idol of Endurance",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trouble in Pairs",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Valkyrie's Call",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Congregation at Dawn",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Survival of the Fittest",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Recruiter of the Guard",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Step 4: Aluren (or Intruder Alarm)",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tithe Taker",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tameshi, Reality Architect",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Augur of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Niambi, Esteemed Speaker",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land",
+    "Budget Version (to be replaced from maybeboard)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mandate of Peace",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drake Familiar",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Second Sunrise",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prize Pig",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tender Wildguide",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trailtracker Scout",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Staff of Domination",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Step 3: Backup Commanders"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jennifer Walters // The Sensational She-Hulk",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1,
+   "categories": [
+    "Step 7: Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moon-Blessed Cleric",
+   "quantity": 1,
+   "categories": [
+    "Step 4: Aluren (or Intruder Alarm)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hope Estheim",
+   "quantity": 1,
+   "categories": [
+    "Step 7: Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Samwise Gamgee",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hokori, Dust Drinker",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Back to Basics",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadriel's Dismissal",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nurturing Pixie",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi, Time Raveler",
+   "quantity": 1,
+   "categories": [
+    "Step 2: Stax - Proactively stop Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Step 5: From Nondeterministic to Infinite",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Step 1: Ramp",
+    "Things that would need to be cut to make this bracket 2 or 3"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1,
+   "categories": [
+    "Step 4: Aluren (or Intruder Alarm)"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 83,
+ "summe_gesamt": 186,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

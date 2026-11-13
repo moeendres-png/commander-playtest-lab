@@ -1,0 +1,282 @@
+{
+ "urlhash": "y2ELoqlnfkijcC2pKpDUdA",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2026-02-19",
+ "price": 235,
+ "salt": 48.496310180053115,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20138046?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Aunt May",
+   "quantity": 1
+  },
+  {
+   "name": "Auriok Champion",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Beloved Princess",
+   "quantity": 1
+  },
+  {
+   "name": "Benevolent Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Birchlore Rangers",
+   "quantity": 1
+  },
+  {
+   "name": "Copper Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Diligent Farmhand",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Emrakul's Messenger",
+   "quantity": 1
+  },
+  {
+   "name": "Endless One",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Glint Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Gold Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Harrier",
+   "quantity": 1
+  },
+  {
+   "name": "Goldvein Hydra",
+   "quantity": 1
+  },
+  {
+   "name": "Gran-Gran",
+   "quantity": 1
+  },
+  {
+   "name": "Guide of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Icatian Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Joraga Treespeaker",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Lightstall Inquisitor",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Market Gnome",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Miner's Guidewing",
+   "quantity": 1
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Novice Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Ocelot Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Perimeter Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Prize Pig",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Explorer",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Rhys the Redeemed",
+   "quantity": 1
+  },
+  {
+   "name": "Scattershot Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenger Folk",
+   "quantity": 1
+  },
+  {
+   "name": "Seeker of Skybreak",
+   "quantity": 1
+  },
+  {
+   "name": "Serra Ascendant",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1
+  },
+  {
+   "name": "The Duke, Rebel Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Vine Trellis",
+   "quantity": 1
+  },
+  {
+   "name": "Wirewood Symbiote",
+   "quantity": 1
+  },
+  {
+   "name": "Wose Pathfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Elixir of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Omen",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 15
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 15
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

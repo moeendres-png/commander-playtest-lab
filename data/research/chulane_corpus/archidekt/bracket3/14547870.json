@@ -1,0 +1,757 @@
+{
+ "id": 14547870,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane Control",
+ "updated_at": "2026-07-13T07:40:27.620855Z",
+ "cards": [
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bane of Progress",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pongify",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Get Lost",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hypnotic Sprite // Mesmeric Glare",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Render Silent",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unwind",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Realm-Cloaked Giant // Cast Off",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Giant Killer // Chop Down",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Settle the Wreckage",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Starfall Invocation",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Split Up",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Mastermind",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Search for Azcanta // Azcanta, the Sunken Ruin",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Magic Mirror",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Monastery Siege",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "Juice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Juice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scavenger Grounds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghost Quarter",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barkchannel Pathway // Tidechannel Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Volatile Fault",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bala Ged Recovery // Bala Ged Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Branchloft Pathway // Boulderloft Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disciple of Freyalise // Garden of Freyalise",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hydroelectric Specimen // Hydroelectric Laboratory",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glasspool Mimic // Glasspool Shore",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hengegate Pathway // Mistgate Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silundi Vision // Silundi Isle",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sink into Stupor // Soporific Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oversimplify",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ledger Shredder",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1,
+   "categories": [
+    "Juice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Druid of Purification",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vedalken Orrery",
+   "quantity": 1,
+   "categories": [
+    "Juice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi, Hero of Dominaria",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Reality Chip",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kumena's Awakening",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "River's Rebuke",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sylvan Library",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kefnet the Mindful",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Narset's Reversal",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jwari Disruption // Jwari Ruins",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Negate",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cataclysmic Gearhulk",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Approach of the Second Sun",
+   "quantity": 1,
+   "categories": [
+    "Win Con"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1,
+   "categories": [
+    "Mass Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dragonlord Ojutai",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1,
+   "categories": [
+    "Spot Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1,
+   "categories": [
+    "Juice"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

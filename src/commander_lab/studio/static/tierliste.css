@@ -1,53 +1,48 @@
-#notice{padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px}
+/* Tier list: page-specific parts; tokens, buttons, tables, badges and toasts are in app.css. */
+body{height:auto;min-height:100%}
+#notice{padding:var(--s2) var(--s3);background:var(--panel2);border-bottom:1px solid var(--line);font-size:13px}
 #notice b{color:var(--warn)}
 #notice .summary{color:var(--muted);margin-top:2px}
-body{height:auto;min-height:100%}
-#pool-body{overflow:visible}
-#modal-box.plain{max-width:860px}
-.tier{display:inline-block;min-width:78px;text-align:center;padding:1px 8px;border-radius:6px;border:1px dashed var(--line);color:var(--muted);font-size:12px}
-.badge{display:inline-block;padding:0 8px;border-radius:999px;border:1px solid var(--line);font-size:12px;margin:1px 2px 1px 0;white-space:nowrap}
-.badge.good{border-color:var(--good);color:var(--good)}
-.badge.warn{border-color:var(--warn);color:var(--warn)}
-.badge.dim{color:var(--muted)}
+#pool-body{overflow:auto;max-height:calc(100vh - 150px);min-height:320px;padding:var(--s3)}
 td.cardcell{white-space:nowrap}
-td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:8px}
+td.cardcell .thumb{display:inline-block;vertical-align:middle;margin-right:var(--s2)}
 .star{color:#ffd257}
 .unknown{color:var(--muted);font-style:italic}
-.layer{border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:10px 0;background:var(--panel2)}
-.layer h3{margin:0 0 4px;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.layer{border:1px solid var(--line);border-radius:var(--radius);padding:var(--s2) 10px;margin:10px 0;background:var(--panel2)}
+.layer h3{margin:0 0 var(--s1);font-size:14px;display:flex;gap:var(--s2);align-items:center;flex-wrap:wrap}
 .layer table{margin-top:6px;font-size:12px}
-.layer p{margin:4px 0;font-size:12px;color:var(--muted)}
+.layer p{margin:var(--s1) 0;font-size:12px;color:var(--muted)}
 .rule{color:var(--muted);font-size:11px}
-.policy{border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel2);border-radius:0 6px 6px 0;margin:8px 0;font-size:12px}
-th{top:0}
-.layer .name{cursor:pointer;font-weight:600}
-#universe-panel{padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px}
-#universe-panel .facts{display:flex;gap:16px;flex-wrap:wrap;align-items:baseline}
+.policy{border-left:3px solid var(--warn);padding:6px 10px;background:var(--panel2);border-radius:0 6px 6px 0;margin:var(--s2) 0;font-size:12px}
+.layer .name,.name{cursor:pointer;font-weight:600}
+#universe-panel,#strength-panel{padding:var(--s2) var(--s3);border-bottom:1px solid var(--line);font-size:13px}
+#universe-panel .facts,#strength-panel .facts{display:flex;gap:var(--s2) var(--s4);flex-wrap:wrap;align-items:baseline;margin:6px 0}
 #universe-panel details{margin-top:6px}
-#universe-panel form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
+#universe-panel form{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:flex-end;margin-top:6px}
 #universe-panel label{display:flex;flex-direction:column;font-size:12px;color:var(--muted)}
-.spread{display:inline-block;min-width:96px;padding:1px 8px;border-radius:6px;border:1px solid var(--line);font-size:12px;white-space:nowrap}
-.spread .level{font-weight:700;margin-right:6px}
-.spread.lvl-U{color:var(--muted);font-style:italic}
-.spread.none{color:var(--muted);border-style:dotted}
+#universe-panel .checks{display:flex;flex-direction:column}
 .universe-box .spellings{font-size:12px}
-#strength-panel{padding:8px 12px;border-bottom:1px solid var(--line);font-size:13px}
 #strength-panel summary{cursor:pointer;font-weight:600}
-#strength-panel .facts{display:flex;gap:10px;flex-wrap:wrap;align-items:baseline;margin:6px 0}
-.strength-form{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-top:6px}
-.strength-form label{display:flex;flex-direction:column;font-size:12px;color:var(--muted)}
-.strength-form input[type=number]{width:90px}
-.strength{display:inline-block;min-width:60px;padding:1px 8px;border-radius:6px;border:1px solid var(--line);font-size:12px;white-space:nowrap}
-.strength .level{font-weight:700;margin-right:6px}
-.strength.lvl-U{color:var(--muted);font-style:italic;border-style:dashed}
-.strength.none{color:var(--muted);border-style:dotted}
-
-.spread.lvl-F{color:var(--muted);border-style:dashed}
-.strength.lvl-N{color:var(--muted);border-style:dotted;white-space:normal}
-#strength-panel .sgroup{border:1px solid var(--line);border-radius:8px;margin:8px 0;padding:4px 10px 8px}
-#strength-panel .sgroup legend{font-weight:600;padding:0 6px}
-.strength-form .help{font-size:11px;color:var(--muted);max-width:260px;white-space:normal}
-.strength-form label{max-width:280px}
+#strength-panel.working{opacity:.7}
+.strength-form{display:flex;gap:var(--s2);flex-wrap:wrap;align-items:flex-end;margin-top:6px}
+.strength-form label{display:flex;flex-direction:column;font-size:12px;color:var(--muted);max-width:280px}
 .strength-form select{max-width:260px}
+.deviation-line{display:flex;gap:var(--s3);align-items:center;margin:var(--s2) 0}
+#deviations.changed{color:var(--warn);font-weight:600}
+.sgroup{border:1px solid var(--line);border-radius:var(--radius);margin:var(--s2) 0;padding:0 var(--s3)}
+.sgroup>summary{padding:var(--s2) 0;font-weight:600}
+.settings{display:grid;gap:var(--s1);padding-bottom:var(--s2)}
+.setting{display:grid;grid-template-columns:minmax(220px,2fr) 150px minmax(180px,3fr);gap:var(--s2) var(--s3);align-items:center;padding:var(--s1) 0;border-top:1px solid var(--line)}
+.setting label{color:var(--text)}
+.setting input[type=number]{width:100%}
+.setting select{width:100%}
+.setting .help{font-size:11px;color:var(--muted)}
 .tier-filter{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--muted)}
 .tier-filter label{display:inline-flex;gap:2px;align-items:center}
+.badge.warn{border-color:var(--warn);color:var(--warn)}
+/* the evidence drawer sits at the right and leaves the table readable */
+#modal{inset:auto 0 0 auto;top:0;width:min(600px,46vw);background:transparent;display:block;z-index:30;pointer-events:none}
+#modal[hidden]{display:none}
+#modal-box.plain{pointer-events:auto;position:absolute;inset:0;max-width:none;width:100%;max-height:none;height:100%;border-radius:0;border-width:0 0 0 1px;box-shadow:var(--shadow);overflow:auto}
+@media (max-width:1100px){.setting{grid-template-columns:1fr 130px;}.setting .help{grid-column:1 / -1}}
+@media (max-width:900px){#modal{width:min(520px,60vw)}}

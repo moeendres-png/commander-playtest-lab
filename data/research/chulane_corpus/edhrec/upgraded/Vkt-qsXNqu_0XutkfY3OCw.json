@@ -1,0 +1,362 @@
+{
+ "urlhash": "Vkt-qsXNqu_0XutkfY3OCw",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-07-09",
+ "price": 4583,
+ "salt": 45.6672906386666,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/I-_9TWL0BEiMBUtlLMIG1w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Anafenza, Unyielding Lineage",
+   "quantity": 1
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Clarion Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1
+  },
+  {
+   "name": "Drumbellower",
+   "quantity": 1
+  },
+  {
+   "name": "Furious Forebear",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Hanged Executioner",
+   "quantity": 1
+  },
+  {
+   "name": "Inspirited Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of False Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Kindly Ancestor",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the Center Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kura, the Boundless Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Lantern Bearer",
+   "quantity": 1
+  },
+  {
+   "name": "Mausoleum Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Myojin of Blooming Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Nebelgast Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Niblis of the Urn",
+   "quantity": 1
+  },
+  {
+   "name": "Nikko-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Oyobi, Who Split the Heavens",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Remorseful Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Selfless Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Adversary",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Phantom",
+   "quantity": 1
+  },
+  {
+   "name": "Twilight Drover",
+   "quantity": 1
+  },
+  {
+   "name": "Twinblade Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Reverence",
+   "quantity": 1
+  },
+  {
+   "name": "Windborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Shockwave",
+   "quantity": 1
+  },
+  {
+   "name": "Disenchant",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostway",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Release to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Interference",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Fell the Mighty",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Storm of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Andúril, Flame of the West",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Ashnod's Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Banner of Kinship",
+   "quantity": 1
+  },
+  {
+   "name": "Door of Destinies",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Staff of the Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Breath of the Sleepless",
+   "quantity": 1
+  },
+  {
+   "name": "Field of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Haunted Library",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Steel",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Bonds",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Cradle",
+   "quantity": 1
+  },
+  {
+   "name": "Ghost Quarter",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Moorland Haunt",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

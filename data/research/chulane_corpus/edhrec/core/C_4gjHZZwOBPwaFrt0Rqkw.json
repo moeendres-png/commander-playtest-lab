@@ -1,0 +1,340 @@
+{
+ "urlhash": "C_4gjHZZwOBPwaFrt0Rqkw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-05-27",
+ "price": 172,
+ "salt": 41.151324013248086,
+ "tags": [
+  "Blink"
+ ],
+ "source_url": "https://moxfield.com/decks/EPJVC_5F2EeEb5cOkd4N2A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Chameleon Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Impersonator",
+   "quantity": 1
+  },
+  {
+   "name": "Eldrazi Displacer",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Grovetender Druids",
+   "quantity": 1
+  },
+  {
+   "name": "Hada Freeblade",
+   "quantity": 1
+  },
+  {
+   "name": "Harabaz Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Hero of Goma Fada",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Kabira Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Blademaster",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Bladewhirl",
+   "quantity": 1
+  },
+  {
+   "name": "Lantern Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Makindi Shieldmate",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Image",
+   "quantity": 1
+  },
+  {
+   "name": "Munda's Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Loremaster",
+   "quantity": 1
+  },
+  {
+   "name": "Seascape Aerialist",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Talus Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Turntimber Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Umara Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Vastwood Animist",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Brought Back",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Evacuation",
+   "quantity": 1
+  },
+  {
+   "name": "Join the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Paradoxical Outcome",
+   "quantity": 1
+  },
+  {
+   "name": "Allied Reinforcements",
+   "quantity": 1
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Settle Beyond Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Unified Front",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Captain's Claws",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1
+  },
+  {
+   "name": "Pillar of Origins",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud Cover",
+   "quantity": 1
+  },
+  {
+   "name": "Cunning Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Descendants' Path",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1
+  },
+  {
+   "name": "Gideon, Ally of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, the Sojourner",
+   "quantity": 1
+  },
+  {
+   "name": "Ally Encampment",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Grasslands",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 11
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

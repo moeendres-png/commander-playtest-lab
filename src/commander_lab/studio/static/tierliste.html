@@ -6,11 +6,17 @@
 <title>Commander Studio: Tierliste</title>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="tierliste.css">
+<script src="ui.js"></script>
 </head>
 <body>
-<header id="top">
-  <h1>Commander Studio <span>Tierliste</span></h1>
+<header id="brand">
+  <a class="logo" href="index.html">Commander Studio</a>
+  <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="partie.html">Partien</a></nav>
+  <span class="spacer"></span>
   <label>Commander <select id="commander-select"></select></label>
+  <button id="theme-toggle" type="button" class="ghost"></button>
+</header>
+<header id="top">
   <label>Ansicht <select id="view"></select></label>
   <span id="deck-pick" hidden>
     <label>Deck <select id="deck-select"></select></label>
@@ -18,10 +24,8 @@
   </span>
   <label>Universum <select id="universe-select" title="Deck-Universum für die gezählte Verbreitung"></select></label>
   <span id="tier-pill" class="pill warn" title="Ein Ergebnis-Tier aus Partien braucht ein Modell mit Ergebnisdaten. Ein solches Modell gibt es noch nicht. Die Stufen S bis D gehören zum Stärke-Index (Schätzung aus Nutzungsdaten).">Ergebnis aus Partien: noch nicht bewertet</span>
-  <span class="spacer"></span>
-  <a class="nav" href="index.html">Deckbau</a>
-  <a class="nav" href="partie.html">Partien</a>
 </header>
+<div id="data-state"></div>
 <div id="notice"></div>
 <div id="universe-panel"></div>
 <div id="strength-panel"></div>

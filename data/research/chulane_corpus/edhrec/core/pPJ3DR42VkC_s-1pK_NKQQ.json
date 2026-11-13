@@ -1,0 +1,288 @@
+{
+ "urlhash": "pPJ3DR42VkC_s-1pK_NKQQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-10-22",
+ "price": 468,
+ "salt": 63.964091658592224,
+ "tags": [
+  "Pillow Fort"
+ ],
+ "source_url": "https://moxfield.com/decks/gGVOFeYp1UyoZynkw_WA-A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Absolute Virtue",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Body Double",
+   "quantity": 1
+  },
+  {
+   "name": "Clever Impersonator",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Glasspool Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Hulking Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Image",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorhall Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Metamorph",
+   "quantity": 1
+  },
+  {
+   "name": "Pia, Aether Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Platinum Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Princess Yue",
+   "quantity": 1
+  },
+  {
+   "name": "Sakashima of a Thousand Faces",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Host of Herons",
+   "quantity": 1
+  },
+  {
+   "name": "Simulacrum Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Studious First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Summon: Fenrir",
+   "quantity": 1
+  },
+  {
+   "name": "Tajuru Preserver",
+   "quantity": 1
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Visage Bandit",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Divert Disaster",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Ravenform",
+   "quantity": 1
+  },
+  {
+   "name": "Restoration Seminar",
+   "quantity": 1
+  },
+  {
+   "name": "River's Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Restoration",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Glory",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Water Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Ashnod's Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Clock",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Box",
+   "quantity": 1
+  },
+  {
+   "name": "Pearl Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "The Arkenstone",
+   "quantity": 1
+  },
+  {
+   "name": "The Seriema",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Zuran Orb",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Earthbender Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Observed Stasis",
+   "quantity": 1
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1
+  },
+  {
+   "name": "Privileged Position",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "War of the Last Alliance",
+   "quantity": 1
+  },
+  {
+   "name": "Invasion of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Adagia, Windswept Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

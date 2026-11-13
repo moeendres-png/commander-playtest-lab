@@ -1,0 +1,318 @@
+{
+ "urlhash": "KPJojqM5Sy8sqUMe5ObkEA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2024-12-13",
+ "price": 73,
+ "salt": 44.83358317613602,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/E8rq2bgHS0G2mB9M_42Wwg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Battering Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Bigfin Bouncer",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Charix, the Raging Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Chrome Host Seedshark",
+   "quantity": 1
+  },
+  {
+   "name": "Cold-Eyed Selkie",
+   "quantity": 1
+  },
+  {
+   "name": "Cresting Mosasaurus",
+   "quantity": 1
+  },
+  {
+   "name": "Daggermaw Megalodon",
+   "quantity": 1
+  },
+  {
+   "name": "Deep-Sea Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Eluge, the Shoreless Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Floodhound",
+   "quantity": 1
+  },
+  {
+   "name": "Floodpits Drowner",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Shark",
+   "quantity": 1
+  },
+  {
+   "name": "Hammerhead Shark",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Dambreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Loan Shark",
+   "quantity": 1
+  },
+  {
+   "name": "Marauding Brinefang",
+   "quantity": 1
+  },
+  {
+   "name": "Nezahal, Primal Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Nimbus Swimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Pouncing Shoreshark",
+   "quantity": 1
+  },
+  {
+   "name": "Quandrix Cultivator",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Chimera",
+   "quantity": 1
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1
+  },
+  {
+   "name": "Shambleshark",
+   "quantity": 1
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1
+  },
+  {
+   "name": "Slinn Voda, the Rising Deep",
+   "quantity": 1
+  },
+  {
+   "name": "Spined Megalodon",
+   "quantity": 1
+  },
+  {
+   "name": "Tidewalker",
+   "quantity": 1
+  },
+  {
+   "name": "Tyranid Prime",
+   "quantity": 1
+  },
+  {
+   "name": "Unruly Krasis",
+   "quantity": 1
+  },
+  {
+   "name": "Voracious Greatshark",
+   "quantity": 1
+  },
+  {
+   "name": "Wavesifter",
+   "quantity": 1
+  },
+  {
+   "name": "Bite Down",
+   "quantity": 1
+  },
+  {
+   "name": "Depths of Desire",
+   "quantity": 1
+  },
+  {
+   "name": "Dive Down",
+   "quantity": 1
+  },
+  {
+   "name": "Drown in Shapelessness",
+   "quantity": 1
+  },
+  {
+   "name": "Feral Instinct",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "High Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Mysteries of the Deep",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Shore Up",
+   "quantity": 1
+  },
+  {
+   "name": "Strip Bare",
+   "quantity": 1
+  },
+  {
+   "name": "Tidal Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Turn the Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Bite Down on Crime",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Deep Analysis",
+   "quantity": 1
+  },
+  {
+   "name": "Drag Under",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Flow of Ideas",
+   "quantity": 1
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Irresistible Prey",
+   "quantity": 1
+  },
+  {
+   "name": "Petals of Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Rabid Bite",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Read the Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Research the Deep",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Fishing Pole",
+   "quantity": 1
+  },
+  {
+   "name": "Replicating Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Frenzy",
+   "quantity": 1
+  },
+  {
+   "name": "Savage Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Shark Typhoon",
+   "quantity": 1
+  },
+  {
+   "name": "Spreading Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 21
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,341 @@
+{
+ "urlhash": "RXzEFGV6qqOuqUnPAaTNqQ",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2026-05-30",
+ "price": 122,
+ "salt": 39.54947373876348,
+ "tags": [
+  "Adventures",
+  "Sagas"
+ ],
+ "source_url": "https://archidekt.com/decks/23048550?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ardenvale Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Bloomvine Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Bramble Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Brazen Borrower",
+   "quantity": 1
+  },
+  {
+   "name": "Chancellor of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Emerald Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Guidemother",
+   "quantity": 1
+  },
+  {
+   "name": "Flaxen Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Galvanic Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Garenbrig Carver",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gorion, Wise Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Gruff Triplets",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Naga",
+   "quantity": 1
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1
+  },
+  {
+   "name": "Kellan, Daring Traveler",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Marang River Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshae Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Queen of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Questing Phelddagrif",
+   "quantity": 1
+  },
+  {
+   "name": "Realm-Cloaked Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala, Eager Trailblazer",
+   "quantity": 1
+  },
+  {
+   "name": "Sentinel of Lost Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Stormkeld Vanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Hart",
+   "quantity": 1
+  },
+  {
+   "name": "Threadbind Clique",
+   "quantity": 1
+  },
+  {
+   "name": "Tlincalli Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Twining Twins",
+   "quantity": 1
+  },
+  {
+   "name": "Wandermare",
+   "quantity": 1
+  },
+  {
+   "name": "Witch Enchanter",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Yisan, the Wanderer Bard",
+   "quantity": 1
+  },
+  {
+   "name": "Everybody Lives!",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Once Upon a Time",
+   "quantity": 1
+  },
+  {
+   "name": "Once and Future",
+   "quantity": 1
+  },
+  {
+   "name": "Peel from Reality",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "Fade from History",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Hymn of Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Crown of Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1
+  },
+  {
+   "name": "Jugan Defends the Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo Meets the Story Circle",
+   "quantity": 1
+  },
+  {
+   "name": "The Fall of Lord Konda",
+   "quantity": 1
+  },
+  {
+   "name": "The Restoration of Eiganjo",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of the Frost Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Field of Ruin",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

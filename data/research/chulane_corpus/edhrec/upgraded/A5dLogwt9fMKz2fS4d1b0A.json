@@ -1,0 +1,76 @@
+{
+ "urlhash": "A5dLogwt9fMKz2fS4d1b0A",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2026-08-07",
+ "price": 347,
+ "salt": 58.76534107327461,
+ "tags": [
+  "Templar Knights"
+ ],
+ "source_url": "https://archidekt.com/decks/25022173?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Memnarch",
+   "quantity": 1
+  },
+  {
+   "name": "Templar Knight",
+   "quantity": 44
+  },
+  {
+   "name": "The Walls of Ba Sing Se",
+   "quantity": 1
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Raise the Past",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1
+  },
+  {
+   "name": "Coat of Arms",
+   "quantity": 1
+  },
+  {
+   "name": "The Ten Rings",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 14
+  },
+  {
+   "name": "Island",
+   "quantity": 14
+  },
+  {
+   "name": "Plains",
+   "quantity": 18
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

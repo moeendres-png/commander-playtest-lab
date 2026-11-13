@@ -1,0 +1,278 @@
+{
+ "urlhash": "Y0IAWFhbyYZE8R4jeb029Q",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-03-20",
+ "price": 165,
+ "salt": 50.18735471740365,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/hBWEvx2C902n6N0FnDXjhA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Beastcaller Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Bramblewood Paragon",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Diligent Farmhand",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Archdruid",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Hexhunter",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gaea's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1
+  },
+  {
+   "name": "Golgari Decoy",
+   "quantity": 1
+  },
+  {
+   "name": "Imaryll, Elfhame Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Immaculate Magistrate",
+   "quantity": 1
+  },
+  {
+   "name": "Imperious Perfect",
+   "quantity": 1
+  },
+  {
+   "name": "Ivy Lane Denizen",
+   "quantity": 1
+  },
+  {
+   "name": "Jagged-Scar Archers",
+   "quantity": 1
+  },
+  {
+   "name": "Leaf-Crowned Visionary",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Lys Alana Bowmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Marwyn, the Nurturer",
+   "quantity": 1
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1
+  },
+  {
+   "name": "Master Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Mul Daya Channelers",
+   "quantity": 1
+  },
+  {
+   "name": "Nullmage Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Quirion Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Rishkar, Peema Renegade",
+   "quantity": 1
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1
+  },
+  {
+   "name": "Servant of the Conduit",
+   "quantity": 1
+  },
+  {
+   "name": "Silhana Ledgewalker",
+   "quantity": 1
+  },
+  {
+   "name": "Springbloom Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Messenger",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Taunting Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Timberwatch Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1
+  },
+  {
+   "name": "Tromell, Seymour's Butler",
+   "quantity": 1
+  },
+  {
+   "name": "Viridian Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Wolverine Riders",
+   "quantity": 1
+  },
+  {
+   "name": "Yeva, Nature's Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Galadhrim Ambush",
+   "quantity": 1
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1
+  },
+  {
+   "name": "Wirewood Pride",
+   "quantity": 1
+  },
+  {
+   "name": "You Happen On a Glade",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Harmonize",
+   "quantity": 1
+  },
+  {
+   "name": "Harvest Season",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Lead the Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Rhonas's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Guidance",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Rage",
+   "quantity": 1
+  },
+  {
+   "name": "Spidersilk Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Anthem",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 34
+  },
+  {
+   "name": "Island",
+   "quantity": 2
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

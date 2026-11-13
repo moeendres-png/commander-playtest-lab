@@ -1,0 +1,352 @@
+{
+ "urlhash": "RraFiY_PbzVOz3Sy34frZQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-01-23",
+ "price": 223,
+ "salt": 43.762017872184515,
+ "tags": [
+  "Snow"
+ ],
+ "source_url": "https://moxfield.com/decks/sdO-bJlwjUy1H_QGmFXGFg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Ascendant Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Deepfathom Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamshackle Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Geists",
+   "quantity": 1
+  },
+  {
+   "name": "Elder Pine of Jukai",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Haru-Onna",
+   "quantity": 1
+  },
+  {
+   "name": "Icebreaker Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Icefall Regent",
+   "quantity": 1
+  },
+  {
+   "name": "Icingdeath, Frost Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Illithid Harvester",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Kura, the Boundless Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Moritte of the Frost",
+   "quantity": 1
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1
+  },
+  {
+   "name": "Nebelgast Herald",
+   "quantity": 1
+  },
+  {
+   "name": "Niblis of the Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Niblis of the Urn",
+   "quantity": 1
+  },
+  {
+   "name": "Rattlechains",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Rhoda, Geist Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1
+  },
+  {
+   "name": "Shacklegeist",
+   "quantity": 1
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit of the Aldergard",
+   "quantity": 1
+  },
+  {
+   "name": "Sunblast Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Thassa, Deep-Dwelling",
+   "quantity": 1
+  },
+  {
+   "name": "Timin, Youthful Geist",
+   "quantity": 1
+  },
+  {
+   "name": "Topplegeist",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Command",
+   "quantity": 1
+  },
+  {
+   "name": "Graven Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Borrowing 100,000 Arrows",
+   "quantity": 1
+  },
+  {
+   "name": "Sleep",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Hylda's Crown of Winter",
+   "quantity": 1
+  },
+  {
+   "name": "Icebind Pillar",
+   "quantity": 1
+  },
+  {
+   "name": "Kefnet's Monument",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Spring-Loaded Sawblades",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Breath of the Sleepless",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Siege",
+   "quantity": 1
+  },
+  {
+   "name": "Court of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Cowardice",
+   "quantity": 1
+  },
+  {
+   "name": "Dismiss into Dream",
+   "quantity": 1
+  },
+  {
+   "name": "On Thin Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Opposition",
+   "quantity": 1
+  },
+  {
+   "name": "Time of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Verity Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, the Moon Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi, Who Slows the Sunset",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dark Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Floodplain",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon Canopy",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Moorland Haunt",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Snow-Covered Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Snow-Covered Island",
+   "quantity": 7
+  },
+  {
+   "name": "Snow-Covered Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

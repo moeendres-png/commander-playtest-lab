@@ -7,11 +7,13 @@ the data check reads stored facts, the Rules Core stays the binding check for pl
 
 from __future__ import annotations
 
+import json
 import re
 import threading
 from collections.abc import Awaitable, Callable
 from dataclasses import asdict
 from pathlib import Path
+from typing import cast
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi import Path as PathParam
@@ -25,7 +27,9 @@ from . import (
     card_outcomes,
     data_report,
     games,
+    import_all,
     launch,
+    queries,
     strength_view,
     universe,
     universe_view,
@@ -43,6 +47,7 @@ from .images import cached_image, cached_image_by_name, public_card
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
+from .universe import UnknownUniverseCards
 
 STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
@@ -157,6 +162,17 @@ class StrengthProfileBody(BaseModel):
     settings: dict[str, object]
 
 
+def _german(error: ValueError) -> str:
+    """The German sentence for the validation errors the page can cause; other messages
+    pass through unchanged. Unknown cards arrive as a structured error (a list of names)."""
+    if isinstance(error, UnknownUniverseCards):
+        return (
+            f"Diese Karte kennt das Studio nicht: {', '.join(error.names)}. "
+            "Wähle eine Karte aus der Vorschlagsliste."
+        )
+    return str(error)
+
+
 def _inventory_summary() -> dict[str, object]:
     """Compact form of the qualified evidence-source inventory for /api/status:
     how many source layers exist and how they split over the review states."""
@@ -248,6 +264,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return data_report.data_report(store)
+        finally:
+            store.close()
+
+    @app.get("/api/layers")
+    def layers(commander: str = Query(min_length=1, max_length=200)) -> dict[str, object]:
+        """Per data layer of one commander: rows, pool cards covered, status and the exact
+        import call, for the empty-state box of the pages."""
+        store = open_store()
+        try:
+            return import_all.layer_overview(store, commander)
         finally:
             store.close()
 
@@ -470,7 +496,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             cache.invalidate()
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
-            raise HTTPException(422, str(error)) from error
+            raise HTTPException(422, _german(error)) from error
         finally:
             store.close()
 
@@ -539,21 +565,86 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/cards/{card_id}/cooccurrence")
     def card_cooccurrence(
         card_id: str,
-        profile: str = Query(min_length=1, max_length=80),
+        profile: str | None = Query(default=None, min_length=1, max_length=80),
         limit: int = Query(default=25, ge=1, le=500),
         commander: str = Query(min_length=1, max_length=200),
+        must_contain: list[str] = Query(default=[], max_length=20),
     ) -> dict[str, object]:
+        """Cards played with one card: over a stored universe (``profile``) or, without one,
+        over the commander's decks that contain every card of ``must_contain``."""
+        if profile is None and not must_contain:
+            raise HTTPException(422, "Gib ein Universum oder Filterkarten an.")
         store = open_store()
         try:
+            spec = (
+                universe_view.filtered_spec(
+                    store, must_contain, commander_names=[commander], profile=profile
+                )
+                if must_contain
+                else None
+            )
             return dict(
                 universe_view.card_cooccurrence(
-                    store, profile, card_id, limit, commander_names=[commander]
+                    store,
+                    None if spec is not None else profile,
+                    card_id,
+                    limit,
+                    commander_names=[commander],
+                    spec=spec,
                 )
             )
         except ValueError as error:
-            raise HTTPException(422, str(error)) from error
+            raise HTTPException(422, _german(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile or card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/deck-filter")
+    def deck_filter(
+        commander: str = Query(min_length=1, max_length=200),
+        card: list[str] = Query(default=[], max_length=20),
+        profile: str | None = Query(default=None, min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        """Source-deck figures over only the commander's decks that contain ALL chosen
+        cards ("Teilmenge: N von M Decks"). Only cards of the commander's pool can be chosen."""
+        store = open_store()
+        try:
+            try:
+                pool = queries.legal_pool(store, [commander])
+            except KeyError as error:
+                raise HTTPException(404, f"commander not in the collection: {error}") from error
+            if any(not name.strip() for name in card):
+                raise HTTPException(
+                    422, "Leerer Kartenname. Wähle eine Karte aus der Vorschlagsliste."
+                )
+            if any(name.casefold() == commander.casefold() for name in card):
+                raise HTTPException(
+                    422,
+                    f"{commander} ist der Commander und steckt in jedem Deck. "
+                    "Wähle eine andere Karte als Filter.",
+                )
+            pool_names = {str(row["oracle_name"]) for row in pool}
+            outside = sorted({name for name in card if name not in pool_names})
+            if outside:
+                raise HTTPException(
+                    422,
+                    f"Diese Karte gehört nicht zum Kartenpool von {commander}: "
+                    f"{', '.join(outside)}. Wähle eine Karte aus der Vorschlagsliste.",
+                )
+            return dict(
+                universe_view.deck_filter(
+                    store,
+                    card,
+                    commander_names=[commander],
+                    profile=profile,
+                    card_ids=[str(row["card_id"]) for row in pool],
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, _german(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
         finally:
             store.close()
 
@@ -615,12 +706,46 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/simulations/batch/{batch_id}")
     def get_simulation_batch(batch_id: str) -> dict[str, object]:
+        from .games import games_folder
         from .simulations import simulation_manager
 
         batch = simulation_manager.get_batch(batch_id)
-        if batch is None:
-            raise HTTPException(404, "unknown batch")
-        return batch.to_dict()
+        if batch is not None:
+            return batch.to_dict()
+        series_file = games_folder(games_home()) / f"{batch_id}.series.json"
+        if series_file.is_file():
+            try:
+                payload = json.loads(series_file.read_text(encoding="utf-8"))
+            except ValueError:
+                raise HTTPException(422, "corrupt series record") from None
+            if isinstance(payload, dict):
+                return cast(dict[str, object], payload)
+        raise HTTPException(404, "unknown batch")
+
+    @app.post("/api/simulations/batch/{batch_id}/resume")
+    def resume_simulation_batch(batch_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            from .simulations import simulation_manager
+
+            batch = simulation_manager.resume_batch(
+                store,
+                games_home(),
+                batch_id=batch_id,
+            )
+            return {
+                "batch_id": batch.batch_id,
+                "status": batch.status,
+                "execution": batch.execution(),
+            }
+        except KeyError as error:
+            raise HTTPException(404, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        finally:
+            store.close()
 
     @app.post("/api/simulations/batch/{batch_id}/cancel")
     def cancel_simulation_batch(batch_id: str) -> dict[str, object]:

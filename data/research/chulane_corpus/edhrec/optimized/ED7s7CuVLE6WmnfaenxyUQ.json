@@ -1,0 +1,350 @@
+{
+ "urlhash": "ED7s7CuVLE6WmnfaenxyUQ",
+ "variante": "optimized",
+ "bracket": 4,
+ "savedate": "2025-08-13",
+ "price": 186,
+ "salt": 49.35868957731873,
+ "tags": [
+  "Lands Matter",
+  "Combo",
+  "Ramp"
+ ],
+ "source_url": "https://moxfield.com/decks/xkwW3iFn7E2I7vGtSZN_JA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Aggressive Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1
+  },
+  {
+   "name": "Archon of Absolution",
+   "quantity": 1
+  },
+  {
+   "name": "Avatar of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Celebrity Fencer",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Gingerbrute",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Rhonas",
+   "quantity": 1
+  },
+  {
+   "name": "Gold-Forged Thopteryx",
+   "quantity": 1
+  },
+  {
+   "name": "Inspired Sphinx",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Kogla, the Titan Ape",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Battle Priest",
+   "quantity": 1
+  },
+  {
+   "name": "Loyal Warhound",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Ramunap Excavator",
+   "quantity": 1
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Snaremaster Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Sokrates, Athenian Teacher",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Stormtide Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Surrak, Elusive Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani's Summoner",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Bounty of Might",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmic Rebirth",
+   "quantity": 1
+  },
+  {
+   "name": "Desynchronization",
+   "quantity": 1
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Scatter Ray",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Retort",
+   "quantity": 1
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Explore",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of the Pack",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1
+  },
+  {
+   "name": "Winds of Rath",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Always Watching",
+   "quantity": 1
+  },
+  {
+   "name": "Journey to Nowhere",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Sanctity",
+   "quantity": 1
+  },
+  {
+   "name": "Military Intelligence",
+   "quantity": 1
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Sandwurm Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Loyalty",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin, Hand of Control",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Behemoth Beckoner",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Crashing Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Abandoned Campground",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 7
+  },
+  {
+   "name": "Irrigation Ditch",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Jungle Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Lonely Arroyo",
+   "quantity": 1
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

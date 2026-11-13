@@ -1,0 +1,370 @@
+{
+ "urlhash": "w3Hdq6q5Zjs_VM7jur6K1A",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2024-12-06",
+ "price": 232,
+ "salt": 39.76413110271096,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/zVf4DHu4CUeKlQeVaRkohw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alistair, the Brigadier",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Sureblade",
+   "quantity": 1
+  },
+  {
+   "name": "Captain Sisay",
+   "quantity": 1
+  },
+  {
+   "name": "Danitha, Benalia's Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Disciplined Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Galea, Kindler of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Giltspire Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Hada Freeblade",
+   "quantity": 1
+  },
+  {
+   "name": "Harabaz Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Jenara, Asura of War",
+   "quantity": 1
+  },
+  {
+   "name": "Jwari Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Blademaster",
+   "quantity": 1
+  },
+  {
+   "name": "Messenger Falcons",
+   "quantity": 1
+  },
+  {
+   "name": "Mikaeus, the Lunarch",
+   "quantity": 1
+  },
+  {
+   "name": "Nazahn, Revered Bladesmith",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Ondu War Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Oran-Rief Survivalist",
+   "quantity": 1
+  },
+  {
+   "name": "Othelm, Sigardian Outcast",
+   "quantity": 1
+  },
+  {
+   "name": "Rafiq of the Many",
+   "quantity": 1
+  },
+  {
+   "name": "Reki, the History of Kamigawa",
+   "quantity": 1
+  },
+  {
+   "name": "Shanna, Purifying Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Spawnbinder Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Stone Haven Outfitter",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Vorel of the Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Andúril, Flame of the West",
+   "quantity": 1
+  },
+  {
+   "name": "Andúril, Narsil Reforged",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Barrow-Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Blade of Selves",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodforged Battle-Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Deathrender",
+   "quantity": 1
+  },
+  {
+   "name": "Forebear's Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Lotus",
+   "quantity": 1
+  },
+  {
+   "name": "Glistening Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Hammer of Nazahn",
+   "quantity": 1
+  },
+  {
+   "name": "Heirloom Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Illusionist's Bracers",
+   "quantity": 1
+  },
+  {
+   "name": "Lothlórien Blade",
+   "quantity": 1
+  },
+  {
+   "name": "Loxodon Warhammer",
+   "quantity": 1
+  },
+  {
+   "name": "Luxior, Giada's Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Mjölnir, Storm Hammer",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Sting, the Glinting Dagger",
+   "quantity": 1
+  },
+  {
+   "name": "Sword of Hearth and Home",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of the Guildpact",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Adaptation",
+   "quantity": 1
+  },
+  {
+   "name": "As Foretold",
+   "quantity": 1
+  },
+  {
+   "name": "Daily Regimen",
+   "quantity": 1
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Immortality",
+   "quantity": 1
+  },
+  {
+   "name": "Gift of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Grafted Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Lifelink",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Unbound",
+   "quantity": 1
+  },
+  {
+   "name": "New Horizons",
+   "quantity": 1
+  },
+  {
+   "name": "Propaganda",
+   "quantity": 1
+  },
+  {
+   "name": "Sheltered Aerie",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Link",
+   "quantity": 1
+  },
+  {
+   "name": "Spirit Loop",
+   "quantity": 1
+  },
+  {
+   "name": "Unnatural Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Weirding Wood",
+   "quantity": 1
+  },
+  {
+   "name": "Xenograft",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Calciform Pools",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Cascading Cataracts",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Hidden Grotto",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

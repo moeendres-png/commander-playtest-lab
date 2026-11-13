@@ -1,0 +1,418 @@
+{
+ "urlhash": "lihA19BXed8yCouRZ5oMBA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2024-12-08",
+ "price": 428,
+ "salt": 33.30061614187434,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/1OiwzqB27Uy5CFwPtWUrUg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Alms Collector",
+   "quantity": 1
+  },
+  {
+   "name": "Arahbo, Roar of the World",
+   "quantity": 1
+  },
+  {
+   "name": "Bennie Bracks, Zoologist",
+   "quantity": 1
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Brimaz, King of Oreskos",
+   "quantity": 1
+  },
+  {
+   "name": "Cadira, Caller of the Small",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1
+  },
+  {
+   "name": "Cubwarden",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Enlightened Ascetic",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Cub",
+   "quantity": 1
+  },
+  {
+   "name": "Feline Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Fortune, Loyal Steed",
+   "quantity": 1
+  },
+  {
+   "name": "Forum Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Stray",
+   "quantity": 1
+  },
+  {
+   "name": "Genku, Future Shaper",
+   "quantity": 1
+  },
+  {
+   "name": "Highcliff Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "Hungry Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Jacked Rabbit",
+   "quantity": 1
+  },
+  {
+   "name": "Jolrael, Mwonvuli Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Kaheera, the Orphanguard",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil's Flanker",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Kwain, Itinerant Meddler",
+   "quantity": 1
+  },
+  {
+   "name": "Leonin Warleader",
+   "quantity": 1
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1
+  },
+  {
+   "name": "Mirri, Weatherlight Duelist",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Catgeist",
+   "quantity": 1
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Ms. Bumbleflower",
+   "quantity": 1
+  },
+  {
+   "name": "Ocelot Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Pollen-Shield Hare",
+   "quantity": 1
+  },
+  {
+   "name": "Pride Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Pridemalkin",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Serpopard",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Pridemage",
+   "quantity": 1
+  },
+  {
+   "name": "Qasali Slingers",
+   "quantity": 1
+  },
+  {
+   "name": "Regal Caracal",
+   "quantity": 1
+  },
+  {
+   "name": "Rumor Gatherer",
+   "quantity": 1
+  },
+  {
+   "name": "Skyhunter Strike Force",
+   "quantity": 1
+  },
+  {
+   "name": "Sovereign Okinec Ahau",
+   "quantity": 1
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1
+  },
+  {
+   "name": "Watchers of the Dead",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Season of the Burrow",
+   "quantity": 1
+  },
+  {
+   "name": "Tempt with Bunnies",
+   "quantity": 1
+  },
+  {
+   "name": "Esika's Chariot",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Caretaker's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Cream of the Crop",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Strength of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Barkchannel Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Shelf",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1
+  },
+  {
+   "name": "Coastal Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Gavony Township",
+   "quantity": 1
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Lonely Arroyo",
+   "quantity": 1
+  },
+  {
+   "name": "Lumbering Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Oasis",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1
+  },
+  {
+   "name": "Stirring Wildwood",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

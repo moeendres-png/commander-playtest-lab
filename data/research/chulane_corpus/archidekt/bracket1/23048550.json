@@ -1,0 +1,653 @@
+{
+ "id": 23048550,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "Telling Flavorful Tales",
+ "updated_at": "2026-08-25T02:11:30.966379Z",
+ "cards": [
+  {
+   "name": "Yisan, the Wanderer Bard",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wandermare",
+   "quantity": 1,
+   "categories": [
+    "Adventure Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Witch Enchanter // Witch-Blessed Meadow",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Woodland Acolyte // Mend the Wilds",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Realm-Cloaked Giant // Cast Off",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Marang River Regent // Coil and Catch",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonshae Pixie // Pixie Dust",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lovestruck Beast // Heart's Desire",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fade from History",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Guidemother // Gift of the Fae",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Field of Ruin",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flaxen Intruder // Welcome Home",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beanstalk Giant // Fertile Footsteps",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloomvine Regent // Claim Territory",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bramble Familiar // Fetch Quest",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brazen Borrower // Petty Theft",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ardenvale Tactician // Dizzying Swoop",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kellan, Daring Traveler // Journey On",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gorion, Wise Mentor",
+   "quantity": 1,
+   "categories": [
+    "Adventure Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stormkeld Vanguard // Bear Down",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galvanic Giant // Storm Reading",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1,
+   "categories": [
+    "Adventure Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Garenbrig Carver // Shield's Might",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chancellor of Tales",
+   "quantity": 1,
+   "categories": [
+    "Adventure Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Queen of Ice // Rage of Winter",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Naga // Banishing Coils",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peel from Reality",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Case of the Locked Hothouse",
+   "quantity": 1,
+   "categories": [
+    "Stories and Songs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Once Upon a Time",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tamiyo Meets the Story Circle",
+   "quantity": 1,
+   "categories": [
+    "Stories and Songs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tempest Hart // Scan the Clouds",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Fall of Lord Konda // Fragment of Konda",
+   "quantity": 1,
+   "categories": [
+    "Stories and Songs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Restoration of Eiganjo // Architect of Restoration",
+   "quantity": 1,
+   "categories": [
+    "Stories and Songs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Threadbind Clique // Rip the Seams",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tlincalli Hunter // Retrieve Prey",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Twining Twins // Swift Spiral",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sapphire Dragon // Psionic Pulse",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Eager Trailblazer",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sentinel of Lost Lore",
+   "quantity": 1,
+   "categories": [
+    "Adventure Support"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shepherd of the Flock // Usher to Safety",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Not On Theme"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Song of Freyalise",
+   "quantity": 1,
+   "categories": [
+    "Stories and Songs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rosethorn Acolyte // Seasonal Ritual",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Questing Phelddagrif",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Once and Future",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jugan Defends the Temple // Remnant of the Rising Star",
+   "quantity": 1,
+   "categories": [
+    "Stories and Songs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inga and Esika",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hymn of Rebirth",
+   "quantity": 1,
+   "categories": [
+    "Stories and Songs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Giant Killer // Chop Down",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gruff Triplets",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 11,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Edgewall Inn",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emerald Dragon // Dissonant Wave",
+   "quantity": 1,
+   "categories": [
+    "Adventures in Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Everybody Lives!",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cave of the Frost Dragon",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1,
+   "categories": [
+    "Main Characters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crown of Convergence",
+   "quantity": 1,
+   "categories": [
+    "Plot Devices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Curious Pair // Treats to Share",
+   "quantity": 1,
+   "categories": [
+    "Adventures"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
