@@ -43,6 +43,7 @@ from .images import cached_image, cached_image_by_name, public_card
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
 from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
+from .universe import UnknownUniverseCards
 
 STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
@@ -157,21 +158,15 @@ class StrengthProfileBody(BaseModel):
     settings: dict[str, object]
 
 
-_UNKNOWN_CARDS = re.compile(r"^unknown universe card\(s\): \[(.*?)\](?:;.*)?$")
-
-
 def _german(error: ValueError) -> str:
     """The German sentence for the validation errors the page can cause; other messages
-    pass through unchanged."""
-    text = str(error)
-    match = _UNKNOWN_CARDS.match(text)
-    if match:
-        names = ", ".join(part.strip().strip("'\"") for part in match.group(1).split("', '"))
+    pass through unchanged. Unknown cards arrive as a structured error (a list of names)."""
+    if isinstance(error, UnknownUniverseCards):
         return (
-            f"Diese Karte kennt das Studio nicht: {names}. "
+            f"Diese Karte kennt das Studio nicht: {', '.join(error.names)}. "
             "Wähle eine Karte aus der Vorschlagsliste."
         )
-    return text
+    return str(error)
 
 
 def _inventory_summary() -> dict[str, object]:
@@ -591,6 +586,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 pool = queries.legal_pool(store, [commander])
             except KeyError as error:
                 raise HTTPException(404, f"commander not in the collection: {error}") from error
+            if any(not name.strip() for name in card):
+                raise HTTPException(
+                    422, "Leerer Kartenname. Wähle eine Karte aus der Vorschlagsliste."
+                )
+            if any(name.casefold() == commander.casefold() for name in card):
+                raise HTTPException(
+                    422,
+                    f"{commander} ist der Commander und steckt in jedem Deck. "
+                    "Wähle eine andere Karte als Filter.",
+                )
             pool_names = {str(row["oracle_name"]) for row in pool}
             outside = sorted({name for name in card if name not in pool_names})
             if outside:

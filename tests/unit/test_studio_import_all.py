@@ -314,4 +314,7 @@ def test_signal_rows_are_split_into_this_and_other_commanders(
     assert rows["other_rows"] == 4  # inclusion and synergy of each other commander
     assert rows["for_commander"] == 2
     assert "für andere Commander 4 (2 Commander)" in out
-    assert "Zeilen anderer Commander werden gespeichert, aber nur bei diesen Commandern angezeigt." in out
+    assert (
+        "Zeilen anderer Commander werden gespeichert, aber nur bei diesen Commandern angezeigt."
+        in out
+    )

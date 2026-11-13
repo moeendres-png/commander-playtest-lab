@@ -12,7 +12,15 @@ const StudioSearch = (() => {
     const name = fold(card.name);
     if (name === q) return 0;
     if (name.startsWith(q)) return 1;
-    if (name.split(/[\s,'/-]+/).some((word) => word.startsWith(q))) return 2;
+    const nameWords = name.split(/[\s,'/-]+/).filter(Boolean);
+    if (nameWords.some((word) => word.startsWith(q))) return 2;
+    // a multi-word query that starts at a word of the name ("sol r" in "Zealous Sol Ringer"),
+    // or whose every word starts a word of the name, in any order
+    const queryWords = q.split(/\s+/).filter(Boolean);
+    if (queryWords.length > 1) {
+      const at = nameWords.map((_, i) => nameWords.slice(i).join(" "));
+      if (at.some((tail) => tail.startsWith(q))) return 2;
+    }
     if (name.includes(q)) return 3;
     const hay = `${name}\n${fold(card.type_line)}\n${fold(card.text)}`;
     if (hay.includes(q)) return 4;

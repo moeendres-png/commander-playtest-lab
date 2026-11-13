@@ -251,6 +251,16 @@ def _card_name_index(
     return {oracle: frozenset(keys) for oracle, keys in by_oracle.items()}, unique
 
 
+class UnknownUniverseCards(ValueError):
+    """Card names that name no single collection card; ``names`` carries them as a list, so
+    a caller formats them without parsing the message."""
+
+    def __init__(self, names: Sequence[str], *, stock: int | None = None) -> None:
+        self.names = sorted(set(names))
+        suffix = f"; the store holds {stock} collection cards" if stock is not None else ""
+        super().__init__(f"unknown universe card(s): {self.names}{suffix}")
+
+
 def _required_cards(store: StudioStore, names: Sequence[str]) -> list[tuple[str, frozenset[str]]]:
     """Resolve ``must_contain`` names to (oracle name, its casefolded spellings).
 
@@ -266,7 +276,7 @@ def _required_cards(store: StudioStore, names: Sequence[str]) -> list[tuple[str,
         else:
             resolved.append((oracle, by_oracle[oracle]))
     if unknown:
-        raise ValueError(f"unknown universe card(s): {sorted(set(unknown))}")
+        raise UnknownUniverseCards(unknown)
     return resolved
 
 
@@ -309,10 +319,7 @@ def _validate_against_stock(store: StudioStore, cleaned: UniverseSpec) -> None:
         if by_oracle:
             unknown_cards = sorted({name for name in required if name.casefold() not in unique})
             if unknown_cards:
-                raise ValueError(
-                    f"unknown universe card(s): {unknown_cards}; "
-                    f"the store holds {len(by_oracle)} collection cards"
-                )
+                raise UnknownUniverseCards(unknown_cards, stock=len(by_oracle))
             # The stored spec names the cards by their oracle name, whatever spelling
             # the caller used, so a profile always reads the same.
             cleaned["must_contain"] = sorted({unique[name.casefold()] for name in required})

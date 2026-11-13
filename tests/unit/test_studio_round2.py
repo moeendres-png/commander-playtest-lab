@@ -96,6 +96,91 @@ def test_deck_filter_refuses_unknown_cards_and_cards_outside_the_pool(
     assert missing.status_code == 404
 
 
+def test_deck_filter_refuses_a_blank_card_and_the_commander_itself(client: TestClient) -> None:
+    blank = client.get("/api/deck-filter", params={"commander": COMMANDER, "card": [" "]})
+    assert blank.status_code == 422
+    assert "Leerer Kartenname" in blank.json()["detail"]
+    own = client.get("/api/deck-filter", params={"commander": COMMANDER, "card": [COMMANDER]})
+    assert own.status_code == 422
+    assert "steckt in jedem Deck" in own.json()["detail"]
+
+
+def test_unknown_card_names_with_an_apostrophe_come_out_right(client: TestClient) -> None:
+    name = "Sol's Ring, the 'Odd' One"
+    answer = client.put(
+        "/api/universe/profiles/x",
+        params={"commander": COMMANDER},
+        json={"must_contain": [name, "Zed"]},
+        headers={"X-Studio": "1"},
+    )
+    assert answer.status_code == 422
+    assert f"Diese Karte kennt das Studio nicht: {name}, Zed." in answer.json()["detail"]
+
+
+def _bind_partner_deck(folder_: Path) -> None:
+    store = StudioStore.open(folder_)
+    try:
+        _deck(store, "pair1", "edhrec", 3, ["Swarm Rat", "Filler 03"])
+        store.connection.execute(
+            "INSERT INTO commander_binding(kind, key, commander_name, basis) "
+            "VALUES ('corpus_deck', 'pair1', 'Second Partner', 'TEST')"
+        )
+        store.connection.commit()
+    finally:
+        store.close()
+
+
+def test_a_partner_pair_deck_is_not_counted_for_a_single_commander(
+    client: TestClient,
+    folder: Path,  # noqa: F811
+) -> None:
+    _bind_partner_deck(folder)
+    result = _filter(client, "Swarm Rat")
+    assert result["decks"] == 27 and result["of"] == 43
+    pool = client.get("/api/pool", params={"commander": COMMANDER}).json()["cards"]
+    ids = {card["name"]: card["card_id"] for card in pool}
+    answer = client.get(
+        f"/api/cards/{ids['Filler 03']}/cooccurrence",
+        params={"commander": COMMANDER, "must_contain": ["Swarm Rat"]},
+    )
+    assert answer.status_code == 200, answer.text
+    assert answer.json()["denominator"] == 27
+    assert answer.json()["decks_with_card"] == 25
+
+
+def _import_two_commanders(store: StudioStore, folder_: Path) -> None:
+    folder_.mkdir()
+    (folder_ / "commander_card_signals.csv").write_text(
+        "commander_name,card_name,num_decks,potential_decks,synergy\n"
+        f"{COMMANDER},Filler 03,40,100,0.12\n"
+        "Other Commander,Filler 04,90,100,0.9\n",
+        encoding="utf-8",
+    )
+    with store.importing_for(COMMANDER):
+        signals.import_signals(store, folder_, commander=COMMANDER)
+
+
+def test_another_commanders_signal_rows_never_appear_in_the_builder_pool(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    _import_two_commanders(store, tmp_path / "signals")
+    cards = {card["name"]: card for card in builder.pool_cards(store, [COMMANDER])["cards"]}  # type: ignore[union-attr]
+    store.close()
+    assert cards["Filler 03"]["signals"]["synergy"]["value"] == pytest.approx(0.12)
+    assert cards["Filler 04"]["signals"] == {}
+    assert cards["Filler 04"]["edhrec"] is None
+
+
+def test_a_partner_pair_gets_no_commander_signal(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    _fill(store, tmp_path)
+    _import_two_commanders(store, tmp_path / "signals")
+    pair = builder.pool_cards(store, [COMMANDER, "Filler 03"])["cards"]
+    store.close()
+    assert pair  # type: ignore[truthy-bool]
+    assert all(card["signals"] == {} and card["edhrec"] is None for card in pair)  # type: ignore[index, union-attr]
+
+
 def test_cooccurrence_over_the_filtered_decks(client: TestClient) -> None:
     pool = client.get("/api/pool", params={"commander": COMMANDER}).json()["cards"]
     ids = {card["name"]: card["card_id"] for card in pool}
@@ -210,6 +295,20 @@ console.log(JSON.stringify(S.sortByRank(cards, 'Sol Ring').map(c => c.name)));
         "Ring of Sol",
         "Thran Dynamo",
     ]
+
+
+def test_a_multi_word_query_reaches_rank_two_before_rank_three() -> None:
+    script = """
+const S = require('./search.js');
+const cards = [
+  {name: 'Awesol Ring Pack', type_line: 'Artifact', text: ''},
+  {name: 'Zealous Sol Ringer', type_line: 'Creature', text: ''},
+];
+console.log(JSON.stringify([cards.map(c => S.rank(c, 'sol r')), S.sortByRank(cards, 'sol r').map(c => c.name)]));
+"""
+    ranks, names = json.loads(_node(script))
+    assert ranks == [3, 2]
+    assert names == ["Zealous Sol Ringer", "Awesol Ring Pack"]  # alphabetical order would differ
 
 
 def test_pages_load_the_shared_files_and_keep_inline_code_out() -> None:
