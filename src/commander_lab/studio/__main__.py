@@ -107,9 +107,18 @@ def _parser() -> argparse.ArgumentParser:
     import_signals.add_argument("folder")
     import_signals.add_argument(
         "--commander",
-        default=LEGACY_COMMANDER,
-        help="commander the tournament lists belong to (EDHREC signals carry their own)",
+        required=True,
+        help="commander the tournament and combo lists belong to (EDHREC signals carry "
+        "their own); matched case-insensitively against the names the store knows",
     )
+    import_signals.add_argument(
+        "--append",
+        action="store_true",
+        help="only add and update rows; the default replaces every signal and commander "
+        "the files write",
+    )
+    import_signals.add_argument("--tournament-file", help="base name of the tournament list file")
+    import_signals.add_argument("--combos-file", help="base name of the combo list file")
     commands.add_parser(
         "relink-corpus",
         help="link source-deck cards to oracle ids by name and rebuild deck statistics",
@@ -464,9 +473,18 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = importers.import_hub_corpus(store, args.path)
     elif args.command == "import-signals":
         try:
-            result = signals.import_signals(store, args.folder, commander=args.commander)
+            result = signals.import_signals(
+                store,
+                args.folder,
+                commander=args.commander,
+                replace=not args.append,
+                tournament_file=args.tournament_file,
+                combos_file=args.combos_file,
+            )
         except ValueError as error:
             raise SystemExit(f"import-signals: {error}") from None
+        for warning in result.get("warnings", []) if isinstance(result, dict) else []:
+            print(f"warning: {warning}", file=sys.stderr)
     elif args.command == "import-scryfall":
         result = catalog.import_scryfall_oracle(
             store, args.path, disambiguation_path=args.disambiguation
