@@ -3,6 +3,7 @@ card suggestions. All data is synthetic."""
 
 from __future__ import annotations
 
+import json
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -170,3 +171,56 @@ def test_builder_reads_the_stored_inclusion_signal(tmp_path: Path) -> None:
     assert cards["Filler 04"]["edhrec"] is None  # a row without a value stays unknown
     assert cards["Filler 05"]["edhrec"] is None
     assert cards["Filler 05"]["signals"] == {}
+
+
+def _node(script: str) -> str:
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        pytest.skip("node is not installed")
+    static = Path(__file__).resolve().parents[2] / "src/commander_lab/studio/static"
+    done = subprocess.run(
+        [node, "-e", script], capture_output=True, text=True, check=True, cwd=static
+    )
+    return done.stdout.strip()
+
+
+def test_builder_search_ranks_exact_then_prefix_then_word_then_contains_then_text() -> None:
+    script = """
+const S = require('./search.js');
+const cards = [
+  {name: 'Arcane Sol Ringer', type_line: 'Creature', text: ''},
+  {name: 'Ring of Sol', type_line: 'Artifact', text: ''},
+  {name: 'Sol Ring', type_line: 'Artifact', text: 'Tap: add two.'},
+  {name: 'Sol Ringlet', type_line: 'Artifact', text: ''},
+  {name: 'Thran Dynamo', type_line: 'Artifact', text: 'Like a sol ring but bigger'},
+  {name: 'Wall', type_line: 'Creature', text: ''},
+  {name: 'Awesol Ring Pack', type_line: 'Artifact', text: ''},
+];
+console.log(JSON.stringify(S.sortByRank(cards, 'Sol Ring').map(c => c.name)));
+"""
+    names = json.loads(_node(script))
+    assert names == [
+        "Sol Ring",
+        "Sol Ringlet",
+        "Arcane Sol Ringer",
+        "Awesol Ring Pack",
+        "Ring of Sol",
+        "Thran Dynamo",
+    ]
+
+
+def test_pages_load_the_shared_files_and_keep_inline_code_out() -> None:
+    from commander_lab.studio.web import STATIC
+
+    for page in ("index.html", "tierliste.html", "partie.html"):
+        html = (STATIC / page).read_text(encoding="utf-8")
+        assert 'src="ui.js"' in html and 'id="areas"' in html and 'id="theme-toggle"' in html
+        assert "Deckbau" in html and "Tierliste" in html and "Partien" in html
+    assert 'src="search.js"' in (STATIC / "index.html").read_text(encoding="utf-8")
+    assert 'id="data-state"' in (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    for script in ("ui.js", "search.js"):
+        source = (STATIC / script).read_text(encoding="utf-8")
+        assert "innerHTML" not in source and "style=" not in source
