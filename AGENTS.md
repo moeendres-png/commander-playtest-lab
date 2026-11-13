@@ -1,10 +1,10 @@
 # Commander Simulator Next — Repository Agent Policy
 
 Binding instructions for every agent working on `moeendres-png/commander-playtest-lab`,
-whatever tool or model the Owner selects (Claude Code, OpenCode Foundry, Cline, GitHub
+whatever tool or model the Owner selects (Claude Code, Cline, GitHub
 Copilot, Google agents, others). Stable rules only: no SHAs, run IDs, PASS counts,
 diagnoses, prices or rate limits. Session facts live in the Workstream Contract and the
-workstream's explicit state file (the `--state` path given to the launcher);
+workstream's explicit state file;
 there is no implicit active repository-root state.
 
 ## 1. Mission and scope
@@ -38,8 +38,9 @@ The live pin is in `config/rules_engines.json`. The Freeze binds the Owner decis
 limitation: pilots run out of process and no foreign code runs in the engine JVM; stronger
 isolation must hold before any untrusted pilot is admitted.
 
-Do not create the Production Repository (Owner-only). Do not change the Rules Core or the
-pin without a new Owner decision and requalification.
+Do not create the Production Repository (Owner-only). Do not change the Rules Core (the
+engine fork) or the pin without a new Owner decision and requalification. The Java bridge
+in `engine-bridge/` may change for the Studio under the Studio bridge gate (§10).
 
 The end state is a production-quality simulation system: real 100-card decks under a
 qualified full-rules Rules Core, authoritative legal Decision Options, externally
@@ -112,23 +113,20 @@ adjudication and required requalification.
 
 The Owner selects the tool and model for each session manually. This file names no
 model allowlist (the two floors in §7 are Owner-set minimums, not an allowlist); every executor works under exactly these rules, at the effort the Owner
-selected, never silently lowered. Tool configuration that enforces executor identity
-(for example the OpenCode Foundry launcher and `.foundry/executor-profiles.json`) is
-technical configuration, not policy; there is no automatic fallback between executors.
+selected, never silently lowered; there is no automatic fallback between executors.
 
 - **Coordinator**: an explicitly launched Claude Opus 5.5 session under the delegation in §8
   (architecture, Source Truth, Rules adjudication, qualification design, gate decisions,
   review and, when authorized, campaign execution).
-- **Worker**: any other executor. OpenCode Foundry and Claude Sonnet workers inside an
+- **Worker**: any other executor. Claude Sonnet workers inside an
   owned workstream may merge as §10 delegates. Muse (the Owner's Meta agent) may merge its
   own PRs under the Owner-delegated self-merge in §10. GitHub Copilot, Google agents, Cline
   and any other external agent work on their own branch and PR and never merge. No worker decides
   Owner-only reservations (§8); results count as evidence only after the same review and
   CI gates as any other executor.
 
-Tool and runtime capabilities are never inferred from model identity. A call outside the
-Foundry launcher (for example a Claude-side OpenCode call) names the Owner-selected model
-explicitly and never relies on a tool's default model.
+Tool and runtime capabilities are never inferred from model identity. A call to another
+model names the Owner-selected model explicitly and never relies on a tool's default model.
 
 Historical model names in dated records are provenance only; they authorize nothing and
 create no migration or governance work by themselves.
@@ -155,6 +153,11 @@ Every tool splits its own work the same way, so tokens go where judgement is nee
   (§4). Neither that check nor a helper pass inside the session that wrote the change is the
   independent review of §10: every MATERIAL change still needs that review from a fresh
   context that did not write it.
+
+Whatever the tool: a helper gets one bounded objective with a complete brief, saves its
+state as it goes (commits, a findings file) so that a usage limit loses nothing, and a
+stopped helper is resumed rather than replaced. One independent review per head; the same
+reviewer re-checks only the delta after fixes.
 
 Two fixed exceptions:
 
@@ -250,7 +253,7 @@ integration campaign may own several disjoint surfaces when one objective needs 
 each must be freshly verified, declared, free of another active writer (or transferred
 by a persisted handoff). Undeclared, foreign-active or unknown-owner surfaces stay
 read-only. It re-reads authority and ownership before material mutation; unavailable,
-ask-gated or denied operations stay real boundaries, and it never bypasses Foundry
+ask-gated or denied operations stay real boundaries, and it never bypasses
 sandboxing, another worker's ownership, protected branches, Owner-only decisions or a
 hard prohibition in this file.
 
@@ -357,15 +360,61 @@ Claude sessions (Coordinator and thread sessions) and Muse may merge their own P
 `moeendres-png/commander-playtest-lab` through the normal GitHub merge path once the PR is
 merge-ready: the required checks (`quality`, `security`, `infrastructure`) are green on the
 exact head, there is no merge conflict, no review thread is unresolved, and a MATERIAL
-change has an independent review PASS (`/ro-review`, or an independent Claude review with
-no blocking findings when no review lane is available). After merging, the agent reports
-the merge in one line with the PR link. One-shot OpenCode lane dispatches still open PRs and never merge;
-the session that owns the PR merges it.
+change has an independent review PASS (an independent Claude review with
+no blocking findings). After merging, the agent reports
+the merge in one line with the PR link. The session that owns the PR merges it.
 
 These still need the Owner's explicit go before merge: pushes to the engine fork
 (`moeendres-png/mage`), repins, and any change that touches signed or sealed qualification
 records or the reseal-bound files (`requirements/lock.txt`, its digest, `pyproject.toml`).
+(For the removal of unreachable legacy code the Owner gave that go for `pyproject.toml` on
+2026-11-12: `docs/STUDIO_PLAN_SIMULATOR.md`, D5.)
 Self-merge never bypasses branch protection, an admin override or the hard boundaries above.
+
+### Studio bridge gate
+
+`STUDIO_BRIDGE_GATE = ENABLED` (Owner decision 2026-11-12).
+
+A change under `engine-bridge/` made for the Studio (speed, the human seat, an engine
+look-ahead for pilots) merges without a new sealed qualification epoch when all of this
+holds:
+
+- **Declared kind.** The PR says whether the change is meant to leave every game unchanged
+  (`NEUTRAL`) or to change play (`BEHAVIOUR`).
+- **`NEUTRAL`:** on the fixed reference set, before and after on the same pin, every game
+  finishes, the semantic transcript hash of every game is identical, and the frames each
+  pilot received for every decision are identical after the same identifier normalization
+  the transcript hash uses (per-run object ids differ between any two runs). The first
+  `NEUTRAL` PR adds that per-decision normalized frame digest to the benchmark rows and to
+  `compare`; until a tool compares the frames, a `NEUTRAL` claim is `UNKNOWN`, not PASS. A different hash
+  or frame, a failed game or a missing game FAILS a `NEUTRAL` change; it never reclassifies
+  it. BEFORE is the bridge at the merge base, AFTER the exact PR head, and the two jar
+  digests differ. The PR changes neither the comparison script nor the code that computes
+  the transcript hash. The reference set and the commands are in
+  `docs/STUDIO_PLAN_SIMULATOR.md`.
+- **`BEHAVIOUR`:** the reference set is run as well: no game may fail or go missing, every
+  changed game is explained, and with default settings the set is unchanged where the change
+  sits behind a setting. The intended change has a test that fails on the BEFORE bridge.
+  The bridge test suites pass and the real four-player smoke game completes. A change to
+  what a pilot is shown has a hidden-information test (§5) that fails on a leaking frame.
+- **Paths the reference set does not reach.** The reference set is four pilots at one
+  four-player table. Every changed path it does not exercise (human seat, time limit,
+  concede, other seat counts, rare decision classes) needs its own test that fails on the
+  BEFORE bridge; what stays untested is listed as `UNKNOWN`, never as covered.
+- **PB-03** still runs on such a PR. A real failure blocks. A result that fails only because
+  there is no new seal is recorded as `NOT_SEALED`, never as PASS.
+- **Review and checks.** An independent review without blocking findings and the required
+  checks on the exact head, as for every MATERIAL change.
+
+The sealed qualification records stay as they are: they describe the bridge and pin they
+were sealed on, and nobody rewrites them. After the first change merged under this gate the
+running bridge is no longer the sealed one. The first PR merged under this gate therefore
+records the bridge jar SHA-256 in every game log and series result and adds a visible
+`BRIDGE_AHEAD_OF_QUALIFICATION` state wherever the current qualification is reported
+(technical truth, HANDOFF) while `engine-bridge/` differs from the sealed source. Nothing
+produced on a later bridge is presented as covered by the sealed epoch. The Rules Core stays the only rules authority (§2): a bridge
+change never decides a rule, never picks an option for a seat and never widens what a
+principal may see (§5). The fork and the pin stay behind the Owner's go.
 
 ## 11. Git, worktree, ownership
 
@@ -381,21 +430,18 @@ valid evidence.
 
 ### Cross-workstream access
 
-Project-wide understanding does not imply project-wide write authority. A normal Foundry
+Project-wide understanding does not imply project-wide write authority. A normal
 run owns one writable worktree; a bounded integration task may declare more surfaces:
 
 - `read-only`: exact repository + HEAD/tree, materialized into a disposable detached
   runtime snapshot; the source worktree stays non-writable;
 - `owned-write`: exact repository + branch + HEAD/tree + state path + matching ownership;
   for cross-workstream mutation the checkout is standalone (checkout-local `.git`), its
-  state lives under that checkout's `.foundry`, and writable surfaces are disjoint.
+  state is explicit, and writable surfaces are disjoint.
 
 Owned-write surfaces name the current workstream as state owner, are locked before the
-OpenCode child starts and stay locked for its lifetime. Foreign-active, unknown-owner and
-undeclared worktrees stay non-writable. Cross-workstream children run under Bubblewrap
-with the host filesystem read-only and only the declared writable surfaces, a unique
-runtime directory and narrow tool caches rebound read-write. Missing Bubblewrap is a
-launch refusal (as is unusable Bubblewrap), never a silent downgrade; agents never use sudo or bypass the sandbox.
+work starts and stay locked for its lifetime. Foreign-active, unknown-owner and
+undeclared worktrees stay non-writable. Agents never use sudo or bypass a sandbox.
 
 ## 12. Privacy
 
@@ -411,9 +457,11 @@ Deck, collection and ownership data, including partial lists and the single card
 asked for one after another, go to no external service. Allowed are requests that carry no
 Owner reference, namely bulk downloads of public card data by plain GET; the evaluation runs
 locally.
-One Owner exception (2026-11-10): card names may be sent to a free public card-image source
-to show card images, cached locally; nothing else about decks or the collection leaves the
-machine.
+Two Owner exceptions, card names only: (2026-11-10) to a free public card-image source to
+show card images, cached locally; (2026-11-13) to playgroup.gg to fetch the statistics it
+publishes per card (`scripts/collect_playgroup_card_atlas.py`), one request per card name,
+with no quantities, ownership, deck structure or other reference to the Owner. Nothing else
+about decks or the collection leaves the machine.
 
 ## 13. Semantic Completion Rule
 

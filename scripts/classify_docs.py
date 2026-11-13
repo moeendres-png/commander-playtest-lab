@@ -39,7 +39,7 @@ CORE_DOCS = (
     "docs/CURRENT_EXECUTION_AUTHORITY.md",
     "docs/MODULE_MAP.md",
 )
-KEEP_TREES = ("docs/claude/", "docs/foundry-execution/", "docs/architecture/", ARCHIVE + "/")
+KEEP_TREES = ("docs/claude/", "docs/architecture/", ARCHIVE + "/")
 
 PROTECTED_NAME = re.compile(
     r"owner_decision|owner-decision|OWNER_DECISIONS|(^|[_/\-.])adr([_\-./0-9]|$)|freeze",

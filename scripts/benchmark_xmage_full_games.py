@@ -12,6 +12,9 @@ semantic transcript identical, then the timing difference.
     python scripts/benchmark_xmage_full_games.py run --jar A.jar --out a.json \\
         --coverage-pods --seeds 1-2
     python scripts/benchmark_xmage_full_games.py compare a.json b.json
+    # gate use: exactly 4 finished games with identical hashes AND frames, from different jars
+    python scripts/benchmark_xmage_full_games.py compare a.json b.json \\
+        --expect-games 4 --require-different-jars
 
 Extra JVM options go before -jar (``--jvm-option=-XX:SharedArchiveFile=x.jsa``).
 ``--workers N`` plays N games at once; then use ``--private-card-repository``, or
@@ -44,6 +47,7 @@ GAMES_PER_JVM_PROPERTY = "commanderlab.fullGame.gamesPerJvm"
 import run_real_4p_full_game_smoke as smoke  # noqa: E402
 
 from commander_lab.engine.rules.fast_jvm_options import fast_jvm_options  # noqa: E402
+from commander_lab.engine.rules.frame_digest import FrameDigestRunner  # noqa: E402
 from commander_lab.engine.rules.full_game import XmageFullGameRunner  # noqa: E402
 
 COVERAGE_DIR = ROOT / "data/coverage_decks/collection"
@@ -121,12 +125,40 @@ def _setup(paths: tuple[Path, ...]) -> tuple[Any, Any, Any]:
     return scenario, decks, pilots
 
 
+def _runner(command: tuple[str, ...], private: bool, frame_digest: bool) -> XmageFullGameRunner:
+    """The full-game runner; with ``frame_digest`` an observer that does not change play."""
+    if frame_digest:
+        return FrameDigestRunner(command, private_card_repository=private)
+    return XmageFullGameRunner(command, private_card_repository=private)
+
+
+def _frame_fields(
+    runner: XmageFullGameRunner, seed: int, decks: Any, *, status_ok: bool
+) -> dict[str, Any]:
+    """``frame_digest`` fields of a finished game (nothing for a failed game or no observer)."""
+    if not status_ok or not isinstance(runner, FrameDigestRunner):
+        return {}
+    found = runner.digest_for(seed, decks)
+    if found is None:
+        return {}
+    return {
+        "frame_digest": found.digest,
+        "frame_digest_by_seat": found.by_seat,
+        "frames": found.frames,
+    }
+
+
 def _play(
-    command: tuple[str, ...], pod: str, setup: tuple[Any, Any, Any], seed: int, private: bool
+    command: tuple[str, ...],
+    pod: str,
+    setup: tuple[Any, Any, Any],
+    seed: int,
+    private: bool,
+    frame_digest: bool = False,
 ) -> dict[str, Any]:
     scenario, decks, pilots = setup
     scenario = scenario.model_copy(update={"seed": seed})
-    runner = XmageFullGameRunner(command, private_card_repository=private)
+    runner = _runner(command, private, frame_digest)
     before = resource.getrusage(resource.RUSAGE_CHILDREN)
     started = time.monotonic()
     row: dict[str, Any] = {"pod": pod, "seed": seed}
@@ -137,7 +169,7 @@ def _play(
             "semantic": result.semantic_transcript_sha256,
             "decisions": result.decision_count,
             "winners": list(result.winner_seats),
-        }
+        } | _frame_fields(runner, seed, decks, status_ok=True)
     except Exception as exc:  # a failed game is a result row, not a crash
         row |= {"status": "failed", "error": f"{type(exc).__name__}: {exc}"[:400]}
     after = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -165,9 +197,10 @@ def _play_batch(
     command: tuple[str, ...],
     jobs: list[tuple[str, tuple[Any, Any, Any], int]],
     private: bool,
+    frame_digest: bool = False,
 ) -> list[dict[str, Any]]:
     """Play ``jobs`` one after the other in one bridge process (wall and CPU: chunk average)."""
-    runner = XmageFullGameRunner(command, private_card_repository=private)
+    runner = _runner(command, private, frame_digest)
     games = [
         (setup[0].model_copy(update={"seed": seed}), setup[1], setup[2]) for _, setup, seed in jobs
     ]
@@ -182,9 +215,13 @@ def _play_batch(
     cpu = round(
         ((after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)) / len(jobs), 2
     )
+    setup_of = {pod: setup for pod, setup, _ in jobs}
     rows = []
     for (pod, _, seed), outcome in zip(jobs, outcomes, strict=True):
         row = {"pod": pod, "seed": seed} | _row_of(outcome)
+        row |= _frame_fields(
+            runner, seed, setup_of[pod][1], status_ok=not isinstance(outcome, Exception)
+        )
         row |= {"wall_s": wall, "child_cpu_s": cpu, "batched": len(jobs)}
         print(json.dumps(row), flush=True)
         rows.append(row)
@@ -201,6 +238,14 @@ def bridge_command(jar: Path, jvm_options: list[str]) -> tuple[str, ...]:
     return ("java", *jvm_options, "-jar", str(jar.resolve()), "full-game")
 
 
+def file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
 def run(args: argparse.Namespace) -> int:
     jvm_options = list(args.jvm_option)
     if args.fast:
@@ -214,7 +259,7 @@ def run(args: argparse.Namespace) -> int:
 
     def play(job: tuple[str, tuple[Any, Any, Any], int]) -> dict[str, Any]:
         pod, setup, seed = job
-        return _play(command, pod, setup, seed, args.private_card_repository)
+        return _play(command, pod, setup, seed, args.private_card_repository, args.frame_digest)
 
     with ThreadPoolExecutor(max_workers=args.workers) as pool:
         if args.games_per_jvm == 1:
@@ -225,12 +270,17 @@ def run(args: argparse.Namespace) -> int:
             rows = [
                 row
                 for chunk in pool.map(
-                    lambda chunk: _play_batch(command, chunk, args.private_card_repository), chunks
+                    lambda chunk: _play_batch(
+                        command, chunk, args.private_card_repository, args.frame_digest
+                    ),
+                    chunks,
                 )
                 for row in chunk
             ]
     report = {
         "jar": str(args.jar),
+        "bridge_jar_sha256": file_sha256(args.jar),
+        "frame_digest": args.frame_digest,
         "jvm_options": jvm_options,
         "games_per_jvm": args.games_per_jvm,
         "workers": args.workers,
@@ -247,11 +297,92 @@ def _games_by_key(report: dict[str, Any]) -> dict[tuple[str, int], dict[str, Any
     return {(r["pod"], r.get("seed", report.get("game_seed"))): r for r in rows}
 
 
+def _duplicate_keys(report: dict[str, Any]) -> list[tuple[str, int]]:
+    """(pod, seed) keys that occur in more than one row: a dict would keep only the last."""
+    rows = report["games"] if "games" in report else report["rows"]
+    seen: set[tuple[str, int]] = set()
+    duplicates: list[tuple[str, int]] = []
+    for r in rows:
+        key = (r["pod"], r.get("seed", report.get("game_seed")))
+        if key in seen and key not in duplicates:
+            duplicates.append(key)
+        seen.add(key)
+    return duplicates
+
+
+def _settings_line(label: str, doc: dict[str, Any]) -> str:
+    return (
+        f"settings {label}: workers {doc.get('workers')}, games_per_jvm {doc.get('games_per_jvm')}, "
+        f"jvm_options {doc.get('jvm_options')}, jar {doc.get('bridge_jar_sha256')}"
+    )
+
+
+_HEX64 = re.compile(r"[0-9a-f]{64}")
+
+
+def _first_differing_seat(a: dict[str, Any], b: dict[str, Any]) -> str:
+    """The lowest seat whose frame digest differs (or exists in one row only)."""
+    sa, sb = a.get("frame_digest_by_seat") or {}, b.get("frame_digest_by_seat") or {}
+    for seat in sorted(sa.keys() | sb.keys(), key=lambda item: (len(item), item)):
+        if sa.get(seat) != sb.get(seat):
+            return seat
+    return "none (only the whole-game digest differs)"
+
+
+def _gate_failures(
+    base: dict[str, Any],
+    other: dict[str, Any],
+    keys: list[tuple[str, int]],
+    games: tuple[dict[tuple[str, int], dict[str, Any]], dict[tuple[str, int], dict[str, Any]]],
+    args: argparse.Namespace,
+) -> list[str]:
+    """Failures of the options for gate use (``--expect-games``, ``--require-different-jars``)."""
+    failures: list[str] = []
+    expected = getattr(args, "expect_games", None)
+    if expected is not None:
+        if len(keys) != expected or any(len(d) != expected for d in games):
+            failures.append(
+                f"expected exactly {expected} game(s) in both files, found {len(keys)} in common "
+                f"({len(games[0])} / {len(games[1])} per file)"
+            )
+        unfinished = [k for k in keys if any(d[k].get("status") != "ok" for d in games)]
+        if unfinished:
+            failures.append(f"{len(unfinished)} game(s) not finished in both files: {unfinished}")
+        if games[0].keys() != games[1].keys():
+            failures.append("the two files do not have the same pods and seeds")
+        no_frames = [
+            k
+            for k in keys
+            if any(
+                not isinstance(d[k].get("frame_digest"), str)
+                or not _HEX64.fullmatch(d[k]["frame_digest"])
+                for d in games
+            )
+        ]
+        if no_frames:
+            failures.append(f"{len(no_frames)} game(s) without a 64-hex frame digest: {no_frames}")
+    if getattr(args, "require_different_jars", False):
+        jars = [doc.get("bridge_jar_sha256") for doc in (base, other)]
+        if not all(jars):
+            failures.append("--require-different-jars: a report has no bridge_jar_sha256")
+        elif jars[0] == jars[1]:
+            failures.append(f"--require-different-jars: both reports used jar {jars[0]}")
+    return failures
+
+
 def compare(args: argparse.Namespace) -> int:
     base, other = (json.loads(path.read_text(encoding="utf-8")) for path in (args.a, args.b))
+    for name, doc in (("A", base), ("B", other)):
+        duplicates = _duplicate_keys(doc)
+        if duplicates:
+            print(f"ERROR duplicate game rows in file {name}: {duplicates}")
+            return 1
     a = _games_by_key(base)
     b = _games_by_key(other)
     keys = sorted(a.keys() & b.keys())
+    if not keys:
+        print("ERROR no game is present in both files: nothing was compared")
+        return 1
     # A failed game is never identical, not even to another failed game.
     differ = [
         k
@@ -260,16 +391,41 @@ def compare(args: argparse.Namespace) -> int:
         or b[k]["status"] != "ok"
         or a[k].get("semantic") != b[k].get("semantic")
     ]
+    # What the pilots were shown: compared where both rows carry a digest.
+    framed = [k for k in keys if a[k].get("frame_digest") and b[k].get("frame_digest")]
+    frames_differ = [
+        k
+        for k in framed
+        if a[k]["frame_digest"] != b[k]["frame_digest"]
+        or a[k].get("frames") != b[k].get("frames")
+        or a[k].get("frame_digest_by_seat") != b[k].get("frame_digest_by_seat")
+    ]
     missing = len(a.keys() ^ b.keys())
     wall = [sum(d[k]["wall_s"] for k in keys) for d in (a, b)]
     cpu = [sum(d[k]["child_cpu_s"] for k in keys) for d in (a, b)]
+    print(_settings_line("A", base))
+    print(_settings_line("B", other))
     print(f"identical {len(keys) - len(differ)}/{len(keys)}")
     for key in differ:
         print("DIFFERENT", key, *(d[key].get("semantic") or d[key]["status"] for d in (a, b)))
+    if framed:
+        print(f"frames identical {len(framed) - len(frames_differ)}/{len(framed)}")
+    else:
+        print("frames not compared (no game has a frame digest in both files)")
+    for key in frames_differ:
+        print(
+            "FRAMES DIFFERENT",
+            key,
+            f"first differing seat: {_first_differing_seat(a[key], b[key])};",
+            f"frames {a[key].get('frames')} vs {b[key].get('frames')}",
+        )
     if missing:
         print(f"MISSING {missing} game(s) present in only one file")
+    gate = _gate_failures(base, other, keys, (a, b), args)
+    for failure in gate:
+        print("GATE FAILED", failure)
     _print_time_comparison(base, other, wall, cpu)
-    return 1 if differ or missing else 0
+    return 1 if differ or missing or frames_differ or gate else 0
 
 
 def _print_time_comparison(
@@ -430,10 +586,28 @@ def main(argv: list[str] | None = None) -> int:
         "--fast", action="store_true", help="serial GC and, if present, the jar's AppCDS archive"
     )
     play.add_argument("--private-card-repository", action="store_true")
+    play.add_argument(
+        "--frame-digest",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="record a normalized digest of every decision request the pilots receive (default on)",
+    )
     play.set_defaults(func=run)
     diff = sub.add_parser("compare")
     diff.add_argument("a", type=Path)
     diff.add_argument("b", type=Path)
+    diff.add_argument(
+        "--expect-games",
+        type=int,
+        default=None,
+        metavar="N",
+        help="gate use: fail unless exactly N finished games, each with a frame digest, are in both",
+    )
+    diff.add_argument(
+        "--require-different-jars",
+        action="store_true",
+        help="gate use: fail if both reports carry the same (or no) bridge_jar_sha256",
+    )
     diff.set_defaults(func=compare)
     check_ref = sub.add_parser("check-reference")
     check_ref.add_argument("--doc", type=Path, default=REFERENCE_DOC)

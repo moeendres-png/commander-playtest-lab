@@ -4,8 +4,7 @@ Maintained as a navigation aid, **not as authority**. Where this index and a gov
 document disagree, the governing document wins (see `AGENTS.md` §3 Source Truth).
 
 Throughout this file, `AGENTS.md` means the single **repository-root** `AGENTS.md` — `../AGENTS.md`
-from here. There is no `AGENTS.md` inside `docs/`. This matches the convention in
-`foundry-execution/README.md`.
+from here. There is no `AGENTS.md` inside `docs/`.
 
 ## Before anything else
 
@@ -15,8 +14,6 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 | What is the project trying to build? | `PROJECT_MISSION.md` |
 | What are the current engine pins? | `../config/rules_engines.json` — sole machine-readable pin authority |
 | Who may execute what, and at which effort? | `AGENTS.md` §6–§8 and `CURRENT_EXECUTION_AUTHORITY.md` |
-| How is a Foundry workstream started? | `../.opencode/skills/workstream-bootstrap/SKILL.md` |
-| How do I resume an interrupted one? | `../.opencode/skills/continuation/SKILL.md` |
 | Which PRs / issues / branches are live? | `REPOSITORY_TRIAGE_INDEX.md` |
 | Where do I resume, and how is the engine pin moved? | `claude/state/HANDOFF.md` (generated continuation index, not authority), `claude/SESSION_PLAYBOOK.md`, `claude/REPIN_RUNBOOK.md` |
 | Where are the speed and determinism measurements? | `performance/` (start with `performance/DETERMINISM_PROBE.md`) |
@@ -37,7 +34,6 @@ from here. There is no `AGENTS.md` inside `docs/`. This matches the convention i
 
 | Directory | What it is |
 |---|---|
-| `foundry-execution/` | **Canonical** Foundry execution system. Start at its `README.md`. |
 | `architecture/` | Architecture decision records and design direction. |
 | `claude/` | Session playbook, repin runbook and the generated `state/HANDOFF.md` for a fresh Claude session. Tooling guidance, not policy. |
 | `performance/` | Dated measurements of speed and determinism (CI shards, efficiency offensive, determinism probe, repin v12 report). Read each file's own header for the pin and commit it was measured on. |

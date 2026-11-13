@@ -1,8 +1,7 @@
 {
   "effortLevel": "medium",
   "env": {
-    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet",
-    "OPENCODE_SUBAGENT_MODEL": "opencode/deepseek-v4.1-flash-free"
+    "CLAUDE_CODE_SUBAGENT_MODEL": "sonnet"
   },
   "permissions": {
     "allow": [

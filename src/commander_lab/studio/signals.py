@@ -23,6 +23,12 @@ has its own header and the parts are read one after another in number order):
   in-memory grouping key while the file is read. Its value is never stored, logged or
   reported; a list is only counted, per tournament and date (the dataset carries neutral
   labels "Liste N" there).
+- ``edhtop16_commander_signals``: per commander and card, the EDHTop16 play rate over
+  the ONE_YEAR tournament window; the denominator is the commander's published entry
+  count of that window, the per-card deck count is not published and stays NULL.
+  Per-card conversion is not published by the source either and is never stored.
+  Rows the fetch did not attribute to the commander (``fetch_status`` other than
+  AVAILABLE, e.g. the API's global-staples fallback rows) are not imported.
 
 Commander names of the files are matched against the commander names the store knows
 (collection cards, bound decks, stored signals): exactly, else by a unique case-insensitive
@@ -54,6 +60,7 @@ BRACKET_FILE = "commander_bracket_signals"
 GLOBAL_FILE = "card_global_signals"
 SPELLBOOK_FILE = "spellbook_card_links"
 TOURNAMENT_FILE = "topdeck_chulane_decks"
+EDHTOP16_FILE = "edhtop16_commander_signals"
 BRACKET_VARIANTS = ("core", "upgraded", "optimized", "cedh")
 AVAILABLE = "AVAILABLE"
 LIST_SECTIONS = frozenset({"main", "commander"})
@@ -64,6 +71,7 @@ SIGNAL_BRACKET = "edhrec_bracket_inclusion"
 SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
 SIGNAL_TOURNAMENT = "tournament_lists"
+SIGNAL_EDHTOP16 = "edhtop16_commander_play_rate"
 
 _Row = tuple[str, str, str, float | None, int | None, int | None]  # commander, signal, card, ...
 
@@ -282,6 +290,49 @@ def _spellbook_rows(row: dict[str, str], card: str) -> list[_Row]:
     ]
 
 
+def _read_edhtop16(paths: list[Path], report: FileReport) -> list[_Row]:
+    """EDHTop16 play rates per commander and card (ONE_YEAR window).
+
+    Only rows the fetch attributed to the commander (``fetch_status``
+    AVAILABLE) are imported; the staples answer of the API carries
+    global-staples fallback rows for commanders whose own list is
+    short, and those rows are not the commander's data. The published
+    entry count of the commander is the rate's denominator; how many
+    of the entries contain the card is not published, so the numerator
+    stays NULL, and per-card conversion is not published at all."""
+    required = {"commander_name", "card_name", "play_rate", "entries_n", "fetch_status"}
+    pairs: list[tuple[tuple[str, str, str], _Row]] = []
+    for row in _rows(paths, required):
+        report["rows_read"] += 1
+        commander, card = row["commander_name"].strip(), row["card_name"].strip()
+        if not commander or not card:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["NAME_MISSING"] = (
+                report["skipped_reasons"].get("NAME_MISSING", 0) + 1
+            )
+            continue
+        if row["fetch_status"].strip() != AVAILABLE:
+            # Not attributed to this commander by the fetch: unknown, not zero.
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["FETCH_STATUS_NOT_AVAILABLE"] = (
+                report["skipped_reasons"].get("FETCH_STATUS_NOT_AVAILABLE", 0) + 1
+            )
+            continue
+        rate = _number(row.get("play_rate"))
+        if rate is None or not 0.0 <= rate <= 1.0:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["PLAY_RATE_INVALID"] = (
+                report["skipped_reasons"].get("PLAY_RATE_INVALID", 0) + 1
+            )
+            continue
+        entries = _count(row.get("entries_n"))
+        if entries == 0:
+            entries = None
+        item: _Row = (commander, SIGNAL_EDHTOP16, card, rate, None, entries)
+        pairs.append(((item[0], item[1], item[2]), item))
+    return list(_first_wins(iter(pairs), report).values())
+
+
 def _read_tournament_lists(
     paths: list[Path], preferred: str, commanders: _Commanders, report: FileReport
 ) -> list[_Row]:
@@ -406,6 +457,8 @@ def _read_file(
     if file_name == SPELLBOOK_FILE:
         required = {"card_name", "fetch_status", "variant_count"}
         return _read_independent(paths, required, _spellbook_rows, report)
+    if file_name == EDHTOP16_FILE:
+        return _read_edhtop16(paths, report)
     return _read_tournament_lists(paths, preferred, commanders, report)
 
 
@@ -447,6 +500,7 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
     plan += [(f"{BRACKET_FILE}_{variant}", variant) for variant in BRACKET_VARIANTS]
     plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None)]
     plan += [(base, None) for base in _tournament_bases(root)]
+    plan += [(EDHTOP16_FILE, None)]
     commanders = _Commanders(store)
     preferred = commanders.resolve(name)
     commanders.imported.discard(preferred)  # only commanders the files name are "imported"

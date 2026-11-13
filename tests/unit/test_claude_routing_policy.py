@@ -10,7 +10,6 @@ ACTIVE_ROUTING = (
     ROOT / "docs" / "claude" / "SESSION_PLAYBOOK.md",
     ROOT / ".claude" / "skills" / "COMMANDER_ROUTING.md",
     ROOT / ".claude" / "skills" / "lab-ops" / "SKILL.md",
-    ROOT / "docs" / "foundry-execution" / "ROUTING_AND_EFFORT.md",
     ROOT / ".claude" / "agents" / "log-scanner.md",
     ROOT / ".claude" / "agents" / "ci-triage.md",
     ROOT / ".claude" / "agents" / "evidence-reviewer.md",
@@ -64,47 +63,17 @@ def test_project_helpers_are_read_only_and_cannot_spawn_agents():
 
 def test_active_claude_routing_has_only_current_executor_policy():
     joined = "\n".join(read(path) for path in ACTIVE_ROUTING)
-    assert "DeepSeek V4.1 Flash" in joined
-    assert "opencode/deepseek-v4.1-flash-free" in joined
-    # Step 5 Preview left the Zen catalog (2026-10-16): it may be named only as retired.
-    assert "Step 5 Preview" in joined and "retired" in joined.lower()
     assert "no automatic fallback" in joined.lower()
     assert "muse-spark" not in joined.lower()
     assert "glm" not in joined.lower()
-    # No active surface selects the retired ids; the Go provider is retired too.
-    assert "opencode/step-5-preview-free" not in joined
-    assert "opencode-go/deepseek-v4.1-flash" not in joined
-    # Native max is the pin; nothing below high is ever named as a lane setting.
-    assert "native `max`" in joined
-    for path in ACTIVE_ROUTING:
-        text = read(path).lower()
-        if "opencode/deepseek" in text:
-            assert "zen" in text, path.name
-    assert "second logical executor" in joined.lower()
-
-
-def test_dispatch_templates_carry_the_workstream_delta_contract():
-    root = ROOT / ".claude" / "skills" / "lab-ops" / "oc_tasks"
-    required = (
-        "Source lock / ownership",
-        "Dependencies / hard gates",
-        "Evidence required",
-        "Stop condition",
-        "Expected handoff",
-        "Exact next action",
-        "Out of scope",
-    )
-    checked = list(sorted(root.glob("*.md")))
-    assert checked, "nothing was checked: sorted(root.glob('*.md')) is empty"
-    for path in checked:
-        text = read(path)
-        for heading in required:
-            assert heading in text, f"{path.name} missing {heading}"
-        assert "python -m pytest" not in text
+    # The OpenCode/Foundry lanes were removed (Owner decision 2026-11-12): no active
+    # routing surface names them or their model ids.
+    for removed in ("opencode", "deepseek", "foundry", "/assure", "/ro-review", "oc_dispatch"):
+        assert removed not in joined.lower(), removed
 
 
 def test_claude_policy_allows_sonnet_workers_but_forbids_agent_trees_and_duplicate_reads():
-    """Owner decision: Claude Sonnet 5.5 may be an implementation worker next to OpenCode.
+    """Owner decision: Claude Sonnet 5.5 may be an implementation worker.
 
     Recursive coordinator/worker trees and duplicate re-reading of worker output stay forbidden.
     """
@@ -123,12 +92,7 @@ def test_claude_policy_allows_sonnet_workers_but_forbids_agent_trees_and_duplica
     # entrypoint carries no model allowlist and no fallback between models.
     assert "the worker the Owner selected" in flat
     assert "No automatic fallback between models" in flat
-    for model_id in (
-        "opencode/step-5-preview-free",
-        "opencode/deepseek-v4.1-flash-free",
-        "opencode-go/deepseek-v4.1-flash",
-    ):
-        assert model_id not in flat
+    assert "opencode" not in flat.lower()
 
 
 def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():
@@ -136,10 +100,7 @@ def test_helper_effort_policy_is_per_agent_not_a_blanket_high_rule():
     for path in ACTIVE_ROUTING:
         flat = " ".join(read(path).split())
         assert "at least Sonnet at `high`" not in flat, path.name
-    for rel in (
-        ".claude/skills/lab-ops/SKILL.md",
-        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
-    ):
+    for rel in (".claude/skills/lab-ops/SKILL.md",):
         flat = " ".join(read(ROOT / rel).split())
         assert "Sonnet `low`" in flat and "Sonnet `medium`" in flat, rel
         assert "never Haiku" in flat, rel
