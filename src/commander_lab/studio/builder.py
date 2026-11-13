@@ -632,8 +632,21 @@ def card_cooccurrence(
         (card_id,),
     ):
         count = by_oracle.get(str(fact["oracle_id"])) if fact["oracle_id"] else None
+        named = by_name.get(str(fact["oracle_name"]))
         if count is None:
-            count = by_name.get(str(fact["oracle_name"]))
+            count = named
+        elif named:
+            # Some lists carry the card by oracle id, others by name only: count the decks
+            # of both once (the two groups can share a deck).
+            count = int(
+                db.execute(
+                    "SELECT COUNT(DISTINCT k.deck_id) FROM corpus_deck_card k "
+                    "WHERE k.deck_id IN (SELECT value FROM json_each(?)) "
+                    "AND k.section != 'sideboard' AND (k.oracle_id = ? "
+                    "OR (k.oracle_id IS NULL AND k.card_name = ?))",
+                    (json.dumps(deck_ids), fact["oracle_id"], fact["oracle_name"]),
+                ).fetchone()[0]
+            )
         if count:
             rows.append(
                 {"card_id": fact["card_id"], "name": fact["oracle_name"], "both_hits": count}

@@ -586,3 +586,20 @@ def test_cooccurrence_runs_a_constant_number_of_statements_without_card_fact_joi
     deck_row_statements = [s for s in statements if "corpus_deck_card" in s]
     assert len(statements) <= 8
     assert not [s for s in deck_row_statements if "card_fact" in s]
+
+
+def test_cooccurrence_counts_a_deck_once_when_lists_name_a_card_by_id_and_by_name(
+    studio: StudioStore,
+) -> None:
+    """Some lists carry a card by oracle id, others by name only, and one deck can hold both
+    spellings in two sections: the deck count is the union, never the sum."""
+    with studio.connection:
+        studio.connection.executemany(
+            "INSERT INTO corpus_deck_card(deck_id, card_name, oracle_id, quantity, section, "
+            "normalization_status) VALUES (?, 'Forest', NULL, 1, ?, 'exact')",
+            [("d3", "mainboard"), ("d1", "commander")],
+        )
+    co = builder.card_cooccurrence(studio, "card:project:0007", ["Test Commander"])
+    assert co["card_decks"] == 2
+    forest = next(card for card in co["cards"] if card["name"] == "Forest")
+    assert (forest["both_hits"], forest["share"]) == (2, 1.0)

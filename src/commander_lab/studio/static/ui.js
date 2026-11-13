@@ -209,7 +209,8 @@ const StudioUI = (() => {
   function layerText(key, item) {
     if (item.status !== "OK") return null;
     if (key === "pod_scaling") return item.detail.factor || item.detail.label; // a scaling card shows its plain factor
-    if (key === "win_gap") return `${plusSign(item.raw)}${item.raw.toFixed(1)} Pp · n=${item.n}`;
+    // The column sorts by the damped value the index reads, so that value leads; the measured gap follows.
+    if (key === "win_gap") return `${plusSign(item.value)}${item.value.toFixed(1)} Pp (gemessen ${plusSign(item.raw)}${item.raw.toFixed(1)}) · n=${item.n}`;
     return `${(100 * item.raw).toFixed(0)} % · n=${item.n}`;
   }
   function layerTitle(meta, item) {

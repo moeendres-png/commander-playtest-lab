@@ -35,9 +35,21 @@ def stored_combos(store: StudioStore, commander: str) -> list[tuple[list[str], i
         "SELECT cards, num_decks FROM commander_combo WHERE commander_name = ? ORDER BY ordinal",
         (commander,),
     ).fetchall()
-    return [
-        ([str(name) for name in json.loads(row["cards"])], int(row["num_decks"])) for row in rows
-    ]
+    found: list[tuple[list[str], int]] = []
+    for row in rows:
+        # A damaged row (no JSON list of names, no count) is skipped: it must not take the
+        # deck check down with it.
+        try:
+            cards = json.loads(row["cards"])
+            decks = int(row["num_decks"])
+        except (TypeError, ValueError):
+            continue
+        if not isinstance(cards, list) or not cards:
+            continue
+        if not all(isinstance(name, str) and name.strip() for name in cards):
+            continue
+        found.append((list(cards), decks))
+    return found
 
 
 def deck_combos(

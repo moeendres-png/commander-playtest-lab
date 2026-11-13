@@ -1087,7 +1087,7 @@ def _store_combo_sets(
 ) -> None:
     """The full card set of each listed combo of ``commander`` (table ``commander_combo``).
     A replacing import swaps the commander's list; an appending one adds the sets that are
-    not stored yet."""
+    not stored yet and updates the deck count of the ones that are."""
     db = store.connection
     if replace:
         db.execute("DELETE FROM commander_combo WHERE commander_name = ?", (commander,))
@@ -1106,6 +1106,12 @@ def _store_combo_sets(
     for cards, decks in sets:
         encoded = json.dumps(cards, ensure_ascii=False)
         if encoded in known:
+            # The set is stored already: the newer file's deck count replaces the old one.
+            db.execute(
+                "UPDATE commander_combo SET num_decks = ?, source_id = ? "
+                "WHERE commander_name = ? AND cards = ?",
+                (decks, source_id, commander, encoded),
+            )
             continue
         known.add(encoded)
         ordinal += 1

@@ -132,6 +132,13 @@ _REMINDER = re.compile(r"\([^)]*\)")
 # scaling phrases below do not see the "each player" of "at the beginning of each player's".
 _TRIGGER_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
     ("whenever an opponent", re.compile(r"\bwhenever an opponent\b"), False),
+    ("if an opponent would", re.compile(r"\bif an opponent would\b"), False),
+    ("at the beginning of each upkeep", re.compile(r"\bat the beginning of each upkeep\b"), True),
+    (
+        "at the beginning of each end step",
+        re.compile(r"\bat the beginning of each end step\b"),
+        True,
+    ),
     ("whenever a player", re.compile(r"\bwhenever a player\b"), True),
     (
         "whenever ... an opponent controls",
@@ -165,6 +172,16 @@ _SCALE_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
     ("each player", re.compile(r"\beach player\b"), True),
     # "your opponents control" is a protective or static clause on their permanents: not a match
     ("your opponents", re.compile(r"\byour opponents\b(?! control)"), False),
+    # counting what the opponents control grows with their number
+    (
+        "number of … your opponents control",
+        re.compile(r"\bnumber of [^.\n]*?\byour opponents control\b"),
+        False,
+    ),
+    # keywords whose per-opponent meaning sits in the (stripped) reminder text
+    ("Extort", re.compile(r"^extort\b", re.M), False),
+    ("Myriad", re.compile(r"^myriad\b", re.M), False),
+    ("Melee", re.compile(r"^melee\b", re.M), False),
     ("Overload", re.compile(r"^overload\b", re.M), False),
     ("can't attack you unless", re.compile(r"\bcan't attack you unless\b"), False),
     ("creatures can't attack you", re.compile(r"\bcreatures can't attack you\b"), False),
@@ -182,8 +199,8 @@ _OBJECT = (
 # One removal or counter effect on one target: destroy, exile, counter, bounce, damage, steal,
 # a -X/-X effect. A pump spell or an Aura on "target creature" is not one of them.
 _SINGLE_REMOVAL = re.compile(
-    rf"\b(?:destroy|exile|counter|gain control of) target {_OBJECT}"
-    rf"|\breturn target [^.\n]*? to its owner's hand"
+    rf"\b(?:destroy|exile|counter|gain control of) target {_OBJECT}(?! you control| you own| card)"
+    rf"|\breturn target (?![^.\n]*?\byou (?:control|own)\b)[^.\n]*? to its owner's hand"
     rf"|\bdeals? (?:\d+|x) damage to (?:any target|target {_OBJECT})"
     rf"|\btarget {_OBJECT} gets -"
 )
@@ -498,30 +515,25 @@ def _measured(layer: str, card: LayerCard, record: AtlasRecord | None) -> LayerV
         )
     if layer == "playability":
         # The share of drawn cards that were cast: its denominator is the funnel count of the
-        # games in which the card was drawn (ever_drawn_n), its numerator first_cast_n. Only a
-        # record without ever_drawn_n falls back to first_cast_n, and the row says so.
-        sample: int | None
-        play_cross: tuple[int, int] | None
-        if record.ever_drawn_n is not None:
-            sample, note = record.ever_drawn_n, ""
-            play_cross = (
-                (record.first_cast_n, record.ever_drawn_n)
-                if record.first_cast_n is not None
-                else None
-            )
-        else:
-            sample, play_cross = record.first_cast_n, None
-            note = "Nenner ist first_cast_n: die Quelle nennt keine Zahl gezogener Karten"
+        # games in which the card was drawn (ever_drawn_n), its numerator first_cast_n. A
+        # record without ever_drawn_n has no denominator (first_cast_n is the numerator, never
+        # a sample size): the value is unknown.
+        if record.ever_drawn_n is None:
+            return _value(layer, UNKNOWN, NO_COUNT)
+        play_cross = (
+            (record.first_cast_n, record.ever_drawn_n) if record.first_cast_n is not None else None
+        )
         return share_layer(
             layer,
             record.drawn_to_played_pct,
-            sample,
+            record.ever_drawn_n,
             insufficient=record.insufficient_sample,
             cross_check=play_cross,
-            sample_note=note,
         )
     if not is_permanent(card.type_line):
         return _value(layer, NOT_APPLICABLE, NOT_A_PERMANENT)
+    if record.battlefield_survival_pct is not None and record.reached_battlefield_n is None:
+        return _value(layer, UNKNOWN, NO_COUNT)
     cross = (
         (record.still_on_board_at_end_n, record.reached_battlefield_n)
         if record.still_on_board_at_end_n is not None and record.reached_battlefield_n is not None

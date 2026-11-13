@@ -368,6 +368,55 @@ POD_CASES = [
         None,
         ["creatures can't attack you"],
     ),
+    (
+        "Dockside Extortionist",
+        "When this creature enters, create X Treasure tokens, where X is the number of artifacts and enchantments your opponents control.",
+        "SCALES",
+        None,
+        ["number of … your opponents control"],
+    ),
+    (
+        "Koma, Cosmos Serpent",
+        "This spell can't be countered.\nAt the beginning of each upkeep, create a 3/3 blue Serpent creature token named Koma's Coil.\nSacrifice another Serpent: Choose one —\n• Tap target permanent. Its activated abilities can't be activated this turn.\n• Koma gains indestructible until end of turn.",
+        "OPPONENT_TRIGGER",
+        "SYMMETRIC",
+        ["at the beginning of each upkeep"],
+    ),
+    (
+        "Notion Thief",
+        "Flash\nIf an opponent would draw a card except the first one they draw in each of their draw steps, instead that player skips that draw and you draw a card.",
+        "OPPONENT_TRIGGER",
+        None,
+        ["if an opponent would"],
+    ),
+    (
+        "Blind Obedience",
+        "Extort (Whenever you cast a spell, you may pay {W/B}. If you do, each opponent loses 1 life and you gain that much life.)\nArtifacts and creatures your opponents control enter tapped.",
+        "SCALES",
+        None,
+        ["Extort"],
+    ),
+    (
+        "Ephemerate",
+        "Exile target creature you control, then return it to the battlefield under its owner's control.\nRebound (If you cast this spell from your hand, exile it as it resolves. At the beginning of your next upkeep, you may cast this card from exile without paying its mana cost.)",
+        "NEUTRAL",
+        None,
+        [],
+    ),
+    (
+        "Eternal Witness",
+        "When this creature enters, you may return target card from your graveyard to your hand.",
+        "NEUTRAL",
+        None,
+        [],
+    ),
+    (
+        "Chulane, Teller of Tales",
+        "Vigilance\nWhenever you cast a creature spell, draw a card, then you may put a land card from your hand onto the battlefield.\n{3}, {T}: Return target creature you control to its owner's hand.",
+        "NEUTRAL",
+        None,
+        [],
+    ),
 ]
 
 
@@ -531,9 +580,21 @@ def test_playability_uses_the_drawn_count_as_its_denominator() -> None:
         layers.OK,
         None,
     )
-    fallback = AtlasRecord(drawn_to_played_pct=60.0, first_cast_n=40)
-    thin = compute_layers({"a": _card()}, {"a": fallback}, {})["cards"]["a"]["playability"]
-    assert thin["n"] == 40 and "first_cast_n" in thin["note"]
+    # first_cast_n is the numerator: without the drawn count there is no denominator
+    no_drawn = AtlasRecord(drawn_to_played_pct=60.0, first_cast_n=40)
+    thin = compute_layers({"a": _card()}, {"a": no_drawn}, {})["cards"]["a"]["playability"]
+    assert (thin["status"], thin["reason"], thin["value"], thin["percentile"]) == (
+        layers.UNKNOWN,
+        layers.NO_COUNT,
+        None,
+        None,
+    )
+
+
+def test_staying_without_its_denominator_is_unknown_for_a_missing_count() -> None:
+    record = AtlasRecord(battlefield_survival_pct=50.0, still_on_board_at_end_n=30)
+    item = compute_layers({"a": _card()}, {"a": record}, {})["cards"]["a"]["staying"]
+    assert (item["status"], item["reason"]) == (layers.UNKNOWN, layers.NO_COUNT)
 
 
 def test_tempo_uses_the_on_curve_denominator() -> None:

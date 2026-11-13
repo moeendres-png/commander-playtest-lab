@@ -117,3 +117,37 @@ def test_without_a_stored_list_nothing_is_claimed() -> None:
     assert result["listed"] == 0
     assert result["complete"] == []
     assert result["one_missing"] == []
+
+
+def test_an_appending_import_updates_the_deck_count_of_a_stored_set(tmp_path: Path) -> None:
+    store = StudioStore.in_memory()
+    first, second = tmp_path / "a", tmp_path / "b"
+    _combo_file(first, ["y,Intruder Alarm;Shrieking Drake,6671"])
+    _combo_file(second, ["y,Intruder Alarm;Shrieking Drake,7000", "z,Aluren;Whitemane Lion,300"])
+    _import(store, first)
+    _import(store, second, replace=False)
+    assert combos.stored_combos(store, COMMANDER) == [
+        (["Intruder Alarm", "Shrieking Drake"], 7000),
+        (["Aluren", "Whitemane Lion"], 300),
+    ]
+
+
+def test_a_damaged_row_is_skipped_and_the_deck_check_still_answers(tmp_path: Path) -> None:
+    store, rows = _store_with_cards(
+        [(COMMANDER, "commander"), ("Intruder Alarm", "main"), ("Shrieking Drake", "main")]
+    )
+    _combo_file(tmp_path, ["y,Intruder Alarm;Shrieking Drake,6671"])
+    _import(store, tmp_path)
+    with store.connection:
+        for ordinal, cards in enumerate(["not json", "{}", "[]", "[1, 2]", '["", "x"]'], 50):
+            store.connection.execute(
+                "INSERT INTO commander_combo(commander_name, ordinal, cards, num_decks, source_id) "
+                "SELECT ?, ?, ?, 5, source_id FROM commander_combo WHERE ordinal = 1",
+                (COMMANDER, ordinal, cards),
+            )
+    assert combos.stored_combos(store, COMMANDER) == [(["Intruder Alarm", "Shrieking Drake"], 6671)]
+    found = combos.deck_combos(store, rows)
+    assert found["listed"] == 1
+    assert [entry["cards"] for entry in found["complete"]] == [
+        ["Intruder Alarm", "Shrieking Drake"]
+    ]

@@ -310,8 +310,13 @@ Every value has a status: `OK`, `UNKNOWN` (reason `NO_RECORD`, `NO_VALUE_PUBLISH
 endpoint returns `layers` (value, raw share, Wilson bound, `n`, percentile 0 to 100, status,
 reason, note) and per result `layer_summary` (per layer: pool cards with a value, unknown, not
 applicable, source, denominator, measured or derived). `GET /api/rating-layers?commander=&pod_size=`
-serves the same layers without the index for the builder. The percentile uses the strength
-module's rank grouping (ties share the mean rank); a single valued card is 50.
+serves the same layers without the index for the builder. The percentile shown per layer
+is pool-wide (all valued pool cards, ties share the mean rank; a single valued card is 50); only
+the index component of a weighted layer follows the `rank_group` setting. "Sieg-Abstand" shows
+the damped gap the index reads first and the measured gap beside it; the column sorts by the
+damped value. A weighted `pod_scaling` has a value for every card with oracle text, so it counts
+as a present component for nearly every card and raises their coverage: a card can pass the
+"Mindest-Datenlage" on a text rule alone. That is why its recommended weight stays 0.
 
 | Layer (key) | Source | Denominator | Kind |
 |---|---|---|---|
@@ -346,7 +351,7 @@ shrinkage `gap * n / (n + 25)`; there is no second implementation. It has no wei
 because the index already counts it (a second weight would count it twice); it is a column only.
 
 **"Großpod-Wirkung"** is derived from the oracle text by fixed rules
-(`layers.classify_pod_scaling`, table-driven test with 56 real card texts). Reminder text in
+(`layers.classify_pod_scaling`, table-driven test with 63 real card texts). Reminder text in
 parentheses is removed first; matching is on the lower-cased text. Classes, strongest first (the
 rank value is the ordinal 3, 2, 1, 0):
 
