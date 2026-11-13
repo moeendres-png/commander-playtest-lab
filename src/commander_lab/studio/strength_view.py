@@ -26,7 +26,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import strength, universe
+from . import signals, strength, universe
 from .builder import pool_cards
 from .store import StudioStore, now_utc
 from .strength import (
@@ -147,12 +147,26 @@ class SignalCoverage(TypedDict):
     pool_size: int
 
 
+def expected_signals() -> list[str]:
+    """The usage signals the importers can store, a fixed list from the code (not from what
+    happens to be stored): a signal without rows is then shown as missing, never left out."""
+    return [
+        strength.signal_for(COMMANDER_INCLUSION, strength.BRACKET_NONE),
+        *(f"{signals.SIGNAL_BRACKET}:{variant}" for variant in signals.BRACKET_VARIANTS),
+        strength.signal_for(SYNERGY, strength.BRACKET_NONE),
+        strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
+        strength.signal_for(COMBOS, strength.BRACKET_NONE),
+        strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
+        signals.SIGNAL_EDHTOP16,
+    ]
+
+
 def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCoverage]:
     """Per stored signal: its rows and how many of the commander's pool cards it gives a
     value (the same name matching as the index). Counts only. A signal without rows for
     this commander is listed with 0 rows: missing, not a weak signal. Raises KeyError when
     the commander is not in the collection."""
-    pool = pool_cards(store, [commander])
+    pool = pool_cards(store, [commander], with_signals=False)
     raw_cards = pool["cards"]
     if not isinstance(raw_cards, list):
         raise TypeError("pool_cards returned an unexpected shape")
@@ -161,8 +175,11 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
     claims = _claim_index(store, ids)
     db = store.connection
     result: dict[str, SignalCoverage] = {}
-    for row in db.execute("SELECT DISTINCT signal FROM card_signal ORDER BY signal"):
-        signal = str(row[0])
+    stored = [str(row[0]) for row in db.execute("SELECT DISTINCT signal FROM card_signal")]
+    names = expected_signals()
+    for signal in sorted(set(stored) - set(names)):
+        names.append(signal)
+    for signal in names:
         owner = "" if signal in _INDEPENDENT else commander
         counted = db.execute(
             "SELECT COUNT(*), COUNT(value) FROM card_signal "
@@ -177,6 +194,42 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
             "pool_cards_with_value": sum(1 for item in observed.values() if item.value is not None),
             "pool_size": len(ids),
         }
+    return result
+
+
+class SignalValue(TypedDict):
+    value: float | None
+    numerator: int | None
+    denominator: int | None
+
+
+def card_signal_values(
+    store: StudioStore, commander: str, card_ids: list[str], display: Mapping[str, str]
+) -> dict[str, dict[str, SignalValue]]:
+    """Stored usage signals of ONE commander per pool card, for the builder columns.
+
+    Keys per card: ``inclusion`` (decks with the card over the commander's decks),
+    ``synergy`` and ``global_inclusion`` (independent of the commander). A card without a
+    row for a signal has no entry for it: unknown, never 0. Same name matching as the index."""
+    claims = _claim_index(store, card_ids)
+    wanted = {
+        "inclusion": strength.signal_for(COMMANDER_INCLUSION, strength.BRACKET_NONE),
+        "synergy": strength.signal_for(SYNERGY, strength.BRACKET_NONE),
+        "global_inclusion": strength.signal_for(GLOBAL_INCLUSION, strength.BRACKET_NONE),
+    }
+    result: dict[str, dict[str, SignalValue]] = {}
+    for key, signal in wanted.items():
+        if not signal:
+            continue
+        observed, _exists = _signal_observations(store, commander, signal, claims, display, {})
+        for card_id, item in observed.items():
+            if item.value is None:
+                continue
+            result.setdefault(card_id, {})[key] = {
+                "value": float(item.value),
+                "numerator": item.numerator,
+                "denominator": item.denominator,
+            }
     return result
 
 
@@ -198,7 +251,7 @@ def compute(
     the settings is unknown. With ``dangling_universe_ok`` (settings read from a saved
     profile) a universe profile that was deleted meanwhile is not an error: the index runs
     with "kein Universum" and the result carries a notice and ``universe_missing``."""
-    pool = pool_cards(store, [commander])
+    pool = pool_cards(store, [commander], with_signals=False)
     raw_cards = pool["cards"]
     if not isinstance(raw_cards, list):
         raise TypeError("pool_cards returned an unexpected shape")
@@ -639,7 +692,9 @@ def _as_mapping(value: object) -> Mapping[str, object]:
 __all__ = [
     "ProfileEntry",
     "SignalCoverage",
+    "SignalValue",
     "StrengthResult",
+    "card_signal_values",
     "compute",
     "delete_profile",
     "get_profile",

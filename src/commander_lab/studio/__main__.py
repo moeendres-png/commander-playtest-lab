@@ -110,6 +110,29 @@ def _parser() -> argparse.ArgumentParser:
         default=LEGACY_COMMANDER,
         help="commander the tournament lists belong to (EDHREC signals carry their own)",
     )
+    import_all = commands.add_parser(
+        "import-all",
+        help="one checked import: every importer in order, then the data report and a "
+        "completeness table per layer",
+    )
+    import_all.add_argument("--commander", required=True)
+    import_all.add_argument("--inventory", required=True, help="the collection workbook (xlsx)")
+    import_all.add_argument("--scryfall", help="public card facts file")
+    import_all.add_argument("--roles", help="role file")
+    import_all.add_argument(
+        "--signals",
+        action="append",
+        help="folder of signal files (repeatable; default: every folder under data/research "
+        "that holds signal files)",
+    )
+    import_all.add_argument("--decklists", help="folder of normalized deck list files")
+    import_all.add_argument("--decklist-format", choices=("edhrec", "archidekt"), default="edhrec")
+    import_all.add_argument("--marks", help="owner marks file")
+    import_all.add_argument(
+        "--expect-pool",
+        type=int,
+        help="exit non-zero when the commander's legal pool has another size",
+    )
     commands.add_parser("profiles", help="list the stored deck-universe profiles")
     save_profile = commands.add_parser(
         "save-profile", help="store a deck-universe profile (which decks count)"
@@ -596,6 +619,10 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     if args.command == "serve":
         return _serve(args.data, args.port, args.open)
+    if args.command == "import-all":
+        from .import_all import run_command
+
+        return run_command(args)
     if args.command == "card-outcomes":
         return _card_outcomes(args)
     if args.command in {"play", "games"}:
