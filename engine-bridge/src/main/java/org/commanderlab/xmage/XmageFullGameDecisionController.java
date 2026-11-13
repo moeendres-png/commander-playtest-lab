@@ -497,6 +497,61 @@ final class XmageFullGameDecisionController {
         return pendingRequest == null ? null : pendingRequest.deepCopy();
     }
 
+    /** Whether a decision is pending; reads the flag, copies nothing. */
+    synchronized boolean hasPendingDecision() {
+        return pendingRequest != null;
+    }
+
+    /** The pending decision's id, or null; reads one field, copies nothing. */
+    synchronized String pendingDecisionId() {
+        return pendingRequest == null ? null : pendingRequest.get("decision_id").getAsString();
+    }
+
+    /** The pending decision's class, or null when none or it has none; copies nothing. */
+    synchronized String pendingDecisionClass() {
+        if (pendingRequest == null || !pendingRequest.has("decision_class")
+                || pendingRequest.get("decision_class").isJsonNull()) {
+            return null;
+        }
+        return pendingRequest.get("decision_class").getAsString();
+    }
+
+    /**
+     * Blocks on the controller monitor until the frame {@code submittedDecisionId}
+     * is no longer the pending one (consumed, replaced, retired), the controller
+     * has a terminal failure or is marked terminal, or {@code deadlineNanos}
+     * (a {@link System#nanoTime()} value) passes, and for at most
+     * {@code maxWaitMillis} per call. Every state change that can end the wait
+     * ({@code request}, {@code followTurnControl}, the cancel paths,
+     * {@code failClosed}, {@code shutDown}, {@code markTerminal}) already
+     * calls {@code notifyAll()}; the cap only bounds a missed wake-up.
+     *
+     * @return whether the awaited condition holds on return (false: timed out,
+     *         capped or woken spuriously; the caller re-checks its own conditions
+     *         and the deadline and calls again)
+     * @throws InterruptedException as {@link Object#wait(long)}
+     */
+    synchronized boolean awaitDecisionAdvance(
+            String submittedDecisionId, long deadlineNanos, long maxWaitMillis
+    ) throws InterruptedException {
+        if (decisionAdvanced(submittedDecisionId)) {
+            return true;
+        }
+        long remainingNanos = deadlineNanos - System.nanoTime();
+        if (remainingNanos <= 0L) {
+            return false;
+        }
+        wait(Math.min(maxWaitMillis, Math.max(1L, remainingNanos / 1_000_000L)));
+        return decisionAdvanced(submittedDecisionId);
+    }
+
+    private boolean decisionAdvanced(String submittedDecisionId) {
+        return terminalFailure != null
+                || terminal
+                || pendingRequest == null
+                || !submittedDecisionId.equals(pendingRequest.get("decision_id").getAsString());
+    }
+
     synchronized boolean awaitPendingOrTerminal(Duration timeout) {
         long millis = timeout == null ? 10_000L : timeout.toMillis();
         long deadline = System.nanoTime() + millis * 1_000_000L;

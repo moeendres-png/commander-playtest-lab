@@ -470,12 +470,7 @@ final class XmageFullGameSession {
      * null. A non-blocking read: it never waits for a decision to appear.
      */
     String parkedDecisionClass() {
-        JsonObject pending = controller.pendingDecision();
-        if (pending == null || !pending.has("decision_class")
-                || pending.get("decision_class").isJsonNull()) {
-            return null;
-        }
-        return pending.get("decision_class").getAsString();
+        return controller.pendingDecisionClass();
     }
 
     JsonObject pendingDecisionPayload() {
@@ -800,7 +795,7 @@ final class XmageFullGameSession {
         if (controller.terminalFailure() != null) {
             return alive ? "RUNNING" : "FAILED";
         }
-        if (controller.pendingDecision() != null) {
+        if (controller.hasPendingDecision()) {
             return "PARKED";
         }
         if (engineThread != null && !alive) {
@@ -1062,9 +1057,12 @@ final class XmageFullGameSession {
     }
 
     boolean isTerminal() {
-        return controller.terminalFailure() != null || controller.pendingDecision() == null
+        return controller.terminalFailure() != null || !controller.hasPendingDecision()
                 && engineThread != null && !engineThread.isAlive();
     }
+
+    /** Upper bound of one monitor wait in {@link #awaitDecisionAdvance}; wake-ups normally come by notifyAll. */
+    private static final long ADVANCE_WAIT_SLICE_MILLIS = 100L;
 
     private void awaitDecisionAdvance(String submittedDecisionId, Duration timeout) {
         long deadlineNanos = System.nanoTime() + timeout.toNanos();
@@ -1072,11 +1070,10 @@ final class XmageFullGameSession {
             if (controller.terminalFailure() != null || isEngineTerminal()) {
                 return;
             }
-            JsonObject pending = controller.pendingDecision();
-            if (pending == null) {
+            String pendingDecisionId = controller.pendingDecisionId();
+            if (pendingDecisionId == null) {
                 return;
             }
-            String pendingDecisionId = pending.get("decision_id").getAsString();
             if (!submittedDecisionId.equals(pendingDecisionId)) {
                 return;
             }
@@ -1086,7 +1083,14 @@ final class XmageFullGameSession {
                 );
             }
             try {
-                Thread.sleep(1L);
+                if (controller.terminalMarked()) {
+                    // The engine thread ended its run but is not yet dead; its
+                    // death does not notify the controller, so poll that window.
+                    Thread.sleep(1L);
+                } else {
+                    controller.awaitDecisionAdvance(
+                            submittedDecisionId, deadlineNanos, ADVANCE_WAIT_SLICE_MILLIS);
+                }
             } catch (InterruptedException exc) {
                 Thread.currentThread().interrupt();
                 throw new XmageFullGameDecisionController.DecisionException(
@@ -1149,7 +1153,7 @@ final class XmageFullGameSession {
             }
             throw new XmageFullGameDecisionController.DecisionException(message);
         }
-        if (controller.pendingDecision() != null || !controller.terminalMarked()
+        if (controller.hasPendingDecision() || !controller.terminalMarked()
                 || engineThread == null) {
             return;
         }
