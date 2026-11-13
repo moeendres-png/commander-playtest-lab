@@ -5,7 +5,9 @@ from __future__ import annotations
 import gzip
 import json
 import math
+import os
 import shutil
+import threading
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -492,3 +494,116 @@ def test_newcombe_uses_unrounded_wilson_bounds() -> None:
     _, lo, hi = newcombe_difference(w_in / n_in, ci_in, w_not / n_not, ci_not)
     assert row["difference_ci95_pp"] == [round(lo * 100, 3), round(hi * 100, 3)]
     assert math.isclose(ci_in[0], wilson_score_interval(w_in, n_in)[0], abs_tol=5e-5)
+
+
+# --- every deck at the table (#1267 point 1) --------------------------------------------
+
+
+def test_outcomes_for_all_decks_covers_every_seat(tmp_path: Path) -> None:
+    _write_log(tmp_path, "g1", _simple_frames(["X"]), decks=(DECK, OTHER), seed=1)
+    _write_log(tmp_path, "g2", _simple_frames(["Y"]), decks=(OTHER, "deck/c"), seed=2)
+    _write_log(tmp_path, "g3", _simple_frames(["Z"]), decks=(DECK, DECK), seed=3)
+    tables = card_outcomes.outcomes_for_all_decks(tmp_path, min_exposed=1)
+    assert sorted(tables) == [DECK, OTHER, "deck/c"]
+    # g1 seat 0 plus g3, where the deck sits twice and counts once (its lowest seat)
+    assert tables[DECK]["games_total"] == 2
+    assert tables[DECK]["multi_seat_games"] == 1
+    # the opponent is measured too: g1 seat 1 and g2 seat 0
+    assert tables[OTHER]["games_total"] == 2
+    assert tables[OTHER]["cards"]
+    assert tables["deck/c"]["games_total"] == 1
+
+
+def test_all_decks_command_prints_every_table(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    games = tmp_path / "games"
+    _write_log(games, "g1", _simple_frames(["Forest"]), decks=(DECK, OTHER), seed=1)
+    out = tmp_path / "all.json"
+    code = main(
+        ["card-outcomes", "--games-dir", str(games), "--min-exposed", "1", "--out", str(out)]
+    )
+    assert code == 0
+    text = capsys.readouterr().out
+    assert f"{DECK}  [" in text and f"{OTHER}  [" in text
+    written = json.loads(out.read_text(encoding="utf-8"))
+    assert sorted(written) == [DECK, OTHER]
+    assert written[OTHER]["games_total"] == 1
+
+
+def test_api_lists_every_deck_in_the_logs(tmp_path: Path) -> None:
+    _write_log(tmp_path / "games", "g1", _simple_frames(["X"]), decks=(DECK, OTHER))
+    _write_log(
+        tmp_path / "games",
+        "run",
+        _simple_frames(["X"]),
+        status=None,
+        gz=False,
+        decks=("deck/c", OTHER),
+    )
+    with TestClient(create_app(tmp_path)) as client:
+        response = client.get("/api/outcomes/decks")
+    assert response.status_code == 200
+    decks = {row["deck_id"]: row for row in response.json()["decks"]}
+    assert decks[DECK]["games"] == 1 and decks[OTHER]["games"] == 1
+    # the unfinished game seats deck/c: listed with no finished game, one skipped
+    assert decks["deck/c"]["games"] == 0 and decks["deck/c"]["games_skipped"] == 1
+
+
+# --- robustness from the #1245 review (#1267 point 5) ------------------------------------
+
+
+def test_structurally_damaged_cache_entry_is_rebuilt_not_raised(tmp_path: Path) -> None:
+    _write_log(tmp_path, "g1", _simple_frames(["X"]))
+    load_exposures(tmp_path)
+    cache = next((tmp_path / ".outcomes-cache").glob("*.json"))
+    payload = json.loads(cache.read_text(encoding="utf-8"))
+    # Valid JSON, valid envelope (version, size, mtime all match) — but the seats
+    # inside are damaged. The shallow check let this through and aggregate raised.
+    payload["exposure"]["seats"] = [42]
+    cache.write_text(json.dumps(payload), encoding="utf-8")
+    report = load_exposures(tmp_path)
+    assert [g["game_id"] for g in report["exposures"]] == ["g1"]
+    table = outcomes_for_folder(tmp_path, deck_id=DECK, min_exposed=1)
+    assert table["games_total"] == 1
+
+
+def test_cache_temp_name_is_unique_per_thread(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    path = _write_log(tmp_path, "g1", _simple_frames(["X"]))
+    exposure, deck_ids = card_outcomes._read_log(path)
+    assert exposure is not None
+    names: list[str] = []
+    real_replace = os.replace
+
+    def recording(src: str, dst: str) -> None:
+        names.append(Path(src).name)
+        real_replace(src, dst)
+
+    monkeypatch.setattr(os, "replace", recording)
+    cache = card_outcomes._cache_file(path)
+    stat = path.stat()
+    card_outcomes._store(cache, stat.st_size, stat.st_mtime_ns, exposure, deck_ids)
+    worker = threading.Thread(
+        target=card_outcomes._store,
+        args=(cache, stat.st_size, stat.st_mtime_ns, exposure, deck_ids),
+    )
+    worker.start()
+    worker.join()
+    assert len(names) == 2 and names[0] != names[1]
+
+
+def test_process_pool_failure_falls_back_to_serial_reads(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for i in range(card_outcomes.PARALLEL_MIN_LOGS):
+        _write_log(tmp_path, f"g{i}", _simple_frames(["X"]), seed=i)
+
+    def broken(*args: object, **kwargs: object) -> object:
+        raise RuntimeError("pool cannot start")
+
+    monkeypatch.setattr(card_outcomes, "ProcessPoolExecutor", broken)
+    report = load_exposures(tmp_path)
+    assert len(report["exposures"]) == card_outcomes.PARALLEL_MIN_LOGS
+    assert report["pool_fallback"] is True
