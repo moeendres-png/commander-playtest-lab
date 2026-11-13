@@ -1,0 +1,99 @@
+{
+  "A": {
+    "run_name": "lauf_a_8w_8g",
+    "workers": 8,
+    "games_per_jvm": 8,
+    "games_count": 96,
+    "total_wall_s": 658.64,
+    "throughput_games_per_h": 524.7,
+    "process_tree_cpu_s": 3262.56,
+    "peak_rss_sum_mb": 12247.3,
+    "peak_rss_per_jvm_max_mb": 1221.36,
+    "swap_before_mb": 2616.8,
+    "swap_after_mb": 5552.7,
+    "swap_delta_mb": 2935.9,
+    "failed_games_count": 0,
+    "cold_wall_mean_s": 59.56,
+    "warm_wall_mean_s": 42.26,
+    "cold_cpu_mean_s": 76.32,
+    "warm_cpu_mean_s": 27.85,
+    "jvm_options": [
+      "-XX:+UseSerialGC",
+      "-Dh2.bindAddress=127.0.0.1",
+      "-Xmx3g",
+      "-Dcommanderlab.fullGame.gamesPerJvm=8"
+    ]
+  },
+  "B": {
+    "run_name": "lauf_b_6w_8g",
+    "workers": 6,
+    "games_per_jvm": 8,
+    "games_count": 96,
+    "total_wall_s": 638.56,
+    "throughput_games_per_h": 541.2,
+    "process_tree_cpu_s": 2961.8,
+    "peak_rss_sum_mb": 10486.5,
+    "peak_rss_per_jvm_max_mb": 974.99,
+    "swap_before_mb": 3380.9,
+    "swap_after_mb": 3370.4,
+    "swap_delta_mb": -10.5,
+    "failed_games_count": 0,
+    "cold_wall_mean_s": 44.04,
+    "warm_wall_mean_s": 36.26,
+    "cold_cpu_mean_s": 64.24,
+    "warm_cpu_mean_s": 26.0,
+    "jvm_options": [
+      "-XX:+UseSerialGC",
+      "-Dh2.bindAddress=127.0.0.1",
+      "-Xmx3g",
+      "-Dcommanderlab.fullGame.gamesPerJvm=8"
+    ]
+  },
+  "JFR": {
+    "run_name": "jfr_1w_12g",
+    "workers": 1,
+    "games_per_jvm": 12,
+    "games_count": 12,
+    "total_wall_s": 256.97,
+    "throughput_games_per_h": 168.1,
+    "process_tree_cpu_s": 276.02,
+    "peak_rss_sum_mb": 1197.4,
+    "peak_rss_per_jvm_max_mb": 1197.38,
+    "swap_before_mb": 3398.9,
+    "swap_after_mb": 3389.9,
+    "swap_delta_mb": -9.0,
+    "failed_games_count": 0,
+    "cold_wall_mean_s": 16.27,
+    "warm_wall_mean_s": 21.52,
+    "cold_cpu_mean_s": 40.67,
+    "warm_cpu_mean_s": 21.19,
+    "jvm_options": [
+      "-XX:+UseSerialGC",
+      "-Dh2.bindAddress=127.0.0.1",
+      "-Xmx3g",
+      "-Dcommanderlab.fullGame.gamesPerJvm=12"
+    ]
+  },
+  "A0": {
+    "run_name": "a0_1w_1g",
+    "workers": 1,
+    "games_per_jvm": 1,
+    "games_count": 12,
+    "total_wall_s": 315.14,
+    "throughput_games_per_h": 137.1,
+    "process_tree_cpu_s": 643.79,
+    "peak_rss_sum_mb": 12489.5,
+    "peak_rss_per_jvm_max_mb": 1246.2,
+    "swap_before_mb": 3389.9,
+    "swap_after_mb": 3380.9,
+    "swap_delta_mb": -9.0,
+    "failed_games_count": 0,
+    "cold_wall_mean_s": 25.94,
+    "warm_wall_mean_s": 25.94,
+    "cold_cpu_mean_s": 53.3,
+    "warm_cpu_mean_s": 53.3,
+    "jvm_options": [
+      "-Xmx3g"
+    ]
+  }
+}
