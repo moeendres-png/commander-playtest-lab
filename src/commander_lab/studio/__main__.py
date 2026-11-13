@@ -125,7 +125,9 @@ def _parser() -> argparse.ArgumentParser:
         "--append",
         action="store_true",
         help="only add and update rows; the default replaces every signal and commander "
-        "the files write",
+        "the files write. A usable counted universe (decklist_universe:<source>:<bracket>) is "
+        "still replaced as a whole, so rows of two snapshots never mix denominators; a "
+        "refused universe is never deleted",
     )
     import_all = commands.add_parser(
         "import-all",

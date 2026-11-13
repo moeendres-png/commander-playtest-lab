@@ -798,10 +798,12 @@ def test_a_wrong_commander_file_keeps_the_rows_stored_for_this_commander(
         (signals.COMMANDER_NOT_IN_EVERY_DECK, 0)
     ]
     assert _stored(store) == before
-    # A file that names the commander but not in every deck still removes the stale rows.
+    # A file in which no universe lists the commander in every deck is no file of this
+    # commander (rule of the review round): its refusals keep the stored rows as well.
     broken = _rows("edhrec", 3, 200, {"Filler 01": 150}, own=199)
     report = _import_counted(store, _write_counted(tmp_path / "broken", broken))
-    assert _file_report(report)["universes_refused"][0]["rows_removed"] == 4
+    assert _file_report(report)["universes_refused"][0]["rows_removed"] == 0
+    assert _stored(store) == before
 
 
 def test_the_tier_result_notices_unmatched_rows_of_the_counted_universe(
@@ -952,3 +954,55 @@ def test_append_mode_keeps_old_tournament_rows(store: StudioStore, tmp_path: Pat
     assert _tournament_rows(store) == 2  # the old Filler 02 row stays
     signals.import_signals(store, folder, commander=COMMANDER)
     assert _tournament_rows(store) == 1  # replace mode drops it
+
+
+def test_a_file_whose_commander_row_is_invalid_in_every_universe_keeps_the_stored_rows(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    before = _stored(store)
+    broken = _rows("edhrec", 3, 200, {"Filler 01": 150}, own=199) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100}, own=499
+    )
+    report = _import_counted(store, _write_counted(tmp_path / "broken", broken))
+    refused = _file_report(report)["universes_refused"]
+    assert [item["rows_removed"] for item in refused] == [0, 0]
+    assert _file_report(report)["status"] == signals.REFUSED
+    assert _stored(store) == before
+
+
+def test_a_file_of_another_commander_that_lists_this_one_as_an_ordinary_card_keeps_the_rows(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    before = _stored(store)
+    other_file = _rows("edhrec", 3, 200, {"Filler 01": 9, COMMANDER: 17}, commander=OTHER)
+    report = _import_counted(store, _write_counted(tmp_path / "other", other_file))
+    refused = _file_report(report)["universes_refused"]
+    assert [(item["reason"], item["rows_removed"]) for item in refused] == [
+        (signals.COMMANDER_NOT_IN_EVERY_DECK, 0)
+    ]
+    assert _stored(store) == before
+
+
+def test_append_on_a_usable_counted_universe_still_replaces_that_universe(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    """``--append`` never deletes a refused universe, but a usable one is replaced as a whole:
+    otherwise rows of two snapshots with two denominators would sit in one universe."""
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    newer = _rows("edhrec", 3, 300, {"Filler 01": 100}) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100, "Filler 04": 400}
+    )
+    signals.import_signals(
+        store, _write_counted(tmp_path / "newer", newer), commander=COMMANDER, replace=False
+    )
+    edhrec = store.connection.execute(
+        "SELECT card_name, denominator FROM card_signal WHERE commander_name = ? "
+        "AND signal = 'decklist_universe:edhrec:3' ORDER BY card_name",
+        (COMMANDER,),
+    ).fetchall()
+    assert [(row["card_name"], row["denominator"]) for row in edhrec] == [
+        ("Filler 01", 300),
+        (COMMANDER, 300),
+    ]

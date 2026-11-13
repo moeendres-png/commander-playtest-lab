@@ -731,12 +731,16 @@ def _import_decklists(
             report["status"] = "NOTHING_REPLACED"
             continue
         usable: dict[tuple[str, str], _Universe] = {}
-        # Decided once per file: a file in which no universe has a row of this commander was
-        # built around another commander, so none of its refusals says anything about the
-        # rows stored for this one.
+        # Decided once per file: a file in which no universe lists this commander in EVERY deck
+        # (decks == total) was built around another commander (it may list this one as an
+        # ordinary card) or says nothing valid about it, so none of its refusals says anything
+        # about the rows stored for this one.
         wanted = {commander.casefold(), raw_name.casefold()}
         wrong_file = not any(
-            card.casefold() in wanted for item in universes.values() for card in item.cards
+            decks == total and total > 0
+            for item in universes.values()
+            for card, (decks, total) in item.cards.items()
+            if card.casefold() in wanted
         )
         for (source, bracket), universe in sorted(universes.items()):
             reason, commander_decks = _universe_refusal(
@@ -1001,7 +1005,16 @@ def has_signal_files(folder: str | Path) -> bool:
     ]
     bases += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
     bases += _tournament_bases(root)
+    bases += _combo_bases(root)
     return any(_parts(root, base) for base in bases) or bool(_decklist_bases(root))
+
+
+def _combo_bases(root: Path) -> list[str]:
+    """Every ``edhrec_<commander>_combos`` file of the folder (any commander, numbered parts
+    included), not only the one of the default commander."""
+    pattern = re.compile(r"^(edhrec_[a-z0-9_-]+_combos)(?:_\d+)?\.csv$")
+    found = {m.group(1) for path in root.iterdir() if (m := pattern.match(path.name))}
+    return sorted(found)
 
 
 def _import_tournaments(

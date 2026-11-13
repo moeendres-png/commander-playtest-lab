@@ -249,3 +249,18 @@ def test_a_folder_with_only_a_combos_or_salt_file_is_a_signal_folder(tmp_path: P
     salt.mkdir()
     (salt / f"{signals.SALT_FILE}.csv").write_text("card_name,salt\nA,1\n", encoding="utf-8")
     assert signals.has_signal_files(salt)
+
+
+def test_a_combos_file_of_any_commander_makes_a_signal_folder(tmp_path: Path) -> None:
+    other = tmp_path / "other"
+    other.mkdir()
+    (other / "edhrec_atraxa_combos.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+    assert signals.has_signal_files(other)
+    numbered = tmp_path / "numbered"
+    numbered.mkdir()
+    (numbered / "edhrec_kinnan_bonder_prodigy_combos_2.csv").write_text("a\n1\n", encoding="utf-8")
+    assert signals.has_signal_files(numbered)
+    unrelated = tmp_path / "unrelated"
+    unrelated.mkdir()
+    (unrelated / "notes_combos.csv").write_text("a\n1\n", encoding="utf-8")
+    assert not signals.has_signal_files(unrelated)
