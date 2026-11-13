@@ -10,7 +10,17 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, decklist_import, importers, roles, signals, tiers, universe
+from . import (
+    catalog,
+    decklist_import,
+    importers,
+    research_import,
+    roles,
+    rulings,
+    signals,
+    tiers,
+    universe,
+)
 from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
@@ -119,6 +129,15 @@ def _parser() -> argparse.ArgumentParser:
     )
     import_signals.add_argument("--tournament-file", help="base name of the tournament list file")
     import_signals.add_argument("--combos-file", help="base name of the combo list file")
+    tagger_roles = commands.add_parser(
+        "import-tagger-roles",
+        help="roles from the tagger bulk CSV (oracle_id, category, bulk_label)",
+    )
+    tagger_roles.add_argument("path")
+    rulings_cmd = commands.add_parser(
+        "import-rulings", help="card rulings (JSON lines); replaces the stored rulings"
+    )
+    rulings_cmd.add_argument("paths", nargs="+")
     commands.add_parser(
         "relink-corpus",
         help="link source-deck cards to oracle ids by name and rebuild deck statistics",
@@ -553,6 +572,10 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = decklist_import.import_decklists(
             store, args.path, format=args.format, commander=args.commander
         )
+    elif args.command == "import-tagger-roles":
+        result = research_import.import_tagger_roles(store, args.path)
+    elif args.command == "import-rulings":
+        result = rulings.import_rulings(store, args.paths)
     elif args.command == "relink-corpus":
         result = catalog.relink_corpus(store)
     elif args.command == "profiles":

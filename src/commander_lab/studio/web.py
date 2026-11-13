@@ -24,6 +24,7 @@ from . import (
     data_report,
     games,
     launch,
+    rulings,
     strength_view,
     universe,
     universe_view,
@@ -281,6 +282,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return builder.card_detail(store, card_id, commander, cohort=cohort)
+        except KeyError as error:
+            raise HTTPException(404, "unknown card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/cards/{card_id}/rulings")
+    def card_rulings(card_id: str) -> dict[str, object]:
+        store = open_store()
+        try:
+            return rulings.rulings_for_card(store, card_id)
         except KeyError as error:
             raise HTTPException(404, "unknown card") from error
         finally:
