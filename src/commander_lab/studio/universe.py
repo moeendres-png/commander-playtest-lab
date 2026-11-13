@@ -409,8 +409,8 @@ def options(store: StudioStore, *, commander_names: Sequence[str] | None = None)
     raw row count. Values that would count no deck are not offered. The web route always
     passes a commander: without a scope the counts run over every commander's decks, a
     mixed figure no page may show. With a scope, the commander dimension offers the
-    scoped commanders themselves (one value per name, each with the size of the scoped
-    universe), never a combination with another commander."""
+    scoped commander itself with the size of the scoped universe, never a combination with
+    another commander; for a partner-pair scope it offers no commander value at all."""
     scope: UniverseSpec = {}
     if commander_names:
         scope["commanders"] = sorted(set(commander_names))
@@ -427,7 +427,9 @@ def options(store: StudioStore, *, commander_names: Sequence[str] | None = None)
     cohorts = _known_values(store, "SELECT DISTINCT cohort FROM corpus_cohort")
     commander_specs: list[tuple[UniverseSpec, str]]
     if commander_names:
-        commander_specs = [(scope, value) for value in scope["commanders"]]
+        # A partner pair is one scope: a single name would select another universe (the
+        # decks of that commander alone), so nothing is offered for a pair.
+        commander_specs = [(scope, scope["commanders"][0])] if len(scope["commanders"]) == 1 else []
     else:
         commander_specs = [
             (cast(UniverseSpec, {"commanders": [value]}), value)
