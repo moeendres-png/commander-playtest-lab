@@ -1090,3 +1090,109 @@ def test_an_invalid_stored_profile_is_listed_with_a_reason_not_a_500(
         "/api/strength", json={"commander": COMMANDER, "profile": "kaputt"}, headers=HEADER
     )
     assert used.status_code == 422 and "kaputt" in used.json()["detail"]
+
+
+# ---------- import report and commander names (Refs #1205) ----------
+
+
+def _tournament_file(path: Path, commander: str, lists: int, player_prefix: str) -> None:
+    rows: list[dict[str, object]] = []
+    for index in range(lists):
+        player = f"{player_prefix} {index + 1}"
+        rows.append(_list_row("Cup Z", "2026-11-01", player, commander, "commander"))
+        rows.append(_list_row("Cup Z", "2026-11-01", player, "Filler 01", "main"))
+        if index == 0:
+            rows.append(_list_row("Cup Z", "2026-11-01", player, "Filler 02", "main"))
+    _write(
+        path,
+        rows,
+        [
+            "tournament",
+            "date",
+            "player",
+            "wins",
+            "draws",
+            "losses",
+            "card_name",
+            "quantity",
+            "section",
+        ],
+    )
+
+
+def test_a_reimport_without_valid_rows_says_that_nothing_was_replaced(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    before = store.count("card_signal")
+    # the same global file, but no card is AVAILABLE any more: zero valid rows
+    broken = tmp_path / "broken_global"
+    broken.mkdir()
+    _write(
+        broken / "card_global_signals.csv",
+        [
+            {
+                "card_name": "Filler 00",
+                "fetch_status": "FAILED",
+                "num_decks": 1,
+                "potential_decks": 2,
+            }
+        ],
+        ["card_name", "fetch_status", "num_decks", "potential_decks"],
+    )
+    report = signals.import_signals(store, broken, commander=COMMANDER)
+    entry = report["files"][signals.GLOBAL_FILE]  # type: ignore[index]
+    assert entry["status"] == "NOTHING_REPLACED"
+    assert entry["rows_written"] == 0 and entry["rows_replaced"] == 0
+    assert entry["rows_kept"] == 9  # the nine stored global rows stay
+    assert report["rows_kept"] == 9 and report["rows_written"] == 0
+    assert store.count("card_signal") == before  # old rows kept, as reported
+    # a real re-import replaces and says how many
+    again = _import(store, tmp_path)
+    replaced = again["files"][signals.GLOBAL_FILE]  # type: ignore[index]
+    assert replaced["status"] == "IMPORTED" and replaced["rows_replaced"] == 9
+    assert replaced["rows_written"] == 9 and replaced["rows_kept"] == 0
+    absent = again["files"][f"{signals.BRACKET_FILE}_upgraded"]  # type: ignore[index]
+    assert absent["status"] == "ABSENT"
+
+
+def test_commander_names_are_matched_against_the_store_and_reported(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "names"
+    folder.mkdir()
+    rows = _commander_rows("test commander", {"Filler 00": 5}, 10)  # lower case
+    rows += _commander_rows("Mystery Commander", {"Filler 00": 1}, 10)  # unknown
+    _write(folder / "commander_card_signals.csv", rows, CARD_FIELDS)
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    assert report["commanders_imported"] == ["Mystery Commander", COMMANDER]
+    assert report["commanders_not_recognised"] == ["Mystery Commander"]
+    assert report["commanders_normalised"] == [{"from": "test commander", "to": COMMANDER}]
+    own = _signal(store, signals.SIGNAL_INCLUSION, "Filler 00", COMMANDER)
+    assert own is not None and own["numerator"] == 5
+    assert _signal(store, signals.SIGNAL_INCLUSION, "Filler 00", "test commander") is None
+    mystery = _signal(store, signals.SIGNAL_INCLUSION, "Filler 00", "Mystery Commander")
+    assert mystery is not None  # imported as written, never mixed into another commander
+
+
+def test_any_topdeck_decks_file_belongs_to_the_commander_of_its_commander_section(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "tournaments"
+    folder.mkdir()
+    _tournament_file(folder / "topdeck_alpha_decks.csv", "Test Commander", 3, "Liste")
+    _tournament_file(folder / "topdeck_beta_decks_1.csv", "Beta Hero", 2, "Zed Secretperson")
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    files = report["files"]
+    assert isinstance(files, dict)
+    assert files["topdeck_alpha_decks"]["commander"] == COMMANDER
+    assert files["topdeck_beta_decks"]["commander"] == "Beta Hero"
+    assert files["topdeck_beta_decks"]["parts"] == ["topdeck_beta_decks_1.csv"]
+    assert files[signals.TOURNAMENT_FILE]["status"] == "ABSENT"
+    alpha = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 02", COMMANDER)
+    assert alpha is not None and (alpha["numerator"], alpha["denominator"]) == (1, 3)
+    beta = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 01", "Beta Hero")
+    assert beta is not None and (beta["numerator"], beta["denominator"]) == (2, 2)
+    # the player column is only an in-memory grouping key: never stored, never reported
+    assert store.path is not None and b"Secretperson" not in store.path.read_bytes()
+    assert "Secretperson" not in repr(report)
