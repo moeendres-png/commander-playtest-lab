@@ -1519,3 +1519,92 @@ def test_the_page_names_a_pool_fallback_instead_of_a_null_group_size() -> None:
     script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
     assert "c.group_fallback ?" in script
     assert "Rang im ganzen Pool (Gruppe zu klein)" in script
+
+
+# ---------- behaviours pinned after surviving mutants (Refs #1205) ----------
+
+
+def test_missing_as_lowest_applies_to_unlisted_cards_not_to_an_unknown_value() -> None:
+    observations = {
+        "a": {"commander_inclusion": Observation(0.9, 900, 1000)},
+        "b": {"commander_inclusion": Observation(0.1, 100, 1000)},
+        "unknown": {"commander_inclusion": Observation(None)},  # listed, value not published
+        "unlisted": {},
+    }
+    scored = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "lowest"}),
+        observations,
+        {"commander_inclusion"},
+    )
+    unknown = _row(scored, "unknown", "commander_inclusion")
+    assert unknown["reason"] == strength.VALUE_UNKNOWN
+    assert unknown["status"] == strength.NO_VALUE and unknown["percentile"] is None
+    assert scored["unknown"]["index"] is None  # unknown is never turned into the lowest rank
+    unlisted = _row(scored, "unlisted", "commander_inclusion")
+    assert unlisted["status"] == strength.MISSING_AS_LOWEST and unlisted["percentile"] == 0.0
+
+
+def test_the_minimum_denominator_is_checked_per_card_with_mixed_denominators() -> None:
+    observations = {
+        "big": {"commander_inclusion": Observation(0.9, 90, 100)},
+        "other": {"commander_inclusion": Observation(0.5, 50, 100)},
+        "small": {"commander_inclusion": Observation(1.0, 10, 10)},  # own denominator 10 < 30
+    }
+    scored = strength.score_pool(
+        _only("commander_inclusion"), observations, {"commander_inclusion"}
+    )
+    small = _row(scored, "small", "commander_inclusion")
+    assert small["reason"] == strength.BELOW_MIN_DENOMINATOR and small["percentile"] is None
+    assert "Nenner 10" in small["note"]
+    assert _row(scored, "big", "commander_inclusion")["status"] == strength.PRESENT
+    assert _row(scored, "other", "commander_inclusion")["percentile"] == 0.0
+    assert _row(scored, "big", "commander_inclusion")["percentile"] == 1.0
+
+
+def test_the_reference_denominator_is_the_largest_one_of_the_signal() -> None:
+    # one card with a denominator below the minimum must not switch the signal off for the
+    # others: the reference is the MAX (100), not the MIN (10)
+    observations = {
+        "big": {"commander_inclusion": Observation(0.9, 90, 100)},
+        "small": {"commander_inclusion": Observation(1.0, 10, 10)},
+        "unlisted": {},
+    }
+    scored = strength.score_pool(
+        _only("commander_inclusion"), observations, {"commander_inclusion"}
+    )
+    assert _row(scored, "big", "commander_inclusion")["status"] == strength.PRESENT
+    assert _row(scored, "unlisted", "commander_inclusion")["reason"] == strength.NOT_LISTED
+    # when even the largest denominator is below the minimum the whole signal is off
+    low = {"x": {"commander_inclusion": Observation(0.5, 5, 10)}, "y": {}}
+    off = strength.score_pool(_only("commander_inclusion"), low, {"commander_inclusion"})
+    assert {_row(off, key, "commander_inclusion")["reason"] for key in "xy"} == {
+        strength.BELOW_MIN_DENOMINATOR
+    }
+
+
+def test_the_preferred_commander_breaks_a_tie_between_tournament_commanders(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "tie"
+    folder.mkdir()
+    lists = [
+        ("Cup T", "2026-11-05", f"Key {n}", [name], ["Filler 06"])
+        for n, name in enumerate(["Test Commander", "Test Commander", "Zed Hero", "Zed Hero"])
+    ]
+    _lists_file(folder / "topdeck_tie_decks.csv", lists)
+    zed = signals.import_signals(store, folder, commander="Zed Hero")
+    assert zed["files"]["topdeck_tie_decks"]["commander"] == "Zed Hero"  # type: ignore[index]
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 06", "Zed Hero") is not None
+    first = signals.import_signals(store, folder, commander="Test Commander")
+    assert first["files"]["topdeck_tie_decks"]["commander"] == "Test Commander"  # type: ignore[index]
+    # a preferred name that is not among the tied commanders changes nothing: the first by name
+    neither = signals.import_signals(store, folder, commander="Somebody Else")
+    assert neither["files"]["topdeck_tie_decks"]["commander"] == "Test Commander"  # type: ignore[index]
+
+
+def test_a_mana_value_of_five_is_the_last_band_and_four_is_not() -> None:
+    assert strength.mana_band(5, is_land=False) == "5+"
+    assert strength.mana_band(4, is_land=False) == "4"
+    assert strength.mana_band(4.5, is_land=False) == "4"
+    assert strength.mana_band(1.5, is_land=False) == "0-1"
+    assert strength.mana_band(2, is_land=False) == "2"
