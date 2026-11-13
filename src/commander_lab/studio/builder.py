@@ -24,6 +24,7 @@ from commander_lab.deck_readiness import (
 from commander_lab.deck_variant import compare_variant, comparison_to_dict
 from commander_lab.models import RulesDeckInput
 
+from . import memo
 from .decks import RevisionCard, color_set, list_rows
 from .store import BINDING_KINDS, StudioStore, now_utc
 
@@ -223,7 +224,18 @@ def cohort_sizes(store: StudioStore, commander_names: Sequence[str]) -> dict[str
 
 def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str, dict[str, int]]:
     """``{card key: {cohort: decks}}`` over the decks bound to the commander; the key is the
-    oracle id, else the card name."""
+    oracle id, else the card name. Memoized per data epoch (read-only result)."""
+    return memo.cached(
+        store,
+        "corpus_hits",
+        tuple(commander_names),
+        lambda: _corpus_hits_uncached(store, commander_names),
+    )
+
+
+def _corpus_hits_uncached(
+    store: StudioStore, commander_names: Sequence[str]
+) -> dict[str, dict[str, int]]:
     db = store.connection
     hits: dict[str, dict[str, int]] = {}
     if not commander_names:
