@@ -10,7 +10,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, decklist_import, importers, roles, signals, tiers, universe
+from . import catalog, decklist_import, importers, roles, rulings, signals, tiers, universe
 from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
@@ -120,6 +120,11 @@ def _parser() -> argparse.ArgumentParser:
     import_all.add_argument("--scryfall", help="public card facts file")
     import_all.add_argument("--roles", help="role file")
     import_all.add_argument(
+        "--rulings",
+        action="append",
+        help="rulings file (repeatable; default: the curated files under data/research)",
+    )
+    import_all.add_argument(
         "--signals",
         action="append",
         help="folder of signal files (repeatable; default: every folder under data/research "
@@ -203,6 +208,12 @@ def _parser() -> argparse.ArgumentParser:
     import_roles = commands.add_parser("import-roles")
     import_roles.add_argument("path")
     import_roles.add_argument("--replace-scope", action="store_true", help=replace_help)
+    import_rulings = commands.add_parser(
+        "import-rulings",
+        help="official card rulings (Scryfall rulings JSONL, one ruling per line); the "
+        "rulings of each named file replace the ones stored from a file of that name",
+    )
+    import_rulings.add_argument("paths", nargs="+")
     owner_marks = commands.add_parser(
         "import-owner-marks",
         help="merge favorites, exclusions and notes from a marks file (never a rating)",
@@ -521,6 +532,11 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         )
     elif args.command == "import-roles":
         result = roles.import_roles(store, args.path, allow_scope_replace=args.replace_scope)
+    elif args.command == "import-rulings":
+        try:
+            result = rulings.import_rulings(store, args.paths)
+        except (ValueError, OSError) as error:
+            raise SystemExit(f"import-rulings: {error}") from None
     elif args.command == "import-owner-marks":
         result = import_owner_marks(store, args.path)
     elif args.command == "import-selection":
