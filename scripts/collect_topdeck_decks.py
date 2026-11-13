@@ -604,6 +604,27 @@ def export_results(
 
     # 3. Export README.md
     readme_path = output_dir / "README.md"
+    chulane_complete = len(
+        [d for d in decks_by_commander.get("Chulane, Teller of Tales", []) if d.is_complete]
+    )
+    non_chulane_exported_cmd = exported_commanders_count - (
+        1 if chulane_out_path and chulane_complete > 0 else 0
+    )
+    non_chulane_exported_decks = total_exported_decks - (
+        chulane_complete if chulane_out_path else 0
+    )
+
+    exported_cmd_desc = (
+        f"{exported_commanders_count} ({non_chulane_exported_cmd} in `{output_dir.name}/` + Chulane in `deckbuilder_1655/`)"
+        if chulane_out_path and chulane_complete > 0
+        else f"{exported_commanders_count}"
+    )
+    exported_decks_desc = (
+        f"{total_exported_decks} ({non_chulane_exported_decks} in `{output_dir.name}/` + {chulane_complete} Chulane)"
+        if chulane_out_path and chulane_complete > 0
+        else f"{total_exported_decks}"
+    )
+
     readme_content = f"""# TopDeck.gg Turnier-Decklisten & Präsenz (90 Tage)
 
 Erstellt durch Gemini Flash (Paket C, Refs #1205, #1208).
@@ -619,13 +640,14 @@ Abrufdatum: {datetime.date.today().isoformat()}.
 - **Standings mit Leader:** {leader_standings}
 - **Untersuchte Commander:** {len(commander_names)}
 - **Commander mit Turnier-Präsenz (>0 Einträge):** {sum(1 for c in commander_names if presence_counts.get(c, 0) > 0)}
-- **Exportierte Commander (außer Chulane, mit vollständigen Listen):** {exported_commanders_count}
-- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** {total_exported_decks}
+- **Exportierte Commander:** {exported_cmd_desc}
+- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** {exported_decks_desc}
 - **Unvollständige Decklisten (gezählt, aber nicht exportiert):** {total_incomplete_decks}
 
 ## 2. Dateien
 - `topdeck_commander_presence.csv`: Aktualisierte Präsenz-Zählung aller {len(commander_names)} Commander.
-- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste. Die Spalte `player` enthält keine Namen, sondern neutrale Kennungen (`Liste 1`, `Liste 2`, …) je Datei in Reihenfolge des ersten Auftretens.
+- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`). Die Spalte `player` enthält keine Namen, sondern neutrale Kennungen (`Liste 1`, `Liste 2`, …) je Datei in Reihenfolge des ersten Auftretens.
+- `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte x Commander gemäß docs/TOPDECK.md §6 (Refs #1205).
 
 ## 3. Übersicht je Commander mit Präsenz
 | Commander | Einträge 90d | Einträge mit Liste | Vollständig exportiert | Unvollständig |
@@ -639,6 +661,12 @@ Abrufdatum: {datetime.date.today().isoformat()}.
                 f"| {cname} | {cnt} | {s['entries_with_list']} | "
                 f"{s['complete_exported']} | {s['incomplete_excluded']} |\n"
             )
+
+    readme_content += """
+## Spielernamen
+
+Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Datei, in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
+"""
 
     readme_path.write_text(readme_content, encoding="utf-8")
     logger.info("Wrote %s", readme_path)
