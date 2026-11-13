@@ -274,6 +274,7 @@ def compute(
     context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
 
     scored = strength.score_pool(settings, per_card, collected, context=context)
+    notices.extend(strength.weights_without_effect(settings, collected))
     cards: list[StrengthCard] = []
     for card_id in ids:
         result: CardStrength = scored[card_id]

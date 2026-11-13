@@ -1415,3 +1415,52 @@ def test_the_page_loads_a_saved_profile_through_the_server_and_keeps_drafts() ->
         and "s.draft.name = event.target.value" in script
     )
     assert '$("s-name").value = p.name' not in script
+
+
+# ---------- a weight that cannot act does not lower coverage (Refs #1205) ----------
+
+
+def test_a_component_without_any_data_is_not_part_of_the_coverage_denominator() -> None:
+    weights = {name: 0.0 for name in strength.COMPONENTS}
+    weights |= {strength.COMMANDER_INCLUSION: 3.0, strength.SYNERGY: 1.0}
+    observations = {
+        "a": {"commander_inclusion": _share(900, 1000), "synergy": Observation(0.2)},
+        "b": {"commander_inclusion": _share(500, 1000)},
+    }
+    collected = {strength.COMMANDER_INCLUSION, strength.SYNERGY}
+    plain = strength.score_pool(
+        StrengthSettings(weights=weights, min_coverage=0.0, min_components=1),
+        observations,
+        collected,
+    )
+    weighted = strength.score_pool(
+        StrengthSettings(
+            weights={**weights, strength.SIMULATION: 5.0}, min_coverage=0.0, min_components=1
+        ),
+        observations,
+        collected,
+    )
+    assert plain["b"]["coverage"] == 0.75
+    for card in ("a", "b"):  # a positive weight on a never-collected source changes nothing
+        assert (weighted[card]["coverage"], weighted[card]["index"]) == (
+            plain[card]["coverage"],
+            plain[card]["index"],
+        )
+    # once the source has data the weight counts in the denominator again
+    with_data = strength.score_pool(
+        StrengthSettings(
+            weights={**weights, strength.SIMULATION: 5.0}, min_coverage=0.0, min_components=1
+        ),
+        {**observations, "a": {**observations["a"], "simulation": Observation(1.0)}},
+        {*collected, strength.SIMULATION},
+    )
+    assert with_data["b"]["coverage"] < plain["b"]["coverage"]
+
+
+def test_the_result_notes_name_a_weight_without_data(store: StudioStore, tmp_path: Path) -> None:
+    _import(store, tmp_path)
+    weighted = StrengthSettings(weights={**strength.DEFAULT_WEIGHTS, strength.SIMULATION: 4.0})
+    result = strength_view.compute(store, COMMANDER, weighted)
+    assert "Simulation: keine Daten, Gewicht ohne Wirkung" in result["notices"]
+    default = strength_view.compute(store, COMMANDER, StrengthSettings())
+    assert not any("Gewicht ohne Wirkung" in text for text in default["notices"])

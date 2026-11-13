@@ -142,6 +142,10 @@ LABELS: dict[str, str] = {
     COMBOS: "Kombos (Commander Spellbook)",
     SIMULATION: "Simulation",
 }
+# Components the tier list collects no data for at all, for now (Owner decision B11: simulation
+# results are not collected for it). Their weight stays adjustable, but while no card has a value
+# it adds nothing and must not lower any card's coverage.
+UNCOLLECTED_BY_DESIGN = frozenset({SIMULATION})
 # Components whose value is a share with a numerator and a denominator (Wilson bound).
 SHARE_COMPONENTS = frozenset(
     {COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE, TOURNAMENT_LISTS, GLOBAL_INCLUSION}
@@ -669,6 +673,17 @@ def _component_note(
     return NOT_RANKED_NOTES.get(reason, "")
 
 
+def weights_without_effect(settings: StrengthSettings, collected: Collection[str]) -> list[str]:
+    """Notes for a positive weight on a source that has no data at all (it cannot act)."""
+    return [
+        f"{LABELS[name]}: keine Daten, Gewicht ohne Wirkung"
+        for name in COMPONENTS
+        if name in UNCOLLECTED_BY_DESIGN
+        and name not in collected
+        and settings.effective_weight(name) > 0
+    ]
+
+
 def score_pool(
     settings: StrengthSettings,
     observations: Mapping[str, Mapping[str, Observation]],
@@ -693,6 +708,7 @@ def score_pool(
         settings.effective_weight(name)
         for name in COMPONENTS
         if settings.effective_weight(name) > 0
+        and not (name in UNCOLLECTED_BY_DESIGN and name not in collected)
     )
     result: dict[str, CardStrength] = {}
     for card, per_card in observations.items():
