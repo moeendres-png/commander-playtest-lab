@@ -130,8 +130,8 @@ sagt, wie viele Karten Rulings haben.
 `import-all` ruft nur die vorhandenen Importer auf; jeder lässt sich einzeln nutzen:
 `import-inventory`, `import-scryfall`, `import-decklists ORDNER --format edhrec|archidekt
 --commander NAME`, `import-signals ORDNER --commander NAME [--append]`,
-`import-tagger-roles DATEI` (Tagger-Bulk-CSV; nur die Rollen des Studios, andere Kategorien werden
-gezählt und genannt), `import-rulings DATEI...` (ersetzt den ganzen Rulings-Bestand;
+`import-tagger-roles DATEI` (Tagger-Bulk-CSV; eine Datei ohne Rollen-Zeile ändert nichts, eine Datei, die mehr als die Hälfte der alten Zuordnungen entfernen würde, braucht `--force`; nur die Rollen des Studios, andere Kategorien werden
+gezählt und genannt), `import-rulings DATEI...` (ersetzt die Rulings je Quelldatei, andere Dateien bleiben;
 `GET /api/cards/{card_id}/rulings`), `relink-corpus`, `data-report`.
 
 ## Data
@@ -159,7 +159,7 @@ a location inside this repository. Card images are cached next to it in `images/
 | `fetch-roles --identity WUG --out FILE.json [--replace-scope]` | public role tags (Scryfall tagger) for a color identity, written as a full snapshot of that identity and imported; the query names only the colors | original (public, community labels) |
 | `import-roles FILE.json [--replace-scope]` | a role file (format below) as claims | original, normalized or derived, by the file's origin |
 | `import-tagger-roles FILE.csv` | the tagger bulk (`oracle_id`, `category`, `bulk_label`) as a full snapshot of its own scope, origin `CROSSWALK_NORMALIZED`; only the Studio roles, other categories are counted | normalized |
-| `import-rulings FILE.jsonl [...]` | official rulings (JSON lines) into `card_ruling` (schema 13); replaces all stored rulings with the union of the given files; `GET /api/cards/{card_id}/rulings` | normalized |
+| `import-rulings FILE.jsonl [...]` | official rulings (JSON lines) into `card_ruling` (schema 13); replaces the stored rulings of each given file (by file name) and keeps those of other files; a file without a ruling is refused; `GET /api/cards/{card_id}/rulings` | normalized |
 | `relink-corpus` | gives source-deck cards without an oracle id theirs by name and rebuilds deck statistics and roles per deck (also runs at the end of `import-scryfall` and `import-decklists`) | derived |
 | `import-all --collection X.xlsx --scryfall BULK --research DIR --commander NAME [--decklists DIR ...]` | every step above in order, then the completeness report (`import_report.json`, `GET /api/import-report`); see "Erste Einrichtung" | none (report) |
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
