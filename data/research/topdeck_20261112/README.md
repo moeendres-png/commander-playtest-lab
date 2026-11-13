@@ -1,26 +1,25 @@
 # TopDeck.gg Turnier-Decklisten & Präsenz (90 Tage)
 
 Erstellt durch Gemini Flash (Paket C, Refs #1205, #1208).
-Abrufdatum: 2026-11-13.
+Abrufdatum: 2026-11-12.
 
 > **Hinweis zur Datenquelle:**
 > Data provided by TopDeck.gg (https://topdeck.gg).
 
 ## 1. Zählprotokoll
-- **Untersuchungsfenster:** 90 Tage (2026-08-15 bis 2026-11-13)
-- **Erfasste Turniere (distinkt):** 4321
-- **Standings gesamt:** 70894
-- **Standings mit Leader:** 24583
+- **Untersuchungsfenster:** 90 Tage (2026-08-14 bis 2026-11-12)
+- **Erfasste Turniere (distinkt):** 4311
+- **Standings gesamt:** 70732
+- **Standings mit Leader:** 24498
 - **Untersuchte Commander:** 107
 - **Commander mit Turnier-Präsenz (>0 Einträge):** 30
-- **Exportierte Commander:** 30 (29 in `topdeck_20261112/` + Chulane in `deckbuilder_1655/`)
-- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** 339 (333 in `topdeck_20261112/` + 6 Chulane)
+- **Exportierte Commander (außer Chulane, mit vollständigen Listen):** 29
+- **Vollständige exportierte Decklisten (1 Commander + 99 Mainboard):** 333
 - **Unvollständige Decklisten (gezählt, aber nicht exportiert):** 0
 
 ## 2. Dateien
 - `topdeck_commander_presence.csv`: Aktualisierte Präsenz-Zählung aller 107 Commander.
-- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste (inkl. Bracket-Feldern `top_cut`, `wins_bracket`, `losses_bracket`).
-- `topdeck_card_conversions.csv`: Berechnete TopDeck-Conversion je Karte × Commander gemäß docs/TOPDECK.md §6 (Refs #1205).
+- `topdeck_<commander_slug>_decks.csv`: Vollständige Decklisten je Commander mit mindestens 1 vollständiger Liste.
 
 ## 3. Übersicht je Commander mit Präsenz
 | Commander | Einträge 90d | Einträge mit Liste | Vollständig exportiert | Unvollständig |
@@ -58,4 +57,4 @@ Abrufdatum: 2026-11-13.
 
 ## Spielernamen
 
-Die Spalte `player` der Turnierlisten enthält keine Klarnamen. Jede Liste trägt die Initialen des Spielers: je Namensbestandteil der erste Buchstabe, großgeschrieben (aus `Void of Emperor [INTIM]` wird so `V O E I`). Haben in einer Datei mehrere Spieler dieselben Initialen, erhält der in der Reihenfolge des ersten Auftretens zweite den Zusatz ` 2`, der dritte den Zusatz ` 3` usw. (Owner-Entscheid 2026-11-13, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
+Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Datei, in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
