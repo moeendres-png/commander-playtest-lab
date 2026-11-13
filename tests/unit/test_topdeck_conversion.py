@@ -82,9 +82,7 @@ def test_null_discipline_under_threshold() -> None:
     decks_5: list[TournamentDeck] = []
     for i in range(5):
         decks_5.append(
-            _make_deck(
-                f"T{i}", f"Player{i}", ["Mana Crypt"], wins_bracket=0, losses_bracket=0
-            )
+            _make_deck(f"T{i}", f"Player{i}", ["Mana Crypt"], wins_bracket=0, losses_bracket=0)
         )
 
     stats = compute_conversions_for_decks("Test Commander", decks_5, min_sample=10)
@@ -140,9 +138,7 @@ def test_chulane_edge_case() -> None:
             )
         )
 
-    stats = compute_conversions_for_decks(
-        "Chulane, Teller of Tales", decks, min_sample=10
-    )
+    stats = compute_conversions_for_decks("Chulane, Teller of Tales", decks, min_sample=10)
     assert len(decks) == 6
     assert all(s.conversion_rate is None for s in stats)
     assert all(s.to_row()[4] == "NULL" for s in stats)
@@ -152,13 +148,9 @@ def test_fail_closed_unknown_bracket_and_no_cut() -> None:
     """Test that tournaments without cut or with unknown bracket stay out of denominator."""
     decks = [
         # Tournament with no cut (top_cut=0)
-        _make_deck(
-            "T1", "P1", ["CardX"], top_cut=0, wins_bracket=None, losses_bracket=None
-        ),
+        _make_deck("T1", "P1", ["CardX"], top_cut=0, wins_bracket=None, losses_bracket=None),
         # Tournament with cut=4 but unknown bracket
-        _make_deck(
-            "T2", "P2", ["CardX"], top_cut=4, wins_bracket=None, losses_bracket=None
-        ),
+        _make_deck("T2", "P2", ["CardX"], top_cut=4, wins_bracket=None, losses_bracket=None),
         # Tournament with cut=4 and known bracket (reached)
         _make_deck("T3", "P3", ["CardX"], top_cut=4, wins_bracket=1, losses_bracket=0),
     ]

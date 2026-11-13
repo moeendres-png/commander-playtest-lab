@@ -77,11 +77,7 @@ class CardConversionStat:
     sample_size_base: int
 
     def to_row(self) -> list[str]:
-        rate_str = (
-            f"{self.conversion_rate:.6f}"
-            if self.conversion_rate is not None
-            else "NULL"
-        )
+        rate_str = f"{self.conversion_rate:.6f}" if self.conversion_rate is not None else "NULL"
         return [
             self.commander,
             self.card_name,
@@ -129,21 +125,9 @@ def parse_deck_csv(
                 lb_val = row.get("lossesBracket") or row.get("losses_bracket")
                 tc_val = row.get("topCut") or row.get("top_cut")
 
-                wb = (
-                    int(wb_val)
-                    if wb_val is not None and str(wb_val).strip() != ""
-                    else None
-                )
-                lb = (
-                    int(lb_val)
-                    if lb_val is not None and str(lb_val).strip() != ""
-                    else None
-                )
-                tc = (
-                    int(tc_val)
-                    if tc_val is not None and str(tc_val).strip() != ""
-                    else None
-                )
+                wb = int(wb_val) if wb_val is not None and str(wb_val).strip() != "" else None
+                lb = int(lb_val) if lb_val is not None and str(lb_val).strip() != "" else None
+                tc = int(tc_val) if tc_val is not None and str(tc_val).strip() != "" else None
 
                 meta = metadata_lookup.get((t_name, p_name))
                 if meta:
@@ -312,13 +296,9 @@ def main() -> None:
         card_rows = sum(len(d.card_names) for d in decks)
         total_card_rows += card_rows
 
-        c_stats = compute_conversions_for_decks(
-            cname, decks, min_sample=args.min_sample
-        )
+        c_stats = compute_conversions_for_decks(cname, decks, min_sample=args.min_sample)
         all_stats.extend(c_stats)
-        print(
-            f"Commander: {cname:35s} | Decks: {len(decks):3d} | Unique cards: {len(c_stats):3d}"
-        )
+        print(f"Commander: {cname:35s} | Decks: {len(decks):3d} | Unique cards: {len(c_stats):3d}")
 
     print(
         f"\nTotals: {len(csv_files)} commanders, {total_decks} decks, {total_card_rows} card instances"
