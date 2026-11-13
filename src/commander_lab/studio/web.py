@@ -24,6 +24,7 @@ from . import (
     data_report,
     games,
     launch,
+    queries,
     strength_view,
     universe,
     universe_view,
@@ -153,6 +154,23 @@ class StrengthBody(BaseModel):
 class StrengthProfileBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     settings: dict[str, object]
+
+
+_UNKNOWN_CARDS = re.compile(r"^unknown universe card\(s\): \[(.*?)\](?:;.*)?$")
+
+
+def _german(error: ValueError) -> str:
+    """The German sentence for the validation errors the page can cause; other messages
+    pass through unchanged."""
+    text = str(error)
+    match = _UNKNOWN_CARDS.match(text)
+    if match:
+        names = ", ".join(part.strip().strip("'\"") for part in match.group(1).split("', '"))
+        return (
+            f"Diese Karte kennt das Studio nicht: {names}. "
+            "Wähle eine Karte aus der Vorschlagsliste."
+        )
+    return text
 
 
 def _inventory_summary() -> dict[str, object]:
@@ -440,7 +458,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             universe.save_profile(store, name, body.model_dump(exclude_none=True))
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
-            raise HTTPException(422, str(error)) from error
+            raise HTTPException(422, _german(error)) from error
         finally:
             store.close()
 
@@ -508,21 +526,76 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/cards/{card_id}/cooccurrence")
     def card_cooccurrence(
         card_id: str,
-        profile: str = Query(min_length=1, max_length=80),
+        profile: str | None = Query(default=None, min_length=1, max_length=80),
         limit: int = Query(default=25, ge=1, le=500),
         commander: str = Query(min_length=1, max_length=200),
+        must_contain: list[str] = Query(default=[], max_length=20),
     ) -> dict[str, object]:
+        """Cards played with one card: over a stored universe (``profile``) or, without one,
+        over the commander's decks that contain every card of ``must_contain``."""
+        if profile is None and not must_contain:
+            raise HTTPException(422, "Gib ein Universum oder Filterkarten an.")
         store = open_store()
         try:
+            spec = (
+                universe_view.filtered_spec(
+                    store, must_contain, commander_names=[commander], profile=profile
+                )
+                if must_contain
+                else None
+            )
             return dict(
                 universe_view.card_cooccurrence(
-                    store, profile, card_id, limit, commander_names=[commander]
+                    store,
+                    None if spec is not None else profile,
+                    card_id,
+                    limit,
+                    commander_names=[commander],
+                    spec=spec,
                 )
             )
         except ValueError as error:
-            raise HTTPException(422, str(error)) from error
+            raise HTTPException(422, _german(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile or card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/deck-filter")
+    def deck_filter(
+        commander: str = Query(min_length=1, max_length=200),
+        card: list[str] = Query(default=[], max_length=20),
+        profile: str | None = Query(default=None, min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        """Source-deck figures over only the commander's decks that contain ALL chosen
+        cards ("Teilmenge: N von M Decks"). Only cards of the commander's pool can be chosen."""
+        store = open_store()
+        try:
+            try:
+                pool = queries.legal_pool(store, [commander])
+            except KeyError as error:
+                raise HTTPException(404, f"commander not in the collection: {error}") from error
+            pool_names = {str(row["oracle_name"]) for row in pool}
+            outside = sorted({name for name in card if name not in pool_names})
+            if outside:
+                raise HTTPException(
+                    422,
+                    f"Diese Karte gehört nicht zum Kartenpool von {commander}: "
+                    f"{', '.join(outside)}. Wähle eine Karte aus der Vorschlagsliste.",
+                )
+            return dict(
+                universe_view.deck_filter(
+                    store,
+                    card,
+                    commander_names=[commander],
+                    profile=profile,
+                    card_ids=[str(row["card_id"]) for row in pool],
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, _german(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
         finally:
             store.close()
 

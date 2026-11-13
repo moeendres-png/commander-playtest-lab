@@ -444,8 +444,44 @@ def options(store: StudioStore, *, commander_names: Sequence[str] | None = None)
             [(cast(UniverseSpec, {**scope, "cohorts": [value]}), value) for value in cohorts]
         ),
         "commanders": collect(commander_specs),
-        "cards": _card_options(store, scope),
+        "cards": _with_pool_cards(store, _card_options(store, scope), commander_names),
     }
+
+
+def _with_pool_cards(
+    store: StudioStore, counted: list[OptionValue], commander_names: Sequence[str] | None
+) -> list[OptionValue]:
+    """The card options of a commander's universe form: the cards its decks contain (with
+    their deck counts) plus every other card of the commander's legal pool with 0 decks, so
+    a picker always has suggestions. Only names that name exactly one collection card are
+    offered (the same names ``must_contain`` accepts). Without a commander nothing is added."""
+    if not commander_names:
+        return counted
+    from .decks import color_set
+
+    identity: frozenset[str] = frozenset()
+    for name in commander_names:
+        row = store.connection.execute(
+            "SELECT color_identity FROM card_fact WHERE oracle_name = ?", (name,)
+        ).fetchone()
+        if row is None:
+            return counted
+        identity |= color_set(row["color_identity"])
+    _by_oracle, unique = _card_name_index(store)
+    have = {item["value"] for item in counted}
+    own = set(commander_names)
+    extra: list[OptionValue] = []
+    for row in store.connection.execute(
+        "SELECT c.oracle_name, c.color_identity FROM card_fact c JOIN inventory i USING (card_id) "
+        "WHERE c.commander_legal = 1"
+    ):
+        name = str(row["oracle_name"])
+        if name in have or name in own or unique.get(name.casefold()) != name:
+            continue
+        if color_set(row["color_identity"]) <= identity:
+            have.add(name)
+            extra.append({"value": name, "decks": 0})
+    return sorted([*counted, *extra], key=lambda item: item["value"])
 
 
 def bound_commander_sets(store: StudioStore) -> list[list[str]]:
@@ -870,11 +906,15 @@ class UniverseDecks(TypedDict):
 
 
 def universe_decks(
-    store: StudioStore, *, profile: str, commander_names: Sequence[str] | None
+    store: StudioStore,
+    *,
+    profile: str | None,
+    commander_names: Sequence[str] | None,
+    spec: Mapping[str, object] | None = None,
 ) -> UniverseDecks:
-    """Resolve a profile once: its figures and, per raw card name, the universe decks that
-    list it in a counted section with a quantity above zero."""
-    spec = _universe_spec(store, profile, None, commander_names)
+    """Resolve a profile (or a free ``spec``) once: its figures and, per raw card name, the
+    universe decks that list it in a counted section with a quantity above zero."""
+    spec = _universe_spec(store, profile, spec, commander_names)
     deck_ids = resolve_universe(store, spec)
     by_platform, by_bracket = _composition(store, deck_ids)
     decks_by_name: dict[str, set[str]] = {}
