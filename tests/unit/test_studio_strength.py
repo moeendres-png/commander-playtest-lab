@@ -398,7 +398,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.DECK_UNIVERSE: 3.0,
         strength.SYNERGY: 2.0,
         strength.TOURNAMENT_LISTS: 1.0,
-        strength.GLOBAL_INCLUSION: 0.0,
+        strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 0.0,
         strength.SIMULATION: 0.0,
     }

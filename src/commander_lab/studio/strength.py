@@ -491,7 +491,7 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 DECK_UNIVERSE: 3.0,
                 SYNERGY: 2.0,
                 TOURNAMENT_LISTS: 1.0,
-                GLOBAL_INCLUSION: 0.0,
+                GLOBAL_INCLUSION: 1.0,
                 COMBOS: 0.0,
                 SIMULATION: 0.0,
             },
