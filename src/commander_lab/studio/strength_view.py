@@ -82,6 +82,15 @@ class StrengthResult(TypedDict):
     cards: list[StrengthCard]
 
 
+class RepoDecklistCard(TypedDict):
+    """One pool card's counted inclusion in the repo-CSV fallback universe."""
+
+    card_id: str
+    filter_card: bool
+    hits: int
+    denominator: int
+
+
 _INDEPENDENT = frozenset({"edhrec_global_inclusion", "spellbook_variants"})
 # claim key -> [(claim kind, card id)]
 _Claims = dict[str, list[tuple[int, str]]]
@@ -254,35 +263,45 @@ def _load_repo_decklist_inclusion(
     commander: str,
     ids: list[str],
     claims: _Claims,
-) -> tuple[ProfileSummary | None, list[dict[str, object]] | None]:
-    """Load counted decklist inclusion from repo CSV when local DB has no decklists."""
+) -> tuple[ProfileSummary | None, list[RepoDecklistCard] | None]:
+    """Load counted decklist inclusion from repo CSV when local DB has no decklists.
+
+    The file holds several snapshot universes (one per source x bracket). Cohorts are
+    never added (repo rule, Owner decision 2026-11-13): the fallback uses exactly ONE
+    defined universe — the largest single snapshot universe in the file (ties broken by
+    snapshot id, so the choice is deterministic) — and the summary names that snapshot,
+    its source and its denominator, so every count stays traceable to one universe.
+    """
     csv_path = _repo_decklist_csv_for(commander)
     if csv_path is None or not csv_path.is_file():
         return None, None
 
     import csv
 
+    snapshot_decks: dict[str, int] = {}
+    snapshot_source: dict[str, str] = {}
+    snapshot_bracket: dict[str, str] = {}
+    rows: list[tuple[str, str, int]] = []
     with open(csv_path, encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        snapshot_decks: dict[str, int] = {}
-        platforms: Counter[str] = Counter()
-        brackets: Counter[str] = Counter()
-        card_hits: Counter[str] = Counter()
-        seen_snaps: set[str] = set()
-        for row in reader:
+        for row in csv.DictReader(f):
             snap = str(row["universe_snapshot"])
-            u_decks = int(row["universe_decks"])
-            snapshot_decks[snap] = u_decks
-            if snap not in seen_snaps:
-                seen_snaps.add(snap)
-                platforms[str(row["source"])] += u_decks
-                brackets[str(row["bracket"])] += u_decks
-            hits = int(row["decks_with_card"])
-            card_hits[row["card_name"].casefold()] += hits
+            if snap not in snapshot_decks:
+                snapshot_decks[snap] = int(row["universe_decks"])
+                snapshot_source[snap] = str(row["source"])
+                snapshot_bracket[snap] = str(row["bracket"])
+            rows.append((snap, row["card_name"].casefold(), int(row["decks_with_card"])))
 
-    total_denominator = sum(snapshot_decks.values())
-    if total_denominator <= 0:
+    if not snapshot_decks:
         return None, None
+    chosen = min(snapshot_decks, key=lambda snap: (-snapshot_decks[snap], snap))
+    denominator = snapshot_decks[chosen]
+    if denominator <= 0:
+        return None, None
+
+    card_hits: Counter[str] = Counter()
+    for snap, card_name, hits in rows:
+        if snap == chosen:
+            card_hits[card_name] += hits
 
     hits_per_card: dict[str, tuple[int, int]] = {}
     for raw_name, hits in card_hits.items():
@@ -297,22 +316,24 @@ def _load_repo_decklist_inclusion(
             if curr is None or kind < curr[0] or (kind == curr[0] and hits > curr[1]):
                 hits_per_card[card_id] = (kind, hits)
 
+    source = snapshot_source[chosen]
+    bracket = snapshot_bracket[chosen]
     summary: ProfileSummary = {
         "profile": csv_path.name,
-        "spec": {},
+        "spec": {"platforms": [source], "cohorts": [f"bracket:{bracket}"]},
         "version": 1,
-        "denominator": total_denominator,
-        "denominator_by_platform": dict(platforms),
-        "denominator_by_bracket": dict(brackets),
+        "denominator": denominator,
+        "denominator_by_platform": {source: denominator},
+        "denominator_by_bracket": {bracket: denominator},
         "excluded_no_date": 0,
         "excluded_by_card_filter": 0,
         "min_universe": 30,
-        "below_min_universe": total_denominator < 30,
+        "below_min_universe": denominator < 30,
         "subset_note": None,
-        "snapshot_id": f"repo_csv:{csv_path.stem}:{total_denominator}",
+        "snapshot_id": chosen,
         "data_class": "REPRESENTATIVE_CORPUS",
     }
-    cards_out: list[dict[str, object]] = []
+    cards_out: list[RepoDecklistCard] = []
     for card_id in ids:
         hits = hits_per_card[card_id][1] if card_id in hits_per_card else 0
         cards_out.append(
@@ -320,7 +341,7 @@ def _load_repo_decklist_inclusion(
                 "card_id": card_id,
                 "filter_card": False,
                 "hits": hits,
-                "denominator": total_denominator,
+                "denominator": denominator,
             }
         )
     return summary, cards_out
@@ -353,7 +374,7 @@ def compute(
     notices = list(notices)
     universe_missing: str | None = None
     summary: ProfileSummary | None = None
-    repo_cards: list[dict[str, object]] | None = None
+    repo_cards: list[RepoDecklistCard] | None = None
     if settings.universe_profile:
         try:
             summary = profile_summary(store, settings.universe_profile, commander_names=[commander])
@@ -422,11 +443,11 @@ def compute(
         if summary["denominator"] > 0:
             collected.add(DECK_UNIVERSE)
             if repo_cards is not None:
-                for item in repo_cards:
-                    hits = int(item["hits"])
-                    denom = int(item["denominator"])
-                    card_id = str(item["card_id"])
-                    per_card[card_id][DECK_UNIVERSE] = Observation(hits / denom, hits, denom)
+                for repo_card in repo_cards:
+                    denom = repo_card["denominator"]
+                    per_card[repo_card["card_id"]][DECK_UNIVERSE] = Observation(
+                        repo_card["hits"] / denom, repo_card["hits"], denom
+                    )
             else:
                 spread = pool_spread(
                     store,
@@ -434,13 +455,13 @@ def compute(
                     ids,
                     commander_names=[commander],
                 )
-                for item in spread["cards"]:
-                    if item["filter_card"]:
-                        filter_cards.add(item["card_id"])
+                for spread_card in spread["cards"]:
+                    if spread_card["filter_card"]:
+                        filter_cards.add(spread_card["card_id"])
                     else:
-                        hits = item["hits"] if item["hits"] is not None else 0
-                        per_card[item["card_id"]][DECK_UNIVERSE] = Observation(
-                            hits / item["denominator"], hits, item["denominator"]
+                        hits = spread_card["hits"] if spread_card["hits"] is not None else 0
+                        per_card[spread_card["card_id"]][DECK_UNIVERSE] = Observation(
+                            hits / spread_card["denominator"], hits, spread_card["denominator"]
                         )
 
     type_group: dict[str, str] = {}

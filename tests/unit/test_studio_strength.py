@@ -1019,7 +1019,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
     assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
     assert "(empfohlen: aus)" in labels["rank_commander_and_basics"]
-    assert "(empfohlen: 40)" in labels["min_coverage"]  # the page field is in percent
+    assert "(empfohlen: 30)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
         "(empfohlen: 90 / 75 / 55 / 35)"
@@ -1241,7 +1241,7 @@ def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) ->
     client = TestClient(create_app(tmp_path / "studio.db"))
     meta = client.get("/api/strength/presets").json()
     assert meta["recommended"]["weights"]["simulation"] == 0.0
-    assert meta["panel"]["labels"]["min_coverage"] == "Mindest-Datenlage in % (empfohlen: 40)"
+    assert meta["panel"]["labels"]["min_coverage"] == "Mindest-Datenlage in % (empfohlen: 30)"
     assert (
         meta["panel"]["labels"]["weights.simulation"]
         == "Simulation (empfohlen: 0, derzeit ohne Daten)"
@@ -1698,3 +1698,59 @@ def test_deck_universe_counts_by_default_and_slider_weight_zero_turns_off(
     u_cards = [c for c in result_off["cards"] if c["reason"] == strength.NO_COMMANDER_SIGNAL]
     assert len(u_cards) > 0
     assert u_cards[0]["tier"] == "U"
+
+
+def test_repo_csv_fallback_uses_largest_single_snapshot_universe(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    """Without local decklists the repo CSV is the fallback — but cohorts are never
+    added: exactly one snapshot universe (the largest in the file) is the denominator,
+    the summary names it, and every observation counts only that one universe."""
+    _import(store, tmp_path)
+    source = store.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    store.connection.execute(
+        "INSERT INTO card(card_id, oracle_id, oracle_name, color_identity, mana_value, type_line, "
+        "commander_legal, source_id) VALUES (?, NULL, ?, 'WUG', 5.0, 'Legendary Creature — Human Druid', 1, ?)",
+        ("card:test:chulane", "Chulane, Teller of Tales", source),
+    )
+    store.connection.execute(
+        "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
+        "available_lower_bound, quantity_exact, source_id) VALUES (?, 1, 1, 0, 1, 1, ?)",
+        ("card:test:chulane", source),
+    )
+    store.connection.commit()
+
+    csv_path = (
+        Path(strength_view.__file__).resolve().parents[3]
+        / "data"
+        / "research"
+        / "chulane_decklist_inclusion_20261112.csv"
+    )
+    snapshots: dict[str, tuple[int, str, str]] = {}
+    with csv_path.open(encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            snapshots.setdefault(
+                row["universe_snapshot"],
+                (int(row["universe_decks"]), row["source"], row["bracket"]),
+            )
+    assert len(snapshots) > 1  # the file holds several cohorts; adding them is the bug
+    chosen, (decks, source_name, bracket) = min(
+        snapshots.items(), key=lambda item: (-item[1][0], item[0])
+    )
+    assert decks != sum(value[0] for value in snapshots.values())
+
+    result = strength_view.compute(store, "Chulane, Teller of Tales", StrengthSettings())
+    universe = result["universe"]
+    assert universe is not None
+    assert universe["denominator"] == decks
+    assert universe["snapshot_id"] == chosen
+    assert universe["spec"] == {"platforms": [source_name], "cohorts": [f"bracket:{bracket}"]}
+    assert universe["denominator_by_platform"] == {source_name: decks}
+    assert universe["denominator_by_bracket"] == {bracket: decks}
+    observed = [
+        component["denominator"]
+        for card in result["cards"]
+        for component in card["components"]
+        if component["component"] == strength.DECK_UNIVERSE and component["denominator"] is not None
+    ]
+    assert observed and all(denominator == decks for denominator in observed)

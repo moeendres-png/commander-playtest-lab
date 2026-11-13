@@ -254,7 +254,7 @@ the Universum selector), the comparison group (`rank_group`: `pool`), the share 
 (`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 5; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
-`min_coverage` (0.4), `min_components` (2) and the editable cuts (`tier_cuts` 90/75/55/35).
+`min_coverage` (0.3), `min_components` (2) and the editable cuts (`tier_cuts` 90/75/55/35).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets:
 Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. Simulation results
