@@ -73,7 +73,7 @@ const SMALL_FIRST = new Set(["name", "mv"]);
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
-  strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0, tiers: new Set() },
+  strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0, tiers: new Set(), draft: { fields: {}, name: "" } },
   deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
 };
 
@@ -697,7 +697,10 @@ function renderStrengthSummary() {
   if (!box) return;
   if (!s.result) { box.replaceChildren(unknown("noch nicht berechnet")); return; }
   const result = s.result, counts = result.tier_counts, universe = result.universe;
-  const universeText = universe ? `Universum ${universe.profile} (${universe.denominator} Decks${universe.subset_note ? `; ${universe.subset_note}` : ""})` : "kein Decklisten-Universum";
+  const universeText = `Index berechnet mit: ${universe ? `Universum ${universe.profile} (${universe.denominator} Decks${universe.subset_note ? `; ${universe.subset_note}` : ""})` : "kein Decklisten-Universum"}`;
+  // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
+  // bracket, no deck universe without one.
+  const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !universe)).length;
   const notices = (result.notices || []).map((text) => h("div", { class: "badge warn" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
@@ -705,25 +708,48 @@ function renderStrengthSummary() {
     ...["S", "A", "B", "C", "D"].map((tier) => h("span", { class: `strength lvl-${tier}` }, h("span", { class: "level" }, tier), counts[tier])),
     h("span", { class: "strength lvl-U" }, `${UNKNOWN_TIER} ${counts.U}`),
     h("span", { class: "strength lvl-N", title: "Commander und Standardländer, wenn sie nicht bewertet werden" }, `nicht bewertet ${counts.N || 0}`),
-    h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${s.meta.components.length - 1}`),
+    h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
     ...notices,
     ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${ambiguous.length - 10} weitere` : ""}`)] : []));
 }
 async function applyStrength(settings, remember = true) {
   state.strength.settings = { ...withDefaults(settings), universe_profile: state.universe.name || null };
+  state.strength.draft.fields = {}; // the typed values are now the settings (or were replaced on purpose)
   if (remember) rememberStrength();
   renderStrengthPanel();
   await refreshStrength();
 }
+// A saved profile is computed by the server (``profile=``): it names the universe the profile
+// stores, falls back to no universe with a notice when that universe was deleted, and echoes the
+// settings it used. The page then selects exactly that universe, so the text shown is what was computed.
+async function loadSavedProfile(profile) {
+  const s = state.strength, ticket = ++s.ticket;
+  const result = await api("/api/strength", { commander: COMMANDER, profile: profile.name });
+  if (ticket !== s.ticket) return;
+  const wanted = (result.settings && result.settings.universe_profile) || "";
+  s.settings = { ...withDefaults(result.settings), universe_profile: wanted || null };
+  s.draft = { fields: {}, name: profile.name };
+  s.result = result;
+  s.map = new Map(result.cards.map((item) => [item.card_id, item]));
+  rememberStrength();
+  if (wanted !== (state.universe.name || "")) {
+    state.universe.profiles = await api("/api/universe/profiles");
+    fillUniverseSelect(wanted);
+    await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${error.message}`));
+  }
+  renderStrengthPanel();
+  render();
+}
 function strengthField(key) {
   const s = state.strength, panel = s.meta.panel, kind = fieldKind(key), id = fieldId(key);
-  const current = pathGet(s.settings, key);
+  const current = pathGet(s.settings, key), drafted = s.draft.fields[key];
   let input;
   if (kind.type === "readonly") input = h("input", { id, type: "text", readOnly: true, value: `${universeMinimum()} Decks` });
   else if (kind.type === "choice") {
     input = h("select", { id }, kind.choices.map((item) => h("option", { value: String(item.value) }, item.label)));
-    input.value = String(current);
-  } else input = h("input", { id, type: "number", min: kind.min, max: kind.max, step: kind.step, value: current === undefined ? "" : Math.round(current * kind.scale * 1000) / 1000, placeholder: `${pathGet(s.meta.recommended, key) * kind.scale}` });
+    input.value = drafted !== undefined ? drafted : String(current);
+  } else input = h("input", { id, type: "number", min: kind.min, max: kind.max, step: kind.step, value: drafted !== undefined ? drafted : current === undefined ? "" : Math.round(current * kind.scale * 1000) / 1000, placeholder: `${pathGet(s.meta.recommended, key) * kind.scale}` });
+  if (kind.type !== "readonly") input.addEventListener("input", () => { s.draft.fields[key] = input.value; });
   return h("label", { title: panel.help[key] }, panel.labels[key], input, h("span", { class: "help" }, panel.help[key]));
 }
 function renderStrengthFilters() {
@@ -753,8 +779,7 @@ function renderStrengthPanel() {
     if (!p) return;
     if (!p.valid) { toast(`Einstellung „${p.name}“ ist nicht mehr gültig: ${p.reason}`); return; }
     if (p.universe_missing) toast(`Das Universum „${p.universe_missing}“ dieser Einstellung gibt es nicht mehr: sie läuft mit „kein Universum“.`);
-    $("s-name").value = p.name;
-    applyStrength(p.settings).catch((error) => toast(error.message));
+    loadSavedProfile(p).catch((error) => toast(error.message));
   });
   const apply = h("button", { type: "button", onclick: () => applyStrength(readStrengthSettings()).catch((error) => toast(error.message)) }, "Berechnen");
   const reset = h("button", { type: "button", title: "Alle Einstellungen auf die empfohlenen Werte setzen", onclick: () => applyStrength(s.meta.recommended).catch((error) => toast(error.message)) }, "Empfohlene Werte");
@@ -791,7 +816,7 @@ function renderStrengthPanel() {
         apply, reset),
       groups,
       h("div", { class: "strength-form" },
-        h("label", {}, "Name", h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index" })), save,
+        h("label", {}, "Name", h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index", value: s.draft.name, oninput: (event) => { s.draft.name = event.target.value; } })), save,
         h("label", {}, "Laden", saved), remove)));
   renderStrengthSummary();
 }

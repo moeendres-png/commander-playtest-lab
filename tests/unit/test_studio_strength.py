@@ -1353,3 +1353,65 @@ def test_a_file_with_only_pair_lists_stores_nothing_for_a_single_commander(
     assert entry["rows_written"] == 0 and entry["commander"] is None
     assert entry["skipped_reasons"] == {"OTHER_COMMANDER_SET": 3}
     assert store.count("card_signal") == 0
+
+
+# ---------- loading a saved strength profile (Refs #1205) ----------
+
+
+def test_a_saved_profile_is_computed_with_its_own_universe_not_the_selected_one(
+    client: TestClient, tmp_path: Path
+) -> None:
+    """The page loads a saved profile through ``profile=``: the server answers with the
+    universe the profile names (and echoes it in ``settings``), so the page can select that
+    universe and show exactly what was computed."""
+    from commander_lab.studio import universe
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        universe.save_profile(store, "uni-a", {})
+        universe.save_profile(store, "uni-b", {})
+    finally:
+        store.close()
+    saved = client.put(
+        "/api/strength/profiles/mit-a",
+        json={"settings": {"universe_profile": "uni-a"}},
+        headers=HEADER,
+    )
+    assert saved.status_code == 200
+    computed = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": "mit-a"}, headers=HEADER
+    )
+    assert computed.status_code == 200
+    body = computed.json()
+    assert body["settings"]["universe_profile"] == "uni-a"
+    assert body["universe"]["profile"] == "uni-a" and body["universe_missing"] is None
+    assert body["notices"] == []
+    # the page's settings of the same profile with the OTHER universe selected differ
+    other = client.post(
+        "/api/strength",
+        json={
+            "commander": COMMANDER,
+            "settings": {**body["settings"], "universe_profile": "uni-b"},
+        },
+        headers=HEADER,
+    )
+    assert other.status_code == 200 and other.json()["universe"]["profile"] == "uni-b"
+
+
+def test_the_page_loads_a_saved_profile_through_the_server_and_keeps_drafts() -> None:
+    from commander_lab.studio.web import STATIC
+
+    script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    # a saved profile is computed by the server's profile= path, never by applyStrength
+    # (which would overwrite its universe with the one selected at the top)
+    assert "loadSavedProfile(p)" in script and "profile: profile.name" in script
+    assert "applyStrength(p.settings)" not in script
+    assert "fillUniverseSelect(wanted)" in script
+    # the page says which universe the index was computed with
+    assert "Index berechnet mit:" in script and "kein Decklisten-Universum" in script
+    # form edits and the profile name survive a re-render
+    assert (
+        "s.draft.fields[key] = input.value" in script
+        and "s.draft.name = event.target.value" in script
+    )
+    assert '$("s-name").value = p.name' not in script
