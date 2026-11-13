@@ -59,6 +59,7 @@ def test_with_weight_zero_a_simulation_value_changes_no_index_tier_or_coverage()
     with_values = strength.score_pool(
         StrengthSettings(), _observations(True), {*collected, "simulation"}
     )
+    assert len(without) == 6 and without.keys() == with_values.keys()
     for card, result in without.items():
         other = with_values[card]
         assert (result["index"], result["tier"], result["coverage"], result["present"]) == (
