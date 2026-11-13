@@ -228,7 +228,10 @@ def _parser() -> argparse.ArgumentParser:
         "simulate",
         help="run a batch simulation series of several games, several per engine process",
     )
-    sim.add_argument("--revision", required=True, help="candidate deck revision id (e.g. rev@...)")
+    sim.add_argument("--revision", default=None, help="candidate deck revision id (e.g. rev@...)")
+    sim.add_argument(
+        "--resume", default=None, help="batch id of an interrupted or existing series to resume"
+    )
     sim.add_argument(
         "--pod",
         default="precon",
@@ -617,18 +620,33 @@ def main(argv: list[str] | None = None) -> int:
         store = StudioStore.open(folder)
         try:
             mgr = SimulationBatchManager()
-            batch = mgr.start_batch(
-                store,
-                folder,
-                revision_id=args.revision,
-                pod=args.pod,
-                games_count=args.count,
-                base_seed=args.base_seed,
-                seed_step=args.seed_step,
-                style=args.style,
-                workers=args.workers,
-                games_per_jvm=args.games_per_jvm,
-            )
+            if args.resume:
+                batch = mgr.resume_batch(
+                    store,
+                    folder,
+                    batch_id=args.resume,
+                    workers=args.workers,
+                    games_per_jvm=args.games_per_jvm,
+                )
+            else:
+                if not args.revision:
+                    print(
+                        "error: the following arguments are required: --revision (or --resume)",
+                        file=sys.stderr,
+                    )
+                    return 2
+                batch = mgr.start_batch(
+                    store,
+                    folder,
+                    revision_id=args.revision,
+                    pod=args.pod,
+                    games_count=args.count,
+                    base_seed=args.base_seed,
+                    seed_step=args.seed_step,
+                    style=args.style,
+                    workers=args.workers,
+                    games_per_jvm=args.games_per_jvm,
+                )
             try:
                 while batch.status in {"pending", "running"}:
                     time.sleep(0.5)

@@ -6,6 +6,7 @@ check is ``scripts/check_studio_series_identity.py``.
 
 from __future__ import annotations
 
+import json
 import threading
 import time
 from collections.abc import Iterator, Sequence
@@ -243,3 +244,108 @@ def test_a_batch_writes_one_log_per_game_with_its_own_seed_and_status(tmp_path: 
         if status == "finished":
             assert result["semantic_transcript_sha256"] == f"hash-{seed}"  # type: ignore[index]
             assert result["decision_count"] == seed  # type: ignore[index]
+
+
+def test_stored_seed_list_in_series_record(tmp_path: Path) -> None:
+    """The saved series record stores the explicit seed list in top-level seeds field."""
+    batch = _batch(tmp_path, [10, 20, 30], lambda seeds: iter(()), workers=1, games_per_jvm=3)
+    batch.run_worker()
+    data = batch.to_dict()
+    assert data["seeds"] == [10, 20, 30]
+    series_json = tmp_path / "games" / "t1.series.json"
+    assert series_json.is_file()
+    saved = json.loads(series_json.read_text(encoding="utf-8"))
+    assert saved["seeds"] == [10, 20, 30]
+
+
+def test_resuming_an_interrupted_series_runs_only_remaining_seeds(tmp_path: Path) -> None:
+    """An interrupted series is resumed: already finished games are not re-executed."""
+    seen_seeds: list[list[int]] = []
+
+    def first_run(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        seen_seeds.append(list(seeds))
+        for seed in seeds:
+            if seed == 2:
+                # Interrupted / killed at seed 2
+                raise RuntimeError("simulated crash")
+            yield _finished(batch1, seed, [0])
+
+    batch1 = _batch(tmp_path, [1, 2, 3, 4], first_run, workers=1, games_per_jvm=4)
+    batch1.run_worker()
+    assert any(g.seed == 1 and g.status == "finished" for g in batch1._games)
+    assert any(g.seed == 2 and g.status == "failed" for g in batch1._games)
+
+    # Resume the batch: only remaining seeds (2, 3, 4) should be planned
+    resumed_seen: list[list[int]] = []
+
+    def second_run(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        resumed_seen.append(list(seeds))
+        for seed in seeds:
+            yield _finished(batch2, seed, [0])
+
+    batch2 = BatchSimulation(
+        "t1",
+        tmp_path,
+        "chulane",
+        "rev",
+        "precon",
+        [],
+        [1, 2, 3, 4],
+        chunk_runner=second_run,
+        initial_games=[g for g in batch1._games if g.status == "finished"],
+        workers=1,
+        games_per_jvm=4,
+    )
+    assert batch2.chunks == [[2, 3, 4]]  # seed 1 was not re-planned!
+    batch2.run_worker()
+
+    assert batch2.status == "completed"
+    assert resumed_seen == [[2, 3, 4]]
+    # All 4 games are in the final batch in seed order
+    assert [g.seed for g in batch2._games] == [1, 2, 3, 4]
+    assert all(g.status == "finished" for g in batch2._games)
+    assert batch2.to_dict()["games_completed"] == 4
+
+
+def test_resuming_a_completed_series_does_no_work(tmp_path: Path) -> None:
+    """Resuming a fully completed batch plans no chunks and finishes immediately."""
+    runs = 0
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        nonlocal runs
+        runs += 1
+        for seed in seeds:
+            yield _finished(batch, seed, [0])
+
+    finished_games = [
+        GameSummary(game_id=f"batch-c1-s{s}", seed=s, status="finished", winner_seats=[0])
+        for s in (1, 2)
+    ]
+    batch = BatchSimulation(
+        "c1",
+        tmp_path,
+        "chulane",
+        "rev",
+        "precon",
+        [],
+        [1, 2],
+        chunk_runner=runner,
+        initial_games=finished_games,
+        workers=1,
+        games_per_jvm=2,
+    )
+    assert batch.chunks == []
+    assert batch.status == "completed"
+    batch.run_worker()
+    assert runs == 0
+    assert batch.to_dict()["games_completed"] == 2
+
+
+def test_web_api_resume_endpoint(tmp_path: Path) -> None:
+    """Web API POST /api/simulations/batch/{batch_id}/resume triggers resumption."""
+    StudioStore.open(tmp_path).close()
+    client = TestClient(create_app(tmp_path))
+
+    # Try resuming unknown batch -> 404
+    res = client.post("/api/simulations/batch/unknown-batch-123/resume", headers={"X-Studio": "1"})
+    assert res.status_code == 404
