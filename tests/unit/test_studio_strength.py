@@ -400,6 +400,7 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.TOURNAMENT_LISTS: 1.0,
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 0.0,
+        strength.PLAYGROUP_OBSERVED: 0.0,
         strength.SIMULATION: 0.0,
     }
     tournament = strength.PRESETS["Turniernah"]
@@ -412,8 +413,13 @@ def test_settings_are_validated_and_round_trip() -> None:
         strength.SYNERGY: 0.0,
         strength.GLOBAL_INCLUSION: 1.0,
         strength.COMBOS: 1.0,
+        strength.PLAYGROUP_OBSERVED: 1.0,
         strength.SIMULATION: 0.0,
     }
+    assert strength.DEFAULT_WEIGHTS[strength.PLAYGROUP_OBSERVED] == 1.0
+    # The Playgroup observation is commander independent: it never satisfies the rule
+    # "require_commander_signal" and is not in the set of commander-specific components.
+    assert strength.PLAYGROUP_OBSERVED not in strength.COMMANDER_SPECIFIC
     # Every preset keeps the deck universe, the most commander-specific source, in the index.
     for name, preset in strength.PRESETS.items():
         assert preset.weights[strength.DECK_UNIVERSE] > 0, name

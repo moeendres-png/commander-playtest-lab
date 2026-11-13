@@ -343,11 +343,16 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
     without = _by_name(_compute(store, universe_source="none"))
     with_universe = _by_name(_compute(store))  # the recommended "auto" picks the counted file
-    # Filler 09 is in no commander signal; global inclusion and combos exist for it.
-    assert without["Filler 09"]["coverage"] == pytest.approx(2 / 11, abs=1e-4)
+    # Weights 3 + 2 + 2 + 1 + 1 + 1 + 1 + 1 (playgroup) = 12; simulation is 0. Filler 09 is in no
+    # commander signal and has no playgroup observation; global inclusion and combos exist.
+    total = sum(strength.DEFAULT_WEIGHTS.values())
+    assert total == 12.0
+    assert without["Filler 09"]["coverage"] == pytest.approx(2 / total, abs=1e-4)
     assert without["Filler 09"]["tier"] == strength.TIER_UNKNOWN
-    # deck universe 2 + global 1 + combos 1 = 4 of 11 = 0.36, above the new minimum 0.3
-    assert with_universe["Filler 09"]["coverage"] == pytest.approx(4 / 11, abs=1e-4)
+    # deck universe 2 + global 1 + combos 1 = 4 of 12 = 0.33, above the minimum 0.3 even
+    # WITHOUT a playgroup observation (with one it would be 5 of 12)
+    assert with_universe["Filler 09"]["coverage"] == pytest.approx(4 / total, abs=1e-4)
+    assert 4 / total >= StrengthSettings().min_coverage
     assert StrengthSettings().min_coverage == 0.3
     assert with_universe["Filler 09"]["tier"] in strength.TIERS
 
@@ -369,9 +374,8 @@ def test_a_zero_weight_universe_adds_neither_value_nor_coverage(
         )
     unlisted = _by_name(off)["Filler 09"]
     assert _component(unlisted, "deck_universe")["weight"] == 0.0
-    assert unlisted["coverage"] == pytest.approx(
-        2 / 9, abs=1e-4
-    )  # 9 = weights without the universe
+    # 10 = the weights without the universe (3 + 2 + 1 + 1 + 1 + 1 + 1); global and combos exist
+    assert unlisted["coverage"] == pytest.approx(2 / 10, abs=1e-4)
 
 
 # ---------- the choice of the universe ----------

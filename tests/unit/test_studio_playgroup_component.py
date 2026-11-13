@@ -259,5 +259,13 @@ def test_presets_offer_the_component_with_its_observed_label() -> None:
     entry = offered[strength.PLAYGROUP_OBSERVED]
     assert "Beobachtete" in str(entry["label"]) and "Korrelation" in str(entry["label"])
     assert entry["default_weight"] == 1.0
+    panel = strength_view.presets()["panel"]  # type: ignore[index]
+    key = f"weights.{strength.PLAYGROUP_OBSERVED}"
+    assert panel["labels"][key] == "Beobachtete Sieg-Korrelation (Playgroup) (empfohlen: 1)"
+    assert (
+        "ab 25 Partien" in panel["help"][key]
+        and "reicht für eine Stufe allein nicht" in panel["help"][key]
+    )
+    assert key in panel["groups"][0]["keys"]
     settings = StrengthSettings.from_dict({"weights": {strength.PLAYGROUP_OBSERVED: 2.5}})
     assert StrengthSettings.from_dict(settings.to_dict()) == settings

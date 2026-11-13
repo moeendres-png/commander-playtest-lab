@@ -188,8 +188,9 @@ OBSERVED_SHRINKAGE = 25
 # Sources that list the commander's cards fairly completely: only for these may an unlisted
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
-# Components that say something about THIS commander (the others, global inclusion, combos and
-# simulation, are independent of the commander): the rule "require_commander_signal" asks for
+# Components that say something about THIS commander (the others, global inclusion, combos, the
+# Playgroup observation and simulation, are independent of the commander): the rule
+# "require_commander_signal" asks for
 # at least one of them with a ranked value before a card gets a tier.
 COMMANDER_SPECIFIC = (
     COMMANDER_INCLUSION,
@@ -515,6 +516,7 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 TOURNAMENT_LISTS: 1.0,
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 0.0,
+                PLAYGROUP_OBSERVED: 0.0,
                 SIMULATION: 0.0,
             },
             DEFAULT_BRACKET,
@@ -529,6 +531,7 @@ PRESETS: dict[str, StrengthSettings] = dict(
                 SYNERGY: 0.0,
                 GLOBAL_INCLUSION: 1.0,
                 COMBOS: 1.0,
+                PLAYGROUP_OBSERVED: 1.0,
                 SIMULATION: 0.0,
             },
             "cedh",

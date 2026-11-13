@@ -625,6 +625,12 @@ def _panel_texts() -> dict[str, object]:
         "Simulationsergebnisse zählen nicht in die Tierliste und werden dafür vorerst weder "
         "eingeholt noch verarbeitet. Das Gewicht bleibt als Option bestehen und steht auf 0."
     )
+    helps[f"weights.{strength.PLAYGROUP_OBSERVED}"] = (
+        "Beobachteter Unterschied der Siegrate, wenn die Karte gewirkt wurde (Playgroup-Live-"
+        f"Partien, alle Commander). Zählt erst ab {strength.OBSERVED_MIN_SAMPLE} Partien mit "
+        "der Karte und wird bei kleinen Stichproben zur Null hin gedämpft. Gilt für jeden "
+        "Commander und reicht für eine Stufe allein nicht. 0 schaltet das Signal ab."
+    )
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
     )
@@ -705,8 +711,9 @@ def _panel_texts() -> dict[str, object]:
     helps["require_commander_signal"] = (
         "an: eine Karte bekommt nur dann eine Stufe, wenn mindestens ein Signal speziell für "
         "diesen Commander einen Rang hat (Aufnahme beim Commander, im Bracket, Decklisten-"
-        "Universum, Synergie, Turnierlisten). „Aufnahme überhaupt“ und Kombos gelten für jeden "
-        "Commander und reichen allein nicht: die Karte bleibt „zu wenig Daten“."
+        "Universum, Synergie, Turnierlisten). „Aufnahme überhaupt“, Kombos und die Playgroup-"
+        "Beobachtung gelten für jeden Commander und reichen allein nicht: die Karte bleibt "
+        "„zu wenig Daten“."
     )
     labels["min_coverage"] = (
         f"Mindest-Datenlage in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
