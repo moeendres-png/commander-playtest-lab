@@ -1,0 +1,509 @@
+{
+ "id": 5309653,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Kithkin Tribal",
+ "updated_at": "2026-05-16T04:04:43.094095Z",
+ "cards": [
+  {
+   "name": "Thoughtweft Trio",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wizened Cenn",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kinsbaile Borderguard",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Titan of Littjara",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ballyrush Banneret",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cenn's Tactician",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Order of Whiteclay",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Militia's Pride",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Goldmeadow Stalwart",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ballynock Trapper",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Patrol Signaler",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thistledown Liege",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Augury Adept",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kithkin Harbinger",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kithkin Billyrider",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cenn's Heir",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kithkin Mourncaller",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brigid, Hero of Kinsbaile",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galepowder Mage",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistmeadow Skulk",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Order of the Golden Cricket",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1,
+   "categories": [
+    "Extra"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kithkin Spellduster",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kinsbaile Balloonist",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adaptive Automaton",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Goldmeadow Harrier",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Masked Vandal",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Metallic Mimic",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Goldmeadow Lookout",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Repel Intruders",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kithkin Daggerdare",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloodline Pretender",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Irregular Cohort",
+   "quantity": 1,
+   "categories": [
+    "Kithkin"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Surge of Thoughtweft",
+   "quantity": 1,
+   "categories": [
+    "Extra"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harsh Mercy",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conjurer's Mantle",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Distant Melody",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Obelisk of Urd",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vanquisher's Banner",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1,
+   "categories": [
+    "Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 62,
+ "summe_gesamt": 62,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
