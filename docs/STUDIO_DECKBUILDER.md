@@ -4,6 +4,136 @@ Scope: `docs/OWNER_DECISION_STUDIO_BUILD_PLAY_SIMULATE_20261110.md`. The deck bu
 local web application in `src/commander_lab/studio/`. It works on the Owner's collection and
 currently on one commander (Chulane, `docs/OWNER_DECK_FOCUS_CURRENT.md`).
 
+## Erste Einrichtung
+
+Ein Befehl füllt das Studio mit allen Datenschichten eines Commanders und schreibt einen
+Vollständigkeitsbericht. Es wird nichts aus dem Netz geladen; alle Eingaben sind Dateien auf der
+Festplatte.
+
+### Voraussetzungen
+
+- Python 3.12 oder neuer. Die Pakete aus `pyproject.toml` müssen installiert sein
+  (`pip install -e .` im Repository-Ordner).
+- Java 17 oder neuer wird nur für Spiele und Simulationen gebraucht (`scripts/studio_start.ps1`
+  warnt, wenn es fehlt). Für den Import und das Deckbauen ist es nicht nötig.
+- Der Studio-Datenordner liegt außerhalb des Repositorys (`COMMANDER_LAB_STUDIO_DATA`, sonst
+  setzen ihn die Startskripte: Windows `%LOCALAPPDATA%\CommanderStudio`, Linux
+  `~/.local/share/commander-studio`).
+
+### Woher die Scryfall-Datei kommt
+
+Die öffentliche Kartendatei von Scryfall: auf `https://scryfall.com/docs/api/bulk-data` die
+Datei **Oracle Cards** herunterladen (eine einzige Datei, `oracle-cards-<Datum>.json`). Sie wird
+unverändert übergeben; eine mit gzip gepackte Datei (`.gz`) wird ebenfalls gelesen. Die Datei
+enthält nichts über die Sammlung.
+
+### Aufbau der Sammlungs-Arbeitsmappe (`.xlsx`)
+
+Die erste Zeile jedes Blatts ist die Kopfzeile. Gelesen werden genau diese beiden Blätter
+(`importers.py`):
+
+| Blatt | Pflichtspalten | Weitere Spalten (leer = unbekannt) |
+|---|---|---|
+| `01_CARD_IDENTITY` | `card_id`, `oracle_name` | `oracle_id`, `color_identity`, `mana_cost`, `mana_value`, `type_line`, `oracle_text`, `is_basic_land`, `commander_legal`, `legality_verified_at`, `identity_evidence_type` |
+| `05_INVENTORY_CURRENT` | `card_id`, `observed_quantity`, `physical_owned_quantity_lower_bound`, `reserved_for_opponents_quantity`, `available_for_own_decks_quantity_lower_bound` | `oracle_name`, `quantity_exact`, `number_of_lots`, `last_verified_at` |
+
+`card_id` verbindet die beiden Blätter. Fehlt ein Blatt oder eine Pflichtspalte, bricht der
+Import ab und sagt welche.
+
+### Der Befehl
+
+Im Repository-Ordner. Der Commander muss in der Sammlung stehen; die Schreibweise darf von der
+der Daten abweichen (Groß-/Kleinschreibung wird nicht unterschieden).
+
+Windows PowerShell:
+
+```powershell
+$env:PYTHONPATH = "src"
+python -m commander_lab.studio import-all `
+  --collection "C:\Pfad\Sammlung.xlsx" `
+  --scryfall "C:\Pfad\oracle-cards-20261113.json" `
+  --research data\research `
+  --commander "Chulane, Teller of Tales"
+```
+
+POSIX-Shell (Linux, macOS, WSL):
+
+```sh
+export PYTHONPATH=src
+python3 -m commander_lab.studio import-all \
+  --collection /pfad/Sammlung.xlsx \
+  --scryfall /pfad/oracle-cards-20261113.json \
+  --research data/research \
+  --commander "Chulane, Teller of Tales"
+```
+
+Optional dazu: `--decklists ORDNER` (wiederholbar; Ordner mit den normalisierten Deck-Dateien im
+EDHREC- oder Archidekt-Format, das Format wird erkannt), `--playgroup-atlas DATEI`,
+`--disambiguation CSV` (`name,selected_oracle_id`), `--data ORDNER` (Studio-Datenordner). Das
+aktuelle eigene Deck ist ein eigener Schritt:
+`python -m commander_lab.studio import-lab-deck data/decks/deckbau/chulane_current.json`.
+
+Der Befehl läuft in dieser Reihenfolge: Sammlung, Scryfall-Karten (verknüpft die Sammlung),
+Deck-Listen, Signale (EDHREC, Spellbook, Turnier, Salt, Combos), Rollen aus dem Tagger-Bulk,
+Rulings, Playgroup-Atlas, Verknüpfung der Quell-Decks mit den Karten, ein Standard-Deck-Universum
+(`Alle Decks: <Commander>`), Bericht. Die Reihenfolge der Importe untereinander ist egal: die
+Verknüpfung der Quell-Decks läuft am Ende von `import-scryfall`, `import-decklists` und von
+`import-all`. Wiederholen ändert nichts (jeder Schritt ersetzt nur seinen eigenen Bereich).
+
+Sammlung und Scryfall-Datei sind Pflicht: schlägt einer dieser Schritte fehl, bricht der Lauf ab
+(Exit-Code 1). Alles andere ist optional: ein fehlender Eingang steht im Bericht als
+`NICHT GELIEFERT`, ein fehlgeschlagener optionaler Schritt als `FEHLER` (Exit-Code 2), und der
+Lauf geht weiter. Dateien im Forschungsordner, die kein Importer liest (Drucke, Auswertungen,
+Listen anderer Commander), werden mit Grund aufgelistet.
+
+### Starten
+
+`scripts/studio_start.ps1` (Windows) oder `scripts/studio_start.sh` (Linux/WSL); beide rufen
+`python -m commander_lab.studio serve --open` auf. Danach ist der Bericht auch unter
+`GET /api/import-report` lesbar.
+
+### Den Vollständigkeitsbericht lesen
+
+Der Bericht steht im Terminal und als `import_report.json` im Studio-Datenordner. Pro Schicht
+(Bestand, Kartendaten, Legalität, Rollen, Einsatzrate beim Commander, je Bracket und global,
+Synergie, Combos, Salt, Turnier, Rulings, Quell-Decks, Deck-Universen, Playgroup) steht:
+
+- **Commander**: `n von N`, wie viele der legalen Karten des Commanders Daten dieser Schicht
+  haben. `N` wird aus dem Studio gerechnet (Sammlungskarten, die Commander-legal sind und in der
+  Farbidentität des Commanders liegen), nie angenommen. Karten mit unbekannter Legalität zählen
+  nicht mit; ihre Zahl steht unter `legality.unknown` im JSON.
+- **Sammlung**: dieselbe Zählung über die ganze Sammlung.
+- **Status**: `VOLLSTÄNDIG` (alle Karten), `TEILWEISE` (einige), `FEHLT` (die Schicht hat Zeilen,
+  aber keine für diese Karten), `NICHT GELIEFERT` (das Studio hat keine Zeile dieser Schicht).
+- **Quelle / Stand**: Dateiname und Abrufdatum (aus der Quelle, sonst aus der README der
+  Lieferung, sonst `Stand unbekannt`).
+
+Ein unbekannter Wert (leer in der Quelle) zählt nicht als Datum und wird nie als 0 gespeichert.
+Rulings: die Quelle führt nur Karten mit Rulings, eine Karte ohne Eintrag hat keines
+veröffentlicht; die Schicht gilt deshalb als `VOLLSTÄNDIG`, sobald sie importiert ist, und `n`
+sagt, wie viele Karten Rulings haben.
+
+### Was unbekannt bleibt
+
+- Die Zählung sagt nichts über die Güte der Daten, nur ob die Quelle für die Karte einen Wert hat.
+- Salt gibt es nur für die veröffentlichte Top-Liste; die Salt-Spalte der Kartenseiten-Datei wird
+  nicht gelesen (andere Skala, nicht geprüft).
+- Commander-Kennzahlen der Playgroup, Turnier-Präsenz je Commander, Drucke (MTGJSON) und die
+  Probeabrufe haben im Studio keinen Abnehmer und werden nicht importiert.
+- Der Playgroup-Kartenatlas kommt nur über `--playgroup-atlas`; ohne Datei bleibt die Schicht
+  `NICHT GELIEFERT`.
+- Neue Daten sind Momentaufnahmen: EDHREC- und Turnierwerte ändern sich; das Abrufdatum steht im
+  Bericht.
+
+### Einzelbefehle
+
+`import-all` ruft nur die vorhandenen Importer auf; jeder lässt sich einzeln nutzen:
+`import-inventory`, `import-scryfall`, `import-decklists ORDNER --format edhrec|archidekt
+--commander NAME`, `import-signals ORDNER --commander NAME [--append]`,
+`import-tagger-roles DATEI` (Tagger-Bulk-CSV; nur die Rollen des Studios, andere Kategorien werden
+gezählt und genannt), `import-rulings DATEI...` (ersetzt den ganzen Rulings-Bestand;
+`GET /api/cards/{card_id}/rulings`), `relink-corpus`, `data-report`.
+
 ## Data
 
 Everything lives in one SQLite store in the Studio data folder
@@ -28,6 +158,10 @@ a location inside this repository. Card images are cached next to it in `images/
 | `import-simulation PATH [--engine-pin PIN] [--pilot-policy POLICY]` | `deckbau_eval.py` JSON simulation reports into `simulation_run` / `simulation_card` | simulated result |
 | `fetch-roles --identity WUG --out FILE.json [--replace-scope]` | public role tags (Scryfall tagger) for a color identity, written as a full snapshot of that identity and imported; the query names only the colors | original (public, community labels) |
 | `import-roles FILE.json [--replace-scope]` | a role file (format below) as claims | original, normalized or derived, by the file's origin |
+| `import-tagger-roles FILE.csv` | the tagger bulk (`oracle_id`, `category`, `bulk_label`) as a full snapshot of its own scope, origin `CROSSWALK_NORMALIZED`; only the Studio roles, other categories are counted | normalized |
+| `import-rulings FILE.jsonl [...]` | official rulings (JSON lines) into `card_ruling` (schema 13); replaces all stored rulings with the union of the given files; `GET /api/cards/{card_id}/rulings` | normalized |
+| `relink-corpus` | gives source-deck cards without an oracle id theirs by name and rebuilds deck statistics and roles per deck (also runs at the end of `import-scryfall` and `import-decklists`) | derived |
+| `import-all --collection X.xlsx --scryfall BULK --research DIR --commander NAME [--decklists DIR ...]` | every step above in order, then the completeness report (`import_report.json`, `GET /api/import-report`); see "Erste Einrichtung" | none (report) |
 | `check-role-labels FILE` | compares the role query slugs with a list of official tagger labels (JSON list or one label per line) and names every slug that is not a label | none (report) |
 | `fetch-images --commander NAME` | card images of the legal pool into the local cache | public images |
 | `data-report` | counts-only report: what the store has, lacks and does not know (collection coverage, public card data age, roles per origin, corpus, observations with unknown times and small denominators, marks, simulation runs) plus hashes of the role tables | none (report) |
@@ -176,7 +310,7 @@ Import (all files optional, split parts `<name>_1.csv`, `_2.csv` are read in num
 price columns are never read):
 
 ```
-python -m commander_lab.studio import-signals FOLDER [--commander NAME]
+python -m commander_lab.studio import-signals FOLDER --commander NAME [--append]
 ```
 
 The command reports rows read, written and skipped per file. Signals are stored in
@@ -185,14 +319,23 @@ The command reports rows read, written and skipped per file. Signals are stored 
 per commander of the files, `edhrec_global_inclusion` and `spellbook_variants` commander
 independent (commander name empty), and
 `tournament_lists` (lists of the commander that contain the card over all its lists, main and
-commander section only) under `--commander` (default: the standard commander). The commander
+commander section only) under `--commander` (required; matched case-insensitively against the
+commander names the store already knows), `edhrec_salt` (published top list, commander
+independent) and `edhrec_combo_decks` (combos EDHREC lists for the commander; `numerator` is the
+number of combos of the card, `value` the largest deck count). The tournament and combo files of
+a commander are found by its name (`topdeck_chulane_decks.csv`, `edhrec_chulane_combos.csv`) or
+named with `--tournament-file` and `--combos-file`. The commander
 file's lift column and the spellbook file's partner count are not stored: no strength
 component reads them, and the values remain in the source files (the lift also in the
 observation pipeline). Stores imported earlier keep the rows of the two signals they
 already hold until `card_signal` is rebuilt; nothing reads them. A value the
 source does not publish is NULL (unknown), never 0; a card a source does not list has no row;
 rows of a source fetch that was not `AVAILABLE` are not stored. The tournament player column
-is never stored. Re-importing replaces the rows of the signals it writes.
+is never stored. Re-importing replaces the rows of the signals and commanders it writes
+(`--append` only adds and updates). A file with no importable row is reported as `NO_ROWS` and
+changes nothing; rows of the same signals that remain from other source files are counted as
+`stale_rows`; skipped rows and the reasons a value stayed unknown are counted per reason;
+a BOM at the start of a CSV is accepted; each part of a split file keeps its own source.
 
 Formula, per commander (`strength.py`, pure):
 
