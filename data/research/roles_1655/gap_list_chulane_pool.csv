@@ -1,0 +1,370 @@
+oracle_id,card_name,color_identity,type_line,is_basic_land,is_land,has_any_bulk_tagging,bulk_labels_outside_role_subtrees,has_extra_category_claim
+000d5588-5a4c-434e-988d-396632ade42c,Storm Crow,U,Creature — Bird,0,0,1,evasion;french vanilla;has identical token;meme;type errata summon creature,0
+00f579f4-2d18-4c7c-91b2-34726b384535,Bladed Sentinel,W,Artifact Creature — Construct,0,0,1,activated ability;cycle-mbs-color-artifact;gains vigilance,0
+013ca531-1ff7-4efc-a280-4bc3ab574072,Mocking Sprite,U,Creature — Faerie Rogue,0,0,1,cost-reducer-instant-sorcery;evasion,0
+014d0bcd-b80f-4c43-8f00-f4c31e8f3370,"Yargle, Goliath of Otaria",U,Legendary Creature — Frog Spirit,0,0,1,unique p/t,0
+027dd013-baa7-4111-b3c9-f4d1414e9c45,Glacial Fortress,WU,Land,0,1,1,activated ability;cycle-m10-checkland;synergy-island;synergy-plains,0
+03ebc100-68ac-4d53-adc2-d537212f7d31,Venom Connoisseur,G,Creature — Human Druid,0,0,1,bear with set's mechanic;creaturefall;gains deathtouch;gives deathtouch;times resolved matters;triggered ability,0
+03f5946b-e000-4b39-a49f-1c31668b51bd,Autumn's Veil,G,Instant,0,0,1,cycle-m11-enemy-hate;gives uncounterable;hate-black;hate-blue;pseudo-shroud;single-minded color hate,0
+0481adcd-b66d-432e-80ba-3a4718bb3a7d,Tumble Magnet,C,Artifact,0,0,1,activated ability;counter fuel-charge;hate-artifact;repeatable crime;tapper-artifact;tapper-creature,0
+04c7f4fe-2098-4311-866d-6733c08d5178,Nettlecyst,C,Artifact — Equipment,0,0,1,activated ability;cranial plating;ethereal armor;living weapon;out of color token;triggered ability,1
+05d0b904-a680-4f2f-aaa1-e227a7fe7e79,Unruly Mob,W,Creature — Human,0,0,1,death trigger;gains pp counters;repeatable pp counters,0
+05d24b0c-904a-46b6-b42a-96a4d91a0dd4,Wastes,C,Basic Land,0,1,1,activated ability;cycle-lea-basic-land;single english word name;unique type line,0
+064c3269-c012-4fc7-84c3-5f147a82a03c,Stalactite Dagger,C,Artifact — Equipment,0,0,1,activated ability;gives changeling;triggered ability,1
+0766cf02-ea55-4271-8c73-213c93b0baac,Blinding Beam,W,Instant,0,0,1,additional cost;alliteration;cycle-mrd-c-entwine;freeze-creature;modal;more expensive than mv;multiple targets;single target instant/sorcery;tapper-creature,0
+0895c9b7-ae7d-4bb3-af17-3b75deb50a25,Command Tower,C,Land,0,1,1,activated ability;commander identity matters;rainbow land;synergy-color-share;synergy-commander;tutored by name;virtual legendary,0
+08a0e845-9ef9-4de1-b9fe-4530357346ca,Biblioplex Tomekeeper,,Artifact Creature — Construct,0,0,1,hate-set-mechanic;modal inverse choices;prepare matters;triggered ability;virtual vanilla,0
+098cc111-493b-470b-929c-67deb981240c,Rusted Slasher,C,Artifact Creature — Phyrexian Horror,0,0,1,activated ability;free sacrifice outlet;regenerates self;sacrifice outlet-artifact;synergy-artifact;type addition phyrexian,1
+0a28dff0-2bd6-4105-b73a-b6c4735833fd,Sungrass Prairie,WG,Land,0,1,1,activated ability;cycle-ody-ally-filterland,0
+0ad27d0e-b6c3-4c3f-a389-285d889b6a65,Ballyrush Banneret,W,Creature — Kithkin Soldier,0,0,1,alliteration;cost-reducer-creature;cycle-mor-banneret;noncreature typal;typal coupling;typal-kithkin;typal-soldier,0
+0ae0c880-a508-471f-a90b-029c417f6b3b,Grappler Spider,G,Creature — Spider,0,0,1,french vanilla,0
+0b751cc7-3a19-4207-9e64-83e18d279588,Cloud Elemental,U,Creature — Elemental,0,0,1,high flying,0
+0b76bb3b-1ada-4c78-bd13-3464371d4fa0,Sneaky Homunculus,U,Creature — Homunculus Illusion,0,0,1,evasion;hate-high-pt;restricted blocker;type errata,0
+0bb1c704-47f1-4d0c-8158-cfcd0b5e4d06,Maritime Guard,U,Creature — Merfolk Soldier,0,0,0,,0
+0bb896ba-e15e-43a9-9120-e674d7ba003c,Hall of Oracles,C,Land,0,1,1,activated ability;filterland;gives pp counters;repeatable crime;repeatable pp counters;synergy-instant;synergy-sorcery;utility land,0
+0c7239bf-dc8a-4d79-867e-7a4225568c49,Seasoned Marshal,W,Creature — Human Soldier,0,0,1,attack trigger;attacking matters-self;repeatable crime;tapper-creature;type addition human;type errata summon creature,0
+0ce31ff1-6cfe-4b34-bd02-7d727934e754,Welkin Guide,W,Creature — Bird Cleric,0,0,1,evasion;gives flying;triggered ability;virtual french vanilla,0
+0ee14128-3bec-4b65-8ee4-619337d4ed45,Leatherback Baloth,G,Creature — Beast,0,0,0,,0
+100c877d-4cce-4b96-8f21-a4f8a43e7d84,Skinwing,C,Artifact — Equipment,0,0,1,activated ability;evasion;gives flying;living weapon;out of color token;token errata;triggered ability,1
+10706fd1-7847-4316-be8d-59b56143ce45,Coral Eel,U,Creature — Fish,0,0,1,real life animal name;type errata specific fish;type errata summon creature,0
+10d1d6ca-95f8-48da-8798-37c8aadb1f1f,Detective of the Month,U,Creature — Human Detective,0,0,1,gives unblockable;out of color token;repeatable creature tokens;second draw matters;triggered ability;typal-detective;unblockable,1
+11ba27f4-decf-4447-9808-0d58844655cf,Viridian Claw,C,Artifact — Equipment,0,0,1,activated ability;french vanilla equipment;gives first strike,0
+11ceb2db-021e-422d-976e-7bfe3b67a8aa,Foraging Wickermaw,C,Artifact Creature — Scarecrow,0,0,1,activated ability;color change-self;mana filter;surveil;triggered ability,1
+120446cc-f55b-40db-915d-2669c1083e56,Unnatural Predation,G,Instant,0,0,1,giant growth;gives trample;single target instant/sorcery,0
+12a6cad9-eb42-43bd-9e68-aaf862cd83db,"Adrix and Nev, Twincasters",UG,Legendary Creature — Merfolk Wizard,0,0,1,cycle-c21-face-commander;multi character card;rhystic;synergy-token;token doubler;ward,0
+131a7475-0b9e-46eb-9ade-fef1b9820184,Stormtide Leviathan,U,Creature — Leviathan,0,0,1,chromatic lantern;evasion;land conversion;prevent attack;symmetrical;synergy-flying;synergy-island;synergy-islandwalk;universal type change,0
+13ec2390-e08a-4645-99e9-bac7e41917bb,Burrenton Bombardier,W,Creature — Kithkin Soldier,0,0,1,activate from hand;alliteration;evasion;french vanilla;giant growth with set mechanic;gives pp counters;wind drake with set's mechanic,0
+14c8f55d-d177-4c25-a931-ebeb9e6062a0,Grizzly Bears,G,Creature — Bear,0,0,1,magic term name;meme;real life animal name;type errata summon creature,0
+15cc068c-f424-433e-b165-8457c62a4b35,Azure Drake,U,Creature — Drake,0,0,1,evasion;french vanilla,0
+162dcfa0-36e4-41cd-8322-08e810ff04d4,Reluctant Dounguard,W,Creature — Kithkin Soldier,0,0,1,creaturefall;gains mm counters;removes-mm-counters-self;triggered ability,0
+16629f59-bae8-4c19-bf50-443eb0ed6856,Felidar Retreat,W,Enchantment,0,0,1,gives pp counters to all;gives vigilance;landfall;modal;repeatable creature tokens;repeatable pp counters;triggered ability,1
+16dfd80a-9847-45b8-954f-2af9b7cfa21d,Roc Egg,W,Creature — Bird Egg,0,0,1,creates bigger body;drawback;evasion;leaves body behind;type errata egg,1
+18961e25-3feb-4dba-a77f-240a4d664ecb,Loam Lion,W,Creature — Cat,0,0,1,alliteration;cycle-wwk-allied-land-bonus;synergy-forest,0
+1a60dc0f-e387-4d28-8ff0-c3f1883d0c5d,Hamlet Captain,G,Creature — Human Warrior,0,0,1,attack trigger;attacking matters-self;block trigger;power boost to all;synergy-blocker-self;toughness boost to all;typal-human,1
+1adb733c-d18a-4019-9229-0ad701a15b1a,Kor Aeronaut,W,Creature — Kor Soldier,0,0,1,additional cost;bear with set's mechanic;evasion;gives flying;intervening if clause;more expensive than mv;virtual french vanilla,0
+1b2826ea-a3d5-4b8a-b362-0b0880d1cc48,Hedron Rover,C,Artifact Creature — Construct,0,0,1,landfall;triggered ability,0
+1c36ed3a-c806-47e5-83f9-e44999c67fe5,Primordial Hydra,G,Creature — Hydra,0,0,1,counter doubler;exponential;gains pp counters;gains trample;pp counters matter;repeatable pp counters;triggered ability,0
+1ecd7248-ff28-4e12-b72a-0cb279ec7561,Bar the Door,W,Instant,0,0,1,combat trick;toughness boost to all,1
+1f2d1de6-42e0-4f45-b43d-ce4980146469,Dawn's Light Archer,G,Creature — Elf Archer,0,0,1,french vanilla,0
+204f9afe-c20b-4933-b5cd-aa572784762a,Overrun,G,Sorcery,0,0,1,overrun;single english word name;toughness boost to all,1
+2091eb7e-2357-4ef8-b15e-1e6f82176340,Mold Adder,G,Creature — Fungus Snake,0,0,1,cast trigger-other;cycle-fdn-enemy-hate;cycle-m10-enemy-hate;gains pp counters;hate-black;hate-blue;mana gorger;repeatable pp counters;toll;unique type line,0
+2155864e-5788-4e72-a800-e2cf25cf59a7,Tundra Wolves,W,Creature — Wolf,0,0,1,french vanilla;real life animal name,0
+22252186-15d0-468f-8cab-c74db9b71439,Plaguemaw Beast,G,Creature — Phyrexian Beast,0,0,1,activated ability;martyr;repeatable proliferate;repeatable sacrifice outlet;sacrifice outlet-creature;type addition phyrexian,1
+230be0f8-03a4-4452-84c1-ea14cfe49737,Nantuko Disciple,G,Creature — Insect Druid,0,0,1,activated ability;repeatable crime,0
+2441696b-a9ba-4813-ba2e-e71f85281d05,Wilt-Leaf Liege,WG,Creature — Elf Knight,0,0,1,alliteration;anthem;cycle-mm2-r-two-color;cycle-shm-liege;hate-discard;power boost to all;sneak-self;synergy-green;synergy-white;toughness boost to all;unique mana cost,1
+2546db90-1f6e-43f7-a116-2fefe67d489d,Turn the Tide,U,Instant,0,0,1,alliteration;combat trick;mass shrink,0
+25794033-bd17-4056-b116-68d3acf52569,Myr Sire,C,Artifact Creature — Phyrexian Myr,0,0,1,leaves body behind;token errata;type addition phyrexian,1
+25fb2a67-fd7f-4a06-bd59-118d82c86d6e,Glissa's Courier,G,Creature — Phyrexian Horror,0,0,1,french vanilla walker;namesake spell;type addition phyrexian,0
+270d14b2-07bc-46bc-918f-658102265ccf,Empyrean Eagle,WU,Creature — Bird Spirit,0,0,1,alliteration;anthem;cycle-fdn-draft-signpost;cycle-m20-draft-signpost;evasion;power boost to all;synergy-flying;toughness boost to all,1
+27b047e3-0d41-45e2-98e9-9391d7923a1e,Exotic Orchard,C,Land,0,1,1,activated ability;rainbow land,0
+27b945ad-92a9-4615-87ec-790682e8c3e7,Angel of Salvation,W,Creature — Angel,0,0,1,combat trick;convoke;damage prevention;evasion;multiple targets;synergy-white;triggered ability;virtual french vanilla,0
+27c84b2e-fc66-45a6-a5ad-d3ef204d5077,Enclave Elite,U,Creature — Merfolk Soldier,0,0,1,additional cost;alliteration;cycle-wwk-c-multikicker;evasion;gains pp counters;more expensive than mv;virtual french vanilla,0
+27c87371-697e-4ca6-a7f4-d99215d908bc,Sun-Dappled Celebrant,W,Creature — Treefolk Cleric,0,0,1,convoke;french vanilla;synergy-white,0
+282003f4-862a-4f80-8f45-e470fc0fe2fe,Blightwidow,G,Creature — Phyrexian Spider,0,0,1,french vanilla;gives mm counters;poisonous;type addition phyrexian,0
+2a93236d-f182-4826-8112-4048bb3cbaf9,Ageless Entity,G,Creature — Elemental,0,0,1,gains pp counters;repeatable pp counters;super-pridemate;triggered ability,0
+2ac2b815-2d72-48e6-b43a-18884a74bf95,Skycoach Waypoint,,Land,0,1,1,activated ability;mana sink;prepare matters;repeatable crime;utility land,0
+2ae77795-6a80-498b-bf69-6fd612f601e4,Seaside Citadel,WUG,Land,0,1,1,activated ability;cycle-ala-shardland,0
+2b732c6a-f09c-4ac0-ae3a-1d8820b69aba,Molder Beast,G,Creature — Beast,0,0,1,death trigger;synergy-artifact,0
+2d3e6549-6cc6-434f-a189-ba3b55e64c34,Rampaging Baloths,G,Creature — Beast,0,0,1,landfall;repeatable creature tokens;triggered ability,1
+2f8872fe-84dc-4cda-a253-e7503a5c96a3,Wolfbriar Elemental,G,Creature — Elemental,0,0,1,additional cost;enters in company;more expensive than mv;triggered ability;virtual vanilla,1
+314748a6-4e7f-4afb-b77e-5ef366e02b90,Fledgling Griffin,W,Creature — Griffin,0,0,1,bear with set's mechanic;gains flying;jump;landfall;triggered ability,0
+32fc8fa7-7e0a-4d4e-85cf-2f98b3fc6ecf,Garruk's Companion,G,Creature — Beast,0,0,1,cycle-m11-c-pw-signature;cycle-m12-c-pw-signature;french vanilla;namesake spell,0
+337533fb-2783-493c-856f-c41a83cca443,Vedalken Certarch,U,Creature — Vedalken Wizard,0,0,1,activated ability;cycle-som-c-metalcraft;hate-artifact;metalcraft;repeatable crime;tapper-artifact;tapper-creature;tapper-land,0
+338ad8c4-c89f-4e78-be28-7224fac0fd0f,Kemba's Legion,W,Creature — Cat Soldier,0,0,1,block additional;namesake spell;synergy-blocker-self;synergy-equipment,0
+33e87ab4-f680-4463-a48d-289fed7e196e,Rubbleback Rhino,G,Creature — Rhino,0,0,1,alliteration;french vanilla;protects-self,0
+35506b6b-6476-4830-9baa-4051c18322f0,Mirran Mettle,G,Instant,0,0,1,alliteration;enlarge;giant growth with set mechanic;metalcraft;self-replacement effect;single target instant/sorcery,0
+35d3d96a-d303-4bf5-b972-f311331ec07a,Wild Nacatl,G,Creature — Cat Warrior,0,0,1,cycle-ala-c-1-drop;synergy-mountain;synergy-plains,0
+3608f1f7-8dc5-4dd1-ae91-c830e1de9529,Icy Manipulator,C,Artifact,0,0,1,activated ability;hate-artifact;repeatable crime;tapper-artifact;tapper-creature;tapper-land,0
+36593200-e53c-46e4-a04e-8deec8273c65,Calcite Snapper,U,Creature — Turtle,0,0,1,landfall;protects-self;triggered ability,0
+37ad9318-6690-4a8d-bcea-9fcbca58769d,Aven Fleetwing,U,Creature — Bird Soldier,0,0,1,evasion;french vanilla;protects-self,0
+37f3733e-cc4e-4d84-b29b-d474f6e254a2,Canopy Spider,G,Creature — Spider,0,0,1,french vanilla,0
+382097b3-f753-493c-bde4-101c0538feb4,Frost Breath,U,Instant,0,0,1,freeze-creature;multiple targets;single target instant/sorcery;tapper-creature,0
+39d8406a-90c3-460c-b4e8-0f590573db51,Mechanized Production,U,Enchantment — Aura,0,0,1,alternate win condition;copy-artifact;name matters;repeatable artifact tokens;repeatable creature tokens;repeatable noncreature tokens;synergy-artifact;triggered ability,1
+3a2bb47d-228d-499e-a34b-9e10d99e9b2c,Fog Bank,U,Creature — Wall,0,0,1,damage prevention;damage prevention-self;drawback;evasion,0
+3b1f8108-6911-49e9-8f78-f950bb58cb6c,Hornet Queen,G,Creature — Insect,0,0,1,color break;enters in company;evasion;triggered ability;virtual french vanilla,1
+3b23e4f8-882d-4cce-9b61-171ae2cc3a18,Web-Warriors,GW,Creature — Spider Hero,0,0,1,alliteration;cycle-spm-u-hybrid;gives pp counters to all;triggered ability;unique type line;virtual vanilla,0
+3c75234b-e367-46da-8454-be4315f9b9de,Precinct Captain,W,Creature — Human Soldier,0,0,1,repeatable creature tokens;saboteur;triggered ability,1
+3d4a7dd3-9258-4bd1-adc4-08f0205e196a,Dwynen's Elite,G,Creature — Elf Warrior,0,0,1,enters in company;intervening if clause;namesake spell;noncreature typal;typal-elf;virtual vanilla,1
+3e0e3676-e634-4e64-bdfd-4aaa5885461f,Abstract Performance,U,Sorcery,0,0,1,fact or fiction;free-cast-another;gives castable from exile;minigame;pile,0
+3eff8f21-9a1b-4afc-8a7b-75a740d0a4ea,Clockwork Condor,C,Artifact Creature — Bird,0,0,1,alliteration;attack trigger;block trigger;delayed trigger;drawback;evasion;gains pp counters,0
+3f2a27a1-f9cf-4dac-a248-5c6af4de3722,Azorius Arrester,W,Creature — Human Soldier,0,0,1,alliteration;detain;triggered ability;virtual vanilla,0
+3f49dfa6-d0d4-4b58-8417-ed11c062e220,Gust-Skimmer,U,Artifact Creature — Insect,0,0,1,activated ability;cycle-mbs-color-artifact;gains flying;jump,0
+3fa71348-fa4d-4f39-a451-cf1570591991,Imperious Perfect,G,Creature — Elf Warrior,0,0,1,activated ability;anthem;cycle-lrw-typal-lord;power boost to all;repeatable creature tokens;toughness boost to all;typal-elf,1
+416c70ab-f136-43e0-b5d5-9af8d4211c01,Deluge Virtuoso,U,Creature — Human Wizard,0,0,1,amount spent matters;cast trigger-you;freeze-creature;prowess-like;self-replacement effect;synergy-instant;synergy-sorcery;tapper-creature,0
+42798e2b-9a5c-4f93-8f77-b7bb7a916d07,Infantry Veteran,W,Creature — Human Soldier,0,0,1,activated ability;attacking matters;repeatable crime;type addition human,0
+4288ba56-ddd0-4bd9-ba61-daf03e9f2d7f,Shore Lurker,W,Creature — Merfolk Scout,0,0,1,evasion;surveil;triggered ability;virtual french vanilla,1
+445bb343-9758-459b-970f-47f1705f1e55,Armored Cancrix,U,Creature — Crab,0,0,0,,0
+44c5f8e1-d9b8-4067-a60a-1ecc8bd11145,Augury Owl,U,Creature — Bird,0,0,1,evasion;scry;triggered ability;virtual french vanilla,1
+456f2991-ab64-41bc-9bd1-a1b1e7993ed6,Trip Noose,C,Artifact,0,0,1,activated ability;repeatable crime;tapper-creature,0
+458d2b12-f578-4392-98d3-c3bc83f316c4,Port Town,WU,Land,0,1,1,activated ability;cycle-soi-reveal-land;synergy-island;synergy-plains,0
+46762944-8364-45c4-8008-e693e97ddc46,Battle Hurda,W,Creature — Giant,0,0,1,french vanilla,0
+48d1b217-b068-468c-bc6c-4bef9e44cc6e,"Lizard, Connors's Curse",G,Legendary Creature — Lizard Villain,0,0,1,alliteration;color change;humble;shapechange;triggered ability;type change;unique type line;untracked indefinite effect;virtual french vanilla,0
+48f7217e-ae11-44bd-ac42-7c8d9dd5dc36,Bristlebane Outrider,G,Creature — Kithkin Knight,0,0,1,creaturefall;daunt,0
+49638d96-e83e-4aab-bafb-d6183a6e3ff6,Air Servant,U,Creature — Elemental,0,0,1,activated ability;cycle-elemental-servant;cycle-w16-u;evasion;hate-flying;mana sink;repeatable crime;tapper-creature,0
+4a9e0294-c967-4e90-b776-6d3195034a23,Wrecking Gecko,G,Artifact Creature — Lizard Construct,0,0,1,activated ability;bottomless mana sink;gains trample;rhystic;shade pump;unique type line;ward,0
+4aae7102-301a-429d-b169-4f462384d55d,"Ishai, Ojutai Dragonspeaker",WU,Legendary Creature — Bird Monk,0,0,1,alt-commander;cast trigger-other;cycle-c16-m-partner;evasion;gains pp counters;mana gorger;namesake spell;pair-commander;repeatable pp counters;rhyming name;toll,0
+4ac9116f-36bc-4d71-b696-d6ee064e1d58,Juggernaut,C,Artifact Creature — Juggernaut,0,0,1,eponymous;evasion;forced attacker;hate-typal-wall;single english word name;type addition from none,0
+4b6dd710-f7f2-4fc8-9b66-b48c7737b135,Untamed Might,G,Instant,0,0,1,enlarge;giant growth;single target instant/sorcery,0
+4c9f5359-249e-488b-9a7e-db1a43c2b1f4,Trained Armodon,G,Creature — Elephant,0,0,0,,0
+4e0ba9d5-4bd6-49a0-ae00-70818738d0ba,Gallant Fowlknight,W,Creature — Kithkin Knight,0,0,1,gives first strike;power boost to all;triggered ability;typal-kithkin;virtual vanilla,1
+4eb24ae3-da1a-4565-934f-e25f56036d71,Silverskin Armor,C,Artifact — Equipment,0,0,1,activated ability;artifactify,0
+4ed27607-21a8-4bc3-997e-6d2242313f6d,Coral Merfolk,U,Creature — Merfolk,0,0,0,,0
+50dd9e17-6dae-4ff6-8a38-50088c71283f,Thoughtweft Lieutenant,GW,Creature — Kithkin Soldier,0,0,1,bear with set's mechanic;creaturefall;cycle-ecl-typal-signpost;gains trample;gives trample;noncreature typal;triggered ability;typal-kithkin,0
+517c7295-8ba2-47a6-a1c6-aee722f8ca88,Leonin Skyhunter,W,Creature — Cat Knight,0,0,1,evasion;french vanilla,0
+52f03e73-3dba-44c2-b256-10e7e208b961,Grow Extra Arms,G,Instant,0,0,1,discount-self;enlarge;giant growth with set mechanic;single target instant/sorcery;typal-spider,0
+5330e24a-8568-446e-840a-594cd08bd1bc,Prairie Stream,WU,Land — Plains Island,0,1,1,activated ability;cycle-bfz-tangoland;lands matter;nonbasic-basic-land-type;synergy-basic,0
+5396045d-744b-435e-8324-a1bfbb03449d,Clachan Festival,W,Kindred Enchantment — Kithkin,0,0,1,activated ability;bottomless mana sink;cycle-ecl-typal-kindred;multiple bodies;out of color token;repeatable creature tokens;triggered ability,1
+53a1faa1-ca67-4027-bee8-0f7c4584d62b,Blinding Mage,W,Creature — Human Wizard,0,0,1,activated ability;repeatable crime;tapper-creature,0
+53c730c6-2f8c-4af8-b400-b9d573a71e60,Adaptive Automaton,C,Artifact Creature — Construct,0,0,1,alliteration;anthem;power boost to all;toughness boost to all;typal-choose;type change,1
+53e88e64-6f82-4154-a66e-6aeb0154b368,Rule of Law,W,Enchantment,0,0,1,hate-storm;rule of law;symmetrical,1
+542831c6-6279-4977-9b29-0fb9c0ebf04d,Mischievous Mystic,U,Creature — Human Wizard,0,0,1,alliteration;evasion;repeatable creature tokens;second draw matters;triggered ability,1
+546f037b-aea8-4c7a-9b66-373f1be0bac6,Goldmeadow Harrier,W,Creature — Kithkin Soldier,0,0,1,activated ability;cycle-spellshaped-from-fut;has identical token;repeatable crime;tapper-creature,0
+55a4b186-c6d4-4b08-bf45-481429693948,Strandwalker,C,Artifact — Equipment,0,0,1,activated ability;gives reach;living weapon;out of color token;token errata;triggered ability,1
+55a519b4-61cb-448a-875b-4d6dbe00580f,Spire of Industry,C,Land,0,1,1,activated ability;painland;rainbow land;synergy-artifact,0
+55c60b29-52c5-428c-9229-11ed0e26bd71,Glory Seeker,W,Creature — Human Soldier,0,0,1,type addition human,0
+55cec4bc-3de6-4c0d-a4cc-c5a30849fbda,Wildborn Preserver,G,Creature — Elf Archer,0,0,1,bottomless mana sink;cr 107.3f x card;creaturefall;gains pp counters;reflexive trigger;repeatable pp counters;typal-non-human,0
+571c1923-790f-48b7-86d2-70c3e79fdba3,Shriekhorn,C,Artifact,0,0,1,activated ability;counter fuel-charge;mill-any;repeatable crime,1
+5748ebf1-24e3-499d-ab7c-c2cebd462a24,Giant Growth,G,Instant,0,0,1,alliteration;cycle-lea-boon;enlarge;giant growth;single target instant/sorcery,0
+590d524f-278d-4cf4-ae3f-efcced4517b1,Merfolk Mesmerist,U,Creature — Merfolk Wizard,0,0,1,activated ability;alliteration;mill-any;repeatable crime,1
+5912546a-acc2-448c-b042-64bdac5ec129,Mind Control,U,Enchantment — Aura,0,0,1,theft-creature,0
+592689f2-f17c-40d6-b880-431f4b6a6b0c,Bristlebane Battler,G,Creature — Kithkin Soldier,0,0,1,alliteration;creaturefall;gains mm counters;removes-mm-counters-self;rhystic;ward,0
+593caa15-e1d1-477f-bbb4-124d7a7b81f3,Mighty Leap,W,Instant,0,0,1,giant growth;gives flying;jump;single target instant/sorcery,0
+599fb8b1-8750-4832-869a-cddc3784087a,Harbor Serpent,U,Creature — Serpent,0,0,1,evasion;land count matters;opponent land count matters;restricted attacker;synergy-island,0
+59edd0e7-37c2-45f9-9f9d-8002be459662,Grizzled Leotau,WG,Creature — Cat,0,0,0,,0
+5a5f39ab-21b4-415f-aa1f-d8fad420d372,Throne of Geth,C,Artifact,0,0,1,activated ability;namesake spell;repeatable proliferate;repeatable sacrifice outlet;sacrifice outlet-artifact;synergy-artifact;virtual legendary,1
+5a7ecb5c-9b22-4d2c-b851-db92c1d3c745,Silverclaw Griffin,W,Creature — Griffin,0,0,1,evasion;french vanilla,0
+5b2364d7-a811-4595-a1b4-224c70555ffa,Raise the Alarm,W,Instant,0,0,1,multiple bodies,1
+5b5e0df8-f8f0-40a1-9814-89d73a026ad0,Pride of Lions,G,Creature — Cat,0,0,1,unstoppable,0
+5b677e88-bcc9-4a55-9c89-8bbd0e2344dc,Junk Winder,U,Creature — Serpent,0,0,1,affinity for tokens;freeze-nonland;repeatable crime;tapper-nonland;tokenfall;triggered ability,1
+5c5766f9-befd-4426-9527-d50af0699ca1,Kithkeeper,W,Creature — Elemental,0,0,1,activated ability;enters in company;firebreathing;gains flying;jump;out of color token;tap fuel-creature;triggered ability;vivid,1
+5c68853e-4fb8-465e-b262-e6dbaf972533,Self-Reflection,U,Sorcery,0,0,1,alternative cost;castable from graveyard;cheaper than mv;copy-creature;exile-self;punny name;single target instant/sorcery,1
+5c92f375-ae6a-4be5-a499-ab87d6bdc49b,Palace Guard,W,Creature — Human Soldier,0,0,1,block unlimited;synergy-blocker-self,0
+5ccb57e1-ca94-4b5a-8e5f-b8b5e692cfb9,Steel Wall,C,Artifact Creature — Wall,0,0,1,drawback;french vanilla,0
+5cdc4654-b8c5-4599-a1d2-9e9d5f6509cb,Duelist's Heritage,W,Enchantment,0,0,1,attack trigger;attacking matters;attacking matters-any;gives double strike;repeatable crime;selective group hug,0
+5cfdfcac-57fb-4507-a97a-cccbac2d1327,Flayer Husk,C,Artifact — Equipment,0,0,1,activated ability;living weapon;out of color token;token errata;triggered ability,1
+5d9a4905-4a26-410e-936c-56de849e9ca3,"Syr Alin, the Lion's Claw",W,Legendary Creature — Human Knight,0,0,1,attack trigger;attacking matters-self;cycle-eld-syr-legend;power boost to all;toughness boost to all,1
+5fffd840-1e6e-4f5d-b847-802f9a25eb5c,Vinebred Brawler,G,Creature — Elf Berserker,0,0,1,attack trigger;attacking matters-self;lure-limited;typal-elf,0
+60033841-71c7-4370-a2bc-e570a5c100ea,Swell of Courage,W,Instant,0,0,1,activate from hand;cheaper than mv;enlarge;giant growth;gives pp counters;more expensive than mv;power boost to all;toughness boost to all,1
+60ba93eb-39e6-4af2-9c66-cd38f72daff2,Savannah Lions,W,Creature — Cat,0,0,1,type errata lion,0
+60efa8a2-6903-4756-92fd-29f6ba6ef67a,Moss Monster,G,Creature — Elemental,0,0,1,alliteration;creature type monster,0
+610adb2b-9d52-4b70-92d1-0c7adeb93552,Bant Sureblade,WUG,Creature — Human Soldier,0,0,1,cycle-arb-shard-blade;gains first strike;synergy-multicolor,0
+6119fe8e-e7e2-4cc1-a44d-fe95a230db80,Orochi Ranger,G,Creature — Snake Warrior Ranger,0,0,1,freeze-creature;orochi ability;tapper-creature;triggered ability;type errata;unique type line,1
+616312a9-83c8-4fb7-87ce-079ccd3231fa,Lurking Lizards,G,Creature — Lizard Villain,0,0,1,alliteration;cast trigger-you;gains pp counters;high mana value matters;repeatable pp counters;unique type line,0
+61e09dd9-7870-48c2-9177-d6abc3162692,Titanic Growth,G,Instant,0,0,1,enlarge;giant growth;single target instant/sorcery,0
+635fe908-6f58-4c9e-ac55-0775a7c6f278,Angel of Vitality,W,Creature — Angel,0,0,1,evasion;life-total-matters-self;lifegain increaser;lifegain matters,0
+63eed1f5-442f-433d-989c-397b88543162,Wary Farmer,GW,Creature — Kithkin Citizen,0,0,1,creaturefall;cycle-ecl-c-hybrid;intervening if clause;repeatable surveil,1
+63f67baa-3f37-41b8-9ee6-3c37f828917d,Prudent Fateseer // Peer Review,UW,Creature — Dwarf Wizard // Sorcery,0,0,1,cycle-fra-u-hybrid;enters in company;gives castable from exile;power boost to all;surveil;synergy-scry;synergy-surveil;triggered ability,1
+65368569-68bf-4498-9979-d2935942ca49,Stonehorn Dignitary,W,Creature — Rhino Soldier,0,0,1,phase manipulation;pseudo-fog;triggered ability;unnoted tracked information;virtual vanilla,0
+66d4370e-19b9-4680-9b1e-a192537bc002,Omni-Changeling,U,Creature — Shapeshifter,0,0,1,changeling;clone;convoke;copy-creature;cycle-ecl-u-changeling;synergy-blue,0
+6a4068b0-fb4f-429c-a94e-47849f3eb7ef,Flight,U,Enchantment — Aura,0,0,1,french vanilla aura;gives flying;single english word name,0
+6beaeec2-b4e9-4904-b817-c0118549d4a9,Mosquito Guard,W,Creature — Kithkin Soldier,0,0,1,activate from hand;french vanilla;gives pp counters;more expensive than mv,0
+6c0c5832-416f-405f-bb44-c24be6f9d081,Spire Serpent,U,Creature — Serpent,0,0,1,alliteration;drawback;metalcraft;turns off defender-self,0
+6c0f6673-bc24-4c84-b4e7-736283ffd60e,Wanderwine Distracter,U,Creature — Merfolk Wizard,0,0,1,repeatable crime;shrink;triggered ability;uninspired,0
+6c34674f-856b-4062-87d5-6ed73d9a9855,Wildvine Pummeler,G,Creature — Giant Berserker,0,0,1,discount-self;virtual french vanilla;vivid,0
+6cb9d153-4eaa-4f32-8930-bd68cd99c128,Three Tree Mascot,C,Artifact Creature — Shapeshifter,0,0,1,activated ability;alliteration;changeling;mana filter;rhyming name,0
+6d7f7e6e-5076-4af7-afe3-3e500835c4aa,Gravelgill Scoundrel,U,Creature — Merfolk Rogue,0,0,1,attack trigger;attacking matters-self;tap fuel-creature;unblockable,0
+6daf3c59-7636-4d44-872b-67722b4868cb,Jade Mage,G,Creature — Human Shaman,0,0,1,activated ability;bottomless mana sink;cycle-m12-mage;repeatable creature tokens,1
+6e04a375-303e-43ba-bca1-4e959711a7f6,Safewright Cavalry,G,Creature — Elf Warrior,0,0,1,activated ability;bottomless mana sink;shade pump;stalking;typal-elf,0
+6e32b958-70d3-4f3d-b10e-d6c8cb27dd93,Protean Hydra,G,Creature — Hydra,0,0,1,ablative armor;damage prevention-self;delayed trigger;gains pp counters;pp counters matter;repeatable pp counters,0
+6e42e7dc-acd9-4125-a90d-75fd8da204b3,Greater Basilisk,G,Creature — Basilisk,0,0,1,french vanilla,0
+6eb74f6e-1c9d-4caf-a0d8-fa472d435346,Abbey Griffin,W,Creature — Griffin,0,0,1,evasion;french vanilla,0
+6ec8dc98-adc7-4fc3-94e5-31037235ceab,Jhessian Infiltrator,UG,Creature — Human Rogue,0,0,1,cycle-ala-u-two-color;unblockable,0
+6f856f99-4cb4-479d-958d-964220965ed6,Wilderness Reclamation,G,Enchantment,0,0,1,extra untap;triggered ability;untapper-land,0
+6f8fa68e-e961-4ae1-b27d-22d87e90f26b,Procrastinate,U,Sorcery,0,0,1,freeze-creature;single english word name;single target instant/sorcery;tapper-creature,0
+705531b3-77cc-4d1f-851b-45e03c029991,Hysterical Blindness,U,Instant,0,0,1,combat trick;mass shrink,0
+7060f2c8-fca0-4b7a-bddf-37682f434596,Whirler Rogue,U,Creature — Human Rogue Artificer,0,0,1,activated ability;enters in company;gives unblockable;repeatable crime;tap fuel-artifact;triggered ability;unblockable;unique type line,1
+724f3d2f-0513-4efd-961f-56a7ea7b5731,Signal Pest,C,Artifact Creature — Pest,0,0,1,attack trigger;attacking matters;attacking matters-self;battle cry;fake flying;unique type line,0
+72df0b70-5c9f-44f3-96d5-81c95abc0065,Griffin Sentinel,W,Creature — Griffin,0,0,1,evasion;french vanilla,0
+7392c58b-1ba9-4cf3-8449-aa5de3c42130,Fiddlehead Kami,G,Creature — Spirit,0,0,1,cast trigger-you;noncreature typal;regenerates self;synergy-arcane;typal-spirit,0
+741e4f32-0587-40fa-a73d-5bcf66b52348,Wall of Frost,U,Creature — Wall,0,0,1,block trigger;cycle-m15-wall;drawback;freeze-creature;synergy-blocker-self,1
+74c4c1e2-c50d-4c8f-889a-0d5674dc6d67,Turn to Frog,U,Instant,0,0,1,color change;combat trick;humble;single target instant/sorcery;type change,0
+751321ac-af07-4b7e-976f-5bf4e4281470,Assembly-Worker,C,Artifact Creature — Assembly-Worker,0,0,1,activated ability;eponymous;repeatable crime;typal-assembly-worker,0
+75b235d3-595a-4859-be45-9559d8445db5,Selesnya Guildgate,WG,Land — Gate,0,1,1,activated ability;cycle-guildgate,0
+765a12fc-9b66-4bb7-88f6-6e7bd2d2f8c7,Gobbling Ooze,G,Creature — Ooze,0,0,1,activated ability;gains pp counters;repeatable pp counters;repeatable sacrifice outlet;sacrifice outlet-creature,1
+766787ef-654a-4544-b5d7-d2f96949edf1,Prized Unicorn,G,Creature — Unicorn,0,0,1,lure,0
+76f335d0-7f71-4b1a-b60d-73de954cbe2c,Skycloud Expanse,WU,Land,0,1,1,activated ability;cycle-ody-ally-filterland,0
+77f257b9-2047-40a3-85c2-00ad17deeb08,Foratog,G,Creature — Atog,0,0,1,activated ability;cycle-monocolor-atog;repeatable sacrifice outlet;sacrifice outlet-land;shade pump;synergy-forest,1
+780da643-8d14-4f1a-a298-5b7454e9c4df,Phantasmal Bear,U,Creature — Bear Illusion,0,0,1,cycle-m12-phantasmal;illusion ability;triggered ability;unique type line,0
+793fe31a-2b11-49f8-9851-719469ad1726,Priests of Norn,W,Creature — Phyrexian Cleric,0,0,1,french vanilla;gives mm counters;namesake spell;poisonous;type addition phyrexian,0
+79dfe2eb-82b9-4dae-95c8-58fdf9006bc7,Goldmeadow Nomad,W,Creature — Kithkin Scout,0,0,1,out of color token;renew;virtual vanilla,1
+7b094a2b-2b69-4a9b-9829-c1aabc53f75e,Solidarity,W,Instant,0,0,1,combat trick;single english word name;toughness boost to all,1
+7b2eb6f2-bd13-4eb6-b91a-c0fa8f3d96af,Marsh Threader,W,Creature — Kor Scout,0,0,1,french vanilla walker,0
+7da0e5de-3e4c-420a-8685-991206100b9d,"Zetalpa, Primal Dawn",W,Legendary Creature — Elder Dinosaur,0,0,1,cycle-rix-elder-dinosaur;evasion;french vanilla;meme;protects-self,0
+7e26f0b7-20e6-46d5-8130-d98c14d6aa29,Temple of Mystery,UG,Land,0,1,1,activated ability;cycle-block-ths-scry-land;scry;triggered ability;utility land,1
+7e8f5b34-fd16-4307-9104-17b584b25b14,Awakener Druid,G,Creature — Human Druid,0,0,1,animate land;color change;creates bigger body;synergy-forest;triggered ability,0
+7eadffcb-1e15-44c1-b1db-78c71b8ec1ce,Rupture Spire,C,Land,0,1,1,activated ability;rainbow land;rupture spire;triggered ability,0
+7ef8df9f-3fab-44fd-b5a9-f57e54dbc38e,Guardians of Akrasa,W,Creature — Human Soldier,0,0,1,attack trigger;attacking matters;drawback;exalted;french vanilla,0
+7f32c581-4d4a-4873-8e4b-b95e13790481,Phantasmal Dragon,U,Creature — Dragon Illusion,0,0,1,cycle-m12-phantasmal;evasion;illusion ability;triggered ability,0
+7fffbe7f-ad78-4bb6-a611-c37e495c6ee0,Kappa Cannoneer,U,Artifact Creature — Turtle Warrior,0,0,1,artifactfall;gains pp counters;improvise;repeatable pp counters;rhystic;unblockable;unique type line;ward,0
+82184f0a-54a1-4ae0-9b99-2b3450c6e544,Crosstown Courier,U,Creature — Vedalken,0,0,1,alliteration;mill-opponent;saboteur;scales with damage dealt;triggered ability,1
+834efbf7-7b93-42ac-ab20-0b7b8ca58a16,Razorfield Rhino,C,Artifact Creature — Rhino,0,0,1,alliteration;metalcraft,0
+841b1010-a7d3-415e-b76d-7b50fea909cb,Stonework Puma,C,Artifact Creature — Cat Ally,0,0,1,unique type line,0
+845d80ee-1cd5-437a-90a5-40dcc657d3aa,Kinsbaile Aspirant,W,Creature — Kithkin Citizen,0,0,1,additional cost;creaturefall;cycle-ecl-u-behold;more expensive than mv;noncreature typal;triggered ability;typal-kithkin,0
+8462a2fa-944b-4fff-a161-10345690b56f,Ichorclaw Myr,C,Artifact Creature — Phyrexian Myr,0,0,1,block trigger;gives mm counters;hate-blocker;poisonous;type addition phyrexian,0
+8475f55e-473c-4df0-bae2-3cbbbde4ff12,Chrome Steed,C,Artifact Creature — Horse,0,0,1,metalcraft,0
+8806ee05-10d5-4492-b672-2f6bcab94be0,Knowledge Is Power,WU,Enchantment,0,0,1,anthem;draw matters;power boost to all;punny name;toughness boost to all,1
+88d0a394-79e2-42ac-9a37-1a7b78231941,Thunderclap Drake,U,Creature — Drake,0,0,1,activated ability;cast trigger-you;copy-instant;copy-sorcery;copy-spell;cost-reducer-instant-sorcery;day zero errata;delayed trigger;evasion;martyr;recasting commander matters;storm-like;synergy-commander,1
+8957f7c2-040c-4048-9f21-efa7c97682b7,Ambush Viper,G,Creature — Snake,0,0,1,color break;french vanilla,0
+89f43e27-790b-4ca1-8ba7-0882b31e0783,Temple of Enlightenment,WU,Land,0,1,1,activated ability;cycle-block-ths-scry-land;scry;triggered ability;utility land,1
+8a04fd45-6526-4c73-8b38-5e40a2380451,Needleshot Gourna,G,Creature — Beast,0,0,1,french vanilla,0
+8ab99b5e-c9e0-45c2-8df2-864ab0ad1caf,Runic Repetition,U,Sorcery,0,0,1,alliteration;recursion from exile;single target instant/sorcery;synergy-flashback,0
+8aed54cb-d1bb-45ad-adbe-38e55d84ff31,Silence,W,Instant,0,0,1,silence;single english word name,1
+8b36335b-119b-4f90-a5d7-b77d8f47f55f,Soul Parry,W,Instant,0,0,1,combat trick;damage prevention;multiple targets;single target instant/sorcery,0
+8bef3511-ceeb-4d57-972a-ab363ecacd5b,Timid Shieldbearer,W,Creature — Kithkin Soldier,0,0,1,activated ability;bottomless mana sink;power boost to all;shade pump;toughness boost to all,1
+8e4dc1fc-e412-4aa3-8793-5c4abc598521,Stampeding Rhino,G,Creature — Rhino,0,0,1,french vanilla,0
+8e5d72a1-6ae0-445d-bac7-62da3bd3a8d6,Mirran Spy,U,Creature — Drone,0,0,1,cast trigger-you;evasion;repeatable crime;synergy-artifact;untapper-creature,0
+8ec56e2a-380f-4de7-9fb7-52de803008fc,Transformative Commons,UG,Land,0,1,1,activated ability;cycle-fra-commons;synergy-planeswalker,0
+8ffbff60-a59d-4f71-864e-3c16cb61e43b,Copper Carapace,C,Artifact — Equipment,0,0,1,activated ability;alliteration,0
+903d114b-1899-4e67-bee3-af0673850388,Faebloom Trick,U,Instant,0,0,1,evasion;multiple bodies;reflexive trigger;tapper-creature,1
+916cb70f-3b06-48ed-972d-75f805aa0892,Brineborn Cutthroat,U,Creature — Merfolk Pirate,0,0,1,cast trigger-you;gains pp counters;off-turn casting matters;repeatable pp counters,0
+916db499-7f0a-45f7-8abe-94818a53e494,Armored Ascension,W,Enchantment — Aura,0,0,1,alliteration;cycle-shm-basic-land-count;gives flying;maro-sorcerer;synergy-plains,0
+9275108c-7eaf-4edd-aa6d-e5263d5ac7fd,Ardent Recruit,W,Creature — Human Soldier,0,0,1,metalcraft,0
+930035c6-cde7-40ac-98ef-0840812037db,Chitinous Graspling,GU,Creature — Shapeshifter,0,0,1,changeling;cycle-ecl-c-hybrid-changeling;french vanilla,0
+9357de36-f8be-4f49-b2c8-9fe9eaf82b07,Holy Strength,W,Enchantment — Aura,0,0,1,vanilla aura,0
+94b703c4-5584-4913-8365-7e9f2f535c2d,Levitation,U,Enchantment,0,0,1,gives flying;keyword anthem;single english word name,0
+95500513-5519-4131-bb89-42383289f2bd,Cloudheath Drake,WU,Artifact Creature — Drake,0,0,1,activated ability;cycle-ala-backward-ability;evasion;gains vigilance;offcolor ability,0
+95e94dea-5ac0-4d6f-adec-ca147aee861f,Ajani's Pridemate,W,Creature — Cat Soldier,0,0,1,cycle-m11-u-pw-signature;gains pp counters;has identical token;namesake spell;pridemate;repeatable pp counters;triggered ability,0
+9636073e-e361-4d2a-92f6-5fe049e5eb23,Thraben Sentry // Thraben Militia,W,Creature — Human Soldier // Creature — Human Soldier,0,0,1,death trigger,0
+976db753-9887-448a-8e67-ec7937b6505c,Kraven's Cats,G,Creature — Cat Villain,0,0,1,activated ability;mana sink;namesake spell;shade pump;unique type line,0
+97bb1589-2941-4a75-a5f6-916871e51e9e,"Alandra, Sky Dreamer",U,Legendary Creature — Merfolk Wizard,0,0,1,evasion;maro;noncreature typal;repeatable creature tokens;second draw matters;triggered ability;typal-drake,1
+98950aaf-d0b8-420b-9e6a-c7d07d0f8588,Soul Seizer // Ghastly Haunting,U,Creature — Spirit // Enchantment — Aura,0,0,1,alliteration;evasion;saboteur;theft-creature;triggered ability,0
+991f4eec-cf3e-4554-ba88-c44bb0d255f0,Tributary Vaulter,W,Creature — Merfolk Warrior,0,0,1,evasion;triggered ability;typal-merfolk;uninspired,0
+99419378-8a23-44f3-aebe-e62d6e20e877,Mysterio's Phantasm,U,Creature — Illusion Villain,0,0,1,attack trigger;attacking matters-self;evasion;mill-self;namesake spell,1
+9ad4f876-e923-4a09-8e70-eb826aacf89d,Minamo Scrollkeeper,U,Creature — Human Wizard,0,0,1,drawback;hand size increase,0
+9b93ff69-f195-4d72-8e1d-574c3e53bca8,Sleep,U,Sorcery,0,0,1,freeze-creature;pseudo-fog;single english word name;single target instant/sorcery;tapper-creature,0
+9c724912-5afd-4813-affb-4dbda64fd4ee,Horizon Drake,U,Creature — Drake,0,0,1,evasion;french vanilla;hate-creatureland;hate-set-mechanic;protects-self;unique protection,0
+9d22960b-babc-4cf3-b228-d32e13bc6014,"Esix, Fractal Bloom",UG,Legendary Creature — Fractal,0,0,1,copy-creature;cycle-c21-alt-commander;evasion;multi-copy;synergy-token;token replacer;unique type line,1
+9d2bfbb2-84df-4d7c-9989-7f5577f90d97,Loxodon Partisan,W,Creature — Elephant Soldier,0,0,1,attack trigger;attacking matters;attacking matters-self;battle cry;french vanilla,0
+9e7b03ae-dcf5-4892-9000-aee7e2cd2fed,Phyrexian Digester,C,Artifact Creature — Phyrexian Construct,0,0,1,french vanilla;gives mm counters;poisonous;type addition phyrexian,0
+9fb4aa2d-6414-4176-9070-e5230e100c6a,Wildwood Geist,G,Creature — Spirit,0,0,0,,0
+a02e1ca7-23c5-41e3-a744-72fc9e9dd8ba,Fireshrieker,C,Artifact — Equipment,0,0,1,activated ability;french vanilla equipment;gives double strike,0
+a16509da-ad46-4ee3-86f3-06c521c23481,Phyrexian Hulk,C,Artifact Creature — Phyrexian Golem,0,0,1,type addition phyrexian,0
+a3538a5e-3d08-4c61-bcb4-ef1f5e5b659d,Soul's Might,G,Sorcery,0,0,1,cycle-ala-naya-soul-spell;gives pp counters;power doubler;single target instant/sorcery,0
+a4109138-5d69-4510-a228-7c1f88c0c8c0,Giant Badger,G,Creature — Badger,0,0,1,block trigger;creature type name;synergy-blocker-self,0
+a45d7135-c042-40d9-818c-74fa1c7af8ad,Axebane Stag,G,Creature — Elk,0,0,0,,0
+a51ec70d-1356-4403-a858-b99445bac54a,Predator Ooze,G,Creature — Ooze,0,0,1,attack trigger;attacking matters-self;hunger;protects-self;repeatable pp counters,0
+a7b0d897-38c0-4f90-81e8-3c5b8d31a607,Glamermite,U,Creature — Faerie Rogue,0,0,1,evasion;modal inverse choices;tapper-creature;triggered ability;twiddle;untapper-creature;virtual french vanilla,0
+a8d31e2f-7b2e-4135-8074-9e6ef778bd80,Suntail Hawk,W,Creature — Bird,0,0,1,evasion;french vanilla,0
+a90d1d35-6d67-43b3-8256-b0318b3a4b07,Prideful Parent,W,Creature — Cat,0,0,1,alliteration;enters in company;punny name;triggered ability;virtual french vanilla,1
+a9789ce4-69cf-435c-b99a-78a21609830c,Dread Statuary,C,Land,0,1,1,activated ability;creatureland;mana sink,0
+a9b3ee21-1af1-4e7e-8e48-d7c90d056f5c,Cryotheory Adept,U,Creature — Human Wizard,0,0,1,cast trigger-you;freeze-creature;renew;synergy-noncreature;tapper-creature,0
+aa6723a2-75da-49f5-a1ba-cbfa82c55301,Opal Palace,C,Land,0,1,1,activated ability;buff mana;commander identity matters;filterland;gives pp counters;recasting commander matters;repeatable pp counters;synergy-commander;utility land,0
+ab342d57-240a-4c56-aed6-ac3cdc51af8d,Pathbreaker Wurm,G,Creature — Wurm,0,0,1,creaturefall;gains trample;gives trample;intervening if clause,0
+ab5f8b8c-e3f7-4265-bbc6-814bbfd4693a,Crossroads Watcher,G,Creature — Kithkin Ranger,0,0,1,creaturefall;triggered ability;unique type line,0
+abcfcc71-77c0-46e7-93c3-726967946b12,Grizzled Outcasts // Krallenhorde Wantons,G,Creature — Human Werewolf // Creature — Werewolf,0,0,1,intervening if clause;werewolf mechanic,0
+ac0f161a-e5ec-4a95-9f37-305bdf1ac900,"Hapatra, the Desert Frost",U,Legendary Creature — Human Wizard,0,0,1,activated ability;cycle-fra-wedge-pair;freeze-creature;mana sink;multiple targets;per-player;repeatable crime;tapper-creature;triggered ability;untapper-creature;untaps self,0
+acc07d0d-141b-4169-9643-6f20739e91be,Jhessian Lookout,U,Creature — Human Scout,0,0,0,,0
+ad1712d8-809f-410c-8b91-ffe6fb8a69a1,Azorius Guildgate,WU,Land — Gate,0,1,1,activated ability;cycle-guildgate,0
+af06a811-7a57-4f68-9d87-7903e043f36d,Celestial Crusader,W,Creature — Spirit,0,0,1,alliteration;anthem;combat trick;cycle-tsp-u-split-second;evasion;hate-counterspell;power boost to all;symmetrical;synergy-white;toughness boost to all,1
+af8aa11b-34be-42a3-a8a2-3cad38f29f66,Griffin Rider,W,Creature — Human Knight,0,0,1,gains flying;typal-griffin,0
+b079f9db-974d-4525-a894-57b754ba9dcc,Kitesail,C,Artifact — Equipment,0,0,1,activated ability;french vanilla equipment;gives flying,0
+b16cef02-dcf8-4866-ac42-6ee929ddbea2,Steppe Lynx,W,Creature — Cat,0,0,1,cycle-zen-landfall-self-pump;landfall;triggered ability,0
+b2187f45-80ae-4ac4-9f83-5eb7a00978e2,Sorcerous Spyglass,C,Artifact,0,0,1,alliteration;faux targeting;hate-activation;hate-named;peek-hand;prevent activation,0
+b2c6aa39-2d2a-459c-a555-fb48ba993373,Island,U,Basic Land — Island,1,1,1,activated ability;cycle-lea-basic-land;eponymous;meme;single english word name;unique type line,0
+b34bb2dc-c1af-4d77-b0b3-a0fb342a5fc6,Forest,G,Basic Land — Forest,1,1,1,activated ability;cycle-lea-basic-land;eponymous;single english word name;tutored by name;unique type line,0
+b35c1b30-c1dc-489f-bd79-ad6566fb9389,Stormfront Pegasus,W,Creature — Pegasus,0,0,1,evasion;french vanilla,0
+b3e1674f-dba1-4570-9990-e5dc643e237d,Twinblade Blessing,W,Enchantment — Aura,0,0,1,combat trick;french vanilla aura;gives double strike,0
+b473e293-59e3-4e04-acf2-622604aeb25f,Path of Ancestry,C,Land,0,1,1,activated ability;buff mana;cast trigger-you;commander identity matters;delayed trigger;rainbow land;repeatable scry;synergy-color-share;synergy-commander;tapland with set's mechanic;typal-share;utility land,1
+b4c404d8-9f2d-4429-ac36-449ae319abb7,Siege Mastodon,W,Creature — Elephant,0,0,0,,0
+b4f89885-eeb9-46c7-9820-9758b624ca24,Tethermage's Advantage,G,Instant,0,0,1,giant growth;gives reach;single target instant/sorcery;untapper-creature,0
+b5058b5c-0359-42ec-ba9e-ae1371bb9c22,Lys Alana Informant,G,Creature — Elf Scout,0,0,1,life-and-death-trigger-self;surveil,1
+b6eb56a7-4dfe-4d51-a1df-55f892c1b014,Orchard Spirit,G,Creature — Spirit,0,0,1,fake flying,0
+b7f72e54-7e3a-4720-be69-fc8c5eb4c190,Crumbling Colossus,C,Artifact Creature — Golem,0,0,1,alliteration;attack trigger;ball lightning;delayed trigger;drawback,0
+b81fed36-07c4-4903-b5b4-24e62d2ce239,Barbed Battlegear,C,Artifact — Equipment,0,0,1,activated ability;alliteration;vanilla equipment,0
+b92e97f5-a307-471f-be06-afa4fcdab757,Fanatical Strength,G,Instant,0,0,1,enlarge;giant growth;gives trample;single target instant/sorcery,0
+b94c233e-11d3-4556-a1da-bd193e58b663,Tempest Djinn,U,Creature — Djinn,0,0,1,cycle-dom-r-mmm-creature;evasion;maro-sorcerer;synergy-basic;synergy-island,0
+b978bdfe-a73e-4e99-90d7-4f99182c45ee,Formless Genesis,G,Kindred Sorcery — Shapeshifter,0,0,1,additional cost;castable from graveyard;changeling;discard outlet-land;lands in graveyard matter;lhurgoyf;mix-and-match;repeatable creature tokens;unique type line,1
+b97d21b4-d730-479f-872f-3e1645b66751,Release the Dogs,W,Sorcery,0,0,1,multiple bodies,1
+b9d0f2e1-62c2-44fd-ad38-471daf17bb0a,Tolarian Terror,U,Creature — Serpent,0,0,1,affinity for spells;alliteration;cycle-dmu-cost-reduction;rhystic;synergy-instant;synergy-sorcery;virtual french vanilla;ward,0
+b9dec104-c636-4770-a7fc-7a3331face15,Wildwood Scourge,G,Creature — Hydra,0,0,1,gains pp counters;pp counters matter;repeatable pp counters;triggered ability;unique-type-exclusion,0
+ba5d8c0d-3e4e-4652-86d2-80ce2f48dc0f,Piston Sledge,C,Artifact — Equipment,0,0,1,activated ability;alternate-equip-cost;auto equip;free sacrifice outlet;sacrifice outlet-artifact;synergy-artifact;triggered ability,1
+ba9ac0a9-735d-4bca-9d24-586aca963872,Elder Cathar,W,Creature — Human Soldier,0,0,1,death trigger-self;gives pp counters;self-replacement effect;typal-human,0
+bb1963f9-261c-4d3f-a401-90aaced77e7f,Rushwood Dryad,G,Creature — Dryad,0,0,1,french vanilla walker,0
+bb4e1340-da63-46b8-a5e3-79dfedec3e78,Snapping Creeper,G,Creature — Plant,0,0,1,gains vigilance;landfall;triggered ability,0
+bc71ebf6-2056-41f7-be35-b2e5c34afa99,Plains,W,Basic Land — Plains,1,1,1,activated ability;cycle-lea-basic-land;eponymous;single english word name;unique type line,0
+bccd722a-b610-4017-93bd-313f08448f5e,Heroes' Bane,G,Creature — Hydra,0,0,1,activated ability;bottomless mana sink;exponential;gains pp counters;gives pp counters;power doubler;power matters-self;repeatable pp counters;shade pump,0
+bd85fe4d-1d62-416f-ac2d-e287911c84e3,Crystal Ball,C,Artifact,0,0,1,activated ability;repeatable scry,1
+be6e835c-822e-45ff-a992-249d4d9781dc,Gnarlid Pack,G,Creature — Beast,0,0,1,additional cost;bear with set's mechanic;cycle-wwk-c-multikicker;gains pp counters;more expensive than mv;virtual vanilla,0
+c025d558-aae8-4146-923b-a98035025a42,Apex Hawks,W,Creature — Bird,0,0,1,additional cost;cycle-wwk-c-multikicker;evasion;gains pp counters;more expensive than mv;virtual french vanilla,0
+c065a7c0-272b-4b7e-a41c-7164352cd189,Jedit Ojanen of Efrava,G,Legendary Creature — Cat Warrior,0,0,1,attack trigger;attacking matters-self;block trigger;cycle-plc-alternate-reality-legend;evasion;repeatable creature tokens;synergy-blocker-self;type errata lord,1
+c0b1fba1-4338-4671-934b-098689ad2085,"Fynn, the Fangbearer",G,Legendary Creature — Human Warrior,0,0,1,alliteration;fun ruling;gives poisonous;poisonous;saboteur;synergy-deathtouch;triggered ability,0
+c2157f2c-a3a4-47aa-b33e-b2c65e11c2e5,Kitesail Apprentice,W,Creature — Kor Soldier,0,0,1,gains flying;synergy-equipment,0
+c23e5b80-08d2-4e24-9908-fe2aa4f30f6f,Reliquary Tower,C,Land,0,1,1,activated ability;hand size increase;utility land,0
+c2f86723-4765-4dac-a9f6-9cfa543613b2,Cudgel Troll,G,Creature — Troll,0,0,1,activated ability;regenerates self,0
+c4b5567a-f195-4638-94b5-0b933dba1850,Gigantomancer,G,Creature — Human Shaman,0,0,1,activated ability;shapechange,0
+c5323a43-82de-4340-8578-b3ffcc66f8fa,Griffin Guide,W,Enchantment — Aura,0,0,1,alliteration;death trigger;evasion;gives flying,1
+c549b0fd-1e08-4873-952e-a14dc45a0fd2,Champion of Lambholt,G,Creature — Human Warrior,0,0,1,creaturefall;gains pp counters;gives evasion;howlgeist ability;power matters-self;repeatable pp counters;triggered ability,0
+c645fab4-51ac-440c-b112-57777c8f4676,Corrupted Conscience,U,Enchantment — Aura,0,0,1,alliteration;gives infect;gives mm counters;theft-creature,0
+c690f92f-f34f-4df0-9e01-d2ecf3b8f857,Kindercatch,G,Creature — Spirit,0,0,0,,0
+c892d28c-4a78-4a7f-b8d5-c3663b819c5e,Deepchannel Duelist,UW,Creature — Merfolk Soldier,0,0,1,alliteration;anthem;bear with set's mechanic;cycle-ecl-typal-signpost;noncreature typal;power boost to all;toughness boost to all;triggered ability;typal-merfolk;untapper-creature,1
+c8f8fbf0-4f51-4a5c-82f9-99917513df6d,Lush Growth,G,Enchantment — Aura,0,0,1,land conversion,0
+ccfe72b2-8a9a-4ad6-ab1d-676bb376b0ac,Outrider of Jhess,U,Creature — Human Knight,0,0,1,attack trigger;attacking matters;exalted;french vanilla,0
+cd8ae9f2-edac-473a-8846-c08219e617c3,Steal Artifact,U,Enchantment — Aura,0,0,1,theft-artifact,0
+cde68428-0033-4ede-92f1-ab91de0a41fb,Rustic Clachan,W,Land,0,1,1,activate from hand;cycle-lrw-typal-land;gives pp counters;noncreature typal;typal-kithkin;utility land,0
+cea09261-41a2-43e5-bf43-c4097e6615c6,Appeal to Eirdu,W,Instant,0,0,1,combat trick;convoke;multiple targets;single target instant/sorcery;synergy-white,0
+cec11318-4578-4c66-a9be-1704df0c296c,Qumulox,U,Creature — Beast,0,0,1,affinity for artifacts;evasion;french vanilla,0
+d004b481-a1d5-459d-8282-76baa9d13652,Merfolk Spy,U,Creature — Merfolk Rogue,0,0,1,evasion;saboteur;triggered ability,0
+d06a5642-861b-4b0d-9ea5-07046b7e1d37,Predictive Preparations,W,Sorcery,0,0,1,alliteration;alternative cost;castable from graveyard;exile-self;gives pp counters;more expensive than mv;multiple targets;single target instant/sorcery,0
+d21994f2-75e1-456c-a25a-729c3269df1a,Bold Defense,W,Instant,0,0,1,additional cost;combat trick;cycle-zen-c-kicker;gives first strike;more expensive than mv;power boost to all;self-replacement effect;toughness boost to all,1
+d2e647ac-717f-46e6-baa8-6a793e7bdc32,Telepathy,U,Enchantment,0,0,1,reveal hand;single english word name,0
+d4246e4d-390d-4925-a5a8-89cd096a237c,Sphinx of the Final Word,U,Creature — Sphinx,0,0,1,evasion;gives uncounterable;protects-self;synergy-instant;synergy-sorcery,0
+d43f813b-3607-4bc3-b996-3dbad6977bd8,Shinen of Stars' Light,W,Creature — Spirit,0,0,1,activate from hand;alliteration;cheaper than mv;combat trick;cycle-sok-shinen;gives first strike,0
+d47fc902-51f7-4ad1-8ee4-c973e32192b8,Sage Owl,U,Creature — Bird,0,0,1,evasion;soothsaying;triggered ability;virtual french vanilla,1
+d4ec0df9-a4a3-48cf-a0aa-b1aea5c49142,Clever Impersonator,U,Creature — Shapeshifter,0,0,1,clone;copy-aura;copy-equipment;copy-nonland;copy-planeswalker,0
+d52397bf-e3fb-4894-996d-7c1cc8d92603,Tangle Mantis,G,Creature — Insect,0,0,1,french vanilla,0
+d569d969-ce39-4314-b5f0-76b45f5c4c7f,Dream Twist,U,Instant,0,0,1,alternative cost;castable from graveyard;exile-self;mill-any;more expensive than mv;repeatable crime;single target instant/sorcery,1
+d5ad26cc-2bdb-46b7-b8bf-dd099d5fa09b,Adarkar Wastes,WU,Land,0,1,1,activated ability;burn-you;cycle-ice-painland;mana ability with extra effect;vanity card,0
+d6c9c1f0-050f-40e2-ab6c-6566d0af418c,Master's Call,W,Instant,0,0,1,multiple bodies,1
+d6ffdaf0-ac08-4de9-bbce-2eab2f86bcca,Wind Drake,U,Creature — Drake,0,0,1,evasion;french vanilla;type errata summon creature,0
+d709f396-021f-49eb-adb5-374aa790eaae,Merrow Skyswimmer,UW,Creature — Merfolk Soldier,0,0,1,convoke;cycle-ecl-c-hybrid;enters in company;evasion;synergy-blue;synergy-white;triggered ability;virtual french vanilla,1
+d7572f17-f85d-45c0-ac64-43aac760eafe,Circle of Protection: Blue,W,Enchantment,0,0,1,activated ability;cycle-lea-circle-protection;damage prevention-you;hate-blue;mana sink;single-minded color hate,0
+d824a319-fa74-42e4-9cbe-dba1576d6bad,Perfected Theory,U,Instant,0,0,1,combat trick;humble;modal inverse choices;shapechange;single target instant/sorcery,0
+da35de40-6fde-4018-bda8-b0ae91ed872a,Kinbinding,W,Enchantment,0,0,1,anthem;creaturefall;out of color token;power boost to all;repeatable creature tokens;toughness boost to all;triggered ability,1
+db3ba239-2239-4e9d-ad70-cff32ed24578,Bark of Doran,W,Artifact — Equipment,0,0,1,activated ability;buttstrike;namesake spell,0
+dca51281-fb21-45b6-beb4-1f13397caee2,Blackblade Reforged,C,Legendary Artifact — Equipment,0,0,1,activated ability;alternate-equip-cost;maro-sorcerer;repeated keyword;synergy-legendary,0
+dcb7e046-f01b-497c-88e5-57794eb30ce5,Canopy Vista,WG,Land — Forest Plains,0,1,1,activated ability;cycle-bfz-tangoland;lands matter;nonbasic-basic-land-type;synergy-basic,0
+ddbacb74-1f98-4607-a92e-d14973b9d0ef,Groundswell,G,Instant,0,0,1,cycle-wwk-landfall-instant;enlarge;giant growth with set mechanic;landfall;self-replacement effect;single english word name;single target instant/sorcery,0
+ddf38a32-302a-4658-9eaf-b813ebe275c9,"Esior, Wardwing Familiar",U,Legendary Creature — Bird,0,0,1,cycle-cmr-familiar;evasion;frost armor;pair-commander;synergy-commander,0
+de3ed52e-7cc2-49ea-96d9-4254aac46168,Angel's Tomb,C,Artifact,0,0,1,animate self;color change-self;creaturefall;gains flying;triggered ability,0
+dfa95c0e-393d-4b22-9de3-45a7efc0ba14,"Saheeli, Consul of Oversight",W,Legendary Creature — Human Advisor,0,0,1,cycle-fra-wedge-pair;evasion;repeatable artifact tokens;repeatable creature tokens;synergy-scry;synergy-surveil;triggered ability,1
+dfe1a112-97aa-4e81-8431-81552ba2cdcf,Crawling Barrens,C,Land,0,1,1,activated ability;creatureland;gains pp counters;mana sink;repeatable pp counters,0
+e02740e6-3eba-4f82-831b-35a9f122f07f,Tel-Jilad Fallen,G,Creature — Phyrexian Elf Warrior,0,0,1,french vanilla;gives mm counters;hate-artifact;hate-set-mechanic;poisonous;protects-self;type addition phyrexian,0
+e0f44bb8-f07b-416c-b767-87b9fe6461aa,Chasm Drake,U,Creature — Drake,0,0,1,attack trigger;attacking matters-self;evasion;jump;wingman,0
+e20ad2f7-cb41-4e6e-8f3b-bd260f4a2ecf,Tine Shrike,W,Creature — Phyrexian Bird,0,0,1,evasion;french vanilla;gives mm counters;poisonous;type addition phyrexian,0
+e2a32a0f-bf06-4cb3-a704-ff0f783f19e4,Vault Skyward,U,Instant,0,0,1,combat trick;cycle-som-1mv-combat-trick;gives flying;single target instant/sorcery;untapper-creature,0
+e2bbf963-794d-4600-bb92-cb9d1d00205a,Pierce Strider,C,Artifact Creature — Phyrexian Construct,0,0,1,opponent loses life;triggered ability;type addition phyrexian;virtual vanilla,0
+e48ea9ea-64bc-4f1c-a424-592d48569244,Blighted Agent,U,Creature — Phyrexian Human Rogue,0,0,1,gives mm counters;poisonous;type addition phyrexian;unblockable;unique type line,0
+e521322b-0e83-458c-8936-7021a80ee279,Temple of Plenty,WG,Land,0,1,1,activated ability;cycle-block-ths-scry-land;scry;triggered ability;utility land,1
+e5481431-c952-4ad9-94fe-355076ef632b,Gnarlid Colony,G,Creature — Beast,0,0,1,additional cost;bear with set's mechanic;gains pp counters;gains trample;gives trample;keyword anthem;more expensive than mv;pp counters matter,0
+e56629ba-82d4-470f-9a6b-40c29d835af2,Quakestrider Ceratops,G,Creature — Dinosaur,0,0,1,unique p/t,0
+e666bae7-dd51-4921-8b89-7e8d423caba0,Gigantosaurus,G,Creature — Dinosaur,0,0,0,,0
+e6941577-8262-42ef-bf32-f6505d90b73a,Kor Hookmaster,W,Creature — Kor Soldier,0,0,1,freeze-creature;tapper-creature;triggered ability;virtual vanilla,1
+e740ce2f-2134-473c-afa1-1b6d2d1e38ef,Giant Spider,G,Creature — Spider,0,0,1,creature type name;french vanilla;type errata summon creature,0
+e7f038af-977a-42ff-bebb-718b7490188a,Mighty Emergence,G,Enchantment,0,0,1,creaturefall;gives pp counters;naya ferocious;repeatable pp counters;triggered ability,0
+e8705df9-6439-4930-91b6-229f818559af,Simic Guildgate,UG,Land — Gate,0,1,1,activated ability;cycle-guildgate,0
+e894ccf5-fc71-48bd-bca5-cfeb05315f42,Skywinder Drake,U,Creature — Drake,0,0,1,high flying,0
+e8dd4341-e7e5-49f7-b173-e4c3195e3334,Shriekgeist,U,Creature — Spirit,0,0,1,evasion;mill-opponent;saboteur;triggered ability,1
+e9ad9df4-2fd6-4a22-b861-0a8d28f2fe10,Hada Freeblade,W,Creature — Human Soldier Ally,0,0,1,creaturefall;gains pp counters;noncreature typal;repeatable pp counters;triggered ability;typal-ally,0
+eaaed253-9b11-47e2-8624-0340ab2207f6,Resolute Reinforcements,W,Creature — Human Soldier,0,0,1,enters in company;triggered ability;virtual vanilla,1
+eac94269-4baa-4b8e-a0fd-d6b227d1cde3,Thrummingbird,U,Creature — Phyrexian Bird Horror,0,0,1,evasion;portmanteau;repeatable proliferate;saboteur;triggered ability;type addition phyrexian;unique type line,0
+eb735501-19e7-4910-aa6a-6667fff6f4e5,Study Hall,C,Land,0,1,1,activated ability;buff mana;cast trigger-you;delayed trigger;filterland;recasting commander matters;repeatable scry;school name;synergy-commander;utility land,0
+ec49dfcf-d16d-4621-af4b-4a6f09043221,Runeclaw Bear,G,Creature — Bear,0,0,0,,0
+ed428638-181b-47cb-92f4-379db020e634,Kulrath Mystic,U,Creature — Elemental Wizard,0,0,1,cast trigger-you;gains vigilance;high mana value matters,0
+ef67c170-68aa-4ada-8cee-261a4dbb1b5d,Surly Farrier,G,Creature — Kithkin Citizen,0,0,1,activated ability;gives vigilance,0
+efbb5b87-d175-477e-a490-85dd98b62de6,Feral Contest,G,Sorcery,0,0,1,gives pp counters;multiple targets;provoke lite,0
+efee0ca0-0897-4972-99c4-432561b6e9f8,Veteran's Reflexes,W,Instant,0,0,1,combat trick;single target instant/sorcery;untapper-creature,0
+f088817a-570d-4480-bc59-f2ad6675a71b,"Tromell, Seymour's Butler",G,Legendary Creature — Elf Advisor,0,0,1,activated ability;creaturefall;gives pp counters;namesake spell;repeatable proliferate;unnoted tracked information,0
+f1feac23-8ba3-440c-828c-590f88008c31,Necrogen Censer,C,Artifact,0,0,1,activated ability;counter fuel-charge;opponent loses life;repeatable crime,0
+f29dc596-2121-4421-8463-15f6c2e8b9b3,Rogue's Passage,C,Land,0,1,1,activated ability;gives unblockable;mana sink;repeatable crime;utility land,0
+f4bdc551-c2eb-4a34-a3e3-b4a017c925af,Liquimetal Coating,C,Artifact,0,0,1,activated ability;artifactify;repeatable crime,0
+f6f4c684-2915-4a58-9c4b-487387f7cf73,Rhox,G,Creature — Rhino Beast,0,0,1,activated ability;regenerates self;type errata;unstoppable,0
+f8640899-2458-40f2-98a3-35c402ee9a7a,"Jolrael, Mwonvuli Recluse",G,Legendary Creature — Human Druid,0,0,1,activated ability;creates bigger body;cycle-m21-mono-teferi-legend;mana sink;maro;repeatable creature tokens;second draw matters;shapechange;triggered ability,1
+f8848065-7075-41d8-82f6-67ace390625a,Peregrine Griffin,W,Creature — Griffin,0,0,1,evasion;french vanilla,0
+f8c32c80-9693-4ae4-a387-21ec8a3cdd40,Water Servant,U,Creature — Elemental,0,0,1,activated ability;cycle-elemental-servant;flowstone,0
+fa56a5fa-ef96-404c-8fb6-d1f5fcebb52e,"Surrak, the Hunt Caller",G,Legendary Creature — Human Warrior,0,0,1,cycle-dtk-khan;formidable;gains haste;gives haste;intervening if clause,0
+fb60739e-1dc3-481d-a056-ad72e665c680,Rite of Replication,U,Sorcery,0,0,1,additional cost;alliteration;copy-creature;cycle-zen-strong-kicker;more expensive than mv;multi-copy;multiple bodies;self-replacement effect;single target instant/sorcery,1
+fcc7dd32-2198-446c-9144-e50d56ef53ed,Briarhorn,G,Creature — Elemental,0,0,1,alternative cost;cheaper than mv;enlarge;giant growth with set mechanic;intervening if clause;virtual vanilla,0
+fcf0bb85-bca9-4f4c-b954-ca3bc5f91dd8,Aven Flock,W,Creature — Bird Soldier,0,0,1,activated ability;armoring;evasion,0
+fe412468-b506-4ed8-8fff-3987ef3dc2ee,Nettle Swine,G,Creature — Boar,0,0,0,,0
+fe55f366-2996-4a4f-9b30-fc494cc80f87,Thran Golem,C,Artifact Creature — Golem,0,0,1,gains first strike;gains flying;gains trample;synergy-aura,0
+fe6337dc-df02-4baa-9fe0-b14e8d34186a,Synod Centurion,C,Artifact Creature — Construct,0,0,1,drawback;state trigger;synergy-artifact;type addition from none,0
