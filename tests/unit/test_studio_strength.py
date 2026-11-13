@@ -390,8 +390,33 @@ def test_settings_are_validated_and_round_trip() -> None:
         with pytest.raises(ValueError):
             StrengthSettings.from_dict(bad)
     assert set(strength.PRESETS) == {"Ausgewogen", "Commander-nah", "Turniernah"}
-    assert strength.PRESETS["Commander-nah"].weights[strength.GLOBAL_INCLUSION] == 0.0
-    assert strength.PRESETS["Turniernah"].bracket == "cedh"
+    assert strength.PRESETS["Ausgewogen"] == StrengthSettings()
+    near = strength.PRESETS["Commander-nah"]
+    assert near.weights == {
+        strength.COMMANDER_INCLUSION: 3.0,
+        strength.BRACKET_INCLUSION: 2.0,
+        strength.DECK_UNIVERSE: 3.0,
+        strength.SYNERGY: 2.0,
+        strength.TOURNAMENT_LISTS: 1.0,
+        strength.GLOBAL_INCLUSION: 0.0,
+        strength.COMBOS: 0.0,
+        strength.SIMULATION: 0.0,
+    }
+    tournament = strength.PRESETS["Turniernah"]
+    assert tournament.bracket == "cedh"
+    assert tournament.weights == {
+        strength.TOURNAMENT_LISTS: 3.0,
+        strength.BRACKET_INCLUSION: 2.0,
+        strength.DECK_UNIVERSE: 2.0,
+        strength.COMMANDER_INCLUSION: 1.0,
+        strength.SYNERGY: 0.0,
+        strength.GLOBAL_INCLUSION: 1.0,
+        strength.COMBOS: 1.0,
+        strength.SIMULATION: 0.0,
+    }
+    # Every preset keeps the deck universe, the most commander-specific source, in the index.
+    for name, preset in strength.PRESETS.items():
+        assert preset.weights[strength.DECK_UNIVERSE] > 0, name
 
 
 # ---------- store side ----------

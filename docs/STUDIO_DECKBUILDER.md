@@ -258,8 +258,11 @@ tournament 5; the deck-universe minimum is the universe's own `min_universe`), t
 value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
 `min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
-component. Presets:
-Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. Simulation results
+component. Presets (weights commander inclusion / bracket / deck universe / synergy / tournament /
+global / combos; simulation is 0 in all):
+Ausgewogen 3/2/2/1/1/1/1 (the defaults), Commander-nah 3/2/3/2/1/0/0 (bracket upgraded),
+Turniernah 1/2/2/0/3/1/1 (bracket cedh). Every preset counts the deck universe, the most
+commander-specific source. Owner settings are saved by name. Simulation results
 do not count in the tier list and are for now neither collected nor processed for it (Owner
 decision B11, 2026-11-12): the `simulation` weight stays as an option, is 0 in the defaults
 and in every preset, and the component is `NOT_COLLECTED`. The page's layer count ("Schichten",
