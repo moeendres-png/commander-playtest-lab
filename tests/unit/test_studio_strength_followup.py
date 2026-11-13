@@ -126,3 +126,22 @@ def test_the_deck_universe_filter_card_keeps_its_full_coverage() -> None:
     assert status["deck_universe"] == strength.FILTER_CARD
     with pytest.raises(KeyError):
         strength_view.compute(store, CMD, StrengthSettings(universe_profile="nope"))
+
+
+def test_bracket_labels_follow_the_bracket_column_of_the_imported_files() -> None:
+    import csv
+    from pathlib import Path
+
+    folder = Path(__file__).resolve().parents[2] / "data" / "research" / "deckbuilder_1655"
+    seen: dict[str, str] = {}
+    for variant in strength.BRACKETS:
+        path = folder / f"commander_bracket_signals_{variant}_1.csv"
+        with path.open(newline="", encoding="utf-8") as handle:
+            row = next(csv.DictReader(handle))
+        assert row["variant"] == variant
+        seen[variant] = row["bracket"]
+    assert seen == {"core": "2", "upgraded": "3", "optimized": "4", "cedh": "5"}
+    choices = strength_view.presets()["panel"]["choices"]["bracket"]  # type: ignore[index,call-overload]
+    served = {choice["value"]: choice["label"] for choice in choices}
+    for variant, number in seen.items():
+        assert f"Bracket {number})" in served[variant], (variant, served[variant])

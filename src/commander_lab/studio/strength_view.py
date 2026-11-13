@@ -499,7 +499,7 @@ _MISSING_CHOICES = {
     strength.MISSING_LOWEST: "als niedrigster Rang zählen",
 }
 _BRACKET_CHOICES = {
-    "core": "Core (Bracket 1-2)",
+    "core": "Core (Bracket 2)",
     "upgraded": "Upgraded (Bracket 3)",
     "optimized": "Optimized (Bracket 4)",
     "cedh": "cEDH (Bracket 5)",

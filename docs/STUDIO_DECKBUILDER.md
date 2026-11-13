@@ -279,6 +279,36 @@ The page names two different things and never mixes them: "Stärke-Index (Schät
 Nutzungsdaten)" (this index) and "Ergebnis aus Partien (noch nicht bewertet)" (the outcome
 evidence, `UNRATED`).
 
+### Counting rules behind the shown numbers (follow-up to #1275)
+
+- Cohorts of one family (the text before the first `:`, e.g. `bracket:3` and `bracket:4`) are
+  alternatives (OR); cohorts of different families narrow each other (AND). A universe without a
+  deck is an explicit state: `empty: true` with `empty_reason` (`NO_SOURCE_DECKS_FOR_COMMANDER`
+  or `FILTERS_EXCLUDE_ALL_DECKS`) in the summary, the spread and the co-occurrence, and the
+  cards' reason is `UNIVERSE_EMPTY`.
+- One list of counted sections everywhere (`store.COUNTED_SECTIONS`: main, mainboard,
+  commander, companion): sideboard, maybeboard and cuts count in no figure (universe spread,
+  builder frequencies, role counts). Card-level counts, co-occurrence and lift use one
+  primitive (`universe.deck_sets`): every spelling of a card is merged into the card, for the
+  partner of a pair exactly as for the card itself.
+- The builder pool says whether a card's source-deck count is unknown: `decks_known` is false
+  when no deck of the commander names the card under any spelling (`decks` is then empty); the
+  evidence items carry the same flag. Unknown is never shown as 0.
+- Coverage of the strength index is the weight of the present components over the weight of
+  the components that have usable data for this commander (a source never imported, or a signal
+  wholly below its minimum denominator, counts against no card; a filter card leaves the
+  deck-universe component out of its denominator). The minimum number of signals never exceeds
+  what that data allows. The reason of a card is `NO_POSITIVE_WEIGHT`,
+  `NO_SOURCE_FOR_COMMANDER`, `TOO_LITTLE_DATA` or `ENOUGH_DATA`; the tier follows the unrounded
+  index. Other commanders known to the store are not ranked (like the chosen commander and
+  basic lands, tier `N`) unless "rank_commander_and_basics" is on.
+- The tier list's evidence reads the commander's EDHREC inclusion from `card_signal` when the
+  older table has no value (the same entry the builder shows); spread levels carry a German
+  `level_name` next to the stable level key.
+- Derived figures are computed once per store state: `cache.py` keeps the resolved universe,
+  the per-card spread and the builder counts keyed by the store file's change counter, so any
+  committed write recomputes them. `GET /api/marks` reads the marks without building the pool.
+
 ### Data report
 
 `data-report` prints JSON with numbers only: every figure is a count with its denominator, a
