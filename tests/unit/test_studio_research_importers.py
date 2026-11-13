@@ -147,10 +147,8 @@ def test_rulings_import_replaces_scope_and_reports_skips(tmp_path: Path) -> None
     rulings.import_rulings(store, [first, second])
     rulings.import_rulings(store, [first, second])  # idempotent
     assert store.count("card_ruling") == 3
-    rulings.import_rulings(
-        store, [second]
-    )  # replaces its scope: the table is the union of the call
-    assert store.count("card_ruling") == 1
+    rulings.import_rulings(store, [second])  # replaces only its own file's rulings
+    assert store.count("card_ruling") == 3
 
 
 def test_rulings_route_and_read_function(tmp_path: Path) -> None:
