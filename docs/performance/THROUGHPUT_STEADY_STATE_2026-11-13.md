@@ -5,6 +5,7 @@
 - **Engine-Pin:** `f4d12f6e8066203fba7aa38bd35ea3358117393d` (`config/rules_engines.json` unverändert)
 - **Tisch / Pod:** Chulane (`data/decks/deckbau/chulane_current.json`) gegen 3 Precons (Lorehold Spirit, Animated Army, Token Triumph)
 - **Rohdaten-Ablage:** `docs/performance/measurements-2026-11-13/`
+- **Ausgeführte Läufe:** A0 (Bezug), A2 (unten als „Lauf B") und A3 (unten als „Lauf A") sowie das JFR-Profil (Teil B). Die Läufe A1 (4 Arbeiter) und A4 (12 Arbeiter) aus der Tabelle in Issue #1279 wurden nicht gefahren; für die Entscheidungsregeln ist das folgenlos (die Bestwert-Regel ist bereits durch A2/A3 ausgelöst). AppCDS wurde nicht verwendet; ob ein Archiv vorlag, ist nicht festgestellt (UNKNOWN).
 
 ---
 
@@ -79,7 +80,7 @@ Vergleich der 1. Partie in der JVM (Kaltstart: JVM-Start + Kartendaten-Scan) geg
 | ↳ *darin `getManaAvailable`* | *2.2 %* | Mana-Berechnung |
 | **(b) Bridge-Code des Labs** | **5.2 %** | `bindViews`, Spielstand-Sichten, Prüfsummen |
 | **(c) Sonstiges / Runtime / GC** | **29.7 %** | JVM-Laufzeitumgebung |
-| **(d) Warten / Idle (Samples)** | **0** | ThreadPark / JavaMonitorWait (Wartezeit auf Pilot/Pipes) |
+| **(d) Warten / Idle** | **nicht gemessen (UNKNOWN)** | Wartezeit/Idle wurde nicht erhoben: Die Auswertung aggregiert nur `jdk.ExecutionSample`; ThreadPark/JavaMonitorWait (Wartezeit auf Pilot/Pipes) wurden nicht gemessen. Der Wert ist UNKNOWN, nicht 0. |
 
 ### Top-Pakete im Profil
 
@@ -102,6 +103,6 @@ Vergleich der 1. Partie in der JVM (Kaltstart: JVM-Start + Kartendaten-Scan) geg
 
 - **Bester gemessener Durchsatz:** **541.2 Partien / Stunde**
   - Urteil: $\ge 500$ Partien/h ERREICHT. Durchsatz genügt für Nacht-Serien (4.000 Partien). Keine Fork-Arbeit nötig.
-- **Bridge-Anteil (b):** **5.2 %**
-  - Urteil: Bridge-Anteil liegt unter 15 % -> #1264 kann geschlossen werden.
+- **Bridge-Anteil (b):** **5.2 % unter reiner Stack-Attribution — eine exklusive Untergrenze, kein Bridge-Anteil im Sinne von #1279-B.** Die Klassifikation zählt einen Sample nur dann als Bridge, wenn der Stack ein Bridge-Merkmal enthält und kein einziges `mage.*`-Frame; von der Bridge angestoßene Arbeit in Engine-, Gson- oder JDK-Frames (u. a. die JSON-Serialisierung der Sichten und des Zustands-Hashs) fällt damit an „XMage" oder „Sonstiges". Der inklusive Bridge-Anteil (`bindViews`, Zustands-Hash, `deepCopy`) ist aus den vorliegenden Aggregaten nicht bestimmbar (UNKNOWN). Wartezeit/Idle wurde nicht gemessen (UNKNOWN, s. Abschnitt 5).
+  - Urteil: Die Entscheidungsregel zu #1264 (Bridge-Anteil über ~15 % → umsetzen, darunter schließen) kann auf dieser Grundlage nicht angewendet werden. **Die #1264-Entscheidung ist vertagt**, bis die vorhandene Aufzeichnung `warm_profile.jfr` mit inklusiver Attribution neu ausgewertet ist (läuft separat).
 - **Spielstand-Kopien (`GameImpl.copy`):** **2.1 %**
