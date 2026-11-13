@@ -18,7 +18,7 @@ from collections.abc import Callable, Hashable
 
 from .store import StudioStore
 
-_MAX_ENTRIES = 24
+_MAX_ENTRIES = 64
 _cache: OrderedDict[Hashable, object] = OrderedDict()
 _lock = threading.Lock()
 

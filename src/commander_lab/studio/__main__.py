@@ -491,7 +491,7 @@ def _play_batch(args: argparse.Namespace) -> int:
 def _warm_caches(data: str | None) -> None:
     """Fill the data-epoch memo for the commanders that have source data, in the background, so
     the first pool or tier call of the Owner does not pay for the corpus counts."""
-    from . import builder, strength_view
+    from . import builder, import_all, strength_view, universe
 
     try:
         store = StudioStore.open(data)
@@ -506,6 +506,8 @@ def _warm_caches(data: str | None) -> None:
                     store, preset=None, profile=None, settings=None
                 )
                 strength_view.compute(store, name, settings)
+                universe.options(store, commander_names=[name])
+                import_all.layer_overview(store, name)
     except Exception:  # best effort only
         pass
     finally:

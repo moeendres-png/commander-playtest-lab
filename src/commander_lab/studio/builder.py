@@ -240,6 +240,18 @@ def _corpus_hits_uncached(
     hits: dict[str, dict[str, int]] = {}
     if not commander_names:
         return hits
+    # A commander without any bound source deck has no hits: skip the scan over the corpus
+    # (the data report asks this for every commander of the collection).
+    for name in set(commander_names):
+        if (
+            db.execute(
+                "SELECT 1 FROM commander_binding WHERE kind = 'corpus_deck' "
+                "AND commander_name = ? LIMIT 1",
+                (name,),
+            ).fetchone()
+            is None
+        ):
+            return hits
     bound, bound_args = bound_to("corpus_deck", "d.deck_id", commander_names)
     key = "COALESCE(k.oracle_id, k.card_name)"
     base = (
