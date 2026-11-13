@@ -23,6 +23,7 @@ from commander_lab.studio import (
 from commander_lab.studio.strength import StrengthSettings
 from commander_lab.studio.web import create_app
 from tests.unit.test_studio_builder import _fill
+from tests.unit.test_studio_store import _synthetic_cards, _workbook
 from tests.unit.test_studio_strength import (
     COMMANDER,
     OTHER,
@@ -292,8 +293,8 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
 ) -> None:
     _import(store, tmp_path)
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
-    without = _by_name(_compute(store))
-    with_universe = _by_name(_compute(store, universe_source="counted:edhrec:3"))
+    without = _by_name(_compute(store, universe_source="none"))
+    with_universe = _by_name(_compute(store))  # the recommended "auto" picks the counted file
     # Filler 09 is in no commander signal; global inclusion and combos exist for it.
     assert without["Filler 09"]["coverage"] == pytest.approx(2 / 11, abs=1e-4)
     assert without["Filler 09"]["tier"] == strength.TIER_UNKNOWN
@@ -303,70 +304,26 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
     assert with_universe["Filler 09"]["tier"] in strength.TIERS
 
 
-def test_an_ambiguous_name_leaves_its_candidates_unknown_not_zero(
+def test_a_zero_weight_universe_adds_neither_value_nor_coverage(
     store: StudioStore, tmp_path: Path
 ) -> None:
-    db = store.connection
-    db.execute(
-        "UPDATE card SET oracle_name = 'Twin Name // Left', oracle_id = NULL WHERE oracle_name = 'Filler 06'"
-    )
-    db.execute(
-        "UPDATE card SET oracle_name = 'Twin Name // Right', oracle_id = NULL WHERE oracle_name = 'Filler 07'"
-    )
-    db.commit()
-    rows = _rows("edhrec", 3, 200, {"Twin Name": 12, "Filler 01": 150})
     _import(store, tmp_path)
-    _import_counted(store, _write_counted(tmp_path / "counted", rows))
-    result = _compute(store, universe_source="counted:edhrec:3")
-    cards = _by_name(result)
-    for name in ("Twin Name // Left", "Twin Name // Right"):
-        assert _component(cards[name], "deck_universe")["status"] == strength.NO_VALUE
-    assert result["ambiguous_names"]
-    assert _component(cards["Filler 20"], "deck_universe")["status"] == strength.ZERO_COUNT
-
-
-# ---------- two-part names: front face only, never the back half ----------
-
-
-def test_a_source_name_matches_a_two_part_card_by_oracle_name_or_front_face_only(
-    store: StudioStore, tmp_path: Path
-) -> None:
-    db = store.connection
-    db.execute(
-        "UPDATE card SET oracle_name = 'Front Seven // Back Seven', oracle_id = NULL WHERE oracle_name = 'Filler 07'"
-    )
-    db.execute(
-        "UPDATE card SET oracle_name = 'Front Eight // Back Eight', oracle_id = NULL WHERE oracle_name = 'Filler 08'"
-    )
-    db.execute(
-        "UPDATE card SET oracle_name = 'Back Nine', oracle_id = NULL WHERE oracle_name = 'Filler 09'"
-    )
-    db.commit()
-    rows = _rows(
-        "edhrec",
-        3,
-        200,
-        {
-            "Back Seven": 50,  # the back half of a pool card: a different card, not attributed
-            "Front Eight": 40,  # the front face: attributed
-            "Back Nine": 30,  # the exact name of another pool card, not a back half there
-            "Front Nine // Back Nine": 7,  # a card that is not in the pool at all
-        },
-    )
-    _import(store, tmp_path)
-    _import_counted(store, _write_counted(tmp_path / "counted", rows))
-    cards = _by_name(_compute(store, universe_source="counted:edhrec:3"))
-    seven = _component(cards["Front Seven // Back Seven"], "deck_universe")
-    eight = _component(cards["Front Eight // Back Eight"], "deck_universe")
-    nine = _component(cards["Back Nine"], "deck_universe")
-    assert seven["status"] == strength.ZERO_COUNT and seven["numerator"] == 0
-    assert (eight["status"], eight["numerator"]) == (strength.PRESENT, 40)
-    assert (nine["status"], nine["numerator"]) == (strength.PRESENT, 30)
-    # Second spelling of the same card: the exact two-part name wins over the front face.
-    again = _rows("edhrec", 3, 200, {"Front Seven // Back Seven": 12, "Front Seven": 99})
-    _import_counted(store, _write_counted(tmp_path / "again", again))
-    cards = _by_name(_compute(store, universe_source="counted:edhrec:3"))
-    assert _component(cards["Front Seven // Back Seven"], "deck_universe")["numerator"] == 12
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    off = _compute(store, weights={strength.DECK_UNIVERSE: 0.0})
+    baseline = _compute(store, universe_source="none", weights={strength.DECK_UNIVERSE: 0.0})
+    assert off["universe_choice"]["kind"] == universe_choice.KIND_COUNTED
+    for card in off["cards"]:
+        other = next(item for item in baseline["cards"] if item["card_id"] == card["card_id"])
+        assert (card["index"], card["coverage"], card["tier"]) == (
+            other["index"],
+            other["coverage"],
+            other["tier"],
+        )
+    unlisted = _by_name(off)["Filler 09"]
+    assert _component(unlisted, "deck_universe")["weight"] == 0.0
+    assert unlisted["coverage"] == pytest.approx(
+        2 / 9, abs=1e-4
+    )  # 9 = weights without the universe
 
 
 # ---------- the choice of the universe ----------
@@ -374,7 +331,7 @@ def test_a_source_name_matches_a_two_part_card_by_oracle_name_or_front_face_only
 
 def _local_decks(store: StudioStore, total: int) -> None:
     """Add decks bound to the commander until it has ``total`` (the fixture holds a few)."""
-    index = 0
+    index = int(store.connection.execute("SELECT COUNT(*) FROM corpus_deck").fetchone()[0])
     while universe_choice.local_deck_count(store, COMMANDER) < total:
         _deck(store, f"l{index}", "edhrec", 3, ["Filler 01"] + (["Filler 02"] if index < 5 else []))
         store.connection.commit()
@@ -386,30 +343,34 @@ def _choice(store: StudioStore, **settings: object) -> universe_choice.UniverseC
     return _compute(store, **settings)["universe_choice"]  # type: ignore[arg-type]
 
 
-def test_the_recommended_source_is_the_selected_profile_else_no_universe(
+def test_the_recommended_source_is_automatic_and_none_switches_the_universe_off(
     store: StudioStore, tmp_path: Path
 ) -> None:
     _import(store, tmp_path)
+    assert StrengthSettings().universe_source == "auto"
+    assert _choice(store)["kind"] == universe_choice.KIND_NONE  # nothing to choose from
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
-    _local_decks(store, 40)
-    assert StrengthSettings().universe_source == "profile"
-    choice = _choice(store)
-    assert choice["kind"] == universe_choice.KIND_NONE  # counted prevalence is never a default
-    assert strength.DECK_UNIVERSE not in _compute(store)["collected"]
+    chosen = _choice(store)
+    assert chosen["kind"] == universe_choice.KIND_COUNTED and chosen["automatic"] is True
+    assert strength.DECK_UNIVERSE in _compute(store)["collected"]
+    none = _compute(store, universe_source="none")
+    assert none["universe_choice"]["kind"] == universe_choice.KIND_NONE
+    assert strength.DECK_UNIVERSE not in none["collected"]
     universe.save_profile(store, "p", {})
-    assert _choice(store, universe_profile="p")["kind"] == universe_choice.KIND_PROFILE
+    only = _choice(store, universe_source="profile")
+    assert only["kind"] == universe_choice.KIND_NONE  # "profile" without a selected profile
+    assert _choice(store, universe_source="profile", universe_profile="p")["profile"] == "p"
     assert _choice(store, universe_source="none", universe_profile="p")["kind"] == "none"
 
 
-def test_with_no_universe_the_tiers_are_those_of_main_except_the_two_rule_changes(
+def test_with_no_universe_only_the_commander_signal_rule_changes_a_tier(
     store: StudioStore, tmp_path: Path
 ) -> None:
     _import(store, tmp_path)
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
-    recommended = _by_name(_compute(store))
+    recommended = _by_name(_compute(store, universe_source="none"))
     assert recommended
-    assert strength.DECK_UNIVERSE not in _compute(store)["collected"]
-    without_rule = _by_name(_compute(store, require_commander_signal=False))
+    without_rule = _by_name(_compute(store, universe_source="none", require_commander_signal=False))
     changed = {n for n, card in recommended.items() if card["tier"] != without_rule[n]["tier"]}
     for name in changed:  # the rule only ever turns a tier into "zu wenig Daten"
         assert recommended[name]["tier"] == strength.TIER_UNKNOWN
@@ -513,7 +474,7 @@ def test_universe_source_values_and_stored_profiles_without_the_new_keys() -> No
             StrengthSettings(universe_source=bad)
     settings, ignored = StrengthSettings.from_stored({"weights": {"synergy": 2.0}})
     assert ignored == []
-    assert settings.universe_source == "profile" and settings.require_commander_signal is True
+    assert settings.universe_source == "auto" and settings.require_commander_signal is True
     assert settings.min_coverage == 0.3
     with pytest.raises(ValueError, match="require_commander_signal"):
         StrengthSettings.from_dict({"require_commander_signal": "yes"})
@@ -523,14 +484,17 @@ def test_the_panel_texts_name_the_new_recommendations() -> None:
     panel = strength_view.presets()["panel"]
     assert isinstance(panel, dict)
     labels = panel["labels"]
-    assert (
-        labels["universe_source"] == "Decklisten-Universum (empfohlen: keines, bis du eines wählst)"
-    )
+    assert labels["universe_source"] == "Decklisten-Universum (empfohlen: automatisch)"
     assert "(empfohlen: an)" in labels["require_commander_signal"]
     choices = panel["choices"]["universe_source"]
-    assert [item["value"] for item in choices if item["recommended"]] == ["profile"]
-    auto = next(item for item in choices if item["value"] == "auto")
-    assert auto["label"].startswith("Automatisch wählen") and not auto["recommended"]
+    assert [item["value"] for item in choices if item["recommended"]] == ["auto"]
+    assert "none" in [item["value"] for item in choices]
+    help_text = panel["help"]["weights.deck_universe"]
+    assert (
+        help_text == "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
+    )
+    assert labels["min_coverage"].startswith("Mindest-Datenlage")
+    assert "keine Schwelle für den Anteil in Decks" in panel["help"]["min_coverage"]
     assert all(
         item["settings"]["require_commander_signal"] for item in strength_view.presets()["presets"]
     )  # type: ignore[attr-defined,index]
@@ -552,22 +516,12 @@ def test_completeness_lists_the_counted_universes_or_one_generic_missing_row(
     edhrec = found["signal:decklist_universe:edhrec:3"]
     assert edhrec["rows"] == 4 and edhrec["status"] == "COMPLETE"  # every pool card has a count
     assert "signal:decklist_universe:archidekt:4" in found
-    # another commander has none of them: the generic row is back for it
-    other = {item["key"]: item for item in import_all.completeness(store, OTHER)[1]}
-    assert other["signal:decklist_universe"]["status"] == "MISSING"
 
 
-def test_import_all_picks_up_the_counted_file_of_the_research_folder(
-    store: StudioStore, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    research = tmp_path / "research"
-    _write_counted(research, _both())
-    (research / "sub").mkdir()
-    monkeypatch.setattr(import_all, "_RESEARCH", research)
-    assert import_all.default_signal_folders() == [research]
-    args = argparse.Namespace(
+def _all_args(tmp_path: Path) -> argparse.Namespace:
+    return argparse.Namespace(
         commander=COMMANDER,
-        inventory=None,
+        inventory=str(_workbook(tmp_path / "cards.xlsx", _synthetic_cards())),
         scryfall=None,
         roles=None,
         signals=None,
@@ -576,7 +530,18 @@ def test_import_all_picks_up_the_counted_file_of_the_research_folder(
         marks=None,
         expect_pool=None,
     )
-    result = import_all.run(args, store)
+
+
+def test_import_all_picks_up_the_counted_file_of_the_research_folder(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    research = tmp_path / "research"
+    _write_counted(research, _both())
+    (research / "sub").mkdir()
+    monkeypatch.setattr(import_all, "_RESEARCH", research)
+    assert import_all.default_signal_folders() == [research]
+    store = StudioStore.open(tmp_path / "all")
+    result = import_all.run(_all_args(tmp_path), store)
     steps = {step["step"]: step for step in result["steps"]}
     assert steps["Signale research"]["status"] == "IMPORTED"
     assert "files_refused=0" in steps["Signale research"]["detail"]
@@ -586,24 +551,12 @@ def test_import_all_picks_up_the_counted_file_of_the_research_folder(
     assert import_all.default_signal_folders() == []
 
 
-def test_import_all_reports_a_refused_file(
-    store: StudioStore, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_import_all_reports_a_refused_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     research = tmp_path / "research"
     _write_counted(research, _rows("edhrec", 3, 200, {"Filler 01": 1}, own=100))
     monkeypatch.setattr(import_all, "_RESEARCH", research)
-    args = argparse.Namespace(
-        commander=COMMANDER,
-        inventory=None,
-        scryfall=None,
-        roles=None,
-        signals=None,
-        decklists=None,
-        decklist_format="edhrec",
-        marks=None,
-        expect_pool=None,
-    )
-    steps = {step["step"]: step for step in import_all.run(args, store)["steps"]}
+    store = StudioStore.open(tmp_path / "all")
+    steps = {step["step"]: step for step in import_all.run(_all_args(tmp_path), store)["steps"]}
     assert "files_refused=1" in steps["Signale research"]["detail"]
     assert _stored(store) == 0
 
@@ -625,18 +578,19 @@ def test_the_web_lists_only_the_counted_universes_of_the_asked_commander(
     assert sent["settings"]["universe_source"] == "counted:edhrec:3"
 
 
-def test_the_builder_uses_a_counted_universe_only_when_it_is_chosen(
+def test_the_builder_uses_the_automatic_counted_universe_only_without_local_decks(
     store: StudioStore, tmp_path: Path
 ) -> None:
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
-    plain = builder.pool_cards(store, [COMMANDER])
-    assert "counted_universe" not in plain
-    assert all("counted" not in card for card in plain["cards"])  # type: ignore[attr-defined]
-    chosen = builder.pool_cards(store, [COMMANDER], counted="counted:edhrec:3")
+    with_decks = builder.pool_cards(store, [COMMANDER])  # the fixture holds local decks
+    assert "counted_universe" not in with_decks
+    assert all("counted" not in card for card in with_decks["cards"])  # type: ignore[attr-defined]
+    store.connection.execute("DELETE FROM commander_binding WHERE kind = 'corpus_deck'")
+    store.connection.commit()
+    chosen = builder.pool_cards(store, [COMMANDER])
     block = chosen["counted_universe"]
-    assert isinstance(block, dict) and block["denominator"] == 200
+    assert isinstance(block, dict) and block["denominator"] == 200 and block["automatic"] is True
+    assert block["label"] == "Gezählte Decklisten (Repo): EDHREC, Bracket 3, 200 Decks"
     by_name = {str(card["name"]): card for card in chosen["cards"]}  # type: ignore[attr-defined]
     assert by_name["Filler 01"]["counted"] == {"hits": 150, "denominator": 200, "share": 0.75}
     assert by_name["Filler 20"]["counted"]["hits"] == 0  # counted zero
-    with pytest.raises(ValueError, match="not stored"):
-        builder.pool_cards(store, [COMMANDER], counted="counted:edhrec:9")

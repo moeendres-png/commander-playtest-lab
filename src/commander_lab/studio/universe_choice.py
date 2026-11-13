@@ -60,6 +60,7 @@ class CountedUniverse(TypedDict):
     snapshot_id: str
     rows: int
     label: str
+    short_label: str
 
 
 class UniverseChoice(TypedDict):
@@ -76,16 +77,19 @@ class UniverseChoice(TypedDict):
     counted: str  # the ``counted:<source>:<bracket>`` value, else ""
     source: str
     bracket: str
+    short_label: str  # "EDHREC, Bracket 3, 755 Decks" for a counted universe, else the label
 
 
 def source_name(source: str) -> str:
     return _SOURCE_NAMES.get(source, source)
 
 
+def counted_short(source: str, bracket: str, denominator: int) -> str:
+    return f"{source_name(source)}, Bracket {bracket}, {denominator} Decks"
+
+
 def counted_label(source: str, bracket: str, denominator: int) -> str:
-    return (
-        f"Gezählte Decklisten (Repo): {source_name(source)}, Bracket {bracket}, {denominator} Decks"
-    )
+    return f"Gezählte Decklisten (Repo): {counted_short(source, bracket, denominator)}"
 
 
 def counted_universes(store: StudioStore, commander: str) -> list[CountedUniverse]:
@@ -116,6 +120,7 @@ def counted_universes(store: StudioStore, commander: str) -> list[CountedUnivers
                 "snapshot_id": snapshot or f"counted:{source}:{bracket}:{total}",
                 "rows": int(row["rows"]),
                 "label": counted_label(source, bracket, total),
+                "short_label": counted_short(source, bracket, total),
             }
         )
     found.sort(key=lambda item: (item["source"], item["bracket"]))
@@ -173,6 +178,7 @@ def _choice(
         "counted": counted["value"] if counted else "",
         "source": counted["source"] if counted else "",
         "bracket": counted["bracket"] if counted else "",
+        "short_label": counted["short_label"] if counted else label,
     }
 
 

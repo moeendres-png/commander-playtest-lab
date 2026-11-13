@@ -225,13 +225,14 @@ Formula, per commander (`strength.py`, pure):
    is left out and the weights are renormalised. `coverage` = weight of present components /
    weight of all components with a weight above 0.
 4. Tier `U` ("zu wenig Daten") when coverage is below `min_coverage` or fewer than
-   `min_components` weighted components are present; otherwise S/A/B/C/D by the index cuts
+   `min_components` weighted components are present, or (rule `require_commander_signal`) no
+   commander-specific component has a ranked value; otherwise S/A/B/C/D by the index cuts
    (default 90/75/55/35, editable). A card absent from a source is a missing observation: it
    lowers the coverage, never the percentile. The setting "missing value" decides per share
    signal what a card without a value does: `skip` (recommended, the component is left out)
    or `lowest` (counts as the lowest percentile, 0; an explicit choice, never the default). With
    `min_coverage` 0 a card with a single weak signal can outrank a card listed by a source at
-   1 of 755 decks, which is why the recommendation is 0.4.
+   1 of 755 decks, which is why the recommendation is a minimum (0.3, see below).
 5. A deck universe that is a subset (card filter) says so wherever its denominator is shown:
    "Teilmenge: nur Decks mit ..." with the number of excluded decks. The universe's
    `min_universe` is honoured by the strength view (below it: `UNIVERSE_TOO_SMALL`).
@@ -254,7 +255,7 @@ the Universum selector), the comparison group (`rank_group`: `pool`), the share 
 (`share_measure`: `wilson`), the minimum denominators (`min_denominators`: EDHREC 30,
 tournament 5; the deck-universe minimum is the universe's own `min_universe`), the missing
 value per share signal (`skip`), commander and basics (`rank_commander_and_basics`: off),
-`min_coverage` (0.4), `min_components` (2) and the editable cuts (`tier_cuts` 90/75/55/35).
+`min_coverage` (0.3, "Mindest-Datenlage"), `min_components` (2), `universe_source` (`auto`), `require_commander_signal` (on) and the editable cuts (`tier_cuts` 90/75/55/35).
 The page also filters by tier (S/A/B/C/D/U) and sorts by the percentile of any single
 component. Presets:
 Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. Simulation results
@@ -277,6 +278,55 @@ Routes: `POST /api/strength` (body `commander` plus at most one of `preset`, `pr
 The page names two different things and never mixes them: "Stärke-Index (Schätzung aus
 Nutzungsdaten)" (this index) and "Ergebnis aus Partien (noch nicht bewertet)" (the outcome
 evidence, `UNRATED`).
+
+### Counted deck-list universes, `universe_source` and the commander-signal rule
+
+The repository holds complete deck lists that were counted, as one file per commander:
+`<slug>_decklist_inclusion_<date>.csv` (numbered parts allowed; today
+`data/research/chulane_decklist_inclusion_20261112.csv`) with the columns `card_name, source,
+bracket, decks_with_card, universe_decks` (plus `share`, `universe_snapshot`). One universe is
+one `(source, bracket)` pair. `import-signals FOLDER` (and `import-all`, which also reads
+`data/research` itself when it holds such a file) stores per universe one signal
+`decklist_universe:<source>:<bracket>` (value = share, numerator, denominator; the snapshot id of
+the file is kept in the title of the universe's source row). The file has no commander column,
+so the commander is the `--commander` of the import and is **checked**: in every universe the
+commander's own card must be in every deck (`decks_with_card == universe_decks`), otherwise the
+whole file is refused for this commander (report status `REFUSED`, reason
+`COMMANDER_NOT_IN_EVERY_DECK`) and nothing is stored. Mixed denominators inside one universe
+(`MIXED_DENOMINATORS`) and an invalid count (`INVALID_COUNT`) refuse the file as well; duplicate
+card rows keep the first and are counted. `expected_signals()`, the completeness table and
+`/api/layers` list the stored universes, or one generic row `Signal decklist_universe` as
+`MISSING` while none exists.
+
+The deck-universe component takes its counts from ONE universe, chosen by the setting
+`universe_source` (`universe_choice.choose`, the one place that decides; the builder asks the
+same function). `auto` (recommended): (1) a stored universe profile that is selected on the
+tier page; (2) all local deck lists of the commander when there are at least `min_universe`
+(default 30); (3) the counted universe whose bracket matches the bracket setting (core 2,
+upgraded 3, optimized 4, cedh 5; the larger denominator among sources); (4) without a match (or
+bracket `none`) the counted universe with the largest denominator; (5) none. Other values:
+`profile` (only the selected stored profile), `counted:<source>:<bracket>` (exactly that one),
+`none`. Two universes are never combined and signals are read for this commander only. Because
+all of them are complete lists, a pool card that is in none of the decks is a **counted zero**
+(`ZERO_COUNT`: 0 of N, ranked, with the universe denominator, labelled as counted in the card's
+signal row); a card whose name is ambiguous stays unknown. A stored profile and the local deck
+lists treat such cards the same way. Names are matched by oracle name, then by the FRONT face
+only; the back half of a two-part name is never a spelling of the card. The result's
+`universe_choice` names the universe used (kind, label, denominator, snapshot, reason,
+automatic) and the tier page prints it in "Index berechnet mit". The deck-universe weight
+(recommended 2; 0 switches it off and then it adds neither value nor coverage) is set like any
+other (Owner decision B12). With no local deck lists and no profile the builder shows the
+automatically chosen counted universe in the frequency column, always labelled "Verbreitung
+(gezählt): <source>, Bracket <n>, <N> Decks".
+
+Tier rule "commander-specific evidence" (`require_commander_signal`, recommended on): a card
+gets a tier only if at least one commander-specific component (commander inclusion, bracket
+inclusion, deck universe, synergy, tournament lists) has a ranked value with a weight above 0;
+global inclusion and combos are the same for every commander and never give a tier alone
+(tier `U`, reason `NO_COMMANDER_SIGNAL`, "kein Signal speziell für diesen Commander"; simulation
+never counts). The recommended minimum data situation (`min_coverage`, shown as
+"Mindest-Datenlage") is 0.3: with a counted universe an unlisted card has deck universe 2 +
+global 1 + combos 1 = 4 of 11 = 0.36.
 
 ### Data report
 

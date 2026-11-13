@@ -22,7 +22,7 @@ const ISSUE_NAMES = { deck_size: "Deckgröße", commander_count: "Commander", co
 
 const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
-  universe: "", universeInfo: null,
+  universe: "", universeInfo: null, countedUniverse: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
   list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
@@ -88,8 +88,12 @@ function displayFreq(card) {
     // definition: it has no count to show, only the label "Filterkarte".
     if (u) return { hits: u.matched && !u.filter_card ? u.hits : null, total: u.denominator, share: u.share, filter: Boolean(u.filter_card) };
   }
+  // No local deck lists and no chosen universe: the counted deck-list universe the server picked
+  // automatically (the same choice as the tier list). A card without a row is a counted zero.
+  if (state.countedUniverse && card.counted) return { hits: card.counted.hits, total: card.counted.denominator, share: card.counted.share, filter: false };
   return freq(card);
 }
+const countedName = () => state.countedUniverse ? `Verbreitung (gezählt): ${state.countedUniverse.short_label}` : "";
 function displayFreqText(card) {
   const f = displayFreq(card);
   if (f.filter) return "Filterkarte";
@@ -190,7 +194,7 @@ function tile(card) {
       h("b", { class: "count", title: "Kopien im Deck" }, count ? count + "×" : "0×"),
       h("button", { class: "small", type: "button", title: "aus dem Deck", "aria-label": `${card.name} aus dem Deck`, disabled: !count, onclick: () => remove(card) }, "−"),
       h("span", { class: "spacer" }),
-      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (state.universe ? "Decks des gewählten Universums mit dieser Karte" : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${f.hits}/${f.total}` : "–")),
+      h("span", { class: "freq" + (f.total && f.total < state.small ? " low" : ""), title: (state.universe ? "Decks des gewählten Universums mit dieser Karte" : state.countedUniverse ? `${countedName()}: Decks mit dieser Karte` : "Decks der Vergleichsgruppe mit dieser Karte") + subsetTitle }, f.filter ? "Filterkarte" : f.hits === null ? "unbekannt" : f.total ? `${f.hits}/${f.total}` : "–")),
     h("div", { class: "own" }, "Besitz ", h("b", {}, card.owned), " · frei ", h("b", {}, card.available), card.reserved ? ` · reserviert ${card.reserved}` : ""));
 }
 const COLUMNS = [
@@ -254,7 +258,7 @@ function renderPool() {
     const head = h("tr", {}, h("th", {}, ""), columns.map(([key, label, sortKey]) => h("th", {
       class: ["available", "owned", "reserved", "freq", "edhrec", "edhrec_rank", "mana_value", "synergy", "strength"].includes(key) ? "num" : "",
       onclick: sortKey ? () => { state.sortDir = state.sortKey === sortKey ? -state.sortDir : (["name", "type_line", "edhrec_rank", "mana_value"].includes(sortKey) ? 1 : -1); state.sortKey = sortKey; $("sort").value = ""; if (sortKey === "strength") loadStrength(); renderPool(); } : null,
-    }, (key === "freq" && state.subset ? label + " (Teilmenge)" : label) + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
+    }, (key === "freq" && state.subset ? label + " (Teilmenge)" : key === "freq" && state.countedUniverse && !state.universe ? "Verbreitung (gezählt)" : label) + (state.sortKey === sortKey && sortKey ? (state.sortDir > 0 ? " ▲" : " ▼") : ""))));
     const lines = part.map((card) => {
       const count = qty(card.card_id);
       return h("tr", { class: count ? "in" : "" },
@@ -420,6 +424,7 @@ function emptyDecks(what) {
 function sourceDecks() {
   if (state.subset) return state.subset.info.decks;
   if (state.universe) return state.universeInfo ? state.universeInfo.denominator : 0;
+  if (state.countedUniverse && !(state.cohorts[state.cohort] || 0)) return state.countedUniverse.denominator;
   return state.cohorts[state.cohort] || 0;
 }
 function renderNumbers(body) {
@@ -481,7 +486,8 @@ function renderCompare(body) {
       state.shapes.map((row) => h("tr", { class: row.decks < state.small ? "low" : "" }, h("td", {}, cohortName(row.cohort)), h("td", { class: "num" }, row.decks_counted === row.decks ? row.decks : `${row.decks_counted} von ${row.decks}`),
         h("td", { class: "num" }, span(row.lands)), h("td", { class: "num" }, span(row.creatures)), h("td", { class: "num" }, span(row.mana_value))))));
   body.append(h("h3", {}, "Aufbau im Vergleich"), table, h("p", { class: "note" }, "Median und mittlere Hälfte der Quelldecks. Gelb: Gruppe mit weniger als 30 Decks, sehr unsicher. Länder nach Vorderseite gezählt."));
-  const name = (state.universe ? `Universum ${state.universe}` : cohortName(state.cohort)) + (state.subset ? `, ${state.subset.info.label}` : "");
+  const counted = !state.universe && !state.subset && state.countedUniverse && !(state.cohorts[state.cohort] || 0);
+  const name = (state.universe ? `Universum ${state.universe}` : counted ? countedName() : cohortName(state.cohort)) + (state.subset ? `, ${state.subset.info.label}` : "");
   if (!sourceDecks()) { body.append(emptyDecks("Oft gespielt und selten gespielt")); return; }
   // Only cards with a known count are ranked; a card without a count is not "rarely played".
   const candidates = state.pool.filter((card) => !qty(card.card_id) && !state.commanderIds.includes(card.card_id) && card.available > 0 && !card.excluded && !card.basic && displayFreq(card).hits !== null && displayFreq(card).hits > 0)
@@ -1040,6 +1046,8 @@ function renderUniverseInfo() {
   const box = $("universe-info");
   if (!box) return;
   const u = state.universeInfo;
+  const c = state.countedUniverse;
+  if (!u && c && !state.universe) { box.textContent = `${countedName()} · Stand ${c.snapshot_id} · automatisch gewählt, weil keine Quelldecks gespeichert sind (${c.reason.replace(/^automatisch gewählt: /, "")}). Eine Karte ohne Zeile steht in keinem Deck (gezählte Null).`; return; }
   if (!u) { box.textContent = ""; return; }
   const parts = [`Universum ${u.profile} (Version ${u.version}): ${u.denominator} Decks (Nenner), Stand ${u.snapshot_id}`];
   if (u.subset_note) parts.push(u.subset_note);
@@ -1052,6 +1060,7 @@ function applyPool(pool) {
   state.roles = (pool.roles || []).sort((x, y) => roleName(x).localeCompare(roleName(y)));
   state.cohorts = pool.cohorts; state.small = pool.small_denominator; state.commanderIds = pool.commander_ids;
   state.universeInfo = pool.universe || null;
+  state.countedUniverse = pool.counted_universe || null;
   state.simReadiness = pool.sim_readiness || null;
   renderUniverseInfo(); renderSimReadiness();
 }
@@ -1059,7 +1068,7 @@ async function loadPool() {
   const query = StudioCommander.query + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
   applyPool(await api("/api/pool?" + query));
   try { localStorage.setItem("studio.universe.profile", state.universe); } catch (error) { /* view setting only */ }
-  if ($("cohort")) $("cohort").disabled = Boolean(state.universe);
+  if ($("cohort")) $("cohort").disabled = Boolean(state.universe) || Boolean(state.countedUniverse);
 }
 
 // ---------- decks, variants, saving ----------
@@ -1152,7 +1161,7 @@ function setupControls() {
     state.universe = $("universe").value;
     try { await loadPool(); if (state.subsetNames.length) await applySubset(state.subsetNames); else renderAll(); } catch (error) { fail(error); }
   });
-  $("cohort").disabled = Boolean(state.universe);
+  $("cohort").disabled = Boolean(state.universe) || Boolean(state.countedUniverse);
   const sorts = [["freq:-1", "Häufigkeit in Quelldecks"], ["name:1", "Name"], ["mana_value:1", "Manawert"], ["edhrec:-1", "EDHREC-Anteil"], ["synergy:-1", "Synergie"], ["strength:-1", "Stärke-Index"], ["edhrec_rank:1", "EDHREC-Rang"], ["available:-1", "freie Kopien"]];
   $("sort").replaceChildren(...sorts.map(([value, label]) => h("option", { value }, label)), h("option", { value: "" }, "Spaltenkopf"));
   const savedSort = StudioUI.recall("studio.builder.sort", "");
