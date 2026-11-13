@@ -2,9 +2,7 @@
 """Compact GitHub views for agent sessions: one line per fact, never raw JSON dumps.
 
     gh_ops.py brief                         one screen (<=25 lines): open PRs in Lab and mage,
-                                            running/recent /oc and /assure runs with the
-                                            branch or PR and final-comment link, PB-03 runs, and
-                                            the newest sealed epoch
+                                            PB-03 runs, and the newest sealed epoch
     gh_ops.py status  [--repo O/R] PR...    head, merge state, red/pending checks, open threads
     gh_ops.py queue                         one status line per open PR in Lab and mage
     gh_ops.py threads [--repo O/R] PR       every unresolved thread: comment id, path:line, excerpt
@@ -33,7 +31,6 @@ from typing import Any
 
 DEFAULT_REPO = "moeendres-png/commander-playtest-lab"
 BY_DESIGN_RED = {"ci-definition-integrity-shadow"}
-OPENCODE_WORKFLOW = "opencode.yml"
 PB03_WORKFLOW = "pb03-runtime-qualification.yml"
 EPOCH_ROOT = Path("qualification/current-boundary-epochs")
 FAILURE = re.compile(
@@ -268,92 +265,13 @@ def pr_brief_line(repo: str, p: dict[str, Any]) -> str:
     return " ".join(parts) + f" :: {p['title'][:44]}"
 
 
-def _run_jobs(repo: str, run_id: int) -> list[dict[str, Any]]:
-    return api(f"repos/{repo}/actions/runs/{run_id}/jobs?per_page=50")["jobs"]
-
-
-def run_lane(repo: str, run: dict[str, Any]) -> str:
-    """`oc` or `assure` by which job of the opencode workflow actually ran."""
-    names = [
-        j["name"]
-        for j in _run_jobs(repo, run["id"])
-        if not (j.get("status") == "completed" and j.get("conclusion") == "skipped")
-    ]
-    return "assure" if any("assure" in name for name in names) else "oc"
-
-
-def _comment_for_run(comments: list[dict[str, Any]], run_id: int) -> dict[str, Any] | None:
-    needle = f"/actions/runs/{run_id}"
-    for c in comments:
-        if needle in (c.get("body") or ""):
-            return c
-    return None
-
-
-def _issue_from_comment(comment: dict[str, Any]) -> int | None:
-    m = re.search(r"/issues/(\d+)$", comment.get("issue_url") or "")
-    return int(m.group(1)) if m else None
-
-
-def _title_index(repo: str) -> dict[str, tuple[int, bool]]:
-    """display_title (the issue/PR title) -> (number, is_pull_request)."""
-    index: dict[str, tuple[int, bool]] = {}
-    for item in api(f"repos/{repo}/issues?state=all&per_page=100") or []:
-        index.setdefault(item["title"], (item["number"], "pull_request" in item))
-    return index
-
-
-def _issue_branch(repo: str, issue: int, cache: dict[int, str | None]) -> str | None:
-    if issue not in cache:
-        refs = api(f"repos/{repo}/git/matching-refs/heads/opencode/issue{issue}-") or []
-        names = sorted(r["ref"].removeprefix("refs/heads/") for r in refs)
-        cache[issue] = names[-1] if names else None
-    return cache[issue]
-
-
 def cmd_brief(a: argparse.Namespace) -> None:
-    """One screen across every lane, assembled from the API and the local epoch tree."""
+    """One screen of open PRs, PB-03 runs and the newest epoch (API plus local epoch tree)."""
     for repo in QUEUE_REPOS:
         for p in api(f"repos/{repo}/pulls?state=open&per_page=50") or []:
             print(pr_brief_line(repo, p))
 
     lab = a.repo
-    runs = (
-        api(
-            f"repos/{lab}/actions/workflows/{OPENCODE_WORKFLOW}/runs?per_page=15&event=issue_comment"
-        )
-        or {}
-    ).get("workflow_runs", [])
-    runs = [
-        r for r in runs if not (r.get("status") == "completed" and r.get("conclusion") == "skipped")
-    ][:4]
-    comments: list[dict[str, Any]] = []
-    if runs:
-        comments = (
-            api(f"repos/{lab}/issues/comments?sort=created&direction=desc&per_page=100") or []
-        )
-    titles: dict[str, tuple[int, bool]] = {}
-    branches: dict[int, str | None] = {}
-    for run in runs:
-        comment = _comment_for_run(comments, run["id"])
-        issue = _issue_from_comment(comment) if comment else None
-        found = None
-        if issue is None:
-            titles = titles or _title_index(lab)
-            found = titles.get(run.get("display_title", ""))
-            issue = found[0] if found else None
-        produced = f"PR #{issue}" if found and found[1] else f"issue #{issue}" if issue else "-"
-        if comment:
-            m = re.search(r"Created PR #(\d+)", comment.get("body") or "")
-            if m:
-                produced = f"PR #{m.group(1)}"
-            elif issue:
-                branch = _issue_branch(lab, issue, branches)
-                produced = branch or produced
-        state = "running" if run["status"] != "completed" else str(run.get("conclusion"))
-        link = (comment or run).get("html_url", run["html_url"])
-        print(f"{run_lane(lab, run)} run {run['id']} {state} {produced} -> {link}")
-
     pb03 = (api(f"repos/{lab}/actions/workflows/{PB03_WORKFLOW}/runs?per_page=5") or {}).get(
         "workflow_runs", []
     )

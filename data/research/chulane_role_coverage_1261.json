@@ -1,0 +1,339 @@
+{
+ "dataset": "chulane_role_coverage_1261",
+ "issue": "#1261 Punkt 2.4 (Rang innerhalb der Funktion) — Teilpaket Daten: Rollen-Abdeckung Chulane-Pool",
+ "measured_at": "2026-11-13",
+ "frame": {
+  "roles": "Die 17 Rollen aus src/commander_lab/studio/roles.py (ROLES, main @ 5b525dab)",
+  "pool_predicate": "card.commander_legal = 1 AND color_identity subset of {W,U,G,C} (C = farblos-Markierung der DB)",
+  "collection_cards": 1655,
+  "pool_cards": 927,
+  "pool_derivation": "1655 - 727 (legal, Farbidentitaet ausserhalb WUG) - 1 (nicht commander-legal) = 927"
+ },
+ "sources": {
+  "S1_tagger_bulk": "prepared/card_tagger_bulk_1655.csv — Scryfall-Bulk oracle_tags (bulk_updated_at 2026-11-12T10:00:40Z), Subtree-Vereinigung je Kategorie-Label",
+  "S2_tagger_search": "prepared/card_categories_1655.csv layer=tagger — Scryfall-Search-API function:<tag> (Block B4, 2026-11-12)",
+  "S3_heuristic": "prepared/card_categories_1655.csv layer=heuristic — deckbuild_studio.roles.classify_text, oracle-heuristic/2.0.0, auf scryfall_card-Fakten aller 1.655 Karten (Block B4)",
+  "live_db_note": "Live-Studio-DB (Schema 11): card_role = 0 Zeilen, card_role_claim = 0 Zeilen — die Claims liegen nur als vorbereitete Datensaetze vor, nicht importiert."
+ },
+ "coverage_cards": {
+  "pool": {
+   "S1": 544,
+   "S2": 544,
+   "S3": 418,
+   "tagger_union": 544,
+   "total_union": 558,
+   "denominator": 927
+  },
+  "collection": {
+   "S1": 960,
+   "S2": 960,
+   "S3": 735,
+   "tagger_union": 960,
+   "total_union": 983,
+   "denominator": 1655
+  }
+ },
+ "per_role": {
+  "board_wipe": {
+   "pool": {
+    "S1": 9,
+    "S2": 9,
+    "S3": 6,
+    "tagger_union": 9,
+    "total": 9,
+    "denominator": 927
+   },
+   "collection_total": 51,
+   "collection_denominator": 1655
+  },
+  "bounce": {
+   "pool": {
+    "S1": 39,
+    "S2": 39,
+    "S3": 16,
+    "tagger_union": 39,
+    "total": 39,
+    "denominator": 927
+   },
+   "collection_total": 49,
+   "collection_denominator": 1655
+  },
+  "cantrip": {
+   "pool": {
+    "S1": 25,
+    "S2": 25,
+    "S3": 19,
+    "tagger_union": 25,
+    "total": 30,
+    "denominator": 927
+   },
+   "collection_total": 53,
+   "collection_denominator": 1655
+  },
+  "card_advantage": {
+   "pool": {
+    "S1": 172,
+    "S2": 171,
+    "S3": 27,
+    "tagger_union": 172,
+    "total": 172,
+    "denominator": 927
+   },
+   "collection_total": 288,
+   "collection_denominator": 1655
+  },
+  "card_draw": {
+   "pool": {
+    "S1": 139,
+    "S2": 139,
+    "S3": 141,
+    "tagger_union": 139,
+    "total": 149,
+    "denominator": 927
+   },
+   "collection_total": 227,
+   "collection_denominator": 1655
+  },
+  "counterspell": {
+   "pool": {
+    "S1": 27,
+    "S2": 27,
+    "S3": 25,
+    "tagger_union": 27,
+    "total": 27,
+    "denominator": 927
+   },
+   "collection_total": 30,
+   "collection_denominator": 1655
+  },
+  "flicker": {
+   "pool": {
+    "S1": 5,
+    "S2": 5,
+    "S3": 7,
+    "tagger_union": 5,
+    "total": 8,
+    "denominator": 927
+   },
+   "collection_total": 8,
+   "collection_denominator": 1655
+  },
+  "graveyard_hate": {
+   "pool": {
+    "S1": 7,
+    "S2": 7,
+    "S3": 5,
+    "tagger_union": 7,
+    "total": 7,
+    "denominator": 927
+   },
+   "collection_total": 14,
+   "collection_denominator": 1655
+  },
+  "land_ramp": {
+   "pool": {
+    "S1": 40,
+    "S2": 40,
+    "S3": 38,
+    "tagger_union": 40,
+    "total": 61,
+    "denominator": 927
+   },
+   "collection_total": 71,
+   "collection_denominator": 1655
+  },
+  "lifegain": {
+   "pool": {
+    "S1": 93,
+    "S2": 93,
+    "S3": 79,
+    "tagger_union": 93,
+    "total": 93,
+    "denominator": 927
+   },
+   "collection_total": 156,
+   "collection_denominator": 1655
+  },
+  "mana_dork": {
+   "pool": {
+    "S1": 20,
+    "S2": 20,
+    "S3": 12,
+    "tagger_union": 20,
+    "total": 20,
+    "denominator": 927
+   },
+   "collection_total": 37,
+   "collection_denominator": 1655
+  },
+  "mana_rock": {
+   "pool": {
+    "S1": 21,
+    "S2": 21,
+    "S3": 12,
+    "tagger_union": 21,
+    "total": 24,
+    "denominator": 927
+   },
+   "collection_total": 37,
+   "collection_denominator": 1655
+  },
+  "protection": {
+   "pool": {
+    "S1": 39,
+    "S2": 39,
+    "S3": 32,
+    "tagger_union": 39,
+    "total": 44,
+    "denominator": 927
+   },
+   "collection_total": 53,
+   "collection_denominator": 1655
+  },
+  "ramp": {
+   "pool": {
+    "S1": 88,
+    "S2": 88,
+    "S3": 68,
+    "tagger_union": 88,
+    "total": 110,
+    "denominator": 927
+   },
+   "collection_total": 169,
+   "collection_denominator": 1655
+  },
+  "recursion": {
+   "pool": {
+    "S1": 33,
+    "S2": 33,
+    "S3": 18,
+    "tagger_union": 33,
+    "total": 33,
+    "denominator": 927
+   },
+   "collection_total": 85,
+   "collection_denominator": 1655
+  },
+  "removal": {
+   "pool": {
+    "S1": 125,
+    "S2": 125,
+    "S3": 52,
+    "tagger_union": 125,
+    "total": 129,
+    "denominator": 927
+   },
+   "collection_total": 340,
+   "collection_denominator": 1655
+  },
+  "tutor": {
+   "pool": {
+    "S1": 65,
+    "S2": 65,
+    "S3": 24,
+    "tagger_union": 65,
+    "total": 65,
+    "denominator": 927
+   },
+   "collection_total": 82,
+   "collection_denominator": 1655
+  }
+ },
+ "roles_per_pool_card": {
+  "0": 369,
+  "1": 263,
+  "2": 171,
+  "3": 94,
+  "4": 18,
+  "5": 11,
+  "6": 1
+ },
+ "gap": {
+  "pool_cards_without_any_of_17_roles": 369,
+  "reason_classes": {
+   "taggings_present_but_outside_17_role_subtrees": 322,
+   "lands_by_type_line": 33,
+   "no_tagging_at_all_and_heuristic_empty": 14
+  },
+  "of_those_with_claim_in_wider_24_category_taxonomy": 85,
+  "lands_thereof_basic": 3,
+  "top_bulk_labels_outside_role_subtrees": {
+   "activated ability": 92,
+   "triggered ability": 78,
+   "evasion": 63,
+   "alliteration": 42,
+   "french vanilla": 40,
+   "single target instant/sorcery": 26,
+   "repeatable crime": 25
+  },
+  "note": "Die vollstaendige Lückenliste (Name, Oracle-ID, Farbidentitaet, Typzeile je Karte) bleibt lokal und wird nicht committet (Sammlungsbezug)."
+ },
+ "closure_check": {
+  "method_a": "Erneute Subtree-Extraktion aus dem lokalen Voll-Bulk (oracle_tags.jsonl, Snapshot 2026-11-12) mit den Studio-Labels (ROLES + SEARCH_ALIASES aus roles.py): Differenz zu S1 = leer fuer alle 17 Rollen.",
+  "method_b": "Erneuter Lauf von classify_text (oracle-heuristic/2.0.0) auf allen 1.655 Karten mit denselben Eingaben wie B4: Differenz zu S3 = leer ueber alle 24 Kategorien (exakte Replikation).",
+  "new_claims_from_a": 0,
+  "new_claims_from_b": 0,
+  "result": "Die Luecke ist aus den erlaubten Quellen (Quell-Tags des vorliegenden Bulk-Snapshots, bestehendes Regelwerk) nicht weiter schliessbar — sie ist quellenbedingt, kein Extraktionsdefizit."
+ },
+ "wider_taxonomy_context": {
+  "pool_cards_with_any_of_24_categories": 643,
+  "denominator": 927,
+  "extra_categories_pool": {
+   "anthem": {
+    "pool": 25,
+    "coll": 37
+   },
+   "card_selection": {
+    "pool": 48,
+    "coll": 75
+   },
+   "discard": {
+    "pool": 0,
+    "coll": 32
+   },
+   "mill": {
+    "pool": 31,
+    "coll": 59
+   },
+   "sacrifice_outlet": {
+    "pool": 87,
+    "coll": 150
+   },
+   "stax": {
+    "pool": 12,
+    "coll": 15
+   },
+   "token_production": {
+    "pool": 94,
+    "coll": 163
+   }
+  }
+ },
+ "peer_group_verdict": {
+  "thresholds": "Peer-Rang braucht Mindestgruppengroesse: Perzentil-Aufloesung = 100/n Punkte. n>=30: tragfaehig (<=3,3 Punkte); 10<=n<30: grob brauchbar; n<10: kein sinnvoller Rang (>10 Punkte je Rangschritt).",
+  "robust_ge30": [
+   "card_advantage (172)",
+   "card_draw (149)",
+   "removal (129)",
+   "ramp (110)",
+   "lifegain (93)",
+   "tutor (65)",
+   "land_ramp (61)",
+   "protection (44)",
+   "bounce (39)",
+   "recursion (33)",
+   "cantrip (30)"
+  ],
+  "coarse_10_29": [
+   "counterspell (27)",
+   "mana_rock (24)",
+   "mana_dork (20)"
+  ],
+  "not_viable_lt10": [
+   "board_wipe (9)",
+   "flicker (8)",
+   "graveyard_hate (7)"
+  ],
+  "conclusion": "Rang in der Funktion ist fuer 558/927 Pool-Karten (60,2 %) definiert; Peer-Gruppen: 11 von 17 Rollen tragfaehig (>=30), 3 grob brauchbar (10-29), 3 nicht sinnvoll (<10). Fuer 369 Karten (39,8 %) und die 3 Klein-Rollen braucht die Einstellung einen Fallback (Pool-Rang oder \"keine Funktion bekannt\" = unbekannt, nicht 0). Die Voraussetzung \"vollstaendige Rollen\" ist aus den erlaubten Quellen nicht erreichbar."
+ }
+}

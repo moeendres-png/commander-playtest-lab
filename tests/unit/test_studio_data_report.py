@@ -58,7 +58,9 @@ def test_report_contains_no_names_or_notes(studio: StudioStore) -> None:
         "SELECT card_id, 1, 0, 'private note text', '2026-11-11' FROM card LIMIT 1"
     )
     text = json.dumps(data_report(studio, today=TODAY))
-    for forbidden in ("Forest", "Swarm Rat", "Test Commander", "private note text", "http"):
+    # Changed with the commanders section (Refs #1205): the commander name is the key every
+    # pool size and signal count is bound to, so it appears; no other card name does.
+    for forbidden in ("Forest", "Swarm Rat", "private note text", "http"):
         assert forbidden not in text
     marks = _section(data_report(studio, today=TODAY), "marks")
     assert marks["favorites"]["count"] == 1  # type: ignore[index]
@@ -151,3 +153,97 @@ def test_command_prints_json_and_changes_nothing(
     report = json.loads(capsys.readouterr().out)
     assert report["schema"] == "studio-data-report-1"
     assert report["roles"]["fingerprint"] == before
+
+
+def test_report_counts_universes_without_naming_profiles_or_cards(
+    studio: StudioStore,
+) -> None:
+    from commander_lab.studio import universe
+
+    universe.save_profile(studio, "geheim-profil", {"must_contain": ["Forest"]})
+    universe.save_profile(studio, "geheim-profil", {"must_contain": ["Forest"]})
+    universe.save_profile(studio, "zweites", {})
+    report = data_report(studio, today=TODAY)
+    section = _section(report, "universes")
+    assert section["profiles"] == 2
+    assert section["model_version"] == "counted-spread-1"
+    details = section["details"]
+    assert isinstance(details, list) and len(details) == 2
+    by_version = sorted(details, key=lambda entry: entry["version"])  # type: ignore[index]
+    assert by_version[-1]["version"] == 2  # the re-saved profile
+    filtered = next(
+        entry
+        for entry in details
+        if entry["spec_dimensions"]["must_contain_cards"] == 1  # type: ignore[index]
+    )
+    # Deliberately changed with the per-commander report (Refs #1205): a profile is counted
+    # once per commander that has bound decks, never over all commanders at once.
+    (entry,) = filtered["per_commander"]  # type: ignore[index]
+    counted = universe.inclusion(
+        studio, profile="geheim-profil", card_names=[], commander_names=entry["commanders"]
+    )
+    assert entry["denominator"] == counted["denominator"]
+    assert entry["excluded_by_card_filter"] == counted["excluded_by_card_filter"]
+    assert entry["snapshot_id"] == universe.snapshot_id(
+        studio, profile="geheim-profil", commander_names=entry["commanders"]
+    )
+    text = json.dumps(report)
+    for forbidden in ("geheim-profil", "zweites", "Forest"):
+        assert forbidden not in text
+
+
+def test_report_gives_pool_sizes_unknown_legality_and_signal_coverage_per_commander(
+    studio: StudioStore, tmp_path: Path
+) -> None:
+    from commander_lab.studio import builder, signals
+    from tests.unit.test_studio_strength import COMMANDER, _write_signals
+
+    _write_signals(tmp_path / "signals")
+    signals.import_signals(studio, tmp_path / "signals", commander=COMMANDER)
+    pool = builder.pool_cards(studio, [COMMANDER])["cards"]
+    assert isinstance(pool, list)
+    before = data_report(studio, today=TODAY)
+    section = _section(before, "commanders")
+    entry = next(item for item in section["details"] if item["commander"] == COMMANDER)  # type: ignore[attr-defined]
+    assert entry["pool"]["legal_cards"] == len(pool)
+    assert entry["pool"]["excluded_legality_unknown"] == 0
+    # one scryfall-linked card without a legality and one collection card of unknown
+    # legality: both leave the pool and are reported as unknown, not as illegal
+    studio.connection.execute(
+        "UPDATE scryfall_card SET commander_legality = 'unknown' WHERE name = 'Filler 05'"
+    )
+    source = studio.connection.execute("SELECT source_id FROM source LIMIT 1").fetchone()[0]
+    studio.connection.execute(
+        "INSERT INTO card(card_id, oracle_id, oracle_name, color_identity, commander_legal, "
+        "source_id) VALUES ('card:test:unk', NULL, 'Unchecked Card', 'C', NULL, ?)",
+        (source,),
+    )
+    studio.connection.execute(
+        "INSERT INTO inventory(card_id, observed, owned_lower_bound, reserved, "
+        "available_lower_bound, quantity_exact, source_id) VALUES ('card:test:unk', 1, 1, 0, 1, 1, ?)",
+        (source,),
+    )
+    studio.connection.commit()
+    after = data_report(studio, today=TODAY)
+    commanders = _section(after, "commanders")
+    entry = next(item for item in commanders["details"] if item["commander"] == COMMANDER)  # type: ignore[attr-defined]
+    assert entry["pool"]["legal_cards"] == len(pool) - 1
+    assert entry["pool"]["excluded_legality_unknown"] == 2
+    assert commanders["legality_unknown_in_collection"] == 2
+    signal_rows = entry["signals"]
+    inclusion = signal_rows["edhrec_commander_inclusion"]
+    assert inclusion["scope"] == "commander" and inclusion["rows"] == 9
+    assert inclusion["pool_cards_with_value"] == 8  # Filler 05 left the pool: unknown legality
+    assert inclusion["pool_size"] == entry["pool"]["legal_cards"]
+    assert signal_rows["edhrec_commander_synergy"]["rows"] == 9
+    assert (
+        signal_rows["edhrec_commander_synergy"]["pool_cards_with_value"] == 7
+    )  # no value for one more
+    assert signal_rows["edhrec_global_inclusion"]["scope"] == "independent"
+    # the second commander of the signal files has rows but no collection card: no pool
+    other = next(item for item in commanders["details"] if item["commander"] == "Other Commander")  # type: ignore[attr-defined]
+    assert other["in_collection"] is False and other["pool"] is None
+    assert other["signals"]["edhrec_commander_inclusion"]["rows"] == 2
+    text = json.dumps(after)
+    for card_name in ("Filler 00", "Forest", "Swarm Rat", "Unchecked Card"):
+        assert card_name not in text  # counts only, no collection card name

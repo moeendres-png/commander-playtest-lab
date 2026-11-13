@@ -23,7 +23,7 @@ from __future__ import annotations
 from collections import Counter
 from collections.abc import Sequence
 from pathlib import Path
-from typing import NotRequired, TypedDict
+from typing import NotRequired, TypedDict, cast
 
 from .sources import load_spellbook_combo_partners
 from .store import StudioStore
@@ -31,10 +31,13 @@ from .tiers import MODEL_VERSION, TierParams, TierParamsDict, tier_for_share
 from .universe import (
     UniverseDecks,
     UniverseSpec,
+    _universe_spec,
     cooccurrence_in_decks,
+    excluded_by_card_filter,
     excluded_no_date,
     get_profile,
     inclusion,
+    resolve_universe,
     snapshot_id,
     universe_decks,
 )
@@ -42,21 +45,41 @@ from .universe import (
 _COMBOS_PATH = Path(__file__).resolve().parents[3] / "data" / "meta" / "spellbook_combos.json"
 
 NAME_NOT_FOUND = "NAME_NOT_FOUND_IN_UNIVERSE"
+FILTER_CARD = "FILTER_CARD"
+LEVEL_FILTER_CARD = "F"
 MEANING = (
     "Verbreitung (gezählt): in wie vielen Decks des gewählten Universums die Karte steht. "
     "Das ist keine Kartenstärke und kein Tier der Bewertung."
 )
 
 
+def subset_note(spec: UniverseSpec, excluded_by_card_filter: int) -> str | None:
+    """The text every view shows next to the denominator of a card-filtered universe.
+
+    A universe that requires cards (``must_contain``) counts only the decks that contain
+    all of them: its denominator is a subset of the decks the other filters select, not the
+    commander's decks. ``None`` for an unfiltered universe."""
+    required = spec.get("must_contain", [])
+    if not required:
+        return None
+    return (
+        f"Teilmenge: nur Decks mit {', '.join(required)} "
+        f"({excluded_by_card_filter} Decks durch den Kartenfilter ausgeschlossen)"
+    )
+
+
 class ProfileSummary(TypedDict):
     profile: str
     spec: UniverseSpec
+    version: int
     denominator: int
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
+    excluded_by_card_filter: int
     min_universe: int
     below_min_universe: bool
+    subset_note: str | None
     snapshot_id: str
     data_class: str
 
@@ -67,6 +90,7 @@ class Spelling(TypedDict):
 
 
 class CardSpread(TypedDict):
+    filter_card: bool
     card_id: str
     name: str
     matched: bool
@@ -82,11 +106,15 @@ class CardSpread(TypedDict):
 
 class SpreadUniverse(TypedDict):
     profile: str
+    version: int
     snapshot_id: str
     denominator: int
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
+    excluded_by_card_filter: int
+    must_contain: list[str]
+    subset_note: str | None
     min_universe: int
     below_min_universe: bool
     data_class: str
@@ -111,7 +139,7 @@ class CardCooccurrence(TypedDict):
     card_id: str
     matched: bool
     matched_name: str | None
-    profile: str
+    profile: str | None
     snapshot_id: str
     denominator: int
     denominator_label: str
@@ -120,15 +148,23 @@ class CardCooccurrence(TypedDict):
     denominator_by_platform: dict[str, int]
     denominator_by_bracket: dict[str, int]
     excluded_no_date: int
+    excluded_by_card_filter: int
+    must_contain: list[str]
+    subset_note: str | None
+    filter_card: bool
     pairs: list[CooccurrencePair]
     data_class: str
 
 
-def _params_for(store: StudioStore, profile: str) -> TierParams:
+def _params_for(
+    store: StudioStore, profile: str | None, spec: UniverseSpec | None = None
+) -> TierParams:
     """Tier parameters of a profile: the model's cuts and fallback, with the
     profile's own ``min_universe`` when its spec sets one. The cuts are model
     constants of ``tiers.py`` (``MODEL_VERSION``) and are never read from a profile."""
-    spec = get_profile(store, profile)["spec"]
+    if profile is not None:
+        spec = get_profile(store, profile)["spec"]
+    spec = spec or {}
     default = TierParams()
     return TierParams(min_universe=spec.get("min_universe", default.min_universe))
 
@@ -143,12 +179,15 @@ def profile_summary(
     return {
         "profile": name,
         "spec": profile["spec"],
+        "version": profile["version"],
         "denominator": counted["denominator"],
         "denominator_by_platform": counted["denominator_by_platform"],
         "denominator_by_bracket": counted["denominator_by_bracket"],
         "excluded_no_date": counted["excluded_no_date"],
+        "excluded_by_card_filter": counted["excluded_by_card_filter"],
         "min_universe": min_universe,
         "below_min_universe": counted["denominator"] < min_universe,
+        "subset_note": subset_note(profile["spec"], counted["excluded_by_card_filter"]),
         "snapshot_id": snapshot_id(store, profile=name, commander_names=commander_names),
         "data_class": counted["data_class"],
     }
@@ -206,6 +245,7 @@ def _spread_of(
     universe: UniverseDecks,
     by_key: dict[str, list[str]],
     params: TierParams,
+    required: frozenset[str],
 ) -> tuple[CardSpread, set[str]]:
     card_id, oracle_name, _ = card
     denominator = universe["denominator"]
@@ -219,6 +259,7 @@ def _spread_of(
         key=lambda item: (-item["hits"], item["name"]),
     )
     result: CardSpread = {
+        "filter_card": oracle_name in required,
         "card_id": card_id,
         "name": oracle_name,
         "matched": bool(union),
@@ -236,29 +277,75 @@ def _spread_of(
         share = len(union) / denominator if denominator else None
         result["share"] = share
         result["level"], result["reason"] = tier_for_share(share, denominator, params)
+    if result["filter_card"]:
+        # A card the universe requires is in every deck of the subset by definition
+        # (share 2/2): that is the filter speaking, not the decks, so it gets no share and
+        # no level. The deck count stays visible; the page labels it as a filter card.
+        result["share"] = None
+        result["level"], result["reason"] = LEVEL_FILTER_CARD, FILTER_CARD
     return result, union
 
 
-def _spread_all(
-    store: StudioStore,
-    profile: str,
-    card_ids: Sequence[str] | None,
-    commander_names: Sequence[str] | None,
-) -> tuple[UniverseDecks, list[tuple[CardSpread, set[str], list[str]]], TierParams]:
-    universe = universe_decks(store, profile=profile, commander_names=commander_names)
-    rows = _all_card_rows(store)
+def _taken_names(rows: list[CardRow]) -> Counter[str]:
     taken: Counter[str] = Counter()
     for _, oracle_name, engine_name in rows:
         for name in {oracle_name.casefold(), engine_name.casefold()}:
             taken[name] += 1
+    return taken
+
+
+NAME_CLASS_ORACLE = 0
+NAME_CLASS_ENGINE = 1
+NAME_CLASS_FRONT_FACE = 2
+
+
+def name_claims(store: StudioStore, card_ids: Sequence[str]) -> dict[str, list[tuple[str, int]]]:
+    """The casefolded name keys each given Studio card claims, with the kind of claim.
+
+    The keys are exactly those of the counted spread (``_name_keys``): oracle name, engine
+    name, and the front face of a double-faced name unless another Studio card has that
+    exact name. The kind orders the claims (``NAME_CLASS_ORACLE`` before
+    ``NAME_CLASS_ENGINE`` before ``NAME_CLASS_FRONT_FACE``) for a caller that must give one
+    name to one card. Raises KeyError for an unknown card id."""
+    rows = _all_card_rows(store)
+    taken = _taken_names(rows)
+    claims: dict[str, list[tuple[str, int]]] = {}
+    for card in _chosen(rows, card_ids):
+        keys, _ambiguous = _name_keys(card, taken)
+        oracle, engine = card[1].casefold(), card[2].casefold()
+        claims[card[0]] = [
+            (
+                key,
+                NAME_CLASS_ORACLE
+                if key == oracle
+                else NAME_CLASS_ENGINE
+                if key == engine
+                else NAME_CLASS_FRONT_FACE,
+            )
+            for key in keys
+        ]
+    return claims
+
+
+def _spread_all(
+    store: StudioStore,
+    profile: str | None,
+    card_ids: Sequence[str] | None,
+    commander_names: Sequence[str] | None,
+    spec: UniverseSpec | None = None,
+) -> tuple[UniverseDecks, list[tuple[CardSpread, set[str], list[str]]], TierParams]:
+    universe = universe_decks(store, profile=profile, commander_names=commander_names, spec=spec)
+    rows = _all_card_rows(store)
+    taken = _taken_names(rows)
     by_key: dict[str, list[str]] = {}
     for raw in universe["decks_by_name"]:
         by_key.setdefault(raw.casefold(), []).append(raw)
-    params = _params_for(store, profile)
+    params = _params_for(store, profile, universe["spec"])
+    required = frozenset(universe["spec"].get("must_contain", []))
     entries: list[tuple[CardSpread, set[str], list[str]]] = []
     for card in _chosen(rows, card_ids):
         keys, ambiguous = _name_keys(card, taken)
-        spread, decks = _spread_of(card, keys, ambiguous, universe, by_key, params)
+        spread, decks = _spread_of(card, keys, ambiguous, universe, by_key, params, required)
         entries.append((spread, decks, keys))
     return universe, entries, params
 
@@ -275,14 +362,19 @@ def pool_spread(
     A card's hits are the distinct universe decks listing at least one of its name keys
     (casefolded) in a counted section. Raises KeyError for an unknown profile or card id."""
     universe, entries, params = _spread_all(store, profile, card_ids, commander_names)
+    excluded_cards = excluded_by_card_filter(store, universe["spec"])
     return {
         "universe": {
             "profile": profile,
+            "version": get_profile(store, profile)["version"],
             "snapshot_id": universe["snapshot_id"],
             "denominator": universe["denominator"],
             "denominator_by_platform": universe["denominator_by_platform"],
             "denominator_by_bracket": universe["denominator_by_bracket"],
             "excluded_no_date": excluded_no_date(store, universe["spec"]),
+            "excluded_by_card_filter": excluded_cards,
+            "must_contain": list(universe["spec"].get("must_contain", [])),
+            "subset_note": subset_note(universe["spec"], excluded_cards),
             "min_universe": params.min_universe,
             "below_min_universe": universe["denominator"] < params.min_universe,
             "data_class": universe["data_class"],
@@ -291,6 +383,96 @@ def pool_spread(
         "model_version": MODEL_VERSION,
         "meaning": MEANING,
         "cards": [spread for spread, _, _ in entries],
+    }
+
+
+class DeckFilterCard(TypedDict):
+    card_id: str
+    name: str
+    filter_card: bool
+    matched: bool
+    hits: int | None
+    denominator: int
+    share: float | None
+
+
+class DeckFilter(TypedDict):
+    commander: list[str]
+    profile: str | None
+    must_contain: list[str]
+    decks: int
+    of: int
+    label: str
+    snapshot_id: str
+    data_class: str
+    cards: list[DeckFilterCard]
+
+
+def filtered_spec(
+    store: StudioStore,
+    must_contain: Sequence[str],
+    *,
+    commander_names: Sequence[str],
+    profile: str | None = None,
+) -> UniverseSpec:
+    """The spec of the commander's decks (or of ``profile`` narrowed to the commander) that
+    additionally must contain every card of ``must_contain``. Raises ValueError for a name
+    that names no single collection card."""
+    base = _universe_spec(store, profile, None, commander_names)
+    wanted = sorted({*base.get("must_contain", []), *(name for name in must_contain if name)})
+    spec = {key: value for key, value in base.items() if key != "must_contain"}
+    if wanted:
+        spec["must_contain"] = wanted
+    return cast(UniverseSpec, spec)
+
+
+def deck_filter(
+    store: StudioStore,
+    must_contain: Sequence[str],
+    *,
+    commander_names: Sequence[str],
+    profile: str | None = None,
+    card_ids: Sequence[str] | None = None,
+) -> DeckFilter:
+    """Source-deck figures of the commander over only the decks that contain ALL chosen
+    cards, each with its denominator ("Teilmenge: N von M Decks").
+
+    ``of`` (M) is the number of decks the same scope counts without the card filter, ``decks``
+    (N) the decks that contain every chosen card. It is the one universe machinery (a free
+    spec instead of a stored profile): a chosen card is a filter card, in every deck of the
+    subset by definition, so it gets no hits and no share. No deck in the subset means an
+    unknown share, never 0. Raises ValueError for a name that is no collection card."""
+    spec = filtered_spec(store, must_contain, commander_names=commander_names, profile=profile)
+    base_spec = cast(UniverseSpec, {k: v for k, v in spec.items() if k != "must_contain"})
+    if profile is not None:
+        stored_required = get_profile(store, profile)["spec"].get("must_contain", [])
+        if stored_required:
+            base_spec["must_contain"] = list(stored_required)
+    of = len(resolve_universe(store, base_spec))
+    universe, entries, _params = _spread_all(store, None, card_ids, commander_names, spec)
+    cards: list[DeckFilterCard] = [
+        {
+            "card_id": spread["card_id"],
+            "name": spread["name"],
+            "filter_card": spread["filter_card"],
+            "matched": spread["matched"],
+            "hits": None if spread["filter_card"] else spread["hits"],
+            "denominator": spread["denominator"],
+            "share": None if spread["filter_card"] else spread["share"],
+        }
+        for spread, _decks, _keys in entries
+    ]
+    decks = universe["denominator"]
+    return {
+        "commander": list(commander_names),
+        "profile": profile,
+        "must_contain": list(universe["spec"].get("must_contain", [])),
+        "decks": decks,
+        "of": of,
+        "label": f"Teilmenge: {decks} von {of} Decks",
+        "snapshot_id": universe["snapshot_id"],
+        "data_class": universe["data_class"],
+        "cards": cards,
     }
 
 
@@ -309,11 +491,12 @@ def _combo_partners(commander_names: Sequence[str] | None) -> dict[str, set[str]
 
 def card_cooccurrence(
     store: StudioStore,
-    profile: str,
+    profile: str | None,
     card_id: str,
     limit: int = 25,
     *,
     commander_names: Sequence[str] | None,
+    spec: UniverseSpec | None = None,
 ) -> CardCooccurrence:
     """Cards played together with one card in the universe, over the card's counted decks.
 
@@ -323,8 +506,9 @@ def card_cooccurrence(
     for an unknown profile or card, ValueError when ``limit`` < 1."""
     if limit < 1:
         raise ValueError("limit must be at least 1")
-    universe, entries, _params = _spread_all(store, profile, [card_id], commander_names)
+    universe, entries, _params = _spread_all(store, profile, [card_id], commander_names, spec)
     card, decks, keys = entries[0]
+    excluded_cards = excluded_by_card_filter(store, universe["spec"])
     base: CardCooccurrence = {
         "card_id": card_id,
         "matched": card["matched"],
@@ -338,6 +522,10 @@ def card_cooccurrence(
         "denominator_by_platform": universe["denominator_by_platform"],
         "denominator_by_bracket": universe["denominator_by_bracket"],
         "excluded_no_date": excluded_no_date(store, universe["spec"]),
+        "excluded_by_card_filter": excluded_cards,
+        "must_contain": list(universe["spec"].get("must_contain", [])),
+        "subset_note": subset_note(universe["spec"], excluded_cards),
+        "filter_card": card["filter_card"],
         "pairs": [],
         "data_class": universe["data_class"],
     }
@@ -370,13 +558,24 @@ def card_cooccurrence(
 
 
 __all__ = [
+    "FILTER_CARD",
+    "LEVEL_FILTER_CARD",
+    "NAME_CLASS_ENGINE",
+    "NAME_CLASS_FRONT_FACE",
+    "NAME_CLASS_ORACLE",
     "NAME_NOT_FOUND",
     "CardCooccurrence",
     "CardSpread",
     "CooccurrencePair",
+    "DeckFilter",
+    "DeckFilterCard",
     "PoolSpread",
     "ProfileSummary",
     "card_cooccurrence",
+    "deck_filter",
+    "filtered_spec",
+    "name_claims",
     "pool_spread",
     "profile_summary",
+    "subset_note",
 ]

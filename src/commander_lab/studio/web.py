@@ -18,7 +18,18 @@ from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field, StrictInt
 
-from . import builder, card_outcomes, games, launch, strength_view, universe, universe_view
+from . import (
+    builder,
+    card_outcomes,
+    data_report,
+    games,
+    import_all,
+    launch,
+    queries,
+    strength_view,
+    universe,
+    universe_view,
+)
 from . import evidence as evidence_model
 from .decks import (
     RevisionCard,
@@ -30,7 +41,9 @@ from .decks import (
 )
 from .images import cached_image, cached_image_by_name, public_card
 from .launch import MAX_GAMES_PER_JVM, MAX_WORKERS, MIN_GAMES_PER_JVM, MIN_WORKERS
+from .sources import source_inventory_payload
 from .store import StudioStore, studio_data_dir
+from .universe import UnknownUniverseCards
 
 STATIC = Path(__file__).resolve().parent / "static"
 _LOCAL_HOSTS = frozenset({"127.0.0.1", "localhost", "[::1]", "testserver"})
@@ -127,6 +140,7 @@ class UniverseBody(BaseModel):
     date_to: str | None = Field(default=None, max_length=10)
     min_main_cards: StrictInt | None = None
     min_universe: StrictInt | None = Field(default=None, ge=1)
+    must_contain: list[str] | None = Field(default=None, max_length=20)
 
 
 class StrengthBody(BaseModel):
@@ -142,6 +156,28 @@ class StrengthBody(BaseModel):
 class StrengthProfileBody(BaseModel):
     model_config = ConfigDict(extra="forbid")
     settings: dict[str, object]
+
+
+def _german(error: ValueError) -> str:
+    """The German sentence for the validation errors the page can cause; other messages
+    pass through unchanged. Unknown cards arrive as a structured error (a list of names)."""
+    if isinstance(error, UnknownUniverseCards):
+        return (
+            f"Diese Karte kennt das Studio nicht: {', '.join(error.names)}. "
+            "Wähle eine Karte aus der Vorschlagsliste."
+        )
+    return str(error)
+
+
+def _inventory_summary() -> dict[str, object]:
+    """Compact form of the qualified evidence-source inventory for /api/status:
+    how many source layers exist and how they split over the review states."""
+    inventory = source_inventory_payload()
+    return {
+        "schema_version": inventory["schema_version"],
+        "total_sources": inventory["total_sources"],
+        "status_counts": inventory["status_counts"],
+    }
 
 
 def _cards(entries: list[CardEntry]) -> list[RevisionCard]:
@@ -194,8 +230,34 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 # says how many of them are bound to a commander at all.
                 "source_data_binding": store.binding_counts(),
                 "decks": store.count("deck"),
+                "universe_profiles": store.count("universe_profile"),
+                # The qualified evidence-source layers and their review states
+                # (register in `sources.py`), so the data state is visible here;
+                # the counted detail of every layer is under /api/data-report.
+                "source_inventory": _inventory_summary(),
                 "sources": sources,
             }
+        finally:
+            store.close()
+
+    @app.get("/api/data-report")
+    def data_report_route() -> dict[str, object]:
+        """The counts-only data report (same payload as the CLI command), so the
+        state of every data layer — collection, corpus, universes — is readable
+        in the tool itself. No card name, deck address or note text leaves here."""
+        store = open_store()
+        try:
+            return data_report.data_report(store)
+        finally:
+            store.close()
+
+    @app.get("/api/layers")
+    def layers(commander: str = Query(min_length=1, max_length=200)) -> dict[str, object]:
+        """Per data layer of one commander: rows, pool cards covered, status and the exact
+        import call, for the empty-state box of the pages."""
+        store = open_store()
+        try:
+            return import_all.layer_overview(store, commander)
         finally:
             store.close()
 
@@ -298,7 +360,21 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             settings = strength_view.resolve_settings(
                 store, preset=body.preset, profile=body.profile, settings=body.settings
             )
-            return dict(strength_view.compute(store, body.commander, settings))
+            return dict(
+                strength_view.compute(
+                    store,
+                    body.commander,
+                    settings,
+                    # a saved profile may point to a universe deleted since: fall back
+                    # visibly instead of failing; explicit settings must name a real one
+                    dangling_universe_ok=body.profile is not None,
+                    notices=(
+                        strength_view.profile_notices(store, body.profile)
+                        if body.profile is not None
+                        else ()
+                    ),
+                )
+            )
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
@@ -312,7 +388,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def strength_profiles() -> list[dict[str, object]]:
         store = open_store()
         try:
-            return strength_view.list_profiles(store)
+            return [dict(item) for item in strength_view.list_profiles(store)]
         finally:
             store.close()
 
@@ -322,7 +398,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     ) -> dict[str, object]:
         store = open_store()
         try:
-            return strength_view.get_profile(store, name)
+            return dict(strength_view.get_profile(store, name))
         except KeyError as error:
             raise HTTPException(404, "unknown strength profile") from error
         finally:
@@ -337,7 +413,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             settings = strength_view.resolve_settings(
                 store, preset=None, profile=None, settings=body.settings
             )
-            return strength_view.save_profile(store, name, settings)
+            return dict(strength_view.save_profile(store, name, settings))
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         finally:
@@ -358,14 +434,14 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/universe/options")
     def universe_options(
-        commander: str | None = Query(default=None, max_length=200),
+        commander: list[str] = Query(min_length=1, max_length=2),
     ) -> dict[str, object]:
         """The spec values the store holds, with deck counts — the only values a
-        profile form should offer. With a commander, counts cover its bound decks."""
+        profile form should offer. The commander is required: the counts cover the decks
+        bound to exactly this commander (or pair), never a figure mixed over commanders."""
         store = open_store()
         try:
-            names = [commander] if commander else None
-            return dict(universe.options(store, commander_names=names))
+            return dict(universe.options(store, commander_names=commander))
         finally:
             store.close()
 
@@ -393,7 +469,20 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             universe.save_profile(store, name, body.model_dump(exclude_none=True))
             return dict(universe_view.profile_summary(store, name, commander_names=[commander]))
         except ValueError as error:
-            raise HTTPException(422, str(error)) from error
+            raise HTTPException(422, _german(error)) from error
+        finally:
+            store.close()
+
+    @app.delete("/api/universe/profiles/{name}")
+    def delete_universe_profile(
+        name: str = PathParam(min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        store = open_store()
+        try:
+            universe.delete_profile(store, name)
+            return {"deleted": name}
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
         finally:
             store.close()
 
@@ -448,21 +537,86 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     @app.get("/api/cards/{card_id}/cooccurrence")
     def card_cooccurrence(
         card_id: str,
-        profile: str = Query(min_length=1, max_length=80),
+        profile: str | None = Query(default=None, min_length=1, max_length=80),
         limit: int = Query(default=25, ge=1, le=500),
         commander: str = Query(min_length=1, max_length=200),
+        must_contain: list[str] = Query(default=[], max_length=20),
     ) -> dict[str, object]:
+        """Cards played with one card: over a stored universe (``profile``) or, without one,
+        over the commander's decks that contain every card of ``must_contain``."""
+        if profile is None and not must_contain:
+            raise HTTPException(422, "Gib ein Universum oder Filterkarten an.")
         store = open_store()
         try:
+            spec = (
+                universe_view.filtered_spec(
+                    store, must_contain, commander_names=[commander], profile=profile
+                )
+                if must_contain
+                else None
+            )
             return dict(
                 universe_view.card_cooccurrence(
-                    store, profile, card_id, limit, commander_names=[commander]
+                    store,
+                    None if spec is not None else profile,
+                    card_id,
+                    limit,
+                    commander_names=[commander],
+                    spec=spec,
                 )
             )
         except ValueError as error:
-            raise HTTPException(422, str(error)) from error
+            raise HTTPException(422, _german(error)) from error
         except KeyError as error:
             raise HTTPException(404, "unknown universe profile or card") from error
+        finally:
+            store.close()
+
+    @app.get("/api/deck-filter")
+    def deck_filter(
+        commander: str = Query(min_length=1, max_length=200),
+        card: list[str] = Query(default=[], max_length=20),
+        profile: str | None = Query(default=None, min_length=1, max_length=80),
+    ) -> dict[str, object]:
+        """Source-deck figures over only the commander's decks that contain ALL chosen
+        cards ("Teilmenge: N von M Decks"). Only cards of the commander's pool can be chosen."""
+        store = open_store()
+        try:
+            try:
+                pool = queries.legal_pool(store, [commander])
+            except KeyError as error:
+                raise HTTPException(404, f"commander not in the collection: {error}") from error
+            if any(not name.strip() for name in card):
+                raise HTTPException(
+                    422, "Leerer Kartenname. Wähle eine Karte aus der Vorschlagsliste."
+                )
+            if any(name.casefold() == commander.casefold() for name in card):
+                raise HTTPException(
+                    422,
+                    f"{commander} ist der Commander und steckt in jedem Deck. "
+                    "Wähle eine andere Karte als Filter.",
+                )
+            pool_names = {str(row["oracle_name"]) for row in pool}
+            outside = sorted({name for name in card if name not in pool_names})
+            if outside:
+                raise HTTPException(
+                    422,
+                    f"Diese Karte gehört nicht zum Kartenpool von {commander}: "
+                    f"{', '.join(outside)}. Wähle eine Karte aus der Vorschlagsliste.",
+                )
+            return dict(
+                universe_view.deck_filter(
+                    store,
+                    card,
+                    commander_names=[commander],
+                    profile=profile,
+                    card_ids=[str(row["card_id"]) for row in pool],
+                )
+            )
+        except ValueError as error:
+            raise HTTPException(422, _german(error)) from error
+        except KeyError as error:
+            raise HTTPException(404, "unknown universe profile") from error
         finally:
             store.close()
 

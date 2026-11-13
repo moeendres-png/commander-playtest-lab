@@ -41,6 +41,25 @@ def sim_readiness_status(card_name: str) -> str:
         return "UNKNOWN"
 
 
+def sim_readiness_available() -> bool:
+    """Whether the repo card-fact files behind the readiness status can be read at all."""
+    try:
+        _sim_card_data()
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def _sim_readiness_summary(cards: list[dict[str, object]]) -> dict[str, object]:
+    by_status = Counter(str(card["sim_status"]) for card in cards)
+    return {
+        "available": sim_readiness_available(),
+        "ready": by_status.get("OK", 0),
+        "total": len(cards),
+        "by_status": dict(sorted(by_status.items())),
+    }
+
+
 ALL_DECKS = "all"
 SMALL_DENOMINATOR = 30
 _TYPE_ORDER = (
@@ -230,8 +249,42 @@ def _corpus_hits(store: StudioStore, commander_names: Sequence[str]) -> dict[str
     return hits
 
 
+def _edhrec_entry(widest: sqlite3.Row | None, signal: object) -> dict[str, object] | None:
+    """The EDHREC figure of a card: the older table row when it has a value, else the
+    commander's stored inclusion signal (a share, shown as percent), else None (unknown)."""
+    if widest is not None and widest["value"] is not None:
+        return {
+            "page": str(widest["cohort"]).removeprefix("edhrec:"),
+            "pct": widest["value"],
+            "numerator": widest["numerator"],
+            "denominator": widest["denominator"],
+            "origin": "table",
+        }
+    if isinstance(signal, dict) and signal.get("value") is not None:
+        return {
+            "page": "Signal-Import (EDHREC)",
+            "pct": 100 * float(signal["value"]),
+            "numerator": signal.get("numerator"),
+            "denominator": signal.get("denominator"),
+            "origin": "signal",
+        }
+    if widest is not None:
+        return {
+            "page": str(widest["cohort"]).removeprefix("edhrec:"),
+            "pct": None,
+            "numerator": widest["numerator"],
+            "denominator": widest["denominator"],
+            "origin": "table",
+        }
+    return None
+
+
 def pool_cards(
-    store: StudioStore, commander_names: Sequence[str], *, profile: str | None = None
+    store: StudioStore,
+    commander_names: Sequence[str],
+    *,
+    profile: str | None = None,
+    with_signals: bool = True,
 ) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
     builder shows per card. Without any commander the colour filter is off (all legal cards).
@@ -241,7 +294,11 @@ def pool_cards(
     the same figures the tier list shows for the profile, from the same snapshot, so
     the builder and the tier list never show two denominators for one universe. The
     legacy cohort figures stay untouched either way. Raises KeyError for an unknown
-    profile and ValueError when the profile is defined for other commanders."""
+    profile and ValueError when the profile is defined for other commanders.
+
+    ``with_signals`` adds the commander's stored usage signals (``card_signal``, one
+    commander only) as ``signals`` per card. The older EDHREC value is used first; the
+    stored inclusion signal fills the card's ``edhrec`` entry only where that has no value."""
     db = store.connection
     identity: frozenset[str] = frozenset() if commander_names else frozenset("WUBRG")
     commander_ids: list[str] = []
@@ -277,6 +334,21 @@ def pool_cards(
             playgroup.setdefault(str(row["card_id"]), row)
         if row["oracle_id"]:
             playgroup.setdefault(str(row["oracle_id"]), row)
+    signal_values: dict[str, dict[str, object]] = {}
+    if with_signals and len(commander_names) == 1:
+        # Imported here: strength_view imports this module.
+        from . import strength_view
+
+        names = {
+            str(r["card_id"]): str(r["oracle_name"])
+            for r in db.execute("SELECT card_id, oracle_name FROM card_fact")
+        }
+        signal_values = {
+            card_id: dict(found)
+            for card_id, found in strength_view.card_signal_values(
+                store, commander_names[0], list(names), names
+            ).items()
+        }
     cards: list[dict[str, object]] = []
     for row in db.execute(
         "SELECT c.*, i.owned_lower_bound, i.available_lower_bound, i.reserved, "
@@ -320,14 +392,8 @@ def pool_cards(
                 "note": row["note"] or "",
                 "roles": roles.get(str(row["oracle_id"]), []),
                 "decks": hits.get(str(row["oracle_id"]), hits.get(str(row["oracle_name"]), {})),
-                "edhrec": None
-                if widest is None
-                else {
-                    "page": str(widest["cohort"]).removeprefix("edhrec:"),
-                    "pct": widest["value"],
-                    "numerator": widest["numerator"],
-                    "denominator": widest["denominator"],
-                },
+                "edhrec": _edhrec_entry(widest, signal_values.get(card_id, {}).get("inclusion")),
+                "signals": signal_values.get(card_id, {}),
                 "playgroup": None
                 if pg is None
                 else {
@@ -351,6 +417,7 @@ def pool_cards(
         "corpus_binding": corpus_binding(store, commander_names),
         "small_denominator": SMALL_DENOMINATOR,
         "roles": [str(r[0]) for r in db.execute("SELECT DISTINCT role FROM card_role ORDER BY 1")],
+        "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
     if profile is not None:
@@ -371,6 +438,7 @@ def pool_cards(
                 "share": item["share"],
                 "level": item["level"],
                 "reason": item["reason"],
+                "filter_card": item["filter_card"],
             }
         result["universe"] = {
             **spread["universe"],
@@ -379,6 +447,53 @@ def pool_cards(
             "meaning": spread["meaning"],
         }
     return result
+
+
+def pool_counts(store: StudioStore, commander_names: Sequence[str]) -> dict[str, int]:
+    """How many collection cards fall inside the commander's colour identity, and how they
+    split by Commander legality: ``legal`` (the pool), ``legality_unknown`` (legality is
+    NULL, empty or ``unknown``: excluded from the pool, but listed as unknown and never as illegal) and
+    ``not_legal`` (banned or not legal). Raises KeyError for a commander not in the
+    collection. Counts only; the pool itself is ``pool_cards``."""
+    db = store.connection
+    identity: frozenset[str] = frozenset()
+    for name in commander_names:
+        row = db.execute(
+            "SELECT color_identity FROM card_fact WHERE oracle_name = ?", (name,)
+        ).fetchone()
+        if row is None:
+            raise KeyError(name)
+        identity |= color_set(row["color_identity"])
+    counts = {"in_identity": 0, "legal": 0, "legality_unknown": 0, "not_legal": 0}
+    for row in db.execute(
+        "SELECT f.color_identity, f.commander_legal, f.fact_source, s.commander_legality "
+        "FROM card_fact f JOIN inventory i USING (card_id) "
+        "LEFT JOIN scryfall_card s ON s.oracle_id = f.oracle_id"
+    ):
+        if not color_set(row["color_identity"]) <= identity:
+            continue
+        counts["in_identity"] += 1
+        if row["commander_legal"] == 1:
+            counts["legal"] += 1
+        elif (
+            row["fact_source"] == "scryfall" and row["commander_legality"] in (None, "", "unknown")
+        ) or (row["fact_source"] != "scryfall" and row["commander_legal"] is None):
+            counts["legality_unknown"] += 1
+        else:
+            counts["not_legal"] += 1
+    return counts
+
+
+def legality_unknown_in_collection(store: StudioStore) -> int:
+    """Collection cards whose Commander legality is unknown (NULL, empty or ``unknown``), any colour."""
+    row = store.connection.execute(
+        "SELECT COUNT(*) FROM card_fact f JOIN inventory i USING (card_id) "
+        "LEFT JOIN scryfall_card s ON s.oracle_id = f.oracle_id "
+        "WHERE (f.fact_source = 'scryfall' AND (s.commander_legality IS NULL "
+        "OR s.commander_legality IN ('', 'unknown'))) "
+        "OR (f.fact_source != 'scryfall' AND f.commander_legal IS NULL)"
+    ).fetchone()
+    return int(row[0])
 
 
 def card_cooccurrence(

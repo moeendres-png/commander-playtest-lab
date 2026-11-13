@@ -17,27 +17,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import yaml
-
 # Live pin: multiplayer candidate after the deterministic commander-zone ask order
 # (mage#57), the card-scanner bulk lookup (mage#58) and the precon card coverage
 # (mage#59) and the lazy playable-calculation card copy (mage#60), repin v7.
 CANONICAL_XMAGE_PIN = "f4d12f6e8066203fba7aa38bd35ea3358117393d"
 STALE_XMAGE_PIN = "06d166b098ad36b277edef01116472203d5a047e"
 STALE_FORGE_PIN = "852066bf4f761b302ed17cb011999d8a8fe08ad6"
-
-WS91_ARCHIVE_REL = (
-    "research/architecture-closure/ws91-d1-current-main-integration/"
-    "HISTORICAL-WS-A1D-H4-archived-root-state.yaml"
-)
-# Pre-removal operational root-state blob (historical WS-A1D-H4 bytes, git blob id).
-ARCHIVED_ROOT_BLOB = "6cf09d17cc141215efc8d1c06c5c0845b5f201ef"
-
-
-def _git_blob_id(raw: bytes) -> str:
-    import hashlib
-
-    return hashlib.sha1(b"blob %d\0" % len(raw) + raw).hexdigest()
 
 
 def _flat(text: str) -> str:
@@ -95,113 +80,6 @@ def test_retention_appendix_g_preserves_history_and_records_successors(
     assert "H4B-Forge" in text and "UNKNOWN/NOT_RUN" in text
 
 
-def test_repository_root_state_absent_and_archive_preserved(
-    repo_root: Path,
-) -> None:
-    """ROOT_STATE_SEMANTICS lock (Coordinator authority decision, 2026-09-13).
-
-    Repository-root `.foundry/WORKSTREAM_STATE.yaml` is not a valid
-    repository-global current state (schema 2.0 carries concrete workstream
-    identity), so it no longer exists on the operational surface. The exact
-    historical WS-A1D-H4 bytes are preserved under the WS91 evidence path.
-    Root absence subsumes the earlier no-rebind lock: no merge can place a
-    workstream-specific state at repository root while this holds.
-    """
-    import sys
-
-    sys.path.insert(0, str(repo_root / "tools"))
-    from foundry import state as state_mod
-
-    assert not (repo_root / ".foundry" / "WORKSTREAM_STATE.yaml").exists()
-    assert (repo_root / ".foundry" / "WORKSTREAM_STATE.schema.json").is_file()
-    archived = repo_root / WS91_ARCHIVE_REL
-    assert archived.is_file()
-    raw = archived.read_bytes()
-    assert _git_blob_id(raw) == ARCHIVED_ROOT_BLOB
-    data = yaml.safe_load(raw.decode("utf-8"))
-    assert state_mod.validate(data) == []
-    # Historical WS-A1D-H4 identity preserved truthfully, not falsified.
-    assert data["branch"] == "architecture/ws-a1d-h4-docker-materialization-20260911"
-    assert "WS-A1D" in str(data["ownership"])
-    assert "WS-ARCLOSE-D1" not in str(data["ownership"])
-    assert data["audit_base_sha"] == "e207286200854bf9bff557e67bf3b37b5e428392"
-    assert data["validated_head"] == "1aab012196b391260b2287f94cbcaa04f625e509"
-    decisions = " ".join(
-        d.get("decision", "") + " " + d.get("evidence", "")
-        for d in data.get("technical_decisions", [])
-        if isinstance(d, dict)
-    )
-    assert "H4 PARTIAL" in decisions
-
-
-def test_no_current_doc_names_root_state_canonical(repo_root: Path) -> None:
-    """ROOT_STATE_SEMANTICS: current authority docs name no root state.
-
-    No current operational doctrine (repository policy, Foundry execution
-    index, routing, resumability) may identify
-    `.foundry/WORKSTREAM_STATE.yaml` as the active canonical workstream
-    state. Each substantive workstream uses an explicit dedicated state
-    path; historical snapshots are evidence, not continuation state.
-    """
-    for rel in (
-        "AGENTS.md",
-        "docs/foundry-execution/README.md",
-        "docs/foundry-execution/ROUTING_AND_EFFORT.md",
-        "docs/foundry-execution/COMPACTION_AND_RESUMABILITY.md",
-    ):
-        text = (repo_root / rel).read_text(encoding="utf-8")
-        assert ".foundry/WORKSTREAM_STATE.yaml" not in text, rel
-    # The doctrine that replaces it must be stated.
-    readme = (repo_root / "docs/foundry-execution/README.md").read_text(encoding="utf-8")
-    assert "no implicit active repository-root state" in readme.lower() or (
-        "No implicit active repository-root state" in readme
-    )
-    agents = (repo_root / "AGENTS.md").read_text(encoding="utf-8")
-    assert "no implicit active repository-root state" in agents.lower()
-
-
-def test_mage_profile_keys_intact_and_notes_date_scoped(repo_root: Path) -> None:
-    profile = json.loads(
-        (repo_root / ".foundry/repo-profiles/mage.json").read_text(encoding="utf-8")
-    )
-    for key in (
-        "profile",
-        "repo_slug",
-        "default_branch",
-        "canonical_policy",
-        "stale_markers",
-        "forbidden_mutation",
-        "safe_external_dirs",
-    ):
-        assert key in profile, key
-    assert profile["canonical_policy"] is False
-    assert profile["default_branch"] == "master"
-    assert "WS33_COMPLETE" in profile["stale_markers"]  # fail-closed gate untouched
-    notes = profile["notes"]
-    assert "HISTORICAL observation 2026-09-10" in notes
-    assert "UNKNOWN" in notes  # current fork-root state not claimed
-    assert "Never create project files" in notes
-
-
-def test_remote_gates_scope_and_workflow_truth(repo_root: Path) -> None:
-    text = _flat(
-        (repo_root / "docs/foundry-execution/GITHUB_REMOTE_GATES.md").read_text(encoding="utf-8")
-    )
-    # Observed-state record preserved.
-    assert "Observed state (2026-09-12, DIRECTLY_VERIFIED read-only)" in text
-    # OpenCode lane must not be recommended as a required PR check.
-    assert "Do NOT mark the comment-triggered OpenCode lane" in text
-    assert "and the OpenCode lane (`.github/workflows/opencode.yml`)" not in text
-    # Mirror-safe governance.
-    assert "fast-forward" in text
-    assert "Do NOT impose" in text and "PR-only semantics" in text
-    assert "Never land project-only files" in text
-    # Workflow truth: comment triggers only, no pull_request trigger.
-    workflow = (repo_root / ".github/workflows/opencode.yml").read_text(encoding="utf-8")
-    assert "issue_comment" in workflow
-    assert "\n  pull_request:" not in workflow and "\n pull_request:" not in workflow
-
-
 def test_fork_pointer_spec_preserves_design_and_records_supersession(
     repo_root: Path,
 ) -> None:
@@ -217,24 +95,11 @@ def test_fork_pointer_spec_preserves_design_and_records_supersession(
     assert "drift_check.py" in text
 
 
-def test_workstream_bootstrap_skill_matches_explicit_ownership(
-    repo_root: Path,
-) -> None:
-    """P2 follow-up: bootstrap skill is coherent with explicit-state authority.
-
-    The skill must route ownership through the explicit `--worktree-state`
-    map (launcher auto-pair + operator pairs), fail closed on conflicts and
-    duplicates, report UNKNOWN without authority, and never instruct reading
-    the removed repository-root state file.
-    """
-    text = (repo_root / ".opencode/skills/workstream-bootstrap/SKILL.md").read_text(
-        encoding="utf-8"
-    )
-    assert "--worktree-state" in text
-    assert "UNKNOWN" in text
-    assert "duplicate" in text.lower()
-    assert "no implicit active repository-root state" in text.lower()
-    assert ".foundry/WORKSTREAM_STATE.yaml" not in text
-    # Realizable explicit-map inventory path (Finding 2).
-    assert "worktree_inventory.py" in text
-    assert "--workdir" in text
+def test_agents_policy_keeps_its_load_bearing_statements(repo_root: Path) -> None:
+    """Statements other tests used to pin before the lane tooling was removed."""
+    agents = (repo_root / "AGENTS.md").read_text(encoding="utf-8")
+    assert "Rules Core" in agents
+    assert "## 9. Reuse-first gate" in agents
+    assert "no implicit active repository-root state" in agents.lower()
+    authority = (repo_root / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text(encoding="utf-8")
+    assert "A pushed WIP is never qualification PASS" in authority

@@ -2,8 +2,16 @@
 
 The report answers "what do we have, what is missing, what is unknown" with numbers: every
 figure is a count with its denominator, a missing value is counted as unknown (never as zero),
-and no card name, deck address or note text leaves the database. It can therefore be pasted
-into an issue or a Drive document.
+and no card name (apart from the commander names every figure is bound to), deck address or
+note text leaves the database. It can therefore be pasted into an issue or a Drive document.
+The universes section follows the same rule: a stored universe profile is identified by its
+version, never by its name or by the card names its spec requires — only how many values each
+spec dimension selects — and it is counted per commander, never over all commanders at once.
+
+The commanders section gives, per commander, the pool size (legal collection cards inside its
+colour identity), the cards excluded because their legality is unknown (listed as unknown,
+never as illegal) and the signal layer: rows per signal and the coverage over the pool
+(cards with a value / pool size).
 
 ``role_fingerprint`` hashes the role tables so that a before/after comparison around an import
 shows at a glance whether anything outside the imported scope changed.
@@ -14,9 +22,12 @@ from __future__ import annotations
 import hashlib
 import sqlite3
 from datetime import UTC, date, datetime
+from typing import cast
 
+from . import builder, strength_view, universe
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
+from .tiers import MODEL_VERSION, TierParams
 
 REPORT_SCHEMA = "studio-data-report-1"
 SMALL_DENOMINATOR = 30
@@ -308,6 +319,143 @@ def _marks_and_games(db: sqlite3.Connection) -> dict[str, object]:
     }
 
 
+def _selected(spec: dict[str, object], key: str) -> int:
+    value = spec.get(key)
+    return len(value) if isinstance(value, list) else 0
+
+
+def _universe_entry(
+    store: StudioStore, name: str, commanders: list[str], min_universe: int
+) -> dict[str, object]:
+    """One profile counted for one commander (or partner pair), with its own denominator."""
+    counted = universe.inclusion(store, profile=name, card_names=[], commander_names=commanders)
+    return {
+        "commanders": commanders,
+        "snapshot_id": universe.snapshot_id(store, profile=name, commander_names=commanders),
+        "denominator": counted["denominator"],
+        "denominator_by_platform": counted["denominator_by_platform"],
+        "denominator_by_bracket": counted["denominator_by_bracket"],
+        "excluded_no_date": counted["excluded_no_date"],
+        "excluded_by_card_filter": counted["excluded_by_card_filter"],
+        "min_universe": min_universe,
+        "below_min_universe": counted["denominator"] < min_universe,
+    }
+
+
+def _universes(store: StudioStore) -> dict[str, object]:
+    """The stored deck universes, counts only: per profile its version, spec shape (how
+    many values each dimension selects — never the values) and, **per commander** that has
+    bound source decks, the snapshot, denominator with both breakdowns and the decks its
+    date and card filters drop.
+
+    A profile is never counted over all commanders at once: that denominator would mix
+    the decks of several commanders and ``below_min_universe`` computed from it would be
+    meaningless. A profile that names its commanders is reported for exactly that set."""
+    details: list[dict[str, object]] = []
+    below = 0
+    entries_total = 0
+    sets = universe.bound_commander_sets(store)
+    for profile in universe.list_profiles(store):
+        name = str(profile["name"])
+        spec = cast("dict[str, object]", profile["spec"])
+        min_universe = spec.get("min_universe")
+        effective = min_universe if isinstance(min_universe, int) else TierParams().min_universe
+        named = spec.get("commanders")
+        wanted = (
+            [sorted(str(item) for item in named)] if isinstance(named, list) and named else sets
+        )
+        per_commander = [
+            _universe_entry(store, name, commanders, effective) for commanders in wanted
+        ]
+        below += sum(1 for entry in per_commander if entry["below_min_universe"])
+        entries_total += len(per_commander)
+        details.append(
+            {
+                "version": profile["version"],
+                "created_at": profile["created_at"],
+                "updated_at": profile["updated_at"],
+                "spec_dimensions": {
+                    "platforms": _selected(spec, "platforms"),
+                    "cohorts": _selected(spec, "cohorts"),
+                    "commanders": _selected(spec, "commanders"),
+                    "must_contain_cards": _selected(spec, "must_contain"),
+                    "date_filter": bool(spec.get("date_from") or spec.get("date_to")),
+                    "min_main_cards": spec.get("min_main_cards"),
+                },
+                "min_universe": effective,
+                "per_commander": per_commander,
+            }
+        )
+    return {
+        "profiles": len(details),
+        "model_version": MODEL_VERSION,
+        "commander_sets": len(sets),
+        "entries": entries_total,
+        "below_min_universe": below,
+        "details": details,
+    }
+
+
+def _commander_names(db: sqlite3.Connection) -> list[str]:
+    names = {
+        str(row[0])
+        for row in db.execute("SELECT DISTINCT commander_name FROM commander_binding")
+        if row[0]
+    }
+    names |= {
+        str(row[0])
+        for row in db.execute("SELECT DISTINCT commander_name FROM card_signal")
+        if row[0]
+    }
+    return sorted(names)
+
+
+def _commanders(store: StudioStore) -> dict[str, object]:
+    """Per commander, counts only: the pool (legal collection cards inside the colour
+    identity), the cards left out because their legality is unknown (listed as unknown,
+    never as illegal) and the signal layer — rows per signal and the coverage over the pool
+    (cards with a value / pool size). No collection card name appears; the commander names
+    are the keys every figure is bound to."""
+    db = store.connection
+    details: list[dict[str, object]] = []
+    for name in _commander_names(db):
+        entry: dict[str, object] = {"commander": name}
+        try:
+            counts = builder.pool_counts(store, [name])
+            coverage = strength_view.signal_coverage(store, name)
+        except KeyError:
+            entry["in_collection"] = False  # a name without a collection card: no pool
+            entry["pool"] = None
+            entry["signals"] = {
+                signal: {
+                    "rows": _scalar(
+                        db,
+                        "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?",
+                        (name, signal),
+                    )
+                }
+                for signal in _counter(
+                    db, "SELECT signal, COUNT(*) FROM card_signal GROUP BY signal"
+                )
+            }
+            details.append(entry)
+            continue
+        entry["in_collection"] = True
+        entry["pool"] = {
+            "legal_cards": counts["legal"],
+            "collection_cards_in_identity": counts["in_identity"],
+            "excluded_legality_unknown": counts["legality_unknown"],
+            "excluded_not_legal": counts["not_legal"],
+        }
+        entry["signals"] = {signal: dict(item) for signal, item in coverage.items()}
+        details.append(entry)
+    return {
+        "commanders": len(details),
+        "legality_unknown_in_collection": builder.legality_unknown_in_collection(store),
+        "details": details,
+    }
+
+
 def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, object]:
     """The counts-only report. ``today`` is only injectable for tests."""
     db = store.connection
@@ -315,12 +463,17 @@ def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, o
     return {
         "schema": REPORT_SCHEMA,
         "generated_on": moment.isoformat(),
-        "privacy": "counts only: no card names, no deck addresses, no notes",
+        "privacy": (
+            "counts only: no card names (except the commander names the figures are bound to), "
+            "no deck addresses, no notes"
+        ),
         "collection": _collection(db),
         "scryfall_facts": _scryfall(db, moment),
         "roles": _roles(db),
         "corpus": _corpus(db),
         "observations": _observations(db),
+        "universes": _universes(store),
+        "commanders": _commanders(store),
         **_marks_and_games(db),
         "not_measured_here": list(NOT_MEASURED),
     }

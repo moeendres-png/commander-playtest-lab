@@ -31,8 +31,7 @@ HANDOFF instead of growing one giant conversation.
 1. Deterministic scripts first (`lab-ops`, grep, focused tests, packet readers).
 2. Hand implementation, debugging, test/fix loops, CI repair and long engineering work to
    the worker the Owner selected for the session; the Opus session stays
-   coordinator/planner/adjudicator. Write OpenCode prompts per
-   `docs/foundry-execution/EXECUTOR_PROMPTING.md`; run OpenCode jobs one at a time.
+   coordinator/planner/adjudicator.
 3. No automatic fallback between models for failure, quota or convenience.
 4. Claude subagents for bounded side work: `log-scanner` (Sonnet, low), `ci-triage`
    (Sonnet, medium), built-in `Explore` for read-only lookups. Claude Sonnet may also be an
@@ -46,6 +45,24 @@ check the result before relying on it. This does not replace the worker the Owne
 for a session, and it never replaces the independent review a MATERIAL change needs
 (`AGENTS.md` §10); Rules, evidence, containment and security changes also get
 `evidence-reviewer`.
+
+**Spend the quota where it decides something** (Owner instruction 2026-11-13).
+- One helper per PR-sized objective, with a complete brief: objective, files to read (named,
+  not "explore"), rules to hold, tests to write first, exact commands, report limit. The
+  brief contains the review checklist, so the first review finds little.
+- One independent review per head. After fixes the SAME reviewer re-checks only the delta.
+  No third round for wording.
+- Level by task: status, CI and log digestion on the smallest model at low effort;
+  implementation and ordinary review on Sonnet at medium; statistics, concurrency,
+  security and anything a wrong number would hide behind at high; the `evidence-reviewer`
+  only for Rules, evidence, gate and policy text.
+- Nothing may be lost to a usage limit: helpers commit a work-in-progress state after every
+  milestone and append findings to a file as they go. Resume a stopped helper instead of
+  starting a new one.
+- Waiting is a shell loop in the background, never a model poll. No background load (game
+  series, builds) while helpers run test suites.
+- Reuse what a helper already found: paste its facts into the next brief instead of having
+  the next helper rediscover them.
 
 Custom Claude helpers are flat: their tool allowlists contain no `Agent` tool, so they must not
 spawn children. Do not create agent teams or recursive coordinator/worker trees for normal work.
@@ -65,8 +82,7 @@ self-merge") and report the merge in one line with the PR link. Fork pushes, rep
 changes to signed or sealed qualification records wait for the Owner's explicit go.
 
 **Habits.**
-- `gh_ops.py brief` is the one-screen lane status; `oc_dispatch.py post`/`watch` build and
-  read `/oc`/`/assure` dispatches.
+- `gh_ops.py brief` is the one-screen status (open PRs, PB-03, newest sealed epoch).
 - Helper reports ≤40 lines; routine user status ≤8 lines.
 - Test narrow while iterating; run the full suite once at the integration boundary.
   Commit before running tests: a dirty tree fails with "stale canonical inputs".
