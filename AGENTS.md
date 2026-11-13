@@ -157,6 +157,11 @@ Every tool splits its own work the same way, so tokens go where judgement is nee
   independent review of §10: every MATERIAL change still needs that review from a fresh
   context that did not write it.
 
+Whatever the tool: a helper gets one bounded objective with a complete brief, saves its
+state as it goes (commits, a findings file) so that a usage limit loses nothing, and a
+stopped helper is resumed rather than replaced. One independent review per head; the same
+reviewer re-checks only the delta after fixes.
+
 Two fixed exceptions:
 
 - **Gemini**: Flash 3.8 at `high` is the minimum for the session and for every subagent it
