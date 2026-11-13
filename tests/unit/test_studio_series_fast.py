@@ -23,7 +23,13 @@ from commander_lab.studio.play_batch import (
     SeriesGame,
     play_recorded_games,
 )
-from commander_lab.studio.simulations import BatchSimulation, GameSummary, plan_chunks
+from commander_lab.studio.simulations import (
+    BatchSimulation,
+    GameSummary,
+    SimulationBatchManager,
+    plan_chunks,
+    simulation_manager,
+)
 from commander_lab.studio.store import StudioStore
 from commander_lab.studio.web import create_app
 
@@ -349,3 +355,182 @@ def test_web_api_resume_endpoint(tmp_path: Path) -> None:
     # Try resuming unknown batch -> 404
     res = client.post("/api/simulations/batch/unknown-batch-123/resume", headers={"X-Studio": "1"})
     assert res.status_code == 404
+
+
+def _write_game_log(data: Path, batch_id: str, seed: int, status: str) -> None:
+    folder = data / "games"
+    folder.mkdir(parents=True, exist_ok=True)
+    game_id = f"batch-{batch_id}-s{seed}"
+    entries = [
+        {"kind": "header", "schema": "studio-game-log-1", "game_id": game_id, "seed": seed},
+        {"kind": "frame", "turn": 3, "seat": 0, "players": [{"hand": []}]},
+        {
+            "kind": "result",
+            "status": status,
+            "winner_seats": [0] if status == "finished" else [],
+            "decision_count": 42,
+        },
+    ]
+    (folder / f"{game_id}.jsonl").write_text(
+        "\n".join(json.dumps(entry) for entry in entries) + "\n", encoding="utf-8"
+    )
+
+
+def _write_series_record(data: Path, batch_id: str, *, with_seeds: bool) -> None:
+    folder = data / "games"
+    folder.mkdir(parents=True, exist_ok=True)
+    record: dict[str, object] = {
+        "batch_id": batch_id,
+        "deck_id": "chulane",
+        "revision_id": "current",
+        "pod": "precon",
+        "status": "failed",
+        "execution": {"workers": 1, "games_per_jvm": 1, "chunks": [[1, 2, 3]]},
+        "games": [
+            {"game_id": f"batch-{batch_id}-s{s}", "seed": s, "status": "finished"}
+            for s in (1, 2, 3)
+        ],
+    }
+    if with_seeds:
+        record["seeds"] = [1, 2, 3]
+    (folder / f"{batch_id}.series.json").write_text(json.dumps(record), encoding="utf-8")
+
+
+def test_from_saved_series_takes_over_finished_games_from_disk(tmp_path: Path) -> None:
+    """Disk resume: a game whose log says finished is taken over, not re-planned."""
+    _write_series_record(tmp_path, "d1", with_seeds=True)
+    _write_game_log(tmp_path, "d1", 1, "finished")
+    _write_game_log(tmp_path, "d1", 2, "failed")
+
+    batch = BatchSimulation.from_saved_series(tmp_path, "d1", chunk_runner=lambda seeds: iter(()))
+    assert [game.seed for game in batch._games] == [1]
+    assert batch._games[0].winner_seats == [0]
+    assert batch._games[0].decision_count == 42
+    assert sorted(seed for chunk in batch.chunks for seed in chunk) == [2, 3]
+
+
+def test_from_saved_series_reads_legacy_record_without_seeds_field(tmp_path: Path) -> None:
+    """Records written before the seeds field fall back to the execution chunks."""
+    _write_series_record(tmp_path, "d2", with_seeds=False)
+    _write_game_log(tmp_path, "d2", 1, "finished")
+    _write_game_log(tmp_path, "d2", 2, "failed")
+
+    batch = BatchSimulation.from_saved_series(tmp_path, "d2", chunk_runner=lambda seeds: iter(()))
+    assert batch.seeds == [1, 2, 3]
+    assert [game.seed for game in batch._games] == [1]
+    assert sorted(seed for chunk in batch.chunks for seed in chunk) == [2, 3]
+
+
+def test_from_saved_series_unknown_batch_raises_key_error(tmp_path: Path) -> None:
+    with pytest.raises(KeyError):
+        BatchSimulation.from_saved_series(tmp_path, "nope", chunk_runner=lambda seeds: iter(()))
+
+
+def test_from_saved_series_rejects_a_corrupt_record(tmp_path: Path) -> None:
+    """A corrupt record raises a clear ValueError, not a raw JSONDecodeError."""
+    folder = tmp_path / "games"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "d3.series.json").write_text("{not json", encoding="utf-8")
+    with pytest.raises(ValueError, match="corrupt series record"):
+        BatchSimulation.from_saved_series(tmp_path, "d3", chunk_runner=lambda seeds: iter(()))
+
+
+def test_resume_batch_rebuilds_from_disk_and_finishes_the_rest(tmp_path: Path) -> None:
+    """Manager resume: the finished game is kept, the rest is played, record rewritten."""
+    _write_series_record(tmp_path, "d4", with_seeds=True)
+    _write_game_log(tmp_path, "d4", 1, "finished")
+    _write_game_log(tmp_path, "d4", 2, "failed")
+    decks = tmp_path / "games" / "decks"
+    decks.mkdir(parents=True, exist_ok=True)
+    (decks / "current.json").write_text("{}", encoding="utf-8")
+
+    def runner(seeds: Sequence[int]) -> Iterator[GameSummary]:
+        for seed in seeds:
+            yield GameSummary(
+                game_id=f"batch-d4-s{seed}", seed=seed, status="finished", winner_seats=[0]
+            )
+
+    store = StudioStore.open(tmp_path)
+    try:
+        manager = SimulationBatchManager()
+        batch = manager.resume_batch(store, tmp_path, "d4", chunk_runner=runner)
+        for _ in range(50):
+            if batch.status not in ("pending", "running"):
+                break
+            time.sleep(0.1)
+    finally:
+        store.close()
+    assert batch.status == "completed"
+    assert sorted(game.seed for game in batch._games) == [1, 2, 3]
+    saved = json.loads((tmp_path / "games" / "d4.series.json").read_text(encoding="utf-8"))
+    assert saved["seeds"] == [1, 2, 3]
+    assert saved["games_completed"] == 3
+
+
+def test_resume_batch_refuses_an_active_batch(tmp_path: Path) -> None:
+    """Resuming a batch that is still active raises instead of starting twice."""
+    store = StudioStore.open(tmp_path)
+    try:
+        manager = SimulationBatchManager()
+        running = BatchSimulation(
+            "d5",
+            tmp_path,
+            "chulane",
+            "current",
+            "precon",
+            [],
+            [1],
+            chunk_runner=lambda seeds: iter(()),
+        )
+        running.status = "running"
+        manager._batches["d5"] = running
+        with pytest.raises(RuntimeError, match="already active"):
+            manager.resume_batch(store, tmp_path, "d5", chunk_runner=lambda seeds: iter(()))
+    finally:
+        store.close()
+
+
+def test_web_api_get_batch_falls_back_to_the_saved_record(tmp_path: Path) -> None:
+    """A batch that is not in memory is served from its saved series record."""
+    StudioStore.open(tmp_path).close()
+    _write_series_record(tmp_path, "d6", with_seeds=True)
+    client = TestClient(create_app(tmp_path))
+    res = client.get("/api/simulations/batch/d6", headers={"X-Studio": "1"})
+    assert res.status_code == 200
+    assert res.json()["batch_id"] == "d6"
+
+
+def test_web_api_resume_of_a_running_batch_conflicts(tmp_path: Path) -> None:
+    """Resuming a batch that is still active answers 409, not a second run."""
+    StudioStore.open(tmp_path).close()
+    client = TestClient(create_app(tmp_path))
+    running = BatchSimulation(
+        "d7",
+        tmp_path,
+        "chulane",
+        "current",
+        "precon",
+        [],
+        [1],
+        chunk_runner=lambda seeds: iter(()),
+    )
+    running.status = "running"
+    simulation_manager._batches["d7"] = running
+    try:
+        res = client.post("/api/simulations/batch/d7/resume", headers={"X-Studio": "1"})
+        assert res.status_code == 409
+    finally:
+        simulation_manager._batches.pop("d7", None)
+
+
+def test_web_api_corrupt_series_record_is_a_clean_client_error(tmp_path: Path) -> None:
+    """A corrupt saved record answers 422 on both paths, not an unhandled 500."""
+    StudioStore.open(tmp_path).close()
+    folder = tmp_path / "games"
+    folder.mkdir(parents=True, exist_ok=True)
+    (folder / "d8.series.json").write_text("{not json", encoding="utf-8")
+    client = TestClient(create_app(tmp_path))
+    res = client.get("/api/simulations/batch/d8", headers={"X-Studio": "1"})
+    assert res.status_code == 422
+    res = client.post("/api/simulations/batch/d8/resume", headers={"X-Studio": "1"})
+    assert res.status_code == 422
