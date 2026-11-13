@@ -1,0 +1,314 @@
+{
+ "urlhash": "U7E42y3I0zZrrC1aUvj4xA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-09-10",
+ "price": 44,
+ "salt": 36.837721936404705,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/26265321?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arcus Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Baird, Steward of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Assistant",
+   "quantity": 1
+  },
+  {
+   "name": "Brinebarrow Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Burrog Befuddler",
+   "quantity": 1
+  },
+  {
+   "name": "Campus Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Clarion Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Cogwork Archivist",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Annelid",
+   "quantity": 1
+  },
+  {
+   "name": "Dauntless Survivor",
+   "quantity": 1
+  },
+  {
+   "name": "Farsight Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Gnarlid Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Iridescent Hornbeetle",
+   "quantity": 1
+  },
+  {
+   "name": "Jade Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Nectarpot",
+   "quantity": 1
+  },
+  {
+   "name": "Kazandu Stomper",
+   "quantity": 1
+  },
+  {
+   "name": "Kitesail Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Windrobber",
+   "quantity": 1
+  },
+  {
+   "name": "Mistwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Rootgrazer",
+   "quantity": 1
+  },
+  {
+   "name": "Murasa Sproutling",
+   "quantity": 1
+  },
+  {
+   "name": "Needlethorn Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Neverwinter Dryad",
+   "quantity": 1
+  },
+  {
+   "name": "Prowling Felidar",
+   "quantity": 1
+  },
+  {
+   "name": "Relic Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Scurrid Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Cosmos",
+   "quantity": 1
+  },
+  {
+   "name": "Soothsayer Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Stonerise Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Tazeem Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Territorial Scythecat",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderous Orator",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Anticognition",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Wings",
+   "quantity": 1
+  },
+  {
+   "name": "Charge Through",
+   "quantity": 1
+  },
+  {
+   "name": "Decisive Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Defend the Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Deliberate",
+   "quantity": 1
+  },
+  {
+   "name": "Depart the Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Disdainful Stroke",
+   "quantity": 1
+  },
+  {
+   "name": "Disenchant",
+   "quantity": 1
+  },
+  {
+   "name": "Divide by Zero",
+   "quantity": 1
+  },
+  {
+   "name": "Eureka Moment",
+   "quantity": 1
+  },
+  {
+   "name": "Expel",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Roiling Regrowth",
+   "quantity": 1
+  },
+  {
+   "name": "Rootborn Defenses",
+   "quantity": 1
+  },
+  {
+   "name": "Smite the Monstrous",
+   "quantity": 1
+  },
+  {
+   "name": "Snow Day",
+   "quantity": 1
+  },
+  {
+   "name": "Spoils of Adventure",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Helix",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Effort",
+   "quantity": 1
+  },
+  {
+   "name": "Field Research",
+   "quantity": 1
+  },
+  {
+   "name": "Golden Ratio",
+   "quantity": 1
+  },
+  {
+   "name": "Introduction to Annihilation",
+   "quantity": 1
+  },
+  {
+   "name": "Reclaim the Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Reduce to Memory",
+   "quantity": 1
+  },
+  {
+   "name": "Scale the Heights",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Herd",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Map",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Meandering River",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

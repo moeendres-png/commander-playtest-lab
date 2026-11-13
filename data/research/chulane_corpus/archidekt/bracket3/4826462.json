@@ -1,0 +1,637 @@
+{
+ "id": 4826462,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane Hatebears",
+ "updated_at": "2026-11-07T18:29:25.596072Z",
+ "cards": [
+  {
+   "name": "Palace Jailer",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angel of Jubilation",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tajuru Preserver",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Other"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voidstone Gargoyle",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soulless Jailer",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sanctifier en-Vec",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avatar's Wrath",
+   "quantity": 1,
+   "categories": [
+    "Board Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frozen Aether",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arctic Treeline",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barkchannel Pathway // Tidechannel Pathway",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Field of Ruin",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nephalia Academy",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 15,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stirring Wildwood",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Altar of the Brood",
+   "quantity": 1,
+   "categories": [
+    "Other"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Erode",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fleetfoot Panther",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1,
+   "categories": [
+    "Other"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaddock Teeg",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glimpse of Nature",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Containment Priest",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Manglehorn",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loxodon Gatekeeper",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vryn Wingmare",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dauntless Dismantler",
+   "quantity": 1,
+   "categories": [
+    "Board Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heartwood Storyteller",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archon of Emeria",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silent Arbiter",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angelic Arbiter",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hushbringer",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vizier of the Menagerie",
+   "quantity": 1,
+   "categories": [
+    "Other"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dragonlord Dromoka",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Druid of Purification",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spelltithe Enforcer",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fatespinner",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Frillback",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Runic Armasaur",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eidolon of Rhetoric",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strict Proctor",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thalia, the Survivor",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karn, Argent Defender",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brightglass Gearhulk",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wandering Archaic // Explore the Vastlands",
+   "quantity": 1,
+   "categories": [
+    "Taxes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1,
+   "categories": [
+    "Card Draw"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

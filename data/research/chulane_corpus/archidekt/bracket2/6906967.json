@@ -1,0 +1,637 @@
+{
+ "id": 6906967,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Chulane, Teller of Tales - current",
+ "updated_at": "2025-09-02T20:48:06.590336Z",
+ "cards": [
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1,
+   "categories": [
+    "Token creature make"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Innocuous Researcher",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fumigate",
+   "quantity": 1,
+   "categories": [
+    "Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "On the Trail",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lonis, Cryptozoologist",
+   "quantity": 1,
+   "categories": [
+    "Sac"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Killer Service",
+   "quantity": 1,
+   "categories": [
+    "Sac"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mechanized Production",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Graf Mole",
+   "quantity": 1,
+   "categories": [
+    "Sac"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idol of Oblivion",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Organic Extinction",
+   "quantity": 1,
+   "categories": [
+    "Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inspiring Statuary",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Unity",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Detective of the Month",
+   "quantity": 1,
+   "categories": [
+    "Token creature make"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whirler Rogue",
+   "quantity": 1,
+   "categories": [
+    "Token creature make"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knights of Dol Amroth",
+   "quantity": 1,
+   "categories": [
+    "Consequences"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1,
+   "categories": [
+    "Token creature make"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1,
+   "categories": [
+    "Token creature make"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bennie Bracks, Zoologist",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tezzeret, Betrayer of Flesh Emblem",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tangletrove Kelp",
+   "quantity": 1,
+   "categories": [
+    "Token creature make"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1,
+   "categories": [
+    "Token creature make"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 10,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 8,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shimmer Dragon",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Benthic Criminologists",
+   "quantity": 1,
+   "categories": [
+    "Sac"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia, Foil to Conspiracy",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 8,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Armed with Proof",
+   "quantity": 1,
+   "categories": [
+    "Consequences"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Over the Edge",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Make Your Move",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merchant of Truth",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aerial Extortionist",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tezzeret, Betrayer of Flesh",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Search the Premises",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Academy Manufactor",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nettlecyst",
+   "quantity": 1,
+   "categories": [
+    "Consequences"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Officious Interrogation",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Erdwal Illuminator",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Curious Inquiry",
+   "quantity": 1,
+   "categories": [
+    "Fuel"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Junk Winder",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Woodland Champion",
+   "quantity": 1,
+   "categories": [
+    "Consequences"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kappa Cannoneer",
+   "quantity": 1,
+   "categories": [
+    "Consequences"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1,
+   "categories": [
+    "Consequences"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1,
+   "categories": [
+    "Land search"
+   ],
+   "companion": false
+  },
+  {
+   "name": "They Went This Way",
+   "quantity": 1,
+   "categories": [
+    "Land search"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Consequences"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mm'menon, the Right Hand",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meltstrider's Resolve",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cerebral Download",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mental Modulation",
+   "quantity": 1,
+   "categories": [
+    "Card draw/advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dauntless Scrapbot",
+   "quantity": 1,
+   "categories": [
+    "Land search"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 101,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

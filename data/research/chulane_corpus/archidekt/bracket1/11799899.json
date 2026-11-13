@@ -1,0 +1,61 @@
+{
+ "id": 11799899,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "I’m going on an adventure!",
+ "updated_at": "2025-03-09T03:53:15.401978Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cenote Scout",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emissary of Sunrise",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deepfathom Echo",
+   "quantity": 1,
+   "categories": [
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emperor's Vanguard",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enter the Unknown",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 6,
+ "summe_gesamt": 6,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

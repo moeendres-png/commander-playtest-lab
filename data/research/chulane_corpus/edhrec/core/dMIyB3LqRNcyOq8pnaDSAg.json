@@ -1,0 +1,346 @@
+{
+ "urlhash": "dMIyB3LqRNcyOq8pnaDSAg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-11-12",
+ "price": 79,
+ "salt": 36.435242895036936,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17296792?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma, Vision of Ixidor",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Baird, Steward of Argive",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Dazzling Ramparts",
+   "quantity": 1
+  },
+  {
+   "name": "Floriferous Vinewall",
+   "quantity": 1
+  },
+  {
+   "name": "Fog Bank",
+   "quantity": 1
+  },
+  {
+   "name": "Gleaming Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Mistform Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Nivix Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Arch",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Battlement",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Portcullis Vine",
+   "quantity": 1
+  },
+  {
+   "name": "Prison Barricade",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Membrane",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Door",
+   "quantity": 1
+  },
+  {
+   "name": "Stinging Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Sunweb",
+   "quantity": 1
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Air",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Essence",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mourning",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Mulch",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Pine Needles",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Resurgence",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Reverence",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Roots",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Swords",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Tanglecord",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Vapor",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Vines",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Wood",
+   "quantity": 1
+  },
+  {
+   "name": "Warded Battlements",
+   "quantity": 1
+  },
+  {
+   "name": "Boomerang",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Faith's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Perch Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Barrier",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Calamitous Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Invigorating Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Offering",
+   "quantity": 1
+  },
+  {
+   "name": "Pick Your Poison",
+   "quantity": 1
+  },
+  {
+   "name": "Scout the Wilderness",
+   "quantity": 1
+  },
+  {
+   "name": "Timely Reinforcements",
+   "quantity": 1
+  },
+  {
+   "name": "Undo",
+   "quantity": 1
+  },
+  {
+   "name": "High Alert",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Stormchaser's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Treefolk Umbra",
+   "quantity": 1
+  },
+  {
+   "name": "Huatli, the Sun's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Plaza",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Lumbering Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

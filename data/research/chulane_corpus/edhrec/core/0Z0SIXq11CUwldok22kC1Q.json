@@ -1,0 +1,314 @@
+{
+ "urlhash": "0Z0SIXq11CUwldok22kC1Q",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-09-21",
+ "price": 323,
+ "salt": 41.90428356267512,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/4RhqNq8KD0WIZg65RSM6xQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Amaranthine Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Wall",
+   "quantity": 1
+  },
+  {
+   "name": "Axebane Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Bamboo Grove Archer",
+   "quantity": 1
+  },
+  {
+   "name": "Basilica Guards",
+   "quantity": 1
+  },
+  {
+   "name": "Bonded Fetch",
+   "quantity": 1
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Clockwork Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Colony",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Barricade",
+   "quantity": 1
+  },
+  {
+   "name": "Doorkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Flumph",
+   "quantity": 1
+  },
+  {
+   "name": "Fog Bank",
+   "quantity": 1
+  },
+  {
+   "name": "Gatecreeper Vine",
+   "quantity": 1
+  },
+  {
+   "name": "Geist of the Archives",
+   "quantity": 1
+  },
+  {
+   "name": "Guard Gomazoa",
+   "quantity": 1
+  },
+  {
+   "name": "Hornet Nest",
+   "quantity": 1
+  },
+  {
+   "name": "Jaddi Offshoot",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Ludevic's Test Subject",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Arch",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Battlement",
+   "quantity": 1
+  },
+  {
+   "name": "Perimeter Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Portcullis Vine",
+   "quantity": 1
+  },
+  {
+   "name": "Psychic Membrane",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Door",
+   "quantity": 1
+  },
+  {
+   "name": "Shield-Wall Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Sprouting Phytohydra",
+   "quantity": 1
+  },
+  {
+   "name": "Stalwart Shield-Bearers",
+   "quantity": 1
+  },
+  {
+   "name": "Sunweb",
+   "quantity": 1
+  },
+  {
+   "name": "Sylvan Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "The Pride of Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Tomorrow, Azami's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Traproot Kami",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Observer",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Sun's Avatar",
+   "quantity": 1
+  },
+  {
+   "name": "Vine Trellis",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Blossoms",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Glare",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1
+  },
+  {
+   "name": "Wingmantle Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Solar Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Colfenor's Urn",
+   "quantity": 1
+  },
+  {
+   "name": "Rammas Echor, Ancient Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Chorus",
+   "quantity": 1
+  },
+  {
+   "name": "Builder's Blessing",
+   "quantity": 1
+  },
+  {
+   "name": "Castle",
+   "quantity": 1
+  },
+  {
+   "name": "Customs Depot",
+   "quantity": 1
+  },
+  {
+   "name": "Gutter Grime",
+   "quantity": 1
+  },
+  {
+   "name": "Island Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Kenrith's Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Thoughts",
+   "quantity": 1
+  },
+  {
+   "name": "Proper Burial",
+   "quantity": 1
+  },
+  {
+   "name": "Pursuit of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Words of Wind",
+   "quantity": 1
+  },
+  {
+   "name": "Jace, Wielder of Mysteries",
+   "quantity": 1
+  },
+  {
+   "name": "Teyo, Geometric Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Teyo, the Shieldmage",
+   "quantity": 1
+  },
+  {
+   "name": "Archway Commons",
+   "quantity": 1
+  },
+  {
+   "name": "Aysen Abbey",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 9
+  },
+  {
+   "name": "Island of Wak-Wak",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Public Thoroughfare",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Thawing Glaciers",
+   "quantity": 1
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

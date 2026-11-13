@@ -1,0 +1,418 @@
+{
+ "urlhash": "Bb7omqp2iblUe2wYXT8-Ig",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2026-01-15",
+ "price": 375,
+ "salt": 26.76403791550547,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/6804531?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Caldaia Strongarm",
+   "quantity": 1
+  },
+  {
+   "name": "Caller of Gales",
+   "quantity": 1
+  },
+  {
+   "name": "Caller of the Claw",
+   "quantity": 1
+  },
+  {
+   "name": "Camel",
+   "quantity": 1
+  },
+  {
+   "name": "Candlegrove Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Candlelit Cavalry",
+   "quantity": 1
+  },
+  {
+   "name": "Canoptek Scarab Swarm",
+   "quantity": 1
+  },
+  {
+   "name": "Canoptek Spyder",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1
+  },
+  {
+   "name": "Captivating Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Caregiver",
+   "quantity": 1
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1
+  },
+  {
+   "name": "Cavalry Drillmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Cavalry Master",
+   "quantity": 1
+  },
+  {
+   "name": "Cazur, Ruthless Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Celebrity Fencer",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Crusader",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Enforcer",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Regulator",
+   "quantity": 1
+  },
+  {
+   "name": "Celestine, the Living Saint",
+   "quantity": 1
+  },
+  {
+   "name": "Cackling Counterpart",
+   "quantity": 1
+  },
+  {
+   "name": "Calamity's Wake",
+   "quantity": 1
+  },
+  {
+   "name": "Calculated Dismissal",
+   "quantity": 1
+  },
+  {
+   "name": "Call the Coppercoats",
+   "quantity": 1
+  },
+  {
+   "name": "Call to Heel",
+   "quantity": 1
+  },
+  {
+   "name": "Camouflage",
+   "quantity": 1
+  },
+  {
+   "name": "Candles' Glow",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Claws",
+   "quantity": 1
+  },
+  {
+   "name": "Carrion Call",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Flare",
+   "quantity": 1
+  },
+  {
+   "name": "Cached Defenses",
+   "quantity": 1
+  },
+  {
+   "name": "Call a Surprise Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Call the Scions",
+   "quantity": 1
+  },
+  {
+   "name": "Camaraderie",
+   "quantity": 1
+  },
+  {
+   "name": "Captain's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Judgment",
+   "quantity": 1
+  },
+  {
+   "name": "Caged Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Candles of Leng",
+   "quantity": 1
+  },
+  {
+   "name": "Candlestick",
+   "quantity": 1
+  },
+  {
+   "name": "Carnage Altar",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar's Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Cauldron of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Cage of Hands",
+   "quantity": 1
+  },
+  {
+   "name": "Call of the Wild",
+   "quantity": 1
+  },
+  {
+   "name": "Call to the Kindred",
+   "quantity": 1
+  },
+  {
+   "name": "Candlekeep Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Cover",
+   "quantity": 1
+  },
+  {
+   "name": "Capashen Standard",
+   "quantity": 1
+  },
+  {
+   "name": "Captivating Glance",
+   "quantity": 1
+  },
+  {
+   "name": "Captured by the Consulate",
+   "quantity": 1
+  },
+  {
+   "name": "Carapace",
+   "quantity": 1
+  },
+  {
+   "name": "Careful Cultivation",
+   "quantity": 1
+  },
+  {
+   "name": "Cartouche of Knowledge",
+   "quantity": 1
+  },
+  {
+   "name": "Cartouche of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Filched Falcon",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Gateway Express",
+   "quantity": 1
+  },
+  {
+   "name": "Case of the Uneaten Feast",
+   "quantity": 1
+  },
+  {
+   "name": "Castle",
+   "quantity": 1
+  },
+  {
+   "name": "Cathar's Call",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Calix, Destiny's Hand",
+   "quantity": 1
+  },
+  {
+   "name": "Cactus Preserve",
+   "quantity": 1
+  },
+  {
+   "name": "Calciform Pools",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Captivating Cave",
+   "quantity": 1
+  },
+  {
+   "name": "Cascading Cataracts",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Cathedral of Serra",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of Temptation",
+   "quantity": 1
+  },
+  {
+   "name": "Cave of the Frost Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Cavern of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Cavernous Maw",
+   "quantity": 1
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1
+  },
+  {
+   "name": "Centaur Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Cephalid Coliseum",
+   "quantity": 1
+  },
+  {
+   "name": "Citadel Gate",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "City of Shadows",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudcrest Lake",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudpost",
+   "quantity": 1
+  },
+  {
+   "name": "Coastal Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Command Beacon",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit Pylons",
+   "quantity": 1
+  },
+  {
+   "name": "Conservatory",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1
+  },
+  {
+   "name": "Corrupted Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Cradle of the Accursed",
+   "quantity": 1
+  },
+  {
+   "name": "Crawling Barrens",
+   "quantity": 1
+  },
+  {
+   "name": "Creosote Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Crucible of the Spirit Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Crumbling Vestige",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptic Caves",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Grotto",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

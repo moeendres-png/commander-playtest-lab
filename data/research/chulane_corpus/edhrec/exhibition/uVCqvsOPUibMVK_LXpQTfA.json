@@ -1,0 +1,48 @@
+{
+ "urlhash": "uVCqvsOPUibMVK_LXpQTfA",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2025-06-07",
+ "price": 205,
+ "salt": 75.29860350489616,
+ "tags": [
+  "Midrange"
+ ],
+ "source_url": "https://moxfield.com/decks/Owsc8G9WqU-XwPX22hujHA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 20
+  },
+  {
+   "name": "Persistent Petitioners",
+   "quantity": 20
+  },
+  {
+   "name": "Slime Against Humanity",
+   "quantity": 20
+  },
+  {
+   "name": "Forest",
+   "quantity": 13
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Plains",
+   "quantity": 13
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

@@ -1,0 +1,1438 @@
+{
+ "id": 9277577,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Submission Hold",
+ "updated_at": "2025-11-27T07:50:18.728344Z",
+ "cards": [
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pact of Negation",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knowledge Pool",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nine Lives",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phyrexian Unlife",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solemnity",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mycosynth Lattice",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Puzzle Box",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Lock Peices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drannith Magistrate",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enchantress's Presence",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mesa Enchantress",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirrormade",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kydele, Chosen of Kruphix",
+   "quantity": 1,
+   "categories": [
+    "Alt Comanders Vaugely",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thrasios, Triton Hero",
+   "quantity": 1,
+   "categories": [
+    "Alt Comanders Vaugely",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eiganjo, Seat of the Empire",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Linvala, Keeper of Silence",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Creature",
+    "Potential Lock Piece"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strix Serenade",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1,
+   "categories": [
+    "Card Draw I Considered",
+    "Card Draw for Me/Enchantress",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stony Silence",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hurkyl's Recall",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Narset, Parter of Veils",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Lock Peices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Decree of Silence",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi, Time Raveler",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Planeswalker"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Living Plane",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karn, the Great Creator",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Planeswalker"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Null Rod",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Land Tax",
+   "quantity": 1,
+   "categories": [
+    "Card Draw I Considered",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Lock Peices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhystic Study",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eidolon of Blossoms",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Creature",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Satyr Enchanter",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Argothian Enchantress",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sythis, Harvest's Hand",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opt",
+   "quantity": 1,
+   "categories": [
+    "Card Draw I Considered",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Summoner's Pact",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Autumn's Veil",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ranger-Captain of Eos",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Greater Auramancy",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Potential 97-100",
+    "Instant",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cyclonic Rift",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Force of Will",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sterling Grove",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lagrella, the Magpie",
+   "quantity": 1,
+   "categories": [
+    "Alt Comanders Vaugely",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stock Up",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya, Cradle of Growth",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabricate",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Survival of the Fittest",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mindbreak Trap",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Lock Peices"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Day's Undoing",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Draw for us?"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Timetwister",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Draw for us?"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windfall",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Draw for us?"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grafdigger's Cage",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Tabernacle at Pendrell Vale",
+   "quantity": 1,
+   "categories": [
+    "Potential 97-100",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Replenish",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Carpet of Flowers",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Confounding Conundrum",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shimmer",
+   "quantity": 1,
+   "categories": [
+    "Pet Card"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enduring Curiosity",
+   "quantity": 1,
+   "categories": [
+    "Card Draw I Considered",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dance of Many",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fertile Ground",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lost in the Maze",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Relic of Progenitus",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tormod's Crypt",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kudo, King Among Bears",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Humility",
+   "quantity": 1,
+   "categories": [
+    "Locks I Discarded",
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Land Equilibrium",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ishai, Ojutai Dragonspeaker",
+   "quantity": 1,
+   "categories": [
+    "Alt Comanders Vaugely",
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Card Draw for Me/Enchantress"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Force of Negation",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Interaction"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Blessing",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Card Draw I Considered"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Transmute Artifact",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia, Azorius Renegade",
+   "quantity": 1,
+   "categories": [
+    "Lock Peices",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alseid of Life's Bounty",
+   "quantity": 1,
+   "categories": [
+    "Potential 97-100",
+    "Creature",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dress Down",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fang of Shigeki",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Root Maze",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urza's Saga",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hidden Herd",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hidden Ancients",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hidden Gibbons",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oath of Nissa",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Freyalise's Charm",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skrelv's Hive",
+   "quantity": 1,
+   "categories": [
+    "Potential 97-100",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hidden Guerrillas",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirri's Guile",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Omen of the Sea",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The One Ring",
+   "quantity": 1,
+   "categories": [
+    "Supplimental Products"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Torpor Orb",
+   "quantity": 1,
+   "categories": [
+    "General Stax",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thalia, Heretic Cathar",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voice of Victory",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verduran Enchantress",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swan Song",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1,
+   "categories": [
+    "Interaction",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1,
+   "categories": [
+    "Protection",
+    "Creature",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Portcullis",
+   "quantity": 1,
+   "categories": [
+    "Cards I've Thought About But I Thinnk Kinda Suck",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wild Growth",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystical Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Entity Tracker",
+   "quantity": 1,
+   "categories": [
+    "Card Draw for Me/Enchantress"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 99,
+ "summe_gesamt": 165,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

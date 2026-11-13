@@ -1,0 +1,310 @@
+{
+ "urlhash": "0Nlm7yzLh9x5Qm5txh1VKQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-06-04",
+ "price": 134,
+ "salt": 51.6234023780562,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/rx7LxIC3u0a5cMVSH1Af7A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aethersquall Ancient",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Azusa, Lost but Seeking",
+   "quantity": 1
+  },
+  {
+   "name": "Breaching Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Deep-Sea Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Fleet Swallower",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Sea Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Goreclaw, Terror of Qal Sisma",
+   "quantity": 1
+  },
+  {
+   "name": "Goring Ceratops",
+   "quantity": 1
+  },
+  {
+   "name": "Inkwell Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Kapsho Kitefins",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Dambreaker",
+   "quantity": 1
+  },
+  {
+   "name": "Kraken Hatchling",
+   "quantity": 1
+  },
+  {
+   "name": "Kraken of the Straits",
+   "quantity": 1
+  },
+  {
+   "name": "Nadir Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Nimbus Swimmer",
+   "quantity": 1
+  },
+  {
+   "name": "Scourge of Fleets",
+   "quantity": 1
+  },
+  {
+   "name": "Segovian Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Shipbreaker Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Sky Swallower",
+   "quantity": 1
+  },
+  {
+   "name": "Stormtide Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Tromokratis",
+   "quantity": 1
+  },
+  {
+   "name": "Trostani, Selesnya's Voice",
+   "quantity": 1
+  },
+  {
+   "name": "Defend the Hearth",
+   "quantity": 1
+  },
+  {
+   "name": "Fog",
+   "quantity": 1
+  },
+  {
+   "name": "Root Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Rootborn Defenses",
+   "quantity": 1
+  },
+  {
+   "name": "Crush of Tentacles",
+   "quantity": 1
+  },
+  {
+   "name": "Whelming Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Capture Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Deep Freeze",
+   "quantity": 1
+  },
+  {
+   "name": "Elemental Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Fruit of the First Tree",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Ichthyomorphosis",
+   "quantity": 1
+  },
+  {
+   "name": "Kasmina's Transmutation",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora Bests the Sea God",
+   "quantity": 1
+  },
+  {
+   "name": "Lawmage's Binding",
+   "quantity": 1
+  },
+  {
+   "name": "Market Festival",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivion Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Paralyzing Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Quest for Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Rest in Peace",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Tithe",
+   "quantity": 1
+  },
+  {
+   "name": "Tightening Coils",
+   "quantity": 1
+  },
+  {
+   "name": "Time of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Urban Utopia",
+   "quantity": 1
+  },
+  {
+   "name": "Waterknot",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Mentor of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin Baan",
+   "quantity": 1
+  },
+  {
+   "name": "Kasmina, Enigmatic Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Behemoth Beckoner",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, Master of the Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Crashing Wave",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1
+  },
+  {
+   "name": "Detection Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Idyllic Grange",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 11
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

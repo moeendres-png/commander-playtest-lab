@@ -1,0 +1,77 @@
+{
+ "id": 15935428,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane Elves",
+ "updated_at": "2025-09-11T09:38:03.708157Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Archdruid",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Imperious Perfect",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leaf-Crowned Visionary",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Champion",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Tactician",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadhrim Brigade",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dwynen, Gilt-Leaf Daen",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 8,
+ "summe_gesamt": 8,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

@@ -1,0 +1,374 @@
+{
+ "urlhash": "QZ3ahH7YTAZh8fkiQPZA0A",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-07-26",
+ "price": 3188,
+ "salt": 46.86555382236838,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/KIX9I0pOjkmAO8srzozipg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abu Ja'far",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Alaborn Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Arcbound Worker",
+   "quantity": 1
+  },
+  {
+   "name": "Brinebarrow Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Burrenton Forge-Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Parish",
+   "quantity": 1
+  },
+  {
+   "name": "Cursecatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Delver of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Descendant of Storms",
+   "quantity": 1
+  },
+  {
+   "name": "Esper Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gingerbrute",
+   "quantity": 1
+  },
+  {
+   "name": "Giver of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Haywire Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Hexdrinker",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Mausoleum Wanderer",
+   "quantity": 1
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Ocelot Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Phyrexian Dreadnought",
+   "quantity": 1
+  },
+  {
+   "name": "Serra Ascendant",
+   "quantity": 1
+  },
+  {
+   "name": "Skrelv, Defector Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Thraben Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Abjure",
+   "quantity": 1
+  },
+  {
+   "name": "Annul",
+   "quantity": 1
+  },
+  {
+   "name": "Berserk",
+   "quantity": 1
+  },
+  {
+   "name": "Blue Elemental Blast",
+   "quantity": 1
+  },
+  {
+   "name": "Bounce Off",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Break the Spell",
+   "quantity": 1
+  },
+  {
+   "name": "Ceremonious Rejection",
+   "quantity": 1
+  },
+  {
+   "name": "Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Chilling Trap",
+   "quantity": 1
+  },
+  {
+   "name": "Death Ward",
+   "quantity": 1
+  },
+  {
+   "name": "Disrupt",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth's Smite",
+   "quantity": 1
+  },
+  {
+   "name": "Stifle",
+   "quantity": 1
+  },
+  {
+   "name": "Adventurous Impulse",
+   "quantity": 1
+  },
+  {
+   "name": "Artful Dodge",
+   "quantity": 1
+  },
+  {
+   "name": "Broken Dam",
+   "quantity": 1
+  },
+  {
+   "name": "Empty City Ruse",
+   "quantity": 1
+  },
+  {
+   "name": "Adventuring Gear",
+   "quantity": 1
+  },
+  {
+   "name": "Amulet of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Arc Spitter",
+   "quantity": 1
+  },
+  {
+   "name": "Arcum's Sleigh",
+   "quantity": 1
+  },
+  {
+   "name": "Avarice Totem",
+   "quantity": 1
+  },
+  {
+   "name": "Bear Trap",
+   "quantity": 1
+  },
+  {
+   "name": "Black Vise",
+   "quantity": 1
+  },
+  {
+   "name": "Bladed Bracers",
+   "quantity": 1
+  },
+  {
+   "name": "Bloodforged Battle-Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Bonesplitter",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Axe",
+   "quantity": 1
+  },
+  {
+   "name": "Eater of Virtue",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Aboshan's Desire",
+   "quantity": 1
+  },
+  {
+   "name": "Aegis of Honor",
+   "quantity": 1
+  },
+  {
+   "name": "Backfire",
+   "quantity": 1
+  },
+  {
+   "name": "Blue Scarab",
+   "quantity": 1
+  },
+  {
+   "name": "Bubble Snare",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Net",
+   "quantity": 1
+  },
+  {
+   "name": "Ethereal Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Arid Mesa",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Lotus Field",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Marsh Flats",
+   "quantity": 1
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1
+  },
+  {
+   "name": "Verdant Catacombs",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Foothills",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

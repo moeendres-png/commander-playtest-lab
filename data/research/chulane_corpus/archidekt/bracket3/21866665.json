@@ -1,0 +1,21 @@
+{
+ "id": 21866665,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Juego una carta Chula(ne), y luego otra C8",
+ "updated_at": "2026-04-20T11:07:39.053309Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 1,
+ "summe_gesamt": 1,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
