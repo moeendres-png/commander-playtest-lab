@@ -501,7 +501,9 @@ def _panel_texts() -> dict[str, object]:
         "aus: der Commander und die Standardländer bekommen keine Stufe "
         "(„nicht bewertet“) und nehmen keinen Rang weg."
     )
-    labels["min_coverage"] = f"Mindestabdeckung in % (empfohlen: {_number_text(rec.min_coverage)})"
+    labels["min_coverage"] = (
+        f"Mindestabdeckung in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
+    )
     helps["min_coverage"] = (
         "Anteil des Gewichts, der vorhanden sein muss, sonst „zu wenig Daten“. Bei 0 kann eine "
         "nicht gelistete Karte (nur ihre anderen Signale zählen) eine Karte überholen, die "

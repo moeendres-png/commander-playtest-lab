@@ -739,5 +739,6 @@ def test_the_tier_page_carries_the_steps_4_to_7_controls() -> None:
     assert "LEVEL_RANK" in script and "spread-filter" in script
     assert "must_contain" in script and "u-card-list" in script
     assert "Universum löschen" in script and '"DELETE"' in script
-    assert "excluded_by_card_filter" in script and "excluded_by_card_filter" in builder_script
+    # the excluded count is part of the shared subset note since the review of #1205
+    assert "excluded_by_card_filter" in script and "subset_note" in builder_script
     assert "Version" in script and "version" in builder_script

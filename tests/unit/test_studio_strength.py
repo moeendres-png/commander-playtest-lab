@@ -1012,7 +1012,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
     assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
     assert "(empfohlen: aus)" in labels["rank_commander_and_basics"]
-    assert "(empfohlen: 0,4)" in labels["min_coverage"]
+    assert "(empfohlen: 40)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
         "(empfohlen: 90 / 75 / 55 / 35)"
@@ -1234,6 +1234,7 @@ def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) ->
     client = TestClient(create_app(tmp_path / "studio.db"))
     meta = client.get("/api/strength/presets").json()
     assert meta["recommended"]["weights"]["simulation"] == 0.0
+    assert meta["panel"]["labels"]["min_coverage"] == "Mindestabdeckung in % (empfohlen: 40)"
     assert (
         meta["panel"]["labels"]["weights.simulation"]
         == "Simulation (empfohlen: 0, derzeit ohne Daten)"
