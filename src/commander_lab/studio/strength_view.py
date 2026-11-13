@@ -28,7 +28,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import signals, strength, universe, universe_choice, universe_view
+from . import layers, layers_view, signals, strength, universe, universe_choice, universe_view
 from .builder import pool_cards
 from .store import StudioStore, now_utc
 from .strength import (
@@ -62,6 +62,16 @@ class StrengthCard(TypedDict):
     note: str
     present: int
     components: list[strength.ComponentResult]
+    layers: dict[str, layers.LayerValue]
+
+
+class LayerSummaryBlock(TypedDict):
+    schema: str
+    pod_size: int
+    pod_note: str
+    measured_note: str
+    weighted: list[str]
+    layers: list[layers.LayerSummary]
 
 
 class AmbiguousName(TypedDict):
@@ -83,6 +93,7 @@ class StrengthResult(TypedDict):
     collected: list[str]
     tier_counts: dict[str, int]
     ambiguous_names: list[AmbiguousName]
+    layer_summary: LayerSummaryBlock
     cards: list[StrengthCard]
 
 
@@ -350,6 +361,10 @@ def card_signal_values(
     return result
 
 
+def _optional_text(value: object) -> str | None:
+    return str(value) if value else None
+
+
 def _float(value: object) -> float | None:
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
@@ -480,12 +495,49 @@ def compute(
             unranked[card_id] = strength.NOT_RANKED_BASIC_LAND
     context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
 
+    # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
+    # with a positive weight (default 0), as one more rank-based component each.
+    layer_result = layers.compute_layers(
+        layers_view.layer_cards(
+            store,
+            display,
+            {str(card["card_id"]): str(card["type_line"]) for card in raw_cards},
+            unranked,
+        ),
+        layers_view.atlas_records(
+            store,
+            {str(card["card_id"]): _optional_text(card["oracle_id"]) for card in raw_cards},
+            claims,
+        ),
+        {
+            card_id: observation
+            for card_id, per in per_card.items()
+            if (observation := per.get(PLAYGROUP_OBSERVED)) is not None
+        },
+        settings.pod_size,
+    )
+    weighted = [key for key in strength.LAYER_KEYS if settings.layer_weights[key] > 0]
+    for card_id, found in layers.index_observations(layer_result, weighted).items():
+        per_card[card_id].update(found)
+    for key in weighted:
+        if any(item[key]["status"] == layers.OK for item in layer_result["cards"].values()):
+            collected.add(strength.layer_component(key))
+        else:
+            notices.append(f"{strength.LAYER_LABELS[key]}: keine Daten, Gewicht ohne Wirkung")
+
     scored = strength.score_pool(settings, per_card, collected, context=context)
     notices.extend(strength.weights_without_effect(settings, collected))
     cards: list[StrengthCard] = []
     for card_id in ids:
         result: CardStrength = scored[card_id]
-        cards.append({"card_id": card_id, "name": display[card_id], **result})
+        cards.append(
+            {
+                "card_id": card_id,
+                "name": display[card_id],
+                **result,
+                "layers": layer_result["cards"][card_id],
+            }
+        )
     tiers = Counter(card["tier"] for card in cards)
     return {
         "schema": strength.SCHEMA,
@@ -503,6 +555,14 @@ def compute(
             {"signal": signal, "name": name, "candidates": candidates}
             for (signal, name), candidates in sorted(ambiguous.items())
         ],
+        "layer_summary": {
+            "schema": layer_result["schema"],
+            "pod_size": layer_result["pod_size"],
+            "pod_note": layer_result["pod_note"],
+            "measured_note": layer_result["measured_note"],
+            "weighted": weighted,
+            "layers": layer_result["layers"],
+        },
         "cards": cards,
     }
 
@@ -676,6 +736,24 @@ def _panel_texts() -> dict[str, object]:
     helps[f"weights.{strength.DECK_UNIVERSE}"] = (
         "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
     )
+    for key in strength.LAYER_KEYS:
+        labels[f"layer_weights.{key}"] = (
+            f"{strength.LAYER_LABELS[key]} (empfohlen: {_number_text(rec.layer_weights[key])})"
+        )
+        helps[f"layer_weights.{key}"] = (
+            f"{layers.DESCRIPTIONS[key]} Gewicht im Mittel der Ränge; 0 (empfohlen) lässt die "
+            "Ebene aus dem Index heraus, sie bleibt eine Spalte. Ein leeres Feld nimmt den "
+            "empfohlenen Wert."
+        )
+    helps[f"layer_weights.{strength.LAYER_KEYS[0]}"] += (
+        " Aus dem Regeltext abgeleitet, keine Messung."
+    )
+    labels["pod_size"] = f"Pod-Größe (empfohlen: {rec.pod_size})"
+    helps["pod_size"] = (
+        f"Anzahl der Spieler von {strength.POD_SIZE_MIN} bis {strength.POD_SIZE_MAX}. Ändert nur "
+        "die angezeigte Zahl („wirkt auf N-1 Gegner“) bei „Großpod-Wirkung“, keinen Rang und "
+        "keinen Index."
+    )
     labels["bracket"] = (
         "Bracket-Signal (empfohlen: upgraded, passend zum Bracket 3; bei Turnierausrichtung cedh)"
     )
@@ -773,6 +851,10 @@ def _panel_texts() -> dict[str, object]:
         )
     groups = [
         {"title": "Gewichte je Signal", "keys": [f"weights.{key}" for key in rec.weights]},
+        {
+            "title": "Zusätzliche Ebenen",
+            "keys": [*(f"layer_weights.{key}" for key in strength.LAYER_KEYS), "pod_size"],
+        },
         {"title": "Bracket", "keys": ["bracket"]},
         {"title": "Vergleichsgruppe für den Rang", "keys": ["rank_group"]},
         {"title": "Anteil messen als", "keys": ["share_measure"]},
@@ -850,6 +932,29 @@ def presets() -> dict[str, object]:
             {"key": key, "label": strength.LABELS[key], "default_weight": weight}
             for key, weight in strength.DEFAULT_WEIGHTS.items()
         ],
+        "layers": [
+            {
+                "key": key,
+                "label": layers.LABELS[key],
+                "kind": layers.KINDS[key],
+                "source": layers.SOURCES[key],
+                "denominator": layers.DENOMINATORS[key],
+                "description": layers.DESCRIPTIONS[key],
+                "weight_allowed": key in strength.LAYER_KEYS,
+                "default_weight": strength.DEFAULT_LAYER_WEIGHTS.get(key),
+            }
+            for key in layers.ALL_LAYER_KEYS
+        ],
+        "pod_classes": [
+            {
+                "key": key,
+                "label": layers.POD_CLASS_LABELS[key],
+                "help": layers.POD_CLASS_HELP[key],
+                "rank": layers.POD_CLASS_RANK[key],
+            }
+            for key in layers.POD_CLASSES
+        ],
+        "pod_derived_note": layers.POD_DERIVED_NOTE,
         "brackets": [*strength.BRACKETS, strength.BRACKET_NONE],
         "defaults": recommended,
         "recommended": recommended,

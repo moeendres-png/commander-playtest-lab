@@ -169,6 +169,37 @@ LABELS: dict[str, str] = {
     PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
     SIMULATION: "Simulation",
 }
+# Additional rating layers (``layers.py``) that may join the index as one more rank-based
+# component each. Their weight lives in ``StrengthSettings.layer_weights``, is 0 by default and
+# in every preset, and with weight 0 the layer is not a component at all: the result is the
+# same as without layers. ``win_gap`` has no weight: the index already counts the Playgroup gap
+# as ``playgroup_observed`` and a second weight would count it twice. No layer is specific to
+# the commander (``COMMANDER_SPECIFIC``), so none of them can satisfy "require_commander_signal".
+LAYER_PREFIX = "layer_"
+LAYER_KEYS = ("pod_scaling", "tempo", "playability", "staying")
+LAYER_LABELS: dict[str, str] = {
+    "pod_scaling": "Großpod-Wirkung",
+    "tempo": "Tempo",
+    "playability": "Ausspielquote",
+    "staying": "Standfestigkeit",
+}
+LAYER_SIGNALS: dict[str, str] = {
+    "pod_scaling": "oracle_text_pod_scaling",
+    "tempo": "playgroup_on_curve_pct",
+    "playability": "playgroup_drawn_to_played_pct",
+    "staying": "playgroup_battlefield_survival_pct",
+}
+DEFAULT_LAYER_WEIGHTS: dict[str, float] = {key: 0.0 for key in LAYER_KEYS}
+POD_SIZE_MIN = 2
+POD_SIZE_MAX = 6
+DEFAULT_POD_SIZE = 4
+
+
+def layer_component(key: str) -> str:
+    """The component name of a layer in the index rows."""
+    return f"{LAYER_PREFIX}{key}"
+
+
 # Components the tier list collects no data for at all, for now (Owner decision B11: simulation
 # results are not collected for it). Their weight stays adjustable, but while no card has a value
 # it adds nothing and must not lower any card's coverage.
@@ -237,6 +268,8 @@ _SETTINGS_KEYS = frozenset(
         "rank_commander_and_basics",
         "universe_source",
         "require_commander_signal",
+        "layer_weights",
+        "pod_size",
     }
 )
 
@@ -245,6 +278,8 @@ def signal_for(component: str, bracket: str) -> str:
     """The stored signal name behind a component (empty when none is stored)."""
     if component == BRACKET_INCLUSION:
         return f"edhrec_bracket_inclusion:{bracket}" if bracket != BRACKET_NONE else ""
+    if component.startswith(LAYER_PREFIX):
+        return LAYER_SIGNALS[component[len(LAYER_PREFIX) :]]
     return {
         COMMANDER_INCLUSION: "edhrec_commander_inclusion",
         DECK_UNIVERSE: "deck_list_share",
@@ -319,6 +354,8 @@ class StrengthSettings:
     rank_commander_and_basics: bool = False
     universe_source: str = DEFAULT_UNIVERSE_SOURCE
     require_commander_signal: bool = DEFAULT_REQUIRE_COMMANDER_SIGNAL
+    layer_weights: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_LAYER_WEIGHTS))
+    pod_size: int = DEFAULT_POD_SIZE
 
     def __post_init__(self) -> None:
         weights = {name: DEFAULT_WEIGHTS[name] for name in COMPONENTS}
@@ -379,6 +416,21 @@ class StrengthSettings:
             raise ValueError(
                 "universe_source must be auto, profile, none or counted:<source>:<bracket>"
             )
+        layer_weights = dict(DEFAULT_LAYER_WEIGHTS)
+        for name, value in self.layer_weights.items():
+            if name not in DEFAULT_LAYER_WEIGHTS:
+                raise ValueError(f"unknown layer: {name}")
+            weight = _number(value, f"layer weight {name}")
+            if weight < 0 or weight > MAX_WEIGHT:
+                raise ValueError(f"layer weight {name} must be between 0 and {MAX_WEIGHT:g}")
+            layer_weights[name] = weight
+        if (
+            isinstance(self.pod_size, bool)
+            or not isinstance(self.pod_size, int)
+            or not POD_SIZE_MIN <= self.pod_size <= POD_SIZE_MAX
+        ):
+            raise ValueError(f"pod_size must be an integer from {POD_SIZE_MIN} to {POD_SIZE_MAX}")
+        object.__setattr__(self, "layer_weights", layer_weights)
         object.__setattr__(self, "weights", weights)
         object.__setattr__(self, "min_coverage", coverage)
         object.__setattr__(self, "tier_cuts", cuts)
@@ -389,7 +441,13 @@ class StrengthSettings:
         """Weight used in the index: the bracket component is off without a bracket."""
         if component == BRACKET_INCLUSION and self.bracket == BRACKET_NONE:
             return 0.0
+        if component.startswith(LAYER_PREFIX):
+            return self.layer_weights[component[len(LAYER_PREFIX) :]]
         return self.weights[component]
+
+    def active_layers(self) -> tuple[str, ...]:
+        """The layers with a positive weight, as component names: only these join the index."""
+        return tuple(layer_component(key) for key in LAYER_KEYS if self.layer_weights[key] > 0)
 
     def minimum_denominator(self, component: str, universe_minimum: int) -> int:
         """The smallest denominator a share signal needs to be used (0 = no minimum)."""
@@ -416,6 +474,8 @@ class StrengthSettings:
             "rank_commander_and_basics": self.rank_commander_and_basics,
             "universe_source": self.universe_source,
             "require_commander_signal": self.require_commander_signal,
+            "layer_weights": dict(self.layer_weights),
+            "pod_size": self.pod_size,
         }
 
     @classmethod
@@ -464,6 +524,12 @@ class StrengthSettings:
         require = raw.get("require_commander_signal", defaults.require_commander_signal)
         if not isinstance(require, bool):
             raise ValueError("require_commander_signal must be true or false")
+        layer_weights = raw.get("layer_weights", {})
+        if not isinstance(layer_weights, Mapping):
+            raise ValueError("layer_weights must be an object")
+        pod_size = raw.get("pod_size", defaults.pod_size)
+        if isinstance(pod_size, bool) or not isinstance(pod_size, int):
+            raise ValueError("pod_size must be an integer")
         return cls(
             weights={
                 **DEFAULT_WEIGHTS,
@@ -490,6 +556,11 @@ class StrengthSettings:
             rank_commander_and_basics=ranked,
             universe_source=universe_source,
             require_commander_signal=require,
+            layer_weights={
+                **DEFAULT_LAYER_WEIGHTS,
+                **{str(k): _number(v, f"layer weight {k}") for k, v in layer_weights.items()},
+            },
+            pod_size=pod_size,
         )
 
 
@@ -640,6 +711,19 @@ def _share_values(
     return bound, bound
 
 
+def observed_gap(observation: Observation) -> float | None:
+    """The Playgroup gap as the index reads it: the published gap in percentage points, shrunk
+    towards zero by the sample (``gap * n / (n + k)``); ``None`` below ``OBSERVED_MIN_SAMPLE``
+    games in which the card was cast or without a value. The denominator is that sample. The
+    layer "Sieg-Abstand" uses this function too: there is one implementation."""
+    if observation.value is None or not math.isfinite(observation.value):
+        return None
+    sample = observation.denominator
+    if sample is None or sample < OBSERVED_MIN_SAMPLE:
+        return None
+    return observation.value * sample / (sample + OBSERVED_SHRINKAGE)
+
+
 def _scored_value(
     component: str, observation: Observation, measure: str = MEASURE_WILSON
 ) -> tuple[float | None, float | None]:
@@ -647,15 +731,7 @@ def _scored_value(
     if observation.value is None and observation.numerator is None:
         return None, None
     if component == PLAYGROUP_OBSERVED:
-        # Observed gap in percentage points; the denominator is the sample (games in
-        # which the card was cast). Below the minimum the observation does not count;
-        # above it the gap is shrunk towards zero by the sample size.
-        if observation.value is None or not math.isfinite(observation.value):
-            return None, None
-        sample = observation.denominator
-        if sample is None or sample < OBSERVED_MIN_SAMPLE:
-            return None, None
-        return observation.value * sample / (sample + OBSERVED_SHRINKAGE), None
+        return observed_gap(observation), None
     if component in SHARE_COMPONENTS:
         return _share_values(component, observation, measure)
     if observation.value is None or not math.isfinite(observation.value):
@@ -790,6 +866,13 @@ def _component_note(
     return NOT_RANKED_NOTES.get(reason, "")
 
 
+def component_label(component: str) -> str:
+    """The German label of an index component or of a layer component."""
+    if component.startswith(LAYER_PREFIX):
+        return LAYER_LABELS[component[len(LAYER_PREFIX) :]]
+    return LABELS[component]
+
+
 def weights_without_effect(settings: StrengthSettings, collected: Collection[str]) -> list[str]:
     """Notes for a positive weight on a source that has no data at all (it cannot act)."""
     return [
@@ -817,13 +900,14 @@ def score_pool(
     ctx = context or PoolContext()
     unranked = {} if settings.rank_commander_and_basics else dict(ctx.unranked)
     filter_cards = frozenset(ctx.filter_cards)
+    rated = (*COMPONENTS, *settings.active_layers())
     rankings: dict[str, _ComponentRanking] = {}
-    for component in COMPONENTS:
+    for component in rated:
         skipped = set(unranked) | (filter_cards if component == DECK_UNIVERSE else set())
         rankings[component] = _rank_component(settings, ctx, component, observations, skipped)
     total_weight = sum(
         settings.effective_weight(name)
-        for name in COMPONENTS
+        for name in rated
         if settings.effective_weight(name) > 0
         and not (name in UNCOLLECTED_BY_DESIGN and name not in collected)
     )
@@ -835,7 +919,7 @@ def score_pool(
         present = 0
         specific = False
         not_ranked = unranked.get(card)
-        for component in COMPONENTS:
+        for component in rated:
             if component == BRACKET_INCLUSION and settings.bracket == BRACKET_NONE:
                 continue
             weight = settings.effective_weight(component)
@@ -893,7 +977,7 @@ def score_pool(
             components.append(
                 {
                     "component": component,
-                    "label": LABELS[component],
+                    "label": component_label(component),
                     "signal": signal_for(component, settings.bracket),
                     "status": status,
                     "reason": GROUP_TOO_SMALL if group_fallback else reason,
