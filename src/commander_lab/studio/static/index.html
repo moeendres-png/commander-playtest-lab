@@ -5,11 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Commander Studio</title>
 <link rel="stylesheet" href="app.css">
+<script src="ui.js"></script>
 </head>
 <body>
-<header id="top">
-  <h1>Commander Studio <span>Deckbau</span></h1>
+<header id="brand">
+  <a class="logo" href="index.html">Commander Studio</a>
+  <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="partie.html">Partien</a></nav>
+  <span class="spacer"></span>
   <label>Commander <select id="commander-select"></select></label>
+  <button id="theme-toggle" type="button" class="ghost"></button>
+</header>
+<header id="top">
   <label>Deck <select id="deck-select"></select></label>
   <label>Variante <select id="branch-select"></select></label>
   <button id="new-branch" type="button">Neue Variante</button>
@@ -20,9 +26,8 @@
   <button id="save" type="button" class="primary">Als Stand speichern</button>
   <button id="history" type="button">Verlauf</button>
   <button id="export" type="button">Export</button>
-  <a class="nav" href="tierliste.html">Tierliste</a>
-  <a class="nav" href="partie.html">Partien</a>
 </header>
+<div id="data-state"></div>
 <main>
   <section id="pool">
     <div id="filters">
@@ -36,7 +41,7 @@
       <label><input id="f-notin" type="checkbox"> nicht im Deck</label>
       <label><input id="f-fav" type="checkbox"> Favoriten</label>
       <label><input id="f-excl" type="checkbox"> Ausgeschlossene zeigen</label>
-      <label><input id="f-sim" type="checkbox"> Simulator-bereit</label>
+      <label id="f-sim-label"><input id="f-sim" type="checkbox"> <span id="f-sim-text">Simulator-bereit</span></label>
       <label>Vergleichsgruppe <select id="cohort"></select></label>
       <label>Universum <select id="universe"></select></label>
       <span id="universe-info" class="muted"></span>
