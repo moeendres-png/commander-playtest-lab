@@ -886,6 +886,7 @@ async function openCard(card) {
   const frequencies = h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Quelldecks"), h("th", { class: "num" }, "mit Karte"), h("th", { class: "num" }, "Decks"), h("th", { class: "num" }, "Anteil"))),
     h("tbody", {}, Object.keys(state.cohorts).map((key) => { const f = freq(card, key); return h("tr", { class: f.total < state.small ? "low" : "" }, h("td", {}, cohortName(key)), h("td", { class: "num" }, f.hits), h("td", { class: "num" }, f.total), h("td", { class: "num" }, f.total ? (100 * f.share).toFixed(1) + " %" : "unbekannt")); })));
   const extra = h("div", {}, h("p", { class: "muted" }, "Lädt EDHREC-Zeilen."));
+  const layerBox = h("div", {});
   const right = h("div", {},
     h("h2", {}, card.name), h("div", {}, mana(card.mana_cost), " ", h("span", { class: "muted" }, card.type_line), card.power !== null ? ` · ${card.power}/${card.toughness}` : ""),
     h("p", { style: "white-space:pre-line" }, card.text),
@@ -900,8 +901,9 @@ async function openCard(card) {
     note, h("div", { class: "actions" }, h("button", { type: "button", onclick: () => saveMark({ note: note.value }) }, "Notiz speichern")),
     h("h3", {}, "Häufigkeit in den Quelldecks"), frequencies, h("p", { class: "note" }, "Gelb: Gruppe mit weniger als 30 Decks."),
     card.universe ? h("p", { class: "note" }, `Im Universum ${state.universe}: ${card.universe.filter_card ? "Filterkarte des Universums (steht per Definition in jedem Deck der Teilmenge, ohne Zählung und ohne Stufe)" : card.universe.matched ? `${card.universe.hits}/${card.universe.denominator} Decks, Stufe ${card.universe.level} (Verbreitung gezählt, keine Stärke)` : "unbekannt (kein Deck des Universums nennt diese Karte unter einem bekannten Namen)"}`) : null,
-    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, extra);
+    card.universe && state.universeInfo && state.universeInfo.subset_note ? h("p", { class: "note" }, state.universeInfo.subset_note) : null, layerBox, extra);
   box.append(left, right); $("modal").hidden = false;
+  showLayers(layerBox, card);
   try {
     const detail = await api(`/api/cards/${encodeURIComponent(card.card_id)}?${StudioCommander.query}&cohort=${encodeURIComponent(state.cohort)}`);
     const parts = [];
@@ -1009,6 +1011,27 @@ async function openCard(card) {
     }
     extra.replaceChildren(...parts);
   } catch (error) { extra.replaceChildren(h("p", { class: "muted" }, "Zusatzdaten nicht lesbar: " + error.message)); }
+}
+// The rating layers of one card as a small table; loaded on its own, so the slower detail request does not hold it back.
+async function showLayers(into, card) {
+  try {
+    const found = await ratingLayers();
+    const mine = found.cards[card.card_id];
+    if (mine) into.replaceChildren(h("h3", {}, "Bewertungsebenen"), StudioUI.layerTable(mine, found.layers),
+      h("p", { class: "note" }, `Eigene Spalten der Tierliste, kein Teil des Stärke-Index (nur mit Gewicht, empfohlen: 0). Ein unbekannter Wert steht als „–“ mit Grund und ist nie 0. ${found.measured_note} ${found.pod_note}`));
+  } catch (error) { into.replaceChildren(h("p", { class: "muted" }, "Bewertungsebenen nicht lesbar: " + StudioUI.germanError(error))); }
+}
+// The rating layers of the pool (one request per commander and pod size, kept while the page is open).
+function ratingLayers() {
+  let size = 4;
+  try { const saved = JSON.parse(StudioUI.recall("studio.strength.settings", "null")); if (saved && Number.isInteger(saved.pod_size) && saved.pod_size >= 2 && saved.pod_size <= 6) size = saved.pod_size; } catch (error) { /* view setting only */ }
+  const key = `${COMMANDER}|${size}`;
+  if (!state.ratingLayers || state.ratingLayers.key !== key) {
+    const promise = api(`/api/rating-layers?commander=${encodeURIComponent(COMMANDER)}&pod_size=${size}`);
+    state.ratingLayers = { key, promise };
+    promise.catch(() => { state.ratingLayers = null; });
+  }
+  return state.ratingLayers.promise;
 }
 
 // ---------- Stärke-Index for the sort (the tier page's function, never a copy of its scoring) ----------

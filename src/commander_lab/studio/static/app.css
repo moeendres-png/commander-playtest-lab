@@ -112,6 +112,8 @@ td.text{max-width:360px;font-size:12px;color:var(--muted);white-space:pre-line}
 .issue{padding:6px 8px;border-left:3px solid var(--bad);background:var(--panel2);margin-bottom:6px;border-radius:0 6px 6px 0}
 .issue.warning{border-color:var(--warn)}
 .note{font-size:12px;color:var(--muted);margin:6px 0}
+.unknown{color:var(--muted);font-style:italic}
+.rule{color:var(--muted);font-size:11px}
 .empty{border:1px dashed var(--line);border-radius:var(--radius);padding:var(--s4);background:var(--panel2);margin:var(--s2) 0}
 .empty b{display:block;margin-bottom:var(--s1)}
 #preview{position:fixed;z-index:20;pointer-events:none}

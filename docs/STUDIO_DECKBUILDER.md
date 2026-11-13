@@ -285,6 +285,96 @@ The page names two different things and never mixes them: "Stärke-Index (Schät
 Nutzungsdaten)" (this index) and "Ergebnis aus Partien (noch nicht bewertet)" (the outcome
 evidence, `UNRATED`).
 
+### Rating layers ("Bewertungsebenen")
+
+Additional, objectively derivable layers that rank cards next to the strength tier. Each is
+its own column on the tier list page (a per-viewer column chooser, remembered in the browser;
+each column sorts by its percentile; a filter for the pod scaling class) and a small table in
+the card window of the tier list and of the builder. A layer never changes the tier on its own:
+the settings group "Zusätzliche Ebenen" gives each of four layers an optional weight in the
+strength index, **default and recommendation 0** (all three presets keep 0). With every weight
+at 0 the tier and the index of every card are bit-identical to a run without layers (pinned by
+`tests/unit/test_studio_layers_view.py`; on the Chulane store of the repository the tier counts
+stay S5 A83 B259 C253 D322 U0 N5 and every card's index, coverage and present count equal the
+run before the change). A weighted layer joins like any other component: its percentile among the ranked
+pool cards (rank group setting applies), its weight counts in the coverage, a card without a value
+lowers the coverage and never the card. No layer is commander specific, so none satisfies
+`require_commander_signal`. A weighted layer with no value for any card is named in `notices`
+and leaves the coverage of every card alone. The commander and basic lands get no layer value
+(same exemption as tier `N`). Names are matched by oracle id, else exact oracle (or engine) name,
+else the FRONT face only; a back half never matches.
+
+Every value has a status: `OK`, `UNKNOWN` (reason `NO_RECORD`, `NO_VALUE_PUBLISHED`,
+`SAMPLE_TOO_SMALL`, `INSUFFICIENT_SAMPLE`, `NO_TEXT`) or `NOT_APPLICABLE` (`NOT_A_PERMANENT`,
+`NOT_RANKED`). **Unknown is shown as "–" with its reason and is never 0.** Per card the tier
+endpoint returns `layers` (value, raw share, Wilson bound, `n`, percentile 0 to 100, status,
+reason, note) and per result `layer_summary` (per layer: pool cards with a value, unknown, not
+applicable, source, denominator, measured or derived). `GET /api/rating-layers?commander=&pod_size=`
+serves the same layers without the index for the builder. The percentile uses the strength
+module's rank grouping (ties share the mean rank); a single valued card is 50.
+
+| Layer (key) | Source | Denominator | Kind |
+|---|---|---|---|
+| "Großpod-Wirkung" (`pod_scaling`) | oracle text of all faces | none | derived by rule, no measurement |
+| "Tempo" (`tempo`) | Playgroup atlas `on_curve_pct` | `on_curve_denominator` | measured correlation |
+| "Ausspielquote" (`playability`) | `drawn_to_played_pct` | `ever_drawn_n` | measured correlation |
+| "Standfestigkeit" (`staying`) | `battlefield_survival_pct` | `reached_battlefield_n` | measured correlation, permanents only |
+| "Sieg-Abstand" (`win_gap`) | the Playgroup observed gap | `winrate_when_cast_n` | measured correlation, column only |
+
+**Measured share layers** (tempo, playability, staying). A value counts only from `n >= 25` and
+when the atlas record is not flagged `insufficient_sample`. The ranking value is the 95 %
+Wilson lower bound of the published share (`strength.wilson_lower`, the function the index
+uses); the raw share, `n` and the bound are all shown. The source publishes whole percents, so
+the count behind the bound is `round(share * n)`. Missing or thin is `UNKNOWN`. Limits:
+these are correlations observed in other players' multiplayer games (Playgroup.gg, CC BY 4.0),
+not causal card strength, not a win rate of the Owner's games, and the source has no breakdown by
+pod size. The playability share is cast-over-drawn: its denominator is the funnel count
+`ever_drawn_n` (games in which the card was drawn), not `first_cast_n` (its numerator); only a
+record without `ever_drawn_n` falls back to `first_cast_n` and says so. In the repository atlas
+(1,655 records) 73 playability percents differ from `first_cast_n / ever_drawn_n` by more than
+one percentage point, all of them legendary creatures (a cast from the command zone is not a
+draw). Tempo: the published `on_curve_pct` disagrees with the record's own
+`on_curve_count / on_curve_denominator` by more than one percentage point in 361 of 674 records
+(the source's own quality warnings say so); the published percent is used and such a value is
+marked "Quelle widerspricht sich" and counted in `layer_summary.source_discrepancies`.
+
+**"Sieg-Abstand"** is `strength.observed_gap`, the function behind the index component
+`playgroup_observed`: the same minimum of 25 games in which the card was cast and the same
+shrinkage `gap * n / (n + 25)`; there is no second implementation. It has no weight of its own,
+because the index already counts it (a second weight would count it twice); it is a column only.
+
+**"Großpod-Wirkung"** is derived from the oracle text by fixed rules
+(`layers.classify_pod_scaling`, table-driven test with 46 real card texts). Reminder text in
+parentheses is removed first; matching is on the lower-cased text. Classes, strongest first (the
+rank value is the ordinal 3, 2, 1, 0):
+
+1. `SCALES` "wirkt auf jeden Gegner": "each opponent", "each other player", "each player",
+   "for each opponent", "number of opponents", "each of your opponents", and the plural forms
+   "opponents control" and "your opponents" (an effect on all opponents' permanents or spells).
+2. `OPPONENT_TRIGGER`: "whenever an opponent", "whenever a player", "whenever ... an opponent
+   controls", "at the beginning of each opponent's/other player's/player's ...". These are
+   matched first and removed, so the "each player" in "at the beginning of each player's" does not
+   count as a scaling clause.
+3. `SINGLE_TARGET`: none of the above, and the card names "target opponent" or "target player",
+   or has one removal or counter on one target ("destroy/exile/counter/gain control of target
+   creature|permanent|spell|artifact|enchantment|planeswalker|battle", "return target ... to its
+   owner's hand", "deals N damage to any target/target ...", "target ... gets -X/-X").
+4. `NEUTRAL`: nothing of the above.
+
+The strongest class that applies wins; a mode of a modal card counts like a sentence, so a card
+with "target opponent" and "each opponent" stays `SCALES`. The extra flag `SYMMETRIC` marks a
+matched phrase that also hits you ("each player", "whenever a player", "at the beginning of each
+player's"). The matched phrases are returned (`detail.phrases`) and shown, so the page says why. The
+pod size setting "Pod-Größe" (2 to 6, default and recommendation 4) only changes the displayed factor
+"wirkt auf N-1 Gegner" of a `SCALES` card; no class, rank or index depends on it. The page labels
+the layer "aus dem Regeltext abgeleitet, keine Messung". Limits: it is a rule on text, not a
+measurement; it cannot see what a card does through a keyword or a static ability it does not
+spell out ("Creatures can't attack you unless their controller pays {2} ..." is `NEUTRAL`;
+overload, whose text is reminder text, leaves a "target" card `SINGLE_TARGET`); a protective clause
+that names "opponents control" is `SCALES`; a card without oracle text in the store is `UNKNOWN`
+(`NO_TEXT`), a vanilla card with empty text is `NEUTRAL`. Favorites, exclusions and notes are not read, and
+no price data is involved.
+
 ### Counted deck-list universes, `universe_source` and the commander-signal rule
 
 The repository holds complete deck lists that were counted, as one file per commander:
