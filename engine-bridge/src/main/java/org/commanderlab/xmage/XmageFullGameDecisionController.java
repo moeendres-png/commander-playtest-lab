@@ -497,6 +497,18 @@ final class XmageFullGameDecisionController {
         return pendingRequest == null ? null : pendingRequest.deepCopy();
     }
 
+    /**
+     * The pending frame itself, not a copy, or null. A published frame is never
+     * mutated: {@code request}, {@code followTurnControl} and the cancel paths
+     * replace {@code pendingRequest} as a whole object (the re-bind works on a
+     * deep copy). The caller must only read it and must finish with it before
+     * anything else could mutate it, e.g. serialize it at once; whoever might
+     * mutate or keep it uses {@link #pendingDecision()}.
+     */
+    synchronized JsonObject pendingDecisionShared() {
+        return pendingRequest;
+    }
+
     /** Whether a decision is pending; reads the flag, copies nothing. */
     synchronized boolean hasPendingDecision() {
         return pendingRequest != null;

@@ -40,7 +40,14 @@ final class XmageFullGameJsonlBridge {
         return session == null ? null : session.engineGameId();
     }
 
-    record Result(String json, boolean shutdown) {
+    /**
+     * The response object, serialized by the caller. {@link #json()} yields the
+     * same text the response always had; {@link Main} streams it instead.
+     */
+    record Result(JsonObject response, boolean shutdown) {
+        String json() {
+            return response.toString();
+        }
     }
 
     Result handle(String input) {
@@ -240,6 +247,7 @@ final class XmageFullGameJsonlBridge {
                     seed,
                     deckImporter
             );
+            session.serializePayloadsImmediately();
             // Counted once the game exists: a create that fails does not use up a game slot.
             gamesCreated++;
 
@@ -726,7 +734,7 @@ final class XmageFullGameJsonlBridge {
         response.addProperty("status", "ok");
         response.add("payload", payload);
         response.addProperty("engine_event_offset", 0);
-        return new Result(response.toString(), shutdown);
+        return new Result(response, shutdown);
     }
 
     private static Result error(
@@ -746,7 +754,7 @@ final class XmageFullGameJsonlBridge {
         errors.add(error);
         response.add("errors", errors);
         response.addProperty("engine_event_offset", 0);
-        return new Result(response.toString(), false);
+        return new Result(response, false);
     }
 
     private static JsonObject baseResponse(String requestId) {

@@ -81,7 +81,10 @@ public final class Main {
                     continue;
                 }
                 XmageFullGameJsonlBridge.Result result = bridge.handle(line);
-                output.println(result.json());
+                // Streamed through the same PrintWriter chain as println(String):
+                // same characters, same UTF-8 encoder, no intermediate string.
+                XmageJsonStreams.write(result.response(), output);
+                output.println();
                 output.flush();
                 if (result.shutdown()) {
                     break;

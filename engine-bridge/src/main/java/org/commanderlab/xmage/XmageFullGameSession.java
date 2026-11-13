@@ -473,11 +473,28 @@ final class XmageFullGameSession {
         return controller.pendingDecisionClass();
     }
 
+    /**
+     * Set by the JSONL bridge, which serializes every payload it gets at once
+     * and drops it: pending frames then go into payloads without the defensive
+     * deep copy. Direct callers (reconstruction drivers, tests) keep a copy
+     * they may mutate or hold on to.
+     */
+    private volatile boolean framesSerializedImmediately;
+
+    void serializePayloadsImmediately() {
+        framesSerializedImmediately = true;
+    }
+
+    private JsonObject pendingFrame() {
+        return framesSerializedImmediately
+                ? controller.pendingDecisionShared() : controller.pendingDecision();
+    }
+
     JsonObject pendingDecisionPayload() {
         ensureStarted();
         awaitSettled(controller, engineThread, SETTLE_TIMEOUT);
         JsonObject payload = statusPayload();
-        JsonObject pending = controller.pendingDecision();
+        JsonObject pending = pendingFrame();
         payload.add("decision", pending == null ? JsonNull.INSTANCE : pending);
         return payload;
     }
@@ -593,7 +610,7 @@ final class XmageFullGameSession {
         ensureNotShutDown();
         ensureStarted();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
-        JsonObject pending = controller.pendingDecision();
+        JsonObject pending = pendingFrame();
         if (pending == null) {
             if (controller.terminalFailure() != null) {
                 throw controller.terminalFailure();
@@ -662,7 +679,7 @@ final class XmageFullGameSession {
         ensureNotShutDown();
         ensureStarted();
         controller.awaitPendingOrTerminal(Duration.ofSeconds(20));
-        JsonObject pending = controller.pendingDecision();
+        JsonObject pending = pendingFrame();
         if (pending == null) {
             if (controller.terminalFailure() != null) {
                 throw controller.terminalFailure();
@@ -692,7 +709,7 @@ final class XmageFullGameSession {
         result.addProperty("executed_action_type", proposalType);
         result.addProperty("decision_scoped", true);
         result.addProperty("global_capability_promoted", false);
-        JsonObject nextFragment = nextActionsPayload(controller.pendingDecision());
+        JsonObject nextFragment = nextActionsPayload(pendingFrame());
         result.add("next_actions", nextFragment.getAsJsonArray("next_actions"));
         for (java.util.Map.Entry<String, JsonElement> entry : nextFragment.entrySet()) {
             if (!entry.getKey().equals("next_actions")) {
