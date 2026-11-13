@@ -325,18 +325,22 @@ only; the back half of a two-part name is never a spelling of the card. The resu
 `universe_choice` names the universe used (kind, label, denominator, snapshot, reason,
 automatic) and the tier page prints it in "Index berechnet mit". The deck-universe weight
 (recommended 2; 0 switches it off and then it adds neither value nor coverage) is set like any
-other (Owner decision B12). With no local deck lists and no profile the builder shows the
-automatically chosen counted universe in the frequency column, always labelled "Verbreitung
-(gezählt): <source>, Bracket <n>, <N> Decks".
+other (Owner decision B12). Without a profile the builder asks the same function
+(`universe_choice.choose`): when the automatic choice is a counted universe (fewer local deck
+lists than `min_universe`) it shows that universe in the frequency column, always labelled
+"Verbreitung (gezählt): <source>, Bracket <n>, <N> Decks"; with enough local deck lists the
+builder and the tier list both use those.
 
 Tier rule "commander-specific evidence" (`require_commander_signal`, recommended on): a card
 gets a tier only if at least one commander-specific component (commander inclusion, bracket
 inclusion, deck universe, synergy, tournament lists) has a ranked value with a weight above 0;
-global inclusion and combos are the same for every commander and never give a tier alone
+global inclusion, combos and the Playgroup observation are the same for every commander and
+never give a tier alone
 (tier `U`, reason `NO_COMMANDER_SIGNAL`, "kein Signal speziell für diesen Commander"; simulation
 never counts). The recommended minimum data situation (`min_coverage`, shown as
 "Mindest-Datenlage") is 0.3: with a counted universe an unlisted card has deck universe 2 +
-global 1 + combos 1 = 4 of 11 = 0.36.
+global 1 + combos 1 = 4 of 12 = 0.33 (total weight 12 with the Playgroup observation at 1; the
+minimum is reached without a Playgroup observation, with one it is 5 of 12).
 
 ### Data report
 
