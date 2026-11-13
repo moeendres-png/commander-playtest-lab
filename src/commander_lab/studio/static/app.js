@@ -27,7 +27,7 @@ const state = {
   list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
-  subset: null, subsetNames: [], strength: null, layers: null, diffDefault: null,
+  subset: null, subsetNames: [], subsetWanted: null, strength: null, layers: null, diffDefault: null,
   colors: new Set(), columns: new Set(["img", "name", "mana_cost", "type_line", "available", "freq", "edhrec"]),
 };
 
@@ -351,40 +351,60 @@ function bars(values, labels) {
 }
 // ---------- deck filter: only source decks that contain all chosen cards ----------
 const poolNames = () => new Map(state.pool.filter((card) => !state.commanderIds.includes(card.card_id)).map((card) => [card.name.toLowerCase(), card.name]));
+// The list the filter is heading for: two quick adds both count, even before the first answer is in.
+const wantedNames = () => (state.subsetWanted || state.subsetNames);
+let subsetTicket = 0;
 async function applySubset(names) {
-  if (!names.length) { state.subset = null; state.subsetNames = []; renderAll(); return; }
+  const ticket = ++subsetTicket;
+  state.subsetWanted = [...names];
+  if (!names.length) { state.subset = null; state.subsetNames = []; state.subsetWanted = null; renderAll(); return; }
   const query = `commander=${encodeURIComponent(COMMANDER)}` + names.map((name) => `&card=${encodeURIComponent(name)}`).join("") + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
   try {
     const info = await api("/api/deck-filter?" + query);
+    if (ticket !== subsetTicket) return;
     state.subset = { info, map: new Map(info.cards.map((item) => [item.card_id, item])) };
     state.subsetNames = [...names];
+    state.subsetWanted = null;
     renderAll();
-  } catch (error) { fail(error); } // the last valid filter stays
+  } catch (error) { if (ticket === subsetTicket) state.subsetWanted = null; fail(error); } // the last valid filter stays
 }
+// The filter control is built once and refreshed in place, so text typed into it survives a redraw.
+let deckFilterNode = null;
 function deckFilterControl() {
   const names = poolNames();
-  const chosen = [...state.subsetNames];
-  const input = h("input", { id: "df-card", list: "df-card-list", placeholder: "Karte aus dem Pool …", autocomplete: "off", "aria-label": "Karte für den Deckfilter" });
-  const add = () => {
-    const value = input.value.trim();
-    if (!value) return;
-    const name = names.get(value.toLowerCase());
-    if (!name) { toast(`„${value}“ steht nicht im Kartenpool dieses Commanders. Wähle eine Karte aus der Vorschlagsliste.`); return; }
-    input.value = "";
-    if (!chosen.includes(name)) applySubset([...chosen, name]);
-  };
-  input.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); add(); } });
-  input.addEventListener("change", () => { if (names.has(input.value.trim().toLowerCase())) add(); });
-  const chips = h("span", { class: "chips", id: "df-chips" }, chosen.map((name) => h("button", { type: "button", class: "chip on", title: `${name} aus dem Filter nehmen`, onclick: () => applySubset(chosen.filter((item) => item !== name)) }, `${name} ✕`)));
-  return h("div", { class: "sim-box", id: "deck-filter" },
-    h("b", {}, "Nur Decks mit diesen Karten"),
-    h("div", { class: "actions" }, input, h("datalist", { id: "df-card-list" }, ...[...names.values()].map((name) => h("option", { value: name }))),
-      h("button", { type: "button", id: "df-add", onclick: add }, "hinzufügen"),
-      h("button", { type: "button", id: "df-clear", disabled: !chosen.length, onclick: () => applySubset([]) }, "Filter löschen")),
-    chips,
-    h("p", { class: "note", id: "df-label" }, state.subset
-      ? `${state.subset.info.label}. Die Zahlen unten zählen nur diese Decks. Die gewählten Karten sind „Filterkarte“ und werden nicht gerankt.`
-      : "Kein Filter: die Zahlen zählen alle Quelldecks dieses Commanders. Nur Karten aus dem Pool sind wählbar."));
+  if (!deckFilterNode) {
+    const input = h("input", { id: "df-card", list: "df-card-list", placeholder: "Karte aus dem Pool …", autocomplete: "off", "aria-label": "Karte für den Deckfilter" });
+    const add = () => {
+      const value = input.value.trim();
+      if (!value) return;
+      const name = deckFilterNode.names.get(value.toLowerCase());
+      if (!name) { toast(`„${value}“ steht nicht im Kartenpool dieses Commanders. Wähle eine Karte aus der Vorschlagsliste.`); return; }
+      input.value = "";
+      const chosen = wantedNames();
+      if (!chosen.includes(name)) applySubset([...chosen, name]);
+    };
+    input.addEventListener("keydown", (event) => { if (event.key === "Enter") { event.preventDefault(); add(); } });
+    input.addEventListener("change", () => { if (deckFilterNode.names.has(input.value.trim().toLowerCase())) add(); });
+    const chips = h("span", { class: "chips", id: "df-chips" });
+    const list = h("datalist", { id: "df-card-list" });
+    const clear = h("button", { type: "button", id: "df-clear", onclick: () => applySubset([]) }, "Filter löschen");
+    const label = h("p", { class: "note", id: "df-label" });
+    const root = h("div", { class: "sim-box", id: "deck-filter" },
+      h("b", {}, "Nur Decks mit diesen Karten"),
+      h("div", { class: "actions" }, input, list, h("button", { type: "button", id: "df-add", onclick: add }, "hinzufügen"), clear),
+      chips, label);
+    deckFilterNode = { root, chips, list, clear, label, names };
+  }
+  const node = deckFilterNode;
+  node.names = names;
+  const chosen = state.subsetNames;
+  node.list.replaceChildren(...[...names.values()].map((name) => h("option", { value: name })));
+  node.chips.replaceChildren(...chosen.map((name) => h("button", { type: "button", class: "chip on", title: `${name} aus dem Filter nehmen`, onclick: () => applySubset(wantedNames().filter((item) => item !== name)) }, `${name} ✕`)));
+  node.clear.disabled = !chosen.length;
+  node.label.textContent = state.subset
+    ? `${state.subset.info.label}. Die Zahlen unten zählen nur diese Decks. Die gewählten Karten sind „Filterkarte“ und werden nicht gerankt.`
+    : "Kein Filter: die Zahlen zählen alle Quelldecks dieses Commanders. Nur Karten aus dem Pool sind wählbar.";
+  return node.root;
 }
 function layerCommand(key) {
   const layer = state.layers && state.layers.layers.find((item) => item.key === key);
