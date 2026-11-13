@@ -34,6 +34,7 @@ from pathlib import Path
 from typing import TypedDict
 
 from ._coerce import iterate, to_int
+from .catalog import relink_corpus
 from .store import DataClass, StudioStore, sha256_file
 
 COMMANDER_COHORT = "chulane"
@@ -203,7 +204,7 @@ _PARSERS = {"edhrec": _edhrec_deck, "archidekt": _archidekt_deck}
 
 def import_decklists(
     store: StudioStore, folder: str | Path, *, format: str, commander: str | None = None
-) -> dict[str, int]:
+) -> dict[str, object]:
     """Import every normalized deck file of one source format from ``folder``.
 
     ``format`` is ``edhrec`` or ``archidekt``. Returns counts of decks written, decks
@@ -303,9 +304,13 @@ def import_decklists(
             card_rows += len(rows)
             duplicates += 1 if duplicate_of else 0
         _release_stale_marks(db)
+    # Card names are linked to oracle ids by name; with the card data imported later the same
+    # step runs at the end of that import, so the order of the two imports does not matter.
+    relinked = relink_corpus(store)
     return {
         "decks": written,
         "duplicates_marked": duplicates,
         "card_rows": card_rows,
         "files_without_cards": skipped,
+        **relinked,
     }

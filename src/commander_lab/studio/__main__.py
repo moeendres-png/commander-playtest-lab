@@ -110,6 +110,10 @@ def _parser() -> argparse.ArgumentParser:
         default=LEGACY_COMMANDER,
         help="commander the tournament lists belong to (EDHREC signals carry their own)",
     )
+    commands.add_parser(
+        "relink-corpus",
+        help="link source-deck cards to oracle ids by name and rebuild deck statistics",
+    )
     commands.add_parser("profiles", help="list the stored deck-universe profiles")
     save_profile = commands.add_parser(
         "save-profile", help="store a deck-universe profile (which decks count)"
@@ -531,6 +535,8 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = decklist_import.import_decklists(
             store, args.path, format=args.format, commander=args.commander
         )
+    elif args.command == "relink-corpus":
+        result = catalog.relink_corpus(store)
     elif args.command == "profiles":
         result = {"profiles": universe.list_profiles(store)}
     elif args.command == "save-profile":
