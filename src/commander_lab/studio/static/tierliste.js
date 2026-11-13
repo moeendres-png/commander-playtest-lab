@@ -22,7 +22,6 @@ const NEED_NAMES = {
   SMALL_DENOMINATOR: "kleiner Nenner",
   EDHREC_TIME_UNKNOWN: "EDHREC-Zeit unbekannt",
   NO_ROLE_CLAIM: "keine Rolle erfasst",
-  NO_SIMULATION: "nicht simuliert",
   SMALL_GAME_SAMPLE: "kleine Spielstichprobe",
 };
 const SORTS = [

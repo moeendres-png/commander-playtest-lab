@@ -129,3 +129,14 @@ def test_stored_simulation_runs_feed_neither_the_index_nor_the_tier_page_counts(
         assert coverage["present"] == cards_before[name]["coverage"]["present"]  # type: ignore[index]
     forest = cards_after["Forest"]["layers"]["simulated_result"]  # type: ignore[index]
     assert forest["status"] == "PRESENT"  # still shown on its own, never counted
+
+
+def test_the_research_list_does_not_flag_cards_as_not_simulated(store: StudioStore) -> None:
+    payload = evidence.pool_evidence(store, [COMMANDER])
+    cards = payload["cards"]
+    assert isinstance(cards, list) and cards
+    needs = {need for card in cards for need in card["coverage"]["needs"]}
+    assert "NO_SIMULATION" not in needs
+    assert needs  # other gaps are still listed
+    # the layer itself stays available for the card detail
+    assert all("simulated_result" in card["layers"] for card in cards)
