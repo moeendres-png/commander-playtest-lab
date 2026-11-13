@@ -81,6 +81,7 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import json
 import math
 import re
 from collections.abc import Callable, Iterator, Sequence
@@ -420,10 +421,16 @@ def _read_salt(paths: list[Path], report: FileReport) -> list[_Row]:
     return list(_first_wins(iter(pairs), report).values())
 
 
-def _read_combos(paths: list[Path], commander: str, report: FileReport) -> list[_Row]:
+def _read_combos(
+    paths: list[Path],
+    commander: str,
+    report: FileReport,
+    sets: list[tuple[list[str], int]] | None = None,
+) -> list[_Row]:
     """Per card of the commander's EDHREC combo lists: ``numerator`` the number of listed
     combos it is part of, ``value`` the largest deck count among them. The commander itself
-    (part of its own combos) is not a card signal."""
+    (part of its own combos) is not a card signal. ``sets`` collects the full card set and
+    deck count of every accepted combo (the commander included), in file order."""
     combos: dict[str, tuple[int, int]] = {}
     seen: set[tuple[str, int]] = set()
     for row in _rows(paths, {"cards", "num_decks"}):
@@ -445,6 +452,8 @@ def _read_combos(paths: list[Path], commander: str, report: FileReport) -> list[
             report["skipped_reasons"][key] = report["skipped_reasons"].get(key, 0) + 1
             continue
         seen.add((";".join(cards), decks))
+        if sets is not None:
+            sets.append((cards, decks))
         for name in cards:
             if name.casefold() == commander.casefold():
                 continue
@@ -1068,6 +1077,45 @@ def _import_tournaments(
         )
 
 
+def _store_combo_sets(
+    store: StudioStore,
+    commander: str,
+    sets: list[tuple[list[str], int]],
+    source_id: str,
+    *,
+    replace: bool,
+) -> None:
+    """The full card set of each listed combo of ``commander`` (table ``commander_combo``).
+    A replacing import swaps the commander's list; an appending one adds the sets that are
+    not stored yet."""
+    db = store.connection
+    if replace:
+        db.execute("DELETE FROM commander_combo WHERE commander_name = ?", (commander,))
+    known = {
+        str(row[0])
+        for row in db.execute(
+            "SELECT cards FROM commander_combo WHERE commander_name = ?", (commander,)
+        )
+    }
+    ordinal = int(
+        db.execute(
+            "SELECT COALESCE(MAX(ordinal), 0) FROM commander_combo WHERE commander_name = ?",
+            (commander,),
+        ).fetchone()[0]
+    )
+    for cards, decks in sets:
+        encoded = json.dumps(cards, ensure_ascii=False)
+        if encoded in known:
+            continue
+        known.add(encoded)
+        ordinal += 1
+        db.execute(
+            "INSERT INTO commander_combo(commander_name, ordinal, cards, num_decks, source_id) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (commander, ordinal, encoded, decks, source_id),
+        )
+
+
 def _import_combos(
     store: StudioStore,
     root: Path,
@@ -1085,12 +1133,14 @@ def _import_combos(
             continue
         report = _empty(paths)
         reports[base] = report
-        rows = _read_combos(paths, commander, report)
+        sets: list[tuple[list[str], int]] = []
+        rows = _read_combos(paths, commander, report, sets)
         source_id = _register(store, paths)
         if source_id is not None and rows:
             report["rows_written"], report["rows_replaced"] = _store_rows(
                 store, rows, source_id, replace=replace
             )
+            _store_combo_sets(store, commander, sets, source_id, replace=replace)
         else:
             report["status"] = "NOTHING_REPLACED"
             report["rows_kept"] = _kept_rows(store, [SIGNAL_COMBO_DECKS], commander)

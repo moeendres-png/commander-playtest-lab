@@ -24,7 +24,7 @@ const state = {
   pool: [], byId: new Map(), cohorts: {}, small: 30, commanderIds: [],
   universe: "", universeInfo: null, countedUniverse: null,
   decks: [], deckId: null, branch: "main", baseRevision: null,
-  list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, roles: [], shapes: [],
+  list: new Map(), dirty: false, issues: [], shape: null, deckRoles: {}, combos: null, roles: [], shapes: [],
   simulations: [], diffBaseRev: null, diffData: null, activeBatch: null, batchPollTimer: null,
   view: "grid", tab: "list", shown: 120, sortKey: "freq", sortDir: -1, cohort: "all",
   subset: null, subsetNames: [], subsetWanted: null, strength: null, layers: null, diffDefault: null,
@@ -302,7 +302,7 @@ async function syncDraft() {
       api("/api/check", "POST", { cards, owned_only: true }),
       state.dirty ? api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`, "PUT", { cards, base_revision_id: state.baseRevision }) : null,
     ]);
-    state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {};
+    state.issues = result.issues; state.shape = result.shape; state.deckRoles = result.roles || {}; state.combos = result.combos || null;
     $("save-state").textContent = state.dirty ? "Entwurf gesichert, noch nicht als Stand gespeichert" : "gespeichert";
     renderHeader(); renderDeck();
   } catch (error) { fail(error); }
@@ -458,6 +458,37 @@ function renderNumbers(body) {
     body.append(h("h3", {}, `Land-Ziehwahrscheinlichkeiten (${dp.lands} Länder in ${dp.main_cards} Maindeck-Karten)`), probTable,
       h("p", { class: "note" }, "Exakte hypergeometrische Kombinatorik (DERIVED_DESCRIPTIVE) ohne Mulligan-Heuristik."));
   }
+  renderCombos(body);
+}
+// Listed combos of the commander against the deck: complete, or one card short. A count
+// over the source's list, never a rating; without a stored list the section says so.
+function comboLine(combo) {
+  return combo.cards.map((name) => name === combo.missing ? `[fehlt: ${name}]` : name).join(" + ");
+}
+function renderCombos(body) {
+  const combos = state.combos;
+  body.append(h("h3", {}, "Kombos im Deck"));
+  if (!combos || !combos.listed) {
+    body.append(h("p", { class: "muted", id: "combos-empty" }, "Für diesen Commander ist keine Kombo-Liste gespeichert. Das heißt nicht, dass das Deck keine Kombos hat."));
+    return;
+  }
+  const names = poolNames();
+  const row = (combo) => {
+    const known = combo.missing ? names.has(combo.missing.toLowerCase()) : null;
+    const card = known ? state.pool.find((item) => item.name.toLowerCase() === combo.missing.toLowerCase()) : null;
+    const where = combo.missing === undefined ? null
+      : !known ? "nicht in deinem Pool"
+      : card && card.available > 0 ? "im Pool, frei" : "im Pool, keine freie Kopie";
+    return h("tr", {}, h("td", {}, comboLine(combo)), h("td", { class: "num" }, combo.num_decks.toLocaleString("de-DE")), where === null ? null : h("td", {}, where));
+  };
+  body.append(h("p", {}, `${combos.complete.length} von ${combos.listed} gelisteten Kombos sind vollständig im Deck, bei ${combos.one_missing.length} fehlt genau eine Karte.`));
+  if (combos.complete.length) {
+    body.append(h("table", { id: "combos-complete" }, h("thead", {}, h("tr", {}, h("th", {}, "Vollständig im Deck"), h("th", { class: "num" }, "Decks der Quelle"))), h("tbody", {}, combos.complete.map(row))));
+  }
+  if (combos.one_missing.length) {
+    body.append(h("table", { id: "combos-missing" }, h("thead", {}, h("tr", {}, h("th", {}, "Es fehlt genau eine Karte"), h("th", { class: "num" }, "Decks der Quelle"), h("th", {}, "Fehlende Karte"))), h("tbody", {}, combos.one_missing.map(row))));
+  }
+  body.append(h("p", { class: "note" }, combos.meaning));
 }
 function renderCheck(body) {
   if (!state.issues.length) { body.append(h("p", {}, "Die Datenprüfung findet nichts.")); }
@@ -1150,7 +1181,7 @@ async function loadBranch() {
     api(`/api/decks/${encodeURIComponent(state.deckId)}/branches/${encodeURIComponent(state.branch)}/draft`),
   ]);
   if (draft.draft) { useCards(draft.draft.cards); state.dirty = true; }
-  else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; }
+  else { useCards(revision.cards); state.dirty = false; state.issues = revision.issues; state.shape = revision.shape; state.deckRoles = revision.roles || {}; state.combos = revision.combos || null; }
   renderAll(); await syncDraft();
 }
 async function saveRevision(branch = state.branch) {

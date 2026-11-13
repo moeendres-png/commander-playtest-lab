@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -384,6 +384,14 @@ CREATE TABLE IF NOT EXISTS strength_profile (
     spec TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS commander_combo (
+    commander_name TEXT NOT NULL,
+    ordinal INTEGER NOT NULL,
+    cards TEXT NOT NULL,
+    num_decks INTEGER NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (commander_name, ordinal)
+);
 CREATE TABLE IF NOT EXISTS card_ruling (
     oracle_id TEXT NOT NULL,
     ordinal INTEGER NOT NULL,
@@ -597,7 +605,8 @@ class StudioStore:
         elif int(row["value"]) < SCHEMA_VERSION:
             # Every schema step so far only adds tables and views (created above); schema 11
             # adds card_signal and strength_profile, schema 13 adds card_ruling and its
-            # per-file provenance table card_ruling_source.
+            # per-file provenance table card_ruling_source. Schema 14 adds commander_combo
+            # (the full card set of each listed combo of a commander).
             if int(row["value"]) < 12:
                 # Schema 12 adds the universe profile lifecycle columns (version,
                 # updated_at) to the existing table; purely additive, existing rows

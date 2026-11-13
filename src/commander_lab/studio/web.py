@@ -23,6 +23,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from . import (
     builder,
     card_outcomes,
+    combos,
     data_report,
     games,
     import_all,
@@ -954,6 +955,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "roles": builder.deck_roles(
                     store, [RevisionCard(r["card_id"], r["quantity"], r["zone"]) for r in rows]
                 ),
+                "combos": combos.deck_combos(store, rows),
             }
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
@@ -983,6 +985,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "issues": [asdict(i) for i in validate_rows(rows, owned_only=body.owned_only)],
                 "shape": builder.deck_shape(rows),
                 "roles": builder.deck_roles(store, _cards(body.cards)),
+                "combos": combos.deck_combos(store, rows),
             }
         finally:
             store.close()
