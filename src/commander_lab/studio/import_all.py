@@ -1,12 +1,13 @@
 """One checked import: every importer in the right order for one commander.
 
-``import-all`` runs the existing importers (collection, public card facts, roles, deck
-lists, usage signals, marks) inside the commander scoping of ``StudioStore.importing_for``,
-skips each step that was not given (``NOT_PROVIDED``) and ends with the counts-only data
-report and a completeness table per data layer: rows, cards of the commander's legal pool
-covered, pool size, and the status COMPLETE, PARTIAL or MISSING. A layer with no row is
-MISSING, a layer that covers the whole pool is COMPLETE, anything between is PARTIAL.
-Nothing here reads a network; a figure that cannot be told is missing, never 0 covered.
+``import-all`` runs the existing importers (collection, public card facts, roles, rulings,
+deck lists, usage signals, marks) inside the commander scoping of
+``StudioStore.importing_for``, skips each step that was not given (``NOT_PROVIDED``) and
+ends with the counts-only data report and a completeness table per data layer: rows, cards
+of the commander's legal pool covered, pool size, and the status COMPLETE, PARTIAL or
+MISSING. A layer with no row is MISSING, a layer that covers the whole pool is COMPLETE,
+anything between is PARTIAL. Nothing here reads a network; a figure that cannot be told is
+missing, never 0 covered.
 """
 
 from __future__ import annotations
@@ -19,7 +20,16 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TypedDict
 
-from . import builder, catalog, decklist_import, importers, roles, signals, strength_view
+from . import (
+    builder,
+    catalog,
+    decklist_import,
+    importers,
+    roles,
+    rulings,
+    signals,
+    strength_view,
+)
 from .data_report import data_report
 from .marks import import_owner_marks
 from .store import BOUND_ELSEWHERE, StudioStore
@@ -89,6 +99,14 @@ def default_signal_folders() -> list[Path]:
     ]
 
 
+def default_rulings_files() -> list[Path]:
+    """The curated rulings files of the collection package under ``data/research``."""
+    folder = _RESEARCH / "deckbuilder_1655"
+    if not folder.is_dir():
+        return []
+    return sorted(folder.glob("card_rulings_*.jsonl"))
+
+
 def _status(rows: int, covered: int, pool: int) -> str:
     if rows <= 0 or pool <= 0:
         return MISSING
@@ -155,6 +173,19 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         _count(store, "SELECT COUNT(*) FROM card_role"),
         sum(1 for card in cards if card["roles"]),
     )
+    with_rulings = {
+        str(row[0])
+        for row in store.connection.execute(
+            "SELECT DISTINCT f.card_id FROM card_fact f "
+            "JOIN card_ruling r ON r.oracle_id = f.oracle_id"
+        )
+    }
+    add(
+        "rulings",
+        "Regeltexte (Rulings)",
+        _count(store, "SELECT COUNT(*) FROM card_ruling"),
+        sum(1 for card in cards if str(card["card_id"]) in with_rulings),
+    )
     binding = builder.corpus_binding(store, [commander])
     bound = binding["bound_decks"]
     add(
@@ -204,6 +235,7 @@ _FLAG = {
     "inventory": "",
     "scryfall": ' --scryfall "<Datei>"',
     "roles": ' --roles "<Datei>"',
+    "rulings": ' --rulings "<Datei>"',
     "decklists": ' --decklists "<Ordner>"',
     "marks": ' --marks "<Datei>"',
 }
@@ -231,7 +263,7 @@ def layer_overview(store: StudioStore, commander: str) -> dict[str, object]:
 
 
 def _steps(
-    args: argparse.Namespace, signal_folders: list[Path]
+    args: argparse.Namespace, signal_folders: list[Path], rulings_files: list[Path]
 ) -> list[tuple[str, bool, Callable[[StudioStore], object]]]:
     commander: str = args.commander
     plan: list[tuple[str, bool, Callable[[StudioStore], object]]] = [
@@ -249,6 +281,11 @@ def _steps(
             "Rollen",
             bool(args.roles),
             lambda store: roles.import_roles(store, args.roles),
+        ),
+        (
+            "Regeltexte",
+            bool(rulings_files),
+            lambda store: rulings.import_rulings(store, rulings_files),
         ),
         (
             "Decklisten",
@@ -282,9 +319,13 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         signal_folders = default_signal_folders()
     else:
         signal_folders = [Path(folder) for folder in args.signals]
+    if args.rulings is None:
+        rulings_files = default_rulings_files()
+    else:
+        rulings_files = [Path(file) for file in args.rulings]
     steps: list[StepResult] = []
     failed = False
-    for name, provided, action in _steps(args, signal_folders):
+    for name, provided, action in _steps(args, signal_folders, rulings_files):
         if not provided:
             steps.append({"step": name, "status": NOT_PROVIDED, "detail": ""})
             continue
