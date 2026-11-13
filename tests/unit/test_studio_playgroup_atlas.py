@@ -590,3 +590,160 @@ def test_load_target_cards_coverage_and_pool_prioritization(tmp_path: Path) -> N
     assert summary["total_status_counts"]["AVAILABLE"] == 1
     assert summary["total_status_counts"]["NOT_FOUND"] == 1
     assert summary["total_status_counts"]["UNKNOWN"] == 2
+
+
+def _collector():  # type: ignore[no-untyped-def]
+    import sys
+
+    repo_root = Path(__file__).resolve().parents[2]
+    if str(repo_root) not in sys.path:
+        sys.path.insert(0, str(repo_root))
+    import scripts.collect_playgroup_card_atlas as module
+
+    return module
+
+
+class _FakeResponse:
+    def __init__(self, body: str, status: int = 200) -> None:
+        self._body = body.encode("utf-8")
+        self.status = status
+
+    def __enter__(self) -> _FakeResponse:
+        return self
+
+    def __exit__(self, *exc: object) -> None:
+        return None
+
+    def read(self) -> bytes:
+        return self._body
+
+
+def _http_error(code: int, retry_after: str | None = None):  # type: ignore[no-untyped-def]
+    import email.message
+    import urllib.error
+
+    headers = email.message.Message()
+    if retry_after is not None:
+        headers["Retry-After"] = retry_after
+    return urllib.error.HTTPError("https://example.invalid", code, "err", headers, None)
+
+
+def test_default_user_agent_has_no_owner_reference() -> None:
+    agent = _collector().DEFAULT_USER_AGENT.lower()
+    for forbidden in ("github", "moeendres", "commander-playtest-lab", "http"):
+        assert forbidden not in agent
+
+
+def test_future_dated_404_marker_is_expired(tmp_path: Path) -> None:
+    import os
+    import time
+
+    module = _collector()
+    marker = tmp_path / "ghost.404"
+    marker.touch()
+    future = time.time() + 30 * 86400
+    os.utime(marker, (future, future))
+    assert module.is_404_marker_valid(marker) is False
+    html, status, _ = module.fetch_card_html("ghost", cache_dir=tmp_path, offline_only=True)
+    assert html is None
+    assert status == 0
+    assert not marker.exists()
+
+
+def test_blocked_status_aborts_without_retry_and_caps_retry_after(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    import urllib.request
+
+    module = _collector()
+    calls: list[int] = []
+
+    def fake_urlopen(req: object, timeout: float = 0) -> _FakeResponse:
+        calls.append(1)
+        raise _http_error(429, "86400")
+
+    sleeps: list[float] = []
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)  # type: ignore[attr-defined]
+    monkeypatch.setattr(module.time, "sleep", sleeps.append)  # type: ignore[attr-defined]
+
+    assert module.capped_retry_after("86400") == 60.0
+    assert module.capped_retry_after("5") == 5.0
+
+    targets = [
+        {"card_name": n, "slug": s, "oracle_id": "", "card_id": "", "is_pool": False}
+        for n, s in (("A", "a"), ("B", "b"), ("C", "c"))
+    ]
+    summary = module.run_collection(
+        targets, out_dir=tmp_path / "out", cache_dir=tmp_path / "cache", delay=0.0
+    )
+    assert len(calls) == 1
+    assert max(sleeps) <= 60.0
+    assert summary["blocked"] is True
+    assert summary["total_status_counts"]["BLOCKED"] == 3
+
+
+def test_cache_write_is_atomic_and_empty_200_not_cached(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    import urllib.request
+
+    module = _collector()
+    written: list[Path] = []
+    real = module.atomic_write_text
+
+    def spy(path: Path, text: str, **kw: object) -> Path:
+        written.append(Path(path))
+        return real(path, text, **kw)
+
+    monkeypatch.setattr(module, "atomic_write_text", spy)  # type: ignore[attr-defined]
+    monkeypatch.setattr(module.time, "sleep", lambda _s: None)  # type: ignore[attr-defined]
+
+    monkeypatch.setattr(  # type: ignore[attr-defined]
+        urllib.request, "urlopen", lambda req, timeout=0: _FakeResponse("<html>ok</html>")
+    )
+    html, status, _ = module.fetch_card_html("good", cache_dir=tmp_path, delay=0.0)
+    assert (html, status) == ("<html>ok</html>", 200)
+    assert written == [tmp_path / "good.html"]
+
+    monkeypatch.setattr(  # type: ignore[attr-defined]
+        urllib.request, "urlopen", lambda req, timeout=0: _FakeResponse("")
+    )
+    html, status, err = module.fetch_card_html("empty", cache_dir=tmp_path, delay=0.0)
+    assert html is None
+    assert status == 0
+    assert "Empty" in err
+    assert not (tmp_path / "empty.html").exists()
+
+
+def test_main_exit_code_nonzero_when_blocked(tmp_path: Path, monkeypatch: object) -> None:
+    module = _collector()
+    monkeypatch.setattr(  # type: ignore[attr-defined]
+        module, "run_collection", lambda *a, **k: {"blocked": True}
+    )
+    monkeypatch.setattr(  # type: ignore[attr-defined]
+        module.sys, "argv", ["collect", "--cards", "Sol Ring", "--out-dir", str(tmp_path)]
+    )
+    assert module.main() == 1
+    monkeypatch.setattr(  # type: ignore[attr-defined]
+        module, "run_collection", lambda *a, **k: {"blocked": False}
+    )
+    assert module.main() == 0
+
+
+def test_limit_zero_rejected_and_file_targets_deduplicated(
+    tmp_path: Path, monkeypatch: object
+) -> None:
+    import pytest
+
+    module = _collector()
+    monkeypatch.setattr(  # type: ignore[attr-defined]
+        module.sys, "argv", ["collect", "--cards", "Sol Ring", "--limit", "0"]
+    )
+    with pytest.raises(SystemExit) as excinfo:
+        module.main()
+    assert excinfo.value.code == 2
+
+    names = tmp_path / "names.txt"
+    names.write_text("Sol Ring\nBirds of Paradise\nSol Ring\n", encoding="utf-8")
+    targets = module.load_target_cards(explicit_names=[str(names)])
+    assert [t["card_name"] for t in targets] == ["Birds of Paradise", "Sol Ring"]
