@@ -105,9 +105,12 @@ def import_corpus(store: StudioStore, root: Path) -> dict[str, int]:
 
     The importer's own commander guard is off (``commander=None``): the corpus holds 22
     Archidekt lists whose stated commander is another card; they belong to this corpus and,
-    inside ``importing_for``, stay without a commander binding. Totals over all folders."""
+    inside ``importing_for``, stay without a commander binding. Totals over the folders that exist (ValueError when none does)."""
     totals = {"decks": 0, "duplicates_marked": 0, "card_rows": 0, "files_without_cards": 0}
-    for relative, form in CORPUS_FOLDERS:
+    present = [(name, form) for name, form in CORPUS_FOLDERS if (root / name).is_dir()]
+    if not present:
+        raise ValueError(f"no corpus folder found below {root}")
+    for relative, form in present:
         result = decklist_import.import_decklists(
             store, root / relative, format=form, commander=None
         )

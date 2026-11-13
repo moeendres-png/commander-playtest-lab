@@ -398,6 +398,37 @@ $env:PYTHONPATH = "src"
 `--data` is a global option and comes before `import-all`. Leave out every line you do not
 have; the table then shows that layer as `MISSING`.
 
+
+### Alles aus dem Repo importieren
+
+Since the Owner decision of 2026-11-13 the repository holds all data (collection, corpus, roles,
+EDHREC observations, Playgroup atlas, signals, rulings). `import-all --from-repo` runs every
+importer from those files with no further file argument except the public card facts:
+
+```powershell
+$env:PYTHONPATH = "src"
+.\.venv\Scripts\python.exe -m commander_lab.studio --data "$env:LOCALAPPDATA\CommanderStudio" import-all `
+  --commander "<Name des Commanders>" `
+  --from-repo `
+  --scryfall "<Pfad>\oracle-cards.jsonl.gz" `
+  --expect-pool <erwartete Poolgröße>
+```
+
+`--scryfall` is required with `--from-repo`: the public card facts (Scryfall "Oracle Cards"
+bulk file) are not in the repository and are never downloaded; without the option the command
+stops before any step with a German message that says so. Steps, in order (each reported as
+`IMPORTED`, `NOT_PROVIDED` when its repo folder is absent, or `FAILED`): collection (the workbook
+is built into a temporary file from `data/research/collection_1655`; `--inventory` replaces it),
+Scryfall card facts, roles (`roles_1655`; `--roles` replaces them), rulings, the deck list corpus
+(`chulane_corpus`, all ten folders, then the oracle id mapping of its card rows; `--decklists`
+replaces the corpus step), EDHREC observations (`edhrec_observations_chulane`, three parts),
+Playgroup atlas (`playgroup`, three parts), signals (every signal folder below `data/research`
+and `data/research` itself for the counted deck-list file) and marks. The completeness table
+adds the layers "Korpus (Decks, alle)", "EDHREC-Beobachtungen (Themen)" and "Playgroup-Atlas".
+The loaders are the functions of `studio/repo_import.py`; the scripts
+`scripts/build_inventory_workbook.py`, `scripts/import_chulane_corpus.py` and
+`scripts/map_corpus_oracle_ids.py` call them.
+
 ## Start
 
 `python -m commander_lab.studio serve --open` (Windows: `scripts/studio_start.ps1`, Linux/WSL: `scripts/studio_start.sh`). The
