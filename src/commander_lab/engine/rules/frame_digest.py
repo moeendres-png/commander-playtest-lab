@@ -11,19 +11,20 @@ Normalization of one request (documented here because it is the proof obligation
 * Dropped, the complete list of transport fields (top level of the request only):
   ``timeout_millis`` (a request deadline, not an observation), ``protocol_version`` and
   ``protocol_identity`` (version strings of the wire protocol; the handshake checks them).
-  Nothing else is dropped.
+  Nothing else is dropped, and only a number for ``timeout_millis`` and a text for the two
+  version fields: the same key with another type stays in the digest.
 * Run identity becomes ``id#<n>``, numbered by first appearance within the game, so "the same
   object twice" stays visible and only the arbitrary value disappears:
   UUID-shaped text anywhere (the same pattern the transcript normalization uses), and the values
   of ``option_id``, ``decision_id``, ``public_state_reference`` and
-  ``private_actor_state_reference`` (the bridge derives these as hashes over the UUID-bearing
-  views, so they differ in every run).
+  ``private_actor_state_reference`` when they are 64-hex hashes (the bridge derives these over
+  the UUID-bearing views, so they differ in every run); any other value is digested as text.
 * Text leaves then go through ``XmageFullGameRunner._semantic_text``, the transcript
   normalization itself: it drops the engine's appended short ids (``Name [3a4]``) and the
   ``object_id=`` attributes of prompt markup.
 * ``pilot_state.commander_status`` is an unordered collection: the bridge builds it from a map
   keyed by UUID, so its entry order follows the run's UUIDs. Its entries are sorted by their
-  normalized text. Every other list keeps its order (battlefield, hand, options, stack ...).
+  normalized text with unnumbered UUIDs masked, then numbered in that order. Every other list keeps its order (battlefield, hand, options, stack ...).
 
 Everything else is digested as it is.
 """
@@ -62,6 +63,10 @@ UNORDERED_LISTS: frozenset[tuple[str, ...]] = frozenset({("pilot_state", "comman
 _UUID_RE = re.compile(r"(?i)\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b")
 
 
+# A bridge-derived hash, optionally with the view prefix the state references carry.
+_DERIVED_HASH_RE = re.compile(r"(?P<prefix>(?:public-view:|actor-view:)?)(?P<hash>[0-9a-f]{64})")
+
+
 def _dump(value: Json) -> str:
     return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
 
@@ -69,11 +74,16 @@ def _dump(value: Json) -> str:
 class _Normalizer:
     """Maps run identity to ``id#<n>``; one instance per game."""
 
-    def __init__(self, ids: dict[str, str] | None = None) -> None:
+    def __init__(self, ids: dict[str, str] | None = None, *, mask: bool = False) -> None:
         self.ids: dict[str, str] = {} if ids is None else ids
+        # In mask mode ids already numbered keep their placeholder and unseen ones become a
+        # constant, so the text does not depend on the order it is produced in (sort keys).
+        self._mask = mask
 
     def _ident(self, raw: str) -> str:
         key = raw.lower()
+        if self._mask:
+            return self.ids.get(key, "<id>")
         placeholder = self.ids.get(key)
         if placeholder is None:
             placeholder = f"id#{len(self.ids)}"
@@ -97,8 +107,9 @@ class _Normalizer:
             out: dict[str, Json] = {}
             for key in keys:
                 item = value[key]
-                if key in DERIVED_ID_KEYS and isinstance(item, str):
-                    out[self._text(key)] = self._ident(item)
+                derived = _DERIVED_HASH_RE.fullmatch(item) if isinstance(item, str) else None
+                if key in DERIVED_ID_KEYS and derived is not None:
+                    out[self._text(key)] = derived["prefix"] + self._ident(derived["hash"])
                 else:
                     out[self._text(key)] = self.value(item, (*path, key))
             return out
@@ -112,7 +123,7 @@ class _Normalizer:
 
     def _ordered(self, value: Sequence[object], path: tuple[str, ...]) -> list[Json]:
         """Entries of an unordered list, by their normalized text (ties are equal content)."""
-        trial = _Normalizer(dict(self.ids))
+        trial = _Normalizer(self.ids, mask=True)
         keyed = sorted(
             ((_dump(trial.value(item, path)), item) for item in value), key=lambda pair: pair[0]
         )
@@ -124,8 +135,15 @@ def normalize_frame(request: Mapping[str, object]) -> dict[str, Json]:
     return _normalize_request(_Normalizer(), request)
 
 
+def _is_transport(key: str, item: object) -> bool:
+    """A transport field of the expected type; the same key with another type is content."""
+    if key == "timeout_millis":
+        return isinstance(item, int | float) and not isinstance(item, bool)
+    return key in EXCLUDED_TRANSPORT_FIELDS and isinstance(item, str)
+
+
 def _normalize_request(norm: _Normalizer, request: Mapping[str, object]) -> dict[str, Json]:
-    kept = {key: item for key, item in request.items() if key not in EXCLUDED_TRANSPORT_FIELDS}
+    kept = {key: item for key, item in request.items() if not _is_transport(key, item)}
     return cast(dict[str, Json], norm.value(kept))
 
 

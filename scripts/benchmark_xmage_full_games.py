@@ -297,6 +297,29 @@ def _games_by_key(report: dict[str, Any]) -> dict[tuple[str, int], dict[str, Any
     return {(r["pod"], r.get("seed", report.get("game_seed"))): r for r in rows}
 
 
+def _duplicate_keys(report: dict[str, Any]) -> list[tuple[str, int]]:
+    """(pod, seed) keys that occur in more than one row: a dict would keep only the last."""
+    rows = report["games"] if "games" in report else report["rows"]
+    seen: set[tuple[str, int]] = set()
+    duplicates: list[tuple[str, int]] = []
+    for r in rows:
+        key = (r["pod"], r.get("seed", report.get("game_seed")))
+        if key in seen and key not in duplicates:
+            duplicates.append(key)
+        seen.add(key)
+    return duplicates
+
+
+def _settings_line(label: str, doc: dict[str, Any]) -> str:
+    return (
+        f"settings {label}: workers {doc.get('workers')}, games_per_jvm {doc.get('games_per_jvm')}, "
+        f"jvm_options {doc.get('jvm_options')}, jar {doc.get('bridge_jar_sha256')}"
+    )
+
+
+_HEX64 = re.compile(r"[0-9a-f]{64}")
+
+
 def _first_differing_seat(a: dict[str, Any], b: dict[str, Any]) -> str:
     """The lowest seat whose frame digest differs (or exists in one row only)."""
     sa, sb = a.get("frame_digest_by_seat") or {}, b.get("frame_digest_by_seat") or {}
@@ -325,9 +348,19 @@ def _gate_failures(
         unfinished = [k for k in keys if any(d[k].get("status") != "ok" for d in games)]
         if unfinished:
             failures.append(f"{len(unfinished)} game(s) not finished in both files: {unfinished}")
-        no_frames = [k for k in keys if any(not d[k].get("frame_digest") for d in games)]
+        if games[0].keys() != games[1].keys():
+            failures.append("the two files do not have the same pods and seeds")
+        no_frames = [
+            k
+            for k in keys
+            if any(
+                not isinstance(d[k].get("frame_digest"), str)
+                or not _HEX64.fullmatch(d[k]["frame_digest"])
+                for d in games
+            )
+        ]
         if no_frames:
-            failures.append(f"{len(no_frames)} game(s) without a frame digest: {no_frames}")
+            failures.append(f"{len(no_frames)} game(s) without a 64-hex frame digest: {no_frames}")
     if getattr(args, "require_different_jars", False):
         jars = [doc.get("bridge_jar_sha256") for doc in (base, other)]
         if not all(jars):
@@ -339,6 +372,11 @@ def _gate_failures(
 
 def compare(args: argparse.Namespace) -> int:
     base, other = (json.loads(path.read_text(encoding="utf-8")) for path in (args.a, args.b))
+    for name, doc in (("A", base), ("B", other)):
+        duplicates = _duplicate_keys(doc)
+        if duplicates:
+            print(f"ERROR duplicate game rows in file {name}: {duplicates}")
+            return 1
     a = _games_by_key(base)
     b = _games_by_key(other)
     keys = sorted(a.keys() & b.keys())
@@ -355,10 +393,18 @@ def compare(args: argparse.Namespace) -> int:
     ]
     # What the pilots were shown: compared where both rows carry a digest.
     framed = [k for k in keys if a[k].get("frame_digest") and b[k].get("frame_digest")]
-    frames_differ = [k for k in framed if a[k]["frame_digest"] != b[k]["frame_digest"]]
+    frames_differ = [
+        k
+        for k in framed
+        if a[k]["frame_digest"] != b[k]["frame_digest"]
+        or a[k].get("frames") != b[k].get("frames")
+        or a[k].get("frame_digest_by_seat") != b[k].get("frame_digest_by_seat")
+    ]
     missing = len(a.keys() ^ b.keys())
     wall = [sum(d[k]["wall_s"] for k in keys) for d in (a, b)]
     cpu = [sum(d[k]["child_cpu_s"] for k in keys) for d in (a, b)]
+    print(_settings_line("A", base))
+    print(_settings_line("B", other))
     print(f"identical {len(keys) - len(differ)}/{len(keys)}")
     for key in differ:
         print("DIFFERENT", key, *(d[key].get("semantic") or d[key]["status"] for d in (a, b)))

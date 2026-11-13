@@ -485,7 +485,7 @@ def _framed(
 
 
 _SEATS = {"0": "x0", "1": "x1"}
-_GAMES = [(1, "s1", "f1", _SEATS), (2, "s2", "f2", _SEATS)]
+_GAMES = [(1, "s1", "1" * 64, _SEATS), (2, "s2", "2" * 64, _SEATS)]
 
 
 def _gate(tmp_path: Path, a: Path, b: Path, *options: str) -> int:
@@ -562,3 +562,48 @@ def test_file_sha256_is_the_sha256_of_the_bytes(tmp_path: Path) -> None:
     assert _module().file_sha256(jar) == (
         "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
     )
+
+
+def test_duplicate_games_in_a_report_are_an_error(tmp_path: Path, capsys) -> None:
+    dup = _report(tmp_path / "d.json", [("p1", 1, "failed", None), ("p1", 1, "ok", "s1")])
+    ok = _report(tmp_path / "o.json", [("p1", 1, "ok", "s1")])
+    assert _gate(tmp_path, dup, ok) == 1
+    assert _gate(tmp_path, ok, dup) == 1
+    assert "duplicate game" in capsys.readouterr().out
+
+
+def _hexed(seed: int, text: str) -> tuple[int, str, str, dict[str, str]]:
+    return (seed, f"s{seed}", text * 64, {"0": text * 64})
+
+
+def test_expect_games_demands_equal_seed_sets_and_hex_digests(tmp_path: Path) -> None:
+    a = _framed(tmp_path / "a.json", [_hexed(1, "a"), _hexed(2, "b")])
+    other_seeds = _framed(tmp_path / "b.json", [_hexed(1, "a"), _hexed(3, "b")])
+    assert _gate(tmp_path, a, other_seeds, "--expect-games", "2") == 1
+    assert _gate(tmp_path, a, a, "--expect-games", "2") == 0
+    short = _framed(tmp_path / "s.json", [(1, "s1", "f1", {"0": "x"}), _hexed(2, "b")])
+    assert _gate(tmp_path, short, short, "--expect-games", "2") == 1
+
+
+def test_frames_and_seat_digests_must_agree_and_the_seat_is_named(tmp_path: Path, capsys) -> None:
+    a = _framed(tmp_path / "a.json", [_hexed(1, "a")])
+    seats = {"0": "a" * 64, "1": "c" * 64}
+    b = _framed(tmp_path / "b.json", [(1, "s1", "a" * 64, seats)])
+    assert _gate(tmp_path, a, b) == 1
+    assert "first differing seat: 1" in capsys.readouterr().out
+    c = _framed(tmp_path / "c.json", [_hexed(1, "a")])
+    doc = json.loads(c.read_text(encoding="utf-8"))
+    doc["games"][0]["frames"] = 8
+    c.write_text(json.dumps(doc), encoding="utf-8")
+    assert _gate(tmp_path, a, c) == 1
+
+
+def test_the_summary_prints_both_reports_settings(tmp_path: Path, capsys) -> None:
+    a = _framed(tmp_path / "a.json", _GAMES)
+    doc = json.loads(a.read_text(encoding="utf-8"))
+    doc |= {"workers": 2, "games_per_jvm": 2, "jvm_options": ["-Xfoo"]}
+    a.write_text(json.dumps(doc), encoding="utf-8")
+    assert _gate(tmp_path, a, a) == 0
+    out = capsys.readouterr().out
+    assert "settings A: workers 2, games_per_jvm 2, jvm_options ['-Xfoo']" in out
+    assert "settings B:" in out

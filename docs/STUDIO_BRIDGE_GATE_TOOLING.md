@@ -45,3 +45,16 @@ Normalization, the complete list:
 
 Everything else, including the order of every other list (battlefield, hand, stack, legal
 options), life totals and opponents' hand contents, is in the digest.
+
+## Known blind spots
+
+- Text the shared transcript normalization removes is not in the digest: `object_id='…'`
+  attributes in prompt markup and bracketed short hex ids (`Name [3a4]`). A difference confined
+  to them is invisible to both the hash and the frame digest.
+- Values of `option_id`, `decision_id` and the two state references are mapped to placeholders
+  only when they are 64-hex hashes (state references with their `public-view:` / `actor-view:`
+  prefix); the hashes themselves are not compared across runs.
+- `bridge_jar_sha256` is taken after the games have run, so a jar replaced during a run would
+  be recorded as the new one.
+- `compare` prints both reports' execution settings (workers, `games_per_jvm`, JVM options);
+  it does not require them to be equal, because the gate compares an unbatched arm on purpose.

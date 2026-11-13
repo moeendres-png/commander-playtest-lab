@@ -201,3 +201,88 @@ def test_the_semantic_transcript_hash_is_unchanged() -> None:
         XmageFullGameRunner._sha256(semantic)
         == "6e16673fccad6e59bf9b1aeeefc29d4fcb1289e4a2ed599056221b7d4fe84b02"
     )
+
+
+# --- review findings -------------------------------------------------------------------------
+
+
+def test_a_non_hash_value_in_a_derived_id_key_is_digested_as_text() -> None:
+    base = _digest(_frame(_UUIDS))
+    for key in ("decision_id", "public_state_reference", "private_actor_state_reference"):
+        frame = _frame(_UUIDS)
+        frame[key] = "Lightning Bolt"
+        smuggled = _digest(frame)
+        assert smuggled != base, key
+        frame[key] = "Counterspell"
+        assert _digest(frame) != smuggled, key
+    frame = _frame(_UUIDS)
+    frame["legal_options"][0]["option_id"] = "Lightning Bolt"  # type: ignore[index]
+    assert _digest(frame) != base
+
+
+def test_hash_shaped_values_still_become_placeholders() -> None:
+    frame = _frame(_UUIDS)
+    frame["private_actor_state_reference"] = "actor-view:" + "c" * 64
+    norm = normalize_frame(frame)
+    assert str(norm["decision_id"]).startswith("id#")
+    assert str(norm["private_actor_state_reference"]).startswith("actor-view:id#")
+
+
+def test_transport_fields_of_another_type_stay_in_the_digest() -> None:
+    base = _digest(_frame(_UUIDS))
+    for key, odd in (
+        ("timeout_millis", "Lightning Bolt"),
+        ("protocol_version", 7),
+        ("protocol_identity", {"x": 1}),
+        ("timeout_millis", True),
+    ):
+        frame = _frame(_UUIDS)
+        frame[key] = odd
+        assert _digest(frame) != base, (key, odd)
+    frame = _frame(_UUIDS)
+    frame["timeout_millis"] = 1.5
+    assert _digest(frame) == base
+
+
+def test_commander_status_order_is_stable_under_any_uuid_assignment() -> None:
+    import random
+    import uuid
+
+    rng = random.Random(7)
+    digests = set()
+    for _ in range(50):
+        ids = [str(uuid.UUID(int=rng.getrandbits(128), version=4)) for _ in range(4)]
+        frame = _frame(ids)
+        status = frame["pilot_state"]["commander_status"]  # type: ignore[index]
+        # entries that differ only in which UUID they carry, listed in UUID order
+        extra = [
+            {
+                "owner_id": ids[2],
+                "name": "C",
+                "commander_damage_to_player": [{"player_id": ids[1]}],
+            },
+            {
+                "owner_id": ids[3],
+                "name": "C",
+                "commander_damage_to_player": [{"player_id": ids[1]}],
+            },
+        ]
+        status.extend(sorted(extra, key=lambda entry: str(entry["owner_id"])))
+        # a UUID that precedes the entry's differing content must not decide the order
+        fresh = [str(uuid.UUID(int=rng.getrandbits(128), version=4)) for _ in range(2)]
+        pair = [
+            {
+                "owner_id": "op-1",
+                "name": "X",
+                "commander_damage_to_player": [{"player_id": fresh[0]}],
+            },
+            {
+                "owner_id": "op-2",
+                "name": "Y",
+                "commander_damage_to_player": [{"player_id": fresh[1]}],
+            },
+        ]
+        rng.shuffle(pair)
+        status.extend(pair)
+        digests.add(_digest(frame))
+    assert len(digests) == 1
