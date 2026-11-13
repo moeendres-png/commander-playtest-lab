@@ -202,6 +202,24 @@ def _archidekt_deck(raw: Mapping[str, object], path: Path) -> _Deck:
 _PARSERS = {"edhrec": _edhrec_deck, "archidekt": _archidekt_deck}
 
 
+def detect_format(folder: str | Path) -> str:
+    """``edhrec`` or ``archidekt``, read from the first deck file of ``folder``.
+
+    An EDHREC export names its ``urlhash`` or ``variante``; an Archidekt export its
+    ``summe_gesamt``, ``summe_hauptdeck`` or ``updated_at``. Anything else is refused."""
+    files = sorted(Path(folder).glob("*.json"))
+    if not files:
+        raise ValueError(f"no deck files found in {folder}")
+    raw = _read_json(files[0])
+    if "urlhash" in raw or "variante" in raw:
+        return "edhrec"
+    if {"summe_gesamt", "summe_hauptdeck", "updated_at"} & set(raw):
+        return "archidekt"
+    raise ValueError(
+        f"{files[0].name}: the deck list format is not clear; run import-decklists with --format"
+    )
+
+
 def import_decklists(
     store: StudioStore, folder: str | Path, *, format: str, commander: str | None = None
 ) -> dict[str, object]:

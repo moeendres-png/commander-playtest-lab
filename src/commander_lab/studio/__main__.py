@@ -138,6 +138,24 @@ def _parser() -> argparse.ArgumentParser:
         "import-rulings", help="card rulings (JSON lines); replaces the stored rulings"
     )
     rulings_cmd.add_argument("paths", nargs="+")
+    all_cmd = commands.add_parser(
+        "import-all",
+        help="every data layer of one commander in one run, then the completeness report",
+    )
+    all_cmd.add_argument("--collection", required=True, help="inventory workbook (.xlsx)")
+    all_cmd.add_argument("--scryfall", required=True, help="Scryfall oracle bulk (.jsonl.gz)")
+    all_cmd.add_argument(
+        "--research", required=True, help="research folder (read with its direct subfolders)"
+    )
+    all_cmd.add_argument(
+        "--decklists",
+        action="append",
+        default=[],
+        help="folder of public deck lists (EDHREC or Archidekt JSON); repeatable",
+    )
+    all_cmd.add_argument("--playgroup-atlas", help="Playgroup card atlas file (optional)")
+    all_cmd.add_argument("--disambiguation", help="CSV name,selected_oracle_id (optional)")
+    all_cmd.add_argument("--commander", required=True, help="commander the data is collected for")
     commands.add_parser(
         "relink-corpus",
         help="link source-deck cards to oracle ids by name and rebuild deck statistics",
@@ -427,6 +445,45 @@ def _play_batch(args: argparse.Namespace) -> int:
         on_game=_report,
     )
     return 0 if all(item["status"] == "finished" for item in summaries) else 1
+
+
+def _import_all(args: argparse.Namespace, store: StudioStore) -> int:
+    from . import completeness
+    from .import_all import STEP_FAILED, import_all
+
+    report = import_all(
+        store,
+        commander=args.commander,
+        collection=Path(args.collection),
+        scryfall=Path(args.scryfall),
+        research=Path(args.research),
+        decklists=[Path(item) for item in args.decklists],
+        playgroup_atlas=Path(args.playgroup_atlas) if args.playgroup_atlas else None,
+        disambiguation=Path(args.disambiguation) if args.disambiguation else None,
+    )
+    folder = store.path.parent if store.path is not None else None
+    written = completeness.write_report(folder, report) if folder is not None else None
+    print(completeness.format_table(report))
+    steps = report["steps"]
+    step_list = steps if isinstance(steps, list) else []
+    print("\nSchritte:")
+    for step in step_list:
+        detail = f" ({step['message']})" if step["message"] else ""
+        print(f"  {step['status']:<16} {step['step']}{detail}")
+    unused = report["unused_files"]
+    if isinstance(unused, list) and unused:
+        print("\nDateien ohne Abnehmer:")
+        for group in unused:
+            print(f"  {group['count']:>3} x {group['reason']}")
+    for warning in report["warnings"] if isinstance(report["warnings"], list) else []:
+        print(f"Warnung: {warning}", file=sys.stderr)
+    if written is not None:
+        print(f"\nBericht: {written}")
+    if report["stopped_at"]:
+        print(f"Abgebrochen: {report['stopped_at']}", file=sys.stderr)
+        return 1
+    failed = [s for s in step_list if s["status"] == STEP_FAILED]
+    return 2 if failed else 0
 
 
 def _serve(data: str | None, port: int, open_browser: bool) -> int:
@@ -745,6 +802,8 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     store = StudioStore.open(args.data)
     try:
+        if args.command == "import-all":
+            return _import_all(args, store)
         result: object
         if args.command in _SOURCE_DATA_COMMANDS:
             # Source data is always bound to one commander: every row this import writes

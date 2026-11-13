@@ -21,6 +21,7 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from . import (
     builder,
     card_outcomes,
+    completeness,
     data_report,
     games,
     launch,
@@ -237,6 +238,19 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return data_report.data_report(store)
         finally:
             store.close()
+
+    @app.get("/api/import-report")
+    def import_report() -> dict[str, object]:
+        """The completeness report the last ``import-all`` wrote (read only)."""
+        store = open_store()
+        try:
+            folder = store.path.parent if store.path is not None else None
+            report = completeness.read_report(folder) if folder is not None else None
+        finally:
+            store.close()
+        if report is None:
+            raise HTTPException(404, "no import report yet: run import-all")
+        return report
 
     @app.get("/api/pool")
     def pool(

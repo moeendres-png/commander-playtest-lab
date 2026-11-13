@@ -525,6 +525,18 @@ def find_commander_file(
     return _parts(root, default) if default is not None else []
 
 
+def has_signal_files(root: Path, commander: str) -> bool:
+    """Whether ``root`` holds at least one file ``import_signals`` reads for ``commander``."""
+    fixed = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, SALT_FILE]
+    fixed += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
+    if any(_parts(root, base) for base in fixed):
+        return True
+    return bool(
+        find_commander_file(root, commander, "topdeck_{}_decks", None, TOURNAMENT_FILE)
+        or find_commander_file(root, commander, "edhrec_{}_combos", None, None)
+    )
+
+
 def import_signals(
     store: StudioStore,
     folder: str | Path,
