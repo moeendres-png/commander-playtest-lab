@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
@@ -190,6 +190,7 @@ def compute(
     settings: StrengthSettings,
     *,
     dangling_universe_ok: bool = False,
+    notices: Sequence[str] = (),
 ) -> StrengthResult:
     """Index and tier for every legal pool card of ``commander``.
 
@@ -207,7 +208,7 @@ def compute(
     claims = _claim_index(store, ids)
     ambiguous: dict[tuple[str, str], list[str]] = {}
 
-    notices: list[str] = []
+    notices = list(notices)
     universe_missing: str | None = None
     summary: ProfileSummary | None = None
     if settings.universe_profile:
@@ -326,6 +327,7 @@ class ProfileEntry(TypedDict):
     valid: bool
     reason: str | None
     universe_missing: str | None
+    ignored_keys: list[str]
 
 
 def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
@@ -335,7 +337,7 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
     universe profile a valid entry still points to although it was deleted."""
     name, created = str(row["name"]), str(row["created_at"])
     try:
-        settings = StrengthSettings.from_dict(_as_mapping(json.loads(str(row["spec"]))))
+        settings, ignored = StrengthSettings.from_stored(_as_mapping(json.loads(str(row["spec"]))))
     except (ValueError, TypeError) as error:  # json.JSONDecodeError is a ValueError
         return {
             "name": name,
@@ -344,6 +346,7 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
             "valid": False,
             "reason": str(error),
             "universe_missing": None,
+            "ignored_keys": [],
         }
     missing: str | None = None
     if settings.universe_profile:
@@ -358,7 +361,20 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
         "valid": True,
         "reason": None,
         "universe_missing": missing,
+        "ignored_keys": ignored,
     }
+
+
+def profile_notices(store: StudioStore, name: str) -> list[str]:
+    """Notices for computing with a stored profile: keys of the profile this version does not
+    know are ignored, not an error."""
+    ignored = get_profile(store, name)["ignored_keys"]
+    if not ignored:
+        return []
+    return [
+        f"Die Einstellung „{name}“ enthält unbekannte Schlüssel, sie werden ignoriert: "
+        + ", ".join(ignored)
+    ]
 
 
 def get_profile(store: StudioStore, name: str) -> ProfileEntry:
@@ -629,6 +645,7 @@ __all__ = [
     "get_profile",
     "list_profiles",
     "presets",
+    "profile_notices",
     "resolve_settings",
     "save_profile",
     "signal_coverage",

@@ -345,6 +345,15 @@ class StrengthSettings:
         }
 
     @classmethod
+    def from_stored(cls, raw: Mapping[str, object]) -> tuple[StrengthSettings, list[str]]:
+        """Settings of a STORED profile: top-level keys this version does not know (a profile
+        written by another version) are ignored and returned, sorted; invalid VALUES still
+        raise ValueError."""
+        unknown = sorted(set(raw) - _SETTINGS_KEYS)
+        known = {key: value for key, value in raw.items() if key in _SETTINGS_KEYS}
+        return cls.from_dict(known), unknown
+
+    @classmethod
     def from_dict(cls, raw: Mapping[str, object]) -> StrengthSettings:
         """Settings from a plain mapping; absent keys take the default, unknown keys fail."""
         unknown = set(raw) - _SETTINGS_KEYS

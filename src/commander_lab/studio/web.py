@@ -344,6 +344,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                     # a saved profile may point to a universe deleted since: fall back
                     # visibly instead of failing; explicit settings must name a real one
                     dangling_universe_ok=body.profile is not None,
+                    notices=(
+                        strength_view.profile_notices(store, body.profile)
+                        if body.profile is not None
+                        else ()
+                    ),
                 )
             )
         except ValueError as error:

@@ -1466,3 +1466,56 @@ def test_the_result_notes_name_a_weight_without_data(store: StudioStore, tmp_pat
     assert "Simulation: keine Daten, Gewicht ohne Wirkung" in result["notices"]
     default = strength_view.compute(store, COMMANDER, StrengthSettings())
     assert not any("Gewicht ohne Wirkung" in text for text in default["notices"])
+
+
+def test_a_stored_profile_with_unknown_keys_is_accepted_and_names_them(
+    client: TestClient, tmp_path: Path
+) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        for name, spec in (
+            ("neuer", '{"bracket": "cedh", "zukunft": 1, "weights": {"synergy": 2}}'),
+            ("neuer-kaputt", '{"zukunft": 1, "bracket": "bracket 9"}'),
+        ):
+            store.connection.execute(
+                "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+                (name, spec),
+            )
+        store.connection.commit()
+    finally:
+        store.close()
+    listed = {item["name"]: item for item in client.get("/api/strength/profiles").json()}
+    assert listed["neuer"]["valid"] is True and listed["neuer"]["reason"] is None
+    assert listed["neuer"]["ignored_keys"] == ["zukunft"]
+    assert listed["neuer"]["settings"]["bracket"] == "cedh"
+    assert "zukunft" not in listed["neuer"]["settings"]
+    # invalid VALUES stay invalid, with or without extra keys
+    assert (
+        listed["neuer-kaputt"]["valid"] is False and "bracket" in listed["neuer-kaputt"]["reason"]
+    )
+    used = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": "neuer"}, headers=HEADER
+    )
+    assert used.status_code == 200
+    body = used.json()
+    assert body["settings"]["bracket"] == "cedh" and body["settings"]["weights"]["synergy"] == 2
+    assert any("zukunft" in text and "ignoriert" in text for text in body["notices"])
+    # explicit settings with an unknown key are still refused
+    explicit = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "settings": {"zukunft": 1}},
+        headers=HEADER,
+    )
+    assert explicit.status_code == 422
+    plain = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": "neuer-kaputt"}, headers=HEADER
+    )
+    assert plain.status_code == 422
+
+
+def test_the_page_names_a_pool_fallback_instead_of_a_null_group_size() -> None:
+    from commander_lab.studio.web import STATIC
+
+    script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert "c.group_fallback ?" in script
+    assert "Rang im ganzen Pool (Gruppe zu klein)" in script
