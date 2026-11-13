@@ -14,10 +14,10 @@ from collections.abc import Iterator
 from pathlib import Path
 
 import pytest
-from tests.unit.test_studio_builder import _fill
 
 from commander_lab.studio import StudioStore, builder, signals, strength, strength_view
 from commander_lab.studio.strength import Observation, StrengthSettings
+from tests.unit.test_studio_builder import _fill
 
 COMMANDER = "Test Commander"
 
