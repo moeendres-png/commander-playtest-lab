@@ -98,9 +98,9 @@ final class XmageAuditEventLog {
     }
 
     static String stateHash(JsonObject state) {
-        JsonObject normalized = state.deepCopy();
-        normalized.remove("event_sequence");
-        return sha256(normalized.toString());
+        // Same bytes as deepCopy + remove("event_sequence") + toString(), streamed:
+        // callers pass a state they built on their own thread (no concurrent writer).
+        return XmageJsonStreams.sha256WithoutTopLevelKey(state, "event_sequence");
     }
 
     private static void addNullableString(JsonObject object, String property, String value) {
