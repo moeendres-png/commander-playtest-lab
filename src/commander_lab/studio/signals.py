@@ -298,7 +298,7 @@ def _spellbook_rows(row: dict[str, str], card: str) -> list[_Row]:
     ]
 
 
-def _read_edhtop16(paths: list[Path], report: FileReport) -> list[_Row]:
+def _read_edhtop16(paths: list[Path], report: FileReport, commanders: _Commanders) -> list[_Row]:
     """EDHTop16 play rates per commander and card (ONE_YEAR window).
 
     Only rows the fetch attributed to the commander (``fetch_status``
@@ -336,7 +336,7 @@ def _read_edhtop16(paths: list[Path], report: FileReport) -> list[_Row]:
         entries = _count(row.get("entries_n"))
         if entries == 0:
             entries = None
-        item: _Row = (commander, SIGNAL_EDHTOP16, card, rate, None, entries)
+        item: _Row = (commanders.resolve(commander), SIGNAL_EDHTOP16, card, rate, None, entries)
         pairs.append(((item[0], item[1], item[2]), item))
     return list(_first_wins(iter(pairs), report).values())
 
@@ -490,7 +490,7 @@ def _read_file(
         required = {"card_name", "fetch_status", "variant_count"}
         return _read_independent(paths, required, _spellbook_rows, report)
     if file_name == EDHTOP16_FILE:
-        return _read_edhtop16(paths, report)
+        return _read_edhtop16(paths, report, commanders)
     raise ValueError(f"not a per-file signal: {file_name}")
 
 
