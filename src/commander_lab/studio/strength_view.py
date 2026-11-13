@@ -28,7 +28,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
-from . import signals, strength, universe
+from . import signals, strength, universe, universe_choice, universe_view
 from .builder import pool_cards
 from .store import StudioStore, now_utc
 from .strength import (
@@ -46,6 +46,7 @@ from .strength import (
     StrengthSettings,
 )
 from .tiers import TierParams
+from .universe_choice import UniverseChoice
 from .universe_view import ProfileSummary, name_claims, pool_spread, profile_summary
 
 MAX_NAME = 80
@@ -76,6 +77,7 @@ class StrengthResult(TypedDict):
     commander: str
     settings: dict[str, object]
     universe: ProfileSummary | None
+    universe_choice: UniverseChoice
     universe_missing: str | None
     notices: list[str]
     collected: list[str]
@@ -163,6 +165,9 @@ def expected_signals() -> list[str]:
         strength.signal_for(COMBOS, strength.BRACKET_NONE),
         strength.signal_for(TOURNAMENT_LISTS, strength.BRACKET_NONE),
         signals.SIGNAL_EDHTOP16,
+        # One generic row: the counted universes are named by the file (source, bracket); the
+        # stored ones are listed under their own names, this row stays while none exists.
+        signals.SIGNAL_DECKLIST,
         signals.SIGNAL_PLAYGROUP,
     ]
 
@@ -182,8 +187,15 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
     db = store.connection
     result: dict[str, SignalCoverage] = {}
     stored = [str(row[0]) for row in db.execute("SELECT DISTINCT signal FROM card_signal")]
+    counted_signals = {
+        item["signal"]: item for item in universe_choice.counted_universes(store, commander)
+    }
     names = expected_signals()
+    if counted_signals:
+        names.remove(signals.SIGNAL_DECKLIST)
     for signal in sorted(set(stored) - set(names)):
+        if signal.startswith(f"{signals.SIGNAL_DECKLIST}:") and signal not in counted_signals:
+            continue  # a counted universe of another commander
         names.append(signal)
     for signal in names:
         owner = "" if signal in _INDEPENDENT else commander
@@ -192,15 +204,75 @@ def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCover
             "WHERE commander_name = ? AND signal = ?",
             (owner, signal),
         ).fetchone()
-        observed, _exists = _signal_observations(store, commander, signal, claims, display, {})
+        if signal in counted_signals:
+            # A complete count: a pool card without a row is a counted zero, so every pool card
+            # (but the ones whose name is ambiguous) has a value.
+            full = counted_observations(
+                store, commander, counted_signals[signal], claims, display, {}
+            )
+            valued = len(full)
+        else:
+            observed, _exists = _signal_observations(store, commander, signal, claims, display, {})
+            valued = sum(1 for item in observed.values() if item.value is not None)
         result[signal] = {
             "scope": "independent" if signal in _INDEPENDENT else "commander",
             "rows": int(counted[0]),
             "rows_with_value": int(counted[1]),
-            "pool_cards_with_value": sum(1 for item in observed.values() if item.value is not None),
+            "pool_cards_with_value": valued,
             "pool_size": len(ids),
         }
     return result
+
+
+def counted_observations(
+    store: StudioStore,
+    commander: str,
+    universe: universe_choice.CountedUniverse,
+    claims: _Claims,
+    display: Mapping[str, str],
+    ambiguous: dict[tuple[str, str], list[str]],
+) -> dict[str, Observation]:
+    """One observation per pool card from a counted deck-list universe of ``commander``.
+
+    The universe holds complete deck lists that were counted, so a pool card without a row is
+    in none of its decks: a counted zero (0 of N), not an unknown. Names are matched like every
+    signal (exact oracle name, engine name, then the FRONT face only; the back half of a
+    two-part name is never a spelling of the card). A card that an ambiguous name could belong
+    to, or whose front face is withheld because another card has that name, stays unknown: the
+    row may be its own."""
+    taken: dict[tuple[str, str], list[str]] = {}
+    observed, _exists = _signal_observations(
+        store, commander, universe["signal"], claims, display, taken
+    )
+    ambiguous.update(taken)
+    by_name = {name: card_id for card_id, name in display.items()}
+    unsure = {by_name[name] for names in taken.values() for name in names if name in by_name}
+    unsure |= universe_view.front_face_withheld(store, list(display))  # same as the local path
+    total = universe["denominator"]
+    result: dict[str, Observation] = {}
+    for card_id in display:
+        item = observed.get(card_id)
+        if item is not None and item.numerator is not None:
+            result[card_id] = Observation(item.value, item.numerator, item.denominator)
+        elif card_id not in unsure:
+            result[card_id] = Observation(0.0, 0, total)
+    return result
+
+
+def builder_counted_universe(
+    store: StudioStore, commander: str, card_ids: list[str], display: Mapping[str, str]
+) -> tuple[UniverseChoice, dict[str, Observation]] | None:
+    """For the builder: the counted universe the automatic choice takes (the same
+    ``universe_choice.choose`` as the index, default settings) and the counts of the given
+    cards in it. ``None`` when the choice is not a counted universe."""
+    choice = universe_choice.choose(store, commander, StrengthSettings(), None)
+    if choice["kind"] != universe_choice.KIND_COUNTED:
+        return None
+    for item in universe_choice.counted_universes(store, commander):
+        if item["value"] == choice["counted"]:
+            claims = _claim_index(store, card_ids)
+            return choice, counted_observations(store, commander, item, claims, display, {})
+    return None
 
 
 class SignalValue(TypedDict):
@@ -243,6 +315,26 @@ def _float(value: object) -> float | None:
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
 
+def _fill_spread(
+    per_card: dict[str, dict[str, Observation]],
+    filter_cards: set[str],
+    cards: Sequence[universe_view.CardSpread],
+) -> None:
+    """Deck-universe observations from the counted spread of local decks. Every deck list is
+    complete, so a card that no deck names is a counted zero (0 of N) like in a counted
+    universe, except when its name is ambiguous (a withheld front face): that stays unknown."""
+    for item in cards:
+        card_id = item["card_id"]
+        if item["filter_card"]:
+            filter_cards.add(card_id)
+        elif item["hits"] is not None:
+            per_card[card_id][DECK_UNIVERSE] = Observation(
+                item["hits"] / item["denominator"], item["hits"], item["denominator"]
+            )
+        elif item["denominator"] > 0 and not item.get("ambiguous_front_face"):
+            per_card[card_id][DECK_UNIVERSE] = Observation(0.0, 0, item["denominator"])
+
+
 def compute(
     store: StudioStore,
     commander: str,
@@ -270,7 +362,8 @@ def compute(
     notices = list(notices)
     universe_missing: str | None = None
     summary: ProfileSummary | None = None
-    if settings.universe_profile:
+    kind, _source, _bracket = strength.parse_universe_source(settings.universe_source) or ("",) * 3
+    if settings.universe_profile and kind in (strength.UNIVERSE_AUTO, strength.UNIVERSE_PROFILE):
         try:
             summary = profile_summary(store, settings.universe_profile, commander_names=[commander])
         except KeyError:
@@ -280,8 +373,12 @@ def compute(
             settings = replace(settings, universe_profile=None)
             notices.append(
                 f"Das Universum „{universe_missing}“ dieser Einstellung gibt es nicht mehr: "
-                "die Rechnung läuft mit „kein Universum“."
+                "die Rechnung läuft ohne dieses Universum (kein Universum, oder bei "
+                "„automatisch“ die automatische Wahl)."
             )
+    choice = universe_choice.choose(store, commander, settings, summary)
+    if choice["kind"] == universe_choice.KIND_NONE and kind == strength.UNIVERSE_COUNTED:
+        notices.append(f"Kein Decklisten-Universum: {choice['reason']}.")
 
     per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
     collected: set[str] = set()
@@ -306,19 +403,28 @@ def compute(
             per_card[card_id][component] = observation
 
     filter_cards: set[str] = set()
-    universe_minimum = 0
-    if summary is not None:
+    universe_minimum = TierParams().min_universe
+    if choice["kind"] == universe_choice.KIND_PROFILE and summary is not None:
         universe_minimum = summary["min_universe"]
         if summary["denominator"] > 0:
             collected.add(DECK_UNIVERSE)
             spread = pool_spread(store, summary["profile"], ids, commander_names=[commander])
-            for item in spread["cards"]:
-                if item["filter_card"]:
-                    filter_cards.add(item["card_id"])
-                elif item["hits"] is not None:
-                    per_card[item["card_id"]][DECK_UNIVERSE] = Observation(
-                        item["hits"] / item["denominator"], item["hits"], item["denominator"]
-                    )
+            _fill_spread(per_card, filter_cards, spread["cards"])
+    elif choice["kind"] == universe_choice.KIND_LOCAL:
+        local_total, _snapshot, local_cards = universe_view.spread_for_spec(
+            store, universe_choice.local_spec(store, commander), ids, commander_names=[commander]
+        )
+        if local_total > 0:
+            collected.add(DECK_UNIVERSE)
+            _fill_spread(per_card, filter_cards, local_cards)
+    elif choice["kind"] == universe_choice.KIND_COUNTED:
+        for item in universe_choice.counted_universes(store, commander):
+            if item["value"] == choice["counted"]:
+                collected.add(DECK_UNIVERSE)
+                for card_id, observation in counted_observations(
+                    store, commander, item, claims, display, ambiguous
+                ).items():
+                    per_card[card_id][DECK_UNIVERSE] = observation
 
     type_group: dict[str, str] = {}
     bands: dict[str, str] = {}
@@ -347,7 +453,8 @@ def compute(
         "meaning": strength.MEANING,
         "commander": commander,
         "settings": settings.to_dict(),
-        "universe": summary,
+        "universe": summary if choice["kind"] == universe_choice.KIND_PROFILE else None,
+        "universe_choice": choice,
         "universe_missing": universe_missing,
         "notices": notices,
         "collected": sorted(collected),
@@ -520,6 +627,15 @@ def _panel_texts() -> dict[str, object]:
         "Simulationsergebnisse zählen nicht in die Tierliste und werden dafür vorerst weder "
         "eingeholt noch verarbeitet. Das Gewicht bleibt als Option bestehen und steht auf 0."
     )
+    helps[f"weights.{strength.PLAYGROUP_OBSERVED}"] = (
+        "Beobachteter Unterschied der Siegrate, wenn die Karte gewirkt wurde (Playgroup-Live-"
+        f"Partien, alle Commander). Zählt erst ab {strength.OBSERVED_MIN_SAMPLE} Partien mit "
+        "der Karte und wird bei kleinen Stichproben zur Null hin gedämpft. Gilt für jeden "
+        "Commander und reicht für eine Stufe allein nicht. 0 schaltet das Signal ab."
+    )
+    helps[f"weights.{strength.DECK_UNIVERSE}"] = (
+        "Wie stark die Verbreitung in gezählten Decklisten zählt. 0 schaltet sie ab."
+    )
     labels["bracket"] = (
         "Bracket-Signal (empfohlen: upgraded, passend zum Bracket 3; bei Turnierausrichtung cedh)"
     )
@@ -580,13 +696,33 @@ def _panel_texts() -> dict[str, object]:
         "aus: der Commander und die Standardländer bekommen keine Stufe "
         "(„nicht bewertet“) und nehmen keinen Rang weg."
     )
+    labels["universe_source"] = "Decklisten-Universum (empfohlen: automatisch)"
+    helps["universe_source"] = (
+        "Woher die Zählung „Decklisten-Universum“ kommt. Automatisch: ein oben gewähltes "
+        "gespeichertes Universum, sonst alle lokalen Decklisten des Commanders ab dem "
+        "Mindest-Universum, sonst gezählte Decklisten aus dem Repo passend zum Bracket-Signal "
+        "(bei keinem passenden das größte), sonst keines. Gezählte Decklisten sind "
+        "vollständige Listen, die dieser Commander in jedem Deck hat; eine Karte ohne Zeile "
+        "steht in keinem Deck und zählt als gezählte Null (0 von N), nicht als unbekannt. Es "
+        "wird nie ein zweites Universum dazugerechnet."
+    )
+    labels["require_commander_signal"] = (
+        f"Stufe nur mit Signal speziell für diesen Commander "
+        f"(empfohlen: {'an' if rec.require_commander_signal else 'aus'})"
+    )
+    helps["require_commander_signal"] = (
+        "an: eine Karte bekommt nur dann eine Stufe, wenn mindestens ein Signal speziell für "
+        "diesen Commander einen Rang hat (Aufnahme beim Commander, im Bracket, Decklisten-"
+        "Universum, Synergie, Turnierlisten). „Aufnahme überhaupt“, Kombos und die Playgroup-"
+        "Beobachtung gelten für jeden Commander und reichen allein nicht: die Karte bleibt "
+        "„zu wenig Daten“."
+    )
     labels["min_coverage"] = (
-        f"Mindestabdeckung in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
+        f"Mindest-Datenlage in % (empfohlen: {_number_text(round(rec.min_coverage * 100, 1))})"
     )
     helps["min_coverage"] = (
-        "Anteil des Gewichts, der vorhanden sein muss, sonst „zu wenig Daten“. Bei 0 kann eine "
-        "nicht gelistete Karte (nur ihre anderen Signale zählen) eine Karte überholen, die "
-        "eine Quelle bei 1 von 755 Decks nennt."
+        "Anteil des Gewichts der Signale, die zu dieser Karte einen Wert haben. Darunter steht "
+        "„zu wenig Daten“. Das ist keine Schwelle für den Anteil in Decks."
     )
     labels["min_components"] = f"Mindestzahl Signale (empfohlen: {rec.min_components})"
     helps["min_components"] = "Wie viele gewichtete Signale mindestens vorhanden sein müssen."
@@ -612,8 +748,12 @@ def _panel_texts() -> dict[str, object]:
             "title": "Fehlender Wert",
             "keys": [f"missing_value.{key}" for key in strength.MISSING_CAPABLE],
         },
+        {"title": "Decklisten-Universum", "keys": ["universe_source"]},
         {"title": "Commander und Standardländer", "keys": ["rank_commander_and_basics"]},
-        {"title": "Mindestdaten für eine Stufe", "keys": ["min_coverage", "min_components"]},
+        {
+            "title": "Mindestdaten für eine Stufe",
+            "keys": ["min_coverage", "min_components", "require_commander_signal"],
+        },
         {
             "title": (
                 "Tier-Grenzen (empfohlen: "
@@ -632,9 +772,26 @@ def _panel_texts() -> dict[str, object]:
             "rank_group": _choices(_GROUP_CHOICES, rec.rank_group),
             "share_measure": _choices(_MEASURE_CHOICES, rec.share_measure),
             "missing_value": _choices(_MISSING_CHOICES, strength.MISSING_SKIP),
+            "universe_source": [
+                {
+                    "value": strength.UNIVERSE_AUTO,
+                    "label": "Automatisch (empfohlen)",
+                    "recommended": True,
+                },
+                {
+                    "value": strength.UNIVERSE_PROFILE,
+                    "label": "Nur das oben gewählte Universum, sonst keines",
+                    "recommended": False,
+                },
+                {"value": strength.UNIVERSE_NONE, "label": "keines", "recommended": False},
+            ],
             "rank_commander_and_basics": [
                 {"value": False, "label": "aus (empfohlen)", "recommended": True},
                 {"value": True, "label": "an", "recommended": False},
+            ],
+            "require_commander_signal": [
+                {"value": True, "label": "an (empfohlen)", "recommended": True},
+                {"value": False, "label": "aus", "recommended": False},
             ],
         },
         "universe_minimum": universe_minimum,

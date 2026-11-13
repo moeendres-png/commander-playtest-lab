@@ -86,6 +86,9 @@ NOT_COLLECTED = "NOT_COLLECTED"
 FILTER_CARD = "FILTER_CARD"
 NOT_RANKED = "NOT_RANKED"
 MISSING_AS_LOWEST = "MISSING_AS_LOWEST"
+# A counted zero: the card is in none of the decks of a completely counted universe. It is a
+# finding (0 of N decks), ranked like any other count, and labelled as counted.
+ZERO_COUNT = "ZERO_COUNT"
 
 # Reasons of a component row (empty when the row needs none).
 BELOW_MIN_DENOMINATOR = "BELOW_MIN_DENOMINATOR"
@@ -94,6 +97,7 @@ VALUE_UNKNOWN = "VALUE_UNKNOWN"
 GROUP_TOO_SMALL = "GROUP_TOO_SMALL"
 NOT_RANKED_COMMANDER = "NOT_RANKED_COMMANDER"
 NOT_RANKED_BASIC_LAND = "NOT_RANKED_BASIC_LAND"
+NO_COMMANDER_SIGNAL = "NO_COMMANDER_SIGNAL"
 
 TIER_UNKNOWN = "U"
 TIER_NOT_RANKED = "N"
@@ -117,6 +121,17 @@ MIN_EDHREC = "edhrec"
 MIN_TOURNAMENT = "tournament"
 MIN_DENOMINATOR_KEYS = (MIN_EDHREC, MIN_TOURNAMENT)
 MAX_MIN_DENOMINATOR = 100000
+
+# Where the deck-universe component takes its counts from (setting ``universe_source``): "auto"
+# (recommended) chooses (see ``universe_choice``), "profile" is the stored profile of
+# ``universe_profile`` and no universe without one,
+# "counted:<source>:<bracket>" one imported counted deck-list universe, "none" switches the
+# component off.
+UNIVERSE_AUTO = "auto"
+UNIVERSE_PROFILE = "profile"
+UNIVERSE_NONE = "none"
+UNIVERSE_COUNTED = "counted"
+DEFAULT_UNIVERSE_SOURCE = UNIVERSE_AUTO
 # Mana value bands of the comparison group "gleiches Manawert-Band"; lands are their own band.
 MANA_BANDS = ("0-1", "2", "3", "4", "5+")
 BAND_LAND = "Land"
@@ -173,6 +188,17 @@ OBSERVED_SHRINKAGE = 25
 # Sources that list the commander's cards fairly completely: only for these may an unlisted
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
+# Components that say something about THIS commander (the others, global inclusion, combos, the
+# Playgroup observation and simulation, are independent of the commander): the rule
+# "require_commander_signal" asks for
+# at least one of them with a ranked value before a card gets a tier.
+COMMANDER_SPECIFIC = (
+    COMMANDER_INCLUSION,
+    BRACKET_INCLUSION,
+    DECK_UNIVERSE,
+    SYNERGY,
+    TOURNAMENT_LISTS,
+)
 _EDHREC_SHARES = frozenset({COMMANDER_INCLUSION, BRACKET_INCLUSION, GLOBAL_INCLUSION})
 
 # The recommended values are the defaults of ``StrengthSettings`` and of these constants: one
@@ -191,7 +217,8 @@ DEFAULT_WEIGHTS: dict[str, float] = {
 DEFAULT_CUTS: dict[str, float] = {"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0}
 DEFAULT_MIN_DENOMINATORS: dict[str, int] = {MIN_EDHREC: 30, MIN_TOURNAMENT: 5}
 DEFAULT_BRACKET = "upgraded"
-DEFAULT_MIN_COVERAGE = 0.4
+DEFAULT_MIN_COVERAGE = 0.3
+DEFAULT_REQUIRE_COMMANDER_SIGNAL = True
 DEFAULT_MIN_COMPONENTS = 2
 MAX_WEIGHT = 100.0
 
@@ -208,6 +235,8 @@ _SETTINGS_KEYS = frozenset(
         "min_denominators",
         "missing_value",
         "rank_commander_and_basics",
+        "universe_source",
+        "require_commander_signal",
     }
 )
 
@@ -226,6 +255,19 @@ def signal_for(component: str, bracket: str) -> str:
         PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
         SIMULATION: "",
     }[component]
+
+
+def parse_universe_source(value: str) -> tuple[str, str, str] | None:
+    """``(kind, source, bracket)`` of a ``universe_source`` value, ``None`` when it is not one.
+
+    ``auto``, ``profile`` and ``none`` have an empty source and bracket; ``counted:<source>:
+    <bracket>`` names one counted universe (neither part may be empty or contain a colon)."""
+    if value in (UNIVERSE_AUTO, UNIVERSE_PROFILE, UNIVERSE_NONE):
+        return value, "", ""
+    parts = value.split(":")
+    if len(parts) == 3 and parts[0] == UNIVERSE_COUNTED and parts[1].strip() and parts[2].strip():
+        return UNIVERSE_COUNTED, parts[1], parts[2]
+    return None
 
 
 def mana_band(mana_value: float | None, *, is_land: bool) -> str:
@@ -275,6 +317,8 @@ class StrengthSettings:
     min_denominators: dict[str, int] = field(default_factory=lambda: dict(DEFAULT_MIN_DENOMINATORS))
     missing_value: dict[str, str] = field(default_factory=dict)
     rank_commander_and_basics: bool = False
+    universe_source: str = DEFAULT_UNIVERSE_SOURCE
+    require_commander_signal: bool = DEFAULT_REQUIRE_COMMANDER_SIGNAL
 
     def __post_init__(self) -> None:
         weights = {name: DEFAULT_WEIGHTS[name] for name in COMPONENTS}
@@ -329,6 +373,12 @@ class StrengthSettings:
                 raise ValueError(f"missing_value {name} must be skip or lowest")
         if not isinstance(self.rank_commander_and_basics, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
+        if not isinstance(self.require_commander_signal, bool):
+            raise ValueError("require_commander_signal must be true or false")
+        if parse_universe_source(self.universe_source) is None:
+            raise ValueError(
+                "universe_source must be auto, profile, none or counted:<source>:<bracket>"
+            )
         object.__setattr__(self, "weights", weights)
         object.__setattr__(self, "min_coverage", coverage)
         object.__setattr__(self, "tier_cuts", cuts)
@@ -364,6 +414,8 @@ class StrengthSettings:
             "min_denominators": dict(self.min_denominators),
             "missing_value": dict(self.missing_value),
             "rank_commander_and_basics": self.rank_commander_and_basics,
+            "universe_source": self.universe_source,
+            "require_commander_signal": self.require_commander_signal,
         }
 
     @classmethod
@@ -406,6 +458,12 @@ class StrengthSettings:
         ranked = raw.get("rank_commander_and_basics", defaults.rank_commander_and_basics)
         if not isinstance(ranked, bool):
             raise ValueError("rank_commander_and_basics must be true or false")
+        universe_source = raw.get("universe_source", defaults.universe_source)
+        if not isinstance(universe_source, str):
+            raise ValueError("universe_source must be a text")
+        require = raw.get("require_commander_signal", defaults.require_commander_signal)
+        if not isinstance(require, bool):
+            raise ValueError("require_commander_signal must be true or false")
         return cls(
             weights={
                 **DEFAULT_WEIGHTS,
@@ -430,6 +488,8 @@ class StrengthSettings:
             },
             missing_value={str(k): str(v) for k, v in _mapping(missing).items()},
             rank_commander_and_basics=ranked,
+            universe_source=universe_source,
+            require_commander_signal=require,
         )
 
 
@@ -449,21 +509,30 @@ PRESETS: dict[str, StrengthSettings] = dict(
         _preset(
             "Commander-nah",
             {
-                COMMANDER_INCLUSION: 5.0,
-                SYNERGY: 3.0,
-                BRACKET_INCLUSION: 3.0,
-                GLOBAL_INCLUSION: 0.0,
+                COMMANDER_INCLUSION: 3.0,
+                BRACKET_INCLUSION: 2.0,
+                DECK_UNIVERSE: 3.0,
+                SYNERGY: 2.0,
+                TOURNAMENT_LISTS: 1.0,
+                GLOBAL_INCLUSION: 1.0,
+                COMBOS: 0.0,
+                PLAYGROUP_OBSERVED: 0.0,
+                SIMULATION: 0.0,
             },
             DEFAULT_BRACKET,
         ),
         _preset(
             "Turniernah",
             {
-                BRACKET_INCLUSION: 4.0,
-                TOURNAMENT_LISTS: 4.0,
-                COMMANDER_INCLUSION: 2.0,
-                DECK_UNIVERSE: 1.0,
-                SYNERGY: 1.0,
+                TOURNAMENT_LISTS: 3.0,
+                BRACKET_INCLUSION: 2.0,
+                DECK_UNIVERSE: 2.0,
+                COMMANDER_INCLUSION: 1.0,
+                SYNERGY: 0.0,
+                GLOBAL_INCLUSION: 1.0,
+                COMBOS: 1.0,
+                PLAYGROUP_OBSERVED: 1.0,
+                SIMULATION: 0.0,
             },
             "cedh",
         ),
@@ -603,6 +672,7 @@ def _tier(index: float | None, settings: StrengthSettings, enough: bool) -> str:
     return "D"
 
 
+NO_COMMANDER_SIGNAL_NOTE = "kein Signal speziell für diesen Commander"
 NOT_RANKED_NOTES = {
     NOT_RANKED_COMMANDER: "nicht bewertet (Commander)",
     NOT_RANKED_BASIC_LAND: "nicht bewertet (Standardland)",
@@ -706,6 +776,12 @@ def _component_note(
         return "die Quelle nennt keinen Wert (unbekannt, nicht 0)"
     if reason == MISSING_AS_LOWEST:
         return "nicht gelistet, als niedrigster Rang gezählt (Einstellung)"
+    if reason == ZERO_COUNT:
+        denominator = observation.denominator if observation is not None else None
+        return (
+            f"gezählt: in 0 von {denominator} Decks (das Universum ist vollständig gezählt, "
+            "die Karte steht in keinem Deck; ein Befund, keine fehlende Beobachtung)"
+        )
     if reason == FILTER_CARD:
         return (
             "Filterkarte des Universums: steht per Definition in jedem Deck der Teilmenge, "
@@ -757,6 +833,7 @@ def score_pool(
         present_weight = 0.0
         weighted = 0.0
         present = 0
+        specific = False
         not_ranked = unranked.get(card)
         for component in COMPONENTS:
             if component == BRACKET_INCLUSION and settings.bracket == BRACKET_NONE:
@@ -775,6 +852,12 @@ def score_pool(
                 status, reason = FILTER_CARD, FILTER_CARD
             elif card in ranking.values:
                 status, reason = PRESENT, ""
+                if (
+                    component == DECK_UNIVERSE
+                    and observation is not None
+                    and observation.numerator == 0
+                ):
+                    status, reason = ZERO_COUNT, ZERO_COUNT
                 percentile = ranking.pool_ranks[card]
                 if settings.rank_group != GROUP_POOL:
                     found = ranking.group_ranks.get(card)
@@ -798,6 +881,13 @@ def score_pool(
                 weighted += weight * percentile
                 present += 1
             note = _component_note(reason, ranking, observation) if reason else ""
+            if (
+                percentile is not None
+                and weight > 0
+                and component in COMMANDER_SPECIFIC
+                and status in (PRESENT, ZERO_COUNT, MISSING_AS_LOWEST)
+            ):
+                specific = True
             if group_fallback:
                 note = _fallback_note(group, ranking, settings, ctx, card)
             components.append(
@@ -811,7 +901,7 @@ def score_pool(
                     "value": observation.value if observation else None,
                     "numerator": observation.numerator if observation else None,
                     "denominator": observation.denominator if observation else None,
-                    "wilson": ranking.wilson.get(card) if status == PRESENT else None,
+                    "wilson": ranking.wilson.get(card) if status in (PRESENT, ZERO_COUNT) else None,
                     "percentile": percentile,
                     "weight": weight,
                     "min_denominator": ranking.minimum,
@@ -834,12 +924,15 @@ def score_pool(
         coverage = present_weight / total_weight if total_weight > 0 else 0.0
         index = round(100.0 * weighted / present_weight, 1) if present_weight > 0 else None
         enough = coverage >= settings.min_coverage and present >= settings.min_components
+        blocked = settings.require_commander_signal and not specific
         result[card] = {
             "index": index,
             "coverage": round(coverage, 4),
-            "tier": _tier(index, settings, enough),
-            "reason": "ENOUGH_DATA" if enough else "TOO_LITTLE_DATA",
-            "note": "",
+            "tier": _tier(index, settings, enough and not blocked),
+            "reason": NO_COMMANDER_SIGNAL
+            if blocked
+            else ("ENOUGH_DATA" if enough else "TOO_LITTLE_DATA"),
+            "note": NO_COMMANDER_SIGNAL_NOTE if blocked else "",
             "present": present,
             "components": components,
         }

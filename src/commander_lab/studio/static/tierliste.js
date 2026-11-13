@@ -54,7 +54,7 @@ const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "An
 const UNIVERSE_KEY = "studio.universe.profile";
 const STRENGTH_KEY = "studio.strength.settings";
 const SORT_KEY = "studio.tier.sort";
-const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Abdeckung, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
+const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Datenlage, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
 const UNKNOWN_TIER = "zu wenig Daten";
 const BRACKET_NAMES = { core: "Core (Bracket 1–2)", upgraded: "Upgraded (Bracket 3)", optimized: "Optimized (Bracket 4)", cedh: "cEDH (Bracket 5)", none: "kein Bracket" };
 const COMPONENT_STATUS = {
@@ -64,6 +64,7 @@ const COMPONENT_STATUS = {
   FILTER_CARD: ["Filterkarte (nicht gerankt)", "dim"],
   NOT_RANKED: ["nicht bewertet", "dim"],
   MISSING_AS_LOWEST: ["nicht gelistet, als niedrigster Rang gezählt", "warn"],
+  ZERO_COUNT: ["gezählt: in keinem Deck (0 von N)", "warn"],
 };
 const STRENGTH_TIERS = ["S", "A", "B", "C", "D", "U", "N"];
 const TIER_FILTER_NAMES = { U: "zu wenig Daten", N: "nicht bewertet" };
@@ -73,7 +74,7 @@ const SMALL_FIRST = new Set(["name", "mv"]);
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
-  strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" } },
+  strength: { meta: null, settings: null, profiles: [], counted: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" } },
   deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
 };
 
@@ -385,7 +386,9 @@ function strengthBox(card) {
     h("p", {}, STRENGTH_NOTE));
   if (!item) { box.append(h("p", {}, state.view === "global" ? "Der Index wird je Commander berechnet." : "Für diese Karte liegt keine Berechnung vor.")); return box; }
   if (item.tier === "N") { box.append(h("p", {}, `${item.note}: ${item.reason === "NOT_RANKED_COMMANDER" ? "der Commander" : "ein Standardland"} bekommt keine Stufe und nimmt keinem Rang einen Platz weg. Die Einstellung „Commander und Standardländer bewerten“ ändert das.`)); }
-  else box.append(h("p", {}, `Abdeckung ${(100 * item.coverage).toFixed(0)} % (Gewicht der vorhandenen Signale an allen gewichteten). ${item.tier === "U" ? "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte." : ""}`));
+  else box.append(h("p", {}, `Datenlage ${(100 * item.coverage).toFixed(0)} % (Gewicht der Signale mit Wert an allen gewichteten). ${item.tier === "U" ? (item.reason === "NO_COMMANDER_SIGNAL" ? `Zu wenig Daten für eine Stufe: ${item.note}. „Aufnahme überhaupt“ und Kombos gelten für jeden Commander.` : "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte.") : ""}`));
+  const used = state.strength.result && state.strength.result.universe_choice;
+  if (used && used.kind !== "none") box.append(h("p", { class: "rule" }, `Decklisten-Universum: ${universeLine(used)}`));
   const universe = state.strength.result && state.strength.result.universe;
   if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
   box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status", "Hinweis"], item.components.map((c) => {
@@ -603,8 +606,12 @@ async function selectUniverse(name) {
 }
 async function universeChanged() {
   const s = state.strength;
-  if (!s.settings || (s.settings.universe_profile || "") === (state.universe.name || "")) return;
-  s.settings = { ...s.settings, universe_profile: state.universe.name || null };
+  if (!s.settings) return;
+  // Selecting a stored profile at the top means universe_source "profile"; clearing it returns
+  // that choice to the automatic one. Other sources (counted, none, auto) stay as they are.
+  const source = state.universe.name ? "profile" : s.settings.universe_source === "profile" ? "auto" : s.settings.universe_source;
+  if ((s.settings.universe_profile || "") === (state.universe.name || "") && source === s.settings.universe_source) return;
+  s.settings = { ...s.settings, universe_profile: state.universe.name || null, universe_source: source };
   rememberStrength();
   renderStrengthPanel();
   await refreshStrength();
@@ -649,6 +656,7 @@ function fieldKind(key) {
   if (key === "min_coverage") return { type: "number", min: 0, max: 100, step: 5, scale: 100 };
   if (key === "min_components") return { type: "number", min: 0, max: meta.components.length, step: 1, scale: 1 };
   if (key.startsWith("tier_cuts.")) return { type: "number", min: 0, max: 100, step: 1, scale: 1 };
+  if (key === "universe_source") return { type: "choice", choices: [...meta.panel.choices.universe_source, ...state.strength.counted.map((item) => ({ value: item.value, label: item.label, recommended: false }))] };
   const choices = key.startsWith("missing_value.") ? meta.panel.choices.missing_value : meta.panel.choices[key];
   return { type: "choice", choices };
 }
@@ -705,15 +713,24 @@ async function refreshStrength() {
   renderStrengthSummary();
   render();
 }
+// Which deck lists and which denominator the index used, and whether the choice was automatic.
+function universeLine(choice) {
+  const verb = choice.automatic ? "automatisch gewählt" : "gewählt";
+  if (choice.kind === "none") return `kein Decklisten-Universum (${choice.reason})`;
+  const what = choice.kind === "counted" ? `Verbreitung (gezählt): ${choice.short_label}` : choice.label;
+  return `${what} · Nenner ${choice.denominator} Decks · Stand ${choice.snapshot_id} · ${verb}${choice.reason ? ` (${choice.reason.replace(/^automatisch gewählt: /, "")})` : ""}`;
+}
 function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
   if (!box) return;
   if (!s.result) { box.replaceChildren(unknown("noch nicht berechnet")); return; }
   const result = s.result, counts = result.tier_counts, universe = result.universe;
-  const universeText = `Index berechnet mit: ${universe ? `Universum ${universe.profile} (${universe.denominator} Decks${universe.subset_note ? `; ${universe.subset_note}` : ""})` : "kein Decklisten-Universum"}`;
+  const choice = result.universe_choice;
+  const universeWeight = result.settings.weights.deck_universe;
+  const universeText = `Index berechnet mit: ${choice ? universeLine(choice) : "kein Decklisten-Universum"}${universe && universe.subset_note ? `; ${universe.subset_note}` : ""}${choice && choice.kind !== "none" ? (universeWeight > 0 ? `; zählt in die Stufe mit Gewicht ${universeWeight}` : "; Gewicht 0: zählt nicht in die Stufe") : ""}`;
   // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
   // bracket, no deck universe without one.
-  const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !universe)).length;
+  const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !(result.universe_choice && result.universe_choice.kind !== "none"))).length;
   const notices = (result.notices || []).map((text) => h("div", { class: "badge warn" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
@@ -793,8 +810,9 @@ function updateDeviations() {
 }
 const SETTING_GROUPS = [
   ["Gewichte", (key) => key.startsWith("weights.")],
+  ["Decklisten-Universum", (key) => key === "universe_source"],
   ["Vergleich", (key) => key === "bracket" || key === "rank_group" || key === "share_measure" || key === "rank_commander_and_basics" || key.startsWith("missing_value.")],
-  ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components"],
+  ["Mindestdaten", (key) => key.startsWith("min_denominators.") || key === "min_coverage" || key === "min_components" || key === "require_commander_signal"],
   ["Tier-Grenzen", (key) => key.startsWith("tier_cuts.")],
 ];
 const OPEN_GROUPS_KEY = "studio.strength.open-groups";
@@ -901,6 +919,7 @@ async function initStrength() {
   const s = state.strength;
   try {
     [s.meta, s.profiles] = await Promise.all([api("/api/strength/presets"), api("/api/strength/profiles")]);
+    s.counted = await api(`/api/universe/counted?commander=${encodeURIComponent(COMMANDER)}`).catch(() => []);
   } catch (error) { toast(`Stärke-Index nicht verfügbar: ${StudioUI.germanError(error)}`); return; }
   renderStrengthFilters();
   fillSortOptions();

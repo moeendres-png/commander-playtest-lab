@@ -43,6 +43,26 @@ has its own header and the parts are read one after another in number order):
   strength component applies the same minimum plus shrinkage. Rows without a
   published gap, and rows of a card the source did not deliver, are not stored.
 
+- ``<slug>_decklist_inclusion_<date>`` (also numbered parts): counted deck-list universes.
+  The columns are ``card_name, source, bracket, decks_with_card, universe_decks`` (plus
+  ``share`` and ``universe_snapshot``, which are not required: the share is recomputed). One
+  universe is one ``(source, bracket)`` pair of complete deck lists that were counted, so a
+  card without a row is a true 0 of ``universe_decks``, not unknown. The file has no commander
+  column: it belongs to the commander of the import, and that is CHECKED. In every universe
+  the commander's own card must be in every deck (``decks_with_card == universe_decks``),
+  otherwise THAT universe alone is refused for this commander (``COMMANDER_NOT_IN_EVERY_DECK``)
+  and nothing of it is stored; the other universes of the file are stored. Mixed denominators
+  inside one universe (``MIXED_DENOMINATORS``) and an invalid count (``INVALID_COUNT``: not a
+  whole number, negative, or above the denominator) refuse that universe too: dropping such a
+  row would turn it into a false zero. Each refused universe is named in the report
+  (``universes_refused``: source, bracket, reason, the commander's decks and the universe's
+  decks, and ``rows_removed``: the rows a former import had stored for that universe, which
+  go with it so a refused universe cannot stay selectable); the file is ``REFUSED`` only when no universe of it could be stored. Duplicate card
+  rows keep the first and are counted in the report. Per universe one signal
+  ``decklist_universe:<source>:<bracket>`` is stored (value the share, numerator the decks
+  with the card, denominator the decks of the universe); its source row carries the snapshot
+  id of the file (``<file>#<snapshot>`` as title).
+
 Commander names of the files are matched against the commander names the store knows
 (collection cards, bound decks, stored signals): exactly, else by a unique case-insensitive
 match; a name that matches nothing is imported as written and listed in the report as not
@@ -60,9 +80,10 @@ a commander are never mixed with another commander's.
 from __future__ import annotations
 
 import csv
+import hashlib
 import math
 import re
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from typing import TypedDict
 
@@ -93,9 +114,32 @@ SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
 SIGNAL_TOURNAMENT = "tournament_lists"
 SIGNAL_EDHTOP16 = "edhtop16_commander_play_rate"
+SIGNAL_DECKLIST = "decklist_universe"
+REFUSED = "REFUSED"
+COMMANDER_NOT_IN_EVERY_DECK = "COMMANDER_NOT_IN_EVERY_DECK"
+MIXED_DENOMINATORS = "MIXED_DENOMINATORS"
+INVALID_UNIVERSE_NAME = "INVALID_UNIVERSE_NAME"  # a ":" in the source or bracket
+INVALID_COUNT = "INVALID_COUNT"
+DECKLIST_COLUMNS = {"card_name", "source", "bracket", "decks_with_card", "universe_decks"}
 SIGNAL_PLAYGROUP = "playgroup_observed_winrate_gap"
 
 _Row = tuple[str, str, str, float | None, int | None, int | None]  # commander, signal, card, ...
+
+
+class RefusedUniverse(TypedDict):
+    source: str
+    bracket: str
+    reason: str
+    commander_decks: int | None  # decks_with_card of the commander's own row, None when absent
+    universe_decks: int  # the denominator of the universe (the largest one when they are mixed)
+    rows_removed: int  # rows of this universe a former import had stored: removed with it
+
+
+class UnmatchedRows(TypedDict):
+    source: str
+    bracket: str
+    rows: int  # stored rows whose name matches no card of the store (oracle catalog included)
+    examples: list[str]  # up to UNMATCHED_EXAMPLES names, the most counted first
 
 
 class FileReport(TypedDict):
@@ -110,6 +154,8 @@ class FileReport(TypedDict):
     commander: str | None
     lists_read: int  # tournament files: distinct lists read from this file
     pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
+    universes_refused: list[RefusedUniverse]  # counted deck-list files: refused universes
+    universes_unmatched: list[UnmatchedRows]  # counted deck-list files: rows without a card
 
 
 def _number(text: str | None) -> float | None:
@@ -244,6 +290,8 @@ def _empty(paths: list[Path]) -> FileReport:
         "commander": None,
         "lists_read": 0,
         "pooled_into": None,
+        "universes_refused": [],
+        "universes_unmatched": [],
     }
 
 
@@ -502,6 +550,202 @@ def _store_rows(store: StudioStore, rows: list[_Row], source_id: str) -> tuple[i
     return len(rows), replaced
 
 
+class _Universe:
+    """The rows of one counted universe while a decklist file is read."""
+
+    def __init__(self) -> None:
+        self.cards: dict[str, tuple[int, int]] = {}
+        self.denominators: set[int] = set()
+        self.snapshot = ""
+        self.invalid = 0
+
+
+def _bump(report: FileReport, reason: str, count: int = 1) -> None:
+    report["skipped_reasons"][reason] = report["skipped_reasons"].get(reason, 0) + count
+
+
+def _read_decklist_universes(
+    paths: list[Path], report: FileReport
+) -> dict[tuple[str, str], _Universe]:
+    """The universes of a counted deck-list file, each with the rows it was given. First row
+    wins for a duplicated card. A universe with an invalid count is marked (``invalid``)."""
+    universes: dict[tuple[str, str], _Universe] = {}
+    for row in _rows(paths, DECKLIST_COLUMNS):
+        report["rows_read"] += 1
+        card = row["card_name"].strip()
+        source, bracket = row["source"].strip().lower(), row["bracket"].strip()
+        if not card or not source or not bracket:
+            report["rows_skipped"] += 1
+            _bump(report, "NAME_MISSING")
+            continue
+        universe = universes.setdefault((source, bracket), _Universe())
+        decks, total = _count(row["decks_with_card"]), _count(row["universe_decks"])
+        if decks is None or total is None or total <= 0 or decks > total:
+            universe.invalid += 1
+            continue
+        universe.denominators.add(total)
+        universe.snapshot = universe.snapshot or row.get("universe_snapshot", "").strip()
+        if card in universe.cards:
+            report["rows_skipped"] += 1
+            same = universe.cards[card] == (decks, total)
+            _bump(report, "DUPLICATE_SAME_FIGURES" if same else "DUPLICATE_CONFLICT")
+            continue
+        universe.cards[card] = (decks, total)
+    return universes
+
+
+def _universe_refusal(
+    key: tuple[str, str], universe: _Universe, names: set[str]
+) -> tuple[str, int | None]:
+    """Why a universe cannot be stored for the commander (empty reason: it can), and the
+    decks the commander's own row counts (None when it has no single row)."""
+    wanted = {name.casefold() for name in names}
+    own = [figures for card, figures in universe.cards.items() if card.casefold() in wanted]
+    commander_decks = own[0][0] if len(own) == 1 else None
+    if ":" in key[0] or ":" in key[1]:  # the signal name ``decklist_universe:<source>:<bracket>``
+        return INVALID_UNIVERSE_NAME, commander_decks
+    if universe.invalid:
+        return INVALID_COUNT, commander_decks
+    if len(universe.denominators) > 1:
+        return MIXED_DENOMINATORS, commander_decks
+    if len(own) != 1 or own[0][0] != own[0][1]:
+        return COMMANDER_NOT_IN_EVERY_DECK, commander_decks
+    return "", commander_decks
+
+
+def _import_decklists(
+    store: StudioStore,
+    root: Path,
+    commander: str,
+    raw_name: str,
+    reports: dict[str, FileReport],
+) -> None:
+    """Read every counted deck-list file of the folder. A universe whose commander check or
+    counts fail is refused alone and named in the report; the other universes of the file are
+    stored. The file is ``REFUSED`` when none of its universes can be stored."""
+    for base in _decklist_bases(root):
+        paths = _parts(root, base)
+        report = _empty(paths)
+        reports[base] = report
+        universes = _read_decklist_universes(paths, report)
+        if not universes:
+            report["status"] = "NOTHING_REPLACED"
+            continue
+        usable: dict[tuple[str, str], _Universe] = {}
+        for (source, bracket), universe in sorted(universes.items()):
+            reason, commander_decks = _universe_refusal(
+                (source, bracket), universe, {commander, raw_name}
+            )
+            if not reason:
+                usable[(source, bracket)] = universe
+                continue
+            _bump(report, reason)
+            removed = 0
+            if reason != INVALID_UNIVERSE_NAME:  # a stale universe must not stay selectable
+                removed = _remove_universe(store, commander, decklist_signal(source, bracket))
+            report["universes_refused"].append(
+                {
+                    "source": source,
+                    "bracket": bracket,
+                    "reason": reason,
+                    "commander_decks": commander_decks,
+                    "universe_decks": max(universe.denominators, default=0),
+                    "rows_removed": removed,
+                }
+            )
+        report["commander"] = commander
+        if not usable:
+            report["status"] = REFUSED
+            report["rows_kept"] = _kept_decklist_rows(store, commander)
+            continue
+        file_hash = hashlib.sha256(
+            "".join(sha256_file(path) for path in paths).encode()
+        ).hexdigest()
+        known = known_card_names(store)
+        for (source, bracket), universe in usable.items():
+            signal = decklist_signal(source, bracket)
+            source_id = store.register_source(
+                data_class=DataClass.NORMALIZED_SOURCE,
+                title=f"{paths[0].name}#{universe.snapshot}",
+                sha256=hashlib.sha256(f"{file_hash}:{signal}".encode()).hexdigest(),
+            )
+            rows: list[_Row] = [
+                (commander, signal, card, decks / total, decks, total)
+                for card, (decks, total) in sorted(universe.cards.items())
+            ]
+            written, replaced = _store_rows(store, rows, source_id)
+            report["rows_written"] += written
+            report["rows_replaced"] += replaced
+            missing = unmatched_universe_names(store, commander, signal, known)
+            if missing:
+                report["universes_unmatched"].append(
+                    {
+                        "source": source,
+                        "bracket": bracket,
+                        "rows": len(missing),
+                        "examples": missing[:UNMATCHED_EXAMPLES],
+                    }
+                )
+
+
+UNMATCHED_EXAMPLES = 10
+
+
+def known_card_names(store: StudioStore) -> set[str]:
+    """Every card name the store knows, casefolded: the collection's oracle and engine names,
+    the Scryfall catalog and the front face of each two-part name."""
+    db = store.connection
+    names: set[str] = set()
+    for sql in (
+        "SELECT oracle_name FROM card_fact",
+        "SELECT engine_name FROM card_fact",
+        "SELECT name FROM scryfall_card",
+    ):
+        names.update(str(row[0]) for row in db.execute(sql) if row[0])
+    names.update(name.split(" // ")[0].strip() for name in list(names) if " // " in name)
+    return {name.casefold() for name in names}
+
+
+def unmatched_universe_names(
+    store: StudioStore, commander: str, signal: str, known: set[str] | None = None
+) -> list[str]:
+    """The card names of a stored counted universe that match no card of the store, the
+    most counted first. Empty while the store holds no card at all (nothing to match against).
+    A notice only: no name is dropped and nothing is refused because of it."""
+    names = known if known is not None else known_card_names(store)
+    if not names:
+        return []
+    rows = store.connection.execute(
+        "SELECT card_name FROM card_signal WHERE commander_name = ? AND signal = ? "
+        "ORDER BY numerator DESC, card_name",
+        (commander, signal),
+    )
+    return [str(row[0]) for row in rows if str(row[0]).casefold() not in names]
+
+
+def unmatched_notice(rows: int, examples: Sequence[str]) -> str:
+    if rows <= 0:
+        return ""
+    return f"{rows} Zeilen ohne Karte im Store, z. B. {'; '.join(examples)}"
+
+
+def _remove_universe(store: StudioStore, commander: str, signal: str) -> int:
+    """Delete the stored rows of one counted universe of ``commander``; how many there were."""
+    cursor = store.connection.execute(
+        "DELETE FROM card_signal WHERE commander_name = ? AND signal = ?", (commander, signal)
+    )
+    return int(cursor.rowcount)
+
+
+def _kept_decklist_rows(store: StudioStore, commander: str) -> int:
+    return int(
+        store.connection.execute(
+            "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal LIKE ?",
+            (commander, f"{SIGNAL_DECKLIST}:%"),
+        ).fetchone()[0]
+    )
+
+
 def _register(store: StudioStore, paths: list[Path]) -> str | None:
     source_id: str | None = None
     for path in paths:
@@ -578,6 +822,30 @@ def _tournament_bases(folder: Path) -> list[str]:
     return sorted(found)
 
 
+_DECKLIST_PATTERN = re.compile(r"^(.+_decklist_inclusion_\d+)(?:_(\d+))?\.csv$")
+
+
+def decklist_signal(source: str, bracket: str) -> str:
+    """The stored signal name of one counted universe."""
+    return f"{SIGNAL_DECKLIST}:{source}:{bracket}"
+
+
+def _decklist_bases(folder: Path) -> list[str]:
+    """Base names of every counted deck-list file of the folder, in name order."""
+    found: set[str] = set()
+    for path in folder.iterdir():
+        match = _DECKLIST_PATTERN.match(path.name)
+        if match and path.is_file():
+            found.add(match.group(1))
+    return sorted(found)
+
+
+def has_decklist_files(folder: str | Path) -> bool:
+    """Whether ``folder`` itself holds a counted deck-list file."""
+    root = Path(folder)
+    return root.is_dir() and bool(_decklist_bases(root))
+
+
 def has_signal_files(folder: str | Path) -> bool:
     """Whether ``folder`` holds at least one file ``import_signals`` reads."""
     root = Path(folder)
@@ -586,7 +854,7 @@ def has_signal_files(folder: str | Path) -> bool:
     bases = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE]
     bases += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
     bases += _tournament_bases(root)
-    return any(_parts(root, base) for base in bases)
+    return any(_parts(root, base) for base in bases) or bool(_decklist_bases(root))
 
 
 def _import_tournaments(
@@ -648,7 +916,8 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
     The report is truthful about what changed: per file ``rows_written`` and
     ``rows_replaced`` (existing rows of the same commander and signal that were swapped for
     the new ones) and, when a file had no valid row, ``status`` ``NOTHING_REPLACED`` with
-    ``rows_kept``, the existing rows that stayed. ``commanders_imported`` and
+    ``rows_kept``, the existing rows that stayed; a counted deck-list file that fails its
+    checks has ``status`` ``REFUSED`` and a reason in ``skipped_reasons``. ``commanders_imported`` and
     ``commanders_not_recognised`` list the commander names of the import."""
     root = Path(folder)
     if not root.is_dir():
@@ -668,6 +937,7 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
     commanders.not_recognised.discard(name)
     with store.connection:
         _import_tournaments(store, root, preferred, commanders, reports)
+        _import_decklists(store, root, preferred, name, reports)
         for file_name, variant in plan:
             paths = _parts(root, file_name)
             report = _empty(paths)
@@ -689,6 +959,11 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
         "folder": root.name,
         "tournament_commander": preferred,
         "files": reports,
+        "files_refused": sum(1 for report in reports.values() if report["status"] == REFUSED),
+        "universes_refused": sum(len(report["universes_refused"]) for report in reports.values()),
+        "rows_unmatched": sum(
+            item["rows"] for report in reports.values() for item in report["universes_unmatched"]
+        ),
         "rows_written": sum(report["rows_written"] for report in reports.values()),
         "rows_replaced": sum(report["rows_replaced"] for report in reports.values()),
         "rows_kept": sum(report["rows_kept"] for report in reports.values()),

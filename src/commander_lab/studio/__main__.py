@@ -116,7 +116,18 @@ def _parser() -> argparse.ArgumentParser:
         "completeness table per layer",
     )
     import_all.add_argument("--commander", required=True)
-    import_all.add_argument("--inventory", required=True, help="the collection workbook (xlsx)")
+    import_all.add_argument(
+        "--inventory",
+        help="the collection workbook (xlsx); with --from-repo it is built from the repo CSVs "
+        "when not given",
+    )
+    import_all.add_argument(
+        "--from-repo",
+        action="store_true",
+        help="import everything the repository holds under data/research (collection, "
+        "corpus, roles, rulings, EDHREC observations, Playgroup atlas, signals); needs "
+        "--scryfall; explicit file arguments replace the repo files of their step",
+    )
     import_all.add_argument("--scryfall", help="public card facts file")
     import_all.add_argument("--roles", help="role file")
     import_all.add_argument(

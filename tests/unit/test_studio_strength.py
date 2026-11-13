@@ -390,8 +390,39 @@ def test_settings_are_validated_and_round_trip() -> None:
         with pytest.raises(ValueError):
             StrengthSettings.from_dict(bad)
     assert set(strength.PRESETS) == {"Ausgewogen", "Commander-nah", "Turniernah"}
-    assert strength.PRESETS["Commander-nah"].weights[strength.GLOBAL_INCLUSION] == 0.0
-    assert strength.PRESETS["Turniernah"].bracket == "cedh"
+    assert strength.PRESETS["Ausgewogen"] == StrengthSettings()
+    near = strength.PRESETS["Commander-nah"]
+    assert near.weights == {
+        strength.COMMANDER_INCLUSION: 3.0,
+        strength.BRACKET_INCLUSION: 2.0,
+        strength.DECK_UNIVERSE: 3.0,
+        strength.SYNERGY: 2.0,
+        strength.TOURNAMENT_LISTS: 1.0,
+        strength.GLOBAL_INCLUSION: 1.0,
+        strength.COMBOS: 0.0,
+        strength.PLAYGROUP_OBSERVED: 0.0,
+        strength.SIMULATION: 0.0,
+    }
+    tournament = strength.PRESETS["Turniernah"]
+    assert tournament.bracket == "cedh"
+    assert tournament.weights == {
+        strength.TOURNAMENT_LISTS: 3.0,
+        strength.BRACKET_INCLUSION: 2.0,
+        strength.DECK_UNIVERSE: 2.0,
+        strength.COMMANDER_INCLUSION: 1.0,
+        strength.SYNERGY: 0.0,
+        strength.GLOBAL_INCLUSION: 1.0,
+        strength.COMBOS: 1.0,
+        strength.PLAYGROUP_OBSERVED: 1.0,
+        strength.SIMULATION: 0.0,
+    }
+    assert strength.DEFAULT_WEIGHTS[strength.PLAYGROUP_OBSERVED] == 1.0
+    # The Playgroup observation is commander independent: it never satisfies the rule
+    # "require_commander_signal" and is not in the set of commander-specific components.
+    assert strength.PLAYGROUP_OBSERVED not in strength.COMMANDER_SPECIFIC
+    # Every preset keeps the deck universe, the most commander-specific source, in the index.
+    for name, preset in strength.PRESETS.items():
+        assert preset.weights[strength.DECK_UNIVERSE] > 0, name
 
 
 # ---------- store side ----------
@@ -487,7 +518,12 @@ def test_deck_list_universe_is_a_counted_component(store: StudioStore, tmp_path:
     assert one["status"] == strength.PRESENT and one["denominator"] == two["denominator"]
     assert two["numerator"] == 3 and one["percentile"] == 1.0 and two["percentile"] < 1.0
     assert result["universe"] is not None
-    assert _component(cards["Filler 05"], "deck_universe")["status"] == strength.NO_VALUE
+    # Filler 05 is in none of the complete deck lists of the universe: a counted zero (0 of N), ranked
+    # below every listed card (ties share the mean rank) and labelled as counted.
+    zero = _component(cards["Filler 05"], "deck_universe")
+    assert zero["status"] == strength.ZERO_COUNT and zero["percentile"] < two["percentile"]
+    assert (zero["numerator"], zero["denominator"]) == (0, one["denominator"])
+    assert "gezählt" in zero["note"]
     with pytest.raises(KeyError):
         strength_view.compute(store, COMMANDER, StrengthSettings(universe_profile="gibt es nicht"))
 
@@ -1014,7 +1050,7 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert "Mindest-Universum" in labels["min_denominators.deck_universe"]
     assert "(empfohlen: auslassen)" in labels["missing_value.commander_inclusion"]
     assert "(empfohlen: aus)" in labels["rank_commander_and_basics"]
-    assert "(empfohlen: 40)" in labels["min_coverage"]  # the page field is in percent
+    assert "(empfohlen: 30)" in labels["min_coverage"]  # the page field is in percent
     assert "(empfohlen: 2)" in labels["min_components"]
     assert [group["title"] for group in meta["panel"]["groups"]][-1].endswith(
         "(empfohlen: 90 / 75 / 55 / 35)"
@@ -1236,7 +1272,7 @@ def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) ->
     client = TestClient(create_app(tmp_path / "studio.db"))
     meta = client.get("/api/strength/presets").json()
     assert meta["recommended"]["weights"]["simulation"] == 0.0
-    assert meta["panel"]["labels"]["min_coverage"] == "Mindestabdeckung in % (empfohlen: 40)"
+    assert meta["panel"]["labels"]["min_coverage"] == "Mindest-Datenlage in % (empfohlen: 30)"
     assert (
         meta["panel"]["labels"]["weights.simulation"]
         == "Simulation (empfohlen: 0, derzeit ohne Daten)"

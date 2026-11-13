@@ -19,6 +19,7 @@ COMMANDER = "Test Commander"
 def test_default_and_every_preset_give_simulation_the_weight_zero() -> None:
     assert StrengthSettings().weights[strength.SIMULATION] == 0.0
     assert strength.DEFAULT_WEIGHTS[strength.SIMULATION] == 0.0
+    assert set(strength.PRESETS) == {"Ausgewogen", "Commander-nah", "Turniernah"}
     for name, preset in strength.PRESETS.items():
         assert preset.weights[strength.SIMULATION] == 0.0, name
     meta = strength_view.presets()

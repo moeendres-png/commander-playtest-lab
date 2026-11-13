@@ -296,6 +296,12 @@ def pool_cards(
     legacy cohort figures stay untouched either way. Raises KeyError for an unknown
     profile and ValueError when the profile is defined for other commanders.
 
+    Without a ``profile`` the builder asks the same ``universe_choice.choose`` as the tier list
+    (recommended settings): when it picks a counted deck-list universe stored for the commander
+    (that is, fewer local deck lists than the minimum universe), each card carries ``counted``
+    (decks, denominator, share; a card without a row is a counted zero) and the pool carries
+    one ``counted_universe`` block.
+
     ``with_signals`` adds the commander's stored usage signals (``card_signal``, one
     commander only) as ``signals`` per card. The older EDHREC value is used first; the
     stored inclusion signal fills the card's ``edhrec`` entry only where that has no value."""
@@ -420,6 +426,28 @@ def pool_cards(
         "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
+    if profile is None and len(commander_names) == 1:
+        # The counted deck-list universe the tier list chooses automatically (the same server
+        # function, ``universe_choice.choose``, through ``strength_view``), if it picks one.
+        from . import strength_view
+
+        found = strength_view.builder_counted_universe(
+            store,
+            commander_names[0],
+            [str(card["card_id"]) for card in cards],
+            {str(card["card_id"]): str(card["name"]) for card in cards},
+        )
+        if found is not None:
+            choice, observed = found
+            for card in cards:
+                count = observed.get(str(card["card_id"]))
+                if count is not None and count.numerator is not None and count.denominator:
+                    card["counted"] = {
+                        "hits": count.numerator,
+                        "denominator": count.denominator,
+                        "share": count.numerator / count.denominator,
+                    }
+            result["counted_universe"] = dict(choice)
     if profile is not None:
         # Imported here, not at module level: sources.py imports this module, and
         # universe_view imports sources — a top-level import would close the circle.

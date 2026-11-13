@@ -16,7 +16,8 @@ import argparse
 import json
 import sqlite3
 import sys
-from collections.abc import Callable, Sequence
+import tempfile
+from collections.abc import Callable, Mapping, Sequence
 from pathlib import Path
 from typing import TypedDict
 
@@ -25,6 +26,7 @@ from . import (
     catalog,
     decklist_import,
     importers,
+    repo_import,
     roles,
     rulings,
     signals,
@@ -86,17 +88,27 @@ class ImportAllResult(TypedDict):
 
 _Action = Callable[[StudioStore], object]
 _RESEARCH = Path(__file__).resolve().parents[3] / "data" / "research"
+FROM_REPO_NEEDS_SCRYFALL = (
+    "--from-repo braucht --scryfall <Datei>: die öffentlichen Kartenfakten (Scryfall-Oracle-"
+    "Datei) liegen nicht im Repo und werden nicht heruntergeladen. Lade die Datei "
+    "„Oracle Cards“ von scryfall.com/docs/api/bulk-data und gib sie mit --scryfall an."
+)
 
 
 def default_signal_folders() -> list[Path]:
-    """Every folder under ``data/research`` that holds signal files, in name order."""
+    """Every folder under ``data/research`` that holds signal files, in name order, and
+    ``data/research`` itself when it holds a counted deck-list file
+    (``<slug>_decklist_inclusion_<date>.csv``)."""
     if not _RESEARCH.is_dir():
         return []
-    return [
+    folders = [
         path
         for path in sorted(_RESEARCH.iterdir())
         if path.is_dir() and signals.has_signal_files(path)
     ]
+    if signals.has_decklist_files(_RESEARCH):
+        folders.append(_RESEARCH)
+    return folders
 
 
 def default_rulings_files() -> list[Path]:
@@ -117,16 +129,42 @@ def _count(store: StudioStore, sql: str, params: Sequence[object] = ()) -> int:
     return int(store.connection.execute(sql, tuple(params)).fetchone()[0])
 
 
+def _refused_universe(file_name: str, refused: dict[str, object]) -> str:
+    """One refused counted universe: its source, bracket, reason and the two numbers."""
+    decks = refused["commander_decks"]
+    commander = "Commander-Zeile fehlt, Decks" if decks is None else f"Commander in {decks}"
+    return (
+        f"{file_name}: Universum {refused['source']}/{refused['bracket']} abgelehnt "
+        f"({refused['reason']}: {commander} von "
+        f"{refused['universe_decks']} Decks; {refused['rows_removed']} alte Zeilen entfernt)"
+    )
+
+
 def _summary(result: object) -> str:
-    """A short, count-only line of an importer result."""
+    """A short, count-only line of an importer result; a refused file names its reason."""
     if isinstance(result, dict):
         numbers = {
             key: value
             for key, value in result.items()
             if isinstance(value, int) and not isinstance(value, bool)
         }
-        if numbers:
-            return ", ".join(f"{key}={value}" for key, value in list(numbers.items())[:6])
+        parts = [f"{key}={value}" for key, value in list(numbers.items())[:6]]
+        files = result.get("files")
+        if isinstance(files, dict):
+            for name, report in files.items():
+                if not isinstance(report, dict):
+                    continue
+                if report.get("status") == signals.REFUSED:
+                    reasons = report.get("skipped_reasons", {})
+                    parts.append(f"{name}: abgelehnt ({', '.join(sorted(reasons))})")
+                for refused in report.get("universes_refused") or []:
+                    parts.append(_refused_universe(name, refused))
+                for missing in report.get("universes_unmatched") or []:
+                    parts.append(
+                        f"{name}: Universum {missing['source']}/{missing['bracket']}: "
+                        + signals.unmatched_notice(missing["rows"], missing["examples"])
+                    )
+        return ", ".join(parts)
     return ""
 
 
@@ -186,6 +224,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         _count(store, "SELECT COUNT(*) FROM card_ruling"),
         sum(1 for card in cards if str(card["card_id"]) in with_rulings),
     )
+    _repo_layers(store, cards, add)
     binding = builder.corpus_binding(store, [commander])
     bound = binding["bound_decks"]
     add(
@@ -215,6 +254,52 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
     return size, layers
 
 
+def _repo_layers(
+    store: StudioStore,
+    cards: list[dict[str, object]],
+    add: Callable[[str, str, int, int], None],
+) -> None:
+    """The layers ``--from-repo`` fills: corpus decks, EDHREC observations, Playgroup atlas."""
+    db = store.connection
+    ids = {str(card["card_id"]) for card in cards}
+    in_corpus = {
+        str(row[0])
+        for row in db.execute(
+            "SELECT DISTINCT f.card_id FROM card_fact f JOIN corpus_deck_card k "
+            "ON k.oracle_id = f.oracle_id"
+        )
+    }
+    add(
+        "corpus",
+        "Korpus (Decks, alle)",
+        _count(store, "SELECT COUNT(*) FROM corpus_deck"),
+        len(ids & in_corpus),
+    )
+    observed = {
+        str(row[0])
+        for row in db.execute("SELECT DISTINCT card_id FROM observation WHERE card_id IS NOT NULL")
+    }
+    add(
+        "observations",
+        "EDHREC-Beobachtungen (Themen)",
+        _count(store, "SELECT COUNT(*) FROM observation"),
+        len(ids & observed),
+    )
+    atlas = {
+        str(row[0])
+        for row in db.execute(
+            "SELECT DISTINCT f.card_id FROM card_fact f JOIN playgroup_card_atlas a "
+            "ON a.card_id = f.card_id OR (a.oracle_id != '' AND a.oracle_id = f.oracle_id)"
+        )
+    }
+    add(
+        "playgroup",
+        "Playgroup-Atlas",
+        _count(store, "SELECT COUNT(*) FROM playgroup_card_atlas"),
+        len(ids & atlas),
+    )
+
+
 def signal_rows(store: StudioStore, commander: str) -> SignalRows:
     """Stored signal rows split into this commander's and the other commanders' (counts)."""
     own = _count(
@@ -239,10 +324,16 @@ _FLAG = {
     "decklists": ' --decklists "<Ordner>"',
     "marks": ' --marks "<Datei>"',
 }
+_FROM_REPO_LAYERS = frozenset({"corpus", "observations", "playgroup"})
 
 
 def import_command(layer_key: str, commander: str) -> str:
     """The exact ``import-all`` call that fills one layer (angle brackets: your path)."""
+    if layer_key in _FROM_REPO_LAYERS:
+        return (
+            f'python -m commander_lab.studio import-all --commander "{commander}" '
+            '--from-repo --scryfall "<Scryfall-Datei>"'
+        )
     flag = _FLAG.get(layer_key, ' --signals "<Ordner>"' if layer_key.startswith("signal:") else "")
     return (
         f'python -m commander_lab.studio import-all --commander "{commander}" '
@@ -262,16 +353,49 @@ def layer_overview(store: StudioStore, commander: str) -> dict[str, object]:
     }
 
 
+def _each(
+    paths: Sequence[Path], load: Callable[[StudioStore, Path], Mapping[str, object]]
+) -> Callable[[StudioStore], object]:
+    """One step over several files: the integer counts of every file, summed."""
+
+    def run_all(store: StudioStore) -> object:
+        totals: dict[str, int] = {}
+        for path in paths:
+            for key, value in load(store, path).items():
+                if isinstance(value, int) and not isinstance(value, bool):
+                    totals[key] = totals.get(key, 0) + value
+        return {"files": len(paths), **totals}
+
+    return run_all
+
+
+def _inventory_action(
+    args: argparse.Namespace, repo: repo_import.RepoFiles | None
+) -> Callable[[StudioStore], object]:
+    def load(store: StudioStore) -> object:
+        if args.inventory:
+            return importers.import_inventory_workbook(store, args.inventory)
+        if repo is None or repo.collection_dir is None:
+            raise ValueError("keine Sammlungsdatei: --inventory <Datei> oder --from-repo")
+        with tempfile.TemporaryDirectory() as folder:
+            workbook = Path(folder) / "collection.xlsx"
+            repo_import.build_inventory_workbook(repo.collection_dir, workbook)
+            return importers.import_inventory_workbook(store, workbook)
+
+    return load
+
+
 def _steps(
-    args: argparse.Namespace, signal_folders: list[Path], rulings_files: list[Path]
+    args: argparse.Namespace,
+    signal_folders: list[Path],
+    rulings_files: list[Path],
+    repo: repo_import.RepoFiles | None = None,
 ) -> list[tuple[str, bool, Callable[[StudioStore], object]]]:
     commander: str = args.commander
+    # Explicit arguments win over the repository files of the same step.
+    role_files = [Path(args.roles)] if args.roles else (repo.roles if repo else [])
     plan: list[tuple[str, bool, Callable[[StudioStore], object]]] = [
-        (
-            "Sammlung",
-            True,
-            lambda store: importers.import_inventory_workbook(store, args.inventory),
-        ),
+        ("Sammlung", True, _inventory_action(args, repo)),
         (
             "Scryfall-Kartenfakten",
             bool(args.scryfall),
@@ -279,8 +403,8 @@ def _steps(
         ),
         (
             "Rollen",
-            bool(args.roles),
-            lambda store: roles.import_roles(store, args.roles),
+            bool(role_files),
+            _each(role_files, lambda store, path: roles.import_roles(store, path)),
         ),
         (
             "Regeltexte",
@@ -295,6 +419,47 @@ def _steps(
             ),
         ),
     ]
+    if repo is not None:
+        corpus = repo.corpus_dir
+        use_corpus = corpus is not None and not args.decklists
+        plan.append(
+            (
+                "Decklisten-Korpus (Repo)",
+                use_corpus,
+                lambda store: repo_import.import_corpus(store, corpus or Path()),
+            )
+        )
+        plan.append(
+            (
+                "Oracle-Zuordnung des Korpus",
+                use_corpus,
+                lambda store: {
+                    key: value
+                    for key, value in repo_import.map_corpus_oracle_ids(store.connection).items()
+                    if isinstance(value, int)
+                },
+            )
+        )
+        plan.append(
+            (
+                "EDHREC-Beobachtungen (Repo)",
+                bool(repo.edhrec_parts),
+                _each(
+                    repo.edhrec_parts,
+                    lambda store, path: importers.import_edhrec_table(store, path),
+                ),
+            )
+        )
+        plan.append(
+            (
+                "Playgroup-Atlas (Repo)",
+                bool(repo.playgroup_parts),
+                _each(
+                    repo.playgroup_parts,
+                    lambda store, path: importers.import_playgroup_atlas(store, path),
+                ),
+            )
+        )
     for folder in signal_folders:
 
         def read(store: StudioStore, folder: Path = folder) -> object:
@@ -315,6 +480,18 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
     if not commander:
         raise ValueError("a commander name is required")
     args.commander = commander
+    repo: repo_import.RepoFiles | None = None
+    if getattr(args, "from_repo", False):
+        if not args.scryfall:
+            raise ValueError(FROM_REPO_NEEDS_SCRYFALL)
+        repo = repo_import.RepoFiles.discover(_RESEARCH)
+        if not args.inventory and repo.collection_dir is None:
+            raise ValueError(
+                f"--from-repo: keine Sammlung im Repo ({repo_import.COLLECTION_FOLDER} fehlt); "
+                "gib --inventory <Datei> an"
+            )
+    elif not args.inventory:
+        raise ValueError("--inventory <Datei> fehlt (oder --from-repo)")
     if args.signals is None:
         signal_folders = default_signal_folders()
     else:
@@ -325,7 +502,7 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         rulings_files = [Path(file) for file in args.rulings]
     steps: list[StepResult] = []
     failed = False
-    for name, provided, action in _steps(args, signal_folders, rulings_files):
+    for name, provided, action in _steps(args, signal_folders, rulings_files, repo):
         if not provided:
             steps.append({"step": name, "status": NOT_PROVIDED, "detail": ""})
             continue

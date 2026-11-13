@@ -26,19 +26,6 @@ import argparse
 import sys
 from pathlib import Path
 
-FOLDERS: list[tuple[str, str]] = [
-    ("edhrec/cedh", "edhrec"),
-    ("edhrec/core", "edhrec"),
-    ("edhrec/exhibition", "edhrec"),
-    ("edhrec/optimized", "edhrec"),
-    ("edhrec/upgraded", "edhrec"),
-    ("archidekt/bracket1", "archidekt"),
-    ("archidekt/bracket2", "archidekt"),
-    ("archidekt/bracket3", "archidekt"),
-    ("archidekt/bracket4", "archidekt"),
-    ("archidekt/bracket5", "archidekt"),
-]
-
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -55,19 +42,11 @@ def main() -> int:
     src_dir = Path(__file__).resolve().parents[1] / "src"
     if src_dir.is_dir():
         sys.path.insert(0, str(src_dir))
-    from commander_lab.studio import decklist_import
+    from commander_lab.studio import repo_import
     from commander_lab.studio.store import StudioStore
 
-    root = Path(args.root)
     store = StudioStore.open(args.data)
-    totals = {"decks": 0, "duplicates_marked": 0, "card_rows": 0, "files_without_cards": 0}
-    for relative, fmt in FOLDERS:
-        folder = root / relative
-        result = decklist_import.import_decklists(store, folder, format=fmt, commander=None)
-        print(f"{relative} [{fmt}]: {result}")
-        for key in totals:
-            totals[key] += int(result.get(key, 0))
-    print("TOTAL:", totals)
+    print("TOTAL:", repo_import.import_corpus(store, Path(args.root)))
     return 0
 
 

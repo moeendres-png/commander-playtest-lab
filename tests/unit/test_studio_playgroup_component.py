@@ -237,6 +237,26 @@ def test_compute_reads_the_atlas_as_a_commander_independent_component(
     assert missing["status"] == strength.NO_VALUE and missing["percentile"] is None
 
 
+def test_a_card_with_only_a_playgroup_observation_gets_no_tier(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "signals"
+    _write_atlas(folder, [_atlas_row("Filler 01", "OK", gap=6.0, n=500)])
+    _import(store, folder)
+    # Under the defaults the observation alone is too little data.
+    default = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings()))["Filler 01"]
+    assert _component(default, strength.PLAYGROUP_OBSERVED)["status"] == strength.PRESENT
+    assert default["tier"] == strength.TIER_UNKNOWN
+    # Even with the data minimum out of the way it does not satisfy the rule "commander
+    # signal": the card stays U, and only switching the rule off lets it have a tier.
+    loose = {"min_coverage": 0.0, "min_components": 1}
+    on = _by_name(strength_view.compute(store, COMMANDER, StrengthSettings(**loose)))["Filler 01"]
+    assert on["tier"] == strength.TIER_UNKNOWN and on["reason"] == strength.NO_COMMANDER_SIGNAL
+    off_settings = StrengthSettings(require_commander_signal=False, **loose)
+    off = _by_name(strength_view.compute(store, COMMANDER, off_settings))["Filler 01"]
+    assert off["tier"] in strength.TIERS
+
+
 def test_marks_never_change_the_index_with_the_atlas_present(
     store: StudioStore, tmp_path: Path
 ) -> None:
@@ -259,5 +279,13 @@ def test_presets_offer_the_component_with_its_observed_label() -> None:
     entry = offered[strength.PLAYGROUP_OBSERVED]
     assert "Beobachtete" in str(entry["label"]) and "Korrelation" in str(entry["label"])
     assert entry["default_weight"] == 1.0
+    panel = strength_view.presets()["panel"]  # type: ignore[index]
+    key = f"weights.{strength.PLAYGROUP_OBSERVED}"
+    assert panel["labels"][key] == "Beobachtete Sieg-Korrelation (Playgroup) (empfohlen: 1)"
+    assert (
+        "ab 25 Partien" in panel["help"][key]
+        and "reicht für eine Stufe allein nicht" in panel["help"][key]
+    )
+    assert key in panel["groups"][0]["keys"]
     settings = StrengthSettings.from_dict({"weights": {strength.PLAYGROUP_OBSERVED: 2.5}})
     assert StrengthSettings.from_dict(settings.to_dict()) == settings

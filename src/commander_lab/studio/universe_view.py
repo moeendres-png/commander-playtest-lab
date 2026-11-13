@@ -327,6 +327,15 @@ def name_claims(store: StudioStore, card_ids: Sequence[str]) -> dict[str, list[t
     return claims
 
 
+def front_face_withheld(store: StudioStore, card_ids: Sequence[str]) -> set[str]:
+    """The given cards whose front face was withheld because another Studio card has that exact
+    name: a source row under that name cannot be told apart, so the card's count is unknown
+    (the same flag the local-deck spread carries as ``ambiguous_front_face``)."""
+    rows = _all_card_rows(store)
+    taken = _taken_names(rows)
+    return {card[0] for card in _chosen(rows, card_ids) if _name_keys(card, taken)[1]}
+
+
 def _spread_all(
     store: StudioStore,
     profile: str | None,
@@ -384,6 +393,19 @@ def pool_spread(
         "meaning": MEANING,
         "cards": [spread for spread, _, _ in entries],
     }
+
+
+def spread_for_spec(
+    store: StudioStore,
+    spec: UniverseSpec,
+    card_ids: Sequence[str] | None,
+    *,
+    commander_names: Sequence[str],
+) -> tuple[int, str, list[CardSpread]]:
+    """(denominator, snapshot id, counted spread) of Studio cards over a free spec, e.g. all
+    local decks of the commander. The same machinery as a stored profile's ``pool_spread``."""
+    universe, entries, _params = _spread_all(store, None, card_ids, commander_names, spec)
+    return universe["denominator"], universe["snapshot_id"], [entry[0] for entry in entries]
 
 
 class DeckFilterCard(TypedDict):
@@ -577,5 +599,6 @@ __all__ = [
     "name_claims",
     "pool_spread",
     "profile_summary",
+    "spread_for_spec",
     "subset_note",
 ]
