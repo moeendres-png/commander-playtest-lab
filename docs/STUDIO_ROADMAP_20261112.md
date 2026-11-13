@@ -11,7 +11,7 @@ Git, tests and issues win. Step names (M4, M5, ...) continue those of issue #116
 |---|---|---|
 | BUILD | Store with revisions and variants, legal pool, data check, roles with origin, source-deck counts, EDHREC snapshots, Playgroup card atlas, six verified Chulane combo lines, own marks, commander binding of all source data (#1187), deck universes and counted tiers on the command line (#1205) | counted tiers in the tier page, coverage of the new collection cards (#1208, #1209), deck lists for more commanders (#1210), open deck-builder wishes (#1174) |
 | SIMULATE | Full XMage games from the Studio, game log, series runner with paired seeds and interval, style slider and deck plan for the pilots | series bound to commander and deck revision in every view, five and six seats, stronger pilots in general, card view over a series |
-| PLAY | Spectator view of a real game: table, stack, hand, log, combat, targets, exile, token images | the human seat (#1169), which needs a Java bridge change and therefore an Owner go |
+| PLAY | Spectator view of a real game: table, stack, hand, log, combat, targets, exile, token images | the human seat (#1169), a bridge change under the Studio bridge gate (`AGENTS.md` §10) |
 
 ## Recommended order
 
@@ -20,10 +20,9 @@ Git, tests and issues win. Step names (M4, M5, ...) continue those of issue #116
    store, an unbound count mixes commanders. Then universes and counted tiers (B6, B7), then
    coverage of the new cards (B9).
 2. **PLAY human seat next, as the one step that needs a decision now.** Everything except
-   the merged bridge change can be prepared without a go (P7). Recommendation: give the go,
-   because the change is small (one system property, default unchanged) and PLAY cannot
-   exist without it; plan the requalification together with the next fork batch so that it
-   runs once.
+   the merged bridge change can be prepared without a go (P7). Decided 2026-11-12 (evening):
+   the bridge change of P7 merges under the Studio bridge gate (`AGENTS.md` §10); no
+   requalification is needed for it.
 3. **SIMULATE: use what exists, measure, then decide on pilot strength.** Run real series for
    Chulane with the series runner, look at the logs, and only then choose where the pilots
    lose most. No micro series (S2).
@@ -65,7 +64,7 @@ stored seed list, and a visible "x of n" in the page.
 
 | Step | Content | Recommendation |
 |---|---|---|
-| P-1 | Bridge: decision time limit through a system property, default unchanged (P7) | Prepare on a branch with the bridge test; merge after the Owner's go; requalify once. |
+| P-1 | Bridge: decision time limit through a system property, default unchanged (P7) | Merges under the Studio bridge gate (`AGENTS.md` §10, Owner decision 2026-11-12, evening); no new sealed epoch. |
 | P-2 | Python: a policy that waits for the page for the human seat and asks the pilots for all other seats | Can be built and tested now against a fake engine, without the bridge change. |
 | P-3 | Own read path for play mode (P5) | Build before the page. The log of a game contains the AI hands at their decisions; play mode must be served from the human seat's published view only. Test: no card of an AI hand appears in any play-mode response. |
 | P-4 | Page: options as buttons and clickable cards, multiple choice with minimum and maximum, number input, pass only where the engine offers it; no undo (P4) | Reuse the spectator view; the page only shows options and returns the choice (A2). |
@@ -80,7 +79,7 @@ machine without a time limit, and the qualification runs with default values are
 ## Open decisions for the Owner
 
 The list is in `docs/OWNER_DECISIONS_STUDIO_20261112.md`, section "Open Owner decisions".
-The one that blocks most is the go for the bridge change (P-1).
+The go for the bridge change (P-1) was given on 2026-11-12 (evening): Studio bridge gate.
 
 ## Checks and gates
 
