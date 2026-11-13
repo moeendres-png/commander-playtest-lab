@@ -130,15 +130,21 @@ def _count(store: StudioStore, sql: str, params: Sequence[object] = ()) -> int:
 
 
 def _summary(result: object) -> str:
-    """A short, count-only line of an importer result."""
+    """A short, count-only line of an importer result; a refused file names its reason."""
     if isinstance(result, dict):
         numbers = {
             key: value
             for key, value in result.items()
             if isinstance(value, int) and not isinstance(value, bool)
         }
-        if numbers:
-            return ", ".join(f"{key}={value}" for key, value in list(numbers.items())[:6])
+        parts = [f"{key}={value}" for key, value in list(numbers.items())[:6]]
+        files = result.get("files")
+        if isinstance(files, dict):
+            for name, report in files.items():
+                if isinstance(report, dict) and report.get("status") == signals.REFUSED:
+                    reasons = report.get("skipped_reasons", {})
+                    parts.append(f"{name}: abgelehnt ({', '.join(sorted(reasons))})")
+        return ", ".join(parts)
     return ""
 
 
