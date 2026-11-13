@@ -259,6 +259,41 @@ def test_a_card_whose_front_face_is_withheld_stays_unknown_not_zero(
     assert _component(cards["Filler 20"], "deck_universe")["status"] == strength.ZERO_COUNT
 
 
+def test_rows_that_match_no_store_card_are_counted_and_named(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    unknown = {"Nowhere Card": 120, "Curly \u2019Apostrophe\u2019 Card": 80, "Filler 01": 150}
+    rows = _rows("edhrec", 3, 200, unknown) + _rows("archidekt", 4, 500, {"Nowhere Card": 3})
+    report = _import_counted(store, _write_counted(tmp_path / "counted", rows))
+    file_report = _file_report(report)
+    unmatched = {(u["source"], u["bracket"]): u for u in file_report["universes_unmatched"]}
+    assert set(unmatched) == {("edhrec", "3"), ("archidekt", "4")}
+    first = unmatched[("edhrec", "3")]
+    assert first["rows"] == 2 and first["examples"] == [
+        "Nowhere Card",
+        "Curly \u2019Apostrophe\u2019 Card",
+    ]
+    assert unmatched[("archidekt", "4")]["rows"] == 1
+    assert report["rows_unmatched"] == 3
+    assert _stored(store) > 0  # a notice, never a refusal
+    client = TestClient(create_app(tmp_path / "studio"))
+    listed = {
+        (item["source"], item["bracket"]): item
+        for item in client.get("/api/universe/counted", params={"commander": COMMANDER}).json()
+    }
+    assert listed[("edhrec", "3")]["unmatched_rows"] == 2
+    assert listed[("edhrec", "3")]["unmatched_examples"] == [
+        "Nowhere Card",
+        "Curly \u2019Apostrophe\u2019 Card",
+    ]
+    assert "2 Zeilen" in listed[("edhrec", "3")]["notice"]
+    # A fully matched universe has no notice.
+    clean = _write_counted(tmp_path / "clean", _rows("edhrec", 3, 200, {"Filler 01": 150}))
+    _import_counted(store, clean)
+    again = client.get("/api/universe/counted", params={"commander": COMMANDER}).json()
+    assert next(item for item in again if item["bracket"] == "3")["unmatched_rows"] == 0
+
+
 def test_the_step_report_of_import_all_names_the_refused_universe(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

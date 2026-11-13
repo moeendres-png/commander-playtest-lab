@@ -83,7 +83,7 @@ import csv
 import hashlib
 import math
 import re
-from collections.abc import Callable, Iterator
+from collections.abc import Callable, Iterator, Sequence
 from pathlib import Path
 from typing import TypedDict
 
@@ -135,6 +135,13 @@ class RefusedUniverse(TypedDict):
     rows_removed: int  # rows of this universe a former import had stored: removed with it
 
 
+class UnmatchedRows(TypedDict):
+    source: str
+    bracket: str
+    rows: int  # stored rows whose name matches no card of the store (oracle catalog included)
+    examples: list[str]  # up to UNMATCHED_EXAMPLES names, the most counted first
+
+
 class FileReport(TypedDict):
     status: str
     parts: list[str]
@@ -148,6 +155,7 @@ class FileReport(TypedDict):
     lists_read: int  # tournament files: distinct lists read from this file
     pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
     universes_refused: list[RefusedUniverse]  # counted deck-list files: refused universes
+    universes_unmatched: list[UnmatchedRows]  # counted deck-list files: rows without a card
 
 
 def _number(text: str | None) -> float | None:
@@ -283,6 +291,7 @@ def _empty(paths: list[Path]) -> FileReport:
         "lists_read": 0,
         "pooled_into": None,
         "universes_refused": [],
+        "universes_unmatched": [],
     }
 
 
@@ -652,6 +661,7 @@ def _import_decklists(
         file_hash = hashlib.sha256(
             "".join(sha256_file(path) for path in paths).encode()
         ).hexdigest()
+        known = known_card_names(store)
         for (source, bracket), universe in usable.items():
             signal = decklist_signal(source, bracket)
             source_id = store.register_source(
@@ -666,6 +676,57 @@ def _import_decklists(
             written, replaced = _store_rows(store, rows, source_id)
             report["rows_written"] += written
             report["rows_replaced"] += replaced
+            missing = unmatched_universe_names(store, commander, signal, known)
+            if missing:
+                report["universes_unmatched"].append(
+                    {
+                        "source": source,
+                        "bracket": bracket,
+                        "rows": len(missing),
+                        "examples": missing[:UNMATCHED_EXAMPLES],
+                    }
+                )
+
+
+UNMATCHED_EXAMPLES = 10
+
+
+def known_card_names(store: StudioStore) -> set[str]:
+    """Every card name the store knows, casefolded: the collection's oracle and engine names,
+    the Scryfall catalog and the front face of each two-part name."""
+    db = store.connection
+    names: set[str] = set()
+    for sql in (
+        "SELECT oracle_name FROM card_fact",
+        "SELECT engine_name FROM card_fact",
+        "SELECT name FROM scryfall_card",
+    ):
+        names.update(str(row[0]) for row in db.execute(sql) if row[0])
+    names.update(name.split(" // ")[0].strip() for name in list(names) if " // " in name)
+    return {name.casefold() for name in names}
+
+
+def unmatched_universe_names(
+    store: StudioStore, commander: str, signal: str, known: set[str] | None = None
+) -> list[str]:
+    """The card names of a stored counted universe that match no card of the store, the
+    most counted first. Empty while the store holds no card at all (nothing to match against).
+    A notice only: no name is dropped and nothing is refused because of it."""
+    names = known if known is not None else known_card_names(store)
+    if not names:
+        return []
+    rows = store.connection.execute(
+        "SELECT card_name FROM card_signal WHERE commander_name = ? AND signal = ? "
+        "ORDER BY numerator DESC, card_name",
+        (commander, signal),
+    )
+    return [str(row[0]) for row in rows if str(row[0]).casefold() not in names]
+
+
+def unmatched_notice(rows: int, examples: Sequence[str]) -> str:
+    if rows <= 0:
+        return ""
+    return f"{rows} Zeilen ohne Karte im Store, z. B. {'; '.join(examples)}"
 
 
 def _remove_universe(store: StudioStore, commander: str, signal: str) -> int:
@@ -900,6 +961,9 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
         "files": reports,
         "files_refused": sum(1 for report in reports.values() if report["status"] == REFUSED),
         "universes_refused": sum(len(report["universes_refused"]) for report in reports.values()),
+        "rows_unmatched": sum(
+            item["rows"] for report in reports.values() for item in report["universes_unmatched"]
+        ),
         "rows_written": sum(report["rows_written"] for report in reports.values()),
         "rows_replaced": sum(report["rows_replaced"] for report in reports.values()),
         "rows_kept": sum(report["rows_kept"] for report in reports.values()),

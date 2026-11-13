@@ -28,6 +28,7 @@ from . import (
     import_all,
     launch,
     queries,
+    signals,
     strength_view,
     universe,
     universe_choice,
@@ -453,10 +454,25 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         commander: str = Query(min_length=1, max_length=200),
     ) -> list[dict[str, object]]:
         """The counted deck-list universes stored for this commander (source, bracket, decks,
-        snapshot, label). Never another commander's."""
+        snapshot, label) with the stored rows whose name matches no card of the store
+        (``unmatched_rows``, up to ten ``unmatched_examples``, a German ``notice``). Never
+        another commander's."""
         store = open_store()
         try:
-            return [dict(item) for item in universe_choice.counted_universes(store, commander)]
+            known = signals.known_card_names(store)
+            listed: list[dict[str, object]] = []
+            for item in universe_choice.counted_universes(store, commander):
+                missing = signals.unmatched_universe_names(store, commander, item["signal"], known)
+                examples = missing[: signals.UNMATCHED_EXAMPLES]
+                listed.append(
+                    {
+                        **item,
+                        "unmatched_rows": len(missing),
+                        "unmatched_examples": examples,
+                        "notice": signals.unmatched_notice(len(missing), examples),
+                    }
+                )
+            return listed
         finally:
             store.close()
 

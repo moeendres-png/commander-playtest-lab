@@ -159,6 +159,11 @@ def _summary(result: object) -> str:
                     parts.append(f"{name}: abgelehnt ({', '.join(sorted(reasons))})")
                 for refused in report.get("universes_refused") or []:
                     parts.append(_refused_universe(name, refused))
+                for missing in report.get("universes_unmatched") or []:
+                    parts.append(
+                        f"{name}: Universum {missing['source']}/{missing['bracket']}: "
+                        + signals.unmatched_notice(missing["rows"], missing["examples"])
+                    )
         return ", ".join(parts)
     return ""
 
