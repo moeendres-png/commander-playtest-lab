@@ -461,3 +461,104 @@ def test_every_pod_deck_of_the_smoke_script_is_watched() -> None:
     decks = {str(path) for path in module.smoke.REAL_DECK_PATHS}
     assert len(decks) == 4
     assert decks <= set(module.REFERENCE_WATCHED_PATHS)
+
+
+# --- the gate options of ``compare``: frame digests, expected game count, different jars --------
+
+
+def _framed(
+    path: Path,
+    games: list[tuple[int, str, str, dict[str, str]]],
+    *,
+    jar: str | None = "jar-a",
+) -> Path:
+    rows = [
+        {"pod": "p1", "seed": seed, "status": "ok", "semantic": sem, "frame_digest": fd}
+        | {"frame_digest_by_seat": seats, "frames": 7, "wall_s": 1.0, "child_cpu_s": 1.0}
+        for seed, sem, fd, seats in games
+    ]
+    doc: dict = {"games": rows}
+    if jar is not None:
+        doc["bridge_jar_sha256"] = jar
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    return path
+
+
+_SEATS = {"0": "x0", "1": "x1"}
+_GAMES = [(1, "s1", "f1", _SEATS), (2, "s2", "f2", _SEATS)]
+
+
+def _gate(tmp_path: Path, a: Path, b: Path, *options: str) -> int:
+    return _module().main(["compare", str(a), str(b), *options])
+
+
+def test_compare_passes_when_hashes_and_frames_are_identical(tmp_path: Path, capsys) -> None:
+    a = _framed(tmp_path / "a.json", _GAMES)
+    b = _framed(tmp_path / "b.json", _GAMES, jar="jar-b")
+    assert _gate(tmp_path, a, b, "--expect-games", "2", "--require-different-jars") == 0
+    out = capsys.readouterr().out
+    assert "identical 2/2" in out and "frames identical 2/2" in out
+
+
+def test_compare_fails_when_frames_differ_although_the_hashes_are_equal(
+    tmp_path: Path, capsys
+) -> None:
+    a = _framed(tmp_path / "a.json", _GAMES)
+    b = _framed(tmp_path / "b.json", [_GAMES[0], (2, "s2", "OTHER", {"0": "x0", "1": "changed"})])
+    assert _gate(tmp_path, a, b) == 1
+    out = capsys.readouterr().out
+    assert "identical 2/2" in out and "frames identical 1/2" in out
+    assert "FRAMES DIFFERENT ('p1', 2) first differing seat: 1;" in out
+
+
+def test_compare_without_frame_digests_in_one_file_keeps_the_old_behaviour(
+    tmp_path: Path, capsys
+) -> None:
+    a = _framed(tmp_path / "a.json", _GAMES)
+    b = _report(tmp_path / "b.json", [("p1", 1, "ok", "s1"), ("p1", 2, "ok", "s2")])
+    assert _gate(tmp_path, a, b) == 0
+    assert "frames not compared" in capsys.readouterr().out
+
+
+def test_expect_games_fails_on_a_missing_game_or_a_wrong_count(tmp_path: Path) -> None:
+    a = _framed(tmp_path / "a.json", _GAMES)
+    b = _framed(tmp_path / "b.json", _GAMES[:1])
+    assert _gate(tmp_path, a, b, "--expect-games", "2") == 1
+    assert _gate(tmp_path, a, a, "--expect-games", "3") == 1
+    assert _gate(tmp_path, a, a, "--expect-games", "2") == 0
+
+
+def test_expect_games_demands_frame_digests_and_finished_games(tmp_path: Path) -> None:
+    plain = _report(tmp_path / "p.json", [("p1", 1, "ok", "s1")])
+    assert _gate(tmp_path, plain, plain, "--expect-games", "1") == 1
+    failed = _report(tmp_path / "f.json", [("p1", 1, "failed", None)])
+    assert _gate(tmp_path, failed, failed, "--expect-games", "1") == 1
+
+
+def test_zero_games_in_common_is_an_error(tmp_path: Path, capsys) -> None:
+    a = _report(tmp_path / "a.json", [("p1", 1, "ok", "s1")])
+    b = _report(tmp_path / "b.json", [("p1", 2, "ok", "s1")])
+    assert _gate(tmp_path, a, b) == 1
+    empty = tmp_path / "e.json"
+    empty.write_text(json.dumps({"games": []}), encoding="utf-8")
+    assert _gate(tmp_path, empty, empty) == 1
+    assert "no game is present in both files" in capsys.readouterr().out
+
+
+def test_require_different_jars(tmp_path: Path, capsys) -> None:
+    same_a = _framed(tmp_path / "a.json", _GAMES)
+    same_b = _framed(tmp_path / "b.json", _GAMES)
+    assert _gate(tmp_path, same_a, same_b, "--require-different-jars") == 1
+    assert "both reports used jar jar-a" in capsys.readouterr().out
+    other = _framed(tmp_path / "c.json", _GAMES, jar="jar-b")
+    assert _gate(tmp_path, same_a, other, "--require-different-jars") == 0
+    unknown = _framed(tmp_path / "d.json", _GAMES, jar=None)
+    assert _gate(tmp_path, same_a, unknown, "--require-different-jars") == 1
+
+
+def test_file_sha256_is_the_sha256_of_the_bytes(tmp_path: Path) -> None:
+    jar = tmp_path / "x.jar"
+    jar.write_bytes(b"abc")
+    assert _module().file_sha256(jar) == (
+        "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
+    )
