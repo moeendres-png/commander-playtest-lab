@@ -311,9 +311,11 @@ function renderNotice() {
   const status = summary.layer_status;
   const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
   $("notice").replaceChildren(
-    h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, `${INDEX_HEADING}: `), INDEX_TEXT),
-    h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, `${OUTCOME_HEADING}: `), OUTCOME_TEXT),
-    h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game", "simulated_result"].map(line).join(" · ")),
+    h("details", { id: "tier-explain", class: "explain", title: `${policy.version}: ${policy.rule}` },
+      h("summary", {}, "Was bedeuten die Stufen?"),
+      h("p", {}, h("b", {}, `${INDEX_HEADING}: `), INDEX_TEXT),
+      h("p", {}, h("b", {}, `${OUTCOME_HEADING}: `), OUTCOME_TEXT)),
+    h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game"].map(line).join(" · ")),
     ...[bindingLine()].filter(Boolean));
   $("tier-pill").textContent = `Ergebnis aus Partien: ${summary.unrated} von ${summary.cards} noch nicht bewertet`;
 }
