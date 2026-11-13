@@ -125,7 +125,9 @@ def _parser() -> argparse.ArgumentParser:
         "--append",
         action="store_true",
         help="only add and update rows; the default replaces every signal and commander "
-        "the files write",
+        "the files write. A usable counted universe (decklist_universe:<source>:<bracket>) is "
+        "still replaced as a whole, so rows of two snapshots never mix denominators; a "
+        "refused universe is never deleted",
     )
     import_all = commands.add_parser(
         "import-all",
@@ -598,6 +600,32 @@ def _play_batch(args: argparse.Namespace) -> int:
     return 0 if all(item["status"] == "finished" for item in summaries) else 1
 
 
+def _warm_caches(data: str | None) -> None:
+    """Fill the data-epoch memo for the commanders that have source data, in the background, so
+    the first pool or tier call of the Owner does not pay for the corpus counts."""
+    from . import builder, import_all, strength_view, universe
+
+    try:
+        store = StudioStore.open(data)
+    except Exception:  # a warm-up must never stop the server
+        return
+    try:
+        for item in builder.list_commanders(store):
+            if item.get("has_data") and item.get("in_collection"):
+                name = str(item["name"])
+                builder.pool_cards(store, [name])
+                settings = strength_view.resolve_settings(
+                    store, preset=None, profile=None, settings=None
+                )
+                strength_view.compute(store, name, settings)
+                universe.options(store, commander_names=[name])
+                import_all.layer_overview(store, name)
+    except Exception:  # best effort only
+        pass
+    finally:
+        store.close()
+
+
 def _serve(data: str | None, port: int, open_browser: bool) -> int:
     import threading
     import webbrowser
@@ -607,6 +635,7 @@ def _serve(data: str | None, port: int, open_browser: bool) -> int:
     from .web import create_app
 
     StudioStore.open(data).close()
+    threading.Thread(target=_warm_caches, args=(data,), daemon=True).start()
     address = f"http://127.0.0.1:{port}/"
     print(f"Commander Studio: {address}  (stop with Ctrl+C)")
     if open_browser:

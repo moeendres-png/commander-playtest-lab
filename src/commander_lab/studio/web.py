@@ -23,12 +23,14 @@ from pydantic import BaseModel, ConfigDict, Field, StrictInt
 from . import (
     builder,
     card_outcomes,
+    combos,
     data_report,
     games,
     import_all,
     launch,
     queries,
     signals,
+    strength,
     strength_view,
     universe,
     universe_choice,
@@ -403,6 +405,23 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(
                 404, f"unknown commander, preset, profile or universe profile: {error}"
             ) from error
+        finally:
+            store.close()
+
+    @app.get("/api/rating-layers")
+    def rating_layers(
+        commander: str = Query(min_length=1, max_length=200),
+        pod_size: int = Query(
+            default=strength.DEFAULT_POD_SIZE, ge=strength.POD_SIZE_MIN, le=strength.POD_SIZE_MAX
+        ),
+    ) -> dict[str, object]:
+        """The rating layers (Bewertungsebenen) of one commander's pool, without the strength
+        index: for the card window of the builder. Derived or observed, never a tier."""
+        store = open_store()
+        try:
+            return dict(strength_view.rating_layers(store, commander, pod_size))
+        except KeyError as error:
+            raise HTTPException(404, f"commander not in the collection: {error}") from error
         finally:
             store.close()
 
@@ -936,6 +955,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "roles": builder.deck_roles(
                     store, [RevisionCard(r["card_id"], r["quantity"], r["zone"]) for r in rows]
                 ),
+                "combos": combos.deck_combos(store, rows),
             }
         except KeyError as error:
             raise HTTPException(404, "unknown revision") from error
@@ -965,6 +985,7 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
                 "issues": [asdict(i) for i in validate_rows(rows, owned_only=body.owned_only)],
                 "shape": builder.deck_shape(rows),
                 "roles": builder.deck_roles(store, _cards(body.cards)),
+                "combos": combos.deck_combos(store, rows),
             }
         finally:
             store.close()

@@ -14,7 +14,7 @@ from pathlib import Path
 from commander_lab.owner_data import owner_data_root
 
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
-SCHEMA_VERSION = 13
+SCHEMA_VERSION = 14
 DATABASE_NAME = "studio.sqlite3"
 
 
@@ -384,6 +384,14 @@ CREATE TABLE IF NOT EXISTS strength_profile (
     spec TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS commander_combo (
+    commander_name TEXT NOT NULL,
+    ordinal INTEGER NOT NULL,
+    cards TEXT NOT NULL,
+    num_decks INTEGER NOT NULL,
+    source_id TEXT NOT NULL REFERENCES source(source_id),
+    PRIMARY KEY (commander_name, ordinal)
+);
 CREATE TABLE IF NOT EXISTS card_ruling (
     oracle_id TEXT NOT NULL,
     ordinal INTEGER NOT NULL,
@@ -565,6 +573,7 @@ class StudioStore:
     def __init__(self, connection: sqlite3.Connection, path: Path | None) -> None:
         self.connection = connection
         self.path = path
+        self._epoch_cache: tuple[tuple[int, int], tuple[object, ...]] | None = None
 
     @classmethod
     def open(cls, folder: str | Path | None = None) -> StudioStore:
@@ -596,7 +605,8 @@ class StudioStore:
         elif int(row["value"]) < SCHEMA_VERSION:
             # Every schema step so far only adds tables and views (created above); schema 11
             # adds card_signal and strength_profile, schema 13 adds card_ruling and its
-            # per-file provenance table card_ruling_source.
+            # per-file provenance table card_ruling_source. Schema 14 adds commander_combo
+            # (the full card set of each listed combo of a commander).
             if int(row["value"]) < 12:
                 # Schema 12 adds the universe profile lifecycle columns (version,
                 # updated_at) to the existing table; purely additive, existing rows
@@ -765,6 +775,41 @@ class StudioStore:
             if len(rows) == 1:
                 return str(rows[0]["card_id"])
         return None
+
+    # Tables a derived figure (corpus counts, universes, signals) is computed from. Marks,
+    # notes, drafts and saved decks are deliberately not part of the epoch.
+    _EPOCH_QUERIES = (
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COALESCE(MAX(imported_at), '') FROM source",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0), COUNT(oracle_id), COALESCE(SUM(quantity), 0) "
+        "FROM corpus_deck_card",
+        "SELECT COUNT(*), COUNT(duplicate_of), COUNT(DISTINCT fingerprint) FROM corpus_deck",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM corpus_cohort",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM commander_binding",
+        "SELECT COUNT(*), COALESCE(SUM(version), 0), COALESCE(MAX(updated_at), '') "
+        "FROM universe_profile",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card_signal",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM card_role",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM observation",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM scryfall_card",
+        "SELECT COUNT(*), COALESCE(MAX(rowid), 0) FROM inventory",
+    )
+
+    def data_epoch(self) -> tuple[object, ...]:
+        """A cheap fingerprint of the imported data (see ``memo``); it changes when an import,
+        a relink or a profile edit changes what a derived figure is counted over."""
+        # Recomputed only when this connection (total_changes) or another one (data_version)
+        # wrote since the last call: one request asks for it many times.
+        token = (
+            self.connection.execute("PRAGMA data_version").fetchone()[0],
+            self.connection.total_changes,
+        )
+        cached = self._epoch_cache
+        if cached is not None and cached[0] == token:
+            return cached[1]
+        epoch = tuple(tuple(self.connection.execute(q).fetchone()) for q in self._EPOCH_QUERIES)
+        self._epoch_cache = (token, epoch)
+        return epoch
 
     def count(self, table: str) -> int:
         if table not in {

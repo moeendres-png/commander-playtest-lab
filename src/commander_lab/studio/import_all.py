@@ -26,6 +26,7 @@ from . import (
     catalog,
     decklist_import,
     importers,
+    memo,
     repo_import,
     research_import,
     roles,
@@ -286,12 +287,21 @@ def _repo_layers(
     """The layers ``--from-repo`` fills: corpus decks, EDHREC observations, Playgroup atlas."""
     db = store.connection
     ids = {str(card["card_id"]) for card in cards}
+    corpus_oracle_ids = memo.cached(
+        store,
+        "corpus_oracle_ids",
+        None,
+        lambda: {
+            str(row[0])
+            for row in db.execute(
+                "SELECT DISTINCT oracle_id FROM corpus_deck_card WHERE oracle_id IS NOT NULL"
+            )
+        },
+    )
     in_corpus = {
         str(row[0])
-        for row in db.execute(
-            "SELECT DISTINCT f.card_id FROM card_fact f JOIN corpus_deck_card k "
-            "ON k.oracle_id = f.oracle_id"
-        )
+        for row in db.execute("SELECT card_id, oracle_id FROM card_fact")
+        if row[1] is not None and str(row[1]) in corpus_oracle_ids
     }
     add(
         "corpus",

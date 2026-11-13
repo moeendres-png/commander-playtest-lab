@@ -199,5 +199,53 @@ const StudioUI = (() => {
       el("p", { class: "note" }, `Ein Aufruf mit allen Dateien: ${overview.doc}. Unter Windows kommt vor „import-all“ die Option --data "$env:LOCALAPPDATA\\CommanderStudio".`)));
   }
 
-  return { recall, remember, el, toast, fail, germanError, request, busy, loading, skeleton, limitNumber, dataState, effectiveTheme, applyTheme };
+  // ---------- rating layers (Bewertungsebenen): one reading for the tier list and the builder ----------
+  // A layer is its own column next to the strength tier. A derived layer (from the rule text) is a rule,
+  // a measured one is an observed correlation; an unknown value is shown as "–" with the reason, never as 0.
+  const LAYER_STATUS = { OK: "vorhanden", UNKNOWN: "unbekannt", NOT_APPLICABLE: "nicht anwendbar" };
+  const LAYER_KINDS = { measured: "gemessen (beobachteter Zusammenhang)", derived: "aus dem Regeltext abgeleitet, keine Messung" };
+  const layerShort = { measured: "gemessen", derived: "abgeleitet" };
+  const plusSign = (value) => (value > 0 ? "+" : "");
+  function layerText(key, item) {
+    if (item.status !== "OK") return null;
+    if (key === "pod_scaling") return item.detail.factor || item.detail.label; // a scaling card shows its plain factor
+    // The column sorts by the damped value the index reads, so that value leads; the measured gap follows.
+    if (key === "win_gap") return `${plusSign(item.value)}${item.value.toFixed(1)} Pp (gemessen ${plusSign(item.raw)}${item.raw.toFixed(1)}) · n=${item.n}`;
+    return `${(100 * item.raw).toFixed(0)} % · n=${item.n}`;
+  }
+  function layerTitle(meta, item) {
+    const head = `${meta.label} (${LAYER_KINDS[meta.kind] || meta.kind}).`;
+    if (item.status !== "OK") return `${head} ${LAYER_STATUS[item.status] || item.status}: ${item.note || item.reason}`;
+    const parts = [head, item.note ? `${item.note}.` : ""];
+    if (item.wilson !== null && item.wilson !== undefined) parts.push(`Wilson-Untergrenze ${(100 * item.wilson).toFixed(1)} %, Mindeststichprobe ${meta.min_sample || 25}.`);
+    if (item.percentile !== null && item.percentile !== undefined) parts.push(`Perzentil ${item.percentile.toFixed(1)} von 100 im Pool.`);
+    parts.push(`Quelle: ${meta.source}. Nenner: ${meta.denominator}.`);
+    return parts.filter(Boolean).join(" ");
+  }
+  // The cell of a layer value: text with n, a tooltip with status and reason; unknown as "–".
+  function layerNode(meta, item) {
+    if (!item) return el("span", { class: "unknown", title: `${meta.label}: nicht berechnet` }, "–");
+    if (item.status !== "OK") return el("span", { class: "unknown", title: layerTitle(meta, item) }, "–");
+    const detail = item.detail || {};
+    return el("span", { title: layerTitle(meta, item) }, layerText(meta.key, item),
+      detail.flag_label ? el("span", { class: "badge dim", title: detail.flag_label }, "symmetrisch") : null,
+      detail.discrepancy ? el("span", { class: "badge warn", title: item.note }, "Quelle widerspricht sich") : null);
+  }
+  // A small table of the layers of one card (card window of the tier list and of the builder).
+  function layerTable(values, metas) {
+    const rows = metas.map((meta) => {
+      const item = values[meta.key];
+      const ok = item && item.status === "OK";
+      return el("tr", {},
+        el("td", { title: meta.description }, meta.label),
+        el("td", {}, layerShort[meta.kind] || meta.kind),
+        el("td", {}, item ? layerNode(meta, item) : el("span", { class: "unknown" }, "–")),
+        el("td", { class: "num" }, ok && item.wilson !== null && item.wilson !== undefined ? `${(100 * item.wilson).toFixed(1)} %` : "–"),
+        el("td", { class: "num" }, ok && item.percentile !== null ? item.percentile.toFixed(1) : "–"),
+        el("td", {}, item && item.status !== "OK" ? el("span", { class: "unknown" }, item.note || item.reason) : (ok && item.note ? el("span", { class: "rule" }, item.note) : "")));
+    });
+    return el("table", {}, el("thead", {}, el("tr", {}, ["Ebene", "Art", "Wert", "Wilson-Untergrenze", "Perzentil", "Hinweis"].map((label) => el("th", {}, label)))), el("tbody", {}, rows));
+  }
+
+  return { recall, remember, el, toast, fail, germanError, request, busy, loading, skeleton, limitNumber, dataState, effectiveTheme, applyTheme, layerText, layerTitle, layerNode, layerTable };
 })();
