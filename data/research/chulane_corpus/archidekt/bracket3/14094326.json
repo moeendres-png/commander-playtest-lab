@@ -1,0 +1,781 @@
+{
+ "id": 14094326,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane",
+ "updated_at": "2026-11-07T22:25:52.499624Z",
+ "cards": [
+  {
+   "name": "Urban Evolution",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bane of Progress",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scalding Tarn",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Veil of Summer",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rest in Peace",
+   "quantity": 1,
+   "categories": [
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Polluted Delta",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pulse of Murasa",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reap",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prismatic Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tarmogoyf",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Good-Fortune Unicorn",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gaea's Blessing",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wasteland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Empyrial Archangel",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guildmages' Forum",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Triumph of Saint Katherine",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oko, Thief of Crowns",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pelt Collector",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sylvan Library",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shielding Plax",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [
+    "Finisher",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldly Tutor",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of the Reliquary",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Tutor",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Board Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dryad of the Ilysian Grove",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1,
+   "categories": [
+    "Board Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Collector Ouphe",
+   "quantity": 1,
+   "categories": [
+    "Stax",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Doppelgang",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1,
+   "categories": [
+    "Board Wipe"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Icetill Explorer",
+   "quantity": 1,
+   "categories": [
+    "Recursion",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Turbulent Wilderness",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Counters",
+    "ETB Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flood Plain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nightshade Dryad",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures",
+    "Creature",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vendilion Clique",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures",
+    "Creature",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sumala Woodshaper",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures",
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Uro, Titan of Nature's Wrath",
+   "quantity": 1,
+   "categories": [
+    "ETB Creatures",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Landfall",
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cold-Eyed Selkie",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Finale of Devastation",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 6,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 97,
+ "summe_gesamt": 105,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
