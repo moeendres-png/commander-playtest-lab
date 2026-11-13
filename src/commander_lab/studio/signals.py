@@ -113,6 +113,10 @@ SIGNAL_BRACKET = "edhrec_bracket_inclusion"
 SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
 SIGNAL_TOURNAMENT = "tournament_lists"
+SIGNAL_SALT = "edhrec_salt"
+SIGNAL_COMBO_DECKS = "edhrec_combo_decks"
+SALT_FILE = "edhrec_salt"
+COMBOS_FILE = "edhrec_chulane_combos"
 SIGNAL_EDHTOP16 = "edhtop16_commander_play_rate"
 SIGNAL_DECKLIST = "decklist_universe"
 REFUSED = "REFUSED"
@@ -133,6 +137,7 @@ class RefusedUniverse(TypedDict):
     commander_decks: int | None  # decks_with_card of the commander's own row, None when absent
     universe_decks: int  # the denominator of the universe (the largest one when they are mixed)
     rows_removed: int  # rows of this universe a former import had stored: removed with it
+    rows_kept: int  # its stored rows that stayed (append mode, wrong-commander file)
 
 
 class UnmatchedRows(TypedDict):
@@ -153,6 +158,8 @@ class FileReport(TypedDict):
     skipped_reasons: dict[str, int]
     commander: str | None
     lists_read: int  # tournament files: distinct lists read from this file
+    null_value_reasons: dict[str, int]  # why a stored value is unknown (NULL), per reason
+    warnings: list[str]
     pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
     universes_refused: list[RefusedUniverse]  # counted deck-list files: refused universes
     universes_unmatched: list[UnmatchedRows]  # counted deck-list files: rows without a card
@@ -189,7 +196,7 @@ def _parts(folder: Path, base: str) -> list[Path]:
 
 def _rows(paths: list[Path], required: set[str]) -> Iterator[dict[str, str]]:
     for path in paths:
-        with path.open(newline="", encoding="utf-8") as handle:
+        with path.open(newline="", encoding="utf-8-sig") as handle:
             reader = csv.DictReader(handle)
             missing = required - set(reader.fieldnames or [])
             if missing:
@@ -246,20 +253,45 @@ class _Commanders:
         return name
 
 
-def _commander_rows(
-    row: dict[str, str], commander: str, card: str, variant: str | None
-) -> list[_Row]:
+def _deck_counts(row: dict[str, str], report: FileReport) -> tuple[int | None, int | None]:
+    """Numerator and denominator of an inclusion figure; both None, with a counted reason,
+    when either is missing or they contradict each other."""
     numerator = _count(row.get("num_decks"))
     denominator = _count(row.get("potential_decks"))
-    if numerator is None or denominator is None or denominator <= 0 or numerator > denominator:
-        numerator = denominator = None
+    reasons = report["null_value_reasons"]
+    reason: str | None = None
+    if numerator is None or denominator is None:
+        reason = "DECK_COUNTS_MISSING_OR_NOT_NUMERIC"
+    elif denominator <= 0:
+        reason = "POTENTIAL_DECKS_NOT_POSITIVE"
+    elif numerator > denominator:
+        reason = "NUM_DECKS_ABOVE_POTENTIAL_DECKS"
+    if reason is not None:
+        reasons[reason] = reasons.get(reason, 0) + 1
+        return None, None
+    return numerator, denominator
+
+
+def _commander_rows(
+    row: dict[str, str], commander: str, card: str, variant: str | None, report: FileReport
+) -> list[_Row]:
+    numerator, denominator = _deck_counts(row, report)
     suffix = f":{variant}" if variant else ""
     inclusion = SIGNAL_BRACKET + suffix if variant else SIGNAL_INCLUSION
     rows: list[_Row] = [
         (commander, inclusion, card, _share(numerator, denominator), numerator, denominator)
     ]
     if not variant:
-        rows.append((commander, SIGNAL_SYNERGY, card, _number(row.get("synergy")), None, None))
+        synergy = _number(row.get("synergy"))
+        if synergy is None:
+            reason = (
+                "SYNERGY_NOT_PUBLISHED"
+                if not row.get("synergy", "").strip()
+                else "SYNERGY_NOT_NUMERIC"
+            )
+            reasons = report["null_value_reasons"]
+            reasons[reason] = reasons.get(reason, 0) + 1
+        rows.append((commander, SIGNAL_SYNERGY, card, synergy, None, None))
     return rows
 
 
@@ -274,6 +306,11 @@ def _first_wins(
             report["skipped_reasons"][reason] = report["skipped_reasons"].get(reason, 0) + 1
             continue
         kept[key] = row
+    conflicts = report["skipped_reasons"].get("DUPLICATE_CONFLICT", 0)
+    if conflicts:
+        report["warnings"].append(
+            f"{conflicts} duplicate(s) with different figures: the first row was kept"
+        )
     return kept
 
 
@@ -289,6 +326,8 @@ def _empty(paths: list[Path]) -> FileReport:
         "skipped_reasons": {},
         "commander": None,
         "lists_read": 0,
+        "null_value_reasons": {},
+        "warnings": [],
         "pooled_into": None,
         "universes_refused": [],
         "universes_unmatched": [],
@@ -320,7 +359,7 @@ def _read_commander_file(
                 report["skipped_reasons"].get("OTHER_VARIANT", 0) + 1
             )
             continue
-        for item in _commander_rows(row, commander, card, variant):
+        for item in _commander_rows(row, commander, card, variant, report):
             pairs.append(((item[0], item[1], item[2]), item))
     return list(_first_wins(iter(pairs), report).values())
 
@@ -328,7 +367,7 @@ def _read_commander_file(
 def _read_independent(
     paths: list[Path],
     required: set[str],
-    convert: Callable[[dict[str, str], str], list[_Row]],
+    convert: Callable[[dict[str, str], str, FileReport], list[_Row]],
     report: FileReport,
 ) -> list[_Row]:
     pairs: list[tuple[tuple[str, str, str], _Row]] = []
@@ -345,22 +384,75 @@ def _read_independent(
                 report["skipped_reasons"].get("FETCH_STATUS_NOT_AVAILABLE", 0) + 1
             )
             continue
-        for item in convert(row, card):
+        for item in convert(row, card, report):
             pairs.append(((item[0], item[1], item[2]), item))
     return list(_first_wins(iter(pairs), report).values())
 
 
-def _global_rows(row: dict[str, str], card: str) -> list[_Row]:
-    numerator = _count(row.get("num_decks"))
-    denominator = _count(row.get("potential_decks"))
-    if numerator is None or denominator is None or denominator <= 0 or numerator > denominator:
-        numerator = denominator = None
+def _global_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Row]:
+    numerator, denominator = _deck_counts(row, report)
     return [("", SIGNAL_GLOBAL, card, _share(numerator, denominator), numerator, denominator)]
 
 
-def _spellbook_rows(row: dict[str, str], card: str) -> list[_Row]:
+def _spellbook_rows(row: dict[str, str], card: str, report: FileReport) -> list[_Row]:
+    value = _number(row.get("variant_count"))
+    if value is None:
+        reasons = report["null_value_reasons"]
+        reasons["VARIANT_COUNT_NOT_NUMERIC"] = reasons.get("VARIANT_COUNT_NOT_NUMERIC", 0) + 1
+    return [("", SIGNAL_VARIANTS, card, value, None, None)]
+
+
+def _read_salt(paths: list[Path], report: FileReport) -> list[_Row]:
+    """The published salt list: one value per listed card (the rank is not stored). A card that
+    is not listed has no row: its salt is unknown, not zero."""
+    pairs: list[tuple[tuple[str, str, str], _Row]] = []
+    for row in _rows(paths, {"card_name", "salt"}):
+        report["rows_read"] += 1
+        card = row["card_name"].strip()
+        value = _number(row.get("salt"))
+        if not card or value is None:
+            reason = "NAME_MISSING" if not card else "SALT_NOT_NUMERIC"
+            report["rows_skipped"] += 1
+            report["skipped_reasons"][reason] = report["skipped_reasons"].get(reason, 0) + 1
+            continue
+        item: _Row = ("", SIGNAL_SALT, card, value, None, None)
+        pairs.append(((item[0], item[1], item[2]), item))
+    return list(_first_wins(iter(pairs), report).values())
+
+
+def _read_combos(paths: list[Path], commander: str, report: FileReport) -> list[_Row]:
+    """Per card of the commander's EDHREC combo lists: ``numerator`` the number of listed
+    combos it is part of, ``value`` the largest deck count among them. The commander itself
+    (part of its own combos) is not a card signal."""
+    combos: dict[str, tuple[int, int]] = {}
+    seen: set[tuple[str, int]] = set()
+    for row in _rows(paths, {"cards", "num_decks"}):
+        report["rows_read"] += 1
+        cards = sorted({name.strip() for name in row["cards"].split(";") if name.strip()})
+        decks = _count(row["num_decks"])
+        reason = (
+            "COMBO_WITHOUT_CARDS"
+            if not cards
+            else "NUM_DECKS_NOT_NUMERIC"
+            if decks is None
+            else "DUPLICATE_COMBO"
+            if (";".join(cards), decks) in seen
+            else None
+        )
+        if reason is not None or decks is None:
+            report["rows_skipped"] += 1
+            key = reason or "NUM_DECKS_NOT_NUMERIC"
+            report["skipped_reasons"][key] = report["skipped_reasons"].get(key, 0) + 1
+            continue
+        seen.add((";".join(cards), decks))
+        for name in cards:
+            if name.casefold() == commander.casefold():
+                continue
+            count, best = combos.get(name, (0, 0))
+            combos[name] = (count + 1, max(best, decks))
     return [
-        ("", SIGNAL_VARIANTS, card, _number(row.get("variant_count")), None, None),
+        (commander, SIGNAL_COMBO_DECKS, name, float(best), count, None)
+        for name, (count, best) in sorted(combos.items())
     ]
 
 
@@ -529,7 +621,9 @@ def _tournament_signal_rows(commander: str, lists: set[_ListKey]) -> list[_Row]:
     ]
 
 
-def _store_rows(store: StudioStore, rows: list[_Row], source_id: str) -> tuple[int, int]:
+def _store_rows(
+    store: StudioStore, rows: list[_Row], source_id: str, *, replace: bool = True
+) -> tuple[int, int]:
     """Replace the rows of every (commander, signal) pair of ``rows``; returns (rows written,
     existing rows that were replaced)."""
     db = store.connection
@@ -541,7 +635,10 @@ def _store_rows(store: StudioStore, rows: list[_Row], source_id: str) -> tuple[i
                 "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?", pair
             ).fetchone()[0]
         )
-    db.executemany("DELETE FROM card_signal WHERE commander_name = ? AND signal = ?", pairs)
+    if replace:
+        db.executemany("DELETE FROM card_signal WHERE commander_name = ? AND signal = ?", pairs)
+    else:
+        replaced = 0  # append mode only adds and updates rows
     db.executemany(
         "INSERT OR REPLACE INTO card_signal(commander_name, signal, card_name, value, "
         "numerator, denominator, source_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -619,6 +716,8 @@ def _import_decklists(
     commander: str,
     raw_name: str,
     reports: dict[str, FileReport],
+    *,
+    replace: bool = True,
 ) -> None:
     """Read every counted deck-list file of the folder. A universe whose commander check or
     counts fail is refused alone and named in the report; the other universes of the file are
@@ -632,6 +731,13 @@ def _import_decklists(
             report["status"] = "NOTHING_REPLACED"
             continue
         usable: dict[tuple[str, str], _Universe] = {}
+        # Decided once per file: a file in which no universe has a row of this commander was
+        # built around another commander, so none of its refusals says anything about the
+        # rows stored for this one.
+        wanted = {commander.casefold(), raw_name.casefold()}
+        wrong_file = not any(
+            card.casefold() in wanted for item in universes.values() for card in item.cards
+        )
         for (source, bracket), universe in sorted(universes.items()):
             reason, commander_decks = _universe_refusal(
                 (source, bracket), universe, {commander, raw_name}
@@ -641,8 +747,13 @@ def _import_decklists(
                 continue
             _bump(report, reason)
             removed = 0
-            if reason != INVALID_UNIVERSE_NAME:  # a stale universe must not stay selectable
-                removed = _remove_universe(store, commander, decklist_signal(source, bracket))
+            # A stale universe must not stay selectable: its rows go with the refusal, except
+            # for an invalid name (no such signal), a wrong-commander file, and append mode
+            # (which never deletes: the rows that stay are reported).
+            signal = decklist_signal(source, bracket)
+            if replace and not wrong_file and reason != INVALID_UNIVERSE_NAME:
+                removed = _remove_universe(store, commander, signal)
+            kept = _count_rows(store, commander, signal)
             report["universes_refused"].append(
                 {
                     "source": source,
@@ -651,6 +762,7 @@ def _import_decklists(
                     "commander_decks": commander_decks,
                     "universe_decks": max(universe.denominators, default=0),
                     "rows_removed": removed,
+                    "rows_kept": kept,
                 }
             )
         report["commander"] = commander
@@ -729,6 +841,15 @@ def unmatched_notice(rows: int, examples: Sequence[str]) -> str:
     return f"{rows} Zeilen ohne Karte im Store, z. B. {'; '.join(examples)}"
 
 
+def _count_rows(store: StudioStore, commander: str, signal: str) -> int:
+    return int(
+        store.connection.execute(
+            "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?",
+            (commander, signal),
+        ).fetchone()[0]
+    )
+
+
 def _remove_universe(store: StudioStore, commander: str, signal: str) -> int:
     """Delete the stored rows of one counted universe of ``commander``; how many there were."""
     cursor = store.connection.execute(
@@ -747,13 +868,25 @@ def _kept_decklist_rows(store: StudioStore, commander: str) -> int:
 
 
 def _register(store: StudioStore, paths: list[Path]) -> str | None:
-    source_id: str | None = None
+    """Register every part of a file; the rows carry the source of the whole file: its only
+    part, or (several parts) one source whose hash covers all parts, not just the first."""
+    ids: list[tuple[str, str]] = []
     for path in paths:
-        registered = store.register_source(
-            data_class=DataClass.NORMALIZED_SOURCE, title=path.name, sha256=sha256_file(path)
+        digest = sha256_file(path)
+        store.register_source(
+            data_class=DataClass.NORMALIZED_SOURCE, title=path.name, sha256=digest
         )
-        source_id = source_id or registered
-    return source_id
+        ids.append((path.name, digest))
+    if len(ids) <= 1:
+        return f"src:{ids[0][1][:16]}" if ids else None
+    combined = hashlib.sha256(
+        "".join(f"{name}:{digest}\n" for name, digest in ids).encode("utf-8")
+    ).hexdigest()
+    return store.register_source(
+        data_class=DataClass.NORMALIZED_SOURCE,
+        title=f"{ids[0][0]} (+{len(ids) - 1} parts)",
+        sha256=combined,
+    )
 
 
 def _file_signals(file_name: str, variant: str | None) -> list[str]:
@@ -770,6 +903,10 @@ def _file_signals(file_name: str, variant: str | None) -> list[str]:
         return [SIGNAL_EDHTOP16]
     if file_name == ATLAS_FILE:
         return [SIGNAL_PLAYGROUP]
+    if file_name == SALT_FILE:
+        return [SIGNAL_SALT]
+    if file_name == COMBOS_FILE:
+        return [SIGNAL_COMBO_DECKS]
     return [SIGNAL_TOURNAMENT]
 
 
@@ -804,6 +941,8 @@ def _read_file(
         return _read_edhtop16(paths, report, commanders)
     if file_name == ATLAS_FILE:
         return _read_atlas(paths, report)
+    if file_name == SALT_FILE:
+        return _read_salt(paths, report)
     raise ValueError(f"not a per-file signal: {file_name}")
 
 
@@ -851,7 +990,15 @@ def has_signal_files(folder: str | Path) -> bool:
     root = Path(folder)
     if not root.is_dir():
         return False
-    bases = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE]
+    bases = [
+        CARD_FILE,
+        GLOBAL_FILE,
+        SPELLBOOK_FILE,
+        EDHTOP16_FILE,
+        ATLAS_FILE,
+        SALT_FILE,
+        COMBOS_FILE,
+    ]
     bases += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
     bases += _tournament_bases(root)
     return any(_parts(root, base) for base in bases) or bool(_decklist_bases(root))
@@ -863,6 +1010,8 @@ def _import_tournaments(
     preferred: str,
     commanders: _Commanders,
     reports: dict[str, FileReport],
+    *,
+    replace: bool = True,
 ) -> None:
     """Read ALL tournament files first, pool their lists per commander, store each commander
     once. A list is (tournament, date, player key, cards); the same list read from two files
@@ -891,7 +1040,7 @@ def _import_tournaments(
         source_id = source_ids[carriers[commander]]
         if source_id is None or not rows:
             continue
-        stored, replaced = _store_rows(store, rows, source_id)
+        stored, replaced = _store_rows(store, rows, source_id, replace=replace)
         carrier = reports[carriers[commander]]
         carrier["rows_written"], carrier["rows_replaced"] = stored, replaced
         written.add(commander)
@@ -906,7 +1055,39 @@ def _import_tournaments(
         )
 
 
-def import_signals(store: StudioStore, folder: str | Path, *, commander: str) -> dict[str, object]:
+def _import_combos(
+    store: StudioStore,
+    root: Path,
+    commander: str,
+    reports: dict[str, FileReport],
+    *,
+    replace: bool,
+) -> None:
+    """The combo list file of ``commander`` (``edhrec_<short name>_combos`` or the full name)."""
+    short = re.sub(r"[^a-z0-9-]+", "_", commander.split(",")[0].casefold()).strip("_")
+    full = re.sub(r"[^a-z0-9-]+", "_", commander.casefold()).strip("_")
+    for base in dict.fromkeys([f"edhrec_{short}_combos", f"edhrec_{full}_combos"]):
+        paths = _parts(root, base)
+        if not paths:
+            continue
+        report = _empty(paths)
+        reports[base] = report
+        rows = _read_combos(paths, commander, report)
+        source_id = _register(store, paths)
+        if source_id is not None and rows:
+            report["rows_written"], report["rows_replaced"] = _store_rows(
+                store, rows, source_id, replace=replace
+            )
+        else:
+            report["status"] = "NOTHING_REPLACED"
+            report["rows_kept"] = _kept_rows(store, [SIGNAL_COMBO_DECKS], commander)
+        return
+    reports[f"edhrec_{short}_combos"] = _empty([])
+
+
+def import_signals(
+    store: StudioStore, folder: str | Path, *, commander: str, replace: bool = True
+) -> dict[str, object]:
     """Import every signal file of ``folder`` (all optional); one report entry per file.
 
     The EDHREC signals carry their own commander column; every ``topdeck_*_decks`` file
@@ -929,35 +1110,44 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
     plan: list[tuple[str, str | None]] = [(CARD_FILE, None)]
     plan += [(f"{BRACKET_FILE}_{variant}", variant) for variant in BRACKET_VARIANTS]
     plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None)]
-    plan += [(EDHTOP16_FILE, None)]
+    plan += [(EDHTOP16_FILE, None), (SALT_FILE, None)]
     plan += [(ATLAS_FILE, None)]
     commanders = _Commanders(store)
     preferred = commanders.resolve(name)
     commanders.imported.discard(preferred)  # only commanders the files name are "imported"
     commanders.not_recognised.discard(name)
     with store.connection:
-        _import_tournaments(store, root, preferred, commanders, reports)
-        _import_decklists(store, root, preferred, name, reports)
+        _import_tournaments(store, root, preferred, commanders, reports, replace=replace)
+        _import_decklists(store, root, preferred, name, reports, replace=replace)
         for file_name, variant in plan:
             paths = _parts(root, file_name)
             report = _empty(paths)
             reports[file_name] = report
             if not paths:
                 continue
-            independent = (CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE)
+            independent = (
+                CARD_FILE,
+                GLOBAL_FILE,
+                SPELLBOOK_FILE,
+                EDHTOP16_FILE,
+                ATLAS_FILE,
+                SALT_FILE,
+            )
             base = file_name if file_name in independent else None
             kind = base or BRACKET_FILE
             rows = _read_file(kind, paths, variant, report, commanders)
             source_id = _register(store, paths)
             if source_id is not None and rows:
-                written, replaced = _store_rows(store, rows, source_id)
+                written, replaced = _store_rows(store, rows, source_id, replace=replace)
                 report["rows_written"], report["rows_replaced"] = written, replaced
             else:
                 report["status"] = "NOTHING_REPLACED"
                 report["rows_kept"] = _kept_rows(store, _file_signals(kind, variant), None)
+        _import_combos(store, root, preferred, reports, replace=replace)
     return {
         "folder": root.name,
         "tournament_commander": preferred,
+        "mode": "replace" if replace else "append",
         "files": reports,
         "files_refused": sum(1 for report in reports.values() if report["status"] == REFUSED),
         "universes_refused": sum(len(report["universes_refused"]) for report in reports.values()),
@@ -967,6 +1157,11 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
         "rows_written": sum(report["rows_written"] for report in reports.values()),
         "rows_replaced": sum(report["rows_replaced"] for report in reports.values()),
         "rows_kept": sum(report["rows_kept"] for report in reports.values()),
+        "warnings": [
+            f"{file}: {warning}"
+            for file, report in reports.items()
+            for warning in report["warnings"]
+        ],
         "commanders_imported": sorted(commanders.imported),
         "commanders_not_recognised": sorted(commanders.not_recognised),
         "commanders_normalised": [

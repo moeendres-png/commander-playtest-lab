@@ -184,6 +184,7 @@ def test_only_the_universe_that_fails_the_commander_check_is_refused(
             "commander_decks": 499,
             "universe_decks": 500,
             "rows_removed": 0,
+            "rows_kept": 0,
         }
     ]
     stored = universe_choice.counted_universes(store, COMMANDER)
@@ -777,3 +778,177 @@ def test_the_builder_takes_the_same_universe_as_the_tier_list(
     by_name = {str(card["name"]): card for card in chosen["cards"]}  # type: ignore[attr-defined]
     assert by_name["Filler 01"]["counted"] == {"hits": 150, "denominator": 200, "share": 0.75}
     assert by_name["Filler 20"]["counted"]["hits"] == 0  # counted zero
+
+
+# ---------- review residuals of the counted universes ----------
+
+
+def test_a_wrong_commander_file_keeps_the_rows_stored_for_this_commander(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    before = _stored(store)
+    assert before > 0
+    wrong = _write_counted(
+        tmp_path / "wrong", _rows("edhrec", 3, 200, {"Filler 01": 9}, commander=OTHER)
+    )
+    report = _import_counted(store, wrong)  # built around OTHER, imported for COMMANDER
+    refused = _file_report(report)["universes_refused"]
+    assert [(item["reason"], item["rows_removed"]) for item in refused] == [
+        (signals.COMMANDER_NOT_IN_EVERY_DECK, 0)
+    ]
+    assert _stored(store) == before
+    # A file that names the commander but not in every deck still removes the stale rows.
+    broken = _rows("edhrec", 3, 200, {"Filler 01": 150}, own=199)
+    report = _import_counted(store, _write_counted(tmp_path / "broken", broken))
+    assert _file_report(report)["universes_refused"][0]["rows_removed"] == 4
+
+
+def test_the_tier_result_notices_unmatched_rows_of_the_counted_universe(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    clean = _import_counted(store, _write_counted(tmp_path / "clean", _both()))
+    assert clean["rows_unmatched"] == 0
+    assert not [n for n in _compute(store)["notices"] if "Zeilen" in n]
+    rows = _rows("edhrec", 3, 200, {"Nowhere Card": 120, "Filler 01": 150}) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100}
+    )
+    _import_counted(store, _write_counted(tmp_path / "unknown", rows))
+    result = _compute(store)
+    assert result["universe_choice"]["counted"] == "counted:edhrec:3"
+    found = [n for n in result["notices"] if "Nowhere Card" in n]
+    assert len(found) == 1 and "1 Zeilen" in found[0] and "Nowhere Card" in found[0]
+    # The universe that was not used does not add a notice.
+    other = _compute(store, universe_source="counted:archidekt:4")
+    assert not [n for n in other["notices"] if "Nowhere Card" in n]
+    # the function that builds the "Index berechnet mit" block renders the notices list
+    script = (Path(import_all.__file__).parent / "static" / "tierliste.js").read_text("utf-8")
+    start = script.index("function renderStrengthSummary()")
+    block = script[start : script.index("\nasync function ", start)]
+    assert "Index berechnet mit" in block and "result.notices" in block
+
+
+def test_the_builder_follows_the_strength_settings_of_the_tier_list(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    assert universe_choice.local_deck_count(store, COMMANDER) < 30
+
+    default = builder.pool_cards(store, [COMMANDER])["counted_universe"]
+    assert default["counted"] == "counted:edhrec:3"  # type: ignore[index]
+    asked = StrengthSettings(universe_source="counted:archidekt:4")
+    pool = builder.pool_cards(store, [COMMANDER], strength=asked)
+    assert pool["counted_universe"]["counted"] == "counted:archidekt:4"  # type: ignore[index]
+    assert (
+        pool["counted_universe"]["counted"]
+        == _choice(store, universe_source="counted:archidekt:4")["counted"]
+    )  # type: ignore[index]
+    off = builder.pool_cards(store, [COMMANDER], strength=StrengthSettings(universe_source="none"))
+    assert "counted_universe" not in off
+    client = TestClient(create_app(tmp_path / "studio"))
+    body = client.get(
+        "/api/pool",
+        params={"commander": COMMANDER, "strength_universe": "counted:archidekt:4"},
+    ).json()
+    assert body["counted_universe"]["counted"] == "counted:archidekt:4"
+    stale = client.get(
+        "/api/pool", params={"commander": COMMANDER, "strength_universe": "garbage:x"}
+    )
+    assert stale.status_code == 200  # a stale remembered value is ignored
+    assert stale.json()["counted_universe"]["counted"] == "counted:edhrec:3"
+
+
+# ---------- review round: wrong-file decision per file, append mode ----------
+
+
+def _raw(name: str, source: str, bracket: int, decks: int, total: int) -> dict[str, object]:
+    return {
+        "card_name": name,
+        "source": source,
+        "bracket": bracket,
+        "decks_with_card": decks,
+        "universe_decks": total,
+        "share": "",
+        "universe_snapshot": "",
+    }
+
+
+@pytest.mark.parametrize("flaw", ["invalid_count", "mixed_denominators"])
+def test_a_wrong_commander_file_with_another_flaw_keeps_the_stored_rows(
+    store: StudioStore, tmp_path: Path, flaw: str
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    before = _stored(store)
+    if flaw == "invalid_count":
+        rows = [_raw(OTHER, "edhrec", 3, 200, 200), _raw("Filler 01", "edhrec", 3, 300, 200)]
+    else:
+        rows = [_raw(OTHER, "edhrec", 3, 200, 200), _raw("Filler 01", "edhrec", 3, 5, 100)]
+    rows += [_raw("Filler 01", "archidekt", 4, 9, 500)]  # no row of this commander either
+    report = _import_counted(store, _write_counted(tmp_path / "wrong", rows))
+    refused = _file_report(report)["universes_refused"]
+    assert refused and all(item["rows_removed"] == 0 for item in refused)
+    assert _stored(store) == before
+
+
+def test_a_file_that_targets_the_commander_removes_the_stale_rows_of_a_universe_without_it(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    rows = [
+        *_rows("edhrec", 3, 200, {"Filler 01": 150}),
+        _raw("Filler 01", "archidekt", 4, 100, 500),  # archidekt 4 lacks the commander row
+    ]
+    report = _import_counted(store, _write_counted(tmp_path / "mixed", rows))
+    refused = {
+        (item["source"], item["bracket"]): item
+        for item in _file_report(report)["universes_refused"]
+    }
+    assert refused[("archidekt", "4")]["rows_removed"] > 0
+    assert [item["value"] for item in universe_choice.counted_universes(store, COMMANDER)] == [
+        "counted:edhrec:3"
+    ]
+
+
+def test_append_mode_never_deletes_a_refused_universe_and_reports_what_stayed(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    before = _stored(store)
+    broken = _rows("edhrec", 3, 200, {"Filler 01": 150}, own=199) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100, "Filler 04": 400}
+    )
+    report = signals.import_signals(
+        store, _write_counted(tmp_path / "broken", broken), commander=COMMANDER, replace=False
+    )
+    refused = _file_report(report)["universes_refused"]
+    assert [(item["source"], item["rows_removed"], item["rows_kept"]) for item in refused] == [
+        ("edhrec", 0, 4)
+    ]
+    assert _stored(store) >= before
+    assert "edhrec:3" in " ".join(
+        str(item["signal"]) for item in universe_choice.counted_universes(store, COMMANDER)
+    )
+
+
+def test_append_mode_keeps_old_tournament_rows(store: StudioStore, tmp_path: Path) -> None:
+    from tests.unit.test_studio_strength import _lists_file, _tournament_rows
+
+    folder = tmp_path / "cup"
+    folder.mkdir()
+    _lists_file(
+        folder / "topdeck_aaa_decks.csv",
+        [
+            ("Cup P", "2026-11-01", f"Key {n}", [COMMANDER], ["Filler 01", "Filler 02"])
+            for n in range(3)
+        ],
+    )
+    signals.import_signals(store, folder, commander=COMMANDER)
+    assert _tournament_rows(store) == 2
+    _lists_file(
+        folder / "topdeck_aaa_decks.csv",
+        [("Cup P", "2026-11-01", f"Key {n}", [COMMANDER], ["Filler 01"]) for n in range(3)],
+    )
+    signals.import_signals(store, folder, commander=COMMANDER, replace=False)
+    assert _tournament_rows(store) == 2  # the old Filler 02 row stays
+    signals.import_signals(store, folder, commander=COMMANDER)
+    assert _tournament_rows(store) == 1  # replace mode drops it

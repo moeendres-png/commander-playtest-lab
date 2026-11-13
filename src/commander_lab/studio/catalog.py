@@ -14,7 +14,7 @@ import json
 from collections.abc import Iterator, Mapping
 from pathlib import Path
 
-from .store import DataClass, StudioStore, sha256_file
+from .store import DataClass, StudioStore, rebuild_corpus_deck_role, sha256_file
 
 _SKIPPED_LAYOUTS = frozenset(
     {"token", "double_faced_token", "emblem", "art_series", "planar", "scheme", "vanguard"}
@@ -189,7 +189,7 @@ def import_scryfall_oracle(
         )
     report: dict[str, object] = {"oracle_cards": len(rows), "files": len(files)}
     report.update(link_collection(store, disambiguation=_load_disambiguation(disambiguation_path)))
-    report.update(refresh_corpus_stats(store))
+    report.update(relink_corpus(store))
     return report
 
 
@@ -285,6 +285,94 @@ def fact_differences(store: StudioStore) -> list[dict[str, str]]:
                 }
             )
     return found
+
+
+def name_resolver(store: StudioStore) -> dict[str, str]:
+    """Card name -> oracle id for every name that fits exactly one public card.
+
+    A name is the full card name or the front face; a full-name match wins over a front-face
+    match. When several cards share a name, paper-legal non-reversible printings narrow the
+    choice (the same rule as ``link_collection``); a name that stays ambiguous is left out
+    and so stays unresolved. Collection cards keep the oracle id they were linked to."""
+    db = store.connection
+    found: dict[str, set[str]] = {}
+    front_found: dict[str, set[str]] = {}
+    legal: set[str] = set()
+    for row in db.execute(
+        "SELECT oracle_id, name, front_name, layout, commander_legality FROM scryfall_card"
+    ):
+        oracle_id = str(row["oracle_id"])
+        found.setdefault(str(row["name"]), set()).add(oracle_id)
+        front_found.setdefault(str(row["front_name"]), set()).add(oracle_id)
+        if row["layout"] != "reversible_card" and row["commander_legality"] == "legal":
+            legal.add(oracle_id)
+    names: dict[str, str] = {}
+    for table in (front_found, found):  # the full name overrides a front face of another card
+        for name, ids in table.items():
+            chosen = ids if len(ids) == 1 else ids & legal
+            if len(chosen) == 1:
+                names[name] = next(iter(chosen))
+            elif name in names and table is found:
+                del names[name]
+    for row in db.execute("SELECT oracle_name, oracle_id FROM card WHERE oracle_id IS NOT NULL"):
+        names[str(row["oracle_name"])] = str(row["oracle_id"])
+    return names
+
+
+def relink_corpus(store: StudioStore) -> dict[str, object]:
+    """Give every source-deck card without an oracle id its oracle id by name, then rebuild
+    what is derived from it (deck statistics, roles per deck).
+
+    The step does not depend on the order of the imports: it runs at the end of the card data
+    import and of the deck list import, and nothing changes when it has nothing to link.
+    A name that matches no card or several cards stays NULL and is returned in
+    ``unresolved_names`` with the number of card rows it stands for."""
+    db = store.connection
+    if store.count("scryfall_card") == 0:
+        waiting = int(
+            db.execute("SELECT COUNT(*) FROM corpus_deck_card WHERE oracle_id IS NULL").fetchone()[
+                0
+            ]
+        )
+        return {
+            "corpus_cards_linked": 0,
+            "corpus_cards_unresolved": waiting,
+            "corpus_unresolved_names": [],
+            "corpus_relink_status": "NO_CARD_DATA",
+            "corpus_decks_with_stats": store.count("corpus_deck_stat"),
+        }
+    names = name_resolver(store)
+    with db:
+        pending = db.execute(
+            "SELECT DISTINCT card_name FROM corpus_deck_card WHERE oracle_id IS NULL"
+        ).fetchall()
+        linked = 0
+        for row in pending:
+            oracle_id = names.get(str(row["card_name"]))
+            if oracle_id is not None:
+                cursor = db.execute(
+                    "UPDATE corpus_deck_card SET oracle_id = ? "
+                    "WHERE card_name = ? AND oracle_id IS NULL",
+                    (oracle_id, row["card_name"]),
+                )
+                linked += cursor.rowcount
+        unresolved = [
+            (str(row[0]), int(row[1]))
+            for row in db.execute(
+                "SELECT card_name, COUNT(*) FROM corpus_deck_card WHERE oracle_id IS NULL "
+                "GROUP BY card_name ORDER BY card_name"
+            )
+        ]
+        refresh_corpus_stats(store)
+        if store.count("card_role"):
+            rebuild_corpus_deck_role(db)
+    return {
+        "corpus_cards_linked": linked,
+        "corpus_cards_unresolved": sum(count for _, count in unresolved),
+        "corpus_unresolved_names": [name for name, _ in unresolved],
+        "corpus_relink_status": "OK",
+        "corpus_decks_with_stats": store.count("corpus_deck_stat"),
+    }
 
 
 def refresh_corpus_stats(store: StudioStore) -> dict[str, object]:

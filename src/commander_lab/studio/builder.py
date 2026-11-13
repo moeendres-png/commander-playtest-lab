@@ -14,6 +14,7 @@ import sqlite3
 from collections import Counter
 from collections.abc import Iterable, Sequence
 from statistics import median
+from typing import TYPE_CHECKING
 
 from commander_lab.deck_readiness import (
     _CARD_FACTS_PATH,
@@ -25,6 +26,9 @@ from commander_lab.models import RulesDeckInput
 
 from .decks import RevisionCard, color_set, list_rows
 from .store import BINDING_KINDS, StudioStore, now_utc
+
+if TYPE_CHECKING:
+    from .strength import StrengthSettings
 
 
 @functools.lru_cache(maxsize=1)
@@ -285,6 +289,7 @@ def pool_cards(
     *,
     profile: str | None = None,
     with_signals: bool = True,
+    strength: StrengthSettings | None = None,
 ) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
     builder shows per card. Without any commander the colour filter is off (all legal cards).
@@ -297,7 +302,7 @@ def pool_cards(
     profile and ValueError when the profile is defined for other commanders.
 
     Without a ``profile`` the builder asks the same ``universe_choice.choose`` as the tier list
-    (recommended settings): when it picks a counted deck-list universe stored for the commander
+    for the same ``strength`` settings (the recommended ones when none are given): when it picks a counted deck-list universe stored for the commander
     (that is, fewer local deck lists than the minimum universe), each card carries ``counted``
     (decks, denominator, share; a card without a row is a counted zero) and the pool carries
     one ``counted_universe`` block.
@@ -436,6 +441,7 @@ def pool_cards(
             commander_names[0],
             [str(card["card_id"]) for card in cards],
             {str(card["card_id"]): str(card["name"]) for card in cards},
+            strength,
         )
         if found is not None:
             choice, observed = found

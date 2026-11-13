@@ -67,7 +67,12 @@ def test_import_edhrec_decklists_registers_decks_cards_and_cohorts(
     _edhrec_file(tmp_path, "aaa", [(CHULANE, 1), ("Sol Ring", 1), ("Forest", 10)])
     _edhrec_file(tmp_path, "bbb", [(CHULANE, 1), ("Sol Ring", 1), ("Island", 9)])
     result = decklist_import.import_decklists(store, tmp_path, format="edhrec")
-    assert result == {"decks": 2, "duplicates_marked": 0, "card_rows": 6, "files_without_cards": 0}
+    assert {key: result[key] for key in ("decks", "duplicates_marked", "card_rows")} == {
+        "decks": 2,
+        "duplicates_marked": 0,
+        "card_rows": 6,
+    }
+    assert result["files_without_cards"] == 0
     db = store.connection
     assert db.execute("SELECT COUNT(*) FROM corpus_deck").fetchone()[0] == 2
     sections = {

@@ -87,7 +87,13 @@ class StrengthResult(TypedDict):
 
 
 _INDEPENDENT = frozenset(
-    {"edhrec_global_inclusion", "spellbook_variants", "playgroup_observed_winrate_gap"}
+    {
+        "edhrec_global_inclusion",
+        "spellbook_variants",
+        "playgroup_observed_winrate_gap",
+        # A marker layer only (no rated component): the salt list does not depend on a commander.
+        signals.SIGNAL_SALT,
+    }
 )
 # claim key -> [(claim kind, card id)]
 _Claims = dict[str, list[tuple[int, str]]]
@@ -169,6 +175,8 @@ def expected_signals() -> list[str]:
         # stored ones are listed under their own names, this row stays while none exists.
         signals.SIGNAL_DECKLIST,
         signals.SIGNAL_PLAYGROUP,
+        signals.SIGNAL_SALT,
+        signals.SIGNAL_COMBO_DECKS,
     ]
 
 
@@ -259,13 +267,44 @@ def counted_observations(
     return result
 
 
+def _unmatched_universe_notices(
+    store: StudioStore, commander: str, choice: UniverseChoice
+) -> list[str]:
+    """A notice when the counted universe the calculation used holds rows that match no card
+    of the store: those cards cannot take part in the index."""
+    if choice["kind"] != universe_choice.KIND_COUNTED:
+        return []
+    for item in universe_choice.counted_universes(store, commander):
+        if item["value"] != choice["counted"]:
+            continue
+        missing = signals.unmatched_universe_names(store, commander, item["signal"])
+        if not missing:
+            return []
+        examples = missing[: signals.UNMATCHED_EXAMPLES]
+        return [
+            f"Im Decklisten-Universum „{item['short_label']}“ passen {len(missing)} Zeilen zu keiner "
+            f"Karte im Store (z. B. {'; '.join(examples)}): diese Karten fehlen in der "
+            "Rechnung, das Universum ist unvollständig abgeglichen."
+        ]
+    return []
+
+
 def builder_counted_universe(
-    store: StudioStore, commander: str, card_ids: list[str], display: Mapping[str, str]
+    store: StudioStore,
+    commander: str,
+    card_ids: list[str],
+    display: Mapping[str, str],
+    settings: StrengthSettings | None = None,
 ) -> tuple[UniverseChoice, dict[str, Observation]] | None:
-    """For the builder: the counted universe the automatic choice takes (the same
-    ``universe_choice.choose`` as the index, default settings) and the counts of the given
-    cards in it. ``None`` when the choice is not a counted universe."""
-    choice = universe_choice.choose(store, commander, StrengthSettings(), None)
+    """For the builder: the counted universe the tier list takes for the same ``settings``
+    (the same ``universe_choice.choose`` as the index; default settings when none are given)
+    and the counts of the given cards in it. ``None`` when the choice is not a counted
+    universe (a saved universe profile in the settings is none either)."""
+    settings = settings or StrengthSettings()
+    kind = (strength.parse_universe_source(settings.universe_source) or ("",) * 3)[0]
+    if settings.universe_profile and kind in (strength.UNIVERSE_AUTO, strength.UNIVERSE_PROFILE):
+        return None  # the tier list takes the stored profile, not a counted universe
+    choice = universe_choice.choose(store, commander, settings, None)
     if choice["kind"] != universe_choice.KIND_COUNTED:
         return None
     for item in universe_choice.counted_universes(store, commander):
@@ -379,6 +418,7 @@ def compute(
     choice = universe_choice.choose(store, commander, settings, summary)
     if choice["kind"] == universe_choice.KIND_NONE and kind == strength.UNIVERSE_COUNTED:
         notices.append(f"Kein Decklisten-Universum: {choice['reason']}.")
+    notices.extend(_unmatched_universe_notices(store, commander, choice))
 
     per_card: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
     collected: set[str] = set()
