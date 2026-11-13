@@ -1,0 +1,741 @@
+{
+ "id": 19882594,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Lands of Myth & Legend",
+ "updated_at": "2026-02-12T15:30:45.709175Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aang, at the Crossroads // Aang, Destined Savior",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avatar Kyoshi, Earthbender",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Badgermole Cub",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bumi, Eclectic Earthbender",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Migratory Greathorn",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea-Dasher Octopus",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trumpeting Gnarr",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Earthshape",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Legend of Kyoshi // Avatar Kyoshi",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archipelagore",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamtail Heron",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Toph, Earthbending Master",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Toph, the Blind Bandit",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Auspicious Starrix",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cubwarden",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gemrazer",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pouncing Shoreshark",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sawtusk Demolisher",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Souvenir Snatcher",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vulpikeet",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wrenn and Realmbreaker",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nissa, Vital Force",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Planar Outburst",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jolrael, Voice of Zhalfir",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terra Eternal",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kamahl, Heart of Krosa",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nissa, Who Shakes the World",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jyoti, Moag Ancient",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blossoming Tortoise",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bristly Bill, Spine Sower",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolution Sage",
+   "quantity": 1,
+   "categories": [
+    "Proliferate"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eladamri's Call",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Embodiment of Insight",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glowstone Recluse",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lair of the Hydra",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Earthbending Student",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cave of the Frost Dragon",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blinkmoth Nexus",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crawling Barrens",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Celestial Colonnade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Conclave",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restless Prairie",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lumbering Falls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treetop Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restless Vinestalk",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Secret Tunnel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stirring Wildwood",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boseiju, Who Endures",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otawara, Soaring City",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistrise Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Greenwarden",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 10,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama of the West Tree",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Duskshell Crawler",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Amulet of Vigor",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wonderscape Sage",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meloku the Clouded Mirror",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Majestic Auricorn",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shared Summons",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

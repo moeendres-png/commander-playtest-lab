@@ -1,0 +1,765 @@
+{
+ "id": 20011927,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Many tokens, Much Life",
+ "updated_at": "2026-03-01T11:48:42.457454Z",
+ "cards": [
+  {
+   "name": "Exalted Sunborn",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Doubling Season",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peregrin Took",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloakwood Swarmkeeper",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Woodland Champion",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Auriok Champion",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul's Attendant",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dazzling Angel",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Sanctifier",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Healer of the Pride",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Impassioned Orator",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lifecreed Duo",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Virulent Emissary",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cleric Class",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cat Collector",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Essence Channeler",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Field-Tested Frying Pan",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "MJ, Rising Star",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vanguard Seraph",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drogskol Reaver",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Attended Healer",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of the Meek",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Vitality",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angel of Vitality",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Wind Crystal",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rhox Faithmender",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adagia, Windswept Bastion",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chocobo Camp",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Escape Tunnel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hidden Nursery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hidden Courtyard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hidden Cataract",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Basri Ket",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clarion Spirit",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crawling Chorus",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonlit Meditation",
+   "quantity": 1,
+   "categories": [
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirrormind Crown",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nykthos Paragon",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alhammarret's Archive",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Caretaker's Talent",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Well of Lost Dreams",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archangel of Thune",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boon Reflection",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heron of Hope",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Hope",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voice of the Blessed",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ajani, Outland Chaperone",
+   "quantity": 1,
+   "categories": [
+    "Planeswalker"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline of Sanctity",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leyline Axe",
+   "quantity": 1,
+   "categories": [
+    "Pump"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aligned Heart",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brimaz, King of Oreskos",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Esix, Fractal Bloom",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mondrak, Glory Dominus",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Primal Vigor",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ojer Taq, Deepest Foundation // Temple of Civilization",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Celestial Mantle",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

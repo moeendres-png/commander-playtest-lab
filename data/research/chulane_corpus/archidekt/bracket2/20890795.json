@@ -1,0 +1,21 @@
+{
+ "id": 20890795,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Clones Typal (Copy) Copy",
+ "updated_at": "2026-03-17T19:37:37.840589Z",
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 1,
+ "summe_gesamt": 1,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

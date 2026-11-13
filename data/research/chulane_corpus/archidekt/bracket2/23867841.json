@@ -1,0 +1,669 @@
+{
+ "id": 23867841,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Chulane Merfolk",
+ "updated_at": "2026-07-02T13:42:05.995818Z",
+ "cards": [
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daughter of the Deep",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Namor the Sub-Mariner",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adept Watershaper",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deeproot Waters",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Svyelun of Sea and Sky",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kopala, Warden of Waves",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonybrook Banneret",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1,
+   "categories": [
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merfolk Sovereign",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seafloor Oracle",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Singer of Swift Rivers",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deepchannel Duelist",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vodalian Wave-Knight",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merfolk Mistbinder",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path of Discovery",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reflections of Littjara",
+   "quantity": 1,
+   "categories": [
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lord of Atlantis",
+   "quantity": 1,
+   "categories": [
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hardened Scales",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1,
+   "categories": [
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deeproot Elite",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cold-Eyed Selkie",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merrow Harbinger",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eclipsed Merrow",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Judge of Currents",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deepchannel Mentor",
+   "quantity": 1,
+   "categories": [
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Summon: Leviathan",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Murkfiend Liege",
+   "quantity": 1,
+   "categories": [
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Merfolk Trickster",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silvergill Mentor",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harbinger of the Seas",
+   "quantity": 1,
+   "categories": [
+    "Stax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harpoon Sniper",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mindspring Merfolk",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silvergill Adept",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wanderbrine Preacher",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adrix and Nev, Twincasters",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jadelight Spelunker",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mist Dancer",
+   "quantity": 1,
+   "categories": [
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
