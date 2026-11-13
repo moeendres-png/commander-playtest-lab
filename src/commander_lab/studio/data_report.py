@@ -8,6 +8,11 @@ The universes section follows the same rule: a stored universe profile is identi
 version, never by its name or by the card names its spec requires — only how many values each
 spec dimension selects — and it is counted per commander, never over all commanders at once.
 
+The commanders section gives, per commander, the pool size (legal collection cards inside its
+colour identity), the cards excluded because their legality is unknown (listed as unknown,
+never as illegal) and the signal layer: rows per signal and the coverage over the pool
+(cards with a value / pool size).
+
 ``role_fingerprint`` hashes the role tables so that a before/after comparison around an import
 shows at a glance whether anything outside the imported scope changed.
 """
@@ -19,7 +24,7 @@ import sqlite3
 from datetime import UTC, date, datetime
 from typing import cast
 
-from . import universe
+from . import builder, strength_view, universe
 from .roles import ORIGIN_CROSSWALK, ORIGIN_TAGGER, ROLES
 from .store import StudioStore
 from .tiers import MODEL_VERSION, TierParams
@@ -391,6 +396,66 @@ def _universes(store: StudioStore) -> dict[str, object]:
     }
 
 
+def _commander_names(db: sqlite3.Connection) -> list[str]:
+    names = {
+        str(row[0])
+        for row in db.execute("SELECT DISTINCT commander_name FROM commander_binding")
+        if row[0]
+    }
+    names |= {
+        str(row[0])
+        for row in db.execute("SELECT DISTINCT commander_name FROM card_signal")
+        if row[0]
+    }
+    return sorted(names)
+
+
+def _commanders(store: StudioStore) -> dict[str, object]:
+    """Per commander, counts only: the pool (legal collection cards inside the colour
+    identity), the cards left out because their legality is unknown (listed as unknown,
+    never as illegal) and the signal layer — rows per signal and the coverage over the pool
+    (cards with a value / pool size). No collection card name appears; the commander names
+    are the keys every figure is bound to."""
+    db = store.connection
+    details: list[dict[str, object]] = []
+    for name in _commander_names(db):
+        entry: dict[str, object] = {"commander": name}
+        try:
+            counts = builder.pool_counts(store, [name])
+            coverage = strength_view.signal_coverage(store, name)
+        except KeyError:
+            entry["in_collection"] = False  # a name without a collection card: no pool
+            entry["pool"] = None
+            entry["signals"] = {
+                signal: {
+                    "rows": _scalar(
+                        db,
+                        "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?",
+                        (name, signal),
+                    )
+                }
+                for signal in _counter(
+                    db, "SELECT signal, COUNT(*) FROM card_signal GROUP BY signal"
+                )
+            }
+            details.append(entry)
+            continue
+        entry["in_collection"] = True
+        entry["pool"] = {
+            "legal_cards": counts["legal"],
+            "collection_cards_in_identity": counts["in_identity"],
+            "excluded_legality_unknown": counts["legality_unknown"],
+            "excluded_not_legal": counts["not_legal"],
+        }
+        entry["signals"] = {signal: dict(item) for signal, item in coverage.items()}
+        details.append(entry)
+    return {
+        "commanders": len(details),
+        "legality_unknown_in_collection": builder.legality_unknown_in_collection(store),
+        "details": details,
+    }
+
+
 def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, object]:
     """The counts-only report. ``today`` is only injectable for tests."""
     db = store.connection
@@ -408,6 +473,7 @@ def data_report(store: StudioStore, *, today: date | None = None) -> dict[str, o
         "corpus": _corpus(db),
         "observations": _observations(db),
         "universes": _universes(store),
+        "commanders": _commanders(store),
         **_marks_and_games(db),
         "not_measured_here": list(NOT_MEASURED),
     }

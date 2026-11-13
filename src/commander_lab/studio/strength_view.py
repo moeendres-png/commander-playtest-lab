@@ -139,6 +139,47 @@ def _strings(value: object) -> set[str]:
     return {str(item) for item in value}
 
 
+class SignalCoverage(TypedDict):
+    scope: str
+    rows: int
+    rows_with_value: int
+    pool_cards_with_value: int
+    pool_size: int
+
+
+def signal_coverage(store: StudioStore, commander: str) -> dict[str, SignalCoverage]:
+    """Per stored signal: its rows and how many of the commander's pool cards it gives a
+    value (the same name matching as the index). Counts only. A signal without rows for
+    this commander is listed with 0 rows: missing, not a weak signal. Raises KeyError when
+    the commander is not in the collection."""
+    pool = pool_cards(store, [commander])
+    raw_cards = pool["cards"]
+    if not isinstance(raw_cards, list):
+        raise TypeError("pool_cards returned an unexpected shape")
+    ids = [str(card["card_id"]) for card in raw_cards]
+    display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
+    claims = _claim_index(store, ids)
+    db = store.connection
+    result: dict[str, SignalCoverage] = {}
+    for row in db.execute("SELECT DISTINCT signal FROM card_signal ORDER BY signal"):
+        signal = str(row[0])
+        owner = "" if signal in _INDEPENDENT else commander
+        counted = db.execute(
+            "SELECT COUNT(*), COUNT(value) FROM card_signal "
+            "WHERE commander_name = ? AND signal = ?",
+            (owner, signal),
+        ).fetchone()
+        observed, _exists = _signal_observations(store, commander, signal, claims, display, {})
+        result[signal] = {
+            "scope": "independent" if signal in _INDEPENDENT else "commander",
+            "rows": int(counted[0]),
+            "rows_with_value": int(counted[1]),
+            "pool_cards_with_value": sum(1 for item in observed.values() if item.value is not None),
+            "pool_size": len(ids),
+        }
+    return result
+
+
 def _float(value: object) -> float | None:
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
@@ -576,6 +617,7 @@ def _as_mapping(value: object) -> Mapping[str, object]:
 
 __all__ = [
     "ProfileEntry",
+    "SignalCoverage",
     "StrengthResult",
     "compute",
     "delete_profile",
@@ -584,4 +626,5 @@ __all__ = [
     "presets",
     "resolve_settings",
     "save_profile",
+    "signal_coverage",
 ]

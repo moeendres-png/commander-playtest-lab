@@ -382,6 +382,53 @@ def pool_cards(
     return result
 
 
+def pool_counts(store: StudioStore, commander_names: Sequence[str]) -> dict[str, int]:
+    """How many collection cards fall inside the commander's colour identity, and how they
+    split by Commander legality: ``legal`` (the pool), ``legality_unknown`` (legality is
+    NULL, empty or ``unknown``: excluded from the pool, but listed as unknown and never as illegal) and
+    ``not_legal`` (banned or not legal). Raises KeyError for a commander not in the
+    collection. Counts only; the pool itself is ``pool_cards``."""
+    db = store.connection
+    identity: frozenset[str] = frozenset()
+    for name in commander_names:
+        row = db.execute(
+            "SELECT color_identity FROM card_fact WHERE oracle_name = ?", (name,)
+        ).fetchone()
+        if row is None:
+            raise KeyError(name)
+        identity |= color_set(row["color_identity"])
+    counts = {"in_identity": 0, "legal": 0, "legality_unknown": 0, "not_legal": 0}
+    for row in db.execute(
+        "SELECT f.color_identity, f.commander_legal, f.fact_source, s.commander_legality "
+        "FROM card_fact f JOIN inventory i USING (card_id) "
+        "LEFT JOIN scryfall_card s ON s.oracle_id = f.oracle_id"
+    ):
+        if not color_set(row["color_identity"]) <= identity:
+            continue
+        counts["in_identity"] += 1
+        if row["commander_legal"] == 1:
+            counts["legal"] += 1
+        elif (
+            row["fact_source"] == "scryfall" and row["commander_legality"] in (None, "", "unknown")
+        ) or (row["fact_source"] != "scryfall" and row["commander_legal"] is None):
+            counts["legality_unknown"] += 1
+        else:
+            counts["not_legal"] += 1
+    return counts
+
+
+def legality_unknown_in_collection(store: StudioStore) -> int:
+    """Collection cards whose Commander legality is unknown (NULL, empty or ``unknown``), any colour."""
+    row = store.connection.execute(
+        "SELECT COUNT(*) FROM card_fact f JOIN inventory i USING (card_id) "
+        "LEFT JOIN scryfall_card s ON s.oracle_id = f.oracle_id "
+        "WHERE (f.fact_source = 'scryfall' AND (s.commander_legality IS NULL "
+        "OR s.commander_legality IN ('', 'unknown'))) "
+        "OR (f.fact_source != 'scryfall' AND f.commander_legal IS NULL)"
+    ).fetchone()
+    return int(row[0])
+
+
 def card_cooccurrence(
     store: StudioStore,
     card_id: str,
