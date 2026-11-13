@@ -80,6 +80,7 @@ NOT_APPLICABLE = "NOT_APPLICABLE"
 # Reasons of an UNKNOWN or NOT_APPLICABLE value.
 NO_RECORD = "NO_RECORD"
 NO_VALUE_PUBLISHED = "NO_VALUE_PUBLISHED"
+NO_COUNT = "NO_COUNT"
 SAMPLE_TOO_SMALL = "SAMPLE_TOO_SMALL"
 INSUFFICIENT_SAMPLE = "INSUFFICIENT_SAMPLE"
 NOT_A_PERMANENT = "NOT_A_PERMANENT"
@@ -88,6 +89,7 @@ NOT_RANKED = "NOT_RANKED"
 REASON_TEXT: dict[str, str] = {
     NO_RECORD: "keine Zeile der Quelle für diese Karte",
     NO_VALUE_PUBLISHED: "die Quelle nennt keinen Wert (unbekannt, nicht 0)",
+    NO_COUNT: "die Quelle nennt Zähler oder Nenner nicht (unbekannt, nicht 0)",
     SAMPLE_TOO_SMALL: f"weniger als {MIN_SAMPLE} Partien (unbekannt, nicht 0)",
     INSUFFICIENT_SAMPLE: "die Quelle markiert die Stichprobe als zu klein (unbekannt, nicht 0)",
     NOT_A_PERMANENT: "Spontanzauber oder Hexerei: kein Dauerhaft-Wert",
@@ -161,8 +163,11 @@ _SCALE_PATTERNS: tuple[tuple[str, re.Pattern[str], bool], ...] = (
     ("each opponent", re.compile(r"\beach opponent\b"), False),
     ("each other player", re.compile(r"\beach other player\b"), False),
     ("each player", re.compile(r"\beach player\b"), True),
-    ("opponents control", re.compile(r"\bopponents control\b"), False),
-    ("your opponents", re.compile(r"\byour opponents\b"), False),
+    # "your opponents control" is a protective or static clause on their permanents: not a match
+    ("your opponents", re.compile(r"\byour opponents\b(?! control)"), False),
+    ("Overload", re.compile(r"^overload\b", re.M), False),
+    ("can't attack you unless", re.compile(r"\bcan't attack you unless\b"), False),
+    ("creatures can't attack you", re.compile(r"\bcreatures can't attack you\b"), False),
 )
 
 _SINGLE_PLAYER = (
@@ -428,6 +433,7 @@ def share_layer(
     insufficient: bool,
     cross_check: tuple[int, int] | None = None,
     sample_note: str = "",
+    published_pct: float | None = None,
 ) -> LayerValue:
     """A share layer value from the published percent and its sample.
 
@@ -437,7 +443,9 @@ def share_layer(
     bound, which is the ranking ``value``. The source publishes whole percents, so the count
     behind the bound is ``round(share * n)``. ``cross_check`` is the (count, sample) the record
     itself carries: when its share differs from the published percent by more than one
-    percentage point the value stays and the row says so."""
+    percentage point the value stays and the row says so. ``published_pct`` is a percent the
+    source printed next to a share that ``pct`` was computed from count and sample: it is only
+    named in the note ("Quelle nennt X %") when it differs by more than one point."""
     if pct is None or not math.isfinite(pct):
         return _value(layer, UNKNOWN, NO_VALUE_PUBLISHED)
     if sample is None or sample < MIN_SAMPLE:
@@ -448,6 +456,10 @@ def share_layer(
     bound = wilson_lower(min(sample, max(0, round(share * sample))), sample)
     notes = [sample_note] if sample_note else []
     discrepancy = False
+    detail: dict[str, object] | None = None
+    if published_pct is not None and abs(published_pct - pct) > _DISCREPANCY_PP:
+        notes.append(f"Quelle nennt {published_pct:g} %")
+        detail = {"published_pct": published_pct}
     if cross_check is not None:
         count, total = cross_check
         if total > 0 and abs(100.0 * count / total - pct) > _DISCREPANCY_PP:
@@ -464,7 +476,7 @@ def share_layer(
         wilson=bound,
         n=sample,
         note="; ".join(notes),
-        detail={"discrepancy": True} if discrepancy else None,
+        detail={"discrepancy": True} if discrepancy else detail,
     )
 
 
@@ -472,17 +484,17 @@ def _measured(layer: str, card: LayerCard, record: AtlasRecord | None) -> LayerV
     if record is None:
         return _value(layer, UNKNOWN, NO_RECORD)
     if layer == "tempo":
-        cross = (
-            (record.on_curve_count, record.on_curve_denominator)
-            if record.on_curve_count is not None and record.on_curve_denominator is not None
-            else None
-        )
+        # The share is the record's own count over its denominator: that is what the Wilson bound
+        # and n belong to. The percent the source printed is only named when it differs.
+        count, total = record.on_curve_count, record.on_curve_denominator
+        if count is None or total is None or total <= 0 or not 0 <= count <= total:
+            return _value(layer, UNKNOWN, NO_COUNT)
         return share_layer(
             layer,
-            record.on_curve_pct,
-            record.on_curve_denominator,
+            100.0 * count / total,
+            total,
             insufficient=record.insufficient_sample,
-            cross_check=cross,
+            published_pct=record.on_curve_pct,
         )
     if layer == "playability":
         # The share of drawn cards that were cast: its denominator is the funnel count of the
@@ -590,7 +602,10 @@ def _summary(layer: str, items: list[LayerValue]) -> LayerSummary:
         "unknown": sum(1 for item in items if item["status"] == UNKNOWN),
         "not_applicable": sum(1 for item in items if item["status"] == NOT_APPLICABLE),
         "source_discrepancies": sum(
-            1 for item in items if item["detail"] is not None and item["detail"].get("discrepancy")
+            1
+            for item in items
+            if item["detail"] is not None
+            and (item["detail"].get("discrepancy") or "published_pct" in item["detail"])
         ),
         "min_sample": None if layer == "pod_scaling" else MIN_SAMPLE,
     }

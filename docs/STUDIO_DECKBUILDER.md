@@ -316,7 +316,7 @@ module's rank grouping (ties share the mean rank); a single valued card is 50.
 | Layer (key) | Source | Denominator | Kind |
 |---|---|---|---|
 | "Großpod-Wirkung" (`pod_scaling`) | oracle text of all faces | none | derived by rule, no measurement |
-| "Tempo" (`tempo`) | Playgroup atlas `on_curve_pct` | `on_curve_denominator` | measured correlation |
+| "Tempo" (`tempo`) | Playgroup atlas `on_curve_count` | `on_curve_denominator` | measured correlation |
 | "Ausspielquote" (`playability`) | `drawn_to_played_pct` | `ever_drawn_n` | measured correlation |
 | "Standfestigkeit" (`staying`) | `battlefield_survival_pct` | `reached_battlefield_n` | measured correlation, permanents only |
 | "Sieg-Abstand" (`win_gap`) | the Playgroup observed gap | `winrate_when_cast_n` | measured correlation, column only |
@@ -333,10 +333,12 @@ pod size. The playability share is cast-over-drawn: its denominator is the funne
 record without `ever_drawn_n` falls back to `first_cast_n` and says so. In the repository atlas
 (1,655 records) 73 playability percents differ from `first_cast_n / ever_drawn_n` by more than
 one percentage point, all of them legendary creatures (a cast from the command zone is not a
-draw). Tempo: the published `on_curve_pct` disagrees with the record's own
-`on_curve_count / on_curve_denominator` by more than one percentage point in 361 of 674 records
-(the source's own quality warnings say so); the published percent is used and such a value is
-marked "Quelle widerspricht sich" and counted in `layer_summary.source_discrepancies`.
+draw). Tempo: the share is the record's own `on_curve_count / on_curve_denominator` (that is the
+share the Wilson bound and `n` belong to); the percent the source printed (`on_curve_pct`) is
+not used. When it differs from that share by more than one point (361 of 674 records) the
+tooltip says "Quelle nennt X %" and the layer summary counts such records; the cell carries no
+marking. A record without count or denominator is `UNKNOWN` (`NO_COUNT`), never the published
+percent.
 
 **"Sieg-Abstand"** is `strength.observed_gap`, the function behind the index component
 `playgroup_observed`: the same minimum of 25 games in which the card was cast and the same
@@ -344,13 +346,16 @@ shrinkage `gap * n / (n + 25)`; there is no second implementation. It has no wei
 because the index already counts it (a second weight would count it twice); it is a column only.
 
 **"Großpod-Wirkung"** is derived from the oracle text by fixed rules
-(`layers.classify_pod_scaling`, table-driven test with 46 real card texts). Reminder text in
+(`layers.classify_pod_scaling`, table-driven test with 56 real card texts). Reminder text in
 parentheses is removed first; matching is on the lower-cased text. Classes, strongest first (the
 rank value is the ordinal 3, 2, 1, 0):
 
 1. `SCALES` "wirkt auf jeden Gegner": "each opponent", "each other player", "each player",
-   "for each opponent", "number of opponents", "each of your opponents", and the plural forms
-   "opponents control" and "your opponents" (an effect on all opponents' permanents or spells).
+   "for each opponent", "number of opponents", "each of your opponents", the plural "your
+   opponents" unless it is part of "your opponents control" (a protective or static clause on
+   their permanents: `NEUTRAL`), the keyword "Overload" (the card then affects each target, so
+   it works on every opponent) and the attack taxes "can't attack you unless" and
+   "creatures can't attack you" (Ghostly Prison, Propaganda, Sphere of Safety).
 2. `OPPONENT_TRIGGER`: "whenever an opponent", "whenever a player", "whenever ... an opponent
    controls", "at the beginning of each opponent's/other player's/player's ...". These are
    matched first and removed, so the "each player" in "at the beginning of each player's" does not
@@ -369,9 +374,9 @@ pod size setting "Pod-Größe" (2 to 6, default and recommendation 4) only chang
 "wirkt auf N-1 Gegner" of a `SCALES` card; no class, rank or index depends on it. The page labels
 the layer "aus dem Regeltext abgeleitet, keine Messung". Limits: it is a rule on text, not a
 measurement; it cannot see what a card does through a keyword or a static ability it does not
-spell out ("Creatures can't attack you unless their controller pays {2} ..." is `NEUTRAL`;
-overload, whose text is reminder text, leaves a "target" card `SINGLE_TARGET`); a protective clause
-that names "opponents control" is `SCALES`; a card without oracle text in the store is `UNKNOWN`
+spell out (Fireball, whose damage is divided among any number of targets, is `NEUTRAL`; "Creatures
+your opponents control enter tapped" is `NEUTRAL` although it hits every opponent); "Overload"
+is matched as the keyword line, its reminder text is removed like any other; a card without oracle text in the store is `UNKNOWN`
 (`NO_TEXT`), a vanilla card with empty text is `NEUTRAL`. Favorites, exclusions and notes are not read, and
 no price data is involved.
 
