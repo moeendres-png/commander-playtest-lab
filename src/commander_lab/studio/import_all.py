@@ -630,6 +630,11 @@ def render(result: ImportAllResult) -> str:
         "",
         f"Poolgröße: {'unbekannt (Commander nicht in der Sammlung)' if pool is None else pool}",
     ]
+    parts.extend(
+        f"Warnung: {step['step']}: {step['detail']}"
+        for step in steps
+        if step["status"] == WARNING
+    )
     rows = result["signal_rows"]
     parts.append(
         f"Signalzeilen gespeichert: für {result['commander']} {rows['for_commander']} "

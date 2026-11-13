@@ -102,3 +102,72 @@ def test_salt_and_combo_signals_are_layers_with_their_own_owner(
     layers = _layers(out)
     assert layers["Signal edhrec_salt"] == "PARTIAL"
     assert layers["Signal edhrec_combo_decks"] == "PARTIAL"
+
+
+def _claims(tmp_path: Path) -> int:
+    from commander_lab.studio import StudioStore
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        return int(store.connection.execute("SELECT COUNT(*) FROM card_role_claim").fetchone()[0])
+    finally:
+        store.close()
+
+
+def _four(tmp_path: Path) -> Path:
+    return _tagger(
+        tmp_path / "bulk.csv", [(f"oracle-filler-0{n}", "ramp") for n in (1, 2, 3, 4)]
+    )
+
+
+def test_tagger_guard_warns_visibly_and_changes_nothing_above_half(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _files(tmp_path)
+    assert _run(tmp_path, files, "--tagger-roles", str(_four(tmp_path))) == 0
+    before = _claims(tmp_path)
+    capsys.readouterr()
+    _tagger(tmp_path / "bulk.csv", [("oracle-filler-01", "ramp")])  # drops 3 of 4: more than half
+    code = _run(tmp_path, files, "--tagger-roles", str(tmp_path / "bulk.csv"))
+    out = capsys.readouterr().out
+    assert code == 0  # nothing was changed
+    assert _claims(tmp_path) == before
+    assert any(line.startswith("Warnung: Tagger-Rollen") and "--force" in line for line in out.splitlines())
+    assert "WARNING" in out
+
+
+def test_tagger_guard_allows_exactly_half(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _files(tmp_path)
+    _run(tmp_path, files, "--tagger-roles", str(_four(tmp_path)))
+    before = _claims(tmp_path)
+    capsys.readouterr()
+    _tagger(tmp_path / "bulk.csv", [("oracle-filler-01", "ramp"), ("oracle-filler-02", "ramp")])
+    assert _run(tmp_path, files, "--tagger-roles", str(tmp_path / "bulk.csv")) == 0
+    out = capsys.readouterr().out
+    assert "Warnung:" not in out
+    assert _claims(tmp_path) == before - 2
+
+
+def test_tagger_force_replaces_more_than_half(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    files = _files(tmp_path)
+    _run(tmp_path, files, "--tagger-roles", str(_four(tmp_path)))
+    before = _claims(tmp_path)
+    capsys.readouterr()
+    _tagger(tmp_path / "bulk.csv", [("oracle-filler-01", "ramp")])
+    code = _run(tmp_path, files, "--tagger-roles", str(tmp_path / "bulk.csv"), "--force")
+    assert code == 0
+    assert "Warnung:" not in capsys.readouterr().out
+    assert _claims(tmp_path) == before - 3
+
+
+def test_the_help_text_says_a_tagger_warning_changes_nothing_and_exits_zero(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    with pytest.raises(SystemExit):
+        main(["import-all", "--help"])
+    text = " ".join(capsys.readouterr().out.split())
+    assert "Exit-Code 0" in text or "exit code 0" in text
