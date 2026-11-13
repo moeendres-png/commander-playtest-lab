@@ -1,0 +1,390 @@
+{
+ "urlhash": "zBtblEgDhvHH2rCUgL28FQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-05-28",
+ "price": 180,
+ "salt": 42.04713320359588,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/V7QhhyR1WEWHM76czowU-A?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Callaphe, Beloved of the Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Deepfathom Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1
+  },
+  {
+   "name": "Forerunner of the Heralds",
+   "quantity": 1
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Harbinger of the Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Herald of Secret Streams",
+   "quantity": 1
+  },
+  {
+   "name": "Ink Dissolver",
+   "quantity": 1
+  },
+  {
+   "name": "Jadelight Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora, the Rising Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Kopala, Warden of Waves",
+   "quantity": 1
+  },
+  {
+   "name": "Kumena, Tyrant of Orazca",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Mistbinder",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Skydiver",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Nicanzil, Current Conductor",
+   "quantity": 1
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1
+  },
+  {
+   "name": "River Herald Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Seafloor Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Seahunter",
+   "quantity": 1
+  },
+  {
+   "name": "Seeker of Sunlight",
+   "quantity": 1
+  },
+  {
+   "name": "Stonybrook Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Streambed Aquitects",
+   "quantity": 1
+  },
+  {
+   "name": "Svyelun of Sea and Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Sygg, River Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Caller",
+   "quantity": 1
+  },
+  {
+   "name": "Tidal Warrior",
+   "quantity": 1
+  },
+  {
+   "name": "Tishana's Tidebinder",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Hexcatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Vorel of the Hull Clade",
+   "quantity": 1
+  },
+  {
+   "name": "Waterwind Scout",
+   "quantity": 1
+  },
+  {
+   "name": "Zegana, Utopian Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Call",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Unity of Purpose",
+   "quantity": 1
+  },
+  {
+   "name": "Aquitect's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Bala Ged Recovery",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Blackblade Reforged",
+   "quantity": 1
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Authority of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Waters",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Master Chef",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Commerce",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, the Greathearted",
+   "quantity": 1
+  },
+  {
+   "name": "Jiang Yanggu, Wildcrafter",
+   "quantity": 1
+  },
+  {
+   "name": "Narset, Parter of Veils",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Cabaretti Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Drownyard Temple",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Hall of Storm Giants",
+   "quantity": 1
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Manor Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Obscura Storefront",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Skybridge Towers",
+   "quantity": 1
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1
+  },
+  {
+   "name": "Unclaimed Territory",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

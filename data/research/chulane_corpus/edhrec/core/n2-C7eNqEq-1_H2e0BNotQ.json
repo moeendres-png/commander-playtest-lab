@@ -1,0 +1,402 @@
+{
+ "urlhash": "n2-C7eNqEq-1_H2e0BNotQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-22",
+ "price": 171,
+ "salt": 41.3162861908786,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/10942296?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alandra, Sky Dreamer",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Cold-Eyed Selkie",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Emperor Mihail II",
+   "quantity": 1
+  },
+  {
+   "name": "Forerunner of the Heralds",
+   "quantity": 1
+  },
+  {
+   "name": "Hakbal of the Surging Soul",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kopala, Warden of Waves",
+   "quantity": 1
+  },
+  {
+   "name": "Lord of Atlantis",
+   "quantity": 1
+  },
+  {
+   "name": "Master of the Pearl Trident",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Looter",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Mistbinder",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Sovereign",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Trickster",
+   "quantity": 1
+  },
+  {
+   "name": "Merrow Reejerey",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Mist Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Realmwalker",
+   "quantity": 1
+  },
+  {
+   "name": "Roil Cartographer",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Seafloor Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Singer of Swift Rivers",
+   "quantity": 1
+  },
+  {
+   "name": "Stonybrook Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Stonybrook Schoolmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Surgespanner",
+   "quantity": 1
+  },
+  {
+   "name": "Svyelun of Sea and Sky",
+   "quantity": 1
+  },
+  {
+   "name": "Sygg, River Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Caller",
+   "quantity": 1
+  },
+  {
+   "name": "Thieving Skydiver",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Hexcatcher",
+   "quantity": 1
+  },
+  {
+   "name": "Vodalian Wave-Knight",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Evacuation",
+   "quantity": 1
+  },
+  {
+   "name": "Fleeting Reflection",
+   "quantity": 1
+  },
+  {
+   "name": "Long River's Pull",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Peerless Recycling",
+   "quantity": 1
+  },
+  {
+   "name": "Rapid Hybridization",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unbreakable Formation",
+   "quantity": 1
+  },
+  {
+   "name": "Wash Away",
+   "quantity": 1
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Bident of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Pilgrimage",
+   "quantity": 1
+  },
+  {
+   "name": "Deeproot Waters",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Remora",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 2
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Horizon of Progress",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 1
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Scavenger Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

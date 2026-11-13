@@ -1,0 +1,370 @@
+{
+ "urlhash": "wUhOlErsfWCOyiH0wG1u3A",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-09-17",
+ "price": 187,
+ "salt": 39.70597621006891,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12071532?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Bellowing Crier",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamdew Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1
+  },
+  {
+   "name": "Gandalf the White",
+   "quantity": 1
+  },
+  {
+   "name": "Genemorph Imago",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Overseer",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Hookmaster",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Kykar, Zephyr Awakener",
+   "quantity": 1
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Long River Lurker",
+   "quantity": 1
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Niambi, Esteemed Speaker",
+   "quantity": 1
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Roaring Primadox",
+   "quantity": 1
+  },
+  {
+   "name": "Scrapshooter",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Species Gorger",
+   "quantity": 1
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Thrun, Breaker of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Toski, Bearer of Secrets",
+   "quantity": 1
+  },
+  {
+   "name": "Valley Floodcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Valley Mightcaller",
+   "quantity": 1
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1
+  },
+  {
+   "name": "Y'shtola Rhul",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1
+  },
+  {
+   "name": "Make Your Move",
+   "quantity": 1
+  },
+  {
+   "name": "Momentary Blink",
+   "quantity": 1
+  },
+  {
+   "name": "Overprotect",
+   "quantity": 1
+  },
+  {
+   "name": "Parting Gust",
+   "quantity": 1
+  },
+  {
+   "name": "Polliwallop",
+   "quantity": 1
+  },
+  {
+   "name": "Saving Grasp",
+   "quantity": 1
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Turn to Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Renewal",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Weaving",
+   "quantity": 1
+  },
+  {
+   "name": "Splash Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Gossip's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Robe of Mirrors",
+   "quantity": 1
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 9
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Lilypad Village",
+   "quantity": 1
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 2
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

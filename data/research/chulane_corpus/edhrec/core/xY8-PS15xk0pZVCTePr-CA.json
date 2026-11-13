@@ -1,0 +1,342 @@
+{
+ "urlhash": "xY8-PS15xk0pZVCTePr-CA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-08-07",
+ "price": 130,
+ "salt": 35.680798292160034,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/66Xx9mKz3UGB-azpXardXA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Amrou Kithkin",
+   "quantity": 1
+  },
+  {
+   "name": "Amrou Seekers",
+   "quantity": 1
+  },
+  {
+   "name": "Augury Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Ballynock Cohort",
+   "quantity": 1
+  },
+  {
+   "name": "Ballynock Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Ballyrush Banneret",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Heir",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Changeling Hero",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudgoat Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Delighted Halfling",
+   "quantity": 1
+  },
+  {
+   "name": "Figure of Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Frodo Baggins",
+   "quantity": 1
+  },
+  {
+   "name": "Galadriel of Lothlórien",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Dodger",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Harrier",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Jenara, Asura of War",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Borderguard",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Courier",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Daggerdare",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Mourncaller",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Rabble",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Spellduster",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Meadowgrain",
+   "quantity": 1
+  },
+  {
+   "name": "Mentor of the Meek",
+   "quantity": 1
+  },
+  {
+   "name": "Mirror Entity",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Mycoloth",
+   "quantity": 1
+  },
+  {
+   "name": "Orzhov Advokist",
+   "quantity": 1
+  },
+  {
+   "name": "Pippin, Guard of the Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Preeminent Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Resplendent Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Rhox War Monk",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Knight",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Tender Wildguide",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Tolsimir Wolfblood",
+   "quantity": 1
+  },
+  {
+   "name": "Wilt-Leaf Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Wizened Cenn",
+   "quantity": 1
+  },
+  {
+   "name": "Zealous Guardian",
+   "quantity": 1
+  },
+  {
+   "name": "Aura Mutation",
+   "quantity": 1
+  },
+  {
+   "name": "Cerulean Wisps",
+   "quantity": 1
+  },
+  {
+   "name": "Crib Swap",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrorweave",
+   "quantity": 1
+  },
+  {
+   "name": "Pledge of Unity",
+   "quantity": 1
+  },
+  {
+   "name": "Repel Intruders",
+   "quantity": 1
+  },
+  {
+   "name": "Shields of Velis Vel",
+   "quantity": 1
+  },
+  {
+   "name": "Surge of Thoughtweft",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Gambit",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Maskwood Nexus",
+   "quantity": 1
+  },
+  {
+   "name": "Replicating Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Ring of Three Wishes",
+   "quantity": 1
+  },
+  {
+   "name": "Birthing Ritual",
+   "quantity": 1
+  },
+  {
+   "name": "Call to the Kindred",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Frogify",
+   "quantity": 1
+  },
+  {
+   "name": "Militia's Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Puca's Mischief",
+   "quantity": 1
+  },
+  {
+   "name": "Rally the Ranks",
+   "quantity": 1
+  },
+  {
+   "name": "Reins of the Vinesteed",
+   "quantity": 1
+  },
+  {
+   "name": "Steel of the Godhead",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hengegate Pathway",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Pasture",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

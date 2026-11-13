@@ -1,0 +1,378 @@
+{
+ "urlhash": "wx_KSkELr6ugAmZHl4SZKA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-09-18",
+ "price": 108,
+ "salt": 39.73916630027816,
+ "tags": [
+  "Ramp",
+  "Card Draw",
+  "Tokens"
+ ],
+ "source_url": "https://archidekt.com/decks/16069945?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Backstreet Bruiser",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Biomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Dragonborn Looter",
+   "quantity": 1
+  },
+  {
+   "name": "Empyrean Eagle",
+   "quantity": 1
+  },
+  {
+   "name": "Fog Bank",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Adephage",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod, God of the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Hunted Lammasu",
+   "quantity": 1
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1
+  },
+  {
+   "name": "Linvala, Shield of Sea Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Moat Piranhas",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Serra Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Silver Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sundial, Dawn Tyrant",
+   "quantity": 1
+  },
+  {
+   "name": "Sunweb",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Vantress Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Warlord's Elite",
+   "quantity": 1
+  },
+  {
+   "name": "Woolly Razorback",
+   "quantity": 1
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Rewind",
+   "quantity": 1
+  },
+  {
+   "name": "Stroke of Midnight",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Unwind",
+   "quantity": 1
+  },
+  {
+   "name": "Clone Legion",
+   "quantity": 1
+  },
+  {
+   "name": "Entreat the Angels",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Overcome",
+   "quantity": 1
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Predatory Rampage",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Recross the Paths",
+   "quantity": 1
+  },
+  {
+   "name": "Rite of Replication",
+   "quantity": 1
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1
+  },
+  {
+   "name": "Skyshroud Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Spoils of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Storm Herd",
+   "quantity": 1
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1
+  },
+  {
+   "name": "Tooth and Nail",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Spellbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Basilica Skullbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Candy Trail",
+   "quantity": 1
+  },
+  {
+   "name": "Maze Skullbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Surgical Skullbomb",
+   "quantity": 1
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Awakening Zone",
+   "quantity": 1
+  },
+  {
+   "name": "Jace's Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Heart Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Mind's Dilation",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 3
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

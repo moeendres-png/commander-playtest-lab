@@ -1,0 +1,278 @@
+{
+ "urlhash": "lez2y42Q1_pmoh-YHg7Udg",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-05-22",
+ "price": 97,
+ "salt": 52.88297691568732,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/64ZTeQvQKkyUkyzqCPEIUA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Benevolent Bodyguard",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Caustic Caterpillar",
+   "quantity": 1
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Stalker",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of False Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Stonehorn Dignitary",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Walking Atlas",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1
+  },
+  {
+   "name": "Call to Heel",
+   "quantity": 1
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Paradoxical Outcome",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Snapback",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Collective Effort",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Neoform",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Retreat to Coralhelm",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar's Roil",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 16
+  },
+  {
+   "name": "Island",
+   "quantity": 13
+  },
+  {
+   "name": "Plains",
+   "quantity": 9
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
