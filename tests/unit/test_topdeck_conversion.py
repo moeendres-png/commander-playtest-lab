@@ -81,7 +81,11 @@ def test_null_discipline_under_threshold() -> None:
     """Test NULL discipline: under threshold, rate stays NULL even if conversions == 0."""
     decks_5: list[TournamentDeck] = []
     for i in range(5):
-        decks_5.append(_make_deck(f"T{i}", f"Player{i}", ["Mana Crypt"], wins_bracket=0, losses_bracket=0))
+        decks_5.append(
+            _make_deck(
+                f"T{i}", f"Player{i}", ["Mana Crypt"], wins_bracket=0, losses_bracket=0
+            )
+        )
 
     stats = compute_conversions_for_decks("Test Commander", decks_5, min_sample=10)
     stat = next(s for s in stats if s.card_name == "Mana Crypt")
@@ -136,7 +140,9 @@ def test_chulane_edge_case() -> None:
             )
         )
 
-    stats = compute_conversions_for_decks("Chulane, Teller of Tales", decks, min_sample=10)
+    stats = compute_conversions_for_decks(
+        "Chulane, Teller of Tales", decks, min_sample=10
+    )
     assert len(decks) == 6
     assert all(s.conversion_rate is None for s in stats)
     assert all(s.to_row()[4] == "NULL" for s in stats)
@@ -146,9 +152,13 @@ def test_fail_closed_unknown_bracket_and_no_cut() -> None:
     """Test that tournaments without cut or with unknown bracket stay out of denominator."""
     decks = [
         # Tournament with no cut (top_cut=0)
-        _make_deck("T1", "P1", ["CardX"], top_cut=0, wins_bracket=None, losses_bracket=None),
+        _make_deck(
+            "T1", "P1", ["CardX"], top_cut=0, wins_bracket=None, losses_bracket=None
+        ),
         # Tournament with cut=4 but unknown bracket
-        _make_deck("T2", "P2", ["CardX"], top_cut=4, wins_bracket=None, losses_bracket=None),
+        _make_deck(
+            "T2", "P2", ["CardX"], top_cut=4, wins_bracket=None, losses_bracket=None
+        ),
         # Tournament with cut=4 and known bracket (reached)
         _make_deck("T3", "P3", ["CardX"], top_cut=4, wins_bracket=1, losses_bracket=0),
     ]
@@ -168,8 +178,22 @@ def test_fail_closed_unknown_bracket_and_no_cut() -> None:
 def test_export_conversions_csv(tmp_path: Path) -> None:
     """Test exporting conversions to CSV."""
     stats = [
-        CardConversionStat("Gitrog", "Dakmor Salvage", appearances=100, conversions=25, conversion_rate=0.25, sample_size_base=100),
-        CardConversionStat("Chulane", "Birds of Paradise", appearances=6, conversions=1, conversion_rate=None, sample_size_base=6),
+        CardConversionStat(
+            "Gitrog",
+            "Dakmor Salvage",
+            appearances=100,
+            conversions=25,
+            conversion_rate=0.25,
+            sample_size_base=100,
+        ),
+        CardConversionStat(
+            "Chulane",
+            "Birds of Paradise",
+            appearances=6,
+            conversions=1,
+            conversion_rate=None,
+            sample_size_base=6,
+        ),
     ]
     out_file = tmp_path / "test_conversions.csv"
     export_conversions_csv(stats, out_file)
@@ -178,6 +202,13 @@ def test_export_conversions_csv(tmp_path: Path) -> None:
     with out_file.open(encoding="utf-8") as fp:
         rows = list(csv.reader(fp))
 
-    assert rows[0] == ["commander", "card_name", "appearances", "conversions", "conversion_rate", "sample_size_base"]
+    assert rows[0] == [
+        "commander",
+        "card_name",
+        "appearances",
+        "conversions",
+        "conversion_rate",
+        "sample_size_base",
+    ]
     assert rows[1] == ["Gitrog", "Dakmor Salvage", "100", "25", "0.250000", "100"]
     assert rows[2] == ["Chulane", "Birds of Paradise", "6", "1", "NULL", "6"]
