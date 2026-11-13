@@ -10,21 +10,18 @@ This is routing guidance only; `AGENTS.md` remains authority. For each task choo
 lane that preserves required correctness and evidence:
 
 1. deterministic script/tool when judgement is unnecessary;
-2. DeepSeek V4.1 Flash native `max` (`opencode/deepseek-v4.1-flash-free`, free Zen quota, never below `high`) as the only OpenCode model for
+2. the worker the Owner selected for the session (the Owner picks tool and model manually) for
    implementation, debugging, tests, qualification execution, evidence production, audits,
-   reviews and long engineering work (`/oc`, `/assure`, `/ro-review`, the `opencode` CLI from Claude);
-   prompts follow `docs/foundry-execution/EXECUTOR_PROMPTING.md`;
-3. Step 5 Preview left the Zen catalog (retired 2026-10-16) and the OpenCode Go provider is retired:
-   never select either and never fall back to another model;
-4. bounded Claude read-only helpers: `log-scanner` = Sonnet `low`, `ci-triage` = Sonnet
+   reviews and long engineering work; there is no automatic fallback between models;
+3. bounded Claude read-only helpers: `log-scanner` = Sonnet `low`, `ci-triage` = Sonnet
    `medium`, built-in `Explore` only for a scoped lookup after deterministic search is
    insufficient;
-5. Opus 5.5 `medium` for normal coordination/dispatch/source-state management and `high` for
+4. Opus 5.5 `medium` for normal coordination/dispatch/source-state management and `high` for
    Rules, evidence/qualification, architecture, security/containment and other high-risk
    adjudication. `evidence-reviewer` is Opus `high`.
 
 Do not spawn general-purpose Claude subagents for implementation/debug/test-fix work; send that
-work to Foundry. Keep Claude helper topology flat and do not create agent teams. After delegation,
+work to the selected worker. Keep Claude helper topology flat and do not create agent teams. After delegation,
 consume the compact handoff before reopening raw material, and reopen it only when authority or
 independent verification requires it.
 

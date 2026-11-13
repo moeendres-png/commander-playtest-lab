@@ -31,8 +31,7 @@ HANDOFF instead of growing one giant conversation.
 1. Deterministic scripts first (`lab-ops`, grep, focused tests, packet readers).
 2. Hand implementation, debugging, test/fix loops, CI repair and long engineering work to
    the worker the Owner selected for the session; the Opus session stays
-   coordinator/planner/adjudicator. Write OpenCode prompts per
-   `docs/foundry-execution/EXECUTOR_PROMPTING.md`; run OpenCode jobs one at a time.
+   coordinator/planner/adjudicator.
 3. No automatic fallback between models for failure, quota or convenience.
 4. Claude subagents for bounded side work: `log-scanner` (Sonnet, low), `ci-triage`
    (Sonnet, medium), built-in `Explore` for read-only lookups. Claude Sonnet may also be an
@@ -83,8 +82,7 @@ self-merge") and report the merge in one line with the PR link. Fork pushes, rep
 changes to signed or sealed qualification records wait for the Owner's explicit go.
 
 **Habits.**
-- `gh_ops.py brief` is the one-screen lane status; `oc_dispatch.py post`/`watch` build and
-  read `/oc`/`/assure` dispatches.
+- `gh_ops.py brief` is the one-screen status (open PRs, PB-03, newest sealed epoch).
 - Helper reports ≤40 lines; routine user status ≤8 lines.
 - Test narrow while iterating; run the full suite once at the integration boundary.
   Commit before running tests: a dirty tree fails with "stale canonical inputs".

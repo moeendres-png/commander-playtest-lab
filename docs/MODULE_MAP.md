@@ -107,7 +107,7 @@ are referenced by `external-engine-integration.yml`; verify before removing anyt
 
 - `engine-bridge/` - Java bridge to the rules engine; `vendor/`, `docker/` - engine pin and build.
 - `config/` - pins and policy JSON (`rules_engines.json`); `schemas/` - JSON schemas.
-- `tests/` - `unit/`, `qualification/`, `foundry/`, `integration/`, `property/`, `golden/`, etc.
+- `tests/` - `unit/`, `qualification/`, `integration/`, `property/`, `golden/`, etc.
 - `qualification/`, `candidate-qualification/`, `evidence/`-style trees - sealed evidence; do not edit.
 - `handoffs/`, `research/`, `artifacts/` - provenance material (guess: mostly hist).
 - Root reports (`MIGRATION_CLOSEOUT.md`, `XMAGE_FULL_GAME_*`, `ARCHITECTURE_MIGRATION_REPORT.md`) - hist.
@@ -119,7 +119,6 @@ Current / governing (start here):
 - `README.md`, `AGENTS.md`, `docs/PROJECT_MISSION.md`, `docs/CURRENT_EXECUTION_AUTHORITY.md`,
   `docs/README.md`, `docs/REPOSITORY_TRIAGE_INDEX.md`, `docs/EVIDENCE_INDEX_REQUIREMENTS.md`,
   `docs/RETENTION_AND_LIFECYCLE_POLICY.md`, `docs/OPERATIONAL_SIMULATION_POLICY.md`.
-- `docs/foundry-execution/` - canonical Foundry execution system (start at its `README.md`).
 - `docs/claude/` - session playbook and repin runbook; `docs/claude/state/HANDOFF.md` is a
   continuation index only (git, tests and sealed evidence remain source truth).
 - `docs/performance/` - dated speed and determinism measurements; each file's header names the pin and commit.
