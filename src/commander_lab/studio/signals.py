@@ -479,6 +479,17 @@ def _tournament_bases(folder: Path) -> list[str]:
     return sorted(found)
 
 
+def has_signal_files(folder: str | Path) -> bool:
+    """Whether ``folder`` holds at least one file ``import_signals`` reads."""
+    root = Path(folder)
+    if not root.is_dir():
+        return False
+    bases = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE]
+    bases += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
+    bases += _tournament_bases(root)
+    return any(_parts(root, base) for base in bases)
+
+
 def import_signals(store: StudioStore, folder: str | Path, *, commander: str) -> dict[str, object]:
     """Import every signal file of ``folder`` (all optional); one report entry per file.
 

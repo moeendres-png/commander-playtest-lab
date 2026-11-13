@@ -309,6 +309,41 @@ the public card data once a card is linked; the workbook stays the source of wha
 Only image requests leave the machine, and they name single public cards (Owner exception in
 `AGENTS.md` §12). The image host is fixed in `images.py`.
 
+### Alles importieren
+
+`import-all` runs the importers above in the right order for one commander and checks the
+result: collection (`--inventory`, required), public card facts (`--scryfall`), roles
+(`--roles`), deck lists (`--decklists`, with `--decklist-format edhrec|archidekt`, default
+`edhrec`), usage signals (`--signals FOLDER`, repeatable) and marks (`--marks`). Each step
+runs inside the commander scoping of `importing_for`; a step that was not given is reported
+as `NOT_PROVIDED`, a step that fails stops the rest (`SKIPPED_AFTER_ERROR`, exit code 1).
+Without `--signals`, every folder under `data/research` that holds signal files is used
+(today `deckbuilder_1655` and `topdeck_20261112`).
+
+At the end it prints the counts-only data report (`data-report`) and one completeness table:
+per layer the rows, the cards of the commander's legal pool that the layer covers, the pool
+size and the status `COMPLETE` (the whole pool), `PARTIAL` or `MISSING` (no row). A layer
+that is `PARTIAL` is not an error: not every card has a role, a signal or a deck. With
+`--expect-pool N` the command exits with code 3 when the legal pool has another size than
+`N`, so a wrong collection or card-fact import is caught before anything is built on it.
+
+Windows PowerShell (from the repository folder; the data folder is the one the starter uses):
+
+```powershell
+$env:PYTHONPATH = "src"
+.\.venv\Scripts\python.exe -m commander_lab.studio --data "$env:LOCALAPPDATA\CommanderStudio" import-all `
+  --commander "<Name des Commanders>" `
+  --inventory "<Pfad>\Sammlung.xlsx" `
+  --scryfall "<Pfad>\scryfall_oracle.jsonl.gz" `
+  --roles "<Pfad>\rollen.json" `
+  --decklists "<Pfad>\decklisten" `
+  --marks "<Pfad>\marks.json" `
+  --expect-pool <erwartete Poolgröße>
+```
+
+`--data` is a global option and comes before `import-all`. Leave out every line you do not
+have; the table then shows that layer as `MISSING`.
+
 ## Start
 
 `python -m commander_lab.studio serve --open` (Windows: `scripts/studio_start.ps1`, Linux/WSL: `scripts/studio_start.sh`). The
