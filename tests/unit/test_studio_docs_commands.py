@@ -14,6 +14,9 @@ DOC = Path(__file__).resolve().parents[2] / "docs" / "STUDIO_DECKBUILDER.md"
 PREFIX = re.compile(r"^python3? -m commander_lab\.studio ")
 
 
+_COMMANDS = {"import-all", "import-lab-deck", "serve"}
+
+
 def _section() -> str:
     text = DOC.read_text(encoding="utf-8")
     start = text.index("## Erste Einrichtung")
@@ -46,7 +49,11 @@ def test_the_doc_documents_commands() -> None:
 
 @pytest.mark.parametrize("tokens", _commands(), ids=lambda tokens: " ".join(tokens)[:60])
 def test_documented_command_parses(tokens: list[str]) -> None:
-    _parser().parse_args(tokens)
+    parsed = _parser().parse_args(tokens)
+    subcommand = next(
+        token for token in tokens if not token.startswith("--") and token in _COMMANDS
+    )
+    assert parsed.command == subcommand
 
 
 def test_data_after_the_subcommand_is_not_accepted() -> None:
