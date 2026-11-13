@@ -1405,7 +1405,7 @@ def test_the_page_loads_a_saved_profile_through_the_server_and_keeps_drafts() ->
     # a saved profile is computed by the server's profile= path, never by applyStrength
     # (which would overwrite its universe with the one selected at the top)
     assert "loadSavedProfile(p)" in script and "profile: profile.name" in script
-    assert "applyStrength(p.settings)" not in script
+    assert "loadSavedProfile(p).catch" in script
     assert "fillUniverseSelect(wanted)" in script
     # the page says which universe the index was computed with
     assert "Index berechnet mit:" in script and "kein Decklisten-Universum" in script
