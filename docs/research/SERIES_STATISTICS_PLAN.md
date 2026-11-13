@@ -19,16 +19,24 @@
 ## 0. Kurzantwort
 
 Für einen Deck-Vergleich Basis gegen Variante (Sieganteil des eigenen Decks,
-Differenz Δ in Prozentpunkten, α = 0,05 zweiseitig, Power 80 %, Konfidenz 95 %):
+Differenz Δ in Prozentpunkten, α = 0,05 zweiseitig, Power 80 %, Konfidenz 95 %).
+**Diese Tabelle gilt für „ein Blick, ein Vergleich" (α = 0,05 am einzigen
+Blick).** Für den empfohlenen Plan mit mehreren Looks und mehreren Varianten
+sind die Zahlen größer (Abschnitt 2.6).
 
-| Ziel-Differenz | Ungepaart (Partien je Arm, 4 Plätze) | Gepaart (Seeds, 4 Plätze, q = 0,20) | Gepaart (Seeds, 4 Plätze, q = 0,40) |
+Vergleich mit gleichem Design-Effekt (DEFF = 1,75, ρ = 0,25) auf beiden Seiten;
+Einheit „Partien je Arm" (gepaart: Paare = Seeds × 4):
+
+| Ziel-Differenz | Ungepaart (Partien je Arm, iid × 1,75) | Gepaart q = 0,20: Seeds (Paare) | Gepaart q = 0,40: Seeds (Paare) |
 |---|---|---|---|
-| 5 Prozentpunkte | 1.248 | 275 | 546 |
-| 10 Prozentpunkte | 326 | 69 | 137 |
-| 15 Prozentpunkte | 150 | 31 | 61 |
+| 5 Prozentpunkte | 2.184 (iid 1.248) | 275 (1.100) | 546 (2.184) |
+| 10 Prozentpunkte | 571 (iid 326) | 69 (276) | 137 (548) |
+| 15 Prozentpunkte | 263 (iid 150) | 31 (124) | 61 (244) |
 
 (q = Anteil der Paare mit unterschiedlichem Ausgang, siehe Abschnitt 3.
-Cluster-Korrektur ρ = 0,25 inklusive; Herleitung in Abschnitt 2.)
+Die iid-Werte in Klammern sind die ungepaarten Werte ohne Design-Effekt aus
+Abschnitt 2.1; ungepaart: 1.248 · 1,75 = 2.184, 326 · 1,75 = 570,5 → 571,
+150 · 1,75 = 262,5 → 263. Herleitung in Abschnitt 2.)
 
 Daraus folgen die vier Arbeitsregeln dieses Plans:
 
@@ -47,7 +55,9 @@ Daraus folgen die vier Arbeitsregeln dieses Plans:
    Befund über die Decks.
 4. **Gepaart auf denselben Seeds ist Pflicht, aber kein Wundermittel.** Der
    Gewinn hängt vollständig davon ab, wie oft beide Arme im selben Seed
-   übereinstimmen (Abschnitt 3). Die Paarung ist im Runner bereits das
+   übereinstimmen (Abschnitt 3): Die Paarung spart Partien, solange q unter
+   dem ungepaarten Varianzterm liegt (bei 4 Plätzen und 5 pp etwa q < 0,40);
+   bei q = 0,40 ist sie neutral, bei 5 oder 6 Plätzen darüber schlechter. Die Paarung ist im Runner bereits das
    Standardverfahren; dieser Plan liefert die Größen und die Messvorschrift
    für ihre tatsächliche Stärke.
 
@@ -116,13 +126,21 @@ Der Vergleichs-Runner plant bereits genau so (`power_table()` in
 Schritt 4): Für ein Paar sei d ∈ {−1, 0, +1} der Ausgangsunterschied
 (Variante gewinnt / gleicher Ausgang / Basis gewinnt) und q der Anteil
 diskordanter Paare (d ≠ 0). Dann ist E[d] = Δ, Var(d) ≈ σ_d² mit
-σ_d = √q (für q = 0,40 der Repo-Anker σ_d = 0,63), und
+σ_d = √q (für q = 0,40: σ_d = 0,632; der Repo-Anker rundet auf 0,63), und
 
 $$N_{\text{Paare, iid}} = \left\lceil \left( \frac{(z_{1-\alpha/2} + z_{1-\beta}) \cdot \sigma_d}{\Delta} \right)^2 \right\rceil$$
 
 Die s Paare eines Seeds werden mit dem Design-Effekt
 DEFF = 1 + (s − 1)·ρ, ρ = 0,25 (Repo-Planungsannahme für 4 Plätze), auf
 Seeds umgerechnet: N_Paare,Cluster = ⌈N_iid · DEFF⌉, Seeds = ⌈N_Paare,Cluster / s⌉.
+
+**q ist die konservative obere Schranke:** Exakt gilt Var(d) = q − Δ² (Abschnitt 3);
+die Näherung Var(d) ≈ q lässt −Δ² weg und rechnet etwas zu groß. Exakte Variante
+einmal als Beispiel: Δ = 15 pp, q = 0,20 → iid-Paare ⌈(2,8016)² · 0,20 / 0,15²⌉ = 70
+(Näherung) gegenüber ⌈(2,8016)² · (0,20 − 0,0225) / 0,15²⌉ = 62 (exakt). Die
+Tabelle unten und der Planungsstandard verwenden die Näherung. Die Zeilen
+q = 0,40 sind mit dem Repo-Anker 0,63 gerechnet (1.247 Paare, 546 Seeds); mit
+σ_d = 0,632 sind es 1.256 Paare und 550 Seeds (≤ 0,8 % mehr).
 
 | Δ | q | Paare (iid) | Seeds bei 2 Pl. | 3 Pl. | 4 Pl. | 5 Pl. | 6 Pl. |
 |---|---|---|---|---|---|---|---|
@@ -166,7 +184,7 @@ Seeds, also 69 · 4 · 2 = 552 Partien gesamt (beide Arme).
 Der Workflow nennt als gemessenen Anker 225 Partien/Stunde (4 Arbeiter,
 echter Pod, gemessen 2026-10-17/18, `docs/DECK_VARIANT_WORKFLOW.md` Schritt 2).
 `CODE_DERIVED`. Damit: 10 pp bei q = 0,20 ≈ 2,4 Stunden; 5 pp ungepaart
-(2.496 Partien) ≈ 11 Stunden; 5 pp gepaart bei q = 0,40 (4.366 Partien)
+(2.496 Partien) ≈ 11 Stunden; 5 pp gepaart bei q = 0,40 (4.368 Partien = 546 · 4 · 2)
 ≈ 19 Stunden. Die Größenordnung „ein Umbau-Entscheid an einem Abend,
 ein 5-pp-Nachweis nur als geplante Kampagne" folgt direkt daraus.
 
@@ -191,6 +209,46 @@ nicht findet, meldet korrekt `NO_CLEAR_DIFFERENCE` bzw. `UNDERPOWERED` —
 der Runner druckt diese Einordnung bereits (Workflow Schritt 4). Künftige
 Serien legen Größe und Ziel-Differenz **vor** dem Start fest.
 
+### 2.6 Fallzahl bei mehreren Looks und mehreren Vergleichen
+
+Die Tabellen in 2.1 bis 2.5 und in Abschnitt 0 rechnen mit α = 0,05 an
+**einem** Blick für **einen** Vergleich („ein Blick, ein Vergleich"). Der
+empfohlene Plan (Abschnitt 4: 3 bis 5 O'Brien-Fleming-Looks, Holm über
+Varianten) testet am letzten Look aber nur auf Level ≈ 0,026 (Abschnitt 4,
+Tabelle), und bei m gleichzeitigen Vergleichen verlangt Holm im ersten Schritt
+höchstens α/m (Bonferroni-Schranke). Die Fallzahl N muss daher mit dem
+Level gerechnet werden, das am letzten Look tatsächlich gilt; die Formeln
+bleiben dieselben, nur z₁₋α/₂ ändert sich:
+
+- (a) Letzter Look, ein Vergleich: α = 0,026, z₀,₉₈₇ = 2,2262.
+- (b) zusätzlich m = 5 Varianten (Obergrenze aus Abschnitt 8): α = 0,026/5 = 0,0052,
+  z₀,₉₉₇₄ = 2,7944.
+- Altwert: α = 0,05, z₀,₉₇₅ = 1,9600. Power 80 %: z₀,₈₀ = 0,8416.
+
+Gepaart, 4 Plätze, DEFF = 1,75, σ_d = √q, Seeds = ⌈⌈((z_α + 0,8416)·√q/Δ)² · 1,75⌉ / 4⌉
+(`MODELED`, nachgerechnet):
+
+| q | Δ | Altwert „ein Blick, ein Vergleich" (α = 0,05) | (a) α = 0,026 | (b) α = 0,0052 (m = 5) |
+|---|---|---|---|---|
+| 0,40 | 5 pp | 550 | 659 | 926 |
+| 0,40 | 10 pp | 138 | 165 | 232 |
+| 0,40 | 15 pp | 62 | 74 | 104 |
+| 0,20 | 5 pp | 275 | 330 | 463 |
+| 0,20 | 10 pp | 69 | 83 | 116 |
+| 0,20 | 15 pp | 31 | 37 | 52 |
+
+(Die Altwert-Spalte mit σ_d = 0,632 statt des Repo-Ankers 0,63: 550 statt 546,
+138 statt 137, 62 statt 61.) Faktor (a) gegenüber dem Altwert ≈ 1,20,
+Faktor (b) ≈ 1,68. Für den empfohlenen Plan (q = 0,40, 5 pp, 5 Varianten) heißt
+das: 926 Seeds statt 546 bzw. 550. Ungepaart je Arm (iid, ohne DEFF) bei 4 Plätzen:
+1.248 / 326 / 150 (α = 0,05), 1.497 / 391 / 179 (a), 2.103 / 549 / 252 (b).
+Holm ist im Mittel günstiger als die Bonferroni-Schranke, (b) ist daher eine
+Obergrenze für den ersten Schritt, keine Punktschätzung. Die Look-Level
+der anderen Looks (Abschnitt 4) liegen niedriger, entscheiden aber nur bei
+überwältigender Evidenz; die Größe richtet sich nach dem letzten Look.
+Die Faktor-Tabelle in Abschnitt 8 (α/K gegenüber α = 0,05) bezieht sich auf
+den Altwert und ist mit dem Look-Faktor (a) zu multiplizieren.
+
 ---
 
 ## 3. Frage 2: Was die Paarung auf gleiche Seeds wirklich bringt
@@ -206,9 +264,11 @@ $$\text{Gewinn} = \frac{p_0(1-p_0) + p_1(1-p_1)}{q - \Delta^2}$$
 
 | q | Gewinn bei Δ = 5 pp (4 Pl.) | Gewinn bei Δ = 10 pp (4 Pl.) |
 |---|---|---|
-| 0,09 | 4,5× | 5,2× |
+| 0,09 | 4,5× | —¹ |
 | 0,20 | 2,0× | 2,2× |
 | 0,40 | 1,0× | 1,1× |
+
+¹ nicht möglich (Δ > q).
 
 `MODELED`, nachgerechnet. Lesart: Bei q = 0,40 — fast jedes zweite Paar geht
 unterschiedlich aus — bringt die Paarung **keinen** Varianzgewinn mehr; die
@@ -252,9 +312,22 @@ eines Einzelkarten-Tauschs vor, aus dem sich q̂ belegen ließe. Die
 Simulationsannahmen der E6-Dokumente (Diskordanz 0,10 unter H₀, 0,25 mit
 Effekt) sind `SYNTHETIC` und keine Messung an echten Deck-Varianten.
 
-**Empfehlung:** Paarung immer (sie kostet nichts und schadet nie — bei
-q = 0,40 ist sie neutral, sonst gewinnt sie), aber die Seriengröße mit
-q = 0,40 planen, solange kein gemessenes q̂ des eigenen Decks vorliegt.
+**Wann Paarung hilft (Break-even).** Gepaart braucht ⌈z² · (q − Δ²)/Δ²⌉ Paare,
+ungepaart ⌈z² · [p₀(1−p₀) + p₁(1−p₁)]/Δ²⌉ Partien je Arm; mit gleichem
+Design-Effekt auf beiden Seiten hilft die Paarung genau dann, wenn
+q − Δ² < p₀(1−p₀) + p₁(1−p₁) (mit der konservativen Näherung Var(d) ≈ q:
+q < p₀(1−p₀) + p₁(1−p₁)). Der Wert der rechten Seite beträgt (nachgerechnet,
+Δ = 5 / 10 / 15 pp): 4 Plätze 0,3975 / 0,415 / 0,4275; 5 Plätze 0,3475 /
+0,37 / 0,3875; 6 Plätze 0,3086 / 0,3344 / 0,3553; 2 Plätze 0,4975 / 0,49 /
+0,4775. Bei 4 Plätzen ist q = 0,40 daher gerade neutral (2.184 Paare gepaart
+gegenüber 2.184 Partien je Arm ungepaart, beides mit DEFF 1,75), bei 5 und
+6 Plätzen wäre q = 0,40 schlechter als ungepaart. „Paarung schadet nie" ist
+damit nicht belegt; belegt ist: Sie gewinnt, wo q unter dem Break-even liegt.
+
+**Empfehlung:** Paarung als Standard (bei q unter dem Break-even gewinnt sie,
+bei 4 Plätzen und q = 0,40 ist sie neutral; die Gleichung oben zeigt, wann nicht),
+aber die Seriengröße mit q = 0,40 planen, solange kein gemessenes q̂ des eigenen
+Decks vorliegt.
 Ein kleineres q darf erst nach einem gemessenen ersten Look in die Planung.
 
 ---
@@ -267,8 +340,8 @@ Runner: `--stop-when-decided` mit festen Looks und einer
 Lan-DeMets-Ausgabenfunktion vom O'Brien-Fleming-Typ
 (`sequential_look_alphas`). Jeder Look k entscheidet auf dem Inkrement
 a(t_k) − a(t_{k−1}) der Ausgabenfunktion a(t) = 2 − 2Φ(z/√t); die
-Union-Bound über die Looks hält das Gesamt-α exakt ein, ohne Annahmen über
-die Abhängigkeit der Looks. Innerhalb eines Looks korrigiert Holm über
+Union-Bound über die Looks hält das Gesamt-α konservativ ein (obere Schranke),
+ohne Annahmen über die Abhängigkeit der Looks. Innerhalb eines Looks korrigiert Holm über
 mehrere Varianten. Doku: `docs/performance/SEQUENTIAL_LOOK_LEVELS_2026-10-31.md`,
 Workflow Schritt 4. `CODE_DERIVED`
 
@@ -293,8 +366,9 @@ Ergebnis"):**
    Serienbericht ablegen. Nachschauen außerhalb der Looks ist unzulässig —
    genau das bläht sonst die Fehlerquote (die Repo-Simulationen zeigen für
    unkorrigiertes Dauer-Nachschauen Fehlerquoten weit über 5 %;
-   `VERDICT_HOLM_VARIANTS_2026-10-31.md` misst 8,9–35,4 % schon für das
-   bloße Auswählen unter Varianten ohne Korrektur). `CODE_DERIVED`
+   `VERDICT_HOLM_VARIANTS_2026-10-31.md` misst schon für das
+   bloße Auswählen unter Varianten ohne Korrektur 8,9 % (K = 5, w = 0) bzw.
+   35,4 % (K = 10, w = 1), Abschnitt 8). `CODE_DERIVED`
 2. Wenige, große Looks statt vieler kleiner: 3–5 Looks. Ein Look braucht bei
    voller Rotation mindestens ~10 Seeds, darunter kann die Urteilsregel
    (Zeichentest + Cluster-t) nicht entscheiden (Workflow Schritt 4).
@@ -443,10 +517,13 @@ Platzzahlen ihre eigene Qualifikation noch ausstehen haben
 ## 8. Multiplizität: mehrere Varianten, mehrere Karten
 
 **Mehrere Varianten in einem Lauf:** Holm-Korrektur ist gebaut und
-Pflicht (`holm_adjust` in `full_game_comparison.py`; ein entschiedenes
+Pflicht (`holm_adjust`, definiert in `src/commander_lab/decision_statistics.py:130`,
+von `full_game_comparison.py` importiert; ein entschiedenes
 Urteil gilt nur mit Holm-adjustiertem p unter dem Level). Ohne Korrektur
-stieg die Falsch-Urteils-Quote in der Repo-Simulation auf 8,9 % (5
-Varianten) bis 35,4 % (10 Varianten, geteilte Vorzeichen) bei nominal 5 %.
+stieg die Falsch-Urteils-Quote in der Repo-Simulation (α = 0,05, 25 Seeds,
+je Seed 4 Rotationen; w = Cluster-Stärke) bei K = 5 Varianten auf 8,9 % (w = 0)
+bzw. 19,7 % (w = 1) und bei K = 10 auf 17,1 % (w = 0) bzw. 35,4 % (w = 1),
+jeweils bei nominal 5 %; mit Holm 0,6 % / 2,0 % (K = 5) und 0,6 % / 1,5 % (K = 10).
 `CODE_DERIVED` (`VERDICT_HOLM_VARIANTS_2026-10-31.md`)
 
 **Preis der Korrektur** (Bonferroni-Näherung α/K als Planungsobergrenze;
@@ -486,7 +563,7 @@ nachgerechnet mit der Repo-Formel):
 | 12 | 8,9 % – 53,2 % | ±22,2 pp |
 | 30 | 13,0 % – 42,7 % | ±14,9 pp |
 | 50 | 15,1 % – 38,5 % | ±11,7 pp |
-| 100 | 17,6 % – 34,3 % | ±8,4 pp |
+| 100 | 17,5 % – 34,3 % | ±8,4 pp |
 | 200 | 19,5 % – 31,4 % | ±6,0 pp |
 | 400 | 21,0 % – 29,5 % | ±4,2 pp |
 | 1.248 | 22,7 % – 27,5 % | ±2,4 pp |
@@ -607,8 +684,9 @@ Repo (alle Angaben `CODE_DERIVED`, Stand dieser Recherche):
   `docs/performance/PILOT_CALIBRATION_REAL_PLAYERS_2026-11-09.md`:
   Pod-Ergebnisse und Zwillingslauf-Identität.
 - `src/commander_lab/engine/rules/full_game_comparison.py`:
-  `power_table()`, `sequential_look_alphas()`, `holm_adjust`,
-  Cluster-Statistik.
+  `power_table()`, `sequential_look_alphas()`, Cluster-Statistik;
+  `holm_adjust` kommt aus `src/commander_lab/decision_statistics.py:130`
+  (dort definiert, in `full_game_comparison.py` importiert).
 - `src/commander_lab/studio/simulations.py`: `wilson_score_interval()`,
   `aggregate_batch_results()`, `GameSummary`.
 - `docs/OWNER_DECISIONS_STUDIO_20261112.md` (S2, S3, A8),
