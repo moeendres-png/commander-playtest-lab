@@ -30,6 +30,21 @@ from .universe import InclusionResult
 MODEL_VERSION = "counted-spread-1"
 
 
+#: German names of the spread levels ("Verbreitung (gezählt)"): how often a card is played in the
+#: chosen decks, never how strong it is. The level letters S to D are kept as the stable keys
+#: of the API; the page shows the name, because the only thing called a Tier is the strength
+#: index. ``U`` has no counted base, ``F`` is a card the universe's card filter requires.
+LEVEL_NAMES: dict[str, str] = {
+    "S": "sehr häufig",
+    "A": "häufig",
+    "B": "gelegentlich",
+    "C": "selten",
+    "D": "sehr selten",
+    "U": "unbekannt",
+    "F": "Filterkarte",
+}
+
+
 class TierParamsDict(TypedDict):
     """The serialized form of ``TierParams``."""
 
@@ -43,6 +58,7 @@ class CardTier(TypedDict):
 
     card_name: str
     tier: str
+    level_name: str
     reason: str
     hits: int
     denominator: int
@@ -134,6 +150,7 @@ def card_tier(
     return {
         "card_name": card_name,
         "tier": tier,
+        "level_name": LEVEL_NAMES.get(tier, tier),
         "reason": reason,
         "hits": hits,
         "denominator": denominator,

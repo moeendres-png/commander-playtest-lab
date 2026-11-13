@@ -16,6 +16,11 @@ from commander_lab.owner_data import owner_data_root
 STUDIO_DATA_ENV = "COMMANDER_LAB_STUDIO_DATA"
 SCHEMA_VERSION = 12
 DATABASE_NAME = "studio.sqlite3"
+# The sections a source deck's cards are counted in, everywhere (universe spread, deck-builder
+# frequencies, co-occurrence, role counts). The corpus importer stores the main deck as
+# "mainboard", the decklist importer as "main"; sideboard, maybeboard and cuts are outside the
+# deck that was played and never count.
+COUNTED_SECTIONS = ("main", "mainboard", "commander", "companion")
 
 
 class DataClass(StrEnum):
@@ -117,6 +122,11 @@ CREATE TABLE IF NOT EXISTS corpus_deck_card (
     PRIMARY KEY (deck_id, card_name, section)
 );
 CREATE INDEX IF NOT EXISTS corpus_card_name ON corpus_deck_card(card_name);
+-- Covering indexes for the per-card and per-deck counts (derived data only, safe to rebuild).
+CREATE INDEX IF NOT EXISTS corpus_card_cover
+    ON corpus_deck_card(card_name, section, quantity, deck_id);
+CREATE INDEX IF NOT EXISTS corpus_deck_cover
+    ON corpus_deck_card(deck_id, section, quantity, card_name);
 CREATE TABLE IF NOT EXISTS observation (
     observation_id INTEGER PRIMARY KEY AUTOINCREMENT,
     card_id TEXT REFERENCES card(card_id),
@@ -454,11 +464,13 @@ def rebuild_corpus_deck_role(db: sqlite3.Connection) -> None:
     their own transaction, once, after they changed either input.
     """
     db.execute("DELETE FROM corpus_deck_role")
+    marks = ", ".join("?" for _ in COUNTED_SECTIONS)
     db.execute(
         "INSERT INTO corpus_deck_role "
         "SELECT k.deck_id, r.role, SUM(k.quantity) FROM corpus_deck_card k "
         "JOIN card_role r ON r.oracle_id = k.oracle_id "
-        "WHERE k.section != 'sideboard' GROUP BY k.deck_id, r.role"
+        f"WHERE k.section IN ({marks}) AND k.quantity > 0 GROUP BY k.deck_id, r.role",
+        COUNTED_SECTIONS,
     )
 
 
