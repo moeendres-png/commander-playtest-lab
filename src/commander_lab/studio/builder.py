@@ -296,9 +296,9 @@ def pool_cards(
     legacy cohort figures stay untouched either way. Raises KeyError for an unknown
     profile and ValueError when the profile is defined for other commanders.
 
-    Without a ``profile`` and without any local deck list of the commander, a counted
-    deck-list universe stored for the commander is used when the automatic choice finds one
-    (``universe_choice.choose``, the same as the tier list): each card then carries ``counted``
+    Without a ``profile`` the builder asks the same ``universe_choice.choose`` as the tier list
+    (recommended settings): when it picks a counted deck-list universe stored for the commander
+    (that is, fewer local deck lists than the minimum universe), each card carries ``counted``
     (decks, denominator, share; a card without a row is a counted zero) and the pool carries
     one ``counted_universe`` block.
 
@@ -426,13 +426,9 @@ def pool_cards(
         "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
-    if (
-        profile is None
-        and len(commander_names) == 1
-        and not cohort_sizes(store, commander_names).get(ALL_DECKS)
-    ):
-        # No local deck lists of this commander: the counted deck-list universe the tier list
-        # chooses automatically (the same server function, ``strength_view``), if one is stored.
+    if profile is None and len(commander_names) == 1:
+        # The counted deck-list universe the tier list chooses automatically (the same server
+        # function, ``universe_choice.choose``, through ``strength_view``), if it picks one.
         from . import strength_view
 
         found = strength_view.builder_counted_universe(

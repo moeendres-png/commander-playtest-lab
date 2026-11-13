@@ -730,13 +730,25 @@ def test_the_web_lists_only_the_counted_universes_of_the_asked_commander(
     assert sent["settings"]["universe_source"] == "counted:edhrec:3"
 
 
-def test_the_builder_uses_the_automatic_counted_universe_only_without_local_decks(
+def test_the_builder_takes_the_same_universe_as_the_tier_list(
     store: StudioStore, tmp_path: Path
 ) -> None:
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
-    with_decks = builder.pool_cards(store, [COMMANDER])  # the fixture holds local decks
-    assert "counted_universe" not in with_decks
-    assert all("counted" not in card for card in with_decks["cards"])  # type: ignore[attr-defined]
+    # The fixture holds a few local decks (below the minimum of 30): the tier list takes the
+    # counted universe, so the builder shows it too.
+    few = builder.pool_cards(store, [COMMANDER])
+    assert universe_choice.local_deck_count(store, COMMANDER) < 30
+    chosen = _choice(store)
+    block = few["counted_universe"]
+    assert chosen["kind"] == universe_choice.KIND_COUNTED
+    assert isinstance(block, dict) and block["counted"] == chosen["counted"]
+    assert block["denominator"] == chosen["denominator"] == 200
+    # With 30 local decks the tier list takes them, and the builder shows no counted column.
+    _local_decks(store, 30)
+    assert _choice(store)["kind"] == universe_choice.KIND_LOCAL
+    many = builder.pool_cards(store, [COMMANDER])
+    assert "counted_universe" not in many
+    assert all("counted" not in card for card in many["cards"])  # type: ignore[attr-defined]
     store.connection.execute("DELETE FROM commander_binding WHERE kind = 'corpus_deck'")
     store.connection.commit()
     chosen = builder.pool_cards(store, [COMMANDER])
