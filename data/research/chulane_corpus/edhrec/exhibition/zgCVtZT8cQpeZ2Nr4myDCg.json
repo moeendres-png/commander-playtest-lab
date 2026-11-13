@@ -1,0 +1,314 @@
+{
+ "urlhash": "zgCVtZT8cQpeZ2Nr4myDCg",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2025-07-14",
+ "price": 205,
+ "salt": 50.84367201849818,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/14076484?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Fisher",
+   "quantity": 1
+  },
+  {
+   "name": "Baithook Angler",
+   "quantity": 1
+  },
+  {
+   "name": "Cosima, God of the Voyage",
+   "quantity": 1
+  },
+  {
+   "name": "Dandân",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Quartermaster",
+   "quantity": 1
+  },
+  {
+   "name": "Eluge, the Shoreless Sea",
+   "quantity": 1
+  },
+  {
+   "name": "Fleet Swallower",
+   "quantity": 1
+  },
+  {
+   "name": "Grizzled Angler",
+   "quantity": 1
+  },
+  {
+   "name": "Hanna, Ship's Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Kenessos, Priest of Thassa",
+   "quantity": 1
+  },
+  {
+   "name": "Kishla Trawlers",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1
+  },
+  {
+   "name": "Malcolm, Keen-Eyed Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Morska, Undersea Sleuth",
+   "quantity": 1
+  },
+  {
+   "name": "Mu Yanling, Wind Rider",
+   "quantity": 1
+  },
+  {
+   "name": "Pirate Ship",
+   "quantity": 1
+  },
+  {
+   "name": "Reef Pirates",
+   "quantity": 1
+  },
+  {
+   "name": "Reef Worm",
+   "quantity": 1
+  },
+  {
+   "name": "Serpent of Yawning Depths",
+   "quantity": 1
+  },
+  {
+   "name": "Siren Stormtamer",
+   "quantity": 1
+  },
+  {
+   "name": "Spawning Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Unsettled Mariner",
+   "quantity": 1
+  },
+  {
+   "name": "Vexing Gull",
+   "quantity": 1
+  },
+  {
+   "name": "Xolatoyac, the Smiling Flood",
+   "quantity": 1
+  },
+  {
+   "name": "Echoing Truth",
+   "quantity": 1
+  },
+  {
+   "name": "Engulf the Shore",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "High Tide",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Trawl",
+   "quantity": 1
+  },
+  {
+   "name": "Idyllic Tutor",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "River's Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Cargo Ship",
+   "quantity": 1
+  },
+  {
+   "name": "Conqueror's Galleon",
+   "quantity": 1
+  },
+  {
+   "name": "Consulate Dreadnought",
+   "quantity": 1
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1
+  },
+  {
+   "name": "Explorer's Scope",
+   "quantity": 1
+  },
+  {
+   "name": "Fishing Pole",
+   "quantity": 1
+  },
+  {
+   "name": "Raiders' Karve",
+   "quantity": 1
+  },
+  {
+   "name": "Sapphire Medallion",
+   "quantity": 1
+  },
+  {
+   "name": "Skysovereign, Consul Flagship",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Subterranean Schooner",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Thaumatic Compass",
+   "quantity": 1
+  },
+  {
+   "name": "The Indomitable",
+   "quantity": 1
+  },
+  {
+   "name": "Coastal Piracy",
+   "quantity": 1
+  },
+  {
+   "name": "Fisher's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Fishliver Oil",
+   "quantity": 1
+  },
+  {
+   "name": "Ominous Seas",
+   "quantity": 1
+  },
+  {
+   "name": "Shark Typhoon",
+   "quantity": 1
+  },
+  {
+   "name": "Sidequest: Catch a Fish",
+   "quantity": 1
+  },
+  {
+   "name": "Sleep with the Fishes",
+   "quantity": 1
+  },
+  {
+   "name": "Sword Coast Sailor",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 15
+  },
+  {
+   "name": "Mystic Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Reef Roads",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Stream",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

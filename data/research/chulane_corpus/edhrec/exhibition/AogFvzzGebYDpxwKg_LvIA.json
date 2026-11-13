@@ -1,0 +1,350 @@
+{
+ "urlhash": "AogFvzzGebYDpxwKg_LvIA",
+ "variante": "exhibition",
+ "bracket": 1,
+ "savedate": "2025-12-03",
+ "price": 70,
+ "salt": 36.806155814323574,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/12997096?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Cartographer's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Cartographer's Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Cerulean Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Mentor",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Naturalists",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Sledge-Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Constable of the Realm",
+   "quantity": 1
+  },
+  {
+   "name": "Consulate Skygate",
+   "quantity": 1
+  },
+  {
+   "name": "Containment Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Defiler of Vigor",
+   "quantity": 1
+  },
+  {
+   "name": "Eager Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Fecund Greenshell",
+   "quantity": 1
+  },
+  {
+   "name": "Initiate's Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Convert",
+   "quantity": 1
+  },
+  {
+   "name": "Myriad Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Needlethorn Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Nephalia Smuggler",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sinister Concierge",
+   "quantity": 1
+  },
+  {
+   "name": "Sparring Construct",
+   "quantity": 1
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1
+  },
+  {
+   "name": "Trusted Advisor",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Conjurant",
+   "quantity": 1
+  },
+  {
+   "name": "Utopia Mycon",
+   "quantity": 1
+  },
+  {
+   "name": "Wary Thespian",
+   "quantity": 1
+  },
+  {
+   "name": "Wary Watchdog",
+   "quantity": 1
+  },
+  {
+   "name": "Wormfang Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Condemn",
+   "quantity": 1
+  },
+  {
+   "name": "Confound",
+   "quantity": 1
+  },
+  {
+   "name": "Consider",
+   "quantity": 1
+  },
+  {
+   "name": "Contact Other Plane",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Crush Contraband",
+   "quantity": 1
+  },
+  {
+   "name": "Fight as One",
+   "quantity": 1
+  },
+  {
+   "name": "Lose Focus",
+   "quantity": 1
+  },
+  {
+   "name": "Natural Connection",
+   "quantity": 1
+  },
+  {
+   "name": "Stave Off",
+   "quantity": 1
+  },
+  {
+   "name": "Basic Conjuration",
+   "quantity": 1
+  },
+  {
+   "name": "Call of the Conclave",
+   "quantity": 1
+  },
+  {
+   "name": "Concentrate",
+   "quantity": 1
+  },
+  {
+   "name": "Contentious Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Contingency Plan",
+   "quantity": 1
+  },
+  {
+   "name": "Cosmium Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Cut a Deal",
+   "quantity": 1
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1
+  },
+  {
+   "name": "Epic Confrontation",
+   "quantity": 1
+  },
+  {
+   "name": "Malamet Battle Glyph",
+   "quantity": 1
+  },
+  {
+   "name": "Shard Convergence",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Conduit",
+   "quantity": 1
+  },
+  {
+   "name": "As Foretold",
+   "quantity": 1
+  },
+  {
+   "name": "Captured by the Consulate",
+   "quantity": 1
+  },
+  {
+   "name": "Conclave Tribunal",
+   "quantity": 1
+  },
+  {
+   "name": "Minimus Containment",
+   "quantity": 1
+  },
+  {
+   "name": "Swindler's Scheme",
+   "quantity": 1
+  },
+  {
+   "name": "Tale of Tinúviel",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Captivating Cave",
+   "quantity": 1
+  },
+  {
+   "name": "Conduit Pylons",
+   "quantity": 1
+  },
+  {
+   "name": "Drifting Meadow",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Foundry of the Consuls",
+   "quantity": 1
+  },
+  {
+   "name": "Gemstone Mine",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 7
+  },
+  {
+   "name": "Plains",
+   "quantity": 7
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Slippery Karst",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
