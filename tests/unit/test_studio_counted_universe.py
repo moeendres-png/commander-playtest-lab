@@ -237,6 +237,28 @@ def test_a_universe_name_with_a_colon_is_refused_with_its_own_reason(
     ]
 
 
+def test_a_card_whose_front_face_is_withheld_stays_unknown_not_zero(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    # Two Studio cards share the front face "Fire": the double-faced card does not claim it.
+    for card_id, name in (("card:project:0130", "Fire // Ice"), ("card:project:0131", "Fire")):
+        store.connection.execute(
+            "UPDATE card SET oracle_name = ?, oracle_id = NULL WHERE card_id = ?", (name, card_id)
+        )
+    store.connection.commit()
+    counts = {"Fire": 50, "Filler 01": 150}
+    rows = _rows("edhrec", 3, 200, counts)
+    _import_counted(store, _write_counted(tmp_path / "counted", rows))
+    cards = _by_name(_compute(store, universe_source="counted:edhrec:3"))
+    assert _component(cards["Fire"], "deck_universe")["numerator"] == 50  # the row is Fire's own
+    double = _component(cards["Fire // Ice"], "deck_universe")
+    assert double["status"] == strength.NO_VALUE and double["numerator"] is None
+    assert double["status"] != strength.ZERO_COUNT
+    # A card that is merely absent from the file is still a counted zero.
+    assert _component(cards["Filler 20"], "deck_universe")["status"] == strength.ZERO_COUNT
+
+
 def test_the_step_report_of_import_all_names_the_refused_universe(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

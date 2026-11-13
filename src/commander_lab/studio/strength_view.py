@@ -238,7 +238,8 @@ def counted_observations(
     in none of its decks: a counted zero (0 of N), not an unknown. Names are matched like every
     signal (exact oracle name, engine name, then the FRONT face only; the back half of a
     two-part name is never a spelling of the card). A card that an ambiguous name could belong
-    to stays unknown: the row may be its own."""
+    to, or whose front face is withheld because another card has that name, stays unknown: the
+    row may be its own."""
     taken: dict[tuple[str, str], list[str]] = {}
     observed, _exists = _signal_observations(
         store, commander, universe["signal"], claims, display, taken
@@ -246,6 +247,7 @@ def counted_observations(
     ambiguous.update(taken)
     by_name = {name: card_id for card_id, name in display.items()}
     unsure = {by_name[name] for names in taken.values() for name in names if name in by_name}
+    unsure |= universe_view.front_face_withheld(store, list(display))  # same as the local path
     total = universe["denominator"]
     result: dict[str, Observation] = {}
     for card_id in display:
