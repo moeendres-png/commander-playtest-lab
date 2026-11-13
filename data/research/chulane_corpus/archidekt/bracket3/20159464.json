@@ -1,0 +1,835 @@
+{
+ "id": 20159464,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chulane & Keruga",
+ "updated_at": "2026-02-23T14:30:34.912811Z",
+ "cards": [
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myriad Landscape",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Savannah",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tundra",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 6,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pilgrim's Eye",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Astral Dragon",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Borderland Ranger",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farhaven Elf",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gilanra, Caller of Wirewood",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mass Manipulation",
+   "quantity": 1,
+   "categories": [
+    "Sorcery",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thryx, the Sudden Storm",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1,
+   "categories": [
+    "Artifact",
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Decanter of Endless Water",
+   "quantity": 1,
+   "categories": [
+    "Artifact",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Anticausal Vestige",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Landfall",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roon of the Hidden Realm",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Explorer Returned",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Lifegain",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw",
+    "Landfall",
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Tracker",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw",
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1,
+   "categories": [
+    "Enchantment",
+    "Ramp",
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1,
+   "categories": [
+    "Instant",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flawless Maneuver",
+   "quantity": 1,
+   "categories": [
+    "Instant",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harrow",
+   "quantity": 1,
+   "categories": [
+    "Instant",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Instant",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Floodfarm Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hedge Maze",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hushwood Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Sorcery",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1,
+   "categories": [
+    "Sorcery",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Search for Tomorrow",
+   "quantity": 1,
+   "categories": [
+    "Sorcery",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1,
+   "categories": [
+    "Sorcery",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tragic Arrogance",
+   "quantity": 1,
+   "categories": [
+    "Sorcery",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ulvenwald Hydra",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Keruga, the Macrosage",
+   "quantity": 1,
+   "categories": [
+    "Sideboard",
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Topiary Stomper",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Willowrush Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 3,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1,
+   "categories": [
+    "Artifact",
+    "Doubler"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tropical Island",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bala Ged Recovery // Bala Ged Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Sorcery",
+    "Recursion",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1,
+   "categories": [
+    "Enchantment",
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Regal Behemoth",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Luminate Primordial",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Mother of Machines",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Stax",
+    "Doubler"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Civic Wayfinder",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elesh Norn, Grand Cenobite",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Anthem"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beanstalk Giant // Fertile Footsteps",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nissa, Vastwood Seer // Nissa, Sage Animist",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Ramp",
+    "Planeswalker"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Titan of Industry",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Removal",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wistfulness",
+   "quantity": 1,
+   "categories": [
+    "Creature",
+    "Draw",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 101,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

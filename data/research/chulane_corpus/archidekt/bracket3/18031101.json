@@ -1,0 +1,1026 @@
+{
+ "id": 18031101,
+ "bracket": 3,
+ "bracket_detail": 3,
+ "name": "Chu Chu Lane Pain Train",
+ "updated_at": "2026-05-23T04:26:07.877305Z",
+ "cards": [
+  {
+   "name": "Subtlety",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jill, Shiva's Dominant // Shiva, Warden of Ice",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal",
+    "Bounce",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shabraz, the Skyshark",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gruff Triplets",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sylvan Ranger",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treva's Ruins",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adarkar Wastes",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spell Queller",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyclave Apparition",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Galadriel, Light of Valinor",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bane of Progress",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deputy of Acquittals",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dust Elemental",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea Drake",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spider-Byte, Web Warden",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sutina, Speaker of the Tajuru",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudblazer",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tishana, Voice of Thunder",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spider-Man, Brooklyn Visionary",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fiend Hunter",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Transcendent Dragon",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crystal Shard",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hydroid Krasis",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gatecreeper Vine",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacierwood Siege",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ramunap Excavator",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Life from the Loam",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Theme Synergy",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kianne, Corrupted Memory",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sally Sparrow",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biblioplex Kraken",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Keeper of Keys",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Titan of Littjara",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blinking Spirit",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dawnbringer Cleric",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karmic Guide",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lunarch Veteran // Luminous Phantom",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Horizon Explorer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Damage Control Crew",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Timeless Witness",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sawtooth Loon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pol Jamaar, Illusionist",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Theme Synergy",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Agent of Treachery",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Titan of Industry",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prime Speaker Zegana",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vedalken Mastermind",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guardian Project",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temur Sabertooth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oboro, Palace in the Clouds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Singer of Swift Rivers",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Elves",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urban Retreat",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Amulet of Vigor",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ultimecia, Temporal Threat",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Blossoms",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1,
+   "categories": [
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Card Advantage"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Phelia, Exuberant Shepherd",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Virtue of Knowledge // Vantress Visions",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonehorn Dignitary",
+   "quantity": 1,
+   "categories": [
+    "ETB"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Starfield Vocalist",
+   "quantity": 1,
+   "categories": [
+    "Theme Synergy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Supreme Verdict",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solitude",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 136,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
