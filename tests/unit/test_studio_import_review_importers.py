@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -103,3 +104,56 @@ def test_card_without_oracle_id_has_unknown_rulings(tmp_path: Path) -> None:
     store.close()
     client = TestClient(create_app(tmp_path / "studio"), headers={"host": "127.0.0.1"})
     assert json.loads(client.get(f"/api/cards/{card}/rulings").text)["status"] == "UNKNOWN"
+
+
+def test_same_content_under_two_names_does_not_inflate(tmp_path: Path) -> None:
+    store = StudioStore.in_memory()
+    lines = [_ruling("o1", "2020-01-01", "A1"), _ruling("o2", "2020-01-02", "B1")]
+    rulings.import_rulings(store, [_ruling_file(tmp_path / "a.jsonl", lines)])
+    rulings.import_rulings(store, [_ruling_file(tmp_path / "b.jsonl", lines)])
+    assert store.count("card_ruling") == 2
+    rulings.import_rulings(store, [tmp_path / "a.jsonl"])  # re-import: unchanged
+    assert store.count("card_ruling") == 2
+
+
+def test_renamed_and_changed_file_gives_the_union_of_distinct_rulings(tmp_path: Path) -> None:
+    store = StudioStore.in_memory()
+    old = [_ruling("o1", "2020-01-01", "A1"), _ruling("o2", "2020-01-02", "B1")]
+    rulings.import_rulings(store, [_ruling_file(tmp_path / "a.jsonl", old)])
+    new = [_ruling("o1", "2020-01-01", "A1"), _ruling("o3", "2021-01-01", "C1")]
+    rulings.import_rulings(store, [_ruling_file(tmp_path / "renamed.jsonl", new)])
+    assert store.count("card_ruling") == 3
+
+
+def test_changed_content_under_the_same_name_replaces_the_older_version(tmp_path: Path) -> None:
+    store = StudioStore.in_memory()
+    path = tmp_path / "a.jsonl"
+    rulings.import_rulings(store, [_ruling_file(path, [_ruling("o1", "2020-01-01", "A1")])])
+    rulings.import_rulings(store, [_ruling_file(path, [_ruling("o2", "2020-01-02", "B1")])])
+    assert [r[0] for r in store.connection.execute("SELECT oracle_id FROM card_ruling")] == ["o2"]
+
+
+def test_a_ruling_is_unique_in_the_table_and_old_duplicates_are_removed(tmp_path: Path) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    store.connection.execute(
+        "INSERT INTO source(source_id, data_class, title, sha256, imported_at) "
+        "VALUES ('src:x', 'NORMALIZED_SOURCE', 'x', 'x', 'now')"
+    )
+    store.connection.execute(
+        "INSERT INTO card_ruling VALUES ('o1', 1, '2020-01-01', 'wotc', 'T', 'src:x')"
+    )
+    store.connection.commit()
+    with pytest.raises(sqlite3.IntegrityError):
+        store.connection.execute(
+            "INSERT INTO card_ruling VALUES ('o1', 2, '2020-01-01', 'wotc', 'T', 'src:x')"
+        )
+    store.connection.rollback()
+    store.connection.execute("DROP INDEX card_ruling_unique")
+    store.connection.execute(
+        "INSERT INTO card_ruling VALUES ('o1', 2, '2020-01-01', 'wotc', 'T', 'src:x')"
+    )
+    store.connection.commit()
+    store.close()
+    again = StudioStore.open(tmp_path / "studio")  # dedupes, then creates the index
+    assert again.count("card_ruling") == 1
+    again.close()

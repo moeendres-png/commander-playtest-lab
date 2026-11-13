@@ -87,18 +87,33 @@ def import_rulings(store: StudioStore, paths: Sequence[str | Path]) -> dict[str,
                 )
             fresh += [(o, d, src, c, source_id) for (o, d, c), src in collected.items()]
             reports.append(report)
-        marks = ",".join("?" * len(files))
+        # Rows of a source this call re-reads, or of an older version of a file of the same
+        # name (same title, other content), go; every other file's rows stay. The replaced
+        # source rows stay in ``source`` as provenance. A ruling already stored (same card,
+        # date and text) keeps its first source, so the table never holds it twice.
+        ids = [report["source_id"] for report in reports]
+        names = [file.name for file in files]
+        marks_ids = ",".join("?" * len(ids))
+        marks_names = ",".join("?" * len(names))
         kept = [
             (str(r[0]), str(r[1]), str(r[2]), str(r[3]), str(r[4]))
             for r in db.execute(
                 "SELECT r.oracle_id, r.published_at, r.ruling_source, r.comment, r.source_id "
                 "FROM card_ruling r JOIN source s USING (source_id) "
-                f"WHERE s.title NOT IN ({marks}) ORDER BY r.oracle_id, r.ordinal",
-                [file.name for file in files],
+                f"WHERE r.source_id NOT IN ({marks_ids}) "
+                f"AND NOT (s.title IN ({marks_names})) ORDER BY r.oracle_id, r.ordinal",
+                [*ids, *names],
             )
         ]
+        seen = {(row[0], row[1], row[3]) for row in kept}
+        added: list[tuple[str, str, str, str, str]] = []
+        for row in fresh:
+            key = (row[0], row[1], row[3])
+            if key not in seen:
+                seen.add(key)
+                added.append(row)
         ordered = sorted(
-            enumerate([*kept, *fresh]), key=lambda item: (item[1][0], item[1][1], item[0])
+            enumerate([*kept, *added]), key=lambda item: (item[1][0], item[1][1], item[0])
         )
         db.execute("DELETE FROM card_ruling")
         ordinals: dict[str, int] = {}

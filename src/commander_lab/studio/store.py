@@ -388,6 +388,8 @@ CREATE TABLE IF NOT EXISTS card_ruling (
     source_id TEXT NOT NULL REFERENCES source(source_id),
     PRIMARY KEY (oracle_id, ordinal)
 );
+CREATE UNIQUE INDEX IF NOT EXISTS card_ruling_unique
+    ON card_ruling(oracle_id, published_at, comment);
 CREATE TABLE IF NOT EXISTS strength_profile (
     name TEXT PRIMARY KEY,
     spec TEXT NOT NULL,
@@ -574,6 +576,15 @@ class StudioStore:
     def _prepare(connection: sqlite3.Connection) -> sqlite3.Connection:
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys=ON")
+        # A ruling is unique per card, date and text; a table made before the unique index
+        # existed is deduplicated first (the lowest ordinal, and so the first source, stays).
+        if connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'card_ruling'"
+        ).fetchone():
+            connection.execute(
+                "DELETE FROM card_ruling WHERE rowid NOT IN (SELECT MIN(rowid) FROM card_ruling "
+                "GROUP BY oracle_id, published_at, comment)"
+            )
         connection.executescript(_SCHEMA)
         row = connection.execute("SELECT value FROM meta WHERE key='schema_version'").fetchone()
         if row is None:
