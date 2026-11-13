@@ -383,11 +383,130 @@ final class XmageFullGamePlayer extends PlayerImpl {
     public ManaOptions getManaAvailable(Game game) {
         boolean capture = captureManaAvailable;
         captureManaAvailable = false;
-        ManaOptions available = super.getManaAvailable(game);
+        ManaOptions available = NESTED_COPY_SKIP && game.isSimulation() && game.inCheckPlayableState()
+                ? manaAvailableInPlayableCalcCopy(game)
+                : super.getManaAvailable(game);
         if (capture) {
             capturedManaAvailable = available.copy();
         }
         return available;
+    }
+
+    /*
+     * Performance (#1298): PlayerImpl.getManaAvailable always copies the game it is given
+     * ("game must be immutable on playable calculations"). getPlayable calls it with its
+     * own playable-calculation copy, and the affordability guard below does the same, so
+     * the game was copied twice per calculation. When the game passed in is already such
+     * a throw-away copy, the same computation runs on it directly.
+     *
+     * The body is PlayerImpl.getManaAvailable at the pinned XMage commit, verbatim, minus
+     * its first line (the copy). A repin must re-compare it with the engine method
+     * (docs/claude/REPIN_RUNBOOK.md). Switch off with -Dcommanderlab.nestedCopySkip=false.
+     */
+    private static final boolean NESTED_COPY_SKIP =
+            !"false".equals(System.getProperty("commanderlab.nestedCopySkip"));
+
+    private ManaOptions manaAvailableInPlayableCalcCopy(Game game) {
+        ManaOptions availableMana = new ManaOptions();
+        availableMana.addMana(manaPool.getMana());
+        for (mage.ConditionalMana conditionalMana : manaPool.getConditionalMana()) {
+            availableMana.addMana(conditionalMana);
+        }
+
+        List<mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl>> sourceWithoutManaCosts =
+                new ArrayList<>();
+        List<mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl>> sourceWithCosts =
+                new ArrayList<>();
+        for (Card card : getHand().getCards(game)) {
+            mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl> manaAbilities =
+                    card.getAbilities(game).getAvailableActivatedManaAbilities(Zone.HAND, playerId, game);
+            for (mage.abilities.mana.ActivatedManaAbilityImpl ability : manaAbilities) {
+                mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl> noTapAbilities =
+                        new mage.abilities.AbilitiesImpl<>(ability);
+                if (ability.getManaCosts().isEmpty() && !ability.isPoolDependant()) {
+                    sourceWithoutManaCosts.add(noTapAbilities);
+                } else {
+                    sourceWithCosts.add(noTapAbilities);
+                }
+            }
+        }
+
+        for (Permanent permanent : game.getBattlefield().getActivePermanents(playerId, game)) {
+            Boolean canUse = null;
+            boolean canAdd = false;
+            boolean useLater = false;
+            mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl> manaAbilities =
+                    permanent.getAbilities(game)
+                            .getAvailableActivatedManaAbilities(Zone.BATTLEFIELD, playerId, game);
+            for (java.util.Iterator<mage.abilities.mana.ActivatedManaAbilityImpl> it = manaAbilities.iterator();
+                    it.hasNext(); ) {
+                mage.abilities.mana.ActivatedManaAbilityImpl ability = it.next();
+                if (canUse == null) {
+                    canUse = permanent.canUseActivatedAbilities(game);
+                }
+                if (canUse) {
+                    if (!ability.hasTapCost()) {
+                        it.remove();
+                        mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl> noTapAbilities =
+                                new mage.abilities.AbilitiesImpl<>(ability);
+                        if (ability.getManaCosts().isEmpty() && !ability.isPoolDependant()) {
+                            sourceWithoutManaCosts.add(noTapAbilities);
+                        } else {
+                            sourceWithCosts.add(noTapAbilities);
+                        }
+                        continue;
+                    }
+                    canAdd = true;
+                    if (!ability.getManaCosts().isEmpty() || ability.isPoolDependant()) {
+                        useLater = true;
+                        break;
+                    }
+                }
+            }
+            if (canAdd) {
+                if (useLater) {
+                    sourceWithCosts.add(manaAbilities);
+                } else {
+                    sourceWithoutManaCosts.add(manaAbilities);
+                }
+            }
+        }
+
+        for (mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl> manaAbilities
+                : sourceWithoutManaCosts) {
+            availableMana.addMana(manaAbilities, game);
+        }
+
+        boolean anAbilityWasUsed = true;
+        boolean usePoolDependantAbilities = false;
+        while (anAbilityWasUsed && !sourceWithCosts.isEmpty()) {
+            anAbilityWasUsed = false;
+            for (java.util.Iterator<mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl>> iterator =
+                    sourceWithCosts.iterator(); iterator.hasNext(); ) {
+                mage.abilities.Abilities<mage.abilities.mana.ActivatedManaAbilityImpl> manaAbilities =
+                        iterator.next();
+                if (usePoolDependantAbilities || !manaAbilities.hasPoolDependantAbilities()) {
+                    boolean used;
+                    if (manaAbilities.hasPoolDependantAbilities()) {
+                        used = availableMana.addManaPoolDependant(manaAbilities, game);
+                    } else {
+                        used = availableMana.addManaWithCost(manaAbilities, game);
+                    }
+                    if (used) {
+                        iterator.remove();
+                        anAbilityWasUsed = true;
+                    }
+                }
+            }
+            if (!anAbilityWasUsed && !usePoolDependantAbilities) {
+                usePoolDependantAbilities = true;
+                anAbilityWasUsed = true;
+            }
+        }
+
+        availableMana.removeFullyIncludedVariations();
+        availableMana.remove(new Mana());
+        return availableMana.copy();
     }
 
     private PlayableWithMana playableWithManaAvailable(Game game) {
