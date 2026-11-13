@@ -38,8 +38,9 @@ The live pin is in `config/rules_engines.json`. The Freeze binds the Owner decis
 limitation: pilots run out of process and no foreign code runs in the engine JVM; stronger
 isolation must hold before any untrusted pilot is admitted.
 
-Do not create the Production Repository (Owner-only). Do not change the Rules Core or the
-pin without a new Owner decision and requalification.
+Do not create the Production Repository (Owner-only). Do not change the Rules Core (the
+engine fork) or the pin without a new Owner decision and requalification. The Java bridge
+in `engine-bridge/` may change for the Studio under the Studio bridge gate (§10).
 
 The end state is a production-quality simulation system: real 100-card decks under a
 qualified full-rules Rules Core, authoritative legal Decision Options, externally
@@ -361,7 +362,54 @@ the merge in one line with the PR link. The session that owns the PR merges it.
 These still need the Owner's explicit go before merge: pushes to the engine fork
 (`moeendres-png/mage`), repins, and any change that touches signed or sealed qualification
 records or the reseal-bound files (`requirements/lock.txt`, its digest, `pyproject.toml`).
+(For the removal of unreachable legacy code the Owner gave that go for `pyproject.toml` on
+2026-11-12: `docs/STUDIO_PLAN_SIMULATOR.md`, D5.)
 Self-merge never bypasses branch protection, an admin override or the hard boundaries above.
+
+### Studio bridge gate
+
+`STUDIO_BRIDGE_GATE = ENABLED` (Owner decision 2026-11-12).
+
+A change under `engine-bridge/` made for the Studio (speed, the human seat, an engine
+look-ahead for pilots) merges without a new sealed qualification epoch when all of this
+holds:
+
+- **Declared kind.** The PR says whether the change is meant to leave every game unchanged
+  (`NEUTRAL`) or to change play (`BEHAVIOUR`).
+- **`NEUTRAL`:** on the fixed reference set, before and after on the same pin, every game
+  finishes, the semantic transcript hash of every game is identical, and the frames each
+  pilot received for every decision are identical after the same identifier normalization
+  the transcript hash uses (per-run object ids differ between any two runs). The first
+  `NEUTRAL` PR adds that per-decision normalized frame digest to the benchmark rows and to
+  `compare`; until a tool compares the frames, a `NEUTRAL` claim is `UNKNOWN`, not PASS. A different hash
+  or frame, a failed game or a missing game FAILS a `NEUTRAL` change; it never reclassifies
+  it. BEFORE is the bridge at the merge base, AFTER the exact PR head, and the two jar
+  digests differ. The PR changes neither the comparison script nor the code that computes
+  the transcript hash. The reference set and the commands are in
+  `docs/STUDIO_PLAN_SIMULATOR.md`.
+- **`BEHAVIOUR`:** the reference set is run as well: no game may fail or go missing, every
+  changed game is explained, and with default settings the set is unchanged where the change
+  sits behind a setting. The intended change has a test that fails on the BEFORE bridge.
+  The bridge test suites pass and the real four-player smoke game completes. A change to
+  what a pilot is shown has a hidden-information test (§5) that fails on a leaking frame.
+- **Paths the reference set does not reach.** The reference set is four pilots at one
+  four-player table. Every changed path it does not exercise (human seat, time limit,
+  concede, other seat counts, rare decision classes) needs its own test that fails on the
+  BEFORE bridge; what stays untested is listed as `UNKNOWN`, never as covered.
+- **PB-03** still runs on such a PR. A real failure blocks. A result that fails only because
+  there is no new seal is recorded as `NOT_SEALED`, never as PASS.
+- **Review and checks.** An independent review without blocking findings and the required
+  checks on the exact head, as for every MATERIAL change.
+
+The sealed qualification records stay as they are: they describe the bridge and pin they
+were sealed on, and nobody rewrites them. After the first change merged under this gate the
+running bridge is no longer the sealed one. The first PR merged under this gate therefore
+records the bridge jar SHA-256 in every game log and series result and adds a visible
+`BRIDGE_AHEAD_OF_QUALIFICATION` state wherever the current qualification is reported
+(technical truth, HANDOFF) while `engine-bridge/` differs from the sealed source. Nothing
+produced on a later bridge is presented as covered by the sealed epoch. The Rules Core stays the only rules authority (§2): a bridge
+change never decides a rule, never picks an option for a seat and never widens what a
+principal may see (§5). The fork and the pin stay behind the Owner's go.
 
 ## 11. Git, worktree, ownership
 

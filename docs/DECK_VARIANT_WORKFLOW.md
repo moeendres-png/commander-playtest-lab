@@ -215,7 +215,6 @@ figure you measure on your host. Method and sweep numbers:
 ## Step 5 — Pilot report (only for pilot or engine changes)
 
 Answers: did the pilot get better or worse at playing, on real games?
-Use at least 10 seeds; 4 are too noisy.
 
 ```bash
 python scripts/pilot_decision_report.py run --jar engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar --out /tmp/before.json --seeds 1-10 --workers 2

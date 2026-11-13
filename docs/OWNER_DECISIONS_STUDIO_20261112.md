@@ -23,7 +23,7 @@ When a later Owner instruction differs, the later instruction wins and this file
 | A5 | Every count carries its denominator. Cohorts are never added together. A REVIEW data set never silently becomes ACTIVE. | Issues #1185, #1187 |
 | A6 | Collection, deck and ownership data stay outside the public repository; only code and counted results are committed. Nothing about the Owner's decks or collection goes to an external service. Card or commander names may be fetched by plain GET, triggered manually, cached locally. | `AGENTS.md` §12, issues #1205, #1208 |
 | A7 | Several agents work in parallel, each on its own issues. One issue has one working owner at a time; another agent's open issue or pull request is not touched without a handover. Research is handed over as issues. | Owner messages 2026-11-11 and 2026-11-12 |
-| A8 | A change to the Java bridge, a fork push, a repin, a change to sealed qualification records, the release of five and six seats, publication and repository visibility each need their own Owner go. | Owner decision 2026-11-10 |
+| A8 | A fork push, a repin, a change to sealed qualification records, the release of five and six seats, publication and repository visibility each need their own Owner go. A change to the Java bridge for the Studio no longer does: it merges under the Studio bridge gate (`AGENTS.md` §10, `docs/STUDIO_PLAN_SIMULATOR.md`). | Owner decision 2026-11-10, changed by Owner decision 2026-11-12 (evening) |
 
 ## BUILD: Commander deck building
 
@@ -54,7 +54,7 @@ field stays unrated.
 | S2 | No new pilot micro measurement series. Evaluation means game logs and win rates over many games. | Owner decision 2026-11-10 |
 | S3 | Results are observations of one series: with denominator and uncertainty range, base against variant only paired on the same seeds, and "no reliable difference" shown plainly. Aborted or failed games are reported separately and are not losses. | Issue #1170 |
 | S4 | XMage's own AI players are not used as seats. | Owner decision 2026-11-10 |
-| S5 | A stronger pilot through an engine look-ahead in Java is not built without an Owner go; the measurement of 2026-11-11 left its benefit undecided. | Issue #1168 |
+| S5 | An engine look-ahead in Java may be built as a measured experiment under the Studio bridge gate; the measurement of 2026-11-11 (look-ahead by restart) left its benefit undecided. It becomes the default only if a paired series shows a benefit. | Issue #1168, Owner decision 2026-11-12 (evening) |
 | S6 | No own rules engine in another language: XMage stays the rules authority (A2). Series are made faster around it: several games per JVM, parallel engine processes, a leaner exchange per decision, measured before and after. A draw and mana simulator without rules may answer hand and land questions. | Owner message 2026-11-12 (decision delegated), issue #1251 |
 
 ## PLAY: playing Commander oneself, 2 to 6 seats
@@ -67,13 +67,13 @@ field stays unrated.
 | P4 | No sandbox and no free undo. | Owner decision 2026-11-10 |
 | P5 | In play mode the page receives only what the engine publishes to the human's seat. Hidden information of the AI seats is not delivered, not merely hidden. | Issue #1169, `AGENTS.md` §5 |
 | P6 | Full card images are always shown; card names may go to the free public image source. | Owner decision 2026-11-10 |
-| P7 | Making the decision time limit of the bridge configurable is a Java change: it may be prepared, but it is merged only after the Owner's go and is followed by a requalification. | Issue #1169 |
+| P7 | Making the decision time limit of the bridge configurable is a Java change under the Studio bridge gate; the default stays two minutes. | Issue #1169, Owner decision 2026-11-12 (evening) |
 
 ## Open Owner decisions
 
 1. The default weights and presets of the strength index (B10) are placeholders the Owner
    can change in the page; the reading on B5 and B6 stays for the outcome-based field.
-2. Go for the Java bridge change of P7 (human seat).
+2. (Decided 2026-11-12, evening: bridge changes for the Studio go through the Studio bridge gate.)
 3. The one recorded fact difference of issue #1208 (workbook against public card data).
 4. Release of five and six seats after their own qualification (A8).
 5. Whether bracket 5 deck lists are harvested or only counted (issue #1210).
