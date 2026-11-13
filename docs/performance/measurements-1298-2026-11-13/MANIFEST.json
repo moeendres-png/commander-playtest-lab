@@ -1,0 +1,22 @@
+{
+  "chunk_raw_bytes": 79998,
+  "files": [
+    {
+      "original_file": "full_profile.jfr",
+      "original_size": 36029515,
+      "original_sha256": "49045555520505f5e2910ec257beb2bd1e8521ae48a101a6ea95a7c1a90f9274",
+      "gzip_size": 7840404,
+      "gzip_sha256": "7c0001297a647178674bf6466c52ea6748538ad32467d9b35cce48cf6555235c",
+      "part_count": 99
+    },
+    {
+      "original_file": "smoke_profile.jfr",
+      "original_size": 5804678,
+      "original_sha256": "d2cba39db3f08e27c1642a074ef89e002e7189c67a404e66a0f71a376c991ce0",
+      "gzip_size": 1121470,
+      "gzip_sha256": "6dca3f75c70e833f22649978bc6724b97869faa298e0b2e1b17838c99e0d5973",
+      "part_count": 15
+    }
+  ],
+  "note": "The recordings are not in the repository (AGENTS.md section 12). The digests identify the files the analysis read."
+}
