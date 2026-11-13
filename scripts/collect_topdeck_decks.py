@@ -24,6 +24,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -160,6 +161,41 @@ def to_safe_slug(name: str) -> str:
     s = re.sub(r"[^\w\s-]", "", s)
     s = re.sub(r"[\s_]+", "_", s).strip("_")
     return s
+
+
+def player_initials(name: str) -> str:
+    """Reduce a player name to its initials (Owner decision #1108).
+
+    For each space-separated token, take its first alphabetic character,
+    uppercased; tokens without any letter contribute nothing.
+    Example: "Void of Emperor [INTIM]" becomes "V O E I".
+    """
+    initials: list[str] = []
+    for token in name.split():
+        for char in token:
+            if char.isalpha():
+                initials.append(char.upper())
+                break
+    return " ".join(initials)
+
+
+def anonymize_player_labels(names: Iterable[str]) -> dict[str, str]:
+    """Map distinct player names to initials labels in first-appearance order.
+
+    If several distinct names reduce to the same initials, the second one
+    (in first-appearance order) gets the suffix " 2", the third " 3", and
+    so on, so labels stay unique within one export file and deck grouping
+    and counts are preserved exactly.
+    """
+    labels: dict[str, str] = {}
+    counts: dict[str, int] = {}
+    for name in names:
+        if name in labels:
+            continue
+        base = player_initials(name)
+        counts[base] = counts.get(base, 0) + 1
+        labels[name] = base if counts[base] == 1 else f"{base} {counts[base]}"
+    return labels
 
 
 def get_api_key() -> str:
@@ -446,7 +482,11 @@ def export_results(
     commander_names: list[str],
     chulane_out_path: Path | None = None,
 ) -> dict[str, object]:
-    """Export presence CSV and per-commander deck CSVs."""
+    """Export presence CSV and per-commander deck CSVs.
+
+    Player names are anonymized to initials in every exported deck CSV
+    (Owner decision #1108, 2026-11-13); see anonymize_player_labels.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
 
     presence_counts = stats["presence_counts"]  # type: ignore
@@ -508,6 +548,8 @@ def export_results(
                 slug = to_safe_slug(cname)
                 deck_csv_path = output_dir / f"topdeck_{slug}_decks.csv"
 
+            labels = anonymize_player_labels(d.player_name for d in complete_decks)
+
             with deck_csv_path.open("w", encoding="utf-8", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(
@@ -527,6 +569,7 @@ def export_results(
                     ]
                 )
                 for d in complete_decks:
+                    player_label = labels[d.player_name]
                     wb_str = str(d.wins_bracket) if d.wins_bracket is not None else ""
                     lb_str = str(d.losses_bracket) if d.losses_bracket is not None else ""
                     for card_name, qty in d.commanders:
@@ -534,7 +577,7 @@ def export_results(
                             [
                                 d.tournament_name,
                                 d.date_str,
-                                d.player_name,
+                                player_label,
                                 d.wins,
                                 d.draws,
                                 d.losses,
@@ -553,7 +596,7 @@ def export_results(
                             [
                                 d.tournament_name,
                                 d.date_str,
-                                d.player_name,
+                                player_label,
                                 d.wins,
                                 d.draws,
                                 d.losses,

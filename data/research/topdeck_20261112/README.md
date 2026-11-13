@@ -55,3 +55,7 @@ Abrufdatum: 2026-11-13.
 | Saheeli, Jewel of Avishkar | 2 | 2 | 2 | 0 |
 | Ramos, Dragon Engine | 1 | 1 | 1 | 0 |
 | Tatyova, Benthic Druid | 7 | 7 | 7 | 0 |
+
+## Spielernamen
+
+Die Spalte `player` der Turnierlisten enthält keine Klarnamen. Jede Liste trägt die Initialen des Spielers: je Namensbestandteil der erste Buchstabe, großgeschrieben (aus `Void of Emperor [INTIM]` wird so `V O E I`). Haben in einer Datei mehrere Spieler dieselben Initialen, erhält der in der Reihenfolge des ersten Auftretens zweite den Zusatz ` 2`, der dritte den Zusatz ` 3` usw. (Owner-Entscheid 2026-11-13, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
