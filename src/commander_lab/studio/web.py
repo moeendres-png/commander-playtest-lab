@@ -599,7 +599,10 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             return batch.to_dict()
         series_file = games_folder(games_home()) / f"{batch_id}.series.json"
         if series_file.is_file():
-            payload = json.loads(series_file.read_text(encoding="utf-8"))
+            try:
+                payload = json.loads(series_file.read_text(encoding="utf-8"))
+            except ValueError:
+                raise HTTPException(422, "corrupt series record") from None
             if isinstance(payload, dict):
                 return cast(dict[str, object], payload)
         raise HTTPException(404, "unknown batch")
@@ -624,6 +627,8 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(404, str(error)) from error
         except RuntimeError as error:
             raise HTTPException(409, str(error)) from error
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
         finally:
             store.close()
 

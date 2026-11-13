@@ -557,13 +557,23 @@ class BatchSimulation:
         chunk_runner: ChunkRunner | None = None,
         game_executor: Callable[..., dict[str, object]] | None = None,
     ) -> BatchSimulation:
-        """Construct a BatchSimulation from a saved series record for resumption."""
+        """Construct a BatchSimulation from a saved series record for resumption.
+
+        Raises KeyError when no record exists for ``batch_id`` and ValueError
+        when the stored record is not valid JSON. The original opponents are
+        not part of the record; without explicit ``opponent_paths`` they are
+        re-derived heuristically from the pod preset and the precon deck
+        folder, which can differ from the pod the series originally ran with.
+        """
         data_path = Path(data_folder)
         folder = games_folder(data_path)
         series_file = folder / f"{batch_id}.series.json"
         if not series_file.is_file():
             raise KeyError(f"no series record found for batch_id {batch_id!r}")
-        raw = json.loads(series_file.read_text(encoding="utf-8"))
+        try:
+            raw = json.loads(series_file.read_text(encoding="utf-8"))
+        except ValueError as error:
+            raise ValueError(f"corrupt series record for batch_id {batch_id!r}: {error}") from error
 
         planned_seeds: list[int]
         if "seeds" in raw and isinstance(raw["seeds"], list):
