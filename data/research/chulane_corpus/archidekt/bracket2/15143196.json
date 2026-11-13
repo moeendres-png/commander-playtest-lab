@@ -1,0 +1,597 @@
+{
+ "id": 15143196,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "DRAW DRAW DRAW",
+ "updated_at": "2026-06-18T12:31:52.254923Z",
+ "cards": [
+  {
+   "name": "Elixir of Immortality",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crystal Ball",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Druidic Satchel",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gilded Lotus",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blackblade Reforged",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "Bant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Council of Four",
+   "quantity": 1,
+   "categories": [
+    "Bant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Howling Mine",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jace Beleren",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kami of the Crescent Moon",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Howling Golem",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dictate of Kruphix",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rites of Flourishing",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "Bant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oracle of Mul Daya",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Helpful Hunter",
+   "quantity": 1,
+   "categories": [
+    "White"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Revitalize",
+   "quantity": 1,
+   "categories": [
+    "White"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Insight Engine",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Blossoms",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archivist",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1,
+   "categories": [
+    "White"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudkin Seer",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Carven Caryatid",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chosen by Heliod",
+   "quantity": 1,
+   "categories": [
+    "White"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Armillary Sphere",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coveted Jewel",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fate Foretold",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Golden Egg",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jungle Barrier",
+   "quantity": 1,
+   "categories": [
+    "Bant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Llanowar Visionary",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Horn of Greed",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1,
+   "categories": [
+    "White"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prophetic Prism",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arixmethes, Slumbering Isle",
+   "quantity": 1,
+   "categories": [
+    "Bant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Obsessive Search",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opt",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reach Through Mists",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Visions of Beyond",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bag of Holding",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Honor",
+   "quantity": 1,
+   "categories": [
+    "White"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elven Farsight",
+   "quantity": 1,
+   "categories": [
+    "Green"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirrodin's Core",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Hub",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gemstone Mine",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cactus Preserve",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 20,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast of Burden",
+   "quantity": 1,
+   "categories": [
+    "Artifax"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cyberdrive Awakener",
+   "quantity": 1,
+   "categories": [
+    "Blue"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

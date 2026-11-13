@@ -1,0 +1,944 @@
+{
+ "id": 11769746,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "i have to win with one of these",
+ "updated_at": "2025-03-10T01:13:08.942573Z",
+ "cards": [
+  {
+   "name": "Battle of Wits",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Happily Ever After",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Liliana's Contract",
+   "quantity": 1,
+   "categories": [
+    "Liliana's Contract",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Near-Death Experience",
+   "quantity": 1,
+   "categories": [
+    "Near-Death Experience"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mortal Combat",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kenrith, the Returned King",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Legion Angel",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chance Encounter",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Luck Bobblehead",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spawnsire of Ulamog",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gregor, Shrewd Magistrate",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Isperia, Supreme Judge",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aminatou, Veil Piercer",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Barren Glory",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hedron Alignment",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archelos, Lagoon Mystic",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Patron of the Moon",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Near-Death Experience",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Blood",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Pump",
+    "Near-Death Experience"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Repay in Kind",
+   "quantity": 1,
+   "categories": [
+    "Near-Death Experience",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stunning Reversal",
+   "quantity": 1,
+   "categories": [
+    "Near-Death Experience",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elixir of Immortality",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clear the Mind",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emergency Powers",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enhanced Surveillance",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Finale of Revelation",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Demonic Consultation",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "One with Nothing",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Discard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archangel's Light",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Araumi of the Dead Tide",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fatestitcher",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lazav, the Multifarious",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirror-Mad Phantasm",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Mill"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mesmeric Orb",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Mill"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mask of the Jadecrafter",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Molten Gatekeeper",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Burn"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yotian Frontliner",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Pump"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dregscape Zombie",
+   "quantity": 1,
+   "categories": [
+    "Happily Ever After",
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trinket Mage",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grozoth",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Be'lakor, the Dark Master",
+   "quantity": 1,
+   "categories": [
+    "Liliana's Contract"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Great Unclean One",
+   "quantity": 1,
+   "categories": [
+    "Liliana's Contract",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloodgift Demon",
+   "quantity": 1,
+   "categories": [
+    "Liliana's Contract",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vilis, Broker of Blood",
+   "quantity": 1,
+   "categories": [
+    "Liliana's Contract",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rune-Scarred Demon",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azor's Elocutors",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boros Garrison",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Golgari Rot Farm",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gruul Turf",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rakdos Carnarium",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dimir Aqueduct",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Izzet Boilerworks",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Orzhov Basilica",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Silence",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Malice",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Malady",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Deceit",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sandsteppe Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opulent Palace",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Monastery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jungle Shrine",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frontier Bivouac",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Sanctum",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nomad Outpost",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crumbling Necropolis",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Freed from the Real",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arguel's Blood Fast // Temple of Aclazotz",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Steam Vents",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Godless Shrine",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sacred Foundry",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Tomb",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Watery Grave",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pemmin's Aura",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chatterfang, Squirrel General",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Warren Soultrader",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Sac Outlet"
+   ],
+   "companion": false
+  },
+  {
+   "name": "K'rrik, Son of Yawgmoth",
+   "quantity": 1,
+   "categories": [
+    "Battle of Wits",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Folio of Fancies",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enter the Infinite",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Olivia's Dragoon",
+   "quantity": 1,
+   "categories": [
+    "Discard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brainstorm",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exterminatus",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elven Farsight",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Consider",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opt",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wrath of God",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ponder",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Damnation",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bontu's Last Reckoning",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Day of Judgment",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Izzet Charm",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Careful Study",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathartic Reunion",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faithless Looting",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Magmatic Insight",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Village Rites",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 111,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

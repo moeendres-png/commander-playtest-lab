@@ -1,0 +1,599 @@
+{
+ "id": 15199265,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "EDH (Land) Chulane, Teller of Tales",
+ "updated_at": "2025-08-23T20:33:09.031762Z",
+ "cards": [
+  {
+   "name": "Acidic Slime",
+   "quantity": 1,
+   "categories": [
+    "4B Interaction Removal Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Woodfall Primus",
+   "quantity": 1,
+   "categories": [
+    "4B Interaction Removal Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sylvan Primordial",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1,
+   "categories": [
+    "4B Interaction Removal Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "World Breaker",
+   "quantity": 1,
+   "categories": [
+    "4B Interaction Removal Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Apex Altisaur",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Somberwald Stag",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pheres-Band Brawler",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kogla, the Titan Ape",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Affectionate Indrik",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hivespine Wolverine",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Territorial Allosaurus",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Tarrasque",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voracious Hydra",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elspeth Tirel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Foe-Razer Regent",
+   "quantity": 1,
+   "categories": [
+    "4A Interaction Removal Cmdr Fight"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fearless Fledgling",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Shepherd",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Admonition Angel",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emeria Angel",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glyph Elemental",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maja, Bretagard Protector",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trove Warden",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Primeval Bounty",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Winds of Abandon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ajani, Sleeper Agent",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Garruk, Caller of Beasts",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Primordial Sage",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Masked Admirers",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oltec Matterweaver",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quirion Beastcaller",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Torens, Fist of the Angels",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aesi, Tyrant of Gyre Strait",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selvala, Eager Trailblazer",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Volo, Guide to Monsters",
+   "quantity": 1,
+   "categories": [
+    "2B Gameplan WhenYouCastCreature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vinelasher Kudzu",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blackblade Reforged",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "2B Gameplan ForEach Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strata Scythe",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "2B Gameplan ForEach Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Retreat to Emeria",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Floral Evoker",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oran-Rief Hydra",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Undergrowth Champion",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tireless Provisioner",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1,
+   "categories": [
+    "2A Gameplan Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loot, Exuberant Explorer",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wayward Swordtooth",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kellan, Inquisitive Prodigy // Tail the Suspect",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beanstalk Giant // Fertile Footsteps",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Burnished Hart",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloomvine Regent // Claim Territory",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dawntreader Elk",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wood Elves",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Viridian Emissary",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1,
+   "categories": [
+    "3A Support Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ulvenwald Hydra",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 62,
+ "summe_gesamt": 72,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

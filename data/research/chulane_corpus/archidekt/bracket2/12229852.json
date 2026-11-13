@@ -1,0 +1,1077 @@
+{
+ "id": 12229852,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Ramp, Raze and Reign",
+ "updated_at": "2026-01-23T11:54:10.565891Z",
+ "cards": [
+  {
+   "name": "Planar Cleansing",
+   "quantity": 1,
+   "categories": [
+    "Board Clear"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trouble in Pairs",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fierce Guardianship",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple Garden",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Misty Rainforest",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea of Clouds",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bountiful Promenade",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spara's Headquarters",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rejuvenating Springs",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Worldspine Wurm",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Platinum Angel",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Verdant Force",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Garruk's Uprising",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Surrak and Goreclaw",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghalta, Primal Hunger",
+   "quantity": 1,
+   "categories": [
+    "Bombs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Apex Devastator",
+   "quantity": 1,
+   "categories": [
+    "Bombs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Within",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1,
+   "categories": [
+    "Bombs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma, World-Eater",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghalta, Stampede Tyrant",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terastodon",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heroic Intervention",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avacyn, Angel of Hope",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mana Drain",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rishkar's Expertise",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Austere Command",
+   "quantity": 1,
+   "categories": [
+    "Board Clear"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyshroud Claim",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Season of Gathering",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Last March of the Ents",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Great Henge",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of the False God",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Patriar's Seal",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Obscuring Haze",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kodama of the East Tree",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Perch Protection",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 6,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elderscale Wurm",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Genesis Wave",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Craterhoof Behemoth",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Up the Beanstalk",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma's Memorial",
+   "quantity": 1,
+   "categories": [
+    "Bombs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vampire",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bird",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dinosaur",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elephant",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wurm",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Treasure",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma's Coil",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beau",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spirit",
+   "quantity": 1,
+   "categories": [
+    "Tokens & Extras"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myojin of Blooming Dawn",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kutzil, Malamet Exemplar",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zetalpa, Primal Dawn",
+   "quantity": 1,
+   "categories": [
+    "Bombs"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1,
+   "categories": [
+    "Board Clear"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bonny Pall, Clearcutter",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Gargantuan",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coveted Jewel",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Observed Stasis",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Koma, Cosmos Serpent",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rest in Peace",
+   "quantity": 1,
+   "categories": [
+    "Graveyard Hate"
+   ],
+   "companion": false
+  },
+  {
+   "name": "The Endstone",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flare of Fortitude",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Starwinder",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Visits",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghalta and Mavren",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Denial",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fathom Mage",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tempt with Discovery",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "An Offer You Can't Refuse",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquility",
+   "quantity": 1,
+   "categories": [
+    "Board Clear"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Split Up",
+   "quantity": 1,
+   "categories": [
+    "Board Clear"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Akroma, Angel of Wrath",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Open the Way",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mirari's Wake",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hour of Revelation",
+   "quantity": 1,
+   "categories": [
+    "Board Clear",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Instill Energy",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saryth, the Viper's Fang",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Great Whale",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silence",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Darksteel Mutation",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tormod's Crypt",
+   "quantity": 1,
+   "categories": [
+    "Graveyard Hate",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Generous Gift",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chakram Retriever",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Omniscience",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moonshaker Cavalry",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Progenitor Mimic",
+   "quantity": 1,
+   "categories": [
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ancient Tomb",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overwhelming Stampede",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 145,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

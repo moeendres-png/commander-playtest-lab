@@ -1,0 +1,695 @@
+{
+ "id": 12997096,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "Deck de con",
+ "updated_at": "2025-12-03T07:46:47.228519Z",
+ "cards": [
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Consider",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sinister Concierge",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Call of the Conclave",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cut a Deal",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "As Foretold",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Confound",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fecund Greenshell",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Constable of the Realm",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wary Watchdog",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul Conduit",
+   "quantity": 1,
+   "categories": [
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ugin's Conjurant",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Malamet Battle Glyph",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lose Focus",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cartographer's Hawk",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Contact Other Plane",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conclave Tribunal",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conduit Pylons",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myriad Construct",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conclave Guildmage",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Natural Connection",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restless Anchorage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Basic Conjuration",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Concentrate",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Consulate Skygate",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conclave Naturalists",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Contingency Plan",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Contentious Plan",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trusted Advisor",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swindler's Scheme",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Defiler of Faith",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Defiler of Vigor",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cerulean Drake",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Needlethorn Drake",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conclave Mentor",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrewd Storyteller",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Epic Confrontation",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wary Thespian",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wormfang Drake",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Primal Cocoon",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spirited Companion",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emerge from the Cocoon",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tale of Tinúviel",
+   "quantity": 1,
+   "categories": [
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stave Off",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fight as One",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cartographer's Companion",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Initiate's Companion",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Slippery Karst",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gemstone Mine",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Captivating Cave",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Drifting Meadow",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Containment Construct",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eager Construct",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sparring Construct",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Utopia Mycon",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Foundry of the Consuls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 6,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 7,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cosmium Confluence",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Myr Convert",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Captured by the Consulate",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Minimus Containment",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Condemn",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conclave Sledge-Captain",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Crush Contraband",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shard Convergence",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nephalia Smuggler",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Golgari Rot Farm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 102,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

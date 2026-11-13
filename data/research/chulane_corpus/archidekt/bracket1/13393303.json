@@ -1,0 +1,651 @@
+{
+ "id": 13393303,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "Sir Reads-a-Lot",
+ "updated_at": "2026-01-15T02:56:48.387346Z",
+ "cards": [
+  {
+   "name": "Tamiyo, Field Researcher",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Filigree Sages",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Untap"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Five Hundred Year Diary",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Ramp",
+    "Clues"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tamiyo, Inquisitive Student // Tamiyo, Seasoned Scholar",
+   "quantity": 1,
+   "categories": [
+    "Clues",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mazemind Tome",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alaundo the Seer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Zimone, Quandrix Prodigy",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Duggan, Private Detective",
+   "quantity": 1,
+   "categories": [
+    "Beats",
+    "Clues"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Monologue Tax",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spellbook",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frantic Search",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "River Song's Diary",
+   "quantity": 1,
+   "categories": [
+    "Flavor",
+    "Theft"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opt",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stroke of Genius",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Volo, Itinerant Scholar",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eureka Moment",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1,
+   "categories": [
+    "Flavor",
+    "Beats",
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mother of Runes",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blur",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stick Together",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gadwick, the Wizened",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azami, Lady of Scrolls",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jushi Apprentice // Tomoya the Revealer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hurkyl, Master Wizard",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Armed with Proof",
+   "quantity": 1,
+   "categories": [
+    "Clues",
+    "Pump"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Novice Inspector",
+   "quantity": 1,
+   "categories": [
+    "Clues"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Endless Atlas",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enclave Cryptologist",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1,
+   "categories": [
+    "Beats",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Duelist of the Mind",
+   "quantity": 1,
+   "categories": [
+    "Beats"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rise and Shine",
+   "quantity": 1,
+   "categories": [
+    "Beats"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Innocuous Researcher",
+   "quantity": 1,
+   "categories": [
+    "Clues",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rowdy Research",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Contact Other Plane",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Curiosity",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Expedition Map",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Voracious Bibliophile",
+   "quantity": 1,
+   "categories": [
+    "Flavor",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scroll of Isildur",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Theft"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Compulsive Research",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Quandrix Campus",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seat of the Synod",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Naru Meha, Master Wizard",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Organic Extinction",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saruman's Trickery",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bury in Books",
+   "quantity": 1,
+   "categories": [
+    "Flavor",
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Perplexing Test",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meticulous Archive",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farseek",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fact or Fiction",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Impulse",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talisman of Progress",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knowledge Is Power",
+   "quantity": 1,
+   "categories": [
+    "Beats"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Blink",
+    "Clues"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 8,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 15,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 5,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tamiyo's Journal",
+   "quantity": 1,
+   "categories": [
+    "Tutor",
+    "Clues"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jodah's Codex",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ethereal Investigator",
+   "quantity": 1,
+   "categories": [
+    "Clues"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trinket Mage",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scrollshift",
+   "quantity": 1,
+   "categories": [
+    "Combo",
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Search the Premises",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "True Ancestry",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 101,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

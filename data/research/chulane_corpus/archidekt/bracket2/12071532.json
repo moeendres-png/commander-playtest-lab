@@ -1,0 +1,781 @@
+{
+ "id": 12071532,
+ "bracket": 2,
+ "bracket_detail": 2,
+ "name": "Chulane",
+ "updated_at": "2026-03-25T23:13:08.613383Z",
+ "cards": [
+  {
+   "name": "Cosmic Rebirth",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Breeding Pool",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gossip's Talent",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path of Ancestry",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Species Gorger",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Regrower",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lilypad Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistbreath Elder",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Parting Gust",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thrun, Breaker of Silence",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kor Skyfisher",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scrapshooter",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kor Hookmaster",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Alora, Merry Thief",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roaring Primadox",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Momentary Blink",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Y'shtola Rhul",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Niambi, Esteemed Speaker",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 9,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Robe of Mirrors",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gandalf the White",
+   "quantity": 1,
+   "categories": [
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Valley Floodcaller",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Undergrowth Champion",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overprotect",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spelunking",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Splash Portal",
+   "quantity": 1,
+   "categories": [
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kykar, Zephyr Awakener",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lumra, Bellow of the Woods",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 2,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silverback Elder",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Make Your Move",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Season of Weaving",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Valley Mightcaller",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bushwhack",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 4,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Three Tree Scribe",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dreamdew Entrancer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Polliwallop",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snakeskin Veil",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bellowing Crier",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thriving Heath",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Long River Lurker",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lilysplash Mentor",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Graypelt Refuge",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Toski, Bearer of Secrets",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ohran Frostfang",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Farewell",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rite of Renewal",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saving Grasp",
+   "quantity": 1,
+   "categories": [
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Inspiring Overseer",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Adept",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Turn to Mist",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ambrosia Whiteheart",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Genemorph Imago",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mightform Harmonizer",
+   "quantity": 1,
+   "categories": [
+    "Sideboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lush Portico",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wizard Class",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Venser, Shaper Savant",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Man-o'-War",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 101,
+ "summe_gesamt": 108,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

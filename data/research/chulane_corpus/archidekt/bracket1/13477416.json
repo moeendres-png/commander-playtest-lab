@@ -1,0 +1,309 @@
+{
+ "id": 13477416,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "Dante",
+ "updated_at": "2025-05-30T12:02:23.878665Z",
+ "cards": [
+  {
+   "name": "Zhuge Jin, Wu Strategist",
+   "quantity": 1,
+   "categories": [
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Anara, Wolvid Familiar",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scythe Leopard",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Djeru, With Eyes Open",
+   "quantity": 1,
+   "categories": [
+    "Tutor"
+   ],
+   "companion": false
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1,
+   "categories": [
+    "Tokens"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Renata, Called to the Hunt",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1,
+   "categories": [
+    "Lifegain"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Predatory Impetus",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Proud Mentor",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gate Hound",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Veteran Explorer",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Quan, Lord of Wu",
+   "quantity": 1,
+   "categories": [
+    "Evasion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "God-Eternal Rhonas",
+   "quantity": 1,
+   "categories": [
+    "Finisher"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smothering Tithe",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Persistent Petitioners",
+   "quantity": 1,
+   "categories": [
+    "Mill"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Unable to Scream",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aysen Bureaucrats",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fleecemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "God-Eternal Kefnet",
+   "quantity": 1,
+   "categories": [
+    "Copy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Urdnan, Dromoka Warrior",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sokrates, Athenian Teacher",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Revoke Existence",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Desertion",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Boromir, Gondor's Hope",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Guan Yu, Sainted Warrior",
+   "quantity": 1,
+   "categories": [
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bruvac the Grandiloquent",
+   "quantity": 1,
+   "categories": [
+    "Mill"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Emry, Lurker of the Loch",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Council of Echoes",
+   "quantity": 1,
+   "categories": [
+    "Recursion"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abdel Adrian, Gorion's Ward",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tomik, Distinguished Advokist",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Predatory Hunger",
+   "quantity": 1,
+   "categories": [
+    "Counters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jadelight Ranger",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Jhessian Thief",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grand Arbiter Augustin IV",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Empyrial Archangel",
+   "quantity": 1,
+   "categories": [
+    "Protection"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 37,
+ "summe_gesamt": 37,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}

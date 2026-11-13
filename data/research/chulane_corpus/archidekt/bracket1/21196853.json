@@ -1,0 +1,598 @@
+{
+ "id": 21196853,
+ "bracket": 1,
+ "bracket_detail": 1,
+ "name": "Serpents on a Flying Vehicle",
+ "updated_at": "2026-04-02T23:16:40.632062Z",
+ "cards": [
+  {
+   "name": "Teferi's Tutelage",
+   "quantity": 1,
+   "categories": [
+    "4 - and Samuel L Jackson is there!"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi's Veil",
+   "quantity": 1,
+   "categories": [
+    "4 - and Samuel L Jackson is there!"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi, Who Slows the Sunset",
+   "quantity": 1,
+   "categories": [
+    "4 - and Samuel L Jackson is there!"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Acrobatic Leap",
+   "quantity": 1,
+   "categories": [
+    "3 - The snakes are flying in the plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aerial Maneuver",
+   "quantity": 1,
+   "categories": [
+    "3 - The snakes are flying in the plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Talrand's Invocation",
+   "quantity": 1,
+   "categories": [
+    "3 - The snakes are flying in the plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Animal Sanctuary",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander (a.k.a. director)"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cobra Trap",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wind Sail",
+   "quantity": 1,
+   "categories": [
+    "3 - The snakes are flying in the plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 3,
+   "categories": [
+    "5 - also some lands or whatever"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Death-Hood Cobra",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fountainport",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maximize Altitude",
+   "quantity": 1,
+   "categories": [
+    "3 - The snakes are flying in the plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daring Leap",
+   "quantity": 1,
+   "categories": [
+    "3 - The snakes are flying in the plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Take Down",
+   "quantity": 1,
+   "categories": [
+    "3 - The snakes are flying in the plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teferi, Timeless Voyager",
+   "quantity": 1,
+   "categories": [
+    "4 - and Samuel L Jackson is there!"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Serpent's Gift",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ambush Viper",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Anaconda",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blight Mamba",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiled Tinviper",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Venomous Fangs",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Moss Viper",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Patagia Viper",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wasteland Viper",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ohran Viper",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snake Umbra",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Glass Asp",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hexdrinker",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ankle Biter",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ice-Fang Coatl",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes",
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brotherhood Vertibird",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snake of the Golden Grove",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Feiyi Snake",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snake Basket",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ribbon Snake",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snakeform",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Snake Pit",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Serpent Skin",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Harbor Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Sea Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Iceridge Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sandbar Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gearseeker Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Serpent Generator",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyserpent Seeker",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shoal Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spire Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrouded Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vodalian Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonecoil Serpent",
+   "quantity": 1,
+   "categories": [
+    "2 - and there are all these snakes"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hulldrifter",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aethersphere Harvester",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Adventurer's Airship",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heart of Kiran",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cargo Ship",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Air Response Unit",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Nautiloid Ship",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "High-Speed Hoverbike",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sky Skiff",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skybox Ferry",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Smuggler's Copter",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Skyseer's Chariot",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Weatherlight",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Weatherlight Compleated",
+   "quantity": 1,
+   "categories": [
+    "1 - First there's this plane..."
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 15,
+   "categories": [
+    "5 - also some lands or whatever"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 12,
+   "categories": [
+    "5 - also some lands or whatever"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 100,
+ "summe_gesamt": 100,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
