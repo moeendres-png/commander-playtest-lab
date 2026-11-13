@@ -584,17 +584,38 @@ def card_cooccurrence(
             "data_class": "DERIVED_DESCRIPTIVE",
             "cards": [],
         }
-    placeholders = ",".join("?" for _ in deck_ids)
-    rows = db.execute(
-        "SELECT c.card_id, c.oracle_name AS name, COUNT(DISTINCT k.deck_id) AS both_hits "
-        "FROM corpus_deck_card k JOIN card_fact c "
-        "ON (k.oracle_id IS NOT NULL AND k.oracle_id = c.oracle_id) "
-        "OR (k.oracle_id IS NULL AND k.card_name = c.oracle_name) "
-        f"WHERE k.deck_id IN ({placeholders}) AND k.section != 'sideboard' "
-        "AND c.card_id != ? AND c.commander_legal = 1 "
-        "GROUP BY c.card_id, c.oracle_name ORDER BY both_hits DESC, c.oracle_name ASC LIMIT ?",
-        [*deck_ids, card_id, limit],
+    # One pass over the deck rows of the matching decks, grouped by the card key (oracle id,
+    # else the name), then mapped to the pool cards in memory. A join of every card fact to
+    # every deck row on an OR condition cannot use an index and ran for minutes.
+    hits = db.execute(
+        "SELECT k.oracle_id AS oid, CASE WHEN k.oracle_id IS NULL THEN k.card_name END AS cname, "
+        "COUNT(DISTINCT k.deck_id) AS n FROM corpus_deck_card k "
+        "WHERE k.deck_id IN (SELECT value FROM json_each(?)) AND k.section != 'sideboard' "
+        "GROUP BY 1, 2",
+        (json.dumps(deck_ids),),
     ).fetchall()
+    by_oracle: dict[str, int] = {}
+    by_name: dict[str, int] = {}
+    for hit in hits:
+        if hit["oid"] is not None:
+            by_oracle[str(hit["oid"])] = by_oracle.get(str(hit["oid"]), 0) + int(hit["n"])
+        else:
+            by_name[str(hit["cname"])] = by_name.get(str(hit["cname"]), 0) + int(hit["n"])
+    rows = []
+    for fact in db.execute(
+        "SELECT card_id, oracle_id, oracle_name FROM card_fact "
+        "WHERE card_id != ? AND commander_legal = 1",
+        (card_id,),
+    ):
+        count = by_oracle.get(str(fact["oracle_id"])) if fact["oracle_id"] else None
+        if count is None:
+            count = by_name.get(str(fact["oracle_name"]))
+        if count:
+            rows.append(
+                {"card_id": fact["card_id"], "name": fact["oracle_name"], "both_hits": count}
+            )
+    rows.sort(key=lambda r: (-int(r["both_hits"]), str(r["name"])))
+    rows = rows[:limit]
     return {
         "cohort": cohort,
         "card_decks": card_decks,

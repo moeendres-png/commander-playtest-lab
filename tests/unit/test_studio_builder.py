@@ -569,3 +569,21 @@ def test_multipart_scryfall_folder_and_disambiguation(tmp_path: Path) -> None:
         "SELECT oracle_id FROM card WHERE oracle_name = 'Forest'"
     ).fetchone()
     assert forest["oracle_id"] == "oracle-forest-paper"
+
+
+def test_cooccurrence_runs_a_constant_number_of_statements_without_card_fact_join(
+    studio: StudioStore,
+) -> None:
+    """Regression: the card window took minutes on the full store because every card fact was
+    joined to every deck row on an OR condition (no index). The count is now one grouped pass;
+    the test pins the shape of the work (statements, no card-fact join over deck rows)."""
+    statements: list[str] = []
+    studio.connection.set_trace_callback(statements.append)
+    try:
+        builder.card_cooccurrence(studio, "card:project:0007", ["Test Commander"])
+    finally:
+        studio.connection.set_trace_callback(None)
+    deck_row_statements = [s for s in statements if "corpus_deck_card" in s]
+    assert len(statements) <= 8
+    assert not [s for s in deck_row_statements if "card_fact" in s]
+    assert not [s for s in deck_row_statements if " OR " in s.split("WHERE", 1)[-1]]
