@@ -10,7 +10,17 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, decklist_import, importers, roles, signals, tiers, universe
+from . import (
+    catalog,
+    decklist_import,
+    importers,
+    research_import,
+    roles,
+    rulings,
+    signals,
+    tiers,
+    universe,
+)
 from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
@@ -129,10 +139,35 @@ def _parser() -> argparse.ArgumentParser:
     import_all.add_argument("--decklist-format", choices=("edhrec", "archidekt"), default="edhrec")
     import_all.add_argument("--marks", help="owner marks file")
     import_all.add_argument(
+        "--tagger-roles", help="tagger bulk CSV (oracle_id, category, bulk_label)"
+    )
+    import_all.add_argument(
+        "--rulings", action="append", help="rulings file (JSON lines); repeatable"
+    )
+    import_all.add_argument(
+        "--force",
+        action="store_true",
+        help="let the tagger roles replace more than half of their scope's earlier claims",
+    )
+    import_all.add_argument(
         "--expect-pool",
         type=int,
         help="exit non-zero when the commander's legal pool has another size",
     )
+    tagger_roles = commands.add_parser(
+        "import-tagger-roles",
+        help="roles from the tagger bulk CSV (oracle_id, category, bulk_label)",
+    )
+    tagger_roles.add_argument("path")
+    tagger_roles.add_argument(
+        "--force",
+        action="store_true",
+        help="replace even when more than half of the earlier claims of the scope go",
+    )
+    rulings_cmd = commands.add_parser(
+        "import-rulings", help="card rulings (JSON lines); replaces the rulings of each file"
+    )
+    rulings_cmd.add_argument("paths", nargs="+")
     commands.add_parser(
         "relink-corpus",
         help="link source-deck cards to oracle ids by name and rebuild deck statistics",
@@ -558,6 +593,10 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = decklist_import.import_decklists(
             store, args.path, format=args.format, commander=args.commander
         )
+    elif args.command == "import-tagger-roles":
+        result = research_import.import_tagger_roles(store, args.path, force=args.force)
+    elif args.command == "import-rulings":
+        result = rulings.import_rulings(store, args.paths)
     elif args.command == "relink-corpus":
         result = catalog.relink_corpus(store)
     elif args.command == "profiles":

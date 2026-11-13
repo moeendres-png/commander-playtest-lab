@@ -19,7 +19,17 @@ from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TypedDict
 
-from . import builder, catalog, decklist_import, importers, roles, signals, strength_view
+from . import (
+    builder,
+    catalog,
+    decklist_import,
+    importers,
+    research_import,
+    roles,
+    rulings,
+    signals,
+    strength_view,
+)
 from .data_report import data_report
 from .marks import import_owner_marks
 from .store import BOUND_ELSEWHERE, StudioStore
@@ -28,6 +38,7 @@ NOT_PROVIDED = "NOT_PROVIDED"
 IMPORTED = "IMPORTED"
 FAILED = "FAILED"
 SKIPPED = "SKIPPED_AFTER_ERROR"
+WARNING = "WARNING"
 COMPLETE = "COMPLETE"
 PARTIAL = "PARTIAL"
 MISSING = "MISSING"
@@ -157,6 +168,22 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
     )
     binding = builder.corpus_binding(store, [commander])
     bound = binding["bound_decks"]
+    ruled = {
+        str(row[0])
+        for row in store.connection.execute("SELECT DISTINCT oracle_id FROM card_ruling")
+    }
+    ids = {
+        str(row[0]): str(row[1])
+        for row in store.connection.execute(
+            "SELECT card_id, oracle_id FROM card_fact WHERE oracle_id IS NOT NULL"
+        )
+    }
+    add(
+        "rulings",
+        "Rulings (Karten ohne Eintrag: keine veröffentlicht)",
+        store.count("card_ruling"),
+        sum(1 for card in cards if ids.get(str(card["card_id"])) in ruled),
+    )
     add(
         "decklists",
         "Quelldecks (Decklisten)",
@@ -204,6 +231,7 @@ _FLAG = {
     "inventory": "",
     "scryfall": ' --scryfall "<Datei>"',
     "roles": ' --roles "<Datei>"',
+    "rulings": ' --rulings "<Datei>"',
     "decklists": ' --decklists "<Ordner>"',
     "marks": ' --marks "<Datei>"',
 }
@@ -234,6 +262,9 @@ def _steps(
     args: argparse.Namespace, signal_folders: list[Path]
 ) -> list[tuple[str, bool, Callable[[StudioStore], object]]]:
     commander: str = args.commander
+    tagger_roles: str | None = getattr(args, "tagger_roles", None)
+    ruling_files: list[str] | None = getattr(args, "rulings", None)
+    force: bool = bool(getattr(args, "force", False))
     plan: list[tuple[str, bool, Callable[[StudioStore], object]]] = [
         (
             "Sammlung",
@@ -249,6 +280,18 @@ def _steps(
             "Rollen",
             bool(args.roles),
             lambda store: roles.import_roles(store, args.roles),
+        ),
+        (
+            "Tagger-Rollen",
+            bool(tagger_roles),
+            lambda store: research_import.import_tagger_roles(
+                store, str(tagger_roles), force=force
+            ),
+        ),
+        (
+            "Rulings",
+            bool(ruling_files),
+            lambda store: rulings.import_rulings(store, ruling_files or []),
         ),
         (
             "Decklisten",
@@ -294,7 +337,16 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         try:
             with store.importing_for(commander):
                 result = action(store)
-            steps.append({"step": name, "status": IMPORTED, "detail": _summary(result)})
+            outcome = result.get("status") if isinstance(result, dict) else None
+            if outcome == "NO_ROWS":
+                message = str(result.get("message", "")) if isinstance(result, dict) else ""
+                steps.append({"step": name, "status": FAILED, "detail": message})
+                failed = True
+            elif outcome == "WARNUNG":
+                message = str(result.get("message", "")) if isinstance(result, dict) else ""
+                steps.append({"step": name, "status": WARNING, "detail": message})
+            else:
+                steps.append({"step": name, "status": IMPORTED, "detail": _summary(result)})
         except sqlite3.IntegrityError as error:
             detail = (
                 f"belongs to another commander than {commander!r}"
@@ -303,8 +355,12 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
             )
             steps.append({"step": name, "status": FAILED, "detail": detail})
             failed = True
-        except (ValueError, OSError, KeyError) as error:
-            steps.append({"step": name, "status": FAILED, "detail": str(error) or repr(error)})
+        except Exception as error:
+            # Any failure of a step (a cut .gz, a file that is not a workbook ...) is reported
+            # with its type and message, never as a traceback without the table.
+            steps.append(
+                {"step": name, "status": FAILED, "detail": f"{type(error).__name__}: {error}"}
+            )
             failed = True
     size, layers = completeness(store, commander)
     expected = args.expect_pool
@@ -377,6 +433,16 @@ def render(result: ImportAllResult) -> str:
     return "\n".join(parts)
 
 
+def _available(store: StudioStore) -> str:
+    names = [
+        str(item["name"])
+        for item in builder.list_commanders(store, include_collection=True)
+        if item["in_collection"]
+    ]
+    shown = ", ".join(names[:30]) + (f" (+{len(names) - 30} weitere)" if len(names) > 30 else "")
+    return shown or "keine gefunden"
+
+
 def run_command(args: argparse.Namespace) -> int:
     """The ``import-all`` command; returns the process exit code."""
     store = StudioStore.open(args.data)
@@ -392,7 +458,8 @@ def run_command(args: argparse.Namespace) -> int:
         if result["pool_size"] is None:
             print(
                 f"import-all: Der Commander „{result['commander']}“ steht nicht in der "
-                "Sammlung, die Poolgröße ist unbekannt. Prüfe den Namen und die Sammlungsdatei.",
+                "Sammlung, die Poolgröße ist unbekannt. Prüfe den Namen und die Sammlungsdatei. "
+                f"Verfügbare Commander: {_available(store)}",
                 file=sys.stderr,
             )
             return EXIT_COMMANDER_UNKNOWN

@@ -319,15 +319,36 @@ def import_roles(
     """
     file_path = Path(path)
     parsed = read_role_file(file_path)
-    sha256 = sha256_file(file_path)
+    return import_role_snapshot(
+        store,
+        parsed,
+        title=file_path.name,
+        sha256=sha256_file(file_path),
+        allow_scope_replace=allow_scope_replace,
+    )
+
+
+def import_role_snapshot(
+    store: StudioStore,
+    parsed: RoleFile,
+    *,
+    title: str,
+    sha256: str,
+    allow_scope_replace: bool = False,
+) -> dict[str, object]:
+    """Merge an already checked role file into the store as claims (see ``import_roles``).
+
+    ``title`` and ``sha256`` name the file the roles were read from; a converter that reads
+    another format (a CSV) passes its own file here, so the source row says where the claims
+    really come from."""
     new_pairs = {(oracle_id, role) for role, ids in parsed.roles.items() for oracle_id in ids}
     marks = ",".join("?" * len(parsed.roles))
     with store.connection as db:  # commits at the end, rolls back on any error
         source_id = store.register_source(
             data_class=_SOURCE_CLASS[parsed.origin],
-            title=file_path.name,
+            title=title,
             sha256=sha256,
-            snapshot_date=parsed.fetched_at,
+            snapshot_date=parsed.fetched_at or None,
             url="https://tagger.scryfall.com/" if parsed.origin != ORIGIN_ORACLE_TEXT else None,
         )
         # card_role rows no claim stands behind (from before claims existed, or written by an
@@ -350,7 +371,7 @@ def import_roles(
         removed = same_scope - new_pairs if parsed.mode == FULL_SNAPSHOT else set()
         if removed and not allow_scope_replace:
             raise ValueError(
-                f"{file_path.name}: the full snapshot of {parsed.origin} / {parsed.scope_key} "
+                f"{title}: the full snapshot of {parsed.origin} / {parsed.scope_key} "
                 f"would remove {len(removed)} earlier claims; "
                 "run again with --replace-scope if that is intended"
             )
