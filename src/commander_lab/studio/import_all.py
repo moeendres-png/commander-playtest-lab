@@ -319,7 +319,10 @@ def _research_steps(
                 research_import.import_tagger_roles(store, path, fetched_at=date, force=force)
             )
 
-        _guarded(steps, f"tagger_roles:{path.name}", [path.name], run_tagger)
+        outcome = _guarded(steps, f"tagger_roles:{path.name}", [path.name], run_tagger)
+        if outcome is not None and outcome.get("status") in ("NO_ROWS", "WARNUNG"):
+            steps[-1]["status"] = STEP_FAILED if outcome["status"] == "NO_ROWS" else STEP_WARNING
+            steps[-1]["message"] = str(outcome.get("message", ""))
     ruling_files = sorted(
         {
             path

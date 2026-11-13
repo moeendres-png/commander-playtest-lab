@@ -134,6 +134,11 @@ def _parser() -> argparse.ArgumentParser:
         help="roles from the tagger bulk CSV (oracle_id, category, bulk_label)",
     )
     tagger_roles.add_argument("path")
+    tagger_roles.add_argument(
+        "--force",
+        action="store_true",
+        help="replace even when more than half of the earlier claims of the scope go",
+    )
     rulings_cmd = commands.add_parser(
         "import-rulings", help="card rulings (JSON lines); replaces the stored rulings"
     )
@@ -640,7 +645,7 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
             store, args.path, format=args.format, commander=args.commander
         )
     elif args.command == "import-tagger-roles":
-        result = research_import.import_tagger_roles(store, args.path)
+        result = research_import.import_tagger_roles(store, args.path, force=args.force)
     elif args.command == "import-rulings":
         result = rulings.import_rulings(store, args.paths)
     elif args.command == "relink-corpus":

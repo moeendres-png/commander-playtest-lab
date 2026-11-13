@@ -51,7 +51,10 @@ def import_tagger_roles(
     """Import the tagger bulk CSV as a full role snapshot of its own scope.
 
     A row whose ``category`` is one of the Studio roles gives that card the role; the row's
-    ``bulk_label`` is kept as the original tag of the role. Rows with another category, or
+    ``bulk_label`` is kept as the original tag of the role. A file without any role row never
+    replaces the scope (``status`` NO_ROWS); a file that would remove more than half of the
+    scope's earlier claims replaces only with ``force`` (``status`` WARNUNG, nothing changed).
+    Rows with another category, or
     without a usable oracle id, are counted (``unknown_categories``, ``rows_skipped``).
     The scope is the file's own: importing a changed file replaces the claims of this scope
     only (``claims_removed`` says how many); claims of other origins and scopes stay."""
@@ -79,10 +82,41 @@ def import_tagger_roles(
             label = (row.get("bulk_label") or "").strip()
             if label:
                 labels[category].add(label)
+    new_pairs = {(oid, role) for role, ids in members.items() for oid in ids}
+    scope = _scope_key(file_path)
+    old_pairs = {
+        (str(r[0]), str(r[1]))
+        for r in store.connection.execute(
+            "SELECT oracle_id, role FROM card_role_claim WHERE role_origin = ? AND scope_key = ?",
+            (roles.ORIGIN_CROSSWALK, scope),
+        )
+    }
+    counts: dict[str, object] = {
+        "rows_read": read,
+        "rows_skipped": skipped,
+        "rows_with_other_category": sum(unknown.values()),
+        "unknown_categories": dict(sorted(unknown.items())),
+        "claims_in_file": len(new_pairs),
+        "claims_in_scope_before": len(old_pairs),
+    }
+    if not new_pairs:
+        return {
+            **counts,
+            "status": "NO_ROWS",
+            "message": "the file has no row for a Studio role: the scope was left unchanged",
+        }
+    removed = len(old_pairs - new_pairs)
+    if old_pairs and removed * 2 > len(old_pairs) and not force:
+        return {
+            **counts,
+            "status": "WARNUNG",
+            "message": f"the file would remove {removed} of {len(old_pairs)} earlier claims of "
+            "this scope: nothing was changed; run again with --force if that is intended",
+        }
     parsed = roles.RoleFile(
         origin=roles.ORIGIN_CROSSWALK,
         mode=roles.FULL_SNAPSHOT,
-        scope_key=_scope_key(file_path),
+        scope_key=scope,
         fetched_at=fetched_at or "",
         tags={role: "|".join(sorted(labels[role])) or role for role in roles.ROLES},
         mapping_rule=f"crosswalk:{CROSSWALK_VERSION}",
@@ -97,9 +131,7 @@ def import_tagger_roles(
     )
     return {
         **report,
-        "rows_read": read,
-        "rows_skipped": skipped,
-        "rows_with_other_category": sum(unknown.values()),
-        "unknown_categories": dict(sorted(unknown.items())),
+        **counts,
+        "status": "IMPORTED",
         "roles_without_cards": sorted(role for role, ids in members.items() if not ids),
     }
