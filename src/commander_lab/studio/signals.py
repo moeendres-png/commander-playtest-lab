@@ -737,7 +737,11 @@ def _import_decklists(
                 continue
             _bump(report, reason)
             removed = 0
-            if reason != INVALID_UNIVERSE_NAME:  # a stale universe must not stay selectable
+            # A stale universe must not stay selectable. Two refusals say nothing about the stored
+            # rows: an invalid name (no such signal) and a file that lists no row of this
+            # commander (built around another one: the stored rows are still right).
+            wrong_file = reason == COMMANDER_NOT_IN_EVERY_DECK and commander_decks is None
+            if reason != INVALID_UNIVERSE_NAME and not wrong_file:
                 removed = _remove_universe(store, commander, decklist_signal(source, bracket))
             report["universes_refused"].append(
                 {

@@ -310,7 +310,9 @@ card rows keep the first and are counted. `expected_signals()`, the completeness
 
 The deck-universe component takes its counts from ONE universe, chosen by the setting
 `universe_source` (`universe_choice.choose`, the one place that decides; the builder asks the
-same function). `auto` (recommended): (1) a stored universe profile that is selected on the
+same function with the universe source and bracket the tier page remembers in the browser,
+the recommended settings when it has none). When the used counted universe holds rows that
+match no card of the store, the tier result carries a notice. `auto` (recommended): (1) a stored universe profile that is selected on the
 tier page; (2) all local deck lists of the commander when there are at least `min_universe`
 (default 30); (3) the counted universe whose bracket matches the bracket setting (core 2,
 upgraded 3, optimized 4, cedh 5; the larger denominator among sources); (4) without a match (or

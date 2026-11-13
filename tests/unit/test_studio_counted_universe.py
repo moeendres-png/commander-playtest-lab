@@ -777,3 +777,75 @@ def test_the_builder_takes_the_same_universe_as_the_tier_list(
     by_name = {str(card["name"]): card for card in chosen["cards"]}  # type: ignore[attr-defined]
     assert by_name["Filler 01"]["counted"] == {"hits": 150, "denominator": 200, "share": 0.75}
     assert by_name["Filler 20"]["counted"]["hits"] == 0  # counted zero
+
+
+# ---------- review residuals of the counted universes ----------
+
+
+def test_a_wrong_commander_file_keeps_the_rows_stored_for_this_commander(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    before = _stored(store)
+    assert before > 0
+    wrong = _write_counted(
+        tmp_path / "wrong", _rows("edhrec", 3, 200, {"Filler 01": 9}, commander=OTHER)
+    )
+    report = _import_counted(store, wrong)  # built around OTHER, imported for COMMANDER
+    refused = _file_report(report)["universes_refused"]
+    assert [(item["reason"], item["rows_removed"]) for item in refused] == [
+        (signals.COMMANDER_NOT_IN_EVERY_DECK, 0)
+    ]
+    assert _stored(store) == before
+    # A file that names the commander but not in every deck still removes the stale rows.
+    broken = _rows("edhrec", 3, 200, {"Filler 01": 150}, own=199)
+    report = _import_counted(store, _write_counted(tmp_path / "broken", broken))
+    assert _file_report(report)["universes_refused"][0]["rows_removed"] == 4
+
+
+def test_the_tier_result_notices_unmatched_rows_of_the_counted_universe(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    clean = _import_counted(store, _write_counted(tmp_path / "clean", _both()))
+    assert clean["rows_unmatched"] == 0
+    assert not [n for n in _compute(store)["notices"] if "Zeilen" in n]
+    rows = _rows("edhrec", 3, 200, {"Nowhere Card": 120, "Filler 01": 150}) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100}
+    )
+    _import_counted(store, _write_counted(tmp_path / "unknown", rows))
+    result = _compute(store)
+    assert result["universe_choice"]["counted"] == "counted:edhrec:3"
+    found = [n for n in result["notices"] if "Nowhere Card" in n]
+    assert len(found) == 1 and "1 Zeilen" in found[0]
+    # The universe that was not used does not add a notice.
+    other = _compute(store, universe_source="counted:archidekt:4")
+    assert not [n for n in other["notices"] if "Nowhere Card" in n]
+    script = (Path(import_all.__file__).parent / "static" / "tierliste.js").read_text("utf-8")
+    assert "result.notices" in script and "Index berechnet mit" in script
+
+
+def test_the_builder_follows_the_strength_settings_of_the_tier_list(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))
+    assert universe_choice.local_deck_count(store, COMMANDER) < 30
+
+    default = builder.pool_cards(store, [COMMANDER])["counted_universe"]
+    assert default["counted"] == "counted:edhrec:3"  # type: ignore[index]
+    asked = StrengthSettings(universe_source="counted:archidekt:4")
+    pool = builder.pool_cards(store, [COMMANDER], strength=asked)
+    assert pool["counted_universe"]["counted"] == "counted:archidekt:4"  # type: ignore[index]
+    assert pool["counted_universe"]["counted"] == _choice(store, universe_source="counted:archidekt:4")["counted"]  # type: ignore[index]
+    off = builder.pool_cards(store, [COMMANDER], strength=StrengthSettings(universe_source="none"))
+    assert "counted_universe" not in off
+    client = TestClient(create_app(tmp_path / "studio"))
+    body = client.get(
+        "/api/pool",
+        params={"commander": COMMANDER, "strength_universe": "counted:archidekt:4"},
+    ).json()
+    assert body["counted_universe"]["counted"] == "counted:archidekt:4"
+    stale = client.get(
+        "/api/pool", params={"commander": COMMANDER, "strength_universe": "garbage:x"}
+    )
+    assert stale.status_code == 200  # a stale remembered value is ignored
+    assert stale.json()["counted_universe"]["counted"] == "counted:edhrec:3"

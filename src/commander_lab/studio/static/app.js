@@ -1064,8 +1064,20 @@ function applyPool(pool) {
   state.simReadiness = pool.sim_readiness || null;
   renderUniverseInfo(); renderSimReadiness();
 }
+// The universe source and bracket the tier list remembers: the builder asks for the same counted universe.
+function strengthQuery() {
+  try {
+    const raw = localStorage.getItem("studio.strength.settings");
+    const settings = raw ? JSON.parse(raw) : null;
+    if (!settings || typeof settings !== "object") return "";
+    const parts = [];
+    if (typeof settings.universe_source === "string" && settings.universe_source) parts.push(`strength_universe=${encodeURIComponent(settings.universe_source)}`);
+    if (typeof settings.bracket === "string" && settings.bracket) parts.push(`strength_bracket=${encodeURIComponent(settings.bracket)}`);
+    return parts.length ? "&" + parts.join("&") : "";
+  } catch (error) { return ""; }
+}
 async function loadPool() {
-  const query = StudioCommander.query + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
+  const query = StudioCommander.query + strengthQuery() + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
   applyPool(await api("/api/pool?" + query));
   try { localStorage.setItem("studio.universe.profile", state.universe); } catch (error) { /* view setting only */ }
   if ($("cohort")) $("cohort").disabled = Boolean(state.universe) || Boolean(state.countedUniverse);
@@ -1204,7 +1216,7 @@ async function start() {
     try { remembered = localStorage.getItem("studio.universe.profile") || ""; } catch (error) { /* view setting only */ }
     state.universeProfiles = await api("/api/universe/profiles").catch(() => []);
     state.universe = state.universeProfiles.some((p) => p.name === remembered) ? remembered : "";
-    const poolQuery = StudioCommander.query + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
+    const poolQuery = StudioCommander.query + strengthQuery() + (state.universe ? `&profile=${encodeURIComponent(state.universe)}` : "");
     const pool = await api("/api/pool?" + poolQuery).catch(async (error) => {
       if (!state.universe) throw error; // a remembered profile of another commander must not block the builder
       state.universe = "";

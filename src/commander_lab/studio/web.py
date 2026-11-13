@@ -269,10 +269,28 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def pool(
         commander: list[str] = Query(min_length=1, max_length=2),
         profile: str | None = Query(default=None, max_length=80),
+        strength_universe: str | None = Query(default=None, max_length=120),
+        strength_bracket: str | None = Query(default=None, max_length=20),
     ) -> dict[str, object]:
+        """The pool. ``strength_universe`` and ``strength_bracket`` are the universe source and
+        bracket of the tier list's settings: the builder then shows the same counted universe
+        the tier list takes (the recommended settings when they are not given)."""
         store = open_store()
         try:
-            return builder.pool_cards(store, commander, profile=profile)
+            overrides: dict[str, object] = {}
+            if strength_universe:
+                overrides["universe_source"] = strength_universe
+            if strength_bracket:
+                overrides["bracket"] = strength_bracket
+            settings = None
+            if overrides:
+                try:
+                    settings = strength_view.resolve_settings(
+                        store, preset=None, profile=None, settings=overrides
+                    )
+                except ValueError:
+                    settings = None  # a stale remembered value must not block the builder
+            return builder.pool_cards(store, commander, profile=profile, strength=settings)
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
