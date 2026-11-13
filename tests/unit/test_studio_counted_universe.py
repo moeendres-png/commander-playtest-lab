@@ -183,6 +183,7 @@ def test_only_the_universe_that_fails_the_commander_check_is_refused(
             "reason": signals.COMMANDER_NOT_IN_EVERY_DECK,
             "commander_decks": 499,
             "universe_decks": 500,
+            "rows_removed": 0,
         }
     ]
     stored = universe_choice.counted_universes(store, COMMANDER)
@@ -194,6 +195,46 @@ def test_only_the_universe_that_fails_the_commander_check_is_refused(
     # The refused universe is no option: not listed, and asking for it names nothing.
     result = _compute(store, universe_source="counted:archidekt:3")
     assert result["universe_choice"]["kind"] == universe_choice.KIND_NONE
+
+
+def test_a_refused_universe_loses_its_old_rows_and_is_no_longer_selectable(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import_counted(store, _write_counted(tmp_path / "good", _both()))
+    before = {item["value"] for item in universe_choice.counted_universes(store, COMMANDER)}
+    assert before == {"counted:edhrec:3", "counted:archidekt:4"}
+    assert _choice(store)["counted"] == "counted:edhrec:3"  # the bracket-matching one
+    # Re-import: edhrec 3 now lists the commander in 199 of 200 decks, archidekt 4 is fine.
+    broken = _rows("edhrec", 3, 200, {"Filler 01": 150}, own=199) + _rows(
+        "archidekt", 4, 500, {"Filler 01": 100, "Filler 04": 400}
+    )
+    report = _import_counted(store, _write_counted(tmp_path / "broken", broken))
+    refused = _file_report(report)["universes_refused"]
+    assert [(item["source"], item["bracket"], item["rows_removed"]) for item in refused] == [
+        ("edhrec", "3", 4)
+    ]
+    assert [item["value"] for item in universe_choice.counted_universes(store, COMMANDER)] == [
+        "counted:archidekt:4"
+    ]
+    assert _stored(store) > 0
+    chosen = _choice(store)  # auto can no longer take the refused universe
+    assert chosen["counted"] == "counted:archidekt:4" and chosen["kind"] == "counted"
+    asked = _choice(store, universe_source="counted:edhrec:3")
+    assert asked["kind"] == universe_choice.KIND_NONE
+
+
+@pytest.mark.parametrize("field", ["source", "bracket"])
+def test_a_universe_name_with_a_colon_is_refused_with_its_own_reason(
+    store: StudioStore, tmp_path: Path, field: str
+) -> None:
+    bad = [{**row, field: f"{row[field]}:x"} for row in _rows("edhrec", 3, 200, {"Filler 01": 9})]
+    good = _rows("edhrec", 4, 300, {"Filler 01": 90})
+    report = _import_counted(store, _write_counted(tmp_path / "colon", bad + good))
+    refused = _file_report(report)["universes_refused"]
+    assert [item["reason"] for item in refused] == [signals.INVALID_UNIVERSE_NAME]
+    assert [item["value"] for item in universe_choice.counted_universes(store, COMMANDER)] == [
+        "counted:edhrec:4"
+    ]
 
 
 def test_the_step_report_of_import_all_names_the_refused_universe(

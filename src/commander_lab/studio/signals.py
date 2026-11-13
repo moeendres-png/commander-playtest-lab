@@ -56,7 +56,8 @@ has its own header and the parts are read one after another in number order):
   whole number, negative, or above the denominator) refuse that universe too: dropping such a
   row would turn it into a false zero. Each refused universe is named in the report
   (``universes_refused``: source, bracket, reason, the commander's decks and the universe's
-  decks); the file is ``REFUSED`` only when no universe of it could be stored. Duplicate card
+  decks, and ``rows_removed``: the rows a former import had stored for that universe, which
+  go with it so a refused universe cannot stay selectable); the file is ``REFUSED`` only when no universe of it could be stored. Duplicate card
   rows keep the first and are counted in the report. Per universe one signal
   ``decklist_universe:<source>:<bracket>`` is stored (value the share, numerator the decks
   with the card, denominator the decks of the universe); its source row carries the snapshot
@@ -117,6 +118,7 @@ SIGNAL_DECKLIST = "decklist_universe"
 REFUSED = "REFUSED"
 COMMANDER_NOT_IN_EVERY_DECK = "COMMANDER_NOT_IN_EVERY_DECK"
 MIXED_DENOMINATORS = "MIXED_DENOMINATORS"
+INVALID_UNIVERSE_NAME = "INVALID_UNIVERSE_NAME"  # a ":" in the source or bracket
 INVALID_COUNT = "INVALID_COUNT"
 DECKLIST_COLUMNS = {"card_name", "source", "bracket", "decks_with_card", "universe_decks"}
 SIGNAL_PLAYGROUP = "playgroup_observed_winrate_gap"
@@ -130,6 +132,7 @@ class RefusedUniverse(TypedDict):
     reason: str
     commander_decks: int | None  # decks_with_card of the commander's own row, None when absent
     universe_decks: int  # the denominator of the universe (the largest one when they are mixed)
+    rows_removed: int  # rows of this universe a former import had stored: removed with it
 
 
 class FileReport(TypedDict):
@@ -582,12 +585,16 @@ def _read_decklist_universes(
     return universes
 
 
-def _universe_refusal(universe: _Universe, names: set[str]) -> tuple[str, int | None]:
+def _universe_refusal(
+    key: tuple[str, str], universe: _Universe, names: set[str]
+) -> tuple[str, int | None]:
     """Why a universe cannot be stored for the commander (empty reason: it can), and the
     decks the commander's own row counts (None when it has no single row)."""
     wanted = {name.casefold() for name in names}
     own = [figures for card, figures in universe.cards.items() if card.casefold() in wanted]
     commander_decks = own[0][0] if len(own) == 1 else None
+    if ":" in key[0] or ":" in key[1]:  # the signal name ``decklist_universe:<source>:<bracket>``
+        return INVALID_UNIVERSE_NAME, commander_decks
     if universe.invalid:
         return INVALID_COUNT, commander_decks
     if len(universe.denominators) > 1:
@@ -617,11 +624,16 @@ def _import_decklists(
             continue
         usable: dict[tuple[str, str], _Universe] = {}
         for (source, bracket), universe in sorted(universes.items()):
-            reason, commander_decks = _universe_refusal(universe, {commander, raw_name})
+            reason, commander_decks = _universe_refusal(
+                (source, bracket), universe, {commander, raw_name}
+            )
             if not reason:
                 usable[(source, bracket)] = universe
                 continue
             _bump(report, reason)
+            removed = 0
+            if reason != INVALID_UNIVERSE_NAME:  # a stale universe must not stay selectable
+                removed = _remove_universe(store, commander, decklist_signal(source, bracket))
             report["universes_refused"].append(
                 {
                     "source": source,
@@ -629,6 +641,7 @@ def _import_decklists(
                     "reason": reason,
                     "commander_decks": commander_decks,
                     "universe_decks": max(universe.denominators, default=0),
+                    "rows_removed": removed,
                 }
             )
         report["commander"] = commander
@@ -653,6 +666,14 @@ def _import_decklists(
             written, replaced = _store_rows(store, rows, source_id)
             report["rows_written"] += written
             report["rows_replaced"] += replaced
+
+
+def _remove_universe(store: StudioStore, commander: str, signal: str) -> int:
+    """Delete the stored rows of one counted universe of ``commander``; how many there were."""
+    cursor = store.connection.execute(
+        "DELETE FROM card_signal WHERE commander_name = ? AND signal = ?", (commander, signal)
+    )
+    return int(cursor.rowcount)
 
 
 def _kept_decklist_rows(store: StudioStore, commander: str) -> int:

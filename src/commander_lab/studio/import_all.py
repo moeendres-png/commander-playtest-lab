@@ -131,10 +131,12 @@ def _count(store: StudioStore, sql: str, params: Sequence[object] = ()) -> int:
 
 def _refused_universe(file_name: str, refused: dict[str, object]) -> str:
     """One refused counted universe: its source, bracket, reason and the two numbers."""
+    decks = refused["commander_decks"]
+    commander = "Commander-Zeile fehlt, Decks" if decks is None else f"Commander in {decks}"
     return (
         f"{file_name}: Universum {refused['source']}/{refused['bracket']} abgelehnt "
-        f"({refused['reason']}: Commander in {refused['commander_decks']} von "
-        f"{refused['universe_decks']} Decks)"
+        f"({refused['reason']}: {commander} von "
+        f"{refused['universe_decks']} Decks; {refused['rows_removed']} alte Zeilen entfernt)"
     )
 
 
