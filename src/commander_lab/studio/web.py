@@ -1005,6 +1005,31 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
             raise HTTPException(409, str(error)) from error
         return dict(table)
 
+    @app.get("/api/outcomes/decks")
+    def outcome_decks() -> dict[str, object]:
+        """Every deck that sits in the game logs, at any seat, with its game counts.
+
+        The outcomes of a game are data for every deck at the table, not only the
+        Owner's: this lists each deck id the logs name — opponents and precons
+        included — so ``/api/outcomes`` can be asked for any of them (#1267).
+        A deck seated twice in one game counts once for that game.
+        """
+        report = card_outcomes.load_exposures(games.games_folder(games_home()))
+        finished: dict[str, int] = {}
+        for game in report["exposures"]:
+            for deck_id in {seat["deck_id"] for seat in game["seats"]}:
+                finished[deck_id] = finished.get(deck_id, 0) + 1
+        return {
+            "decks": [
+                {
+                    "deck_id": deck_id,
+                    "games": finished.get(deck_id, 0),
+                    "games_skipped": report["skipped_with_deck"].get(deck_id, 0),
+                }
+                for deck_id in card_outcomes.deck_ids_in(report)
+            ]
+        }
+
     @app.get("/api/table")
     def table() -> dict[str, object]:
         """What a new game can be made of: the engine, the own decks, the other seats."""
