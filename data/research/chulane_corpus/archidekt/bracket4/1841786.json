@@ -1,0 +1,1588 @@
+{
+ "id": 1841786,
+ "bracket": 4,
+ "bracket_detail": 4,
+ "name": "Chulane, Teller of Tales",
+ "updated_at": "2026-05-22T20:49:07.120127Z",
+ "cards": [
+  {
+   "name": "Reveillark",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Otherworldly Journey",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Original Brawl Precon",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Kraul Harpooner",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Vandal",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Faerie Formation",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Keeper of Fables",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beanstalk Giant // Fertile Footsteps",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Firemind Vessel",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Parhelion II",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rosethorn Acolyte // Seasonal Ritual",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Spectral Sailor",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lurking Predators",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Rampaging Baloths",
+   "quantity": 1,
+   "categories": [
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundant Growth",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "take out",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wall of Omens",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cleansing Nova",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Silhana Wayfinder",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Prison",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostway",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Heartstone",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "take out",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prison Realm",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Amareth, the Lustrous",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archon of Coronation",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Court of Bounty",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soulherder",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Semester's End",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Opal Palace",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Forest",
+   "quantity": 10,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Island",
+   "quantity": 8,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Plains",
+   "quantity": 11,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation // Incongruity",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Out of Time",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flower // Flourish",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ethereal Valkyrie",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thragtusk",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Exploration",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sea-Dasher Octopus",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Man-o'-War",
+   "quantity": 1,
+   "categories": [
+    "Bounce"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Displacer Kitten",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Far Traveler",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ghostly Flicker",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Loran of the Third Path",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Buy",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Panharmonicon",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Buy",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "High Fae Trickster",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seedborn Muse",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Laboratory Maniac",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Saw It Coming",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mind Stone",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Equilibrium",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Basri's Lieutenant",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Trostani's Summoner",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Blade Splicer",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Selesnya Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Turn to Mist",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Displace",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Archaeomancer",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Manalith",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Grow from the Ashes",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Steelbane Hydra",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Acrobatic Maneuver",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eldrazi Displacer",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aerial Extortionist",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Earthshaker Giant",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudblazer",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonecloaker",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oran-Rief Hydra",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roon of the Hidden Realm",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Disorder in the Court",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Erratic Portal",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Suture Priest",
+   "quantity": 1,
+   "categories": [
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1,
+   "categories": [
+    "Buy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloudstone Curio",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Venser, the Sojourner",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Planeswalker"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Capsize",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "take out"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ephemerate",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Momentary Blink",
+   "quantity": 1,
+   "categories": [
+    "Blink"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aura Shards",
+   "quantity": 1,
+   "categories": [
+    "Removal"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Aluren",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Avenger of Zendikar",
+   "quantity": 1,
+   "categories": [
+    "Landfall"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Coiling Oracle",
+   "quantity": 1,
+   "categories": [
+    "Draw"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Cloud of Faeries",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Mulldrifter",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "District Guide",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Flickerwisp",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lotus Cobra",
+   "quantity": 1,
+   "categories": [
+    "Ramp",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Stonehorn Dignitary",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "take out",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Lavinia of the Tenth",
+   "quantity": 1,
+   "categories": [
+    "Removal",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Restoration Angel",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Scute Swarm",
+   "quantity": 1,
+   "categories": [
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oji, the Exquisite Blade",
+   "quantity": 1,
+   "categories": [
+    "Blink",
+    "Creature",
+    "Buy"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roalesk, Apex Hybrid",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Ruin Ghost",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "take out"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Storvald, Frost Giant Jarl",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yasharn, Implacable Earth",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Wedding Ring",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Buy",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Shield Sphere",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yavimaya Coast",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1,
+   "categories": [
+    "Land"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Enlightened Tutor",
+   "quantity": 1,
+   "categories": [
+    "Draw",
+    "Maybeboard",
+    "Instant"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Hedron Crab",
+   "quantity": 1,
+   "categories": [
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Canyon Jerboa",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Khalni Heart Expedition",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Enchantment"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Oran-Rief Hydra",
+   "quantity": 1,
+   "categories": [
+    "Landfall",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Roil Elemental",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Village Bell-Ringer",
+   "quantity": 1,
+   "categories": [
+    "ETB Matters"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Whirler Rogue",
+   "quantity": 1,
+   "categories": [
+    "Removed",
+    "take out"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Strionic Resonator",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Maybeboard",
+    "Artifact"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Sunpearl Kirin",
+   "quantity": 1,
+   "categories": [
+    "Bounce",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Temporal Fissure",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Daydream",
+   "quantity": 1,
+   "categories": [
+    "Buy",
+    "Sorcery"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1,
+   "categories": [
+    "In Other Deck(s)",
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Elvish Visionary",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Yorion, Sky Nomad",
+   "quantity": 1,
+   "categories": [
+    "Original Brawl Precon",
+    "Removed"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1,
+   "categories": [
+    "Commander"
+   ],
+   "companion": false
+  },
+  {
+   "name": "Angel of Finality",
+   "quantity": 1,
+   "categories": [
+    "Maybeboard",
+    "Creature"
+   ],
+   "companion": false
+  }
+ ],
+ "summe_hauptdeck": 98,
+ "summe_gesamt": 207,
+ "_name_missing": 0,
+ "_deleted_entries": 0
+}
