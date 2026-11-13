@@ -453,6 +453,7 @@ def test_unlisted_card_coverage_with_the_new_default_reaches_the_minimum(
     assert 4 / total >= StrengthSettings().min_coverage
     assert StrengthSettings().min_coverage == 0.3
     assert with_universe["Filler 09"]["tier"] in strength.TIERS
+    assert with_universe["Filler 09"]["tier"] != strength.TIER_UNKNOWN
 
 
 def test_a_zero_weight_universe_adds_neither_value_nor_coverage(
@@ -518,10 +519,14 @@ def test_with_no_universe_only_the_commander_signal_rule_changes_a_tier(
 ) -> None:
     _import(store, tmp_path)
     _import_counted(store, _write_counted(tmp_path / "counted", _both()))
-    recommended = _by_name(_compute(store, universe_source="none"))
+    # Without the data minimum the rule is the only thing that keeps a card with just global
+    # inclusion and combos from a tier.
+    loose = {"universe_source": "none", "min_coverage": 0.0, "min_components": 1}
+    recommended = _by_name(_compute(store, **loose))
     assert recommended
-    without_rule = _by_name(_compute(store, universe_source="none", require_commander_signal=False))
+    without_rule = _by_name(_compute(store, require_commander_signal=False, **loose))
     changed = {n for n, card in recommended.items() if card["tier"] != without_rule[n]["tier"]}
+    assert changed  # the rule really turns some tiers into "zu wenig Daten"
     for name in changed:  # the rule only ever turns a tier into "zu wenig Daten"
         assert recommended[name]["tier"] == strength.TIER_UNKNOWN
         assert recommended[name]["reason"] == strength.NO_COMMANDER_SIGNAL
@@ -584,6 +589,20 @@ def test_auto_prefers_a_profile_then_local_decks_then_counted_then_none(
     universe.save_profile(store, "p", {"min_universe": 1})
     picked = _choice(store, universe_profile="p", **auto)
     assert (picked["kind"], picked["profile"]) == (universe_choice.KIND_PROFILE, "p")
+
+
+def test_auto_takes_the_local_universe_with_its_denominator_over_the_counted_one(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    _import(store, tmp_path)
+    _import_counted(store, _write_counted(tmp_path / "counted", _both()))  # 200 and 500 decks
+    _local_decks(store, 31)
+    chosen = _compute(store)["universe_choice"]
+    assert (chosen["kind"], chosen["denominator"]) == (universe_choice.KIND_LOCAL, 31)
+    assert chosen["counted"] == "" and chosen["automatic"] is True
+    # Asking for the counted universe by name still gives exactly that one.
+    named = _choice(store, universe_source="counted:archidekt:4")
+    assert (named["kind"], named["denominator"]) == (universe_choice.KIND_COUNTED, 500)
 
 
 def test_the_larger_denominator_wins_among_sources_of_the_matching_bracket(
