@@ -825,12 +825,15 @@ def main() -> int:
             identity_by_seed[g.seed][g.run_name] = g.semantic_hash
 
     # Build Markdown Document
+    engine_pin = json.loads((ROOT / "config" / "rules_engines.json").read_text(encoding="utf-8"))[
+        "primary_engine"
+    ]["commit"]
     doc_lines = [
         "# Stationäre Durchsatz-Nachmessung und JVM-Profil (Issue #1279)",
         "",
         "- **Datum:** 2026-11-13",
         "- **Hardware:** AMD Ryzen 7 7700 8-Core Processor (16 Threads), 16 GB RAM",
-        "- **Engine-Pin:** `f4d12f6e8066203fba7aa38bd35ea3358117393d` (`config/rules_engines.json` unverändert)",
+        f"- **Engine-Pin:** `{engine_pin}` (`config/rules_engines.json` unverändert)",
         "- **Tisch / Pod:** Chulane (`data/decks/deckbau/chulane_current.json`) gegen 3 Precons (Lorehold Spirit, Animated Army, Token Triumph)",
         f"- **Rohdaten-Ablage:** `{args.out_dir.relative_to(ROOT)}/`",
         "",
