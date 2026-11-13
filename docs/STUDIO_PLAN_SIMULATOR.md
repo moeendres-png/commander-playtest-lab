@@ -56,7 +56,7 @@ four-player pod of `scripts/run_real_4p_full_game_smoke.py`, seeds 1 to 36.
 ```bash
 python scripts/benchmark_xmage_full_games.py run --jar BEFORE.jar --out before.json --seeds 1-36 --workers 4 --games-per-jvm 9 --fast
 python scripts/benchmark_xmage_full_games.py run --jar AFTER.jar  --out after.json  --seeds 1-36 --workers 4 --games-per-jvm 9 --fast
-python scripts/benchmark_xmage_full_games.py compare before.json after.json
+python scripts/benchmark_xmage_full_games.py compare before.json after.json --expect-games 36 --require-different-jars
 ```
 
 `compare` fails on a different semantic hash or status of a game that is in both files. It
@@ -68,6 +68,8 @@ gate that the command alone does not enforce:
   the same pin; the PR pastes both jar SHA-256 values and they differ.
 - The PR changes neither `scripts/benchmark_xmage_full_games.py` nor the transcript-hash
   code in `src/commander_lab/engine/rules/full_game.py`.
+- Tooling for the points below (normalized frame digest, `--expect-games`,
+  `--require-different-jars`): `docs/STUDIO_BRIDGE_GATE_TOOLING.md`.
 - The transcript hash covers decisions and outcomes, not what a pilot was shown. A `NEUTRAL`
   change therefore also compares the frames the pilots received, per decision, after the
   same identifier normalization the transcript hash uses (per-run object ids always
