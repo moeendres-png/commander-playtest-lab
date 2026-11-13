@@ -894,8 +894,9 @@ def test_a_file_that_targets_the_commander_removes_the_stale_rows_of_a_universe_
     store: StudioStore, tmp_path: Path
 ) -> None:
     _import_counted(store, _write_counted(tmp_path / "good", _both()))
-    rows = _rows("edhrec", 3, 200, {"Filler 01": 150}) + [  # archidekt 4 lacks the commander row
-        _raw("Filler 01", "archidekt", 4, 100, 500)
+    rows = [
+        *_rows("edhrec", 3, 200, {"Filler 01": 150}),
+        _raw("Filler 01", "archidekt", 4, 100, 500),  # archidekt 4 lacks the commander row
     ]
     report = _import_counted(store, _write_counted(tmp_path / "mixed", rows))
     refused = {
