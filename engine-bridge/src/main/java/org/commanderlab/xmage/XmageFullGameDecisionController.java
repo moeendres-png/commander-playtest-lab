@@ -289,7 +289,14 @@ final class XmageFullGameDecisionController {
     /** Binds the deciding principal's own views; returns its pilot state. */
     private static JsonObject bindViews(JsonObject request, Game game, Player decider) {
         JsonObject actorView = XmageFullGameStateRedactor.actorView(game, decider);
-        JsonObject publicView = XmageFullGameStateRedactor.publicView(game);
+        // The public view is the anchor player's actor view, stripped. When the
+        // decider is that anchor, the actor view just built is the same input
+        // (same engine state, same viewer): strip a copy instead of walking the
+        // engine state a second time. Other deciders get the public view as before.
+        Player anchor = XmageFullGameStateRedactor.publicViewAnchor(game);
+        JsonObject publicView = anchor.getId().equals(decider.getId())
+                ? XmageFullGameStateRedactor.publicViewFromAnchorView(game, anchor, actorView.deepCopy())
+                : XmageFullGameStateRedactor.publicView(game);
         request.addProperty(
                 "public_state_reference",
                 "public-view:" + XmageAuditEventLog.stateHash(publicView)

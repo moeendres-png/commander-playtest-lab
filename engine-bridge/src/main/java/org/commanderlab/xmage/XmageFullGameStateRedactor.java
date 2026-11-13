@@ -556,9 +556,23 @@ final class XmageFullGameStateRedactor {
      * to back a public replay/transcript hash.
      */
     static JsonObject publicView(Game game) {
-        Player anchor = game.getPlayers().values().stream().findFirst()
+        Player anchor = publicViewAnchor(game);
+        return publicViewFromAnchorView(game, anchor, actorView(game, anchor));
+    }
+
+    /** The player whose actor view the public view is derived from. */
+    static Player publicViewAnchor(Game game) {
+        return game.getPlayers().values().stream().findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("game has no players"));
-        JsonObject view = actorView(game, anchor);
+    }
+
+    /**
+     * {@link #publicView(Game)} for a caller that already built (or copied)
+     * {@code anchor}'s {@link #actorView(Game, Player)} of this same game state.
+     * The strip below is unchanged; it mutates {@code view}, so a caller that
+     * still needs the actor view passes a deep copy.
+     */
+    static JsonObject publicViewFromAnchorView(Game game, Player anchor, JsonObject view) {
 
         // actorView legitimately exposes the viewer's own native UUID. A public
         // replay/transcript view has no principal viewer, so normalize that last

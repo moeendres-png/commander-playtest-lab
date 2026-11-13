@@ -162,7 +162,7 @@ class XmageFullGameHiddenInformationTest {
         return hidden;
     }
 
-    private static void answerNeutrally(XmageFullGameSession session, JsonObject pending) {
+    static void answerNeutrally(XmageFullGameSession session, JsonObject pending) {
         String decisionClass = pending.get("decision_class").getAsString();
         JsonObject legal = session.legalActionsPayload();
         String actor = legal.get("actor_id").getAsString();
@@ -265,7 +265,7 @@ class XmageFullGameHiddenInformationTest {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T field(Object target, String name, Class<T> type) throws Exception {
+    static <T> T field(Object target, String name, Class<T> type) throws Exception {
         Field field = target.getClass().getDeclaredField(name);
         field.setAccessible(true);
         Object value = field.get(target);
@@ -275,7 +275,7 @@ class XmageFullGameHiddenInformationTest {
         return (T) value;
     }
 
-    private static List<String> importCopies(
+    static List<String> importCopies(
             XmageDeckImporter importer, RuntimeDeck deck, int count) {
         List<String> handles = new ArrayList<>(count);
         for (int copy = 0; copy < count; copy++) {
@@ -287,7 +287,7 @@ class XmageFullGameHiddenInformationTest {
         return List.copyOf(handles);
     }
 
-    private static RuntimeDeck loadRogShaiRuntimeDeck() throws IOException {
+    static RuntimeDeck loadRogShaiRuntimeDeck() throws IOException {
         String repoRoot = System.getProperty("commanderlab.repoRoot");
         if (repoRoot == null || repoRoot.isBlank()) {
             throw new IllegalStateException("commanderlab.repoRoot is missing");
@@ -325,7 +325,7 @@ class XmageFullGameHiddenInformationTest {
         );
     }
 
-    private record RuntimeDeck(
+    record RuntimeDeck(
             String deckId,
             String deckHash,
             List<String> mainboard,
