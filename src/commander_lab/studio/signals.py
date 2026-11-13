@@ -426,6 +426,8 @@ def _file_signals(file_name: str, variant: str | None) -> list[str]:
         return [SIGNAL_GLOBAL]
     if file_name == SPELLBOOK_FILE:
         return [SIGNAL_VARIANTS]
+    if file_name == EDHTOP16_FILE:
+        return [SIGNAL_EDHTOP16]
     return [SIGNAL_TOURNAMENT]
 
 
@@ -512,7 +514,8 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
             reports[file_name] = report
             if not paths:
                 continue
-            base = file_name if file_name in (CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE) else None
+            independent = (CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE)
+            base = file_name if file_name in independent else None
             kind = base or (BRACKET_FILE if variant else TOURNAMENT_FILE)
             rows = _read_file(kind, paths, variant, preferred, report, commanders)
             source_id = _register(store, paths)
