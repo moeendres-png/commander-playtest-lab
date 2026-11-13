@@ -188,3 +188,24 @@ def test_default_signal_folders_are_those_with_signal_files(
     assert [path.name for path in import_all.default_signal_folders()] == ["with_signals"]
     monkeypatch.setattr(import_all, "_RESEARCH", tmp_path / "absent")
     assert import_all.default_signal_folders() == []
+
+
+def test_layer_overview_names_the_import_call_of_each_missing_layer(tmp_path: Path) -> None:
+    from fastapi.testclient import TestClient
+
+    from commander_lab.studio.web import create_app
+
+    files = _files(tmp_path)
+    store = StudioStore.open(tmp_path / "studio")
+    from commander_lab.studio import importers
+
+    importers.import_inventory_workbook(store, files["inventory"])
+    store.close()
+    with TestClient(create_app(tmp_path / "studio")) as client:
+        body = client.get("/api/layers", params={"commander": COMMANDER}).json()
+    layers = {item["key"]: item for item in body["layers"]}
+    assert layers["inventory"]["status"] == "COMPLETE"
+    assert layers["decklists"]["status"] == "MISSING"
+    assert '--decklists "<Ordner>"' in layers["decklists"]["command"]
+    assert f'--commander "{COMMANDER}"' in layers["roles"]["command"]
+    assert "--signals" in body["signals_command"]

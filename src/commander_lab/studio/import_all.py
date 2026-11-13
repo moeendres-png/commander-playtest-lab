@@ -43,6 +43,7 @@ class StepResult(TypedDict):
 
 
 class LayerResult(TypedDict):
+    key: str
     layer: str
     rows: int
     covered: int
@@ -117,9 +118,10 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
     size = len(cards) if pool is not None else None
     total = size or 0
 
-    def add(layer: str, rows: int, covered: int) -> None:
+    def add(key: str, layer: str, rows: int, covered: int) -> None:
         layers.append(
             {
+                "key": key,
                 "layer": layer,
                 "rows": rows,
                 "covered": covered,
@@ -128,13 +130,15 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
             }
         )
 
-    add("Sammlung (Bestand)", _count(store, "SELECT COUNT(*) FROM inventory"), total)
+    add("inventory", "Sammlung (Bestand)", _count(store, "SELECT COUNT(*) FROM inventory"), total)
     add(
+        "scryfall",
         "Kartenfakten (Scryfall)",
         _count(store, "SELECT COUNT(*) FROM scryfall_card"),
         sum(1 for card in cards if card["fact_source"] == "scryfall"),
     )
     add(
+        "roles",
         "Rollen",
         _count(store, "SELECT COUNT(*) FROM card_role"),
         sum(1 for card in cards if card["roles"]),
@@ -142,6 +146,7 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
     binding = builder.corpus_binding(store, [commander])
     bound = binding["bound_decks"]
     add(
+        "decklists",
         "Quelldecks (Decklisten)",
         bound if isinstance(bound, int) else 0,
         sum(1 for card in cards if _deck_hits(card) > 0),
@@ -151,13 +156,44 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
     except KeyError:
         coverage = {}
     for signal, item in coverage.items():
-        add(f"Signal {signal}", item["rows"], item["pool_cards_with_value"])
+        add(f"signal:{signal}", f"Signal {signal}", item["rows"], item["pool_cards_with_value"])
     add(
+        "marks",
         "Markierungen",
         _count(store, "SELECT COUNT(*) FROM card_mark"),
         sum(1 for card in cards if card["favorite"] or card["excluded"] or card["note"]),
     )
     return size, layers
+
+
+_FLAG = {
+    "inventory": "",
+    "scryfall": ' --scryfall "<Datei>"',
+    "roles": ' --roles "<Datei>"',
+    "decklists": ' --decklists "<Ordner>"',
+    "marks": ' --marks "<Datei>"',
+}
+
+
+def import_command(layer_key: str, commander: str) -> str:
+    """The exact ``import-all`` call that fills one layer (angle brackets: your path)."""
+    flag = _FLAG.get(layer_key, ' --signals "<Ordner>"' if layer_key.startswith("signal:") else "")
+    return (
+        f'python -m commander_lab.studio import-all --commander "{commander}" '
+        f'--inventory "<Sammlung.xlsx>"{flag}'
+    )
+
+
+def layer_overview(store: StudioStore, commander: str) -> dict[str, object]:
+    """What the pages show when data is missing: per layer its state and the import call."""
+    size, layers = completeness(store, commander)
+    return {
+        "commander": commander,
+        "pool_size": size,
+        "layers": [{**item, "command": import_command(item["key"], commander)} for item in layers],
+        "signals_command": import_command("signal:", commander),
+        "doc": "docs/STUDIO_DECKBUILDER.md, Abschnitt „Alles importieren“",
+    }
 
 
 def _steps(

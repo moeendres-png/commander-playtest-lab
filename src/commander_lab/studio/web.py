@@ -23,6 +23,7 @@ from . import (
     card_outcomes,
     data_report,
     games,
+    import_all,
     launch,
     queries,
     strength_view,
@@ -252,6 +253,16 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return data_report.data_report(store)
+        finally:
+            store.close()
+
+    @app.get("/api/layers")
+    def layers(commander: str = Query(min_length=1, max_length=200)) -> dict[str, object]:
+        """Per data layer of one commander: rows, pool cards covered, status and the exact
+        import call, for the empty-state box of the pages."""
+        store = open_store()
+        try:
+            return import_all.layer_overview(store, commander)
         finally:
             store.close()
 
