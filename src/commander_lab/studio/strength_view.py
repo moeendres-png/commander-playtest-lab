@@ -3,7 +3,9 @@
 Reads the stored signals of ONE commander (``card_signal``), the counted deck-list share of
 the chosen universe profile (``universe_view``) and hands them to the pure scoring
 function. Figures of two commanders are never combined: every query names its commander,
-and commander-independent signals are stored under the empty commander name.
+and commander-independent signals are stored under the empty commander name. The
+Playgroup atlas signal is one of them: an observed win-rate correlation from multiplayer
+games, published per card, not per commander.
 
 The Owner's marks are not read here. The simulation component is ``NOT_COLLECTED``: the
 stored simulation rows are per deck and per card cast statistics, not an outcome model.
@@ -35,6 +37,7 @@ from .strength import (
     COMMANDER_INCLUSION,
     DECK_UNIVERSE,
     GLOBAL_INCLUSION,
+    PLAYGROUP_OBSERVED,
     SYNERGY,
     TOURNAMENT_LISTS,
     CardStrength,
@@ -83,7 +86,9 @@ class StrengthResult(TypedDict):
     cards: list[StrengthCard]
 
 
-_INDEPENDENT = frozenset({"edhrec_global_inclusion", "spellbook_variants"})
+_INDEPENDENT = frozenset(
+    {"edhrec_global_inclusion", "spellbook_variants", "playgroup_observed_winrate_gap"}
+)
 # claim key -> [(claim kind, card id)]
 _Claims = dict[str, list[tuple[int, str]]]
 
@@ -163,6 +168,7 @@ def expected_signals() -> list[str]:
         # One generic row: the counted universes are named by the file (source, bracket); the
         # stored ones are listed under their own names, this row stays while none exists.
         signals.SIGNAL_DECKLIST,
+        signals.SIGNAL_PLAYGROUP,
     ]
 
 
@@ -381,6 +387,7 @@ def compute(
         TOURNAMENT_LISTS,
         GLOBAL_INCLUSION,
         COMBOS,
+        PLAYGROUP_OBSERVED,
     ):
         signal = strength.signal_for(component, settings.bracket)
         if not signal:

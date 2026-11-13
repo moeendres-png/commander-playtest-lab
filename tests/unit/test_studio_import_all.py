@@ -224,6 +224,7 @@ _SIGNAL_LAYERS = {
     "signal:tournament_lists",
     "signal:edhtop16_commander_play_rate",
     "signal:decklist_universe",
+    "signal:playgroup_observed_winrate_gap",
 }
 
 

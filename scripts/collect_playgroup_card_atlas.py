@@ -24,6 +24,7 @@ import urllib.error
 import urllib.request
 from collections.abc import Sequence
 from dataclasses import asdict, replace
+from datetime import UTC, datetime
 from pathlib import Path
 
 # Add src to sys.path if run directly
@@ -99,6 +100,30 @@ def load_target_cards(
                             "is_pool": clean in pool_card_names,
                         }
                     )
+        # Enrich explicit names with metadata from snapshot if available
+        playgroup_dir = _REPO_ROOT / "data" / "research" / "playgroup"
+        if playgroup_dir.exists():
+            snapshot_cards: dict[str, dict[str, object]] = {}
+            for jf in sorted(playgroup_dir.glob("playgroup_card_atlas_*.jsonl")):
+                try:
+                    with jf.open("r", encoding="utf-8") as handle:
+                        for line in handle:
+                            if line.strip():
+                                rec_d = json.loads(line)
+                                c_name = rec_d.get("card_name")
+                                if c_name:
+                                    snapshot_cards[str(c_name)] = rec_d
+                except Exception:
+                    pass
+            for c in cards:
+                c_name = str(c["card_name"])
+                if c_name in snapshot_cards:
+                    snap = snapshot_cards[c_name]
+                    if not c.get("oracle_id") and snap.get("oracle_id"):
+                        c["oracle_id"] = snap["oracle_id"]
+                    if not c.get("card_id") and snap.get("card_id"):
+                        c["card_id"] = snap["card_id"]
+
         pool_cards = sorted([c for c in cards if c["is_pool"]], key=lambda c: str(c["card_name"]))
         rest_cards = sorted(
             [c for c in cards if not c["is_pool"]], key=lambda c: str(c["card_name"])
@@ -253,20 +278,21 @@ def fetch_card_html(
     user_agent: str = DEFAULT_USER_AGENT,
     delay: float = 1.0,
     offline_only: bool = False,
+    refresh: bool = False,
 ) -> tuple[str | None, int, str]:
     """Fetch card HTML from cache or live server.
 
     Returns: (html_content_or_none, http_status, error_message)
     """
     cache_file = cache_dir / f"{slug}.html"
-    if cache_file.exists():
+    if not refresh and cache_file.exists():
         try:
             return cache_file.read_text(encoding="utf-8"), 200, ""
         except Exception as e:
             logger.warning("Failed to read cache file %s: %s", cache_file, e)
 
     cache_404 = cache_dir / f"{slug}.404"
-    if cache_404.exists():
+    if not refresh and cache_404.exists():
         try:
             age = time.time() - cache_404.stat().st_mtime
             if age < TTL_404_SECONDS:
@@ -331,6 +357,8 @@ def run_collection(
     delay: float = 1.1,
     offline_only: bool = False,
     limit: int | None = None,
+    refresh: bool = False,
+    out_jsonl: Path | None = None,
 ) -> dict[str, object]:
     """Run collection and export structured records."""
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -398,8 +426,9 @@ def run_collection(
         # Check if already in cache before calling fetch
         cache_file = cache_dir / f"{slug}.html"
         cache_404 = cache_dir / f"{slug}.404"
-        is_cached = cache_file.exists() or (
-            cache_404.exists() and (time.time() - cache_404.stat().st_mtime < TTL_404_SECONDS)
+        is_cached = not refresh and (
+            cache_file.exists()
+            or (cache_404.exists() and (time.time() - cache_404.stat().st_mtime < TTL_404_SECONDS))
         )
         if is_cached:
             cache_hits += 1
@@ -416,12 +445,14 @@ def run_collection(
             slug,
         )
 
+        now_utc_str = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         html, status, err = fetch_card_html(
             slug,
             cache_dir=cache_dir,
             user_agent=user_agent,
             delay=delay,
             offline_only=offline_only,
+            refresh=refresh,
         )
 
         if html:
@@ -430,6 +461,7 @@ def run_collection(
                 slug=slug,
                 card_id=card_id or None,
                 oracle_id=oracle_id or None,
+                retrieved_at_utc=now_utc_str,
             )
             if name:
                 rec = replace(rec, card_name=name)
@@ -455,6 +487,7 @@ def run_collection(
                 oracle_id=oracle_id or None,
                 fetch_status=sub_status,
                 quality_warnings=(warning,),
+                retrieved_at_utc=now_utc_str,
             )
             records.append(rec)
 
@@ -639,6 +672,13 @@ def run_collection(
                     }
                 )
 
+    # Export JSONL (one JSON object per line conforming to schema)
+    jsonl_path = out_jsonl or (out_dir / "playgroup_card_atlas.jsonl")
+    jsonl_path.parent.mkdir(parents=True, exist_ok=True)
+    with jsonl_path.open("w", encoding="utf-8") as handle:
+        for r in records:
+            handle.write(json.dumps(r.to_dict(), ensure_ascii=False) + "\n")
+
     summary = {
         "total_cards": len(records),
         "cache_hits": cache_hits,
@@ -652,6 +692,7 @@ def run_collection(
         "status_counts": total_substatus_counts,
         "json_path": str(json_path),
         "tsv_path": str(tsv_path),
+        "jsonl_path": str(jsonl_path),
     }
     logger.info("Collection complete. %s", summary)
     return summary
@@ -667,12 +708,16 @@ def main() -> int:
     )
     parser.add_argument("--cards", nargs="+", help="Explicit card names to query")
     parser.add_argument("--out-dir", default="data/research/playgroup", help="Output directory")
+    parser.add_argument("--out-jsonl", help="Path to write JSONL export")
     parser.add_argument("--cache-dir", default=".cache/playgroup_cards", help="Cache directory")
     parser.add_argument(
         "--delay", type=float, default=1.1, help="Delay between HTTP requests in seconds"
     )
     parser.add_argument(
         "--offline-only", action="store_true", help="Only read from cache, no network requests"
+    )
+    parser.add_argument(
+        "--refresh", action="store_true", help="Bypass cache and re-fetch from network"
     )
     parser.add_argument("--limit", type=int, help="Limit number of cards processed")
     parser.add_argument("--user-agent", default=DEFAULT_USER_AGENT, help="User-Agent string")
@@ -715,6 +760,8 @@ def main() -> int:
         delay=args.delay,
         offline_only=args.offline_only,
         limit=args.limit,
+        refresh=args.refresh,
+        out_jsonl=Path(args.out_jsonl) if args.out_jsonl else None,
     )
     return 0
 

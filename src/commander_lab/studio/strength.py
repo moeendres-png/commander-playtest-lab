@@ -6,8 +6,11 @@ per card out. No I/O, no clock, no store. The store side lives in ``strength_vie
 What the index is. It is ``DERIVED_DESCRIPTIVE``: a weighted mean of percentile ranks of
 usage signals (how often a card is played in decks of one commander, in a bracket, in the
 deck lists the Owner chose, in tournament lists, how many combos it is part of, how
-popular it is overall). It is an estimate from usage, not a measured win rate. The
-outcome-based field of ``evidence.py`` stays ``UNRATED`` and is not touched here.
+popular it is overall) plus one observed outcome correlation: the Playgroup atlas gap
+between the win rate of players who cast a card and of players who never took it out of
+their library. That component is an observation from other players' games, not a causal
+effect and not a win rate measured in the Owner's own games. The outcome-based field of
+``evidence.py`` stays ``UNRATED`` and is not touched here.
 
 How it is computed, per commander and per signal:
 
@@ -22,7 +25,10 @@ How it is computed, per commander and per signal:
    protection against a small sample. That protection is the **minimum denominator per
    signal** (settings): below it the whole signal is ``NO_VALUE`` with the reason
    ``BELOW_MIN_DENOMINATOR`` for every card, and it is not used. Synergy and combo counts
-   have no denominator and are used as published.
+   have no denominator and are used as published. The Playgroup gap is a difference in
+   percentage points, not a share: it counts only from a minimum sample of games in
+   which the card was cast, and the published gap is shrunk towards zero by that sample
+   (``n / (n + k)``), so a small sample does not rank high by chance either.
 2. The value becomes a percentile rank (0..1) among the cards of the commander's legal pool
    that have a value for that signal and are ranked at all. The comparison group is the
    whole pool (default), the cards of the same main type or of the same mana value band
@@ -66,9 +72,12 @@ DATA_CLASS = "DERIVED_DESCRIPTIVE"
 MEANING = (
     "Stärke-Index: eine Schätzung aus Nutzungssignalen (wie oft eine Karte bei diesem "
     "Commander, in einem Bracket, in den gewählten Decklisten und in Turnierlisten gespielt "
-    "wird). Er ist keine gemessene Siegrate und keine Aussage über Ergebnisse. Fehlende "
-    "Beobachtungen senken die Abdeckung, nie die Karte. Favoriten, Ausschlüsse und Notizen "
-    "fließen nicht ein."
+    "wird) plus einer beobachteten Korrelation aus Playgroup-Spieldaten: um wie viele "
+    "Prozentpunkte Spieler häufiger gewannen, wenn sie eine Karte gespielt haben, als wenn "
+    "sie in der Bibliothek blieb (kleine Stichproben werden zur Null gezogen). Das ist eine "
+    "Beobachtung, keine Kausalität und keine gemessene Siegrate der eigenen Partien. "
+    "Fehlende Beobachtungen senken die Abdeckung, nie die Karte. Favoriten, Ausschlüsse "
+    "und Notizen fließen nicht ein."
 )
 
 PRESENT = "PRESENT"
@@ -135,6 +144,7 @@ SYNERGY = "synergy"
 TOURNAMENT_LISTS = "tournament_lists"
 GLOBAL_INCLUSION = "global_inclusion"
 COMBOS = "combos"
+PLAYGROUP_OBSERVED = "playgroup_observed"
 SIMULATION = "simulation"
 
 COMPONENTS = (
@@ -145,6 +155,7 @@ COMPONENTS = (
     TOURNAMENT_LISTS,
     GLOBAL_INCLUSION,
     COMBOS,
+    PLAYGROUP_OBSERVED,
     SIMULATION,
 )
 LABELS: dict[str, str] = {
@@ -155,6 +166,7 @@ LABELS: dict[str, str] = {
     TOURNAMENT_LISTS: "Turnierlisten des Commanders",
     GLOBAL_INCLUSION: "Aufnahme überhaupt (EDHREC)",
     COMBOS: "Kombos (Commander Spellbook)",
+    PLAYGROUP_OBSERVED: "Beobachtete Sieg-Korrelation (Playgroup)",
     SIMULATION: "Simulation",
 }
 # Components the tier list collects no data for at all, for now (Owner decision B11: simulation
@@ -165,6 +177,14 @@ UNCOLLECTED_BY_DESIGN = frozenset({SIMULATION})
 SHARE_COMPONENTS = frozenset(
     {COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE, TOURNAMENT_LISTS, GLOBAL_INCLUSION}
 )
+# The Playgroup component is an observed difference (percentage points), not a share.
+# It counts only from OBSERVED_MIN_SAMPLE games in which the card was cast, and its
+# published gap is shrunk towards zero by OBSERVED_SHRINKAGE (gap * n / (n + k)): the
+# same minimum-plus-shrinkage rule the deckbuilder applies to observed win signals, so
+# a gap that rests on few games cannot rank high by chance. The signal import applies
+# the same minimum before a row is stored at all (signals.ATLAS_MIN_SAMPLE).
+OBSERVED_MIN_SAMPLE = 25
+OBSERVED_SHRINKAGE = 25
 # Sources that list the commander's cards fairly completely: only for these may an unlisted
 # card be counted as the lowest rank (Owner decision B5 keeps "absent" a missing observation).
 MISSING_CAPABLE = (COMMANDER_INCLUSION, BRACKET_INCLUSION, DECK_UNIVERSE)
@@ -190,6 +210,7 @@ DEFAULT_WEIGHTS: dict[str, float] = {
     TOURNAMENT_LISTS: 1.0,
     GLOBAL_INCLUSION: 1.0,
     COMBOS: 1.0,
+    PLAYGROUP_OBSERVED: 1.0,
     SIMULATION: 0.0,
 }
 DEFAULT_CUTS: dict[str, float] = {"S": 90.0, "A": 75.0, "B": 55.0, "C": 35.0}
@@ -230,6 +251,7 @@ def signal_for(component: str, bracket: str) -> str:
         TOURNAMENT_LISTS: "tournament_lists",
         GLOBAL_INCLUSION: "edhrec_global_inclusion",
         COMBOS: "spellbook_variants",
+        PLAYGROUP_OBSERVED: "playgroup_observed_winrate_gap",
         SIMULATION: "",
     }[component]
 
@@ -621,6 +643,16 @@ def _scored_value(
     """(value used for ranking, Wilson bound or None)."""
     if observation.value is None and observation.numerator is None:
         return None, None
+    if component == PLAYGROUP_OBSERVED:
+        # Observed gap in percentage points; the denominator is the sample (games in
+        # which the card was cast). Below the minimum the observation does not count;
+        # above it the gap is shrunk towards zero by the sample size.
+        if observation.value is None or not math.isfinite(observation.value):
+            return None, None
+        sample = observation.denominator
+        if sample is None or sample < OBSERVED_MIN_SAMPLE:
+            return None, None
+        return observation.value * sample / (sample + OBSERVED_SHRINKAGE), None
     if component in SHARE_COMPONENTS:
         return _share_values(component, observation, measure)
     if observation.value is None or not math.isfinite(observation.value):

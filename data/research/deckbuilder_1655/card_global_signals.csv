@@ -1135,7 +1135,7 @@ Ricochet Trap,ricochet-trap,AVAILABLE,19405,5234630,0.0037070432867270468,0.3529
 Rime Chill,rime-chill,AVAILABLE,1788,2898229,0.000616928475976191,0.08139534883720931,uncommon,0.08,0.1,0.35,rime-chill.json
 "Rionya, Fire Dancer",rionya-fire-dancer,AVAILABLE,58168,5234630,0.011112151193112025,0.367816091954023,rare,0.96,0.36,0.59,rionya-fire-dancer.json
 Rise from the Grave,rise-from-the-grave,AVAILABLE,10748,5333900,0.002015035902435366,0.1111111111111111,uncommon,0.04,0.08,0.35,rise-from-the-grave.json
-Rise // Fall,rise,PARTIAL,,,,,,,,,rise.json
+Rise // Fall,rise-fall,AVAILABLE,531,1283597,0.00041368124107488564,0.10526315789473684,uncommon,0.16,0.23,0.35,rise-fall.json
 Rite of Replication,rite-of-replication,AVAILABLE,172405,5189501,0.03322188395377513,0.4294234592445328,rare,0.22,0.25,0.49,rite-of-replication.json
 Rites of Flourishing,rites-of-flourishing,AVAILABLE,109545,4821122,0.022721889219978253,0.16042780748663102,rare,0.34,0.55,0.49,rites-of-flourishing.json
 River's Rebuke,rivers-rebuke,AVAILABLE,53484,5189501,0.010306193215879523,1.144404332129964,rare,0.38,0.66,0.49,rivers-rebuke.json
@@ -1312,7 +1312,7 @@ Spiral into Solitude,spiral-into-solitude,AVAILABLE,3899,2765749,0.0014097447020
 Spire of Industry,spire-of-industry,AVAILABLE,321954,10542169,0.030539635629062672,0.02142857142857143,rare,0.19,0.24,0.49,spire-of-industry.json
 Spire Serpent,spire-serpent,AVAILABLE,272,5189501,5.24135172148536e-05,0.0,common,0.07,0.11,0.35,spire-serpent.json
 Spirit Mantle,spirit-mantle,AVAILABLE,98373,4921723,0.019987512503243276,0.32727272727272727,uncommon,0.47,0.3,0.79,spirit-mantle.json
-Spite // Malice,spite,PARTIAL,,,,,,,,,spite.json
+Spite // Malice,spite-malice,AVAILABLE,1833,2609331,0.0007024789112611623,0.047619047619047616,uncommon,0.07,0.2,0.35,spite-malice.json
 Spitemare,spitemare,AVAILABLE,8740,2463586,0.0035476740004205254,0.15,uncommon,0.23,0.31,0.99,spitemare.json
 Spitting Spider,spitting-spider,AVAILABLE,2165,4821122,0.00044906559095579825,0.35294117647058826,uncommon,0.15,0.29,0.35,spitting-spider.json
 Splendid Reclamation,splendid-reclamation,AVAILABLE,174183,4821122,0.03612914172261146,0.5817805383022774,rare,0.76,0.44,0.79,splendid-reclamation.json
@@ -1606,7 +1606,7 @@ Wash Away,wash-away,AVAILABLE,58040,5189501,0.011184119629228322,0.5728155339805
 Wastes,wastes,AVAILABLE,127070,10542169,0.012053496770920671,0.1893939393939394,common,0.35,0.69,1.29,wastes.json
 Water Servant,water-servant,AVAILABLE,127,5189501,2.447248781722944e-05,0.0,uncommon,0.05,0.02,0.35,water-servant.json
 Wavesifter,wavesifter,AVAILABLE,10192,2324186,0.004385191202425279,0.05555555555555555,common,0.08,0.16,0.35,wavesifter.json
-Wear // Tear,wear,PARTIAL,,,,,,,,,wear.json
+Wear // Tear,wear-tear,AVAILABLE,151914,2464717,0.061635473768388016,0.14705882352941177,uncommon,1.43,0.92,2.29,wear-tear.json
 Web-Warriors,web-warriors,AVAILABLE,14326,1661621,0.008621701338632576,0.2,uncommon,0.07,0.23,0.35,web-warriors.json
 Welkin Guide,welkin-guide,AVAILABLE,115,4921723,2.3365800960354737e-05,0.0,common,0.03,0.11,0.35,welkin-guide.json
 Whiplash Wordsmith,whiplash-wordsmith,AVAILABLE,1050,397898,0.0026388672473850083,0.14814814814814814,common,0.03,0.08,0.35,whiplash-wordsmith.json
