@@ -137,6 +137,7 @@ class RefusedUniverse(TypedDict):
     commander_decks: int | None  # decks_with_card of the commander's own row, None when absent
     universe_decks: int  # the denominator of the universe (the largest one when they are mixed)
     rows_removed: int  # rows of this universe a former import had stored: removed with it
+    rows_kept: int  # its stored rows that stayed (append mode, wrong-commander file)
 
 
 class UnmatchedRows(TypedDict):
@@ -715,6 +716,8 @@ def _import_decklists(
     commander: str,
     raw_name: str,
     reports: dict[str, FileReport],
+    *,
+    replace: bool = True,
 ) -> None:
     """Read every counted deck-list file of the folder. A universe whose commander check or
     counts fail is refused alone and named in the report; the other universes of the file are
@@ -728,6 +731,13 @@ def _import_decklists(
             report["status"] = "NOTHING_REPLACED"
             continue
         usable: dict[tuple[str, str], _Universe] = {}
+        # Decided once per file: a file in which no universe has a row of this commander was
+        # built around another commander, so none of its refusals says anything about the
+        # rows stored for this one.
+        wanted = {commander.casefold(), raw_name.casefold()}
+        wrong_file = not any(
+            card.casefold() in wanted for item in universes.values() for card in item.cards
+        )
         for (source, bracket), universe in sorted(universes.items()):
             reason, commander_decks = _universe_refusal(
                 (source, bracket), universe, {commander, raw_name}
@@ -737,12 +747,13 @@ def _import_decklists(
                 continue
             _bump(report, reason)
             removed = 0
-            # A stale universe must not stay selectable. Two refusals say nothing about the stored
-            # rows: an invalid name (no such signal) and a file that lists no row of this
-            # commander (built around another one: the stored rows are still right).
-            wrong_file = reason == COMMANDER_NOT_IN_EVERY_DECK and commander_decks is None
-            if reason != INVALID_UNIVERSE_NAME and not wrong_file:
-                removed = _remove_universe(store, commander, decklist_signal(source, bracket))
+            # A stale universe must not stay selectable: its rows go with the refusal, except
+            # for an invalid name (no such signal), a wrong-commander file, and append mode
+            # (which never deletes: the rows that stay are reported).
+            signal = decklist_signal(source, bracket)
+            if replace and not wrong_file and reason != INVALID_UNIVERSE_NAME:
+                removed = _remove_universe(store, commander, signal)
+            kept = _count_rows(store, commander, signal)
             report["universes_refused"].append(
                 {
                     "source": source,
@@ -751,6 +762,7 @@ def _import_decklists(
                     "commander_decks": commander_decks,
                     "universe_decks": max(universe.denominators, default=0),
                     "rows_removed": removed,
+                    "rows_kept": kept,
                 }
             )
         report["commander"] = commander
@@ -827,6 +839,15 @@ def unmatched_notice(rows: int, examples: Sequence[str]) -> str:
     if rows <= 0:
         return ""
     return f"{rows} Zeilen ohne Karte im Store, z. B. {'; '.join(examples)}"
+
+
+def _count_rows(store: StudioStore, commander: str, signal: str) -> int:
+    return int(
+        store.connection.execute(
+            "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?",
+            (commander, signal),
+        ).fetchone()[0]
+    )
 
 
 def _remove_universe(store: StudioStore, commander: str, signal: str) -> int:
@@ -981,6 +1002,8 @@ def _import_tournaments(
     preferred: str,
     commanders: _Commanders,
     reports: dict[str, FileReport],
+    *,
+    replace: bool = True,
 ) -> None:
     """Read ALL tournament files first, pool their lists per commander, store each commander
     once. A list is (tournament, date, player key, cards); the same list read from two files
@@ -1009,7 +1032,7 @@ def _import_tournaments(
         source_id = source_ids[carriers[commander]]
         if source_id is None or not rows:
             continue
-        stored, replaced = _store_rows(store, rows, source_id)
+        stored, replaced = _store_rows(store, rows, source_id, replace=replace)
         carrier = reports[carriers[commander]]
         carrier["rows_written"], carrier["rows_replaced"] = stored, replaced
         written.add(commander)
@@ -1086,8 +1109,8 @@ def import_signals(
     commanders.imported.discard(preferred)  # only commanders the files name are "imported"
     commanders.not_recognised.discard(name)
     with store.connection:
-        _import_tournaments(store, root, preferred, commanders, reports)
-        _import_decklists(store, root, preferred, name, reports)
+        _import_tournaments(store, root, preferred, commanders, reports, replace=replace)
+        _import_decklists(store, root, preferred, name, reports, replace=replace)
         for file_name, variant in plan:
             paths = _parts(root, file_name)
             report = _empty(paths)
