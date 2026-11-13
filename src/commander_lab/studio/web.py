@@ -28,6 +28,7 @@ from . import (
     queries,
     strength_view,
     universe,
+    universe_choice,
     universe_view,
 )
 from . import evidence as evidence_model
@@ -265,10 +266,11 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
     def pool(
         commander: list[str] = Query(min_length=1, max_length=2),
         profile: str | None = Query(default=None, max_length=80),
+        counted: str | None = Query(default=None, max_length=120),
     ) -> dict[str, object]:
         store = open_store()
         try:
-            return builder.pool_cards(store, commander, profile=profile)
+            return builder.pool_cards(store, commander, profile=profile, counted=counted)
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
         except KeyError as error:
@@ -442,6 +444,18 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
         store = open_store()
         try:
             return dict(universe.options(store, commander_names=commander))
+        finally:
+            store.close()
+
+    @app.get("/api/universe/counted")
+    def universe_counted(
+        commander: str = Query(min_length=1, max_length=200),
+    ) -> list[dict[str, object]]:
+        """The counted deck-list universes stored for this commander (source, bracket, decks,
+        snapshot, label). Never another commander's."""
+        store = open_store()
+        try:
+            return [dict(item) for item in universe_choice.counted_universes(store, commander)]
         finally:
             store.close()
 

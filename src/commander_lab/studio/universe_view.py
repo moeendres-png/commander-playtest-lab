@@ -386,6 +386,19 @@ def pool_spread(
     }
 
 
+def spread_for_spec(
+    store: StudioStore,
+    spec: UniverseSpec,
+    card_ids: Sequence[str] | None,
+    *,
+    commander_names: Sequence[str],
+) -> tuple[int, str, list[CardSpread]]:
+    """(denominator, snapshot id, counted spread) of Studio cards over a free spec, e.g. all
+    local decks of the commander. The same machinery as a stored profile's ``pool_spread``."""
+    universe, entries, _params = _spread_all(store, None, card_ids, commander_names, spec)
+    return universe["denominator"], universe["snapshot_id"], [entry[0] for entry in entries]
+
+
 class DeckFilterCard(TypedDict):
     card_id: str
     name: str
@@ -577,5 +590,6 @@ __all__ = [
     "name_claims",
     "pool_spread",
     "profile_summary",
+    "spread_for_spec",
     "subset_note",
 ]

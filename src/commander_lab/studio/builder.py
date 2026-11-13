@@ -284,6 +284,7 @@ def pool_cards(
     commander_names: Sequence[str],
     *,
     profile: str | None = None,
+    counted: str | None = None,
     with_signals: bool = True,
 ) -> dict[str, object]:
     """The collection cards a deck under these commanders may use, with everything the
@@ -295,6 +296,11 @@ def pool_cards(
     the builder and the tier list never show two denominators for one universe. The
     legacy cohort figures stay untouched either way. Raises KeyError for an unknown
     profile and ValueError when the profile is defined for other commanders.
+
+    ``counted`` (``counted:<source>:<bracket>``) additionally gives each card its count in that
+    counted deck-list universe of the commander (``counted`` per card, a ``counted_universe``
+    block for the pool; ValueError when it is not stored); a card without a row is a counted
+    zero. Only the chosen one is read, never two universes.
 
     ``with_signals`` adds the commander's stored usage signals (``card_signal``, one
     commander only) as ``signals`` per card. The older EDHREC value is used first; the
@@ -420,6 +426,30 @@ def pool_cards(
         "sim_readiness": _sim_readiness_summary(cards),
         "cards": cards,
     }
+    if counted is not None:
+        # A counted deck-list universe the Owner chose in the universe select (never switched
+        # on automatically): the same server function as the tier list's choice.
+        from . import strength_view
+
+        found = strength_view.builder_counted_universe(
+            store,
+            commander_names[0] if len(commander_names) == 1 else "",
+            counted,
+            [str(card["card_id"]) for card in cards],
+            {str(card["card_id"]): str(card["name"]) for card in cards},
+        )
+        if found is None:
+            raise ValueError(f"counted universe not stored for this commander: {counted}")
+        choice, observed = found
+        for card in cards:
+            count = observed.get(str(card["card_id"]))
+            if count is not None and count.numerator is not None and count.denominator:
+                card["counted"] = {
+                    "hits": count.numerator,
+                    "denominator": count.denominator,
+                    "share": count.numerator / count.denominator,
+                }
+        result["counted_universe"] = dict(choice)
     if profile is not None:
         # Imported here, not at module level: sources.py imports this module, and
         # universe_view imports sources — a top-level import would close the circle.

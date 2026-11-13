@@ -79,14 +79,19 @@ _RESEARCH = Path(__file__).resolve().parents[3] / "data" / "research"
 
 
 def default_signal_folders() -> list[Path]:
-    """Every folder under ``data/research`` that holds signal files, in name order."""
+    """Every folder under ``data/research`` that holds signal files, in name order, and
+    ``data/research`` itself when it holds a counted deck-list file
+    (``<slug>_decklist_inclusion_<date>.csv``)."""
     if not _RESEARCH.is_dir():
         return []
-    return [
+    folders = [
         path
         for path in sorted(_RESEARCH.iterdir())
         if path.is_dir() and signals.has_signal_files(path)
     ]
+    if signals.has_decklist_files(_RESEARCH):
+        folders.append(_RESEARCH)
+    return folders
 
 
 def _status(rows: int, covered: int, pool: int) -> str:
