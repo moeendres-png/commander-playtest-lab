@@ -69,9 +69,22 @@ python3 -m commander_lab.studio import-all \
 
 Optional dazu: `--decklists ORDNER` (wiederholbar; Ordner mit den normalisierten Deck-Dateien im
 EDHREC- oder Archidekt-Format, das Format wird erkannt), `--playgroup-atlas DATEI`,
-`--disambiguation CSV` (`name,selected_oracle_id`), `--data ORDNER` (Studio-Datenordner). Das
-aktuelle eigene Deck ist ein eigener Schritt:
+`--disambiguation CSV` (`name,selected_oracle_id`), `--force` (die Tagger-Rollen dürfen mehr als
+die Hälfte ihrer alten Zuordnungen ersetzen).
+
+Der Studio-Datenordner wird mit `--data` gewählt, und zwar **vor** dem Unterbefehl (hinter dem
+Unterbefehl ist es kein gültiges Argument):
+
+```sh
+python3 -m commander_lab.studio --data /pfad/studio-daten import-all --collection /pfad/Sammlung.xlsx --scryfall /pfad/oracle-cards-20261113.json --research data/research --commander "Chulane, Teller of Tales"
+```
+
+Das aktuelle eigene Deck ist ein eigener Schritt:
 `python -m commander_lab.studio import-lab-deck data/decks/deckbau/chulane_current.json`.
+
+Ist der Commander nicht in der Sammlung, bricht der Lauf nach dem Import von Sammlung und
+Kartendaten mit einer Meldung ab, die die verfügbaren Commander nennt; es wird kein Bericht
+geschrieben.
 
 Der Befehl läuft in dieser Reihenfolge: Sammlung, Scryfall-Karten (verknüpft die Sammlung),
 Deck-Listen, Signale (EDHREC, Spellbook, Turnier, Salt, Combos), Rollen aus dem Tagger-Bulk,
