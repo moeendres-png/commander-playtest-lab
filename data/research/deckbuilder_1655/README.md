@@ -10,7 +10,7 @@ hier liegen ausschliesslich Aggregate.
 |---|---|---|
 | `commander_card_signals_{1..4}.csv` | 29.330 Signal-Zeilen: Karte je Commander (107) mit EDHREC-Inclusion, Synergy, Deck-Zählern | EDHREC-Commander-Seiten (JSON), Abruf 2026-11-11/12 |
 | `commander_bracket_signals_{core,upgraded,optimized,cedh}_*.csv` | 91.283 Signal-Zeilen je Commander × Bracket (428/428 Seiten) | EDHREC-Bracket-Seiten (core/upgraded/optimized/cedh), Abruf 2026-11-12 |
-| `card_global_signals.csv` | 1.655 Zeilen: globale EDHREC-Werte je Sammlungs-Karte (3 PARTIAL: geteilte Karten) | EDHREC-Kartenseiten, Abruf 2026-11-11/12 |
+| `card_global_signals.csv` | 1.655 Zeilen: globale EDHREC-Werte je Sammlungs-Karte (1.655/1.655 AVAILABLE, 3 Split-Karten 2026-11-13 nachgepflegt) | EDHREC-Kartenseiten, Abruf 2026-11-11/13 |
 | `coverage_matrix_1655.csv` | 1.655 Zeilen × 8 Schichten: Abdeckung je Karte (Scryfall/EDHREC/Spellbook/Playgroup/Rulings/Tagger/Kategorien/Korpus) | Zählung über alle Schichten, 2026-11-12 |
 | `spellbook_card_links.csv` | 1.655 Zeilen: Combo-Beteiligungen je Karte (distinkte Varianten; Zählregel uses-Filter) | Commander Spellbook Bulk, Abruf 2026-11-11 |
 | `playgroup_commander_stats.csv` | 107 Zeilen × 12 Felder: Playgroup-Statistiken je Commander | Playgroup AI (öffentliche JSON-Endpunkte), Abruf 2026-11-11/12 |
