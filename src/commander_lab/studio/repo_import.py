@@ -115,7 +115,8 @@ def import_corpus(store: StudioStore, root: Path) -> dict[str, int]:
             store, root / relative, format=form, commander=None
         )
         for key in totals:
-            totals[key] += int(result.get(key, 0))
+            value = result.get(key, 0)
+            totals[key] += value if isinstance(value, int) else 0
     return totals
 
 
@@ -171,6 +172,7 @@ def map_corpus_oracle_ids(db: sqlite3.Connection) -> dict[str, int | list[str]]:
         "rows_total": total,
         "unresolved": unresolved,
     }
+
 
 TAGGER_BULK = Path("deckbuilder_1655") / "card_tagger_bulk_1655.csv"
 

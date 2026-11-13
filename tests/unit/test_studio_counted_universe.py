@@ -835,7 +835,10 @@ def test_the_builder_follows_the_strength_settings_of_the_tier_list(
     asked = StrengthSettings(universe_source="counted:archidekt:4")
     pool = builder.pool_cards(store, [COMMANDER], strength=asked)
     assert pool["counted_universe"]["counted"] == "counted:archidekt:4"  # type: ignore[index]
-    assert pool["counted_universe"]["counted"] == _choice(store, universe_source="counted:archidekt:4")["counted"]  # type: ignore[index]
+    assert (
+        pool["counted_universe"]["counted"]
+        == _choice(store, universe_source="counted:archidekt:4")["counted"]
+    )  # type: ignore[index]
     off = builder.pool_cards(store, [COMMANDER], strength=StrengthSettings(universe_source="none"))
     assert "counted_universe" not in off
     client = TestClient(create_app(tmp_path / "studio"))
