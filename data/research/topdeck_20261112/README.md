@@ -58,4 +58,4 @@ Abrufdatum: 2026-11-13.
 
 ## Spielernamen
 
-Die Spalte `player` der Turnierlisten enthält keine Klarnamen. Jede Liste trägt die Initialen des Spielers: je Namensbestandteil der erste Buchstabe, großgeschrieben (aus `Void of Emperor [INTIM]` wird so `V O E I`). Haben in einer Datei mehrere Spieler dieselben Initialen, erhält der in der Reihenfolge des ersten Auftretens zweite den Zusatz ` 2`, der dritte den Zusatz ` 3` usw. (Owner-Entscheid 2026-11-13, Issue #1108). Turnier, Datum, Ergebnis und Karten sind unverändert.
+Die Spalte `player` der Turnierlisten enthält keine Namen. Jede Liste trägt eine neutrale Nummer (`Liste 1`, `Liste 2`, …) je Datei, in der Reihenfolge des ersten Auftretens (Owner-Entscheid 2026-11-12, Issue #1108; für die Bestandsdateien mit Issue #1263 auf dieses Schema gebracht). Turnier, Datum, Ergebnis und Karten sind unverändert.
