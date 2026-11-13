@@ -1,0 +1,370 @@
+{
+ "urlhash": "0B8yQsGoc7aqcn4aIfa1jw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-02-25",
+ "price": 54,
+ "salt": 29.887882340699434,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/Ngs76vhs8kuKdRxZ3pKqOQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Benthic Infiltrator",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Boreal Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Daybreak Chaplain",
+   "quantity": 1
+  },
+  {
+   "name": "End-Raze Forerunners",
+   "quantity": 1
+  },
+  {
+   "name": "Forbidding Spirit",
+   "quantity": 1
+  },
+  {
+   "name": "Fortress Crab",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Sea Serpent",
+   "quantity": 1
+  },
+  {
+   "name": "Frost Lynx",
+   "quantity": 1
+  },
+  {
+   "name": "Griffin Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Griffin Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Heliod's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Inspiring Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Kraul Harpooner",
+   "quantity": 1
+  },
+  {
+   "name": "Kraul Stinger",
+   "quantity": 1
+  },
+  {
+   "name": "Lieutenants of the Guard",
+   "quantity": 1
+  },
+  {
+   "name": "Mammoth Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Maraleaf Pixie",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Mistford River Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Netcaster Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Prismite",
+   "quantity": 1
+  },
+  {
+   "name": "Risen Reef",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Sedge Scorpion",
+   "quantity": 1
+  },
+  {
+   "name": "Sharktocrab",
+   "quantity": 1
+  },
+  {
+   "name": "Silverback Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Skyward Eye Prophets",
+   "quantity": 1
+  },
+  {
+   "name": "Snapping Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Sporecap Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Squad Captain",
+   "quantity": 1
+  },
+  {
+   "name": "Steelgaze Griffin",
+   "quantity": 1
+  },
+  {
+   "name": "Stone Golem",
+   "quantity": 1
+  },
+  {
+   "name": "Sunmane Pegasus",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Thicket Crasher",
+   "quantity": 1
+  },
+  {
+   "name": "Thorn Mammoth",
+   "quantity": 1
+  },
+  {
+   "name": "Vantress Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Vorstclaw",
+   "quantity": 1
+  },
+  {
+   "name": "Wardscale Crocodile",
+   "quantity": 1
+  },
+  {
+   "name": "Befuddle",
+   "quantity": 1
+  },
+  {
+   "name": "Glint",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Cycle",
+   "quantity": 1
+  },
+  {
+   "name": "Growth Spiral",
+   "quantity": 1
+  },
+  {
+   "name": "Natural End",
+   "quantity": 1
+  },
+  {
+   "name": "Negate",
+   "quantity": 1
+  },
+  {
+   "name": "Ojutai's Breath",
+   "quantity": 1
+  },
+  {
+   "name": "Plummet",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Aerial Assault",
+   "quantity": 1
+  },
+  {
+   "name": "Circuitous Route",
+   "quantity": 1
+  },
+  {
+   "name": "Flower // Flourish",
+   "quantity": 1
+  },
+  {
+   "name": "Rabid Bite",
+   "quantity": 1
+  },
+  {
+   "name": "Revoke Existence",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Winged Words",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Firemind Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Mantle of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Parhelion II",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Halberd",
+   "quantity": 1
+  },
+  {
+   "name": "Shining Armor",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Kenrith's Transformation",
+   "quantity": 1
+  },
+  {
+   "name": "Siegecraft",
+   "quantity": 1
+  },
+  {
+   "name": "Wolfkin Bond",
+   "quantity": 1
+  },
+  {
+   "name": "Zephyr Charge",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 6
+  },
+  {
+   "name": "Hallowed Fountain",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 4
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Selesnya Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Thornwood Falls",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
