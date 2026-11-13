@@ -57,3 +57,9 @@ vendor/engine-binaries/
 
 # WSR22 successor: test-local bridge stub processes (generated, not source)
 tests/qualification/_bridge_stubs/
+
+# Flight recordings embed the recording machine's environment variables, system
+# properties and command lines. Commit the analysis output, never the recording.
+*.jfr
+*.jfr.gz
+*.jfr.gz.b64*
