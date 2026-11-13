@@ -93,3 +93,13 @@ def test_fork_pointer_spec_preserves_design_and_records_supersession(
     assert "SUPERSEDED" in text
     assert "never executed" in text
     assert "drift_check.py" in text
+
+
+def test_agents_policy_keeps_its_load_bearing_statements(repo_root: Path) -> None:
+    """Statements other tests used to pin before the lane tooling was removed."""
+    agents = (repo_root / "AGENTS.md").read_text(encoding="utf-8")
+    assert "Rules Core" in agents
+    assert "## 9. Reuse-first gate" in agents
+    assert "no implicit active repository-root state" in agents.lower()
+    authority = (repo_root / "docs/CURRENT_EXECUTION_AUTHORITY.md").read_text(encoding="utf-8")
+    assert "A pushed WIP is never qualification PASS" in authority

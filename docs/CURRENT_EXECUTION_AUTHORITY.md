@@ -16,6 +16,8 @@ explicitly, never a tool default.
 
 ## Authority boundaries
 
+A pushed WIP is never qualification PASS.
+
 Executor choice never changes Rules authority, evidence semantics, hidden-information
 rules, fail-closed requirements, Source Truth, provider-selection or Freeze authority.
 Production Provider selection and Architecture Freeze remain separate Owner gates, with the other Owner-only items in `AGENTS.md` §8.
