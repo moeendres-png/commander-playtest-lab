@@ -155,7 +155,7 @@ def test_full_delivery_fills_every_layer_and_counts_computed_pool(tmp_path: Path
     assert (
         layers["rulings"]["n"] == 1 and layers["rulings"]["status"] == completeness.RULINGS_STATUS
     )
-    assert layers["bracket_inclusion"]["status"] == completeness.NOT_DELIVERED
+    assert layers["bracket_inclusion_core"]["status"] == completeness.NOT_DELIVERED
     assert layers["playgroup"]["status"] == completeness.NOT_DELIVERED
     assert layers["corpus_decks"]["n"] is not None and layers["corpus_decks"]["n"] >= 2
     assert layers["universe_profiles"]["n"] is not None and layers["universe_profiles"]["n"] >= 2
