@@ -393,8 +393,6 @@ def _card_evidence(
         needs.append("EDHREC_TIME_UNKNOWN")
     if not claims:
         needs.append("NO_ROLE_CLAIM")
-    if commander_view and layers[LAYER_SIMULATED]["status"] != PRESENT:
-        needs.append("NO_SIMULATION")
 
     coverage: dict[str, object] = {
         "present": present,

@@ -188,3 +188,24 @@ def test_edhtop16_rejects_a_file_without_its_columns(store: StudioStore, tmp_pat
         writer.writerow({"commander_name": COMMANDER, "card_name": "Filler 00"})
     with pytest.raises(ValueError, match="missing column"):
         signals.import_signals(store, broken, commander=COMMANDER)
+
+
+def test_edhtop16_commander_names_are_normalised_and_reported(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "names16"
+    folder.mkdir()
+    _write(
+        folder / "edhtop16_commander_signals.csv",
+        [
+            _row("test commander", "Filler 00", 0.4, 10, "AVAILABLE"),  # lower case
+            _row("Mystery Commander", "Filler 00", 0.2, 5, "AVAILABLE"),  # unknown
+        ],
+    )
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    assert report["commanders_imported"] == ["Mystery Commander", COMMANDER]
+    assert report["commanders_not_recognised"] == ["Mystery Commander"]
+    assert report["commanders_normalised"] == [{"from": "test commander", "to": COMMANDER}]
+    own = _signal(store, "Filler 00")
+    assert own is not None and own["value"] == 0.4
+    assert _signal(store, "Filler 00", commander="test commander") is None

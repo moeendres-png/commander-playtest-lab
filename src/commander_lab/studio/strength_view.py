@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import json
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import replace
 from typing import TypedDict
 
@@ -226,6 +226,7 @@ def compute(
     settings: StrengthSettings,
     *,
     dangling_universe_ok: bool = False,
+    notices: Sequence[str] = (),
 ) -> StrengthResult:
     """Index and tier for every legal pool card of ``commander``.
 
@@ -243,7 +244,7 @@ def compute(
     claims = _claim_index(store, ids)
     ambiguous: dict[tuple[str, str], list[str]] = {}
 
-    notices: list[str] = []
+    notices = list(notices)
     universe_missing: str | None = None
     summary: ProfileSummary | None = None
     if settings.universe_profile:
@@ -310,6 +311,7 @@ def compute(
     context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
 
     scored = strength.score_pool(settings, per_card, collected, context=context)
+    notices.extend(strength.weights_without_effect(settings, collected))
     cards: list[StrengthCard] = []
     for card_id in ids:
         result: CardStrength = scored[card_id]
@@ -361,6 +363,7 @@ class ProfileEntry(TypedDict):
     valid: bool
     reason: str | None
     universe_missing: str | None
+    ignored_keys: list[str]
 
 
 def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
@@ -370,7 +373,7 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
     universe profile a valid entry still points to although it was deleted."""
     name, created = str(row["name"]), str(row["created_at"])
     try:
-        settings = StrengthSettings.from_dict(_as_mapping(json.loads(str(row["spec"]))))
+        settings, ignored = StrengthSettings.from_stored(_as_mapping(json.loads(str(row["spec"]))))
     except (ValueError, TypeError) as error:  # json.JSONDecodeError is a ValueError
         return {
             "name": name,
@@ -379,6 +382,7 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
             "valid": False,
             "reason": str(error),
             "universe_missing": None,
+            "ignored_keys": [],
         }
     missing: str | None = None
     if settings.universe_profile:
@@ -393,7 +397,20 @@ def _entry(store: StudioStore, row: Mapping[str, object]) -> ProfileEntry:
         "valid": True,
         "reason": None,
         "universe_missing": missing,
+        "ignored_keys": ignored,
     }
+
+
+def profile_notices(store: StudioStore, name: str) -> list[str]:
+    """Notices for computing with a stored profile: keys of the profile this version does not
+    know are ignored, not an error."""
+    ignored = get_profile(store, name)["ignored_keys"]
+    if not ignored:
+        return []
+    return [
+        f"Die Einstellung „{name}“ enthält unbekannte Schlüssel, sie werden ignoriert: "
+        + ", ".join(ignored)
+    ]
 
 
 def get_profile(store: StudioStore, name: str) -> ProfileEntry:
@@ -480,7 +497,7 @@ def _panel_texts() -> dict[str, object]:
         "eingeholt noch verarbeitet. Das Gewicht bleibt als Option bestehen und steht auf 0."
     )
     labels["bracket"] = (
-        "Bracket-Signal (empfohlen: upgraded für Chulane im Bracket 3; bei Turnierausrichtung cedh)"
+        "Bracket-Signal (empfohlen: upgraded, passend zum Bracket 3; bei Turnierausrichtung cedh)"
     )
     helps["bracket"] = "Welche Bracket-Seite von EDHREC als Bracket-Signal zählt."
     labels["rank_group"] = (
@@ -503,7 +520,9 @@ def _panel_texts() -> dict[str, object]:
         f"Mindest-Nenner EDHREC-Signale (empfohlen: {rec.min_denominators['edhrec']} Decks)"
     )
     helps["min_denominators.edhrec"] = (
-        "Hat die Quelle weniger Decks, wird das Signal für alle Karten nicht verwendet. 0 = kein Minimum."
+        "Liegt der Referenz-Nenner der Quelle (der größte Nenner des Signals) unter dem Minimum, "
+        "wird das Signal für alle Karten nicht verwendet; liegt nur der eigene Nenner einer "
+        "einzelnen Karte darunter, entfällt das Signal nur für diese Karte. 0 = kein Minimum."
     )
     labels["min_denominators.deck_universe"] = (
         "Mindest-Nenner Decklisten-Universum (empfohlen: das Mindest-Universum des "
@@ -664,6 +683,7 @@ __all__ = [
     "get_profile",
     "list_profiles",
     "presets",
+    "profile_notices",
     "resolve_settings",
     "save_profile",
     "signal_coverage",

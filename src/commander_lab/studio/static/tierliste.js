@@ -22,7 +22,6 @@ const NEED_NAMES = {
   SMALL_DENOMINATOR: "kleiner Nenner",
   EDHREC_TIME_UNKNOWN: "EDHREC-Zeit unbekannt",
   NO_ROLE_CLAIM: "keine Rolle erfasst",
-  NO_SIMULATION: "nicht simuliert",
   SMALL_GAME_SAMPLE: "kleine Spielstichprobe",
 };
 const SORTS = [
@@ -74,7 +73,7 @@ const SMALL_FIRST = new Set(["name", "mv"]);
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
-  strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", profileName: "", good: null, note: "" },
+  strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0, tiers: new Set(), selectedProfile: "", good: null, note: "", draft: { fields: {}, name: "" } },
   deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
 };
 
@@ -389,7 +388,7 @@ function strengthBox(card) {
   if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
   box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status", "Hinweis"], item.components.map((c) => {
     const [text, kind] = COMPONENT_STATUS[c.status] || [c.status, "dim"];
-    const percentile = c.percentile === null ? unknown("–") : `${c.percentile.toFixed(3)}${c.group ? ` (Gruppe ${c.group}, ${c.group_size})` : ""}`;
+    const percentile = c.percentile === null ? unknown("–") : c.group_fallback ? `${c.percentile.toFixed(3)} (Rang im ganzen Pool (Gruppe zu klein))` : `${c.percentile.toFixed(3)}${c.group ? ` (Gruppe ${c.group}, ${c.group_size})` : ""}`;
     return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), c.denominator ? `${c.numerator}/${c.denominator}` : unknown("–"), c.wilson === null ? unknown("–") : c.wilson.toFixed(4), percentile, c.weight, h("span", { class: `badge ${kind}` }, text), c.note ? h("span", { class: "rule" }, c.note) : ""];
   })));
   return box;
@@ -709,7 +708,10 @@ function renderStrengthSummary() {
   if (!box) return;
   if (!s.result) { box.replaceChildren(unknown("noch nicht berechnet")); return; }
   const result = s.result, counts = result.tier_counts, universe = result.universe;
-  const universeText = universe ? `Universum ${universe.profile} (${universe.denominator} Decks${universe.subset_note ? `; ${universe.subset_note}` : ""})` : "kein Decklisten-Universum";
+  const universeText = `Index berechnet mit: ${universe ? `Universum ${universe.profile} (${universe.denominator} Decks${universe.subset_note ? `; ${universe.subset_note}` : ""})` : "kein Decklisten-Universum"}`;
+  // Sources that can exist for these settings: no simulation (not collected), no bracket source without a
+  // bracket, no deck universe without one.
+  const possible = s.meta.components.filter((c) => c.key !== "simulation" && !(c.key === "bracket_inclusion" && result.settings.bracket === "none") && !(c.key === "deck_universe" && !universe)).length;
   const notices = (result.notices || []).map((text) => h("div", { class: "badge warn" }, text));
   const ambiguous = result.ambiguous_names || [];
   const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
@@ -717,28 +719,51 @@ function renderStrengthSummary() {
     ...["S", "A", "B", "C", "D"].map((tier) => tierBadge(tier, counts[tier], `Stufe ${tier}: ${counts[tier]} Karten`)),
     neutral(`${UNKNOWN_TIER} ${counts.U}`, "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte."),
     neutral(`nicht bewertet ${counts.N || 0}`, "Commander und Standardländer, wenn sie nicht bewertet werden"),
-    h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${s.meta.components.length - 1}`),
+    h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${possible}`),
     ...notices,
     ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${ambiguous.length - 10} weitere` : ""}`)] : []));
 }
 async function applyStrength(settings, remember = true) {
   state.strength.settings = { ...withDefaults(settings), universe_profile: state.universe.name || null };
+  state.strength.draft.fields = {}; // the typed values are now the settings (or were replaced on purpose)
   if (remember) rememberStrength();
   renderStrengthPanel();
   await refreshStrength();
 }
+// A saved profile is computed by the server (``profile=``): it names the universe the profile
+// stores, falls back to no universe with a notice when that universe was deleted, and echoes the
+// settings it used. The page then selects exactly that universe, so the text shown is what was computed.
+async function loadSavedProfile(profile) {
+  const s = state.strength, ticket = ++s.ticket;
+  const result = await api("/api/strength", { commander: COMMANDER, profile: profile.name });
+  if (ticket !== s.ticket) return;
+  const wanted = (result.settings && result.settings.universe_profile) || "";
+  s.settings = { ...withDefaults(result.settings), universe_profile: wanted || null };
+  s.draft = { fields: {}, name: profile.name };
+  s.result = result;
+  s.map = new Map(result.cards.map((item) => [item.card_id, item]));
+  rememberStrength();
+  if (wanted !== (state.universe.name || "")) {
+    state.universe.profiles = await api("/api/universe/profiles");
+    fillUniverseSelect(wanted);
+    await selectUniverse(wanted).catch((error) => toast(`Universum „${wanted}“ konnte nicht gewählt werden: ${error.message}`));
+  }
+  renderStrengthPanel();
+  render();
+}
 function strengthField(key) {
   const s = state.strength, panel = s.meta.panel, kind = fieldKind(key), id = fieldId(key);
-  const current = pathGet(s.settings, key);
+  const current = pathGet(s.settings, key), drafted = s.draft.fields[key];
   let input;
   if (kind.type === "readonly") input = h("input", { id, type: "text", readOnly: true, value: `${universeMinimum()} Decks` });
   else if (kind.type === "choice") {
     input = h("select", { id }, kind.choices.map((item) => h("option", { value: String(item.value) }, item.label)));
-    input.value = String(current);
+    input.value = drafted !== undefined ? drafted : String(current);
   } else {
-    input = h("input", { id, type: "number", value: current === undefined ? "" : Math.round(current * kind.scale * 1000) / 1000, placeholder: `${pathGet(s.meta.recommended, key) * kind.scale}` });
+    input = h("input", { id, type: "number", value: drafted !== undefined ? drafted : current === undefined ? "" : Math.round(current * kind.scale * 1000) / 1000, placeholder: `${pathGet(s.meta.recommended, key) * kind.scale}` });
     StudioUI.limitNumber(input, kind.min, kind.max, kind.step);
   }
+  if (kind.type !== "readonly") input.addEventListener("input", () => { s.draft.fields[key] = input.value; });
   input.addEventListener("input", updateDeviations);
   input.addEventListener("change", updateDeviations);
   return h("div", { class: "setting", title: panel.help[key] }, h("label", { for: id }, panel.labels[key]), input, h("span", { class: "help" }, panel.help[key]));
@@ -810,11 +835,12 @@ function renderStrengthPanel() {
     if (!p) return;
     if (!p.valid) { fail(new Error(`Die Einstellung „${p.name}“ ist nicht mehr gültig: ${p.reason}`)); return; }
     if (p.universe_missing) toast(`Das Universum „${p.universe_missing}“ dieser Einstellung gibt es nicht mehr: sie läuft mit „kein Universum“.`);
-    s.profileName = p.name;
-    run(() => applyStrength(p.settings));
+    s.draft.name = p.name;
+    s.note = `Voreinstellung „${p.name}“ geladen und berechnet`;
+    loadSavedProfile(p).catch((error) => toast(error.message));
   });
-  const nameInput = h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index", value: s.profileName });
-  nameInput.addEventListener("input", () => { s.profileName = nameInput.value; });
+  const nameInput = h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index", value: s.draft.name });
+  nameInput.addEventListener("input", (event) => { s.draft.name = event.target.value; });
   const apply = h("button", { type: "button", class: "primary", id: "s-apply", onclick: () => run(() => { s.note = ""; return applyStrength(readStrengthSettings()); }) }, "Berechnen");
   const reset = h("button", { type: "button", id: "s-reset", title: "Alle Einstellungen auf die empfohlenen Werte setzen", onclick: () => run(() => { s.note = ""; return applyStrength(s.meta.recommended); }) }, "Empfohlene Werte");
   const save = h("button", { type: "button", id: "s-save", onclick: () => run(async () => {
@@ -823,7 +849,7 @@ function renderStrengthPanel() {
     const settings = readStrengthSettings();
     await api(`/api/strength/profiles/${encodeURIComponent(name)}`, { settings }, "PUT");
     s.profiles = await api("/api/strength/profiles");
-    s.selectedProfile = name; s.profileName = name;
+    s.selectedProfile = name; s.draft.name = name;
     await applyStrength(settings);
     toast(`Einstellung „${name}“ gespeichert`, "ok");
   }) }, "Speichern");
@@ -832,7 +858,7 @@ function renderStrengthPanel() {
     if (!name) { fail(new Error("Wähle zuerst eine gespeicherte Einstellung aus der Liste „Laden“.")); return; }
     await api(`/api/strength/profiles/${encodeURIComponent(name)}`, {}, "DELETE");
     s.profiles = await api("/api/strength/profiles");
-    s.selectedProfile = ""; s.profileName = "";
+    s.selectedProfile = ""; s.draft.name = "";
     renderStrengthPanel();
     toast(`Einstellung „${name}“ gelöscht`, "ok");
   }) }, "Löschen");

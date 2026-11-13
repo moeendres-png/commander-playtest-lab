@@ -1004,7 +1004,9 @@ def test_recommended_values_come_from_one_place_and_the_panel_texts_name_them(
     assert meta["recommended"] == StrengthSettings().to_dict() == meta["defaults"]
     labels = meta["panel"]["labels"]
     assert "(empfohlen: 3)" in labels["weights.commander_inclusion"]
-    assert "upgraded für Chulane im Bracket 3; bei Turnierausrichtung cedh" in labels["bracket"]
+    assert "empfohlen: upgraded" in labels["bracket"] and "Chulane" not in labels["bracket"]
+    edhrec_help = meta["panel"]["help"]["min_denominators.edhrec"]
+    assert "für alle Karten" in edhrec_help and "einzelnen Karte" in edhrec_help
     assert "(empfohlen: ganzer Pool)" in labels["rank_group"]
     assert "(empfohlen: Wilson-Untergrenze)" in labels["share_measure"]
     assert "30 Decks" in labels["min_denominators.edhrec"]
@@ -1240,3 +1242,369 @@ def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) ->
         == "Simulation (empfohlen: 0, derzeit ohne Daten)"
     )
     assert all(item["settings"]["weights"]["simulation"] == 0.0 for item in meta["presets"])
+
+
+# ---------- pooled tournament files and the exact commander set (Refs #1205) ----------
+
+LIST_FIELDS = [
+    "tournament",
+    "date",
+    "player",
+    "wins",
+    "draws",
+    "losses",
+    "card_name",
+    "quantity",
+    "section",
+]
+
+
+def _lists_file(path: Path, lists: list[tuple[str, str, str, list[str], list[str]]]) -> None:
+    """One list = (tournament, date, player key, commander section, main-deck cards)."""
+    rows: list[dict[str, object]] = []
+    for tournament, date, player, commander_section, cards in lists:
+        rows += [_list_row(tournament, date, player, c, "commander") for c in commander_section]
+        rows += [_list_row(tournament, date, player, card, "main") for card in cards]
+    _write(path, rows, LIST_FIELDS)
+
+
+def _tournament_rows(store: StudioStore, commander: str = COMMANDER) -> int:
+    return int(
+        store.connection.execute(
+            "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?",
+            (commander, signals.SIGNAL_TOURNAMENT),
+        ).fetchone()[0]
+    )
+
+
+def test_two_tournament_files_of_one_commander_are_pooled_not_overwritten(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "pooled"
+    folder.mkdir()
+    first = [("Cup P", "2026-11-01", f"Key {n}", [COMMANDER], ["Filler 01"]) for n in range(6)]
+    second = [("Cup Q", "2026-11-02", f"Key {n}", [COMMANDER], ["Filler 02"]) for n in range(3)]
+    # the very same list (tournament, date, player key, cards) read from a second file
+    second.append(first[0])
+    _lists_file(folder / "topdeck_aaa_decks.csv", first)
+    _lists_file(folder / "topdeck_bbb_decks.csv", second)
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    files = report["files"]
+    assert isinstance(files, dict)
+    one = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 01")
+    two = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 02")
+    assert one is not None and (one["numerator"], one["denominator"]) == (6, 9)
+    assert two is not None and (two["numerator"], two["denominator"]) == (3, 9)
+    assert files["topdeck_aaa_decks"]["lists_read"] == 6
+    assert files["topdeck_bbb_decks"]["lists_read"] == 4
+    assert files["topdeck_aaa_decks"]["commander"] == COMMANDER
+    assert files["topdeck_bbb_decks"]["commander"] == COMMANDER
+    stored = _tournament_rows(store)
+    assert stored == 2
+    assert report["rows_written"] == stored and report["rows_replaced"] == 0
+    # a second import replaces exactly what the first one stored, not rows it just wrote
+    again = signals.import_signals(store, folder, commander=COMMANDER)
+    assert again["rows_written"] == stored and again["rows_replaced"] == stored
+    assert sum(entry["rows_written"] for entry in again["files"].values()) == stored  # type: ignore[attr-defined]
+    assert sum(entry["rows_replaced"] for entry in again["files"].values()) == stored  # type: ignore[attr-defined]
+    assert _tournament_rows(store) == stored
+
+
+def test_only_lists_with_exactly_the_commander_count_and_pairs_are_reported(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "pairs"
+    folder.mkdir()
+    lists = [
+        ("Cup R", "2026-11-03", f"Pair {n}", [COMMANDER, "Pair Mate"], ["Filler 03"])
+        for n in range(3)
+    ]
+    lists += [("Cup R", "2026-11-03", f"Solo {n}", [COMMANDER], ["Filler 04"]) for n in range(4)]
+    _lists_file(folder / "topdeck_mixed_decks.csv", lists)
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    entry = report["files"]["topdeck_mixed_decks"]  # type: ignore[index]
+    assert entry["commander"] == COMMANDER and entry["lists_read"] == 7
+    assert entry["skipped_reasons"]["OTHER_COMMANDER_SET"] == 3
+    solo = _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 04")
+    assert solo is not None and (solo["numerator"], solo["denominator"]) == (4, 4)
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 03") is None  # pair-only card
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, "Pair Mate") is None
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, COMMANDER) is None  # never a deck card
+    names = {
+        row[0]
+        for row in store.connection.execute(
+            "SELECT card_name FROM card_signal WHERE signal = ?", (signals.SIGNAL_TOURNAMENT,)
+        )
+    }
+    assert "Pair Mate" not in names and COMMANDER not in names
+
+
+def test_a_file_with_only_pair_lists_stores_nothing_for_a_single_commander(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "onlypairs"
+    folder.mkdir()
+    lists = [
+        ("Cup S", "2026-11-04", f"Pair {n}", [COMMANDER, "Pair Mate"], ["Filler 03"])
+        for n in range(3)
+    ]
+    _lists_file(folder / "topdeck_pairs_decks.csv", lists)
+    report = signals.import_signals(store, folder, commander=COMMANDER)
+    entry = report["files"]["topdeck_pairs_decks"]  # type: ignore[index]
+    assert entry["status"] == "NOTHING_REPLACED"
+    assert entry["rows_written"] == 0 and entry["commander"] is None
+    assert entry["skipped_reasons"] == {"OTHER_COMMANDER_SET": 3}
+    assert store.count("card_signal") == 0
+
+
+# ---------- loading a saved strength profile (Refs #1205) ----------
+
+
+def test_a_saved_profile_is_computed_with_its_own_universe_not_the_selected_one(
+    client: TestClient, tmp_path: Path
+) -> None:
+    """The page loads a saved profile through ``profile=``: the server answers with the
+    universe the profile names (and echoes it in ``settings``), so the page can select that
+    universe and show exactly what was computed."""
+    from commander_lab.studio import universe
+
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        universe.save_profile(store, "uni-a", {})
+        universe.save_profile(store, "uni-b", {})
+    finally:
+        store.close()
+    saved = client.put(
+        "/api/strength/profiles/mit-a",
+        json={"settings": {"universe_profile": "uni-a"}},
+        headers=HEADER,
+    )
+    assert saved.status_code == 200
+    computed = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": "mit-a"}, headers=HEADER
+    )
+    assert computed.status_code == 200
+    body = computed.json()
+    assert body["settings"]["universe_profile"] == "uni-a"
+    assert body["universe"]["profile"] == "uni-a" and body["universe_missing"] is None
+    assert body["notices"] == []
+    # the page's settings of the same profile with the OTHER universe selected differ
+    other = client.post(
+        "/api/strength",
+        json={
+            "commander": COMMANDER,
+            "settings": {**body["settings"], "universe_profile": "uni-b"},
+        },
+        headers=HEADER,
+    )
+    assert other.status_code == 200 and other.json()["universe"]["profile"] == "uni-b"
+
+
+def test_the_page_loads_a_saved_profile_through_the_server_and_keeps_drafts() -> None:
+    from commander_lab.studio.web import STATIC
+
+    script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    # a saved profile is computed by the server's profile= path, never by applyStrength
+    # (which would overwrite its universe with the one selected at the top)
+    assert "loadSavedProfile(p)" in script and "profile: profile.name" in script
+    assert "loadSavedProfile(p).catch" in script
+    assert "fillUniverseSelect(wanted)" in script
+    # the page says which universe the index was computed with
+    assert "Index berechnet mit:" in script and "kein Decklisten-Universum" in script
+    # form edits and the profile name survive a re-render
+    assert (
+        "s.draft.fields[key] = input.value" in script
+        and "s.draft.name = event.target.value" in script
+    )
+    assert '$("s-name").value = p.name' not in script
+
+
+# ---------- a weight that cannot act does not lower coverage (Refs #1205) ----------
+
+
+def test_a_component_without_any_data_is_not_part_of_the_coverage_denominator() -> None:
+    weights = {name: 0.0 for name in strength.COMPONENTS}
+    weights |= {strength.COMMANDER_INCLUSION: 3.0, strength.SYNERGY: 1.0}
+    observations = {
+        "a": {"commander_inclusion": _share(900, 1000), "synergy": Observation(0.2)},
+        "b": {"commander_inclusion": _share(500, 1000)},
+    }
+    collected = {strength.COMMANDER_INCLUSION, strength.SYNERGY}
+    plain = strength.score_pool(
+        StrengthSettings(weights=weights, min_coverage=0.0, min_components=1),
+        observations,
+        collected,
+    )
+    weighted = strength.score_pool(
+        StrengthSettings(
+            weights={**weights, strength.SIMULATION: 5.0}, min_coverage=0.0, min_components=1
+        ),
+        observations,
+        collected,
+    )
+    assert plain["b"]["coverage"] == 0.75
+    for card in ("a", "b"):  # a positive weight on a never-collected source changes nothing
+        assert (weighted[card]["coverage"], weighted[card]["index"]) == (
+            plain[card]["coverage"],
+            plain[card]["index"],
+        )
+    # once the source has data the weight counts in the denominator again
+    with_data = strength.score_pool(
+        StrengthSettings(
+            weights={**weights, strength.SIMULATION: 5.0}, min_coverage=0.0, min_components=1
+        ),
+        {**observations, "a": {**observations["a"], "simulation": Observation(1.0)}},
+        {*collected, strength.SIMULATION},
+    )
+    assert with_data["b"]["coverage"] < plain["b"]["coverage"]
+
+
+def test_the_result_notes_name_a_weight_without_data(store: StudioStore, tmp_path: Path) -> None:
+    _import(store, tmp_path)
+    weighted = StrengthSettings(weights={**strength.DEFAULT_WEIGHTS, strength.SIMULATION: 4.0})
+    result = strength_view.compute(store, COMMANDER, weighted)
+    assert "Simulation: keine Daten, Gewicht ohne Wirkung" in result["notices"]
+    default = strength_view.compute(store, COMMANDER, StrengthSettings())
+    assert not any("Gewicht ohne Wirkung" in text for text in default["notices"])
+
+
+def test_a_stored_profile_with_unknown_keys_is_accepted_and_names_them(
+    client: TestClient, tmp_path: Path
+) -> None:
+    store = StudioStore.open(tmp_path / "studio")
+    try:
+        for name, spec in (
+            ("neuer", '{"bracket": "cedh", "zukunft": 1, "weights": {"synergy": 2}}'),
+            ("neuer-kaputt", '{"zukunft": 1, "bracket": "bracket 9"}'),
+        ):
+            store.connection.execute(
+                "INSERT INTO strength_profile(name, spec, created_at) VALUES (?, ?, 'x')",
+                (name, spec),
+            )
+        store.connection.commit()
+    finally:
+        store.close()
+    listed = {item["name"]: item for item in client.get("/api/strength/profiles").json()}
+    assert listed["neuer"]["valid"] is True and listed["neuer"]["reason"] is None
+    assert listed["neuer"]["ignored_keys"] == ["zukunft"]
+    assert listed["neuer"]["settings"]["bracket"] == "cedh"
+    assert "zukunft" not in listed["neuer"]["settings"]
+    # invalid VALUES stay invalid, with or without extra keys
+    assert (
+        listed["neuer-kaputt"]["valid"] is False and "bracket" in listed["neuer-kaputt"]["reason"]
+    )
+    used = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": "neuer"}, headers=HEADER
+    )
+    assert used.status_code == 200
+    body = used.json()
+    assert body["settings"]["bracket"] == "cedh" and body["settings"]["weights"]["synergy"] == 2
+    assert any("zukunft" in text and "ignoriert" in text for text in body["notices"])
+    # explicit settings with an unknown key are still refused
+    explicit = client.post(
+        "/api/strength",
+        json={"commander": COMMANDER, "settings": {"zukunft": 1}},
+        headers=HEADER,
+    )
+    assert explicit.status_code == 422
+    plain = client.post(
+        "/api/strength", json={"commander": COMMANDER, "profile": "neuer-kaputt"}, headers=HEADER
+    )
+    assert plain.status_code == 422
+
+
+def test_the_page_names_a_pool_fallback_instead_of_a_null_group_size() -> None:
+    from commander_lab.studio.web import STATIC
+
+    script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    assert "c.group_fallback ?" in script
+    assert "Rang im ganzen Pool (Gruppe zu klein)" in script
+
+
+# ---------- behaviours pinned after surviving mutants (Refs #1205) ----------
+
+
+def test_missing_as_lowest_applies_to_unlisted_cards_not_to_an_unknown_value() -> None:
+    observations = {
+        "a": {"commander_inclusion": Observation(0.9, 900, 1000)},
+        "b": {"commander_inclusion": Observation(0.1, 100, 1000)},
+        "unknown": {"commander_inclusion": Observation(None)},  # listed, value not published
+        "unlisted": {},
+    }
+    scored = strength.score_pool(
+        _only("commander_inclusion", missing_value={"commander_inclusion": "lowest"}),
+        observations,
+        {"commander_inclusion"},
+    )
+    unknown = _row(scored, "unknown", "commander_inclusion")
+    assert unknown["reason"] == strength.VALUE_UNKNOWN
+    assert unknown["status"] == strength.NO_VALUE and unknown["percentile"] is None
+    assert scored["unknown"]["index"] is None  # unknown is never turned into the lowest rank
+    unlisted = _row(scored, "unlisted", "commander_inclusion")
+    assert unlisted["status"] == strength.MISSING_AS_LOWEST and unlisted["percentile"] == 0.0
+
+
+def test_the_minimum_denominator_is_checked_per_card_with_mixed_denominators() -> None:
+    observations = {
+        "big": {"commander_inclusion": Observation(0.9, 90, 100)},
+        "other": {"commander_inclusion": Observation(0.5, 50, 100)},
+        "small": {"commander_inclusion": Observation(1.0, 10, 10)},  # own denominator 10 < 30
+    }
+    scored = strength.score_pool(
+        _only("commander_inclusion"), observations, {"commander_inclusion"}
+    )
+    small = _row(scored, "small", "commander_inclusion")
+    assert small["reason"] == strength.BELOW_MIN_DENOMINATOR and small["percentile"] is None
+    assert "Nenner 10" in small["note"]
+    assert _row(scored, "big", "commander_inclusion")["status"] == strength.PRESENT
+    assert _row(scored, "other", "commander_inclusion")["percentile"] == 0.0
+    assert _row(scored, "big", "commander_inclusion")["percentile"] == 1.0
+
+
+def test_the_reference_denominator_is_the_largest_one_of_the_signal() -> None:
+    # one card with a denominator below the minimum must not switch the signal off for the
+    # others: the reference is the MAX (100), not the MIN (10)
+    observations = {
+        "big": {"commander_inclusion": Observation(0.9, 90, 100)},
+        "small": {"commander_inclusion": Observation(1.0, 10, 10)},
+        "unlisted": {},
+    }
+    scored = strength.score_pool(
+        _only("commander_inclusion"), observations, {"commander_inclusion"}
+    )
+    assert _row(scored, "big", "commander_inclusion")["status"] == strength.PRESENT
+    assert _row(scored, "unlisted", "commander_inclusion")["reason"] == strength.NOT_LISTED
+    # when even the largest denominator is below the minimum the whole signal is off
+    low = {"x": {"commander_inclusion": Observation(0.5, 5, 10)}, "y": {}}
+    off = strength.score_pool(_only("commander_inclusion"), low, {"commander_inclusion"})
+    assert {_row(off, key, "commander_inclusion")["reason"] for key in "xy"} == {
+        strength.BELOW_MIN_DENOMINATOR
+    }
+
+
+def test_the_preferred_commander_breaks_a_tie_between_tournament_commanders(
+    store: StudioStore, tmp_path: Path
+) -> None:
+    folder = tmp_path / "tie"
+    folder.mkdir()
+    lists = [
+        ("Cup T", "2026-11-05", f"Key {n}", [name], ["Filler 06"])
+        for n, name in enumerate(["Test Commander", "Test Commander", "Zed Hero", "Zed Hero"])
+    ]
+    _lists_file(folder / "topdeck_tie_decks.csv", lists)
+    zed = signals.import_signals(store, folder, commander="Zed Hero")
+    assert zed["files"]["topdeck_tie_decks"]["commander"] == "Zed Hero"  # type: ignore[index]
+    assert _signal(store, signals.SIGNAL_TOURNAMENT, "Filler 06", "Zed Hero") is not None
+    first = signals.import_signals(store, folder, commander="Test Commander")
+    assert first["files"]["topdeck_tie_decks"]["commander"] == "Test Commander"  # type: ignore[index]
+    # a preferred name that is not among the tied commanders changes nothing: the first by name
+    neither = signals.import_signals(store, folder, commander="Somebody Else")
+    assert neither["files"]["topdeck_tie_decks"]["commander"] == "Test Commander"  # type: ignore[index]
+
+
+def test_a_mana_value_of_five_is_the_last_band_and_four_is_not() -> None:
+    assert strength.mana_band(5, is_land=False) == "5+"
+    assert strength.mana_band(4, is_land=False) == "4"
+    assert strength.mana_band(4.5, is_land=False) == "4"
+    assert strength.mana_band(1.5, is_land=False) == "0-1"
+    assert strength.mana_band(2, is_land=False) == "2"

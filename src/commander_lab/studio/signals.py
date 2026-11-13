@@ -17,8 +17,12 @@ has its own header and the parts are read one after another in number order):
   independent). The file's partner count is not stored: no strength component reads it,
   and the value stays available in the source file.
 - ``topdeck_<name>_decks`` (any file of that shape, one commander per file): complete
-  tournament lists. The commander of a file is the one written in the commander section of
-  its lists (the most common one; ``--commander`` breaks a tie). The player column is
+  tournament lists. The commander of a file is the one written ALONE in the commander
+  section of its lists (the most common one; ``--commander`` breaks a tie); a list counts
+  only if its commander section is exactly that commander, lists of a partner pair or
+  another commander are skipped and reported (``OTHER_COMMANDER_SET``). All tournament
+  files of one import are read first and their lists pooled per commander (the same list
+  in two files counts once), then stored once per commander. The player column is
   required because it tells two lists of one tournament and date apart: it is used as an
   in-memory grouping key while the file is read. Its value is never stored, logged or
   reported; a list is only counted, per tournament and date (the dataset carries neutral
@@ -86,6 +90,8 @@ class FileReport(TypedDict):
     rows_skipped: int
     skipped_reasons: dict[str, int]
     commander: str | None
+    lists_read: int  # tournament files: distinct lists read from this file
+    pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
 
 
 def _number(text: str | None) -> float | None:
@@ -218,6 +224,8 @@ def _empty(paths: list[Path]) -> FileReport:
         "rows_skipped": 0,
         "skipped_reasons": {},
         "commander": None,
+        "lists_read": 0,
+        "pooled_into": None,
     }
 
 
@@ -290,7 +298,7 @@ def _spellbook_rows(row: dict[str, str], card: str) -> list[_Row]:
     ]
 
 
-def _read_edhtop16(paths: list[Path], report: FileReport) -> list[_Row]:
+def _read_edhtop16(paths: list[Path], report: FileReport, commanders: _Commanders) -> list[_Row]:
     """EDHTop16 play rates per commander and card (ONE_YEAR window).
 
     Only rows the fetch attributed to the commander (``fetch_status``
@@ -328,20 +336,26 @@ def _read_edhtop16(paths: list[Path], report: FileReport) -> list[_Row]:
         entries = _count(row.get("entries_n"))
         if entries == 0:
             entries = None
-        item: _Row = (commander, SIGNAL_EDHTOP16, card, rate, None, entries)
+        item: _Row = (commanders.resolve(commander), SIGNAL_EDHTOP16, card, rate, None, entries)
         pairs.append(((item[0], item[1], item[2]), item))
     return list(_first_wins(iter(pairs), report).values())
 
 
+_ListKey = tuple[str, str, str, frozenset[str]]  # tournament, date, player key, main cards
+
+
 def _read_tournament_lists(
     paths: list[Path], preferred: str, commanders: _Commanders, report: FileReport
-) -> list[_Row]:
-    """Count, per card, the lists of the file's commander that contain it.
+) -> tuple[str | None, set[_ListKey]]:
+    """The file's commander and the lists that count for it.
 
-    The file's commander is the one written in the commander section of its lists (the most
-    common one; ``preferred`` breaks a tie). The player column is required and read: it is
-    only an in-memory grouping key that tells two lists of one tournament and date apart.
-    Its value is never stored, logged or reported."""
+    The file's commander is the one written, alone, in the commander section of its lists
+    (the most common one; ``preferred`` breaks a tie). A list counts only if its commander
+    section is exactly that one card (the exact-set rule of ``universe.resolve_universe``):
+    lists of a partner pair or another commander are skipped and reported, never stored under
+    a single partner. Commander-section cards are not deck cards. The player column is
+    required and read: it is only an in-memory grouping key that tells two lists of one
+    tournament and date apart. Its value is never stored, logged or reported."""
     required = {"tournament", "date", "card_name", "section"}
     lists: dict[tuple[str, str, str], tuple[set[str], set[str]]] = {}
     for row in _rows(paths, required | {"player"}):
@@ -355,30 +369,47 @@ def _read_tournament_lists(
         identity = (row["tournament"], row["date"], row["player"])
         cards, listed_commanders = lists.setdefault(identity, (set(), set()))
         name = row["card_name"].strip()
-        cards.add(name)
         if row["section"].strip() == "commander":
             listed_commanders.add(name)
+        else:
+            cards.add(name)
+    report["lists_read"] = len(lists)
+    reasons = report["skipped_reasons"]
+    empty = sum(1 for _cards, listed in lists.values() if not listed)
+    multiple = sum(1 for _cards, listed in lists.values() if len(listed) > 1)
+    if empty:
+        reasons["NO_COMMANDER_SECTION"] = empty
+    if multiple:
+        reasons["OTHER_COMMANDER_SET"] = multiple
     votes: dict[str, int] = {}
     for _cards, listed in lists.values():
-        for name in listed:
+        if len(listed) == 1:
+            (name,) = listed
             votes[name] = votes.get(name, 0) + 1
     if not votes:
-        report["skipped_reasons"]["NO_COMMANDER_SECTION"] = len(lists)
-        return []
+        return None, set()
     most = max(votes.values())
     leaders = sorted(name for name, count in votes.items() if count == most)
     chosen = preferred if preferred in leaders else leaders[0]
     commander = commanders.resolve(chosen)
     report["commander"] = commander
-    valid = [cards for cards, listed in lists.values() if chosen in listed]
-    invalid = len(lists) - len(valid)
-    if invalid:
-        report["skipped_reasons"]["LIST_OF_OTHER_COMMANDER"] = invalid
+    valid: set[_ListKey] = {
+        (identity[0], identity[1], identity[2], frozenset(cards))
+        for identity, (cards, listed) in lists.items()
+        if listed == {chosen}
+    }
+    other = sum(1 for _cards, listed in lists.values() if len(listed) == 1 and chosen not in listed)
+    if other:
+        reasons["LIST_OF_OTHER_COMMANDER"] = other
+    return commander, valid
+
+
+def _tournament_signal_rows(commander: str, lists: set[_ListKey]) -> list[_Row]:
     counts: dict[str, int] = {}
-    for cards in valid:
+    for _tournament, _date, _player, cards in lists:
         for name in cards:
             counts[name] = counts.get(name, 0) + 1
-    total = len(valid)
+    total = len(lists)
     return [
         (commander, SIGNAL_TOURNAMENT, name, count / total, count, total)
         for name, count in sorted(counts.items())
@@ -447,7 +478,6 @@ def _read_file(
     file_name: str,
     paths: list[Path],
     variant: str | None,
-    preferred: str,
     report: FileReport,
     commanders: _Commanders,
 ) -> list[_Row]:
@@ -460,8 +490,8 @@ def _read_file(
         required = {"card_name", "fetch_status", "variant_count"}
         return _read_independent(paths, required, _spellbook_rows, report)
     if file_name == EDHTOP16_FILE:
-        return _read_edhtop16(paths, report)
-    return _read_tournament_lists(paths, preferred, commanders, report)
+        return _read_edhtop16(paths, report, commanders)
+    raise ValueError(f"not a per-file signal: {file_name}")
 
 
 _TOURNAMENT_PATTERN = re.compile(r"^(topdeck_.+_decks)(?:_(\d+))?\.csv$")
@@ -490,6 +520,55 @@ def has_signal_files(folder: str | Path) -> bool:
     return any(_parts(root, base) for base in bases)
 
 
+def _import_tournaments(
+    store: StudioStore,
+    root: Path,
+    preferred: str,
+    commanders: _Commanders,
+    reports: dict[str, FileReport],
+) -> None:
+    """Read ALL tournament files first, pool their lists per commander, store each commander
+    once. A list is (tournament, date, player key, cards); the same list read from two files
+    counts once. ``rows_written``/``rows_replaced`` sit on the first file of the commander and
+    are what was stored / what existed before this import; the other files of the commander
+    name that file in ``pooled_into``."""
+    pooled: dict[str, set[_ListKey]] = {}
+    carriers: dict[str, str] = {}
+    members: dict[str, list[str]] = {}
+    source_ids: dict[str, str | None] = {}
+    for base in _tournament_bases(root):
+        paths = _parts(root, base)
+        report = _empty(paths)
+        reports[base] = report
+        if not paths:
+            continue
+        commander, lists = _read_tournament_lists(paths, preferred, commanders, report)
+        source_ids[base] = _register(store, paths)
+        if commander is not None:
+            pooled.setdefault(commander, set()).update(lists)
+            carriers.setdefault(commander, base)
+            members.setdefault(commander, []).append(base)
+    written: set[str] = set()
+    for commander, lists in pooled.items():
+        rows = _tournament_signal_rows(commander, lists)
+        source_id = source_ids[carriers[commander]]
+        if source_id is None or not rows:
+            continue
+        stored, replaced = _store_rows(store, rows, source_id)
+        carrier = reports[carriers[commander]]
+        carrier["rows_written"], carrier["rows_replaced"] = stored, replaced
+        written.add(commander)
+        for base in members[commander][1:]:
+            reports[base]["pooled_into"] = carriers[commander]
+    for report in reports.values():
+        if report["status"] == "ABSENT" or (report["commander"] in written):
+            continue
+        report["status"] = "NOTHING_REPLACED"
+        report["rows_kept"] = _kept_rows(
+            store, [SIGNAL_TOURNAMENT], report["commander"] or preferred
+        )
+
+
 def import_signals(store: StudioStore, folder: str | Path, *, commander: str) -> dict[str, object]:
     """Import every signal file of ``folder`` (all optional); one report entry per file.
 
@@ -512,13 +591,13 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
     plan: list[tuple[str, str | None]] = [(CARD_FILE, None)]
     plan += [(f"{BRACKET_FILE}_{variant}", variant) for variant in BRACKET_VARIANTS]
     plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None)]
-    plan += [(base, None) for base in _tournament_bases(root)]
     plan += [(EDHTOP16_FILE, None)]
     commanders = _Commanders(store)
     preferred = commanders.resolve(name)
     commanders.imported.discard(preferred)  # only commanders the files name are "imported"
     commanders.not_recognised.discard(name)
     with store.connection:
+        _import_tournaments(store, root, preferred, commanders, reports)
         for file_name, variant in plan:
             paths = _parts(root, file_name)
             report = _empty(paths)
@@ -527,19 +606,15 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
                 continue
             independent = (CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE)
             base = file_name if file_name in independent else None
-            kind = base or (BRACKET_FILE if variant else TOURNAMENT_FILE)
-            rows = _read_file(kind, paths, variant, preferred, report, commanders)
+            kind = base or BRACKET_FILE
+            rows = _read_file(kind, paths, variant, report, commanders)
             source_id = _register(store, paths)
             if source_id is not None and rows:
                 written, replaced = _store_rows(store, rows, source_id)
                 report["rows_written"], report["rows_replaced"] = written, replaced
             else:
                 report["status"] = "NOTHING_REPLACED"
-                report["rows_kept"] = _kept_rows(
-                    store,
-                    _file_signals(kind, variant),
-                    report["commander"] or preferred if kind == TOURNAMENT_FILE else None,
-                )
+                report["rows_kept"] = _kept_rows(store, _file_signals(kind, variant), None)
     return {
         "folder": root.name,
         "tournament_commander": preferred,
