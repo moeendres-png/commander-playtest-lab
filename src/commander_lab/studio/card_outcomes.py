@@ -18,6 +18,7 @@ import json
 import math
 import os
 import re
+import threading
 import zlib
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
@@ -150,6 +151,7 @@ class LoadReport(TypedDict):
     skipped_unreadable: int
     skipped_ids: list[str]
     duplicate_logs: int
+    pool_fallback: bool
 
 
 # --- reading one log -------------------------------------------------------------------
@@ -353,6 +355,57 @@ def _cache_file(path: Path) -> Path:
     return path.parent / CACHE_DIR / f"{path.name}.json"
 
 
+def _valid_seat(row: object) -> bool:
+    """One cached seat entry, field by field: ``aggregate`` reads every one of these."""
+    if not isinstance(row, dict):
+        return False
+    hand = row.get("first_dealt_hand")
+    credit = row.get("win_credit")
+    return (
+        type(row.get("seat")) is int
+        and isinstance(row.get("deck_id"), str)
+        and isinstance(row.get("commanders"), list)
+        and all(isinstance(name, str) for name in row["commanders"])
+        and (hand is None or (isinstance(hand, list) and all(isinstance(c, str) for c in hand)))
+        and type(row.get("mulligans_taken")) is int
+        and isinstance(row.get("seen_by_own_turn_3"), list)
+        and all(isinstance(c, str) for c in row["seen_by_own_turn_3"])
+        and row.get("result") in ("win", "loss", "draw")
+        and isinstance(credit, (int, float))
+        and not isinstance(credit, bool)
+        # A NaN or infinite credit parses as a float and would sail through the
+        # type check, then poison every rate of the table; it is a miss instead.
+        and math.isfinite(credit)
+    )
+
+
+def _valid_exposure(exposure: object) -> bool:
+    """The whole cached exposure, structurally: anything less is a miss, never a crash.
+
+    A cache entry is only a shortcut for re-reading the log. An entry that parses as JSON
+    and matches version, size and mtime but is damaged inside (a seat that is no dict, a
+    credit that is a string) used to sail through the shallow check and then raise inside
+    ``aggregate`` — a 500 on the outcomes route. Such an entry is now rejected here and
+    rebuilt from the log instead (#1267, robustness from the #1245 review).
+    """
+    if not isinstance(exposure, dict):
+        return False
+    winners = exposure.get("winner_seats")
+    seats = exposure.get("seats")
+    return (
+        isinstance(exposure.get("game_id"), str)
+        and (exposure.get("seed") is None or type(exposure.get("seed")) is int)
+        and all(
+            exposure.get(key) is None or isinstance(exposure.get(key), str)
+            for key in ("engine_commit", "pilot", "decision_policy")
+        )
+        and isinstance(winners, list)
+        and all(type(w) is int for w in winners)
+        and isinstance(seats, list)
+        and all(_valid_seat(row) for row in seats)
+    )
+
+
 def _cached(cache: Path, size: int, mtime_ns: int) -> tuple[GameExposure, list[str]] | None:
     try:
         data = json.loads(cache.read_text(encoding="utf-8"))
@@ -365,13 +418,12 @@ def _cached(cache: Path, size: int, mtime_ns: int) -> tuple[GameExposure, list[s
         data.get("version") != CACHE_VERSION
         or data.get("size") != size
         or data.get("mtime_ns") != mtime_ns
-        or not isinstance(exposure, dict)
-        or not isinstance(exposure.get("game_id"), str)
-        or not isinstance(exposure.get("seats"), list)
+        or not _valid_exposure(exposure)
         or not isinstance(deck_ids, list)
+        or not all(isinstance(d, str) for d in deck_ids)
     ):
         return None
-    return cast(GameExposure, exposure), [d for d in deck_ids if isinstance(d, str)]
+    return cast(GameExposure, exposure), deck_ids
 
 
 def _store(
@@ -384,7 +436,10 @@ def _store(
         "exposure": exposure,
         "deck_ids": deck_ids,
     }
-    temp = cache.with_name(f"{cache.name}.{os.getpid()}.tmp")
+    # The temp name carries the thread id as well as the process id: two threads of one
+    # process storing the same entry must not write through one shared temp file and
+    # replace each other's half-written payload (#1267, robustness from the #1245 review).
+    temp = cache.with_name(f"{cache.name}.{os.getpid()}-{threading.get_ident()}.tmp")
     try:
         cache.parent.mkdir(parents=True, exist_ok=True)
         temp.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
@@ -447,9 +502,17 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
     ordered = sorted(paths.items())
     cold = [path for _, path in ordered if path.suffix == ".gz" and not _is_cached(path)]
     warmed: dict[Path, tuple[GameExposure | None, list[str]]] = {}
+    pool_fallback = False
     if len(cold) >= PARALLEL_MIN_LOGS:
-        with ProcessPoolExecutor(max_workers=min(MAX_WORKERS, os.cpu_count() or 1)) as pool:
-            warmed = dict(zip(cold, pool.map(_read, cold, chunksize=4), strict=True))
+        try:
+            with ProcessPoolExecutor(max_workers=min(MAX_WORKERS, os.cpu_count() or 1)) as pool:
+                warmed = dict(zip(cold, pool.map(_read, cold, chunksize=4), strict=True))
+        except Exception:
+            # A pool that cannot start (restricted sandbox, no semaphore, interpreter
+            # shutdown) must not lose the whole folder: the same reads run serially in
+            # the loop below, only slower (#1267, robustness from the #1245 review).
+            warmed = {}
+            pool_fallback = True
     for key, path in ordered:
         exposure, deck_ids = warmed[path] if path in warmed else _read(path)
         if exposure is not None:
@@ -470,6 +533,7 @@ def load_exposures(games_dir: str | Path) -> LoadReport:
         "skipped_unreadable": unreadable,
         "skipped_ids": skipped_ids,
         "duplicate_logs": duplicates,
+        "pool_fallback": pool_fallback,
     }
 
 
@@ -736,6 +800,45 @@ def outcomes_for_folder(
         games_skipped_unreadable=report["skipped_unreadable"],
         duplicate_logs_ignored=report["duplicate_logs"],
     )
+
+
+def deck_ids_in(report: LoadReport) -> list[str]:
+    """Every deck id that sits in the folder's logs, at any seat, sorted.
+
+    Finished games contribute the decks of all their seats; skipped (unfinished or
+    failed) games contribute the deck ids of their headers, so a deck whose games all
+    failed is still listed — with a ``NO_GAMES`` table, never silently absent (#1267).
+    """
+    ids = {seat["deck_id"] for game in report["exposures"] for seat in game["seats"]}
+    return sorted(ids | set(report["skipped_with_deck"]))
+
+
+def outcomes_for_all_decks(
+    games_dir: str | Path,
+    *,
+    min_exposed: int = DEFAULT_MIN_EXPOSED,
+    allow_mixed: bool = False,
+) -> dict[str, CardOutcomeTable]:
+    """The card table of every deck in the folder, keyed by deck id (#1267 point 1).
+
+    Every seat of every game is data: the folder is read once and each deck that sits
+    in the logs — the Owner's deck, the opponents, the precons — gets the same table a
+    single-deck call would build, including the rule that a deck seated twice in one
+    game counts once (its lowest seat, as in :func:`aggregate`).
+    """
+    report = load_exposures(games_dir)
+    return {
+        deck_id: aggregate(
+            report["exposures"],
+            deck_id=deck_id,
+            min_exposed=min_exposed,
+            allow_mixed=allow_mixed,
+            games_skipped=report["skipped_with_deck"].get(deck_id, 0),
+            games_skipped_unreadable=report["skipped_unreadable"],
+            duplicate_logs_ignored=report["duplicate_logs"],
+        )
+        for deck_id in deck_ids_in(report)
+    }
 
 
 def _fmt(value: float | None, scale: float = 1.0) -> str:
