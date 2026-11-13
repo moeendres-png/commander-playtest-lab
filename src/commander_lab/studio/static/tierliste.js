@@ -237,7 +237,7 @@ function cardsTable(cards) {
       h("td", {}, featureBadges(card)),
       h("td", {}, roleBadges(card)),
       ...(commander ? [h("td", {}, corpusCell(card)), h("td", {}, edhrecCell(card)), h("td", {}, gameCell(card)), h("td", {}, simCell(card))] : [h("td", { class: "num" }, rank ? `Rang ${rank.rank}` : unknown("unbekannt")), h("td", {}, gameCell(card))]),
-      h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${presentCount(card)}/5`),
+      h("td", { title: card.coverage.present.map((name) => LAYER_NAMES[name]).join(", ") }, `${presentCount(card)}/4`),
       ...(state.view === "deck" ? [h("td", { class: "num" }, state.deckCards.get(card.card_id))] : []));
   });
   return h("table", {}, h("thead", {}, h("tr", {}, head.map((label) => h("th", {}, label)))), h("tbody", {}, rows));

@@ -47,6 +47,9 @@ How it is computed, per commander and per signal:
    ``min_coverage`` or fewer than ``min_components`` components with a weight are present;
    otherwise the tier follows the index cuts.
 
+Simulation results are not an input by default: the ``simulation`` component exists and the
+Owner can weight it, but its weight is 0 in the defaults and in every preset (Owner decision
+2026-11-12), and with weight 0 it changes neither the index nor the tier nor the coverage.
 The Owner's marks (favorite, excluded, note) are never an input.
 """
 

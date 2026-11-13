@@ -37,6 +37,11 @@ LAYER_GAME = "observed_game"
 LAYER_COMBO = "combo_verified"
 LAYER_SIMULATED = "simulated_result"
 LAYERS = (LAYER_FACT, LAYER_DECK, LAYER_GAME, LAYER_COMBO, LAYER_SIMULATED)
+# The layers the page counts as "present" (its sort key "Anzahl vorhandener Schichten" and
+# the coverage list). The simulated layer is shown on its own but is not counted: simulation
+# outcomes count in the tier list only through the Owner's adjustable weight of the strength
+# index (default 0), never through a sort key or a coverage figure (Owner, 2026-11-12).
+COVERAGE_LAYERS = (LAYER_FACT, LAYER_DECK, LAYER_GAME, LAYER_COMBO)
 
 PRESENT = "PRESENT"
 # Zero hits in a corpus that is known and non-empty: a real descriptive zero, not weakness.
@@ -368,9 +373,11 @@ def _card_evidence(
         LAYER_COMBO: combo_layer,
         LAYER_SIMULATED: sim_layer,
     }
-    present = [name for name in LAYERS if layers[name]["status"] == PRESENT]
+    present = [name for name in COVERAGE_LAYERS if layers[name]["status"] == PRESENT]
     missing = [
-        name for name in LAYERS if layers[name]["status"] in {NOT_COLLECTED, ABSENT_IN_KNOWN_CORPUS}
+        name
+        for name in COVERAGE_LAYERS
+        if layers[name]["status"] in {NOT_COLLECTED, ABSENT_IN_KNOWN_CORPUS}
     ]
 
     needs: list[str] = []

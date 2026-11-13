@@ -213,8 +213,11 @@ Settings: a weight per component (commander inclusion 3, bracket inclusion 2, de
 universe 2, synergy 1, tournament lists 1, global inclusion 1, combos 1, simulation 0), the
 bracket (`core`, `upgraded`, `optimized`, `cedh`, `none`), the universe profile (the page uses
 the Universum selector), `min_coverage` (0.4), `min_components` (2) and the cuts. Presets:
-Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. The simulation
-component is `NOT_COLLECTED`: stored simulation rows are not an outcome model.
+Ausgewogen, Commander-nah, Turniernah. Owner settings are saved by name. Simulation results
+do not count in the tier list and are for now neither collected nor processed for it (Owner
+decision B11, 2026-11-12): the `simulation` weight stays as an option, is 0 in the defaults
+and in every preset, and the component is `NOT_COLLECTED`. The page's layer count ("Schichten",
+sort key and coverage list) does not count the simulation layer either.
 
 The Owner's marks (favorite, excluded, note) never enter the index (Owner decision B4;
 pinned by a test). On the page the settings panel "Stärke-Index" holds preset, bracket, one

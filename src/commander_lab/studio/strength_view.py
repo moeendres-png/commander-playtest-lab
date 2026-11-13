@@ -394,6 +394,14 @@ def _panel_texts() -> dict[str, object]:
             "Gewicht des Signals im Mittel der Ränge. 0 schaltet das Signal ab; "
             "ein leeres Feld nimmt den empfohlenen Wert."
         )
+    labels[f"weights.{strength.SIMULATION}"] = (
+        f"{strength.LABELS[strength.SIMULATION]} (empfohlen: "
+        f"{_number_text(rec.weights[strength.SIMULATION])}, derzeit ohne Daten)"
+    )
+    helps[f"weights.{strength.SIMULATION}"] = (
+        "Simulationsergebnisse zählen nicht in die Tierliste und werden dafür vorerst weder "
+        "eingeholt noch verarbeitet. Das Gewicht bleibt als Option bestehen und steht auf 0."
+    )
     labels["bracket"] = (
         "Bracket-Signal (empfohlen: upgraded für Chulane im Bracket 3; bei Turnierausrichtung cedh)"
     )
