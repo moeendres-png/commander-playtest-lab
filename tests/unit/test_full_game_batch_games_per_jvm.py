@@ -265,6 +265,7 @@ _BATCH_CALLERS = {
     "scripts/check_batch_failure_isolation.py",  # measurement check of a failing batch game
     "scripts/qualify_game_batching.py",  # the qualification of batched play itself
     "scripts/rank_sensitivity.py",  # measurement (S-1); one game per JVM unless asked
+    "scripts/measure_throughput_steady_state.py",  # throughput measurement (#1279), straight on run_batch
     "src/commander_lab/engine/rules/full_game_batch.py",
     "src/commander_lab/engine/rules/full_game.py",
     # Commander Studio series (Owner-reviewed widening, #1170): simulation series, not evidence
