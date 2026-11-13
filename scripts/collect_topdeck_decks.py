@@ -24,6 +24,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -162,6 +163,41 @@ def to_safe_slug(name: str) -> str:
     return s
 
 
+def player_initials(name: str) -> str:
+    """Reduce a player name to its initials (Owner decision #1108).
+
+    For each space-separated token, take its first alphabetic character,
+    uppercased; tokens without any letter contribute nothing.
+    Example: "Void of Emperor [INTIM]" becomes "V O E I".
+    """
+    initials: list[str] = []
+    for token in name.split():
+        for char in token:
+            if char.isalpha():
+                initials.append(char.upper())
+                break
+    return " ".join(initials)
+
+
+def anonymize_player_labels(names: Iterable[str]) -> dict[str, str]:
+    """Map distinct player names to initials labels in first-appearance order.
+
+    If several distinct names reduce to the same initials, the second one
+    (in first-appearance order) gets the suffix " 2", the third " 3", and
+    so on, so labels stay unique within one export file and deck grouping
+    and counts are preserved exactly.
+    """
+    labels: dict[str, str] = {}
+    counts: dict[str, int] = {}
+    for name in names:
+        if name in labels:
+            continue
+        base = player_initials(name)
+        counts[base] = counts.get(base, 0) + 1
+        labels[name] = base if counts[base] == 1 else f"{base} {counts[base]}"
+    return labels
+
+
 def get_api_key() -> str:
     """Retrieve API key from TOPDECK_API_KEY environment variable."""
     key = os.environ.get("TOPDECK_API_KEY", "").strip()
@@ -232,6 +268,9 @@ class DecklistRecord:
     commanders: list[tuple[str, int]]
     mainboard: list[tuple[str, int]]
     is_complete: bool
+    top_cut: int = 0
+    wins_bracket: int | None = None
+    losses_bracket: int | None = None
 
 
 def fetch_slice(
@@ -243,9 +282,10 @@ def fetch_slice(
     cache_path: Path,
     delay: float = 13.0,
     offline_only: bool = False,
+    force_refresh: bool = False,
 ) -> list[dict[str, object]]:
     """Fetch or load cached tournaments for a time slice."""
-    if cache_path.is_file():
+    if cache_path.is_file() and not force_refresh:
         logger.info("Loading cached slice: %s", cache_path.name)
         try:
             with cache_path.open("r", encoding="utf-8") as f:
@@ -278,37 +318,53 @@ def fetch_slice(
         "format": "EDH",
         "start": start_ts,
         "end": end_ts,
-        "columns": ["name", "decklist", "wins", "draws", "losses"],
+        "columns": [
+            "name",
+            "id",
+            "decklist",
+            "wins",
+            "draws",
+            "losses",
+            "winsBracket",
+            "lossesBracket",
+        ],
     }
 
-    t0 = time.time()
-    req = urllib.request.Request(
-        TOPDECK_API_URL,
-        data=json.dumps(payload).encode("utf-8"),
-        headers=headers,
-        method="POST",
-    )
+    for attempt in range(1, 4):
+        t0 = time.time()
+        req = urllib.request.Request(
+            TOPDECK_API_URL,
+            data=json.dumps(payload).encode("utf-8"),
+            headers=headers,
+            method="POST",
+        )
 
-    try:
-        with urllib.request.urlopen(req, timeout=90) as resp:
-            raw_bytes = resp.read()
-            data = json.loads(raw_bytes.decode("utf-8"))
-            elapsed = time.time() - t0
-            logger.info("Received %d tournaments in %.2fs", len(data), elapsed)
-            cache_path.parent.mkdir(parents=True, exist_ok=True)
-            cache_path.write_bytes(raw_bytes)
-            # Sleep to respect rate limits
-            logger.info("Sleeping %.1fs for rate limit...", delay)
+        try:
+            with urllib.request.urlopen(req, timeout=600) as resp:
+                raw_bytes = resp.read()
+                data = json.loads(raw_bytes.decode("utf-8"))
+                elapsed = time.time() - t0
+                logger.info("Received %d tournaments in %.2fs", len(data), elapsed)
+                cache_path.parent.mkdir(parents=True, exist_ok=True)
+                cache_path.write_bytes(raw_bytes)
+                # Sleep to respect rate limits
+                logger.info("Sleeping %.1fs for rate limit...", delay)
+                time.sleep(delay)
+                return data if isinstance(data, list) else []
+        except urllib.error.HTTPError as e:
+            logger.error("HTTP %d on attempt %d: %s", e.code, attempt, e.reason)
+            if e.code in (403, 429):
+                raise RuntimeError(f"Rate limited or blocked by TopDeck: HTTP {e.code}") from e
+            if attempt == 3:
+                raise RuntimeError(f"Failed to fetch slice after 3 attempts: HTTP {e.code}") from e
             time.sleep(delay)
-            return data if isinstance(data, list) else []
-    except urllib.error.HTTPError as e:
-        logger.error("HTTP %d: %s", e.code, e.reason)
-        if e.code in (403, 429):
-            raise RuntimeError(f"Rate limited or blocked by TopDeck: HTTP {e.code}") from e
-        return []
-    except Exception as e:
-        logger.error("Failed to fetch slice: %s", e)
-        return []
+        except Exception as e:
+            logger.error("Attempt %d failed to fetch slice: %s", attempt, e)
+            if attempt == 3:
+                raise RuntimeError(f"Failed to fetch slice after 3 attempts: {e}") from e
+            time.sleep(delay)
+
+    return []
 
 
 def process_tournaments(
@@ -334,6 +390,7 @@ def process_tournaments(
 
     for t in unique_tournaments.values():
         t_name = str(t.get("tournamentName") or t.get("name") or "Unknown Tournament").strip()
+        top_cut = int(t.get("topCut") or 0)
         start_ts = t.get("startDate")
         if isinstance(start_ts, (int, float)):
             date_str = datetime.datetime.fromtimestamp(start_ts, tz=datetime.UTC).strftime(
@@ -359,6 +416,11 @@ def process_tournaments(
             wins = int(s.get("wins", 0) or 0)
             draws = int(s.get("draws", 0) or 0)
             losses = int(s.get("losses", 0) or 0)
+
+            wb_raw = s.get("winsBracket")
+            lb_raw = s.get("lossesBracket")
+            wins_bracket = int(wb_raw) if wb_raw is not None else None
+            losses_bracket = int(lb_raw) if lb_raw is not None else None
 
             # Extract deck
             deck_obj = s.get("deckObj")
@@ -398,6 +460,9 @@ def process_tournaments(
                         commanders=cmd_cards,
                         mainboard=mb_cards,
                         is_complete=is_complete,
+                        top_cut=top_cut,
+                        wins_bracket=wins_bracket,
+                        losses_bracket=losses_bracket,
                     )
                     decks_by_commander[matched_commander].append(record)
 
@@ -415,8 +480,13 @@ def export_results(
     decks_by_commander: dict[str, list[DecklistRecord]],
     output_dir: Path,
     commander_names: list[str],
+    chulane_out_path: Path | None = None,
 ) -> dict[str, object]:
-    """Export presence CSV and per-commander deck CSVs."""
+    """Export presence CSV and per-commander deck CSVs.
+
+    Player names are anonymized to initials in every exported deck CSV
+    (Owner decision #1108, 2026-11-13); see anonymize_player_labels.
+    """
     output_dir.mkdir(parents=True, exist_ok=True)
 
     presence_counts = stats["presence_counts"]  # type: ignore
@@ -465,13 +535,21 @@ def export_results(
             "incomplete_excluded": len(incomplete_decks),
         }
 
-        # Do not export Chulane (already in PR #1246) unless requested, but process remaining
-        if cname == "Chulane, Teller of Tales":
+        is_chulane = cname == "Chulane, Teller of Tales"
+        if is_chulane and not chulane_out_path:
             continue
 
         if complete_decks:
-            slug = to_safe_slug(cname)
-            deck_csv_path = output_dir / f"topdeck_{slug}_decks.csv"
+            if is_chulane:
+                assert chulane_out_path is not None
+                deck_csv_path = chulane_out_path
+                deck_csv_path.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                slug = to_safe_slug(cname)
+                deck_csv_path = output_dir / f"topdeck_{slug}_decks.csv"
+
+            labels = anonymize_player_labels(d.player_name for d in complete_decks)
+
             with deck_csv_path.open("w", encoding="utf-8", newline="") as f:
                 writer = csv.writer(f)
                 writer.writerow(
@@ -485,21 +563,30 @@ def export_results(
                         "card_name",
                         "quantity",
                         "section",
+                        "top_cut",
+                        "wins_bracket",
+                        "losses_bracket",
                     ]
                 )
                 for d in complete_decks:
+                    player_label = labels[d.player_name]
+                    wb_str = str(d.wins_bracket) if d.wins_bracket is not None else ""
+                    lb_str = str(d.losses_bracket) if d.losses_bracket is not None else ""
                     for card_name, qty in d.commanders:
                         writer.writerow(
                             [
                                 d.tournament_name,
                                 d.date_str,
-                                d.player_name,
+                                player_label,
                                 d.wins,
                                 d.draws,
                                 d.losses,
                                 card_name,
                                 qty,
                                 "commander",
+                                d.top_cut,
+                                wb_str,
+                                lb_str,
                             ]
                         )
                     # Sort mainboard cards alphabetically
@@ -509,13 +596,16 @@ def export_results(
                             [
                                 d.tournament_name,
                                 d.date_str,
-                                d.player_name,
+                                player_label,
                                 d.wins,
                                 d.draws,
                                 d.losses,
                                 card_name,
                                 qty,
                                 "main",
+                                d.top_cut,
+                                wb_str,
+                                lb_str,
                             ]
                         )
 
@@ -614,6 +704,29 @@ def main() -> None:
         help="Delay in seconds between live requests (default: 13.0)",
     )
     parser.add_argument(
+        "--start-ts",
+        type=int,
+        default=None,
+        help="Explicit start timestamp for harvest window",
+    )
+    parser.add_argument(
+        "--end-ts",
+        type=int,
+        default=None,
+        help="Explicit end timestamp for harvest window",
+    )
+    parser.add_argument(
+        "--force-refresh",
+        action="store_true",
+        help="Force re-fetching slices from API even if cached",
+    )
+    parser.add_argument(
+        "--chulane-out",
+        type=Path,
+        default=Path("data/research/deckbuilder_1655/topdeck_chulane_decks.csv"),
+        help="Output CSV path for Chulane decks",
+    )
+    parser.add_argument(
         "--offline-only",
         action="store_true",
         help="Do not make network requests; use existing cached slices",
@@ -634,7 +747,8 @@ def main() -> None:
             sys.exit(1)
 
     now = int(time.time())
-    start_total = now - (args.days * 86400)
+    start_total = args.start_ts if args.start_ts is not None else (now - (args.days * 86400))
+    end_total = args.end_ts if args.end_ts is not None else now
     chunk_sec = args.chunk_days * 86400
 
     all_tournaments: list[dict[str, object]] = []
@@ -657,8 +771,8 @@ def main() -> None:
         current_start = start_total
         slice_idx = 0
 
-        while current_start < now:
-            current_end = min(current_start + chunk_sec, now)
+        while current_start < end_total:
+            current_end = min(current_start + chunk_sec, end_total)
             cache_file = (
                 args.cache_dir / f"topdeck_slice_{slice_idx}_{current_start}_{current_end}.json"
             )
@@ -671,6 +785,7 @@ def main() -> None:
                 cache_path=cache_file,
                 delay=args.delay,
                 offline_only=args.offline_only,
+                force_refresh=args.force_refresh,
             )
             all_tournaments.extend(slice_data)
 
@@ -680,7 +795,13 @@ def main() -> None:
     logger.info("Total raw tournaments collected: %d", len(all_tournaments))
 
     stats, decks = process_tournaments(all_tournaments, DEFAULT_107_COMMANDERS)
-    summary = export_results(stats, decks, args.output_dir, DEFAULT_107_COMMANDERS)
+    summary = export_results(
+        stats,
+        decks,
+        args.output_dir,
+        DEFAULT_107_COMMANDERS,
+        chulane_out_path=args.chulane_out,
+    )
 
     logger.info("Collection and export complete: %s", summary)
 
