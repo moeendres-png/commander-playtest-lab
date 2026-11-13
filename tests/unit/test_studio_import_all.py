@@ -271,12 +271,3 @@ def test_cli_requires_commander_and_exit_code_one_on_required_failure(
         main(base)
     assert raised.value.code == 2
     assert main([*base, "--commander", COMMANDER]) == 1
-
-
-def test_commander_not_in_collection_is_reported_not_assumed(tmp_path: Path) -> None:
-    store = StudioStore.in_memory()
-    report = _run(store, _delivery(tmp_path), commander="Nobody At All")
-    assert report["legal_pool_cards"] is None and report["commander_in_collection"] is False
-    warnings = report["warnings"]
-    assert isinstance(warnings, list)
-    assert any("nicht in der Sammlung" in str(w) for w in warnings)

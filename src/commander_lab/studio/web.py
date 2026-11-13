@@ -241,16 +241,28 @@ def create_app(data_folder: str | Path | None = None) -> FastAPI:
 
     @app.get("/api/import-report")
     def import_report() -> dict[str, object]:
-        """The completeness report the last ``import-all`` wrote (read only)."""
+        """The completeness report the last ``import-all`` wrote (read only), with the time
+        it was written and a warning when the store was changed after that."""
         store = open_store()
         try:
             folder = store.path.parent if store.path is not None else None
             report = completeness.read_report(folder) if folder is not None else None
+            changed = completeness.store_changed_after(store.path, report)
         finally:
             store.close()
         if report is None:
             raise HTTPException(404, "no import report yet: run import-all")
-        return report
+        return {
+            **report,
+            "written_at": report.get("generated_at"),
+            "store_modified_after_report": changed,
+            "warning": (
+                "Der Studio-Bestand wurde nach diesem Bericht verändert; die Zahlen können "
+                "überholt sein. import-all erneut ausführen."
+                if changed
+                else None
+            ),
+        }
 
     @app.get("/api/pool")
     def pool(

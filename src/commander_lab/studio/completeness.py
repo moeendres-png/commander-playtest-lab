@@ -19,6 +19,7 @@ import re
 import sqlite3
 from collections.abc import Sequence
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import TypedDict
 
@@ -518,6 +519,19 @@ def write_report(folder: Path, report: dict[str, object]) -> Path:
     target = report_path(folder)
     target.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return target
+
+
+def store_changed_after(database: Path | None, report: dict[str, object] | None) -> bool:
+    """Whether the store file was modified later than the report says it was written
+    (a few seconds of slack: the report is computed after the last import step)."""
+    stamp = report.get("generated_at") if report is not None else None
+    if database is None or not isinstance(stamp, str) or not database.is_file():
+        return False
+    try:
+        written = datetime.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=UTC)
+    except ValueError:
+        return False
+    return database.stat().st_mtime > written.timestamp() + 5
 
 
 def read_report(folder: Path) -> dict[str, object] | None:

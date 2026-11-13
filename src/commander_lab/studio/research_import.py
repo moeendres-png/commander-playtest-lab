@@ -46,7 +46,7 @@ def _scope_key(path: Path) -> str:
 
 
 def import_tagger_roles(
-    store: StudioStore, path: str | Path, *, fetched_at: str | None = None
+    store: StudioStore, path: str | Path, *, fetched_at: str | None = None, force: bool = False
 ) -> dict[str, object]:
     """Import the tagger bulk CSV as a full role snapshot of its own scope.
 

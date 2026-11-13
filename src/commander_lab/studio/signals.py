@@ -265,10 +265,8 @@ def _first_wins(pairs: list[tuple[_Key, _Row, int]], report: FileReport) -> _Kep
             continue
         kept[key] = (row, part)
     if conflicts:
-        shown = ", ".join(conflicts[:3])
         report["warnings"].append(
-            f"{len(conflicts)} duplicate(s) with different figures: the first row was kept "
-            f"({shown}{', ...' if len(conflicts) > 3 else ''})"
+            f"{len(conflicts)} duplicate(s) with different figures: the first row was kept"
         )
     return kept
 

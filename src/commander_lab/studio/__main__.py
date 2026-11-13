@@ -156,6 +156,11 @@ def _parser() -> argparse.ArgumentParser:
     all_cmd.add_argument("--playgroup-atlas", help="Playgroup card atlas file (optional)")
     all_cmd.add_argument("--disambiguation", help="CSV name,selected_oracle_id (optional)")
     all_cmd.add_argument("--commander", required=True, help="commander the data is collected for")
+    all_cmd.add_argument(
+        "--force",
+        action="store_true",
+        help="let the tagger roles replace more than half of the earlier claims of their scope",
+    )
     commands.add_parser(
         "relink-corpus",
         help="link source-deck cards to oracle ids by name and rebuild deck statistics",
@@ -449,18 +454,23 @@ def _play_batch(args: argparse.Namespace) -> int:
 
 def _import_all(args: argparse.Namespace, store: StudioStore) -> int:
     from . import completeness
-    from .import_all import STEP_FAILED, import_all
+    from .import_all import STEP_FAILED, ImportAllError, import_all
 
-    report = import_all(
-        store,
-        commander=args.commander,
-        collection=Path(args.collection),
-        scryfall=Path(args.scryfall),
-        research=Path(args.research),
-        decklists=[Path(item) for item in args.decklists],
-        playgroup_atlas=Path(args.playgroup_atlas) if args.playgroup_atlas else None,
-        disambiguation=Path(args.disambiguation) if args.disambiguation else None,
-    )
+    try:
+        report = import_all(
+            store,
+            commander=args.commander,
+            collection=Path(args.collection),
+            scryfall=Path(args.scryfall),
+            research=Path(args.research),
+            decklists=[Path(item) for item in args.decklists],
+            playgroup_atlas=Path(args.playgroup_atlas) if args.playgroup_atlas else None,
+            disambiguation=Path(args.disambiguation) if args.disambiguation else None,
+            force=args.force,
+        )
+    except ImportAllError as error:
+        print(f"import-all: {error}", file=sys.stderr)
+        return 1
     folder = store.path.parent if store.path is not None else None
     written = completeness.write_report(folder, report) if folder is not None else None
     print(completeness.format_table(report))

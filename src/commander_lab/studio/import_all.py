@@ -13,7 +13,6 @@ importers know (signals, tagger bulk, rulings). Files nothing reads are listed w
 from __future__ import annotations
 
 import re
-import sqlite3
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from typing import TypedDict
@@ -28,6 +27,7 @@ from . import (
     signals,
     universe,
 )
+from .builder import list_commanders
 from .store import StudioStore, now_utc
 
 STEP_OK = "OK"
@@ -85,6 +85,10 @@ class ImportAllError(Exception):
     """A required step failed; the report written so far names it."""
 
 
+class UnknownCommanderError(ImportAllError):
+    """The commander is not in the collection; no report is computed for it."""
+
+
 def _record(
     steps: list[StepRecord],
     step: str,
@@ -111,7 +115,9 @@ def _folders(research: Path | None) -> list[Path]:
     return [research, *sorted(p for p in research.iterdir() if p.is_dir())]
 
 
-def _unused_files(folders: Sequence[Path], consumed: set[Path]) -> list[dict[str, object]]:
+def _unused_files(
+    folders: Sequence[Path], consumed: set[Path], *, aborted: bool = False
+) -> list[dict[str, object]]:
     grouped: dict[str, list[str]] = {}
     for folder in folders:
         for path in sorted(folder.iterdir()):
@@ -121,6 +127,8 @@ def _unused_files(folders: Sequence[Path], consumed: set[Path]) -> list[dict[str
                 (why for pattern, why in _NO_CONSUMER if re.fullmatch(pattern, path.name)),
                 "nicht erkannt: kein Importer kennt diese Datei",
             )
+            if aborted:
+                reason = NOT_READ
             grouped.setdefault(reason, []).append(f"{folder.name}/{path.name}")
     return [
         {"reason": reason, "files": files, "count": len(files)}
@@ -139,21 +147,23 @@ def _guarded(
     """Run one step; a failure is recorded, and raised again for a required step."""
     try:
         result = run()
-    except (ValueError, OSError, KeyError, sqlite3.Error) as error:
-        _record(steps, step, STEP_FAILED, inputs=inputs, message=str(error))
+    except Exception as error:
+        text = f"{type(error).__name__}: {error}"
+        _record(steps, step, STEP_FAILED, inputs=inputs, message=text)
         if required:
-            raise ImportAllError(f"{step}: {error}") from error
+            raise ImportAllError(f"{step}: {text}") from error
         return None
     _record(steps, step, STEP_OK, inputs=inputs, result=result)
     return result
 
 
 def _summary(result: dict[str, object]) -> dict[str, object]:
-    """The counts of an importer result; long lists are cut to their length."""
+    """The counts of an importer result. A list (card names, mostly) becomes its length under
+    ``<key>_count``: the report holds counts only, the names stay in the importer's own output."""
     short: dict[str, object] = {}
     for key, value in result.items():
-        if isinstance(value, list) and len(value) > 20:
-            short[key] = f"{len(value)} Einträge"
+        if isinstance(value, list):
+            short[f"{key}_count"] = len(value)
         else:
             short[key] = value
     return short
@@ -169,6 +179,7 @@ def import_all(
     decklists: Sequence[Path] = (),
     playgroup_atlas: Path | None = None,
     disambiguation: Path | None = None,
+    force: bool = False,
 ) -> dict[str, object]:
     """Run every step and return the completeness report (also see ``completeness``).
 
@@ -197,8 +208,9 @@ def import_all(
             required=True,
         )
         name = signals.resolve_commander_name(store, commander)
+        _require_commander(store, name)
         _deck_steps(store, steps, name, decklists)
-        _research_steps(store, steps, consumed, folders, research, name)
+        _research_steps(store, steps, consumed, folders, research, name, force)
         if playgroup_atlas is None:
             _record(steps, "playgroup_atlas", STEP_NOT_DELIVERED, message="--playgroup-atlas fehlt")
         else:
@@ -210,9 +222,30 @@ def import_all(
             )
         _guarded(steps, "relink_corpus", [], lambda: _summary(catalog.relink_corpus(store)))
         _profile_step(store, steps, name)
+    except UnknownCommanderError:
+        raise
     except ImportAllError as error:
         stopped_at = str(error)
     return _report(store, name, steps, folders, consumed, stopped_at, research)
+
+
+def _require_commander(store: StudioStore, commander: str) -> None:
+    found = store.connection.execute(
+        "SELECT 1 FROM card_fact f JOIN inventory i USING (card_id) WHERE f.oracle_name = ?",
+        (commander,),
+    ).fetchone()
+    if found is not None:
+        return
+    names = [
+        str(item["name"])
+        for item in list_commanders(store, include_collection=True)
+        if item["in_collection"]
+    ]
+    shown = ", ".join(names[:30]) + (f" (+{len(names) - 30} weitere)" if len(names) > 30 else "")
+    raise UnknownCommanderError(
+        f"Der Commander {commander!r} steht nicht in der Sammlung. Verfügbare Commander: "
+        f"{shown or 'keine gefunden'}"
+    )
 
 
 def _deck_steps(
@@ -245,6 +278,7 @@ def _research_steps(
     folders: list[Path],
     research: Path | None,
     commander: str,
+    force: bool,
 ) -> None:
     if not folders:
         message = "Ordner fehlt" if research is not None else "--research fehlt"
@@ -281,7 +315,9 @@ def _research_steps(
         date = research_import.capture_date(path.parent / "README.md", path.stem)
 
         def run_tagger(path: Path = path, date: str | None = date) -> dict[str, object]:
-            return _summary(research_import.import_tagger_roles(store, path, fetched_at=date))
+            return _summary(
+                research_import.import_tagger_roles(store, path, fetched_at=date, force=force)
+            )
 
         _guarded(steps, f"tagger_roles:{path.name}", [path.name], run_tagger)
     ruling_files = sorted(
@@ -365,6 +401,6 @@ def _report(
         "steps": steps,
         "failed_steps": len(failed),
         "layers": layers,
-        "unused_files": _unused_files(folders, consumed),
+        "unused_files": _unused_files(folders, consumed, aborted=stopped_at is not None),
         "warnings": warnings,
     }
