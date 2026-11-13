@@ -33,6 +33,15 @@ has its own header and the parts are read one after another in number order):
   Per-card conversion is not published by the source either and is never stored.
   Rows the fetch did not attribute to the commander (``fetch_status`` other than
   AVAILABLE, e.g. the API's global-staples fallback rows) are not imported.
+- ``playgroup_card_atlas_signals``: the observed win-rate gap of the Playgroup card
+  atlas (commander independent): how much more often players won when they cast a card
+  than when it never left their library, in percentage points, as published by the
+  source with its own 95 % interval. The atlas fetch status measures another sample
+  (the cast-turn funnel), not this observation, so a row is kept when the win-rate
+  observation itself is published and rests on at least ``ATLAS_MIN_SAMPLE`` games in
+  which the card was cast; the sample size is stored as the denominator and the
+  strength component applies the same minimum plus shrinkage. Rows without a
+  published gap, and rows of a card the source did not deliver, are not stored.
 
 Commander names of the files are matched against the commander names the store knows
 (collection cards, bound decks, stored signals): exactly, else by a unique case-insensitive
@@ -65,9 +74,17 @@ GLOBAL_FILE = "card_global_signals"
 SPELLBOOK_FILE = "spellbook_card_links"
 TOURNAMENT_FILE = "topdeck_chulane_decks"
 EDHTOP16_FILE = "edhtop16_commander_signals"
+ATLAS_FILE = "playgroup_card_atlas_signals"
 BRACKET_VARIANTS = ("core", "upgraded", "optimized", "cedh")
 AVAILABLE = "AVAILABLE"
 LIST_SECTIONS = frozenset({"main", "commander"})
+# Atlas rows whose card the source delivered at all; the status says nothing about
+# the win-rate sample, so the sample rule below is applied on top of it.
+ATLAS_STATUSES = frozenset({"OK", "PARTIAL"})
+# Minimum games in which the card was cast before its observed win-rate gap counts
+# as evidence at all; mirrors the minimum of the strength component, which also
+# shrinks the gap of a small sample towards zero (strength.py).
+ATLAS_MIN_SAMPLE = 25
 
 SIGNAL_INCLUSION = "edhrec_commander_inclusion"
 SIGNAL_SYNERGY = "edhrec_commander_synergy"
@@ -76,6 +93,7 @@ SIGNAL_GLOBAL = "edhrec_global_inclusion"
 SIGNAL_VARIANTS = "spellbook_variants"
 SIGNAL_TOURNAMENT = "tournament_lists"
 SIGNAL_EDHTOP16 = "edhtop16_commander_play_rate"
+SIGNAL_PLAYGROUP = "playgroup_observed_winrate_gap"
 
 _Row = tuple[str, str, str, float | None, int | None, int | None]  # commander, signal, card, ...
 
@@ -341,6 +359,53 @@ def _read_edhtop16(paths: list[Path], report: FileReport, commanders: _Commander
     return list(_first_wins(iter(pairs), report).values())
 
 
+def _read_atlas(paths: list[Path], report: FileReport) -> list[_Row]:
+    """Rows of the Playgroup card atlas: the published observed win-rate gap per card.
+
+    The value is the gap in percentage points, exactly as published; the denominator
+    is the number of games in which the card was cast (the sample of the observation;
+    the comparison group, games in which it never left the library, is larger for
+    almost every card of the atlas). There is no numerator: the source publishes the
+    two win rates rounded, so a win count is not reconstructed. A row is stored only
+    when the source delivered the card, published the gap, and the sample reaches
+    ``ATLAS_MIN_SAMPLE``; anything else stays unknown, never zero."""
+    required = {"card_name", "fetch_status", "observed_winrate_gap_pp", "winrate_when_cast_n"}
+    pairs: list[tuple[tuple[str, str, str], _Row]] = []
+    for row in _rows(paths, required):
+        report["rows_read"] += 1
+        card = row["card_name"].strip()
+        if not card:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["NAME_MISSING"] = (
+                report["skipped_reasons"].get("NAME_MISSING", 0) + 1
+            )
+            continue
+        if row["fetch_status"].strip() not in ATLAS_STATUSES:
+            # The source did not deliver this card: unknown, not zero.
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["FETCH_STATUS_NOT_AVAILABLE"] = (
+                report["skipped_reasons"].get("FETCH_STATUS_NOT_AVAILABLE", 0) + 1
+            )
+            continue
+        gap = _number(row.get("observed_winrate_gap_pp"))
+        sample = _count(row.get("winrate_when_cast_n"))
+        if gap is None or sample is None:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["VALUE_NOT_PUBLISHED"] = (
+                report["skipped_reasons"].get("VALUE_NOT_PUBLISHED", 0) + 1
+            )
+            continue
+        if sample < ATLAS_MIN_SAMPLE:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["SAMPLE_BELOW_MINIMUM"] = (
+                report["skipped_reasons"].get("SAMPLE_BELOW_MINIMUM", 0) + 1
+            )
+            continue
+        item: _Row = ("", SIGNAL_PLAYGROUP, card, gap, None, sample)
+        pairs.append(((item[0], item[1], item[2]), item))
+    return list(_first_wins(iter(pairs), report).values())
+
+
 _ListKey = tuple[str, str, str, frozenset[str]]  # tournament, date, player key, main cards
 
 
@@ -459,6 +524,8 @@ def _file_signals(file_name: str, variant: str | None) -> list[str]:
         return [SIGNAL_VARIANTS]
     if file_name == EDHTOP16_FILE:
         return [SIGNAL_EDHTOP16]
+    if file_name == ATLAS_FILE:
+        return [SIGNAL_PLAYGROUP]
     return [SIGNAL_TOURNAMENT]
 
 
@@ -491,6 +558,8 @@ def _read_file(
         return _read_independent(paths, required, _spellbook_rows, report)
     if file_name == EDHTOP16_FILE:
         return _read_edhtop16(paths, report, commanders)
+    if file_name == ATLAS_FILE:
+        return _read_atlas(paths, report)
     raise ValueError(f"not a per-file signal: {file_name}")
 
 
@@ -514,7 +583,7 @@ def has_signal_files(folder: str | Path) -> bool:
     root = Path(folder)
     if not root.is_dir():
         return False
-    bases = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE]
+    bases = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE]
     bases += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
     bases += _tournament_bases(root)
     return any(_parts(root, base) for base in bases)
@@ -592,6 +661,7 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
     plan += [(f"{BRACKET_FILE}_{variant}", variant) for variant in BRACKET_VARIANTS]
     plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None)]
     plan += [(EDHTOP16_FILE, None)]
+    plan += [(ATLAS_FILE, None)]
     commanders = _Commanders(store)
     preferred = commanders.resolve(name)
     commanders.imported.discard(preferred)  # only commanders the files name are "imported"
@@ -604,7 +674,7 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
             reports[file_name] = report
             if not paths:
                 continue
-            independent = (CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE)
+            independent = (CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE)
             base = file_name if file_name in independent else None
             kind = base or BRACKET_FILE
             rows = _read_file(kind, paths, variant, report, commanders)
