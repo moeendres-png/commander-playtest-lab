@@ -1,0 +1,314 @@
+{
+ "urlhash": "3wqhLAlQYcphEVC6I4S4RA",
+ "variante": "upgraded",
+ "bracket": 3,
+ "savedate": "2025-09-23",
+ "price": 98,
+ "salt": 40.56772736646235,
+ "tags": [
+  "Blink",
+  "Dungeon",
+  "Spellslinger"
+ ],
+ "source_url": "https://moxfield.com/decks/P8uBNN52AkK02S5gZ7mlqA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aarakocra Sneak",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Investigator",
+   "quantity": 1
+  },
+  {
+   "name": "Avenging Hunter",
+   "quantity": 1
+  },
+  {
+   "name": "Cloister Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Círdan the Shipwright",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Elrond of the White Council",
+   "quantity": 1
+  },
+  {
+   "name": "Feywild Caretaker",
+   "quantity": 1
+  },
+  {
+   "name": "Flaming Fist Officer",
+   "quantity": 1
+  },
+  {
+   "name": "Goliath Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Gretchen Titchwillow",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian Naga",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Hama Pashar, Ruin Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Icewind Stalwart",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Outlander",
+   "quantity": 1
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Ally",
+   "quantity": 1
+  },
+  {
+   "name": "Prosperous Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger's Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Door",
+   "quantity": 1
+  },
+  {
+   "name": "Tomb of Horrors Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Undermountain Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Dungeoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Troubadour",
+   "quantity": 1
+  },
+  {
+   "name": "White Plume Adventurer",
+   "quantity": 1
+  },
+  {
+   "name": "Yuan-Ti Malison",
+   "quantity": 1
+  },
+  {
+   "name": "Bar the Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Choose Your Weapon",
+   "quantity": 1
+  },
+  {
+   "name": "Contraband Livestock",
+   "quantity": 1
+  },
+  {
+   "name": "Lae'zel's Acrobatics",
+   "quantity": 1
+  },
+  {
+   "name": "Plummet",
+   "quantity": 1
+  },
+  {
+   "name": "Sail into the West",
+   "quantity": 1
+  },
+  {
+   "name": "You Come to a River",
+   "quantity": 1
+  },
+  {
+   "name": "You Find the Villains' Lair",
+   "quantity": 1
+  },
+  {
+   "name": "You Hear Something on Watch",
+   "quantity": 1
+  },
+  {
+   "name": "You Look Upon the Tarrasque",
+   "quantity": 1
+  },
+  {
+   "name": "You See a Guard Approach",
+   "quantity": 1
+  },
+  {
+   "name": "You're Ambushed on the Road",
+   "quantity": 1
+  },
+  {
+   "name": "You're Confronted by Robbers",
+   "quantity": 1
+  },
+  {
+   "name": "Your Temple Is Under Attack",
+   "quantity": 1
+  },
+  {
+   "name": "Ascend from Avernus",
+   "quantity": 1
+  },
+  {
+   "name": "Cut a Deal",
+   "quantity": 1
+  },
+  {
+   "name": "Explore the Underdark",
+   "quantity": 1
+  },
+  {
+   "name": "Selvala's Stampede",
+   "quantity": 1
+  },
+  {
+   "name": "Split the Party",
+   "quantity": 1
+  },
+  {
+   "name": "Tasha's Hideous Laughter",
+   "quantity": 1
+  },
+  {
+   "name": "Travel Through Caradhras",
+   "quantity": 1
+  },
+  {
+   "name": "You Find a Cursed Idol",
+   "quantity": 1
+  },
+  {
+   "name": "You Meet in a Tavern",
+   "quantity": 1
+  },
+  {
+   "name": "Component Pouch",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Map",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeoneer's Pack",
+   "quantity": 1
+  },
+  {
+   "name": "Sarevok's Tome",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Chest",
+   "quantity": 1
+  },
+  {
+   "name": "Wizard's Spellbook",
+   "quantity": 1
+  },
+  {
+   "name": "Far Traveler",
+   "quantity": 1
+  },
+  {
+   "name": "Find the Path",
+   "quantity": 1
+  },
+  {
+   "name": "Fly",
+   "quantity": 1
+  },
+  {
+   "name": "Teleportation Circle",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Ellywick Tumblestrum",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 10
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 10
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Treasure Vault",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
