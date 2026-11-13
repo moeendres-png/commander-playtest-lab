@@ -16,8 +16,17 @@ has its own header and the parts are read one after another in number order):
 - ``spellbook_card_links``: number of combo variants a card is part of (commander
   independent). The file's partner count is not stored: no strength component reads it,
   and the value stays available in the source file.
-- ``topdeck_chulane_decks``: complete tournament lists of one commander. The player
-  column is never read into storage; a list is only counted, per tournament and date.
+- ``topdeck_<name>_decks`` (any file of that shape, one commander per file): complete
+  tournament lists. The commander of a file is the one written ALONE in the commander
+  section of its lists (the most common one; ``--commander`` breaks a tie); a list counts
+  only if its commander section is exactly that commander, lists of a partner pair or
+  another commander are skipped and reported (``OTHER_COMMANDER_SET``). All tournament
+  files of one import are read first and their lists pooled per commander (the same list
+  in two files counts once), then stored once per commander. The player column is
+  required because it tells two lists of one tournament and date apart: it is used as an
+  in-memory grouping key while the file is read. Its value is never stored, logged or
+  reported; a list is only counted, per tournament and date (the dataset carries neutral
+  labels "Liste N" there).
 - ``edhtop16_commander_signals``: per commander and card, the EDHTop16 play rate over
   the ONE_YEAR tournament window; the denominator is the commander's published entry
   count of that window, the per-card deck count is not published and stays NULL.
@@ -34,10 +43,17 @@ has its own header and the parts are read one after another in number order):
   strength component applies the same minimum plus shrinkage. Rows without a
   published gap, and rows of a card the source did not deliver, are not stored.
 
+Commander names of the files are matched against the commander names the store knows
+(collection cards, bound decks, stored signals): exactly, else by a unique case-insensitive
+match; a name that matches nothing is imported as written and listed in the report as not
+recognised, next to the names that were imported.
+
 A value the source does not publish is stored as NULL (unknown), never as 0. A card a
 source does not list gets no row. When a card is listed under several headings of one
 commander page with the same figures, the first row is kept. Re-importing replaces the rows
-of each signal and commander the import writes, so the import is idempotent. Source rows of
+of each signal and commander the import writes, so the import is idempotent; a file with no
+valid row replaces nothing and the report says so (``NOTHING_REPLACED``, with the number of
+existing rows that were kept). Source rows of
 a commander are never mixed with another commander's.
 """
 
@@ -87,8 +103,13 @@ class FileReport(TypedDict):
     parts: list[str]
     rows_read: int
     rows_written: int
+    rows_replaced: int
+    rows_kept: int
     rows_skipped: int
     skipped_reasons: dict[str, int]
+    commander: str | None
+    lists_read: int  # tournament files: distinct lists read from this file
+    pooled_into: str | None  # tournament files: the file that carries the pooled rows stored
 
 
 def _number(text: str | None) -> float | None:
@@ -137,6 +158,48 @@ def _share(numerator: int | None, denominator: int | None) -> float | None:
     return numerator / denominator
 
 
+class _Commanders:
+    """Maps the commander names of the files onto the names the store knows.
+
+    Exact match first, else a unique case-insensitive match; anything else is kept as
+    written and counted as not recognised. Records what it saw for the report."""
+
+    def __init__(self, store: StudioStore) -> None:
+        db = store.connection
+        known = {str(row[0]) for row in db.execute("SELECT oracle_name FROM card")}
+        known |= {
+            str(row[0])
+            for row in db.execute("SELECT DISTINCT commander_name FROM commander_binding")
+        }
+        known |= {
+            str(row[0])
+            for row in db.execute(
+                "SELECT DISTINCT commander_name FROM card_signal WHERE commander_name != ''"
+            )
+        }
+        self._known = known
+        self._folded: dict[str, set[str]] = {}
+        for name in known:
+            self._folded.setdefault(name.casefold(), set()).add(name)
+        self.imported: set[str] = set()
+        self.not_recognised: set[str] = set()
+        self.normalised: dict[str, str] = {}
+
+    def resolve(self, name: str) -> str:
+        if name in self._known:
+            self.imported.add(name)
+            return name
+        matches = self._folded.get(name.casefold(), set())
+        if len(matches) == 1:
+            found = next(iter(matches))
+            self.normalised[name] = found
+            self.imported.add(found)
+            return found
+        self.imported.add(name)
+        self.not_recognised.add(name)
+        return name
+
+
 def _commander_rows(
     row: dict[str, str], commander: str, card: str, variant: str | None
 ) -> list[_Row]:
@@ -174,12 +237,19 @@ def _empty(paths: list[Path]) -> FileReport:
         "parts": [path.name for path in paths],
         "rows_read": 0,
         "rows_written": 0,
+        "rows_replaced": 0,
+        "rows_kept": 0,
         "rows_skipped": 0,
         "skipped_reasons": {},
+        "commander": None,
+        "lists_read": 0,
+        "pooled_into": None,
     }
 
 
-def _read_commander_file(paths: list[Path], variant: str | None, report: FileReport) -> list[_Row]:
+def _read_commander_file(
+    paths: list[Path], variant: str | None, report: FileReport, commanders: _Commanders
+) -> list[_Row]:
     required = {"commander_name", "card_name", "num_decks", "potential_decks"}
     required |= set() if variant else {"synergy"}
     if variant:
@@ -188,6 +258,8 @@ def _read_commander_file(paths: list[Path], variant: str | None, report: FileRep
     for row in _rows(paths, required):
         report["rows_read"] += 1
         commander, card = row["commander_name"].strip(), row["card_name"].strip()
+        if commander and card:
+            commander = commanders.resolve(commander)
         if not commander or not card:
             report["rows_skipped"] += 1
             report["skipped_reasons"]["NAME_MISSING"] = (
@@ -244,7 +316,7 @@ def _spellbook_rows(row: dict[str, str], card: str) -> list[_Row]:
     ]
 
 
-def _read_edhtop16(paths: list[Path], report: FileReport) -> list[_Row]:
+def _read_edhtop16(paths: list[Path], report: FileReport, commanders: _Commanders) -> list[_Row]:
     """EDHTop16 play rates per commander and card (ONE_YEAR window).
 
     Only rows the fetch attributed to the commander (``fetch_status``
@@ -282,46 +354,9 @@ def _read_edhtop16(paths: list[Path], report: FileReport) -> list[_Row]:
         entries = _count(row.get("entries_n"))
         if entries == 0:
             entries = None
-        item: _Row = (commander, SIGNAL_EDHTOP16, card, rate, None, entries)
+        item: _Row = (commanders.resolve(commander), SIGNAL_EDHTOP16, card, rate, None, entries)
         pairs.append(((item[0], item[1], item[2]), item))
     return list(_first_wins(iter(pairs), report).values())
-
-
-def _read_tournament_lists(paths: list[Path], commander: str, report: FileReport) -> list[_Row]:
-    """Count, per card, the commander's tournament lists that contain it.
-
-    The player column is not read. Lists are told apart by tournament and date in file
-    order; the identity of a list is kept only while the file is read."""
-    required = {"tournament", "date", "card_name", "section"}
-    lists: dict[tuple[str, str, str], tuple[set[str], set[str]]] = {}
-    for row in _rows(paths, required | {"player"}):
-        report["rows_read"] += 1
-        if row["section"].strip() not in LIST_SECTIONS:
-            report["rows_skipped"] += 1
-            report["skipped_reasons"]["SECTION_NOT_COUNTED"] = (
-                report["skipped_reasons"].get("SECTION_NOT_COUNTED", 0) + 1
-            )
-            continue
-        # The identity is only a grouping key in memory; it is never written.
-        identity = (row["tournament"], row["date"], row["player"])
-        cards, commanders = lists.setdefault(identity, (set(), set()))
-        name = row["card_name"].strip()
-        cards.add(name)
-        if row["section"].strip() == "commander":
-            commanders.add(name)
-    valid = [cards for cards, commanders in lists.values() if commander in commanders]
-    invalid = len(lists) - len(valid)
-    if invalid:
-        report["skipped_reasons"]["LIST_OF_OTHER_COMMANDER"] = invalid
-    counts: dict[str, int] = {}
-    for cards in valid:
-        for name in cards:
-            counts[name] = counts.get(name, 0) + 1
-    total = len(valid)
-    return [
-        (commander, SIGNAL_TOURNAMENT, name, count / total, count, total)
-        for name, count in sorted(counts.items())
-    ]
 
 
 def _read_atlas(paths: list[Path], report: FileReport) -> list[_Row]:
@@ -371,16 +406,100 @@ def _read_atlas(paths: list[Path], report: FileReport) -> list[_Row]:
     return list(_first_wins(iter(pairs), report).values())
 
 
-def _store_rows(store: StudioStore, rows: list[_Row], source_id: str) -> int:
+_ListKey = tuple[str, str, str, frozenset[str]]  # tournament, date, player key, main cards
+
+
+def _read_tournament_lists(
+    paths: list[Path], preferred: str, commanders: _Commanders, report: FileReport
+) -> tuple[str | None, set[_ListKey]]:
+    """The file's commander and the lists that count for it.
+
+    The file's commander is the one written, alone, in the commander section of its lists
+    (the most common one; ``preferred`` breaks a tie). A list counts only if its commander
+    section is exactly that one card (the exact-set rule of ``universe.resolve_universe``):
+    lists of a partner pair or another commander are skipped and reported, never stored under
+    a single partner. Commander-section cards are not deck cards. The player column is
+    required and read: it is only an in-memory grouping key that tells two lists of one
+    tournament and date apart. Its value is never stored, logged or reported."""
+    required = {"tournament", "date", "card_name", "section"}
+    lists: dict[tuple[str, str, str], tuple[set[str], set[str]]] = {}
+    for row in _rows(paths, required | {"player"}):
+        report["rows_read"] += 1
+        if row["section"].strip() not in LIST_SECTIONS:
+            report["rows_skipped"] += 1
+            report["skipped_reasons"]["SECTION_NOT_COUNTED"] = (
+                report["skipped_reasons"].get("SECTION_NOT_COUNTED", 0) + 1
+            )
+            continue
+        identity = (row["tournament"], row["date"], row["player"])
+        cards, listed_commanders = lists.setdefault(identity, (set(), set()))
+        name = row["card_name"].strip()
+        if row["section"].strip() == "commander":
+            listed_commanders.add(name)
+        else:
+            cards.add(name)
+    report["lists_read"] = len(lists)
+    reasons = report["skipped_reasons"]
+    empty = sum(1 for _cards, listed in lists.values() if not listed)
+    multiple = sum(1 for _cards, listed in lists.values() if len(listed) > 1)
+    if empty:
+        reasons["NO_COMMANDER_SECTION"] = empty
+    if multiple:
+        reasons["OTHER_COMMANDER_SET"] = multiple
+    votes: dict[str, int] = {}
+    for _cards, listed in lists.values():
+        if len(listed) == 1:
+            (name,) = listed
+            votes[name] = votes.get(name, 0) + 1
+    if not votes:
+        return None, set()
+    most = max(votes.values())
+    leaders = sorted(name for name, count in votes.items() if count == most)
+    chosen = preferred if preferred in leaders else leaders[0]
+    commander = commanders.resolve(chosen)
+    report["commander"] = commander
+    valid: set[_ListKey] = {
+        (identity[0], identity[1], identity[2], frozenset(cards))
+        for identity, (cards, listed) in lists.items()
+        if listed == {chosen}
+    }
+    other = sum(1 for _cards, listed in lists.values() if len(listed) == 1 and chosen not in listed)
+    if other:
+        reasons["LIST_OF_OTHER_COMMANDER"] = other
+    return commander, valid
+
+
+def _tournament_signal_rows(commander: str, lists: set[_ListKey]) -> list[_Row]:
+    counts: dict[str, int] = {}
+    for _tournament, _date, _player, cards in lists:
+        for name in cards:
+            counts[name] = counts.get(name, 0) + 1
+    total = len(lists)
+    return [
+        (commander, SIGNAL_TOURNAMENT, name, count / total, count, total)
+        for name, count in sorted(counts.items())
+    ]
+
+
+def _store_rows(store: StudioStore, rows: list[_Row], source_id: str) -> tuple[int, int]:
+    """Replace the rows of every (commander, signal) pair of ``rows``; returns (rows written,
+    existing rows that were replaced)."""
     db = store.connection
     pairs = sorted({(row[0], row[1]) for row in rows})
+    replaced = 0
+    for pair in pairs:
+        replaced += int(
+            db.execute(
+                "SELECT COUNT(*) FROM card_signal WHERE commander_name = ? AND signal = ?", pair
+            ).fetchone()[0]
+        )
     db.executemany("DELETE FROM card_signal WHERE commander_name = ? AND signal = ?", pairs)
     db.executemany(
         "INSERT OR REPLACE INTO card_signal(commander_name, signal, card_name, value, "
         "numerator, denominator, source_id) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [(*row, source_id) for row in rows],
     )
-    return len(rows)
+    return len(rows), replaced
 
 
 def _register(store: StudioStore, paths: list[Path]) -> str | None:
@@ -393,11 +512,44 @@ def _register(store: StudioStore, paths: list[Path]) -> str | None:
     return source_id
 
 
+def _file_signals(file_name: str, variant: str | None) -> list[str]:
+    """The stored signals a file writes (the bracket files write one signal per variant)."""
+    if variant is not None:
+        return [f"{SIGNAL_BRACKET}:{variant}"]
+    if file_name == CARD_FILE:
+        return [SIGNAL_INCLUSION, SIGNAL_SYNERGY]
+    if file_name == GLOBAL_FILE:
+        return [SIGNAL_GLOBAL]
+    if file_name == SPELLBOOK_FILE:
+        return [SIGNAL_VARIANTS]
+    if file_name == EDHTOP16_FILE:
+        return [SIGNAL_EDHTOP16]
+    if file_name == ATLAS_FILE:
+        return [SIGNAL_PLAYGROUP]
+    return [SIGNAL_TOURNAMENT]
+
+
+def _kept_rows(store: StudioStore, signals_written: list[str], commander: str | None) -> int:
+    """Existing rows a file with no valid row leaves untouched: those of its signals (for the
+    commander of a tournament file, for all commanders otherwise)."""
+    marks = ", ".join("?" for _ in signals_written)
+    sql = f"SELECT COUNT(*) FROM card_signal WHERE signal IN ({marks})"
+    params: list[str] = list(signals_written)
+    if commander is not None:
+        sql += " AND commander_name = ?"
+        params.append(commander)
+    return int(store.connection.execute(sql, params).fetchone()[0])
+
+
 def _read_file(
-    file_name: str, paths: list[Path], variant: str | None, commander: str, report: FileReport
+    file_name: str,
+    paths: list[Path],
+    variant: str | None,
+    report: FileReport,
+    commanders: _Commanders,
 ) -> list[_Row]:
     if file_name == CARD_FILE or variant is not None:
-        return _read_commander_file(paths, variant, report)
+        return _read_commander_file(paths, variant, report, commanders)
     if file_name == GLOBAL_FILE:
         required = {"card_name", "fetch_status", "num_decks", "potential_decks"}
         return _read_independent(paths, required, _global_rows, report)
@@ -405,17 +557,99 @@ def _read_file(
         required = {"card_name", "fetch_status", "variant_count"}
         return _read_independent(paths, required, _spellbook_rows, report)
     if file_name == EDHTOP16_FILE:
-        return _read_edhtop16(paths, report)
+        return _read_edhtop16(paths, report, commanders)
     if file_name == ATLAS_FILE:
         return _read_atlas(paths, report)
-    return _read_tournament_lists(paths, commander, report)
+    raise ValueError(f"not a per-file signal: {file_name}")
+
+
+_TOURNAMENT_PATTERN = re.compile(r"^(topdeck_.+_decks)(?:_(\d+))?\.csv$")
+
+
+def _tournament_bases(folder: Path) -> list[str]:
+    """Base names of every tournament file of the folder: ``topdeck_<name>_decks`` (with or
+    without numbered parts), in name order. The legacy name is always planned, so an absent
+    file is still reported as ABSENT."""
+    found = {TOURNAMENT_FILE}
+    for path in folder.iterdir():
+        match = _TOURNAMENT_PATTERN.match(path.name)
+        if match and path.is_file():
+            found.add(match.group(1))
+    return sorted(found)
+
+
+def has_signal_files(folder: str | Path) -> bool:
+    """Whether ``folder`` holds at least one file ``import_signals`` reads."""
+    root = Path(folder)
+    if not root.is_dir():
+        return False
+    bases = [CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE]
+    bases += [f"{BRACKET_FILE}_{variant}" for variant in BRACKET_VARIANTS]
+    bases += _tournament_bases(root)
+    return any(_parts(root, base) for base in bases)
+
+
+def _import_tournaments(
+    store: StudioStore,
+    root: Path,
+    preferred: str,
+    commanders: _Commanders,
+    reports: dict[str, FileReport],
+) -> None:
+    """Read ALL tournament files first, pool their lists per commander, store each commander
+    once. A list is (tournament, date, player key, cards); the same list read from two files
+    counts once. ``rows_written``/``rows_replaced`` sit on the first file of the commander and
+    are what was stored / what existed before this import; the other files of the commander
+    name that file in ``pooled_into``."""
+    pooled: dict[str, set[_ListKey]] = {}
+    carriers: dict[str, str] = {}
+    members: dict[str, list[str]] = {}
+    source_ids: dict[str, str | None] = {}
+    for base in _tournament_bases(root):
+        paths = _parts(root, base)
+        report = _empty(paths)
+        reports[base] = report
+        if not paths:
+            continue
+        commander, lists = _read_tournament_lists(paths, preferred, commanders, report)
+        source_ids[base] = _register(store, paths)
+        if commander is not None:
+            pooled.setdefault(commander, set()).update(lists)
+            carriers.setdefault(commander, base)
+            members.setdefault(commander, []).append(base)
+    written: set[str] = set()
+    for commander, lists in pooled.items():
+        rows = _tournament_signal_rows(commander, lists)
+        source_id = source_ids[carriers[commander]]
+        if source_id is None or not rows:
+            continue
+        stored, replaced = _store_rows(store, rows, source_id)
+        carrier = reports[carriers[commander]]
+        carrier["rows_written"], carrier["rows_replaced"] = stored, replaced
+        written.add(commander)
+        for base in members[commander][1:]:
+            reports[base]["pooled_into"] = carriers[commander]
+    for report in reports.values():
+        if report["status"] == "ABSENT" or (report["commander"] in written):
+            continue
+        report["status"] = "NOTHING_REPLACED"
+        report["rows_kept"] = _kept_rows(
+            store, [SIGNAL_TOURNAMENT], report["commander"] or preferred
+        )
 
 
 def import_signals(store: StudioStore, folder: str | Path, *, commander: str) -> dict[str, object]:
     """Import every signal file of ``folder`` (all optional); one report entry per file.
 
-    ``commander`` owns the tournament lists; the EDHREC signals carry their own commander
-    column. All files are written in one transaction."""
+    The EDHREC signals carry their own commander column; every ``topdeck_*_decks`` file
+    belongs to the commander written in its commander section, ``commander`` breaks a tie
+    between commanders of equal count. All files are written in one transaction.
+
+    The report is truthful about what changed: per file ``rows_written`` and
+    ``rows_replaced`` (existing rows of the same commander and signal that were swapped for
+    the new ones) and, when a file had no valid row, ``status`` ``NOTHING_REPLACED`` with
+    ``rows_kept``, the existing rows that stayed. ``commanders_imported`` and
+    ``commanders_not_recognised`` list the commander names of the import."""
     root = Path(folder)
     if not root.is_dir():
         raise ValueError(f"not a folder: {root}")
@@ -425,23 +659,42 @@ def import_signals(store: StudioStore, folder: str | Path, *, commander: str) ->
     reports: dict[str, FileReport] = {}
     plan: list[tuple[str, str | None]] = [(CARD_FILE, None)]
     plan += [(f"{BRACKET_FILE}_{variant}", variant) for variant in BRACKET_VARIANTS]
-    plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None), (TOURNAMENT_FILE, None)]
+    plan += [(GLOBAL_FILE, None), (SPELLBOOK_FILE, None)]
     plan += [(EDHTOP16_FILE, None)]
     plan += [(ATLAS_FILE, None)]
+    commanders = _Commanders(store)
+    preferred = commanders.resolve(name)
+    commanders.imported.discard(preferred)  # only commanders the files name are "imported"
+    commanders.not_recognised.discard(name)
     with store.connection:
+        _import_tournaments(store, root, preferred, commanders, reports)
         for file_name, variant in plan:
             paths = _parts(root, file_name)
             report = _empty(paths)
             reports[file_name] = report
             if not paths:
                 continue
-            rows = _read_file(file_name, paths, variant, name, report)
+            independent = (CARD_FILE, GLOBAL_FILE, SPELLBOOK_FILE, EDHTOP16_FILE, ATLAS_FILE)
+            base = file_name if file_name in independent else None
+            kind = base or BRACKET_FILE
+            rows = _read_file(kind, paths, variant, report, commanders)
             source_id = _register(store, paths)
             if source_id is not None and rows:
-                report["rows_written"] = _store_rows(store, rows, source_id)
+                written, replaced = _store_rows(store, rows, source_id)
+                report["rows_written"], report["rows_replaced"] = written, replaced
+            else:
+                report["status"] = "NOTHING_REPLACED"
+                report["rows_kept"] = _kept_rows(store, _file_signals(kind, variant), None)
     return {
         "folder": root.name,
-        "tournament_commander": name,
+        "tournament_commander": preferred,
         "files": reports,
         "rows_written": sum(report["rows_written"] for report in reports.values()),
+        "rows_replaced": sum(report["rows_replaced"] for report in reports.values()),
+        "rows_kept": sum(report["rows_kept"] for report in reports.values()),
+        "commanders_imported": sorted(commanders.imported),
+        "commanders_not_recognised": sorted(commanders.not_recognised),
+        "commanders_normalised": [
+            {"from": raw, "to": found} for raw, found in sorted(commanders.normalised.items())
+        ],
     }

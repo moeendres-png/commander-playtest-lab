@@ -6,8 +6,15 @@
 <title>Commander Studio: Partie</title>
 <link rel="stylesheet" href="app.css">
 <link rel="stylesheet" href="partie.css">
+<script src="ui.js"></script>
 </head>
 <body>
+<header id="brand">
+  <a class="logo" href="index.html">Commander Studio</a>
+  <nav id="areas" aria-label="Bereiche"><a href="index.html">Deckbau</a><a href="tierliste.html">Tierliste</a><a href="partie.html">Partien</a></nav>
+  <span class="spacer"></span>
+  <button id="theme-toggle" type="button" class="ghost"></button>
+</header>
 <header id="top">
   <h1>Commander Studio <span>Partie ansehen</span></h1>
   <label>Partie <select id="game-select"></select></label>
@@ -16,8 +23,6 @@
   <span class="spacer"></span>
   <button id="delete-game" type="button" class="danger" title="Diese Partie dauerhaft löschen">Partie löschen</button>
   <button id="new-game" type="button" class="primary">Neue Partie</button>
-  <a class="nav" href="index.html">Deckbau</a>
-  <a class="nav" href="tierliste.html">Tierliste</a>
 </header>
 <div id="controls">
   <button id="first" type="button" title="Anfang">⏮</button>
@@ -45,6 +50,7 @@
 <div id="preview" hidden><img alt=""></div>
 <div id="modal" hidden><div id="modal-box" class="plain"></div></div>
 <div id="toast" hidden></div>
+<script src="commander.js"></script>
 <script src="partie.js"></script>
 </body>
 </html>
