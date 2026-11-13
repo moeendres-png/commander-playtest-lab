@@ -1,0 +1,34 @@
+{
+  "mode": "smoke",
+  "command": [
+    "java",
+    "-XX:+UseSerialGC",
+    "-Dh2.bindAddress=127.0.0.1",
+    "-Xmx3g",
+    "-jar",
+    "/home/hatch/workspace/github/wt-1298/engine-bridge/target/xmage-engine-bridge-0.1.0-SNAPSHOT.jar",
+    "full-game"
+  ],
+  "total_wall_s": 113.683,
+  "peak_rss_mb": 1203.71,
+  "jfr_file": "/home/hatch/workspace/github/wt-1298/docs/performance/measurements-1298-2026-11-13/smoke_profile.jfr",
+  "jfr_exists": true,
+  "jfr_size": 5804678,
+  "jcmd_log": [
+    "$ jcmd 7843 JFR.configure stackdepth=512\n7843:\nStack depth: 512\n",
+    "$ jcmd 7843 JFR.start name=copy1298 settings=profile filename=/home/hatch/workspace/github/wt-1298/docs/performance/measurements-1298-2026-11-13/smoke_profile.jfr\n7843:\nStarted recording 1. No limit specified, using maxsize=250MB as default.\n\nUse jcmd 7843 JFR.dump name=copy1298 to copy recording data to file.\n",
+    "$ jcmd 7843 JFR.stop name=copy1298\n7843:\nStopped recording \"copy1298\".\n"
+  ],
+  "games": [
+    {
+      "seed": 1,
+      "game_in_jvm": 1,
+      "status": "finished",
+      "winner": 3,
+      "decisions": 3193,
+      "semantic_hash": "1009e97ca3ea9f10aa9d2f011b78a248029b54553d2cc7d610ac5e162d798b61",
+      "wall_s": 110.139,
+      "cpu_s": 128.99
+    }
+  ]
+}

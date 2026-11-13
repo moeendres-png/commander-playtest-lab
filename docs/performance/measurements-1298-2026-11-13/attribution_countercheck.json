@@ -1,0 +1,216 @@
+{
+  "total_samples_game_main": 19885,
+  "by_thread_total": {
+    "GAME full-game studio-game-copy1298-s10:custom/chulane:10 - 1": 1078,
+    "GAME full-game studio-game-copy1298-s11:custom/chulane:11 - 1": 1100,
+    "GAME full-game studio-game-copy1298-s12:custom/chulane:12 - 1": 857,
+    "GAME full-game studio-game-copy1298-s3:custom/chulane:3 - 1": 5174,
+    "GAME full-game studio-game-copy1298-s4:custom/chulane:4 - 1": 1979,
+    "GAME full-game studio-game-copy1298-s5:custom/chulane:5 - 1": 2509,
+    "GAME full-game studio-game-copy1298-s6:custom/chulane:6 - 1": 1999,
+    "GAME full-game studio-game-copy1298-s7:custom/chulane:7 - 1": 671,
+    "GAME full-game studio-game-copy1298-s8:custom/chulane:8 - 1": 926,
+    "GAME full-game studio-game-copy1298-s9:custom/chulane:9 - 1": 1717,
+    "main": 1875
+  },
+  "copy_samples": 7482,
+  "broad_copy_samples_E_or_ctor": 7484,
+  "trigger_classes": {
+    "a_bookmark": 1012,
+    "b_playable": 5066,
+    "c_trigger": 118,
+    "d_state_storage": 0,
+    "e_watchers": 0,
+    "f_other": 1286
+  },
+  "top_anchors": [
+    {
+      "anchor": "mage.game.GameImpl.createSimulationForPlayableCalc",
+      "count": 4461
+    },
+    {
+      "anchor": "mage.game.GameState.copy",
+      "count": 1012
+    },
+    {
+      "anchor": "mage.abilities.AbilitiesImpl.copy",
+      "count": 687
+    },
+    {
+      "anchor": "mage.abilities.TriggeredAbilities.copy",
+      "count": 585
+    },
+    {
+      "anchor": "mage.util.CardUtil.deepCopyObject",
+      "count": 472
+    },
+    {
+      "anchor": "mage.abilities.SpellAbility.copy",
+      "count": 67
+    },
+    {
+      "anchor": "mage.abilities.mana.ManaOptions.copy",
+      "count": 42
+    },
+    {
+      "anchor": "mage.abilities.common.SimpleActivatedAbility.copy",
+      "count": 33
+    },
+    {
+      "anchor": "mage.abilities.costs.mana.ManaCostsImpl.copy",
+      "count": 30
+    },
+    {
+      "anchor": "mage.abilities.mana.GreenManaAbility.copy",
+      "count": 16
+    },
+    {
+      "anchor": "mage.abilities.LoyaltyAbility.copy",
+      "count": 8
+    },
+    {
+      "anchor": "mage.abilities.common.ActivateIfConditionActivatedAbility.copy",
+      "count": 6
+    },
+    {
+      "anchor": "mage.abilities.mana.WhiteManaAbility.copy",
+      "count": 4
+    },
+    {
+      "anchor": "mage.game.permanent.PermanentCard.copy",
+      "count": 4
+    },
+    {
+      "anchor": "mage.abilities.common.ActivateAsSorceryActivatedAbility.copy",
+      "count": 3
+    }
+  ],
+  "alloc_events_total": 157864,
+  "alloc_top_classes": [
+    {
+      "objectClass": "byte[]",
+      "events": 30834,
+      "weight_bytes": 40849687859
+    },
+    {
+      "objectClass": "com.google.gson.internal.LinkedTreeMap$Node",
+      "events": 27597,
+      "weight_bytes": 17886099243
+    },
+    {
+      "objectClass": "java.lang.Object[]",
+      "events": 12197,
+      "weight_bytes": 42886074982
+    },
+    {
+      "objectClass": "java.util.ArrayList",
+      "events": 7480,
+      "weight_bytes": 23668452147
+    },
+    {
+      "objectClass": "java.util.LinkedHashMap",
+      "events": 5362,
+      "weight_bytes": 22276635238
+    },
+    {
+      "objectClass": "java.util.HashMap$Node[]",
+      "events": 4153,
+      "weight_bytes": 15023455130
+    },
+    {
+      "objectClass": "java.lang.String",
+      "events": 4080,
+      "weight_bytes": 6785061800
+    },
+    {
+      "objectClass": "com.google.gson.internal.LinkedTreeMap",
+      "events": 3906,
+      "weight_bytes": 2457926758
+    },
+    {
+      "objectClass": "java.util.ArrayList$Itr",
+      "events": 3709,
+      "weight_bytes": 9338265702
+    },
+    {
+      "objectClass": "boolean[]",
+      "events": 3462,
+      "weight_bytes": 1298903245
+    },
+    {
+      "objectClass": "java.util.HashMap",
+      "events": 3399,
+      "weight_bytes": 13356827750
+    },
+    {
+      "objectClass": "mage.Mana",
+      "events": 3141,
+      "weight_bytes": 12037400883
+    },
+    {
+      "objectClass": "int[]",
+      "events": 3044,
+      "weight_bytes": 4245881446
+    },
+    {
+      "objectClass": "com.google.gson.JsonObject",
+      "events": 2428,
+      "weight_bytes": 1279999696
+    },
+    {
+      "objectClass": "java.util.HashMap$Node",
+      "events": 2349,
+      "weight_bytes": 7552689152
+    },
+    {
+      "objectClass": "java.util.LinkedHashMap$Entry",
+      "events": 1908,
+      "weight_bytes": 7505320346
+    },
+    {
+      "objectClass": "mage.abilities.Modes",
+      "events": 1859,
+      "weight_bytes": 8301647258
+    },
+    {
+      "objectClass": "mage.abilities.costs.mana.ManaCostsImpl",
+      "events": 1513,
+      "weight_bytes": 5661712691
+    },
+    {
+      "objectClass": "mage.target.targetpointer.FirstTargetPointer",
+      "events": 1464,
+      "weight_bytes": 6076947763
+    },
+    {
+      "objectClass": "mage.counters.Counters",
+      "events": 1426,
+      "weight_bytes": 5565466624
+    },
+    {
+      "objectClass": "com.google.gson.internal.LinkedTreeMap$EntrySet$1",
+      "events": 1332,
+      "weight_bytes": 728355328
+    },
+    {
+      "objectClass": "com.google.gson.JsonArray",
+      "events": 1212,
+      "weight_bytes": 935102566
+    },
+    {
+      "objectClass": "java.util.LinkedHashMap$LinkedKeyIterator",
+      "events": 1106,
+      "weight_bytes": 4167602074
+    },
+    {
+      "objectClass": "java.util.stream.ReferencePipeline$Head",
+      "events": 904,
+      "weight_bytes": 3578572698
+    },
+    {
+      "objectClass": "mage.game.CardState",
+      "events": 896,
+      "weight_bytes": 3261533286
+    }
+  ]
+}
