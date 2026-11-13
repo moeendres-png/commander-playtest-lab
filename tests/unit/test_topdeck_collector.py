@@ -3,15 +3,15 @@
 from __future__ import annotations
 
 import csv
+import re
 from pathlib import Path
 
 from scripts.collect_topdeck_decks import (
     DEFAULT_107_COMMANDERS,
-    anonymize_player_labels,
     export_results,
     extract_cards_from_section,
+    neutral_player_labels,
     parse_decklist_text,
-    player_initials,
     process_tournaments,
     to_safe_slug,
 )
@@ -150,7 +150,7 @@ def test_process_tournaments_and_completeness(tmp_path: Path) -> None:
         assert rows[0]["section"] == "commander"
         assert rows[0]["card_name"] == "The Gitrog Monster"
         assert rows[1]["section"] == "main"
-        assert rows[0]["player"] == "A"
+        assert rows[0]["player"] == "Liste 1"
         assert rows[0]["wins"] == "3"
         assert "top_cut" in rows[0]
         assert "wins_bracket" in rows[0]
@@ -163,48 +163,44 @@ def test_process_tournaments_and_completeness(tmp_path: Path) -> None:
     assert "The Gitrog Monster" in readme_text
 
 
-def test_player_initials() -> None:
-    assert player_initials("Moritz") == "M"
-    assert player_initials("Toni Romero") == "T R"
-    # First alphabetic character per token; "[INTIM]" contributes "I"
-    assert player_initials("Void of Emperor [INTIM]") == "V O E I"
-    # Tokens without any letter are skipped
-    assert player_initials("Team 2 Cool") == "T C"
-    assert player_initials("NatHall98") == "N"
-
-
-def test_anonymize_player_labels() -> None:
-    labels = anonymize_player_labels(
+def test_neutral_player_labels() -> None:
+    labels = neutral_player_labels(
         ["Max Mustermann", "Maria Muster", "Max Mustermann", "Moritz Meyer"]
     )
-    # First-appearance order; repeats keep their label; collisions get suffixes
+    # First-appearance order per file; repeats keep their label; no part of
+    # any name (not even initials) leaks into a label (#1263).
     assert labels == {
-        "Max Mustermann": "M M",
-        "Maria Muster": "M M 2",
-        "Moritz Meyer": "M M 3",
+        "Max Mustermann": "Liste 1",
+        "Maria Muster": "Liste 2",
+        "Moritz Meyer": "Liste 3",
+    }
+    assert neutral_player_labels([]) == {}
+
+
+def _complete_deck(player: str) -> dict[str, object]:
+    return {
+        "name": player,
+        "leader": "The Gitrog Monster",
+        "wins": 3,
+        "draws": 0,
+        "losses": 1,
+        "deckObj": {
+            "Commanders": {"The Gitrog Monster": {"count": 1}},
+            "Mainboard": {f"Card {i}": {"count": 1} for i in range(1, 100)},
+        },
     }
 
 
-def test_export_anonymizes_players_with_collisions(tmp_path: Path) -> None:
-    def complete_deck(player: str) -> dict[str, object]:
-        return {
-            "name": player,
-            "leader": "The Gitrog Monster",
-            "wins": 3,
-            "draws": 0,
-            "losses": 1,
-            "deckObj": {
-                "Commanders": {"The Gitrog Monster": {"count": 1}},
-                "Mainboard": {f"Card {i}": {"count": 1} for i in range(1, 100)},
-            },
-        }
-
+def test_export_fixture_two_players_only_liste_labels(tmp_path: Path) -> None:
+    # Issue #1263, task 2: a fixture with two names yields only "Liste 1"
+    # and "Liste 2". Both names share the same initials on purpose, so an
+    # initials-based label would collide; neutral labels must not.
     mock_tournaments = [
         {
             "TID": "tourney_anon",
             "tournamentName": "Anon Cup",
             "startDate": 1780000000,
-            "standings": [complete_deck("Ann Alpha"), complete_deck("Aaron Albers")],
+            "standings": [_complete_deck("Ann Alpha"), _complete_deck("Aaron Albers")],
         }
     ]
     stats, decks = process_tournaments(mock_tournaments, DEFAULT_107_COMMANDERS)
@@ -215,11 +211,63 @@ def test_export_anonymizes_players_with_collisions(tmp_path: Path) -> None:
     text = deck_file.read_text(encoding="utf-8")
     assert "Ann Alpha" not in text
     assert "Aaron Albers" not in text
+    assert "A A" not in text
     with deck_file.open("r", encoding="utf-8") as f:
         rows = list(csv.DictReader(f))
     assert len(rows) == 200
-    assert {r["player"] for r in rows[:100]} == {"A A"}
-    assert {r["player"] for r in rows[100:]} == {"A A 2"}
+    assert {r["player"] for r in rows[:100]} == {"Liste 1"}
+    assert {r["player"] for r in rows[100:]} == {"Liste 2"}
+
+
+def test_export_same_player_keeps_label_across_tournaments(tmp_path: Path) -> None:
+    # Issue #1263, task 1: the same player in several tournaments of one
+    # export file keeps the same number.
+    mock_tournaments = [
+        {
+            "TID": "tourney_a",
+            "tournamentName": "Cup A",
+            "startDate": 1780000000,
+            "standings": [_complete_deck("Ann Alpha"), _complete_deck("Bob Beta")],
+        },
+        {
+            "TID": "tourney_b",
+            "tournamentName": "Cup B",
+            "startDate": 1780100000,
+            "standings": [_complete_deck("Ann Alpha")],
+        },
+    ]
+    stats, decks = process_tournaments(mock_tournaments, DEFAULT_107_COMMANDERS)
+    out_dir = tmp_path / "topdeck_out"
+    export_results(stats, decks, out_dir, DEFAULT_107_COMMANDERS)
+
+    deck_file = out_dir / "topdeck_the_gitrog_monster_decks.csv"
+    with deck_file.open("r", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    assert len(rows) == 300
+    assert {r["player"] for r in rows[:100]} == {"Liste 1"}
+    assert {r["player"] for r in rows[100:200]} == {"Liste 2"}
+    assert {r["player"] for r in rows[200:]} == {"Liste 1"}
+
+
+def test_committed_topdeck_deck_csvs_use_neutral_player_labels() -> None:
+    # Issue #1263, task 3 (guard): every committed tournament deck CSV
+    # carries only neutral "Liste N" labels in its player column.
+    files = sorted(Path("data/research").rglob("topdeck_*_decks.csv"))
+    assert files, "expected committed topdeck deck CSVs under data/research"
+    label_re = re.compile(r"^Liste \d+$")
+    for path in files:
+        with path.open("r", encoding="utf-8", newline="") as f:
+            reader = csv.DictReader(f)
+            assert reader.fieldnames is not None and "player" in reader.fieldnames, (
+                f"{path} has no player column"
+            )
+            rows = list(reader)
+        assert rows, f"{path} has no data rows"
+        for row in rows:
+            value = row["player"] or ""
+            assert label_re.match(value), (
+                f"{path}: player cell {value!r} is not a neutral 'Liste N' label"
+            )
 
 
 def test_get_api_key(monkeypatch) -> None:
