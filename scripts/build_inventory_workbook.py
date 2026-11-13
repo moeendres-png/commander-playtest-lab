@@ -19,37 +19,8 @@ identifier can be mangled by type inference.
 from __future__ import annotations
 
 import argparse
-import csv
+import sys
 from pathlib import Path
-
-SHEET_ORDER = [
-    "00_README_STATUS",
-    "01_CARD_IDENTITY",
-    "02_PHYSICAL_LOTS",
-    "03_LOCATIONS",
-    "04_INVENTORY_EVENTS",
-    "05_INVENTORY_CURRENT",
-    "06_SOURCES",
-    "07_DATA_QUALITY",
-    "08_NONPLAYABLE_OBJECTS",
-    "09_PRINTING_DETAILS",
-    "10_PHOTO_AUDIT_20261111",
-    "11_QA_RECONCILIATION",
-]
-TYPED_SHEETS = {"01_CARD_IDENTITY", "05_INVENTORY_CURRENT"}
-
-
-def _typed(value: str):
-    if value == "":
-        return None
-    try:
-        return int(value)
-    except ValueError:
-        pass
-    try:
-        return float(value)
-    except ValueError:
-        return value
 
 
 def main() -> int:
@@ -62,30 +33,16 @@ def main() -> int:
     parser.add_argument("--out", required=True, help="workbook path to write")
     args = parser.parse_args()
 
-    from openpyxl import Workbook
+    src_dir = Path(__file__).resolve().parents[1] / "src"
+    if src_dir.is_dir():
+        sys.path.insert(0, str(src_dir))
+    from commander_lab.studio import repo_import
 
-    csv_dir = Path(args.csv_dir)
-    workbook = Workbook()
-    workbook.remove(workbook.active)
-    written = []
-    for sheet in SHEET_ORDER:
-        csv_path = csv_dir / f"{sheet}.csv"
-        if not csv_path.is_file():
-            continue
-        ws = workbook.create_sheet(sheet)
-        with csv_path.open(encoding="utf-8", newline="") as handle:
-            for row in csv.reader(handle):
-                if sheet in TYPED_SHEETS:
-                    ws.append([_typed(cell) for cell in row])
-                else:
-                    ws.append([cell if cell != "" else None for cell in row])
-        written.append(sheet)
-    if not written:
-        raise SystemExit(f"no sheet CSVs found in {csv_dir}")
-    out = Path(args.out)
-    out.parent.mkdir(parents=True, exist_ok=True)
-    workbook.save(out)
-    print(f"wrote {out} with sheets: {', '.join(written)}")
+    try:
+        written = repo_import.build_inventory_workbook(Path(args.csv_dir), Path(args.out))
+    except ValueError as error:
+        raise SystemExit(str(error)) from None
+    print(f"wrote {args.out} with sheets: {', '.join(written)}")
     return 0
 
 

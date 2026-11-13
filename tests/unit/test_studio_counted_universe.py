@@ -524,6 +524,8 @@ def _all_args(tmp_path: Path) -> argparse.Namespace:
         inventory=str(_workbook(tmp_path / "cards.xlsx", _synthetic_cards())),
         scryfall=None,
         roles=None,
+        rulings=None,
+        from_repo=False,
         signals=None,
         decklists=None,
         decklist_format="edhrec",

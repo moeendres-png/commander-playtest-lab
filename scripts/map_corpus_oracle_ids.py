@@ -44,57 +44,25 @@ def main() -> int:
     if not db_path.is_file():
         raise SystemExit(f"store not found: {db_path}")
 
+    src_dir = Path(__file__).resolve().parents[1] / "src"
+    if src_dir.is_dir():
+        sys.path.insert(0, str(src_dir))
+    from commander_lab.studio import repo_import
+
     db = sqlite3.connect(db_path)
-    names = [
-        row[0]
-        for row in db.execute(
-            "SELECT DISTINCT card_name FROM corpus_deck_card WHERE oracle_id IS NULL"
-        )
-    ]
-    print("Unmapped distinct names:", len(names))
-    by_name: dict[str, str] = {}
-    for oracle_id, name in db.execute("SELECT oracle_id, oracle_name FROM card"):
-        by_name.setdefault(name, oracle_id)
-    for oracle_id, name in db.execute("SELECT oracle_id, name FROM scryfall_card"):
-        by_name.setdefault(name, oracle_id)
-    front: dict[str, set[str]] = {}
-    for oracle_id, name in db.execute("SELECT oracle_id, name FROM scryfall_card"):
-        if " // " in name:
-            front.setdefault(name.split(" // ")[0], set()).add(oracle_id)
-    mapped = {"exact": 0, "front": 0}
-    unmapped: list[str] = []
-    updates: list[tuple[str, str]] = []
-    for name in names:
-        oracle_id = by_name.get(name)
-        if oracle_id:
-            updates.append((oracle_id, name))
-            mapped["exact"] += 1
-            continue
-        candidates = front.get(name) or set()
-        if len(candidates) == 1:
-            updates.append((next(iter(candidates)), name))
-            mapped["front"] += 1
-            continue
-        unmapped.append(name)
-    with db:
-        db.executemany(
-            "UPDATE corpus_deck_card SET oracle_id = ? WHERE card_name = ?",
-            updates,
-        )
-    rows = db.execute(
-        "SELECT COUNT(*) FROM corpus_deck_card WHERE oracle_id IS NOT NULL"
-    ).fetchone()[0]
-    total = db.execute("SELECT COUNT(*) FROM corpus_deck_card").fetchone()[0]
+    result = repo_import.map_corpus_oracle_ids(db)
+    print("Unmapped distinct names:", result["names_to_map"])
     print(
         "Mapped: exact",
-        mapped["exact"],
+        result["mapped_exact"],
         "| front-face fallback",
-        mapped["front"],
+        result["mapped_front_face"],
         "| unresolved:",
-        len(unmapped),
+        result["unresolved_names"],
     )
+    rows, total = int(result["rows_with_oracle_id"]), int(result["rows_total"])  # type: ignore[call-overload]
     print(f"Rows with oracle_id: {rows} of {total} ({rows / total * 100:.2f} %)")
-    print("Unresolved names (first 20):", unmapped[:20])
+    print("Unresolved names (first 20):", list(result["unresolved"])[:20])  # type: ignore[call-overload]
     return 0
 
 
