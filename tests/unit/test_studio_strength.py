@@ -1196,3 +1196,46 @@ def test_any_topdeck_decks_file_belongs_to_the_commander_of_its_commander_sectio
     # the player column is only an in-memory grouping key: never stored, never reported
     assert store.path is not None and b"Secretperson" not in store.path.read_bytes()
     assert "Secretperson" not in repr(report)
+
+
+def test_tier_page_text_filters_and_recommendations_are_wired() -> None:
+    import re
+
+    from commander_lab.studio.web import STATIC
+
+    html = (STATIC / "tierliste.html").read_text(encoding="utf-8")
+    script = (STATIC / "tierliste.js").read_text(encoding="utf-8")
+    builder = (STATIC / "app.js").read_text(encoding="utf-8")
+    for source in (script, builder):
+        assert "innerHTML" not in source
+        assert not re.search(r"\bon[a-z]+=\s*[\"']", source)  # no inline handler attributes
+        assert 'setAttribute("style"' not in source and "style=" not in source
+    assert "style=" not in html and not re.search(r"\son[a-z]+=", html)
+    # recommended values come from the server, never from a copy in the page
+    assert "/api/strength/presets" in script and "Empfohlene Werte" in script
+    # two named things, never one mixed "strength"
+    assert "Stärke-Index (Schätzung aus Nutzungsdaten)" in script
+    assert "Ergebnis aus Partien (noch nicht bewertet)" in script
+    # filter cards and subset denominators are labelled
+    assert "Filterkarte" in script and "Teilmenge" in script and "Filterkarte" in builder
+    assert "Teilmenge" in builder
+    # tier filter and a percentile sort per component
+    for tier in ("S", "A", "B", "C", "D", "U"):
+        assert f'"{tier}"' in script
+    assert "PERCENTILE_SORT" in script and "visibleCards" in script
+    # an empty weight field means "recommended value"; it is never read as 0
+    assert "empfohlen" in script
+    assert "Number(" in script and '=== ""' in script
+    # "rarely played in the deck" sorts unknown values last
+    assert "if (x === null) return 1;" in builder
+
+
+def test_the_server_serves_the_recommendations_the_page_shows(tmp_path: Path) -> None:
+    client = TestClient(create_app(tmp_path / "studio.db"))
+    meta = client.get("/api/strength/presets").json()
+    assert meta["recommended"]["weights"]["simulation"] == 0.0
+    assert (
+        meta["panel"]["labels"]["weights.simulation"]
+        == "Simulation (empfohlen: 0, derzeit ohne Daten)"
+    )
+    assert all(item["settings"]["weights"]["simulation"] == 0.0 for item in meta["presets"])

@@ -1,5 +1,6 @@
 "use strict";
-// Commander Studio tier list. Shows the evidence per card; it never rates a card.
+// Commander Studio tier list. Shows the evidence per card and two clearly separate things:
+// the "Stärke-Index (Schätzung aus Nutzungsdaten)" and the "Ergebnis aus Partien (noch nicht bewertet)".
 // All text from data is set as text, never as HTML.
 
 const COMMANDER = StudioCommander.current;
@@ -36,7 +37,10 @@ const SORTS = [
   ["games", "Partien mit der Karte (nur Lesehilfe)"],
   ["research", "Forschungsbedarf (Heuristik)"],
 ];
-const POLICY_TEXT = "Ein Tier braucht eine vorab festgelegte Zielgröße, ein kalibriertes Modell und Belege außerhalb der Trainingsdaten. Ein solches Modell gibt es noch nicht, deshalb ist jede Karte unbewertet. Häufigkeit in Decks, EDHREC-Werte, deine Markierungen und reine Zählungen setzen nie allein ein Tier. Fehlende Belege sind nie ein niedriger Tier.";
+const INDEX_HEADING = "Stärke-Index (Schätzung aus Nutzungsdaten)";
+const OUTCOME_HEADING = "Ergebnis aus Partien (noch nicht bewertet)";
+const INDEX_TEXT = "Die Stufen S bis D und „zu wenig Daten“ kommen aus dem Stärke-Index: eine Schätzung aus Nutzungsdaten (EDHREC, gezählte Decklisten, Turnierlisten, Kombos). Sie ist keine gemessene Siegrate.";
+const OUTCOME_TEXT = "Ein Ergebnis-Tier aus Partien braucht eine vorab festgelegte Zielgröße, ein kalibriertes Modell und Belege außerhalb der Trainingsdaten. Ein solches Modell gibt es noch nicht, deshalb hat keine Karte ein Ergebnis aus Partien. Häufigkeit in Decks, EDHREC-Werte, deine Markierungen und reine Zählungen setzen nie allein ein Ergebnis-Tier. Fehlende Belege sind nie ein niedriger Tier.";
 const GAME_NOTES = {
   PRESENT: "Beobachteter Zusammenhang mit Verzerrung durch Pilot, Runde und Spielverlauf. Kein kausaler Effekt.",
   NONE_RECORDED: "Die Spielquelle hat für diese Karte keine verwertbare Zeile.",
@@ -45,20 +49,31 @@ const GAME_NOTES = {
 const SPREAD_LABEL = "Verbreitung (gezählt)";
 const LEVEL_RANK = { S: 5, A: 4, B: 3, C: 2, D: 1, U: 0 };
 const NO_UNIVERSE = "kein Universum gewählt";
+const FILTER_LABEL = "Filterkarte";
 const SPREAD_NOTE = "Gezählt: in wie vielen Decks des gewählten Universums die Karte steht. Das ist keine Kartenstärke und kein Tier. Favoriten, Ausschlüsse und Notizen ändern keine Zählung.";
-const REASON_NAMES = { SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)" };
+const REASON_NAMES = { FILTER_CARD: "Filterkarte des Universums", SHARE_CUT: "Anteil erreicht die Schwelle", BELOW_LOWEST_CUT: "Anteil unter der niedrigsten Schwelle", UNIVERSE_TOO_SMALL: "Universum kleiner als das Minimum", DENOMINATOR_MISSING: "Nenner fehlt", NAME_NOT_FOUND_IN_UNIVERSE: "Name kommt im Universum nicht vor (unbekannt, nicht null)" };
 const UNIVERSE_KEY = "studio.universe.profile";
 const STRENGTH_KEY = "studio.strength.settings";
 const STRENGTH_NOTE = "Der Stärke-Index ist eine Schätzung aus Nutzungssignalen (wie oft die Karte bei diesem Commander, im Bracket, in den gewählten Decklisten und in Turnierlisten gespielt wird). Er ist keine gemessene Siegrate. Eine Karte, die eine Quelle nicht nennt, senkt die Abdeckung, nie die Karte. Favoriten, Ausschlüsse und Notizen fließen nicht ein.";
 const UNKNOWN_TIER = "zu wenig Daten";
 const BRACKET_NAMES = { core: "Core (Bracket 1–2)", upgraded: "Upgraded (Bracket 3)", optimized: "Optimized (Bracket 4)", cedh: "cEDH (Bracket 5)", none: "kein Bracket" };
-const COMPONENT_STATUS = { PRESENT: ["vorhanden", "good"], NO_VALUE: ["kein Wert (fehlende Beobachtung)", "warn"], NOT_COLLECTED: ["Quelle nicht importiert", "dim"] };
+const COMPONENT_STATUS = {
+  PRESENT: ["vorhanden", "good"],
+  NO_VALUE: ["kein Wert (fehlende Beobachtung)", "warn"],
+  NOT_COLLECTED: ["Quelle nicht importiert", "dim"],
+  FILTER_CARD: ["Filterkarte (nicht gerankt)", "dim"],
+  NOT_RANKED: ["nicht bewertet", "dim"],
+  MISSING_AS_LOWEST: ["nicht gelistet, als niedrigster Rang gezählt", "warn"],
+};
+const STRENGTH_TIERS = ["S", "A", "B", "C", "D", "U", "N"];
+const TIER_FILTER_NAMES = { U: "zu wenig Daten", N: "nicht bewertet" };
+const PERCENTILE_SORT = "pct:";
 const SMALL_FIRST = new Set(["name", "mv"]);
 
 const state = {
   view: "commander", tab: "cards", data: null, marks: new Map(), decks: [],
   universe: { profiles: [], name: "", summary: null, spread: null, options: null },
-  strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0 },
+  strength: { meta: null, settings: null, profiles: [], result: null, map: null, ticket: 0, tiers: new Set() },
   deckCards: null, deckRoles: {}, ticket: 0, need: "", sortKey: "name", sortDir: 1, shown: 150,
 };
 
@@ -112,9 +127,14 @@ const presentCount = (card) => card.coverage.present.length;
 function sortValue(card, key) {
   if (key === "name") return card.name.toLowerCase();
   if (key === "mv") return card.mana_value;
-  if (key === "strength") { const item = strengthItem(card); return item && item.tier !== "U" ? item.index : null; } // tier U sorts last
+  if (key === "strength") { const item = strengthItem(card); return item && item.tier !== "U" && item.tier !== "N" ? item.index : null; } // tier U sorts last
   if (key === "spread") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item && item.share !== null && item.share !== undefined ? item.share : null; }
-  if (key === "spread_level") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item ? (LEVEL_RANK[item.level] ?? 0) + (item.share || 0) : null; }
+  if (key === "spread_level") { const item = state.universe.spread ? state.universe.spread.get(card.card_id) : undefined; return item && !item.filter_card ? (LEVEL_RANK[item.level] ?? 0) + (item.share || 0) : null; }
+  if (key.startsWith(PERCENTILE_SORT)) { // percentile of one single component; no value sorts last
+    const item = strengthItem(card);
+    const row = item ? item.components.find((c) => c.component === key.slice(PERCENTILE_SORT.length)) : null;
+    return row && row.percentile !== null && row.percentile !== undefined ? row.percentile : null;
+  }
   if (key === "layers") return presentCount(card);
   if (key === "corpus") { const c = corpusAll(card); return c && c.of ? c.decks / c.of : null; }
   if (key === "edhrec") { const w = widest(card); return w ? w.value : null; }
@@ -135,6 +155,7 @@ function visibleCards() {
     if (state.view === "deck" && !(state.deckCards && state.deckCards.has(card.card_id))) return false;
     if (type && card.group !== type) return false;
     if (role && !cardRoles(card).includes(role)) return false;
+    if (state.strength.tiers.size && state.strength.map) { const item = state.strength.map.get(card.card_id); if (!item || !state.strength.tiers.has(item.tier)) return false; }
     if (spreadLevel && state.universe.spread) { const item = state.universe.spread.get(card.card_id); if (!item || item.level !== spreadLevel) return false; }
     if (free && state.view !== "deck" && !(card.available > 0)) return false; // a deck is always shown whole
     if (fav && !mark.favorite) return false;
@@ -198,6 +219,7 @@ function strengthCell(card) {
   const item = strengthItem(card);
   if (!item) return h("span", { class: "strength none" }, state.strength.map ? "nicht berechnet" : "–");
   const title = `Schätzung aus Nutzungssignalen, keine Siegrate. Abdeckung ${(100 * item.coverage).toFixed(0)} %, ${item.present} Signale vorhanden.`;
+  if (item.tier === "N") return h("span", { class: "strength lvl-N", title: item.note }, item.note);
   if (item.tier === "U") return h("span", { class: "strength lvl-U", title }, UNKNOWN_TIER);
   return h("span", { class: `strength lvl-${item.tier}`, title }, h("span", { class: "level" }, item.tier), item.index.toFixed(1));
 }
@@ -209,8 +231,12 @@ function spreadCell(card) {
   return spreadBadge(item, uni.spread.universe);
 }
 function spreadBadge(item, universe) {
+  const subset = universe.subset_note ? ` ${universe.subset_note}.` : "";
+  if (item.filter_card) {
+    return h("span", { class: "spread lvl-F", title: `${FILTER_LABEL}: das Universum verlangt diese Karte, sie steht per Definition in jedem Deck der Teilmenge (ohne Zählung, ohne Stufe). Universum ${universe.profile}.${subset}` }, FILTER_LABEL);
+  }
   const counted = item.matched ? `${item.hits}/${item.denominator}` : "unbekannt";
-  const title = `${SPREAD_LABEL}: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile}, ${universe.denominator} Decks, Stand ${universe.snapshot_id}.`;
+  const title = `${SPREAD_LABEL}: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile}, ${universe.denominator} Decks, Stand ${universe.snapshot_id}.${subset}`;
   return h("span", { class: `spread lvl-${item.level}`, title }, h("span", { class: "level" }, item.level), counted);
 }
 function statusBadge(status) {
@@ -224,12 +250,12 @@ function needBadges(card) {
 // ---------- tables ----------
 function cardsTable(cards) {
   const commander = state.view !== "global";
-  const head = ["Tier", "Stärke-Index", SPREAD_LABEL, "Karte", "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele", "Simulation"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
+  const head = ["Ergebnis aus Partien", "Stärke-Index (Schätzung)", SPREAD_LABEL, "Karte", "MW", "Mechanik", "Rollen", ...(commander ? ["Quelldecks", "EDHREC Inclusion", "Echte Spiele", "Simulation"] : ["Beliebtheit (global)", "Echte Spiele"]), "Schichten", ...(state.view === "deck" ? ["im Deck"] : [])];
   const rows = cards.slice(0, state.shown).map((card) => {
     const mark = state.marks.get(card.card_id) || {};
     const rank = (layer(card, "observed_deck").items || []).find((item) => item.kind === "edhrec_rank_global");
     return h("tr", {},
-      h("td", {}, h("span", { class: "tier", title: "Kein Modell mit Ergebnisdaten: unbewertet" }, "Unbewertet")),
+      h("td", {}, h("span", { class: "tier", title: "Ergebnis aus Partien: noch nicht bewertet. Es gibt kein Modell mit Ergebnisdaten." }, "Unbewertet")),
       h("td", {}, strengthCell(card)),
       h("td", {}, spreadCell(card)),
       h("td", { class: "cardcell name", onclick: () => openCard(card) }, thumb(card), mark.favorite ? h("span", { class: "star" }, "★ ") : null, card.name),
@@ -292,10 +318,11 @@ function renderNotice() {
   const status = summary.layer_status;
   const line = (name) => `${LAYER_NAMES[name]}: ${Object.entries(status[name]).map(([key, n]) => `${n} ${(STATUS_NAMES[key] || [key])[0]}`).join(", ")}`;
   $("notice").replaceChildren(
-    h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, "Noch kein Tier vergeben. "), POLICY_TEXT),
+    h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, `${INDEX_HEADING}: `), INDEX_TEXT),
+    h("div", { title: `${policy.version}: ${policy.rule}` }, h("b", {}, `${OUTCOME_HEADING}: `), OUTCOME_TEXT),
     h("div", { class: "summary" }, `${summary.cards} Karten in dieser Ansicht. `, ["observed_deck", "observed_game", "simulated_result"].map(line).join(" · ")),
-    bindingLine());
-  $("tier-pill").textContent = `${summary.unrated} von ${summary.cards} unbewertet`;
+    ...[bindingLine()].filter(Boolean));
+  $("tier-pill").textContent = `Ergebnis aus Partien: ${summary.unrated} von ${summary.cards} noch nicht bewertet`;
 }
 
 // ---------- evidence drawer ----------
@@ -357,14 +384,19 @@ function drawer(card) {
 }
 function strengthBox(card) {
   const item = strengthItem(card);
-  const box = h("div", { class: "layer" }, h("h3", {}, "Stärke-Index (Schätzung)",
-    item ? h("span", { class: `strength lvl-${item.tier}` }, item.tier === "U" ? UNKNOWN_TIER : h("span", {}, h("span", { class: "level" }, item.tier), item.index.toFixed(1))) : null),
+  const label = item && item.tier === "N" ? item.note : item && item.tier === "U" ? UNKNOWN_TIER : null;
+  const box = h("div", { class: "layer" }, h("h3", {}, INDEX_HEADING,
+    item ? h("span", { class: `strength lvl-${item.tier}` }, label !== null ? label : h("span", {}, h("span", { class: "level" }, item.tier), item.index.toFixed(1))) : null),
     h("p", {}, STRENGTH_NOTE));
   if (!item) { box.append(h("p", {}, state.view === "global" ? "Der Index wird je Commander berechnet." : "Für diese Karte liegt keine Berechnung vor.")); return box; }
-  box.append(h("p", {}, `Abdeckung ${(100 * item.coverage).toFixed(0)} % (Gewicht der vorhandenen Signale an allen gewichteten). ${item.tier === "U" ? "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte." : ""}`));
-  box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status"], item.components.map((c) => {
+  if (item.tier === "N") { box.append(h("p", {}, `${item.note}: ${item.reason === "NOT_RANKED_COMMANDER" ? "der Commander" : "ein Standardland"} bekommt keine Stufe und nimmt keinem Rang einen Platz weg. Die Einstellung „Commander und Standardländer bewerten“ ändert das.`)); }
+  else box.append(h("p", {}, `Abdeckung ${(100 * item.coverage).toFixed(0)} % (Gewicht der vorhandenen Signale an allen gewichteten). ${item.tier === "U" ? "Zu wenig Daten für eine Stufe: das sagt nichts über die Stärke der Karte." : ""}`));
+  const universe = state.strength.result && state.strength.result.universe;
+  if (universe && universe.subset_note) box.append(h("p", { class: "rule" }, `Decklisten-Universum ${universe.profile}: ${universe.denominator} Decks. ${universe.subset_note}.`));
+  box.append(table(["Signal", "Wert", "Zähler/Nenner", "Wilson-Untergrenze", "Perzentil", "Gewicht", "Status", "Hinweis"], item.components.map((c) => {
     const [text, kind] = COMPONENT_STATUS[c.status] || [c.status, "dim"];
-    return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), c.denominator ? `${c.numerator}/${c.denominator}` : unknown("–"), c.wilson === null ? unknown("–") : c.wilson.toFixed(4), c.percentile === null ? unknown("–") : c.percentile.toFixed(3), c.weight, h("span", { class: `badge ${kind}` }, text)];
+    const percentile = c.percentile === null ? unknown("–") : `${c.percentile.toFixed(3)}${c.group ? ` (Gruppe ${c.group}, ${c.group_size})` : ""}`;
+    return [h("span", { title: c.signal }, c.label), c.value === null ? unknown() : Number(c.value.toPrecision(4)), c.denominator ? `${c.numerator}/${c.denominator}` : unknown("–"), c.wilson === null ? unknown("–") : c.wilson.toFixed(4), percentile, c.weight, h("span", { class: `badge ${kind}` }, text), c.note ? h("span", { class: "rule" }, c.note) : ""];
   })));
   return box;
 }
@@ -404,9 +436,12 @@ async function universeBox(card) {
   if (!uni.name) { box.append(h("p", {}, NO_UNIVERSE + ". Wähle oben ein Universum, um die gezählte Verbreitung zu sehen.")); return box; }
   const data = await api(`/api/cards/${encodeURIComponent(card.card_id)}/universe?profile=${encodeURIComponent(uni.name)}&commander=${encodeURIComponent(COMMANDER)}`);
   const item = data.cards[0], universe = data.universe;
-  box.append(h("p", {}, spreadBadge(item, universe), " ", item.matched ? `${item.hits} von ${item.denominator} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
+  if (universe.subset_note) box.append(h("p", { class: "policy" }, `${universe.subset_note}. Der Nenner ${universe.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.`));
+  if (item.filter_card) box.append(h("p", {}, h("b", {}, `${FILTER_LABEL}: `), "das Universum verlangt diese Karte; sie steht in jedem Deck der Teilmenge und bekommt deshalb keinen Anteil und keine Stufe."));
+  box.append(h("p", {}, spreadBadge(item, universe), " ", item.filter_card ? "" : item.matched ? `${item.hits} von ${item.denominator} Decks (${pct(item.hits, item.denominator)})` : "unbekannt: kein Deck des Universums nennt diese Karte unter einem bekannten Namen"));
   box.append(h("p", {}, `Grund: ${REASON_NAMES[item.reason] || item.reason}. Universum ${universe.profile} (${universe.data_class}), Stand ${universe.snapshot_id}.`));
   box.append(h("p", {}, `Schwellen (Modell ${data.model_version || "unbekannt"}): Universum mindestens ${data.params.min_universe} Decks; ${data.params.cuts.map(([tier, cut]) => `${tier} ab ${(100 * cut).toFixed(0)} %`).join(", ")}; darunter ${data.params.fallback_tier}; ohne Datenbasis U. Nur Lesehilfe für die Häufigkeit, keine Stärke.`));
+  if (universe.excluded_by_card_filter) box.append(h("p", { class: "rule" }, `${universe.excluded_by_card_filter} Decks fallen durch den Kartenfilter heraus und zählen nicht im Nenner.`));
   if (universe.excluded_no_date) box.append(h("p", { class: "rule" }, `${universe.excluded_no_date} Decks ohne Zeitstempel fallen durch den Datumsfilter des Universums heraus und zählen nicht im Nenner.`));
   if (item.spellings.length > 1) box.append(h("p", { class: "spellings" }, "Mehrere Schreibweisen kommen vor und werden nie addiert; gezeigt wird die größte: ", item.spellings.map((s) => `${s.name}: ${s.hits}`).join(" · ")));
   const parts = (label, map) => `${label}: ${Object.entries(map).map(([key, n]) => `${key} ${n}`).join(", ") || "–"}`;
@@ -417,7 +452,7 @@ async function universeBox(card) {
     button.disabled = true;
     try {
       const co = await api(`/api/cards/${encodeURIComponent(card.card_id)}/cooccurrence?profile=${encodeURIComponent(uni.name)}&limit=25&commander=${encodeURIComponent(COMMANDER)}`);
-      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), pairsTable(co)]));
+      result.replaceChildren(...(co.decks_with_card === null ? [h("p", {}, "unbekannt: die Karte kommt im Universum nicht vor")] : [h("p", {}, `${co.decks_with_card_label}: ${co.decks_with_card}; ${co.denominator_label}: ${co.denominator}.`), co.subset_note ? h("p", { class: "rule" }, `${co.subset_note}. Der Nenner ${co.denominator} ist diese Teilmenge, nicht alle Decks des Commanders.${co.filter_card ? " Diese Karte ist eine Filterkarte: sie steht in allen Decks der Teilmenge." : ""}`) : null, pairsTable(co)].filter(Boolean)));
     } catch (error) { result.replaceChildren(h("p", {}, `Fehler: ${error.message}`)); button.disabled = false; }
   } }, "Zusammen gespielt mit");
   box.append(button, result);
@@ -436,7 +471,7 @@ async function openCard(card) {
       h("div", { class: "actions" }, h("button", { type: "button", onclick: () => { modal.hidden = true; } }, "Schließen")),
       h("h2", {}, full.name),
       h("p", { class: "muted" }, full.type_line),
-      h("div", { class: "policy" }, h("b", {}, "Tier: unbewertet. "), `Grund: ${full.rating.reason}. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein.`),
+      h("div", { class: "policy" }, h("b", {}, `${OUTCOME_HEADING}. `), `Grund: ${full.rating.reason}. Fehlende Beobachtung ist nie ein niedriger Tier. Favoriten, Ausschlüsse und Notizen fließen nicht ein.`),
       strengthSection,
       ...drawer(full));
     try { content.append(await universeBox(full)); } catch (error) { content.append(h("p", {}, `Verbreitung nicht ladbar: ${error.message}`)); }
@@ -494,7 +529,9 @@ function renderUniversePanel() {
     event.preventDefault();
     const name = $("u-name").value.trim();
     if (!name) { toast("Name des Universums fehlt"); return; }
-    const body = {};
+    // Fields the form does not edit (the commanders of the stored spec) are kept when the same
+    // profile is saved again, so a re-save never drops them silently.
+    const body = name === uni.name && spec.commanders && spec.commanders.length ? { commanders: [...spec.commanders] } : {};
     if (checkedValues("u-platforms").length) body.platforms = checkedValues("u-platforms");
     if (checkedValues("u-cohorts").length) body.cohorts = checkedValues("u-cohorts");
     if ($("u-from").value) body.date_from = $("u-from").value;
@@ -537,8 +574,7 @@ function renderUniversePanel() {
       h("span", {}, `${summary.denominator} Decks (Nenner)`),
       breakdown("Plattform", summary.denominator_by_platform),
       breakdown("Bracket", summary.denominator_by_bracket),
-      (summary.spec.must_contain || []).length ? h("span", {}, `nur Decks mit: ${summary.spec.must_contain.join(", ")}`) : null,
-      summary.excluded_by_card_filter ? h("span", { class: "muted" }, `${summary.excluded_by_card_filter} Decks durch den Karten-Filter ausgeschlossen`) : null,
+      summary.subset_note ? h("span", { class: "badge warn" }, summary.subset_note) : null,
       summary.excluded_no_date ? h("span", { class: "muted" }, `${summary.excluded_no_date} Decks ohne Zeitstempel durch den Datumsfilter ausgeschlossen`) : null,
       summary.below_min_universe ? h("span", { class: "badge warn" }, `unter dem Mindest-Universum (${summary.min_universe} Decks): alle Karten U`) : null,
       h("span", { class: "muted", title: summary.snapshot_id }, `Stand ${summary.snapshot_id.slice(0, 28)}`),
@@ -585,17 +621,60 @@ async function initUniverse() {
 // ---------- strength index ----------
 function rememberStrength() { try { localStorage.setItem(STRENGTH_KEY, JSON.stringify(state.strength.settings)); } catch (error) { /* private mode: no memory */ } }
 function rememberedStrength() { try { const raw = localStorage.getItem(STRENGTH_KEY); return raw ? JSON.parse(raw) : null; } catch (error) { return null; } }
+const clone = (value) => JSON.parse(JSON.stringify(value));
+const pathGet = (object, path) => path.split(".").reduce((node, key) => (node === undefined || node === null ? undefined : node[key]), object);
+function pathSet(object, path, value) {
+  const keys = path.split(".");
+  let node = object;
+  for (const key of keys.slice(0, -1)) { node[key] = { ...(node[key] || {}) }; node = node[key]; }
+  node[keys[keys.length - 1]] = value;
+}
+// Settings with every key the server knows: a remembered or saved setting from before a key existed
+// takes the recommended value for it. The recommended values come from the server only.
+function withDefaults(settings) {
+  const base = clone(state.strength.meta.recommended);
+  for (const [key, value] of Object.entries(settings || {})) {
+    base[key] = value && typeof value === "object" && !Array.isArray(value) ? { ...base[key], ...value } : value;
+  }
+  return base;
+}
+function fieldKind(key) {
+  const meta = state.strength.meta;
+  if (key.startsWith("weights.")) return { type: "number", min: 0, max: 100, step: 0.5, scale: 1 };
+  if (key === "min_denominators.deck_universe") return { type: "readonly" };
+  if (key.startsWith("min_denominators.")) return { type: "number", min: 0, max: 100000, step: 1, scale: 1 };
+  if (key === "min_coverage") return { type: "number", min: 0, max: 100, step: 5, scale: 100 };
+  if (key === "min_components") return { type: "number", min: 0, max: meta.components.length, step: 1, scale: 1 };
+  if (key.startsWith("tier_cuts.")) return { type: "number", min: 0, max: 100, step: 1, scale: 1 };
+  const choices = key.startsWith("missing_value.") ? meta.panel.choices.missing_value : meta.panel.choices[key];
+  return { type: "choice", choices };
+}
+const settingKeys = () => state.strength.meta.panel.groups.flatMap((group) => group.keys);
+const fieldId = (key) => `sf-${key.replace(/\./g, "-")}`;
+function universeMinimum() {
+  const summary = state.universe.summary;
+  return summary ? summary.min_universe : state.strength.meta.panel.universe_minimum;
+}
 function readStrengthSettings() {
-  const weights = {};
-  for (const component of state.strength.meta.components) weights[component.key] = Number($(`sw-${component.key}`).value);
-  return {
-    weights,
-    bracket: $("s-bracket").value,
-    universe_profile: state.universe.name || null,
-    min_coverage: Number($("s-mincov").value) / 100,
-    min_components: Number($("s-mincomp").value),
-    tier_cuts: state.strength.settings.tier_cuts,
-  };
+  const s = state.strength, out = clone(s.settings);
+  for (const key of settingKeys()) {
+    const kind = fieldKind(key), input = $(fieldId(key));
+    if (kind.type === "readonly" || !input) continue; // stored fields the form does not show stay as they are
+    if (kind.type === "choice") {
+      const choice = kind.choices.find((item) => String(item.value) === input.value);
+      pathSet(out, key, choice ? choice.value : pathGet(s.meta.recommended, key));
+      continue;
+    }
+    let number = input.value.trim() === "" ? NaN : Number(input.value);
+    if (!Number.isFinite(number)) { // an empty field means "use the recommended value": show it
+      const recommended = pathGet(s.meta.recommended, key) * kind.scale;
+      input.value = recommended;
+      number = recommended;
+    }
+    pathSet(out, key, number / kind.scale);
+  }
+  out.universe_profile = state.universe.name || null;
+  return out;
 }
 async function refreshStrength() {
   const s = state.strength, ticket = ++s.ticket;
@@ -617,31 +696,68 @@ function renderStrengthSummary() {
   const s = state.strength, box = $("strength-summary");
   if (!box) return;
   if (!s.result) { box.replaceChildren(unknown("noch nicht berechnet")); return; }
-  const counts = s.result.tier_counts;
-  const universe = s.result.universe ? `Universum ${s.result.universe.profile} (${s.result.universe.denominator} Decks)` : "kein Decklisten-Universum";
+  const result = s.result, counts = result.tier_counts, universe = result.universe;
+  const universeText = universe ? `Universum ${universe.profile} (${universe.denominator} Decks${universe.subset_note ? `; ${universe.subset_note}` : ""})` : "kein Decklisten-Universum";
+  const notices = (result.notices || []).map((text) => h("div", { class: "badge warn" }, text));
+  const ambiguous = result.ambiguous_names || [];
+  const shown = ambiguous.slice(0, 10).map((item) => `${item.name} (${item.candidates.join(" / ")})`).join("; ");
   box.replaceChildren(
     ...["S", "A", "B", "C", "D"].map((tier) => h("span", { class: `strength lvl-${tier}` }, h("span", { class: "level" }, tier), counts[tier])),
     h("span", { class: "strength lvl-U" }, `${UNKNOWN_TIER} ${counts.U}`),
-    h("span", { class: "muted" }, `von ${s.result.cards.length} Karten · ${universe} · Quellen vorhanden: ${s.result.collected.length}/${s.meta.components.length - 1}`));
+    h("span", { class: "strength lvl-N", title: "Commander und Standardländer, wenn sie nicht bewertet werden" }, `nicht bewertet ${counts.N || 0}`),
+    h("span", { class: "muted" }, `von ${result.cards.length} Karten · ${universeText} · Quellen vorhanden: ${result.collected.length}/${s.meta.components.length - 1}`),
+    ...notices,
+    ...(ambiguous.length ? [h("div", { class: "rule" }, `Mehrdeutige Namen in den Quelldaten, keiner Karte zugeordnet: ${shown}${ambiguous.length > 10 ? ` und ${ambiguous.length - 10} weitere` : ""}`)] : []));
 }
 async function applyStrength(settings, remember = true) {
-  state.strength.settings = { ...settings, universe_profile: state.universe.name || null };
+  state.strength.settings = { ...withDefaults(settings), universe_profile: state.universe.name || null };
   if (remember) rememberStrength();
   renderStrengthPanel();
   await refreshStrength();
 }
+function strengthField(key) {
+  const s = state.strength, panel = s.meta.panel, kind = fieldKind(key), id = fieldId(key);
+  const current = pathGet(s.settings, key);
+  let input;
+  if (kind.type === "readonly") input = h("input", { id, type: "text", readOnly: true, value: `${universeMinimum()} Decks` });
+  else if (kind.type === "choice") {
+    input = h("select", { id }, kind.choices.map((item) => h("option", { value: String(item.value) }, item.label)));
+    input.value = String(current);
+  } else input = h("input", { id, type: "number", min: kind.min, max: kind.max, step: kind.step, value: current === undefined ? "" : Math.round(current * kind.scale * 1000) / 1000, placeholder: `${pathGet(s.meta.recommended, key) * kind.scale}` });
+  return h("label", { title: panel.help[key] }, panel.labels[key], input, h("span", { class: "help" }, panel.help[key]));
+}
+function renderStrengthFilters() {
+  const s = state.strength;
+  const previous = $("strength-filter");
+  if (previous) previous.remove();
+  const box = h("span", { id: "strength-filter", class: "tier-filter", title: "Nach Stärke-Index-Stufe filtern (Mehrfachauswahl; keine Auswahl zeigt alle)" }, "Stufe: ",
+    STRENGTH_TIERS.map((tier) => h("label", { title: TIER_FILTER_NAMES[tier] || `Stufe ${tier}` }, h("input", { type: "checkbox", value: tier, checked: s.tiers.has(tier), onchange: (event) => { if (event.target.checked) s.tiers.add(tier); else s.tiers.delete(tier); state.shown = 150; render(); } }), ` ${tier}`)));
+  $("filters").insertBefore(box, $("sort").parentElement);
+}
+function fillSortOptions() {
+  const meta = state.strength.meta;
+  const previous = $("sort").value;
+  const percentile = meta ? meta.components.map((c) => [PERCENTILE_SORT + c.key, `Perzentil: ${c.label}`]) : [];
+  $("sort").replaceChildren(...[...SORTS, ...percentile].map(([key, label]) => h("option", { value: key }, label)));
+  $("sort").value = [...$("sort").options].some((option) => option.value === previous) ? previous : state.sortKey;
+}
 function renderStrengthPanel() {
   const s = state.strength, panel = $("strength-panel");
   if (!s.meta || !s.settings) return;
-  const cur = s.settings;
   const presetSelect = h("select", { id: "s-preset", title: "Voreinstellung laden" }, h("option", { value: "" }, "Voreinstellung …"), s.meta.presets.map((p) => h("option", { value: p.name }, p.name)));
   presetSelect.addEventListener("change", () => { const p = s.meta.presets.find((x) => x.name === presetSelect.value); if (p) applyStrength(p.settings).catch((error) => toast(error.message)); });
-  const bracketSelect = h("select", { id: "s-bracket" }, s.meta.brackets.map((b) => h("option", { value: b }, BRACKET_NAMES[b] || b)));
-  bracketSelect.value = cur.bracket;
-  const weightField = (c) => h("label", { title: `Gewicht 0 schaltet das Signal ab. Signal: ${c.key}` }, c.label, h("input", { id: `sw-${c.key}`, type: "number", min: 0, max: 100, step: 0.5, value: cur.weights[c.key] }));
-  const saved = h("select", { id: "s-saved" }, h("option", { value: "" }, "gespeicherte Einstellung …"), s.profiles.map((p) => h("option", { value: p.name }, p.name)));
-  saved.addEventListener("change", () => { const p = s.profiles.find((x) => x.name === saved.value); if (p) { $("s-name").value = p.name; applyStrength(p.settings).catch((error) => toast(error.message)); } });
+  const profileLabel = (p) => `${p.name}${p.valid ? (p.universe_missing ? " (Universum fehlt)" : "") : " (ungültig)"}`;
+  const saved = h("select", { id: "s-saved" }, h("option", { value: "" }, "gespeicherte Einstellung …"), s.profiles.map((p) => h("option", { value: p.name }, profileLabel(p))));
+  saved.addEventListener("change", () => {
+    const p = s.profiles.find((x) => x.name === saved.value);
+    if (!p) return;
+    if (!p.valid) { toast(`Einstellung „${p.name}“ ist nicht mehr gültig: ${p.reason}`); return; }
+    if (p.universe_missing) toast(`Das Universum „${p.universe_missing}“ dieser Einstellung gibt es nicht mehr: sie läuft mit „kein Universum“.`);
+    $("s-name").value = p.name;
+    applyStrength(p.settings).catch((error) => toast(error.message));
+  });
   const apply = h("button", { type: "button", onclick: () => applyStrength(readStrengthSettings()).catch((error) => toast(error.message)) }, "Berechnen");
+  const reset = h("button", { type: "button", title: "Alle Einstellungen auf die empfohlenen Werte setzen", onclick: () => applyStrength(s.meta.recommended).catch((error) => toast(error.message)) }, "Empfohlene Werte");
   const save = h("button", { type: "button", onclick: async () => {
     const name = $("s-name").value.trim();
     if (!name) { toast("Name der Einstellung fehlt"); return; }
@@ -663,19 +779,17 @@ function renderStrengthPanel() {
       toast(`Einstellung „${name}“ gelöscht`);
     } catch (error) { toast(`Nicht gelöscht: ${error.message}`); }
   } }, "Löschen");
+  const groups = s.meta.panel.groups.map((group) => h("fieldset", { class: "sgroup" }, h("legend", {}, group.title), h("div", { class: "strength-form" }, group.keys.map(strengthField))));
   panel.replaceChildren(
     h("details", { open: true },
-      h("summary", {}, "Stärke-Index (Schätzung aus Nutzungssignalen)"),
+      h("summary", {}, `${INDEX_HEADING}: Einstellungen (was wie gezählt werden soll)`),
       h("div", { class: "muted" }, STRENGTH_NOTE),
       h("div", { id: "strength-summary", class: "facts" }),
       h("div", { class: "strength-form" },
         h("label", {}, "Voreinstellung", presetSelect),
-        h("label", {}, "Bracket-Signal", bracketSelect),
         h("label", {}, "Universum (oben gewählt)", h("input", { type: "text", readOnly: true, value: state.universe.name || "keines" })),
-        s.meta.components.map(weightField),
-        h("label", {}, "Mindest-Abdeckung (%)", h("input", { id: "s-mincov", type: "number", min: 0, max: 100, step: 5, value: Math.round(cur.min_coverage * 100) })),
-        h("label", {}, "Mindestzahl Signale", h("input", { id: "s-mincomp", type: "number", min: 0, max: s.meta.components.length, step: 1, value: cur.min_components })),
-        apply),
+        apply, reset),
+      groups,
       h("div", { class: "strength-form" },
         h("label", {}, "Name", h("input", { id: "s-name", type: "text", maxLength: 80, placeholder: "z. B. Mein Index" })), save,
         h("label", {}, "Laden", saved), remove)));
@@ -686,13 +800,15 @@ async function initStrength() {
   try {
     [s.meta, s.profiles] = await Promise.all([api("/api/strength/presets"), api("/api/strength/profiles")]);
   } catch (error) { toast(`Stärke-Index nicht verfügbar: ${error.message}`); return; }
+  renderStrengthFilters();
+  fillSortOptions();
   const wanted = rememberedStrength();
-  const base = wanted && typeof wanted === "object" ? wanted : s.meta.defaults;
-  s.settings = { ...base, universe_profile: state.universe.name || null };
+  const base = wanted && typeof wanted === "object" ? wanted : s.meta.recommended;
+  s.settings = { ...withDefaults(base), universe_profile: state.universe.name || null };
   renderStrengthPanel();
   try { await refreshStrength(); } catch (error) { toast(error.message); }
-  if (!s.result && wanted) { // remembered settings no longer valid: start from the defaults
-    s.settings = { ...s.meta.defaults, universe_profile: state.universe.name || null };
+  if (!s.result && wanted) { // remembered settings no longer valid: start from the recommended values
+    s.settings = { ...withDefaults(s.meta.recommended), universe_profile: state.universe.name || null };
     renderStrengthPanel();
     await refreshStrength();
   }
