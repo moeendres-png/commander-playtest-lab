@@ -361,6 +361,79 @@ def card_signal_values(
     return result
 
 
+def _layer_result(
+    store: StudioStore,
+    raw_cards: Sequence[Mapping[str, object]],
+    display: Mapping[str, str],
+    claims: _Claims,
+    unranked: Mapping[str, str],
+    per_card: Mapping[str, Mapping[str, Observation]],
+    pod_size: int,
+) -> layers.LayerResult:
+    """The rating layers of the pool cards. ``per_card`` carries the Playgroup gap
+    observations the index reads (the layer "Sieg-Abstand" reuses them)."""
+    return layers.compute_layers(
+        layers_view.layer_cards(
+            store,
+            display,
+            {str(card["card_id"]): str(card["type_line"]) for card in raw_cards},
+            unranked,
+        ),
+        layers_view.atlas_records(
+            store,
+            {str(card["card_id"]): _optional_text(card["oracle_id"]) for card in raw_cards},
+            claims,
+        ),
+        {
+            card_id: observation
+            for card_id, per in per_card.items()
+            if (observation := per.get(PLAYGROUP_OBSERVED)) is not None
+        },
+        pod_size,
+    )
+
+
+def rating_layers(store: StudioStore, commander: str, pod_size: int) -> layers.LayerResult:
+    """The rating layers of ``commander``'s legal pool without the strength index (the card
+    window of the builder). Raises KeyError when the commander is not in the collection."""
+    pool = pool_cards(store, [commander], with_signals=False)
+    raw_cards = pool["cards"]
+    if not isinstance(raw_cards, list):
+        raise TypeError("pool_cards returned an unexpected shape")
+    ids = [str(card["card_id"]) for card in raw_cards]
+    display = {str(card["card_id"]): str(card["name"]) for card in raw_cards}
+    commander_ids = _strings(pool["commander_ids"])
+    claims = _claim_index(store, ids)
+    gap: dict[str, dict[str, Observation]] = {card_id: {} for card_id in ids}
+    observed, _exists = _signal_observations(
+        store,
+        commander,
+        strength.signal_for(PLAYGROUP_OBSERVED, strength.BRACKET_NONE),
+        claims,
+        display,
+        {},
+    )
+    for card_id, observation in observed.items():
+        gap[card_id][PLAYGROUP_OBSERVED] = observation
+    return _layer_result(
+        store, raw_cards, display, claims, _unranked_cards(raw_cards, commander_ids), gap, pod_size
+    )
+
+
+def _unranked_cards(
+    raw_cards: Sequence[Mapping[str, object]], commander_ids: set[str]
+) -> dict[str, str]:
+    """The cards that get no tier and no layer value: the commander and basic lands."""
+    unranked: dict[str, str] = {}
+    for card in raw_cards:
+        card_id = str(card["card_id"])
+        if card_id in commander_ids:
+            unranked[card_id] = strength.NOT_RANKED_COMMANDER
+        elif card["basic"]:
+            unranked[card_id] = strength.NOT_RANKED_BASIC_LAND
+    return unranked
+
+
 def _optional_text(value: object) -> str | None:
     return str(value) if value else None
 
@@ -483,38 +556,18 @@ def compute(
 
     type_group: dict[str, str] = {}
     bands: dict[str, str] = {}
-    unranked: dict[str, str] = {}
+    unranked = _unranked_cards(raw_cards, commander_ids)
     for card in raw_cards:
         card_id = str(card["card_id"])
         group = str(card["group"])
         type_group[card_id] = group
         bands[card_id] = strength.mana_band(_float(card["mana_value"]), is_land=group == "Land")
-        if card_id in commander_ids:
-            unranked[card_id] = strength.NOT_RANKED_COMMANDER
-        elif card["basic"]:
-            unranked[card_id] = strength.NOT_RANKED_BASIC_LAND
     context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
 
     # Rating layers (Bewertungsebenen): always computed for the page; they join the index only
     # with a positive weight (default 0), as one more rank-based component each.
-    layer_result = layers.compute_layers(
-        layers_view.layer_cards(
-            store,
-            display,
-            {str(card["card_id"]): str(card["type_line"]) for card in raw_cards},
-            unranked,
-        ),
-        layers_view.atlas_records(
-            store,
-            {str(card["card_id"]): _optional_text(card["oracle_id"]) for card in raw_cards},
-            claims,
-        ),
-        {
-            card_id: observation
-            for card_id, per in per_card.items()
-            if (observation := per.get(PLAYGROUP_OBSERVED)) is not None
-        },
-        settings.pod_size,
+    layer_result = _layer_result(
+        store, raw_cards, display, claims, unranked, per_card, settings.pod_size
     )
     weighted = [key for key in strength.LAYER_KEYS if settings.layer_weights[key] > 0]
     for card_id, found in layers.index_observations(layer_result, weighted).items():
@@ -1010,6 +1063,7 @@ __all__ = [
     "list_profiles",
     "presets",
     "profile_notices",
+    "rating_layers",
     "resolve_settings",
     "save_profile",
     "signal_coverage",

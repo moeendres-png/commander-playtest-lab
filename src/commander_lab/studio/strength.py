@@ -909,7 +909,10 @@ def score_pool(
         settings.effective_weight(name)
         for name in rated
         if settings.effective_weight(name) > 0
-        and not (name in UNCOLLECTED_BY_DESIGN and name not in collected)
+        and not (
+            (name in UNCOLLECTED_BY_DESIGN or name.startswith(LAYER_PREFIX))
+            and name not in collected
+        )
     )
     result: dict[str, CardStrength] = {}
     for card, per_card in observations.items():

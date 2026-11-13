@@ -488,22 +488,24 @@ def _measured(layer: str, card: LayerCard, record: AtlasRecord | None) -> LayerV
         # The share of drawn cards that were cast: its denominator is the funnel count of the
         # games in which the card was drawn (ever_drawn_n), its numerator first_cast_n. Only a
         # record without ever_drawn_n falls back to first_cast_n, and the row says so.
+        sample: int | None
+        play_cross: tuple[int, int] | None
         if record.ever_drawn_n is not None:
             sample, note = record.ever_drawn_n, ""
-            cross = (
+            play_cross = (
                 (record.first_cast_n, record.ever_drawn_n)
                 if record.first_cast_n is not None
                 else None
             )
         else:
-            sample, cross = record.first_cast_n, None
+            sample, play_cross = record.first_cast_n, None
             note = "Nenner ist first_cast_n: die Quelle nennt keine Zahl gezogener Karten"
         return share_layer(
             layer,
             record.drawn_to_played_pct,
             sample,
             insufficient=record.insufficient_sample,
-            cross_check=cross,
+            cross_check=play_cross,
             sample_note=note,
         )
     if not is_permanent(card.type_line):
