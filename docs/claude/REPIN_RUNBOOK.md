@@ -59,6 +59,10 @@ Build the fork jar and add the Lab bridge classes of `main` (`engine-bridge/` bu
    `.claude/skills/lab-ops/scripts/real_rows.py` and the pin-authority tests
    (`test_ws_a1d_docker_pin_authority.py`, `test_ws_a1r_pin_authority.py`,
    `test_ws_arclose_d1_authority_drift.py`, `test_current_pin_fanout_ratchet.py`).
+   The bridge carries one copy of engine code: `XmageFullGamePlayer.manaAvailableInPlayableCalcCopy`
+   is `PlayerImpl.getManaAvailable` of the pinned commit without its first line (#1298).
+   Compare the two bodies at the new pin and take over every change; if the engine method
+   can no longer be mirrored, delete the override (the engine method then runs, slower).
 2. Add the new lock `SUCCESSOR_SOURCE_LOCK.json` in state `PIN_MOVED_LAB_EVIDENCE_PENDING`
    and its guard test; let the predecessor's guard test point to its successor.
 3. Re-run `scripts/regenerate_hash_manifests.py` after **every** file change under
