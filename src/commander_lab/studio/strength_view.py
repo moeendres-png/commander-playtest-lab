@@ -243,6 +243,22 @@ def _float(value: object) -> float | None:
     return float(value) if isinstance(value, (int, float)) and not isinstance(value, bool) else None
 
 
+def _other_commander_names(store: StudioStore, commander: str) -> set[str]:
+    """Casefolded names of the commanders the store knows besides ``commander``: the ones
+    source decks are bound to and the ones signals were imported for. Such a card is a
+    commander in its own right and, like the chosen one, not ranked in this commander's pool
+    unless the Owner switches that on."""
+    found: set[str] = set()
+    for (name,) in store.connection.execute(
+        "SELECT commander_name FROM commander_binding WHERE kind IN ('corpus_deck', "
+        "'neutral_source') UNION SELECT commander_name FROM card_signal "
+        "WHERE commander_name != ''"
+    ):
+        if str(name) != commander:
+            found.add(str(name).casefold())
+    return found
+
+
 def compute(
     store: StudioStore,
     commander: str,
@@ -332,6 +348,11 @@ def compute(
             unranked[card_id] = strength.NOT_RANKED_COMMANDER
         elif card["basic"]:
             unranked[card_id] = strength.NOT_RANKED_BASIC_LAND
+    others = _other_commander_names(store, commander)
+    for card in raw_cards:
+        card_id = str(card["card_id"])
+        if card_id not in unranked and str(card["name"]).casefold() in others:
+            unranked[card_id] = strength.NOT_RANKED_OTHER_COMMANDER
     context = PoolContext(type_group, bands, unranked, filter_cards, universe_minimum)
 
     scored = strength.score_pool(settings, per_card, collected, context=context)
