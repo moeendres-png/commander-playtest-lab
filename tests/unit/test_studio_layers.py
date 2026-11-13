@@ -68,13 +68,6 @@ POD_CASES = [
     ),
     ("Silence", "Your opponents can't cast spells this turn.", "SCALES", None, ["your opponents"]),
     (
-        "Hysterical Blindness",
-        "Creatures your opponents control get -4/-0 until end of turn.",
-        "SCALES",
-        None,
-        ["opponents control"],
-    ),
-    (
         "Narset, Parter of Veils",
         "Each opponent can't draw more than one card each turn.\n\u22122: Look at the top four cards of your library. You may reveal a noncreature, nonland card from among them and put it into your hand. Put the rest on the bottom of your library in a random order.",
         "SCALES",
@@ -181,13 +174,6 @@ POD_CASES = [
         None,
         ["target opponent"],
     ),
-    (
-        "Cyclonic Rift",
-        'Return target nonland permanent you don\'t control to its owner\'s hand.\nOverload {6}{U} (You may cast this spell for its overload cost. If you do, change "target" in its text to "each.")',
-        "SINGLE_TARGET",
-        None,
-        ["return target nonland permanent you don't control to its owner's hand"],
-    ),
     ("Giant Growth", "Target creature gets +3/+3 until end of turn.", "NEUTRAL", None, []),
     (
         "Pacifism",
@@ -198,13 +184,6 @@ POD_CASES = [
     ),
     ("Sol Ring", "{T}: Add {C}{C}.", "NEUTRAL", None, []),
     ("Forest", "({T}: Add {G}.)", "NEUTRAL", None, []),
-    (
-        "Ghostly Prison",
-        "Creatures can't attack you unless their controller pays {2} for each creature they control that's attacking you.",
-        "NEUTRAL",
-        None,
-        [],
-    ),
     (
         "Blade of Selves",
         "Equipped creature has myriad. (Whenever it attacks, for each opponent other than defending player, you may create a token copy that's tapped and attacking that player or a planeswalker they control. Exile the tokens at end of combat.)\nEquip {4}",
@@ -303,6 +282,91 @@ POD_CASES = [
         "SCALES",
         None,
         ["each other player"],
+    ),
+    (
+        "Canopy Cover",
+        "Enchant creature\nEnchanted creature can't be blocked except by creatures with flying or reach.\nEnchanted creature can't be the target of spells or abilities your opponents control.",
+        "NEUTRAL",
+        None,
+        [],
+    ),
+    (
+        "Hysterical Blindness",
+        "Creatures your opponents control get -4/-0 until end of turn.",
+        "NEUTRAL",
+        None,
+        [],
+    ),
+    ("Mana Geyser", "Add {R} for each tapped land your opponents control.", "NEUTRAL", None, []),
+    (
+        "Shadowspear",
+        "Equipped creature gets +1/+1 and has trample and lifelink.\n{1}: Permanents your opponents control lose hexproof and indestructible until end of turn.\nEquip {2}",
+        "NEUTRAL",
+        None,
+        [],
+    ),
+    (
+        "Authority of the Consuls",
+        "Creatures your opponents control enter tapped.\nWhenever a creature an opponent controls enters, you gain 1 life.",
+        "OPPONENT_TRIGGER",
+        None,
+        ["whenever ... an opponent controls"],
+    ),
+    (
+        "Grand Abolisher",
+        "During your turn, your opponents can't cast spells or activate abilities of artifacts, creatures, or enchantments.",
+        "SCALES",
+        None,
+        ["your opponents"],
+    ),
+    (
+        "Aura of Silence",
+        "Artifact and enchantment spells your opponents cast cost {2} more to cast.\nSacrifice this enchantment: Destroy target artifact or enchantment.",
+        "SCALES",
+        None,
+        ["your opponents"],
+    ),
+    (
+        "Cyclonic Rift",
+        'Return target nonland permanent you don\'t control to its owner\'s hand.\nOverload {6}{U} (You may cast this spell for its overload cost. If you do, change "target" in its text to "each.")',
+        "SCALES",
+        None,
+        ["Overload"],
+    ),
+    (
+        "Winds of Abandon",
+        'Exile target creature you don\'t control. For each creature exiled this way, its controller searches their library for a basic land card. Those players put those cards onto the battlefield tapped, then shuffle.\nOverload {4}{W}{W} (You may cast this spell for its overload cost. If you do, change "target" in its text to "each.")',
+        "SCALES",
+        None,
+        ["Overload"],
+    ),
+    (
+        "Mizzium Mortars",
+        'Mizzium Mortars deals 4 damage to target creature you don\'t control.\nOverload {3}{R}{R}{R} (You may cast this spell for its overload cost. If you do, change "target" in its text to "each.")',
+        "SCALES",
+        None,
+        ["Overload"],
+    ),
+    (
+        "Ghostly Prison",
+        "Creatures can't attack you unless their controller pays {2} for each creature they control that's attacking you.",
+        "SCALES",
+        None,
+        ["can't attack you unless"],
+    ),
+    (
+        "Propaganda",
+        "Creatures can't attack you unless their controller pays {2} for each creature they control that's attacking you.",
+        "SCALES",
+        None,
+        ["can't attack you unless"],
+    ),
+    (
+        "Sphere of Safety",
+        "Creatures can't attack you or planeswalkers you control unless their controller pays {X} for each of those creatures, where X is the number of enchantments you control.",
+        "SCALES",
+        None,
+        ["creatures can't attack you"],
     ),
 ]
 
@@ -478,6 +542,57 @@ def test_tempo_uses_the_on_curve_denominator() -> None:
     assert (item["n"], item["raw"], item["status"]) == (200, 0.2, layers.OK)
 
 
+def test_tempo_is_the_on_curve_count_over_its_denominator_and_names_a_different_percent() -> None:
+    record = AtlasRecord(on_curve_pct=30.0, on_curve_count=31, on_curve_denominator=120)
+    item = compute_layers({"a": _card()}, {"a": record}, {})["cards"]["a"]["tempo"]
+    bound = strength.wilson_lower(31, 120)
+    assert (item["status"], item["raw"], item["n"], item["wilson"], item["value"]) == (
+        layers.OK,
+        pytest.approx(31 / 120),
+        120,
+        bound,
+        bound,
+    )
+    assert item["note"] == "Quelle nennt 30 %"
+    assert item["detail"] == {"published_pct": 30.0}
+    agreeing = AtlasRecord(on_curve_pct=26.0, on_curve_count=31, on_curve_denominator=120)
+    same = compute_layers({"a": _card()}, {"a": agreeing}, {})["cards"]["a"]["tempo"]
+    assert (same["note"], same["detail"]) == ("", None)
+    assert same["raw"] == pytest.approx(31 / 120)
+
+
+@pytest.mark.parametrize(
+    "record",
+    [
+        AtlasRecord(on_curve_pct=30.0, on_curve_denominator=120),
+        AtlasRecord(on_curve_pct=30.0, on_curve_count=31),
+        AtlasRecord(on_curve_count=31, on_curve_denominator=120, insufficient_sample=True),
+    ],
+)
+def test_tempo_without_count_or_denominator_is_unknown_not_the_published_percent(
+    record: AtlasRecord,
+) -> None:
+    item = compute_layers({"a": _card()}, {"a": record}, {})["cards"]["a"]["tempo"]
+    assert (item["status"], item["value"], item["raw"], item["percentile"]) == (
+        layers.UNKNOWN,
+        None,
+        None,
+        None,
+    )
+    assert item["reason"] in {layers.NO_COUNT, layers.INSUFFICIENT_SAMPLE}
+
+
+def test_the_summary_counts_the_tempo_records_whose_percent_differs() -> None:
+    cards = {name: _card() for name in "abc"}
+    atlas = {
+        "a": AtlasRecord(on_curve_pct=30.0, on_curve_count=31, on_curve_denominator=120),
+        "b": AtlasRecord(on_curve_pct=26.0, on_curve_count=31, on_curve_denominator=120),
+        "c": AtlasRecord(on_curve_pct=60.0, on_curve_count=20, on_curve_denominator=100),
+    }
+    summary = {item["key"]: item for item in compute_layers(cards, atlas, {})["layers"]}
+    assert summary["tempo"]["source_discrepancies"] == 2
+
+
 @pytest.mark.parametrize(
     ("type_line", "status"),
     [
@@ -524,7 +639,7 @@ def test_the_commander_and_basic_lands_get_no_value_and_no_rank() -> None:
         "b": _card(),
     }
     atlas = {
-        key: AtlasRecord(on_curve_pct=pct, on_curve_denominator=100)
+        key: AtlasRecord(on_curve_count=round(pct), on_curve_denominator=100)
         for key, pct in (("boss", 90.0), ("forest", 90.0), ("a", 10.0), ("b", 20.0))
     }
     result = compute_layers(cards, atlas, {})
@@ -545,7 +660,7 @@ def test_the_commander_and_basic_lands_get_no_value_and_no_rank() -> None:
 def test_percentiles_run_from_0_to_100_and_ties_share_the_mean_rank() -> None:
     cards = {name: _card() for name in "abcd"}
     atlas = {
-        name: AtlasRecord(on_curve_pct=pct, on_curve_denominator=1000)
+        name: AtlasRecord(on_curve_count=round(10 * pct), on_curve_denominator=1000)
         for name, pct in (("a", 10.0), ("b", 30.0), ("c", 30.0), ("d", 60.0))
     }
     result = compute_layers(cards, atlas, {})["cards"]
@@ -632,7 +747,7 @@ def test_the_win_gap_layer_is_the_gap_exactly_as_the_index_reads_it() -> None:
 
 def test_the_summary_counts_values_unknowns_and_the_kind_of_every_layer() -> None:
     cards = {name: _card() for name in "abc"}
-    atlas = {"a": AtlasRecord(on_curve_pct=10.0, on_curve_denominator=100)}
+    atlas = {"a": AtlasRecord(on_curve_count=10, on_curve_denominator=100)}
     summary = {item["key"]: item for item in compute_layers(cards, atlas, {})["layers"]}
     assert list(summary) == ["pod_scaling", "tempo", "playability", "staying", "win_gap"]
     assert (summary["tempo"]["with_value"], summary["tempo"]["unknown"]) == (1, 2)
