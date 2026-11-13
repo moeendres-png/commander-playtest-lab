@@ -27,6 +27,7 @@ from . import (
     decklist_import,
     importers,
     repo_import,
+    research_import,
     roles,
     rulings,
     signals,
@@ -40,6 +41,7 @@ NOT_PROVIDED = "NOT_PROVIDED"
 IMPORTED = "IMPORTED"
 FAILED = "FAILED"
 SKIPPED = "SKIPPED_AFTER_ERROR"
+WARNING = "WARNING"
 COMPLETE = "COMPLETE"
 PARTIAL = "PARTIAL"
 MISSING = "MISSING"
@@ -237,8 +239,30 @@ def completeness(store: StudioStore, commander: str) -> tuple[int | None, list[L
         coverage = strength_view.signal_coverage(store, commander)
     except KeyError:
         coverage = {}
+    own_signals = {signals.SIGNAL_SALT: "", signals.SIGNAL_COMBO_DECKS: commander}
     for signal, item in coverage.items():
+        if signal in own_signals:
+            continue  # counted below with the right owner (strength_view reads it as the commander's)
         add(f"signal:{signal}", f"Signal {signal}", item["rows"], item["pool_cards_with_value"])
+    for signal, owner in own_signals.items():
+        found = {
+            str(row[0]).casefold()
+            for row in store.connection.execute(
+                "SELECT card_name FROM card_signal WHERE signal = ? AND commander_name = ? "
+                "AND value IS NOT NULL",
+                (signal, owner),
+            )
+        }
+        add(
+            signal,  # no "signal:" prefix: the signal layers of the pages stay the fixed list
+            f"Signal {signal}",
+            _count(
+                store,
+                "SELECT COUNT(*) FROM card_signal WHERE signal = ? AND commander_name = ?",
+                (signal, owner),
+            ),
+            sum(1 for card in cards if str(card["name"]).casefold() in found),
+        )
     # Marks are optional per card: present (with the count) or not provided, never partial.
     marked = sum(1 for card in cards if card["favorite"] or card["excluded"] or card["note"])
     layers.append(
@@ -323,6 +347,8 @@ _FLAG = {
     "rulings": ' --rulings "<Datei>"',
     "decklists": ' --decklists "<Ordner>"',
     "marks": ' --marks "<Datei>"',
+    "edhrec_salt": ' --signals "<Ordner>"',
+    "edhrec_combo_decks": ' --signals "<Ordner>"',
 }
 _FROM_REPO_LAYERS = frozenset({"corpus", "observations", "playgroup"})
 
@@ -394,6 +420,10 @@ def _steps(
     commander: str = args.commander
     # Explicit arguments win over the repository files of the same step.
     role_files = [Path(args.roles)] if args.roles else (repo.roles if repo else [])
+    tagger_roles: str | None = getattr(args, "tagger_roles", None)
+    if not tagger_roles and repo is not None and repo.tagger_bulk is not None:
+        tagger_roles = str(repo.tagger_bulk)  # an explicit --tagger-roles wins
+    force: bool = bool(getattr(args, "force", False))
     plan: list[tuple[str, bool, Callable[[StudioStore], object]]] = [
         ("Sammlung", True, _inventory_action(args, repo)),
         (
@@ -410,6 +440,13 @@ def _steps(
             "Regeltexte",
             bool(rulings_files),
             lambda store: rulings.import_rulings(store, rulings_files),
+        ),
+        (
+            "Tagger-Rollen",
+            bool(tagger_roles),
+            lambda store: research_import.import_tagger_roles(
+                store, str(tagger_roles), force=force
+            ),
         ),
         (
             "Decklisten",
@@ -512,7 +549,15 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
         try:
             with store.importing_for(commander):
                 result = action(store)
-            steps.append({"step": name, "status": IMPORTED, "detail": _summary(result)})
+            outcome = result.get("status") if isinstance(result, dict) else None
+            message = str(result.get("message", "")) if isinstance(result, dict) else ""
+            if outcome == "NO_ROWS":
+                steps.append({"step": name, "status": FAILED, "detail": message})
+                failed = True
+            elif outcome == "WARNUNG":
+                steps.append({"step": name, "status": WARNING, "detail": message})
+            else:
+                steps.append({"step": name, "status": IMPORTED, "detail": _summary(result)})
         except sqlite3.IntegrityError as error:
             detail = (
                 f"belongs to another commander than {commander!r}"
@@ -521,8 +566,11 @@ def run(args: argparse.Namespace, store: StudioStore) -> ImportAllResult:
             )
             steps.append({"step": name, "status": FAILED, "detail": detail})
             failed = True
-        except (ValueError, OSError, KeyError) as error:
-            steps.append({"step": name, "status": FAILED, "detail": str(error) or repr(error)})
+        except Exception as error:
+            # Any failure of a step (a cut .gz, a file that is not a workbook ...) is reported
+            # with its type and message, never as a traceback without the table.
+            text = f"{type(error).__name__}: {error}"
+            steps.append({"step": name, "status": FAILED, "detail": text})
             failed = True
     size, layers = completeness(store, commander)
     expected = args.expect_pool
@@ -595,6 +643,16 @@ def render(result: ImportAllResult) -> str:
     return "\n".join(parts)
 
 
+def _available(store: StudioStore) -> str:
+    names = [
+        str(item["name"])
+        for item in builder.list_commanders(store, include_collection=True)
+        if item["in_collection"]
+    ]
+    shown = ", ".join(names[:30]) + (f" (+{len(names) - 30} weitere)" if len(names) > 30 else "")
+    return shown or "keine gefunden"
+
+
 def run_command(args: argparse.Namespace) -> int:
     """The ``import-all`` command; returns the process exit code."""
     store = StudioStore.open(args.data)
@@ -610,7 +668,8 @@ def run_command(args: argparse.Namespace) -> int:
         if result["pool_size"] is None:
             print(
                 f"import-all: Der Commander „{result['commander']}“ steht nicht in der "
-                "Sammlung, die Poolgröße ist unbekannt. Prüfe den Namen und die Sammlungsdatei.",
+                "Sammlung, die Poolgröße ist unbekannt. Prüfe den Namen und die Sammlungsdatei. "
+                f"Verfügbare Commander: {_available(store)}",
                 file=sys.stderr,
             )
             return EXIT_COMMANDER_UNKNOWN

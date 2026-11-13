@@ -10,7 +10,17 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-from . import catalog, decklist_import, importers, roles, rulings, signals, tiers, universe
+from . import (
+    catalog,
+    decklist_import,
+    importers,
+    research_import,
+    roles,
+    rulings,
+    signals,
+    tiers,
+    universe,
+)
 from .builder import list_commanders
 from .data_report import data_report
 from .decks import lab_snapshot, validate_revision
@@ -107,8 +117,15 @@ def _parser() -> argparse.ArgumentParser:
     import_signals.add_argument("folder")
     import_signals.add_argument(
         "--commander",
-        default=LEGACY_COMMANDER,
-        help="commander the tournament lists belong to (EDHREC signals carry their own)",
+        required=True,
+        help="commander the tournament and combo lists belong to (EDHREC signals carry "
+        "their own); matched case-insensitively against the names the store knows",
+    )
+    import_signals.add_argument(
+        "--append",
+        action="store_true",
+        help="only add and update rows; the default replaces every signal and commander "
+        "the files write",
     )
     import_all = commands.add_parser(
         "import-all",
@@ -125,7 +142,7 @@ def _parser() -> argparse.ArgumentParser:
         "--from-repo",
         action="store_true",
         help="import everything the repository holds under data/research (collection, "
-        "corpus, roles, rulings, EDHREC observations, Playgroup atlas, signals); needs "
+        "corpus, roles, tagger roles, rulings, EDHREC observations, Playgroup atlas, signals); needs "
         "--scryfall; explicit file arguments replace the repo files of their step",
     )
     import_all.add_argument("--scryfall", help="public card facts file")
@@ -145,9 +162,31 @@ def _parser() -> argparse.ArgumentParser:
     import_all.add_argument("--decklist-format", choices=("edhrec", "archidekt"), default="edhrec")
     import_all.add_argument("--marks", help="owner marks file")
     import_all.add_argument(
+        "--tagger-roles", help="tagger bulk CSV (oracle_id, category, bulk_label)"
+    )
+    import_all.add_argument(
+        "--force",
+        action="store_true",
+        help="let the tagger roles replace more than half of their scope's earlier claims",
+    )
+    import_all.add_argument(
         "--expect-pool",
         type=int,
         help="exit non-zero when the commander's legal pool has another size",
+    )
+    tagger_roles = commands.add_parser(
+        "import-tagger-roles",
+        help="roles from the tagger bulk CSV (oracle_id, category, bulk_label)",
+    )
+    tagger_roles.add_argument("path")
+    tagger_roles.add_argument(
+        "--force",
+        action="store_true",
+        help="replace even when more than half of the earlier claims of the scope go",
+    )
+    commands.add_parser(
+        "relink-corpus",
+        help="link source-deck cards to oracle ids by name and rebuild deck statistics",
     )
     commands.add_parser("profiles", help="list the stored deck-universe profiles")
     save_profile = commands.add_parser(
@@ -508,7 +547,9 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = importers.import_hub_corpus(store, args.path)
     elif args.command == "import-signals":
         try:
-            result = signals.import_signals(store, args.folder, commander=args.commander)
+            result = signals.import_signals(
+                store, args.folder, commander=args.commander, replace=not args.append
+            )
         except ValueError as error:
             raise SystemExit(f"import-signals: {error}") from None
     elif args.command == "import-scryfall":
@@ -584,6 +625,10 @@ def _run(args: argparse.Namespace, store: StudioStore) -> object:
         result = decklist_import.import_decklists(
             store, args.path, format=args.format, commander=args.commander
         )
+    elif args.command == "import-tagger-roles":
+        result = research_import.import_tagger_roles(store, args.path, force=args.force)
+    elif args.command == "relink-corpus":
+        result = catalog.relink_corpus(store)
     elif args.command == "profiles":
         result = {"profiles": universe.list_profiles(store)}
     elif args.command == "save-profile":

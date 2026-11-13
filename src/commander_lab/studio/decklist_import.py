@@ -34,6 +34,7 @@ from pathlib import Path
 from typing import TypedDict
 
 from ._coerce import iterate, to_int
+from .catalog import relink_corpus
 from .store import DataClass, StudioStore, sha256_file
 
 COMMANDER_COHORT = "chulane"
@@ -201,9 +202,27 @@ def _archidekt_deck(raw: Mapping[str, object], path: Path) -> _Deck:
 _PARSERS = {"edhrec": _edhrec_deck, "archidekt": _archidekt_deck}
 
 
+def detect_format(folder: str | Path) -> str:
+    """``edhrec`` or ``archidekt``, read from the first deck file of ``folder``.
+
+    An EDHREC export names its ``urlhash`` or ``variante``; an Archidekt export its
+    ``summe_gesamt``, ``summe_hauptdeck`` or ``updated_at``. Anything else is refused."""
+    files = sorted(Path(folder).glob("*.json"))
+    if not files:
+        raise ValueError(f"no deck files found in {folder}")
+    raw = _read_json(files[0])
+    if "urlhash" in raw or "variante" in raw:
+        return "edhrec"
+    if {"summe_gesamt", "summe_hauptdeck", "updated_at"} & set(raw):
+        return "archidekt"
+    raise ValueError(
+        f"{files[0].name}: the deck list format is not clear; run import-decklists with --format"
+    )
+
+
 def import_decklists(
     store: StudioStore, folder: str | Path, *, format: str, commander: str | None = None
-) -> dict[str, int]:
+) -> dict[str, object]:
     """Import every normalized deck file of one source format from ``folder``.
 
     ``format`` is ``edhrec`` or ``archidekt``. Returns counts of decks written, decks
@@ -303,9 +322,13 @@ def import_decklists(
             card_rows += len(rows)
             duplicates += 1 if duplicate_of else 0
         _release_stale_marks(db)
+    # Card names are linked to oracle ids by name; with the card data imported later the same
+    # step runs at the end of that import, so the order of the two imports does not matter.
+    relinked = relink_corpus(store)
     return {
         "decks": written,
         "duplicates_marked": duplicates,
         "card_rows": card_rows,
         "files_without_cards": skipped,
+        **relinked,
     }

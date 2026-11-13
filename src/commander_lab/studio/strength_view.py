@@ -87,7 +87,13 @@ class StrengthResult(TypedDict):
 
 
 _INDEPENDENT = frozenset(
-    {"edhrec_global_inclusion", "spellbook_variants", "playgroup_observed_winrate_gap"}
+    {
+        "edhrec_global_inclusion",
+        "spellbook_variants",
+        "playgroup_observed_winrate_gap",
+        # A marker layer only (no rated component): the salt list does not depend on a commander.
+        signals.SIGNAL_SALT,
+    }
 )
 # claim key -> [(claim kind, card id)]
 _Claims = dict[str, list[tuple[int, str]]]
@@ -169,6 +175,8 @@ def expected_signals() -> list[str]:
         # stored ones are listed under their own names, this row stays while none exists.
         signals.SIGNAL_DECKLIST,
         signals.SIGNAL_PLAYGROUP,
+        signals.SIGNAL_SALT,
+        signals.SIGNAL_COMBO_DECKS,
     ]
 
 

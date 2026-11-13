@@ -172,6 +172,8 @@ def map_corpus_oracle_ids(db: sqlite3.Connection) -> dict[str, int | list[str]]:
         "unresolved": unresolved,
     }
 
+TAGGER_BULK = Path("deckbuilder_1655") / "card_tagger_bulk_1655.csv"
+
 
 def _parts(folder: Path, pattern: str) -> list[Path]:
     return sorted(folder.glob(pattern)) if folder.is_dir() else []
@@ -188,12 +190,14 @@ class RepoFiles:
     roles: list[Path] = field(default_factory=list)
     edhrec_parts: list[Path] = field(default_factory=list)
     playgroup_parts: list[Path] = field(default_factory=list)
+    tagger_bulk: Path | None = None
 
     @classmethod
     def discover(cls, research: Path) -> RepoFiles:
         collection = research / COLLECTION_FOLDER
         corpus = research / CORPUS_FOLDER
         has_sheets = collection.is_dir() and any(collection.glob("0[0-9]_*.csv"))
+        tagger = research / TAGGER_BULK
         return cls(
             research=research,
             collection_dir=collection if has_sheets else None,
@@ -201,6 +205,7 @@ class RepoFiles:
             roles=_parts(research / ROLES_FOLDER, "roles_*.json"),
             edhrec_parts=_parts(research / EDHREC_FOLDER, "edhrec_table_*.csv"),
             playgroup_parts=_parts(research / PLAYGROUP_FOLDER, "playgroup_card_atlas_*.jsonl"),
+            tagger_bulk=tagger if tagger.is_file() else None,
         )
 
 
