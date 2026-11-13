@@ -1,0 +1,362 @@
+{
+ "urlhash": "jIjUmeYCMZH4q-1KhLOhFA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-08-20",
+ "price": 125,
+ "salt": 47.58911069855094,
+ "tags": [
+  "Combo",
+  "+1/+1 Counters",
+  "Blink"
+ ],
+ "source_url": "https://moxfield.com/decks/jYTgy-6CBk-AlBZay4aYEw?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Arboreal Grazer",
+   "quantity": 1
+  },
+  {
+   "name": "Aven Mindcensor",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Tolarian Archmage",
+   "quantity": 1
+  },
+  {
+   "name": "Chasm Skulker",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Cloud of Faeries",
+   "quantity": 1
+  },
+  {
+   "name": "Dour Port-Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "God-Eternal Oketra",
+   "quantity": 1
+  },
+  {
+   "name": "Imperial Cosmographer",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Knight of Autumn",
+   "quantity": 1
+  },
+  {
+   "name": "Long River Lurker",
+   "quantity": 1
+  },
+  {
+   "name": "Peregrine Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Pond Prophet",
+   "quantity": 1
+  },
+  {
+   "name": "Psychosis Crawler",
+   "quantity": 1
+  },
+  {
+   "name": "Radagast of Rhosgobel",
+   "quantity": 1
+  },
+  {
+   "name": "Sakura-Tribe Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Shrieking Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Species Gorger",
+   "quantity": 1
+  },
+  {
+   "name": "Spore Frog",
+   "quantity": 1
+  },
+  {
+   "name": "Stickytongue Sentinel",
+   "quantity": 1
+  },
+  {
+   "name": "Stormfront Riders",
+   "quantity": 1
+  },
+  {
+   "name": "Studious First-Year",
+   "quantity": 1
+  },
+  {
+   "name": "Sun Titan",
+   "quantity": 1
+  },
+  {
+   "name": "Sunshower Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree Scribe",
+   "quantity": 1
+  },
+  {
+   "name": "Twenty-Toed Toad",
+   "quantity": 1
+  },
+  {
+   "name": "Whitemane Lion",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherize",
+   "quantity": 1
+  },
+  {
+   "name": "Paradoxical Outcome",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Rescue",
+   "quantity": 1
+  },
+  {
+   "name": "Run Away Together",
+   "quantity": 1
+  },
+  {
+   "name": "Shared Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Snap",
+   "quantity": 1
+  },
+  {
+   "name": "Swords to Plowshares",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Flood of Tears",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Splash Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Time Wipe",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Herald's Horn",
+   "quantity": 1
+  },
+  {
+   "name": "Patchwork Banner",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Abundance",
+   "quantity": 1
+  },
+  {
+   "name": "Banishing Light",
+   "quantity": 1
+  },
+  {
+   "name": "Cathars' Crusade",
+   "quantity": 1
+  },
+  {
+   "name": "Felidar Retreat",
+   "quantity": 1
+  },
+  {
+   "name": "Khalni Heart Expedition",
+   "quantity": 1
+  },
+  {
+   "name": "Kitnap",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Breach",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Ageless Insight",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 4
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Irrigated Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Oakhollow Village",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Prairie Stream",
+   "quantity": 1
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Scattered Groves",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Sodden Verdure",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Enlightenment",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "Temple of Plenty",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

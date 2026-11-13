@@ -1,0 +1,334 @@
+{
+ "urlhash": "bE4FOnP2qXuH4OQfA-3_nw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-03-09",
+ "price": 208,
+ "salt": 52.860871544107795,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17013337?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aang, at the Crossroads",
+   "quantity": 1
+  },
+  {
+   "name": "Ancestral Statue",
+   "quantity": 1
+  },
+  {
+   "name": "Battle Angels of Tyr",
+   "quantity": 1
+  },
+  {
+   "name": "Cankerbloom",
+   "quantity": 1
+  },
+  {
+   "name": "Chakram Retriever",
+   "quantity": 1
+  },
+  {
+   "name": "Clinquant Skymage",
+   "quantity": 1
+  },
+  {
+   "name": "Discerning Financier",
+   "quantity": 1
+  },
+  {
+   "name": "Elvish Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Fauna Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Fblthp, Lost on the Range",
+   "quantity": 1
+  },
+  {
+   "name": "Genemorph Imago",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Ankheg",
+   "quantity": 1
+  },
+  {
+   "name": "Helga, Skittish Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Hermitic Herbalist",
+   "quantity": 1
+  },
+  {
+   "name": "Highspire Bell-Ringer",
+   "quantity": 1
+  },
+  {
+   "name": "Homunculus Horde",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Ignis Scientia",
+   "quantity": 1
+  },
+  {
+   "name": "Imoti, Celebrant of Bounty",
+   "quantity": 1
+  },
+  {
+   "name": "Jumbo Cactuar",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Knowledge Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Mangara, the Diplomat",
+   "quantity": 1
+  },
+  {
+   "name": "Mockingbird",
+   "quantity": 1
+  },
+  {
+   "name": "Progenitor Mimic",
+   "quantity": 1
+  },
+  {
+   "name": "Sazh's Chocobo",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Host of Herons",
+   "quantity": 1
+  },
+  {
+   "name": "Solemn Simulacrum",
+   "quantity": 1
+  },
+  {
+   "name": "Soul of the Harvest",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Steward of Tides",
+   "quantity": 1
+  },
+  {
+   "name": "Tempest Hart",
+   "quantity": 1
+  },
+  {
+   "name": "The Unagi of Kyoshi Island",
+   "quantity": 1
+  },
+  {
+   "name": "Thunderous Snapper",
+   "quantity": 1
+  },
+  {
+   "name": "Tifa Lockhart",
+   "quantity": 1
+  },
+  {
+   "name": "Undergrowth Leopard",
+   "quantity": 1
+  },
+  {
+   "name": "Vizier of Many Faces",
+   "quantity": 1
+  },
+  {
+   "name": "Vorinclex, Voice of Hunger",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, All-Questioning",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Dovin's Veto",
+   "quantity": 1
+  },
+  {
+   "name": "Hindering Light",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Claim",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Genesis",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Depopulate",
+   "quantity": 1
+  },
+  {
+   "name": "Shamanic Revelation",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Chromatic Lantern",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Swiftfoot Boots",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Ascendancy",
+   "quantity": 1
+  },
+  {
+   "name": "Hunter's Talent",
+   "quantity": 1
+  },
+  {
+   "name": "Imprisoned in the Moon",
+   "quantity": 1
+  },
+  {
+   "name": "Kozilek's Unsealing",
+   "quantity": 1
+  },
+  {
+   "name": "Monstrous Vortex",
+   "quantity": 1
+  },
+  {
+   "name": "Season of Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Stormplain Detainment",
+   "quantity": 1
+  },
+  {
+   "name": "Witness Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Zendikar Resurgent",
+   "quantity": 1
+  },
+  {
+   "name": "Vivien, Champion of the Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Blossoming Sands",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Strand",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 8
+  },
+  {
+   "name": "Idyllic Beachfront",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 8
+  },
+  {
+   "name": "Radiant Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tangled Islet",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Cove",
+   "quantity": 1
+  },
+  {
+   "name": "Tranquil Landscape",
+   "quantity": 1
+  },
+  {
+   "name": "Windswept Heath",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

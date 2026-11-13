@@ -1,0 +1,214 @@
+{
+ "urlhash": "gEcTxAIkQVjbxXFAX4SbrQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-11-03",
+ "price": 365,
+ "salt": 65.29539209231734,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/20157568?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Arbor Elf",
+   "quantity": 1
+  },
+  {
+   "name": "Avacyn's Pilgrim",
+   "quantity": 1
+  },
+  {
+   "name": "Bess, Soul Nourisher",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Bristly Bill, Spine Sower",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of Lambholt",
+   "quantity": 1
+  },
+  {
+   "name": "Daxos, Blessed by the Sun",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Fyndhorn Elves",
+   "quantity": 1
+  },
+  {
+   "name": "Hare Apparent",
+   "quantity": 23
+  },
+  {
+   "name": "Harvestrite Host",
+   "quantity": 1
+  },
+  {
+   "name": "Jacked Rabbit",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1
+  },
+  {
+   "name": "Luminous Broodmoth",
+   "quantity": 1
+  },
+  {
+   "name": "Noble Hierarch",
+   "quantity": 1
+  },
+  {
+   "name": "Rosie Cotton of South Lane",
+   "quantity": 1
+  },
+  {
+   "name": "Soul Warden",
+   "quantity": 1
+  },
+  {
+   "name": "Akroma's Will",
+   "quantity": 1
+  },
+  {
+   "name": "Continue?",
+   "quantity": 1
+  },
+  {
+   "name": "Dawn's Truce",
+   "quantity": 1
+  },
+  {
+   "name": "Duty Beyond Death",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Crescendo",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Grip",
+   "quantity": 1
+  },
+  {
+   "name": "March of the Multitudes",
+   "quantity": 1
+  },
+  {
+   "name": "Path to Exile",
+   "quantity": 1
+  },
+  {
+   "name": "Settle the Wreckage",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Gale",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Kodama's Reach",
+   "quantity": 1
+  },
+  {
+   "name": "Storm of Souls",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Skullclamp",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thrumming Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Smile at Death",
+   "quantity": 1
+  },
+  {
+   "name": "Brushland",
+   "quantity": 1
+  },
+  {
+   "name": "Canopy Vista",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Elfhame Palace",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 6
+  },
+  {
+   "name": "Oran-Rief, the Vastwood",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 14
+  },
+  {
+   "name": "Secluded Courtyard",
+   "quantity": 1
+  },
+  {
+   "name": "Three Tree City",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

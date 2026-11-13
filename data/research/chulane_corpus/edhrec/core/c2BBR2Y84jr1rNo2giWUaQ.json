@@ -1,0 +1,296 @@
+{
+ "urlhash": "c2BBR2Y84jr1rNo2giWUaQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2026-04-21",
+ "price": 338,
+ "salt": 40.910816009156406,
+ "tags": [
+  "Tokens"
+ ],
+ "source_url": "https://moxfield.com/decks/zuDcZm2LAEeW9OlT-KjCvA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Amrou Kithkin",
+   "quantity": 1
+  },
+  {
+   "name": "Amrou Seekers",
+   "quantity": 1
+  },
+  {
+   "name": "Ballynock Trapper",
+   "quantity": 1
+  },
+  {
+   "name": "Beast Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Clachan's Heart",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid, Hero of Kinsbaile",
+   "quantity": 1
+  },
+  {
+   "name": "Bristlebane Battler",
+   "quantity": 1
+  },
+  {
+   "name": "Bristlebane Outrider",
+   "quantity": 1
+  },
+  {
+   "name": "Cenn's Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Champion of the Clachan",
+   "quantity": 1
+  },
+  {
+   "name": "Circle of Dreams Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Dundoolin Weaver",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Kithkin",
+   "quantity": 1
+  },
+  {
+   "name": "Faeburrow Elder",
+   "quantity": 1
+  },
+  {
+   "name": "Figure of Fable",
+   "quantity": 1
+  },
+  {
+   "name": "Galepowder Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Harrier",
+   "quantity": 1
+  },
+  {
+   "name": "Goldmeadow Lookout",
+   "quantity": 1
+  },
+  {
+   "name": "Kinsbaile Borderguard",
+   "quantity": 1
+  },
+  {
+   "name": "Kinscaer Harpoonist",
+   "quantity": 1
+  },
+  {
+   "name": "Kinscaer Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Billyrider",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Harbinger",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Mourncaller",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Rabble",
+   "quantity": 1
+  },
+  {
+   "name": "Kithkin Spellduster",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Vanisher",
+   "quantity": 1
+  },
+  {
+   "name": "Mistmeadow Witch",
+   "quantity": 1
+  },
+  {
+   "name": "Order of the Golden Cricket",
+   "quantity": 1
+  },
+  {
+   "name": "Parapet Watchers",
+   "quantity": 1
+  },
+  {
+   "name": "Somnomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Springjack Shepherd",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Duo",
+   "quantity": 1
+  },
+  {
+   "name": "Thistledown Liege",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Imbuer",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Lieutenant",
+   "quantity": 1
+  },
+  {
+   "name": "Thoughtweft Trio",
+   "quantity": 1
+  },
+  {
+   "name": "Wellgabber Apothecary",
+   "quantity": 1
+  },
+  {
+   "name": "Wizened Cenn",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Summons",
+   "quantity": 1
+  },
+  {
+   "name": "Repel Intruders",
+   "quantity": 1
+  },
+  {
+   "name": "Brigid's Command",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Drawn from Dreams",
+   "quantity": 1
+  },
+  {
+   "name": "Explosive Vegetation",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Banner of Kinship",
+   "quantity": 1
+  },
+  {
+   "name": "Chronicle of Victory",
+   "quantity": 1
+  },
+  {
+   "name": "Anointed Procession",
+   "quantity": 1
+  },
+  {
+   "name": "Beastmaster Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Call to the Kindred",
+   "quantity": 1
+  },
+  {
+   "name": "Clachan Festival",
+   "quantity": 1
+  },
+  {
+   "name": "Growing Rites of Itlimoc",
+   "quantity": 1
+  },
+  {
+   "name": "Kinbinding",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Boon",
+   "quantity": 1
+  },
+  {
+   "name": "Kindred Discovery",
+   "quantity": 1
+  },
+  {
+   "name": "Militia's Pride",
+   "quantity": 1
+  },
+  {
+   "name": "Parallel Lives",
+   "quantity": 1
+  },
+  {
+   "name": "Ajani, Outland Chaperone",
+   "quantity": 1
+  },
+  {
+   "name": "Elspeth, Storm Slayer",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Eclipsed Realms",
+   "quantity": 1
+  },
+  {
+   "name": "Exotic Orchard",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 10
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 16
+  },
+  {
+   "name": "Rustic Clachan",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

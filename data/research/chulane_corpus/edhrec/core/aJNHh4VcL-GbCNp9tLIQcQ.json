@@ -1,0 +1,286 @@
+{
+ "urlhash": "aJNHh4VcL-GbCNp9tLIQcQ",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-11-01",
+ "price": 52,
+ "salt": 40.94726616516709,
+ "tags": [],
+ "source_url": "https://archidekt.com/decks/17044849?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Acidic Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Inspector",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Swooper",
+   "quantity": 1
+  },
+  {
+   "name": "Ambassador Oak",
+   "quantity": 1
+  },
+  {
+   "name": "Bishop's Soldier",
+   "quantity": 1
+  },
+  {
+   "name": "Briarhorn",
+   "quantity": 1
+  },
+  {
+   "name": "Brutalizer Exarch",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Colossus",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Navigator",
+   "quantity": 1
+  },
+  {
+   "name": "Dukhara Peafowl",
+   "quantity": 1
+  },
+  {
+   "name": "Fog Bank",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Logger",
+   "quantity": 1
+  },
+  {
+   "name": "Ixalli's Diviner",
+   "quantity": 1
+  },
+  {
+   "name": "Jungle Wurm",
+   "quantity": 1
+  },
+  {
+   "name": "Kessig Recluse",
+   "quantity": 1
+  },
+  {
+   "name": "Moorland Drifter",
+   "quantity": 1
+  },
+  {
+   "name": "Murmuring Phantasm",
+   "quantity": 1
+  },
+  {
+   "name": "Noose Constrictor",
+   "quantity": 1
+  },
+  {
+   "name": "Peema Outrider",
+   "quantity": 1
+  },
+  {
+   "name": "Pilgrim's Eye",
+   "quantity": 1
+  },
+  {
+   "name": "Shielded Aether Thief",
+   "quantity": 1
+  },
+  {
+   "name": "Shipwreck Moray",
+   "quantity": 1
+  },
+  {
+   "name": "Snare Thopter",
+   "quantity": 1
+  },
+  {
+   "name": "Stampeding Wildebeests",
+   "quantity": 1
+  },
+  {
+   "name": "Stingerfling Spider",
+   "quantity": 1
+  },
+  {
+   "name": "Striped Riverwinder",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Turtle",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Captive",
+   "quantity": 1
+  },
+  {
+   "name": "Vastwood Gorger",
+   "quantity": 1
+  },
+  {
+   "name": "Viridian Emissary",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Denial",
+   "quantity": 1
+  },
+  {
+   "name": "Wall of Essence",
+   "quantity": 1
+  },
+  {
+   "name": "Countervailing Winds",
+   "quantity": 1
+  },
+  {
+   "name": "Essence Scatter",
+   "quantity": 1
+  },
+  {
+   "name": "Geist Snatch",
+   "quantity": 1
+  },
+  {
+   "name": "Hydrosurge",
+   "quantity": 1
+  },
+  {
+   "name": "Impeccable Timing",
+   "quantity": 1
+  },
+  {
+   "name": "Metallic Rebuke",
+   "quantity": 1
+  },
+  {
+   "name": "Mind Bend",
+   "quantity": 1
+  },
+  {
+   "name": "Ornamental Courage",
+   "quantity": 1
+  },
+  {
+   "name": "Outwit",
+   "quantity": 1
+  },
+  {
+   "name": "Overrule",
+   "quantity": 1
+  },
+  {
+   "name": "Take into Custody",
+   "quantity": 1
+  },
+  {
+   "name": "Unsummon",
+   "quantity": 1
+  },
+  {
+   "name": "Elven Cache",
+   "quantity": 1
+  },
+  {
+   "name": "Overcome",
+   "quantity": 1
+  },
+  {
+   "name": "Preordain",
+   "quantity": 1
+  },
+  {
+   "name": "Summer Bloom",
+   "quantity": 1
+  },
+  {
+   "name": "Prophetic Prism",
+   "quantity": 1
+  },
+  {
+   "name": "Renegade Map",
+   "quantity": 1
+  },
+  {
+   "name": "Universal Solvent",
+   "quantity": 1
+  },
+  {
+   "name": "Wayfarer's Bauble",
+   "quantity": 1
+  },
+  {
+   "name": "Whispersilk Cloak",
+   "quantity": 1
+  },
+  {
+   "name": "Woodweaver's Puzzleknot",
+   "quantity": 1
+  },
+  {
+   "name": "Angelic Shield",
+   "quantity": 1
+  },
+  {
+   "name": "Parapet",
+   "quantity": 1
+  },
+  {
+   "name": "Ritual of Steel",
+   "quantity": 1
+  },
+  {
+   "name": "Soar",
+   "quantity": 1
+  },
+  {
+   "name": "Unbridled Growth",
+   "quantity": 1
+  },
+  {
+   "name": "Vessel of Ephemera",
+   "quantity": 1
+  },
+  {
+   "name": "Vessel of Nascency",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildgate",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 12
+  },
+  {
+   "name": "Island",
+   "quantity": 12
+  },
+  {
+   "name": "Plains",
+   "quantity": 12
+  },
+  {
+   "name": "Sejiri Refuge",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

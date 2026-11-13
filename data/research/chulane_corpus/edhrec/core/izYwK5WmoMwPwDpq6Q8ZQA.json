@@ -1,0 +1,258 @@
+{
+ "urlhash": "izYwK5WmoMwPwDpq6Q8ZQA",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-06-24",
+ "price": 89,
+ "salt": 58.52912937104702,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/F2mG7cyeKUuQv5Lpn6Fy6w?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Abuelo, Ancestral Echo",
+   "quantity": 1
+  },
+  {
+   "name": "Adarkar Valkyrie",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Channeler",
+   "quantity": 1
+  },
+  {
+   "name": "Angel of Condemnation",
+   "quantity": 1
+  },
+  {
+   "name": "Arctic Merfolk",
+   "quantity": 1
+  },
+  {
+   "name": "Barrin, Master Wizard",
+   "quantity": 1
+  },
+  {
+   "name": "Biblioplex Kraken",
+   "quantity": 1
+  },
+  {
+   "name": "Black Panther, Wakandan King",
+   "quantity": 1
+  },
+  {
+   "name": "Brago, King Eternal",
+   "quantity": 1
+  },
+  {
+   "name": "Cache Raiders",
+   "quantity": 1
+  },
+  {
+   "name": "Campus Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Clement, the Worrywort",
+   "quantity": 1
+  },
+  {
+   "name": "Cloister Gargoyle",
+   "quantity": 1
+  },
+  {
+   "name": "Codespell Cleric",
+   "quantity": 1
+  },
+  {
+   "name": "Deadeye Harpooner",
+   "quantity": 1
+  },
+  {
+   "name": "Displacer Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Eccentric Apprentice",
+   "quantity": 1
+  },
+  {
+   "name": "Exclusion Mage",
+   "quantity": 1
+  },
+  {
+   "name": "Gala Greeters",
+   "quantity": 1
+  },
+  {
+   "name": "Intrepid Outlander",
+   "quantity": 1
+  },
+  {
+   "name": "Keen-Eared Sentry",
+   "quantity": 1
+  },
+  {
+   "name": "Midnight Pathlighter",
+   "quantity": 1
+  },
+  {
+   "name": "Nadaar, Selfless Paladin",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Ally",
+   "quantity": 1
+  },
+  {
+   "name": "Radiant Solar",
+   "quantity": 1
+  },
+  {
+   "name": "Ranger's Hawk",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Door",
+   "quantity": 1
+  },
+  {
+   "name": "Shortcut Seeker",
+   "quantity": 1
+  },
+  {
+   "name": "Varis, Silverymoon Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Veteran Dungeoneer",
+   "quantity": 1
+  },
+  {
+   "name": "Wandering Troubadour",
+   "quantity": 1
+  },
+  {
+   "name": "Yuan-Ti Malison",
+   "quantity": 1
+  },
+  {
+   "name": "Acrobatic Maneuver",
+   "quantity": 1
+  },
+  {
+   "name": "Alley Evasion",
+   "quantity": 1
+  },
+  {
+   "name": "Bar the Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Blur",
+   "quantity": 1
+  },
+  {
+   "name": "Cloudshift",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Rampant Growth",
+   "quantity": 1
+  },
+  {
+   "name": "You Find a Cursed Idol",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Commander's Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Conjurer's Closet",
+   "quantity": 1
+  },
+  {
+   "name": "Delver's Torch",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Map",
+   "quantity": 1
+  },
+  {
+   "name": "Fellwar Stone",
+   "quantity": 1
+  },
+  {
+   "name": "Fifty Feet of Rope",
+   "quantity": 1
+  },
+  {
+   "name": "Immovable Rod",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Thought Vessel",
+   "quantity": 1
+  },
+  {
+   "name": "Find the Path",
+   "quantity": 1
+  },
+  {
+   "name": "Fly",
+   "quantity": 1
+  },
+  {
+   "name": "Thorough Investigation",
+   "quantity": 1
+  },
+  {
+   "name": "Ellywick Tumblestrum",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Dungeon Descent",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 41
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

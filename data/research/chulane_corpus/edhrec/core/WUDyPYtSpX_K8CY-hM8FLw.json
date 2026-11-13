@@ -1,0 +1,370 @@
+{
+ "urlhash": "WUDyPYtSpX_K8CY-hM8FLw",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-04-30",
+ "price": 96,
+ "salt": 33.681549350731075,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/GNodCq-840KLZfdHruE1Sg?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aphetto Runecaster",
+   "quantity": 1
+  },
+  {
+   "name": "Aurelia's Vindicator",
+   "quantity": 1
+  },
+  {
+   "name": "Brine Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Bygone Bishop",
+   "quantity": 1
+  },
+  {
+   "name": "Curator Beastie",
+   "quantity": 1
+  },
+  {
+   "name": "Deathmist Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Den Protector",
+   "quantity": 1
+  },
+  {
+   "name": "Essence of Antiquity",
+   "quantity": 1
+  },
+  {
+   "name": "Exit Specialist",
+   "quantity": 1
+  },
+  {
+   "name": "Experiment Twelve",
+   "quantity": 1
+  },
+  {
+   "name": "Fathom Seer",
+   "quantity": 1
+  },
+  {
+   "name": "Glaring Fleshraker",
+   "quantity": 1
+  },
+  {
+   "name": "Glitch Interpreter",
+   "quantity": 1
+  },
+  {
+   "name": "Gyre Engineer",
+   "quantity": 1
+  },
+  {
+   "name": "Hauntwoods Shrieker",
+   "quantity": 1
+  },
+  {
+   "name": "Hidden Dragonslayer",
+   "quantity": 1
+  },
+  {
+   "name": "Icefeather Aven",
+   "quantity": 1
+  },
+  {
+   "name": "Ixidor, Reality Sculptor",
+   "quantity": 1
+  },
+  {
+   "name": "Ixidron",
+   "quantity": 1
+  },
+  {
+   "name": "Jasmine Boreal of the Seven",
+   "quantity": 1
+  },
+  {
+   "name": "Kelpie Guide",
+   "quantity": 1
+  },
+  {
+   "name": "Kiora's Follower",
+   "quantity": 1
+  },
+  {
+   "name": "Leafkin Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Mischievous Quanar",
+   "quantity": 1
+  },
+  {
+   "name": "Oblivious Bookworm",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Zealot",
+   "quantity": 1
+  },
+  {
+   "name": "Palladium Myr",
+   "quantity": 1
+  },
+  {
+   "name": "Primal Whisperer",
+   "quantity": 1
+  },
+  {
+   "name": "Printlifter Ooze",
+   "quantity": 1
+  },
+  {
+   "name": "Quicksilver Dragon",
+   "quantity": 1
+  },
+  {
+   "name": "Reclamation Sage",
+   "quantity": 1
+  },
+  {
+   "name": "Riptide Entrancer",
+   "quantity": 1
+  },
+  {
+   "name": "Salt Road Ambushers",
+   "quantity": 1
+  },
+  {
+   "name": "Stratus Dancer",
+   "quantity": 1
+  },
+  {
+   "name": "Tatyova, Benthic Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Temur War Shaman",
+   "quantity": 1
+  },
+  {
+   "name": "Unblinking Bleb",
+   "quantity": 1
+  },
+  {
+   "name": "Unyielding Gatekeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Vannifar, Evolved Enigma",
+   "quantity": 1
+  },
+  {
+   "name": "Vesuvan Shapeshifter",
+   "quantity": 1
+  },
+  {
+   "name": "Whisperwood Elemental",
+   "quantity": 1
+  },
+  {
+   "name": "Willbender",
+   "quantity": 1
+  },
+  {
+   "name": "Yedora, Grave Gardener",
+   "quantity": 1
+  },
+  {
+   "name": "Zimone, Mystery Unraveler",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Charm",
+   "quantity": 1
+  },
+  {
+   "name": "Eerie Interlude",
+   "quantity": 1
+  },
+  {
+   "name": "Reality Shift",
+   "quantity": 1
+  },
+  {
+   "name": "Dusk // Dawn",
+   "quantity": 1
+  },
+  {
+   "name": "Wargate",
+   "quantity": 1
+  },
+  {
+   "name": "Crystal Shard",
+   "quantity": 1
+  },
+  {
+   "name": "Dream Chisel",
+   "quantity": 1
+  },
+  {
+   "name": "Panoptic Projektor",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Experimental Lab // Staff Room",
+   "quantity": 1
+  },
+  {
+   "name": "Mastery of the Unseen",
+   "quantity": 1
+  },
+  {
+   "name": "Obscuring Aether",
+   "quantity": 1
+  },
+  {
+   "name": "Primordial Mist",
+   "quantity": 1
+  },
+  {
+   "name": "Secret Plans",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Mystery",
+   "quantity": 1
+  },
+  {
+   "name": "True Identity",
+   "quantity": 1
+  },
+  {
+   "name": "Ugin's Mastery",
+   "quantity": 1
+  },
+  {
+   "name": "Veiled Ascension",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Bant Panorama",
+   "quantity": 1
+  },
+  {
+   "name": "Brokers Hideout",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Coral Atoll",
+   "quantity": 1
+  },
+  {
+   "name": "Evolving Wilds",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 5
+  },
+  {
+   "name": "Fortified Village",
+   "quantity": 1
+  },
+  {
+   "name": "Glacial Fortress",
+   "quantity": 1
+  },
+  {
+   "name": "Hinterland Harbor",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 5
+  },
+  {
+   "name": "Jungle Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Karoo",
+   "quantity": 1
+  },
+  {
+   "name": "Krosan Verge",
+   "quantity": 1
+  },
+  {
+   "name": "Overflowing Basin",
+   "quantity": 1
+  },
+  {
+   "name": "Plains",
+   "quantity": 5
+  },
+  {
+   "name": "Port Town",
+   "quantity": 1
+  },
+  {
+   "name": "Seaside Citadel",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Skycloud Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Sungrass Prairie",
+   "quantity": 1
+  },
+  {
+   "name": "Sunpetal Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Terramorphic Expanse",
+   "quantity": 1
+  },
+  {
+   "name": "Vineglimmer Snarl",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

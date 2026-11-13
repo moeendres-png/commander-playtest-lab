@@ -1,0 +1,330 @@
+{
+ "urlhash": "ffMl12PJDxQD1b-JX9S50w",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2025-09-14",
+ "price": 164,
+ "salt": 42.03753663599491,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/D6V0Dkmnh0GwSgZnKNrLzA?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Archaeomancer",
+   "quantity": 1
+  },
+  {
+   "name": "Ardenvale Tactician",
+   "quantity": 1
+  },
+  {
+   "name": "Beanstalk Giant",
+   "quantity": 1
+  },
+  {
+   "name": "Beloved Princess",
+   "quantity": 1
+  },
+  {
+   "name": "Biomancer's Familiar",
+   "quantity": 1
+  },
+  {
+   "name": "Charming Prince",
+   "quantity": 1
+  },
+  {
+   "name": "Curious Pair",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Innkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Emiel the Blessed",
+   "quantity": 1
+  },
+  {
+   "name": "Faerie Guidemother",
+   "quantity": 1
+  },
+  {
+   "name": "Farfinder",
+   "quantity": 1
+  },
+  {
+   "name": "Flaxen Intruder",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Killer",
+   "quantity": 1
+  },
+  {
+   "name": "Gilded Goose",
+   "quantity": 1
+  },
+  {
+   "name": "Hypnotic Sprite",
+   "quantity": 1
+  },
+  {
+   "name": "Inquisitive Puppet",
+   "quantity": 1
+  },
+  {
+   "name": "Karametra, God of Harvests",
+   "quantity": 1
+  },
+  {
+   "name": "Keeper of Fables",
+   "quantity": 1
+  },
+  {
+   "name": "Lonesome Unicorn",
+   "quantity": 1
+  },
+  {
+   "name": "Lorescale Coatl",
+   "quantity": 1
+  },
+  {
+   "name": "Lovestruck Beast",
+   "quantity": 1
+  },
+  {
+   "name": "Merfolk Secretkeeper",
+   "quantity": 1
+  },
+  {
+   "name": "Mysterious Pathlighter",
+   "quantity": 1
+  },
+  {
+   "name": "Oakhame Ranger",
+   "quantity": 1
+  },
+  {
+   "name": "Overbeing of Myth",
+   "quantity": 1
+  },
+  {
+   "name": "Queen of Ice",
+   "quantity": 1
+  },
+  {
+   "name": "Rosethorn Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Sage of Ancient Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Shepherd of the Flock",
+   "quantity": 1
+  },
+  {
+   "name": "Silverflame Squire",
+   "quantity": 1
+  },
+  {
+   "name": "Suspicious Bookcase",
+   "quantity": 1
+  },
+  {
+   "name": "Tome Raider",
+   "quantity": 1
+  },
+  {
+   "name": "Tuinvale Treefolk",
+   "quantity": 1
+  },
+  {
+   "name": "Wandermare",
+   "quantity": 1
+  },
+  {
+   "name": "Woodland Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Counterspell",
+   "quantity": 1
+  },
+  {
+   "name": "Into the Story",
+   "quantity": 1
+  },
+  {
+   "name": "Opt",
+   "quantity": 1
+  },
+  {
+   "name": "Return to Nature",
+   "quantity": 1
+  },
+  {
+   "name": "Tale's End",
+   "quantity": 1
+  },
+  {
+   "name": "True Love's Kiss",
+   "quantity": 1
+  },
+  {
+   "name": "Cultivate",
+   "quantity": 1
+  },
+  {
+   "name": "Giant Opportunity",
+   "quantity": 1
+  },
+  {
+   "name": "Nature's Lore",
+   "quantity": 1
+  },
+  {
+   "name": "Safewright Quest",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Folio of Fancies",
+   "quantity": 1
+  },
+  {
+   "name": "Glass Casket",
+   "quantity": 1
+  },
+  {
+   "name": "Horn of Valhalla",
+   "quantity": 1
+  },
+  {
+   "name": "Lucky Clover",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Tome of Legends",
+   "quantity": 1
+  },
+  {
+   "name": "Umbral Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Adaptation",
+   "quantity": 1
+  },
+  {
+   "name": "Blessed Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Declaration of Naught",
+   "quantity": 1
+  },
+  {
+   "name": "Fable of Wolf and Owl",
+   "quantity": 1
+  },
+  {
+   "name": "Mirrormade",
+   "quantity": 1
+  },
+  {
+   "name": "Myth Unbound",
+   "quantity": 1
+  },
+  {
+   "name": "Song of Freyalise",
+   "quantity": 1
+  },
+  {
+   "name": "Trail of Crumbs",
+   "quantity": 1
+  },
+  {
+   "name": "Trapped in the Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Virtue of Strength",
+   "quantity": 1
+  },
+  {
+   "name": "Wilderness Reclamation",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Ardenvale",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Garenbrig",
+   "quantity": 1
+  },
+  {
+   "name": "Castle Vantress",
+   "quantity": 1
+  },
+  {
+   "name": "Edgewall Inn",
+   "quantity": 1
+  },
+  {
+   "name": "Fabled Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Forest",
+   "quantity": 11
+  },
+  {
+   "name": "Gingerbread Cabin",
+   "quantity": 1
+  },
+  {
+   "name": "Island",
+   "quantity": 8
+  },
+  {
+   "name": "Plains",
+   "quantity": 6
+  },
+  {
+   "name": "Reliquary Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Rogue's Passage",
+   "quantity": 1
+  },
+  {
+   "name": "Shimmerdrift Vale",
+   "quantity": 1
+  },
+  {
+   "name": "Thriving Isle",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}

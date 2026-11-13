@@ -1,0 +1,418 @@
+{
+ "urlhash": "hi0u27MZ8U7BRE3al5ms3g",
+ "variante": "core",
+ "bracket": 2,
+ "savedate": "2024-11-20",
+ "price": 856,
+ "salt": 51.2574051823467,
+ "tags": [],
+ "source_url": "https://moxfield.com/decks/z-EaaKxjw0mU6AKHKL0AbQ?utm_source=edhrec&utm_medium=decklist",
+ "commanders": [
+  "Chulane, Teller of Tales"
+ ],
+ "cards": [
+  {
+   "name": "Chulane, Teller of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Aerie Mystics",
+   "quantity": 1
+  },
+  {
+   "name": "Aether Adept",
+   "quantity": 1
+  },
+  {
+   "name": "Angus Mackenzie",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Archetype of Imagination",
+   "quantity": 1
+  },
+  {
+   "name": "Arcus Acolyte",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Guildmage",
+   "quantity": 1
+  },
+  {
+   "name": "Birds of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Bloom Tender",
+   "quantity": 1
+  },
+  {
+   "name": "Crashing Drawbridge",
+   "quantity": 1
+  },
+  {
+   "name": "Destiny Spinner",
+   "quantity": 1
+  },
+  {
+   "name": "Endurance",
+   "quantity": 1
+  },
+  {
+   "name": "Eternal Witness",
+   "quantity": 1
+  },
+  {
+   "name": "Fanatic of Rhonas",
+   "quantity": 1
+  },
+  {
+   "name": "Filigree Vector",
+   "quantity": 1
+  },
+  {
+   "name": "Frilled Mystic",
+   "quantity": 1
+  },
+  {
+   "name": "Galea, Kindler of Hope",
+   "quantity": 1
+  },
+  {
+   "name": "Giltspire Avenger",
+   "quantity": 1
+  },
+  {
+   "name": "Giver of Runes",
+   "quantity": 1
+  },
+  {
+   "name": "Golem Artisan",
+   "quantity": 1
+  },
+  {
+   "name": "Grand Abolisher",
+   "quantity": 1
+  },
+  {
+   "name": "Green Slime",
+   "quantity": 1
+  },
+  {
+   "name": "Guardian of Faith",
+   "quantity": 1
+  },
+  {
+   "name": "Huatli's Raptor",
+   "quantity": 1
+  },
+  {
+   "name": "Hullbreaker Horror",
+   "quantity": 1
+  },
+  {
+   "name": "Incubation Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Kami of Whispered Hopes",
+   "quantity": 1
+  },
+  {
+   "name": "Lion Sash",
+   "quantity": 1
+  },
+  {
+   "name": "Memnite",
+   "quantity": 1
+  },
+  {
+   "name": "Metastatic Evangel",
+   "quantity": 1
+  },
+  {
+   "name": "Myr Convert",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Snake",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter",
+   "quantity": 1
+  },
+  {
+   "name": "Ornithopter of Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Platinum Angel",
+   "quantity": 1
+  },
+  {
+   "name": "Pollenbright Druid",
+   "quantity": 1
+  },
+  {
+   "name": "Shalai, Voice of Plenty",
+   "quantity": 1
+  },
+  {
+   "name": "Sigarda, Font of Blessings",
+   "quantity": 1
+  },
+  {
+   "name": "Sister of Silence",
+   "quantity": 1
+  },
+  {
+   "name": "Skrelv, Defector Mite",
+   "quantity": 1
+  },
+  {
+   "name": "Soul of New Phyrexia",
+   "quantity": 1
+  },
+  {
+   "name": "Stormtide Leviathan",
+   "quantity": 1
+  },
+  {
+   "name": "Ulvenwald Oddity",
+   "quantity": 1
+  },
+  {
+   "name": "Vigean Graftmage",
+   "quantity": 1
+  },
+  {
+   "name": "Viral Drake",
+   "quantity": 1
+  },
+  {
+   "name": "Capsize",
+   "quantity": 1
+  },
+  {
+   "name": "Make a Stand",
+   "quantity": 1
+  },
+  {
+   "name": "Render Silent",
+   "quantity": 1
+  },
+  {
+   "name": "Second Sunrise",
+   "quantity": 1
+  },
+  {
+   "name": "Spell Burst",
+   "quantity": 1
+  },
+  {
+   "name": "Teferi's Protection",
+   "quantity": 1
+  },
+  {
+   "name": "Dryad's Revival",
+   "quantity": 1
+  },
+  {
+   "name": "Aetherflux Reservoir",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Signet",
+   "quantity": 1
+  },
+  {
+   "name": "Darksteel Forge",
+   "quantity": 1
+  },
+  {
+   "name": "Dino DNA",
+   "quantity": 1
+  },
+  {
+   "name": "Lightning Greaves",
+   "quantity": 1
+  },
+  {
+   "name": "Mycosynth Lattice",
+   "quantity": 1
+  },
+  {
+   "name": "Paradise Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Planar Portal",
+   "quantity": 1
+  },
+  {
+   "name": "Sol Ring",
+   "quantity": 1
+  },
+  {
+   "name": "Umbral Mantle",
+   "quantity": 1
+  },
+  {
+   "name": "Cryptolith Rite",
+   "quantity": 1
+  },
+  {
+   "name": "Detention Sphere",
+   "quantity": 1
+  },
+  {
+   "name": "Intruder Alarm",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Anticipation",
+   "quantity": 1
+  },
+  {
+   "name": "Leyline of Sanctity",
+   "quantity": 1
+  },
+  {
+   "name": "Pemmin's Aura",
+   "quantity": 1
+  },
+  {
+   "name": "Psionic Gift",
+   "quantity": 1
+  },
+  {
+   "name": "Sphere of Safety",
+   "quantity": 1
+  },
+  {
+   "name": "Training Grounds",
+   "quantity": 1
+  },
+  {
+   "name": "Tamiyo, Collector of Tales",
+   "quantity": 1
+  },
+  {
+   "name": "Alchemist's Refuge",
+   "quantity": 1
+  },
+  {
+   "name": "Ancient Ziggurat",
+   "quantity": 1
+  },
+  {
+   "name": "Arcane Lighthouse",
+   "quantity": 1
+  },
+  {
+   "name": "Azorius Chancery",
+   "quantity": 1
+  },
+  {
+   "name": "Botanical Sanctum",
+   "quantity": 1
+  },
+  {
+   "name": "City of Brass",
+   "quantity": 1
+  },
+  {
+   "name": "Command Tower",
+   "quantity": 1
+  },
+  {
+   "name": "Deserted Beach",
+   "quantity": 1
+  },
+  {
+   "name": "Dreamroot Cascade",
+   "quantity": 1
+  },
+  {
+   "name": "Flooded Grove",
+   "quantity": 1
+  },
+  {
+   "name": "Karn's Bastion",
+   "quantity": 1
+  },
+  {
+   "name": "Mana Confluence",
+   "quantity": 1
+  },
+  {
+   "name": "Meteor Crater",
+   "quantity": 1
+  },
+  {
+   "name": "Mystic Gate",
+   "quantity": 1
+  },
+  {
+   "name": "Nephalia Academy",
+   "quantity": 1
+  },
+  {
+   "name": "Overgrown Farmland",
+   "quantity": 1
+  },
+  {
+   "name": "Plaza of Heroes",
+   "quantity": 1
+  },
+  {
+   "name": "Razortide Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Razorverge Thicket",
+   "quantity": 1
+  },
+  {
+   "name": "Reflecting Pool",
+   "quantity": 1
+  },
+  {
+   "name": "Seachrome Coast",
+   "quantity": 1
+  },
+  {
+   "name": "Selesnya Sanctuary",
+   "quantity": 1
+  },
+  {
+   "name": "Simic Growth Chamber",
+   "quantity": 1
+  },
+  {
+   "name": "Tanglepool Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Thornglint Bridge",
+   "quantity": 1
+  },
+  {
+   "name": "Undiscovered Paradise",
+   "quantity": 1
+  },
+  {
+   "name": "Wooded Bastion",
+   "quantity": 1
+  }
+ ],
+ "karten_summe": 100,
+ "parse_status": "ok",
+ "parse_notes": []
+}
